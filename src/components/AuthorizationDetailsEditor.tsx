@@ -17,228 +17,228 @@ interface AuthorizationDetailsEditorProps {
 type ViewMode = 'visual' | 'json';
 
 const Container = styled.div`
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 8px;
-  padding: 1.5rem;
-  background: white;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 8px;
+	padding: 1.5rem;
+	background: white;
 `;
 
 const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
 `;
 
 const Title = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0;
 `;
 
 const ViewModeToggle = styled.div`
-  display: flex;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  overflow: hidden;
+	display: flex;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
+	overflow: hidden;
 `;
 
 const ViewModeButton = styled.button<{ $active: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border: none;
-  background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
-  color: ${(props) => (props.$active ? 'white' : '#6b7280')};
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	border: none;
+	background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
+	color: ${(props) => (props.$active ? 'white' : '#6b7280')};
+	font-size: 0.875rem;
+	cursor: pointer;
+	transition: all 0.2s;
 
-  &:hover {
-    background: ${(props) => (props.$active ? '#2563eb' : '#f9fafb')};
-  }
+	&:hover {
+		background: ${(props) => (props.$active ? '#2563eb' : '#f9fafb')};
+	}
 `;
 
 const ValidationStatus = styled.div<{ $isValid: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  background: ${(props) => (props.$isValid ? '#f0fdf4' : '#fef2f2')};
-  border: 1px solid ${(props) => (props.$isValid ? '#10b981' : '#ef4444')};
-  color: ${(props) => (props.$isValid ? '#10b981' : '#dc2626')};
-  font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem;
+	border-radius: 6px;
+	margin-bottom: 1rem;
+	background: ${(props) => (props.$isValid ? '#f0fdf4' : '#fef2f2')};
+	border: 1px solid ${(props) => (props.$isValid ? '#10b981' : '#ef4444')};
+	color: ${(props) => (props.$isValid ? '#10b981' : '#dc2626')};
+	font-size: 0.875rem;
 `;
 
 const ErrorList = styled.ul`
-  margin: 0.5rem 0 0 0;
-  padding-left: 1.5rem;
-  font-size: 0.875rem;
+	margin: 0.5rem 0 0 0;
+	padding-left: 1.5rem;
+	font-size: 0.875rem;
 `;
 
 const JsonEditor = styled.textarea`
-  width: 100%;
-  min-height: 200px;
-  padding: 1rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  resize: vertical;
+	width: 100%;
+	min-height: 200px;
+	padding: 1rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	resize: vertical;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const VisualEditor = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
 `;
 
 const DetailItem = styled.div`
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  padding: 1rem;
-  background: #f9fafb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
+	padding: 1rem;
+	background: #f9fafb;
 `;
 
 const DetailHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
 `;
 
 const DetailType = styled.div`
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 0.875rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.875rem;
 `;
 
 const RemoveButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 4px;
-  background: V9_COLORS.PRIMARY.RED;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border: none;
+	border-radius: 4px;
+	background: V9_COLORS.PRIMARY.RED;
+	color: white;
+	cursor: pointer;
+	transition: background-color 0.2s;
 
-  &:hover {
-    background: V9_COLORS.PRIMARY.RED_DARK;
-  }
+	&:hover {
+		background: V9_COLORS.PRIMARY.RED_DARK;
+	}
 `;
 
 const FieldGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1rem;
 `;
 
 const FieldGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const Label = styled.label`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 4px;
-  font-size: 0.875rem;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 4px;
+	font-size: 0.875rem;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const ArrayInput = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
 `;
 
 const ArrayItem = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
 `;
 
 const ArrayItemInput = styled(Input)`
-  flex: 1;
+	flex: 1;
 `;
 
 const ArrayItemRemove = styled.button`
-  padding: 0.25rem;
-  border: none;
-  background: V9_COLORS.PRIMARY.RED;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.75rem;
+	padding: 0.25rem;
+	border: none;
+	background: V9_COLORS.PRIMARY.RED;
+	color: white;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.75rem;
 
-  &:hover {
-    background: V9_COLORS.PRIMARY.RED_DARK;
-  }
+	&:hover {
+		background: V9_COLORS.PRIMARY.RED_DARK;
+	}
 `;
 
 const AddArrayItem = styled.button`
-  padding: 0.5rem;
-  border: 1px dashed V9_COLORS.TEXT.GRAY_LIGHTER;
-  background: white;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	padding: 0.5rem;
+	border: 1px dashed V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: white;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    color: V9_COLORS.PRIMARY.BLUE;
-  }
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		color: V9_COLORS.PRIMARY.BLUE;
+	}
 `;
 
 const AddDetailButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border: 1px dashed V9_COLORS.TEXT.GRAY_LIGHTER;
-  background: white;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  width: 100%;
-  justify-content: center;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1rem;
+	border: 1px dashed V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: white;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 0.875rem;
+	width: 100%;
+	justify-content: center;
 
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    color: V9_COLORS.PRIMARY.BLUE;
-  }
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		color: V9_COLORS.PRIMARY.BLUE;
+	}
 `;
 
 export const AuthorizationDetailsEditor: React.FC<AuthorizationDetailsEditorProps> = ({
@@ -486,11 +486,11 @@ export const AuthorizationDetailsEditor: React.FC<AuthorizationDetailsEditorProp
 				<Title>Authorization Details (RAR)</Title>
 				<ViewModeToggle>
 					<ViewModeButton $active={viewMode === 'visual'} onClick={() => setViewMode('visual')}>
-						<span style={{ fontSize: '14px' }}>❓</span>
+						<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 						Visual Editor
 					</ViewModeButton>
 					<ViewModeButton $active={viewMode === 'json'} onClick={() => setViewMode('json')}>
-						<span style={{ fontSize: '14px' }}>❓</span>
+						<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 						JSON Editor
 					</ViewModeButton>
 				</ViewModeToggle>

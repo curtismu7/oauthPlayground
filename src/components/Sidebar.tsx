@@ -292,7 +292,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop to reorder'}
 								$isActive={isDragDropMode}
 							>
-								<span style={{ fontSize: '14px' }}>❓</span>
+								<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 								{isDragDropMode ? 'Drag mode' : 'Reorder'}
 							</DragModeToggle>
 						</div>
@@ -314,7 +314,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop mode'}
 								$isActive={isDragDropMode}
 							>
-								<span style={{ fontSize: '14px' }}>❓</span>
+								<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 								{isDragDropMode ? 'Drag Mode' : 'Enable Drag'}
 							</DragModeToggle>
 						</div>

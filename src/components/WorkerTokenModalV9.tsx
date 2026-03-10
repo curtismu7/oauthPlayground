@@ -25,6 +25,7 @@ import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService
 import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageService';
 import { logger } from '../utils/logger';
 import { DraggableModal } from './DraggableModal';
+import { RegionSelect } from './RegionSelect';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
 
 // ---------------------------------------------------------------------------
@@ -37,7 +38,9 @@ const ModalContent = styled.div`
 	width: 100%;
 	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
-	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	box-shadow:
+		0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
 `;
 
 const Header = styled.div`
@@ -621,16 +624,13 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 
 						<FormGroup>
 							<Label htmlFor="region">Region</Label>
-							<Select
+							<RegionSelect
 								id="region"
+								as={Select}
 								value={credentials.region}
-								onChange={(e) => handleInputChange('region', e.target.value)}
-							>
-								<option value="us">United States</option>
-								<option value="eu">Europe</option>
-								<option value="ap">Asia Pacific</option>
-								<option value="ca">Canada</option>
-							</Select>
+								onChange={(r) => handleInputChange('region', r)}
+								variant="compact"
+							/>
 						</FormGroup>
 
 						<FormGroup>

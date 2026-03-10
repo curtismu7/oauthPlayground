@@ -59,386 +59,386 @@ export type LanguageOption =
 	| 'kotlin';
 
 const EditorContainer = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 `;
 
 const ConfigPanel = styled.div`
-  background: #f8f9fa;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  padding: 16px 20px;
+	background: #f8f9fa;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 16px 20px;
 `;
 
 const ConfigGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 16px;
 `;
 
 const ConfigField = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
 `;
 
 const ConfigLabel = styled.label`
-  font-size: 12px;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+	font-size: 12px;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 `;
 
 const ConfigInput = styled.input`
-  padding: 8px 12px;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  font-size: 14px;
-  font-family: 'SF Mono', Monaco, monospace;
-  transition: all 0.2s;
-  
-  &:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
+	padding: 8px 12px;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
+	font-size: 14px;
+	font-family: 'SF Mono', Monaco, monospace;
+	transition: all 0.2s;
+
+	&:focus {
+		outline: none;
+		border-color: #667eea;
+		box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+	}
 `;
 
 const Toolbar = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  padding: 12px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+	background: V9_COLORS.TEXT.WHITE;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 12px 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 `;
 
 const ToolbarLeft = styled.div`
-  display: flex;
-  gap: 8px;
+	display: flex;
+	gap: 8px;
 `;
 
 const ToolbarRight = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
+	display: flex;
+	gap: 8px;
+	align-items: center;
 `;
 
 const ToolbarButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: ${(props) => (props.$variant === 'primary' ? '#667eea' : '#ffffff')};
-  color: ${(props) => (props.$variant === 'primary' ? '#ffffff' : '#1f2937')};
-  border: 1px solid ${(props) => (props.$variant === 'primary' ? '#667eea' : '#e5e7eb')};
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  &:hover {
-    background: ${(props) => (props.$variant === 'primary' ? '#5568d3' : '#f9fafb')};
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 14px;
+	background: ${(props) => (props.$variant === 'primary' ? '#667eea' : '#ffffff')};
+	color: ${(props) => (props.$variant === 'primary' ? '#ffffff' : '#1f2937')};
+	border: 1px solid ${(props) => (props.$variant === 'primary' ? '#667eea' : '#e5e7eb')};
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:hover {
+		background: ${(props) => (props.$variant === 'primary' ? '#5568d3' : '#f9fafb')};
+		transform: translateY(-1px);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
 `;
 
 const ThemeToggle = styled.button<{ $isDark: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background: ${(props) => (props.$isDark ? '#1e293b' : '#fef3c7')};
-  color: ${(props) => (props.$isDark ? '#fbbf24' : '#d97706')};
-  border: 1px solid ${(props) => (props.$isDark ? '#334155' : '#fbbf24')};
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 12px;
+	background: ${(props) => (props.$isDark ? '#1e293b' : '#fef3c7')};
+	color: ${(props) => (props.$isDark ? '#fbbf24' : '#d97706')};
+	border: 1px solid ${(props) => (props.$isDark ? '#334155' : '#fbbf24')};
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const EditorWrapper = styled.div`
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const StatusBar = styled.div`
-  background: #f8f9fa;
-  padding: 8px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	background: #f8f9fa;
+	padding: 8px 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 12px;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const StatusLeft = styled.div`
-  display: flex;
-  gap: 16px;
+	display: flex;
+	gap: 16px;
 `;
 
 const StatusItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 500;
 `;
 
 const StatusBadge = styled.span<{ $type: 'success' | 'warning' | 'info' }>`
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  background: ${(props) =>
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 600;
+	background: ${(props) =>
 		props.$type === 'success' ? '#ecfdf5' : props.$type === 'warning' ? '#fef3c7' : '#dbeafe'};
-  color: ${(props) =>
+	color: ${(props) =>
 		props.$type === 'success' ? '#059669' : props.$type === 'warning' ? '#d97706' : '#2563eb'};
 `;
 
 const TabsContainer = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  padding: 0 20px;
-  display: flex;
-  gap: 4px;
-  overflow-x: auto;
-  
-  &::-webkit-scrollbar {
-    height: 4px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: V9_COLORS.TEXT.GRAY_LIGHTER;
-    border-radius: 2px;
-  }
+	background: V9_COLORS.TEXT.WHITE;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 0 20px;
+	display: flex;
+	gap: 4px;
+	overflow-x: auto;
+
+	&::-webkit-scrollbar {
+		height: 4px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+		border-radius: 2px;
+	}
 `;
 
 const Tab = styled.button<{ $active: boolean }>`
-  padding: 12px 20px;
-  background: ${(props) => (props.$active ? '#667eea' : 'transparent')};
-  color: ${(props) => (props.$active ? '#ffffff' : '#6b7280')};
-  border: none;
-  border-bottom: 3px solid ${(props) => (props.$active ? '#667eea' : 'transparent')};
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-  position: relative;
-  
-  &:hover {
-    background: ${(props) => (props.$active ? '#667eea' : '#f3f4f6')};
-    color: ${(props) => (props.$active ? '#ffffff' : '#1f2937')};
-  }
-  
-  &:active {
-    transform: translateY(1px);
-  }
+	padding: 12px 20px;
+	background: ${(props) => (props.$active ? '#667eea' : 'transparent')};
+	color: ${(props) => (props.$active ? '#ffffff' : '#6b7280')};
+	border: none;
+	border-bottom: 3px solid ${(props) => (props.$active ? '#667eea' : 'transparent')};
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+	white-space: nowrap;
+	position: relative;
+
+	&:hover {
+		background: ${(props) => (props.$active ? '#667eea' : '#f3f4f6')};
+		color: ${(props) => (props.$active ? '#ffffff' : '#1f2937')};
+	}
+
+	&:active {
+		transform: translateY(1px);
+	}
 `;
 
 const LanguageSelector = styled.select`
-  padding: 8px 12px;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  background: V9_COLORS.TEXT.WHITE;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  &:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-  
-  &:hover {
-    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
-  }
+	padding: 8px 12px;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	background: V9_COLORS.TEXT.WHITE;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:focus {
+		outline: none;
+		border-color: #667eea;
+		box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+	}
+
+	&:hover {
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+	}
 `;
 
 const LanguageOptGroup = styled.optgroup`
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CategoryPanel = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  padding: 16px 20px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
+	background: V9_COLORS.TEXT.WHITE;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 16px 20px;
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	flex-wrap: wrap;
 `;
 
 const CategoryLabel = styled.span`
-  font-size: 13px;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+	font-size: 13px;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 `;
 
 const CategorySelector = styled.select`
-  padding: 8px 12px;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  background: V9_COLORS.TEXT.WHITE;
-  cursor: pointer;
-  transition: all 0.2s;
-  min-width: 180px;
-  
-  &:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-  
-  &:hover {
-    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
-  }
+	padding: 8px 12px;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	background: V9_COLORS.TEXT.WHITE;
+	cursor: pointer;
+	transition: all 0.2s;
+	min-width: 180px;
+
+	&:focus {
+		outline: none;
+		border-color: #667eea;
+		box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+	}
+
+	&:hover {
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+	}
 `;
 
 const Divider = styled.div`
-  width: 1px;
-  height: 24px;
-  background: V9_COLORS.TEXT.GRAY_LIGHTER;
-  margin: 0 4px;
+	width: 1px;
+	height: 24px;
+	background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	margin: 0 4px;
 `;
 
 const UpdateIndicator = styled.div<{ $visible: boolean }>`
-  display: ${(props) => (props.$visible ? 'flex' : 'none')};
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  animation: ${(props) => (props.$visible ? 'slideIn 0.3s ease-out' : 'none')};
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-  
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  svg {
-    animation: ${(props) => (props.$visible ? 'spin 0.6s ease-in-out' : 'none')};
-  }
-  
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
+	display: ${(props) => (props.$visible ? 'flex' : 'none')};
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	animation: ${(props) => (props.$visible ? 'slideIn 0.3s ease-out' : 'none')};
+	box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+	@keyframes slideIn {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	svg {
+		animation: ${(props) => (props.$visible ? 'spin 0.6s ease-in-out' : 'none')};
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
 const SpinnerOverlay = styled.div<{ $visible: boolean }>`
-  display: ${(props) => (props.$visible ? 'flex' : 'none')};
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  z-index: 9999;
-  align-items: center;
-  justify-content: center;
-  animation: ${(props) => (props.$visible ? 'fadeIn 0.2s ease-out' : 'none')};
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
+	display: ${(props) => (props.$visible ? 'flex' : 'none')};
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(4px);
+	z-index: 9999;
+	align-items: center;
+	justify-content: center;
+	animation: ${(props) => (props.$visible ? 'fadeIn 0.2s ease-out' : 'none')};
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
 `;
 
 const SpinnerModal = styled.div`
-  background: white;
-  border-radius: 16px;
-  padding: 40px 60px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  animation: scaleIn 0.3s ease-out;
-  
-  @keyframes scaleIn {
-    from {
-      transform: scale(0.9);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
+	background: white;
+	border-radius: 16px;
+	padding: 40px 60px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 20px;
+	animation: scaleIn 0.3s ease-out;
+
+	@keyframes scaleIn {
+		from {
+			transform: scale(0.9);
+			opacity: 0;
+		}
+		to {
+			transform: scale(1);
+			opacity: 1;
+		}
+	}
 `;
 
 const Spinner = styled.div`
-  width: 60px;
-  height: 60px;
-  border: 5px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-top-color: #667eea;
-  border-radius: 50%;
-  animation: rotate 0.8s linear infinite;
-  
-  @keyframes rotate {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
+	width: 60px;
+	height: 60px;
+	border: 5px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-top-color: #667eea;
+	border-radius: 50%;
+	animation: rotate 0.8s linear infinite;
+
+	@keyframes rotate {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
 const SpinnerText = styled.div`
-  font-size: 18px;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  text-align: center;
+	font-size: 18px;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	text-align: center;
 `;
 
 const SpinnerSubtext = styled.div`
-  font-size: 14px;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  text-align: center;
+	font-size: 14px;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	text-align: center;
 `;
 
 interface InteractiveCodeEditorProps {
@@ -916,7 +916,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 							Download
 						</ToolbarButton>
 						<ToolbarButton onClick={handleFormat}>
-							<span style={{ fontSize: '14px' }}>❓</span>
+							<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 							Format
 						</ToolbarButton>
 						<ToolbarButton onClick={handleReset}>

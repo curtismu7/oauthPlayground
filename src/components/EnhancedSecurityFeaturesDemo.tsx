@@ -27,7 +27,11 @@ const Container = styled.div<{ $primaryColor: string }>`
 `;
 
 const Header = styled.div<{ $primaryColor: string }>`
-	background: linear-gradient(135deg, ${(props) => props.$primaryColor} 0%, ${(props) => props.$primaryColor} 100%);
+	background: linear-gradient(
+		135deg,
+		${(props) => props.$primaryColor} 0%,
+		${(props) => props.$primaryColor} 100%
+	);
 	color: white;
 	padding: 2rem;
 	text-align: center;
@@ -91,7 +95,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 	cursor: pointer;
 	transition: all 0.2s;
 	margin: 0.25rem;
-	
+
 	${({ $variant = 'primary' }) => {
 		switch ($variant) {
 			case 'primary':
@@ -128,7 +132,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 				`;
 		}
 	}}
-	
+
 	&:disabled {
 		background: V9_COLORS.TEXT.GRAY_LIGHT;
 		color: V9_COLORS.TEXT.GRAY_MEDIUM;
@@ -216,24 +220,25 @@ const Tab = styled.button<{ $active: boolean; $tabType?: string }>`
 	}};
 	font-weight: ${(props) => (props.$active ? '600' : '500')};
 	cursor: pointer;
-	border-bottom: 3px solid ${(props) => {
-		if (props.$active) {
-			switch (props.$tabType) {
-				case 'config':
-					return '#3b82f6'; // Blue border
-				case 'demo':
-					return '#10b981'; // Green border
-				case 'analysis':
-					return '#ec4899'; // Pink border
-				default:
-					return '#3b82f6';
+	border-bottom: 3px solid
+		${(props) => {
+			if (props.$active) {
+				switch (props.$tabType) {
+					case 'config':
+						return '#3b82f6'; // Blue border
+					case 'demo':
+						return '#10b981'; // Green border
+					case 'analysis':
+						return '#ec4899'; // Pink border
+					default:
+						return '#3b82f6';
+				}
 			}
-		}
-		return 'transparent';
-	}};
+			return 'transparent';
+		}};
 	transition: all 0.2s;
 	box-shadow: ${(props) => (props.$active ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none')};
-	
+
 	&:hover {
 		background: ${(props) => {
 			if (props.$active) {
@@ -252,7 +257,8 @@ const Tab = styled.button<{ $active: boolean; $tabType?: string }>`
 		}};
 		color: ${(props) => (props.$active ? props.color : '#1f2937')};
 		transform: ${(props) => (props.$active ? 'translateY(-1px)' : 'none')};
-		box-shadow: ${(props) => (props.$active ? '0 4px 8px rgba(0, 0, 0, 0.15)' : '0 2px 4px rgba(0, 0, 0, 0.1)')};
+		box-shadow: ${(props) =>
+			props.$active ? '0 4px 8px rgba(0, 0, 0, 0.15)' : '0 2px 4px rgba(0, 0, 0, 0.1)'};
 	}
 `;
 
@@ -664,7 +670,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						Validate token expiration times and check for expired tokens
 					</FeatureDescription>
 					<ActionButton onClick={validateTokenExpiration} disabled={isValidating || !tokens}>
-						<span style={{ fontSize: '16px' }}>❓</span>
+						<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 						{isValidating ? 'Validating...' : 'Validate Expiration'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!expirationResults}>
@@ -681,7 +687,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						Validate JWT token signatures and verify token integrity
 					</FeatureDescription>
 					<ActionButton onClick={validateTokenSignature} disabled={isValidating || !tokens}>
-						<span style={{ fontSize: '16px' }}>❓</span>
+						<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 						{isValidating ? 'Validating...' : 'Validate Signatures'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!signatureResults}>
@@ -795,7 +801,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						Validate HMAC-SHA256 signatures on OAuth requests to prevent tampering
 					</FeatureDescription>
 					<ActionButton onClick={validateRequestSignature} disabled={isValidating}>
-						<span style={{ fontSize: '16px' }}>❓</span>
+						<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 						{isValidating ? 'Validating...' : 'Validate Request Signature'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!signatureValidationResults}>
@@ -834,7 +840,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						Test Cross-Origin Resource Sharing configuration and security
 					</FeatureDescription>
 					<ActionButton onClick={testCORS} disabled={isValidating}>
-						<span style={{ fontSize: '16px' }}>❓</span>
+						<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 						{isValidating ? 'Testing...' : 'Test CORS Configuration'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!corsResults}>
@@ -855,7 +861,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						Export Security Report
 					</ActionButton>
 					<ActionButton onClick={runSecurityTests} $variant="secondary">
-						<span style={{ fontSize: '16px' }}>❓</span>
+						<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 						Run Security Test Suite
 					</ActionButton>
 					<CodeBlock $isVisible={!!securityReportResults}>
@@ -877,7 +883,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 					</FeatureTitle>
 					<FeatureDescription>Generate a comprehensive security analysis report</FeatureDescription>
 					<ActionButton onClick={generateSecurityReport} disabled={isValidating}>
-						<span style={{ fontSize: '16px' }}>❓</span>
+						<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 						{isValidating ? 'Generating...' : 'Generate Report'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!securityReportResults}>
@@ -894,7 +900,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						Run automated security tests on your configuration
 					</FeatureDescription>
 					<ActionButton onClick={runSecurityTests} disabled={isValidating}>
-						<span style={{ fontSize: '16px' }}>❓</span>
+						<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 						{isValidating ? 'Testing...' : 'Run Tests'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!securityTestResults}>
@@ -936,7 +942,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 								$tabType="demo"
 								onClick={() => setActiveTab('demo')}
 							>
-								<span style={{ fontSize: '16px' }}>❓</span>
+								<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 								Demo & Testing
 								<span
 									style={{

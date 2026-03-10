@@ -16,6 +16,7 @@ import {
 	saveCustomDomain,
 } from '../services/customDomainService';
 import { getCurrentRegion, type PingOneRegion, saveRegion } from '../services/regionService';
+import { RegionSelect } from '../components/RegionSelect';
 import {
 	type DetailedServerStatus,
 	fetchDetailedHealth,
@@ -594,18 +595,14 @@ const Dashboard = () => {
 								<label htmlFor="dashboard-region" className="fw-600 text-muted text-small mt-3">
 									PingOne Region
 								</label>
-								<select
+								<RegionSelect
 									id="dashboard-region"
 									className="form-control"
 									value={selectedRegion}
-									onChange={(e) => setSelectedRegion(e.target.value as PingOneRegion)}
+									onChange={setSelectedRegion}
+									variant="compact"
 									aria-describedby="dashboard-region-hint"
-								>
-									<option value="na">North America (.us)</option>
-									<option value="eu">Europe (.eu)</option>
-									<option value="ca">Canada (.ca)</option>
-									<option value="ap">Asia Pacific (.asia)</option>
-								</select>
+								/>
 
 								{domainError && (
 									<p

@@ -11,78 +11,78 @@ const InfoBox = FlowUIService.getInfoBox();
 
 // Keep page-specific custom components
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
+	text-align: center;
+	margin-bottom: 3rem;
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: V9_COLORS.PRIMARY.BLUE;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
+	h1 {
+		font-size: 2.5rem;
+		font-weight: 700;
+		color: V9_COLORS.PRIMARY.BLUE;
+		margin-bottom: 1rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+	}
 
-  p {
-    font-size: 1.25rem;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
+	p {
+		font-size: 1.25rem;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		max-width: 800px;
+		margin: 0 auto;
+		line-height: 1.6;
+	}
 `;
 
 const FeatureGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin: 1.5rem 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1.5rem;
+	margin: 1.5rem 0;
 `;
 
 const FeatureCard = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  }
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	transition: all 0.3s ease;
 
-  h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+	}
 
-  p {
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    line-height: 1.6;
-    margin: 0;
-  }
+	h3 {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+		margin-bottom: 0.75rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	p {
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		line-height: 1.6;
+		margin: 0;
+	}
 `;
 
 const ExternalLink = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: V9_COLORS.PRIMARY.BLUE;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: V9_COLORS.PRIMARY.BLUE;
+	text-decoration: none;
+	font-weight: 500;
+	transition: color 0.2s;
 
-  &:hover {
-    color: V9_COLORS.PRIMARY.BLUE_DARK;
-  }
+	&:hover {
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
+	}
 `;
 
 const pageConfig = {
@@ -119,7 +119,7 @@ const PingViewOnAI: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Resources & Documentation"
 					subtitle="Comprehensive resources for implementing AI-powered identity solutions"
-					icon={<span>❓</span>}
+					icon={<i className="bi bi-question-circle"></i>}
 					theme="highlight"
 					defaultCollapsed={false}
 				>
@@ -146,7 +146,7 @@ const PingViewOnAI: React.FC = () => {
 									rel="noopener noreferrer"
 									style={{ fontSize: '1.1rem', fontWeight: '500' }}
 								>
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 									Identity for AI (Developer Guide)
 								</ExternalLink>
 							</li>
@@ -158,7 +158,7 @@ const PingViewOnAI: React.FC = () => {
 									rel="noopener noreferrer"
 									style={{ fontSize: '1.1rem', fontWeight: '500' }}
 								>
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 									PingOne AI Documentation
 								</ExternalLink>
 							</li>
@@ -453,7 +453,7 @@ const PingViewOnAI: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Implementation Strategy"
 					subtitle="How to successfully implement AI-powered identity solutions"
-					icon={<span>❓</span>}
+					icon={<i className="bi bi-question-circle"></i>}
 					defaultCollapsed={false}
 				>
 					<Card>

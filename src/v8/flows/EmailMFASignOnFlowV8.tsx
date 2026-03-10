@@ -86,7 +86,7 @@ const StepStatus = styled.div<{ $status: 'pending' | 'success' | 'error' | 'load
 	gap: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	
+
 	${(props) => {
 		switch (props.$status) {
 			case 'success':
@@ -123,7 +123,7 @@ const Input = styled.input`
 	border: 1px solid #d1d5db;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
-	
+
 	&:focus {
 		outline: none;
 		border-color: #3b82f6;
@@ -167,14 +167,14 @@ const BreadcrumbItem = styled.div<{ $isActive?: boolean; $isCompleted?: boolean 
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	
+
 	.breadcrumb-text {
 		padding: 8px 16px;
 		border-radius: 6px;
 		font-size: 0.875rem;
 		font-weight: 500;
 		transition: all 0.2s;
-		
+
 		${(props) => {
 			if (props.$isActive) {
 				return `
@@ -197,7 +197,7 @@ const BreadcrumbItem = styled.div<{ $isActive?: boolean; $isCompleted?: boolean 
 			}
 		}}
 	}
-	
+
 	.breadcrumb-arrow {
 		color: #9ca3af;
 		font-weight: 600;
@@ -224,7 +224,7 @@ const SuccessIcon = styled.div`
 	justify-content: center;
 	margin: 0 auto 1.5rem;
 	box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-	
+
 	svg {
 		color: white;
 		font-size: 2.5rem;
@@ -260,16 +260,16 @@ const DeviceInfoRow = styled.div`
 	justify-content: space-between;
 	padding: 0.5rem 0;
 	border-bottom: 1px solid #d1fae5;
-	
+
 	&:last-child {
 		border-bottom: none;
 	}
-	
+
 	strong {
 		color: #065f46;
 		font-weight: 600;
 	}
-	
+
 	span {
 		color: #047857;
 		font-family: monospace;
@@ -905,7 +905,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 			case 'loading':
 				return (
 					<StepStatus $status="loading">
-						<span>❓</span> Processing...
+						<i className="bi bi-question-circle"></i> Processing...
 					</StepStatus>
 				);
 			default:

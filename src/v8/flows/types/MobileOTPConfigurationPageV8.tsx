@@ -815,7 +815,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-						<span style={{ fontSize: 32, color: 'white' }}>❓</span>
+						<i className="bi bi-question-circle" style={{ fontSize: 32, color: 'white' }}></i>
 						<h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: 'white' }}>
 							Mobile / OTP Configuration
 						</h1>

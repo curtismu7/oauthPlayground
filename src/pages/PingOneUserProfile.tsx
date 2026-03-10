@@ -140,6 +140,28 @@ interface PingOneMfaDetails {
 
 type PingOneMfaStatus = PingOneMfaDetails | null;
 
+/** Format user name whether it's a string or object (given/family, givenName/familyName, formatted). */
+function formatUserName(
+	name:
+		| string
+		| {
+				formatted?: string;
+				givenName?: string;
+				familyName?: string;
+				given?: string;
+				family?: string;
+		  }
+		| undefined
+): string {
+	if (!name) return 'N/A';
+	if (typeof name === 'string') return name;
+	const o = name as Record<string, unknown>;
+	if (typeof o.formatted === 'string') return o.formatted;
+	const given = (o.given ?? o.givenName) as string | undefined;
+	const family = (o.family ?? o.familyName) as string | undefined;
+	return [given, family].filter(Boolean).join(' ') || 'N/A';
+}
+
 import { FiAlertTriangle, FiRefreshCw, FiUser } from '../icons';
 import type { CSSProperties } from 'react';
 
@@ -1624,7 +1646,7 @@ const PingOneUserProfile: React.FC = () => {
 						<div>
 							<h3>User Information</h3>
 							<p>
-								<strong>Name:</strong> {userProfile.name || 'N/A'}
+								<strong>Name:</strong> {formatUserName(userProfile.name)}
 							</p>
 							<p>
 								<strong>Email:</strong> {userProfile.email || 'N/A'}

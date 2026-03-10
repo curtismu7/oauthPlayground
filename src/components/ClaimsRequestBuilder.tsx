@@ -40,7 +40,11 @@ const Header = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+		background: linear-gradient(
+			135deg,
+			V9_COLORS.BG.GRAY_LIGHT 0%,
+			V9_COLORS.TEXT.GRAY_LIGHTER 100%
+		);
 	}
 `;
 
@@ -206,7 +210,7 @@ const AddClaimHelper = styled.div`
 	font-size: 0.8125rem;
 	color: V9_COLORS.TEXT.GRAY_DARK;
 	line-height: 1.5;
-	
+
 	svg {
 		flex-shrink: 0;
 		color: V9_COLORS.PRIMARY.BLUE;
@@ -223,28 +227,28 @@ const JSONPreview = styled.pre`
 	overflow-x: auto;
 	margin-top: 1rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	
+
 	/* JSON Syntax Highlighting */
 	.json-key {
 		color: #7dd3fc; /* Light blue for keys */
 	}
-	
+
 	.json-string {
 		color: #86efac; /* Light green for string values */
 	}
-	
+
 	.json-number {
 		color: V9_COLORS.PRIMARY.YELLOW_LIGHT; /* Amber for numbers */
 	}
-	
+
 	.json-boolean {
 		color: #c084fc; /* Purple for booleans */
 	}
-	
+
 	.json-null {
 		color: V9_COLORS.PRIMARY.RED_LIGHT; /* Red for null */
 	}
-	
+
 	.json-punctuation {
 		color: #94a3b8; /* Gray for punctuation */
 	}
@@ -567,7 +571,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 			<Header onClick={onToggleCollapsed}>
 				<HeaderLeft>
 					<HeaderIcon>
-						<span>❓</span>
+						<i className="bi bi-question-circle"></i>
 					</HeaderIcon>
 					<div>
 						<HeaderTitle>Advanced Claims Request Builder</HeaderTitle>
@@ -584,7 +588,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 			<Header onClick={onToggleCollapsed}>
 				<HeaderLeft>
 					<HeaderIcon>
-						<span>❓</span>
+						<i className="bi bi-question-circle"></i>
 					</HeaderIcon>
 					<div>
 						<HeaderTitle>Advanced Claims Request Builder</HeaderTitle>
@@ -856,7 +860,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 							onClick={() => setShowPreview(!showPreview)}
 							style={{ marginTop: '1rem', width: '100%', justifyContent: 'center' }}
 						>
-							<span>❓</span> {showPreview ? 'Hide' : 'Show'} JSON Preview
+							<i className="bi bi-question-circle"></i> {showPreview ? 'Hide' : 'Show'} JSON Preview
 						</AddButton>
 
 						{showPreview && (

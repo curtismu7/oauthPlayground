@@ -2536,7 +2536,7 @@ export { changePassword, handleChangePassword };`;
 									setLoginPassword('');
 								}}
 							>
-								<span>❓</span>
+								<i className="bi bi-question-circle"></i>
 								Sign Out
 							</Button>
 						</div>
@@ -3155,12 +3155,12 @@ export { changePassword, handleChangePassword };`;
 						<CodeGeneratorSection>
 							<CodeHeader>
 								<CodeTitle>
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 									JavaScript Code Generator
 								</CodeTitle>
 								<CodeActions>
 									<CodeButton onClick={handleGenerateCode}>
-										<span>❓</span>
+										<i className="bi bi-question-circle"></i>
 										Generate Code
 									</CodeButton>
 								</CodeActions>
@@ -3312,12 +3312,12 @@ export { changePassword, handleChangePassword };`;
 						<CodeGeneratorSection>
 							<CodeHeader>
 								<CodeTitle>
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 									JavaScript Code Generator
 								</CodeTitle>
 								<CodeActions>
 									<CodeButton onClick={handleGenerateCode}>
-										<span>❓</span>
+										<i className="bi bi-question-circle"></i>
 										Generate Code
 									</CodeButton>
 								</CodeActions>
@@ -3402,7 +3402,7 @@ export { changePassword, handleChangePassword };`;
 								</Alert>
 								<div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
 									<Button onClick={() => setShowLoginModal(true)}>
-										<span>❓</span>
+										<i className="bi bi-question-circle"></i>
 										Sign In to Change Password
 									</Button>
 								</div>
@@ -3535,12 +3535,12 @@ export { changePassword, handleChangePassword };`;
 						<CodeGeneratorSection>
 							<CodeHeader>
 								<CodeTitle>
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 									JavaScript Code Generator
 								</CodeTitle>
 								<CodeActions>
 									<CodeButton onClick={handleGenerateCode}>
-										<span>❓</span>
+										<i className="bi bi-question-circle"></i>
 										Generate Code
 									</CodeButton>
 								</CodeActions>
@@ -4677,7 +4677,7 @@ export { changePassword, handleChangePassword };`;
 									</>
 								) : (
 									<>
-										<span>❓</span>
+										<i className="bi bi-question-circle"></i>
 										Sign In
 									</>
 								)}

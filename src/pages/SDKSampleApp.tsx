@@ -5,143 +5,143 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 
 const _Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 const _Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
+	text-align: center;
+	margin-bottom: 3rem;
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.primary};
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
+	h1 {
+		font-size: 2.5rem;
+		font-weight: 700;
+		color: ${({ theme }) => theme.colors.primary};
+		margin-bottom: 1rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+	}
 
-  p {
-    font-size: 1.25rem;
-    color: ${({ theme }) => theme.colors.gray600};
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
+	p {
+		font-size: 1.25rem;
+		color: ${({ theme }) => theme.colors.gray600};
+		max-width: 800px;
+		margin: 0 auto;
+		line-height: 1.6;
+	}
 `;
 
 const Card = styled.div`
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: white;
+	border-radius: 1rem;
+	padding: 2rem;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	margin-bottom: 2rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const CardHeader = styled.div`
-  margin-bottom: 1.5rem;
-  
-  h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    line-height: 1.6;
-  }
+	margin-bottom: 1.5rem;
+
+	h2 {
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray900};
+		margin-bottom: 0.5rem;
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	p {
+		color: ${({ theme }) => theme.colors.gray600};
+		line-height: 1.6;
+	}
 `;
 
 const SdkGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const SdkCard = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  }
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	transition: all 0.3s ease;
+
+	&:hover {
+		border-color: ${({ theme }) => theme.colors.primary};
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const SdkHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  
-  .sdk-icon {
-    width: 48px;
-    height: 48px;
-    background: ${({ theme }) => theme.colors.primary};
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.5rem;
-  }
-  
-  .sdk-info {
-    flex: 1;
-    
-    h3 {
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: ${({ theme }) => theme.colors.gray900};
-      margin-bottom: 0.25rem;
-    }
-    
-    .sdk-version {
-      font-size: 0.875rem;
-      color: ${({ theme }) => theme.colors.gray600};
-    }
-  }
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 1rem;
+
+	.sdk-icon {
+		width: 48px;
+		height: 48px;
+		background: ${({ theme }) => theme.colors.primary};
+		border-radius: 0.5rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: white;
+		font-size: 1.5rem;
+	}
+
+	.sdk-info {
+		flex: 1;
+
+		h3 {
+			font-size: 1.125rem;
+			font-weight: 600;
+			color: ${({ theme }) => theme.colors.gray900};
+			margin-bottom: 0.25rem;
+		}
+
+		.sdk-version {
+			font-size: 0.875rem;
+			color: ${({ theme }) => theme.colors.gray600};
+		}
+	}
 `;
 
 const SdkDescription = styled.p`
-  color: ${({ theme }) => theme.colors.gray700};
-  line-height: 1.6;
-  margin-bottom: 1rem;
+	color: ${({ theme }) => theme.colors.gray700};
+	line-height: 1.6;
+	margin-bottom: 1rem;
 `;
 
 const SdkActions = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 0.75rem;
+	flex-wrap: wrap;
 `;
 
 const ActionButton = styled.a<{ $variant?: 'primary' | 'secondary' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.875rem;
-  transition: all 0.2s;
-  
-  ${({ $variant, theme }) => {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1rem;
+	border-radius: 0.5rem;
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 0.875rem;
+	transition: all 0.2s;
+
+	${({ $variant, theme }) => {
 		if ($variant === 'primary') {
 			return `
         background-color: ${theme.colors.primary};
@@ -168,36 +168,36 @@ const ActionButton = styled.a<{ $variant?: 'primary' | 'secondary' }>`
 `;
 
 const CodeBlock = styled.pre`
-  background-color: V9_COLORS.TEXT.GRAY_DARK;
-  color: #f9fafb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  overflow-x: auto;
-  margin: 1rem 0;
-  border: 1px solid V9_COLORS.TEXT.GRAY_DARK;
+	background-color: V9_COLORS.TEXT.GRAY_DARK;
+	color: #f9fafb;
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	line-height: 1.6;
+	overflow-x: auto;
+	margin: 1rem 0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const FeatureList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0;
-  
-  li {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0;
-    color: ${({ theme }) => theme.colors.gray700};
-    
-    &::before {
-      content: '✓';
-      color: ${({ theme }) => theme.colors.success};
-      font-weight: bold;
-    }
-  }
+	list-style: none;
+	padding: 0;
+	margin: 1rem 0;
+
+	li {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0;
+		color: ${({ theme }) => theme.colors.gray700};
+
+		&::before {
+			content: '✓';
+			color: ${({ theme }) => theme.colors.success};
+			font-weight: bold;
+		}
+	}
 `;
 
 const pageConfig = {
@@ -224,7 +224,7 @@ const SdkSampleApp: React.FC = () => {
 			id: 'nodejs',
 			name: 'Node.js SDK',
 			version: 'v2.0.0',
-			icon: <span>❓</span>,
+			icon: <i className="bi bi-question-circle"></i>,
 			description:
 				'Official PingOne SDK for Node.js applications with full OAuth 2.0 and OpenID Connect support.',
 			features: [
@@ -242,7 +242,7 @@ const SdkSampleApp: React.FC = () => {
 			id: 'python',
 			name: 'Python SDK',
 			version: 'v1.5.0',
-			icon: <span>❓</span>,
+			icon: <i className="bi bi-question-circle"></i>,
 			description: 'Python SDK for building secure applications with PingOne identity services.',
 			features: [
 				'Django and Flask integration',
@@ -259,7 +259,7 @@ const SdkSampleApp: React.FC = () => {
 			id: 'java',
 			name: 'Java SDK',
 			version: 'v3.1.0',
-			icon: <span>❓</span>,
+			icon: <i className="bi bi-question-circle"></i>,
 			description:
 				'Enterprise-grade Java SDK with Spring Boot integration and comprehensive OAuth support.',
 			features: [
@@ -277,7 +277,7 @@ const SdkSampleApp: React.FC = () => {
 			id: 'csharp',
 			name: '.NET SDK',
 			version: 'v2.2.0',
-			icon: <span>❓</span>,
+			icon: <i className="bi bi-question-circle"></i>,
 			description:
 				'Microsoft .NET SDK for ASP.NET Core applications with built-in authentication middleware.',
 			features: [
@@ -301,14 +301,14 @@ const SdkSampleApp: React.FC = () => {
 				<CollapsibleHeader
 					title="Quick Start Guide"
 					subtitle="Get started with PingOne SDKs in minutes. Choose your preferred language and follow the installation and setup instructions."
-					icon={<span>❓</span>}
+					icon={<i className="bi bi-question-circle"></i>}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>
 						<Card>
 							<CardHeader>
 								<h2>
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 									Quick Start Guide
 								</h2>
 								<p>

@@ -31,234 +31,234 @@ interface FlowRecommendation {
 }
 
 const WizardContainer = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 const WizardHeader = styled.div`
-  text-align: center;
-  margin-bottom: 2rem;
-  
-  h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-  }
-  
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 1.125rem;
-  }
+	text-align: center;
+	margin-bottom: 2rem;
+
+	h1 {
+		font-size: 2rem;
+		font-weight: 700;
+		color: ${({ theme }) => theme.colors.gray900};
+		margin-bottom: 0.5rem;
+	}
+
+	p {
+		color: ${({ theme }) => theme.colors.gray600};
+		font-size: 1.125rem;
+	}
 `;
 
 const ProgressBar = styled.div`
-  width: 100%;
-  height: 4px;
-  background-color: ${({ theme }) => theme.colors.gray200};
-  border-radius: 2px;
-  margin-bottom: 2rem;
-  overflow: hidden;
-  
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.GREEN);
-    border-radius: 2px;
-    transition: width 0.3s ease;
-  }
+	width: 100%;
+	height: 4px;
+	background-color: ${({ theme }) => theme.colors.gray200};
+	border-radius: 2px;
+	margin-bottom: 2rem;
+	overflow: hidden;
+
+	.progress-fill {
+		height: 100%;
+		background: linear-gradient(90deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.GREEN);
+		border-radius: 2px;
+		transition: width 0.3s ease;
+	}
 `;
 
 const StepCard = styled(Card)`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const StepHeader = styled.div`
-  text-align: center;
-  margin-bottom: 2rem;
-  
-  h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-  }
-  
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-  }
+	text-align: center;
+	margin-bottom: 2rem;
+
+	h2 {
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray900};
+		margin-bottom: 0.5rem;
+	}
+
+	p {
+		color: ${({ theme }) => theme.colors.gray600};
+	}
 `;
 
 const OptionsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 1rem;
+	margin-bottom: 2rem;
 `;
 
 const OptionCard = styled.div<{ $selected: boolean }>`
-  padding: 1.5rem;
-  border: 2px solid ${({ $selected, theme }) =>
-		$selected ? theme.colors.primary : theme.colors.gray200};
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  background-color: ${({ $selected, theme }) =>
+	padding: 1.5rem;
+	border: 2px solid
+		${({ $selected, theme }) => ($selected ? theme.colors.primary : theme.colors.gray200)};
+	border-radius: 0.75rem;
+	cursor: pointer;
+	transition: all 0.2s;
+	background-color: ${({ $selected, theme }) =>
 		$selected ? `${theme.colors.primary}05` : 'white'};
-  
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .option-icon {
-    font-size: 2rem;
-    color: ${({ $selected, theme }) => ($selected ? theme.colors.primary : theme.colors.gray400)};
-    margin-bottom: 1rem;
-  }
-  
-  .option-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-  }
-  
-  .option-description {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 0.875rem;
-    line-height: 1.5;
-  }
+
+	&:hover {
+		border-color: ${({ theme }) => theme.colors.primary};
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
+
+	.option-icon {
+		font-size: 2rem;
+		color: ${({ $selected, theme }) => ($selected ? theme.colors.primary : theme.colors.gray400)};
+		margin-bottom: 1rem;
+	}
+
+	.option-title {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray900};
+		margin-bottom: 0.5rem;
+	}
+
+	.option-description {
+		color: ${({ theme }) => theme.colors.gray600};
+		font-size: 0.875rem;
+		line-height: 1.5;
+	}
 `;
 
 const NavigationButtons = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  
-  .nav-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.2s;
-    border: none;
-    cursor: pointer;
-    
-    &.primary {
-      background-color: ${({ theme }) => theme.colors.primary};
-      color: white;
-      
-      &:hover {
-        background-color: ${({ theme }) => theme.colors.primaryDark};
-      }
-    }
-    
-    &.secondary {
-      background-color: transparent;
-      color: ${({ theme }) => theme.colors.gray600};
-      border: 1px solid ${({ theme }) => theme.colors.gray300};
-      
-      &:hover {
-        background-color: ${({ theme }) => theme.colors.gray50};
-      }
-    }
-    
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	.nav-button {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.75rem 1.5rem;
+		border-radius: 0.5rem;
+		font-weight: 500;
+		text-decoration: none;
+		transition: all 0.2s;
+		border: none;
+		cursor: pointer;
+
+		&.primary {
+			background-color: ${({ theme }) => theme.colors.primary};
+			color: white;
+
+			&:hover {
+				background-color: ${({ theme }) => theme.colors.primaryDark};
+			}
+		}
+
+		&.secondary {
+			background-color: transparent;
+			color: ${({ theme }) => theme.colors.gray600};
+			border: 1px solid ${({ theme }) => theme.colors.gray300};
+
+			&:hover {
+				background-color: ${({ theme }) => theme.colors.gray50};
+			}
+		}
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+	}
 `;
 
 const ResultsCard = styled(Card)`
-  text-align: center;
-  
-  .results-icon {
-    font-size: 4rem;
-    color: ${({ theme }) => theme.colors.success};
-    margin-bottom: 1rem;
-  }
-  
-  .results-title {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 1rem;
-  }
-  
-  .results-description {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 1.125rem;
-    margin-bottom: 2rem;
-  }
+	text-align: center;
+
+	.results-icon {
+		font-size: 4rem;
+		color: ${({ theme }) => theme.colors.success};
+		margin-bottom: 1rem;
+	}
+
+	.results-title {
+		font-size: 1.875rem;
+		font-weight: 700;
+		color: ${({ theme }) => theme.colors.gray900};
+		margin-bottom: 1rem;
+	}
+
+	.results-description {
+		color: ${({ theme }) => theme.colors.gray600};
+		font-size: 1.125rem;
+		margin-bottom: 2rem;
+	}
 `;
 
 const RecommendationCard = styled(Card)`
-  margin-bottom: 1.5rem;
-  border-left: 4px solid ${({ theme }) => theme.colors.primary};
-  
-  .recommendation-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    
-    .recommendation-icon {
-      font-size: 2rem;
-      color: ${({ theme }) => theme.colors.primary};
-    }
-    
-    .recommendation-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: ${({ theme }) => theme.colors.gray900};
-      margin: 0;
-    }
-  }
-  
-  .recommendation-meta {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    
-    .meta-item {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      font-size: 0.875rem;
-      color: ${({ theme }) => theme.colors.gray600};
-    }
-  }
-  
-  .recommendation-reason {
-    color: ${({ theme }) => theme.colors.gray700};
-    font-size: 0.875rem;
-    line-height: 1.5;
-    margin-bottom: 1rem;
-  }
-  
-  .recommendation-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background-color: ${({ theme }) => theme.colors.primary};
-    color: white;
-    border-radius: 0.5rem;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.2s;
-    
-    &:hover {
-      background-color: ${({ theme }) => theme.colors.primaryDark};
-      transform: translateY(-1px);
-    }
-  }
+	margin-bottom: 1.5rem;
+	border-left: 4px solid ${({ theme }) => theme.colors.primary};
+
+	.recommendation-header {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 1rem;
+
+		.recommendation-icon {
+			font-size: 2rem;
+			color: ${({ theme }) => theme.colors.primary};
+		}
+
+		.recommendation-title {
+			font-size: 1.25rem;
+			font-weight: 600;
+			color: ${({ theme }) => theme.colors.gray900};
+			margin: 0;
+		}
+	}
+
+	.recommendation-meta {
+		display: flex;
+		gap: 1rem;
+		margin-bottom: 1rem;
+
+		.meta-item {
+			display: flex;
+			align-items: center;
+			gap: 0.25rem;
+			font-size: 0.875rem;
+			color: ${({ theme }) => theme.colors.gray600};
+		}
+	}
+
+	.recommendation-reason {
+		color: ${({ theme }) => theme.colors.gray700};
+		font-size: 0.875rem;
+		line-height: 1.5;
+		margin-bottom: 1rem;
+	}
+
+	.recommendation-button {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.75rem 1.5rem;
+		background-color: ${({ theme }) => theme.colors.primary};
+		color: white;
+		border-radius: 0.5rem;
+		text-decoration: none;
+		font-weight: 500;
+		transition: all 0.2s;
+
+		&:hover {
+			background-color: ${({ theme }) => theme.colors.primaryDark};
+			transform: translateY(-1px);
+		}
+	}
 `;
 
 const wizardSteps: WizardStep[] = [
@@ -271,14 +271,14 @@ const wizardSteps: WizardStep[] = [
 				id: 'web-app',
 				label: 'Web Application',
 				description: 'Traditional web app with server-side rendering',
-				icon: <span>❓</span>,
+				icon: <i className="bi bi-question-circle"></i>,
 				value: 'web-app',
 			},
 			{
 				id: 'spa',
 				label: 'Single Page App',
 				description: 'Client-side JavaScript application (React, Vue, Angular)',
-				icon: <span>❓</span>,
+				icon: <i className="bi bi-question-circle"></i>,
 				value: 'spa',
 			},
 			{
@@ -313,7 +313,7 @@ const wizardSteps: WizardStep[] = [
 				id: 'no-backend',
 				label: 'No backend',
 				description: 'Client-side only or public application',
-				icon: <span>❓</span>,
+				icon: <i className="bi bi-question-circle"></i>,
 				value: 'no-backend',
 			},
 		],
@@ -397,7 +397,7 @@ const getRecommendations = (answers: Record<string, string>): FlowRecommendation
 			id: 'authorization-code',
 			title: 'Authorization Code Flow',
 			description: 'The most secure and widely supported OAuth flow',
-			icon: <span>❓</span>,
+			icon: <i className="bi bi-question-circle"></i>,
 			security: 'high',
 			complexity: 'medium',
 			implementationTime: '2-4 hours',
@@ -410,7 +410,7 @@ const getRecommendations = (answers: Record<string, string>): FlowRecommendation
 			id: 'authorization-code',
 			title: 'Authorization Code Flow',
 			description: 'The most secure and widely supported OAuth flow',
-			icon: <span>❓</span>,
+			icon: <i className="bi bi-question-circle"></i>,
 			security: 'high',
 			complexity: 'medium',
 			implementationTime: '2-4 hours',
@@ -426,7 +426,7 @@ const getRecommendations = (answers: Record<string, string>): FlowRecommendation
 			id: 'implicit',
 			title: 'Implicit Grant Flow',
 			description: 'Simplified flow for client-side applications (deprecated)',
-			icon: <span>❓</span>,
+			icon: <i className="bi bi-question-circle"></i>,
 			security: 'low',
 			complexity: 'low',
 			implementationTime: '1-2 hours',

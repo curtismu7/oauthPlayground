@@ -387,7 +387,7 @@ export const StepNavigationButtons = ({
 			onMouseDown={handleDragStart}
 		>
 			<DragHandle>
-				<span style={{ fontSize: '16px' }}>❓</span>
+				<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 			</DragHandle>
 			<CompactToggle
 				onClick={(e) => {
@@ -396,7 +396,11 @@ export const StepNavigationButtons = ({
 				}}
 				title={isCompact ? 'Expand stepper' : 'Compact stepper'}
 			>
-				{isCompact ? <span>❓</span> : <span>❓</span>}
+				{isCompact ? (
+					<i className="bi bi-question-circle"></i>
+				) : (
+					<i className="bi bi-question-circle"></i>
+				)}
 			</CompactToggle>
 			<StepIndicator $compact={isCompact}>
 				{Array.from({ length: totalSteps }, (_, i) => (
@@ -425,7 +429,7 @@ export const StepNavigationButtons = ({
 						$compact={isCompact}
 						title="Go back to Step 1, clear tokens/codes but keep credentials"
 					>
-						<span>❓</span> {!isCompact && 'Start Over'}
+						<i className="bi bi-question-circle"></i> {!isCompact && 'Start Over'}
 					</NavButton>
 				)}
 				<NavButton

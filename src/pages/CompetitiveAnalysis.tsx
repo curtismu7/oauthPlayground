@@ -528,7 +528,7 @@ const CompetitiveAnalysis: React.FC = () => {
 		<div style={styles.pageContainer}>
 			<div style={styles.heroSection}>
 				<h1 style={styles.heroTitle}>
-					<span>❓</span>
+					<i className="bi bi-question-circle"></i>
 					Identity Provider Competitive Analysis
 				</h1>
 				<p style={styles.heroSubtitle}>Compare leading Identity & Access Management solutions</p>

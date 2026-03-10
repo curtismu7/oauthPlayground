@@ -233,7 +233,7 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 								e.currentTarget.style.transform = 'translateY(0)';
 							}}
 						>
-							<span style={{ fontSize: '16px' }}>❓</span>
+							<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 							User Login
 						</button>
 					) : (

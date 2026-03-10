@@ -198,7 +198,10 @@ const TokenStatusPageV8U: React.FC = () => {
 			});
 
 			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-			logger.info('[TOKEN-STATUS-V8U] Successfully imported handleShowWorkerTokenModal', "Logger info");
+			logger.info(
+				'[TOKEN-STATUS-V8U] Successfully imported handleShowWorkerTokenModal',
+				'Logger info'
+			);
 
 			await handleShowWorkerTokenModal(
 				setShowWorkerTokenModal,
@@ -208,7 +211,7 @@ const TokenStatusPageV8U: React.FC = () => {
 				false
 			);
 
-			logger.info('[TOKEN-STATUS-V8U] Worker token modal completed successfully', "Logger info");
+			logger.info('[TOKEN-STATUS-V8U] Worker token modal completed successfully', 'Logger info');
 		} catch (error) {
 			logger.error('TokenStatusPageV8U', ' Detailed error:', {
 				error,
@@ -326,9 +329,8 @@ const TokenStatusPageV8U: React.FC = () => {
 													logger.debug(
 														'[TOKEN-STATUS-V8U] Silent API retrieval enabled, attempting to fetch token now...'
 													);
-													const { handleShowWorkerTokenModal } = await import(
-														'@/v8/utils/workerTokenModalHelperV8'
-													);
+													const { handleShowWorkerTokenModal } =
+														await import('@/v8/utils/workerTokenModalHelperV8');
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
 														setTokenStatus,
@@ -423,7 +425,7 @@ const TokenStatusPageV8U: React.FC = () => {
 				<TokenStatusCard>
 					<TokenStatusHeader>
 						<TokenStatusTitle>
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 							User Token Status
 						</TokenStatusTitle>
 					</TokenStatusHeader>

@@ -9,155 +9,155 @@ const Card = FlowUIService.getMainCard();
 const InfoBox = FlowUIService.getInfoBox();
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
+	text-align: center;
+	margin-bottom: 3rem;
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
+	h1 {
+		font-size: 2.5rem;
+		font-weight: 700;
+		color: var(--color-primary);
+		margin-bottom: 1rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+	}
 
-  p {
-    font-size: 1.25rem;
-    color: var(--color-text-secondary);
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
+	p {
+		font-size: 1.25rem;
+		color: var(--color-text-secondary);
+		max-width: 800px;
+		margin: 0 auto;
+		line-height: 1.6;
+	}
 `;
 
 const SectionGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin: 1.5rem 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1.5rem;
+	margin: 1.5rem 0;
 `;
 
 const SectionCard = styled.div`
-  background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
+	background: var(--color-surface);
+	border: 2px solid var(--color-border);
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	transition: all 0.3s ease;
 
-  &:hover {
-    border-color: var(--color-primary);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  }
+	&:hover {
+		border-color: var(--color-primary);
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+	}
 
-  h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
+	h3 {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: var(--color-text-primary);
+		margin-bottom: 0.75rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
 
-  p {
-    color: var(--color-text-secondary);
-    line-height: 1.6;
-    margin: 0;
-  }
+	p {
+		color: var(--color-text-secondary);
+		line-height: 1.6;
+		margin: 0;
+	}
 `;
 
 const ExternalLink = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--color-primary);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var(--color-primary);
+	text-decoration: none;
+	font-weight: 500;
+	transition: color 0.2s;
 
-  &:hover {
-    color: var(--color-primary-dark);
-  }
+	&:hover {
+		color: var(--color-primary-dark);
+	}
 `;
 
 const DraftLink = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--color-primary);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1rem;
-  margin-top: 1.5rem;
-  transition: color 0.2s;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var(--color-primary);
+	text-decoration: none;
+	font-weight: 600;
+	font-size: 1rem;
+	margin-top: 1.5rem;
+	transition: color 0.2s;
 
-  &:hover {
-    color: var(--color-primary-dark);
-    text-decoration: underline;
-  }
+	&:hover {
+		color: var(--color-primary-dark);
+		text-decoration: underline;
+	}
 `;
 
 const AuthorBadge = styled.span`
-  background: var(--color-primary-bg);
-  color: var(--color-primary-text);
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.15rem 0.4rem;
-  border-radius: 0.25rem;
-  border: 1px solid var(--color-primary-light);
-  margin-left: 0.4rem;
-  vertical-align: middle;
-  white-space: nowrap;
+	background: var(--color-primary-bg);
+	color: var(--color-primary-text);
+	font-size: 0.7rem;
+	font-weight: 600;
+	padding: 0.15rem 0.4rem;
+	border-radius: 0.25rem;
+	border: 1px solid var(--color-primary-light);
+	margin-left: 0.4rem;
+	vertical-align: middle;
+	white-space: nowrap;
 `;
 
 const AuthorHighlight = styled.strong`
-  color: var(--color-primary-text);
-  background: var(--color-primary-bg);
-  padding: 0 0.3rem;
-  border-radius: 0.25rem;
-  font-weight: 700;
+	color: var(--color-primary-text);
+	background: var(--color-primary-bg);
+	padding: 0 0.3rem;
+	border-radius: 0.25rem;
+	font-weight: 700;
 `;
 
 const SpecGroup = styled.p`
-  margin: 1.5rem 0 0.25rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--color-primary);
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 0.25rem;
+	margin: 1.5rem 0 0.25rem;
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--color-primary);
+	border-bottom: 1px solid var(--color-border);
+	padding-bottom: 0.25rem;
 
-  &:first-child {
-    margin-top: 0;
-  }
+	&:first-child {
+		margin-top: 0;
+	}
 `;
 
 const SpecList = styled.ul`
-  list-style: disc;
-  padding-left: 2rem;
-  font-size: 1rem;
-  line-height: 2;
-  margin: 0 0 0.25rem 0;
+	list-style: disc;
+	padding-left: 2rem;
+	font-size: 1rem;
+	line-height: 2;
+	margin: 0 0 0.25rem 0;
 `;
 
 const MetaRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  color: var(--color-text-secondary);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	margin-top: 1rem;
+	font-size: 0.9rem;
+	color: var(--color-text-secondary);
 
-  span {
-    background: var(--color-surface);
-    border-radius: 0.375rem;
-    padding: 0.25rem 0.75rem;
-    border: 1px solid var(--color-border);
-  }
+	span {
+		background: var(--color-surface);
+		border-radius: 0.375rem;
+		padding: 0.25rem 0.75rem;
+		border: 1px solid var(--color-border);
+	}
 `;
 
 // Create layout components at module level — styled-components v6 calls useContext
@@ -202,7 +202,7 @@ const AIAgentAuthDraft: React.FC = () => {
 				<CollapsibleHeader
 					title="Document Summary"
 					subtitle="What this draft is about and why it matters"
-					icon={<span>❓</span>}
+					icon={<i className="bi bi-question-circle"></i>}
 					theme="highlight"
 					defaultCollapsed={false}
 				>
@@ -329,7 +329,7 @@ const AIAgentAuthDraft: React.FC = () => {
 
 						<SectionCard>
 							<h3>
-								<span>❓</span> Monitoring &amp; Observability
+								<i className="bi bi-question-circle"></i> Monitoring &amp; Observability
 							</h3>
 							<p>
 								Deployments MUST maintain tamper-evident audit logs covering agent identifier,

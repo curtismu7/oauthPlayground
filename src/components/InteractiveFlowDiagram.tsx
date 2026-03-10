@@ -920,7 +920,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 			case 'user':
 				return <span>👤</span>;
 			case 'client':
-				return <span>❓</span>;
+				return <i className="bi bi-question-circle"></i>;
 			case 'auth-server':
 				return <PingOneIcon />;
 			case 'server':
@@ -937,7 +937,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 			case 'implicit':
 				return <span>➡️</span>;
 			case 'client-credentials':
-				return <span>❓</span>;
+				return <i className="bi bi-question-circle"></i>;
 			case 'device-code':
 				return <span>🖥️</span>;
 			case 'resource-owner-password':
@@ -1040,17 +1040,17 @@ const InteractiveFlowDiagram: React.FC = () => {
 				/>
 
 				<ControlButton $variant="primary" onClick={handlePlay} disabled={isPlaying}>
-					<span>❓</span>
+					<i className="bi bi-question-circle"></i>
 					{currentStep >= steps.length - 1 ? 'Restart' : 'Play'}
 				</ControlButton>
 
 				<ControlButton onClick={handlePause} disabled={!isPlaying}>
-					<span>❓</span>
+					<i className="bi bi-question-circle"></i>
 					Pause
 				</ControlButton>
 
 				<ControlButton onClick={handleReset}>
-					<span>❓</span>
+					<i className="bi bi-question-circle"></i>
 					Reset
 				</ControlButton>
 

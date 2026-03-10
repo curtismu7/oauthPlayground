@@ -24,56 +24,56 @@ const maskToken = (token: string): string => {
 
 // Common styled components
 export const FormField = styled.div`
-  margin-bottom: 1rem;
+	margin-bottom: 1rem;
 `;
 
 export const FormLabel = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	display: block;
+	margin-bottom: 0.5rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 export const FormInput = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 export const FormSelect = styled.select`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  background-color: white;
-  
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	background-color: white;
+
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 export const InfoBox = styled.div<{
 	type: 'success' | 'error' | 'warning' | 'info';
 }>`
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  
-  ${(props) => {
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin: 1rem 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+
+	${(props) => {
 		switch (props.type) {
 			case 'success':
 				return `
@@ -104,72 +104,72 @@ export const InfoBox = styled.div<{
 `;
 
 const CopyButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  background: V9_COLORS.PRIMARY.BLUE;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  &:hover {
-    background: V9_COLORS.PRIMARY.BLUE_DARK;
-    transform: translateY(-1px);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	background: V9_COLORS.PRIMARY.BLUE;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:hover {
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
+		transform: translateY(-1px);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
 `;
 
 export const ActionButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: V9_COLORS.PRIMARY.GREEN;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  &:hover:not(:disabled) {
-    background: V9_COLORS.PRIMARY.GREEN_DARK;
-    transform: translateY(-1px);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1rem;
+	background: V9_COLORS.PRIMARY.GREEN;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:hover:not(:disabled) {
+		background: V9_COLORS.PRIMARY.GREEN_DARK;
+		transform: translateY(-1px);
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const TokenDisplay = styled.div`
-  background: #f0fdf4;
-  border: 2px solid V9_COLORS.PRIMARY.GREEN_DARK;
-  border-radius: 6px;
-  padding: 0.75rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  word-break: break-all;
-  color: #15803d;
-  max-height: 120px;
-  overflow-y: auto;
-  box-shadow: 0 1px 3px rgba(22, 163, 74, 0.1);
-  
-  &:hover {
-    border-color: #15803d;
-    background: V9_COLORS.BG.SUCCESS;
-    box-shadow: 0 2px 6px rgba(22, 163, 74, 0.15);
-  }
+	background: #f0fdf4;
+	border: 2px solid V9_COLORS.PRIMARY.GREEN_DARK;
+	border-radius: 6px;
+	padding: 0.75rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.75rem;
+	line-height: 1.4;
+	word-break: break-all;
+	color: #15803d;
+	max-height: 120px;
+	overflow-y: auto;
+	box-shadow: 0 1px 3px rgba(22, 163, 74, 0.1);
+
+	&:hover {
+		border-color: #15803d;
+		background: V9_COLORS.BG.SUCCESS;
+		box-shadow: 0 2px 6px rgba(22, 163, 74, 0.15);
+	}
 `;
 
 // Common step creation functions
@@ -401,13 +401,15 @@ export const createCredentialsStep = (
 									if (e.target.checked) {
 										localStorage.setItem(skipKey, 'true');
 										logger.info(
-											` [CommonSteps] User chose to skip credentials step for ${flowSpecificPrefix || 'all flows'}`
-										, "Logger info");
+											` [CommonSteps] User chose to skip credentials step for ${flowSpecificPrefix || 'all flows'}`,
+											'Logger info'
+										);
 									} else {
 										localStorage.removeItem(skipKey);
 										logger.info(
-											` [CommonSteps] User will see credentials step for ${flowSpecificPrefix || 'all flows'}`
-										, "Logger info");
+											` [CommonSteps] User will see credentials step for ${flowSpecificPrefix || 'all flows'}`,
+											'Logger info'
+										);
 									}
 								}}
 							/>
@@ -453,9 +455,9 @@ export const createCredentialsStep = (
 	canExecute: (() => {
 		const canExec = Boolean(
 			credentials.environmentId &&
-				credentials.clientId &&
-				credentials.clientSecret &&
-				credentials.redirectUri
+			credentials.clientId &&
+			credentials.clientSecret &&
+			credentials.redirectUri
 		);
 		logger.info(' [CommonSteps] Credentials canExecute check:', {
 			environmentId: !!credentials.environmentId,
@@ -781,10 +783,10 @@ export const createAuthUrlStep = (
 		},
 		canExecute: Boolean(
 			credentials &&
-				(credentials.environmentId || credentials.issuerUrl) &&
-				credentials.clientId &&
-				credentials.redirectUri &&
-				(!pkceCodes || (pkceCodes.codeVerifier && pkceCodes.codeChallenge))
+			(credentials.environmentId || credentials.issuerUrl) &&
+			credentials.clientId &&
+			credentials.redirectUri &&
+			(!pkceCodes || (pkceCodes.codeVerifier && pkceCodes.codeChallenge))
 		),
 	};
 };
@@ -1326,7 +1328,7 @@ export const createCallbackHandlingStep = (
 			{onReset && (
 				<div style={{ marginTop: '1rem' }}>
 					<ActionButton onClick={onReset} style={{ backgroundColor: '#6b7280' }}>
-						<span>❓</span> Reset Flow
+						<i className="bi bi-question-circle"></i> Reset Flow
 					</ActionButton>
 				</div>
 			)}
@@ -1527,7 +1529,7 @@ export const createRefreshTokenStep = (
 	title: 'Refresh Tokens',
 	description:
 		'Exchange the refresh token for a new access token (and optionally ID token) to keep the session alive without user interaction.',
-	icon: <span>❓</span>,
+	icon: <i className="bi bi-question-circle"></i>,
 	category: 'token-refresh',
 	content: (
 		<div>

@@ -484,7 +484,7 @@ const ResponseModeSandbox: React.FC = () => {
 			<DetailLayout>
 				<TimelineCard>
 					<TimelineHeader>
-						<span>❓</span>
+						<i className="bi bi-question-circle"></i>
 						Request Timeline
 					</TimelineHeader>
 					<TimelineList>

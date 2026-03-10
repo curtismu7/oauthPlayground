@@ -7,91 +7,93 @@ import OAuthUtilities from '../components/OAuthUtilities';
 import { logger } from '../utils/logger';
 
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 const PageHeader = styled.div`
-  margin-bottom: 2rem;
-  text-align: center;
+	margin-bottom: 2rem;
+	text-align: center;
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.75rem;
-  }
+	h1 {
+		font-size: 2.5rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray900};
+		margin-bottom: 0.75rem;
+	}
 
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 1.1rem;
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
+	p {
+		color: ${({ theme }) => theme.colors.gray600};
+		font-size: 1.1rem;
+		max-width: 800px;
+		margin: 0 auto;
+		line-height: 1.6;
+	}
 `;
 
 const TabNavigation = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  border-bottom: 2px solid ${({ theme }) => theme.colors.gray200};
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 2rem;
+	border-bottom: 2px solid ${({ theme }) => theme.colors.gray200};
 `;
 
 const TabButton = styled.button<{ $active?: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 1.5rem;
-  background: none;
-  border: none;
-  border-bottom: 3px solid transparent;
-  color: ${({ $active, theme }) => ($active ? theme.colors.primary : theme.colors.gray600)};
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  border-bottom-color: ${({ $active, theme }) => ($active ? theme.colors.primary : 'transparent')};
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 1rem 1.5rem;
+	background: none;
+	border: none;
+	border-bottom: 3px solid transparent;
+	color: ${({ $active, theme }) => ($active ? theme.colors.primary : theme.colors.gray600)};
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+	border-bottom-color: ${({ $active, theme }) => ($active ? theme.colors.primary : 'transparent')};
 
-  &:hover {
-    color: ${({ theme }) => theme.colors.primary};
-    background-color: ${({ theme }) => theme.colors.gray50};
-  }
+	&:hover {
+		color: ${({ theme }) => theme.colors.primary};
+		background-color: ${({ theme }) => theme.colors.gray50};
+	}
 `;
 
 const TutorialGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const TutorialCard = styled(Card)`
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+	cursor: pointer;
+	transition:
+		transform 0.2s,
+		box-shadow 0.2s;
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: ${({ theme }) => theme.shadows.lg};
-  }
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: ${({ theme }) => theme.shadows.lg};
+	}
 `;
 
 const TutorialMeta = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.gray600};
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 1rem;
+	font-size: 0.875rem;
+	color: ${({ theme }) => theme.colors.gray600};
 `;
 
 const DifficultyBadge = styled.span<{ $difficulty: string }>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  background-color: ${({ $difficulty, theme }) => {
+	padding: 0.25rem 0.75rem;
+	border-radius: 1rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	background-color: ${({ $difficulty, theme }) => {
 		switch ($difficulty) {
 			case 'Beginner':
 				return `${theme.colors.success}20`;
@@ -103,7 +105,7 @@ const DifficultyBadge = styled.span<{ $difficulty: string }>`
 				return theme.colors.gray200;
 		}
 	}};
-  color: ${({ $difficulty, theme }) => {
+	color: ${({ $difficulty, theme }) => {
 		switch ($difficulty) {
 			case 'Beginner':
 				return theme.colors.success;
@@ -290,7 +292,7 @@ const decodedPayload = JSON.parse(atob(payload));`,
 				<InteractiveTutorial
 					tutorial={selectedTutorialData}
 					onTutorialComplete={() => {
-						logger.info('Tutorial completed!', "Logger info");
+						logger.info('Tutorial completed!', 'Logger info');
 						// Could track completion, show achievement, etc.
 					}}
 					onStepComplete={(stepId) => {
@@ -328,11 +330,11 @@ const decodedPayload = JSON.parse(atob(payload));`,
 
 			<TabNavigation>
 				<TabButton $active={activeTab === 'tutorials'} onClick={() => setActiveTab('tutorials')}>
-					<span style={{ fontSize: '16px' }}>❓</span>
+					<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 					Interactive Tutorials
 				</TabButton>
 				<TabButton $active={activeTab === 'utilities'} onClick={() => setActiveTab('utilities')}>
-					<span style={{ fontSize: '16px' }}>❓</span>
+					<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 					Developer Utilities
 				</TabButton>
 			</TabNavigation>
