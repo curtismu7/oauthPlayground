@@ -1596,6 +1596,85 @@ app.use((_req, res, next) => {
 // Serve static files from dist directory
 app.use(express.static(path.join(__dirname, 'dist')));
 
+/**
+ * Mock DPoP-protected resource endpoint (RFC 9449)
+ * For educational DPoP flow - validates Bearer + DPoP headers.
+ * Accepts any HTTP method. Returns 200 if both headers present and DPoP JWT is valid structure.
+ * This is a demo endpoint only; PingOne does not provide this URL — it issues DPoP-bound tokens;
+ * you then call your own or PingOne resource APIs with the token + DPoP header.
+ */
+function handleDpopProtectedResource(req, res) {
+	const authHeader = req.headers.authorization;
+	const dpopHeader = req.headers.dpop;
+
+	if (!authHeader || !authHeader.toLowerCase().startsWith('bearer ')) {
+		res.status(401).json({
+			error: 'invalid_request',
+			error_description: 'Missing or invalid Authorization header (Bearer token required)',
+		});
+		return;
+	}
+	if (!dpopHeader || typeof dpopHeader !== 'string') {
+		res.status(401).json({
+			error: 'invalid_request',
+			error_description: 'Missing DPoP header (DPoP proof JWT required)',
+		});
+		return;
+	}
+
+	// Basic DPoP JWT structure validation (3 parts, base64url)
+	const parts = dpopHeader.trim().split('.');
+	if (parts.length !== 3) {
+		res.status(401).json({
+			error: 'invalid_dpop_proof',
+			error_description: 'DPoP proof must be a valid JWT (header.payload.signature)',
+		});
+		return;
+	}
+
+	try {
+		const payloadJson = Buffer.from(
+			parts[1].replace(/-/g, '+').replace(/_/g, '/'),
+			'base64'
+		).toString('utf8');
+		const payload = JSON.parse(payloadJson);
+		const htm = (payload.htm || '').toUpperCase();
+		const htu = payload.htu || '';
+		const method = (req.method || 'GET').toUpperCase();
+		// Verify method matches; htu may be full URL (various origins) or path
+		const htuMatches =
+			htu.includes('dpop') && (htu.includes('protected-resource') || htu.includes('api/dpop'));
+		const htmMatches = htm === method;
+
+		if (!htmMatches || !htuMatches) {
+			res.status(401).json({
+				error: 'invalid_dpop_proof',
+				error_description: `DPoP proof htm/htu mismatch (expected ${method}, got htm=${htm} htu=${htu.slice(0, 80)}...)`,
+				details: { proofHtm: htm, proofHtu: htu },
+			});
+			return;
+		}
+	} catch (err) {
+		res.status(401).json({
+			error: 'invalid_dpop_proof',
+			error_description: 'DPoP proof payload invalid or malformed',
+		});
+		return;
+	}
+
+	res.status(200).json({
+		success: true,
+		message: 'DPoP-protected resource accessed successfully',
+		method: req.method,
+		dpop_validated: true,
+		token_present: true,
+	});
+}
+
+app.all('/api/dpop/protected-resource', handleDpopProtectedResource);
+// Support path without /api prefix (e.g. when proxy strips /api or request uses /dpop/protected-resource)
+app.all('/dpop/protected-resource', handleDpopProtectedResource);
+
 // Health check endpoint
 app.get('/api/health', (_req, res) => {
 	const now = Date.now();
