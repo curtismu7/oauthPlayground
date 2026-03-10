@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { FlowHeader } from '../services/flowHeaderService';
 import {
 	getComponentTracker,
 	initializeMockData,
@@ -341,33 +342,11 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 				lineHeight: 1.6,
 			}}
 		>
-			<h2
-				style={{
-					color: '#212529',
-					fontSize: '1.875rem',
-					fontWeight: 600,
-					marginBottom: '1.5rem',
-					textAlign: 'center',
-					letterSpacing: '-0.025em',
-				}}
-			>
-				🧹 Component Cleanliness Dashboard
-			</h2>
-
-			<p
-				style={{
-					color: '#6C757D',
-					fontSize: '1rem',
-					textAlign: 'center',
-					marginBottom: '0.5rem',
-				}}
-			>
-				Monitor your application's performance and component health in real-time
-			</p>
+			<FlowHeader flowId="cleanliness-dashboard" />
 			<div
 				style={{
 					maxWidth: '720px',
-					margin: '0 auto 1.5rem',
+					margin: '1.5rem auto 1.5rem',
 					padding: '0.75rem 1rem',
 					background: '#F8F9FA',
 					borderRadius: '0.5rem',
