@@ -588,6 +588,13 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'Explore audit activities and identity metrics. Switch between tabs to view audit events or identity count trends.',
 		icon: '📊',
 	},
+	'cleanliness-dashboard': {
+		flowType: 'pingone',
+		title: 'Component Cleanliness Dashboard',
+		subtitle:
+			"Monitor your application's performance and component health in real-time. Track render counts, memory usage, and cleanliness scores across V7 and V8 code.",
+		icon: '🧹',
+	},
 	'pingone-identity-metrics': {
 		flowType: 'pingone',
 		title: 'PingOne Identity Metrics',

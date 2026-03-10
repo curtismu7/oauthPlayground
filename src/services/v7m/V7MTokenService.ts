@@ -511,7 +511,7 @@ function validateClientAuth(
 	// basic
 	if (authorizationHeader?.startsWith('Basic ')) {
 		try {
-			const decoded = Buffer.from(authorizationHeader.slice(6), 'base64').toString('utf8');
+			const decoded = b64Decode(authorizationHeader.slice(6));
 			const [id, secret] = decoded.split(':');
 			if (id === clientId && secret === expectedSecret) return true;
 		} catch {
@@ -528,9 +528,20 @@ export function computePkceS256(verifier: string): string {
 	return toB64Url(stableHash(verifier));
 }
 
+/** Base64url encoding using browser-native Web APIs only (no Node.js Buffer). */
 function toB64Url(input: string): string {
-	const b64 = Buffer.from(input, 'utf8').toString('base64');
-	return b64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+	const bytes = new TextEncoder().encode(input);
+	let binary = '';
+	for (const byte of bytes) binary += String.fromCharCode(byte);
+	return btoa(binary).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+/** Base64 decode using browser-native APIs only. */
+function b64Decode(input: string): string {
+	const binary = atob(input);
+	const bytes = new Uint8Array(binary.length);
+	for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+	return new TextDecoder().decode(bytes);
 }
 
 function stableHash(input: string): string {
