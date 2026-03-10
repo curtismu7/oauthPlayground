@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { type FlowType } from '../../v8/services/specVersionServiceV8';
-import { FlowComparisonTool } from '../components/FlowComparisonTool';
+import { type FlowType, type SpecVersion, SpecVersionServiceV8 } from '../../v8/services/specVersionServiceV8';
+import { FlowComparisonTool, type SpecFilterOption } from '../components/FlowComparisonTool';
 
 const PageContainer = styled.div`
 	padding: 2rem;
@@ -231,6 +231,37 @@ const StatItemLabel = styled.div`
 	color: #64748b;
 `;
 
+const SpecFilterRow = styled.div`
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1.5rem;
+`;
+
+const SpecFilterLabel = styled.span`
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #475569;
+`;
+
+const SpecFilterChip = styled.button<{ $active: boolean }>`
+	padding: 0.5rem 1rem;
+	border-radius: 9999px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	border: 1px solid ${(p) => (p.$active ? '#3b82f6' : '#e2e8f0')};
+	background: ${(p) => (p.$active ? '#3b82f6' : 'white')};
+	color: ${(p) => (p.$active ? 'white' : '#64748b')};
+	transition: all 0.2s ease;
+	&:hover {
+		border-color: #3b82f6;
+		background: ${(p) => (p.$active ? '#2563eb' : '#eff6ff')};
+		color: ${(p) => (p.$active ? 'white' : '#1e40af')};
+	}
+`;
+
 const FlowMetrics = {
 	'oauth-authz': {
 		name: 'Authorization Code',
@@ -360,11 +391,31 @@ const FlowMetrics = {
 	},
 };
 
+const SPEC_FILTER_OPTIONS: { value: SpecFilterOption; label: string }[] = [
+	{ value: 'all', label: 'All' },
+	{ value: 'oauth2.0', label: 'OAuth 2.0' },
+	{ value: 'oauth2.1', label: 'OAuth 2.1' },
+	{ value: 'oidc', label: 'OIDC 2.0 (OpenID Connect Core 1.0)' },
+];
+
 export const FlowComparisonPage: React.FC = () => {
 	const [selectedFlows, setSelectedFlows] = useState<FlowType[]>(['oauth-authz', 'implicit']);
 	const [comparisonMode, setComparisonMode] = useState<'detailed' | 'matrix'>('detailed');
+	const [specFilter, setSpecFilter] = useState<SpecFilterOption>('all');
 	const [message, setMessage] = useState('');
 	const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
+
+	const availableFlowsForSpec = useMemo(() => {
+		if (specFilter === 'all') return null;
+		return SpecVersionServiceV8.getAvailableFlows(specFilter);
+	}, [specFilter]);
+
+	// When spec filter narrows, restrict selected flows to those available in the spec
+	useEffect(() => {
+		if (!availableFlowsForSpec || availableFlowsForSpec.length === 0) return;
+		const allowed = new Set(availableFlowsForSpec);
+		setSelectedFlows((prev) => prev.filter((f) => allowed.has(f)));
+	}, [specFilter, availableFlowsForSpec]);
 
 	// Handle flow selection
 	const handleFlowSelect = (flowType: FlowType) => {
@@ -506,8 +557,46 @@ export const FlowComparisonPage: React.FC = () => {
 				</StatCard>
 			</StatsGrid>
 
+			{/* Spec / Standard filter — OAuth 2.0, OAuth 2.1, OIDC 2.0 for comparison */}
+			<SectionContainer>
+				<SectionHeader>
+					<SectionIcon>
+						<span>📋</span>
+					</SectionIcon>
+					<SectionTitle>Spec / Standard</SectionTitle>
+				</SectionHeader>
+				<SpecFilterRow>
+					<SpecFilterLabel>Compare by:</SpecFilterLabel>
+					{SPEC_FILTER_OPTIONS.map((opt) => (
+						<SpecFilterChip
+							key={opt.value}
+							$active={specFilter === opt.value}
+							type="button"
+							onClick={() => setSpecFilter(opt.value)}
+						>
+							{opt.label}
+						</SpecFilterChip>
+					))}
+				</SpecFilterRow>
+				{specFilter !== 'all' && (
+					<p style={{ margin: 0, fontSize: '0.875rem', color: '#64748b' }}>
+						{specFilter === 'oauth2.0' &&
+							'OAuth 2.0 (RFC 6749): all flow types including Implicit.'}
+						{specFilter === 'oauth2.1' &&
+							'OAuth 2.1: Authorization Code, Client Credentials, Device Code only; Implicit and ROPC deprecated.'}
+						{specFilter === 'oidc' &&
+							'OIDC 2.0 (OpenID Connect Core 1.0): identity layer; Authorization Code, Implicit, Hybrid, Device Code.'}
+					</p>
+				)}
+			</SectionContainer>
+
 			{/* Flow Comparison Tool */}
-			<FlowComparisonTool onFlowSelect={handleFlowSelect} selectedFlows={selectedFlows} />
+			<FlowComparisonTool
+				onFlowSelect={handleFlowSelect}
+				selectedFlows={selectedFlows}
+				specFilter={specFilter}
+				availableFlowsForSpec={availableFlowsForSpec}
+			/>
 
 			{/* Features Overview */}
 			<SectionContainer>

@@ -370,13 +370,13 @@ const JWKSTroubleshooting: React.FC = () => {
 		}
 	}, []);
 
-	// Update environment ID when worker token is updated
+	// Update environment ID when worker token is updated (load from unified storage)
 	useEffect(() => {
-		const handleTokenUpdate = () => {
+		const handleTokenUpdate = async () => {
 			try {
-				const credentials = unifiedWorkerTokenService.loadCredentials();
-				if (credentials?.environmentId && !environmentId.trim()) {
-					setEnvironmentId(credentials.environmentId);
+				const result = await unifiedWorkerTokenService.loadCredentials();
+				if (result.success && result.data?.environmentId && !environmentId.trim()) {
+					setEnvironmentId(result.data.environmentId);
 				}
 			} catch (error) {
 				logger.error(

@@ -362,7 +362,7 @@ export class RiskEvaluationService {
 					title: 'Unknown Risk',
 					description: 'Risk level could not be determined.',
 					color: '#6b7280', // Gray
-					icon: '❓',
+					icon: '?',
 				};
 		}
 	}

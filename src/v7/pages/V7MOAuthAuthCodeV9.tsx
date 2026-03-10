@@ -3,6 +3,7 @@
 
 import { FiBook } from '../../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { showGlobalError } from '../../contexts/NotificationSystem';
 import { V7MPKCEGenerationService } from '../../services/v7m/core/V7MPKCEGenerationService';
@@ -25,6 +26,8 @@ import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U'
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
+import { V7MMockApiCalls } from '../../services/v7m/V7MMockApiLogger';
+import { PingOneApiCallDisplay, PingOneApiExamples } from '../../components/PingOneApiCallDisplay';
 
 type Props = {
 	oidc?: boolean;
@@ -115,6 +118,19 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 			});
 		}
 
+		// Log mock authorization endpoint call
+		const authOptions: any = {
+			environmentId: 'v7m-mock-env',
+			clientId,
+			redirectUri,
+			scope,
+			state,
+			codeChallengeMethod,
+			responseType: 'code',
+		};
+		if (codeChallenge) authOptions.codeChallenge = codeChallenge;
+		V7MMockApiCalls.logAuthorizationEndpoint(authOptions);
+
 		const req: V7MAuthorizeRequest = {
 			response_type: responseType as 'code',
 			client_id: clientId,
@@ -141,6 +157,18 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 			showGlobalError('No authorization code available');
 			return;
 		}
+
+		// Log mock token endpoint call
+		V7MMockApiCalls.logTokenEndpoint({
+			environmentId: 'v7m-mock-env',
+			clientId,
+			code,
+			codeVerifier,
+			grantType: 'authorization_code',
+			redirectUri,
+			scope,
+		});
+
 		const res = tokenExchangeAuthorizationCode({
 			grant_type: 'authorization_code',
 			code,
@@ -168,6 +196,13 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 			showGlobalError('No access token available');
 			return;
 		}
+
+		// Log mock userinfo endpoint call
+		V7MMockApiCalls.logUserInfoEndpoint({
+			environmentId: 'v7m-mock-env',
+			accessToken,
+		});
+
 		const res = getUserInfoFromAccessToken(accessToken);
 		setUserinfoResponse(res);
 	}
@@ -177,6 +212,15 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 			showGlobalError('No access token available');
 			return;
 		}
+
+		// Log mock token introspection endpoint call
+		V7MMockApiCalls.logIntrospectionEndpoint({
+			environmentId: 'v7m-mock-env',
+			token: accessToken,
+			clientId,
+			clientSecret: expectedSecret,
+		});
+
 		const res = introspectToken(accessToken);
 		setIntrospectionResponse(res);
 	}
@@ -198,9 +242,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 					are generated deterministically based on your settings.
 				</p>
 			</div>
-			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<span>🔑</span> {title}
-			</h1>
+			<FlowHeader flowId="oauth-authorization-code-v7" />
 			<UnifiedCredentialManagerV9
 				environmentId="v7m-mock"
 				flowKey="v7m-auth-code"
@@ -623,6 +665,23 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 					<li>Prevents ID token replay attacks</li>
 				</ul>
 			</V7MHelpModal>
+
+			{/* Educational API Call Examples */}
+			<div style={{ marginTop: 24 }}>
+				<h3 style={{ marginBottom: 16, color: '#1f2937', fontSize: 18, fontWeight: 600 }}>
+					📚 Real PingOne API Call Examples
+				</h3>
+				<p style={{ marginBottom: 20, color: '#6b7280', fontSize: 14 }}>
+					These examples show exactly what real PingOne API calls look like. Use these as references when implementing OAuth/OIDC with PingOne.
+				</p>
+				
+				<PingOneApiCallDisplay {...PingOneApiExamples.authorizationEndpoint} />
+				<PingOneApiCallDisplay {...PingOneApiExamples.tokenEndpoint} />
+				
+				{oidc && (
+					<PingOneApiCallDisplay {...PingOneApiExamples.userInfoEndpoint} />
+				)}
+			</div>
 		</div>
 	);
 };

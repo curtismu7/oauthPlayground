@@ -8,11 +8,15 @@
  * This component provides a clean, organized section for worker token management
  * using the unifiedWorkerTokenService. It replaces the messy inline worker token
  * functionality that was previously scattered across MFAConfigurationStepV8.
+ *
+ * Migrated to V9 standards: V9_COLORS, styled-components, Modern Messaging.
  */
 
 import { FiRefreshCw } from '../../icons';
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { workerTokenManager } from '@/services/workerTokenManager';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -28,17 +32,206 @@ interface WorkerTokenSectionV8Props {
 	onTokenUpdated?: (token: string) => void;
 	compact?: boolean;
 	showSettings?: boolean;
+	/** When false, hides the separate Worker Token Status card (e.g. on unified MFA page). */
+	showStatusCard?: boolean;
 	silentApiRetrieval?: boolean;
 	onSilentApiRetrievalChange?: (value: boolean) => void;
 	showTokenAtEnd?: boolean;
 	onShowTokenAtEndChange?: (value: boolean) => void;
 }
 
+// ---------------------------------------------------------------------------
+// Styled components (V9 color standards)
+// ---------------------------------------------------------------------------
+
+const SectionRoot = styled.div<{ $compact: boolean }>`
+	background: ${V9_COLORS.BG.WHITE};
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border-radius: 8px;
+	padding: ${({ $compact }) => ($compact ? '16px' : '24px')};
+	margin-bottom: ${({ $compact }) => ($compact ? '16px' : '24px')};
+	box-shadow: ${({ $compact }) => ($compact ? 'none' : '0 1px 3px rgba(0, 0, 0, 0.1)')};
+`;
+
+const SectionHeader = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 16px;
+`;
+
+const HeaderIcon = styled.span`
+	font-size: 20px;
+	color: ${V9_COLORS.PRIMARY.BLUE};
+`;
+
+const SectionTitle = styled.h3`
+	margin: 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+`;
+
+const ServiceBadge = styled.span`
+	font-size: 12px;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	padding: 2px 8px;
+	border-radius: 12px;
+`;
+
+const Description = styled.p`
+	margin: 0 0 16px 0;
+	font-size: 14px;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	line-height: 1.5;
+`;
+
+const StatusBox = styled.div<{ $isValid: boolean }>`
+	background: ${({ $isValid }) => ($isValid ? V9_COLORS.BG.SUCCESS : V9_COLORS.BG.ERROR)};
+	border: 1px solid
+		${({ $isValid }) => ($isValid ? V9_COLORS.BG.SUCCESS_BORDER : V9_COLORS.BG.ERROR_BORDER)};
+	border-radius: 6px;
+	padding: 12px;
+	margin-bottom: 16px;
+`;
+
+const StatusRow = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+`;
+
+const StatusLabel = styled.div<{ $isValid: boolean }>`
+	font-size: 14px;
+	font-weight: 600;
+	color: ${({ $isValid }) =>
+		$isValid ? V9_COLORS.PRIMARY.GREEN_DARK : V9_COLORS.PRIMARY.RED_DARK};
+`;
+
+const StatusError = styled.div`
+	font-size: 12px;
+	color: ${V9_COLORS.PRIMARY.RED_DARK};
+	margin-top: 4px;
+`;
+
+const RefreshBtn = styled.button`
+	padding: 6px 8px;
+	background: transparent;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border-radius: 4px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 12px;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+`;
+
+const ButtonRow = styled.div`
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-bottom: 24px;
+`;
+
+const GetTokenButton = styled.button`
+	padding: 10px 16px;
+	background: ${V9_COLORS.PRIMARY.RED_DARK};
+	color: ${V9_COLORS.TEXT.WHITE};
+	border: none;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	transition: background 0.2s ease, transform 0.2s ease;
+	&:hover {
+		background: ${V9_COLORS.BUTTON.DANGER.backgroundHover};
+		transform: translateY(-1px);
+	}
+`;
+
+const UpdateTokenButton = styled.button`
+	padding: 10px 16px;
+	background: ${V9_COLORS.PRIMARY.GREEN};
+	color: ${V9_COLORS.TEXT.WHITE};
+	border: none;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	transition: background 0.2s ease, transform 0.2s ease;
+	&:hover {
+		background: ${V9_COLORS.PRIMARY.GREEN_DARK};
+		transform: translateY(-1px);
+	}
+`;
+
+const ClearTokenButton = styled.button`
+	padding: 10px 16px;
+	background: ${V9_COLORS.PRIMARY.RED};
+	color: ${V9_COLORS.TEXT.WHITE};
+	border: none;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	transition: background 0.2s ease, transform 0.2s ease;
+	&:hover {
+		background: ${V9_COLORS.PRIMARY.RED_DARK};
+		transform: translateY(-1px);
+	}
+`;
+
+const StatusDisplayWrap = styled.div`
+	margin-top: 16px;
+	margin-bottom: 16px;
+`;
+
+const CheckboxGroup = styled.div`
+	margin-top: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+`;
+
+const CheckboxLabel = styled.label`
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	font-size: 14px;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	& input {
+		width: 16px;
+		height: 16px;
+		cursor: pointer;
+	}
+`;
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 	environmentId,
 	onTokenUpdated,
 	compact = false,
 	showSettings = true,
+	showStatusCard = true,
 	silentApiRetrieval = false,
 	onSilentApiRetrievalChange,
 	showTokenAtEnd = false,
@@ -47,7 +240,6 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 	const [showModal, setShowModal] = useState(false);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 
-	// Get current worker token status
 	const [tokenStatus, setTokenStatus] = React.useState<{
 		isValid: boolean;
 		token?: string;
@@ -62,7 +254,6 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 		};
 		updateStatus();
 
-		// Listen for worker token updates
 		const handleTokenUpdate = () => {
 			updateStatus();
 		};
@@ -73,7 +264,6 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 	const handleRefreshToken = async () => {
 		setIsRefreshing(true);
 		try {
-			// Refresh token status
 			const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(newStatus);
 			if (onTokenUpdated && newStatus.isValid && newStatus.token) {
@@ -118,310 +308,143 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 	};
 
 	const handleGetToken = async () => {
-		// If the token is invalid but credentials are already stored, try a silent re-fetch
-		// before asking the user to re-enter credentials in the modal.
-		if (!tokenStatus.isValid) {
-			try {
-				const credsResult = await unifiedWorkerTokenService.loadCredentials();
-				if (credsResult.success) {
-					const newToken = await workerTokenManager.refreshToken();
-					if (newToken) {
-						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-						setTokenStatus(newStatus);
-						if (onTokenUpdated) onTokenUpdated(newToken);
-						modernMessaging.showFooterMessage({
-							type: 'info',
-							message: 'Worker token refreshed automatically',
-							duration: 3000,
-						});
-						return;
-					}
-				}
-			} catch {
-				// Credentials may be invalid or network unavailable — fall through to modal
-			}
-		}
-		// Token is valid (user wants to reconfigure) or silent refresh failed → show modal
-		await handleShowWorkerTokenModal(
-			setShowModal,
-			setTokenStatus,
-			silentApiRetrieval, // Use the prop value
-			showTokenAtEnd, // Use the prop value
-			!silentApiRetrieval, // forceShowModal = true only if silent retrieval is disabled
-			undefined // No silent loading state needed
-		);
-	};
+		modernMessaging.showWaitScreen({
+			message: 'Getting worker token...',
+			detail: 'This may take a few seconds. Status will update when ready.',
+		});
 
-	const sectionStyle = compact
-		? {
-				background: '#ffffff',
-				border: '1px solid #e5e7eb',
-				borderRadius: '8px',
-				padding: '16px',
-				marginBottom: '16px',
+		try {
+			if (!tokenStatus.isValid) {
+				try {
+					const credsResult = await unifiedWorkerTokenService.loadCredentials();
+					if (credsResult.success) {
+						const newToken = await workerTokenManager.refreshToken();
+						if (newToken) {
+							const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+							setTokenStatus(newStatus);
+							if (onTokenUpdated) onTokenUpdated(newToken);
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: 'Worker token refreshed automatically',
+								duration: 3000,
+							});
+							return;
+						}
+					}
+				} catch {
+					// Credentials may be invalid or network unavailable — fall through to modal
+				}
 			}
-		: {
-				background: '#ffffff',
-				border: '1px solid #e5e7eb',
-				borderRadius: '8px',
-				padding: '24px',
-				marginBottom: '24px',
-				boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-			};
+			await handleShowWorkerTokenModal(
+				setShowModal,
+				setTokenStatus,
+				silentApiRetrieval,
+				showTokenAtEnd,
+				!silentApiRetrieval,
+				undefined
+			);
+		} finally {
+			modernMessaging.hideWaitScreen();
+		}
+	};
 
 	return (
 		<>
-			<div style={sectionStyle}>
-				{/* Header */}
-				<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-					<span style={{ fontSize: 20, color: '#3b82f6' }}>🔑</span>
-					<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-						Worker Token (Admin Flow)
-					</h3>
-					{!compact && (
-						<span
-							style={{
-								fontSize: '12px',
-								color: '#6b7280',
-								background: '#f3f4f6',
-								padding: '2px 8px',
-								borderRadius: '12px',
-							}}
-						>
-							Service Account
-						</span>
-					)}
-				</div>
+			<SectionRoot $compact={compact}>
+				<SectionHeader>
+					<HeaderIcon>🔑</HeaderIcon>
+					<SectionTitle>Worker Token (Admin Flow)</SectionTitle>
+					{!compact && <ServiceBadge>Service Account</ServiceBadge>}
+				</SectionHeader>
 
-				{/* Description */}
 				{!compact && (
-					<p
-						style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}
-					>
-						Worker tokens are service account credentials used for administrative operations. They
-						allow you to register devices with custom status (ACTIVE or ACTIVATION_REQUIRED).
-					</p>
+					<Description>
+						Worker tokens are service account credentials used for administrative operations.
+						They allow you to register devices with custom status (ACTIVE or
+						ACTIVATION_REQUIRED).
+					</Description>
 				)}
 
-				{/* Token Status */}
-				<div
-					style={{
-						background: tokenStatus.isValid ? '#f0fdf4' : '#fef2f2',
-						border: `1px solid ${tokenStatus.isValid ? '#86efac' : '#fca5a5'}`,
-						borderRadius: '6px',
-						padding: '12px',
-						marginBottom: '16px',
-					}}
-				>
-					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+				<StatusBox $isValid={tokenStatus.isValid}>
+					<StatusRow>
 						<div>
-							<div
-								style={{
-									fontSize: '14px',
-									fontWeight: '600',
-									color: tokenStatus.isValid ? '#166534' : '#991b1b',
-								}}
-							>
+							<StatusLabel $isValid={tokenStatus.isValid}>
 								Status: {tokenStatus.isValid ? 'Active' : 'Not Set'}
-							</div>
+							</StatusLabel>
 							{!tokenStatus.isValid && (
-								<div style={{ fontSize: '12px', color: '#7f1d1d', marginTop: '4px' }}>
-									{tokenStatus.error || 'No worker token configured'}
-								</div>
+								<StatusError>{tokenStatus.error || 'No worker token configured'}</StatusError>
 							)}
 						</div>
 						{showSettings && (
-							<button
-								type="button"
-								onClick={handleRefreshToken}
-								disabled={isRefreshing}
-								style={{
-									padding: '6px 8px',
-									background: 'transparent',
-									border: '1px solid #d1d5db',
-									borderRadius: '4px',
-									cursor: 'pointer',
-									display: 'flex',
-									alignItems: 'center',
-									gap: '4px',
-									fontSize: '12px',
-									color: '#6b7280',
-								}}
-								title="Refresh token status"
-							>
+							<RefreshBtn type="button" onClick={handleRefreshToken} disabled={isRefreshing} title="Refresh token status">
 								<FiRefreshCw
 									size={12}
 									style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }}
 								/>
 								Refresh
-							</button>
+							</RefreshBtn>
 						)}
-					</div>
-				</div>
+					</StatusRow>
+				</StatusBox>
 
-				{/* Action Buttons */}
-				<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
+				<ButtonRow>
 					{!tokenStatus.isValid ? (
-						<button
-							type="button"
-							onClick={handleGetToken}
-							style={{
-								padding: '10px 16px',
-								background: '#dc2626',
-								color: 'white',
-								border: 'none',
-								borderRadius: '6px',
-								fontSize: '14px',
-								fontWeight: '600',
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								transition: 'all 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.background = '#b91c1c';
-								e.currentTarget.style.transform = 'translateY(-1px)';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.background = '#dc2626';
-								e.currentTarget.style.transform = 'translateY(0)';
-							}}
-						>
-							<span style={{ fontSize: '16px' }}>🔑</span>
+						<GetTokenButton type="button" onClick={handleGetToken}>
+							<span style={{ fontSize: 16 }}>🔑</span>
 							Get Worker Token
-						</button>
+						</GetTokenButton>
 					) : (
 						<>
-							<button
-								type="button"
-								onClick={handleGetToken}
-								style={{
-									padding: '10px 16px',
-									background: '#10b981',
-									color: 'white',
-									border: 'none',
-									borderRadius: '6px',
-									fontSize: '14px',
-									fontWeight: '600',
-									cursor: 'pointer',
-									display: 'flex',
-									alignItems: 'center',
-									gap: '8px',
-									transition: 'all 0.2s ease',
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.background = '#059669';
-									e.currentTarget.style.transform = 'translateY(-1px)';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.background = '#10b981';
-									e.currentTarget.style.transform = 'translateY(0)';
-								}}
-							>
-								<span style={{ fontSize: '16px' }}>🔑</span>
+							<UpdateTokenButton type="button" onClick={handleGetToken}>
+								<span style={{ fontSize: 16 }}>🔑</span>
 								Update Token
-							</button>
-							<button
-								type="button"
-								onClick={handleClearToken}
-								style={{
-									padding: '10px 16px',
-									background: '#ef4444',
-									color: 'white',
-									border: 'none',
-									borderRadius: '6px',
-									fontSize: '14px',
-									fontWeight: '600',
-									cursor: 'pointer',
-									display: 'flex',
-									alignItems: 'center',
-									gap: '8px',
-									transition: 'all 0.2s ease',
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.background = '#dc2626';
-									e.currentTarget.style.transform = 'translateY(-1px)';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.background = '#ef4444';
-									e.currentTarget.style.transform = 'translateY(0)';
-								}}
-							>
+							</UpdateTokenButton>
+							<ClearTokenButton type="button" onClick={handleClearToken}>
 								Clear Token
-							</button>
+							</ClearTokenButton>
 						</>
 					)}
-				</div>
+				</ButtonRow>
 
-				{/* Worker Token Status Display - Between buttons and checkboxes */}
-				<div style={{ marginTop: '16px', marginBottom: '16px' }}>
-					<WorkerTokenStatusDisplayV8
-						mode="compact"
-						showRefresh={true}
-						refreshInterval={10}
-						showConfig={false}
-					/>
-				</div>
+				{showStatusCard && (
+					<StatusDisplayWrap>
+						<WorkerTokenStatusDisplayV8
+							mode="compact"
+							showRefresh={true}
+							refreshInterval={10}
+							showConfig={false}
+						/>
+					</StatusDisplayWrap>
+				)}
 
-				{/* Worker Token Settings Checkboxes */}
 				{showSettings && (
-					<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-						<label
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								cursor: 'pointer',
-								fontSize: '14px',
-								color: '#374151',
-							}}
-						>
+					<CheckboxGroup>
+						<CheckboxLabel>
 							<input
 								type="checkbox"
 								checked={silentApiRetrieval}
 								onChange={(e) => onSilentApiRetrievalChange?.(e.target.checked)}
-								style={{
-									width: '16px',
-									height: '16px',
-									cursor: 'pointer',
-								}}
 							/>
 							<span>
 								<strong>Silent API Retrieval</strong> - Automatically fetch worker token without
 								showing modal
 							</span>
-						</label>
-						<label
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								cursor: 'pointer',
-								fontSize: '14px',
-								color: '#374151',
-							}}
-						>
+						</CheckboxLabel>
+						<CheckboxLabel>
 							<input
 								type="checkbox"
 								checked={showTokenAtEnd}
 								onChange={(e) => onShowTokenAtEndChange?.(e.target.checked)}
-								style={{
-									width: '16px',
-									height: '16px',
-									cursor: 'pointer',
-								}}
 							/>
 							<span>
 								<strong>Show Token at End</strong> - Display the worker token after successful
 								retrieval
 							</span>
-						</label>
-					</div>
+						</CheckboxLabel>
+					</CheckboxGroup>
 				)}
-			</div>
+			</SectionRoot>
 
-			{/* Worker Token Modal */}
 			<WorkerTokenModalV8
 				isOpen={showModal}
 				onClose={() => setShowModal(false)}

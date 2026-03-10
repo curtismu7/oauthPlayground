@@ -9,7 +9,7 @@
  * Ensures foolproof behavior across all pages and flows
  */
 
-import React from 'react';
+import React, { useId } from 'react';
 import { useSilentApiConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 
 const _MODULE_TAG = '[🔕 SILENT-API-CONFIG-V8]';
@@ -33,7 +33,8 @@ export interface SilentApiConfigCheckboxV8Props {
 
 /**
  * Centralized Silent API configuration checkbox component
- * Uses the useSilentApiConfigV8 hook for consistent state management
+ * Uses the useSilentApiConfigV8 hook for consistent state management.
+ * Wraps row in <label> with htmlFor so the whole row is clickable.
  */
 export const SilentApiConfigCheckboxV8: React.FC<SilentApiConfigCheckboxV8Props> = ({
 	className = '',
@@ -44,6 +45,7 @@ export const SilentApiConfigCheckboxV8: React.FC<SilentApiConfigCheckboxV8Props>
 	loading = false,
 	onChange,
 }) => {
+	const id = useId();
 	const { silentApiRetrieval, updateSilentApiRetrieval, isReady } = useSilentApiConfigV8();
 
 	const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,23 +70,40 @@ export const SilentApiConfigCheckboxV8: React.FC<SilentApiConfigCheckboxV8Props>
 		);
 	}
 
+	const handleLabelClick = (e: React.MouseEvent<HTMLLabelElement>) => {
+		if ((e.target as HTMLElement).closest('input[type="checkbox"]')) return;
+		e.preventDefault();
+		const input = document.getElementById(id) as HTMLInputElement | null;
+		if (input && !input.disabled) input.click();
+	};
+
 	return (
-		<div
+		<label
+			htmlFor={id}
 			className={className}
+			onClick={handleLabelClick}
 			style={{
 				display: 'flex',
 				alignItems: 'flex-start',
 				gap: '8px',
+				cursor: disabled || loading ? 'not-allowed' : 'pointer',
+				position: 'relative',
+				zIndex: 1,
+				minHeight: '40px',
 				...style,
 			}}
 		>
 			<input
+				id={id}
 				type="checkbox"
 				checked={silentApiRetrieval === true}
 				onChange={handleChange}
 				disabled={disabled || loading}
 				style={{
 					marginTop: '2px',
+					width: '18px',
+					height: '18px',
+					flexShrink: 0,
 					cursor: disabled || loading ? 'not-allowed' : 'pointer',
 				}}
 			/>
@@ -110,7 +129,7 @@ export const SilentApiConfigCheckboxV8: React.FC<SilentApiConfigCheckboxV8Props>
 					{description}
 				</span>
 			</div>
-		</div>
+		</label>
 	);
 };
 

@@ -1,6 +1,7 @@
 // src/utils/credentialManager.ts
 
 import { type OIDCDiscoveryDocument, oidcDiscoveryService } from '../services/oidcDiscoveryService';
+import * as callbackUrls from './callbackUrls';
 import { logger } from './logger';
 export interface PermanentCredentials {
 	environmentId: string;
@@ -238,7 +239,7 @@ class CredentialManager {
 				// Override redirect URI to use flow-specific default for authorization flows
 				return {
 					...configCredentials,
-					redirectUri: configCredentials.redirectUri || getCallbackUrlForFlow('authorization-code'),
+					redirectUri: configCredentials.redirectUri || callbackUrls.getCallbackUrlForFlow('authorization-code'),
 				};
 			}
 
@@ -251,7 +252,7 @@ class CredentialManager {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					clientSecret: credentials.clientSecret || '',
-					redirectUri: credentials.redirectUri || getCallbackUrlForFlow('authorization-code'),
+					redirectUri: credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('authorization-code'),
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -267,7 +268,7 @@ class CredentialManager {
 					environmentId: '',
 					clientId: '',
 					clientSecret: '',
-					redirectUri: getCallbackUrlForFlow('authorization-code'),
+					redirectUri: callbackUrls.getCallbackUrlForFlow('authorization-code'),
 					scopes: ['openid', 'profile', 'email'],
 					loginHint: '',
 				};
@@ -278,7 +279,7 @@ class CredentialManager {
 				environmentId: '',
 				clientId: '',
 				clientSecret: '',
-				redirectUri: getCallbackUrlForFlow('authorization-code'),
+				redirectUri: callbackUrls.getCallbackUrlForFlow('authorization-code'),
 				scopes: ['openid', 'profile', 'email'],
 				loginHint: '',
 			};
@@ -372,7 +373,7 @@ class CredentialManager {
 					redirectUri:
 						credentials.redirectUri !== undefined
 							? credentials.redirectUri
-							: getCallbackUrlForFlow('oidc-implicit-v3'),
+							: callbackUrls.getCallbackUrlForFlow('oidc-implicit-v3'),
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -395,7 +396,7 @@ class CredentialManager {
 					environmentId: '',
 					clientId: '',
 					clientSecret: '',
-					redirectUri: getCallbackUrlForFlow('oidc-implicit-v3'),
+					redirectUri: callbackUrls.getCallbackUrlForFlow('oidc-implicit-v3'),
 					scopes: ['openid', 'profile', 'email'],
 				};
 			}
@@ -405,7 +406,7 @@ class CredentialManager {
 				environmentId: '',
 				clientId: '',
 				clientSecret: '',
-				redirectUri: getCallbackUrlForFlow('oidc-implicit-v3'),
+				redirectUri: callbackUrls.getCallbackUrlForFlow('oidc-implicit-v3'),
 				scopes: ['openid', 'profile', 'email'],
 			};
 		}
@@ -458,7 +459,7 @@ class CredentialManager {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					clientSecret: credentials.clientSecret || '',
-					redirectUri: credentials.redirectUri || getCallbackUrlForFlow('oidc-hybrid-v3'),
+					redirectUri: credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('oidc-hybrid-v3'),
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -473,7 +474,7 @@ class CredentialManager {
 					environmentId: '',
 					clientId: '',
 					clientSecret: '',
-					redirectUri: getCallbackUrlForFlow('oidc-hybrid-v3'),
+					redirectUri: callbackUrls.getCallbackUrlForFlow('oidc-hybrid-v3'),
 					scopes: ['openid', 'profile', 'email'],
 				};
 			}
@@ -488,7 +489,7 @@ class CredentialManager {
 				environmentId: '',
 				clientId: '',
 				clientSecret: '',
-				redirectUri: getCallbackUrlForFlow('oidc-hybrid-v3'),
+				redirectUri: callbackUrls.getCallbackUrlForFlow('oidc-hybrid-v3'),
 				scopes: ['openid', 'profile', 'email'],
 			};
 		}
@@ -541,7 +542,7 @@ class CredentialManager {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					clientSecret: credentials.clientSecret || '',
-					redirectUri: credentials.redirectUri || getCallbackUrlForFlow('authorization-code'),
+					redirectUri: credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('authorization-code'),
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					loginHint: credentials.loginHint || '',
 					authEndpoint: credentials.authEndpoint,
@@ -558,7 +559,7 @@ class CredentialManager {
 					environmentId: '',
 					clientId: '',
 					clientSecret: '',
-					redirectUri: getCallbackUrlForFlow('authorization-code'),
+					redirectUri: callbackUrls.getCallbackUrlForFlow('authorization-code'),
 					scopes: ['openid', 'profile', 'email'],
 					loginHint: '',
 					tokenAuthMethod: 'client_secret_post',
@@ -632,7 +633,7 @@ class CredentialManager {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					clientSecret: credentials.clientSecret || '',
-					redirectUri: credentials.redirectUri || getCallbackUrlForFlow('oidc-device-code-v3'),
+					redirectUri: credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('oidc-device-code-v3'),
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -1288,7 +1289,7 @@ class CredentialManager {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
-				redirectUri: credentials.redirectUri || getCallbackUrlForFlow('authorization-code'),
+				redirectUri: credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('authorization-code'),
 				scopes: credentials.supportedScopes.includes('openid')
 					? ['openid', 'profile', 'email']
 					: ['openid'],

@@ -379,14 +379,13 @@ const createPopOutWindow = (
 				return displayUrl;
 			}
 
-			// Debug: Log that JavaScript is loading
-			logger.info('Popout window JavaScript loading...', "Logger info");
-			logger.info('Processed calls available:', !!window.processedCalls);
-			logger.info('Processed calls count:', window.processedCalls?.length || 0);
+			// Debug: Log that JavaScript is loading (console available in popout; logger is not)
+			if (typeof console !== 'undefined') {
+				console.log('Popout window JavaScript loading...', 'Processed calls available:', !!window.processedCalls, 'count:', window.processedCalls?.length || 0);
+			}
 
 			// Fallback: Use inline data if window.processedCalls is not available
 			if (!window.processedCalls) {
-				logger.info('No processed calls found, using fallback data');
 				window.processedCalls = [];
 			}
 

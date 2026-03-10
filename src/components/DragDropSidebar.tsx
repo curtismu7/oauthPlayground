@@ -1525,16 +1525,16 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								),
 							},
 							{
-								id: 'pingone-identity-metrics',
-								path: '/pingone-identity-metrics',
-								label: 'Identity Metrics',
+								id: 'pingone-dashboard',
+								path: '/pingone-dashboard',
+								label: 'Platform Dashboard',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 										<i className="bi bi-question-circle"></i>
 									</ColoredIcon>
 								),
 								badge: (
-									<MigrationBadge title="PingOne Total Identities metrics explorer">
+									<MigrationBadge title="PingOne Audit & Identity Metrics">
 										<span>✅</span>
 									</MigrationBadge>
 								),
@@ -1566,21 +1566,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 						isOpen: false,
 						items: [
-							{
-								id: 'pingone-audit-activities',
-								path: '/pingone-audit-activities',
-								label: 'Audit Activities',
-								icon: (
-									<ColoredIcon $color="#667eea">
-										<span>🔄</span>
-									</ColoredIcon>
-								),
-								badge: (
-									<MigrationBadge title="Query and analyze PingOne audit events">
-										<span>✅</span>
-									</MigrationBadge>
-								),
-							},
 							{
 								id: 'pingone-webhook-viewer',
 								path: '/pingone-webhook-viewer',

@@ -623,10 +623,11 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					message: 'Security error: Invalid OAuth state. Please try again.',
 					dismissible: true,
 				});
-				// Clear invalid state and redirect to dashboard
+				// Clear invalid state and redirect back to the current MFA flow with error
 				sessionStorage.removeItem('oauth_state');
 				sessionStorage.removeItem('oauth_state_timestamp');
-				window.location.replace('/dashboard?error=csrf_risk');
+				const currentPath = window.location.pathname;
+				window.location.replace(`${currentPath}?error=csrf_risk&reason=state_mismatch`);
 				return;
 			}
 

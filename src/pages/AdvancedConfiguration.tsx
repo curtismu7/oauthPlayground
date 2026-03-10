@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import JsonEditor from '../components/JsonEditor';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { FlowHeader } from '../services/flowHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
@@ -586,19 +587,10 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 	const hasCredentials = currentCredentials.environmentId && currentCredentials.clientId;
 	const _credentialStatus = hasCredentials ? 'complete' : 'missing';
 
-	return (
+		return (
 		<PageContainer>
 			<ContentWrapper>
-				<Header>
-					<h1>
-						<FiEdit size={40} />
-						Advanced Configuration
-					</h1>
-					<p>
-						Configure default OAuth scopes, claims, and environment-wide settings used across all
-						flows.
-					</p>
-				</Header>
+				<FlowHeader flowId="advanced-configuration" />
 
 				<BackButton onClick={() => navigate('/configuration')} aria-label="Back to Configuration">
 					<span>⬅️</span>

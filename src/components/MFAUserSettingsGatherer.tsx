@@ -395,10 +395,11 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 	);
 
 	useEffect(() => {
-		const savedCredentials = workerTokenCredentialsService.loadCredentials();
-		if (savedCredentials) {
-			setWorkerTokenCredentials(savedCredentials);
-		}
+		workerTokenCredentialsService.loadCredentials().then((savedCredentials) => {
+			if (savedCredentials) {
+				setWorkerTokenCredentials(savedCredentials);
+			}
+		});
 	}, []);
 
 	// Update parent component when settings change
