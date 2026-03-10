@@ -1,4 +1,4 @@
-import { FiLoader } from '@icons';
+import { FiLoader } from '../../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../../../../utils/logger';
@@ -17,251 +17,252 @@ interface EnvironmentIdInputProps {
 }
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	padding: 1.5rem;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
 `;
 
 const Header = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h3`
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #000000;
+	margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #000000;
 `;
 
 const Description = styled.p`
-  margin: 0 0 1rem 0;
-  font-size: 0.875rem;
-  color: #000000;
-  line-height: 1.5;
+	margin: 0 0 1rem 0;
+	font-size: 0.875rem;
+	color: #000000;
+	line-height: 1.5;
 `;
 
 const InputContainer = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const Label = styled.label`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: #374151;
 `;
 
 const InputGroup = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
+	position: relative;
+	display: flex;
+	align-items: center;
 `;
 
 const RegionSelector = styled.select`
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-right: none;
-  border-radius: 6px 0 0 6px;
-  font-size: 0.875rem;
-  background: #ffffff;
-  color: #1f2937;
-  min-width: 120px;
-  
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-right: none;
+	border-radius: 6px 0 0 6px;
+	font-size: 0.875rem;
+	background: #ffffff;
+	color: #1f2937;
+	min-width: 120px;
+
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const Input = styled.input.withConfig({
 	shouldForwardProp: (prop) => !['hasError', 'hasSuccess'].includes(prop),
 })<{ hasError?: boolean; hasSuccess?: boolean }>`
-  flex: 1;
-  padding: 0.75rem;
-  border: 1px solid ${(props) =>
-		props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#d1d5db'};
-  border-radius: 0 6px 6px 0;
-  font-size: 0.875rem;
-  background: #ffffff;
-  color: #1f2937;
-  font-family: monospace;
-  transition: all 0.2s ease;
+	flex: 1;
+	padding: 0.75rem;
+	border: 1px solid
+		${(props) => (props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#d1d5db')};
+	border-radius: 0 6px 6px 0;
+	font-size: 0.875rem;
+	background: #ffffff;
+	color: #1f2937;
+	font-family: monospace;
+	transition: all 0.2s ease;
 
-  &:focus {
-    outline: none;
-    border-color: ${(props) =>
+	&:focus {
+		outline: none;
+		border-color: ${(props) =>
 			props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#3b82f6'};
-    box-shadow: 0 0 0 3px ${(props) =>
-			props.hasError
-				? 'rgba(239, 68, 68, 0.1)'
-				: props.hasSuccess
-					? 'rgba(16, 185, 129, 0.1)'
-					: 'rgba(59, 130, 246, 0.1)'};
-  }
+		box-shadow: 0 0 0 3px
+			${(props) =>
+				props.hasError
+					? 'rgba(239, 68, 68, 0.1)'
+					: props.hasSuccess
+						? 'rgba(16, 185, 129, 0.1)'
+						: 'rgba(59, 130, 246, 0.1)'};
+	}
 
-  &:disabled {
-    background: #f9fafb;
-    color: #9ca3af;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		background: #f9fafb;
+		color: #9ca3af;
+		cursor: not-allowed;
+	}
 `;
 
 const DiscoverButton = styled.button.withConfig({
 	shouldForwardProp: (prop) => !['isLoading'].includes(prop),
 })<{ isLoading?: boolean }>`
-  position: absolute;
-  right: 0.5rem;
-  padding: 0.5rem;
-  background: ${(props) => (props.isLoading ? '#f3f4f6' : '#10b981')};
-  color: ${(props) => (props.isLoading ? '#6b7280' : 'white')};
-  border: 1px solid ${(props) => (props.isLoading ? '#d1d5db' : '#059669')};
-  border-radius: 0.375rem;
-  cursor: ${(props) => (props.isLoading ? 'not-allowed' : 'pointer')};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  z-index: 1;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	position: absolute;
+	right: 0.5rem;
+	padding: 0.5rem;
+	background: ${(props) => (props.isLoading ? '#f3f4f6' : '#10b981')};
+	color: ${(props) => (props.isLoading ? '#6b7280' : 'white')};
+	border: 1px solid ${(props) => (props.isLoading ? '#d1d5db' : '#059669')};
+	border-radius: 0.375rem;
+	cursor: ${(props) => (props.isLoading ? 'not-allowed' : 'pointer')};
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	z-index: 1;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
-  &:hover:not(:disabled) {
-    background: #059669;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
+	&:hover:not(:disabled) {
+		background: #059669;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
 
-  &:active:not(:disabled) {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  }
+	&:active:not(:disabled) {
+		transform: translateY(0);
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	}
 
-  &:disabled {
-    cursor: not-allowed;
-  }
+	&:disabled {
+		cursor: not-allowed;
+	}
 `;
 
 const SaveButton = styled.button<{ $isSaved?: boolean }>`
-  padding: 0.5rem 1rem;
-  background: ${(props) => (props.$isSaved ? '#059669' : '#10b981')};
-  color: white;
-  border: 1px solid ${(props) => (props.$isSaved ? '#047857' : '#059669')};
-  border-radius: 0.375rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	padding: 0.5rem 1rem;
+	background: ${(props) => (props.$isSaved ? '#059669' : '#10b981')};
+	color: white;
+	border: 1px solid ${(props) => (props.$isSaved ? '#047857' : '#059669')};
+	border-radius: 0.375rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
-  &:hover {
-    background: ${(props) => (props.$isSaved ? '#059669' : '#2563eb')};
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
+	&:hover {
+		background: ${(props) => (props.$isSaved ? '#059669' : '#2563eb')};
+		transform: translateY(-1px);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
 
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  }
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 `;
 
 const ResetButton = styled.button`
-  padding: 0.5rem 1rem;
-  background: #6b7280;
-  color: white;
-  border: 1px solid #4b5563;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	padding: 0.5rem 1rem;
+	background: #6b7280;
+	color: white;
+	border: 1px solid #4b5563;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
-  &:hover {
-    background: #4b5563;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
+	&:hover {
+		background: #4b5563;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
 
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  }
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 0.75rem;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
 `;
 
 const IssuerUrlDisplay = styled.div`
-  padding: 0.75rem;
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-family: monospace;
-  font-size: 0.875rem;
-  color: #334155;
-  word-break: break-all;
-  position: relative;
+	padding: 0.75rem;
+	background: #f1f5f9;
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	font-family: monospace;
+	font-size: 0.875rem;
+	color: #334155;
+	word-break: break-all;
+	position: relative;
 `;
 
 const CopyButton = styled.button`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background: #2563eb;
-  }
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	padding: 0.25rem 0.5rem;
+	background: #3b82f6;
+	color: white;
+	border: none;
+	border-radius: 0.25rem;
+	cursor: pointer;
+	font-size: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	transition: background-color 0.2s;
+
+	&:hover {
+		background: #2563eb;
+	}
 `;
 
 const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loading' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border-radius: 6px;
-  background: ${(props) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem;
+	border-radius: 6px;
+	background: ${(props) => {
 		switch (props.type) {
 			case 'success':
 				return '#f0fdf4';
@@ -275,21 +276,22 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
 				return '#f8fafc';
 		}
 	}};
-  border: 1px solid ${(props) => {
-		switch (props.type) {
-			case 'success':
-				return '#bbf7d0';
-			case 'error':
-				return '#fecaca';
-			case 'info':
-				return '#bfdbfe';
-			case 'loading':
-				return '#e2e8f0';
-			default:
-				return '#e2e8f0';
-		}
-	}};
-  color: ${(props) => {
+	border: 1px solid
+		${(props) => {
+			switch (props.type) {
+				case 'success':
+					return '#bbf7d0';
+				case 'error':
+					return '#fecaca';
+				case 'info':
+					return '#bfdbfe';
+				case 'loading':
+					return '#e2e8f0';
+				default:
+					return '#e2e8f0';
+			}
+		}};
+	color: ${(props) => {
 		switch (props.type) {
 			case 'success':
 				return '#166534';
@@ -306,98 +308,99 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
 `;
 
 const StatusText = styled.div`
-  font-size: 0.875rem;
-  line-height: 1.4;
+	font-size: 0.875rem;
+	line-height: 1.4;
 `;
 
 const ErrorMessage = styled.div`
-  color: #dc2626;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
+	color: #dc2626;
+	font-size: 0.875rem;
+	margin-top: 0.5rem;
 `;
 
 const RegionInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  color: #000000;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	background: #eff6ff;
+	border: 1px solid #bfdbfe;
+	border-radius: 0.375rem;
+	font-size: 0.75rem;
+	color: #000000;
 `;
 
 const DiscoveryResultsBox = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  overflow: hidden;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	margin-bottom: 1rem;
+	overflow: hidden;
 `;
 
 const DiscoveryResultsHeader = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 1rem;
-  background: #3b82f6;
-  color: white;
-  font-weight: 600;
-  font-size: 0.875rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  
-  &:hover {
-    background: #2563eb;
-  }
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	width: 100%;
+	padding: 1rem;
+	background: #3b82f6;
+	color: white;
+	font-weight: 600;
+	font-size: 0.875rem;
+	border: none;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+
+	&:hover {
+		background: #2563eb;
+	}
 `;
 
 const DiscoveryResultsHeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const DiscoveryResultsToggleIcon = styled.span<{ $collapsed: boolean }>`
-  display: inline-flex;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-  transition: transform 0.2s ease;
-  
-  &:hover {
-    transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
-  }
+	display: inline-flex;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transition: transform 0.2s ease;
+
+	&:hover {
+		transform: ${({ $collapsed }) =>
+			$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
+	}
 `;
 
 const DiscoveryResultsContent = styled.div`
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+	padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
 `;
 
 const DiscoveryResultItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  
-  strong {
-    color: #374151;
-    font-weight: 600;
-  }
-  
-  &:not(:last-child) {
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	font-size: 0.875rem;
+	line-height: 1.4;
+
+	strong {
+		color: #374151;
+		font-weight: 600;
+	}
+
+	&:not(:last-child) {
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid #e5e7eb;
+	}
 `;
 
 const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
@@ -628,7 +631,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 
 		// Trigger discovery if we have a valid environment ID, regardless of existing discovery result
 		if (autoDiscover && environmentId && environmentId.length > 10) {
-			logger.info('[EnvironmentIdInput] Triggering auto-discovery in 1 second...', "Logger info");
+			logger.info('[EnvironmentIdInput] Triggering auto-discovery in 1 second...', 'Logger info');
 			const timeoutId = setTimeout(() => {
 				logger.info(
 					'[EnvironmentIdInput] Auto-discovery timeout triggered, calling handleDiscover'

@@ -10,7 +10,7 @@
  */
 const SERVICE_VERSION = '2.0.0';
 
-import { FiCheckCircle } from '@icons';
+import { FiCheckCircle } from '../../../../icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../../../../utils/logger';
@@ -58,7 +58,7 @@ const ResponseTypeSelect = styled.select`
 	font-size: 0.875rem;
 	background-color: white;
 	color: #374151;
-	
+
 	&:focus {
 		outline: none;
 		border-color: #3b82f6;
@@ -519,8 +519,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		} else if (storedWorkerToken) {
 			// Token exists but no expiration data - assume it might be expired
 			logger.warn(
-				'[COMPREHENSIVE-CREDENTIALS] ⚠️ Worker token found but no expiration data - token may be expired'
-			, "Logger warning");
+				'[COMPREHENSIVE-CREDENTIALS] ⚠️ Worker token found but no expiration data - token may be expired',
+				'Logger warning'
+			);
 			setRetrievedWorkerToken(storedWorkerToken);
 		} else {
 			setRetrievedWorkerToken('');
@@ -536,7 +537,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					clientId: parsed.clientId || '',
 					clientSecret: parsed.clientSecret || '',
 				});
-				logger.info('[COMPREHENSIVE-CREDENTIALS] Loaded worker credentials from localStorage', "Logger info");
+				logger.info(
+					'[COMPREHENSIVE-CREDENTIALS] Loaded worker credentials from localStorage',
+					'Logger info'
+				);
 			} catch (error) {
 				logger.error('[COMPREHENSIVE-CREDENTIALS] Error parsing worker credentials:', error);
 			}
@@ -980,8 +984,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 				if (isValidUUID) {
 					logger.info(
-						`🔧 [EnvironmentIdPersistence] Environment ID changed: ${resolvedCredentials.environmentId} → ${updates.environmentId}`
-					, "Logger info");
+						`🔧 [EnvironmentIdPersistence] Environment ID changed: ${resolvedCredentials.environmentId} → ${updates.environmentId}`,
+						'Logger info'
+					);
 					// Use debounced save to avoid excessive saves
 					// Clear any existing timeout
 					if (environmentIdSaveTimeoutRef.current) {
@@ -996,7 +1001,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								updates.environmentId.trim(),
 								'manual'
 							);
-							logger.info(`✅ [EnvironmentIdPersistence] Saved environment ID after debounce`, "Logger info");
+							logger.info(
+								`✅ [EnvironmentIdPersistence] Saved environment ID after debounce`,
+								'Logger info'
+							);
 						}
 					}, 1500); // 1.5 second debounce
 				}
@@ -1140,9 +1148,15 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			};
 
 			logger.info('[ComprehensiveCredentialsService] Updates to apply:', updates);
-			logger.info('[ComprehensiveCredentialsService] Calling applyCredentialUpdates...', "Logger info");
+			logger.info(
+				'[ComprehensiveCredentialsService] Calling applyCredentialUpdates...',
+				'Logger info'
+			);
 			applyCredentialUpdates(updates, { shouldSave: false });
-			logger.info('[ComprehensiveCredentialsService] applyCredentialUpdates completed', "Logger info");
+			logger.info(
+				'[ComprehensiveCredentialsService] applyCredentialUpdates completed',
+				'Logger info'
+			);
 
 			const logoutUriInfo = application.postLogoutRedirectUris?.[0]
 				? ' (including logout URI)'
@@ -1229,22 +1243,25 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					updates
 				);
 				logger.info(
-					`[ComprehensiveCredentialsService v${SERVICE_VERSION}] Environment ID to apply: ${environmentIdToApply}`
-				, "Logger info");
+					`[ComprehensiveCredentialsService v${SERVICE_VERSION}] Environment ID to apply: ${environmentIdToApply}`,
+					'Logger info'
+				);
 
 				// SAFEGUARD 1: Persist Environment ID to localStorage immediately (bypasses any UI restrictions)
 				if (environmentIdToApply && environmentIdToApply.trim() !== '') {
 					logger.info(
-						`🔧 [EnvironmentIdPersistence] OIDC Discovery found Environment ID: ${environmentIdToApply}`
-					, "Logger info");
+						`🔧 [EnvironmentIdPersistence] OIDC Discovery found Environment ID: ${environmentIdToApply}`,
+						'Logger info'
+					);
 					try {
 						environmentIdPersistenceService.saveEnvironmentId(
 							environmentIdToApply.trim(),
 							'oidc_discovery'
 						);
 						logger.info(
-							`✅ [EnvironmentIdPersistence] Environment ID saved to persistence service`
-						, "Logger info");
+							`✅ [EnvironmentIdPersistence] Environment ID saved to persistence service`,
+							'Logger info'
+						);
 					} catch (error) {
 						logger.error(`❌ [EnvironmentIdPersistence] Failed to save Environment ID:`, error);
 					}
@@ -1254,8 +1271,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				try {
 					applyCredentialUpdates(updates, { shouldSave: true });
 					logger.info(
-						`✅ [ComprehensiveCredentialsService] applyCredentialUpdates called successfully`
-					, "Logger info");
+						`✅ [ComprehensiveCredentialsService] applyCredentialUpdates called successfully`,
+						'Logger info'
+					);
 				} catch (error) {
 					logger.error(
 						`❌ [ComprehensiveCredentialsService] applyCredentialUpdates failed:`,
@@ -1276,8 +1294,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						);
 						onCredentialsChange(mergedCredentials);
 						logger.info(
-							`✅ [ComprehensiveCredentialsService] Direct onCredentialsChange called successfully`
-						, "Logger info");
+							`✅ [ComprehensiveCredentialsService] Direct onCredentialsChange called successfully`,
+							'Logger info'
+						);
 					} catch (error) {
 						logger.error(
 							`❌ [ComprehensiveCredentialsService] Direct onCredentialsChange failed:`,
@@ -1294,8 +1313,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						);
 						onEnvironmentIdChange(environmentIdToApply.trim());
 						logger.info(
-							`✅ [ComprehensiveCredentialsService] Direct onEnvironmentIdChange called successfully`
-						, "Logger info");
+							`✅ [ComprehensiveCredentialsService] Direct onEnvironmentIdChange called successfully`,
+							'Logger info'
+						);
 					} catch (error) {
 						logger.error(
 							`❌ [ComprehensiveCredentialsService] Direct onEnvironmentIdChange failed:`,
@@ -1309,15 +1329,20 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					const currentEnvId = resolvedCredentials.environmentId;
 					if (environmentIdToApply && currentEnvId !== environmentIdToApply.trim()) {
 						logger.warn(
-							`⚠️ [ComprehensiveCredentialsService] Environment ID mismatch after OIDC discovery!`
-						, "Logger warning");
+							`⚠️ [ComprehensiveCredentialsService] Environment ID mismatch after OIDC discovery!`,
+							'Logger warning'
+						);
 						logger.warn(`   Expected: ${environmentIdToApply.trim()}`);
-						logger.warn(`   Current: ${currentEnvId}`, "Logger warning");
-						logger.warn(`   This indicates a potential issue with credential field editability.`, "Logger warning");
+						logger.warn(`   Current: ${currentEnvId}`, 'Logger warning');
+						logger.warn(
+							`   This indicates a potential issue with credential field editability.`,
+							'Logger warning'
+						);
 					} else if (environmentIdToApply && currentEnvId === environmentIdToApply.trim()) {
 						logger.info(
-							`✅ [ComprehensiveCredentialsService] Environment ID successfully applied: ${currentEnvId}`
-						, "Logger info");
+							`✅ [ComprehensiveCredentialsService] Environment ID successfully applied: ${currentEnvId}`,
+							'Logger info'
+						);
 					}
 				}, 100);
 			}
@@ -2121,8 +2146,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									delete baseFormData.responseTypes;
 									delete baseFormData.redirectUris;
 									logger.info(
-										'[CONFIG-CHECKER] CIBA flow detected - removing responseTypes and redirectUris from comparison'
-									, "Logger info");
+										'[CONFIG-CHECKER] CIBA flow detected - removing responseTypes and redirectUris from comparison',
+										'Logger info'
+									);
 								}
 
 								return baseFormData;
@@ -2188,9 +2214,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							}) => {
 								// Create a new PingOne application using the current flow configuration
 								try {
-									const { pingOneAppCreationService } = await import(
-										'../services/pingOneAppCreationService'
-									);
+									const { pingOneAppCreationService } =
+										await import('../services/pingOneAppCreationService');
 
 									// Initialize the service with worker token
 									await pingOneAppCreationService.initialize(
@@ -2531,8 +2556,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									}}
 								>
 									<p style={{ margin: 0, fontSize: '0.875rem', color: '#92400e' }}>
-										<strong>⚠️ Configuration Mismatch:</strong> Make sure your PingOne application is
-										configured to use <code>{clientAuthMethod}</code> as the token endpoint
+										<strong>⚠️ Configuration Mismatch:</strong> Make sure your PingOne application
+										is configured to use <code>{clientAuthMethod}</code> as the token endpoint
 										authentication method.
 									</p>
 								</div>

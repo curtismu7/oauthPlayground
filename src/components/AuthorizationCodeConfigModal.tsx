@@ -1,7 +1,7 @@
 // src/components/AuthorizationCodeConfigModal.tsx
 // Simple modal for configuring Authorization Code flow credentials
 
-import { FiInfo } from '@icons';
+import { FiInfo } from '../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -41,13 +41,13 @@ const FormInput = styled.input`
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s;
-	
+
 	&:focus {
 		outline: none;
 		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
-	
+
 	&:disabled {
 		background-color: #f3f4f6;
 		color: V9_COLORS.TEXT.GRAY_MEDIUM;
@@ -92,11 +92,11 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	cursor: pointer;
 	transition: background 0.2s;
 	font-size: 0.875rem;
-	
+
 	&:hover {
 		background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
 	}
-	
+
 	&:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
@@ -131,8 +131,9 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 	useEffect(() => {
 		if (isOpen) {
 			logger.info(
-				`[AuthorizationCodeConfigModal] 🔄 Modal opened - loading saved credentials for flowType: ${flowType}`
-			, "Logger info");
+				`[AuthorizationCodeConfigModal] 🔄 Modal opened - loading saved credentials for flowType: ${flowType}`,
+				'Logger info'
+			);
 
 			// Load from flow-specific storage (Authorization Code credentials only)
 			// Storage key: pingone_flow_data:{flowType} (e.g., pingone_flow_data:kroger-grocery-store-mfa)
@@ -163,8 +164,9 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 				setCredentials(initialCredentials);
 			} else {
 				logger.info(
-					`[AuthorizationCodeConfigModal] ⚠️ No saved credentials or initialCredentials for ${flowType}`
-				, "Logger info");
+					`[AuthorizationCodeConfigModal] ⚠️ No saved credentials or initialCredentials for ${flowType}`,
+					'Logger info'
+				);
 			}
 		}
 	}, [isOpen, flowType, initialCredentials]);

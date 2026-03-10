@@ -1,4 +1,4 @@
-import { FiCheck, FiInfo, FiShield, FiX } from '@icons';
+import { FiCheck, FiInfo, FiShield, FiX } from '../icons';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { SpecCard } from '../components/SpecCard';
@@ -7,61 +7,62 @@ import PageLayoutService from '../services/pageLayoutService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const _Container = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 const _Header = styled.div`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
+	h1 {
+		font-size: 2.5rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray900};
+		margin-bottom: 0.5rem;
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
 
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 1.1rem;
-    line-height: 1.6;
-  }
+	p {
+		color: ${({ theme }) => theme.colors.gray600};
+		font-size: 1.1rem;
+		line-height: 1.6;
+	}
 `;
 
 const OverviewCard = styled(Card)`
-  margin-bottom: 2rem;
-  border-left: 4px solid ${({ theme }) => theme.colors.primary};
+	margin-bottom: 2rem;
+	border-left: 4px solid ${({ theme }) => theme.colors.primary};
 `;
 
 const ChangesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+	gap: 1.5rem;
+	margin-top: 2rem;
 `;
 
 const _ChangeCard = styled(Card)<{ $type: 'improvement' | 'deprecation' | 'requirement' }>`
-  border-left: 4px solid ${({ $type, theme }) => {
-		switch ($type) {
-			case 'improvement':
-				return theme.colors.success;
-			case 'deprecation':
-				return theme.colors.warning;
-			case 'requirement':
-				return theme.colors.primary;
-			default:
-				return theme.colors.gray300;
-		}
-	}};
+	border-left: 4px solid
+		${({ $type, theme }) => {
+			switch ($type) {
+				case 'improvement':
+					return theme.colors.success;
+				case 'deprecation':
+					return theme.colors.warning;
+				case 'requirement':
+					return theme.colors.primary;
+				default:
+					return theme.colors.gray300;
+			}
+		}};
 `;
 
 const _ChangeIcon = styled.div<{ $type: 'improvement' | 'deprecation' | 'requirement' }>`
-  font-size: 1.5rem;
-  color: ${({ $type, theme }) => {
+	font-size: 1.5rem;
+	color: ${({ $type, theme }) => {
 		switch ($type) {
 			case 'improvement':
 				return theme.colors.success;
@@ -73,61 +74,61 @@ const _ChangeIcon = styled.div<{ $type: 'improvement' | 'deprecation' | 'require
 				return theme.colors.gray300;
 		}
 	}};
-  margin-bottom: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const _ChangeTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  color: ${({ theme }) => theme.colors.gray900};
+	font-size: 1.25rem;
+	font-weight: 600;
+	margin-bottom: 0.75rem;
+	color: ${({ theme }) => theme.colors.gray900};
 `;
 
 const _ChangeDescription = styled.p`
-  color: ${({ theme }) => theme.colors.gray600};
-  line-height: 1.6;
-  margin-bottom: 1rem;
+	color: ${({ theme }) => theme.colors.gray600};
+	line-height: 1.6;
+	margin-bottom: 1rem;
 `;
 
 const _CodeBlock = styled.pre`
-  background-color: ${({ theme }) => theme.colors.gray100};
-  border: 1px solid ${({ theme }) => theme.colors.gray300};
-  border-radius: 0.375rem;
-  padding: 1rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  overflow-x: auto;
-  margin: 1rem 0;
+	background-color: ${({ theme }) => theme.colors.gray100};
+	border: 1px solid ${({ theme }) => theme.colors.gray300};
+	border-radius: 0.375rem;
+	padding: 1rem;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	overflow-x: auto;
+	margin: 1rem 0;
 `;
 
 const PingOneNote = styled.div`
-  background-color: ${({ theme }) => theme.colors.info}10;
-  border: 1px solid ${({ theme }) => theme.colors.info}30;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+	background-color: ${({ theme }) => theme.colors.info}10;
+	border: 1px solid ${({ theme }) => theme.colors.info}30;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin: 1rem 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
 
-  svg {
-    color: ${({ theme }) => theme.colors.info};
-    flex-shrink: 0;
-    margin-top: 0.1rem;
-  }
+	svg {
+		color: ${({ theme }) => theme.colors.info};
+		flex-shrink: 0;
+		margin-top: 0.1rem;
+	}
 
-  h4 {
-    color: ${({ theme }) => theme.colors.info};
-    margin: 0 0 0.5rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-  }
+	h4 {
+		color: ${({ theme }) => theme.colors.info};
+		margin: 0 0 0.5rem 0;
+		font-size: 1rem;
+		font-weight: 600;
+	}
 
-  p {
-    margin: 0;
-    color: ${({ theme }) => theme.colors.info};
-    font-size: 0.9rem;
-  }
+	p {
+		margin: 0;
+		color: ${({ theme }) => theme.colors.info};
+		font-size: 0.9rem;
+	}
 `;
 
 // Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
@@ -719,8 +720,8 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 									<strong>✓ Bearer Token Security:</strong> Proper token handling practices
 								</li>
 								<li>
-									<strong>⚠️ Enhanced Refresh Tokens:</strong> One-time use refresh tokens supported.
-									Sender-constrained tokens (mTLS, DPoP) not yet available.
+									<strong>⚠️ Enhanced Refresh Tokens:</strong> One-time use refresh tokens
+									supported. Sender-constrained tokens (mTLS, DPoP) not yet available.
 								</li>
 								<li>
 									<strong>✓ Backward Compatibility:</strong> Gradual migration support

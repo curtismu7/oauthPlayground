@@ -1,7 +1,7 @@
 // src/v7/pages/V7MROPCV9.tsx
 /* eslint-disable no-alert */
 
-import { FiAlertTriangle } from '@icons';
+import { FiAlertTriangle } from '../../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
@@ -165,16 +165,18 @@ export const V7MROPCV9: React.FC<Props> = ({
 
 	function handleUserInfo() {
 		if (!accessToken) {
-                        showGlobalError('No access token available');
-                        return;
-                }
-                const res = getUserInfoFromAccessToken(accessToken);
-                setUserinfoResponse(res);
-        }
+			showGlobalError('No access token available');
+			return;
+		}
+		const res = getUserInfoFromAccessToken(accessToken);
+		setUserinfoResponse(res);
+	}
 
-        function handleIntrospect() {
-                if (!accessToken) {
-                        showGlobalError('No access token available');
+	function handleIntrospect() {
+		if (!accessToken) {
+			showGlobalError('No access token available');
+			return;
+		}
 		const res = introspectToken(accessToken);
 		setIntrospectionResponse(res);
 	}
@@ -515,13 +517,13 @@ export const V7MROPCV9: React.FC<Props> = ({
 									color: '#92400e',
 								}}
 							>
-								<strong>⚠️ Security Note:</strong> In production, passwords and client secrets should
-								never be displayed or logged. This is shown for educational purposes only.
+								<strong>⚠️ Security Note:</strong> In production, passwords and client secrets
+								should never be displayed or logged. This is shown for educational purposes only.
 							</div>
 						</div>
 					)}
 
-					<button type="button" type="button" onClick={handleRequestToken} style={primaryBtn}>
+					<button type="button" onClick={handleRequestToken} style={primaryBtn}>
 						Request Access Token
 					</button>
 					{tokenResponse && (
@@ -540,24 +542,14 @@ export const V7MROPCV9: React.FC<Props> = ({
 										Inspect Access Token
 									</button>
 									{idToken && (
-										<button
-											type="button"
-											type="button"
-											onClick={() => setShowIdModal(true)}
-											style={secondaryBtn}
-										>
+										<button type="button" onClick={() => setShowIdModal(true)} style={secondaryBtn}>
 											Inspect ID Token
 										</button>
 									)}
-									<button
-										type="button"
-										type="button"
-										onClick={handleIntrospect}
-										style={secondaryBtn}
-									>
+									<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
 										Introspect Token
 									</button>
-									<button type="button" type="button" onClick={handleUserInfo} style={secondaryBtn}>
+									<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
 										Call UserInfo
 										<V7MInfoIcon
 											label=""

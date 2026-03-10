@@ -1,4 +1,4 @@
-import { FiCheckCircle } from '@icons';
+import { FiCheckCircle } from '../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from './Card';
@@ -32,36 +32,36 @@ interface InteractiveTutorialProps {
 }
 
 const TutorialContainer = styled.div`
-  max-width: 900px;
-  margin: 0 auto;
+	max-width: 900px;
+	margin: 0 auto;
 `;
 
 const TutorialHeader = styled(Card)`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const TutorialMeta = styled.div`
-  display: flex;
-  gap: 2rem;
-  margin-top: 1rem;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 2rem;
+	margin-top: 1rem;
+	flex-wrap: wrap;
 `;
 
 const MetaItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.gray600};
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	color: ${({ theme }) => theme.colors.gray600};
 `;
 
 const DifficultyBadge = styled.span<{ $difficulty: string }>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  background-color: ${({ $difficulty, theme }) => {
+	padding: 0.25rem 0.75rem;
+	border-radius: 1rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	background-color: ${({ $difficulty, theme }) => {
 		switch ($difficulty) {
 			case 'Beginner':
 				return `${theme.colors.success}20`;
@@ -73,7 +73,7 @@ const DifficultyBadge = styled.span<{ $difficulty: string }>`
 				return theme.colors.gray200;
 		}
 	}};
-  color: ${({ $difficulty, theme }) => {
+	color: ${({ $difficulty, theme }) => {
 		switch ($difficulty) {
 			case 'Beginner':
 				return theme.colors.success;
@@ -88,65 +88,66 @@ const DifficultyBadge = styled.span<{ $difficulty: string }>`
 `;
 
 const ProgressBar = styled.div`
-  margin: 1.5rem 0;
+	margin: 1.5rem 0;
 `;
 
 const ProgressTrack = styled.div`
-  width: 100%;
-  height: 8px;
-  background-color: ${({ theme }) => theme.colors.gray200};
-  border-radius: 4px;
-  overflow: hidden;
+	width: 100%;
+	height: 8px;
+	background-color: ${({ theme }) => theme.colors.gray200};
+	border-radius: 4px;
+	overflow: hidden;
 `;
 
 const ProgressFill = styled.div<{ $progress: number }>`
-  height: 100%;
-  background-color: ${({ theme }) => theme.colors.success};
-  width: ${({ $progress }) => $progress}%;
-  transition: width 0.3s ease;
+	height: 100%;
+	background-color: ${({ theme }) => theme.colors.success};
+	width: ${({ $progress }) => $progress}%;
+	transition: width 0.3s ease;
 `;
 
 const ProgressText = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.gray600};
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 0.5rem;
+	font-size: 0.875rem;
+	color: ${({ theme }) => theme.colors.gray600};
 `;
 
 const TutorialActions = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
+	display: flex;
+	gap: 1rem;
+	margin-top: 1.5rem;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: 2px solid ${({ $variant, theme }) =>
-		$variant === 'secondary' ? theme.colors.gray300 : theme.colors.primary};
-  background-color: ${({ $variant, theme }) =>
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	border: 2px solid
+		${({ $variant, theme }) =>
+			$variant === 'secondary' ? theme.colors.gray300 : theme.colors.primary};
+	background-color: ${({ $variant, theme }) =>
 		$variant === 'secondary' ? 'white' : theme.colors.primary};
-  color: ${({ $variant, theme }) => ($variant === 'secondary' ? theme.colors.gray700 : 'white')};
-  border-radius: 0.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+	color: ${({ $variant, theme }) => ($variant === 'secondary' ? theme.colors.gray700 : 'white')};
+	border-radius: 0.5rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
 
-  &:hover {
-    background-color: ${({ $variant, theme }) =>
+	&:hover {
+		background-color: ${({ $variant, theme }) =>
 			$variant === 'secondary' ? theme.colors.gray50 : theme.colors.primaryDark};
-    border-color: ${({ $variant, theme }) =>
+		border-color: ${({ $variant, theme }) =>
 			$variant === 'secondary' ? theme.colors.gray400 : theme.colors.primaryDark};
-  }
+	}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 `;
 
 const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({

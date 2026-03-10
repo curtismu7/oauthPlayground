@@ -1,7 +1,7 @@
 // src/components/EnhancedApiCallDisplay.tsx
 // React component for displaying API calls with enhanced features
 
-import { FiChevronDown } from '@icons';
+import { FiChevronDown } from '../icons';
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -132,37 +132,38 @@ const SectionHeader = styled.div<{ $sectionType?: string; $statusCode?: number }
 				return '#f8fafc';
 		}
 	}};
-	border: 2px solid ${({ $sectionType, $statusCode }) => {
-		if ($sectionType === 'response' && $statusCode !== undefined) {
-			// Color based on status code
-			if ($statusCode >= 200 && $statusCode < 300) {
-				return '#10b981'; // Green border for success
-			} else if ($statusCode >= 400) {
-				return '#ef4444'; // Red border for errors
-			} else {
-				return '#f59e0b'; // Yellow border for other statuses
+	border: 2px solid
+		${({ $sectionType, $statusCode }) => {
+			if ($sectionType === 'response' && $statusCode !== undefined) {
+				// Color based on status code
+				if ($statusCode >= 200 && $statusCode < 300) {
+					return '#10b981'; // Green border for success
+				} else if ($statusCode >= 400) {
+					return '#ef4444'; // Red border for errors
+				} else {
+					return '#f59e0b'; // Yellow border for other statuses
+				}
 			}
-		}
-		switch ($sectionType) {
-			case 'details':
-				return '#3b82f6'; // Blue border
-			case 'curl':
-				return '#10b981'; // Green border
-			case 'pingone':
-				return '#f59e0b'; // Yellow border
-			case 'response':
-				return '#ec4899'; // Pink border (fallback)
-			case 'notes':
-				return '#8b5cf6'; // Purple border
-			default:
-				return '#e5e7eb';
-		}
-	}};
+			switch ($sectionType) {
+				case 'details':
+					return '#3b82f6'; // Blue border
+				case 'curl':
+					return '#10b981'; // Green border
+				case 'pingone':
+					return '#f59e0b'; // Yellow border
+				case 'response':
+					return '#ec4899'; // Pink border (fallback)
+				case 'notes':
+					return '#8b5cf6'; // Purple border
+				default:
+					return '#e5e7eb';
+			}
+		}};
 	border-radius: 6px;
 	cursor: pointer;
 	transition: all 0.2s;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	
+
 	&:hover {
 		background: ${({ $sectionType, $statusCode }) => {
 			if ($sectionType === 'response' && $statusCode !== undefined) {
@@ -219,15 +220,16 @@ const StatusLine = styled.div<{ $statusCode: number }>`
 			return '#fef3c7'; // Yellow background for other statuses
 		}
 	}};
-	border: 1px solid ${({ $statusCode }) => {
-		if ($statusCode >= 200 && $statusCode < 300) {
-			return '#10b981'; // Green border for success
-		} else if ($statusCode >= 400) {
-			return '#ef4444'; // Red border for errors
-		} else {
-			return '#f59e0b'; // Yellow border for other statuses
-		}
-	}};
+	border: 1px solid
+		${({ $statusCode }) => {
+			if ($statusCode >= 200 && $statusCode < 300) {
+				return '#10b981'; // Green border for success
+			} else if ($statusCode >= 400) {
+				return '#ef4444'; // Red border for errors
+			} else {
+				return '#f59e0b'; // Yellow border for other statuses
+			}
+		}};
 `;
 
 const SectionTitle = styled.h4`
@@ -313,7 +315,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 				return '#1f2937';
 		}
 	}};
-	
+
 	&:hover {
 		background: ${({ $variant }) => {
 			switch ($variant) {
@@ -330,7 +332,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 			}
 		}};
 	}
-	
+
 	&:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
@@ -405,7 +407,10 @@ const RevealToggleBtn = styled.button`
 	align-items: center;
 	gap: 0.25rem;
 	font-size: 0.75rem;
-	&:hover { background: #f3f4f6; color: V9_COLORS.TEXT.GRAY_DARK; }
+	&:hover {
+		background: #f3f4f6;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 `;
 
 const REDACTED_SENTINELS = ['***REDACTED***', '[REDACTED]'];

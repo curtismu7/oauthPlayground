@@ -1,4 +1,4 @@
-import { FiChevronDown } from '@icons';
+import { FiChevronDown } from '../icons';
 import type React from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -11,298 +11,310 @@ import StandardMessage from './StandardMessage';
 const SAVE_FEEDBACK_TIMEOUT_MS = 3200;
 
 const ConfigContainer = styled.div`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const SaveButton = styled.button`
-  background: V9_COLORS.PRIMARY.GREEN_DARK;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  margin-top: 1.5rem;
-  width: auto;
-  justify-content: center;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  
-  &:hover {
-    background: #047857;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
-  
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-  
-  &:disabled {
-    background: V9_COLORS.TEXT.GRAY_LIGHT;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-  
-  .spinner {
-    margin-right: 8px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top: 2px solid white;
-    width: 16px;
-    height: 16px;
-    animation: spin 1s linear infinite;
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  }
+	background: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: white;
+	border: none;
+	padding: 0.75rem 1.5rem;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: all 0.2s ease;
+	margin-top: 1.5rem;
+	width: auto;
+	justify-content: center;
+	box-shadow:
+		0 4px 6px -1px rgba(0, 0, 0, 0.1),
+		0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+	&:hover {
+		background: #047857;
+		transform: translateY(-2px);
+		box-shadow:
+			0 10px 15px -3px rgba(0, 0, 0, 0.1),
+			0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	}
+
+	&:active {
+		transform: translateY(0);
+		box-shadow:
+			0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	}
+
+	&:disabled {
+		background: V9_COLORS.TEXT.GRAY_LIGHT;
+		cursor: not-allowed;
+		transform: none;
+		box-shadow: none;
+	}
+
+	.spinner {
+		margin-right: 8px;
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		border-radius: 50%;
+		border-top: 2px solid white;
+		width: 16px;
+		height: 16px;
+		animation: spin 1s linear infinite;
+
+		@keyframes spin {
+			0% {
+				transform: rotate(0deg);
+			}
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+	}
 `;
 
 const CollapsibleHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s ease;
-  border-radius: 6px;
-  padding: 0.25rem;
-  margin: -0.25rem;
-  
-  &:hover {
-    opacity: 0.8;
-    background: ${({ theme }) => theme.colors.gray50};
-  }
-  
-  &:focus {
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
-    outline-offset: 2px;
-  }
-  
-  h2 {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .collapse-icon {
-    ${() => themeService.getCollapseIconStyles()}
-    font-size: 1.75rem;
-    padding: 0.5rem;
-    border-radius: 8px;
-    
-    &:hover {
-      transform: scale(1.15);
-    }
-    
-    &:active {
-      transform: scale(1.05);
-    }
-  }
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+	user-select: none;
+	transition: all 0.2s ease;
+	border-radius: 6px;
+	padding: 0.25rem;
+	margin: -0.25rem;
+
+	&:hover {
+		opacity: 0.8;
+		background: ${({ theme }) => theme.colors.gray50};
+	}
+
+	&:focus {
+		outline: 2px solid ${({ theme }) => theme.colors.primary};
+		outline-offset: 2px;
+	}
+
+	h2 {
+		margin: 0;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.collapse-icon {
+		${() => themeService.getCollapseIconStyles()}
+		font-size: 1.75rem;
+		padding: 0.5rem;
+		border-radius: 8px;
+
+		&:hover {
+			transform: scale(1.15);
+		}
+
+		&:active {
+			transform: scale(1.05);
+		}
+	}
 `;
 
 const CollapsibleContent = styled.div<{ $isExpanded: boolean }>`
-  max-height: ${({ $isExpanded }) => ($isExpanded ? '2000px' : '0')};
-  overflow: hidden;
-  transition: max-height 0.3s ease;
+	max-height: ${({ $isExpanded }) => ($isExpanded ? '2000px' : '0')};
+	overflow: hidden;
+	transition: max-height 0.3s ease;
 `;
 
 const ConfigSection = styled.div`
-  margin-bottom: 1.5rem;
-  
-  h4 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray800};
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
+	margin-bottom: 1.5rem;
+
+	h4 {
+		font-size: 1.1rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray800};
+		margin-bottom: 0.75rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
 `;
 
 const ConfigGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 1rem;
 `;
 
 const ConfigField = styled.div`
-  display: flex;
-  flex-direction: column;
-  
-  label {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: ${({ theme }) => theme.colors.gray700};
-    margin-bottom: 0.5rem;
-  }
-  
-  input, select, textarea {
-    padding: 0.5rem;
-    border: 1px solid ${({ theme }) => theme.colors.gray300};
-    border-radius: 4px;
-    font-size: 0.9rem;
-    transition: border-color 0.2s;
-    
-    &:focus {
-      outline: none;
-      border-color: ${({ theme }) => theme.colors.primary};
-      box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.primary}20;
-    }
-  }
-  
-  textarea {
-    min-height: 80px;
-    resize: vertical;
-  }
+	display: flex;
+	flex-direction: column;
+
+	label {
+		font-size: 0.9rem;
+		font-weight: 500;
+		color: ${({ theme }) => theme.colors.gray700};
+		margin-bottom: 0.5rem;
+	}
+
+	input,
+	select,
+	textarea {
+		padding: 0.5rem;
+		border: 1px solid ${({ theme }) => theme.colors.gray300};
+		border-radius: 4px;
+		font-size: 0.9rem;
+		transition: border-color 0.2s;
+
+		&:focus {
+			outline: none;
+			border-color: ${({ theme }) => theme.colors.primary};
+			box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.primary}20;
+		}
+	}
+
+	textarea {
+		min-height: 80px;
+		resize: vertical;
+	}
 `;
 
 const ToggleContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  .toggle-switch {
-    position: relative;
-    width: 44px;
-    height: 24px;
-    background-color: ${({ theme }) => theme.colors.gray300};
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    
-    &.active {
-      background-color: ${({ theme }) => theme.colors.primary};
-    }
-    
-    .toggle-slider {
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 20px;
-      height: 20px;
-      background-color: white;
-      border-radius: 50%;
-      transition: transform 0.2s;
-      
-      &.active {
-        transform: translateX(20px);
-      }
-    }
-  }
-  
-  .toggle-label {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: ${({ theme }) => theme.colors.gray700};
-  }
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	.toggle-switch {
+		position: relative;
+		width: 44px;
+		height: 24px;
+		background-color: ${({ theme }) => theme.colors.gray300};
+		border-radius: 12px;
+		cursor: pointer;
+		transition: background-color 0.2s;
+
+		&.active {
+			background-color: ${({ theme }) => theme.colors.primary};
+		}
+
+		.toggle-slider {
+			position: absolute;
+			top: 2px;
+			left: 2px;
+			width: 20px;
+			height: 20px;
+			background-color: white;
+			border-radius: 50%;
+			transition: transform 0.2s;
+
+			&.active {
+				transform: translateX(20px);
+			}
+		}
+	}
+
+	.toggle-label {
+		font-size: 0.9rem;
+		font-weight: 500;
+		color: ${({ theme }) => theme.colors.gray700};
+	}
 `;
 
 const ScopeContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
 `;
 
 const ScopeChip = styled.div<{ $selected: boolean; $disabled?: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.8rem;
-  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
-  transition: all 0.2s;
-  border: 1px solid ${({ theme, $selected }) =>
-		$selected ? theme.colors.primary : theme.colors.gray300};
-  background-color: ${({ theme, $selected }) => ($selected ? theme.colors.primary : 'transparent')};
-  color: ${({ theme, $selected }) => ($selected ? 'white' : theme.colors.gray700)};
-  opacity: ${({ $disabled }) => ($disabled ? 0.7 : 1)};
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.75rem;
+	border-radius: 1rem;
+	font-size: 0.8rem;
+	cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
+	transition: all 0.2s;
+	border: 1px solid
+		${({ theme, $selected }) => ($selected ? theme.colors.primary : theme.colors.gray300)};
+	background-color: ${({ theme, $selected }) => ($selected ? theme.colors.primary : 'transparent')};
+	color: ${({ theme, $selected }) => ($selected ? 'white' : theme.colors.gray700)};
+	opacity: ${({ $disabled }) => ($disabled ? 0.7 : 1)};
 
-  &:hover {
-    border-color: ${({ theme, $disabled }) =>
+	&:hover {
+		border-color: ${({ theme, $disabled }) =>
 			$disabled ? theme.colors.gray300 : theme.colors.primary};
-  }
+	}
 `;
 
 const CustomClaimContainer = styled.div`
-  border: 1px solid ${({ theme }) => theme.colors.gray300};
-  border-radius: 4px;
-  padding: 1rem;
-  background-color: ${({ theme }) => theme.colors.gray50};
+	border: 1px solid ${({ theme }) => theme.colors.gray300};
+	border-radius: 4px;
+	padding: 1rem;
+	background-color: ${({ theme }) => theme.colors.gray50};
 `;
 
 const ClaimRow = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  
-  input {
-    flex: 1;
-  }
-  
-  button {
-    padding: 0.25rem 0.5rem;
-    background-color: ${({ theme }) => theme.colors.danger};
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    
-    &:hover {
-      background-color: ${({ theme }) => theme.colors.dangerDark};
-    }
-  }
+	display: flex;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
+
+	input {
+		flex: 1;
+	}
+
+	button {
+		padding: 0.25rem 0.5rem;
+		background-color: ${({ theme }) => theme.colors.danger};
+		color: white;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		font-size: 0.8rem;
+
+		&:hover {
+			background-color: ${({ theme }) => theme.colors.dangerDark};
+		}
+	}
 `;
 
 const AddButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: ${({ theme }) => theme.colors.success};
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-  
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.successDark};
-  }
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	background-color: ${({ theme }) => theme.colors.success};
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.9rem;
+	margin-top: 0.5rem;
+
+	&:hover {
+		background-color: ${({ theme }) => theme.colors.successDark};
+	}
 `;
 
 const CopyButton = styled.button<{ $copied: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  background-color: ${({ $copied, theme }) =>
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	background-color: ${({ $copied, theme }) =>
 		$copied ? theme.colors.success : theme.colors.gray200};
-  color: ${({ $copied, theme }) => ($copied ? 'white' : theme.colors.gray700)};
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-  
-  &:hover {
-    background-color: ${({ $copied, theme }) =>
+	color: ${({ $copied, theme }) => ($copied ? 'white' : theme.colors.gray700)};
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.8rem;
+	transition: all 0.2s;
+
+	&:hover {
+		background-color: ${({ $copied, theme }) =>
 			$copied ? theme.colors.successDark : theme.colors.gray300};
-  }
+	}
 `;
 
 export interface FlowConfig {

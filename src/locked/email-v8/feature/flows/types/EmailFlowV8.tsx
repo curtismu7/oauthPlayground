@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import { FiMail } from '@icons';
+import { FiMail } from '../../../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { logger } from '../../../../../utils/logger';
@@ -1808,9 +1808,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 												// Pass current checkbox values to override config (page checkboxes take precedence)
 												// forceShowModal=true because user explicitly clicked the button - always show modal
-												const { handleShowWorkerTokenModal } = await import(
-													'@/v8/utils/workerTokenModalHelperV8'
-												);
+												const { handleShowWorkerTokenModal } =
+													await import('@/v8/utils/workerTokenModalHelperV8');
 												await handleShowWorkerTokenModal(
 													setShowWorkerTokenModal,
 													undefined,
@@ -1899,9 +1898,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 															logger.info(
 																'[EMAIL-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
 															);
-															const { handleShowWorkerTokenModal } = await import(
-																'@/v8/utils/workerTokenModalHelperV8'
-															);
+															const { handleShowWorkerTokenModal } =
+																await import('@/v8/utils/workerTokenModalHelperV8');
 															await handleShowWorkerTokenModal(
 																setShowWorkerTokenModal,
 																undefined,
@@ -2672,9 +2670,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 										try {
 											// For authentication flow (when authenticationId exists), use selectDeviceForAuthentication
 											if (mfaState.authenticationId && mfaState.deviceId) {
-												const { MfaAuthenticationServiceV8 } = await import(
-													'@/v8/services/mfaAuthenticationServiceV8'
-												);
+												const { MfaAuthenticationServiceV8 } =
+													await import('@/v8/services/mfaAuthenticationServiceV8');
 												const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
 
 												// Get userId if not already available
@@ -2768,7 +2765,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 									}}
 								>
 									<p style={{ margin: '0', fontSize: '13px', fontWeight: '600' }}>
-										{validationAttempts >= 3 ? '⚠️ Multiple Failed Attempts' : '⚠️ Validation Failed'}
+										{validationAttempts >= 3
+											? '⚠️ Multiple Failed Attempts'
+											: '⚠️ Validation Failed'}
 									</p>
 									<p style={{ margin: '4px 0 0 0', fontSize: '12px' }}>{lastValidationError}</p>
 								</div>

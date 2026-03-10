@@ -1,6 +1,6 @@
 // src/components/JWKSConverter.tsx
 
-import { FiRefreshCw } from '@icons';
+import { FiRefreshCw } from '../icons';
 import type React from 'react';
 import { useId, useState } from 'react';
 import styled from 'styled-components';
@@ -8,81 +8,81 @@ import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import { convertPrivateKeyToJWKS, formatJWKS, isPrivateKey } from '../utils/jwksConverter';
 
 const Container = styled.div`
-  background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin: 1rem 0;
+	background: white;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	margin: 1rem 0;
 `;
 
 const Title = styled.h3`
-  margin: 0 0 1rem 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 1.125rem;
-  font-weight: 600;
+	margin: 0 0 1rem 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1.125rem;
+	font-weight: 600;
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	display: block;
+	margin-bottom: 0.5rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const TextArea = styled.textarea`
-  width: 100%;
-  min-height: 120px;
-  padding: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  resize: vertical;
-  
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-  
-  &.error {
-    border-color: V9_COLORS.PRIMARY.RED;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-  }
+	width: 100%;
+	min-height: 120px;
+	padding: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	resize: vertical;
+
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+
+	&.error {
+		border-color: V9_COLORS.PRIMARY.RED;
+		box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+	}
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  ${({ variant = 'primary' }) =>
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1rem;
+	border: none;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	${({ variant = 'primary' }) =>
 		variant === 'primary'
 			? `
     background: V9_COLORS.PRIMARY.BLUE;
@@ -109,41 +109,41 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
+	display: flex;
+	gap: 0.75rem;
+	margin-top: 1rem;
 `;
 
 const ErrorMessage = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  padding: 0.75rem;
-  background: V9_COLORS.BG.ERROR;
-  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-  border-radius: 0.375rem;
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+	padding: 0.75rem;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	border-radius: 0.375rem;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	font-size: 0.875rem;
 `;
 
 const SuccessMessage = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  padding: 0.75rem;
-  background: #f0fdf4;
-  border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
-  border-radius: 0.375rem;
-  color: V9_COLORS.PRIMARY.GREEN_DARK;
-  font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+	padding: 0.75rem;
+	background: #f0fdf4;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+	border-radius: 0.375rem;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	font-size: 0.875rem;
 `;
 
 const HelpText = styled.div`
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin-top: 0.5rem;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const JWKSConverter: React.FC = () => {

@@ -9,6 +9,7 @@ import { RedirectUriEducationalModal } from '../../../components/RedirectUriEduc
 import { RedirectUriEducationButton } from '../../../components/RedirectUriEducationButton';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { useRedirectUriEducation } from '../../../hooks/useRedirectUriEducation';
+import { useComponentTracker } from '../../../hooks/useComponentTracker';
 import { logger } from '../../../utils/logger';
 import { FlowConfiguration } from './components/FlowConfiguration';
 import { FlowErrorWrapper } from './components/FlowErrorWrapper';
@@ -24,179 +25,179 @@ import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
 import type { FlowCredentials, FlowVariant, TokenResponse } from './types/flowTypes';
 
 const Container = styled.div`
-  max-width: ${UI_CONSTANTS.LAYOUT.CONTENT_MAX_WIDTH};
-  margin: 0 auto;
-  padding: ${UI_CONSTANTS.LAYOUT.CONTAINER_PADDING};
-  background: ${UI_CONSTANTS.LAYOUT.CONTAINER_BACKGROUND};
-  min-height: 100vh;
+	max-width: ${UI_CONSTANTS.LAYOUT.CONTENT_MAX_WIDTH};
+	margin: 0 auto;
+	padding: ${UI_CONSTANTS.LAYOUT.CONTAINER_PADDING};
+	background: ${UI_CONSTANTS.LAYOUT.CONTAINER_BACKGROUND};
+	min-height: 100vh;
 `;
 
 const ContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${UI_CONSTANTS.SPACING.LG};
+	display: flex;
+	flex-direction: column;
+	gap: ${UI_CONSTANTS.SPACING.LG};
 `;
 
 const _MainContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${UI_CONSTANTS.SPACING.LG};
+	display: flex;
+	flex-direction: column;
+	gap: ${UI_CONSTANTS.SPACING.LG};
 `;
 
 const Sidebar = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${UI_CONSTANTS.SPACING.LG};
+	display: flex;
+	flex-direction: column;
+	gap: ${UI_CONSTANTS.SPACING.LG};
 `;
 
 const LoadingSpinner = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: ${UI_CONSTANTS.SPACING.XL};
-  color: ${UI_CONSTANTS.COLORS.GRAY_500};
-  font-size: ${UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.LG};
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: ${UI_CONSTANTS.SPACING.XL};
+	color: ${UI_CONSTANTS.COLORS.GRAY_500};
+	font-size: ${UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.LG};
 `;
 
 // Original V7 styled components for compatibility
 const MainCard = styled.div`
-  background-color: V9_COLORS.TEXT.WHITE;
-  border-radius: 1rem;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  overflow: hidden;
+	background-color: V9_COLORS.TEXT.WHITE;
+	border-radius: 1rem;
+	box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	overflow: hidden;
 `;
 
 const StepHeader = styled.div<{ $variant: FlowVariant }>`
-  background: ${(props) =>
+	background: ${(props) =>
 		props.$variant === 'oidc'
 			? 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)'
 			: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'};
-  color: V9_COLORS.TEXT.WHITE;
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+	color: V9_COLORS.TEXT.WHITE;
+	padding: 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 `;
 
 const StepHeaderLeft = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const VersionBadge = styled.span<{ $variant: FlowVariant }>`
-  align-self: flex-start;
-  background: ${(props) =>
+	align-self: flex-start;
+	background: ${(props) =>
 		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(249, 115, 22, 0.2)'};
-  border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#fb923c')};
-  color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#fed7aa')};
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
+	border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#fb923c')};
+	color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#fed7aa')};
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
 `;
 
 const StepHeaderTitle = styled.h2`
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
+	font-size: 2rem;
+	font-weight: 700;
+	margin: 0;
 `;
 
 const StepHeaderSubtitle = styled.p`
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.85);
-  margin: 0;
+	font-size: 1rem;
+	color: rgba(255, 255, 255, 0.85);
+	margin: 0;
 `;
 
 const StepHeaderRight = styled.div`
-  text-align: right;
+	text-align: right;
 `;
 
 const VariantSelector = styled.div`
-  display: flex;
-  gap: 0.5rem;
+	display: flex;
+	gap: 0.5rem;
 `;
 
 const VariantButton = styled.button<{ $active: boolean }>`
-  padding: 0.5rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 0.5rem;
-  background: ${(props) => (props.$active ? 'rgba(255, 255, 255, 0.2)' : 'transparent')};
-  color: V9_COLORS.TEXT.WHITE;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+	padding: 0.5rem 1rem;
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 0.5rem;
+	background: ${(props) => (props.$active ? 'rgba(255, 255, 255, 0.2)' : 'transparent')};
+	color: V9_COLORS.TEXT.WHITE;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
+	&:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
 `;
 
 const StepContentWrapper = styled.div`
-  padding: 2rem;
+	padding: 2rem;
 `;
 
 const CollapsibleSection = styled.div`
-  margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 `;
 
 const CollapsibleHeaderButton = styled.button<{ $collapsed: boolean }>`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
 
-  &:hover {
-    background: V9_COLORS.BG.GRAY_MEDIUM;
-  }
+	&:hover {
+		background: V9_COLORS.BG.GRAY_MEDIUM;
+	}
 `;
 
 const CollapsibleTitle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: V9_COLORS.PRIMARY.BLUE;
-  color: white;
-  box-shadow: 0 6px 16px V9_COLORS.PRIMARY.BLUE33;
-  transition: all 0.2s ease;
-  transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: V9_COLORS.PRIMARY.BLUE;
+	color: white;
+	box-shadow: 0 6px 16px V9_COLORS.PRIMARY.BLUE33;
+	transition: all 0.2s ease;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
 
-  svg {
-    width: 16px;
-    height: 16px;
-  }
+	svg {
+		width: 16px;
+		height: 16px;
+	}
 `;
 
 const CollapsibleContent = styled.div<{ $collapsed: boolean }>`
-  max-height: ${(props) => (props.$collapsed ? '0' : '1000px')};
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  padding: ${(props) => (props.$collapsed ? '0' : '1rem')};
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-top: none;
-  border-radius: 0 0 0.5rem 0.5rem;
-  background: V9_COLORS.TEXT.WHITE;
+	max-height: ${(props) => (props.$collapsed ? '0' : '1000px')};
+	overflow: hidden;
+	transition: max-height 0.3s ease;
+	padding: ${(props) => (props.$collapsed ? '0' : '1rem')};
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-top: none;
+	border-radius: 0 0 0.5rem 0.5rem;
+	background: V9_COLORS.TEXT.WHITE;
 `;
 
 interface OAuthAuthorizationCodeFlowV7_1Props {
@@ -216,6 +217,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	showDebugInfo = false,
 	_enablePerformanceMonitoring = true,
 }) => {
+	useComponentTracker('OAuthAuthorizationCodeFlowV7_1');
 	// Performance monitoring
 	const performanceMonitoring = usePerformanceMonitoring('OAuthAuthorizationCodeFlowV7_1');
 

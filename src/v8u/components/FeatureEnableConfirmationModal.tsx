@@ -6,7 +6,7 @@
  * @since 2024-11-19
  */
 
-import { FiAlertTriangle, FiCheckCircle } from '@icons';
+import { FiAlertTriangle, FiCheckCircle } from '../../icons';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -24,8 +24,12 @@ const ModalOverlay = styled.div`
 	animation: fadeIn 0.2s ease;
 
 	@keyframes fadeIn {
-		from { opacity: 0; }
-		to { opacity: 1; }
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 `;
 
@@ -40,8 +44,14 @@ const ModalContent = styled.div`
 	animation: slideUp 0.3s ease;
 
 	@keyframes slideUp {
-		from { transform: translateY(20px); opacity: 0; }
-		to { transform: translateY(0); opacity: 1; }
+		from {
+			transform: translateY(20px);
+			opacity: 0;
+		}
+		to {
+			transform: translateY(0);
+			opacity: 1;
+		}
 	}
 `;
 

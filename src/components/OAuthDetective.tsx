@@ -4,7 +4,7 @@
  * Analyzes real OAuth URLs from any provider and explains every parameter
  */
 
-import { FiInfo } from '@icons';
+import { FiInfo } from '../icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -175,20 +175,21 @@ const ParameterCard = styled.div<{
 				return '#1e293b';
 		}
 	}};
-	border-left: 4px solid ${({ status }) => {
-		switch (status) {
-			case 'standard':
-				return '#3b82f6';
-			case 'provider-specific':
-				return '#f59e0b';
-			case 'advanced':
-				return '#2563eb';
-			case 'security':
-				return '#10b981';
-			default:
-				return '#6b7280';
-		}
-	}};
+	border-left: 4px solid
+		${({ status }) => {
+			switch (status) {
+				case 'standard':
+					return '#3b82f6';
+				case 'provider-specific':
+					return '#f59e0b';
+				case 'advanced':
+					return '#2563eb';
+				case 'security':
+					return '#10b981';
+				default:
+					return '#6b7280';
+			}
+		}};
 	padding: 1rem;
 	border-radius: 0.5rem;
 `;

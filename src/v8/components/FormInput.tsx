@@ -5,7 +5,7 @@
  * @version 9.1.0
  */
 
-import { FiAlertCircle, FiCheck } from '@icons';
+import { FiAlertCircle, FiCheck } from '../../icons';
 import React from 'react';
 import { borderRadius, colors, spacing, transitions, typography } from '@/v8/design/tokens';
 

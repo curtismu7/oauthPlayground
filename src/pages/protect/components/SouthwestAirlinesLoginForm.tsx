@@ -9,7 +9,7 @@
  * their actual login experience with distinctive button styling and brand colors.
  */
 
-import { FiLockIcon } from '@icons';
+import { FiLockIcon } from '../../../icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
@@ -32,186 +32,183 @@ const generateCodeVerifier = (): string => {
 // ============================================================================
 
 const LoginContainer = styled.div`
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
+	width: 100%;
+	max-width: 500px;
+	margin: 0 auto;
 `;
 
 const FormTitle = styled.h2`
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--brand-text);
-  margin: 0 0 1rem 0;
-  text-align: center;
-  font-family: var(--brand-heading-font);
+	font-size: 1.875rem;
+	font-weight: 700;
+	color: var(--brand-text);
+	margin: 0 0 1rem 0;
+	text-align: center;
+	font-family: var(--brand-heading-font);
 `;
 
 const FormDescription = styled.p`
-  font-size: 1rem;
-  color: var(--brand-text-secondary);
-  margin: 0 0 2rem 0;
-  text-align: center;
-  line-height: 1.6;
-  font-family: var(--brand-body-font);
+	font-size: 1rem;
+	color: var(--brand-text-secondary);
+	margin: 0 0 2rem 0;
+	text-align: center;
+	line-height: 1.6;
+	font-family: var(--brand-body-font);
 `;
 
 const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
 `;
 
 const InputGroup = styled.div`
-  position: relative;
+	position: relative;
 `;
 
 const InputLabel = styled.label`
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--brand-text);
-  margin-bottom: 0.5rem;
-  font-family: var(--brand-body-font);
+	display: block;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: var(--brand-text);
+	margin-bottom: 0.5rem;
+	font-family: var(--brand-body-font);
 `;
 
 const StyledInput = styled.input`
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: white;
-  border: 2px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-md);
-  font-size: 1rem;
-  color: var(--brand-text);
-  transition: var(--brand-transition);
-  font-family: var(--brand-body-font);
+	width: 100%;
+	padding: 0.75rem 1rem;
+	background: white;
+	border: 2px solid var(--brand-text-secondary);
+	border-radius: var(--brand-radius-md);
+	font-size: 1rem;
+	color: var(--brand-text);
+	transition: var(--brand-transition);
+	font-family: var(--brand-body-font);
 
-  &:focus {
-    outline: none;
-    border-color: var(--brand-primary);
-    box-shadow: var(--brand-shadow-md);
-  }
+	&:focus {
+		outline: none;
+		border-color: var(--brand-primary);
+		box-shadow: var(--brand-shadow-md);
+	}
 
-  &:invalid {
-    border-color: var(--brand-error);
-  }
+	&:invalid {
+		border-color: var(--brand-error);
+	}
 
-  &::placeholder {
-    color: var(--brand-text-secondary);
-  }
+	&::placeholder {
+		color: var(--brand-text-secondary);
+	}
 `;
 
 const PasswordToggle = styled.button`
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: var(--brand-text-secondary);
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: var(--brand-radius-xs);
-  transition: var(--brand-transition);
+	position: absolute;
+	right: 1rem;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	color: var(--brand-text-secondary);
+	cursor: pointer;
+	padding: 0.25rem;
+	border-radius: var(--brand-radius-xs);
+	transition: var(--brand-transition);
 
-  &:hover {
-    color: var(--brand-text);
-  }
+	&:hover {
+		color: var(--brand-text);
+	}
 
-  &:focus {
-    outline: none;
-    color: var(--brand-primary);
-  }
+	&:focus {
+		outline: none;
+		color: var(--brand-primary);
+	}
 `;
 
 const ErrorMessage = styled.div`
-  background: var(--brand-error-light);
-  border: 1px solid var(--brand-error);
-  border-radius: var(--brand-radius-sm);
-  padding: 1rem;
-  color: var(--brand-error);
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  font-family: var(--brand-body-font);
+	background: var(--brand-error-light);
+	border: 1px solid var(--brand-error);
+	border-radius: var(--brand-radius-sm);
+	padding: 1rem;
+	color: var(--brand-error);
+	font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+	font-family: var(--brand-body-font);
 `;
 
 // Southwest Airlines specific button styling
 const SouthwestLoginButton = styled.button`
-  background: #E51D23; /* Southwest Heart Red */
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 1rem 2rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 6px rgba(229, 29, 35, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  min-height: 56px;
-  position: relative;
-  overflow: hidden;
+	background: #e51d23; /* Southwest Heart Red */
+	color: white;
+	border: none;
+	border-radius: 8px;
+	padding: 1rem 2rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	box-shadow: 0 4px 6px rgba(229, 29, 35, 0.2);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	min-height: 56px;
+	position: relative;
+	overflow: hidden;
 
-  &:hover {
-    background: #C41824; /* Darker red on hover */
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(229, 29, 35, 0.3);
-  }
+	&:hover {
+		background: #c41824; /* Darker red on hover */
+		transform: translateY(-2px);
+		box-shadow: 0 6px 12px rgba(229, 29, 35, 0.3);
+	}
 
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(229, 29, 35, 0.3), 0 4px 6px rgba(229, 29, 35, 0.2);
-  }
+	&:focus {
+		outline: none;
+		box-shadow:
+			0 0 0 4px rgba(229, 29, 35, 0.3),
+			0 4px 6px rgba(229, 29, 35, 0.2);
+	}
 
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(229, 29, 35, 0.2);
-  }
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 2px 4px rgba(229, 29, 35, 0.2);
+	}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: 0 2px 4px rgba(229, 29, 35, 0.1);
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+		box-shadow: 0 2px 4px rgba(229, 29, 35, 0.1);
+	}
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.2),
-      transparent
-    );
-    transition: left 0.5s;
-  }
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+		transition: left 0.5s;
+	}
 
-  &:hover::before {
-    left: 100%;
-  }
+	&:hover::before {
+		left: 100%;
+	}
 `;
 
 const SouthwestIcon = styled.div`
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 1.2rem;
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+	font-size: 1.2rem;
 `;
 
 // ============================================================================

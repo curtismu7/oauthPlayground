@@ -1,56 +1,57 @@
 // src/components/DeviceTypeSelector.tsx
 // Device Type Selector for V7 Device Authorization Flow
 
-import { FiSpeaker } from '@icons';
+import { FiSpeaker } from '../../../../icons';
 import React from 'react';
 import { FaCar, FaTv } from 'react-icons/fa';
 import styled from 'styled-components';
 
 const DeviceSelectorContainer = styled.div<{ $isCompact?: boolean }>`
-  background: ${(props) => (props.$isCompact ? 'transparent' : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)')};
-  border-radius: 0.75rem;
-  padding: ${(props) => (props.$isCompact ? '0' : '1.5rem')};
-  margin-bottom: ${(props) => (props.$isCompact ? '0' : '2rem')};
-  border: ${(props) => (props.$isCompact ? 'none' : '1px solid #cbd5e1')};
+	background: ${(props) =>
+		props.$isCompact ? 'transparent' : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'};
+	border-radius: 0.75rem;
+	padding: ${(props) => (props.$isCompact ? '0' : '1.5rem')};
+	margin-bottom: ${(props) => (props.$isCompact ? '0' : '2rem')};
+	border: ${(props) => (props.$isCompact ? 'none' : '1px solid #cbd5e1')};
 `;
 
 const SelectorTitle = styled.div`
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 0.75rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: #1e293b;
+	margin-bottom: 0.75rem;
 `;
 
 const DropdownContainer = styled.div`
-  position: relative;
+	position: relative;
 `;
 
 const DeviceDropdown = styled.select`
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 2px solid #cbd5e1;
-  border-radius: 0.5rem;
-  background: white;
-  font-size: 1rem;
-  font-weight: 500;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    border-color: #3b82f6;
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	padding: 0.75rem 1rem;
+	border: 2px solid #cbd5e1;
+	border-radius: 0.5rem;
+	background: white;
+	font-size: 1rem;
+	font-weight: 500;
+	color: #374151;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		border-color: #3b82f6;
+	}
+
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const DeviceOption = styled.option`
-  padding: 0.5rem;
-  font-size: 1rem;
+	padding: 0.5rem;
+	font-size: 1rem;
 `;
 
 export interface DeviceType {

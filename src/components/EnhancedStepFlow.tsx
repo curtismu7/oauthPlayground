@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import '../styles/enhanced-flow.css';
-import { FiRefreshCw } from '@icons';
+import { FiRefreshCw } from '../icons';
 import { logger } from '../utils/logger';
 
 // Enhanced step interface with more options
@@ -48,49 +48,49 @@ interface EnhancedStepFlowProps {
 
 // Styled Components
 const FlowContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	max-width: 1200px;
+	margin: 0 auto;
 `;
 
 const FlowHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  background: ${({ theme }) => theme.colors.gray50};
-  border-radius: 0.5rem;
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem;
+	background: ${({ theme }) => theme.colors.gray50};
+	border-radius: 0.5rem;
+	border: 1px solid ${({ theme }) => theme.colors.gray200};
 `;
 
 const FlowTitle = styled.h2`
-  margin: 0;
-  color: ${({ theme }) => theme.colors.gray900};
-  font-size: 1.25rem;
-  font-weight: 600;
+	margin: 0;
+	color: ${({ theme }) => theme.colors.gray900};
+	font-size: 1.25rem;
+	font-weight: 600;
 `;
 
 const FlowControls = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
 `;
 
 const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | 'success' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  ${({ $variant, theme }) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	border: none;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	${({ $variant, theme }) => {
 		switch ($variant) {
 			case 'primary':
 				return `
@@ -119,43 +119,43 @@ const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dang
         `;
 		}
 	}}
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const StepNavigator = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  background: white;
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem;
+	background: white;
+	border: 1px solid ${({ theme }) => theme.colors.gray200};
+	border-radius: 0.5rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
 const StepProgress = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const StepDot = styled.div<{ $active?: boolean; $completed?: boolean; $hasError?: boolean }>`
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  ${({ $active, $completed, $hasError, theme }) => {
+	width: 2rem;
+	height: 2rem;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.75rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	${({ $active, $completed, $hasError, theme }) => {
 		if ($hasError) {
 			return `
         background-color: ${theme.colors.error};
@@ -183,25 +183,26 @@ const StepDot = styled.div<{ $active?: boolean; $completed?: boolean; $hasError?
       `;
 		}
 	}}
-  
-  &:hover {
-    transform: scale(1.05);
-  }
+
+	&:hover {
+		transform: scale(1.05);
+	}
 `;
 
 const StepContainer = styled.div<{ $active?: boolean; $completed?: boolean; $hasError?: boolean }>`
-  background: white;
-  border: 2px solid ${({ $active, $completed, $hasError, theme }) => {
-		if ($hasError) return theme.colors.error;
-		if ($completed) return theme.colors.success;
-		if ($active) return theme.colors.primary;
-		return theme.colors.gray200;
-	}};
-  border-radius: 0.5rem;
-  overflow: hidden;
-  transition: all 0.3s;
-  
-  ${({ $active }) =>
+	background: white;
+	border: 2px solid
+		${({ $active, $completed, $hasError, theme }) => {
+			if ($hasError) return theme.colors.error;
+			if ($completed) return theme.colors.success;
+			if ($active) return theme.colors.primary;
+			return theme.colors.gray200;
+		}};
+	border-radius: 0.5rem;
+	overflow: hidden;
+	transition: all 0.3s;
+
+	${({ $active }) =>
 		$active &&
 		`
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -210,114 +211,114 @@ const StepContainer = styled.div<{ $active?: boolean; $completed?: boolean; $has
 `;
 
 const StepHeader = styled.div<{ $active?: boolean; $completed?: boolean; $hasError?: boolean }>`
-  padding: 1rem 1.5rem;
-  background: ${({ $active, $completed, $hasError, theme }) => {
+	padding: 1rem 1.5rem;
+	background: ${({ $active, $completed, $hasError, theme }) => {
 		if ($hasError) return `${theme.colors.error}10`;
 		if ($completed) return `${theme.colors.success}10`;
 		if ($active) return `${theme.colors.primary}10`;
 		return theme.colors.gray50;
 	}};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+	border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 `;
 
 const StepTitleSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
 `;
 
 const StepTitle = styled.h3`
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.gray900};
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: ${({ theme }) => theme.colors.gray900};
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const StepDescription = styled.p`
-  margin: 0;
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.gray600};
+	margin: 0;
+	font-size: 0.875rem;
+	color: ${({ theme }) => theme.colors.gray600};
 `;
 
 const StepMeta = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 0.75rem;
-  color: ${({ theme }) => theme.colors.gray500};
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	font-size: 0.75rem;
+	color: ${({ theme }) => theme.colors.gray500};
 `;
 
 const StepContent = styled.div`
-  padding: 1.5rem;
+	padding: 1.5rem;
 `;
 
 const CodeBlock = styled.pre`
-  background: ${({ theme }) => theme.colors.gray900};
-  color: ${({ theme }) => theme.colors.gray100};
-  padding: 1rem;
-  border-radius: 0.375rem;
-  overflow-x: auto;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  margin: 1rem 0;
-  position: relative;
+	background: ${({ theme }) => theme.colors.gray900};
+	color: ${({ theme }) => theme.colors.gray100};
+	padding: 1rem;
+	border-radius: 0.375rem;
+	overflow-x: auto;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	margin: 1rem 0;
+	position: relative;
 `;
 
 const CopyButton = styled.button`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: ${({ theme }) => theme.colors.gray700};
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-  
-  &:hover {
-    opacity: 1;
-  }
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	background: ${({ theme }) => theme.colors.gray700};
+	color: white;
+	border: none;
+	border-radius: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	font-size: 0.75rem;
+	cursor: pointer;
+	opacity: 0.7;
+	transition: opacity 0.2s;
+
+	&:hover {
+		opacity: 1;
+	}
 `;
 
 const StepResult = styled.div<{ $hasError?: boolean }>`
-  margin-top: 1rem;
-  padding: 1rem;
-  background: ${({ $hasError, theme }) =>
+	margin-top: 1rem;
+	padding: 1rem;
+	background: ${({ $hasError, theme }) =>
 		$hasError ? `${theme.colors.error}10` : `${theme.colors.success}10`};
-  border: 1px solid ${({ $hasError, theme }) =>
-		$hasError ? theme.colors.error : theme.colors.success};
-  border-radius: 0.375rem;
+	border: 1px solid
+		${({ $hasError, theme }) => ($hasError ? theme.colors.error : theme.colors.success)};
+	border-radius: 0.375rem;
 `;
 
 const StepActions = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 0.75rem;
+	margin-top: 1.5rem;
+	flex-wrap: wrap;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 'danger' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  ${({ $variant, theme }) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	border: none;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	${({ $variant, theme }) => {
 		switch ($variant) {
 			case 'primary':
 				return `
@@ -346,34 +347,34 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
         `;
 		}
 	}}
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const DebugPanel = styled.div`
-  margin-top: 1rem;
-  padding: 1rem;
-  background: ${({ theme }) => theme.colors.gray50};
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
-  border-radius: 0.375rem;
+	margin-top: 1rem;
+	padding: 1rem;
+	background: ${({ theme }) => theme.colors.gray50};
+	border: 1px solid ${({ theme }) => theme.colors.gray200};
+	border-radius: 0.375rem;
 `;
 
 const DebugTitle = styled.h4`
-  margin: 0 0 0.5rem 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.gray700};
+	margin: 0 0 0.5rem 0;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: ${({ theme }) => theme.colors.gray700};
 `;
 
 const DebugContent = styled.pre`
-  font-size: 0.75rem;
-  color: ${({ theme }) => theme.colors.gray600};
-  margin: 0;
-  white-space: pre-wrap;
-  word-break: break-word;
+	font-size: 0.75rem;
+	color: ${({ theme }) => theme.colors.gray600};
+	margin: 0;
+	white-space: pre-wrap;
+	word-break: break-word;
 `;
 
 // Enhanced Step Flow Component

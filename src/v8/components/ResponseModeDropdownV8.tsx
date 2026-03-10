@@ -14,7 +14,7 @@
  * />
  */
 
-import { FiChevronDown } from '@icons';
+import { FiChevronDown } from '../../icons';
 import React, { useState } from 'react';
 import type { ResponseMode } from '@/services/responseModeService';
 

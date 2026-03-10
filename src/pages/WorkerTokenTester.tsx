@@ -1,6 +1,6 @@
 // src/pages/WorkerTokenTester.tsx
 
-import { FiKey } from '@icons';
+import { FiKey } from '../icons';
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';

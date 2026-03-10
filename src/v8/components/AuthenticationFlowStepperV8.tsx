@@ -163,7 +163,12 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 				}
 			})
 			.catch((error) => {
-				logger.error('AuthenticationFlowStepperV8', 'Error loading credentials', undefined, error as Error);
+				logger.error(
+					'AuthenticationFlowStepperV8',
+					'Error loading credentials',
+					undefined,
+					error as Error
+				);
 			});
 	}, []);
 
@@ -214,9 +219,8 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 	useEffect(() => {
 		const checkWorkerToken = async () => {
 			try {
-				const { handleShowWorkerTokenModalSimple } = await import(
-					'@/v8/utils/workerTokenModalHelperV8_SIMPLE'
-				);
+				const { handleShowWorkerTokenModalSimple } =
+					await import('@/v8/utils/workerTokenModalHelperV8');
 				// forceShowModal=false: this is an automatic check, not a user click
 				await handleShowWorkerTokenModalSimple(
 					setShowWorkerTokenModal,

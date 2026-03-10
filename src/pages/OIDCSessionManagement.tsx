@@ -1,4 +1,12 @@
-import { FiArrowRight, FiCheck, FiLogOut, FiMonitor, FiRefreshCw, FiShield, FiUsers } from '@icons';
+import {
+	FiArrowRight,
+	FiCheck,
+	FiLogOut,
+	FiMonitor,
+	FiRefreshCw,
+	FiShield,
+	FiUsers,
+} from '../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
@@ -11,341 +19,350 @@ import { logger } from '../utils/logger';
 
 // White background container with better spacing
 const WhiteContainer = styled.div`
-  background-color: white;
-  min-height: 100vh;
-  color: V9_COLORS.TEXT.GRAY_DARK; // Dark text for readability
-  line-height: 1.6;
-  padding-top: 100px; // Account for fixed Navbar (80px height + 20px margin)
-  padding-bottom: 4rem; // Extra bottom padding to prevent content cutoff
-  overflow-x: hidden; // Prevent horizontal scroll
-  
-  h1, h2, h3, h4, h5, h6 {
-    color: V9_COLORS.TEXT.GRAY_DARK; // Darker headers
-  }
-  
-  p {
-    color: V9_COLORS.TEXT.GRAY_DARK; // Medium dark text
-  }
+	background-color: white;
+	min-height: 100vh;
+	color: V9_COLORS.TEXT.GRAY_DARK; // Dark text for readability
+	line-height: 1.6;
+	padding-top: 100px; // Account for fixed Navbar (80px height + 20px margin)
+	padding-bottom: 4rem; // Extra bottom padding to prevent content cutoff
+	overflow-x: hidden; // Prevent horizontal scroll
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		color: V9_COLORS.TEXT.GRAY_DARK; // Darker headers
+	}
+
+	p {
+		color: V9_COLORS.TEXT.GRAY_DARK; // Medium dark text
+	}
 `;
 
 const OverviewCard = styled(Card)`
-  margin-bottom: 2rem;
-  border-left: 4px solid ${({ theme }) => theme.colors.primary};
+	margin-bottom: 2rem;
+	border-left: 4px solid ${({ theme }) => theme.colors.primary};
 `;
 
 const FlowGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+	gap: 1.5rem;
+	margin-top: 2rem;
 `;
 
 const FlowCard = styled(Card)`
-  border-left: 4px solid ${({ theme }) => theme.colors.info};
-  margin-bottom: 2rem;
-  
-  /* Ensure CardBody has enough bottom padding */
-  div[class*="CardBody"] {
-    padding-bottom: 2rem !important;
-  }
+	border-left: 4px solid ${({ theme }) => theme.colors.info};
+	margin-bottom: 2rem;
+
+	/* Ensure CardBody has enough bottom padding */
+	div[class*='CardBody'] {
+		padding-bottom: 2rem !important;
+	}
 `;
 
 const FlowIcon = styled.div`
-  font-size: 1.5rem;
-  color: ${({ theme }) => theme.colors.info};
-  margin-bottom: 1rem;
+	font-size: 1.5rem;
+	color: ${({ theme }) => theme.colors.info};
+	margin-bottom: 1rem;
 `;
 
 const FlowTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  color: ${({ theme }) => theme.colors.gray900};
+	font-size: 1.25rem;
+	font-weight: 600;
+	margin-bottom: 0.75rem;
+	color: ${({ theme }) => theme.colors.gray900};
 `;
 
 const FlowDescription = styled.p`
-  color: ${({ theme }) => theme.colors.gray600};
-  line-height: 1.6;
-  margin-bottom: 1rem;
+	color: ${({ theme }) => theme.colors.gray600};
+	line-height: 1.6;
+	margin-bottom: 1rem;
 `;
 
 const CodeBlock = styled.pre`
-  background-color: ${({ theme }) => theme.colors.gray100};
-  border: 1px solid ${({ theme }) => theme.colors.gray300};
-  border-radius: 0.375rem;
-  padding: 1rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  overflow-x: auto;
-  margin: 1rem 0;
+	background-color: ${({ theme }) => theme.colors.gray100};
+	border: 1px solid ${({ theme }) => theme.colors.gray300};
+	border-radius: 0.375rem;
+	padding: 1rem;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	overflow-x: auto;
+	margin: 1rem 0;
 `;
 
 const PingOneNote = styled.div`
-  background-color: ${({ theme }) => theme.colors.info}10;
-  border: 1px solid ${({ theme }) => theme.colors.info}30;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin: 1rem 0 2rem 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+	background-color: ${({ theme }) => theme.colors.info}10;
+	border: 1px solid ${({ theme }) => theme.colors.info}30;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin: 1rem 0 2rem 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
 
-  svg {
-    color: ${({ theme }) => theme.colors.info};
-    flex-shrink: 0;
-    margin-top: 0.1rem;
-  }
+	svg {
+		color: ${({ theme }) => theme.colors.info};
+		flex-shrink: 0;
+		margin-top: 0.1rem;
+	}
 
-  h4 {
-    color: ${({ theme }) => theme.colors.info};
-    margin: 0 0 0.5rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-  }
+	h4 {
+		color: ${({ theme }) => theme.colors.info};
+		margin: 0 0 0.5rem 0;
+		font-size: 1rem;
+		font-weight: 600;
+	}
 
-  p {
-    margin: 0;
-    color: ${({ theme }) => theme.colors.info};
-    font-size: 0.9rem;
-  }
+	p {
+		margin: 0;
+		color: ${({ theme }) => theme.colors.info};
+		font-size: 0.9rem;
+	}
 `;
 
 const SecurityNote = styled.div`
-  background-color: #fdecea;
-  border: 1px solid #f5c2c7;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin: 1rem 0 2rem 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+	background-color: #fdecea;
+	border: 1px solid #f5c2c7;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin: 1rem 0 2rem 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
 
-  svg {
-    color: #dc3545;
-    flex-shrink: 0;
-    margin-top: 0.1rem;
-  }
+	svg {
+		color: #dc3545;
+		flex-shrink: 0;
+		margin-top: 0.1rem;
+	}
 
-  h4 {
-    color: #dc3545;
-    margin: 0 0 0.5rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-  }
+	h4 {
+		color: #dc3545;
+		margin: 0 0 0.5rem 0;
+		font-size: 1rem;
+		font-weight: 600;
+	}
 
-  p {
-    margin: 0;
-    color: #dc3545;
-    font-size: 0.9rem;
-  }
+	p {
+		margin: 0;
+		color: #dc3545;
+		font-size: 0.9rem;
+	}
 `;
 
 const InteractiveSection = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	margin: 1.5rem 0;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DemoButton = styled.button`
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.BLUE_DARK);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  margin: 1rem 0;
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.BLUE_DARK);
+	color: white;
+	border: none;
+	border-radius: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: all 0.2s ease;
+	margin: 1rem 0;
 
-  &:hover {
-    background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK, V9_COLORS.PRIMARY.BLUE_DARK);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-  }
+	&:hover {
+		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK, V9_COLORS.PRIMARY.BLUE_DARK);
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+	}
 
-  &:active {
-    transform: translateY(0);
-  }
+	&:active {
+		transform: translateY(0);
+	}
 
-  svg {
-    font-size: 1.1rem;
-  }
+	svg {
+		font-size: 1.1rem;
+	}
 `;
 
 const CodeExample = styled.div`
-  background: white;
-  border: 2px solid V9_COLORS.PRIMARY.BLUE;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  position: relative;
-  overflow-x: auto;
+	background: white;
+	border: 2px solid V9_COLORS.PRIMARY.BLUE;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin: 1rem 0;
+	position: relative;
+	overflow-x: auto;
 `;
 
 const CodeHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid V9_COLORS.PRIMARY.BLUE;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.75rem;
+	padding-bottom: 0.75rem;
+	border-bottom: 2px solid V9_COLORS.PRIMARY.BLUE;
 `;
 
 const CodeTitle = styled.span`
-  color: white;
-  background: V9_COLORS.PRIMARY.BLUE;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.25rem;
+	color: white;
+	background: V9_COLORS.PRIMARY.BLUE;
+	font-size: 0.875rem;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.25rem 0.75rem;
+	border-radius: 0.25rem;
 `;
 
 const CopyButton = styled.button`
-  background: V9_COLORS.PRIMARY.BLUE;
-  color: white;
-  border: 2px solid V9_COLORS.PRIMARY.BLUE;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: all 0.2s ease;
-  font-weight: 500;
+	background: V9_COLORS.PRIMARY.BLUE;
+	color: white;
+	border: 2px solid V9_COLORS.PRIMARY.BLUE;
+	border-radius: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	font-size: 0.75rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	transition: all 0.2s ease;
+	font-weight: 500;
 
-  &:hover {
-    background: V9_COLORS.PRIMARY.BLUE_DARK;
-    border-color: V9_COLORS.PRIMARY.BLUE_DARK;
-  }
+	&:hover {
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
+		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+	}
 `;
 
 const CodeContent = styled.pre`
-  color: #1e293b;
-  background: white;
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  margin: 0;
-  white-space: pre-wrap;
+	color: #1e293b;
+	background: white;
+	font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	margin: 0;
+	white-space: pre-wrap;
 `;
 
 const FlowStep = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin: 1.5rem 0;
-  padding: 1rem;
-  background: white;
-  border-radius: 0.5rem;
-  border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+	margin: 1.5rem 0;
+	padding: 1rem;
+	background: white;
+	border-radius: 0.5rem;
+	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 const StepNumber = styled.div`
-  background: V9_COLORS.PRIMARY.BLUE;
-  color: white;
-  border-radius: 50%;
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.875rem;
-  flex-shrink: 0;
+	background: V9_COLORS.PRIMARY.BLUE;
+	color: white;
+	border-radius: 50%;
+	width: 2rem;
+	height: 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+	font-size: 0.875rem;
+	flex-shrink: 0;
 `;
 
 const StepContent = styled.div`
-  flex: 1;
+	flex: 1;
 `;
 
 const StepTitle = styled.h4`
-  margin: 0 0 0.5rem 0;
-  color: #1e293b;
-  font-size: 1.1rem;
-  font-weight: 600;
+	margin: 0 0 0.5rem 0;
+	color: #1e293b;
+	font-size: 1.1rem;
+	font-weight: 600;
 `;
 
 const StepDescription = styled.p`
-  margin: 0 0 0.75rem 0;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  line-height: 1.5;
+	margin: 0 0 0.75rem 0;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	line-height: 1.5;
 `;
 
 const FlowDiagram = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 1rem 0 2rem 0;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_MEDIUM 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-  border-radius: 0.75rem;
-  border: 2px solid #cbd5e1;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: 1rem 0 2rem 0;
+	padding: 1.5rem;
+	background: linear-gradient(
+		135deg,
+		V9_COLORS.BG.GRAY_MEDIUM 0%,
+		V9_COLORS.TEXT.GRAY_LIGHTER 100%
+	);
+	border-radius: 0.75rem;
+	border: 2px solid #cbd5e1;
 `;
 
 const FlowActor = styled.div`
-  text-align: center;
-  padding: 1rem;
-  background: white;
-  border-radius: 0.5rem;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  min-width: 120px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	text-align: center;
+	padding: 1rem;
+	background: white;
+	border-radius: 0.5rem;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	min-width: 120px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 const ActorIcon = styled.div`
-  font-size: 2rem;
-  color: V9_COLORS.PRIMARY.BLUE;
-  margin-bottom: 0.5rem;
+	font-size: 2rem;
+	color: V9_COLORS.PRIMARY.BLUE;
+	margin-bottom: 0.5rem;
 `;
 
 const ActorName = styled.div`
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 0.25rem;
+	font-weight: 600;
+	color: #1e293b;
+	margin-bottom: 0.25rem;
 `;
 
 const ActorRole = styled.div`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const FlowArrow = styled.div`
-  color: V9_COLORS.PRIMARY.BLUE;
-  font-size: 1.5rem;
-  margin: 0 1rem;
+	color: V9_COLORS.PRIMARY.BLUE;
+	font-size: 1.5rem;
+	margin: 0 1rem;
 `;
 
 const PingOneBadge = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK);
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-left: 0.5rem;
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW, V9_COLORS.PRIMARY.YELLOW_DARK);
+	color: white;
+	padding: 0.25rem 0.75rem;
+	border-radius: 1rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	margin-left: 0.5rem;
 `;
 
 const ImplementationCard = styled(Card)`
-  border-left: 4px solid V9_COLORS.PRIMARY.GREEN;
-  background: linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%);
+	border-left: 4px solid V9_COLORS.PRIMARY.GREEN;
+	background: linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%);
 `;
 
 const WarningCard = styled(Card)`
-  border-left: 4px solid V9_COLORS.PRIMARY.YELLOW;
-  background: linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING 100%);
+	border-left: 4px solid V9_COLORS.PRIMARY.YELLOW;
+	background: linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING 100%);
 `;
 
 // Use V6 pageLayoutService for consistent dimensions and FlowHeader integration

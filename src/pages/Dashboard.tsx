@@ -504,24 +504,37 @@ const Dashboard = () => {
 														<>
 															<li className="d-flex justify-content-between py-1 border-bottom border-light">
 																<span className="text-muted">Node</span>
-																<span>{server.healthData.node.version}</span>
+																<span>{server.healthData?.node?.version || 'N/A'}</span>
 															</li>
 															<li className="d-flex justify-content-between py-1 border-bottom border-light">
 																<span className="text-muted">Memory</span>
 																<span>
-																	{formatBytes(server.healthData.memory.heapUsed)} /{' '}
-																	{formatBytes(server.healthData.memory.heapTotal)}
+																	{server.healthData?.memory
+																		? formatBytes(server.healthData.memory.heapUsed)
+																		: 'N/A'}{' '}
+																	/{' '}
+																	{server.healthData?.memory
+																		? formatBytes(server.healthData.memory.heapTotal)
+																		: 'N/A'}
 																</span>
 															</li>
 															<li className="d-flex justify-content-between py-1 border-bottom border-light">
 																<span className="text-muted">CPU</span>
-																<span>{server.healthData.cpuUsage.avg1mPercent.toFixed(1)}%</span>
+																<span>
+																	{server.healthData?.cpuUsage
+																		? server.healthData.cpuUsage.avg1mPercent.toFixed(1)
+																		: 'N/A'}
+																	%
+																</span>
 															</li>
 															<li className="d-flex justify-content-between py-1">
 																<span className="text-muted">Requests</span>
 																<span>
-																	{server.healthData.requestStats.totalRequests}
-																	{server.healthData.requestStats.errorRate > 0
+																	{server.healthData?.requestStats
+																		? server.healthData.requestStats.totalRequests
+																		: 'N/A'}
+																	{server.healthData?.requestStats &&
+																	server.healthData.requestStats.errorRate > 0
 																		? ` (${server.healthData.requestStats.errorRate.toFixed(1)}% errors)`
 																		: ' (no errors)'}
 																</span>

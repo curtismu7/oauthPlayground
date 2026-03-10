@@ -1,7 +1,7 @@
 // src/components/MFAUserSettingsGatherer.tsx
 // Modern MFA User Settings Component with username input and MFA policy selection
 
-import { FiCheck, FiChevronDown } from '@icons';
+import { FiCheck, FiChevronDown } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -35,90 +35,90 @@ interface Props {
 
 // Styled Components
 const Container = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
-  border-radius: 1rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+	background: V9_COLORS.TEXT.WHITE;
+	border-radius: 1rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 2rem;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 `;
 
 const SectionTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 1.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 `;
 
 const FormGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const FormLabel = styled.label`
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const FormInput = styled.input`
-  padding: 0.75rem 1rem;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
+	padding: 0.75rem 1rem;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	transition: all 0.2s ease;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 
-  &:disabled {
-    background: #f9fafb;
-    color: V9_COLORS.TEXT.GRAY_LIGHT;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		background: #f9fafb;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
+		cursor: not-allowed;
+	}
 `;
 
 const DropdownContainer = styled.div`
-  position: relative;
+	position: relative;
 `;
 
 const DropdownButton = styled.button<{ $isOpen: boolean; $hasError?: boolean }>`
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 2px solid ${(props) => (props.$hasError ? '#ef4444' : '#e5e7eb')};
-  border-radius: 0.5rem;
-  background: V9_COLORS.TEXT.WHITE;
-  font-size: 0.875rem;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  transition: all 0.2s ease;
+	width: 100%;
+	padding: 0.75rem 1rem;
+	border: 2px solid ${(props) => (props.$hasError ? '#ef4444' : '#e5e7eb')};
+	border-radius: 0.5rem;
+	background: V9_COLORS.TEXT.WHITE;
+	font-size: 0.875rem;
+	text-align: left;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+	transition: all 0.2s ease;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 
-  ${(props) =>
+	${(props) =>
 		props.$isOpen &&
 		`
     border-color: V9_COLORS.PRIMARY.BLUE;
@@ -127,41 +127,41 @@ const DropdownButton = styled.button<{ $isOpen: boolean; $hasError?: boolean }>`
 `;
 
 const DropdownMenu = styled.div<{ $isOpen: boolean }>`
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 0;
-  right: 0;
-  background: V9_COLORS.TEXT.WHITE;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  z-index: 50;
-  max-height: 300px;
-  overflow-y: auto;
-  opacity: ${(props) => (props.$isOpen ? 1 : 0)};
-  visibility: ${(props) => (props.$isOpen ? 'visible' : 'hidden')};
-  transform: translateY(${(props) => (props.$isOpen ? '0' : '-10px')});
-  transition: all 0.2s ease;
+	position: absolute;
+	top: calc(100% + 0.5rem);
+	left: 0;
+	right: 0;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+	z-index: 50;
+	max-height: 300px;
+	overflow-y: auto;
+	opacity: ${(props) => (props.$isOpen ? 1 : 0)};
+	visibility: ${(props) => (props.$isOpen ? 'visible' : 'hidden')};
+	transform: translateY(${(props) => (props.$isOpen ? '0' : '-10px')});
+	transition: all 0.2s ease;
 `;
 
 const DropdownItem = styled.div<{ $selected?: boolean }>`
-  padding: 1rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  border-bottom: 1px solid #f3f4f6;
+	padding: 1rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+	border-bottom: 1px solid #f3f4f6;
 
-  &:last-child {
-    border-bottom: none;
-  }
+	&:last-child {
+		border-bottom: none;
+	}
 
-  &:hover {
-    background: #f9fafb;
-  }
+	&:hover {
+		background: #f9fafb;
+	}
 
-  ${(props) =>
+	${(props) =>
 		props.$selected &&
 		`
     background: V9_COLORS.BG.GRAY_LIGHT;
@@ -170,166 +170,170 @@ const DropdownItem = styled.div<{ $selected?: boolean }>`
 `;
 
 const ItemContent = styled.div`
-  flex: 1;
+	flex: 1;
 `;
 
 const ItemTitle = styled.div`
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.25rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const ItemDescription = styled.div`
-  font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  line-height: 1.4;
+	font-size: 0.75rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	line-height: 1.4;
 `;
 
 const DeviceTags = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-top: 0.5rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	margin-top: 0.5rem;
 `;
 
 const DeviceTag = styled.span`
-  background: #f3f4f6;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 0.625rem;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  font-weight: 500;
+	background: #f3f4f6;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.625rem;
+	padding: 0.125rem 0.375rem;
+	border-radius: 0.25rem;
+	font-weight: 500;
 `;
 
 const WorkerTokenSection = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin-top: 1.5rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	margin-top: 1.5rem;
 `;
 
 const WorkerTokenHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
 `;
 
 const WorkerTokenTitle = styled.div`
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const WorkerTokenStatus = styled.div<{ $hasToken: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: ${(props) => (props.$hasToken ? '#059669' : '#d97706')};
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: ${(props) => (props.$hasToken ? '#059669' : '#d97706')};
 `;
 
 const WorkerTokenActions = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 0.75rem;
+	flex-wrap: wrap;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border: 1px solid ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#e5e7eb')};
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#ffffff')};
-  color: ${(props) => (props.$variant === 'primary' ? '#ffffff' : '#1f2937')};
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	border: 1px solid ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#e5e7eb')};
+	border-radius: 0.5rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#ffffff')};
+	color: ${(props) => (props.$variant === 'primary' ? '#ffffff' : '#1f2937')};
 
-  &:hover:not(:disabled) {
-    background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#f9fafb')};
-  }
+	&:hover:not(:disabled) {
+		background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#f9fafb')};
+	}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const DeviceCreationSection = styled.div`
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	margin-top: 2rem;
+	padding-top: 2rem;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DeviceCreationOptions = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 1rem;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	margin-top: 1rem;
 `;
 
 const DeviceCreationCard = styled.div<{ $selected?: boolean }>`
-  border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#e5e7eb')};
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: ${(props) => (props.$selected ? '#f8fafc' : '#ffffff')};
+	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#e5e7eb')};
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	background: ${(props) => (props.$selected ? '#f8fafc' : '#ffffff')};
 
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    background: V9_COLORS.BG.GRAY_LIGHT;
-  }
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		background: V9_COLORS.BG.GRAY_LIGHT;
+	}
 `;
 
 const DeviceCreationTitle = styled.div`
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const DeviceCreationDescription = styled.div`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  line-height: 1.4;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	line-height: 1.4;
 `;
 
 const ErrorMessage = styled.div`
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	font-size: 0.75rem;
+	margin-top: 0.25rem;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
 `;
 
 const LoadingSpinner = styled.div`
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border: 2px solid #f3f4f6;
-  border-top: 2px solid V9_COLORS.PRIMARY.BLUE;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	border: 2px solid #f3f4f6;
+	border-top: 2px solid V9_COLORS.PRIMARY.BLUE;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
 
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
 // MFA Policy Options
