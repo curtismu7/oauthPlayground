@@ -11,6 +11,7 @@ import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessaging
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { TokenMonitoringService } from '../../../v8u/services/tokenMonitoringService';
 
 // Types
 type TokenExchangeScenario =
@@ -89,6 +90,10 @@ const TokenExchangeFlowV9: React.FC = () => {
 	const [selectedScenario, setSelectedScenario] =
 		useState<TokenExchangeScenario>('audience-restriction');
 	const [subjectToken, setSubjectToken] = useState('');
+	const [subjectTokenSource, setSubjectTokenSource] = useState<'manual' | 'storage'>('manual');
+	const [storedTokens, setStoredTokens] = useState<
+		{ id: string; type: string; value: string; scope?: string }[]
+	>([]);
 	const [exchangedToken, setExchangedToken] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
@@ -145,6 +150,28 @@ const TokenExchangeFlowV9: React.FC = () => {
 			},
 			{ ...(params.environmentId ? { environmentId: params.environmentId } : {}) }
 		);
+	}, []);
+
+	// Load tokens from storage for subject token picker
+	useEffect(() => {
+		const refresh = () => {
+			const service = TokenMonitoringService.getInstance();
+			const tokens = service
+				.getTokensByType('access_token')
+				.concat(service.getTokensByType('worker_token'))
+				.filter((t) => t.value && t.value.length > 20);
+			setStoredTokens(
+				tokens.map((t) => ({
+					id: t.id,
+					type: t.type,
+					value: t.value,
+					scope: t.scope?.join?.(' ') || '',
+				}))
+			);
+		};
+		refresh();
+		const unsub = TokenMonitoringService.getInstance().subscribe(() => refresh());
+		return unsub;
 	}, []);
 
 	// Auto-fill from app picker
@@ -311,16 +338,18 @@ const TokenExchangeFlowV9: React.FC = () => {
 		setExchangedToken('');
 		setIsLoading(false);
 		setSelectedScopes([]);
-		setExchangeParams({
+		setSubjectTokenSource('manual');
+		setExchangeParams((prev) => ({
+			...prev,
 			grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
 			subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
 			requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			clientAuthMethod: 'private_key_jwt',
+			clientAuthMethod: 'client_secret_post',
 			audience: '',
 			claims: '',
 			authorizationDetails: '',
 			includeRefreshToken: false,
-		});
+		}));
 
 		// Show notification
 		const modernMessaging = V9ModernMessagingService.getInstance();
@@ -354,48 +383,76 @@ const TokenExchangeFlowV9: React.FC = () => {
 		}
 	}, []);
 
-	// Mock token exchange function
+	// Real PingOne token exchange via /api/token-exchange (RFC 8693)
 	const performTokenExchange = useCallback(async () => {
+		const tokenToExchange = subjectToken.trim();
+		if (!tokenToExchange) return;
+
 		setIsLoading(true);
 		const modernMessaging = V9ModernMessagingService.getInstance();
 
 		try {
 			modernMessaging.showWaitScreen({
-				message: 'Performing OAuth 2.0 Token Exchange...',
+				message: 'Performing OAuth 2.0 Token Exchange via PingOne...',
 			});
 
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 2000));
+			const scopeParam = selectedScopes.length > 0 ? selectedScopes.join(' ') : undefined;
 
-			// Mock exchanged token
-			const mockExchangedToken = {
-				access_token: `eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJleGNoYW5nZWRfdXNlciIsInNjb3BlIjoicmVhZDpwcm9maWxlIiwiYXVkIjoi${exchangeParams.audience.replace('https://', '').replace(/\//g, '_')}`,
-				token_type: 'Bearer',
-				expires_in: 3600,
-				scope: selectedScopes.join(' '),
-				issued_token_type: exchangeParams.requestedTokenType,
-			};
+			const response = await fetch('/api/token-exchange', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+					client_id: exchangeParams.clientId,
+					client_secret: exchangeParams.clientSecret || undefined,
+					subject_token: tokenToExchange,
+					subject_token_type: exchangeParams.subjectTokenType,
+					requested_token_type: exchangeParams.requestedTokenType,
+					audience: exchangeParams.audience || undefined,
+					scope: scopeParam,
+					environment_id: exchangeParams.environmentId,
+					client_auth_method: 'client_secret_post',
+				}),
+			});
 
-			setExchangedToken(JSON.stringify(mockExchangedToken, null, 2));
+			const data = await response.json().catch(() => ({}));
+
+			if (!response.ok) {
+				throw new Error(
+					data.error_description || data.error || `Token exchange failed (${response.status})`
+				);
+			}
+
+			setExchangedToken(JSON.stringify(data, null, 2));
 
 			modernMessaging.showBanner({
 				type: 'success',
 				title: 'Token Exchange Successful',
-				message: 'Successfully exchanged token for requested audience and scope.',
+				message: 'PingOne returned exchanged token. View results below.',
 				dismissible: true,
 			});
-		} catch {
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : 'Token exchange failed';
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Token Exchange Failed',
-				message: 'Failed to exchange token. Please check your configuration.',
+				message: msg,
 				dismissible: true,
 			});
 		} finally {
 			setIsLoading(false);
 			modernMessaging.hideWaitScreen();
 		}
-	}, [exchangeParams.audience, exchangeParams.requestedTokenType, selectedScopes]);
+	}, [
+		subjectToken,
+		exchangeParams.clientId,
+		exchangeParams.clientSecret,
+		exchangeParams.subjectTokenType,
+		exchangeParams.requestedTokenType,
+		exchangeParams.audience,
+		exchangeParams.environmentId,
+		selectedScopes,
+	]);
 
 	// Handle scenario selection
 	const handleScenarioSelect = useCallback(
@@ -735,46 +792,150 @@ const TokenExchangeFlowV9: React.FC = () => {
 				return (
 					<div>
 						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>Subject Token</h3>
-						<div>
+						<p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.875rem' }}>
+							Provide the token to exchange—either enter/paste one or pick from tokens in storage.
+						</p>
+						<div
+							style={{
+								display: 'flex',
+								gap: '1rem',
+								marginBottom: '1rem',
+							}}
+						>
 							<label
-								htmlFor="subject-token-textarea"
 								style={{
-									display: 'block',
-									marginBottom: '0.5rem',
-									fontWeight: 600,
-									color: '#1f2937',
-								}}
-							>
-								Token to Exchange
-							</label>
-							<textarea
-								id="subject-token-textarea"
-								value={subjectToken}
-								onChange={(e) => setSubjectToken(e.target.value)}
-								placeholder="Paste your access token here..."
-								rows={8}
-								style={{
-									width: '100%',
-									padding: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-									borderRadius: '0.375rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									cursor: 'pointer',
 									fontSize: '0.875rem',
-									fontFamily: 'monospace',
-									resize: 'vertical',
-								}}
-							/>
-							<div
-								style={{
-									marginTop: '1rem',
-									padding: '1rem',
-									backgroundColor: '#f8fafc',
-									borderRadius: '0.5rem',
+									fontWeight: 500,
 								}}
 							>
-								<strong>Current Scenario:</strong> {scenarios[selectedScenario].title}
-								<br />
-								<strong>Original Token:</strong> A sample token is pre-filled for demonstration.
+								<input
+									type="radio"
+									name="subjectTokenSource"
+									checked={subjectTokenSource === 'manual'}
+									onChange={() => {
+										setSubjectTokenSource('manual');
+										setSubjectToken('');
+									}}
+								/>
+								Enter or paste token
+							</label>
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									cursor: 'pointer',
+									fontSize: '0.875rem',
+									fontWeight: 500,
+								}}
+							>
+								<input
+									type="radio"
+									name="subjectTokenSource"
+									checked={subjectTokenSource === 'storage'}
+									onChange={() => setSubjectTokenSource('storage')}
+								/>
+								Select from storage
+							</label>
+						</div>
+						{subjectTokenSource === 'storage' ? (
+							<div>
+								<label
+									htmlFor="stored-token-select"
+									style={{
+										display: 'block',
+										marginBottom: '0.5rem',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
+									Stored tokens
+								</label>
+								<select
+									id="stored-token-select"
+									value={storedTokens.find((t) => t.value === subjectToken)?.id || ''}
+									onChange={(e) => {
+										const id = e.target.value;
+										const tok = storedTokens.find((t) => t.id === id);
+										if (tok) setSubjectToken(tok.value);
+									}}
+									style={{
+										width: '100%',
+										padding: '0.75rem',
+										border: '1px solid #d1d5db',
+										borderRadius: '0.375rem',
+										fontSize: '0.875rem',
+										background: '#ffffff',
+									}}
+								>
+									<option value="">— Select a token —</option>
+									{storedTokens.map((t) => (
+										<option key={t.id} value={t.id}>
+											{t.type}
+											{t.scope ? ` (${t.scope.split(' ').slice(0, 2).join(' ')})` : ''} —
+											{t.value.substring(0, 24)}...
+										</option>
+									))}
+								</select>
+								{storedTokens.length === 0 && (
+									<p
+										style={{
+											margin: '0.75rem 0 0',
+											color: '#6b7280',
+											fontSize: '0.875rem',
+										}}
+									>
+										No tokens in storage. Generate one by getting a worker token or running an OAuth
+										flow (e.g. Authorization Code), then return here.
+									</p>
+								)}
 							</div>
+						) : (
+							<div>
+								<label
+									htmlFor="subject-token-textarea"
+									style={{
+										display: 'block',
+										marginBottom: '0.5rem',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
+									Token to exchange
+								</label>
+								<textarea
+									id="subject-token-textarea"
+									value={subjectToken}
+									onChange={(e) => setSubjectToken(e.target.value)}
+									placeholder="Paste access token or JWT here..."
+									rows={6}
+									style={{
+										width: '100%',
+										padding: '0.75rem',
+										border: '1px solid #d1d5db',
+										borderRadius: '0.375rem',
+										fontSize: '0.875rem',
+										fontFamily: 'monospace',
+										resize: 'vertical',
+									}}
+								/>
+							</div>
+						)}
+						<div
+							style={{
+								marginTop: '1rem',
+								padding: '1rem',
+								backgroundColor: '#f8fafc',
+								borderRadius: '0.5rem',
+								fontSize: '0.875rem',
+								color: '#6b7280',
+							}}
+						>
+							<strong>Current scenario:</strong> {scenarios[selectedScenario].title}
 						</div>
 					</div>
 				);

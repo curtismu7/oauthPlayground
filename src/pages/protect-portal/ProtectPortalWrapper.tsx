@@ -19,17 +19,27 @@ import ProtectPortalApp from './ProtectPortalApp';
 
 const ProtectPortalWrapper: React.FC = () => {
 	const config = getPortalAppConfig();
+	const authRegion = config.pingone.region || config.protect.region;
+
+	// Use current origin for redirectUri when config has localhost but app runs elsewhere (e.g. api.pingdemo.com)
+	const configuredRedirect = config.pingone.redirectUri;
+	const redirectUri =
+		typeof window !== 'undefined' &&
+		configuredRedirect?.includes('localhost') &&
+		!window.location.hostname.includes('localhost')
+			? `${window.location.origin}/protect-portal-callback`
+			: configuredRedirect;
 
 	return (
 		<ProtectPortalApp
 			environmentId={config.pingone.environmentId}
 			clientId={config.pingone.clientId}
 			clientSecret={config.pingone.clientSecret}
-			redirectUri={config.pingone.redirectUri}
+			redirectUri={redirectUri}
 			protectCredentials={{
 				environmentId: config.protect.environmentId,
 				workerToken: config.protect.workerToken,
-				region: config.protect.region,
+				region: authRegion,
 			}}
 		/>
 	);

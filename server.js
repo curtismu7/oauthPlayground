@@ -6722,6 +6722,18 @@ const AUTH_DOMAIN_MAP = {
 	asia: 'auth.pingone.asia',
 };
 
+/** Get Set-Cookie headers from fetch Response. Node 20+ has getSetCookie(); node-fetch has raw(). */
+function getSetCookieHeaders(response) {
+	if (typeof response.headers?.getSetCookie === 'function') {
+		return response.headers.getSetCookie();
+	}
+	if (typeof response.headers?.raw === 'function') {
+		const raw = response.headers.raw();
+		return Array.isArray(raw['set-cookie']) ? raw['set-cookie'] : [];
+	}
+	return [];
+}
+
 app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 	try {
 		console.log(`[PingOne Redirectless] Received request body:`, JSON.stringify(req.body, null, 2));
@@ -6941,13 +6953,15 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 
 		// If we couldn't parse the response as JSON, return error now
 		if (parseError || !responseData) {
+			const preview = responseText.substring(0, 500);
+			const looksLikeHtml = /<\s*(html|!DOCTYPE|head|body)/i.test(preview);
+			const hint = looksLikeHtml
+				? ' Response appears to be HTML—verify PingOne credentials (environmentId, clientId), redirect_uri is registered, and the app supports pi.flow.'
+				: '';
+
 			console.error(`[PingOne Redirectless] Invalid response format detected`);
 			console.error(`[PingOne Redirectless] Response status:`, authResponse.status);
 			console.error(`[PingOne Redirectless] Response statusText:`, authResponse.statusText);
-			console.error(
-				`[PingOne Redirectless] Response headers:`,
-				Object.fromEntries(authResponse.headers.entries())
-			);
 			console.error(
 				`[PingOne Redirectless] Response body (first 1000 chars):`,
 				responseText.substring(0, 1000)
@@ -6956,13 +6970,15 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			return res.status(500).json({
 				error: 'invalid_response',
 				error_description:
-					'PingOne returned an invalid response format. This usually indicates a server configuration issue or invalid request parameters.',
+					'PingOne returned an invalid response format. This usually indicates a server configuration issue or invalid request parameters.' +
+					hint,
 				details: {
 					message: parseError?.message || 'Unable to parse response',
 					contentType: contentType || 'unknown',
 					status: authResponse.status,
 					statusText: authResponse.statusText,
-					responsePreview: responseText.substring(0, 500),
+					responsePreview: preview,
+					looksLikeHtml: looksLikeHtml,
 				},
 			});
 		}
@@ -6988,7 +7004,7 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 		const interactionToken = responseData.interactionToken;
 
 		// Also check Set-Cookie headers
-		const setCookieHeaders = authResponse.headers.raw()['set-cookie'] || [];
+		const setCookieHeaders = getSetCookieHeaders(authResponse);
 
 		console.log(`\n🍪 ====== SESSION TOKEN ANALYSIS ======`);
 		console.log(`[PingOne Redirectless] Checking for session tokens...`);
@@ -7933,7 +7949,7 @@ app.post('/api/pingone/flows/check-username-password', async (req, res) => {
 		// Capture Set-Cookie headers from PingOne response (cookies may be updated after authentication)
 		// CRITICAL: The Step 2 response should include the ST (Session Token) cookie in Set-Cookie headers
 		// This ST cookie MUST be sent to the resume endpoint in Step 3
-		const setCookieHeaders = checkResponse.headers.raw()['set-cookie'] || [];
+		const setCookieHeaders = getSetCookieHeaders(checkResponse);
 		console.log(`[PingOne Flow Check] Response headers:`, {
 			contentType: checkResponse.headers.get('content-type'),
 			setCookieCount: setCookieHeaders.length,

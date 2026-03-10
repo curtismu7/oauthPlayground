@@ -20,6 +20,7 @@ export const PINGONE_CONFIG = {
 	clientSecret: import.meta.env.VITE_PINGONE_CLIENT_SECRET || 'your-client-secret',
 	redirectUri:
 		import.meta.env.VITE_PINGONE_REDIRECT_URI || 'http://localhost:3000/protect-portal-callback',
+	region: (import.meta.env.VITE_PINGONE_REGION || 'us') as 'us' | 'eu' | 'ap' | 'ca',
 
 	// Development fallbacks (for testing)
 	development: {
@@ -27,6 +28,7 @@ export const PINGONE_CONFIG = {
 		clientId: 'sample-client-id-1234',
 		clientSecret: 'sample-client-secret-shhh',
 		redirectUri: 'http://localhost:3000/protect-portal-callback',
+		region: 'us' as const,
 	},
 };
 
@@ -52,11 +54,26 @@ export const PROTECT_CONFIG = {
 // APPLICATION CONFIGURATION
 // ============================================================================
 
+/** Use dev fallbacks only when env vars are unset/placeholder. Prefer real credentials in dev when available. */
+function hasRealPingOneEnv() {
+	const envId = import.meta.env.VITE_PINGONE_ENVIRONMENT_ID;
+	const clientId = import.meta.env.VITE_PINGONE_CLIENT_ID;
+	return (
+		typeof envId === 'string' &&
+		envId.length > 10 &&
+		envId !== 'your-environment-id' &&
+		typeof clientId === 'string' &&
+		clientId.length > 5 &&
+		clientId !== 'your-client-id'
+	);
+}
+
 export const getPortalAppConfig = () => {
 	const isDevelopment = import.meta.env.DEV;
+	const useRealPingOne = hasRealPingOneEnv();
 
 	return {
-		pingone: isDevelopment ? PINGONE_CONFIG.development : PINGONE_CONFIG,
+		pingone: !isDevelopment || useRealPingOne ? PINGONE_CONFIG : PINGONE_CONFIG.development,
 		protect: isDevelopment ? PROTECT_CONFIG.development : PROTECT_CONFIG,
 		isDevelopment,
 	};
