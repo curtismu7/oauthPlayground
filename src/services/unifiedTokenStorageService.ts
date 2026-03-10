@@ -488,7 +488,7 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Retrieve tokens by query
 	 */
-	public async getTokens(query?: TokenQuery): Promise<TokenStorageResult<UnifiedToken[]>> {
+	public async getTokens(query?: TokenQuery): Promise<TokenStorageResult<UnifiedToken>> {
 		try {
 			await this.initializeIndexedDB();
 
