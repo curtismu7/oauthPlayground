@@ -217,14 +217,14 @@ const now = new Date().toISOString();
 const v9Items = [
   {
     id: 'bootstrap-icons-migration',
-    description: 'Bootstrap Icons replacing ❓ emoji placeholders',
+    description: 'Bootstrap Icons replacing question-mark emoji placeholders',
     status: questionMarkCount === 0 ? 'clean' : questionMarkCount < 10 ? 'warning' : 'pending',
     countLabel: questionMarkCount === 0
       ? `${biIconCount} bi-* icons in use`
-      : `${questionMarkCount} ❓ remaining → ${biIconCount} bi-* in use`,
+      : `${questionMarkCount} placeholders remaining → ${biIconCount} bi-* in use`,
     detail: questionMarkCount === 0
-      ? `All user-visible ❓ placeholders replaced with Bootstrap Icons CSS classes (<i className="bi bi-*">). ${biIconCount} icon references across active components.`
-      : `${questionMarkCount} ❓ spans remain outside src/locked/. ${biIconCount} Bootstrap icon references already in place.`,
+      ? `All user-visible question-mark placeholders replaced with Bootstrap Icons CSS classes (<i className="bi bi-*">). ${biIconCount} icon references across active components.`
+      : `${questionMarkCount} question-mark spans remain outside src/locked/. ${biIconCount} Bootstrap icon references already in place.`,
   },
   {
     id: 'active-sidebar-identified',

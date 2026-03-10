@@ -5,6 +5,7 @@ import type { FlowConfig } from '../components/FlowConfiguration';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { FlowCredentialService } from '../services/flowCredentialService';
 import { scopeValidationService } from '../services/scopeValidationService';
+import { unifiedTokenStorage } from '../services/unifiedTokenStorageService';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { credentialManager } from '../utils/credentialManager';
 import { enhancedDebugger } from '../utils/enhancedDebug';
@@ -62,8 +63,8 @@ const createEmptyCredentials = (): StepCredentials => ({
 	clientId: '',
 	clientSecret: '',
 	redirectUri: `${getSafeOrigin()}/callback`,
-	scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
-	scopes: 'p1:read:user p1:update:user p1:read:device p1:update:device',
+	scope: 'openid pingone p1:read:user p1:update:user p1:read:device p1:update:device',
+	scopes: 'openid pingone p1:read:user p1:update:user p1:read:device p1:update:device',
 	responseType: 'code',
 	grantType: 'client_credentials',
 	issuerUrl: '',
@@ -220,21 +221,71 @@ export const useWorkerTokenFlowController = (
 		}
 	}, [options.enableDebugger]);
 
-	// Load flow-specific credentials on mount using FlowCredentialService
+	// Load credentials on mount: unified storage (IndexedDB + SQLite) first, then FlowCredentialService, then sync fallbacks
 	useEffect(() => {
 		const loadData = async () => {
 			try {
 				logger.info(
-					'🔄 [useWorkerTokenFlowController] Loading flow-specific credentials on mount...'
-				, "Logger info");
+					'🔄 [useWorkerTokenFlowController] Loading credentials on mount (IndexedDB/SQLite, then flow state)...',
+					'Logger info'
+				);
 
+				const defaults = loadInitialCredentials();
+
+				// 1) Pull from unified storage (IndexedDB + SQLite) — canonical source for worker token credentials
+				try {
+					const unifiedCreds = await unifiedTokenStorage.getWorkerTokenCredentials();
+					if (
+						unifiedCreds &&
+						unifiedCreds.environmentId &&
+						unifiedCreds.clientId &&
+						unifiedCreds.clientSecret
+					) {
+						const merged: StepCredentials = {
+							...defaults,
+							environmentId: String(unifiedCreds.environmentId),
+							clientId: String(unifiedCreds.clientId),
+							clientSecret: String(unifiedCreds.clientSecret),
+							scope:
+								(typeof unifiedCreds.scopes === 'string'
+									? unifiedCreds.scopes
+									: Array.isArray(unifiedCreds.scopes)
+										? unifiedCreds.scopes.join(' ')
+										: defaults.scope) || defaults.scope,
+							scopes:
+								(typeof unifiedCreds.scopes === 'string'
+									? unifiedCreds.scopes
+									: Array.isArray(unifiedCreds.scopes)
+										? unifiedCreds.scopes.join(' ')
+										: defaults.scopes) || defaults.scopes,
+						};
+						if (unifiedCreds.region) merged.region = String(unifiedCreds.region);
+						if (unifiedCreds.tokenEndpoint) merged.tokenEndpoint = String(unifiedCreds.tokenEndpoint);
+						logger.info('✅ [useWorkerTokenFlowController] Loaded credentials from IndexedDB/SQLite', {
+							flowKey: persistKey,
+							environmentId: merged.environmentId,
+							clientId: `${merged.clientId?.substring(0, 8)}...`,
+						});
+						setCredentials(merged);
+						setHasCredentialsSaved(true);
+						return;
+					}
+				} catch (unifiedError) {
+					logger.warn(
+						'useWorkerTokenFlowController',
+						'Unified storage load failed, trying flow credentials',
+						{ error: unifiedError as Error }
+					);
+				}
+
+				// 2) Fallback: flow-specific and shared credentials from FlowCredentialService
 				const {
 					credentials: loadedCreds,
 					hasSharedCredentials,
 					flowState,
 				} = await FlowCredentialService.loadFlowCredentials<FlowConfig>({
 					flowKey: persistKey,
-					defaultCredentials: loadInitialCredentials(),
+					defaultCredentials: defaults,
 				});
 
 				if (loadedCreds && hasSharedCredentials) {
@@ -247,13 +298,12 @@ export const useWorkerTokenFlowController = (
 					setCredentials(loadedCreds);
 					setHasCredentialsSaved(true);
 
-					// Load flow-specific state if available
 					if (flowState?.flowConfig) {
 						setFlowConfig(flowState.flowConfig);
-						logger.info('✅ [useWorkerTokenFlowController] Loaded flow config from saved state', "Logger info");
+						logger.info('✅ [useWorkerTokenFlowController] Loaded flow config from saved state', 'Logger info');
 					}
 				} else {
-					logger.info('ℹ️ [useWorkerTokenFlowController] No saved credentials found', "Logger info");
+					logger.info('ℹ️ [useWorkerTokenFlowController] No saved credentials found', 'Logger info');
 				}
 			} catch (error) {
 				logger.error(
@@ -475,16 +525,41 @@ export const useWorkerTokenFlowController = (
 
 			if (success) {
 				logger.info(
-					'✅ [useWorkerTokenFlowController] Credentials saved successfully via FlowCredentialService'
-				, "Logger info");
+					'✅ [useWorkerTokenFlowController] Credentials saved successfully via FlowCredentialService',
+					'Logger info'
+				);
 				logger.info('🔍 [useWorkerTokenFlowController] Saved loginHint:', credentials.loginHint);
 
-				// Also save to worker token specific storage
+				// Save to unified storage (IndexedDB + SQLite) so credentials persist and load on next visit
+				try {
+					await unifiedTokenStorage.storeWorkerTokenCredentials({
+						environmentId: credentials.environmentId,
+						clientId: credentials.clientId,
+						clientSecret: credentials.clientSecret,
+						scope: credentials.scope ?? credentials.scopes,
+						scopes: credentials.scopes ?? credentials.scope,
+						region: credentials.region,
+						tokenEndpoint: credentials.tokenEndpoint,
+					});
+					logger.info(
+						'✅ [useWorkerTokenFlowController] Also saved to IndexedDB/SQLite (unified storage)',
+						'Logger info'
+					);
+				} catch (error) {
+					logger.warn(
+						'useWorkerTokenFlowController',
+						'Failed to save to unified storage (IndexedDB/SQLite)',
+						{ detail: String(error) }
+					);
+				}
+
+				// Also save to worker token specific localStorage (legacy)
 				try {
 					localStorage.setItem('worker_credentials', JSON.stringify(credentials));
 					logger.info(
-						'✅ [useWorkerTokenFlowController] Also saved to worker_credentials localStorage'
-					, "Logger info");
+						'✅ [useWorkerTokenFlowController] Also saved to worker_credentials localStorage',
+						'Logger info'
+					);
 				} catch (error) {
 					logger.warn(
 						'useWorkerTokenFlowController',

@@ -12,6 +12,7 @@ import { logger } from '../../utils/logger';
 import {
 	type MFAFeatureFlag,
 	MFAFeatureFlagsV8,
+	MFA_FLAGS_ALWAYS_100,
 	type RolloutPercentage,
 } from '../services/mfaFeatureFlagsV8';
 import {
@@ -134,7 +135,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 								<h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: 'white' }}>
 									MFA Feature Flags Admin
 								</h1>
-								{isUpdating && (
+								{!MFA_FLAGS_ALWAYS_100 && isUpdating && (
 									<div
 										style={{
 											display: 'inline-block',
@@ -180,10 +181,28 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 						</button>
 					</div>
 					<p style={{ margin: 0, fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)' }}>
-						Control gradual rollout of unified MFA flows (Phase 8 - Week 7-8)
+						{MFA_FLAGS_ALWAYS_100
+							? 'All MFA feature flags are fixed at 100%. Unified flows are always on.'
+							: 'Control gradual rollout of unified MFA flows (Phase 8 - Week 7-8)'}
 					</p>
 				</div>
 
+				{MFA_FLAGS_ALWAYS_100 ? (
+					<div
+						style={{
+							background: '#ecfdf5',
+							border: '1px solid #10b981',
+							borderRadius: '8px',
+							padding: '24px',
+							textAlign: 'center',
+							fontSize: '16px',
+							color: '#065f46',
+						}}
+					>
+						All flags are enabled at 100% rollout. Toggles and rollout controls are hidden.
+					</div>
+				) : (
+					<>
 				{/* Info Panel */}
 				<div
 					style={{
@@ -607,6 +626,8 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 						Reset All Flags
 					</button>
 				</div>
+					</>
+				)}
 			</div>
 		</div>
 	);

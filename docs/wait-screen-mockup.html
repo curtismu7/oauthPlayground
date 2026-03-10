@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wait screen mock – pulling from storage</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      padding: 2rem;
+    }
+    .page-note {
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      padding: 1rem;
+      background: #eff6ff;
+      border: 1px solid #3b82f6;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #1e40af;
+    }
+    /* Backdrop – same idea as app */
+    .wait-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      backdrop-filter: blur(2px);
+    }
+    /* Card */
+    .wait-card {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      max-width: 400px;
+      text-align: center;
+    }
+    /* Spinner – blue, no purple */
+    .spinner {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 1rem;
+      border: 3px solid #e2e8f0;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .wait-title {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #111827;
+    }
+    .wait-message {
+      margin: 0 0 1rem 0;
+      font-size: 0.875rem;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+    /* Optional progress dots (blue) */
+    .wait-dots {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .wait-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3b82f6;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    .wait-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .wait-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-note">
+    <strong>Mock-up:</strong> This is what the wait screen could look like while “Pulling from storage…” (Worker Token / credentials load). Blue only, no purple. Close the overlay with the button below to simulate it disappearing after load.
+  </div>
+
+  <!-- Simulated page content (greyed behind overlay) -->
+  <div style="max-width: 600px; margin: 0 auto;">
+    <h1 style="color: #1e293b;">Worker Token (V9)</h1>
+    <p style="color: #64748b;">This content would be behind the overlay until storage has finished loading.</p>
+    <button type="button" onclick="document.getElementById('wait-overlay').style.display='none';" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+      Hide overlay (simulate load complete)
+    </button>
+    <button type="button" onclick="document.getElementById('wait-overlay').style.display='flex';" style="margin-top: 1rem; margin-left: 0.5rem; padding: 0.5rem 1rem; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer;">
+      Show again
+    </button>
+  </div>
+
+  <!-- Wait screen overlay -->
+  <div id="wait-overlay" class="wait-overlay" role="status" aria-live="polite" aria-label="Loading">
+    <div class="wait-card">
+      <div class="spinner" aria-hidden="true"></div>
+      <h3 class="wait-title">Pulling from storage…</h3>
+      <p class="wait-message">Loading credentials and environment. This usually takes a moment.</p>
+      <div class="wait-dots" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
