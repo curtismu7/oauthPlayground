@@ -13,6 +13,8 @@ export const V9_COLORS = {
 		RED_DARK: '#dc2626', // red-600
 		YELLOW: '#f59e0b', // amber-500
 		YELLOW_DARK: '#d97706', // amber-600
+		PURPLE: '#8b5cf6', // violet-500 - special flows (Postman, Device)
+		PURPLE_DARK: '#7c3aed', // violet-600
 	},
 
 	// Text colors with proper contrast

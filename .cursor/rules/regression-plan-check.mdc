@@ -1,0 +1,40 @@
+---
+description: Before editing regression-sensitive areas, read docs/UPDATE_LOG_AND_REGRESSION_PLAN.md; after every fix, add an Update log entry and run the relevant regression checks.
+globs: ["**/src/components/Sidebar*.tsx", "**/src/components/Navbar.tsx", "**/src/components/EnhancedFloatingLogViewer.tsx", "**/src/components/DiscoveryPanel.tsx", "**/src/v8u/components/AppDiscoveryModalV8U.tsx", "**/src/services/flowUIService*", "**/src/services/discoveryService.ts", "**/src/services/workerToken*.ts", "**/src/hooks/useGlobalWorkerToken*", "**/src/pages/EnvironmentManagementPageV8*", "**/src/pages/flows/**/*.tsx", "**/src/config/sidebarMenuConfig*", "**/src/v8/services/workerTokenStatusService*", "**/src/v8u/services/workerTokenStatusService*", "**/src/v8/services/mfaFeatureFlags*", "**/src/v8/pages/MFAFeatureFlagsAdmin*"]
+alwaysApply: false
+---
+
+# Regression plan — check each update
+
+When editing any of these regression-sensitive areas, follow this workflow so we do not reintroduce known issues.
+
+## Before making changes
+
+1. **Read** `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md`:
+   - **Section 4 (Regression checklist)** — run the checks that apply to the files you are touching.
+   - **Section 7 (Do-not-break areas)** — ensure your change does not break the listed guarantees (worker token → environments, sidebar z-index, discovery logger, button styling, etc.).
+
+2. If your change touches **sidebar/nav**, **worker token**, **discovery**, **flow buttons**, or **floating panels**: re-read the relevant Update log entries (Section 3) so you know what was fixed and why.
+
+## After every fix
+
+1. **Add an entry** to **Section 3 (Update log)** of `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md`:
+   - Short heading and one-line summary.
+   - **Cause**, **Fix**, **Files**, **Regression check** (1–2 concrete steps).
+
+2. If the fix is easy to regress, **add or update** a bullet in **Section 4 (Regression checklist)** for that area.
+
+3. **Run** the relevant regression checks from Section 4 (and optionally **Section 5 — Quick regression checklist**) for the areas you changed.
+
+## Do-not-break (quick reference)
+
+| Area | Do not break |
+|------|----------------|
+| Sidebar / Navbar | z-index must stay ≥ 10050 so menu is never covered by floating log viewer (9999). |
+| Worker token | Token source from modal; invalid `expiresAt` must not throw; `/environments` must load when token valid. |
+| Discovery | Use `logger.info` only in discovery paths (no `logger.discovery` or `logger.success`). |
+| Buttons (mock flows) | Buttons never grey when enabled; grey only when disabled. |
+| Log viewer | Category filters must filter displayed content. |
+| AppDiscoveryModalV8U | Backdrop is `div`, not `button`. |
+
+This is the standard way for the IDE and agents to avoid reintroducing the errors documented in the regression plan.

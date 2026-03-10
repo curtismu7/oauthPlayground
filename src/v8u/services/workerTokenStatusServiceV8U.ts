@@ -206,14 +206,19 @@ function getStatusDescription(tokenStatus: TokenStatusInfo): string {
 
 /**
  * Format time remaining for display
+ * Handles invalid/string expiresAt to avoid "NaNm" (coerce to number, guard NaN)
  */
 export function formatWorkerTokenTimeRemaining(tokenStatus: TokenStatusInfo): string {
-	if (!tokenStatus.expiresAt) return 'No expiration';
+	const raw = tokenStatus.expiresAt;
+	if (raw == null || raw === '') return 'No expiration';
+
+	const expiresAt = typeof raw === 'number' ? raw : Number(new Date(raw as unknown as string).getTime());
+	if (Number.isNaN(expiresAt)) return '—';
 
 	const now = Date.now();
-	const remaining = tokenStatus.expiresAt - now;
+	const remaining = expiresAt - now;
 
-	if (remaining <= 0) return 'Expired';
+	if (Number.isNaN(remaining) || remaining <= 0) return remaining <= 0 ? 'Expired' : '—';
 
 	const hours = Math.floor(remaining / (1000 * 60 * 60));
 	const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));

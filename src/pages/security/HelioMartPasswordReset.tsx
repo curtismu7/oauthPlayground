@@ -523,6 +523,8 @@ const getUserNameInitial = (user: PingOneUser | null): string => {
 	return user.username?.[0]?.toUpperCase() || 'U';
 };
 
+const PASSWORD_RESET_IDENTIFIER_KEY = 'helioMart_password_reset_identifier';
+
 const HelioMartPasswordReset: React.FC = () => {
 	const [activeTab, setActiveTab] = useState<TabType>('overview');
 	const [showLoginModal, setShowLoginModal] = useState(false);
@@ -534,6 +536,28 @@ const HelioMartPasswordReset: React.FC = () => {
 	const workerRegion =
 		unifiedWorkerTokenService.getTokenDataSync()?.credentials?.region ?? undefined;
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
+	// Username/identifier persisted across tabs via localStorage + storage event sync
+	const [persistedIdentifier, setPersistedIdentifier] = useState(() => {
+		if (typeof window === 'undefined') return '';
+		return localStorage.getItem(PASSWORD_RESET_IDENTIFIER_KEY) ?? '';
+	});
+	useEffect(() => {
+		if (persistedIdentifier.trim()) {
+			localStorage.setItem(PASSWORD_RESET_IDENTIFIER_KEY, persistedIdentifier);
+		} else {
+			localStorage.removeItem(PASSWORD_RESET_IDENTIFIER_KEY);
+		}
+	}, [persistedIdentifier]);
+	useEffect(() => {
+		const onStorage = (e: StorageEvent) => {
+			if (e.key === PASSWORD_RESET_IDENTIFIER_KEY && e.newValue !== null) {
+				setPersistedIdentifier(e.newValue);
+			}
+		};
+		window.addEventListener('storage', onStorage);
+		return () => window.removeEventListener('storage', onStorage);
+	}, []);
 	const [showAuthzConfigModal, setShowAuthzConfigModal] = useState(false);
 	const [showSetupModal, setShowSetupModal] = useState(false);
 	const importConfigRef = useRef<HTMLInputElement>(null);
@@ -554,8 +578,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		scopes: 'openid profile email',
 	});
 
-	// Recover tab state
-	const [recoverEmail, setRecoverEmail] = useState('');
+	// Recover tab state (uses persistedIdentifier for email/username)
 	const [recoveryCodeSent, setRecoveryCodeSent] = useState(false);
 	const [recoveryCode, setRecoveryCode] = useState('');
 	const [newPassword, setNewPassword] = useState('');
@@ -564,8 +587,7 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [recoverSuccess, setRecoverSuccess] = useState(false);
 	const [recoverUserId, setRecoverUserId] = useState('');
 
-	// Force reset tab state
-	const [forceResetIdentifier, setForceResetIdentifier] = useState('');
+	// Force reset tab state (uses persistedIdentifier)
 	const [forceResetUser, setForceResetUser] = useState<PingOneUser | null>(null);
 	const [forceResetLoading, setForceResetLoading] = useState(false);
 	const [forceResetSuccess, setForceResetSuccess] = useState(false);
@@ -579,8 +601,7 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [changePasswordLoading, setChangePasswordLoading] = useState(false);
 	const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
 
-	// Check password tab state
-	const [checkPasswordIdentifier, setCheckPasswordIdentifier] = useState('');
+	// Check password tab state (uses persistedIdentifier)
 	const [checkPasswordUser, setCheckPasswordUser] = useState<PingOneUser | null>(null);
 	const [checkPasswordValue, setCheckPasswordValue] = useState('');
 	const [showCheckPassword, setShowCheckPassword] = useState(false);
@@ -590,20 +611,17 @@ const HelioMartPasswordReset: React.FC = () => {
 		message?: string;
 	} | null>(null);
 
-	// Unlock password tab state
-	const [unlockIdentifier, setUnlockIdentifier] = useState('');
+	// Unlock password tab state (uses persistedIdentifier)
 	const [unlockUser, setUnlockUser] = useState<PingOneUser | null>(null);
 	const [unlockLoading, setUnlockLoading] = useState(false);
 	const [unlockSuccess, setUnlockSuccess] = useState(false);
 
-	// Read password state tab state
-	const [stateIdentifier, setStateIdentifier] = useState('');
+	// Read password state tab state (uses persistedIdentifier)
 	const [stateUser, setStateUser] = useState<PingOneUser | null>(null);
 	const [passwordState, setPasswordState] = useState<PasswordState | null>(null);
 	const [stateLoading, setStateLoading] = useState(false);
 
-	// Admin set password tab state
-	const [adminSetIdentifier, setAdminSetIdentifier] = useState('');
+	// Admin set password tab state (uses persistedIdentifier)
 	const [adminSetUser, setAdminSetUser] = useState<PingOneUser | null>(null);
 	const [adminSetPassword, setAdminSetPassword] = useState('');
 	const [showAdminSetPassword, setShowAdminSetPassword] = useState(false);
@@ -612,8 +630,7 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [adminSetLoading, setAdminSetLoading] = useState(false);
 	const [adminSetSuccess, setAdminSetSuccess] = useState(false);
 
-	// Set password tab state
-	const [setPasswordIdentifier, setSetPasswordIdentifier] = useState('');
+	// Set password tab state (uses persistedIdentifier)
 	const [setPasswordUser, setSetPasswordUser] = useState<PingOneUser | null>(null);
 	const [setPasswordValue, setSetPasswordValue] = useState('');
 	const [showSetPassword, setShowSetPassword] = useState(false);
@@ -622,8 +639,7 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [setPasswordLoading, setSetPasswordLoading] = useState(false);
 	const [setPasswordSuccess, setSetPasswordSuccess] = useState(false);
 
-	// LDAP Gateway tab state
-	const [ldapIdentifier, setLdapIdentifier] = useState('');
+	// LDAP Gateway tab state (uses persistedIdentifier)
 	const [ldapUser, setLdapUser] = useState<PingOneUser | null>(null);
 	const [ldapPassword, setLdapPassword] = useState('');
 	const [ldapGatewayId, setLdapGatewayId] = useState('');
@@ -1010,7 +1026,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
-		if (!recoverEmail) {
+		if (!persistedIdentifier) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1055,7 +1071,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		setRecoverLoading(true);
 		try {
 			// First, lookup user by email
-			const trimmedEmail = recoverEmail.trim();
+			const trimmedEmail = persistedIdentifier.trim();
 			if (!trimmedEmail) {
 				modernMessaging.showBanner({
 					type: 'error',
@@ -1070,6 +1086,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				environmentId: effectiveEnvironmentId,
 				accessToken: effectiveWorkerToken,
 				identifier: trimmedEmail,
+				region: workerRegion,
 			});
 
 			if (!result.user) {
@@ -1098,7 +1115,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				setRecoveryCodeSent(true);
 				modernMessaging.showFooterMessage({
 					type: 'status',
-					message: `Recovery code sent to ${recoverEmail}`,
+					message: `Recovery code sent to ${persistedIdentifier}`,
 					duration: 4000,
 				});
 			} else {
@@ -1119,7 +1136,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setRecoverLoading(false);
 		}
-	}, [recoverEmail, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
+	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
 
 	// Recover password
 	const handleRecoverPassword = useCallback(async () => {
@@ -1160,7 +1177,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				// Reset form
 				setRecoveryCode('');
 				setNewPassword('');
-				setRecoverEmail('');
+				setPersistedIdentifier('');
 				setRecoveryCodeSent(false);
 				setRecoverUserId('');
 			} else {
@@ -1188,7 +1205,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
-		if (!forceResetIdentifier) {
+		if (!persistedIdentifier) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1231,7 +1248,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 
 		try {
-			const trimmedIdentifier = forceResetIdentifier.trim();
+			const trimmedIdentifier = persistedIdentifier.trim();
 			if (!trimmedIdentifier) {
 				modernMessaging.showBanner({
 					type: 'error',
@@ -1245,6 +1262,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				environmentId: effectiveEnvironmentId,
 				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
+				region: workerRegion,
 			});
 
 			if (result.user) {
@@ -1263,7 +1281,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [forceResetIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
+	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
 
 	// Force password reset
 	const handleForcePasswordReset = useCallback(async () => {
@@ -1397,7 +1415,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
-		if (!checkPasswordIdentifier) {
+		if (!persistedIdentifier) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1440,7 +1458,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 
 		try {
-			const trimmedIdentifier = checkPasswordIdentifier.trim();
+			const trimmedIdentifier = persistedIdentifier.trim();
 			if (!trimmedIdentifier) {
 				modernMessaging.showBanner({
 					type: 'error',
@@ -1454,6 +1472,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				environmentId: effectiveEnvironmentId,
 				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
+				region: workerRegion,
 			});
 			if (result.user) {
 				setCheckPasswordUser(result.user);
@@ -1471,7 +1490,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [checkPasswordIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
+	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
 
 	// Check password
 	const handleCheckPassword = useCallback(async () => {
@@ -1539,7 +1558,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
-		if (!unlockIdentifier) {
+		if (!persistedIdentifier) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1582,7 +1601,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 
 		try {
-			const trimmedIdentifier = unlockIdentifier.trim();
+			const trimmedIdentifier = persistedIdentifier.trim();
 			if (!trimmedIdentifier) {
 				modernMessaging.showBanner({
 					type: 'error',
@@ -1596,6 +1615,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				environmentId: effectiveEnvironmentId,
 				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
+				region: workerRegion,
 			});
 			if (result.user) {
 				setUnlockUser(result.user);
@@ -1613,7 +1633,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [unlockIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
+	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
 
 	// Unlock password
 	const handleUnlockPassword = useCallback(async () => {
@@ -1666,7 +1686,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
-		if (!stateIdentifier) {
+		if (!persistedIdentifier) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1709,7 +1729,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 
 		try {
-			const trimmedIdentifier = stateIdentifier.trim();
+			const trimmedIdentifier = persistedIdentifier.trim();
 			if (!trimmedIdentifier) {
 				modernMessaging.showBanner({
 					type: 'error',
@@ -1740,7 +1760,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [stateIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
+	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
 
 	// Read password state
 	const handleReadPasswordState = useCallback(async () => {
@@ -1786,14 +1806,14 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setStateLoading(false);
 		}
-	}, [stateUser, globalTokenStatus, environmentId]);
+	}, [stateUser, globalTokenStatus, environmentId, workerRegion]);
 
 	// Lookup user for admin set
 	const handleAdminSetLookup = useCallback(async () => {
 		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
-		if (!adminSetIdentifier) {
+		if (!persistedIdentifier) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1836,7 +1856,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 
 		try {
-			const trimmedIdentifier = adminSetIdentifier.trim();
+			const trimmedIdentifier = persistedIdentifier.trim();
 			if (!trimmedIdentifier) {
 				modernMessaging.showBanner({
 					type: 'error',
@@ -1850,6 +1870,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				environmentId: effectiveEnvironmentId,
 				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
+				region: workerRegion,
 			});
 			if (result.user) {
 				setAdminSetUser(result.user);
@@ -1867,7 +1888,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [adminSetIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
+	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
 
 	// Admin set password
 	const handleAdminSetPassword = useCallback(async () => {
@@ -1931,6 +1952,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		adminSetBypassPolicy,
 		globalTokenStatus,
 		environmentId,
+		workerRegion,
 	]);
 
 	// Lookup user for set password
@@ -1938,7 +1960,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
-		if (!setPasswordIdentifier) {
+		if (!persistedIdentifier) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1981,7 +2003,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 
 		try {
-			const trimmedIdentifier = setPasswordIdentifier.trim();
+			const trimmedIdentifier = persistedIdentifier.trim();
 			if (!trimmedIdentifier) {
 				modernMessaging.showBanner({
 					type: 'error',
@@ -1995,6 +2017,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				environmentId: effectiveEnvironmentId,
 				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
+				region: workerRegion,
 			});
 			if (result.user) {
 				setSetPasswordUser(result.user);
@@ -2012,7 +2035,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [setPasswordIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
+	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
 
 	// Set password
 	const handleSetPassword = useCallback(async () => {
@@ -2076,6 +2099,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		setPasswordBypassPolicy,
 		globalTokenStatus,
 		environmentId,
+		workerRegion,
 	]);
 
 	// Lookup user for LDAP Gateway
@@ -2083,7 +2107,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
-		if (!ldapIdentifier) {
+		if (!persistedIdentifier) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -2126,7 +2150,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 
 		try {
-			const trimmedIdentifier = ldapIdentifier.trim();
+			const trimmedIdentifier = persistedIdentifier.trim();
 			if (!trimmedIdentifier) {
 				modernMessaging.showBanner({
 					type: 'error',
@@ -2140,6 +2164,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				environmentId: effectiveEnvironmentId,
 				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
+				region: workerRegion,
 			});
 			if (result.user) {
 				setLdapUser(result.user);
@@ -2157,7 +2182,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [ldapIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
+	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
 
 	// Set password via LDAP Gateway
 	const handleSetPasswordLdap = useCallback(async () => {
@@ -2217,6 +2242,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		ldapBypassPolicy,
 		globalTokenStatus,
 		environmentId,
+		workerRegion,
 	]);
 
 	// Generate JavaScript code for password recovery
@@ -3087,13 +3113,13 @@ export { changePassword, handleChangePassword };`;
 										<Input
 											type="email"
 											placeholder="Enter your email address"
-											value={recoverEmail}
-											onChange={(e) => setRecoverEmail(e.target.value)}
+											value={persistedIdentifier}
+											onChange={(e) => setPersistedIdentifier(e.target.value)}
 											onKeyPress={(e) => e.key === 'Enter' && handleSendRecoveryCode()}
 										/>
 										<Button
 											onClick={handleSendRecoveryCode}
-											disabled={recoverLoading || !recoverEmail}
+											disabled={recoverLoading || !persistedIdentifier}
 										>
 											{recoverLoading ? <SpinningIcon /> : <span>📧</span>}
 											{recoverLoading ? 'Sending...' : 'Send Recovery Code'}
@@ -3110,7 +3136,7 @@ export { changePassword, handleChangePassword };`;
 									<div>
 										<strong>Recovery code sent!</strong>
 										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-											We've sent a recovery code to <strong>{recoverEmail}</strong>. Please check
+											We've sent a recovery code to <strong>{persistedIdentifier}</strong>. Please check
 											your email and enter the code below.
 										</p>
 									</div>
@@ -3292,8 +3318,8 @@ export { changePassword, handleChangePassword };`;
 								<Input
 									type="text"
 									placeholder="Enter username or email"
-									value={forceResetIdentifier}
-									onChange={(e) => setForceResetIdentifier(e.target.value)}
+									value={persistedIdentifier}
+									onChange={(e) => setPersistedIdentifier(e.target.value)}
 								/>
 								<Button onClick={handleForceResetLookup}>
 									<span>🔍</span>
@@ -3656,12 +3682,12 @@ export { changePassword, handleChangePassword };`;
 								<Input
 									type="text"
 									placeholder="Enter username or email"
-									value={checkPasswordIdentifier}
-									onChange={(e) => setCheckPasswordIdentifier(e.target.value)}
+									value={persistedIdentifier}
+									onChange={(e) => setPersistedIdentifier(e.target.value)}
 								/>
 								<Button
 									onClick={handleCheckPasswordLookup}
-									disabled={checkPasswordLoading || !checkPasswordIdentifier}
+									disabled={checkPasswordLoading || !persistedIdentifier}
 								>
 									{checkPasswordLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
@@ -3802,10 +3828,10 @@ export { changePassword, handleChangePassword };`;
 								<Input
 									type="text"
 									placeholder="Enter username or email"
-									value={unlockIdentifier}
-									onChange={(e) => setUnlockIdentifier(e.target.value)}
+									value={persistedIdentifier}
+									onChange={(e) => setPersistedIdentifier(e.target.value)}
 								/>
-								<Button onClick={handleUnlockLookup} disabled={unlockLoading || !unlockIdentifier}>
+								<Button onClick={handleUnlockLookup} disabled={unlockLoading || !persistedIdentifier}>
 									{unlockLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
 								</Button>
@@ -3871,10 +3897,10 @@ export { changePassword, handleChangePassword };`;
 								<Input
 									type="text"
 									placeholder="Enter username or email"
-									value={stateIdentifier}
-									onChange={(e) => setStateIdentifier(e.target.value)}
+									value={persistedIdentifier}
+									onChange={(e) => setPersistedIdentifier(e.target.value)}
 								/>
-								<Button onClick={handleStateLookup} disabled={stateLoading || !stateIdentifier}>
+								<Button onClick={handleStateLookup} disabled={stateLoading || !persistedIdentifier}>
 									{stateLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
 								</Button>
@@ -3975,12 +4001,12 @@ export { changePassword, handleChangePassword };`;
 								<Input
 									type="text"
 									placeholder="Enter username or email"
-									value={adminSetIdentifier}
-									onChange={(e) => setAdminSetIdentifier(e.target.value)}
+									value={persistedIdentifier}
+									onChange={(e) => setPersistedIdentifier(e.target.value)}
 								/>
 								<Button
 									onClick={handleAdminSetLookup}
-									disabled={adminSetLoading || !adminSetIdentifier}
+									disabled={adminSetLoading || !persistedIdentifier}
 								>
 									{adminSetLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
@@ -4164,12 +4190,12 @@ export { changePassword, handleChangePassword };`;
 								<Input
 									type="text"
 									placeholder="Enter username or email"
-									value={setPasswordIdentifier}
-									onChange={(e) => setSetPasswordIdentifier(e.target.value)}
+									value={persistedIdentifier}
+									onChange={(e) => setPersistedIdentifier(e.target.value)}
 								/>
 								<Button
 									onClick={handleSetPasswordLookup}
-									disabled={setPasswordLoading || !setPasswordIdentifier}
+									disabled={setPasswordLoading || !persistedIdentifier}
 								>
 									{setPasswordLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
@@ -4364,10 +4390,10 @@ export { changePassword, handleChangePassword };`;
 								<Input
 									type="text"
 									placeholder="Enter username or email"
-									value={ldapIdentifier}
-									onChange={(e) => setLdapIdentifier(e.target.value)}
+									value={persistedIdentifier}
+									onChange={(e) => setPersistedIdentifier(e.target.value)}
 								/>
-								<Button onClick={handleLdapLookup} disabled={ldapLoading || !ldapIdentifier}>
+								<Button onClick={handleLdapLookup} disabled={ldapLoading || !persistedIdentifier}>
 									{ldapLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
 								</Button>

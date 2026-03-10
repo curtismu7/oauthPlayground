@@ -44,10 +44,11 @@ import {
 	type WaitScreenConfig,
 } from '../../services/v9/V9ModernMessagingService';
 
-// V9 Color Standards
+// V9 Color Standards — Wait screens use blue only (hard rule: no purple).
 const V9_COLORS = {
 	PRIMARY_BLUE: '#2563eb',
 	DARK_BLUE: '#2563eb',
+	WAIT_SCREEN_BLUE: '#3b82f6',
 	RED: '#dc2626',
 	LIGHT_RED_BG: '#fef2f2',
 	LIGHT_RED_BORDER: '#ef4444',
@@ -67,7 +68,7 @@ const V9_COLORS = {
 	WHITE: '#ffffff',
 };
 
-// Wait Screen Component
+// Wait Screen Component — blue only (no purple). Used by modernMessaging.showWaitScreen() from any app.
 const WaitScreenOverlay = styled.div`
 	position: fixed;
 	top: 0;
@@ -332,15 +333,36 @@ const SupportSection = styled.div`
 	font-size: 0.875rem;
 `;
 
+// Wrapper so footer message is constrained to content width (matches MainContent max-width), not full browser
+const FooterMessageWrapper = styled.div`
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	padding: 0 1.5rem 1rem;
+	pointer-events: none;
+	z-index: 9998;
+	& > * {
+		pointer-events: auto;
+	}
+`;
+
+const FooterMessageInner = styled.div`
+	width: 100%;
+	max-width: 1400px;
+`;
+
 // Footer Message Component
 const FooterMessageContainer = styled.div<{ $type: FooterMessageConfig['type'] }>`
 	padding: 0.75rem 1rem;
 	border-radius: 0.5rem;
-	margin-top: 1rem;
 	font-size: 0.875rem;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
+	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
 	
 	${(props) => {
 		switch (props.$type) {
@@ -373,7 +395,7 @@ export const WaitScreen: React.FC<{ config: WaitScreenConfig }> = ({ config }) =
 						icon="FiLoader"
 						size={48}
 						className="animate-spin"
-						style={{ color: V9_COLORS.PRIMARY_BLUE }}
+						style={{ color: V9_COLORS.WAIT_SCREEN_BLUE }}
 					/>
 				</WaitScreenIcon>
 				<WaitScreenTitle>{config.message}</WaitScreenTitle>
@@ -491,6 +513,15 @@ export const FooterMessage: React.FC<{ config: FooterMessageConfig }> = ({ confi
 	);
 };
 
+// Wrapper so Banner and CriticalError are constrained to content width (not full page)
+const ContentConstrainedWrapper = styled.div`
+	width: 100%;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 0 1.5rem;
+	box-sizing: border-box;
+`;
+
 // Main Modern Messaging Provider Component
 export const V9ModernMessagingProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
@@ -503,11 +534,25 @@ export const V9ModernMessagingProvider: React.FC<{ children: React.ReactNode }> 
 
 			{messageState.waitScreen && <WaitScreen config={messageState.waitScreen} />}
 
-			{messageState.banner && <Banner config={messageState.banner} />}
+			{messageState.banner && (
+				<ContentConstrainedWrapper>
+					<Banner config={messageState.banner} />
+				</ContentConstrainedWrapper>
+			)}
 
-			{messageState.criticalError && <CriticalError config={messageState.criticalError} />}
+			{messageState.criticalError && (
+				<ContentConstrainedWrapper>
+					<CriticalError config={messageState.criticalError} />
+				</ContentConstrainedWrapper>
+			)}
 
-			{messageState.footerMessage && <FooterMessage config={messageState.footerMessage} />}
+			{messageState.footerMessage && (
+				<FooterMessageWrapper>
+					<FooterMessageInner>
+						<FooterMessage config={messageState.footerMessage} />
+					</FooterMessageInner>
+				</FooterMessageWrapper>
+			)}
 		</>
 	);
 };

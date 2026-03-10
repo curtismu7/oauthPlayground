@@ -713,11 +713,11 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				}
 			}
 
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
+			// Use footer message instead of full-page banner so the message does not span the whole page
+			modernMessaging.showFooterMessage({
+				type: 'info',
 				message: displayMessage,
-				dismissible: true,
+				duration: 8000,
 			});
 			return null;
 		} finally {

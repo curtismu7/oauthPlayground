@@ -9,9 +9,10 @@
 
 import { logger } from '../utils/logger';
 import { unifiedStorageManager } from './unifiedStorageManager';
-import type {
-	UnifiedWorkerTokenCredentials,
-	UnifiedWorkerTokenData,
+import {
+	unifiedWorkerTokenService,
+	type UnifiedWorkerTokenCredentials,
+	type UnifiedWorkerTokenData,
 } from './unifiedWorkerTokenService';
 
 const MODULE_TAG = '[ WORKER-TOKEN-REPO]';
@@ -72,6 +73,8 @@ export class WorkerTokenRepository {
 
 	/**
 	 * Load worker token credentials
+	 * Falls back to unified_worker_token (saved by WorkerTokenModal/unifiedWorkerTokenService) when
+	 * unified_worker_token_credentials is empty — fixes "Worker Token credentials not configured" when user has valid credentials.
 	 */
 	async loadCredentials(): Promise<UnifiedWorkerTokenCredentials | null> {
 		logger.info('WorkerTokenRepository', `${MODULE_TAG} Loading credentials...`);
@@ -84,7 +87,33 @@ export class WorkerTokenRepository {
 
 			if (data?.credentials) {
 				logger.info('WorkerTokenRepository', `${MODULE_TAG} ✅ Credentials loaded`);
-				return data.credentials;
+				return this.ensureTokenEndpoint(data.credentials);
+			}
+
+			// Fallback: credentials saved by WorkerTokenModal/unifiedWorkerTokenService use unified_worker_token key
+			const unified = await unifiedStorageManager.load<{
+				credentials?: UnifiedWorkerTokenCredentials;
+				token?: string;
+				savedAt?: number;
+			}>(TOKEN_KEY);
+
+			if (unified?.credentials?.environmentId && unified?.credentials?.clientId && unified?.credentials?.clientSecret) {
+				logger.info('WorkerTokenRepository', `${MODULE_TAG} ✅ Credentials loaded from unified_worker_token`);
+				return this.ensureTokenEndpoint(unified.credentials);
+			}
+
+			// Legacy: try localStorage unified_worker_token directly (unifiedStorageManager may use different key)
+			try {
+				const stored = localStorage.getItem(TOKEN_KEY);
+				if (stored) {
+					const parsed = JSON.parse(stored) as { credentials?: UnifiedWorkerTokenCredentials };
+					if (parsed?.credentials?.environmentId && parsed?.credentials?.clientId && parsed?.credentials?.clientSecret) {
+						logger.info('WorkerTokenRepository', `${MODULE_TAG} ✅ Credentials loaded from localStorage fallback`);
+						return this.ensureTokenEndpoint(parsed.credentials);
+					}
+				}
+			} catch {
+				// Ignore parse errors
 			}
 
 			logger.info('WorkerTokenRepository', `${MODULE_TAG} ❌ No credentials found`);
@@ -98,6 +127,15 @@ export class WorkerTokenRepository {
 			);
 			return null;
 		}
+	}
+
+	/** Ensure tokenEndpoint is set for token fetch (builds from region if missing) */
+	private ensureTokenEndpoint(creds: UnifiedWorkerTokenCredentials): UnifiedWorkerTokenCredentials {
+		if (creds.tokenEndpoint?.trim()) return creds;
+		return {
+			...creds,
+			tokenEndpoint: unifiedWorkerTokenService.buildTokenEndpoint(creds),
+		};
 	}
 
 	/**
@@ -168,7 +206,10 @@ export class WorkerTokenRepository {
 
 		if (!data) return null;
 
-		// DEBUG: Log the actual token being retrieved
+		// DEBUG: Log the actual token being retrieved (avoid Invalid time value for bad expiresAt)
+		const expiresAtMs = data.expiresAt != null ? new Date(data.expiresAt).getTime() : NaN;
+		const expiresAtLabel =
+			Number.isNaN(expiresAtMs) || expiresAtMs <= 0 ? 'none' : new Date(expiresAtMs).toISOString();
 		logger.info('WorkerTokenRepository', `${MODULE_TAG} 🔍 DEBUG - Retrieved token:`, {
 			arg0: {
 				hasToken: !!data.token,
@@ -176,12 +217,14 @@ export class WorkerTokenRepository {
 				tokenPrefix: data.token ? maskToken(data.token) : 'none',
 				isUrlParams:
 					data.token?.includes('query_parameters=') || data.token?.includes('response_type='),
-				expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : 'none',
+				expiresAt: expiresAtLabel,
 			},
 		});
 
-		// Check expiration
-		if (data.expiresAt && Date.now() > data.expiresAt) {
+		// Check expiration (guard against invalid expiresAt to avoid Invalid time value)
+		const expiresAtNum =
+			data.expiresAt != null ? new Date(data.expiresAt).getTime() : NaN;
+		if (!Number.isNaN(expiresAtNum) && Date.now() > expiresAtNum) {
 			logger.info('WorkerTokenRepository', `${MODULE_TAG} Token expired, clearing`);
 			await this.clearToken();
 			return null;

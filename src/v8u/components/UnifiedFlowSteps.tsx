@@ -190,6 +190,25 @@ const ParameterGrid = styled.div`
 	margin: 1.5rem 0;
 `;
 
+const ParameterName = styled.span`
+	font-weight: 600;
+	font-family: monospace;
+	display: block;
+	margin-bottom: 0.25rem;
+`;
+
+const ParameterDesc = styled.span`
+	display: block;
+	font-size: 0.875rem;
+	color: #4b5563;
+	margin-bottom: 0.5rem;
+`;
+
+const ParameterValues = styled.div`
+	font-size: 0.875rem;
+	line-height: 1.5;
+`;
+
 const GeneratedContentBox = styled.div`
 	background-color: #dcfce7;
 	border: 1px solid #22c55e;

@@ -1,7 +1,9 @@
 import { FiBarChart2, FiCheck, FiInfo, FiX } from '../../icons';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { type FlowType } from '../../v8/services/specVersionServiceV8';
+import { type FlowType, type SpecVersion } from '../../v8/services/specVersionServiceV8';
+
+export type SpecFilterOption = 'all' | SpecVersion;
 
 const ComparisonContainer = styled.div`
 	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -43,19 +45,20 @@ const FlowSelector = styled.div`
 	}
 `;
 
-const FlowOption = styled.div<{ $selected: boolean }>`
-	background: ${(props) => (props.$selected ? '#dbeafe' : 'white')};
-	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#e2e8f0')};
+const FlowOption = styled.div<{ $selected: boolean; $disabled?: boolean }>`
+	background: ${(props) => (props.$disabled ? '#f1f5f9' : props.$selected ? '#dbeafe' : 'white')};
+	border: 2px solid ${(props) => (props.$disabled ? '#cbd5e1' : props.$selected ? '#3b82f6' : '#e2e8f0')};
 	border-radius: 8px;
 	padding: 1rem;
-	cursor: pointer;
+	cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
+	opacity: ${(props) => (props.$disabled ? 0.7 : 1)};
 	transition: all 0.2s ease;
 	text-align: center;
 
 	&:hover {
-		border-color: #3b82f6;
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		border-color: ${(props) => (props.$disabled ? '#cbd5e1' : '#3b82f6')};
+		transform: ${(props) => (props.$disabled ? 'none' : 'translateY(-2px)')};
+		box-shadow: ${(props) => (props.$disabled ? 'none' : '0 4px 12px rgba(0, 0, 0, 0.1)')};
 	}
 `;
 
@@ -397,16 +400,27 @@ const FlowMetrics = {
 interface FlowComparisonToolProps {
 	onFlowSelect?: (flowType: FlowType) => void;
 	selectedFlows?: FlowType[];
+	specFilter?: SpecFilterOption;
+	availableFlowsForSpec?: FlowType[] | null;
 }
 
 export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 	onFlowSelect,
 	selectedFlows = ['oauth-authz', 'implicit'],
+	specFilter = 'all',
+	availableFlowsForSpec = null,
 }) => {
 	const [selectedFlowTypes, setSelectedFlowTypes] = useState<FlowType[]>(selectedFlows);
 	const [comparisonMode, setComparisonMode] = useState<'detailed' | 'matrix'>('detailed');
 
+	const isFlowAvailableForSpec = useMemo(() => {
+		if (!availableFlowsForSpec || availableFlowsForSpec.length === 0) return () => true;
+		const set = new Set(availableFlowsForSpec);
+		return (flowType: FlowType) => set.has(flowType);
+	}, [availableFlowsForSpec]);
+
 	const toggleFlowSelection = (flowType: FlowType) => {
+		if (!isFlowAvailableForSpec(flowType)) return;
 		if (selectedFlowTypes.includes(flowType)) {
 			if (selectedFlowTypes.length > 1) {
 				setSelectedFlowTypes((prev) => prev.filter((f) => f !== flowType));
@@ -517,17 +531,25 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 				</div>
 
 				<FlowSelector>
-					{Object.entries(FlowMetrics).map(([flowType, metrics]) => (
-						<FlowOption
-							key={flowType}
-							$selected={selectedFlowTypes.includes(flowType as FlowType)}
-							onClick={() => toggleFlowSelection(flowType as FlowType)}
-						>
-							<FlowIcon>{metrics.icon}</FlowIcon>
-							<FlowName>{metrics.name}</FlowName>
-							<FlowDescription>{metrics.description}</FlowDescription>
-						</FlowOption>
-					))}
+					{Object.entries(FlowMetrics).map(([flowType, metrics]) => {
+						const flow = flowType as FlowType;
+						const disabled = !isFlowAvailableForSpec(flow);
+						return (
+							<FlowOption
+								key={flowType}
+								$selected={selectedFlowTypes.includes(flow)}
+								$disabled={disabled}
+								onClick={() => toggleFlowSelection(flow)}
+								title={disabled ? `Not in ${specFilter === 'oauth2.0' ? 'OAuth 2.0' : specFilter === 'oauth2.1' ? 'OAuth 2.1' : 'OIDC 2.0'}` : undefined}
+							>
+								<FlowIcon>{metrics.icon}</FlowIcon>
+								<FlowName>{metrics.name}</FlowName>
+								<FlowDescription>
+									{disabled ? 'Not in selected spec' : metrics.description}
+								</FlowDescription>
+							</FlowOption>
+						);
+					})}
 				</FlowSelector>
 			</div>
 

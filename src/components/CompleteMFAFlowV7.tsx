@@ -516,35 +516,36 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		setCurrentStep('username_login');
 		onStepChange?.('username_login');
 
-		// Load worker token credentials from service
-		const savedWorkerTokenCreds = workerTokenCredentialsService.loadCredentials();
-		logger.info('🔍 [MFA Flow V7] Worker token credentials check:', {
-			found: !!savedWorkerTokenCreds,
-			credentials: savedWorkerTokenCreds,
+		// Load worker token credentials from service (IndexedDB/SQLite first, then localStorage)
+		workerTokenCredentialsService.loadCredentials().then((savedWorkerTokenCreds) => {
+			logger.info('🔍 [MFA Flow V7] Worker token credentials check:', {
+				found: !!savedWorkerTokenCreds,
+				credentials: savedWorkerTokenCreds,
+			});
+			if (savedWorkerTokenCreds) {
+				logger.info(
+					'🔍 [MFA Flow V7] Loading saved worker token credentials:',
+					savedWorkerTokenCreds
+				);
+				setWorkerTokenCredentials(savedWorkerTokenCreds);
+			} else {
+				logger.info('🔍 [MFA Flow V7] No worker token credentials found in storage', 'Logger info');
+
+				// TEMPORARY: Save worker token credentials for testing
+				const workerCreds = {
+					environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
+					clientId: '66a4686b-9222-4ad2-91b6-03113711c9aa',
+					clientSecret: '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a',
+					scopes: ['p1:read:user', 'p1:update:user', 'p1:read:device', 'p1:update:device'],
+					region: 'us' as const,
+					tokenEndpointAuthMethod: 'client_secret_basic' as const,
+				};
+
+				logger.info('🔍 [MFA Flow V7] Saving worker token credentials for testing:', workerCreds);
+				workerTokenCredentialsService.saveCredentials(workerCreds);
+				setWorkerTokenCredentials(workerCreds);
+			}
 		});
-		if (savedWorkerTokenCreds) {
-			logger.info(
-				'🔍 [MFA Flow V7] Loading saved worker token credentials:',
-				savedWorkerTokenCreds
-			);
-			setWorkerTokenCredentials(savedWorkerTokenCreds);
-		} else {
-			logger.info('🔍 [MFA Flow V7] No worker token credentials found in storage', 'Logger info');
-
-			// TEMPORARY: Save worker token credentials for testing
-			const workerCreds = {
-				environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
-				clientId: '66a4686b-9222-4ad2-91b6-03113711c9aa',
-				clientSecret: '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a',
-				scopes: ['p1:read:user', 'p1:update:user', 'p1:read:device', 'p1:update:device'],
-				region: 'us' as const,
-				tokenEndpointAuthMethod: 'client_secret_basic' as const,
-			};
-
-			logger.info('🔍 [MFA Flow V7] Saving worker token credentials for testing:', workerCreds);
-			workerTokenCredentialsService.saveCredentials(workerCreds);
-			setWorkerTokenCredentials(workerCreds);
-		}
 
 		// Load authorization code credentials from storage
 		if (typeof window !== 'undefined') {

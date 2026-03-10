@@ -63,6 +63,7 @@ import { SpecVersionSelector } from '../components/SpecVersionSelector';
 const UnifiedFlowSteps = lazy(() => import('../components/UnifiedFlowSteps'));
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
+import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
@@ -1922,7 +1923,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				title="🎯 Unified OAuth/OIDC Flow"
 				subtitle="Single UI for all OAuth 2.0, OAuth 2.1 / OIDC 2.1, and OIDC Core 1.0 flows using real PingOne APIs"
 				gradient={PageHeaderGradients.unifiedOAuth}
-				textColor={PageHeaderTextColors.darkBlue}
+				textColor={PageHeaderTextColors.white}
 			>
 				{/* Flow Step Breadcrumbs */}
 				<div
@@ -1951,23 +1952,23 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							alignItems: 'center',
 							gap: '6px',
 							padding: '8px 16px',
-							background: '#f59e0b',
-							color: 'white',
+							background: V9_COLORS.PRIMARY.YELLOW,
+							color: V9_COLORS.TEXT.WHITE,
 							border: 'none',
 							borderRadius: '6px',
 							fontSize: '13px',
 							fontWeight: '600',
 							cursor: 'pointer',
-							boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)',
+							boxShadow: `0 2px 6px ${V9_COLORS.PRIMARY.YELLOW}4d`,
 							transition: 'all 0.2s ease',
 						}}
 						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#d97706';
-							e.currentTarget.style.boxShadow = '0 3px 10px rgba(245, 158, 11, 0.4)';
+							e.currentTarget.style.background = V9_COLORS.PRIMARY.YELLOW_DARK;
+							e.currentTarget.style.boxShadow = `0 3px 10px ${V9_COLORS.PRIMARY.YELLOW}66`;
 						}}
 						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#f59e0b';
-							e.currentTarget.style.boxShadow = '0 2px 6px rgba(245, 158, 11, 0.3)';
+							e.currentTarget.style.background = V9_COLORS.PRIMARY.YELLOW;
+							e.currentTarget.style.boxShadow = `0 2px 6px ${V9_COLORS.PRIMARY.YELLOW}4d`;
 						}}
 						title="View comprehensive comparison guide for OAuth/OIDC specifications and flow types"
 					>
@@ -2012,8 +2013,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							alignItems: 'center',
 							gap: '6px',
 							padding: '8px 16px',
-							background: '#8b5cf6',
-							color: 'white',
+							background: V9_COLORS.PRIMARY.PURPLE,
+							color: V9_COLORS.TEXT.WHITE,
 							border: 'none',
 							borderRadius: '6px',
 							fontSize: '13px',
@@ -2023,11 +2024,11 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							transition: 'all 0.2s ease',
 						}}
 						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#7c3aed';
+							e.currentTarget.style.background = V9_COLORS.PRIMARY.PURPLE_DARK;
 							e.currentTarget.style.boxShadow = '0 3px 10px rgba(139, 92, 246, 0.4)';
 						}}
 						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#8b5cf6';
+							e.currentTarget.style.background = V9_COLORS.PRIMARY.PURPLE;
 							e.currentTarget.style.boxShadow = '0 2px 6px rgba(139, 92, 246, 0.3)';
 						}}
 						title="Download comprehensive Postman collection for all Unified flows (Authorization Code, Implicit, Client Credentials, Device Code, Hybrid) grouped by Registration and Authentication"
@@ -2073,23 +2074,23 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							alignItems: 'center',
 							gap: '6px',
 							padding: '8px 16px',
-							background: '#10b981',
-							color: 'white',
+							background: V9_COLORS.BUTTON.PRIMARY.background,
+							color: V9_COLORS.TEXT.WHITE,
 							border: 'none',
 							borderRadius: '6px',
 							fontSize: '13px',
 							fontWeight: '600',
 							cursor: 'pointer',
-							boxShadow: '0 2px 6px rgba(16, 185, 129, 0.3)',
+							boxShadow: `0 2px 6px ${V9_COLORS.PRIMARY.GREEN}4d`,
 							transition: 'all 0.2s ease',
 						}}
 						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#059669';
-							e.currentTarget.style.boxShadow = '0 3px 10px rgba(16, 185, 129, 0.4)';
+							e.currentTarget.style.background = V9_COLORS.BUTTON.PRIMARY.backgroundHover;
+							e.currentTarget.style.boxShadow = `0 3px 10px ${V9_COLORS.PRIMARY.GREEN}66`;
 						}}
 						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#10b981';
-							e.currentTarget.style.boxShadow = '0 2px 6px rgba(16, 185, 129, 0.3)';
+							e.currentTarget.style.background = V9_COLORS.BUTTON.PRIMARY.background;
+							e.currentTarget.style.boxShadow = `0 2px 6px ${V9_COLORS.PRIMARY.GREEN}4d`;
 						}}
 						title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
 					>

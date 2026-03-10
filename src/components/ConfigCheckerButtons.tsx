@@ -92,11 +92,12 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	padding: 0.625rem 1.25rem;
 	border-radius: 0.5rem;
 	border: none;
-	background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
-	color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
+	background: ${({ $variant }) => ($variant === 'secondary' ? '#ffffff' : '#2563eb')};
+	color: ${({ $variant }) => ($variant === 'secondary' ? '#2563eb' : '#ffffff')};
+	border: ${({ $variant }) => ($variant === 'secondary' ? '1px solid #2563eb' : 'none')};
 	font-weight: 600;
 	cursor: pointer;
-	transition: background 120ms ease;
+	transition: background 120ms ease, color 120ms ease;
 	font-size: 0.875rem;
 
 	&:disabled {
@@ -105,7 +106,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	}
 
 	&:hover:not(:disabled) {
-		background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
+		background: ${({ $variant }) => ($variant === 'secondary' ? '#eff6ff' : '#1d4ed8')};
+		color: ${({ $variant }) => ($variant === 'secondary' ? '#1d4ed8' : '#ffffff')};
 	}
 
 	.spinner {

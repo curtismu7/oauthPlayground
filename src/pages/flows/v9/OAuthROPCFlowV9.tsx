@@ -12,6 +12,7 @@ import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessaging
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { MockApiCallDisplay, createMockTokenEndpoint, createMockUserInfoEndpoint } from '../../../components/MockApiCallDisplay';
 
 // Types
 interface ROPCConfig {
@@ -636,6 +637,46 @@ const OAuthROPCFlowV9: React.FC = () => {
 								</div>
 							</div>
 						)}
+
+						{/* Mock API Call Example */}
+						{ropcConfig.environmentId && ropcConfig.clientId && (
+							<MockApiCallDisplay
+								title="Resource Owner Password Credentials Token Request"
+								method="POST"
+								url={`https://auth.pingone.com/${ropcConfig.environmentId}/as/token`}
+								headers={{
+									'Content-Type': 'application/x-www-form-urlencoded',
+									'Accept': 'application/json',
+								}}
+								body={{
+									grant_type: 'password',
+									username: ropcConfig.username || 'user@example.com',
+									password: '***REDACTED***',
+									client_id: ropcConfig.clientId,
+									client_secret: '***REDACTED***',
+									scope: ropcConfig.scope || 'openid profile email',
+								}}
+								response={{
+									status: 200,
+									statusText: 'OK',
+									data: {
+										access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJzdWIiOiJ1c2VyLTEyMzQ1IiwiYXVkIjoiY2xpZW50LWlkIiwiZXhwIjoxNjk3NDMzMDAwLCJpYXQiOjE2OTc0Mjk0MDAsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwifQ.signature',
+										token_type: 'Bearer',
+										expires_in: 3600,
+										refresh_token: 'refresh_token_value_here',
+										scope: ropcConfig.scope || 'openid profile email',
+									},
+									headers: {
+										'Content-Type': 'application/json',
+										'Cache-Control': 'no-store',
+										'Pragma': 'no-cache',
+									},
+								}}
+								note="This is a mock API call example. In a real implementation, the password and client_secret would be sent securely, and the access_token would be a valid JWT."
+								description="The ROPC flow exchanges user credentials directly for an access token. This flow should only be used when the client is trusted and other OAuth flows aren't suitable."
+								defaultExpanded={false}
+							/>
+						)}
 					</div>
 				);
 
@@ -693,6 +734,36 @@ const OAuthROPCFlowV9: React.FC = () => {
 									)}
 								</ul>
 							</div>
+						)}
+
+						{/* Mock API Call Example */}
+						{ropcConfig.environmentId && tokenResponse?.access_token && (
+							<MockApiCallDisplay
+								title="OpenID Connect UserInfo Request"
+								method="GET"
+								url={`https://auth.pingone.com/${ropcConfig.environmentId}/as/userinfo`}
+								headers={{
+									'Authorization': `Bearer ${tokenResponse.access_token.substring(0, 20)}...`,
+									'Accept': 'application/json',
+								}}
+								response={{
+									status: 200,
+									statusText: 'OK',
+									data: {
+										sub: userInfo?.sub || 'user-12345',
+										name: userInfo?.name || 'John Doe',
+										email: userInfo?.email || 'john.doe@example.com',
+										email_verified: userInfo?.email_verified ?? true,
+										preferred_username: userInfo?.preferred_username || 'john.doe',
+									},
+									headers: {
+										'Content-Type': 'application/json',
+									},
+								}}
+								note="The access token must be valid and include the openid scope to access this endpoint."
+								description="Retrieve user profile information using the access token obtained from the token endpoint."
+								defaultExpanded={false}
+							/>
 						)}
 					</div>
 				);
@@ -767,6 +838,44 @@ const OAuthROPCFlowV9: React.FC = () => {
 									</div>
 								</div>
 							</div>
+						)}
+
+						{/* Mock API Call Example */}
+						{ropcConfig.environmentId && tokenResponse?.refresh_token && (
+							<MockApiCallDisplay
+								title="OAuth 2.0 Token Refresh Request"
+								method="POST"
+								url={`https://auth.pingone.com/${ropcConfig.environmentId}/as/token`}
+								headers={{
+									'Content-Type': 'application/x-www-form-urlencoded',
+									'Accept': 'application/json',
+								}}
+								body={{
+									grant_type: 'refresh_token',
+									refresh_token: '***REDACTED***',
+									client_id: ropcConfig.clientId,
+									client_secret: '***REDACTED***',
+								}}
+								response={{
+									status: 200,
+									statusText: 'OK',
+									data: {
+										access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJzdWIiOiJ1c2VyLTEyMzQ1IiwiYXVkIjoiY2xpZW50LWlkIiwiZXhwIjoxNjk3NDMzMDAwLCJpYXQiOjE2OTc0Mjk0MDAsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwifQ.refreshed_signature',
+										token_type: 'Bearer',
+										expires_in: 3600,
+										refresh_token: 'new_refresh_token_value_here',
+										scope: ropcConfig.scope || 'openid profile email',
+									},
+									headers: {
+										'Content-Type': 'application/json',
+										'Cache-Control': 'no-store',
+										'Pragma': 'no-cache',
+									},
+								}}
+								note="The refresh token must be valid and not expired. Some implementations may return a new refresh token."
+								description="Use the refresh token to obtain a new access token without requiring the user to provide credentials again."
+								defaultExpanded={false}
+							/>
 						)}
 					</div>
 				);

@@ -703,6 +703,7 @@ const FedExPortalContent: React.FC<Omit<ProtectPortalAppProps, 'initialStep'>> =
 							environmentId={environmentId}
 							clientId={clientId}
 							redirectUri={redirectUri}
+							region={protectCredentials?.region}
 							onLoginSuccess={handleLoginSuccess}
 							onError={handleLoginError}
 						/>

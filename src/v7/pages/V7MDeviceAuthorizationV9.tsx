@@ -4,6 +4,7 @@
 
 import { FiBook } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import {
 	showGlobalError,
@@ -169,9 +170,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 					are called. Tokens are generated deterministically based on your settings.
 				</p>
 			</div>
-			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<span>📱</span> V7M Device Authorization
-			</h1>
+			<FlowHeader flowId="device-authorization-v7" />
 			<UnifiedCredentialManagerV9
 				environmentId="v7m-mock"
 				flowKey="v7m-device-authorization"

@@ -3,6 +3,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ApiCallList from '../components/ApiCallList';
+import { FlowHeader } from '../services/flowHeaderService';
 import { WaitScreen } from '../components/v9/V9ModernMessagingComponents';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
@@ -40,9 +41,14 @@ const styles = {
 	} as React.CSSProperties,
 
 	button: (variant?: 'primary' | 'secondary' | 'danger'): React.CSSProperties => ({
-		background: variant === 'secondary' ? '#6b7280' : variant === 'danger' ? '#dc2626' : '#2563eb',
-		color: 'white',
-		border: 'none',
+		background:
+			variant === 'secondary'
+				? 'white'
+				: variant === 'danger'
+					? '#dc2626'
+					: '#2563eb',
+		color: variant === 'secondary' ? '#2563eb' : 'white',
+		border: variant === 'secondary' ? '1px solid #2563eb' : 'none',
 		padding: '0.5rem 1rem',
 		borderRadius: '6px',
 		cursor: 'pointer',
@@ -735,11 +741,11 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	]);
 
 	useEffect(() => {
-		// Only fetch environments when global worker token is not loading
-		if (!globalTokenStatus.isLoading) {
+		// Fetch when token is ready (not loading and valid token) so we always run with current token
+		if (!globalTokenStatus.isLoading && globalTokenStatus.isValid && globalTokenStatus.token) {
 			fetchEnvironments();
 		}
-	}, [fetchEnvironments, globalTokenStatus.isLoading]);
+	}, [fetchEnvironments, globalTokenStatus.isLoading, globalTokenStatus.isValid, globalTokenStatus.token]);
 
 	const handleRefresh = () => {
 		fetchEnvironments();
@@ -993,11 +999,10 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		<>
 			{loading && <WaitScreen config={{ message: 'Loading environments...' }} />}
 			<div style={styles.container}>
+				<FlowHeader flowId="environments" />
+				{/* Worker Token Section - at top so user can get/refresh token before using the page */}
+				<WorkerTokenSectionV8 compact />
 				<div style={styles.educationalSection}>
-					<div style={styles.educationalHeader}>
-						<span>📚</span>
-						<h2 style={styles.educationalTitle}>MasterFlow API - PingOne Environments</h2>
-					</div>
 					<div style={styles.educationalContent}>
 						<div style={styles.educationalCard}>
 							<h3 style={styles.educationalCardTitle}>
@@ -1600,9 +1605,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<ApiCallList />
 					</div>
 				</div>
-
-				{/* Worker Token Section - Always available */}
-				<WorkerTokenSectionV8 compact />
 			</div>
 		</>
 	);

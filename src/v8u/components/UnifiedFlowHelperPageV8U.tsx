@@ -176,7 +176,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				title="OAuth/OIDC Flow & Specification Comparison Guide"
 				subtitle="Comprehensive reference comparing specification versions and flow types, including PingOne-specific requirements and implementations."
 				gradient={PageHeaderGradients.unifiedOAuth}
-				textColor={PageHeaderTextColors.darkBlue}
+				textColor={PageHeaderTextColors.white}
 				icon={<span style={{ fontSize: '32px' }}>📖</span>}
 			/>
 

@@ -168,6 +168,7 @@ export interface BaseLoginFormProps {
 	environmentId: string;
 	clientId: string;
 	redirectUri: string;
+	region?: string;
 	buttonText?: string;
 	buttonStyle?: React.CSSProperties;
 	showIcons?: boolean;
@@ -183,6 +184,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 	environmentId,
 	clientId,
 	redirectUri,
+	region,
 	buttonText = 'Sign In',
 	buttonStyle,
 	showIcons = true,
@@ -282,7 +284,8 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 					environmentId,
 					clientId,
 					redirectUri,
-					['openid', 'profile', 'email', 'pingone:manage']
+					['openid', 'profile', 'email', 'pingone:manage'],
+					region
 				);
 
 				if (!flowResponse.success || !flowResponse.data) {

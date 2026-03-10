@@ -126,10 +126,13 @@ export const PageHeaderV8: React.FC<PageHeaderProps> = ({
 
 /**
  * Predefined gradient themes for common use cases
+ * V9 Color Standards: Blue primary (#2563eb, #1e40af), Red for PingOne
  */
 export const PageHeaderGradients = {
-	/** Light blue gradient - Unified OAuth/OIDC */
-	unifiedOAuth: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
+	/** Blue gradient (V9 standard) - Unified OAuth/OIDC - matches FlowHeader oauth */
+	unifiedOAuth: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+	/** Light blue gradient - alternate for high-contrast needs */
+	unifiedOAuthLight: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
 	/** Dark blue gradient - MFA Authentication */
 	mfaAuth: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
 	/** Green gradient - Success/Active states */

@@ -65,18 +65,26 @@ export const useGlobalWorkerToken = (
 		}
 	}, []);
 
-	/** Fetch or return cached token — may make an API call. */
+	/** Fetch or return cached token — may make an API call. Prefer token from unifiedWorkerTokenService (same source as modal) so /environments and other pages see the token. */
 	const checkTokenStatus = useCallback(async () => {
 		try {
 			setStatus((prev) => ({ ...prev, isLoading: true, error: null }));
 
-			// Debug localStorage before attempting to get token
-			const storedToken = localStorage.getItem('unified_worker_token');
-			logger.debug('useGlobalWorkerToken', 'Stored token in localStorage', {
-				hasToken: !!storedToken,
-				tokenLength: storedToken?.length || 0,
-				tokenPreview: storedToken ? `${storedToken.substring(0, 100)}...` : 'none',
-			});
+			// Prefer token from same source as Worker Token modal (localStorage unified_worker_token)
+			if (unifiedWorkerTokenService.hasValidTokenSync()) {
+				const data = unifiedWorkerTokenService.getTokenDataSync();
+				if (data?.token) {
+					logger.info('useGlobalWorkerToken', 'Using token from unifiedWorkerTokenService (modal source)');
+					setStatus({
+						token: data.token,
+						isValid: true,
+						isLoading: false,
+						error: null,
+						message: 'Worker token is valid and ready',
+					});
+					return;
+				}
+			}
 
 			const token = await workerTokenManager.getWorkerToken();
 

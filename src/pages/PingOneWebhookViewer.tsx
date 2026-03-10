@@ -653,8 +653,9 @@ const PingOneWebhookViewer: React.FC = () => {
 		verifyTlsCertificates: false,
 	});
 
-	// Ensure URL is correct when component mounts
+	// Ensure URL is correct when component mounts (main window only — do not redirect in popout)
 	useEffect(() => {
+		if (isPopoutWindow()) return;
 		if (location.pathname !== '/pingone-webhook-viewer') {
 			navigate('/pingone-webhook-viewer', { replace: true });
 		}
@@ -701,6 +702,7 @@ const PingOneWebhookViewer: React.FC = () => {
 		// Listen for storage changes (cross-tab)
 		const handleStorageChange = (e: StorageEvent) => {
 			if (
+				e.key === 'unified_worker_token' ||
 				e.key?.startsWith('worker_token') ||
 				e.key?.startsWith('pingone_worker_token') ||
 				e.key === 'environmentId'
@@ -1673,6 +1675,53 @@ const PingOneWebhookViewer: React.FC = () => {
 								auto-populate.
 							</div>
 						)}
+					</div>
+
+					{/* Localhost tunnel directions - how to receive webhooks on Mac */}
+					<div
+						style={{
+							background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+							border: '1px solid #3b82f6',
+							borderRadius: '0.75rem',
+							padding: '1rem 1.25rem',
+							marginBottom: '1rem',
+						}}
+					>
+						<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: '#1e40af' }}>
+							📡 Getting webhooks on localhost (Mac)
+						</h3>
+						<p style={{ margin: '0 0 0.75rem 0', fontSize: '0.875rem', color: '#1e3a8a', lineHeight: 1.5 }}>
+							PingOne sends webhooks to a public URL. When running on localhost, use a tunnel app to
+							expose your dev server. Install <strong>ngrok</strong> or <strong>Cloudflare Tunnel</strong>{' '}
+							on Mac:
+						</p>
+						<ul style={{ margin: '0 0 0.75rem 0', paddingLeft: '1.25rem', fontSize: '0.875rem', color: '#1e3a8a', lineHeight: 1.8 }}>
+							<li>
+								<strong>ngrok:</strong> <code style={{ background: '#e0e7ff', padding: '0.1rem 0.3rem', borderRadius: 4 }}>brew install ngrok</code> then{' '}
+								<code style={{ background: '#e0e7ff', padding: '0.1rem 0.3rem', borderRadius: 4 }}>ngrok http 3000</code>
+							</li>
+							<li>
+								<strong>Cloudflare:</strong> <code style={{ background: '#e0e7ff', padding: '0.1rem 0.3rem', borderRadius: 4 }}>brew install cloudflared</code> then{' '}
+								<code style={{ background: '#e0e7ff', padding: '0.1rem 0.3rem', borderRadius: 4 }}>cloudflared tunnel --url http://localhost:3000</code>
+							</li>
+						</ul>
+						<p style={{ margin: 0, fontSize: '0.8rem', color: '#3b82f6' }}>
+							<button
+								type="button"
+								onClick={() => setActiveTab('setup')}
+								style={{
+									background: 'none',
+									border: 'none',
+									color: '#2563eb',
+									textDecoration: 'underline',
+									cursor: 'pointer',
+									fontSize: 'inherit',
+									padding: 0,
+								}}
+							>
+								View full Setup guide with copy buttons →
+							</button>
+						</p>
 					</div>
 
 					<div style={styles.header}>

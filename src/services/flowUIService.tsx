@@ -745,10 +745,13 @@ export class FlowUIService {
 						`;
 					case 'secondary':
 						return `
-							background-color: #6b7280;
-							color: #ffffff;
+							background-color: #ffffff;
+							color: #3b82f6;
+							border-color: #3b82f6;
 							&:hover:not(:disabled) {
-								background-color: #4b5563;
+								background-color: #eff6ff;
+								border-color: #2563eb;
+								color: #2563eb;
 							}
 						`;
 					case 'danger':
@@ -771,14 +774,22 @@ export class FlowUIService {
 						`;
 					default:
 						return `
-							background-color: #f3f4f6;
-							color: #374151;
+							background-color: #ffffff;
+							color: #3b82f6;
+							border-color: #3b82f6;
 							&:hover:not(:disabled) {
-								background-color: #e5e7eb;
+								background-color: #eff6ff;
+								border-color: #2563eb;
+								color: #2563eb;
 							}
 						`;
 				}
 			}}
+			&:disabled {
+				background-color: #9ca3af !important;
+				color: #ffffff !important;
+				border-color: #9ca3af !important;
+			}
 		`;
 	}
 

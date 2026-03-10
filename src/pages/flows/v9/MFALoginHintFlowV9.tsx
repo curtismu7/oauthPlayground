@@ -11,6 +11,7 @@ import {
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 
 // Types
 interface MFALoginHintConfig {
@@ -618,6 +619,43 @@ const MFALoginHintFlowV9: React.FC = () => {
 									</div>
 								</div>
 							</div>
+						)}
+
+						{/* Mock API Call Example */}
+						{mfaConfig.environmentId && mfaConfig.clientId && (
+							<MockApiCallDisplay
+								title="PingOne Login Hint Token Request"
+								method="POST"
+								url={`https://auth.pingone.com/${mfaConfig.environmentId}/as/login_hint_token`}
+								headers={{
+									'Content-Type': 'application/json',
+									'Accept': 'application/json',
+									'Authorization': `Basic ${btoa(`${mfaConfig.clientId}:***REDACTED***`)}`,
+								}}
+								body={{
+									client_id: mfaConfig.clientId,
+									user_id: mfaConfig.userId || 'user-12345',
+									phone_number: mfaConfig.phoneNumber,
+									email: mfaConfig.email,
+								}}
+								response={{
+									status: 200,
+									statusText: 'OK',
+									data: {
+										login_hint_token: loginHintToken?.login_hint_token || 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJzdWIiOiJ1c2VyLTEyMzQ1IiwiYXVkIjoibG9naW4taGludCIsImV4cCI6MTY5NzQzMzAwMCwiaWF0IjoxNjk3NDI5NDAwfQ.signature',
+										expires_in: loginHintToken?.expires_in || 300,
+										token_type: 'Bearer',
+										scope: loginHintToken?.scope || 'openid',
+										user_id: loginHintToken?.user_id || 'user-12345',
+									},
+									headers: {
+										'Content-Type': 'application/json',
+									},
+								}}
+								note="The login hint token is used to initiate MFA authentication without requiring the user to enter credentials again."
+								description="Generate a login hint token that can be used to start an MFA authentication flow for a specific user."
+								defaultExpanded={false}
+							/>
 						)}
 					</div>
 				);

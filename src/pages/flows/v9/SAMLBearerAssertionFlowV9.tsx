@@ -3,12 +3,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { FiRefreshCw } from '../../../icons';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
 import { FlowCompletionService } from '../../../services/flowCompletionService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import SAMLAssertionService from '../../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
@@ -101,13 +103,16 @@ const Label = styled.label`
 	margin-bottom: 0.5rem;
 `;
 
-const Input = styled.input`
+const Input = styled.input<{ $preFilled?: boolean }>`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid ${(p) => (p.$preFilled ? '#93c5fd' : V9_COLORS.TEXT.GRAY_LIGHTER)};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
-	transition: border-color 0.2s ease-in-out;
+	font-weight: ${(p) => (p.$preFilled ? 600 : 400)};
+	color: ${(p) => (p.$preFilled ? '#1e3a8a' : 'inherit')};
+	background: ${(p) => (p.$preFilled ? '#eff6ff' : 'white')};
+	transition: border-color 0.2s ease-in-out, background 0.2s ease;
 
 	&:focus {
 		outline: none;
@@ -139,40 +144,45 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 	${(props) => {
 		if (props.$variant === 'primary') {
 			return `
-				background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+				background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%);
 				color: white;
 				
 				&:hover:not(:disabled) {
-					background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+					background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE_DARK} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%);
 					transform: translateY(-1px);
 					box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 				}
 			`;
 		} else if (props.$variant === 'success') {
 			return `
-				background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+				background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE_DARK} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%);
 				color: white;
 				
 				&:hover:not(:disabled) {
-					background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, #1e3a8a 100%);
+					background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE_DARK} 0%, #1e3a8a 100%);
 				}
 			`;
 		} else {
+			// Secondary: outline primary (never grey when enabled)
 			return `
 				background: white;
-				color: V9_COLORS.TEXT.GRAY_DARK;
-				border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+				color: ${V9_COLORS.PRIMARY.BLUE};
+				border: 2px solid ${V9_COLORS.PRIMARY.BLUE};
 				
-				&:hover {
-					background: #f9fafb;
-					border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+				&:hover:not(:disabled) {
+					background: #eff6ff;
+					border-color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+					color: ${V9_COLORS.PRIMARY.BLUE_DARK};
 				}
 			`;
 		}
 	}}
 	
 	&:disabled {
-		opacity: 0.6;
+		background: #9ca3af;
+		color: white;
+		border-color: #9ca3af;
+		opacity: 0.9;
 		cursor: not-allowed;
 	}
 `;
@@ -422,20 +432,23 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				const result = await oidcDiscoveryService.discover({ issuerUrl });
 				if (result.success) {
 					const { token_endpoint, issuer } = result.data;
+					// Use token_endpoint for audience (RFC 7522: audience identifies intended recipient)
+					const audience = token_endpoint || issuer;
 					if (token_endpoint) {
 						setTokenEndpoint(token_endpoint);
 						logger.info('SAMLBearerAssertionFlowV9', 'Token endpoint auto-populated', {
 							token_endpoint,
 						});
 					}
-					if (issuer) {
+					if (issuer || audience) {
 						setSamlAssertion((prev) => ({
 							...prev,
-							issuer,
-							audience: issuer,
+							...(issuer && { issuer }),
+							...(audience && { audience }),
 						}));
 						logger.info('SAMLBearerAssertionFlowV9', 'Issuer and Audience auto-populated', {
 							issuer,
+							audience,
 						});
 					}
 					modernMessaging.showFooterMessage({
@@ -454,11 +467,11 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 
 	// Check if all required fields are filled for SAML generation
 	const canGenerateSAML = useCallback(() => {
-		const hasClientId = clientId.trim().length > 0;
-		const hasTokenEndpoint = tokenEndpoint.trim().length > 0;
-		const hasIssuer = samlAssertion.issuer.trim().length > 0;
-		const hasSubject = samlAssertion.subject.trim().length > 0;
-		const hasAudience = samlAssertion.audience.trim().length > 0;
+		const hasClientId = (clientId ?? '').trim().length > 0;
+		const hasTokenEndpoint = (tokenEndpoint ?? '').trim().length > 0;
+		const hasIssuer = (samlAssertion?.issuer ?? '').trim().length > 0;
+		const hasSubject = (samlAssertion?.subject ?? '').trim().length > 0;
+		const hasAudience = (samlAssertion?.audience ?? '').trim().length > 0;
 
 		logger.info('SAMLBearerAssertionFlowV9', 'Validation check', {
 			hasClientId,
@@ -467,18 +480,18 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 			hasSubject,
 			hasAudience,
 			clientId: clientId,
-			issuer: samlAssertion.issuer,
-			subject: samlAssertion.subject,
-			audience: samlAssertion.audience,
+			issuer: samlAssertion?.issuer,
+			subject: samlAssertion?.subject,
+			audience: samlAssertion?.audience,
 		});
 
 		return hasClientId && hasTokenEndpoint && hasIssuer && hasSubject && hasAudience;
 	}, [
 		clientId,
 		tokenEndpoint,
-		samlAssertion.issuer,
-		samlAssertion.subject,
-		samlAssertion.audience,
+		samlAssertion?.issuer,
+		samlAssertion?.subject,
+		samlAssertion?.audience,
 	]);
 
 	// Generate SAML Assertion using service
@@ -537,7 +550,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		}
 	}, [clientId, tokenEndpoint, identityProvider, samlAssertion]);
 
-	// Load SAML configuration using service
+	// Load SAML configuration using service (merge with defaults—do not overwrite with empty values)
 	const loadSAMLConfiguration = useCallback(() => {
 		try {
 			const config = SAMLAssertionService.loadConfiguration();
@@ -546,21 +559,18 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				setTokenEndpoint(config.tokenEndpoint || '');
 				setIdentityProvider(config.identityProvider || '');
 				if (config.samlAssertion) {
-					setSamlAssertion({
-						...config.samlAssertion,
-						attributes: normalizeAttributes(config.samlAssertion.attributes),
-					});
-				} else {
-					setSamlAssertion({
-						issuer: '',
-						subject: '',
-						audience: '',
+					const saved = config.samlAssertion;
+					setSamlAssertion((prev) => ({
+						...prev,
+						issuer: saved.issuer?.trim() || prev.issuer,
+						subject: saved.subject?.trim() || prev.subject,
+						audience: saved.audience?.trim() || prev.audience,
+						attributes: normalizeAttributes(saved.attributes) ?? prev.attributes,
 						conditions: {
-							notBefore: '',
-							notOnOrAfter: '',
+							notBefore: saved.conditions?.notBefore || prev.conditions.notBefore,
+							notOnOrAfter: saved.conditions?.notOnOrAfter || prev.conditions.notOnOrAfter,
 						},
-						attributes: {},
-					});
+					}));
 				}
 				modernMessaging.showFooterMessage({
 					type: 'info',
@@ -805,6 +815,9 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							Configure the SAML assertion that will be used as a client assertion in the token
 							request. This represents the user's identity from the identity provider.
 						</InfoText>
+						<InfoText style={{ fontWeight: 600, color: '#1e3a8a' }}>
+							✓ Fields below are pre-filled with sample values—edit as needed.
+						</InfoText>
 					</div>
 				</InfoBox>
 
@@ -815,6 +828,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						value={samlAssertion.issuer}
 						onChange={(e) => setSamlAssertion((prev) => ({ ...prev, issuer: e.target.value }))}
 						placeholder="https://idp.example.com"
+						$preFilled={!!samlAssertion.issuer.trim()}
 					/>
 				</FormGroup>
 
@@ -825,6 +839,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						value={samlAssertion.subject}
 						onChange={(e) => setSamlAssertion((prev) => ({ ...prev, subject: e.target.value }))}
 						placeholder="user@example.com"
+						$preFilled={!!samlAssertion.subject.trim()}
 					/>
 				</FormGroup>
 
@@ -835,6 +850,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						value={samlAssertion.audience}
 						onChange={(e) => setSamlAssertion((prev) => ({ ...prev, audience: e.target.value }))}
 						placeholder="https://auth.example.com/oauth/token"
+						$preFilled={!!samlAssertion.audience.trim()}
 					/>
 				</FormGroup>
 
@@ -852,6 +868,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								},
 							}))
 						}
+						$preFilled
 					/>
 				</FormGroup>
 
@@ -869,6 +886,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								},
 							}))
 						}
+						$preFilled
 					/>
 				</FormGroup>
 
@@ -1147,7 +1165,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 					</ParameterGrid>
 				</GeneratedContentBox>
 
-				<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+				<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
 					<Button
 						onClick={makeTokenRequest}
 						$variant="success"

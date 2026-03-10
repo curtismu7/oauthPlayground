@@ -9,6 +9,7 @@ import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -462,10 +463,20 @@ logger.info('MFA method selection result:', selectionResult);`,
 						throw new Error('Access token not available for MFA API');
 					}
 
-					// Get region from worker_credentials
-					const workerCredsStr = localStorage.getItem('worker_credentials');
-					const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
-					const region = (workerCreds?.region as string) || 'us';
+					// Get region from unified storage (IndexedDB/SQLite) first, then localStorage
+					const credResult = await unifiedWorkerTokenService.loadCredentials();
+					const workerCreds = credResult.success ? credResult.data : null;
+					const region =
+						(workerCreds?.region as string) ||
+						(() => {
+							try {
+								const s = localStorage.getItem('worker_credentials');
+								return s ? (JSON.parse(s) as { region?: string })?.region : null;
+							} catch {
+								return null;
+							}
+						})() ||
+						'us';
 
 					// Get available MFA methods from PingOne MFA API
 					const mfaMethodsResponse = await fetch(
@@ -570,10 +581,20 @@ if (verificationResponse.ok) {
 						throw new Error('Access token not available for MFA API');
 					}
 
-					// Get region from worker_credentials
-					const workerCredsStr = localStorage.getItem('worker_credentials');
-					const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
-					const region = (workerCreds?.region as string) || 'us';
+					// Get region from unified storage (IndexedDB/SQLite) first, then localStorage
+					const credResult = await unifiedWorkerTokenService.loadCredentials();
+					const workerCreds = credResult.success ? credResult.data : null;
+					const region =
+						(workerCreds?.region as string) ||
+						(() => {
+							try {
+								const s = localStorage.getItem('worker_credentials');
+								return s ? (JSON.parse(s) as { region?: string })?.region : null;
+							} catch {
+								return null;
+							}
+						})() ||
+						'us';
 
 					// Verify MFA code using PingOne MFA API
 					const verificationResponse = await fetch(

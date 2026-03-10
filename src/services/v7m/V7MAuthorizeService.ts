@@ -175,6 +175,92 @@ export function authorizeAccessDenied(req: V7MAuthorizeRequest): V7MAuthorizeRes
 	};
 }
 
+// ─── Hybrid Flow (OIDC Hybrid, deprecated per RFC 9700) ───────────────────────
+
+export type V7MHybridAuthorizeResult =
+	| {
+			type: 'hybrid';
+			code: string;
+			tokens: {
+				id_token?: string;
+				access_token?: string;
+				token_type: 'Bearer';
+				expires_in: number;
+				scope?: string;
+			};
+	  }
+	| { type: 'error'; error: string; error_description?: string };
+
+/**
+ * Issue hybrid authorization response: returns both a code and tokens immediately.
+ * Used for OIDC Hybrid Flow (response_type: 'code id_token', 'code token', 'code id_token token').
+ * The id_token includes c_hash binding it to the code.
+ * Note: Hybrid flow is deprecated per RFC 9700 / OAuth 2.0 Security BCP.
+ */
+export function authorizeIssueHybrid(
+	req: Omit<V7MAuthorizeRequest, 'response_type'> & {
+		response_type: 'code id_token' | 'code token' | 'code id_token token';
+	},
+	nowEpochSeconds: number,
+	codeTtlSeconds: number
+): V7MHybridAuthorizeResult {
+	const validationError = validateAuthorizeRequest(req as V7MAuthorizeRequest);
+	if (validationError) return validationError as V7MHybridAuthorizeResult;
+
+	// Issue a code and store it (can still be exchanged at token endpoint)
+	const code = buildCode(req as V7MAuthorizeRequest, nowEpochSeconds);
+	const record: V7MAuthorizationCodeRecord = {
+		code,
+		clientId: req.client_id,
+		redirectUri: req.redirect_uri,
+		scope: req.scope,
+		state: req.state,
+		nonce: req.nonce,
+		codeChallenge: req.code_challenge,
+		codeChallengeMethod: req.code_challenge_method,
+		userEmail: req.userEmail,
+		userId: req.userId,
+		createdAt: nowEpochSeconds,
+		expiresAt: nowEpochSeconds + codeTtlSeconds,
+		consumed: false,
+	};
+	V7MStateStore.saveAuthorizationCode(record);
+
+	// Generate immediate tokens with c_hash (hash of code) for binding
+	const DEFAULT_TTLS: V7MTokenTtls = {
+		accessTokenSeconds: 3600,
+		idTokenSeconds: 3600,
+		refreshTokenSeconds: 86400,
+	};
+	const ttls = { ...DEFAULT_TTLS, ...(req.ttls || {}) };
+	const needsAccessToken = req.response_type.includes('token');
+	const needsIdToken = req.response_type.includes('id_token');
+
+	const seed: V7MTokenSeed = {
+		clientId: req.client_id,
+		issuer: req.issuer ?? 'https://mock.issuer/v7m',
+		userEmail: req.userEmail ?? 'jane.doe@example.com',
+		userId: req.userId,
+		scope: req.scope,
+		nonce: req.nonce,
+	};
+
+	// Pass code so token generator can compute c_hash for the id_token
+	const tokens = generateV7MTokens(seed, nowEpochSeconds, ttls, needsIdToken, code);
+
+	return {
+		type: 'hybrid',
+		code,
+		tokens: {
+			...(needsIdToken && tokens.id_token ? { id_token: tokens.id_token } : {}),
+			...(needsAccessToken ? { access_token: tokens.access_token } : {}),
+			token_type: 'Bearer',
+			expires_in: ttls.accessTokenSeconds,
+			scope: req.scope,
+		},
+	};
+}
+
 function validateAuthorizeRequest(req: V7MAuthorizeRequest): V7MAuthorizeResult | undefined {
 	if (!req.response_type) return error('invalid_request', 'Missing response_type');
 	if (!req.client_id) return error('invalid_request', 'Missing client_id');
@@ -229,7 +315,10 @@ function appendFragmentToUrl(base: string, params: Record<string, string>): stri
 		: url.pathname + (url.search || '') + (url.hash || '');
 }
 
+/** Base64url encoding using browser-native Web APIs only (no Node.js Buffer). */
 function toB64Url(input: string): string {
-	const b64 = Buffer.from(input, 'utf8').toString('base64');
-	return b64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+	const bytes = new TextEncoder().encode(input);
+	let binary = '';
+	for (const byte of bytes) binary += String.fromCharCode(byte);
+	return btoa(binary).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }

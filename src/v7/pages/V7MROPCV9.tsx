@@ -5,6 +5,7 @@ import { FiAlertTriangle } from '../../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { showGlobalError } from '../../contexts/NotificationSystem';
 import {
 	introspectToken,
@@ -231,9 +232,7 @@ export const V7MROPCV9: React.FC<Props> = ({
 					are generated deterministically based on your settings.
 				</p>
 			</div>
-			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<span>👤</span> {title}
-			</h1>
+			<FlowHeader flowId="oauth-ropc-v7" />
 			<UnifiedCredentialManagerV9
 				environmentId="v7m-mock"
 				flowKey="v7m-ropc"

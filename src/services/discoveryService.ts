@@ -43,7 +43,7 @@ class DiscoveryService {
 		region: string = 'us'
 	): Promise<DiscoveryResult> {
 		try {
-			logger.discovery('DiscoveryService', 'Starting OpenID configuration discovery', {
+			logger.info('DiscoveryService', 'Starting OpenID configuration discovery', {
 				environmentId,
 				region,
 			});
@@ -52,7 +52,7 @@ class DiscoveryService {
 			const cacheKey = `${environmentId}-${region}`;
 			const cached = this.cache.get(cacheKey);
 			if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
-				logger.discovery('DiscoveryService', 'Using cached configuration', { environmentId });
+				logger.info('DiscoveryService', 'Using cached configuration', { environmentId });
 				return {
 					success: true,
 					configuration: cached.config,
@@ -63,7 +63,7 @@ class DiscoveryService {
 			// Use relative URL to go through Vite proxy (avoids certificate issues)
 			const discoveryUrl = `/api/discovery?environment_id=${environmentId}&region=${region}`;
 
-			logger.discovery('DiscoveryService', 'Fetching configuration via backend proxy', {
+			logger.info('DiscoveryService', 'Fetching configuration via backend proxy', {
 				discoveryUrl,
 			});
 
@@ -174,7 +174,8 @@ class DiscoveryService {
 				timestamp: Date.now(),
 			});
 
-			logger.success('DiscoveryService', 'OpenID configuration discovered successfully', {
+			// Use logger.info so discovery works even if logger.success is not available in this context
+			logger.info('DiscoveryService', 'OpenID configuration discovered successfully', {
 				environmentId,
 				issuer: configuration.issuer,
 				endpoints: {
@@ -211,7 +212,7 @@ class DiscoveryService {
 	 */
 	clearCache(): void {
 		this.cache.clear();
-		logger.discovery('DiscoveryService', 'Discovery cache cleared');
+		logger.info('DiscoveryService', 'Discovery cache cleared');
 	}
 
 	/**

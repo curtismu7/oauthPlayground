@@ -14,6 +14,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { loadEnvironmentId, saveEnvironmentId } from '../services/environmentIdService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -84,13 +85,25 @@ export function useAutoEnvironmentId(saveOnChange = true) {
 		setEnvironmentIdState(readBestEnvironmentId());
 	}, []);
 
-	// On mount: load from IndexedDB/API in case localStorage is stale or empty
+	// On mount: load from IndexedDB/API and unified worker token storage so credentials saved elsewhere appear
 	useEffect(() => {
-		loadEnvironmentId().then((id) => {
-			if (id && id !== readBestEnvironmentId()) {
-				setEnvironmentIdState(id);
-			}
-		});
+		loadEnvironmentId()
+			.then((id) => {
+				if (id && UUID_RE.test(id.trim())) {
+					setEnvironmentIdState(id);
+					return undefined;
+				}
+				return unifiedWorkerTokenService.loadCredentials();
+			})
+			.then((result) => {
+				if (
+					result?.success &&
+					result.data?.environmentId &&
+					UUID_RE.test(result.data.environmentId.trim())
+				) {
+					setEnvironmentIdState(result.data.environmentId.trim());
+				}
+			});
 	}, []);
 
 	useEffect(() => {
