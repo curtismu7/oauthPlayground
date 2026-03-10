@@ -6,26 +6,26 @@ import { logger } from '../utils/logger';
 import { CodeCategory, CodeType, FlowStep, InteractiveCodeEditor } from './InteractiveCodeEditor';
 
 const CodeGeneratorContainer = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 12px;
-  padding: 24px;
-  margin-top: 24px;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 12px;
+	padding: 24px;
+	margin-top: 24px;
 `;
 
 const Description = styled.p`
-  margin: 0 0 16px 0;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 14px;
-  line-height: 1.6;
+	margin: 0 0 16px 0;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 14px;
+	line-height: 1.6;
 `;
 
 const Dependencies = styled.div`
-  background: #f6f8fa;
-  padding: 12px 16px;
-  border-top: 1px solid #e1e4e8;
-  font-size: 13px;
-  color: #586069;
+	background: #f6f8fa;
+	padding: 12px 16px;
+	border-top: 1px solid #e1e4e8;
+	font-size: 13px;
+	color: #586069;
 `;
 
 interface MfaFlowCodeGeneratorProps {
@@ -131,7 +131,7 @@ export const MfaFlowCodeGenerator: React.FC<MfaFlowCodeGeneratorProps> = ({
 		<CollapsibleHeader
 			title={
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-					<span style={{ fontSize: '20px' }}>❓</span>
+					<i className="bi bi-question-circle" style={{ fontSize: '20px' }}></i>
 					Code Examples - Production Ready
 				</div>
 			}

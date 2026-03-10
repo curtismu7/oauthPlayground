@@ -280,7 +280,7 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 		<Container className={className}>
 			<Header>
 				<Title>
-					<span>❓</span>
+					<i className="bi bi-question-circle"></i>
 					{stepData.stepName} - Code Examples
 				</Title>
 				<LanguageSelector>

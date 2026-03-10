@@ -2234,7 +2234,11 @@ token=${tokens?.access_token || '{{accessToken}}'}
 									onClick={testCorsConfiguration}
 									disabled={isTestingCors}
 								>
-									{isTestingCors ? <FiRefreshCw className="animate-spin" /> : <span>❓</span>}
+									{isTestingCors ? (
+										<FiRefreshCw className="animate-spin" />
+									) : (
+										<i className="bi bi-question-circle"></i>
+									)}
 									{isTestingCors ? 'Testing...' : 'Test CORS Configuration'}
 								</Button>
 								<Button
@@ -2401,7 +2405,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 						<span>📥</span> Export Security Report
 					</Button>
 					<Button $variant="primary" $primaryColor={colors.primary} onClick={runSecurityTest}>
-						<span>❓</span> Run Security Test Suite
+						<i className="bi bi-question-circle"></i> Run Security Test Suite
 					</Button>
 					{(securityReportResults || securityTestResults) && (
 						<Button

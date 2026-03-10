@@ -19,210 +19,210 @@ import type { LoginContext, PortalError, UserContext } from '../types/protectPor
 // ============================================================================
 
 const HeroContainer = styled.div`
-  width: 100%;
-  background: white; /* Consistent white background for Protect app */
-  position: relative;
-  overflow: hidden;
+	width: 100%;
+	background: white; /* Consistent white background for Protect app */
+	position: relative;
+	overflow: hidden;
 `;
 
 const HeroBackground = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(46, 75, 177, 0.02) 0%, rgba(229, 29, 35, 0.01) 100%);
-  opacity: 1; /* Very subtle background texture, mostly white */
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(135deg, rgba(46, 75, 177, 0.02) 0%, rgba(229, 29, 35, 0.01) 100%);
+	opacity: 1; /* Very subtle background texture, mostly white */
 `;
 
 const HeroContent = styled.div`
-  position: relative;
-  z-index: 2;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+	position: relative;
+	z-index: 2;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
 `;
 
 const Navigation = styled.nav`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 0;
-  border-bottom: 1px solid #E5E7EB; /* Light border for white background */
-  margin-bottom: 3rem;
-  width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 0;
+	border-bottom: 1px solid #e5e7eb; /* Light border for white background */
+	margin-bottom: 3rem;
+	width: 100%;
 `;
 
 const LogoSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 `;
 
 const LogoText = styled.div`
-  color: #1E3A8A; /* Southwest blue text */
-  font-size: 1.5rem;
-  font-weight: 700;
-  font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
+	color: #1e3a8a; /* Southwest blue text */
+	font-size: 1.5rem;
+	font-weight: 700;
+	font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
 `;
 
 const NavLinks = styled.div`
-  display: flex;
-  gap: 2rem;
-  align-items: center;
+	display: flex;
+	gap: 2rem;
+	align-items: center;
 `;
 
 const NavLink = styled.a`
-  color: #4B5563; /* Dark gray text for white background */
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.875rem;
-  transition: color 0.2s;
-  font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
+	color: #4b5563; /* Dark gray text for white background */
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 0.875rem;
+	transition: color 0.2s;
+	font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
 
-  &:hover {
-    color: #E51D23; /* Southwest heart red on hover */
-  }
+	&:hover {
+		color: #e51d23; /* Southwest heart red on hover */
+	}
 `;
 
 const MainContent = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  align-items: center;
-  margin-bottom: 3rem;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 4rem;
+	align-items: center;
+	margin-bottom: 3rem;
 
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 2rem;
+	}
 `;
 
 const LeftContent = styled.div`
-  color: #1F2937; /* Dark text for white background */
+	color: #1f2937; /* Dark text for white background */
 `;
 
 const HeroTitle = styled.h1`
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  line-height: 1.2;
-  color: #1E3A8A; /* Southwest blue title */
-  font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
+	font-size: 3rem;
+	font-weight: 700;
+	margin-bottom: 1rem;
+	line-height: 1.2;
+	color: #1e3a8a; /* Southwest blue title */
+	font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
 
-  @media (max-width: 768px) {
-    font-size: 2rem;
-  }
+	@media (max-width: 768px) {
+		font-size: 2rem;
+	}
 `;
 
 const HeroSubtitle = styled.p`
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-  color: #4B5563; /* Dark gray subtitle */
-  line-height: 1.6;
-  font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
+	font-size: 1.25rem;
+	margin-bottom: 2rem;
+	color: #4b5563; /* Dark gray subtitle */
+	line-height: 1.6;
+	font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
 `;
 
 const Features = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1rem;
+	margin-bottom: 2rem;
 
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+	}
 `;
 
 const Feature = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.875rem;
-  color: #6B7280; /* Medium gray for features */
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	font-size: 0.875rem;
+	color: #6b7280; /* Medium gray for features */
 `;
 
 const FeatureIcon = styled.div`
-  color: #E51D23; /* Southwest heart red */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	color: #e51d23; /* Southwest heart red */
+	display: flex;
+	align-items: center;
+	justify-content: center;
 `;
 
 const RightContent = styled.div`
-  background: white;
-  border: 1px solid #E5E7EB;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	background: white;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	padding: 2rem;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
 const LoginSection = styled.div`
-  text-align: center;
-  margin-bottom: 2rem;
+	text-align: center;
+	margin-bottom: 2rem;
 `;
 
 const LoginTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1E3A8A; /* Southwest blue */
-  margin-bottom: 0.5rem;
-  font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #1e3a8a; /* Southwest blue */
+	margin-bottom: 0.5rem;
+	font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
 `;
 
 const LoginSubtitle = styled.p`
-  color: #6B7280; /* Medium gray */
-  font-size: 0.875rem;
-  margin-bottom: 1.5rem;
-  font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
+	color: #6b7280; /* Medium gray */
+	font-size: 0.875rem;
+	margin-bottom: 1.5rem;
+	font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
 `;
 
 const LoginButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 1rem;
-  background: #304CB2; /* Southwest Blue */
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 600;
-  font-family: 'Benton Sans', Arial, sans-serif;
-  cursor: pointer;
-  transition: all 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	width: 100%;
+	padding: 1rem;
+	background: #304cb2; /* Southwest Blue */
+	color: white;
+	border: none;
+	border-radius: 6px;
+	font-size: 1rem;
+	font-weight: 600;
+	font-family: 'Benton Sans', Arial, sans-serif;
+	cursor: pointer;
+	transition: all 0.2s;
 
-  &:hover {
-    background: #263A94; /* Darker blue on hover */
-    transform: translateY(-1px);
-  }
+	&:hover {
+		background: #263a94; /* Darker blue on hover */
+		transform: translateY(-1px);
+	}
 
-  &:active {
-    transform: translateY(0);
-  }
+	&:active {
+		transform: translateY(0);
+	}
 `;
 
 const QuickLinks = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #E5E7EB;
+	display: flex;
+	justify-content: space-between;
+	margin-top: 1.5rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid #e5e7eb;
 `;
 
 const QuickLink = styled.a`
-  color: #2E4BB1; /* Southwest blue */
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: color 0.2s;
-  font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
+	color: #2e4bb1; /* Southwest blue */
+	text-decoration: none;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: color 0.2s;
+	font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
 
-  &:hover {
-    color: #E51D23; /* Southwest heart red on hover */
-  }
+	&:hover {
+		color: #e51d23; /* Southwest heart red on hover */
+	}
 `;
 
 // ============================================================================
@@ -287,7 +287,7 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 								</Feature>
 								<Feature>
 									<FeatureIcon>
-										<span>❓</span>
+										<i className="bi bi-question-circle"></i>
 									</FeatureIcon>
 									<span>Customer First</span>
 								</Feature>

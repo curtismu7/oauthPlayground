@@ -7,15 +7,15 @@ const spin = keyframes`
 `;
 
 const SpinnerWrapper = styled.div<{ size?: number; color?: string }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  animation: ${spin} 1s linear infinite;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	animation: ${spin} 1s linear infinite;
 
-  svg {
-    font-size: ${({ size }) => size || 16}px;
-    color: ${({ color, theme }) => color || theme?.colors?.primary || '#0070CC'};
-  }
+	svg {
+		font-size: ${({ size }) => size || 16}px;
+		color: ${({ color, theme }) => color || theme?.colors?.primary || '#0070CC'};
+	}
 `;
 
 interface SpinnerProps {
@@ -26,7 +26,7 @@ interface SpinnerProps {
 const Spinner: React.FC<SpinnerProps> = ({ size = 16, color }) => {
 	return (
 		<SpinnerWrapper size={size} color={color}>
-			<span>❓</span>
+			<i className="bi bi-question-circle"></i>
 		</SpinnerWrapper>
 	);
 };

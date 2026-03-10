@@ -5,67 +5,71 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { PageLayoutService } from '../../services/pageLayoutService';
 
 const _DocsContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 const _Section = styled.section`
-  margin-bottom: 3rem;
-  
-  h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.25rem;
-    display: flex;
-    align-items: center;
-    color: ${({ theme }) => theme.colors.gray800};
-    
-    svg {
-      margin-right: 0.75rem;
-      color: ${({ theme }) => theme.colors.primary};
-    }
-  }
+	margin-bottom: 3rem;
+
+	h2 {
+		font-size: 1.5rem;
+		margin-bottom: 1.25rem;
+		display: flex;
+		align-items: center;
+		color: ${({ theme }) => theme.colors.gray800};
+
+		svg {
+			margin-right: 0.75rem;
+			color: ${({ theme }) => theme.colors.primary};
+		}
+	}
 `;
 
 const LinkGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const ExternalLink = styled.a`
-  display: block;
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
-  transition: transform 0.2s, box-shadow 0.2s;
-  text-decoration: none;
-  color: inherit;
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    border-color: ${({ theme }) => theme.colors.primary}40;
-  }
-  
-  h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0.75rem;
-    color: ${({ theme }) => theme.colors.primary};
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin-bottom: 0;
-  }
+	display: block;
+	background: white;
+	border-radius: 0.5rem;
+	box-shadow:
+		0 1px 3px 0 rgba(0, 0, 0, 0.1),
+		0 1px 2px 0 rgba(0, 0, 0, 0.06);
+	padding: 1.5rem;
+	transition:
+		transform 0.2s,
+		box-shadow 0.2s;
+	text-decoration: none;
+	color: inherit;
+	border: 1px solid ${({ theme }) => theme.colors.gray200};
+
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+		border-color: ${({ theme }) => theme.colors.primary}40;
+	}
+
+	h3 {
+		font-size: 1.1rem;
+		margin-bottom: 0.75rem;
+		color: ${({ theme }) => theme.colors.primary};
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	p {
+		color: ${({ theme }) => theme.colors.gray600};
+		font-size: 0.95rem;
+		line-height: 1.6;
+		margin-bottom: 0;
+	}
 `;
 
 const pageConfig = {
@@ -146,7 +150,7 @@ const OIDCSpecs = () => {
 				<CollapsibleHeader
 					title="Authentication & Authorization"
 					subtitle="Authentication and authorization specifications for OAuth 2.0 and OpenID Connect"
-					icon={<span>❓</span>}
+					icon={<i className="bi bi-question-circle"></i>}
 					defaultCollapsed={false}
 				>
 					<LinkGrid>
