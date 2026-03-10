@@ -451,7 +451,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 					<ActionButtons>
 						{editable && (
 							<ActionButton onClick={handleEdit} $variant="secondary">
-								<span style={{ fontSize: '14px' }}>❓</span>
+								<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 								Edit
 							</ActionButton>
 						)}
@@ -466,7 +466,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 						)}
 						<ActionButton onClick={toggleEncoding} $variant="secondary">
 							{isDecoded ? (
-								<span style={{ fontSize: '14px' }}>❓</span>
+								<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 							) : (
 								<span style={{ fontSize: '14px' }}>👁️</span>
 							)}

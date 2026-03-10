@@ -64,27 +64,27 @@ const adjustColor = (color: string, amount: number): string => {
 };
 
 const PopupOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 10000;
-  padding: 20px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 10000;
+	padding: 20px;
 `;
 
 const PopupContainer = styled.div<{ $isDragging: boolean; $position: { x: number; y: number } }>`
-  background: ${KROGER_COLORS.white};
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 420px;
-  overflow: hidden;
-  position: fixed;
-  left: ${({ $position }) => `${$position.x}px`};
-  top: ${({ $position }) => `${$position.y}px`};
-  transition: ${({ $isDragging }) => ($isDragging ? 'none' : 'box-shadow 0.2s ease')};
+	background: ${KROGER_COLORS.white};
+	border-radius: 12px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	width: 100%;
+	max-width: 420px;
+	overflow: hidden;
+	position: fixed;
+	left: ${({ $position }) => `${$position.x}px`};
+	top: ${({ $position }) => `${$position.y}px`};
+	transition: ${({ $isDragging }) => ($isDragging ? 'none' : 'box-shadow 0.2s ease')};
 `;
 
 const Header = styled.div<{
@@ -112,271 +112,278 @@ const Header = styled.div<{
 `;
 
 const DragHandleBar = styled.div`
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 6px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  pointer-events: none;
+	position: absolute;
+	top: 16px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 120px;
+	height: 6px;
+	border-radius: 9999px;
+	background: rgba(255, 255, 255, 0.6);
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+	pointer-events: none;
 `;
 
 const DragHint = styled.div`
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.18);
-  color: ${KROGER_COLORS.white};
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 600;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  pointer-events: none;
+	position: absolute;
+	top: 12px;
+	left: 12px;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.35rem 0.75rem;
+	border-radius: 9999px;
+	background: rgba(255, 255, 255, 0.18);
+	color: ${KROGER_COLORS.white};
+	font-size: 0.7rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-weight: 600;
+	backdrop-filter: blur(6px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	pointer-events: none;
 `;
 
 const LogoContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin-bottom: 16px;
 `;
 
 const LogoMark = styled.div<{
 	$backgroundColor?: string | undefined;
 	$borderColor?: string | undefined;
 }>`
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: ${({ $backgroundColor }) => $backgroundColor ?? '#ffffff'};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-  border: ${({ $borderColor }) => ($borderColor ? `2px solid ${$borderColor}` : 'none')};
-  overflow: hidden;
+	width: 48px;
+	height: 48px;
+	border-radius: 12px;
+	background: ${({ $backgroundColor }) => $backgroundColor ?? '#ffffff'};
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+	border: ${({ $borderColor }) => ($borderColor ? `2px solid ${$borderColor}` : 'none')};
+	overflow: hidden;
 `;
 
 const LogoImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
 `;
 
 const BrandWordmark = styled.div<{ $color?: string | undefined }>`
-  font-size: 28px;
-  font-weight: 800;
-  color: ${({ $color }) => $color ?? KROGER_COLORS.white};
-  letter-spacing: 1px;
+	font-size: 28px;
+	font-weight: 800;
+	color: ${({ $color }) => $color ?? KROGER_COLORS.white};
+	letter-spacing: 1px;
 `;
 
 const Subtitle = styled.div<{ $color?: string | undefined }>`
-  font-size: 14px;
-  color: ${({ $color }) => $color ?? 'rgba(255, 255, 255, 0.9)'};
-  font-weight: 400;
+	font-size: 14px;
+	color: ${({ $color }) => $color ?? 'rgba(255, 255, 255, 0.9)'};
+	font-weight: 400;
 `;
 
 const Content = styled.div<{
 	$contentBackground?: string | undefined;
 	$contentTextColor?: string | undefined;
 }>`
-  padding: 32px 28px;
-  background: ${({ $contentBackground }) => $contentBackground ?? '#ffffff'};
-  color: ${({ $contentTextColor }) => $contentTextColor ?? '#1f2937'};
+	padding: 32px 28px;
+	background: ${({ $contentBackground }) => $contentBackground ?? '#ffffff'};
+	color: ${({ $contentTextColor }) => $contentTextColor ?? '#1f2937'};
 `;
 
 const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
 `;
 
 const InputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 `;
 
 const Label = styled.label`
-  font-size: 12px;
-  font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+	font-size: 12px;
+	font-weight: 700;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 `;
 
 const InputWrapper = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
+	position: relative;
+	display: flex;
+	align-items: center;
 `;
 
 const Input = styled.input<{ $accentColor?: string | undefined }>`
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  background: ${KROGER_COLORS.white};
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-  box-sizing: border-box;
+	width: 100%;
+	padding: 12px 14px;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
+	font-size: 14px;
+	transition: all 0.2s ease;
+	background: ${KROGER_COLORS.white};
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+	box-sizing: border-box;
 
-  &:focus {
-    outline: none;
-    border-color: ${({ $accentColor }) => $accentColor ?? KROGER_COLORS.red};
-    box-shadow: ${({ $accentColor }) => `0 0 0 3px ${$accentColor ? hexToRgba($accentColor, 0.18) : hexToRgba(KROGER_COLORS.red, 0.1)}`};
-    background: #fafbff;
-  }
+	&:focus {
+		outline: none;
+		border-color: ${({ $accentColor }) => $accentColor ?? KROGER_COLORS.red};
+		box-shadow: ${({ $accentColor }) =>
+			`0 0 0 3px ${$accentColor ? hexToRgba($accentColor, 0.18) : hexToRgba(KROGER_COLORS.red, 0.1)}`};
+		background: #fafbff;
+	}
 
-  &::placeholder {
-    color: V9_COLORS.TEXT.GRAY_LIGHT;
-  }
+	&::placeholder {
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
+	}
 `;
 
 const PasswordInput = styled(Input)`
-  padding-right: 42px;
+	padding-right: 42px;
 `;
 
 const PasswordToggleButton = styled.button`
-  position: absolute;
-  right: 12px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 6px;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s ease;
+	position: absolute;
+	right: 12px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 6px;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: color 0.2s ease;
 
-  &:hover {
-    color: ${KROGER_COLORS.red};
-  }
+	&:hover {
+		color: ${KROGER_COLORS.red};
+	}
 `;
 
 const LoginButton = styled.button<{ $accentColor?: string | undefined }>`
-  background: ${({ $accentColor }) => $accentColor ?? `linear-gradient(135deg, ${KROGER_COLORS.green} 0%, ${KROGER_COLORS.darkGreen} 100%)`};
-  color: ${KROGER_COLORS.white};
-  border: none;
-  padding: 13px 24px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  letter-spacing: 0.5px;
-  margin-top: 8px;
+	background: ${({ $accentColor }) =>
+		$accentColor ??
+		`linear-gradient(135deg, ${KROGER_COLORS.green} 0%, ${KROGER_COLORS.darkGreen} 100%)`};
+	color: ${KROGER_COLORS.white};
+	border: none;
+	padding: 13px 24px;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 700;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	letter-spacing: 0.5px;
+	margin-top: 8px;
 
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: ${({ $accentColor }) => `0 8px 16px ${$accentColor ? hexToRgba($accentColor, 0.35) : 'rgba(0, 166, 81, 0.3)'}`};
-    background: ${({ $accentColor }) => ($accentColor ? adjustColor($accentColor, -10) : `linear-gradient(135deg, ${KROGER_COLORS.darkGreen} 0%, ${KROGER_COLORS.green} 100%)`)};
-  }
+	&:hover:not(:disabled) {
+		transform: translateY(-2px);
+		box-shadow: ${({ $accentColor }) =>
+			`0 8px 16px ${$accentColor ? hexToRgba($accentColor, 0.35) : 'rgba(0, 166, 81, 0.3)'}`};
+		background: ${({ $accentColor }) =>
+			$accentColor
+				? adjustColor($accentColor, -10)
+				: `linear-gradient(135deg, ${KROGER_COLORS.darkGreen} 0%, ${KROGER_COLORS.green} 100%)`};
+	}
 
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
+	&:active:not(:disabled) {
+		transform: translateY(0);
+	}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 `;
 
 const Footer = styled.div`
-  padding: 20px 28px;
-  text-align: center;
-  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  background: #f9fafb;
+	padding: 20px 28px;
+	text-align: center;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: #f9fafb;
 `;
 
 const FooterText = styled.div`
-  font-size: 11px;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  line-height: 1.6;
-  font-weight: 500;
+	font-size: 11px;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	line-height: 1.6;
+	font-weight: 500;
 `;
 
 const ErrorMessage = styled.div`
-  background: V9_COLORS.BG.ERROR;
-  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-  border-radius: 6px;
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  padding: 12px 14px;
-  font-size: 13px;
-  margin-bottom: 16px;
-  font-weight: 500;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	border-radius: 6px;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	padding: 12px 14px;
+	font-size: 13px;
+	margin-bottom: 16px;
+	font-weight: 500;
 `;
 
 const CancelLink = styled.button`
-  background: none;
-  border: none;
-  color: ${KROGER_COLORS.blue};
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  margin-top: 16px;
-  transition: color 0.2s ease;
-  letter-spacing: 0.3px;
+	background: none;
+	border: none;
+	color: ${KROGER_COLORS.blue};
+	font-size: 13px;
+	font-weight: 700;
+	text-decoration: none;
+	cursor: pointer;
+	margin-top: 16px;
+	transition: color 0.2s ease;
+	letter-spacing: 0.3px;
 
-  &:hover {
-    color: ${KROGER_COLORS.darkBlue};
-    text-decoration: underline;
-  }
+	&:hover {
+		color: ${KROGER_COLORS.darkBlue};
+		text-decoration: underline;
+	}
 `;
 
 const CloseButton = styled.button`
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  font-size: 24px;
-  color: ${KROGER_COLORS.white};
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  transition: all 0.2s ease;
+	position: absolute;
+	top: 14px;
+	right: 14px;
+	background: rgba(255, 255, 255, 0.2);
+	border: none;
+	font-size: 24px;
+	color: ${KROGER_COLORS.white};
+	cursor: pointer;
+	padding: 6px;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	transition: all 0.2s ease;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
+	&:hover {
+		background: rgba(255, 255, 255, 0.3);
+	}
 `;
 
 const LoadingSpinner = styled.span`
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  margin-right: 8px;
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-top-color: white;
+	border-radius: 50%;
+	animation: spin 0.6s linear infinite;
+	margin-right: 8px;
 
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
 export interface KrogerLoginCredentials {
@@ -616,7 +623,7 @@ const KrogerLoginPopup: React.FC<KrogerLoginPopupProps> = ({
 				>
 					<DragHandleBar />
 					<DragHint>
-						<span style={{ fontSize: '14px' }}>❓</span> Drag Window
+						<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i> Drag Window
 					</DragHint>
 					<LogoContainer>
 						<LogoMark

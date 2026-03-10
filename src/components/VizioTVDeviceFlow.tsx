@@ -11,130 +11,135 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // VIZIO TV Physical Housing
 const VizioTVContainer = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
-  border-radius: 1.5rem;
-  padding: 2rem;
-  margin: 2rem 0;
-  box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  border: 12px solid V9_COLORS.TEXT.GRAY_DARK;
-  position: relative;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  
-  /* TV stand/base */
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 200px;
-    height: 40px;
-    background: linear-gradient(180deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
-    border-radius: 0 0 20px 20px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-  }
+	background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
+	border-radius: 1.5rem;
+	padding: 2rem;
+	margin: 2rem 0;
+	box-shadow:
+		0 25px 50px rgba(0, 0, 0, 0.4),
+		inset 0 1px 0 rgba(255, 255, 255, 0.1);
+	border: 12px solid V9_COLORS.TEXT.GRAY_DARK;
+	position: relative;
+	max-width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+
+	/* TV stand/base */
+	&::after {
+		content: '';
+		position: absolute;
+		bottom: -40px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 200px;
+		height: 40px;
+		background: linear-gradient(180deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
+		border-radius: 0 0 20px 20px;
+		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+	}
 `;
 
 // VIZIO TV Screen
 const TVScreen = styled.div<{ $showContent?: boolean }>`
-  background: ${({ $showContent }) =>
+	background: ${({ $showContent }) =>
 		$showContent ? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)' : '#000000'};
-  border: 3px solid V9_COLORS.TEXT.GRAY_DARK;
-  border-radius: 0.75rem;
-  padding: ${({ $showContent }) => ($showContent ? '2rem' : '3rem')};
-  margin-bottom: 1rem;
-  min-height: 400px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.6);
-  position: relative;
-  overflow: hidden;
+	border: 3px solid V9_COLORS.TEXT.GRAY_DARK;
+	border-radius: 0.75rem;
+	padding: ${({ $showContent }) => ($showContent ? '2rem' : '3rem')};
+	margin-bottom: 1rem;
+	min-height: 400px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.6);
+	position: relative;
+	overflow: hidden;
 `;
 
 // VIZIO Logo and Branding
 const VizioBranding = styled.div`
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+	position: absolute;
+	top: 1rem;
+	left: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 `;
 
 const VizioLogo = styled.div`
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: V9_COLORS.TEXT.WHITE;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+	font-size: 1.5rem;
+	font-weight: 900;
+	color: V9_COLORS.TEXT.WHITE;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 `;
 
 const VizioModel = styled.div`
-  font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_LIGHT;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+	font-size: 0.75rem;
+	color: V9_COLORS.TEXT.GRAY_LIGHT;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
 `;
 
 // TV Status Indicators
 const StatusIndicators = styled.div`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  display: flex;
-  gap: 0.5rem;
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	display: flex;
+	gap: 0.5rem;
 `;
 
 const StatusIndicator = styled.div<{ $active: boolean; $color: string }>`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
-  box-shadow: ${(props) => (props.$active ? `0 0 12px ${props.$color}` : 'none')};
-  animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
-  
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: ${(props) => (props.$active ? props.$color : '#6b7280')};
+	box-shadow: ${(props) => (props.$active ? `0 0 12px ${props.$color}` : 'none')};
+	animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
+
+	@keyframes pulse {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
+	}
 `;
 
 // VIZIO SmartCast Interface
 const SmartCastInterface = styled.div`
-  background: linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
-  border-radius: 1rem;
-  padding: 2rem;
-  margin: 1rem 0;
-  border: 2px solid V9_COLORS.TEXT.GRAY_DARK;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+	background: linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
+	border-radius: 1rem;
+	padding: 2rem;
+	margin: 1rem 0;
+	border: 2px solid V9_COLORS.TEXT.GRAY_DARK;
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
 const SmartCastHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.5rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const SmartCastTitle = styled.div`
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: V9_COLORS.TEXT.WHITE;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: V9_COLORS.TEXT.WHITE;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const SmartCastStatus = styled.div<{ $status: string }>`
-  background: ${(props) => {
+	background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
 				return '#f59e0b';
@@ -148,159 +153,163 @@ const SmartCastStatus = styled.div<{ $status: string }>`
 				return '#6b7280';
 		}
 	}};
-  color: V9_COLORS.TEXT.WHITE;
-  padding: 0.5rem 1rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+	color: V9_COLORS.TEXT.WHITE;
+	padding: 0.5rem 1rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 `;
 
 // App Grid (like SmartCast home screen)
 const AppGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 1rem;
+	margin-bottom: 1.5rem;
 `;
 
 const AppIcon = styled.div<{ $color: string }>`
-  aspect-ratio: 1;
-  background: ${({ $color }) => $color};
-  border-radius: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: V9_COLORS.TEXT.WHITE;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  padding: 0.5rem;
-  
-  &:hover {
-    transform: scale(1.05);
-  }
+	aspect-ratio: 1;
+	background: ${({ $color }) => $color};
+	border-radius: 0.75rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.5rem;
+	color: V9_COLORS.TEXT.WHITE;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+	cursor: pointer;
+	transition: transform 0.2s ease;
+	padding: 0.5rem;
+
+	&:hover {
+		transform: scale(1.05);
+	}
 `;
 
 const AppLabel = styled.div`
-  font-size: 0.7rem;
-  font-weight: 600;
-  margin-top: 0.25rem;
-  text-align: center;
+	font-size: 0.7rem;
+	font-weight: 600;
+	margin-top: 0.25rem;
+	text-align: center;
 `;
 
 // Authorization Code Display
 const AuthCodeDisplay = styled.div`
-  background: V9_COLORS.TEXT.BLACK;
-  color: #00ff00;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 2rem;
-  font-weight: 700;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  letter-spacing: 0.2em;
-  text-shadow: 0 0 10px #00ff00;
-  border: 2px solid #00ff00;
-  box-shadow: 
-    inset 0 0 20px rgba(0, 255, 0, 0.2),
-    0 0 20px rgba(0, 255, 0, 0.3);
-  text-align: center;
+	background: V9_COLORS.TEXT.BLACK;
+	color: #00ff00;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 2rem;
+	font-weight: 700;
+	padding: 1.5rem;
+	border-radius: 0.5rem;
+	margin: 1rem 0;
+	letter-spacing: 0.2em;
+	text-shadow: 0 0 10px #00ff00;
+	border: 2px solid #00ff00;
+	box-shadow:
+		inset 0 0 20px rgba(0, 255, 0, 0.2),
+		0 0 20px rgba(0, 255, 0, 0.3);
+	text-align: center;
 `;
 
 // QR Code Section
 const QRCodeSection = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  text-align: center;
-  margin: 1rem 0;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: V9_COLORS.TEXT.WHITE;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	text-align: center;
+	margin: 1rem 0;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const QRTitle = styled.div`
-  font-size: 1rem;
-  font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	font-size: 1rem;
+	font-weight: 700;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const QRSubtitle = styled.div`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin-bottom: 1rem;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin-bottom: 1rem;
 `;
 
 const QRCodeContainer = styled.div`
-  display: inline-block;
-  padding: 1rem;
-  background: V9_COLORS.TEXT.WHITE;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	display: inline-block;
+	padding: 1rem;
+	background: V9_COLORS.TEXT.WHITE;
+	border-radius: 0.5rem;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 // Action Buttons
 const ActionButtons = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  justify-content: center;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 0.75rem;
+	margin-top: 1.5rem;
+	justify-content: center;
+	flex-wrap: wrap;
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
-  color: V9_COLORS.TEXT.WHITE;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
+	background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
+	color: V9_COLORS.TEXT.WHITE;
+	border: none;
+	border-radius: 0.5rem;
+	padding: 0.75rem 1.25rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
 `;
 
 // Success Display
 const SuccessDisplay = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  margin-top: 1rem;
-  text-align: center;
-  color: V9_COLORS.TEXT.WHITE;
-  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+	background: linear-gradient(
+		135deg,
+		V9_COLORS.PRIMARY.GREEN 0%,
+		V9_COLORS.PRIMARY.GREEN_DARK 100%
+	);
+	border-radius: 1rem;
+	padding: 1.5rem;
+	margin-top: 1rem;
+	text-align: center;
+	color: V9_COLORS.TEXT.WHITE;
+	box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
 `;
 
 const SuccessTitle = styled.div`
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+	font-size: 1.25rem;
+	font-weight: 700;
+	margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
 `;
 
 const SuccessMessage = styled.div`
-  font-size: 0.875rem;
-  opacity: 0.9;
+	font-size: 0.875rem;
+	opacity: 0.9;
 `;
 
 interface VizioTVDeviceFlowProps {
@@ -394,7 +403,7 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 					<SmartCastInterface>
 						<SmartCastHeader>
 							<SmartCastTitle>
-								<span>❓</span>
+								<i className="bi bi-question-circle"></i>
 								SmartCast Home
 							</SmartCastTitle>
 							<SmartCastStatus $status={state.status}>

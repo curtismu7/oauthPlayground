@@ -773,7 +773,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 				{/* Action Buttons */}
 				<ActionButtons>
 					<Button onClick={onLogout}>
-						<span>❓</span>
+						<i className="bi bi-question-circle"></i>
 						Logout
 					</Button>
 				</ActionButtons>

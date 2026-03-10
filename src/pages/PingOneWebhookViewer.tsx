@@ -8,7 +8,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ApiCallList from '../components/ApiCallList';
+import { RegionSelect } from '../components/RegionSelect';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
+import { REGION_TO_TLD } from '../services/regionService';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { logger } from '../utils/logger';
 import { secureLog } from '../utils/secureLogging';
@@ -365,12 +367,10 @@ const PingOneWebhookViewer: React.FC = () => {
 			const stored = localStorage.getItem('unified_worker_token');
 			if (stored) {
 				const data = JSON.parse(stored);
-				const r = data.credentials?.region || 'us';
-				if (r === 'eu') return 'eu';
-				if (r === 'ap') return 'ap';
+				return data.credentials?.region || 'us';
 			}
 		} catch {}
-		return 'na';
+		return 'us';
 	});
 	const [formData, setFormData] = useState({
 		name: 'PingOne Webhook Viewer',
@@ -1312,15 +1312,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										localStorage.setItem('environmentId', data.credentials.environmentId);
 									}
 									if (data.credentials?.region) {
-										setSelectedRegion(
-											data.credentials.region === 'eu'
-												? 'eu'
-												: data.credentials.region === 'ap'
-													? 'ap'
-													: data.credentials.region === 'ca'
-														? 'ca'
-														: 'na'
-										);
+										setSelectedRegion(data.credentials.region);
 									}
 								}
 							} catch {}
@@ -1495,28 +1487,19 @@ const PingOneWebhookViewer: React.FC = () => {
 								<span style={{ fontSize: '0.875rem', color: '#6b7280', fontWeight: 600 }}>
 									PingOne Region:
 								</span>
-								<select
+								<RegionSelect
+									value={selectedRegion}
+									onChange={(r) => setSelectedRegion(r)}
+									variant="compact"
 									style={{
 										...styles.filterSelect,
 										fontSize: '0.875rem',
 										padding: '0.25rem 0.5rem',
 										minWidth: 220,
 									}}
-									value={selectedRegion}
-									onChange={(e) => setSelectedRegion(e.target.value)}
-								>
-									<option value="na">North America (.us)</option>
-									<option value="eu">Europe (.eu)</option>
-									<option value="ap">Asia Pacific (.asia)</option>
-									<option value="ca">Canada (.ca)</option>
-								</select>
+								/>
 								<span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-									API: api.pingone.
-									{selectedRegion === 'na'
-										? 'us'
-										: selectedRegion === 'ap'
-											? 'asia'
-											: selectedRegion}
+									API: api.pingone.{REGION_TO_TLD[selectedRegion?.toLowerCase()] || 'com'}
 								</span>
 							</div>
 
@@ -1552,17 +1535,13 @@ const PingOneWebhookViewer: React.FC = () => {
 										<label htmlFor="webhook-region" style={styles.labelText}>
 											PingOne Region
 										</label>
-										<select
+										<RegionSelect
 											id="webhook-region"
-											style={styles.filterSelect}
 											value={selectedRegion}
-											onChange={(e) => setSelectedRegion(e.target.value)}
-										>
-											<option value="na">North America (api.pingone.com / .us)</option>
-											<option value="eu">Europe (api.pingone.eu)</option>
-											<option value="ap">Asia Pacific (api.pingone.asia)</option>
-											<option value="ca">Canada (api.pingone.ca)</option>
-										</select>
+											onChange={(r) => setSelectedRegion(r)}
+											variant="compact"
+											style={styles.filterSelect}
+										/>
 									</div>
 									<div style={styles.inputGroup}>
 										<label htmlFor="webhook-url" style={styles.labelText}>
@@ -1884,7 +1863,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										</select>
 									</label>
 									<label style={styles.filterLabel}>
-										<span>❓</span>
+										<i className="bi bi-question-circle"></i>
 										Type:
 										<select
 											style={styles.filterSelect}
@@ -1900,7 +1879,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										</select>
 									</label>
 									<label style={styles.filterLabel}>
-										<span>❓</span>
+										<i className="bi bi-question-circle"></i>
 										Display Format:
 										<select
 											style={styles.filterSelect}
@@ -1957,7 +1936,7 @@ const PingOneWebhookViewer: React.FC = () => {
 												<div style={styles.webhookMeta}>
 													<span style={{ fontSize: '16px' }}>🕐</span>
 													{formatTimestamp(webhook.timestamp)}
-													<span style={{ fontSize: '16px' }}>❓</span>
+													<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 													{webhook.source}
 												</div>
 											</div>

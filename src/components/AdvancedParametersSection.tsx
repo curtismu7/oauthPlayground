@@ -40,16 +40,17 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 				return '#f8fafc';
 		}
 	}};
-	border: 1px solid ${(props) => {
-		switch (props.$variant) {
-			case 'success':
-				return '#10b981';
-			case 'warning':
-				return '#fed7aa';
-			default:
-				return '#e5e7eb';
-		}
-	}};
+	border: 1px solid
+		${(props) => {
+			switch (props.$variant) {
+				case 'success':
+					return '#10b981';
+				case 'warning':
+					return '#fed7aa';
+				default:
+					return '#e5e7eb';
+			}
+		}};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	color: ${(props) => {
@@ -153,7 +154,7 @@ export const AdvancedParametersSection: React.FC<AdvancedParametersSectionProps>
 						{/* Claims Request Builder */}
 						<CollapsibleHeader
 							title="Advanced Claims Request Builder"
-							icon={<span>❓</span>}
+							icon={<i className="bi bi-question-circle"></i>}
 							defaultCollapsed={true}
 						>
 							<ClaimsRequestBuilder value={claimsRequest} onChange={setClaimsRequest} />
@@ -206,7 +207,11 @@ export const AdvancedParametersSection: React.FC<AdvancedParametersSectionProps>
 				)}
 
 				{/* Audience Parameter (available for most flows) */}
-				<CollapsibleHeader title="Audience Parameter" icon={<span>🛡️</span>} defaultCollapsed={true}>
+				<CollapsibleHeader
+					title="Audience Parameter"
+					icon={<span>🛡️</span>}
+					defaultCollapsed={true}
+				>
 					<InfoBox>
 						<strong>About Audience Parameter:</strong> Specifies the target API for the access
 						token. This helps authorization servers issue tokens with the correct audience claim.

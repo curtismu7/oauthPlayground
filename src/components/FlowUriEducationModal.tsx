@@ -6,132 +6,132 @@ import { flowUriEducationService } from '../services/flowUriEducationService';
 import { DraggableModal } from './DraggableModal';
 
 const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
 `;
 
 const Intro = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  color: #1e293b;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	color: #1e293b;
 `;
 
 const IntroTitle = styled.h3`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 600;
 `;
 
 const IntroCopy = styled.p`
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin: 0;
+	font-size: 0.9rem;
+	line-height: 1.5;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const TableContainer = styled.div`
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  overflow: hidden;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	overflow: hidden;
 `;
 
 const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.85rem;
 `;
 
 const THead = styled.thead`
-  background: V9_COLORS.BG.GRAY_MEDIUM;
+	background: V9_COLORS.BG.GRAY_MEDIUM;
 `;
 
 const TH = styled.th`
-  text-align: left;
-  padding: 0.75rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	text-align: left;
+	padding: 0.75rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TR = styled.tr<{ $highlight?: boolean }>`
-  background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.05)' : '#ffffff')};
+	background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.05)' : '#ffffff')};
 
-  &:nth-child(even) {
-    background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.08)' : '#f8fafc')};
-  }
+	&:nth-child(even) {
+		background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.08)' : '#f8fafc')};
+	}
 `;
 
 const TD = styled.td`
-  padding: 0.75rem;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  vertical-align: top;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	padding: 0.75rem;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	vertical-align: top;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const UriCell = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
 `;
 
 const UriRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-  background: V9_COLORS.TEXT.WHITE;
-  border: 1px solid #E2E8F0;
-  border-radius: 0.5rem;
-  padding: 0.45rem 0.65rem;
-  overflow-x: auto;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid #e2e8f0;
+	border-radius: 0.5rem;
+	padding: 0.45rem 0.65rem;
+	overflow-x: auto;
 `;
 
 const ActionRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
 `;
 
 const Note = styled.p<{ $muted?: boolean }>`
-  margin: 0.35rem 0 0;
-  font-size: 0.8rem;
-  color: ${({ $muted }) => ($muted ? '#94a3b8' : '#6b7280')};
-  display: flex;
-  gap: 0.35rem;
-  align-items: flex-start;
+	margin: 0.35rem 0 0;
+	font-size: 0.8rem;
+	color: ${({ $muted }) => ($muted ? '#94a3b8' : '#6b7280')};
+	display: flex;
+	gap: 0.35rem;
+	align-items: flex-start;
 `;
 
 const Tag = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.75rem;
-  background: rgba(59, 130, 246, 0.12);
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
-  border-radius: 9999px;
-  padding: 0.15rem 0.65rem;
-  font-weight: 600;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-size: 0.75rem;
+	background: rgba(59, 130, 246, 0.12);
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	border-radius: 9999px;
+	padding: 0.15rem 0.65rem;
+	font-weight: 600;
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  border-radius: 0.5rem;
-  border: none;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.4rem 0.75rem;
-  cursor: pointer;
-  transition: background 120ms ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	border-radius: 0.5rem;
+	border: none;
+	font-size: 0.75rem;
+	font-weight: 600;
+	padding: 0.4rem 0.75rem;
+	cursor: pointer;
+	transition: background 120ms ease;
 
-  ${({ $variant }) =>
+	${({ $variant }) =>
 		$variant === 'secondary'
 			? `
     background: V9_COLORS.TEXT.GRAY_LIGHTER;
@@ -152,26 +152,26 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 `;
 
 const EmptyState = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 2rem;
-  align-items: center;
-  justify-content: center;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 2rem;
+	align-items: center;
+	justify-content: center;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const EmptyTitle = styled.h4`
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1e293b;
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: #1e293b;
 `;
 
 const EmptyCopy = styled.p`
-  margin: 0;
-  font-size: 0.9rem;
-  text-align: center;
+	margin: 0;
+	font-size: 0.9rem;
+	text-align: center;
 `;
 
 const highlightEntry = (entry: FlowUriEducationEntry, focusFlowType?: string) =>
@@ -278,7 +278,7 @@ const FlowUriEducationModal: React.FC<{
 			<Content>
 				<Intro>
 					<IntroTitle>
-						<span>❓</span> URI Requirements for PingOne Applications
+						<i className="bi bi-question-circle"></i> URI Requirements for PingOne Applications
 					</IntroTitle>
 					<IntroCopy>{educationCopy}</IntroCopy>
 				</Intro>
@@ -312,7 +312,7 @@ const FlowUriEducationModal: React.FC<{
 												<UriCell>
 													<span style={{ fontWeight: 600, color: '#1f2937' }}>{entry.title}</span>
 													<Tag>
-														<span style={{ fontSize: '12px' }}>❓</span>
+														<i className="bi bi-question-circle" style={{ fontSize: '12px' }}></i>
 														{entry.flowType}
 													</Tag>
 												</UriCell>
@@ -322,7 +322,10 @@ const FlowUriEducationModal: React.FC<{
 													{entry.requiresRedirectUri ? (
 														<>
 															<UriRow>
-																<span style={{ fontSize: 14, color: '#2563eb' }}>❓</span>
+																<i
+																	className="bi bi-question-circle"
+																	style={{ fontSize: 14, color: '#2563eb' }}
+																></i>
 																{entry.redirectUri}
 															</UriRow>
 															<ActionRow>
@@ -374,7 +377,10 @@ const FlowUriEducationModal: React.FC<{
 													{entry.requiresLogoutUri ? (
 														<>
 															<UriRow>
-																<span style={{ fontSize: 14, color: '#15803d' }}>❓</span>
+																<i
+																	className="bi bi-question-circle"
+																	style={{ fontSize: 14, color: '#15803d' }}
+																></i>
 																{entry.logoutUri}
 															</UriRow>
 															<ActionRow>

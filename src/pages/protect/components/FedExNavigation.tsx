@@ -15,171 +15,171 @@ import { useBrandTheme } from '../themes/theme-provider';
 // ============================================================================
 
 const NavContainer = styled.nav`
-  background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+	background: white;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	position: sticky;
+	top: 0;
+	z-index: 1000;
 `;
 
 const NavTop = styled.div`
-  background: #4d148c;
-  color: white;
-  padding: 0.5rem 0;
-  font-size: 0.875rem;
+	background: #4d148c;
+	color: white;
+	padding: 0.5rem 0;
+	font-size: 0.875rem;
 `;
 
 const NavTopContent = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 `;
 
 const NavMain = styled.div`
-  background: white;
-  padding: 1rem 0;
+	background: white;
+	padding: 1rem 0;
 `;
 
 const NavMainContent = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 `;
 
 const Logo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 700;
-  font-size: 1.5rem;
-  color: #4d148c;
-  
-  img {
-    height: 40px;
-    width: auto;
-  }
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 700;
+	font-size: 1.5rem;
+	color: #4d148c;
+
+	img {
+		height: 40px;
+		width: auto;
+	}
 `;
 
 const NavLinks = styled.div`
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
+	display: flex;
+	gap: 2rem;
+	align-items: center;
+
+	@media (max-width: 768px) {
+		display: none;
+	}
 `;
 
 const NavLink = styled.a`
-  color: #333;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s ease;
-  
-  &:hover {
-    color: #4d148c;
-  }
+	color: #333;
+	text-decoration: none;
+	font-weight: 500;
+	transition: color 0.2s ease;
+
+	&:hover {
+		color: #4d148c;
+	}
 `;
 
 const NavActions = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
+	display: flex;
+	gap: 1rem;
+	align-items: center;
 `;
 
 const SearchButton = styled.button`
-  background: none;
-  border: none;
-  color: #666;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: #f5f5f5;
-    color: #4d148c;
-  }
+	background: none;
+	border: none;
+	color: #666;
+	cursor: pointer;
+	padding: 0.5rem;
+	border-radius: 4px;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: #f5f5f5;
+		color: #4d148c;
+	}
 `;
 
 const TrackingButton = styled.button`
-  background: #ff6600;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: #e55a00;
-    transform: translateY(-1px);
-  }
+	background: #ff6600;
+	color: white;
+	border: none;
+	padding: 0.5rem 1rem;
+	border-radius: 4px;
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: #e55a00;
+		transform: translateY(-1px);
+	}
 `;
 
 const MobileMenuButton = styled.button`
-  background: none;
-  border: none;
-  color: #333;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: none;
-  
-  @media (max-width: 768px) {
-    display: block;
-  }
+	background: none;
+	border: none;
+	color: #333;
+	cursor: pointer;
+	padding: 0.5rem;
+	display: none;
+
+	@media (max-width: 768px) {
+		display: block;
+	}
 `;
 
 const MobileMenu = styled.div<{ isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: white;
-  z-index: 2000;
-  transform: translateX(${(props) => (props.isOpen ? '0' : '100%')});
-  transition: transform 0.3s ease;
-  
-  @media (min-width: 769px) {
-    display: none;
-  }
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: white;
+	z-index: 2000;
+	transform: translateX(${(props) => (props.isOpen ? '0' : '100%')});
+	transition: transform 0.3s ease;
+
+	@media (min-width: 769px) {
+		display: none;
+	}
 `;
 
 const MobileMenuHeader = styled.div`
-  background: #4d148c;
-  color: white;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+	background: #4d148c;
+	color: white;
+	padding: 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 `;
 
 const MobileMenuContent = styled.div`
-  padding: 1rem;
+	padding: 1rem;
 `;
 
 const MobileNavLink = styled.a`
-  display: block;
-  padding: 1rem 0;
-  color: #333;
-  text-decoration: none;
-  font-weight: 500;
-  border-bottom: 1px solid #eee;
-  
-  &:hover {
-    color: #4d148c;
-  }
+	display: block;
+	padding: 1rem 0;
+	color: #333;
+	text-decoration: none;
+	font-weight: 500;
+	border-bottom: 1px solid #eee;
+
+	&:hover {
+		color: #4d148c;
+	}
 `;
 
 // ============================================================================
@@ -235,7 +235,7 @@ const FedExNavigation: React.FC = () => {
 								Track Package
 							</TrackingButton>
 							<MobileMenuButton onClick={toggleMobileMenu}>
-								<span style={{ fontSize: '24px' }}>❓</span>
+								<i className="bi bi-question-circle" style={{ fontSize: '24px' }}></i>
 							</MobileMenuButton>
 						</NavActions>
 					</NavMainContent>

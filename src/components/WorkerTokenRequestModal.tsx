@@ -588,7 +588,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 
 							<Section>
 								<SectionTitle>
-									<span style={{ fontSize: '14' }}>❓</span>
+									<i className="bi bi-question-circle" style={{ fontSize: '14' }}></i>
 									Token Details
 								</SectionTitle>
 								<CodeBlock>

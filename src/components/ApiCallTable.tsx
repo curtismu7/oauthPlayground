@@ -9,7 +9,7 @@ import JSONHighlighter, { type JSONData } from './JSONHighlighter';
 const TableContainer = styled.div`
 	background: white;
 	border-radius: 8px;
-	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	overflow: hidden;
 	margin-top: 0;
 	width: 100%;
@@ -22,7 +22,7 @@ const TableHeader = styled.div`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	
+
 	h3 {
 		margin: 0;
 		font-size: 1.25rem;
@@ -41,7 +41,7 @@ const ClearButton = styled.button`
 	font-weight: 500;
 	cursor: pointer;
 	transition: background 0.2s;
-	
+
 	&:hover {
 		background: #dc2626;
 	}
@@ -55,7 +55,7 @@ const Table = styled.table`
 
 const TableHead = styled.thead`
 	background: #f3f4f6;
-	
+
 	th {
 		padding: 0.75rem 1rem;
 		text-align: left;
@@ -72,7 +72,7 @@ const TableRow = styled.tr<{ $isExpanded?: boolean; $status?: number }>`
 	border-bottom: 1px solid #e5e7eb;
 	cursor: pointer;
 	transition: background 0.2s;
-	
+
 	${(props) => {
 		if (props.$status !== undefined) {
 			if (props.$status >= 200 && props.$status < 300) {
@@ -86,7 +86,7 @@ const TableRow = styled.tr<{ $isExpanded?: boolean; $status?: number }>`
 		if (props.$isExpanded) return 'background: #f9fafb;';
 		return '';
 	}}
-	
+
 	&:hover {
 		filter: brightness(0.97);
 	}
@@ -105,7 +105,7 @@ const MethodBadge = styled.span<{ $method: string }>`
 	font-size: 0.75rem;
 	font-weight: 600;
 	text-transform: uppercase;
-	
+
 	${(props) => {
 		switch (props.$method) {
 			case 'GET':
@@ -131,7 +131,7 @@ const StatusBadge = styled.span<{ $status: number }>`
 	font-size: 0.8125rem;
 	font-weight: 700;
 	letter-spacing: 0.02em;
-	
+
 	${(props) => {
 		if (props.$status >= 200 && props.$status < 300) {
 			return 'background: #dcfce7; color: #15803d; border: 1px solid #86efac;';
@@ -156,7 +156,7 @@ const ExpandableContent = styled.div<{ $isExpanded: boolean }>`
 
 const Section = styled.div`
 	margin-bottom: 1.5rem;
-	
+
 	&:last-child {
 		margin-bottom: 0;
 	}
@@ -185,17 +185,17 @@ const CodeBlock = styled.pre`
 
 const KeyValueList = styled.dl`
 	margin: 0;
-	
+
 	dt {
 		font-weight: 600;
 		color: #1f2937;
 		margin-top: 0.5rem;
-		
+
 		&:first-child {
 			margin-top: 0;
 		}
 	}
-	
+
 	dd {
 		margin: 0.25rem 0 0 1rem;
 		color: #6b7280;
@@ -209,7 +209,7 @@ const EmptyState = styled.div`
 	padding: 3rem;
 	text-align: center;
 	color: #6b7280;
-	
+
 	p {
 		margin: 0;
 		font-size: 0.875rem;
@@ -276,7 +276,11 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 							const isExpanded = expandedRows.has(call.id);
 							return (
 								<React.Fragment key={call.id}>
-								<TableRow $isExpanded={isExpanded} $status={call.response?.status} onClick={() => toggleRow(call.id)}>
+									<TableRow
+										$isExpanded={isExpanded}
+										$status={call.response?.status}
+										onClick={() => toggleRow(call.id)}
+									>
 										<TableCell>{isExpanded ? <span>⬇️</span> : <span>➡️</span>}</TableCell>
 										<TableCell>
 											<MethodBadge $method={call.method}>{call.method}</MethodBadge>
@@ -388,7 +392,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 													{call.body && (
 														<Section>
 															<SectionTitle>
-																<span>❓</span> Request Body
+																<i className="bi bi-question-circle"></i> Request Body
 															</SectionTitle>
 															{typeof call.body === 'object' && call.body !== null ? (
 																<JSONHighlighter data={call.body as JSONData} />
@@ -421,7 +425,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 																)}
 															<Section>
 																<SectionTitle>
-																	<span>❓</span> Response Body
+																	<i className="bi bi-question-circle"></i> Response Body
 																</SectionTitle>
 																{call.response.data ? (
 																	<JSONHighlighter data={call.response.data as JSONData} />

@@ -18,14 +18,16 @@ import {
 	PINGONE_REGION_MAP,
 	type PingOneRegion,
 	REGION_LABELS,
-	REGIONS_FOR_UI,
 	saveRegion,
 } from '../services/regionService';
+import { RegionSelect } from '../components/RegionSelect';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import AdvancedSecuritySettingsMock from '../components/AdvancedSecuritySettingsMock';
+import { Icon } from '../components/Icon/Icon';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
@@ -978,34 +980,12 @@ const Configuration: React.FC = () => {
 							<label htmlFor="region-select" style={{ fontWeight: '600', color: '#1f2937' }}>
 								Region:
 							</label>
-							<select
+							<RegionSelect
 								id="region-select"
-								value={
-									selectedRegion === 'na' || selectedRegion === 'com'
-										? 'us'
-										: selectedRegion === 'asia'
-											? 'ap'
-											: selectedRegion === 'com.au'
-												? 'au'
-												: selectedRegion || ''
-								}
-								onChange={(e) => handleRegionChange(e.target.value as PingOneRegion)}
-								style={{
-									padding: '0.75rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-									borderRadius: '0.5rem',
-									background: 'white',
-									color: '#1f2937',
-									fontSize: '1rem',
-									minWidth: '350px',
-								}}
-							>
-								{REGIONS_FOR_UI.map(({ value, label }) => (
-									<option key={value} value={value}>
-										{label}
-									</option>
-								))}
-							</select>
+								value={selectedRegion ?? ''}
+								onChange={handleRegionChange}
+								variant="compact"
+							/>
 						</div>
 						<p style={{ marginTop: '0.5rem', marginBottom: 0, fontSize: '0.875rem' }}>
 							<a
@@ -1052,6 +1032,18 @@ const Configuration: React.FC = () => {
 				defaultCollapsed={false}
 			>
 				<WorkerTokenSectionV8 compact onTokenUpdated={(token) => setWorkerToken(token || '')} />
+			</CollapsibleHeader>
+
+			{/* Advanced Security Settings */}
+			<CollapsibleHeader
+				title="Advanced Security Settings"
+				subtitle="Manage OAuth/OIDC security configurations, assessment, and recommendations"
+				icon={<Icon name="shield-check" />}
+				defaultCollapsed={true}
+				theme="ping"
+				variant="compact"
+			>
+				<AdvancedSecuritySettingsMock />
 			</CollapsibleHeader>
 
 			{/* Configuration URI Reference Table */}

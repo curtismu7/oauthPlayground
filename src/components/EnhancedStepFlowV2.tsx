@@ -63,72 +63,72 @@ interface EnhancedStepFlowProps {
 
 // Enhanced Styled Components with new design system
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: white;
-  min-height: 100vh;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
+	background: white;
+	min-height: 100vh;
 `;
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
+	text-align: center;
+	margin-bottom: 3rem;
 `;
 
 const Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.BLUE_DARK);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: #1e293b;
+	margin-bottom: 0.5rem;
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.BLUE_DARK);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
 `;
 
 const Subtitle = styled.p`
-  font-size: 1.125rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin-bottom: 2rem;
+	font-size: 1.125rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin-bottom: 2rem;
 `;
 
 // Enhanced Step Progress with new design system
 const StepProgressContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 2rem;
+	padding: 1rem;
+	background: white;
+	border-radius: 0.75rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
 const StepProgressWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  position: relative;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	position: relative;
 `;
 
 const StepIndicator = styled.div<{ $status: 'completed' | 'active' | 'pending' | 'error' }>`
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  background: white;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  position: relative;
-  z-index: 2;
-  
-  ${(props) => {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+	font-size: 0.875rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: white;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	position: relative;
+	z-index: 2;
+
+	${(props) => {
 		switch (props.$status) {
 			case 'completed':
 				return `
@@ -157,136 +157,140 @@ const StepIndicator = styled.div<{ $status: 'completed' | 'active' | 'pending' |
         `;
 		}
 	}}
-  
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
+
+	&:hover {
+		transform: scale(1.05);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	}
 `;
 
 const StepConnector = styled.div<{ $completed: boolean; $active: boolean }>`
-  width: 3rem;
-  height: 2px;
-  background: ${(props) => {
+	width: 3rem;
+	height: 2px;
+	background: ${(props) => {
 		if (props.$completed) return '#10b981';
 		if (props.$active)
 			return 'linear-gradient(to right, V9_COLORS.PRIMARY.GREEN 50%, V9_COLORS.TEXT.GRAY_LIGHTER 50%)';
 		return '#e5e7eb';
 	}};
-  position: relative;
-  z-index: 1;
-  transition: background 0.3s ease;
+	position: relative;
+	z-index: 1;
+	transition: background 0.3s ease;
 `;
 
 const StepLabel = styled.div`
-  position: absolute;
-  top: -2.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  
-  ${StepIndicator}:hover & {
-    opacity: 1;
-  }
+	position: absolute;
+	top: -2.5rem;
+	left: 50%;
+	transform: translateX(-50%);
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	white-space: nowrap;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	pointer-events: none;
+
+	${StepIndicator}:hover & {
+		opacity: 1;
+	}
 `;
 
 const StepCount = styled.div`
-  margin-left: 1rem;
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-weight: 500;
+	margin-left: 1rem;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-weight: 500;
 `;
 
 const _SuccessMessage = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
-  color: white;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 500;
-  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
-  animation: slideIn 0.3s ease-out;
-  
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+	background: linear-gradient(
+		135deg,
+		V9_COLORS.PRIMARY.GREEN 0%,
+		V9_COLORS.PRIMARY.GREEN_DARK 100%
+	);
+	color: white;
+	padding: 0.75rem 1rem;
+	border-radius: 0.5rem;
+	margin: 1rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 500;
+	box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+	animation: slideIn 0.3s ease-out;
+
+	@keyframes slideIn {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
 `;
 
 // Step Content Area
 const StepContent = styled.div`
-  background: white;
-  border-radius: 0.75rem;
-  padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+	background: white;
+	border-radius: 0.75rem;
+	padding: 2rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	margin-bottom: 2rem;
 `;
 
 const StepHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1.5rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const StepIcon = styled.div`
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  color: V9_COLORS.PRIMARY.BLUE;
+	width: 2rem;
+	height: 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.25rem;
+	color: V9_COLORS.PRIMARY.BLUE;
 `;
 
 const StepTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0;
 `;
 
 const StepDescription = styled.div`
-  background: #f9fafb;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
-  border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
+	background: #f9fafb;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin-bottom: 1.5rem;
+	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 `;
 
 const StepDescriptionText = styled.p`
-  margin: 0;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1rem;
+	margin: 0;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1rem;
 `;
 
 // Action Buttons
 const ActionButtons = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	margin-top: 2rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Button = styled.button<{
@@ -294,11 +298,11 @@ const Button = styled.button<{
 	$size?: 'sm' | 'md' | 'lg';
 	$loading?: boolean;
 }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: ${(props) => {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: ${(props) => {
 		switch (props.$size) {
 			case 'sm':
 				return '0.5rem 1rem';
@@ -308,17 +312,17 @@ const Button = styled.button<{
 				return '0.75rem 1.5rem';
 		}
 	}};
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-  
-  ${(props) => {
+	border: none;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	text-decoration: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	position: relative;
+	overflow: hidden;
+
+	${(props) => {
 		switch (props.$variant) {
 			case 'primary':
 				return `
@@ -378,13 +382,13 @@ const Button = styled.button<{
         `;
 		}
 	}}
-  
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-  
-  ${(props) =>
+
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	${(props) =>
 		props.$loading &&
 		`
     color: transparent;
@@ -401,75 +405,79 @@ const Button = styled.button<{
       animation: spin 1s linear infinite;
     }
   `}
-  
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
 // Collapsible Panels
 const CollapsiblePanel = styled.div`
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1.5rem;
-  overflow: hidden;
+	background: white;
+	border-radius: 0.75rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	margin-bottom: 1.5rem;
+	overflow: hidden;
 `;
 
 const PanelHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background: #f9fafb;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  
-  &:hover {
-    background: V9_COLORS.TEXT.GRAY_LIGHTER;
-  }
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem 1.5rem;
+	background: #f9fafb;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+
+	&:hover {
+		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	}
 `;
 
 const PanelTitle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0;
 `;
 
 const PanelToggle = styled.button`
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  
-  &.expanded {
-    transform: rotate(180deg);
-  }
+	background: none;
+	border: none;
+	font-size: 1.25rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	cursor: pointer;
+	transition: transform 0.2s ease;
+
+	&.expanded {
+		transform: rotate(180deg);
+	}
 `;
 
 const PanelContent = styled.div<{ $expanded: boolean }>`
-  max-height: ${(props) => (props.$expanded ? '1000px' : '0')};
-  overflow: hidden;
-  transition: max-height 0.3s ease, padding 0.3s ease;
-  padding: ${(props) => (props.$expanded ? '1.5rem' : '0 1.5rem')};
+	max-height: ${(props) => (props.$expanded ? '1000px' : '0')};
+	overflow: hidden;
+	transition:
+		max-height 0.3s ease,
+		padding 0.3s ease;
+	padding: ${(props) => (props.$expanded ? '1.5rem' : '0 1.5rem')};
 `;
 
 // Status Indicators
 const StatusIndicator = styled.div<{ type: 'success' | 'error' | 'warning' | 'info' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  
-  ${(props) => {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+
+	${(props) => {
 		switch (props.type) {
 			case 'success':
 				return `
@@ -497,140 +505,140 @@ const StatusIndicator = styled.div<{ type: 'success' | 'error' | 'warning' | 'in
 
 // Code Blocks
 const CodeBlock = styled.div`
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  color: V9_COLORS.TEXT.GRAY_LIGHTER;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  overflow-x: auto;
-  margin: 1rem 0;
-  position: relative;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	overflow-x: auto;
+	margin: 1rem 0;
+	position: relative;
 `;
 
 const CopyButton = styled.button`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: V9_COLORS.TEXT.GRAY_LIGHTER;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	background: rgba(255, 255, 255, 0.1);
+	border: none;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.2);
+	}
 `;
 
 // JSON Display
 const JsonDisplay = styled.div`
-  background: #f0fdf4;
-  color: #15803d;
-  border: 2px solid V9_COLORS.PRIMARY.GREEN_DARK;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  box-shadow: 0 1px 3px rgba(22, 163, 74, 0.1);
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  overflow-x: auto;
-  white-space: pre-wrap;
+	background: #f0fdf4;
+	color: #15803d;
+	border: 2px solid V9_COLORS.PRIMARY.GREEN_DARK;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	box-shadow: 0 1px 3px rgba(22, 163, 74, 0.1);
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	overflow-x: auto;
+	white-space: pre-wrap;
 `;
 
 // Loading States
 const _LoadingOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(255, 255, 255, 0.8);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10;
 `;
 
 const LoadingSpinner = styled.div`
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-top: 2px solid V9_COLORS.PRIMARY.BLUE;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+	display: inline-block;
+	width: 1rem;
+	height: 1rem;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-top: 2px solid V9_COLORS.PRIMARY.BLUE;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
 `;
 
 // Progress Bar
 const ProgressBar = styled.div`
-  width: 100%;
-  height: 0.5rem;
-  background: V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.25rem;
-  overflow: hidden;
-  margin: 1rem 0;
+	width: 100%;
+	height: 0.5rem;
+	background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.25rem;
+	overflow: hidden;
+	margin: 1rem 0;
 `;
 
 const ProgressFill = styled.div<{ $progress: number }>`
-  height: 100%;
-  background: V9_COLORS.PRIMARY.BLUE;
-  transition: width 0.3s ease;
-  border-radius: 0.25rem;
-  width: ${(props) => props.$progress}%;
+	height: 100%;
+	background: V9_COLORS.PRIMARY.BLUE;
+	transition: width 0.3s ease;
+	border-radius: 0.25rem;
+	width: ${(props) => props.$progress}%;
 `;
 
 // Responsive Design
 const ResponsiveContainer = styled.div`
-  @media (max-width: 768px) {
-    padding: 1rem;
-    
-    ${StepProgressWrapper} {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    
-    ${StepConnector} {
-      width: 2px;
-      height: 2rem;
-    }
-    
-    ${StepContent} {
-      padding: 1.5rem;
-    }
-    
-    ${ActionButtons} {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    
-    ${Button} {
-      width: 100%;
-      justify-content: center;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    padding: 0.75rem;
-    
-    ${StepContent} {
-      padding: 1rem;
-    }
-    
-    ${StepHeader} {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-    
-    ${StepTitle} {
-      font-size: 1.25rem;
-    }
-  }
+	@media (max-width: 768px) {
+		padding: 1rem;
+
+		${StepProgressWrapper} {
+			flex-direction: column;
+			gap: 0.75rem;
+		}
+
+		${StepConnector} {
+			width: 2px;
+			height: 2rem;
+		}
+
+		${StepContent} {
+			padding: 1.5rem;
+		}
+
+		${ActionButtons} {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		${Button} {
+			width: 100%;
+			justify-content: center;
+		}
+	}
+
+	@media (max-width: 480px) {
+		padding: 0.75rem;
+
+		${StepContent} {
+			padding: 1rem;
+		}
+
+		${StepHeader} {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.5rem;
+		}
+
+		${StepTitle} {
+			font-size: 1.25rem;
+		}
+	}
 `;
 
 // Main Component
@@ -781,7 +789,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 			});
 
 			if (!step || !step.execute) {
-				logger.info(' [EnhancedStepFlowV2] No step or execute function found', "Logger info");
+				logger.info(' [EnhancedStepFlowV2] No step or execute function found', 'Logger info');
 				return;
 			}
 
@@ -1131,7 +1139,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 										) : currentStep.id === 'validate-tokens' ? (
 											<span>👤</span>
 										) : (
-											<span>❓</span>
+											<i className="bi bi-question-circle"></i>
 										)}
 										{currentStep.buttonText ||
 											(currentStep.id === 'setup-credentials'

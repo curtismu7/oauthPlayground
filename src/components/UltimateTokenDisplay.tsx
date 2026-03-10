@@ -562,7 +562,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 								title={isDecoded ? 'Hide decoded content' : 'Show decoded content'}
 								$variant="warning"
 							>
-								<span style={{ fontSize: '14px' }}>❓</span>
+								<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 								{isDecoded ? 'Hide Decode' : 'Decode JWT'}
 							</ActionButton>
 						)}

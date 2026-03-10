@@ -115,16 +115,17 @@ const Message = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 				return '#f8fafc';
 		}
 	}};
-	border: 1px solid ${({ $type }) => {
-		switch ($type) {
-			case 'success':
-				return '#10b981';
-			case 'error':
-				return '#ef4444';
-			case 'info':
-				return '#e5e7eb';
-		}
-	}};
+	border: 1px solid
+		${({ $type }) => {
+			switch ($type) {
+				case 'success':
+					return '#10b981';
+				case 'error':
+					return '#ef4444';
+				case 'info':
+					return '#e5e7eb';
+			}
+		}};
 	color: ${({ $type }) => {
 		switch ($type) {
 			case 'success':
@@ -223,7 +224,7 @@ export const ConfigurationBackup: React.FC<ConfigurationBackupProps> = ({
 		<Container>
 			<Header>
 				<HeaderIcon>
-					<span style={{ fontSize: '20px' }}>❓</span>
+					<i className="bi bi-question-circle" style={{ fontSize: '20px' }}></i>
 				</HeaderIcon>
 				<Title>Configuration Backup</Title>
 			</Header>

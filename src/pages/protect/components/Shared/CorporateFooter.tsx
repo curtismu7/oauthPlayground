@@ -17,7 +17,7 @@ import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 // ============================================================================
 
 const FooterContainer = styled.footer<{ $brandColor: string; $industry: string }>`
-  background: ${({ $industry }) => {
+	background: ${({ $industry }) => {
 		switch ($industry) {
 			case 'banking':
 				return 'linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%)';
@@ -31,139 +31,139 @@ const FooterContainer = styled.footer<{ $brandColor: string; $industry: string }
 				return 'linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%)';
 		}
 	}};
-  color: ${({ $industry }) => ($industry === 'tech' ? '#e9ecef' : '#212529')};
-  padding: 3rem 2rem 1rem;
-  border-top: 1px solid ${({ $industry }) => ($industry === 'tech' ? '#343a40' : '#dee2e6')};
+	color: ${({ $industry }) => ($industry === 'tech' ? '#e9ecef' : '#212529')};
+	padding: 3rem 2rem 1rem;
+	border-top: 1px solid ${({ $industry }) => ($industry === 'tech' ? '#343a40' : '#dee2e6')};
 `;
 
 const FooterContent = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
+	max-width: 1200px;
+	margin: 0 auto;
 `;
 
 const FooterGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 2rem;
+	margin-bottom: 2rem;
+
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
+	}
 `;
 
 const FooterSection = styled.div`
-  h3 {
-    font-size: 0.875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 0 0 1rem 0;
-    opacity: 0.9;
-  }
-  
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  li {
-    margin-bottom: 0.5rem;
-  }
+	h3 {
+		font-size: 0.875rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin: 0 0 1rem 0;
+		opacity: 0.9;
+	}
+
+	ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	li {
+		margin-bottom: 0.5rem;
+	}
 `;
 
 const FooterLink = styled.a<{ $industry: string }>`
-  color: ${({ $industry }) => ($industry === 'tech' ? '#adb5bd' : '#495057')};
-  text-decoration: none;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-  display: inline-block;
-  
-  &:hover {
-    color: ${({ $industry }) => ($industry === 'tech' ? '#f8f9fa' : '#212529')};
-    transform: translateX(4px);
-  }
+	color: ${({ $industry }) => ($industry === 'tech' ? '#adb5bd' : '#495057')};
+	text-decoration: none;
+	font-size: 0.875rem;
+	transition: all 0.2s ease;
+	display: inline-block;
+
+	&:hover {
+		color: ${({ $industry }) => ($industry === 'tech' ? '#f8f9fa' : '#212529')};
+		transform: translateX(4px);
+	}
 `;
 
 const FooterBottom = styled.div<{ $industry: string }>`
-  border-top: 1px solid ${({ $industry }) => ($industry === 'tech' ? '#343a40' : '#dee2e6')};
-  padding-top: 1.5rem;
-  margin-top: 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    text-align: center;
-  }
+	border-top: 1px solid ${({ $industry }) => ($industry === 'tech' ? '#343a40' : '#dee2e6')};
+	padding-top: 1.5rem;
+	margin-top: 2rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 1rem;
+
+	@media (max-width: 768px) {
+		flex-direction: column;
+		text-align: center;
+	}
 `;
 
 const Copyright = styled.p`
-  font-size: 0.75rem;
-  margin: 0;
-  opacity: 0.7;
+	font-size: 0.75rem;
+	margin: 0;
+	opacity: 0.7;
 `;
 
 const SocialLinks = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
+	display: flex;
+	gap: 1rem;
+	align-items: center;
 `;
 
 const SocialLink = styled.a<{ $brandColor: string; $industry: string }>`
-  color: ${({ $industry }) => ($industry === 'tech' ? '#adb5bd' : '#495057')};
-  font-size: 1.25rem;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    color: ${({ $brandColor }) => $brandColor};
-    transform: translateY(-2px);
-  }
+	color: ${({ $industry }) => ($industry === 'tech' ? '#adb5bd' : '#495057')};
+	font-size: 1.25rem;
+	transition: all 0.2s ease;
+
+	&:hover {
+		color: ${({ $brandColor }) => $brandColor};
+		transform: translateY(-2px);
+	}
 `;
 
 const LegalLinks = styled.div`
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  
-  @media (max-width: 768px) {
-    justify-content: center;
-  }
+	display: flex;
+	gap: 1.5rem;
+	flex-wrap: wrap;
+
+	@media (max-width: 768px) {
+		justify-content: center;
+	}
 `;
 
 const LegalLink = styled.a<{ $industry: string }>`
-  color: ${({ $industry }) => ($industry === 'tech' ? '#adb5bd' : '#495057')};
-  text-decoration: none;
-  font-size: 0.75rem;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    color: ${({ $industry }) => ($industry === 'tech' ? '#f8f9fa' : '#212529')};
-    text-decoration: underline;
-  }
+	color: ${({ $industry }) => ($industry === 'tech' ? '#adb5bd' : '#495057')};
+	text-decoration: none;
+	font-size: 0.75rem;
+	transition: all 0.2s ease;
+
+	&:hover {
+		color: ${({ $industry }) => ($industry === 'tech' ? '#f8f9fa' : '#212529')};
+		text-decoration: underline;
+	}
 `;
 
 const ContactInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
 `;
 
 const ContactItem = styled.div<{ $industry: string }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: ${({ $industry }) => ($industry === 'tech' ? '#adb5bd' : '#495057')};
-  
-  svg {
-    opacity: 0.7;
-  }
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	color: ${({ $industry }) => ($industry === 'tech' ? '#adb5bd' : '#495057')};
+
+	svg {
+		opacity: 0.7;
+	}
 `;
 
 // ============================================================================
@@ -442,10 +442,10 @@ const CorporateFooter: React.FC<CorporateFooterProps> = ({ config }) => {
 							$industry={industry}
 							aria-label="Instagram"
 						>
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 						</SocialLink>
 						<SocialLink href="#" $brandColor={brandColor} $industry={industry} aria-label="YouTube">
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 						</SocialLink>
 					</SocialLinks>
 				</FooterBottom>

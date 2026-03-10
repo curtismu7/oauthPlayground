@@ -18,7 +18,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
 			case 'pulse':
 				return <span>🔄</span>;
 			case 'dots':
-				return <span>❓</span>;
+				return <i className="bi bi-question-circle"></i>;
 			default:
 				return <span>🔄</span>;
 		}

@@ -19,142 +19,142 @@ import BrandDropdownSelector from './BrandDropdownSelector';
 // ============================================================================
 
 const NavigationContainer = styled.nav`
-  background: var(--brand-primary);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  width: 100%;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+	background: var(--brand-primary);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	width: 100%;
+	position: sticky;
+	top: 0;
+	z-index: 1000;
 `;
 
 const NavigationContent = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1rem;
-  height: 64px;
+	max-width: 1200px;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 1rem;
+	height: 64px;
 `;
 
 const LogoSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 `;
 
 const NavigationLinks = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+
+	@media (max-width: 768px) {
+		display: none;
+	}
 `;
 
 const NavLink = styled.a`
-  color: white;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.875rem;
-  font-family: var(--brand-body-font);
-  transition: opacity 0.2s ease;
-  
-  &:hover {
-    opacity: 0.8;
-  }
+	color: white;
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 0.875rem;
+	font-family: var(--brand-body-font);
+	transition: opacity 0.2s ease;
+
+	&:hover {
+		opacity: 0.8;
+	}
 `;
 
 const RightSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 `;
 
 const SearchButton = styled.button`
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  padding: 0.5rem;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background 0.2s ease;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 4px;
+	padding: 0.5rem;
+	color: white;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: background 0.2s ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.2);
+	}
 `;
 
 const UserMenu = styled.div`
-  position: relative;
+	position: relative;
 `;
 
 const UserButton = styled.button`
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: background 0.2s ease;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 4px;
+	padding: 0.5rem 1rem;
+	color: white;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: background 0.2s ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.2);
+	}
 `;
 
 const MobileMenuButton = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  
-  @media (min-width: 769px) {
-    display: none;
-  }
+	background: none;
+	border: none;
+	color: white;
+	cursor: pointer;
+	padding: 0.5rem;
+	display: flex;
+	align-items: center;
+
+	@media (min-width: 769px) {
+		display: none;
+	}
 `;
 
 const MobileMenu = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 64px;
-  left: 0;
-  right: 0;
-  background: var(--brand-primary);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1rem;
-  display: ${({ $isOpen }) => ($isOpen ? 'block' : 'none')};
-  z-index: 999;
-  
-  @media (min-width: 769px) {
-    display: none;
-  }
+	position: fixed;
+	top: 64px;
+	left: 0;
+	right: 0;
+	background: var(--brand-primary);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	padding: 1rem;
+	display: ${({ $isOpen }) => ($isOpen ? 'block' : 'none')};
+	z-index: 999;
+
+	@media (min-width: 769px) {
+		display: none;
+	}
 `;
 
 const MobileNavLink = styled.a`
-  display: block;
-  color: white;
-  text-decoration: none;
-  padding: 0.75rem 0;
-  font-weight: 500;
-  font-size: 0.875rem;
-  font-family: var(--brand-body-font);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
+	display: block;
+	color: white;
+	text-decoration: none;
+	padding: 0.75rem 0;
+	font-weight: 500;
+	font-size: 0.875rem;
+	font-family: var(--brand-body-font);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
 `;
 
 // ============================================================================
@@ -204,7 +204,7 @@ const AmericanAirlinesNavigation: React.FC<AmericanAirlinesNavigationProps> = ({
 						{mobileMenuOpen ? (
 							<span style={{ fontSize: '24px' }}>❌</span>
 						) : (
-							<span style={{ fontSize: '24px' }}>❓</span>
+							<i className="bi bi-question-circle" style={{ fontSize: '24px' }}></i>
 						)}
 					</MobileMenuButton>
 				</RightSection>

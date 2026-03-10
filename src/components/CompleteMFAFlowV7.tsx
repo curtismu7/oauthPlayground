@@ -3122,7 +3122,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						<CollapsibleHeaderService.CollapsibleHeader
 							title="🔐 USER AUTHENTICATION"
 							subtitle="Choose between Redirect or Redirectless Authentication • Uses Authorization Code Configuration Above"
-							icon={<span>❓</span>}
+							icon={<i className="bi bi-question-circle"></i>}
 							theme="green"
 							defaultCollapsed={false}
 						>
@@ -3557,7 +3557,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										gap: '0.5rem',
 									}}
 								>
-									<span style={{ fontSize: '16px' }}>❓</span>
+									<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 									fragment
 								</button>
 							</div>

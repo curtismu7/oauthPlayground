@@ -171,7 +171,7 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 									}
 								}}
 							>
-								<span style={{ fontSize: '14px' }}>❓</span>
+								<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 								{isDecoded ? 'Hide Decode' : 'Decode JWT'}
 							</button>
 						)}

@@ -4,133 +4,133 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
 
 const PageContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
 `;
 
 const PageHeader = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE 100%);
-  color: white;
-  padding: 3rem;
-  border-radius: 1rem;
-  margin-bottom: 3rem;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE 100%);
+	color: white;
+	padding: 3rem;
+	border-radius: 1rem;
+	margin-bottom: 3rem;
+	box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 `;
 
 const PageTitle = styled.h1`
-  font-size: 3rem;
-  font-weight: 800;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	font-size: 3rem;
+	font-weight: 800;
+	margin: 0 0 1rem 0;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 `;
 
 const PageSubtitle = styled.p`
-  font-size: 1.5rem;
-  margin: 0 0 1rem 0;
-  opacity: 0.9;
+	font-size: 1.5rem;
+	margin: 0 0 1rem 0;
+	opacity: 0.9;
 `;
 
 const PageDescription = styled.p`
-  font-size: 1.125rem;
-  margin: 0;
-  opacity: 0.8;
-  line-height: 1.6;
+	font-size: 1.125rem;
+	margin: 0;
+	opacity: 0.8;
+	line-height: 1.6;
 `;
 
 const ReferenceCard = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin: 2rem 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	margin: 2rem 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
 `;
 
 const ReferenceIcon = styled.div`
-  color: V9_COLORS.PRIMARY.BLUE;
-  font-size: 1.5rem;
-  margin-top: 0.25rem;
+	color: V9_COLORS.PRIMARY.BLUE;
+	font-size: 1.5rem;
+	margin-top: 0.25rem;
 `;
 
 const ReferenceContent = styled.div`
-  flex: 1;
+	flex: 1;
 `;
 
 const ReferenceTitle = styled.h3`
-  margin: 0 0 0.5rem 0;
-  color: #1e293b;
-  font-size: 1.25rem;
+	margin: 0 0 0.5rem 0;
+	color: #1e293b;
+	font-size: 1.25rem;
 `;
 
 const ReferenceText = styled.p`
-  margin: 0 0 1rem 0;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  line-height: 1.6;
+	margin: 0 0 1rem 0;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	line-height: 1.6;
 `;
 
 const ReferenceLink = styled.a`
-  color: V9_COLORS.PRIMARY.BLUE;
-  text-decoration: none;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  &:hover {
-    text-decoration: underline;
-  }
+	color: V9_COLORS.PRIMARY.BLUE;
+	text-decoration: none;
+	font-weight: 500;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	&:hover {
+		text-decoration: underline;
+	}
 `;
 
 const Section = styled.div`
-  background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 1rem;
-  padding: 2.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	background: white;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 1rem;
+	padding: 2.5rem;
+	margin-bottom: 2rem;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 1.5rem 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+	font-size: 2rem;
+	font-weight: 700;
+	margin: 0 0 1.5rem 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 `;
 
 const SectionIcon = styled.div`
-  color: V9_COLORS.PRIMARY.BLUE;
-  font-size: 1.5rem;
+	color: V9_COLORS.PRIMARY.BLUE;
+	font-size: 1.5rem;
 `;
 
 const Subsection = styled.div`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const SubsectionTitle = styled.h3`
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0 0 1rem 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1.5rem;
+	font-weight: 600;
+	margin: 0 0 1rem 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const SubsectionIcon = styled.div`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1.25rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1.25rem;
 `;
 
 const BestPracticeCard = styled.div<{ $type: 'critical' | 'important' | 'recommended' }>`
-  background: ${({ $type }) => {
+	background: ${({ $type }) => {
 		switch ($type) {
 			case 'critical':
 				return '#fef2f2';
@@ -142,28 +142,29 @@ const BestPracticeCard = styled.div<{ $type: 'critical' | 'important' | 'recomme
 				return '#f9fafb';
 		}
 	}};
-  border: 2px solid ${({ $type }) => {
-		switch ($type) {
-			case 'critical':
-				return '#ef4444';
-			case 'important':
-				return '#fed7aa';
-			case 'recommended':
-				return '#e5e7eb';
-			default:
-				return '#e5e7eb';
-		}
-	}};
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+	border: 2px solid
+		${({ $type }) => {
+			switch ($type) {
+				case 'critical':
+					return '#ef4444';
+				case 'important':
+					return '#fed7aa';
+				case 'recommended':
+					return '#e5e7eb';
+				default:
+					return '#e5e7eb';
+			}
+		}};
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	margin-bottom: 1rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
 `;
 
 const PracticeIcon = styled.div<{ $type: 'critical' | 'important' | 'recommended' }>`
-  color: ${({ $type }) => {
+	color: ${({ $type }) => {
 		switch ($type) {
 			case 'critical':
 				return '#dc2626';
@@ -175,132 +176,132 @@ const PracticeIcon = styled.div<{ $type: 'critical' | 'important' | 'recommended
 				return '#6b7280';
 		}
 	}};
-  font-size: 1.25rem;
-  margin-top: 0.25rem;
+	font-size: 1.25rem;
+	margin-top: 0.25rem;
 `;
 
 const PracticeContent = styled.div`
-  flex: 1;
+	flex: 1;
 `;
 
 const PracticeTitle = styled.h4`
-  margin: 0 0 0.5rem 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 1.125rem;
-  font-weight: 600;
+	margin: 0 0 0.5rem 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1.125rem;
+	font-weight: 600;
 `;
 
 const PracticeDescription = styled.p`
-  margin: 0 0 1rem 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  line-height: 1.6;
+	margin: 0 0 1rem 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	line-height: 1.6;
 `;
 
 const PracticeList = styled.ul`
-  margin: 0;
-  padding-left: 1.5rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0;
+	padding-left: 1.5rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const PracticeListItem = styled.li`
-  margin-bottom: 0.5rem;
-  line-height: 1.5;
+	margin-bottom: 0.5rem;
+	line-height: 1.5;
 `;
 
 const CodeBlock = styled.pre`
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  color: #f9fafb;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-  margin: 1rem 0;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.9rem;
-  line-height: 1.5;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: #f9fafb;
+	padding: 1.5rem;
+	border-radius: 0.5rem;
+	overflow-x: auto;
+	margin: 1rem 0;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.9rem;
+	line-height: 1.5;
 `;
 
 const CodeComment = styled.span`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const CodeString = styled.span`
-  color: V9_COLORS.PRIMARY.GREEN;
+	color: V9_COLORS.PRIMARY.GREEN;
 `;
 
 const CodeKeyword = styled.span`
-  color: V9_COLORS.PRIMARY.YELLOW;
+	color: V9_COLORS.PRIMARY.YELLOW;
 `;
 
 const CodeNumber = styled.span`
-  color: V9_COLORS.PRIMARY.GREEN;
+	color: V9_COLORS.PRIMARY.GREEN;
 `;
 
 const WarningBox = styled.div`
-  background: V9_COLORS.BG.ERROR;
-  border: 2px solid V9_COLORS.BG.ERROR_BORDER;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+	background: V9_COLORS.BG.ERROR;
+	border: 2px solid V9_COLORS.BG.ERROR_BORDER;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	margin: 1.5rem 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
 `;
 
 const WarningIcon = styled.div`
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  font-size: 1.5rem;
-  margin-top: 0.25rem;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	font-size: 1.5rem;
+	margin-top: 0.25rem;
 `;
 
 const WarningContent = styled.div`
-  flex: 1;
+	flex: 1;
 `;
 
 const WarningTitle = styled.h4`
-  margin: 0 0 0.5rem 0;
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  font-size: 1.125rem;
-  font-weight: 600;
+	margin: 0 0 0.5rem 0;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	font-size: 1.125rem;
+	font-weight: 600;
 `;
 
 const WarningText = styled.p`
-  margin: 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  line-height: 1.6;
+	margin: 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	line-height: 1.6;
 `;
 
 const InfoBox = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	margin: 1.5rem 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
 `;
 
 const InfoIcon = styled.div`
-  color: #0ea5e9;
-  font-size: 1.5rem;
-  margin-top: 0.25rem;
+	color: #0ea5e9;
+	font-size: 1.5rem;
+	margin-top: 0.25rem;
 `;
 
 const InfoContent = styled.div`
-  flex: 1;
+	flex: 1;
 `;
 
 const InfoTitle = styled.h4`
-  margin: 0 0 0.5rem 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 1.125rem;
-  font-weight: 600;
+	margin: 0 0 0.5rem 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1.125rem;
+	font-weight: 600;
 `;
 
 const InfoText = styled.p`
-  margin: 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  line-height: 1.6;
+	margin: 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	line-height: 1.6;
 `;
 
 const OAuth2SecurityBestPractices: React.FC = () => {
@@ -471,7 +472,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 						</SubsectionIcon>
 						PKCE Implementation
 					</SubsectionTitle>

@@ -6,116 +6,116 @@ import { stateUtils, useUnifiedFlowState } from '../services/enhancedStateManage
 import { TokenMonitoringService } from '../services/tokenMonitoringService';
 
 const PageContainer = styled.div`
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+	padding: 2rem;
+	max-width: 1200px;
+	margin: 0 auto;
 `;
 
 const PageHeader = styled.div`
-  margin-bottom: 2rem;
-  text-align: center;
+	margin-bottom: 2rem;
+	text-align: center;
 `;
 
 const PageTitle = styled.h1`
-  color: #1e293b;
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+	color: #1e293b;
+	font-size: 2rem;
+	font-weight: 700;
+	margin-bottom: 0.5rem;
 `;
 
 const PageSubtitle = styled.p`
-  color: #64748b;
-  font-size: 1rem;
-  margin: 0;
+	color: #64748b;
+	font-size: 1rem;
+	margin: 0;
 `;
 
 const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const StatCard = styled.div`
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 1.5rem;
-  text-align: center;
-  
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-  }
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 1.5rem;
+	text-align: center;
+
+	&:hover {
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		transform: translateY(-2px);
+	}
 `;
 
 const StatIcon = styled.div<{ $color?: string }>`
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  color: ${(props) => props.$color || '#64748b'};
+	font-size: 2rem;
+	margin-bottom: 0.5rem;
+	color: ${(props) => props.$color || '#64748b'};
 `;
 
 const StatValue = styled.div`
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 0.25rem;
+	font-size: 2rem;
+	font-weight: 700;
+	color: #1e293b;
+	margin-bottom: 0.25rem;
 `;
 
 const StatLabel = styled.div`
-  font-size: 0.875rem;
-  color: #64748b;
+	font-size: 0.875rem;
+	color: #64748b;
 `;
 
 const SectionContainer = styled.div`
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	padding: 1.5rem;
+	margin-bottom: 1.5rem;
 `;
 
 const SectionHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e2e8f0;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid #e2e8f0;
 `;
 
 const SectionTitle = styled.h2`
-  color: #1e293b;
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0;
+	color: #1e293b;
+	font-size: 1.25rem;
+	font-weight: 600;
+	margin: 0;
 `;
 
 const SectionIcon = styled.div`
-  font-size: 1.25rem;
-  color: #3b82f6;
+	font-size: 1.25rem;
+	color: #3b82f6;
 `;
 
 const ActionButtons = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-top: 1rem;
+	display: flex;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+	margin-top: 1rem;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  ${(props) => {
+	padding: 0.75rem 1.5rem;
+	border-radius: 6px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	border: 1px solid;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	${(props) => {
 		switch (props.$variant) {
 			case 'primary':
 				return `
@@ -158,15 +158,15 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 const StatusIndicator = styled.div<{
 	$status: 'online' | 'offline' | 'pending' | 'synced' | 'error';
 }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  
-  ${(props) => {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 500;
+
+	${(props) => {
 		switch (props.$status) {
 			case 'online':
 				return `
@@ -209,42 +209,42 @@ const StatusIndicator = styled.div<{
 `;
 
 const FeatureList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 `;
 
 const FeatureItem = styled.li`
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #f1f5f9;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  
-  &:last-child {
-    border-bottom: none;
-  }
+	padding: 0.75rem 0;
+	border-bottom: 1px solid #f1f5f9;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+
+	&:last-child {
+		border-bottom: none;
+	}
 `;
 
 const FeatureIcon = styled.div<{ $color?: string }>`
-  font-size: 1rem;
-  color: ${(props) => props.$color || '#3b82f6'};
+	font-size: 1rem;
+	color: ${(props) => props.$color || '#3b82f6'};
 `;
 
 const FeatureText = styled.div`
-  flex: 1;
-  font-size: 0.875rem;
-  color: #374151;
-  line-height: 1.4;
+	flex: 1;
+	font-size: 0.875rem;
+	color: #374151;
+	line-height: 1.4;
 `;
 
 const FeatureStatus = styled.span<{ $enabled: boolean }>`
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  
-  ${(props) => {
+	padding: 0.25rem 0.5rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 500;
+
+	${(props) => {
 		return props.$enabled
 			? `
         background: #dcfce7;
@@ -260,25 +260,25 @@ const FeatureStatus = styled.span<{ $enabled: boolean }>`
 `;
 
 const _HistoryControls = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  margin-bottom: 1rem;
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	margin-bottom: 1rem;
 `;
 
 const _HistoryButton = styled.button<{ $disabled?: boolean }>`
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
-  transition: all 0.2s ease;
-  border: 1px solid;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  ${(props) => {
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
+	transition: all 0.2s ease;
+	border: 1px solid;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	${(props) => {
 		return props.$disabled
 			? `
         background: #f3f4f6;
@@ -300,54 +300,54 @@ const _HistoryButton = styled.button<{ $disabled?: boolean }>`
 `;
 
 const ExportImportControls = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  padding: 1rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  margin: 1rem 0;
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	padding: 1rem;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	margin: 1rem 0;
 `;
 
 const ExportImportButton = styled.button`
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid #3b82f6;
-  background: #3b82f6;
-  color: white;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  &:hover {
-    background: #2563eb;
-    border-color: #2563eb;
-  }
+	padding: 0.75rem 1.5rem;
+	border-radius: 6px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	border: 1px solid #3b82f6;
+	background: #3b82f6;
+	color: white;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	&:hover {
+		background: #2563eb;
+		border-color: #2563eb;
+	}
 `;
 
 const _ErrorMessage = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  padding: 1rem;
-  color: #991b1b;
-  text-align: center;
-  font-size: 0.875rem;
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	border-radius: 8px;
+	padding: 1rem;
+	color: #991b1b;
+	text-align: center;
+	font-size: 0.875rem;
 `;
 
 const _SuccessMessage = styled.div`
-  background: #f0fdf4;
-  border: 1px solid #86efac;
-  border-radius: 8px;
-  padding: 1rem;
-  color: #166534;
-  text-align: center;
-  font-size: 0.875rem;
+	background: #f0fdf4;
+	border: 1px solid #86efac;
+	border-radius: 8px;
+	padding: 1rem;
+	color: #166534;
+	text-align: center;
+	font-size: 0.875rem;
 `;
 
 export const EnhancedStateManagementPage: React.FC = () => {
@@ -369,7 +369,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 	// Export state
 	const handleExport = async () => {
-		logger.debug('handleExport called', "Logger debug");
+		logger.debug('handleExport called', 'Logger debug');
 		await exportSpinner.executeWithSpinner(
 			async () => {
 				const stateData = stateUtils.exportAllState();
@@ -443,7 +443,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 	// Reset all state
 	const handleResetAll = () => {
-		logger.debug('handleResetAll called', "Logger debug");
+		logger.debug('handleResetAll called', 'Logger debug');
 		stateUtils.resetAllState();
 		setMessage('All state has been reset to defaults');
 		setMessageType('info');
@@ -568,7 +568,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 				<StatCard>
 					<StatIcon $color="#f59e0b">
-						<span>❓</span>
+						<i className="bi bi-question-circle"></i>
 					</StatIcon>
 					<StatValue>
 						{(() => {
@@ -1036,7 +1036,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 					<FeatureItem>
 						<FeatureIcon $color="#8b5cf6">
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 						</FeatureIcon>
 						<FeatureText>Undo/Redo functionality with history tracking</FeatureText>
 						<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -1131,7 +1131,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 				</ActionButton>
 				<ActionButton
 					onClick={() => {
-						logger.debug('Theme reset button clicked', "Logger debug");
+						logger.debug('Theme reset button clicked', 'Logger debug');
 						try {
 							actions.setTheme('auto');
 							setMessage('Theme set to auto');
@@ -1152,7 +1152,12 @@ export const EnhancedStateManagementPage: React.FC = () => {
 						setMessageType('info');
 					}}
 				>
-					{state.notifications ? <span>❓</span> : <span>❓</span>} Toggle Notifications
+					{state.notifications ? (
+						<i className="bi bi-question-circle"></i>
+					) : (
+						<i className="bi bi-question-circle"></i>
+					)}{' '}
+					Toggle Notifications
 				</ActionButton>
 				<ActionButton
 					onClick={() => {

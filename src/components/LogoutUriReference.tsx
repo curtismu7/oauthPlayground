@@ -12,229 +12,231 @@ interface LogoutUriReferenceProps {
 }
 
 const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
 `;
 
 const ModalContent = styled.div`
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  max-width: 900px;
-  max-height: 90vh;
-  overflow-y: auto;
-  margin: 1rem;
+	background: white;
+	border-radius: 0.75rem;
+	box-shadow:
+		0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	max-width: 900px;
+	max-height: 90vh;
+	overflow-y: auto;
+	margin: 1rem;
 `;
 
 const ModalHeader = styled.div`
-  padding: 1.5rem 1.5rem 0 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+	padding: 1.5rem 1.5rem 0 1.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 `;
 
 const ModalTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
-  
-  &:hover {
-    background-color: #f3f4f6;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	cursor: pointer;
+	padding: 0.25rem;
+	border-radius: 0.25rem;
+
+	&:hover {
+		background-color: #f3f4f6;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 `;
 
 const ModalBody = styled.div`
-  padding: 1.5rem;
+	padding: 1.5rem;
 `;
 
 const IntroSection = styled.div`
-  background-color: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
+	background-color: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin-bottom: 1.5rem;
 `;
 
 const IntroTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: V9_COLORS.PRIMARY.BLUE;
-  margin: 0 0 0.5rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: V9_COLORS.PRIMARY.BLUE;
+	margin: 0 0 0.5rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const IntroText = styled.p`
-  color: V9_COLORS.PRIMARY.BLUE;
-  margin: 0;
-  line-height: 1.5;
+	color: V9_COLORS.PRIMARY.BLUE;
+	margin: 0;
+	line-height: 1.5;
 `;
 
 const FlowGrid = styled.div`
-  display: grid;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+	display: grid;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
 `;
 
 const FlowCard = styled.div`
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  background: white;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	background: white;
 `;
 
 const FlowHeader = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.75rem;
+	display: flex;
+	align-items: center;
+	margin-bottom: 0.75rem;
 `;
 
 const FlowIcon = styled.span`
-  font-size: 1.25rem;
-  margin-right: 0.5rem;
+	font-size: 1.25rem;
+	margin-right: 0.5rem;
 `;
 
 const FlowName = styled.h4`
-  font-size: 1rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0;
 `;
 
 const UriContainer = styled.div`
-  background-color: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  margin-bottom: 0.75rem;
+	background-color: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 0.75rem;
+	border-radius: 0.375rem;
+	margin-bottom: 0.75rem;
 `;
 
 const UriCode = styled.code`
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
-  background-color: #dbeafe;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: block;
-  word-break: break-all;
-  margin-bottom: 0.5rem;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	background-color: #dbeafe;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	display: block;
+	word-break: break-all;
+	margin-bottom: 0.5rem;
 `;
 
 const CopyButton = styled.button<{ copied?: boolean }>`
-  background-color: ${(props) => (props.copied ? '#10b981' : '#3b82f6')};
-  color: white;
-  border: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: background-color 0.2s;
+	background-color: ${(props) => (props.copied ? '#10b981' : '#3b82f6')};
+	color: white;
+	border: none;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	transition: background-color 0.2s;
 
-  &:hover {
-    background-color: ${(props) => (props.copied ? '#059669' : '#2563eb')};
-  }
+	&:hover {
+		background-color: ${(props) => (props.copied ? '#059669' : '#2563eb')};
+	}
 `;
 
 const FlowDescription = styled.p`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin: 0;
-  line-height: 1.4;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin: 0;
+	line-height: 1.4;
 `;
 
 const PingOneSection = styled.div`
-  background-color: V9_COLORS.BG.WARNING;
-  border: 1px solid V9_COLORS.PRIMARY.YELLOW;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
+	background-color: V9_COLORS.BG.WARNING;
+	border: 1px solid V9_COLORS.PRIMARY.YELLOW;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin-bottom: 1.5rem;
 `;
 
 const PingOneTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: V9_COLORS.PRIMARY.YELLOW_DARK;
-  margin: 0 0 0.5rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	margin: 0 0 0.5rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const PingOneText = styled.p`
-  color: V9_COLORS.PRIMARY.YELLOW_DARK;
-  margin: 0 0 0.75rem 0;
-  line-height: 1.5;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	margin: 0 0 0.75rem 0;
+	line-height: 1.5;
 `;
 
 const UriList = styled.div`
-  background-color: V9_COLORS.BG.ERROR;
-  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-  padding: 0.75rem;
-  border-radius: 0.375rem;
+	background-color: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	padding: 0.75rem;
+	border-radius: 0.375rem;
 `;
 
 const UriListItem = styled.div`
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  margin-bottom: 0.25rem;
-  word-break: break-all;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	margin-bottom: 0.25rem;
+	word-break: break-all;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
 `;
 
 const WarningSection = styled.div`
-  background-color: V9_COLORS.BG.ERROR;
-  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
+	background-color: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin-bottom: 1.5rem;
 `;
 
 const WarningTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  margin: 0 0 0.5rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	margin: 0 0 0.5rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const WarningText = styled.p`
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  margin: 0;
-  line-height: 1.5;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	margin: 0;
+	line-height: 1.5;
 `;
 
 const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose }) => {
@@ -286,7 +288,7 @@ const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose
 			<ModalContent onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
 					<ModalTitle>
-						<span>❓</span>
+						<i className="bi bi-question-circle"></i>
 						Logout URIs Reference
 					</ModalTitle>
 					<CloseButton onClick={onClose}>

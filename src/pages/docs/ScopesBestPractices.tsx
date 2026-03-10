@@ -3,84 +3,84 @@ import styled from 'styled-components';
 import { PageLayoutService } from '../../services/pageLayoutService';
 
 const _Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  min-height: 100vh;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	min-height: 100vh;
 `;
 
 const _Header = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 3rem 2rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  text-align: center;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	padding: 3rem 2rem;
+	border-radius: 12px;
+	margin-bottom: 2rem;
+	text-align: center;
 `;
 
 const _Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin: 0 0 1rem 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
 `;
 
 const _Subtitle = styled.p`
-  font-size: 1.2rem;
-  margin: 0;
-  opacity: 0.9;
+	font-size: 1.2rem;
+	margin: 0;
+	opacity: 0.9;
 `;
 
 const Content = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	background: white;
+	border-radius: 12px;
+	padding: 2rem;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 `;
 
 const Section = styled.section`
-  margin-bottom: 3rem;
+	margin-bottom: 3rem;
 `;
 
 const SectionTitle = styled.h2`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin: 0 0 1.5rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1.8rem;
+	font-weight: 600;
+	margin: 0 0 1.5rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SectionSubtitle = styled.h3`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 1.4rem;
-  font-weight: 600;
-  margin: 2rem 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1.4rem;
+	font-weight: 600;
+	margin: 2rem 0 1rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const Paragraph = styled.p`
-  color: #4b5563;
-  line-height: 1.7;
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
+	color: #4b5563;
+	line-height: 1.7;
+	margin-bottom: 1.5rem;
+	font-size: 1rem;
 `;
 
 const InfoBox = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin: 1.5rem 0;
-  border-left: 4px solid;
-  background: ${(props) => {
+	padding: 1.5rem;
+	border-radius: 8px;
+	margin: 1.5rem 0;
+	border-left: 4px solid;
+	background: ${(props) => {
 		switch (props.type) {
 			case 'info':
 				return '#f8fafc';
@@ -94,7 +94,7 @@ const InfoBox = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
 				return '#f9fafb';
 		}
 	}};
-  border-color: ${(props) => {
+	border-color: ${(props) => {
 		switch (props.type) {
 			case 'info':
 				return '#3b82f6';
@@ -111,13 +111,13 @@ const InfoBox = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
 `;
 
 const InfoBoxContent = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
 `;
 
 const InfoBoxIcon = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
-  color: ${(props) => {
+	color: ${(props) => {
 		switch (props.type) {
 			case 'info':
 				return '#3b82f6';
@@ -131,154 +131,154 @@ const InfoBoxIcon = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' 
 				return '#6b7280';
 		}
 	}};
-  font-size: 1.25rem;
-  margin-top: 0.125rem;
+	font-size: 1.25rem;
+	margin-top: 0.125rem;
 `;
 
 const InfoBoxText = styled.div`
-  flex: 1;
+	flex: 1;
 `;
 
 const InfoBoxTitle = styled.h4`
-  margin: 0 0 0.5rem 0;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0 0 0.5rem 0;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const InfoBoxDescription = styled.p`
-  margin: 0;
-  color: #4b5563;
-  line-height: 1.6;
+	margin: 0;
+	color: #4b5563;
+	line-height: 1.6;
 `;
 
 const CodeBlock = styled.pre`
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  color: #f9fafb;
-  padding: 1.5rem;
-  border-radius: 8px;
-  overflow-x: auto;
-  margin: 1.5rem 0;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: #f9fafb;
+	padding: 1.5rem;
+	border-radius: 8px;
+	overflow-x: auto;
+	margin: 1.5rem 0;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	line-height: 1.5;
 `;
 
 const InlineCode = styled.code`
-  background: #f3f4f6;
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  font-weight: 600;
+	background: #f3f4f6;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	padding: 0.25rem 0.5rem;
+	border-radius: 4px;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	font-weight: 600;
 `;
 
 const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1.5rem 0;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1.5rem 0;
+	background: white;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
 const TableHeader = styled.th`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-weight: 600;
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-weight: 600;
+	padding: 1rem;
+	text-align: left;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TableCell = styled.td`
-  padding: 1rem;
-  border-bottom: 1px solid #f3f4f6;
-  color: #4b5563;
+	padding: 1rem;
+	border-bottom: 1px solid #f3f4f6;
+	color: #4b5563;
 `;
 
 const TableRow = styled.tr`
-  &:hover {
-    background: #f9fafb;
-  }
+	&:hover {
+		background: #f9fafb;
+	}
 `;
 
 const List = styled.ul`
-  color: #4b5563;
-  line-height: 1.7;
-  margin: 1.5rem 0;
-  padding-left: 1.5rem;
+	color: #4b5563;
+	line-height: 1.7;
+	margin: 1.5rem 0;
+	padding-left: 1.5rem;
 `;
 
 const ListItem = styled.li`
-  margin-bottom: 0.75rem;
+	margin-bottom: 0.75rem;
 `;
 
 const DiagramContainer = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 12px;
-  padding: 2rem;
-  margin: 2rem 0;
-  text-align: center;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 12px;
+	padding: 2rem;
+	margin: 2rem 0;
+	text-align: center;
 `;
 
 const DiagramTitle = styled.h4`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0 0 1.5rem 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin: 0 0 1.5rem 0;
 `;
 
 const FlowStep = styled.div<{ $isActive?: boolean }>`
-  background: ${(props) => (props.$isActive ? '#3b82f6' : 'white')};
-  color: ${(props) => (props.$isActive ? 'white' : '#1f2937')};
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  margin: 0.5rem;
-  display: inline-block;
-  border: 2px solid ${(props) => (props.$isActive ? '#3b82f6' : '#e5e7eb')};
-  font-weight: 500;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	background: ${(props) => (props.$isActive ? '#3b82f6' : 'white')};
+	color: ${(props) => (props.$isActive ? 'white' : '#1f2937')};
+	padding: 1rem 1.5rem;
+	border-radius: 8px;
+	margin: 0.5rem;
+	display: inline-block;
+	border: 2px solid ${(props) => (props.$isActive ? '#3b82f6' : '#e5e7eb')};
+	font-weight: 500;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const FlowArrow = styled.div`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1.5rem;
-  margin: 0 0.5rem;
-  display: inline-block;
-  vertical-align: middle;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1.5rem;
+	margin: 0 0.5rem;
+	display: inline-block;
+	vertical-align: middle;
 `;
 
 const BestPracticeGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin: 2rem 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1.5rem;
+	margin: 2rem 0;
 `;
 
 const BestPracticeCard = styled.div<{ type: 'do' | 'dont' }>`
-  padding: 1.5rem;
-  border-radius: 8px;
-  border: 2px solid;
-  background: ${(props) => (props.type === 'do' ? '#f0fdf4' : '#fef2f2')};
-  border-color: ${(props) => (props.type === 'do' ? '#10b981' : '#ef4444')};
+	padding: 1.5rem;
+	border-radius: 8px;
+	border: 2px solid;
+	background: ${(props) => (props.type === 'do' ? '#f0fdf4' : '#fef2f2')};
+	border-color: ${(props) => (props.type === 'do' ? '#10b981' : '#ef4444')};
 `;
 
 const BestPracticeHeader = styled.div<{ type: 'do' | 'dont' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  color: ${(props) => (props.type === 'do' ? '#059669' : '#dc2626')};
-  font-weight: 600;
-  font-size: 1.1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+	color: ${(props) => (props.type === 'do' ? '#059669' : '#dc2626')};
+	font-weight: 600;
+	font-size: 1.1rem;
 `;
 
 const BestPracticeContent = styled.div`
-  color: #4b5563;
-  line-height: 1.6;
+	color: #4b5563;
+	line-height: 1.6;
 `;
 
 const pageConfig = {
@@ -305,7 +305,7 @@ const ScopesBestPractices: React.FC = () => {
 				<Content>
 					<Section>
 						<SectionTitle>
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 							What are OAuth 2.0 Scopes?
 						</SectionTitle>
 
@@ -774,7 +774,7 @@ transaction-12345`}</CodeBlock>
 						<InfoBox type="info">
 							<InfoBoxContent>
 								<InfoBoxIcon type="info">
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 								</InfoBoxIcon>
 								<InfoBoxText>
 									<InfoBoxTitle>Additional Resources</InfoBoxTitle>

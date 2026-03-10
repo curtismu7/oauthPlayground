@@ -96,6 +96,20 @@ export const REGIONS_FOR_UI: Array<{ value: PingOneRegion; label: string }> = [
 	{ value: 'sg', label: 'Singapore region — api.pingone.sg' },
 ];
 
+/** Region code → PingOne API TLD for display (e.g. us → com for api.pingone.com). */
+export const REGION_TO_TLD: Record<string, string> = {
+	us: 'com',
+	na: 'com',
+	com: 'com',
+	eu: 'eu',
+	ca: 'ca',
+	ap: 'asia',
+	asia: 'asia',
+	au: 'com.au',
+	'com.au': 'com.au',
+	sg: 'sg',
+};
+
 // ─── Storage keys ─────────────────────────────────────────────────────────────
 const IDB_NAME = 'oauth_playground_app_config';
 const IDB_STORE = 'settings';

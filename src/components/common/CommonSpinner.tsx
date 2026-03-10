@@ -63,13 +63,13 @@ const SpinnerContainer = styled.div<{
 	$size: SpinnerSize;
 	$show: boolean;
 }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: ${({ $size }) => ($size === 'sm' ? '8px' : $size === 'md' ? '12px' : '16px')};
-  
-  /* Variant styles */
-  ${({ $variant, $theme }) => {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: ${({ $size }) => ($size === 'sm' ? '8px' : $size === 'md' ? '12px' : '16px')};
+
+	/* Variant styles */
+	${({ $variant, $theme }) => {
 		switch ($variant) {
 			case 'inline':
 				return `
@@ -106,93 +106,93 @@ const SpinnerContainer = styled.div<{
 				return '';
 		}
 	}}
-  
-  /* Animation */
+
+	/* Animation */
   animation: ${({ $show }) => ($show ? fadeIn : fadeOut)} 0.3s ease-out;
-  opacity: ${({ $show }) => ($show ? 1 : 0)};
-  pointer-events: ${({ $show }) => ($show ? 'auto' : 'none')};
+	opacity: ${({ $show }) => ($show ? 1 : 0)};
+	pointer-events: ${({ $show }) => ($show ? 'auto' : 'none')};
 `;
 
 const SpinnerIcon = styled.div<{
 	$size: SpinnerSize;
 	$theme: SpinnerTheme;
 }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: ${({ $size }) => sizeConfig[$size].container};
-  height: ${({ $size }) => sizeConfig[$size].container};
-  animation: ${spin} 1s linear infinite;
-  
-  svg {
-    font-size: ${({ $size }) => sizeConfig[$size].icon}px;
-    color: ${({ $theme }) => themeConfig[$theme].primary};
-  }
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: ${({ $size }) => sizeConfig[$size].container};
+	height: ${({ $size }) => sizeConfig[$size].container};
+	animation: ${spin} 1s linear infinite;
+
+	svg {
+		font-size: ${({ $size }) => sizeConfig[$size].icon}px;
+		color: ${({ $theme }) => themeConfig[$theme].primary};
+	}
 `;
 
 const SpinnerText = styled.div<{
 	$size: SpinnerSize;
 	$theme: SpinnerTheme;
 }>`
-  font-weight: 500;
-  color: ${({ $theme }) => themeConfig[$theme].text};
-  font-size: ${({ $size }) => sizeConfig[$size].fontSize};
-  text-align: center;
-  line-height: 1.4;
+	font-weight: 500;
+	color: ${({ $theme }) => themeConfig[$theme].text};
+	font-size: ${({ $size }) => sizeConfig[$size].fontSize};
+	text-align: center;
+	line-height: 1.4;
 `;
 
 const ProgressContainer = styled.div<{
 	$size: SpinnerSize;
 	$theme: SpinnerTheme;
 }>`
-  width: 100%;
-  margin-top: 16px;
+	width: 100%;
+	margin-top: 16px;
 `;
 
 const ProgressBar = styled.div<{
 	$theme: SpinnerTheme;
 	$progress: number;
 }>`
-  height: 4px;
-  background: ${({ $theme }) => themeConfig[$theme].secondary};
-  border-radius: 2px;
-  overflow: hidden;
-  position: relative;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: ${({ $progress }) => $progress}%;
-    background: ${({ $theme }) => themeConfig[$theme].primary};
-    transition: width 0.3s ease-out;
-  }
+	height: 4px;
+	background: ${({ $theme }) => themeConfig[$theme].secondary};
+	border-radius: 2px;
+	overflow: hidden;
+	position: relative;
+
+	&::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 100%;
+		width: ${({ $progress }) => $progress}%;
+		background: ${({ $theme }) => themeConfig[$theme].primary};
+		transition: width 0.3s ease-out;
+	}
 `;
 
 const DismissButton = styled.button<{
 	$theme: SpinnerTheme;
 }>`
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  color: ${({ $theme }) => themeConfig[$theme].text};
-  opacity: 0.6;
-  transition: opacity 0.2s;
-  
-  &:hover {
-    opacity: 1;
-  }
-  
-  svg {
-    font-size: 16px;
-  }
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 4px;
+	border-radius: 4px;
+	color: ${({ $theme }) => themeConfig[$theme].text};
+	opacity: 0.6;
+	transition: opacity 0.2s;
+
+	&:hover {
+		opacity: 1;
+	}
+
+	svg {
+		font-size: 16px;
+	}
 `;
 
 /**
@@ -230,7 +230,7 @@ export const CommonSpinner: React.FC<CommonSpinnerProps> = ({
 			)}
 
 			<SpinnerIcon $size={size} $theme={theme}>
-				<span>❓</span>
+				<i className="bi bi-question-circle"></i>
 			</SpinnerIcon>
 
 			{message && (

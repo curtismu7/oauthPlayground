@@ -31,11 +31,16 @@ const HeroTitle = styled.h1`
 	font-size: 3rem;
 	font-weight: 800;
 	margin: 0 0 1rem 0;
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_LIGHT 0%, V9_COLORS.PRIMARY.BLUE 50%, #f472b6 100%);
+	background: linear-gradient(
+		135deg,
+		V9_COLORS.PRIMARY.BLUE_LIGHT 0%,
+		V9_COLORS.PRIMARY.BLUE 50%,
+		#f472b6 100%
+	);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
-	
+
 	@media (max-width: 768px) {
 		font-size: 2rem;
 	}
@@ -47,7 +52,7 @@ const HeroSubtitle = styled.p`
 	max-width: 800px;
 	margin: 0 auto 2rem;
 	line-height: 1.6;
-	
+
 	@media (max-width: 768px) {
 		font-size: 1.1rem;
 	}
@@ -193,7 +198,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 
 					<FeatureCard color="V9_COLORS.PRIMARY.BLUE">
 						<FeatureIcon color="linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)">
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 						</FeatureIcon>
 						<FeatureTitle>Multi-Language Code</FeatureTitle>
 						<FeatureDescription>
@@ -310,7 +315,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 							onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
 							onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
 						>
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 							Try OAuth Playground
 						</a>
 					</div>

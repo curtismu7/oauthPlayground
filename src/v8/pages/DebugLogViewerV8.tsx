@@ -139,7 +139,11 @@ export const DebugLogViewerV8: React.FC = () => {
 		},
 		{ value: 'indexedDB', label: 'IndexedDB', icon: <span style={{ fontSize: '16px' }}>🗄️</span> },
 		{ value: 'sqlite', label: 'SQLite', icon: <span style={{ fontSize: '16px' }}>🗄️</span> },
-		{ value: 'file', label: 'File', icon: <span style={{ fontSize: '16px' }}>❓</span> },
+		{
+			value: 'file',
+			label: 'File',
+			icon: <i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>,
+		},
 		{
 			value: 'callback-debug',
 			label: 'Callback Debug',
@@ -520,7 +524,11 @@ export const DebugLogViewerV8: React.FC = () => {
 				} catch (parseError) {
 					// If line is not valid JSON, add it as a simple log entry
 					const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown error';
-					logger.warn('Failed to parse callback debug log entry:', errorMessage, 'Parse error in debug log');
+					logger.warn(
+						'Failed to parse callback debug log entry:',
+						errorMessage,
+						'Parse error in debug log'
+					);
 					const entry: LogEntry = {
 						timestamp: new Date().toISOString(),
 						level: 'WARN',

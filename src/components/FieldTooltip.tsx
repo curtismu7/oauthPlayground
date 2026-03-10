@@ -16,66 +16,70 @@ export interface FieldTooltipProps {
 }
 
 const TooltipWrapper = styled.span`
-  position: relative;
-  display: inline-flex;
-  align-items: center;
+	position: relative;
+	display: inline-flex;
+	align-items: center;
 `;
 
 const TooltipTrigger = styled.span`
-  display: inline-flex;
-  align-items: center;
-  cursor: help;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin-left: 0.25rem;
-  
-  &:hover {
-    color: V9_COLORS.PRIMARY.BLUE;
-  }
+	display: inline-flex;
+	align-items: center;
+	cursor: help;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin-left: 0.25rem;
+
+	&:hover {
+		color: V9_COLORS.PRIMARY.BLUE;
+	}
 `;
 
 const TooltipContent = styled.div<{ $visible: boolean }>`
-  position: absolute;
-  bottom: calc(100% + 0.5rem);
-  left: 50%;
-  transform: translateX(-50%);
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  color: white;
-  padding: 0.625rem 0.875rem;
-  border-radius: 0.375rem;
-  font-size: 0.8125rem;
-  line-height: 1.4;
-  white-space: normal;
-  max-width: 280px;
-  width: max-content;
-  z-index: 1000;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  pointer-events: none;
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  visibility: ${({ $visible }) => ($visible ? 'visible' : 'hidden')};
-  transition: opacity 0.2s ease, visibility 0.2s ease;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	position: absolute;
+	bottom: calc(100% + 0.5rem);
+	left: 50%;
+	transform: translateX(-50%);
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: white;
+	padding: 0.625rem 0.875rem;
+	border-radius: 0.375rem;
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	white-space: normal;
+	max-width: 280px;
+	width: max-content;
+	z-index: 1000;
+	box-shadow:
+		0 4px 6px -1px rgba(0, 0, 0, 0.1),
+		0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	pointer-events: none;
+	opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+	visibility: ${({ $visible }) => ($visible ? 'visible' : 'hidden')};
+	transition:
+		opacity 0.2s ease,
+		visibility 0.2s ease;
+
+	&::after {
+		content: '';
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		border: 6px solid transparent;
+		border-top-color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 `;
 
 const TooltipLink = styled.a`
-  color: #93c5fd;
-  text-decoration: none;
-  font-weight: 500;
-  display: block;
-  margin-top: 0.375rem;
-  
-  &:hover {
-    text-decoration: underline;
-    color: V9_COLORS.TEXT.GRAY_LIGHTER;
-  }
+	color: #93c5fd;
+	text-decoration: none;
+	font-weight: 500;
+	display: block;
+	margin-top: 0.375rem;
+
+	&:hover {
+		text-decoration: underline;
+		color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	}
 `;
 
 /**
@@ -119,7 +123,7 @@ export const FieldTooltip: React.FC<FieldTooltipProps> = ({ content, specReferen
 				role="tooltip"
 				aria-label={content}
 			>
-				{children || <span style={{ fontSize: '14px' }}>❓</span>}
+				{children || <i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>}
 			</TooltipTrigger>
 			<TooltipContent $visible={visible} role="tooltip">
 				{content}

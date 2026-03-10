@@ -348,7 +348,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 													letterSpacing: '0.5px',
 												}}
 											>
-												<span style={{ fontSize: '14px' }}>❓</span>
+												<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 												Subject ID
 											</div>
 											<div

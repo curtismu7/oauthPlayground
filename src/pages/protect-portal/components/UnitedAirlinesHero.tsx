@@ -19,390 +19,390 @@ import type { LoginContext, PortalError, UserContext } from '../types/protectPor
 // ============================================================================
 
 const UnitedContainer = styled.div`
-  min-height: 100vh;
-  background: V9_COLORS.TEXT.WHITE;
-  font-family: 'United', 'Helvetica Neue', Arial, sans-serif;
+	min-height: 100vh;
+	background: V9_COLORS.TEXT.WHITE;
+	font-family: 'United', 'Helvetica Neue', Arial, sans-serif;
 `;
 
 const Navigation = styled.nav`
-  background: #0033A0;
-  padding: 0;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	background: #0033a0;
+	padding: 0;
+	position: sticky;
+	top: 0;
+	z-index: 1000;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const NavContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2rem;
-  height: 60px;
+	max-width: 1200px;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 2rem;
+	height: 60px;
 `;
 
 const Logo = styled.div`
-  display: flex;
-  align-items: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-  
-  .logo-text {
-    color: white;
-    text-decoration: none;
-  }
-  
-  .logo-globe {
-    width: 24px;
-    height: 24px;
-    margin-right: 0.5rem;
-    background: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    color: #0033A0;
-    font-weight: 700;
-  }
+	display: flex;
+	align-items: center;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: white;
+
+	.logo-text {
+		color: white;
+		text-decoration: none;
+	}
+
+	.logo-globe {
+		width: 24px;
+		height: 24px;
+		margin-right: 0.5rem;
+		background: white;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 0.8rem;
+		color: #0033a0;
+		font-weight: 700;
+	}
 `;
 
 const UpdateStamp = styled.div`
-  display: inline-block;
-  margin: -1.5rem 0 2rem 0;
-  padding: 0.4rem 0.7rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
-  color: V9_COLORS.TEXT.WHITE;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+	display: inline-block;
+	margin: -1.5rem 0 2rem 0;
+	padding: 0.4rem 0.7rem;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.16);
+	color: V9_COLORS.TEXT.WHITE;
+	border: 1px solid rgba(255, 255, 255, 0.35);
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
 `;
 
 const NavLinks = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+
+	@media (max-width: 768px) {
+		display: none;
+	}
 `;
 
 const NavLink = styled.a`
-  color: white;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  padding: 0.5rem 0;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    border-bottom-color: white;
-  }
+	color: white;
+	text-decoration: none;
+	font-size: 0.9rem;
+	font-weight: 500;
+	padding: 0.5rem 0;
+	border-bottom: 2px solid transparent;
+	transition: all 0.2s ease;
+
+	&:hover {
+		border-bottom-color: white;
+	}
 `;
 
 const RightNav = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 `;
 
 const SearchButton = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  padding: 0.5rem;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background 0.2s ease;
-  
-  &:hover {
-    background: rgba(255,255,255,0.1);
-  }
+	background: none;
+	border: none;
+	color: white;
+	padding: 0.5rem;
+	cursor: pointer;
+	border-radius: 4px;
+	transition: background 0.2s ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
 `;
 
 const MobileMenuButton = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  padding: 0.5rem;
-  cursor: pointer;
-  display: none;
-  
-  @media (max-width: 768px) {
-    display: block;
-  }
+	background: none;
+	border: none;
+	color: white;
+	padding: 0.5rem;
+	cursor: pointer;
+	display: none;
+
+	@media (max-width: 768px) {
+		display: block;
+	}
 `;
 
 const HeroSection = styled.section`
-  background: linear-gradient(135deg, #0033A0 0%, #002880 50%, #001f60 100%);
-  padding: 4rem 2rem;
-  text-align: center;
-  color: white;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><linearGradient id="unitedSky" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0.05)"/></linearGradient><path d="M0,200 Q400,100 800,200 T1200,200 L1200,600 L0,600 Z" fill="url(%23unitedSky)" opacity="0.3"/><circle cx="300" cy="80" r="60" fill="rgba(255,255,255,0.05)"/><circle cx="900" cy="120" r="40" fill="rgba(255,255,255,0.03)"/></svg>');
-    opacity: 0.4;
-  }
-  
-  @media (max-width: 768px) {
-    padding: 3rem 1rem;
-  }
+	background: linear-gradient(135deg, #0033a0 0%, #002880 50%, #001f60 100%);
+	padding: 4rem 2rem;
+	text-align: center;
+	color: white;
+	position: relative;
+	overflow: hidden;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><linearGradient id="unitedSky" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0.05)"/></linearGradient><path d="M0,200 Q400,100 800,200 T1200,200 L1200,600 L0,600 Z" fill="url(%23unitedSky)" opacity="0.3"/><circle cx="300" cy="80" r="60" fill="rgba(255,255,255,0.05)"/><circle cx="900" cy="120" r="40" fill="rgba(255,255,255,0.03)"/></svg>');
+		opacity: 0.4;
+	}
+
+	@media (max-width: 768px) {
+		padding: 3rem 1rem;
+	}
 `;
 
 const HeroContent = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
+	max-width: 800px;
+	margin: 0 auto;
+	position: relative;
+	z-index: 1;
 `;
 
 const HeroTitle = styled.h1`
-  font-size: 3rem;
-  font-weight: 700;
-  color: #ff4d4f;
-  margin: 0 0 1rem 0;
-  line-height: 1.2;
-  
-  @media (max-width: 768px) {
-    font-size: 2rem;
-  }
+	font-size: 3rem;
+	font-weight: 700;
+	color: #ff4d4f;
+	margin: 0 0 1rem 0;
+	line-height: 1.2;
+
+	@media (max-width: 768px) {
+		font-size: 2rem;
+	}
 `;
 
 const HeroSubtitle = styled.p`
-  font-size: 1.25rem;
-  color: #ffb3b3;
-  margin: 0 0 3rem 0;
-  line-height: 1.6;
-  opacity: 0.9;
-  
-  @media (max-width: 768px) {
-    font-size: 1rem;
-  }
+	font-size: 1.25rem;
+	color: #ffb3b3;
+	margin: 0 0 3rem 0;
+	line-height: 1.6;
+	opacity: 0.9;
+
+	@media (max-width: 768px) {
+		font-size: 1rem;
+	}
 `;
 
 const EmployeePortalCard = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  max-width: 500px;
-  margin: 0 auto;
-  box-shadow: 0 8px 32px rgba(0,51,160,0.15);
-  text-align: left;
+	background: white;
+	border-radius: 12px;
+	padding: 2rem;
+	max-width: 500px;
+	margin: 0 auto;
+	box-shadow: 0 8px 32px rgba(0, 51, 160, 0.15);
+	text-align: left;
 `;
 
 const CardHeader = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+	display: flex;
+	align-items: center;
+	margin-bottom: 1.5rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid #e0e0e0;
 `;
 
 const CardIcon = styled.div`
-  width: 48px;
-  height: 48px;
-  background: #0033A0;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 1rem;
-  color: white;
-  font-size: 1.2rem;
+	width: 48px;
+	height: 48px;
+	background: #0033a0;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 1rem;
+	color: white;
+	font-size: 1.2rem;
 `;
 
 const CardTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #0033A0;
-  margin: 0;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #0033a0;
+	margin: 0;
 `;
 
 const CardDescription = styled.p`
-  color: #666;
-  margin: 0 0 1.5rem 0;
-  line-height: 1.5;
+	color: #666;
+	margin: 0 0 1.5rem 0;
+	line-height: 1.5;
 `;
 
 const LoginForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
 `;
 
 const InputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const InputLabel = styled.label`
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #333;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #333;
 `;
 
 const Input = styled.input`
-  padding: 0.75rem 1rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: #0033A0;
-  }
+	padding: 0.75rem 1rem;
+	border: 2px solid #e0e0e0;
+	border-radius: 6px;
+	font-size: 1rem;
+	transition: border-color 0.2s ease;
+
+	&:focus {
+		outline: none;
+		border-color: #0033a0;
+	}
 `;
 
 const LoginButton = styled.button`
-  background: #FF6600;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 1rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  
-  &:hover {
-    background: #E55A00;
-  }
-  
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-  }
+	background: #ff6600;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	padding: 1rem;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.2s ease;
+
+	&:hover {
+		background: #e55a00;
+	}
+
+	&:disabled {
+		background: #ccc;
+		cursor: not-allowed;
+	}
 `;
 
 const FeaturesSection = styled.section`
-  padding: 4rem 2rem;
-  background: #f8f9fa;
+	padding: 4rem 2rem;
+	background: #f8f9fa;
 `;
 
 const FeaturesContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
+	max-width: 1200px;
+	margin: 0 auto;
 `;
 
 const FeaturesTitle = styled.h2`
-  text-align: center;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #0033A0;
-  margin: 0 0 3rem 0;
+	text-align: center;
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: #0033a0;
+	margin: 0 0 3rem 0;
 `;
 
 const FeaturesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 2rem;
 `;
 
 const FeatureCard = styled.div`
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  text-align: center;
+	background: white;
+	padding: 2rem;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	text-align: center;
 `;
 
 const FeatureIcon = styled.div`
-  width: 64px;
-  height: 64px;
-  background: #0033A0;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1rem;
-  color: white;
-  font-size: 1.5rem;
+	width: 64px;
+	height: 64px;
+	background: #0033a0;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 1rem;
+	color: white;
+	font-size: 1.5rem;
 `;
 
 const FeatureTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #0033A0;
-  margin: 0 0 1rem 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #0033a0;
+	margin: 0 0 1rem 0;
 `;
 
 const FeatureDescription = styled.p`
-  color: #666;
-  line-height: 1.6;
-  margin: 0;
+	color: #666;
+	line-height: 1.6;
+	margin: 0;
 `;
 
 // Dropdown Login Components (for mobile/tablet)
 const LoginDropdown = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  border-bottom: 3px solid #0033A0;
-  box-shadow: 0 4px 20px rgba(0, 51, 160, 0.15);
-  z-index: 9999;
-  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
-  visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
-  transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-100%')});
-  transition: all 0.3s ease;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	background: white;
+	border-bottom: 3px solid #0033a0;
+	box-shadow: 0 4px 20px rgba(0, 51, 160, 0.15);
+	z-index: 9999;
+	opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+	visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
+	transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-100%')});
+	transition: all 0.3s ease;
 `;
 
 const DropdownHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 2rem;
-  background: #0033A0;
-  color: white;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1.5rem 2rem;
+	background: #0033a0;
+	color: white;
 `;
 
 const DropdownTitle = styled.h2`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #ff4d4f;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #ff4d4f;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 `;
 
 const CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: background 0.2s ease;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
+	background: none;
+	border: none;
+	color: white;
+	font-size: 1.5rem;
+	cursor: pointer;
+	padding: 0.5rem;
+	border-radius: 4px;
+	transition: background 0.2s ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
 `;
 
 const DropdownContent = styled.div`
-  padding: 2rem;
-  max-width: 400px;
-  margin: 0 auto;
+	padding: 2rem;
+	max-width: 400px;
+	margin: 0 auto;
 `;
 
 // ============================================================================
@@ -497,7 +497,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 								<span style={{ fontSize: '20px' }}>🔍</span>
 							</SearchButton>
 							<MobileMenuButton>
-								<span style={{ fontSize: '20px' }}>❓</span>
+								<i className="bi bi-question-circle" style={{ fontSize: '20px' }}></i>
 							</MobileMenuButton>
 						</RightNav>
 					</NavContainer>

@@ -5,7 +5,13 @@ const Page = styled.div`
 	min-height: 100vh;
 	padding: 2.5rem clamp(1rem, 4vw, 3rem);
 	background: radial-gradient(circle at top, #eef2ff, #e0e7ff 45%, V9_COLORS.BG.GRAY_LIGHT 100%);
-	font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	font-family:
+		'Inter',
+		system-ui,
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		sans-serif;
 	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
@@ -474,7 +480,7 @@ const TaskListApp: React.FC = () => {
 					<HeaderRow>
 						<TitleGroup>
 							<GlowingBadge>
-								<span>❓</span> Productivity Hub
+								<i className="bi bi-question-circle"></i> Productivity Hub
 							</GlowingBadge>
 							<Title>Task List</Title>
 							<Subtitle>Plan, prioritize, and celebrate your progress.</Subtitle>
@@ -549,7 +555,11 @@ const TaskListApp: React.FC = () => {
 										</div>
 										<TaskActions>
 											<IconButton onClick={() => toggleTaskStatus(task.id)} title="Toggle status">
-												{task.status === 'completed' ? <span>❓</span> : <span>✅</span>}
+												{task.status === 'completed' ? (
+													<i className="bi bi-question-circle"></i>
+												) : (
+													<span>✅</span>
+												)}
 											</IconButton>
 											<IconButton onClick={() => deleteTask(task.id)} title="Delete task">
 												<span>🗑️</span>
