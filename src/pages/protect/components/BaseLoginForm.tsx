@@ -13,7 +13,7 @@
  * All company-specific forms should use this component, not duplicate the fields.
  */
 
-import { FiLockIcon } from '@icons';
+import { FiLockIcon } from '../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
@@ -26,135 +26,135 @@ import type { LoginContext, PortalError, UserContext } from '../types/protectPor
 // ============================================================================
 
 const LoginForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 620px;
-  margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	width: 100%;
+	max-width: 620px;
+	margin: 0 auto;
 `;
 
 const InputGroup = styled.div`
-  position: relative;
-  width: 100%;
+	position: relative;
+	width: 100%;
 `;
 
 const InputLabel = styled.label`
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--brand-text);
-  margin-bottom: 0.5rem;
-  font-family: var(--brand-body-font);
+	display: block;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--brand-text);
+	margin-bottom: 0.5rem;
+	font-family: var(--brand-body-font);
 `;
 
 const InputWrapper = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 100%;
 `;
 
 const InputIcon = styled.div`
-  position: absolute;
-  left: 1rem;
-  color: var(--brand-text-secondary);
-  pointer-events: none;
-  z-index: 1;
+	position: absolute;
+	left: 1rem;
+	color: var(--brand-text-secondary);
+	pointer-events: none;
+	z-index: 1;
 `;
 
 const StyledInput = styled.input.withConfig({
 	shouldForwardProp: (prop) => !['hasIcon', 'hasToggle'].includes(prop),
 })<{ hasIcon: boolean; hasToggle: boolean }>`
-  width: 100%;
-  padding: ${(props) => {
+	width: 100%;
+	padding: ${(props) => {
 		const leftPadding = props.hasIcon ? '3rem' : '1rem';
 		const rightPadding = props.hasToggle ? '3rem' : '1rem';
 		return `0.75rem ${rightPadding} 0.75rem ${leftPadding}`;
 	}};
-  border: 2px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-sm);
-  font-size: 1rem;
-  transition: var(--brand-transition);
-  background: white;
-  font-family: var(--brand-body-font);
+	border: 2px solid var(--brand-text-secondary);
+	border-radius: var(--brand-radius-sm);
+	font-size: 1rem;
+	transition: var(--brand-transition);
+	background: white;
+	font-family: var(--brand-body-font);
 
-  &:focus {
-    outline: none;
-    border-color: var(--brand-primary);
-    box-shadow: var(--brand-shadow-md);
-  }
+	&:focus {
+		outline: none;
+		border-color: var(--brand-primary);
+		box-shadow: var(--brand-shadow-md);
+	}
 
-  &:invalid {
-    border-color: var(--brand-error);
-  }
+	&:invalid {
+		border-color: var(--brand-error);
+	}
 
-  &::placeholder {
-    color: var(--brand-text-secondary);
-  }
+	&::placeholder {
+		color: var(--brand-text-secondary);
+	}
 `;
 
 const PasswordToggle = styled.button`
-  position: absolute;
-  right: 1rem;
-  background: none;
-  border: none;
-  color: var(--brand-text-secondary);
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: var(--brand-radius-xs);
-  transition: var(--brand-transition);
+	position: absolute;
+	right: 1rem;
+	background: none;
+	border: none;
+	color: var(--brand-text-secondary);
+	cursor: pointer;
+	padding: 0.25rem;
+	border-radius: var(--brand-radius-xs);
+	transition: var(--brand-transition);
 
-  &:hover {
-    color: var(--brand-text);
-  }
+	&:hover {
+		color: var(--brand-text);
+	}
 
-  &:focus {
-    outline: none;
-    color: var(--brand-primary);
-  }
+	&:focus {
+		outline: none;
+		color: var(--brand-primary);
+	}
 `;
 
 const ErrorMessage = styled.div`
-  background: var(--brand-error-light);
-  border: 1px solid var(--brand-error);
-  border-radius: var(--brand-radius-sm);
-  padding: 1rem;
-  color: var(--brand-error);
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  font-family: var(--brand-body-font);
+	background: var(--brand-error-light);
+	border: 1px solid var(--brand-error);
+	border-radius: var(--brand-radius-sm);
+	padding: 1rem;
+	color: var(--brand-error);
+	font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+	font-family: var(--brand-body-font);
 `;
 
 const CheckboxGroup = styled.div`
-  display: flex;
-  align-items: center;
-  margin: -0.5rem 0 0.5rem 0;
+	display: flex;
+	align-items: center;
+	margin: -0.5rem 0 0.5rem 0;
 `;
 
 const CheckboxLabel = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--brand-text);
-  cursor: pointer;
-  user-select: none;
-  font-family: var(--brand-body-font);
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	color: var(--brand-text);
+	cursor: pointer;
+	user-select: none;
+	font-family: var(--brand-body-font);
 
-  input[type='checkbox'] {
-    width: 1.125rem;
-    height: 1.125rem;
-    cursor: pointer;
-    accent-color: var(--brand-primary);
-  }
+	input[type='checkbox'] {
+		width: 1.125rem;
+		height: 1.125rem;
+		cursor: pointer;
+		accent-color: var(--brand-primary);
+	}
 
-  &:hover {
-    color: var(--brand-primary);
-  }
+	&:hover {
+		color: var(--brand-primary);
+	}
 `;
 
 // ============================================================================
@@ -272,7 +272,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 			}
 
 			try {
-				logger.info('[🔐 BASE-LOGIN] Starting PingOne authentication', "Logger info");
+				logger.info('[🔐 BASE-LOGIN] Starting PingOne authentication', 'Logger info');
 
 				// Step 1: Initialize embedded login flow
 				const flowResponse = await PingOneLoginService.initializeEmbeddedLogin(
@@ -318,7 +318,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 				}
 
 				// Step 3: Prepare user and login context from successful authentication
-				logger.info('[🔐 BASE-LOGIN] Authentication successful', "Logger info");
+				logger.info('[🔐 BASE-LOGIN] Authentication successful', 'Logger info');
 
 				// Prepare user context using actual UserContext type
 				const userContext: UserContext = {

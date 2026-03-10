@@ -1,7 +1,7 @@
 // src/components/WorkerTokenModal.tsx
 // Modal for configuring worker token when not available
 
-import { FiAlertTriangle, FiInfo } from '@icons';
+import { FiAlertTriangle, FiInfo } from '../../../../icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -28,65 +28,66 @@ type RequestDetails = {
 // Note: Worker tokens use roles, not scopes. Scopes are optional and not used for authorization.
 
 const InfoBox = styled.div<{ $variant: 'info' | 'warning' }>`
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  padding: 0.625rem;
-  border-radius: 0.375rem;
-  background: ${({ $variant }) =>
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+	padding: 0.625rem;
+	border-radius: 0.375rem;
+	background: ${({ $variant }) =>
 		$variant === 'warning' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(59, 130, 246, 0.1)'};
-  border: 1px solid ${({ $variant }) =>
-		$variant === 'warning' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(59, 130, 246, 0.3)'};
+	border: 1px solid
+		${({ $variant }) =>
+			$variant === 'warning' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(59, 130, 246, 0.3)'};
 `;
 
 const InfoContent = styled.div`
-  flex: 1;
+	flex: 1;
 `;
 
 const InfoTitle = styled.div`
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.25rem;
+	font-weight: 600;
+	color: #374151;
+	margin-bottom: 0.25rem;
 `;
 
 const InfoText = styled.div`
-  font-size: 0.8125rem;
-  color: #6b7280;
-  line-height: 1.4;
+	font-size: 0.8125rem;
+	color: #6b7280;
+	line-height: 1.4;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  border: none;
-  background: ${({ $variant }) =>
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.5rem 1rem;
+	border-radius: 0.375rem;
+	border: none;
+	background: ${({ $variant }) =>
 		$variant === 'secondary' ? '#e5e7eb' : $variant === 'success' ? '#10b981' : '#2563eb'};
-  color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 120ms ease;
-  font-size: 0.8125rem;
-  text-decoration: none;
+	color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 120ms ease;
+	font-size: 0.8125rem;
+	text-decoration: none;
 
-  &:hover {
-    background: ${({ $variant }) =>
+	&:hover {
+		background: ${({ $variant }) =>
 			$variant === 'secondary' ? '#d1d5db' : $variant === 'success' ? '#059669' : '#1e40af'};
-  }
+	}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-top: 0.5rem;
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+	margin-top: 0.5rem;
 `;
 
 const StickyFooter = styled.div`
@@ -101,98 +102,100 @@ const StickyFooter = styled.div`
 `;
 
 const FormSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin: 0.75rem 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	margin: 0.75rem 0;
 `;
 
 const FormField = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
 `;
 
 const FormLabel = styled.label`
-  font-weight: 600;
-  color: #374151;
-  font-size: 0.8125rem;
+	font-weight: 600;
+	color: #374151;
+	font-size: 0.8125rem;
 `;
 
 const FormInput = styled.input`
-  width: 100%;
-  padding: 0.5rem 0.625rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  transition: border-color 0.2s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	padding: 0.5rem 0.625rem;
+	border: 1px solid #d1d5db;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	transition: border-color 0.2s ease;
+
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const FormSelect = styled.select`
-  width: 100%;
-  padding: 0.5rem 0.625rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  background-color: #ffffff;
-  transition: border-color 0.2s ease;
-  cursor: pointer;
-  
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-  
-  option:disabled {
-    color: #9ca3af;
-  }
+	width: 100%;
+	padding: 0.5rem 0.625rem;
+	border: 1px solid #d1d5db;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	background-color: #ffffff;
+	transition: border-color 0.2s ease;
+	cursor: pointer;
+
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+
+	option:disabled {
+		color: #9ca3af;
+	}
 `;
 
 const PasswordInput = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  
-  input {
-    width: 100%;
-    padding-right: 2.5rem; /* Make room for the toggle button */
-  }
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 100%;
+
+	input {
+		width: 100%;
+		padding-right: 2.5rem; /* Make room for the toggle button */
+	}
 `;
 
 const PasswordToggle = styled.button`
-  position: absolute;
-  right: 0.75rem;
-  background: none;
-  border: none;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0.25rem;
-  
-  &:hover {
-    color: #374151;
-  }
+	position: absolute;
+	right: 0.75rem;
+	background: none;
+	border: none;
+	color: #6b7280;
+	cursor: pointer;
+	padding: 0.25rem;
+
+	&:hover {
+		color: #374151;
+	}
 `;
 
 const LoadingSpinner = styled.div`
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 50%;
-  border-top-color: #3b82f6;
-  animation: spin 1s ease-in-out infinite;
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border: 2px solid #e5e7eb;
+	border-radius: 50%;
+	border-top-color: #3b82f6;
+	animation: spin 1s ease-in-out infinite;
 
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
 // Removed normalizeScopes - scope filtering is now handled inline with OIDC scope detection
@@ -333,8 +336,9 @@ export const WorkerTokenModal: React.FC<Props> = ({
 
 			if (isValidEnvId) {
 				logger.info(
-					'[WorkerTokenModal] 🔄 Initial state: Using saved credentials from flow-specific storage'
-				, "Logger info");
+					'[WorkerTokenModal] 🔄 Initial state: Using saved credentials from flow-specific storage',
+					'Logger info'
+				);
 				return {
 					environmentId: savedEnvId,
 					clientId: savedCredentials.clientId || '',
@@ -595,8 +599,9 @@ export const WorkerTokenModal: React.FC<Props> = ({
 					savedCredentials.clientSecret
 				) {
 					logger.info(
-						'[WorkerTokenModal] 🔄 Modal opened - reloading saved credentials from global storage'
-					, "Logger info");
+						'[WorkerTokenModal] 🔄 Modal opened - reloading saved credentials from global storage',
+						'Logger info'
+					);
 					const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 					const savedEnvId = savedCredentials.environmentId?.trim() || '';
 					const isValidEnvId = savedEnvId && uuidRegex.test(savedEnvId);
@@ -612,7 +617,10 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						setWorkerCredentials((prev) => {
 							// Only update if current credentials are empty or different from saved
 							if (!prev.clientId || !prev.clientSecret || prev.environmentId !== savedEnvId) {
-								logger.info('[WorkerTokenModal] ✅ Updating credentials from saved storage', "Logger info");
+								logger.info(
+									'[WorkerTokenModal] ✅ Updating credentials from saved storage',
+									'Logger info'
+								);
 								return {
 									environmentId: savedEnvId,
 									clientId: savedCredentials.clientId || '',
@@ -631,7 +639,10 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						});
 					}
 				} else {
-					logger.info('[WorkerTokenModal] ⚠️ No saved credentials found in global storage', "Logger info");
+					logger.info(
+						'[WorkerTokenModal] ⚠️ No saved credentials found in global storage',
+						'Logger info'
+					);
 				}
 			};
 			loadCredentials();
@@ -656,7 +667,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		});
 
 		v4ToastManager.showSuccess('Saved credentials cleared successfully');
-		logger.info('[WorkerTokenModal] Cleared all saved credentials via service', "Logger info");
+		logger.info('[WorkerTokenModal] Cleared all saved credentials via service', 'Logger info');
 	};
 
 	const handleSaveCredentials = async () => {
@@ -806,8 +817,9 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			try {
 				await workerTokenServiceV8.saveCredentials(credentialsToSave);
 				logger.info(
-					'[WorkerTokenModal] ✅ Credentials saved automatically before token generation'
-				, "Logger info");
+					'[WorkerTokenModal] ✅ Credentials saved automatically before token generation',
+					'Logger info'
+				);
 			} catch (error) {
 				logger.warn(
 					'[WorkerTokenModal] ⚠️ Failed to save credentials, but continuing with token generation',
@@ -899,8 +911,9 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			const scopeArray = finalScopes.split(/\s+/).filter(Boolean);
 			if (scopeArray.length > 1) {
 				logger.info(
-					'[WorkerTokenModal] ℹ️ Multiple scopes provided - using first one. Note: Scopes are NOT used for authorization.'
-				, "Logger info");
+					'[WorkerTokenModal] ℹ️ Multiple scopes provided - using first one. Note: Scopes are NOT used for authorization.',
+					'Logger info'
+				);
 				finalScopes = scopeArray[0];
 			}
 			logger.info(
@@ -974,8 +987,9 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		} else {
 			// No scope - will let PingOne use default scopes for the application
 			logger.info(
-				'[WorkerTokenModal] ℹ️ No scopes specified - PingOne will use default scopes for this application'
-			, "Logger info");
+				'[WorkerTokenModal] ℹ️ No scopes specified - PingOne will use default scopes for this application',
+				'Logger info'
+			);
 		}
 
 		// Store request details and show educational modal
@@ -995,7 +1009,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				region: workerCredentials.region || 'us',
 			});
 			setShowRequestModal(true);
-			logger.info('[WorkerTokenModal] ✅ Educational modal state set to true', "Logger info");
+			logger.info('[WorkerTokenModal] ✅ Educational modal state set to true', 'Logger info');
 			return;
 		}
 
@@ -1045,13 +1059,16 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						`Basic ${btoa(`${requestParams.client_id}:${requestParams.client_secret}`)}`;
 					// Still need client_id in body for token endpoint (PingOne requirement)
 					bodyParams.client_id = requestParams.client_id;
-					logger.info('[WorkerTokenModal] Using Basic auth in header with client_id in body', "Logger info");
+					logger.info(
+						'[WorkerTokenModal] Using Basic auth in header with client_id in body',
+						'Logger info'
+					);
 					break;
 				case 'client_secret_post':
 					// Send client credentials in request body
 					bodyParams.client_id = requestParams.client_id;
 					bodyParams.client_secret = requestParams.client_secret;
-					logger.info('[WorkerTokenModal] Using client credentials in body', "Logger info");
+					logger.info('[WorkerTokenModal] Using client credentials in body', 'Logger info');
 					break;
 				case 'client_secret_jwt':
 				case 'private_key_jwt':
@@ -1066,13 +1083,13 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				case 'none':
 					// No authentication - just send client_id
 					bodyParams.client_id = requestParams.client_id;
-					logger.info('[WorkerTokenModal] Using no authentication', "Logger info");
+					logger.info('[WorkerTokenModal] Using no authentication', 'Logger info');
 					break;
 				default:
 					// Default to client_secret_post
 					bodyParams.client_id = requestParams.client_id;
 					bodyParams.client_secret = requestParams.client_secret;
-					logger.info('[WorkerTokenModal] Default to client_secret_post', "Logger info");
+					logger.info('[WorkerTokenModal] Default to client_secret_post', 'Logger info');
 			}
 
 			// Build URLSearchParams from bodyParams (ensures proper encoding and handles empty values)
@@ -1082,8 +1099,9 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				// Skip scope if it's empty, undefined, or null - let PingOne use default scopes
 				if (key === 'scope' && (!value || value.trim() === '')) {
 					logger.info(
-						'[WorkerTokenModal] ⚠️ Skipping empty scope parameter - PingOne will use default scopes'
-					, "Logger info");
+						'[WorkerTokenModal] ⚠️ Skipping empty scope parameter - PingOne will use default scopes',
+						'Logger info'
+					);
 					return;
 				}
 				if (value !== undefined && value !== null && value !== '') {
@@ -1091,14 +1109,14 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				}
 			});
 
-			logger.info('[WorkerTokenModal] ===== TOKEN REQUEST DETAILS =====', "Logger info");
+			logger.info('[WorkerTokenModal] ===== TOKEN REQUEST DETAILS =====', 'Logger info');
 			logger.info('[WorkerTokenModal] Endpoint:', tokenEndpoint);
 			logger.info('[WorkerTokenModal] Region:', pendingRequestDetails.region);
 			logger.info('[WorkerTokenModal] Headers:', headers);
 			logger.info('[WorkerTokenModal] Body params:', bodyParams);
 			logger.info('[WorkerTokenModal] Body string:', body.toString());
 			logger.info('[WorkerTokenModal] Scopes being sent:', bodyParams.scope);
-			logger.info('[WorkerTokenModal] ===============================', "Logger info");
+			logger.info('[WorkerTokenModal] ===============================', 'Logger info');
 
 			// Use trackedFetch to automatically track this API call in the API calls table
 			const response = await trackedFetch(tokenEndpoint, {
@@ -1331,8 +1349,9 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				});
 			} else {
 				logger.warn(
-					'[WorkerTokenModal] Token saved to legacy storage only; V8 service persistence failed.'
-				, "Logger warning");
+					'[WorkerTokenModal] Token saved to legacy storage only; V8 service persistence failed.',
+					'Logger warning'
+				);
 			}
 
 			// Dispatch custom event to notify other components that worker token was updated

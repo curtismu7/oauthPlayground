@@ -14,7 +14,7 @@
  * - Storage backend status display
  */
 
-import { FiClock } from '@icons';
+import { FiClock } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../../utils/logger';
@@ -28,50 +28,50 @@ const _MODULE_TAG = '[📋 ENHANCED-CREDENTIALS-FORM-V8]';
 // ============================================================================
 
 const FormContainer = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 2rem;
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
 const FormHeader = styled.div`
-  margin-bottom: 2rem;
-  text-align: center;
+	margin-bottom: 2rem;
+	text-align: center;
 `;
 
 const FormTitle = styled.h2`
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
+	font-size: 1.875rem;
+	font-weight: 700;
+	color: #1f2937;
+	margin-bottom: 0.5rem;
 `;
 
 const FormSubtitle = styled.p`
-  color: #6b7280;
-  font-size: 1rem;
+	color: #6b7280;
+	font-size: 1rem;
 `;
 
 const StorageStatus = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 2rem;
+	padding: 1rem;
+	background: #f9fafb;
+	border-radius: 8px;
+	border: 1px solid #e5e7eb;
 `;
 
 const StorageBackend = styled.div<{ status: 'available' | 'unavailable' | 'active' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  background: ${({ status }) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	font-size: 0.875rem;
+	font-weight: 600;
+	background: ${({ status }) => {
 		switch (status) {
 			case 'available':
 				return '#f0fdf4';
@@ -83,7 +83,7 @@ const StorageBackend = styled.div<{ status: 'available' | 'unavailable' | 'activ
 				return '#f9fafb';
 		}
 	}};
-  color: ${({ status }) => {
+	color: ${({ status }) => {
 		switch (status) {
 			case 'available':
 				return '#166534';
@@ -95,109 +95,116 @@ const StorageBackend = styled.div<{ status: 'available' | 'unavailable' | 'activ
 				return '#6b7280';
 		}
 	}};
-  border: 1px solid ${({ status }) => {
-		switch (status) {
-			case 'available':
-				return '#bbf7d0';
-			case 'unavailable':
-				return '#fecaca';
-			case 'active':
-				return '#bfdbfe';
-			default:
-				return '#e5e7eb';
-		}
-	}};
+	border: 1px solid
+		${({ status }) => {
+			switch (status) {
+				case 'available':
+					return '#bbf7d0';
+				case 'unavailable':
+					return '#fecaca';
+				case 'active':
+					return '#bfdbfe';
+				default:
+					return '#e5e7eb';
+			}
+		}};
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 `;
 
 const FormLabel = styled.label`
-  display: block;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
+	display: block;
+	font-weight: 600;
+	color: #374151;
+	margin-bottom: 0.5rem;
+	font-size: 0.875rem;
 `;
 
 const FormInput = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 1rem;
+	transition:
+		border-color 0.2s,
+		box-shadow 0.2s;
 
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 
-  &:invalid {
-    border-color: #ef4444;
-  }
+	&:invalid {
+		border-color: #ef4444;
+	}
 
-  &:disabled {
-    background-color: #f9fafb;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		background-color: #f9fafb;
+		cursor: not-allowed;
+	}
 `;
 
 const FormSelect = styled.select`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 1rem;
-  background-color: white;
-  transition: border-color 0.2s, box-shadow 0.2s;
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 1rem;
+	background-color: white;
+	transition:
+		border-color 0.2s,
+		box-shadow 0.2s;
 
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const FormTextarea = styled.textarea`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  resize: vertical;
-  min-height: 100px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 1rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	resize: vertical;
+	min-height: 100px;
+	transition:
+		border-color 0.2s,
+		box-shadow 0.2s;
 
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
+	display: flex;
+	gap: 1rem;
+	margin-top: 2rem;
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 1rem;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	border-radius: 6px;
+	font-weight: 600;
+	font-size: 1rem;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 
-  ${({ variant = 'primary' }) => {
+	${({ variant = 'primary' }) => {
 		switch (variant) {
 			case 'primary':
 				return `
@@ -229,77 +236,77 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 		}
 	}}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 `;
 
 const StatsPanel = styled.div`
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+	margin-top: 2rem;
+	padding: 1.5rem;
+	background: #f9fafb;
+	border-radius: 8px;
+	border: 1px solid #e5e7eb;
 `;
 
 const StatsTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #1f2937;
+	margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1rem;
 `;
 
 const StatItem = styled.div`
-  padding: 1rem;
-  background: white;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
+	padding: 1rem;
+	background: white;
+	border-radius: 6px;
+	border: 1px solid #e5e7eb;
 `;
 
 const StatLabel = styled.div`
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-bottom: 0.25rem;
+	font-size: 0.875rem;
+	color: #6b7280;
+	margin-bottom: 0.25rem;
 `;
 
 const StatValue = styled.div`
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1f2937;
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #1f2937;
 `;
 
 const ErrorMessage = styled.div`
-  padding: 1rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-  color: #991b1b;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	padding: 1rem;
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	border-radius: 6px;
+	color: #991b1b;
+	margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const SuccessMessage = styled.div`
-  padding: 1rem;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 6px;
-  color: #166534;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	padding: 1rem;
+	background: #f0fdf4;
+	border: 1px solid #bbf7d0;
+	border-radius: 6px;
+	color: #166534;
+	margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 // ============================================================================

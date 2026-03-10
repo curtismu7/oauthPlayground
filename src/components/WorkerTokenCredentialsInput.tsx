@@ -2,7 +2,7 @@
 // Worker Token Credentials Input Component - Specialized UI for PingOne Worker Token configuration
 // Provides a clean, focused interface for machine-to-machine authentication setup
 
-import { FiInfo, FiRefreshCw } from '@icons';
+import { FiInfo, FiRefreshCw } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -25,283 +25,283 @@ interface WorkerTokenCredentialsInputProps {
 
 // Styled Components
 const Container = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  overflow: hidden;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	overflow: hidden;
 `;
 
 const Header = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem 1.5rem;
+	background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+	color: white;
+	cursor: pointer;
+	transition: all 0.2s ease;
 
-  &:hover {
-    background: linear-gradient(135deg, #ea580c 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
-  }
+	&:hover {
+		background: linear-gradient(135deg, #ea580c 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
+	}
 `;
 
 const HeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 `;
 
 const HeaderTitle = styled.h3`
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const HeaderSubtitle = styled.p`
-  margin: 0;
-  font-size: 0.875rem;
-  opacity: 0.9;
+	margin: 0;
+	font-size: 0.875rem;
+	opacity: 0.9;
 `;
 
 const ToggleIcon = styled.span<{ $collapsed: boolean }>`
-  display: inline-flex;
-  width: 20px;
-  height: 20px;
-  align-items: center;
-  justify-content: center;
-  transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-  transition: transform 0.2s ease;
+	display: inline-flex;
+	width: 20px;
+	height: 20px;
+	align-items: center;
+	justify-content: center;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transition: transform 0.2s ease;
 `;
 
 const Content = styled.div<{ $collapsed: boolean }>`
-  max-height: ${({ $collapsed }) => ($collapsed ? '0' : '1000px')};
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  background: white;
+	max-height: ${({ $collapsed }) => ($collapsed ? '0' : '1000px')};
+	overflow: hidden;
+	transition: max-height 0.3s ease;
+	background: white;
 `;
 
 const FormContainer = styled.div`
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+	padding: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
 `;
 
 const FormGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
 
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+	}
 `;
 
 const FormField = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const FormLabel = styled.label`
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const RequiredIndicator = styled.span`
-  color: V9_COLORS.PRIMARY.RED;
-  font-weight: 600;
+	color: V9_COLORS.PRIMARY.RED;
+	font-weight: 600;
 `;
 
 const InputGroup = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
+	position: relative;
+	display: flex;
+	align-items: center;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	transition: all 0.2s ease;
 
-  &:focus {
-    outline: none;
-    border-color: #f97316;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: #f97316;
+		box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+	}
 
-  &:disabled {
-    background-color: #f9fafb;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		background-color: #f9fafb;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		cursor: not-allowed;
+	}
 
-  &[data-error="true"] {
-    border-color: V9_COLORS.PRIMARY.RED;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-  }
+	&[data-error='true'] {
+		border-color: V9_COLORS.PRIMARY.RED;
+		box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+	}
 `;
 
 const PasswordToggle = styled.button`
-  position: absolute;
-  right: 0.75rem;
-  padding: 0.25rem;
-  background: none;
-  border: none;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.25rem;
-  transition: color 0.2s ease;
+	position: absolute;
+	right: 0.75rem;
+	padding: 0.25rem;
+	background: none;
+	border: none;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 0.25rem;
+	transition: color 0.2s ease;
 
-  &:hover {
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	&:hover {
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 `;
 
 const Select = styled.select`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  background-color: white;
-  transition: all 0.2s ease;
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	background-color: white;
+	transition: all 0.2s ease;
 
-  &:focus {
-    outline: none;
-    border-color: #f97316;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: #f97316;
+		box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+	}
 
-  &:disabled {
-    background-color: #f9fafb;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		background-color: #f9fafb;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		cursor: not-allowed;
+	}
 `;
 
 const ScopesContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
 `;
 
 const ScopesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.5rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 0.5rem;
 `;
 
 const ScopeItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: #f3f4f6;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	background: #f3f4f6;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
 `;
 
 const ScopeCheckbox = styled.input`
-  margin: 0;
+	margin: 0;
 `;
 
 const ScopeLabel = styled.label`
-  margin: 0;
-  cursor: pointer;
-  flex: 1;
+	margin: 0;
+	cursor: pointer;
+	flex: 1;
 `;
 
 const ActionsContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 1rem;
+	padding-top: 1rem;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SaveButton = styled.button<{ $isSaving?: boolean; $hasChanges?: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: V9_COLORS.PRIMARY.GREEN;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  cursor: ${({ $isSaving }) => ($isSaving ? 'not-allowed' : 'pointer')};
-  opacity: ${({ $isSaving }) => ($isSaving ? 0.6 : 1)};
-  transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	background: V9_COLORS.PRIMARY.GREEN;
+	color: white;
+	border: none;
+	border-radius: 0.5rem;
+	font-weight: 500;
+	cursor: ${({ $isSaving }) => ($isSaving ? 'not-allowed' : 'pointer')};
+	opacity: ${({ $isSaving }) => ($isSaving ? 0.6 : 1)};
+	transition: all 0.2s ease;
 
-  &:hover:not(:disabled) {
-    background: V9_COLORS.PRIMARY.GREEN_DARK;
-    transform: translateY(-1px);
-  }
+	&:hover:not(:disabled) {
+		background: V9_COLORS.PRIMARY.GREEN_DARK;
+		transform: translateY(-1px);
+	}
 
-  &:disabled {
-    cursor: not-allowed;
-  }
+	&:disabled {
+		cursor: not-allowed;
+	}
 `;
 
 const ValidationContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const ValidationItem = styled.div<{ $type: 'error' | 'warning' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  background: ${({ $type }) => ($type === 'error' ? '#fef2f2' : '#fef3c7')};
-  color: ${({ $type }) => ($type === 'error' ? '#dc2626' : '#d97706')};
-  border: 1px solid ${({ $type }) => ($type === 'error' ? '#ef4444' : '#fed7aa')};
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	background: ${({ $type }) => ($type === 'error' ? '#fef2f2' : '#fef3c7')};
+	color: ${({ $type }) => ($type === 'error' ? '#dc2626' : '#d97706')};
+	border: 1px solid ${({ $type }) => ($type === 'error' ? '#ef4444' : '#fed7aa')};
 `;
 
 const InfoBox = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	padding: 1rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const InfoContent = styled.div`
-  flex: 1;
+	flex: 1;
 `;
 
 const InfoTitle = styled.h4`
-  margin: 0 0 0.5rem 0;
-  font-size: 0.875rem;
-  font-weight: 600;
+	margin: 0 0 0.5rem 0;
+	font-size: 0.875rem;
+	font-weight: 600;
 `;
 
 const InfoText = styled.p`
-  margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.5;
+	margin: 0;
+	font-size: 0.875rem;
+	line-height: 1.5;
 `;
 
 export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputProps> = ({

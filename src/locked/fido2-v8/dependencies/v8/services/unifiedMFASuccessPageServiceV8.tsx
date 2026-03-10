@@ -16,7 +16,7 @@
  * - FIDO policy information (if applicable)
  */
 
-import { FiCheck } from '@icons';
+import { FiCheck } from '../../../../../icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {

@@ -1,179 +1,181 @@
-import { FiAlertTriangle, FiCheckCircle, FiToggleRight } from '@icons';
+import { FiAlertTriangle, FiCheckCircle, FiToggleRight } from '../icons';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 
 const SettingsPanel = styled(Card)`
-  margin-bottom: 2rem;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	margin-bottom: 2rem;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 
-  &.expanded {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-  }
+	&.expanded {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+	}
 `;
 
 const SettingsHeader = styled(CardHeader)`
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: background-color 0.2s;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	transition: background-color 0.2s;
 
-  &:hover {
-    background-color: #f9fafb;
-  }
+	&:hover {
+		background-color: #f9fafb;
+	}
 
-  h3 {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin: 0;
-    font-size: 1.125rem;
-    font-weight: 600;
-  }
+	h3 {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin: 0;
+		font-size: 1.125rem;
+		font-weight: 600;
+	}
 `;
 
 const SettingsContent = styled(CardBody)`
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease, padding 0.3s ease;
+	max-height: 0;
+	overflow: hidden;
+	transition:
+		max-height 0.3s ease,
+		padding 0.3s ease;
 
-  &.expanded {
-    max-height: 1000px;
-    padding: 1.5rem;
-  }
+	&.expanded {
+		max-height: 1000px;
+		padding: 1.5rem;
+	}
 `;
 
 const SettingGroup = styled.div`
-  margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 
-  &:last-child {
-    margin-bottom: 0;
-  }
+	&:last-child {
+		margin-bottom: 0;
+	}
 
-  h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
+	h4 {
+		font-size: 1rem;
+		font-weight: 600;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+		margin-bottom: 1rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
 `;
 
 const SettingItem = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem;
-  background-color: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  margin-bottom: 0.5rem;
-  transition: all 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.75rem;
+	background-color: #f9fafb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	margin-bottom: 0.5rem;
+	transition: all 0.2s;
 
-  &:hover {
-    background-color: #f3f4f6;
-    border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
-  }
+	&:hover {
+		background-color: #f3f4f6;
+		border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	}
 
-  &.disabled {
-    opacity: 0.6;
-    background-color: V9_COLORS.BG.ERROR;
-    border-color: V9_COLORS.BG.ERROR_BORDER;
-  }
+	&.disabled {
+		opacity: 0.6;
+		background-color: V9_COLORS.BG.ERROR;
+		border-color: V9_COLORS.BG.ERROR_BORDER;
+	}
 `;
 
 const SettingInfo = styled.div`
-  flex: 1;
+	flex: 1;
 
-  .label {
-    font-weight: 500;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-    margin-bottom: 0.25rem;
-  }
+	.label {
+		font-weight: 500;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+		margin-bottom: 0.25rem;
+	}
 
-  .description {
-    font-size: 0.875rem;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    line-height: 1.4;
-  }
+	.description {
+		font-size: 0.875rem;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		line-height: 1.4;
+	}
 
-  .warning {
-    color: V9_COLORS.PRIMARY.YELLOW_DARK;
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
+	.warning {
+		color: V9_COLORS.PRIMARY.YELLOW_DARK;
+		font-size: 0.75rem;
+		margin-top: 0.25rem;
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
 `;
 
 const ToggleButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.875rem;
-  font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	background: white;
+	cursor: pointer;
+	transition: all 0.2s;
+	font-size: 0.875rem;
+	font-weight: 500;
 
-  &:hover {
-    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
-    background-color: #f9fafb;
-  }
+	&:hover {
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		background-color: #f9fafb;
+	}
 
-  &.enabled {
-    background-color: #dbeafe;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    color: V9_COLORS.PRIMARY.BLUE_DARK;
-  }
+	&.enabled {
+		background-color: #dbeafe;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
+	}
 
-  &.disabled {
-    background-color: V9_COLORS.BG.ERROR;
-    border-color: V9_COLORS.PRIMARY.RED;
-    color: V9_COLORS.PRIMARY.RED_DARK;
-  }
+	&.disabled {
+		background-color: V9_COLORS.BG.ERROR;
+		border-color: V9_COLORS.PRIMARY.RED;
+		color: V9_COLORS.PRIMARY.RED_DARK;
+	}
 
-  svg {
-    width: 16px;
-    height: 16px;
-  }
+	svg {
+		width: 16px;
+		height: 16px;
+	}
 `;
 
 const InputField = styled.input`
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-family: monospace;
-  font-size: 0.875rem;
-  width: 100%;
-  max-width: 300px;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-family: monospace;
+	font-size: 0.875rem;
+	width: 100%;
+	max-width: 300px;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 
-  &.error {
-    border-color: V9_COLORS.PRIMARY.RED;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-  }
+	&.error {
+		border-color: V9_COLORS.PRIMARY.RED;
+		box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+	}
 `;
 
 const ErrorMessage = styled.div`
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	font-size: 0.75rem;
+	margin-top: 0.25rem;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
 `;
 
 const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {

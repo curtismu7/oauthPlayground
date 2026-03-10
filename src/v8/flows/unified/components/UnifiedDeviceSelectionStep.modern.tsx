@@ -6,7 +6,7 @@
  * @since 2026-01-29
  */
 
-import { FiCheck } from '@icons';
+import { FiCheck } from '../../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';

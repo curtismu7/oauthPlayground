@@ -1,7 +1,7 @@
 // src/pages/docs/SpiffeSpirePingOne.tsx
 // SPIFFE/SPIRE Education Page - Integration with PingOne SSO
 
-import { FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
+import { FiAlertTriangle, FiCheckCircle, FiInfo } from '../../icons';
 import React from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
@@ -72,7 +72,9 @@ const FeatureGrid = styled.div`
 `;
 
 const FeatureCard = styled(Card)`
-	transition: transform 0.2s, box-shadow 0.2s;
+	transition:
+		transform 0.2s,
+		box-shadow 0.2s;
 
 	&:hover {
 		transform: translateY(-4px);
@@ -183,11 +185,12 @@ const Alert = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
 		if (props.$type === 'success') return '#ecfdf5';
 		return '#dbeafe';
 	}};
-	border-left: 4px solid ${(props) => {
-		if (props.$type === 'warning') return '#f59e0b';
-		if (props.$type === 'success') return '#10b981';
-		return '#3b82f6';
-	}};
+	border-left: 4px solid
+		${(props) => {
+			if (props.$type === 'warning') return '#f59e0b';
+			if (props.$type === 'success') return '#10b981';
+			return '#3b82f6';
+		}};
 	color: ${(props) => {
 		if (props.$type === 'warning') return '#d97706';
 		if (props.$type === 'success') return '#059669';

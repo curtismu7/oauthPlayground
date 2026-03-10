@@ -23,7 +23,7 @@
  * />
  */
 
-import { FiChevronDown } from '@icons';
+import { FiChevronDown } from '../../../../../icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { logger } from '../../../../../utils/logger';
 import { DraggableModal } from '../../components/DraggableModal.tsx';
@@ -567,8 +567,9 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		// If flow doesn't support PKCE, clear PKCE enforcement
 		if (!supportsPKCE && pkceEnforcement !== 'OPTIONAL') {
 			logger.info(
-				`${MODULE_TAG} Flow ${effectiveFlowType} does not support PKCE - clearing PKCE enforcement`
-			, "Logger info");
+				`${MODULE_TAG} Flow ${effectiveFlowType} does not support PKCE - clearing PKCE enforcement`,
+				'Logger info'
+			);
 			setPkceEnforcement('OPTIONAL');
 			onChange({ ...credentials, pkceEnforcement: 'OPTIONAL', usePKCE: false });
 		}
@@ -624,7 +625,10 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		}
 		// Legacy: Convert useRedirectless to responseMode
 		else if (credentials.useRedirectless && responseMode !== 'pi.flow') {
-			logger.info(`${MODULE_TAG} Converting legacy useRedirectless to responseMode=pi.flow`, "Logger info");
+			logger.info(
+				`${MODULE_TAG} Converting legacy useRedirectless to responseMode=pi.flow`,
+				'Logger info'
+			);
 			setResponseMode('pi.flow');
 		}
 
@@ -807,7 +811,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 		// Listen for token updates
 		const handleTokenUpdate = () => {
-			logger.info(`${MODULE_TAG} Token update event received`, "Logger info");
+			logger.info(`${MODULE_TAG} Token update event received`, 'Logger info');
 			// Use a small delay to ensure storage is fully written
 			setTimeout(() => {
 				checkStatus();
@@ -878,14 +882,15 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			// Only update if state is out of sync
 			if (hasOfflineAccess !== enableRefreshToken) {
 				logger.info(
-					`${MODULE_TAG} 🔄 Syncing refresh token checkbox with scopes: ${hasOfflineAccess}`
-				, "Logger info");
+					`${MODULE_TAG} 🔄 Syncing refresh token checkbox with scopes: ${hasOfflineAccess}`,
+					'Logger info'
+				);
 				setEnableRefreshToken(hasOfflineAccess);
 			}
 		} else {
 			// If scopes is empty, ensure checkbox is unchecked
 			if (enableRefreshToken) {
-				logger.info(`${MODULE_TAG} ❌ Clearing refresh token checkbox - no scopes`, "Logger info");
+				logger.info(`${MODULE_TAG} ❌ Clearing refresh token checkbox - no scopes`, 'Logger info');
 				setEnableRefreshToken(false);
 			}
 		}
@@ -904,7 +909,10 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				// Get worker token directly from global service
 				const workerTokenValue = await workerTokenServiceV8.getToken();
 				if (!workerTokenValue) {
-					logger.info(`${MODULE_TAG} No worker token available to fetch allowed scopes`, "Logger info");
+					logger.info(
+						`${MODULE_TAG} No worker token available to fetch allowed scopes`,
+						'Logger info'
+					);
 					setIsLoadingScopes(false);
 					setAllowedScopes([]);
 					return;
@@ -1347,7 +1355,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 				try {
 					const workerToken = await AppDiscoveryServiceV8.getStoredWorkerToken();
 					if (workerToken) {
-						logger.info(`${MODULE_TAG} Fetching application secret from PingOne API...`, "Logger info");
+						logger.info(
+							`${MODULE_TAG} Fetching application secret from PingOne API...`,
+							'Logger info'
+						);
 						const fetchedApp = await AppDiscoveryServiceV8.fetchApplicationWithSecret(
 							credentials.environmentId,
 							app.id,
@@ -1368,7 +1379,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 								fetchedApp.clientSecret.trim().length > 0
 							) {
 								appWithSecret = fetchedApp;
-								logger.info(`${MODULE_TAG} ✅ Application secret fetched successfully`, "Logger info");
+								logger.info(
+									`${MODULE_TAG} ✅ Application secret fetched successfully`,
+									'Logger info'
+								);
 								toastV8.success('Application secret retrieved from PingOne');
 							} else {
 								logger.info(`${MODULE_TAG} Application secret not returned from API or is empty`, {
@@ -1377,7 +1391,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								});
 							}
 						} else {
-							logger.info(`${MODULE_TAG} Application fetch returned null`, "Logger info");
+							logger.info(`${MODULE_TAG} Application fetch returned null`, 'Logger info');
 						}
 					} else {
 						logger.info(`${MODULE_TAG} No worker token available, using app data without secret`);
@@ -1618,7 +1632,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										<ClientTypeRadioV8
 											value={clientType}
 											onChange={(type) => {
-												logger.info(`${MODULE_TAG} Client type changed to ${type}`, "Logger info");
+												logger.info(`${MODULE_TAG} Client type changed to ${type}`, 'Logger info');
 												setClientType(type);
 												handleChange('clientType', type);
 												toastV8.info(
@@ -1762,7 +1776,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													tokenStatus.status === 'valid'
 														? '#d1fae5'
 														: tokenStatus.status === 'expiring-soon' ||
-																tokenStatus.status === 'expired'
+															  tokenStatus.status === 'expired'
 															? '#fef3c7'
 															: '#fee2e2',
 												border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(tokenStatus.status)}`,
@@ -1772,7 +1786,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													tokenStatus.status === 'valid'
 														? '#065f46'
 														: tokenStatus.status === 'expiring-soon' ||
-																tokenStatus.status === 'expired'
+															  tokenStatus.status === 'expired'
 															? '#92400e'
 															: '#991b1b',
 												display: 'flex',
@@ -1799,9 +1813,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 												onClick={async () => {
 													// Pass current checkbox values to override config (page checkboxes take precedence)
 													// forceShowModal=true because user explicitly clicked the button - always show modal
-													const { handleShowWorkerTokenModal } = await import(
-														'@/v8/utils/workerTokenModalHelperV8'
-													);
+													const { handleShowWorkerTokenModal } =
+														await import('@/v8/utils/workerTokenModalHelperV8');
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
 														setTokenStatus,
@@ -1893,9 +1906,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 																logger.info(
 																	'[CREDENTIALS-FORM-V8U] Silent API retrieval enabled, attempting to fetch token now...'
 																);
-																const { handleShowWorkerTokenModal } = await import(
-																	'@/v8/utils/workerTokenModalHelperV8'
-																);
+																const { handleShowWorkerTokenModal } =
+																	await import('@/v8/utils/workerTokenModalHelperV8');
 																await handleShowWorkerTokenModal(
 																	setShowWorkerTokenModal,
 																	setTokenStatus,
@@ -3030,7 +3042,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 										<ResponseModeDropdownV8
 											value={responseMode}
 											onChange={(mode) => {
-												logger.info(`${MODULE_TAG} Response mode changed to ${mode}`, "Logger info");
+												logger.info(
+													`${MODULE_TAG} Response mode changed to ${mode}`,
+													'Logger info'
+												);
 												setResponseMode(mode);
 												handleChange('responseMode', mode);
 
@@ -4014,7 +4029,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 														// This prevents the jitter by ensuring the sync effect skips multiple render cycles
 														setTimeout(() => {
 															isUpdatingFromCheckbox.current = false;
-															logger.info(`${MODULE_TAG} 🔓 Checkbox update flag cleared`, "Logger info");
+															logger.info(
+																`${MODULE_TAG} 🔓 Checkbox update flag cleared`,
+																'Logger info'
+															);
 														}, 300); // Increased from 100ms to 300ms for more safety
 													}}
 													style={{ cursor: 'pointer' }}
@@ -4124,7 +4142,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<PKCEInputV8
 												value={pkceEnforcement as PKCEMode}
 												onChange={(mode) => {
-													logger.info(`${MODULE_TAG} PKCE mode changed to ${mode}`, "Logger info");
+													logger.info(`${MODULE_TAG} PKCE mode changed to ${mode}`, 'Logger info');
 													// Map PKCEMode to PKCEEnforcement (filter out DISABLED)
 													const enforcement: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' =
 														mode === 'DISABLED' ? 'OPTIONAL' : mode;
@@ -4270,7 +4288,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<LoginHintInputV8
 												value={loginHint}
 												onChange={(value) => {
-													logger.info(`${MODULE_TAG} Login hint changed to ${value}`, "Logger info");
+													logger.info(
+														`${MODULE_TAG} Login hint changed to ${value}`,
+														'Logger info'
+													);
 													setLoginHint(value);
 													handleChange('loginHint', value);
 													// Removed toast message - LoginHintInputV8 component shows visual feedback
@@ -4285,7 +4306,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<MaxAgeInputV8
 												value={maxAge}
 												onChange={(value) => {
-													logger.info(`${MODULE_TAG} Max age changed to ${value}`, "Logger info");
+													logger.info(`${MODULE_TAG} Max age changed to ${value}`, 'Logger info');
 													setMaxAge(value);
 													handleChange('maxAge', value);
 													if (value !== undefined) {
@@ -4312,7 +4333,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<DisplayModeDropdownV8
 												value={display}
 												onChange={(value) => {
-													logger.info(`${MODULE_TAG} Display mode changed to ${value}`, "Logger info");
+													logger.info(
+														`${MODULE_TAG} Display mode changed to ${value}`,
+														'Logger info'
+													);
 													setDisplay(value);
 													handleChange('display', value);
 													if (value) {

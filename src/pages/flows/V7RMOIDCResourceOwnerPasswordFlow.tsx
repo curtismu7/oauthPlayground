@@ -1,6 +1,6 @@
 // src/pages/flows/V7RMOIDCResourceOwnerPasswordFlow.tsx - Enhanced with Real Services
 
-import { FiAlertTriangle, FiLock, FiShield, FiUser } from '@icons';
+import { FiAlertTriangle, FiLock, FiShield, FiUser } from '../../icons';
 import React, { useCallback, useMemo } from 'react';
 import CollapsibleSection from '../../components/CollapsibleSection';
 import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';

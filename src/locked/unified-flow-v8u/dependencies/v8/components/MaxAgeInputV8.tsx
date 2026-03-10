@@ -12,7 +12,7 @@
  * />
  */
 
-import { FiClock } from '@icons';
+import { FiClock } from '../../../../../icons';
 import React, { useState } from 'react';
 
 import { logger } from '../../../../../utils/logger';

@@ -24,6 +24,12 @@ declare global {
 		debugLogViewerPopoutHelperV8?: {
 			isPopoutWindow(): boolean;
 		};
+		debugLogViewerPopoutHelperV9?: {
+			isV9PopoutWindow(): boolean;
+			openDebugLogViewerPopoutV9(): void;
+			closeV9PopoutWindow(): void;
+			isPopoutSupported(): boolean;
+		};
 
 		// Other Global Services
 		[key: string]: unknown;

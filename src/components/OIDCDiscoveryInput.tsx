@@ -7,7 +7,7 @@
  * feedback on discovery status.
  */
 
-import { FiLoader } from '@icons';
+import { FiLoader } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
@@ -25,196 +25,197 @@ interface OIDCDiscoveryInputProps {
 }
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	padding: 1.5rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 8px;
 `;
 
 const Header = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h3`
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1e293b;
+	margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #1e293b;
 `;
 
 const Description = styled.p`
-  margin: 0 0 1rem 0;
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  line-height: 1.5;
+	margin: 0 0 1rem 0;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	line-height: 1.5;
 `;
 
 const InputContainer = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const Label = styled.label`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const InputGroup = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
+	position: relative;
+	display: flex;
+	align-items: center;
 `;
 
 const Input = styled.input.withConfig({
 	shouldForwardProp: (prop) => !['hasError', 'hasSuccess'].includes(prop),
 })<{ hasError?: boolean; hasSuccess?: boolean }>`
-  flex: 1;
-  padding: 0.75rem 2.5rem 0.75rem 2.5rem;
-  border: 1px solid ${(props) =>
-		props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#e5e7eb'};
-  border-radius: 6px;
-  font-size: 0.875rem;
-  background: white;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  transition: all 0.2s ease;
+	flex: 1;
+	padding: 0.75rem 2.5rem 0.75rem 2.5rem;
+	border: 1px solid
+		${(props) => (props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#e5e7eb')};
+	border-radius: 6px;
+	font-size: 0.875rem;
+	background: white;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	transition: all 0.2s ease;
 
-  &:focus {
-    outline: none;
-    border-color: ${(props) =>
+	&:focus {
+		outline: none;
+		border-color: ${(props) =>
 			props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#3b82f6'};
-    box-shadow: 0 0 0 3px ${(props) =>
-			props.hasError
-				? 'rgba(239, 68, 68, 0.1)'
-				: props.hasSuccess
-					? 'rgba(16, 185, 129, 0.1)'
-					: 'rgba(59, 130, 246, 0.1)'};
-  }
+		box-shadow: 0 0 0 3px
+			${(props) =>
+				props.hasError
+					? 'rgba(239, 68, 68, 0.1)'
+					: props.hasSuccess
+						? 'rgba(16, 185, 129, 0.1)'
+						: 'rgba(59, 130, 246, 0.1)'};
+	}
 
-  &:disabled {
-    background: #f9fafb;
-    color: V9_COLORS.TEXT.GRAY_LIGHT;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		background: #f9fafb;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
+		cursor: not-allowed;
+	}
 `;
 
 const InputIcon = styled.div.withConfig({
 	shouldForwardProp: (prop) => !['hasError', 'hasSuccess', 'isLoading'].includes(prop),
 })<{ hasError?: boolean; hasSuccess?: boolean; isLoading?: boolean }>`
-  position: absolute;
-  left: 0.75rem;
-  color: ${(props) => {
+	position: absolute;
+	left: 0.75rem;
+	color: ${(props) => {
 		if (props.isLoading) return '#3b82f6';
 		if (props.hasError) return '#ef4444';
 		if (props.hasSuccess) return '#10b981';
 		return '#6b7280';
 	}};
-  z-index: 1;
+	z-index: 1;
 `;
 
 const DiscoverButton = styled.button.withConfig({
 	shouldForwardProp: (prop) => !['isLoading'].includes(prop),
 })<{ isLoading?: boolean }>`
-  position: absolute;
-  right: 0.5rem;
-  padding: 0.5rem;
-  background: ${(props) => (props.isLoading ? '#f3f4f6' : '#3b82f6')};
-  color: ${(props) => (props.isLoading ? '#6b7280' : 'white')};
-  border: none;
-  border-radius: 4px;
-  cursor: ${(props) => (props.isLoading ? 'not-allowed' : 'pointer')};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  z-index: 1;
+	position: absolute;
+	right: 0.5rem;
+	padding: 0.5rem;
+	background: ${(props) => (props.isLoading ? '#f3f4f6' : '#3b82f6')};
+	color: ${(props) => (props.isLoading ? '#6b7280' : 'white')};
+	border: none;
+	border-radius: 4px;
+	cursor: ${(props) => (props.isLoading ? 'not-allowed' : 'pointer')};
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	z-index: 1;
 
-  &:hover:not(:disabled) {
-    background: V9_COLORS.PRIMARY.BLUE_DARK;
-  }
+	&:hover:not(:disabled) {
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
+	}
 
-  &:disabled {
-    cursor: not-allowed;
-  }
+	&:disabled {
+		cursor: not-allowed;
+	}
 `;
 
 const ClearButton = styled.button`
-  padding: 0.5rem 1rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
+	padding: 0.5rem 1rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 1rem;
 
-  &:hover {
-    background: V9_COLORS.BG.GRAY_MEDIUM;
-    border-color: #cbd5e1;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  }
+	&:hover {
+		background: V9_COLORS.BG.GRAY_MEDIUM;
+		border-color: #cbd5e1;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	}
 
-  &:active {
-    background: V9_COLORS.TEXT.GRAY_LIGHTER;
-  }
+	&:active {
+		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	}
 `;
 
 const SuggestionsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const SuggestionsLabel = styled.div`
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 `;
 
 const SuggestionsList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
 `;
 
 const SuggestionButton = styled.button`
-  padding: 0.375rem 0.75rem;
-  background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  cursor: pointer;
-  transition: all 0.2s ease;
+	padding: 0.375rem 0.75rem;
+	background: white;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	cursor: pointer;
+	transition: all 0.2s ease;
 
-  &:hover {
-    background: #f3f4f6;
-    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
-  }
+	&:hover {
+		background: #f3f4f6;
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+	}
 `;
 
 const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loading' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border-radius: 6px;
-  background: ${(props) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem;
+	border-radius: 6px;
+	background: ${(props) => {
 		switch (props.type) {
 			case 'success':
 				return '#f0fdf4';
@@ -228,21 +229,22 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
 				return '#f8fafc';
 		}
 	}};
-  border: 1px solid ${(props) => {
-		switch (props.type) {
-			case 'success':
-				return '#10b981';
-			case 'error':
-				return '#ef4444';
-			case 'info':
-				return '#e5e7eb';
-			case 'loading':
-				return '#e5e7eb';
-			default:
-				return '#e5e7eb';
-		}
-	}};
-  color: ${(props) => {
+	border: 1px solid
+		${(props) => {
+			switch (props.type) {
+				case 'success':
+					return '#10b981';
+				case 'error':
+					return '#ef4444';
+				case 'info':
+					return '#e5e7eb';
+				case 'loading':
+					return '#e5e7eb';
+				default:
+					return '#e5e7eb';
+			}
+		}};
+	color: ${(props) => {
 		switch (props.type) {
 			case 'success':
 				return '#10b981';
@@ -259,85 +261,86 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
 `;
 
 const StatusText = styled.div`
-  font-size: 0.875rem;
-  line-height: 1.4;
+	font-size: 0.875rem;
+	line-height: 1.4;
 `;
 
 const EndpointsList = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
-  margin-top: 1rem;
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0.5rem;
+	margin-top: 1rem;
 `;
 
 const EndpointItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 4px;
-  font-size: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	background: white;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 4px;
+	font-size: 0.75rem;
 `;
 
 const EndpointLabel = styled.span`
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  min-width: 120px;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	min-width: 120px;
 `;
 
 const EndpointUrl = styled.span`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-family:
+		'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 `;
 
 const ErrorMessage = styled.div`
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	font-size: 0.875rem;
+	margin-top: 0.5rem;
 `;
 
 const ResultsToggleContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 1rem;
+	padding: 0.75rem;
+	background: white;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
 `;
 
 const ResultsToggleButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: V9_COLORS.PRIMARY.BLUE;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	background: V9_COLORS.PRIMARY.BLUE;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
 
-  &:hover {
-    background: V9_COLORS.PRIMARY.BLUE_DARK;
-  }
+	&:hover {
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
+	}
 
-  &:disabled {
-    background: V9_COLORS.TEXT.GRAY_LIGHT;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		background: V9_COLORS.TEXT.GRAY_LIGHT;
+		cursor: not-allowed;
+	}
 `;
 
 const ResultsCollapsible = styled.div<{ isOpen: boolean }>`
-  overflow: hidden;
-  transition: all 0.3s ease;
-  max-height: ${(props) => (props.isOpen ? '1000px' : '0')};
-  opacity: ${(props) => (props.isOpen ? '1' : '0')};
+	overflow: hidden;
+	transition: all 0.3s ease;
+	max-height: ${(props) => (props.isOpen ? '1000px' : '0')};
+	opacity: ${(props) => (props.isOpen ? '1' : '0')};
 `;
 
 const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({

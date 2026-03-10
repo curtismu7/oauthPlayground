@@ -1,7 +1,7 @@
 // src/components/SecurityFeaturesDemo.tsx
 // lint-file-disable: token-value-in-jsx
 
-import { FiRefreshCw } from '@icons';
+import { FiRefreshCw } from '../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -25,7 +25,11 @@ const Container = styled.div<{ $primaryColor: string }>`
 `;
 
 const Header = styled.div<{ $primaryColor: string }>`
-	background: linear-gradient(135deg, ${(props) => props.$primaryColor} 0%, ${(props) => props.$primaryColor} 100%);
+	background: linear-gradient(
+		135deg,
+		${(props) => props.$primaryColor} 0%,
+		${(props) => props.$primaryColor} 100%
+	);
 	color: white;
 	padding: 2rem;
 	text-align: center;
@@ -253,9 +257,13 @@ const CollapsibleHeader = styled.div<{ $isCollapsed: boolean }>`
 	justify-content: space-between;
 	border-radius: 8px 8px ${(props) => (props.$isCollapsed ? '8px 8px' : '0 0')};
 	transition: all 0.2s ease;
-	
+
 	&:hover {
-		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+		background: linear-gradient(
+			135deg,
+			V9_COLORS.PRIMARY.BLUE_DARK 0%,
+			V9_COLORS.PRIMARY.BLUE_DARK 100%
+		);
 	}
 `;
 
@@ -385,7 +393,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 	// Scroll to top when component mounts
 	useEffect(() => {
-		logger.info('🚀 [SecurityFeaturesDemo] Component mounted - scrolling to top', "Logger info");
+		logger.info('🚀 [SecurityFeaturesDemo] Component mounted - scrolling to top', 'Logger info');
 		logger.info('🔔 [SecurityFeaturesDemo] showGlobalSuccess available:', typeof showGlobalSuccess);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -423,7 +431,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 	// Demo functions
 	const showSignatureDemo = useCallback(() => {
-		logger.info('🔔 [SecurityFeaturesDemo] showSignatureDemo clicked', "Logger info");
+		logger.info('🔔 [SecurityFeaturesDemo] showSignatureDemo clicked', 'Logger info');
 		const results =
 			'Request Parameter Signature Demo:\n\n1. Generate HMAC-SHA256 signature of request parameters\n2. Include signature in Authorization header\n3. Server validates signature before processing request\n\nThis prevents parameter tampering and ensures request authenticity.';
 		setSignatureResults(results);
@@ -435,7 +443,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	}, []);
 
 	const validateSignature = useCallback(() => {
-		logger.info('🔔 [SecurityFeaturesDemo] validateSignature clicked', "Logger info");
+		logger.info('🔔 [SecurityFeaturesDemo] validateSignature clicked', 'Logger info');
 		setIsValidating(true);
 		setTimeout(() => {
 			setIsValidating(false);

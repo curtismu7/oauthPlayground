@@ -9,7 +9,7 @@
  * including device selection and authentication methods.
  */
 
-import { FiAlertTriangle, FiCheckCircle, FiLoader } from '@icons';
+import { FiAlertTriangle, FiCheckCircle, FiLoader } from '../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { showGlobalInfo } from '../../../contexts/NotificationSystem';
@@ -30,236 +30,242 @@ import CompanyLogoHeader from './CompanyLogoHeader';
 // ============================================================================
 
 const MFAContainer = styled.div`
-  width: 100%;
-  max-width: 600px;
-  text-align: center;
+	width: 100%;
+	max-width: 600px;
+	text-align: center;
 `;
 
 const MFATitle = styled.h2`
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--brand-text);
-  margin: 0 0 1rem 0;
-  font-family: var(--brand-heading-font);
+	font-size: 1.875rem;
+	font-weight: 700;
+	color: var(--brand-text);
+	margin: 0 0 1rem 0;
+	font-family: var(--brand-heading-font);
 `;
 
 const MFADescription = styled.p`
-  font-size: 1rem;
-  color: var(--brand-text-secondary);
-  margin: 0 0 2rem 0;
-  line-height: 1.6;
-  font-family: var(--brand-body-font);
+	font-size: 1rem;
+	color: var(--brand-text-secondary);
+	margin: 0 0 2rem 0;
+	line-height: 1.6;
+	font-family: var(--brand-body-font);
 `;
 
 const RiskWarning = styled.div`
-  background: var(--brand-warning-light);
-  border: 1px solid var(--brand-warning);
-  border-radius: var(--brand-radius-md);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	background: var(--brand-warning-light);
+	border: 1px solid var(--brand-warning);
+	border-radius: var(--brand-radius-md);
+	padding: 1.5rem;
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 `;
 
 const WarningIcon = styled.div`
-  color: var(--brand-warning);
-  font-size: 1.5rem;
-  flex-shrink: 0;
+	color: var(--brand-warning);
+	font-size: 1.5rem;
+	flex-shrink: 0;
 `;
 
 const WarningContent = styled.div`
-  text-align: left;
-  flex: 1;
+	text-align: left;
+	flex: 1;
 `;
 
 const WarningTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--brand-warning-dark);
-  margin: 0 0 0.5rem 0;
-  font-family: var(--brand-heading-font);
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: var(--brand-warning-dark);
+	margin: 0 0 0.5rem 0;
+	font-family: var(--brand-heading-font);
 `;
 
 const WarningText = styled.p`
-  font-size: 0.875rem;
-  color: var(--brand-warning-dark);
-  margin: 0;
-  line-height: 1.5;
-  font-family: var(--brand-body-font);
+	font-size: 0.875rem;
+	color: var(--brand-warning-dark);
+	margin: 0;
+	line-height: 1.5;
+	font-family: var(--brand-body-font);
 `;
 
 const DeviceSelectionContainer = styled.div`
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-lg);
-  padding: 2rem;
-  margin-bottom: 2rem;
+	background: var(--brand-surface);
+	border: 1px solid var(--brand-text-secondary);
+	border-radius: var(--brand-radius-lg);
+	padding: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const _DeviceSelectionTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--brand-text);
-  margin: 0 0 1.5rem 0;
-  font-family: var(--brand-heading-font);
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: var(--brand-text);
+	margin: 0 0 1.5rem 0;
+	font-family: var(--brand-heading-font);
 `;
 
 const _DeviceGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1rem;
+	margin-bottom: 1.5rem;
 `;
 
 const DeviceCard = styled.button<{ selected?: boolean }>`
-  background: ${(props) => (props.selected ? 'var(--brand-primary-light)' : 'var(--brand-surface)')};
-  border: 2px solid ${(props) => (props.selected ? 'var(--brand-primary)' : 'var(--brand-text-secondary)')};
-  border-radius: var(--brand-radius-md);
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: var(--brand-transition);
-  width: 100%;
-  text-align: center;
+	background: ${(props) =>
+		props.selected ? 'var(--brand-primary-light)' : 'var(--brand-surface)'};
+	border: 2px solid
+		${(props) => (props.selected ? 'var(--brand-primary)' : 'var(--brand-text-secondary)')};
+	border-radius: var(--brand-radius-md);
+	padding: 1.5rem;
+	cursor: pointer;
+	transition: var(--brand-transition);
+	width: 100%;
+	text-align: center;
 
-  &:hover {
-    border-color: ${(props) => (props.selected ? 'var(--brand-primary)' : 'var(--brand-text)')};
-    transform: translateY(-2px);
-    box-shadow: var(--brand-shadow-md);
-  }
+	&:hover {
+		border-color: ${(props) => (props.selected ? 'var(--brand-primary)' : 'var(--brand-text)')};
+		transform: translateY(-2px);
+		box-shadow: var(--brand-shadow-md);
+	}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		transform: none;
+	}
 `;
 
 const DeviceIcon = styled.div<{ deviceType: string }>`
-  width: 48px;
-  height: 48px;
-  background: var(--brand-primary-light);
-  border-radius: var(--brand-radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--brand-primary);
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
+	width: 48px;
+	height: 48px;
+	background: var(--brand-primary-light);
+	border-radius: var(--brand-radius-sm);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--brand-primary);
+	font-size: 1.25rem;
+	margin-bottom: 1rem;
 `;
 
 const DeviceName = styled.div`
-  font-weight: 600;
-  color: var(--brand-text);
-  margin-bottom: 0.25rem;
-  font-family: var(--brand-heading-font);
+	font-weight: 600;
+	color: var(--brand-text);
+	margin-bottom: 0.25rem;
+	font-family: var(--brand-heading-font);
 `;
 
 const _DeviceStatus = styled.div`
-  font-size: 0.75rem;
-  color: var(--brand-text-secondary);
-  font-family: var(--brand-body-font);
+	font-size: 0.75rem;
+	color: var(--brand-text-secondary);
+	font-family: var(--brand-body-font);
 `;
 
 const _NoDevicesMessage = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: var(--brand-text-secondary);
-  font-family: var(--brand-body-font);
+	text-align: center;
+	padding: 2rem;
+	color: var(--brand-text-secondary);
+	font-family: var(--brand-body-font);
 `;
 
 const LoadingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 2rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	padding: 2rem;
 `;
 
 const _LoadingSpinner = styled.span`
-  animation: spin 1s linear infinite;
-  font-size: 2rem;
-  color: var(--brand-primary);
+	animation: spin 1s linear infinite;
+	font-size: 2rem;
+	color: var(--brand-primary);
 
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
 const LoadingText = styled.p`
-  color: var(--brand-text-secondary);
-  font-size: 1rem;
-  margin: 0;
-  font-family: var(--brand-body-font);
+	color: var(--brand-text-secondary);
+	font-size: 1rem;
+	margin: 0;
+	font-family: var(--brand-body-font);
 `;
 
 const ErrorMessage = styled.div`
-  background: var(--brand-error-light);
-  border: 1px solid var(--brand-error);
-  border-radius: var(--brand-radius-sm);
-  padding: 1rem;
-  color: var(--brand-error);
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--brand-body-font);
+	background: var(--brand-error-light);
+	border: 1px solid var(--brand-error);
+	border-radius: var(--brand-radius-sm);
+	padding: 1rem;
+	color: var(--brand-error);
+	font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-family: var(--brand-body-font);
 `;
 
 const EducationalSection = styled.div`
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-primary);
-  border-radius: var(--brand-radius-lg);
-  padding: 1.5rem;
-  text-align: left;
+	background: var(--brand-surface);
+	border: 1px solid var(--brand-primary);
+	border-radius: var(--brand-radius-lg);
+	padding: 1.5rem;
+	text-align: left;
 `;
 
 const EducationalHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
 `;
 
 const EducationalTitle = styled.h4`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--brand-primary);
-  margin: 0;
-  font-family: var(--brand-heading-font);
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: var(--brand-primary);
+	margin: 0;
+	font-family: var(--brand-heading-font);
 `;
 
 const EducationalDescription = styled.p`
-  font-size: 0.875rem;
-  color: var(--brand-primary);
-  margin: 0 0 1rem 0;
-  line-height: 1.5;
-  font-family: var(--brand-body-font);
+	font-size: 0.875rem;
+	color: var(--brand-primary);
+	margin: 0 0 1rem 0;
+	line-height: 1.5;
+	font-family: var(--brand-body-font);
 `;
 
 const KeyPoints = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
 `;
 
 const KeyPoint = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--brand-text);
-  line-height: 1.4;
-  font-family: var(--brand-body-font);
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
+	font-size: 0.875rem;
+	color: var(--brand-text);
+	line-height: 1.4;
+	font-family: var(--brand-body-font);
 `;
 
 const KeyPointIcon = styled.span`
-  color: var(--brand-success);
-  flex-shrink: 0;
-  margin-top: 0.125rem;
+	color: var(--brand-success);
+	flex-shrink: 0;
+	margin-top: 0.125rem;
 `;
 
 // ============================================================================
@@ -340,7 +346,10 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 
 			// If no devices found, show registration option
 			if (devicesResponse.data.devices.length === 0) {
-				logger.info('[🔐 MFA-AUTHENTICATION] No MFA devices found - user needs to register device', "Logger info");
+				logger.info(
+					'[🔐 MFA-AUTHENTICATION] No MFA devices found - user needs to register device',
+					'Logger info'
+				);
 				setError('No MFA devices registered. Please register an MFA device first.');
 			} else {
 				logger.info('[🔐 MFA-AUTHENTICATION] Loaded devices:', devicesResponse.data.devices.length);
