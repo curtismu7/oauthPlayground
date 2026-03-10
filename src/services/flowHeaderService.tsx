@@ -581,6 +581,13 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'View and manage PingOne user profile data including attributes, MFA devices, roles, groups, and identity information retrieved via the PingOne Management API.',
 		icon: '👤',
 	},
+	'pingone-dashboard': {
+		flowType: 'pingone',
+		title: 'PingOne Platform Dashboard',
+		subtitle:
+			'Explore audit activities and identity metrics. Switch between tabs to view audit events or identity count trends.',
+		icon: '📊',
+	},
 	'pingone-identity-metrics': {
 		flowType: 'pingone',
 		title: 'PingOne Identity Metrics',
