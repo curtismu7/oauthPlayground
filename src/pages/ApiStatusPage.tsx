@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FlowHeader } from '../services/flowHeaderService';
 import {
 	type DetailedServerStatus,
 	fetchDetailedHealth,
@@ -15,24 +16,12 @@ const PageContainer = styled.div`
 	padding: 2rem;
 `;
 
-const PageHeader = styled.div`
-	margin-bottom: 2rem;
-`;
-
-const PageTitle = styled.h1`
-	font-size: 2.5rem;
-	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
-	margin-bottom: 0.5rem;
+const RefreshBar = styled.div`
 	display: flex;
 	align-items: center;
-	gap: 0.75rem;
-`;
-
-const PageDescription = styled.p`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
-	font-size: 1.125rem;
-	margin-bottom: 1rem;
+	gap: 1rem;
+	margin-bottom: 2rem;
+	flex-wrap: wrap;
 `;
 
 const StatusGrid = styled.div`
@@ -47,7 +36,7 @@ const StatusCard = styled.div`
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 `;
 
 const CardHeader = styled.div`
@@ -60,7 +49,7 @@ const CardHeader = styled.div`
 const CardTitle = styled.h3`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
 	margin: 0;
 `;
 
@@ -82,13 +71,13 @@ const StatRow = styled.div`
 `;
 
 const StatLabel = styled.span`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 	font-size: 0.875rem;
 `;
 
 const StatValue = styled.span`
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
 	font-size: 0.875rem;
 `;
 
@@ -119,7 +108,7 @@ const RefreshButton = styled.button`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.75rem 1.5rem;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: ${V9_COLORS.PRIMARY.BLUE};
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -127,12 +116,12 @@ const RefreshButton = styled.button`
 	cursor: pointer;
 	transition: background-color 0.2s;
 
-	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
+	&:hover:not(:disabled) {
+		background: ${V9_COLORS.PRIMARY.BLUE_DARK};
 	}
 
 	&:disabled {
-		background: V9_COLORS.TEXT.GRAY_LIGHT;
+		background: #9ca3af;
 		cursor: not-allowed;
 	}
 `;
@@ -162,37 +151,28 @@ const ApiStatusPage: React.FC = () => {
 	if (loading && servers.every((s) => s.status === 'checking')) {
 		return (
 			<PageContainer>
-				<PageHeader>
-					<PageTitle>
-						<span>🖥️</span>
-						API Status
-					</PageTitle>
-					<PageDescription>Loading server health information...</PageDescription>
-				</PageHeader>
+				<FlowHeader flowId="api-status" />
+				<p style={{ color: V9_COLORS.TEXT.GRAY_MEDIUM, marginTop: '1.5rem' }}>
+					Loading server health information...
+				</p>
 			</PageContainer>
 		);
 	}
 
 	return (
 		<PageContainer>
-			<PageHeader>
-				<PageTitle>
-					<span>🖥️</span>
-					API Status
-				</PageTitle>
-				<PageDescription>
-					Server health monitoring and status information
-					{lastRefresh && (
-						<span style={{ marginLeft: '1rem', color: '#9ca3af', fontSize: '0.875rem' }}>
-							Last updated: {lastRefresh.toLocaleTimeString()}
-						</span>
-					)}
-				</PageDescription>
-				<RefreshButton onClick={fetchHealthData}>
+			<FlowHeader flowId="api-status" />
+			<RefreshBar>
+				<RefreshButton onClick={fetchHealthData} disabled={loading}>
 					<span>🔄</span>
 					{loading ? 'Refreshing...' : 'Refresh'}
 				</RefreshButton>
-			</PageHeader>
+				{lastRefresh && (
+					<span style={{ color: '#9ca3af', fontSize: '0.875rem' }}>
+						Last updated: {lastRefresh.toLocaleTimeString()}
+					</span>
+				)}
+			</RefreshBar>
 
 			<StatusGrid>
 				{servers.map((server) => (

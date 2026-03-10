@@ -37,28 +37,28 @@ Track dashboard changes: single source for server status, current API endpoints,
 - **Source**: Backend routes in `server.js` (and any mounted API routers).
 - **List** (representative OAuth/OIDC/playground endpoints; update when adding/removing routes):
 
-| Method | Path | Description |
-| --- | --- | --- |
-| GET | `/api/health` | Backend health check |
-| GET | `/api/env-config` | Environment defaults |
-| GET | `/api/version` | Backend version |
-| POST | `/api/token-exchange` | Exchange authorization code for tokens |
-| POST | `/api/client-credentials` | Client credentials grant |
-| POST | `/api/introspect-token` | Token introspection |
-| GET | `/api/userinfo` | UserInfo (OAuth) |
-| POST | `/api/validate-token` | Validate access tokens |
-| POST | `/api/device-authorization` | Device authorization flow |
-| POST | `/api/par` | Pushed Authorization Request |
-| GET | `/api/jwks` | PingOne JWKS |
-| POST | `/api/user-jwks` | Generate JWKS from user key |
-| POST | `/api/credentials/save` | Save credentials |
-| GET | `/api/credentials/load` | Load credentials |
-| GET | `/api/environments` | List environments |
-| POST | `/api/pingone/worker-token` | Worker token |
-| POST | `/api/pingone/token` | Token endpoint proxy |
-| POST | `/api/pingone/oidc-discovery` | OIDC discovery |
-| POST | `/api/mfa/challenge/initiate` | MFA challenge |
-| POST | `/api/device/register` | FIDO2 device registration |
+| Method | Path                          | Description                            |
+| ------ | ----------------------------- | -------------------------------------- |
+| GET    | `/api/health`                 | Backend health check                   |
+| GET    | `/api/env-config`             | Environment defaults                   |
+| GET    | `/api/version`                | Backend version                        |
+| POST   | `/api/token-exchange`         | Exchange authorization code for tokens |
+| POST   | `/api/client-credentials`     | Client credentials grant               |
+| POST   | `/api/introspect-token`       | Token introspection                    |
+| GET    | `/api/userinfo`               | UserInfo (OAuth)                       |
+| POST   | `/api/validate-token`         | Validate access tokens                 |
+| POST   | `/api/device-authorization`   | Device authorization flow              |
+| POST   | `/api/par`                    | Pushed Authorization Request           |
+| GET    | `/api/jwks`                   | PingOne JWKS                           |
+| POST   | `/api/user-jwks`              | Generate JWKS from user key            |
+| POST   | `/api/credentials/save`       | Save credentials                       |
+| GET    | `/api/credentials/load`       | Load credentials                       |
+| GET    | `/api/environments`           | List environments                      |
+| POST   | `/api/pingone/worker-token`   | Worker token                           |
+| POST   | `/api/pingone/token`          | Token endpoint proxy                   |
+| POST   | `/api/pingone/oidc-discovery` | OIDC discovery                         |
+| POST   | `/api/mfa/challenge/initiate` | MFA challenge                          |
+| POST   | `/api/device/register`        | FIDO2 device registration              |
 
 Add/remove rows as backend routes change; consider centralizing in a shared config (e.g. `dashboardApiEndpoints.ts`) used by the Dashboard UI.
 
@@ -134,6 +134,7 @@ Add/remove rows as backend routes change; consider centralizing in a shared conf
 
 ## Changelog
 
+- **2026-03**: **API Status page** (`/api-status`): Refresh button and other styled components fixed so buttons are not grey when enabled — `V9_COLORS` now use template literal interpolation in `ApiStatusPage.tsx`; Refresh is blue when idle, grey only when `disabled={loading}`. **DPoP flow**: Server supports both `/api/dpop/protected-resource` and `/dpop/protected-resource`; DPoP value shown in highlighted boxes. **PAR V9 & RAR V9**: Floating V9 stepper wired so Next/Previous and step chips drive the page and expand the active section. **Worker Token modal, V9LoggingService, Token Exchange header**: See `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md` for full list.
 - **2025-02**: Initial doc; removed API Testing; System Status replaced by API Status using shared health check; API endpoints list updated; Quick Access aligned to Unified OAuth and current PingOne paths; Recent Activity updated to include unified flow and Delete All Devices, exclude mock flows.
 - **2025-02**: Added §6 Config section (custom domain): new Dashboard section to show custom domain; default `https://api.pingdemo.com`, always HTTPS; documented current lack of app base URL config and recommended `VITE_PUBLIC_APP_URL`.
 - **2025-02**: Applied **prompt-all.md** + **migrate_cursor.md** to Dashboard (change packet below).
