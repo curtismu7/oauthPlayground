@@ -1,6 +1,6 @@
-// src/pages/flows/v9/RARFlowV9.tsx
+// src/pages/flows/v9/PARFlowV9.tsx
 // lint-file-disable: token-value-in-jsx
-// V9 RAR (Rich Authorization Requests) Flow with Enhanced Architecture
+// V9 PAR (Pushed Authorization Requests) Flow - RFC 9126 mock/educational app
 
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -19,14 +19,8 @@ import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
-/**
- * Utility function to mask tokens for security
- * Shows first 8 characters, masks middle, shows last 4 characters
- */
 const maskToken = (token: string): string => {
-	if (!token || token.length <= 12) {
-		return '••••••••';
-	}
+	if (!token || token.length <= 12) return '••••••••';
 	return `${token.slice(0, 8)}...${token.slice(-4)}`;
 };
 
@@ -57,7 +51,6 @@ const {
 	GeneratedContentBox,
 } = FlowUIService.getFlowUIComponents();
 
-// Color aliases for readability (V9_COLORS from V9ColorStandards)
 const PRIMARY_BLUE = V9_COLORS.PRIMARY.BLUE;
 const DARK_BLUE = V9_COLORS.PRIMARY.BLUE_DARK;
 const BORDER = V9_COLORS.TEXT.GRAY_LIGHTER;
@@ -66,18 +59,15 @@ const WHITE = V9_COLORS.TEXT.WHITE;
 const TEXT_PRIMARY = V9_COLORS.TEXT.GRAY_DARK;
 const TEXT_SECONDARY = V9_COLORS.TEXT.GRAY_MEDIUM;
 
-// Custom responsive container for RAR flow with V9 colors
 const ResponsiveContainer = styled(Container)`
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 1rem;
 	border: 1px solid ${BORDER};
-
 	@media (max-width: 768px) {
 		padding: 0.5rem;
 		max-width: 100%;
 	}
-
 	@media (max-width: 480px) {
 		padding: 0.25rem;
 	}
@@ -86,7 +76,6 @@ const ResponsiveContainer = styled(Container)`
 const ResponsiveContentWrapper = styled(ContentWrapper)`
 	max-width: 100%;
 	overflow: hidden;
-
 	@media (max-width: 768px) {
 		padding: 0;
 	}
@@ -97,12 +86,10 @@ const ResponsiveMainCard = styled(MainCard)`
 	max-width: 100%;
 	border: 1px solid ${BORDER};
 	background-color: ${WHITE};
-
 	@media (max-width: 768px) {
 		padding: 0.75rem;
 		margin: 0;
 	}
-
 	@media (max-width: 480px) {
 		padding: 0.5rem;
 	}
@@ -112,99 +99,78 @@ const ResponsiveFormGrid = styled.div`
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 	gap: 1rem;
-
 	@media (max-width: 768px) {
 		grid-template-columns: 1fr;
 		gap: 0.75rem;
 	}
-
 	@media (max-width: 480px) {
 		gap: 0.5rem;
 	}
 `;
 
-// RAR Educational Content
-const RAR_EDUCATION = {
+const PAR_EDUCATION = {
 	overview: {
 		description:
-			'Rich Authorization Requests (RAR) enable fine-grained authorization by allowing clients to specify detailed authorization requirements using structured JSON. This goes beyond simple scopes to provide granular permission specifications.',
+			'Pushed Authorization Requests (PAR) allow the client to push the full authorization request to the authorization server via a direct request, and receive a request_uri that is then used in the user-facing authorization request. This reduces the risk of parameter tampering and allows for larger requests.',
 		keyPoint:
-			"RAR transforms OAuth from 'all-or-nothing' scopes to precise, contextual authorization requests.",
+			'PAR moves authorization parameters from the redirect URL to a secure server-to-server call, then the user is sent with only a short request_uri.',
 	},
 	benefits: [
-		'Fine-grained permission control beyond basic scopes',
-		'Contextual authorization with resource-specific permissions',
-		'Structured JSON format for complex authorization requirements',
-		'Better security through precise permission specifications',
-		'Enhanced user consent with detailed permission descriptions',
+		'Reduces parameter tampering—parameters are set by the AS',
+		'Supports requests larger than URL length limits',
+		'Enables binding of the authorization request to the client',
+		'Improves security for authorization code flow',
+		'Required by FAPI 2.0 and other high-security profiles',
 	],
-	example: {
-		description:
-			"Instead of requesting 'read' scope, RAR allows specifying exactly what to read: 'user profile name and email, but not phone number'",
-	},
-	useCases: [
-		'Banking APIs with account-specific permissions',
-		'Healthcare systems with patient data access controls',
-		'Enterprise applications with role-based resource access',
-		'IoT devices with device-specific permissions',
-	],
-	standard: 'RFC 9396 - Rich Authorization Requests (RAR)',
+	standard: 'RFC 9126 - Pushed Authorization Requests (PAR)',
 	mockFlow: {
 		description:
-			'This is a mock/educational implementation demonstrating RAR concepts. In a real implementation, the authorization server would process the RAR parameters and return tokens with the approved authorization details.',
-		note: 'PingOne supports RAR parameters in authorization requests, making this flow valuable for understanding real-world OAuth implementations.',
+			'This is a mock/educational implementation demonstrating PAR concepts. In production, the client would POST to the PAR endpoint and the AS would return a request_uri to use in the authorization redirect.',
+		note: 'PingOne supports PAR; this flow helps you understand the request shape and flow.',
 	},
 };
 
-// Step metadata
 const STEP_METADATA = [
 	{
-		title: 'RAR Overview',
-		subtitle: 'Understanding Rich Authorization Requests',
-		description: 'Learn about RAR concepts and benefits',
+		title: 'PAR Overview',
+		subtitle: 'Understanding Pushed Authorization Requests',
+		description: 'Learn about PAR and RFC 9126',
 	},
 	{
-		title: 'RAR Configuration',
-		subtitle: 'Set up RAR parameters and authorization details',
-		description: 'Configure RAR-specific authorization requirements',
+		title: 'PAR Configuration',
+		subtitle: 'Set up client and authorization parameters',
+		description: 'Configure client_id, redirect_uri, scope, etc.',
 	},
 	{
-		title: 'Authorization Request',
-		subtitle: 'Generate RAR-enabled authorization URL',
-		description: 'Create authorization request with RAR parameters',
+		title: 'Push PAR Request',
+		subtitle: 'Push parameters to the AS',
+		description: 'Obtain request_uri from the PAR endpoint',
+	},
+	{
+		title: 'Authorization URL',
+		subtitle: 'Redirect URL with request_uri',
+		description: 'User-facing authorization URL',
 	},
 	{
 		title: 'Token Exchange',
 		subtitle: 'Exchange authorization code for tokens',
-		description: 'Complete the OAuth flow with RAR context',
+		description: 'Complete the OAuth flow',
 	},
 	{
 		title: 'Flow Completion',
-		subtitle: 'Review and complete the flow',
+		subtitle: 'Review and complete',
 		description: 'Summary and next steps',
 	},
 ];
 
-// Types
-interface RARAuthorizationDetails {
-	resource: string;
-	actions: string[];
-	locations?: string[];
-	datatypes?: string[];
-	identifier?: string;
-	privileges?: string[];
-}
+const PARFlowV9: React.FC = () => {
+	usePageScroll({ pageName: 'PAR Flow V9', force: true });
 
-// Main Component
-const RARFlowV9: React.FC = () => {
-	// Scroll management
-	usePageScroll({ pageName: 'RAR Flow V9', force: true });
-
-	// Floating stepper — register steps and use context currentStep so Next/Previous move through steps
 	const { registerSteps, clearSteps, currentStep, setCurrentStep } = usePageStepper();
-	const RAR_SECTION_KEYS = [
+	const PAR_SECTION_KEYS = [
 		'overview',
 		'configuration',
+		'pushPar',
 		'authorization',
 		'tokenExchange',
 		'completion',
@@ -219,151 +185,129 @@ const RARFlowV9: React.FC = () => {
 		return () => clearSteps();
 	}, [registerSteps, clearSteps]);
 
-	const stepContentRef = useRef<HTMLDivElement>(null);
-	// Sync section expansion with stepper: when user clicks Next/Previous, expand the active step's section and scroll into view
+	// Sync section expansion with stepper: when user clicks Next/Previous, expand the active step's section
 	useEffect(() => {
-		const key = RAR_SECTION_KEYS[currentStep];
+		const key = PAR_SECTION_KEYS[currentStep];
 		if (key) setCollapsedSections((prev) => ({ ...prev, [key]: false }));
-		stepContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	}, [currentStep]);
 
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
 		overview: true,
 		configuration: false,
+		pushPar: true,
 		authorization: true,
 		tokenExchange: true,
 		completion: true,
 	});
 
-	// V9 Credential management
-	const [credentials, _setCredentials] = useState(() => V9FlowCredentialService.load());
+	const [credentials] = useState(() => V9FlowCredentialService.load());
 	const [environmentId, setEnvironmentId] = useState(() =>
 		EnvironmentIdServiceV8.getEnvironmentId()
 	);
-
-	// Worker token state
 	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = useState(true);
 
-	// RAR-specific state
-	const [rarConfig, setRarConfig] = useState({
+	const [parConfig, setParConfig] = useState({
 		clientId: credentials.clientId || '',
 		redirectUri: 'https://localhost:3000/callback',
-		resource: 'https://api.example.com/records',
-		actions: ['read', 'write'],
-		locations: ['https://api.example.com'],
-		datatypes: ['user_profile', 'financial_data'],
-		identifier: 'user_123',
-		privileges: ['basic', 'premium'],
+		scope: 'openid profile',
+		responseType: 'code',
+		state: `par_v9_${Date.now()}`,
 	});
 
-	// Flow state
+	const [requestUri, setRequestUri] = useState('');
 	const [authorizationUrl, setAuthorizationUrl] = useState('');
 	const [authorizationCode, setAuthorizationCode] = useState('');
 	const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [errors, setErrors] = useState<string[]>([]);
 
-	// Load stored credentials on mount
 	useEffect(() => {
-		const synced = V9CredentialStorageService.loadSync('v9:rar');
-		if (synced) {
-			if (synced.environmentId) setEnvironmentId(synced.environmentId);
-			if (synced.clientId)
-				setRarConfig((prev) => ({ ...prev, clientId: synced.clientId ?? prev.clientId }));
-		}
-		V9CredentialStorageService.load('v9:rar').then((creds) => {
+		const synced = V9CredentialStorageService.loadSync('v9:par');
+		if (synced?.environmentId) setEnvironmentId(synced.environmentId);
+		if (synced?.clientId)
+			setParConfig((prev) => ({ ...prev, clientId: synced.clientId ?? prev.clientId }));
+		V9CredentialStorageService.load('v9:par').then((creds) => {
 			if (creds?.environmentId) setEnvironmentId(creds.environmentId);
 			if (creds?.clientId)
-				setRarConfig((prev) => ({ ...prev, clientId: creds.clientId ?? prev.clientId }));
+				setParConfig((prev) => ({ ...prev, clientId: creds.clientId ?? prev.clientId }));
 		});
 	}, []);
 
-	const saveRarCredentials = useCallback((clientId: string, envId: string) => {
+	const saveParCredentials = useCallback((clientId: string, envId: string) => {
 		V9CredentialStorageService.save(
-			'v9:rar',
+			'v9:par',
 			{ clientId, environmentId: envId },
 			envId ? { environmentId: envId } : {}
 		);
 	}, []);
 
-	const handleRarAppSelected = useCallback(
+	const handleParAppSelected = useCallback(
 		(app: DiscoveredApp) => {
-			setRarConfig((prev) => ({ ...prev, clientId: app.id }));
-			saveRarCredentials(app.id, environmentId);
+			setParConfig((prev) => ({ ...prev, clientId: app.id }));
+			saveParCredentials(app.id, environmentId);
 		},
-		[environmentId, saveRarCredentials]
+		[environmentId, saveParCredentials]
 	);
 
-	// Toggle collapsible sections
 	const toggleSection = useCallback((section: string) => {
-		setCollapsedSections((prev) => ({
-			...prev,
-			[section]: !prev[section],
-		}));
+		setCollapsedSections((prev) => ({ ...prev, [section]: !prev[section] }));
 	}, []);
 
-	// Generate RAR authorization details
-	const generateRARAuthorizationDetails = useCallback((): RARAuthorizationDetails => {
-		return {
-			resource: rarConfig.resource,
-			actions: rarConfig.actions,
-			locations: rarConfig.locations,
-			datatypes: rarConfig.datatypes,
-			identifier: rarConfig.identifier,
-			privileges: rarConfig.privileges,
-		};
-	}, [rarConfig]);
+	const handleConfigChange = useCallback((field: keyof typeof parConfig, value: string) => {
+		setParConfig((prev) => ({ ...prev, [field]: value }));
+	}, []);
 
-	// Generate authorization URL with RAR parameters
-	const generateAuthorizationUrl = useCallback(() => {
-		if (!environmentId || !rarConfig.clientId) {
+	const pushParRequest = useCallback(() => {
+		if (!environmentId || !parConfig.clientId) {
 			setErrors(['Environment ID and Client ID are required']);
 			return;
 		}
+		const mockUri = `https://auth.pingone.com/${environmentId}/as/par.request.oauth2?request_uri=urn:pingone:par:mock_${Date.now()}`;
+		setRequestUri(mockUri);
+		setErrors([]);
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'PAR request pushed (mock request_uri generated)',
+			duration: 3000,
+		});
+	}, [environmentId, parConfig.clientId]);
 
-		const authDetails = generateRARAuthorizationDetails();
-		const rarParams = encodeURIComponent(JSON.stringify([authDetails]));
-
+	const generateAuthorizationUrl = useCallback(() => {
+		if (!requestUri) {
+			setErrors(['Push PAR Request first to get request_uri']);
+			return;
+		}
 		const url =
 			`https://auth.pingone.com/${environmentId}/as/authorization.oauth2?` +
-			`response_type=code&` +
-			`client_id=${encodeURIComponent(rarConfig.clientId)}&` +
-			`redirect_uri=${encodeURIComponent(rarConfig.redirectUri)}&` +
-			`authorization_details=${rarParams}&` +
-			`state=rar_v9_${Date.now()}`;
-
+			`client_id=${encodeURIComponent(parConfig.clientId)}&` +
+			`request_uri=${encodeURIComponent(requestUri)}&` +
+			`response_type=${encodeURIComponent(parConfig.responseType)}&` +
+			`state=${encodeURIComponent(parConfig.state)}`;
 		setAuthorizationUrl(url);
 		setErrors([]);
-	}, [environmentId, rarConfig, generateRARAuthorizationDetails]);
+	}, [environmentId, parConfig.clientId, parConfig.responseType, parConfig.state, requestUri]);
 
-	// Mock token exchange
 	const mockTokenExchange = useCallback(async () => {
 		if (!authorizationCode) {
 			setErrors(['Authorization code is required']);
 			return;
 		}
-
 		setIsLoading(true);
 		setErrors([]);
-
 		try {
-			// Mock token response with RAR context
-			const mockTokens = {
+			setTokens({
 				access_token: `mock_access_token_${Date.now()}`,
 				token_type: 'Bearer',
 				expires_in: 3600,
-				scope: 'rar_granted',
-				authorization_details: JSON.stringify([generateRARAuthorizationDetails()]),
+				scope: parConfig.scope,
 				issued_at: Math.floor(Date.now() / 1000),
-			};
-
-			setTokens(mockTokens);
+			});
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Token exchange completed successfully',
 				duration: 3000,
 			});
-		} catch (_error) {
+		} catch {
 			setErrors(['Token exchange failed. Please try again.']);
 			modernMessaging.showBanner({
 				type: 'error',
@@ -374,94 +318,53 @@ const RARFlowV9: React.FC = () => {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [authorizationCode, generateRARAuthorizationDetails]);
+	}, [authorizationCode, parConfig.scope]);
 
-	// Handle input changes
-	const handleConfigChange = useCallback(
-		(field: keyof typeof rarConfig, value: string | number | boolean) => {
-			setRarConfig((prev) => ({
-				...prev,
-				[field]: value,
-			}));
-		},
-		[]
-	);
-
-	// Handle array field changes (actions, locations, etc.)
-	const handleArrayFieldChange = useCallback((field: keyof typeof rarConfig, value: string) => {
-		const arrayValue = value
-			.split(',')
-			.map((item) => item.trim())
-			.filter(Boolean);
-		setRarConfig((prev) => ({
-			...prev,
-			[field]: arrayValue,
-		}));
-	}, []);
-
-	// Render step content
 	const renderStepContent = () => {
 		switch (currentStep) {
-			case 0: // RAR Overview
+			case 0:
 				return (
 					<CollapsibleSection>
 						<CollapsibleHeaderButton onClick={() => toggleSection('overview')}>
 							<CollapsibleTitle>
-								<span>ℹ️</span>Rich Authorization Requests Overview
+								<span>ℹ️</span>PAR Overview
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon collapsed={!collapsedSections.overview} />
 						</CollapsibleHeaderButton>
 						{!collapsedSections.overview && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<InfoTitle>{RAR_EDUCATION.overview.description}</InfoTitle>
-									<InfoText>{RAR_EDUCATION.overview.keyPoint}</InfoText>
+									<InfoTitle>{PAR_EDUCATION.overview.description}</InfoTitle>
+									<InfoText>{PAR_EDUCATION.overview.keyPoint}</InfoText>
 								</InfoBox>
-
 								<InfoBox $variant="success">
 									<InfoTitle>Key Benefits</InfoTitle>
 									<InfoList>
-										{RAR_EDUCATION.benefits.map((benefit, index) => (
+										{PAR_EDUCATION.benefits.map((benefit, index) => (
 											<li key={index}>{benefit}</li>
 										))}
 									</InfoList>
 								</InfoBox>
-
-								<InfoBox $variant="warning">
-									<InfoTitle>Example Use Case</InfoTitle>
-									<InfoText>{RAR_EDUCATION.example.description}</InfoText>
-								</InfoBox>
-
-								<InfoBox $variant="info">
-									<InfoTitle>Common Use Cases</InfoTitle>
-									<InfoList>
-										{RAR_EDUCATION.useCases.map((useCase, index) => (
-											<li key={index}>{useCase}</li>
-										))}
-									</InfoList>
-								</InfoBox>
-
 								<InfoBox $variant="info">
 									<InfoTitle>Standard Reference</InfoTitle>
-									<InfoText>{RAR_EDUCATION.standard}</InfoText>
+									<InfoText>{PAR_EDUCATION.standard}</InfoText>
 								</InfoBox>
-
 								<InfoBox $variant="warning">
 									<InfoTitle>Educational Implementation</InfoTitle>
-									<InfoText>{RAR_EDUCATION.mockFlow.description}</InfoText>
-									<InfoText>{RAR_EDUCATION.mockFlow.note}</InfoText>
+									<InfoText>{PAR_EDUCATION.mockFlow.description}</InfoText>
+									<InfoText>{PAR_EDUCATION.mockFlow.note}</InfoText>
 								</InfoBox>
 							</CollapsibleContent>
 						)}
 					</CollapsibleSection>
 				);
 
-			case 1: // RAR Configuration
+			case 1:
 				return (
 					<CollapsibleSection>
 						<CollapsibleHeaderButton onClick={() => toggleSection('configuration')}>
 							<CollapsibleTitle>
-								<span>⚙️</span>RAR Configuration
+								<span>⚙️</span>PAR Configuration
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon collapsed={!collapsedSections.configuration} />
 						</CollapsibleHeaderButton>
@@ -469,7 +372,7 @@ const RARFlowV9: React.FC = () => {
 							<CollapsibleContent>
 								<CompactAppPickerV8U
 									environmentId={environmentId}
-									onAppSelected={handleRarAppSelected}
+									onAppSelected={handleParAppSelected}
 								/>
 								<ResponsiveFormGrid>
 									<FormGroup>
@@ -478,109 +381,67 @@ const RARFlowV9: React.FC = () => {
 											type="text"
 											value={environmentId}
 											onChange={(e) => setEnvironmentId(e.target.value)}
-											placeholder="Enter PingOne Environment ID"
+											placeholder="PingOne Environment ID"
 											style={{ borderColor: BORDER }}
 										/>
 										<HelperText>Your PingOne environment identifier</HelperText>
 									</FormGroup>
-
 									<FormGroup>
 										<Label>Client ID</Label>
 										<Input
 											type="text"
-											value={rarConfig.clientId}
+											value={parConfig.clientId}
 											onChange={(e) => handleConfigChange('clientId', e.target.value)}
-											placeholder="Enter Client ID"
+											placeholder="Client ID"
 											style={{ borderColor: BORDER }}
 										/>
 										<HelperText>OAuth client identifier</HelperText>
 									</FormGroup>
-
 									<FormGroup>
 										<Label>Redirect URI</Label>
 										<Input
 											type="url"
-											value={rarConfig.redirectUri}
+											value={parConfig.redirectUri}
 											onChange={(e) => handleConfigChange('redirectUri', e.target.value)}
 											placeholder="https://localhost:3000/callback"
 											style={{ borderColor: BORDER }}
 										/>
-										<HelperText>Where the user is redirected after authorization</HelperText>
+										<HelperText>Callback URL after authorization</HelperText>
 									</FormGroup>
-
 									<FormGroup>
-										<Label>Resource</Label>
-										<Input
-											type="url"
-											value={rarConfig.resource}
-											onChange={(e) => handleConfigChange('resource', e.target.value)}
-											placeholder="https://api.example.com/records"
-											style={{ borderColor: BORDER }}
-										/>
-										<HelperText>The API resource being accessed</HelperText>
-									</FormGroup>
-
-									<FormGroup>
-										<Label>Actions (comma-separated)</Label>
+										<Label>Scope</Label>
 										<Input
 											type="text"
-											value={rarConfig.actions.join(', ')}
-											onChange={(e) => handleArrayFieldChange('actions', e.target.value)}
-											placeholder="read, write, delete"
+											value={parConfig.scope}
+											onChange={(e) => handleConfigChange('scope', e.target.value)}
+											placeholder="openid profile"
 											style={{ borderColor: BORDER }}
 										/>
-										<HelperText>Permitted actions on the resource</HelperText>
+										<HelperText>Space-separated scopes</HelperText>
 									</FormGroup>
-
 									<FormGroup>
-										<Label>Locations (comma-separated)</Label>
+										<Label>Response Type</Label>
 										<Input
 											type="text"
-											value={rarConfig.locations.join(', ')}
-											onChange={(e) => handleArrayFieldChange('locations', e.target.value)}
-											placeholder="https://api.example.com"
+											value={parConfig.responseType}
+											onChange={(e) => handleConfigChange('responseType', e.target.value)}
+											placeholder="code"
 											style={{ borderColor: BORDER }}
 										/>
-										<HelperText>Resource locations (optional)</HelperText>
+										<HelperText>Usually "code" for authorization code flow</HelperText>
 									</FormGroup>
-
 									<FormGroup>
-										<Label>Data Types (comma-separated)</Label>
+										<Label>State</Label>
 										<Input
 											type="text"
-											value={rarConfig.datatypes.join(', ')}
-											onChange={(e) => handleArrayFieldChange('datatypes', e.target.value)}
-											placeholder="user_profile, financial_data"
+											value={parConfig.state}
+											onChange={(e) => handleConfigChange('state', e.target.value)}
+											placeholder="state value"
 											style={{ borderColor: BORDER }}
 										/>
-										<HelperText>Types of data to be accessed (optional)</HelperText>
-									</FormGroup>
-
-									<FormGroup>
-										<Label>Identifier</Label>
-										<Input
-											type="text"
-											value={rarConfig.identifier}
-											onChange={(e) => handleConfigChange('identifier', e.target.value)}
-											placeholder="user_123"
-											style={{ borderColor: BORDER }}
-										/>
-										<HelperText>Resource identifier (optional)</HelperText>
-									</FormGroup>
-
-									<FormGroup>
-										<Label>Privileges (comma-separated)</Label>
-										<Input
-											type="text"
-											value={rarConfig.privileges.join(', ')}
-											onChange={(e) => handleArrayFieldChange('privileges', e.target.value)}
-											placeholder="basic, premium, admin"
-											style={{ borderColor: BORDER }}
-										/>
-										<HelperText>Access privileges (optional)</HelperText>
+										<HelperText>CSRF protection value</HelperText>
 									</FormGroup>
 								</ResponsiveFormGrid>
-
 								{errors.length > 0 && (
 									<InfoBox $variant="error" style={{ marginTop: '1rem' }}>
 										<InfoTitle>Configuration Errors</InfoTitle>
@@ -596,12 +457,52 @@ const RARFlowV9: React.FC = () => {
 					</CollapsibleSection>
 				);
 
-			case 2: // Authorization Request
+			case 2:
+				return (
+					<CollapsibleSection>
+						<CollapsibleHeaderButton onClick={() => toggleSection('pushPar')}>
+							<CollapsibleTitle>
+								<span>📤</span>Push PAR Request
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon collapsed={!collapsedSections.pushPar} />
+						</CollapsibleHeaderButton>
+						{!collapsedSections.pushPar && (
+							<CollapsibleContent>
+								<Button
+									$variant="primary"
+									onClick={pushParRequest}
+									disabled={!environmentId || !parConfig.clientId}
+									style={{
+										backgroundColor: PRIMARY_BLUE,
+										color: WHITE,
+										border: 'none',
+										padding: '0.75rem 1.5rem',
+										marginBottom: '1rem',
+									}}
+								>
+									<span>📤</span>Push Authorization Request (PAR)
+								</Button>
+								<HelperText>
+									In production, the client POSTs authorization parameters to the PAR endpoint. This
+									mock generates a request_uri.
+								</HelperText>
+								{requestUri && (
+									<GeneratedContentBox>
+										<InfoTitle>Request URI (mock)</InfoTitle>
+										<CodeBlock>{requestUri}</CodeBlock>
+									</GeneratedContentBox>
+								)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
+				);
+
+			case 3:
 				return (
 					<CollapsibleSection>
 						<CollapsibleHeaderButton onClick={() => toggleSection('authorization')}>
 							<CollapsibleTitle>
-								<span>🔑</span>Generate Authorization Request
+								<span>🔑</span>Authorization URL
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon collapsed={!collapsedSections.authorization} />
 						</CollapsibleHeaderButton>
@@ -610,7 +511,7 @@ const RARFlowV9: React.FC = () => {
 								<Button
 									$variant="primary"
 									onClick={generateAuthorizationUrl}
-									disabled={!environmentId || !rarConfig.clientId}
+									disabled={!requestUri}
 									style={{
 										backgroundColor: PRIMARY_BLUE,
 										color: WHITE,
@@ -621,48 +522,37 @@ const RARFlowV9: React.FC = () => {
 								>
 									<span>➡️</span>Generate Authorization URL
 								</Button>
-
 								{authorizationUrl && (
-									<GeneratedContentBox>
-										<InfoTitle>Authorization URL</InfoTitle>
-										<CodeBlock>{authorizationUrl}</CodeBlock>
-										<HelperText>
-											This URL contains RAR authorization details that specify exactly what
-											permissions are being requested.
-										</HelperText>
-
-										<ParameterGrid>
-											<ParameterLabel>Authorization Details:</ParameterLabel>
-											<ParameterValue>
-												<CodeBlock>
-													{JSON.stringify([generateRARAuthorizationDetails()], null, 2)}
-												</CodeBlock>
-											</ParameterValue>
-										</ParameterGrid>
-									</GeneratedContentBox>
-								)}
-
-								{authorizationUrl && (
-									<FormGroup style={{ marginTop: '1rem' }}>
-										<Label>Authorization Code (for testing)</Label>
-										<Input
-											type="text"
-											value={authorizationCode}
-											onChange={(e) => setAuthorizationCode(e.target.value)}
-											placeholder="Enter mock authorization code"
-											style={{ borderColor: BORDER }}
-										/>
-										<HelperText>
-											In a real flow, this would be obtained from the authorization server callback
-										</HelperText>
-									</FormGroup>
+									<>
+										<GeneratedContentBox>
+											<InfoTitle>Authorization URL (with request_uri)</InfoTitle>
+											<CodeBlock>{authorizationUrl}</CodeBlock>
+											<HelperText>
+												User is redirected to this URL; the AS resolves the request_uri to the
+												pushed parameters.
+											</HelperText>
+										</GeneratedContentBox>
+										<FormGroup style={{ marginTop: '1rem' }}>
+											<Label>Authorization Code (for testing)</Label>
+											<Input
+												type="text"
+												value={authorizationCode}
+												onChange={(e) => setAuthorizationCode(e.target.value)}
+												placeholder="Enter mock authorization code"
+												style={{ borderColor: BORDER }}
+											/>
+											<HelperText>
+												Obtained from the authorization server callback in a real flow.
+											</HelperText>
+										</FormGroup>
+									</>
 								)}
 							</CollapsibleContent>
 						)}
 					</CollapsibleSection>
 				);
 
-			case 3: // Token Exchange
+			case 4:
 				return (
 					<CollapsibleSection>
 						<CollapsibleHeaderButton onClick={() => toggleSection('tokenExchange')}>
@@ -693,51 +583,35 @@ const RARFlowV9: React.FC = () => {
 										</>
 									)}
 								</Button>
-
 								{tokens && (
 									<GeneratedContentBox>
 										<InfoTitle>Token Response</InfoTitle>
 										<ParameterGrid>
 											<ParameterLabel>Access Token:</ParameterLabel>
 											<ParameterValue>
-												<CodeBlock>{maskToken(tokens.access_token)}</CodeBlock>
+												<CodeBlock>{maskToken(String(tokens.access_token))}</CodeBlock>
 											</ParameterValue>
 										</ParameterGrid>
-
 										<ParameterGrid>
 											<ParameterLabel>Token Type:</ParameterLabel>
-											<ParameterValue>{tokens.token_type}</ParameterValue>
+											<ParameterValue>{String(tokens.token_type)}</ParameterValue>
 										</ParameterGrid>
-
 										<ParameterGrid>
 											<ParameterLabel>Expires In:</ParameterLabel>
-											<ParameterValue>{tokens.expires_in} seconds</ParameterValue>
+											<ParameterValue>{String(tokens.expires_in)} seconds</ParameterValue>
 										</ParameterGrid>
-
 										<ParameterGrid>
 											<ParameterLabel>Scope:</ParameterLabel>
-											<ParameterValue>{tokens.scope}</ParameterValue>
+											<ParameterValue>{String(tokens.scope)}</ParameterValue>
 										</ParameterGrid>
-
-										<ParameterGrid>
-											<ParameterLabel>Authorization Details:</ParameterLabel>
-											<ParameterValue>
-												<CodeBlock>{String(tokens.authorization_details || 'N/A')}</CodeBlock>
-											</ParameterValue>
-										</ParameterGrid>
-
 										<InfoBox $variant="success" style={{ marginTop: '1rem' }}>
 											<InfoTitle>
 												<span>✅</span>Token Exchange Successful
 											</InfoTitle>
-											<InfoText>
-												The token includes RAR authorization details that grant specific permissions
-												as configured in step 2.
-											</InfoText>
+											<InfoText>PAR flow token exchange completed (mock).</InfoText>
 										</InfoBox>
 									</GeneratedContentBox>
 								)}
-
 								{errors.length > 0 && (
 									<InfoBox $variant="error" style={{ marginTop: '1rem' }}>
 										<InfoTitle>Token Exchange Errors</InfoTitle>
@@ -753,7 +627,7 @@ const RARFlowV9: React.FC = () => {
 					</CollapsibleSection>
 				);
 
-			case 4: // Flow Completion
+			case 5:
 				return (
 					<CollapsibleSection>
 						<CollapsibleHeaderButton onClick={() => toggleSection('completion')}>
@@ -765,56 +639,24 @@ const RARFlowV9: React.FC = () => {
 						{!collapsedSections.completion && (
 							<CollapsibleContent>
 								<InfoBox $variant="success">
-									<InfoTitle>RAR Flow Completed Successfully</InfoTitle>
+									<InfoTitle>PAR Flow Completed Successfully</InfoTitle>
 									<InfoText>
-										You have successfully completed the Rich Authorization Requests flow
-										demonstration. The token you received includes specific authorization details
-										that grant precise permissions as configured in the RAR parameters.
+										You have completed the Pushed Authorization Requests flow demonstration. PAR
+										improves security by pushing parameters to the AS before the user is redirected.
 									</InfoText>
 								</InfoBox>
-
 								<InfoBox $variant="info">
 									<InfoTitle>Key Takeaways</InfoTitle>
 									<InfoList>
-										<li>RAR enables fine-grained authorization beyond simple scopes</li>
-										<li>Authorization details are structured JSON objects with specific fields</li>
-										<li>PingOne supports RAR parameters in authorization requests</li>
-										<li>Tokens can include the granted authorization details for verification</li>
-										<li>RAR provides better security and user consent experiences</li>
+										<li>PAR uses a POST to the PAR endpoint to obtain request_uri</li>
+										<li>
+											The authorization URL contains only request_uri (and client_id), not full
+											parameters
+										</li>
+										<li>PingOne supports PAR; see PingOne docs for production setup</li>
+										<li>RFC 9126 defines the PAR endpoint and request format</li>
 									</InfoList>
 								</InfoBox>
-
-								<InfoBox $variant="warning">
-									<InfoTitle>Next Steps</InfoTitle>
-									<InfoList>
-										<li>Explore other OAuth flows in the playground</li>
-										<li>Read the RFC 9396 specification for detailed RAR information</li>
-										<li>Test with real PingOne applications to implement RAR in production</li>
-										<li>Review PingOne documentation for RAR-specific configuration</li>
-									</InfoList>
-								</InfoBox>
-
-								{tokens && (
-									<GeneratedContentBox style={{ marginTop: '1rem' }}>
-										<InfoTitle>Final Token Summary</InfoTitle>
-										<ParameterGrid>
-											<ParameterLabel>Token Type:</ParameterLabel>
-											<ParameterValue>{tokens.token_type}</ParameterValue>
-										</ParameterGrid>
-
-										<ParameterGrid>
-											<ParameterLabel>Granted Permissions:</ParameterLabel>
-											<ParameterValue>
-												<CodeBlock>{tokens.authorization_details}</CodeBlock>
-											</ParameterValue>
-										</ParameterGrid>
-
-										<ParameterGrid>
-											<ParameterLabel>Expires In:</ParameterLabel>
-											<ParameterValue>{tokens.expires_in} seconds</ParameterValue>
-										</ParameterGrid>
-									</GeneratedContentBox>
-								)}
 							</CollapsibleContent>
 						)}
 					</CollapsibleSection>
@@ -828,11 +670,10 @@ const RARFlowV9: React.FC = () => {
 	return (
 		<ResponsiveContainer>
 			<ResponsiveContentWrapper>
-				<FlowHeader flowId="rar-v9" />
+				<FlowHeader flowId="par-v9" />
 
 				<ResponsiveMainCard>
 					<StepContentWrapper>
-						{/* Step Progress */}
 						<div style={{ marginBottom: '2rem' }}>
 							<div
 								style={{
@@ -850,7 +691,7 @@ const RARFlowV9: React.FC = () => {
 										onClick={() => setCurrentStep(index)}
 										style={{
 											flex: 1,
-											minWidth: '120px',
+											minWidth: '100px',
 											textAlign: 'center',
 											padding: '0.5rem',
 											borderRadius: '0.375rem',
@@ -871,7 +712,6 @@ const RARFlowV9: React.FC = () => {
 							</div>
 						</div>
 
-						{/* Current Step Info */}
 						<div ref={stepContentRef} style={{ marginBottom: '2rem' }}>
 							<h2
 								style={{
@@ -883,35 +723,20 @@ const RARFlowV9: React.FC = () => {
 							>
 								{STEP_METADATA[currentStep].title}
 							</h2>
-							<p
-								style={{
-									color: TEXT_SECONDARY,
-									marginBottom: '1rem',
-									fontSize: '1rem',
-								}}
-							>
+							<p style={{ color: TEXT_SECONDARY, marginBottom: '1rem', fontSize: '1rem' }}>
 								{STEP_METADATA[currentStep].subtitle}
 							</p>
-							<p
-								style={{
-									color: TEXT_PRIMARY,
-									fontSize: '0.875rem',
-								}}
-							>
+							<p style={{ color: TEXT_PRIMARY, fontSize: '0.875rem' }}>
 								{STEP_METADATA[currentStep].description}
 							</p>
 						</div>
 
 						<SectionDivider />
-
-						{/* Step Content */}
 						{renderStepContent()}
-
 						<SectionDivider />
 					</StepContentWrapper>
 				</ResponsiveMainCard>
 
-				{/* Worker Token Status Section */}
 				<ResponsiveMainCard style={{ marginTop: '2rem' }}>
 					<button
 						type="button"
@@ -960,26 +785,21 @@ const RARFlowV9: React.FC = () => {
 							🔽
 						</span>
 					</button>
-
-					{/* Worker Token Status Content */}
 					{!isWorkerTokenStatusCollapsed && (
 						<div style={{ padding: '20px' }}>
 							<WorkerTokenStatusDisplayV8
-								appName="RAR Flow V9"
+								appName="PAR Flow V9"
 								compact={false}
 								showRefreshButton={true}
 								onTokenUpdate={(tokenData) => {
-									// Update environment ID from worker token if available
-									if (tokenData?.credentials?.environmentId) {
+									if (tokenData?.credentials?.environmentId)
 										setEnvironmentId(tokenData.credentials.environmentId);
-									}
 								}}
 							/>
 						</div>
 					)}
 				</ResponsiveMainCard>
 
-				{/* Credential Export/Import Section */}
 				<ResponsiveMainCard style={{ marginTop: '2rem' }}>
 					<StepContentWrapper>
 						<h3
@@ -1000,30 +820,27 @@ const RARFlowV9: React.FC = () => {
 								lineHeight: 1.5,
 							}}
 						>
-							<strong>Export</strong> saves your RAR flow credentials (Environment ID, Client ID,
-							Redirect URI) to a file so you can back them up or use them on another device.{' '}
-							<strong>Import</strong> loads a previously exported file to fill in the form above
-							without re-typing.
+							<strong>Export</strong> saves your PAR flow credentials to a file.{' '}
+							<strong>Import</strong> loads a previously exported file.
 						</p>
 						<StandardizedCredentialExportImport
-							appName="RAR Flow V9"
+							appName="PAR Flow V9"
 							appType="oauth"
 							credentials={{
 								environmentId,
-								clientId: rarConfig.clientId,
+								clientId: parConfig.clientId,
 								clientSecret: '',
-								redirectUri: rarConfig.redirectUri,
+								redirectUri: parConfig.redirectUri,
 							}}
-							onCredentialsImported={(importedCredentials) => {
-								if (importedCredentials.environmentId) {
-									setEnvironmentId(importedCredentials.environmentId);
-								}
-								if (importedCredentials.clientId) {
-									handleConfigChange('clientId', importedCredentials.clientId);
-								}
-								if (importedCredentials.redirectUri) {
-									handleConfigChange('redirectUri', importedCredentials.redirectUri);
-								}
+							onImport={(importedCredentials) => {
+								const c = importedCredentials as {
+									environmentId?: string;
+									clientId?: string;
+									redirectUri?: string;
+								};
+								if (c.environmentId) setEnvironmentId(c.environmentId);
+								if (c.clientId) handleConfigChange('clientId', c.clientId);
+								if (c.redirectUri) handleConfigChange('redirectUri', c.redirectUri);
 								modernMessaging.showFooterMessage({
 									type: 'info',
 									message: 'Credentials imported successfully',
@@ -1038,4 +855,4 @@ const RARFlowV9: React.FC = () => {
 	);
 };
 
-export default RARFlowV9;
+export default PARFlowV9;
