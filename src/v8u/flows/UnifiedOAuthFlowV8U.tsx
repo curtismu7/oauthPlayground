@@ -32,6 +32,7 @@ import {
 	PageHeaderTextColors,
 	PageHeaderV8,
 } from '@/v8/components/shared/PageHeaderV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -545,6 +546,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	// Worker token warning — shown when token is invalid/expired before an API call
 	const [workerTokenWarning, setWorkerTokenWarning] = useState<TokenStatusInfo | null>(null);
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Worker token configuration is handled internally by SilentApiConfigCheckboxV8 and ShowTokenConfigCheckboxV8
 
@@ -876,7 +878,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Listen for worker token updates
 	useEffect(() => {
 		const handleWorkerTokenUpdate = () => {
-			logger.debug(`🔑 Worker token updated event received!`, "Logger debug");
+			logger.debug(`🔑 Worker token updated event received!`, 'Logger debug');
 			logger.debug(`🔑 Current credentials:`, {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
@@ -892,21 +894,21 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 			// Re-fetch app configuration to reflect worker token status
 			if (credentials.environmentId && credentials.clientId) {
-				logger.debug(`🔑 Clearing app config to trigger re-fetch`, "Logger debug");
+				logger.debug(`🔑 Clearing app config to trigger re-fetch`, 'Logger debug');
 				setAppConfig(null); // Clear current config to trigger re-fetch
 			} else {
-				logger.debug(`⚠️ Cannot refresh app config - missing credentials`, "Logger debug");
+				logger.debug(`⚠️ Cannot refresh app config - missing credentials`, 'Logger debug');
 			}
 		};
 
-		logger.debug(`🔑 Setting up worker token event listener`, "Logger debug");
+		logger.debug(`🔑 Setting up worker token event listener`, 'Logger debug');
 		window.addEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 
 		// Test if event listener is working
-		logger.debug(`🔑 Worker token listener setup complete`, "Logger debug");
+		logger.debug(`🔑 Worker token listener setup complete`, 'Logger debug');
 
 		return () => {
-			logger.debug(`🔑 Cleaning up worker token event listener`, "Logger debug");
+			logger.debug(`🔑 Cleaning up worker token event listener`, 'Logger debug');
 			window.removeEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 		};
 	}, [credentials.environmentId, credentials.clientId]);
@@ -1862,12 +1864,16 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						<button
 							type="button"
 							onClick={async () => {
-								const { handleShowWorkerTokenModal } = await import(
-									'@/v8/utils/workerTokenModalHelperV8'
-								);
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: 'Opening worker token settings…',
+									duration: 3000,
+								});
+								const { handleShowWorkerTokenModal } =
+									await import('@/v8/utils/workerTokenModalHelperV8');
 								await handleShowWorkerTokenModal(
-									() => {},
-									undefined,
+									setShowWorkerTokenModal,
+									setWorkerTokenWarning,
 									undefined,
 									undefined,
 									true // forceShowModal
@@ -2634,7 +2640,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 												usePKCE: true,
 											};
 											handleCredentialsChange(updatedCredentials);
-											logger.debug(`Auto-enabled PKCE for ${appType} application type`, "Logger debug");
+											logger.debug(
+												`Auto-enabled PKCE for ${appType} application type`,
+												'Logger debug'
+											);
 										}
 									} else {
 										logger.debug(`Suggested flow not available for spec`, {
@@ -2767,9 +2776,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							<button
 								type="button"
 								onClick={async () => {
-									const { handleShowWorkerTokenModal } = await import(
-										'@/v8/utils/workerTokenModalHelperV8'
-									);
+									const { handleShowWorkerTokenModal } =
+										await import('@/v8/utils/workerTokenModalHelperV8');
 									await handleShowWorkerTokenModal(
 										() => {}, // setShowModal - not needed here
 										undefined, // setTokenStatus - not needed here
@@ -2822,9 +2830,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
 											try {
-												const { handleShowWorkerTokenModal } = await import(
-													'@/v8/utils/workerTokenModalHelperV8'
-												);
+												const { handleShowWorkerTokenModal } =
+													await import('@/v8/utils/workerTokenModalHelperV8');
 												// Attempt silent retrieval (will show modal if credentials are missing)
 												await handleShowWorkerTokenModal(
 													() => {}, // setShowModal - not needed here
@@ -2873,7 +2880,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								{
 									specVersion,
 									flowType: effectiveFlowType,
-								},
+								}
 							);
 
 							// Reload credentials from storage to ensure fresh state
@@ -2907,6 +2914,13 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 			{/* Super Simple API Display - Toggleable, hidden by default - Only shows Unified flow calls */}
 			<SuperSimpleApiDisplayV8 flowFilter="unified" reserveSpace />
+
+			{showWorkerTokenModal && (
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={() => setShowWorkerTokenModal(false)}
+				/>
+			)}
 		</MobileResponsiveWrapper>
 	);
 };
