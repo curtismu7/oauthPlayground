@@ -159,7 +159,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 							: 'Show guidance for all spec versions'
 					}
 				>
-					<span style={{ fontSize: '16px' }}>❓</span>
+					<FiHelpCircle size={16} />
 				</button>
 			</div>
 
@@ -352,7 +352,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 										: `Get guidance for ${SPEC_VERSION_BUTTON_LABELS[spec]}`
 								}
 							>
-								<span style={{ fontSize: '14px' }}>❓</span>
+								<FiHelpCircle size={14} />
 							</button>
 						</div>
 					);
