@@ -3,6 +3,7 @@
 
 import { FiBook } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { showGlobalError } from '../../contexts/NotificationSystem';
 import {
@@ -21,6 +22,7 @@ import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorag
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
+import { PingOneApiCallDisplay, PingOneApiExamples } from '../../components/PingOneApiCallDisplay';
 
 export const V7MClientCredentialsV9: React.FC = () => {
 	const [clientId, setClientId] = useState('v7m-client-credentials');
@@ -102,9 +104,7 @@ export const V7MClientCredentialsV9: React.FC = () => {
 					on your settings.
 				</p>
 			</div>
-			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<span>🔑</span> V7M Client Credentials
-			</h1>
+			<FlowHeader flowId="client-credentials-v7" />
 			<UnifiedCredentialManagerV9
 				environmentId="v7m-mock"
 				flowKey="v7m-client-credentials"
@@ -336,6 +336,18 @@ export const V7MClientCredentialsV9: React.FC = () => {
 					<li>Requires client authentication</li>
 				</ul>
 			</V7MHelpModal>
+
+			{/* Educational API Call Examples */}
+			<div style={{ marginTop: 24 }}>
+				<h3 style={{ marginBottom: 16, color: '#1f2937', fontSize: 18, fontWeight: 600 }}>
+					📚 Real PingOne API Call Examples
+				</h3>
+				<p style={{ marginBottom: 20, color: '#6b7280', fontSize: 14 }}>
+					These examples show exactly what real PingOne API calls look like for the Client Credentials flow. Use these as references when implementing machine-to-machine authentication.
+				</p>
+				
+				<PingOneApiCallDisplay {...PingOneApiExamples.tokenEndpoint} />
+			</div>
 		</div>
 	);
 };

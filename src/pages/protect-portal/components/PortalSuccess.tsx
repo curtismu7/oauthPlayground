@@ -508,7 +508,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 				return {
 					title: 'Unknown Risk',
 					description: 'Risk level could not be determined.',
-					icon: '❓',
+					icon: '?',
 					color: '#6b7280',
 				};
 		}

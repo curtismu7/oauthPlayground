@@ -189,6 +189,17 @@ export const V9_FLOW_CONFIGS: Record<string, V9FlowCredentialConfig> = {
 		stepIndex: 0,
 		showToastOnSuccess: true,
 	},
+	'par-v9': {
+		flowName: 'PAR Flow',
+		requiredFields: ['environmentId', 'clientId', 'redirectUri'],
+		fieldLabels: {
+			environmentId: 'Environment ID',
+			clientId: 'Client ID',
+			redirectUri: 'Redirect URI',
+		},
+		stepIndex: 0,
+		showToastOnSuccess: true,
+	},
 	'jwt-bearer-v9': {
 		flowName: 'JWT Bearer Token Flow',
 		requiredFields: ['environmentId', 'clientId', 'clientSecret'],
