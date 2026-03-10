@@ -708,7 +708,7 @@ export const UserManagementPage: React.FC = () => {
 									variant="edit"
 									onClick={() => handleEditUser(user)}
 								>
-									<span style={{ fontSize: '16px' }}>❓</span>
+									<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 								</IconButton>
 								<IconButton
 									theme={currentTheme}
@@ -955,7 +955,7 @@ export const UserManagementPage: React.FC = () => {
 									Cancel
 								</ActionButton>
 								<ActionButton theme={currentTheme} variant="primary" type="submit">
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 									Update User
 								</ActionButton>
 							</FormActions>

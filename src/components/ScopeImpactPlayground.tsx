@@ -725,7 +725,7 @@ const ScopeImpactPlayground: React.FC = () => {
 		<PlaygroundContainer>
 			<Header>
 				<Title>
-					<span style={{ fontSize: '28px' }}>❓</span>
+					<i className="bi bi-question-circle" style={{ fontSize: '28px' }}></i>
 					Scope Impact Playground
 				</Title>
 				<Intro>
@@ -760,7 +760,7 @@ const ScopeImpactPlayground: React.FC = () => {
 			<ContentLayout>
 				<ScopeLibraryPanel>
 					<PanelTitle>
-						<span>❓</span>
+						<i className="bi bi-question-circle"></i>
 						Scope Library
 					</PanelTitle>
 
@@ -854,7 +854,7 @@ const ScopeImpactPlayground: React.FC = () => {
 							</ApiExampleList>
 
 							<BestPractice>
-								<span style={{ fontSize: '18px' }}>❓</span>
+								<i className="bi bi-question-circle" style={{ fontSize: '18px' }}></i>
 								<div>{scope.bestPractice}</div>
 							</BestPractice>
 

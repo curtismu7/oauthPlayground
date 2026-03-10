@@ -970,7 +970,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 
 								<div style={{ marginBottom: '1.5rem' }}>
 									<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-										<span>❓</span>
+										<i className="bi bi-question-circle"></i>
 										Generated Configuration Code
 									</h3>
 									<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
@@ -1011,7 +1011,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
 										onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#ef4444')}
 									>
-										<span>❓</span>
+										<i className="bi bi-question-circle"></i>
 										Reset to Defaults
 									</button>
 								</div>

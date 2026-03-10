@@ -193,7 +193,7 @@ const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 		const icons = {
 			navigate: <span style={{ fontSize: '16px' }}>👁️</span>,
 			configure: <span style={{ fontSize: '16px' }}>⚙️</span>,
-			execute: <span style={{ fontSize: '16px' }}>❓</span>,
+			execute: <i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>,
 			observe: <span style={{ fontSize: '16px' }}>👁️</span>,
 		};
 
@@ -221,7 +221,7 @@ const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 
 					<TutorialMeta>
 						<MetaItem>
-							<span style={{ fontSize: '16px' }}>❓</span>
+							<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 							{tutorial.estimatedTime}
 						</MetaItem>
 						<MetaItem>
@@ -252,7 +252,7 @@ const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 					<TutorialActions>
 						{!isStarted || isCompleted ? (
 							<ActionButton onClick={handleStartTutorial}>
-								<span style={{ fontSize: '16px' }}>❓</span>
+								<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 								{isCompleted ? 'Start Again' : 'Start Tutorial'}
 							</ActionButton>
 						) : (

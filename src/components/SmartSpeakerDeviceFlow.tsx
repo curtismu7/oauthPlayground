@@ -589,7 +589,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 										cursor: 'pointer',
 									}}
 								>
-									<span style={{ fontSize: '16px' }}>❓</span>
+									<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 								</div>
 							</div>
 

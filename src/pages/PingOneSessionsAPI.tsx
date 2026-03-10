@@ -48,7 +48,9 @@ const FeatureGrid = styled.div`
 
 const FeatureCard = styled(Card)`
 	border-left: 4px solid ${({ theme }) => theme.colors.info};
-	transition: transform 0.2s, box-shadow 0.2s;
+	transition:
+		transform 0.2s,
+		box-shadow 0.2s;
 
 	&:hover {
 		transform: translateY(-2px);
@@ -404,7 +406,7 @@ const PingOneSessionsAPI: React.FC = () => {
 					}}
 					type="button"
 				>
-					<span style={{ fontSize: '16px' }}>❓</span>
+					<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 					{copiedCode === id ? 'Copied!' : 'Copy'}
 				</button>
 			</div>
@@ -528,7 +530,10 @@ const PingOneSessionsAPI: React.FC = () => {
 														marginBottom: '0.75rem',
 													}}
 												>
-													<span style={{ fontSize: 24, color: '#3b82f6' }}>❓</span>
+													<i
+														className="bi bi-question-circle"
+														style={{ fontSize: 24, color: '#3b82f6' }}
+													></i>
 													<h4 style={{ margin: 0 }}>Admin Controls</h4>
 												</div>
 												<p style={{ margin: 0, fontSize: '0.9rem', color: '#6b7280' }}>
@@ -694,7 +699,7 @@ const PingOneSessionsAPI: React.FC = () => {
 							<Card style={{ marginBottom: '2rem' }}>
 								<CardHeader>
 									<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-										<span style={{ fontSize: '20px' }}>❓</span>
+										<i className="bi bi-question-circle" style={{ fontSize: '20px' }}></i>
 										<h3 style={{ margin: 0 }}>Delete One Session (Revoke)</h3>
 									</div>
 								</CardHeader>
@@ -980,7 +985,7 @@ grant_type=client_credentials
 												!credentials.accessToken
 											}
 										>
-											<span>❓</span>
+											<i className="bi bi-question-circle"></i>
 											{isLoading ? 'Testing...' : 'Test API'}
 										</Button>
 

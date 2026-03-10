@@ -499,10 +499,10 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 				{/* HP Floating Toolbar */}
 				<HPFloatingToolbar>
 					<ToolbarButton $variant="move" title="Move">
-						<span>❓</span>
+						<i className="bi bi-question-circle"></i>
 					</ToolbarButton>
 					<ToolbarButton $variant="expand" title="Expand">
-						<span>❓</span>
+						<i className="bi bi-question-circle"></i>
 					</ToolbarButton>
 					<ToolbarButton $variant="back" title="Back">
 						<span>⬅️</span>

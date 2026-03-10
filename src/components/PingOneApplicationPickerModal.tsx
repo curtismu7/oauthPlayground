@@ -6,77 +6,79 @@ import { DraggableModal } from './DraggableModal';
 import { WorkerTokenModal } from './WorkerTokenModal';
 
 const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
 `;
 
 const Toolbar = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: flex-end;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	align-items: flex-end;
 `;
 
 const FieldGroup = styled.label`
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.85rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	font-size: 0.85rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const TextInput = styled.input`
-  width: 220px;
-  padding: 0.55rem 0.65rem;
-  border-radius: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  font-size: 0.9rem;
-  background: V9_COLORS.TEXT.WHITE;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04);
+	width: 220px;
+	padding: 0.55rem 0.65rem;
+	border-radius: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	font-size: 0.9rem;
+	background: V9_COLORS.TEXT.WHITE;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04);
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE_DARK;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+	}
 
-  &:disabled {
-    background: V9_COLORS.BG.GRAY_MEDIUM;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		background: V9_COLORS.BG.GRAY_MEDIUM;
+		cursor: not-allowed;
+	}
 `;
 
 const Select = styled.select`
-  width: 160px;
-  padding: 0.55rem 0.65rem;
-  border-radius: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  font-size: 0.9rem;
-  background: V9_COLORS.TEXT.WHITE;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	width: 160px;
+	padding: 0.55rem 0.65rem;
+	border-radius: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	font-size: 0.9rem;
+	background: V9_COLORS.TEXT.WHITE;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE_DARK;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+	}
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.55rem 1.1rem;
-  border-radius: 0.6rem;
-  border: none;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.55rem 1.1rem;
+	border-radius: 0.6rem;
+	border: none;
+	font-size: 0.9rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition:
+		transform 120ms ease,
+		box-shadow 120ms ease;
 
-  ${({ $variant }) =>
+	${({ $variant }) =>
 		$variant === 'secondary'
 			? `
     background: V9_COLORS.TEXT.GRAY_LIGHTER;
@@ -98,111 +100,112 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
     }
   `}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+		box-shadow: none;
+	}
 `;
 
 const TableWrapper = styled.div`
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  overflow: hidden;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	overflow: hidden;
 `;
 
 const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.85rem;
 `;
 
 const THead = styled.thead`
-  background: V9_COLORS.BG.GRAY_MEDIUM;
+	background: V9_COLORS.BG.GRAY_MEDIUM;
 `;
 
 const TH = styled.th`
-  text-align: left;
-  padding: 0.65rem 0.9rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	text-align: left;
+	padding: 0.65rem 0.9rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TR = styled.tr<{ $highlight?: boolean }>`
-  background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.04)' : '#ffffff')};
+	background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.04)' : '#ffffff')};
 
-  &:nth-child(even) {
-    background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.08)' : '#f8fafc')};
-  }
+	&:nth-child(even) {
+		background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.08)' : '#f8fafc')};
+	}
 `;
 
 const TD = styled.td`
-  padding: 0.6rem 0.9rem;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  vertical-align: top;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	padding: 0.6rem 0.9rem;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	vertical-align: top;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const EmptyState = styled.div`
-  display: flex;
-  padding: 2.5rem;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.65rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  text-align: center;
+	display: flex;
+	padding: 2.5rem;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.65rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	text-align: center;
 `;
 
 const Badge = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  background: rgba(59, 130, 246, 0.15);
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
-  border-radius: 9999px;
-  padding: 0.1rem 0.6rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	background: rgba(59, 130, 246, 0.15);
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	border-radius: 9999px;
+	padding: 0.1rem 0.6rem;
+	font-size: 0.7rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 `;
 
 const InlineInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.8rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	display: flex;
+	align-items: center;
+	gap: 0.45rem;
+	font-size: 0.8rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const StatusBar = styled.div<{ $variant: 'info' | 'warning' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  font-size: 0.85rem;
-  background: ${({ $variant }) =>
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1rem;
+	border-radius: 0.75rem;
+	font-size: 0.85rem;
+	background: ${({ $variant }) =>
 		$variant === 'warning' ? 'rgba(254, 215, 170, 0.45)' : 'rgba(191, 219, 254, 0.6)'};
-  color: ${({ $variant }) => ($variant === 'warning' ? '#d97706' : '#1e3a8a')};
-  border: 1px solid
-    ${({ $variant }) => ($variant === 'warning' ? 'rgba(251, 191, 36, 0.5)' : 'rgba(59, 130, 246, 0.4)')};
+	color: ${({ $variant }) => ($variant === 'warning' ? '#d97706' : '#1e3a8a')};
+	border: 1px solid
+		${({ $variant }) =>
+			$variant === 'warning' ? 'rgba(251, 191, 36, 0.5)' : 'rgba(59, 130, 246, 0.4)'};
 `;
 
 const Paginator = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0.9rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.75rem 0.9rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const PaginationInfo = styled.span`
-  font-size: 0.8rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.8rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 type Props = {
@@ -376,8 +379,8 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 		>
 			<Content>
 				<InlineInfo>
-					<span>❓</span> Browse applications directly from your PingOne tenant and apply their
-					credentials to this flow.
+					<i className="bi bi-question-circle"></i> Browse applications directly from your PingOne
+					tenant and apply their credentials to this flow.
 				</InlineInfo>
 
 				<Toolbar>
@@ -430,8 +433,8 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 
 				{missingWorkerToken && (
 					<StatusBar $variant="warning">
-						<span style={{ fontSize: '16px' }}>ℹ️</span> Generate a worker token first so we can call
-						the PingOne Admin API.
+						<span style={{ fontSize: '16px' }}>ℹ️</span> Generate a worker token first so we can
+						call the PingOne Admin API.
 						<Button
 							onClick={() => setShowWorkerTokenModal(true)}
 							style={{
@@ -496,7 +499,10 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 										</TD>
 										<TD>
 											<InlineInfo>
-												<span style={{ fontSize: 14, color: '#2563eb' }}>❓</span>
+												<i
+													className="bi bi-question-circle"
+													style={{ fontSize: 14, color: '#2563eb' }}
+												></i>
 												<span style={{ fontFamily: 'Menlo, monospace', fontSize: '0.78rem' }}>
 													{app.clientId}
 												</span>

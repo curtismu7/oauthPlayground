@@ -4,6 +4,9 @@ import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
+import { RegionSelect } from './RegionSelect';
+import { loadEnvironmentId } from '../services/environmentIdService';
+import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
@@ -315,11 +318,32 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [viewMode, setViewMode] = useState<'formatted' | 'json'>('formatted');
 
-	// Load stored discovery preferences when component mounts (async unified storage)
+	// Load stored discovery preferences when component mounts (IndexedDB, SQLite, unified storage, localStorage)
 	useEffect(() => {
 		const loadPreferences = async () => {
 			try {
-				// Try to load worker token credentials first (most common source)
+				// 1. IndexedDB + SQLite (environmentIdService — dual-storage canonical source)
+				const fromEnvService = await loadEnvironmentId();
+				if (fromEnvService) {
+					setEnvironmentId(fromEnvService);
+					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from IndexedDB/SQLite', {
+						environmentId: fromEnvService,
+					});
+					return;
+				}
+
+				// 2. Unified storage OAuth credentials (IndexedDB)
+				const storage = UnifiedTokenStorageService.getInstance();
+				const oauthCreds = await storage.getOAuthCredentials();
+				if (oauthCreds?.environmentId) {
+					setEnvironmentId(String(oauthCreds.environmentId));
+					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from unified storage', {
+						environmentId: oauthCreds.environmentId,
+					});
+					return;
+				}
+
+				// 3. Worker token credentials
 				const workerCreds = await unifiedWorkerTokenService.loadCredentials();
 				if (workerCreds?.environmentId) {
 					setEnvironmentId(workerCreds.environmentId);
@@ -329,17 +353,29 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 					return;
 				}
 
-				// Fallback: Try to load from OAuth credentials in unified storage
-				const oauthCreds = await unifiedWorkerTokenService.storageService?.getOAuthCredentials();
-				if (oauthCreds?.environmentId) {
-					setEnvironmentId(oauthCreds.environmentId as string);
-					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from OAuth credentials', {
-						environmentId: oauthCreds.environmentId,
+				// 4. credentialManager (config/authz flow credentials in localStorage)
+				const configCreds = credentialManager.loadConfigCredentials();
+				if (configCreds?.environmentId) {
+					setEnvironmentId(configCreds.environmentId);
+					if (configCreds.redirectUri) {
+						// Region can be inferred from config if needed
+					}
+					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from credentialManager', {
+						environmentId: configCreds.environmentId,
 					});
 					return;
 				}
 
-				// Last resort: Check localStorage discovery preferences (legacy support)
+				const authzCreds = credentialManager.loadAuthzFlowCredentials();
+				if (authzCreds?.environmentId) {
+					setEnvironmentId(authzCreds.environmentId);
+					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from authz credentials', {
+						environmentId: authzCreds.environmentId,
+					});
+					return;
+				}
+
+				// 5. Legacy: localStorage discovery preferences
 				try {
 					const stored = localStorage.getItem('pingone_discovery_preferences');
 					if (stored) {
@@ -589,17 +625,14 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 
 					<FormGroup>
 						<Label htmlFor={regionSelectId}>Region</Label>
-						<Select
+						<RegionSelect
 							id={regionSelectId}
+							as={Select}
 							value={region}
-							onChange={(e) => handleRegionChange(e.target.value)}
+							onChange={handleRegionChange}
 							disabled={isLoading}
-						>
-							<option value="us">United States (us)</option>
-							<option value="eu">Europe (eu)</option>
-							<option value="ca">Canada (ca)</option>
-							<option value="ap">Asia Pacific (ap)</option>
-						</Select>
+							variant="compact"
+						/>
 					</FormGroup>
 
 					<div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -655,7 +688,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 										size="small"
 										onClick={() => setViewMode('json')}
 									>
-										<span style={{ fontSize: '14px' }}>❓</span>
+										<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 										JSON
 									</Button>
 								</div>

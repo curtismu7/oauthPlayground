@@ -5,224 +5,230 @@ import { useUISettings } from '../contexts/UISettingsContext';
 import { logger } from '../utils/logger';
 
 const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
 `;
 
 const ModalContent = styled.div`
-  background: var(--color-background, white);
-  border: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
-  border-radius: 12px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	background: var(--color-background, white);
+	border: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
+	border-radius: 12px;
+	width: 90%;
+	max-width: 600px;
+	max-height: 80vh;
+	overflow-y: auto;
+	box-shadow:
+		0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
 `;
 
 const ModalHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1.5rem;
+	border-bottom: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
 `;
 
 const ModalTitle = styled.h2`
-  margin: 0;
-  color: var(--color-text-primary, #1e293b);
-  font-size: 1.25rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	margin: 0;
+	color: var(--color-text-primary, #1e293b);
+	font-size: 1.25rem;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover {
-    background: var(--color-surface, V9_COLORS.BG.GRAY_LIGHT);
-    color: var(--color-text-primary, #1e293b);
-  }
+	background: none;
+	border: none;
+	color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
+	cursor: pointer;
+	padding: 0.5rem;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	&:hover {
+		background: var(--color-surface, V9_COLORS.BG.GRAY_LIGHT);
+		color: var(--color-text-primary, #1e293b);
+	}
 `;
 
 const ModalBody = styled.div`
-  padding: 1.5rem;
+	padding: 1.5rem;
 `;
 
 const ModalFooter = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
-  background: var(--color-surface, V9_COLORS.BG.GRAY_LIGHT);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem 1.5rem;
+	border-top: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
+	background: var(--color-surface, V9_COLORS.BG.GRAY_LIGHT);
 `;
 
 const SaveButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--color-success, V9_COLORS.PRIMARY.GREEN);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: var(--color-success-dark, V9_COLORS.PRIMARY.GREEN_DARK);
-    transform: translateY(-1px);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
-  
-  &.saved {
-    background: var(--color-success-dark, #047857);
-    
-    &:hover {
-      background: var(--color-success-darker, V9_COLORS.PRIMARY.GREEN_DARK);
-    }
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-    
-    &:hover {
-      transform: none;
-    }
-  }
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	background: var(--color-success, V9_COLORS.PRIMARY.GREEN);
+	color: white;
+	border: none;
+	border-radius: 8px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: var(--color-success-dark, V9_COLORS.PRIMARY.GREEN_DARK);
+		transform: translateY(-1px);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
+
+	&.saved {
+		background: var(--color-success-dark, #047857);
+
+		&:hover {
+			background: var(--color-success-darker, V9_COLORS.PRIMARY.GREEN_DARK);
+		}
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+
+		&:hover {
+			transform: none;
+		}
+	}
 `;
 
 const SaveStatus = styled.span`
-  font-size: 0.875rem;
-  color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
-  font-style: italic;
+	font-size: 0.875rem;
+	color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
+	font-style: italic;
 `;
 
 const Section = styled.div`
-  margin-bottom: 2rem;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
+	margin-bottom: 2rem;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
 `;
 
 const SectionTitle = styled.h3`
-  margin: 0 0 1rem 0;
-  color: var(--color-text-primary, #1e293b);
-  font-size: 1rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	margin: 0 0 1rem 0;
+	color: var(--color-text-primary, #1e293b);
+	font-size: 1rem;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const SettingRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
-  
-  &:last-child {
-    border-bottom: none;
-  }
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.75rem 0;
+	border-bottom: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
+
+	&:last-child {
+		border-bottom: none;
+	}
 `;
 
 const SettingLabel = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
 `;
 
 const SettingName = styled.span`
-  color: var(--color-text-primary, #1e293b);
-  font-weight: 500;
+	color: var(--color-text-primary, #1e293b);
+	font-weight: 500;
 `;
 
 const SettingDescription = styled.span`
-  color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
-  font-size: 0.875rem;
+	color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
+	font-size: 0.875rem;
 `;
 
 const Toggle = styled.button<{ $active: boolean }>`
-  position: relative;
-  width: 44px;
-  height: 24px;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: ${(props) => (props.$active ? 'var(--color-primary, V9_COLORS.PRIMARY.BLUE)' : 'var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER)')};
-  
-  &:before {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: ${(props) => (props.$active ? '22px' : '2px')};
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: white;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+	position: relative;
+	width: 44px;
+	height: 24px;
+	border-radius: 12px;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	background: ${(props) =>
+		props.$active
+			? 'var(--color-primary, V9_COLORS.PRIMARY.BLUE)'
+			: 'var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER)'};
+
+	&:before {
+		content: '';
+		position: absolute;
+		top: 2px;
+		left: ${(props) => (props.$active ? '22px' : '2px')};
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background: white;
+		transition: all 0.2s ease;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const Select = styled.select`
-  padding: 0.5rem;
-  border: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
-  border-radius: 6px;
-  background: var(--color-background, white);
-  color: var(--color-text-primary, #1e293b);
-  font-size: 0.875rem;
-  min-width: 120px;
-  
-  &:focus {
-    outline: none;
-    border-color: var(--color-primary, V9_COLORS.PRIMARY.BLUE);
-    box-shadow: 0 0 0 3px var(--color-primary-bg, #dbeafe);
-  }
+	padding: 0.5rem;
+	border: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
+	border-radius: 6px;
+	background: var(--color-background, white);
+	color: var(--color-text-primary, #1e293b);
+	font-size: 0.875rem;
+	min-width: 120px;
+
+	&:focus {
+		outline: none;
+		border-color: var(--color-primary, V9_COLORS.PRIMARY.BLUE);
+		box-shadow: 0 0 0 3px var(--color-primary-bg, #dbeafe);
+	}
 `;
 
 const ColorSchemeGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	gap: 0.5rem;
+	margin-top: 0.5rem;
 `;
 
 const ColorSchemeButton = styled.button<{ $color: string; $active: boolean }>`
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  border: 2px solid ${(props) => (props.$active ? 'var(--color-text-primary, #1e293b)' : 'transparent')};
-  background: ${(props) => {
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	border: 2px solid
+		${(props) => (props.$active ? 'var(--color-text-primary, #1e293b)' : 'transparent')};
+	background: ${(props) => {
 		const colors = {
 			blue: '#3b82f6',
 			green: '#10b981',
@@ -232,12 +238,12 @@ const ColorSchemeButton = styled.button<{ $color: string; $active: boolean }>`
 		};
 		return colors[props.$color as keyof typeof colors] || '#3b82f6';
 	}};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: scale(1.1);
-  }
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		transform: scale(1.1);
+	}
 `;
 
 interface UISettingsModalProps {
@@ -391,7 +397,7 @@ export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClos
 					{/* Developer Settings */}
 					<Section>
 						<SectionTitle>
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 							Developer
 						</SectionTitle>
 
