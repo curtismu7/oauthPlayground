@@ -3,7 +3,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 // src/pages/PingOneWebhookViewer.tsx
 // PingOne Webhook Viewer - Real-time webhook event monitoring and subscription management
 
-import { FiAlertCircle, FiGlobe } from '@icons';
+import { FiAlertCircle, FiGlobe } from '../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -677,7 +677,10 @@ const PingOneWebhookViewer: React.FC = () => {
 
 			const subscriptionsList = responseData._embedded?.subscriptions || [];
 			setSubscriptions(subscriptionsList);
-			logger.info(`[Webhook Viewer] Loaded ${subscriptionsList.length} subscriptions`, "Logger info");
+			logger.info(
+				`[Webhook Viewer] Loaded ${subscriptionsList.length} subscriptions`,
+				'Logger info'
+			);
 			modernMessaging.showFooterMessage({
 				type: 'status',
 				message: `Loaded ${subscriptionsList.length} webhook subscriptions`,
@@ -740,7 +743,10 @@ const PingOneWebhookViewer: React.FC = () => {
 			);
 
 			setWebhooks(transformedEvents);
-			logger.info(`[Webhook Viewer] Loaded ${transformedEvents.length} webhook events`, "Logger info");
+			logger.info(
+				`[Webhook Viewer] Loaded ${transformedEvents.length} webhook events`,
+				'Logger info'
+			);
 		} catch (error) {
 			// Only log error, don't show toast for 404s (endpoint might not be available)
 			if (error instanceof Error && error.message.includes('404')) {
@@ -1364,7 +1370,8 @@ const PingOneWebhookViewer: React.FC = () => {
 									fontWeight: 500,
 								}}
 							>
-								⚠️ No environment ID found. Configure your worker token credentials above to auto-populate.
+								⚠️ No environment ID found. Configure your worker token credentials above to
+								auto-populate.
 							</div>
 						)}
 					</div>

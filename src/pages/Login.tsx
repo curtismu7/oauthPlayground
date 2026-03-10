@@ -27,7 +27,7 @@ const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = (
 	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
-import { FiAlertCircle, FiCheckCircle } from '@icons';
+import { FiAlertCircle, FiCheckCircle } from '../icons';
 import styled from 'styled-components';
 import packageJson from '../../package.json';
 import AuthorizationRequestModal from '../components/AuthorizationRequestModal';
@@ -77,220 +77,220 @@ interface Credentials {
 // Removed LoginContainer, LoginLayout, SetupSection - now using inline styles to match Unified flow design
 
 const SubmitButton = styled.button`
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  font-weight: 500;
-  color: white;
-  background-color: var(--color-primary, #007bff);
-  border: none;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background-color: var(--color-primary-dark, #0056b3);
-  }
-  
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-  
-  svg {
-    margin-right: 0.5rem;
-  }
+	width: 100%;
+	padding: 0.75rem;
+	font-size: 1rem;
+	font-weight: 500;
+	color: white;
+	background-color: var(--color-primary, #007bff);
+	border: none;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.2s;
+
+	&:hover {
+		background-color: var(--color-primary-dark, #0056b3);
+	}
+
+	&:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
+	}
+
+	svg {
+		margin-right: 0.5rem;
+	}
 `;
 
 const Alert = styled.div`
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  border-radius: 0.375rem;
-  display: flex;
-  align-items: flex-start;
-  background-color: var(--color-error-bg, rgba(220, 53, 69, 0.1));
-  border: 1px solid var(--color-error-border, rgba(220, 53, 69, 0.2));
-  color: var(--color-error, #dc3545);
-  
-  svg {
-    margin-right: 0.75rem;
-    margin-top: 0.2rem;
-    flex-shrink: 0;
-  }
-  
-  div {
-    flex: 1;
-  }
+	padding: 1rem;
+	margin-bottom: 1.5rem;
+	border-radius: 0.375rem;
+	display: flex;
+	align-items: flex-start;
+	background-color: var(--color-error-bg, rgba(220, 53, 69, 0.1));
+	border: 1px solid var(--color-error-border, rgba(220, 53, 69, 0.2));
+	color: var(--color-error, #dc3545);
+
+	svg {
+		margin-right: 0.75rem;
+		margin-top: 0.2rem;
+		flex-shrink: 0;
+	}
+
+	div {
+		flex: 1;
+	}
 `;
 
 const _PingOneSetupSection = styled.div`
-  background-color: V9_COLORS.TEXT.WHITE;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1.5rem;
-  padding: 1.5rem;
-  text-align: left;
-  height: fit-content;
+	background-color: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	margin-bottom: 1.5rem;
+	padding: 1.5rem;
+	text-align: left;
+	height: fit-content;
 
-  h3 {
-    color: var(--color-text-primary, #495057);
-    margin-top: 0;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
+	h3 {
+		color: var(--color-text-primary, #495057);
+		margin-top: 0;
+		margin-bottom: 1rem;
+		font-size: 1.1rem;
+		font-weight: 600;
+	}
 
-  p {
-    color: var(--color-text-secondary, #6c757d);
-    margin-bottom: 1rem;
-    line-height: 1.4;
-    font-size: 0.9rem;
-  }
+	p {
+		color: var(--color-text-secondary, #6c757d);
+		margin-bottom: 1rem;
+		line-height: 1.4;
+		font-size: 0.9rem;
+	}
 
-  em {
-    font-style: italic;
-    color: var(--color-text-secondary, #6c757d);
-    font-size: 0.85rem;
-  }
+	em {
+		font-style: italic;
+		color: var(--color-text-secondary, #6c757d);
+		font-size: 0.85rem;
+	}
 `;
 
 const SetupSteps = styled.div`
-  margin-bottom: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+	margin-bottom: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
 
-  h4 {
-    color: var(--color-text-primary, #343a40);
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
+	h4 {
+		color: var(--color-text-primary, #343a40);
+		margin-top: 1rem;
+		margin-bottom: 0.5rem;
+		font-size: 0.9rem;
+		font-weight: 600;
+	}
 
-  ul {
-    margin: 0 0 0.5rem 0;
-    padding-left: 1.2rem;
-  }
+	ul {
+		margin: 0 0 0.5rem 0;
+		padding-left: 1.2rem;
+	}
 
-  li {
-    margin-bottom: 0.25rem;
-    color: var(--color-text-secondary, #495057);
-    line-height: 1.3;
-    font-size: 0.85rem;
+	li {
+		margin-bottom: 0.25rem;
+		color: var(--color-text-secondary, #495057);
+		line-height: 1.3;
+		font-size: 0.85rem;
 
-    strong {
-      color: var(--color-text-primary, #212529);
-    }
+		strong {
+			color: var(--color-text-primary, #212529);
+		}
 
-    code {
-      background-color: var(--color-surface, #e9ecef);
-      padding: 0.1rem 0.3rem;
-      border-radius: 3px;
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-      font-size: 0.75em;
-      color: var(--color-text-secondary, #495057);
-    }
-  }
+		code {
+			background-color: var(--color-surface, #e9ecef);
+			padding: 0.1rem 0.3rem;
+			border-radius: 3px;
+			font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+			font-size: 0.75em;
+			color: var(--color-text-secondary, #495057);
+		}
+	}
 `;
 
 const _CredentialsBox = styled.div`
-  background-color: var(--color-background, V9_COLORS.TEXT.WHITE);
-  border: 1px solid var(--color-border, #dee2e6);
-  border-radius: 6px;
-  padding: 1rem;
-  margin-bottom: 0.5rem;
+	background-color: var(--color-background, V9_COLORS.TEXT.WHITE);
+	border: 1px solid var(--color-border, #dee2e6);
+	border-radius: 6px;
+	padding: 1rem;
+	margin-bottom: 0.5rem;
 
-  h4 {
-    color: var(--color-text-primary, #343a40);
-    margin-top: 0;
-    margin-bottom: 0.75rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
+	h4 {
+		color: var(--color-text-primary, #343a40);
+		margin-top: 0;
+		margin-bottom: 0.75rem;
+		font-size: 0.9rem;
+		font-weight: 600;
+	}
 
-  p {
-    margin-bottom: 0.5rem;
-    color: var(--color-text-secondary, #495057);
-    font-size: 0.8rem;
+	p {
+		margin-bottom: 0.5rem;
+		color: var(--color-text-secondary, #495057);
+		font-size: 0.8rem;
 
-    strong {
-      color: var(--color-text-primary, #212529);
-      font-weight: 600;
-    }
+		strong {
+			color: var(--color-text-primary, #212529);
+			font-weight: 600;
+		}
 
-    code {
-      background-color: var(--color-surface, #f8f9fa);
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--color-primary, #0070CC);
-      letter-spacing: 0.5px;
-      word-break: break-all;
-      display: inline-block;
-      margin-top: 0.25rem;
-      border: 1px solid var(--color-border, #e9ecef);
-    }
-  }
+		code {
+			background-color: var(--color-surface, #f8f9fa);
+			padding: 0.2rem 0.4rem;
+			border-radius: 4px;
+			font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+			font-size: 0.9rem;
+			font-weight: 700;
+			color: var(--color-primary, #0070cc);
+			letter-spacing: 0.5px;
+			word-break: break-all;
+			display: inline-block;
+			margin-top: 0.25rem;
+			border: 1px solid var(--color-border, #e9ecef);
+		}
+	}
 `;
 
 const CredentialRow = styled.div`
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 0.75rem;
-  gap: 0.5rem;
+	display: flex;
+	align-items: flex-start;
+	margin-bottom: 0.75rem;
+	gap: 0.5rem;
 
-  p {
-    margin: 0;
-    min-width: 120px;
-    font-weight: 600;
-    color: var(--color-text-secondary, #495057);
-  }
+	p {
+		margin: 0;
+		min-width: 120px;
+		font-weight: 600;
+		color: var(--color-text-secondary, #495057);
+	}
 `;
 
 const CredentialWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex: 1;
 
-  code {
-    flex: 1;
-    margin: 0;
-  }
+	code {
+		flex: 1;
+		margin: 0;
+	}
 `;
 
 const CopyButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
-  color: var(--color-text-secondary, #6c757d);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  flex-shrink: 0;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0.25rem;
+	border-radius: 4px;
+	color: var(--color-text-secondary, #6c757d);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s;
+	flex-shrink: 0;
 
-  &:hover {
-    background-color: var(--color-surface, #f8f9fa);
-    color: var(--color-primary, #0070CC);
-  }
+	&:hover {
+		background-color: var(--color-surface, #f8f9fa);
+		color: var(--color-primary, #0070cc);
+	}
 
-  &:active {
-    transform: scale(0.95);
-  }
+	&:active {
+		transform: scale(0.95);
+	}
 
-  svg {
-    transition: all 0.2s;
-  }
+	svg {
+		transition: all 0.2s;
+	}
 `;
 
 // ChevronIcon removed - now using CollapsibleSection component
@@ -345,7 +345,10 @@ const Login = () => {
 	// Load existing credentials using V8 SharedCredentialsService
 	useEffect(() => {
 		const loadExistingCredentials = async () => {
-			logger.info(' [Login] Loading credentials using V8 SharedCredentialsService...', "Logger info");
+			logger.info(
+				' [Login] Loading credentials using V8 SharedCredentialsService...',
+				'Logger info'
+			);
 
 			try {
 				// Load from V8 shared credentials service (dual storage: browser first, then disk)
@@ -357,7 +360,7 @@ const Login = () => {
 				const finalEnvId = sharedCreds.environmentId || envId || '';
 
 				if (sharedCreds.clientId && finalEnvId) {
-					logger.info(' [Login] Using V8 SharedCredentialsService credentials', "Logger info");
+					logger.info(' [Login] Using V8 SharedCredentialsService credentials', 'Logger info');
 					setCredentials((prev) => ({
 						...prev,
 						environmentId: finalEnvId,
@@ -404,7 +407,7 @@ const Login = () => {
 				);
 			}
 
-			logger.info(' [Login] No existing credentials found in V8 storage', "Logger info");
+			logger.info(' [Login] No existing credentials found in V8 storage', 'Logger info');
 			setHasExistingCredentials(false);
 		};
 
@@ -466,7 +469,7 @@ const Login = () => {
 					parsedCredentials.clientSecret ===
 					'0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a'
 				) {
-					logger.info(' [Login] Clearing problematic hardcoded client secret', "Logger info");
+					logger.info(' [Login] Clearing problematic hardcoded client secret', 'Logger info');
 					parsedCredentials.clientSecret = '';
 					// Update localStorage with cleared secret
 					localStorage.setItem('login_credentials', JSON.stringify(parsedCredentials));
@@ -488,7 +491,10 @@ const Login = () => {
 				);
 			}
 		} else {
-			logger.info(' [Login] No saved credentials found in localStorage or credential manager', "Logger info");
+			logger.info(
+				' [Login] No saved credentials found in localStorage or credential manager',
+				'Logger info'
+			);
 		}
 	}, [credentials.clientId]);
 
@@ -524,7 +530,7 @@ const Login = () => {
 	};
 
 	const handleCredentialSave = async () => {
-		logger.info(' [Login] Saving credentials using V8 SharedCredentialsService...', "Logger info");
+		logger.info(' [Login] Saving credentials using V8 SharedCredentialsService...', 'Logger info');
 		setSaveStatus(null);
 		setIsSavingCredentials(true);
 
@@ -546,7 +552,7 @@ const Login = () => {
 				EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
 			}
 
-			logger.info(' [Login] Saved credentials to V8 SharedCredentialsService', "Logger info");
+			logger.info(' [Login] Saved credentials to V8 SharedCredentialsService', 'Logger info');
 
 			setSaveStatus({
 				type: 'success',
@@ -580,7 +586,7 @@ const Login = () => {
 	};
 
 	const handleLogin = async () => {
-		logger.info(' [Login] Starting login process...', "Logger info");
+		logger.info(' [Login] Starting login process...', 'Logger info');
 		setError('');
 		setIsLoading(true);
 
@@ -611,9 +617,9 @@ const Login = () => {
 				EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
 			}
 
-			logger.info(' [Login] Credentials saved to V8 storage before login', "Logger info");
+			logger.info(' [Login] Credentials saved to V8 storage before login', 'Logger info');
 
-			logger.info(' [Login] Calling login function with dashboard callback type...', "Logger info");
+			logger.info(' [Login] Calling login function with dashboard callback type...', 'Logger info');
 
 			// Redirect to PingOne for authentication
 			const result = await login('/', 'dashboard');

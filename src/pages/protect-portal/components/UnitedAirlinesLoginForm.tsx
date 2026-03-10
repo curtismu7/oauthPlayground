@@ -9,7 +9,7 @@
  * their actual login experience: first email/mileage plus/phone number, then password.
  */
 
-import { FiLockIcon } from '@icons';
+import { FiLockIcon } from '../../../icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
@@ -40,197 +40,197 @@ const _generateCodeChallenge = async (verifier: string): Promise<string> => {
 // ============================================================================
 
 const LoginContainer = styled.div`
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
+	width: 100%;
+	max-width: 500px;
+	margin: 0 auto;
 `;
 
 const FormTitle = styled.h2`
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--brand-text);
-  margin: 0 0 1rem 0;
-  text-align: center;
-  font-family: var(--brand-heading-font);
+	font-size: 1.875rem;
+	font-weight: 700;
+	color: var(--brand-text);
+	margin: 0 0 1rem 0;
+	text-align: center;
+	font-family: var(--brand-heading-font);
 `;
 
 const FormDescription = styled.p`
-  font-size: 1rem;
-  color: var(--brand-text-secondary);
-  margin: 0 0 2rem 0;
-  text-align: center;
-  line-height: 1.6;
-  font-family: var(--brand-body-font);
+	font-size: 1rem;
+	color: var(--brand-text-secondary);
+	margin: 0 0 2rem 0;
+	text-align: center;
+	line-height: 1.6;
+	font-family: var(--brand-body-font);
 `;
 
 const StepIndicator = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 2rem;
-  gap: 1rem;
+	display: flex;
+	justify-content: center;
+	margin-bottom: 2rem;
+	gap: 1rem;
 `;
 
 const StepDot = styled.div<{ $active: boolean; $completed: boolean }>`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: ${({ $active, $completed }) =>
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: ${({ $active, $completed }) =>
 		$active
 			? 'var(--brand-primary)'
 			: $completed
 				? 'var(--brand-success)'
 				: 'var(--brand-text-secondary)'};
-  transition: var(--brand-transition);
+	transition: var(--brand-transition);
 `;
 
 const StepLine = styled.div<{ $completed: boolean }>`
-  width: 40px;
-  height: 2px;
-  background: ${({ $completed }) =>
+	width: 40px;
+	height: 2px;
+	background: ${({ $completed }) =>
 		$completed ? 'var(--brand-success)' : 'var(--brand-text-secondary)'};
-  margin: 0 0.5rem;
-  transition: var(--brand-transition);
+	margin: 0 0.5rem;
+	transition: var(--brand-transition);
 `;
 
 const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
 `;
 
 const InputGroup = styled.div`
-  position: relative;
+	position: relative;
 `;
 
 const InputLabel = styled.label`
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--brand-text);
-  margin-bottom: 0.5rem;
-  font-family: var(--brand-body-font);
+	display: block;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: var(--brand-text);
+	margin-bottom: 0.5rem;
+	font-family: var(--brand-body-font);
 `;
 
 const StyledInput = styled.input`
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: white;
-  border: 2px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-md);
-  font-size: 1rem;
-  color: var(--brand-text);
-  transition: var(--brand-transition);
-  font-family: var(--brand-body-font);
+	width: 100%;
+	padding: 0.75rem 1rem;
+	background: white;
+	border: 2px solid var(--brand-text-secondary);
+	border-radius: var(--brand-radius-md);
+	font-size: 1rem;
+	color: var(--brand-text);
+	transition: var(--brand-transition);
+	font-family: var(--brand-body-font);
 
-  &:focus {
-    outline: none;
-    border-color: var(--brand-primary);
-    box-shadow: var(--brand-shadow-md);
-  }
+	&:focus {
+		outline: none;
+		border-color: var(--brand-primary);
+		box-shadow: var(--brand-shadow-md);
+	}
 
-  &:invalid {
-    border-color: var(--brand-error);
-  }
+	&:invalid {
+		border-color: var(--brand-error);
+	}
 
-  &::placeholder {
-    color: var(--brand-text-secondary);
-  }
+	&::placeholder {
+		color: var(--brand-text-secondary);
+	}
 `;
 
 const PasswordToggle = styled.button`
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: var(--brand-text-secondary);
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: var(--brand-radius-xs);
-  transition: var(--brand-transition);
+	position: absolute;
+	right: 1rem;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	color: var(--brand-text-secondary);
+	cursor: pointer;
+	padding: 0.25rem;
+	border-radius: var(--brand-radius-xs);
+	transition: var(--brand-transition);
 
-  &:hover {
-    color: var(--brand-text);
-  }
+	&:hover {
+		color: var(--brand-text);
+	}
 
-  &:focus {
-    outline: none;
-    color: var(--brand-primary);
-  }
+	&:focus {
+		outline: none;
+		color: var(--brand-primary);
+	}
 `;
 
 const ErrorMessage = styled.div`
-  background: var(--brand-error-light);
-  border: 1px solid var(--brand-error);
-  border-radius: var(--brand-radius-sm);
-  padding: 1rem;
-  color: var(--brand-error);
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  font-family: var(--brand-body-font);
+	background: var(--brand-error-light);
+	border: 1px solid var(--brand-error);
+	border-radius: var(--brand-radius-sm);
+	padding: 1rem;
+	color: var(--brand-error);
+	font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+	font-family: var(--brand-body-font);
 `;
 
 const SubmitButton = styled.button`
-  background: var(--brand-primary);
-  color: white;
-  border: none;
-  border-radius: var(--brand-radius-md);
-  padding: 0.875rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--brand-transition);
-  font-family: var(--brand-body-font);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+	background: var(--brand-primary);
+	color: white;
+	border: none;
+	border-radius: var(--brand-radius-md);
+	padding: 0.875rem 1.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: var(--brand-transition);
+	font-family: var(--brand-body-font);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
 
-  &:hover {
-    background: var(--brand-primary-dark);
-    transform: translateY(-1px);
-  }
+	&:hover {
+		background: var(--brand-primary-dark);
+		transform: translateY(-1px);
+	}
 
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px var(--brand-primary-light);
-  }
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px var(--brand-primary-light);
+	}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+	}
 `;
 
 const PhoneButton = styled.button`
-  background: transparent;
-  border: 2px solid var(--brand-primary);
-  color: var(--brand-primary);
-  border-radius: var(--brand-radius-md);
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--brand-transition);
-  font-family: var(--brand-body-font);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	background: transparent;
+	border: 2px solid var(--brand-primary);
+	color: var(--brand-primary);
+	border-radius: var(--brand-radius-md);
+	padding: 0.75rem 1rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: var(--brand-transition);
+	font-family: var(--brand-body-font);
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 
-  &:hover {
-    background: var(--brand-primary);
-    color: white;
-  }
+	&:hover {
+		background: var(--brand-primary);
+		color: white;
+	}
 
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px var(--brand-primary-light);
-  }
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px var(--brand-primary-light);
+	}
 `;
 
 // ============================================================================

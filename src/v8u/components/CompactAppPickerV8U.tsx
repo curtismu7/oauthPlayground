@@ -6,7 +6,7 @@
  * @since 2024-11-16
  */
 
-import { FiSearch } from '@icons';
+import { FiSearch } from '../../icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';

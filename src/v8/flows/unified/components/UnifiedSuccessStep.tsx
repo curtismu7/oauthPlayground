@@ -287,12 +287,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 
 			{/* Action Buttons */}
 			<div className="action-buttons">
-				<button
-					type="button"
-					type="button"
-					onClick={handleRegisterAnother}
-					className="btn-secondary"
-				>
+				<button type="button" onClick={handleRegisterAnother} className="btn-secondary">
 					← Register Another Device
 				</button>
 

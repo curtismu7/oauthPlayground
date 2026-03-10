@@ -1,7 +1,7 @@
 // src/components/FlowConfigurationRequirements.tsx
 // Displays PingOne application configuration requirements for each OAuth/OIDC flow
 
-import { FiChevronDown } from '@icons';
+import { FiChevronDown } from '../../../../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -150,7 +150,7 @@ const Header = styled.div`
 	border-bottom: 1px solid #e5e7eb;
 	cursor: pointer;
 	user-select: none;
-	
+
 	&:hover {
 		background: #f9fafb;
 	}
@@ -172,7 +172,7 @@ const CollapseIcon = styled.div`
 	width: 32px;
 	height: 32px;
 	transition: all 0.2s;
-	
+
 	&:hover {
 		background: #2563eb;
 	}

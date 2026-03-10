@@ -1,4 +1,4 @@
-import { FiRefreshCw, FiShield, FiTrendingUp } from '@icons';
+import { FiRefreshCw, FiShield, FiTrendingUp } from '../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
@@ -8,65 +8,66 @@ import { ComplianceStandard, SecuritySeverity } from '../utils/securityAnalytics
 
 // Styled components
 const DashboardContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 1rem;
 `;
 
 const DashboardHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
 `;
 
 const DashboardTitle = styled.h1`
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.gray900};
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	margin: 0;
+	font-size: 2rem;
+	font-weight: 700;
+	color: ${({ theme }) => theme.colors.gray900};
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 `;
 
 const DashboardIcon = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
-  border-radius: 12px;
-  color: white;
-  font-size: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
+	border-radius: 12px;
+	color: white;
+	font-size: 24px;
 `;
 
 const DashboardActions = styled.div`
-  display: flex;
-  gap: 1rem;
+	display: flex;
+	gap: 1rem;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  border: 1px solid ${({ $variant, theme }) => {
-		switch ($variant) {
-			case 'primary':
-				return theme.colors.primary;
-			case 'danger':
-				return theme.colors.danger;
-			default:
-				return theme.colors.gray300;
-		}
-	}};
-  background: ${({ $variant, theme }) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	border-radius: 8px;
+	border: 1px solid
+		${({ $variant, theme }) => {
+			switch ($variant) {
+				case 'primary':
+					return theme.colors.primary;
+				case 'danger':
+					return theme.colors.danger;
+				default:
+					return theme.colors.gray300;
+			}
+		}};
+	background: ${({ $variant, theme }) => {
 		switch ($variant) {
 			case 'primary':
 				return theme.colors.primary;
@@ -76,7 +77,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 				return 'white';
 		}
 	}};
-  color: ${({ $variant }) => {
+	color: ${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
 			case 'danger':
@@ -85,13 +86,13 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 				return '#1f2937';
 		}
 	}};
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover:not(:disabled) {
-    background: ${({ $variant, theme }) => {
+	font-weight: 600;
+	font-size: 0.875rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover:not(:disabled) {
+		background: ${({ $variant, theme }) => {
 			switch ($variant) {
 				case 'primary':
 					return theme.colors.primaryDark;
@@ -101,70 +102,71 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 					return theme.colors.gray100;
 			}
 		}};
-    transform: translateY(-1px);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  &:focus {
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
-    outline-offset: 2px;
-  }
+		transform: translateY(-1px);
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	&:focus {
+		outline: 2px solid ${({ theme }) => theme.colors.primary};
+		outline-offset: 2px;
+	}
 `;
 
 const MetricsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const MetricCard = styled.div<{ $metric: string; $status?: 'good' | 'warning' | 'danger' }>`
-  background: white;
-  border-radius: 12px;
-  box-shadow: ${({ theme }) => theme.shadows.sm};
-  border: 1px solid ${({ $status, theme }) => {
-		switch ($status) {
-			case 'good':
-				return theme.colors.success;
-			case 'warning':
-				return theme.colors.warning;
-			case 'danger':
-				return theme.colors.danger;
-			default:
-				return theme.colors.gray200;
-		}
-	}};
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.shadows.lg};
-  }
+	background: white;
+	border-radius: 12px;
+	box-shadow: ${({ theme }) => theme.shadows.sm};
+	border: 1px solid
+		${({ $status, theme }) => {
+			switch ($status) {
+				case 'good':
+					return theme.colors.success;
+				case 'warning':
+					return theme.colors.warning;
+				case 'danger':
+					return theme.colors.danger;
+				default:
+					return theme.colors.gray200;
+			}
+		}};
+	padding: 1.5rem;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: ${({ theme }) => theme.shadows.lg};
+	}
 `;
 
 const MetricHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
 `;
 
 const MetricTitle = styled.h3`
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.gray600};
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+	margin: 0;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: ${({ theme }) => theme.colors.gray600};
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 `;
 
 const MetricIcon = styled.div<{ $metric: string; $status?: 'good' | 'warning' | 'danger' }>`
-  color: ${({ $metric, $status, theme }) => {
+	color: ${({ $metric, $status, theme }) => {
 		if ($status === 'danger') return theme.colors.danger;
 		if ($status === 'warning') return theme.colors.warning;
 		if ($status === 'good') return theme.colors.success;
@@ -182,32 +184,32 @@ const MetricIcon = styled.div<{ $metric: string; $status?: 'good' | 'warning' | 
 				return theme.colors.gray500;
 		}
 	}};
-  font-size: 1.25rem;
+	font-size: 1.25rem;
 `;
 
 const MetricValue = styled.div`
-  font-size: 2rem;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.gray900};
-  margin-bottom: 0.5rem;
+	font-size: 2rem;
+	font-weight: 700;
+	color: ${({ theme }) => theme.colors.gray900};
+	margin-bottom: 0.5rem;
 `;
 
 const MetricChange = styled.div<{ $positive?: boolean }>`
-  font-size: 0.875rem;
-  color: ${({ $positive, theme }) => ($positive ? theme.colors.success : theme.colors.danger)};
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+	font-size: 0.875rem;
+	color: ${({ $positive, theme }) => ($positive ? theme.colors.success : theme.colors.danger)};
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
 `;
 
 const StatusBadge = styled.span<{ $status: 'good' | 'warning' | 'danger' }>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background: ${({ $status, theme }) => {
+	padding: 0.25rem 0.75rem;
+	border-radius: 1rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	background: ${({ $status, theme }) => {
 		switch ($status) {
 			case 'good':
 				return theme.colors.success;
@@ -219,155 +221,156 @@ const StatusBadge = styled.span<{ $status: 'good' | 'warning' | 'danger' }>`
 				return theme.colors.gray500;
 		}
 	}};
-  color: white;
+	color: white;
 `;
 
 const ChartsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const ChartCard = styled.div`
-  background: white;
-  border-radius: 12px;
-  box-shadow: ${({ theme }) => theme.shadows.sm};
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
-  padding: 1.5rem;
+	background: white;
+	border-radius: 12px;
+	box-shadow: ${({ theme }) => theme.shadows.sm};
+	border: 1px solid ${({ theme }) => theme.colors.gray200};
+	padding: 1.5rem;
 `;
 
 const ChartHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
 `;
 
 const ChartTitle = styled.h3`
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.gray900};
+	margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: ${({ theme }) => theme.colors.gray900};
 `;
 
 const ChartContent = styled.div`
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${({ theme }) => theme.colors.gray500};
-  font-size: 0.875rem;
+	height: 200px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: ${({ theme }) => theme.colors.gray500};
+	font-size: 0.875rem;
 `;
 
 const AlertsTable = styled.div`
-  background: white;
-  border-radius: 12px;
-  box-shadow: ${({ theme }) => theme.shadows.sm};
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
-  overflow: hidden;
-  margin-bottom: 2rem;
+	background: white;
+	border-radius: 12px;
+	box-shadow: ${({ theme }) => theme.shadows.sm};
+	border: 1px solid ${({ theme }) => theme.colors.gray200};
+	overflow: hidden;
+	margin-bottom: 2rem;
 `;
 
 const TableHeader = styled.div`
-  background: ${({ theme }) => theme.colors.gray50};
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
-  
-  h3 {
-    margin: 0;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-  }
+	background: ${({ theme }) => theme.colors.gray50};
+	padding: 1rem 1.5rem;
+	border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+
+	h3 {
+		margin: 0;
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray900};
+	}
 `;
 
 const TableContent = styled.div`
-  overflow-x: auto;
+	overflow-x: auto;
 `;
 
 const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
+	width: 100%;
+	border-collapse: collapse;
 `;
 
 const TableRow = styled.tr`
-  &:nth-child(even) {
-    background: ${({ theme }) => theme.colors.gray25};
-  }
-  
-  &:hover {
-    background: ${({ theme }) => theme.colors.primaryLight};
-  }
+	&:nth-child(even) {
+		background: ${({ theme }) => theme.colors.gray25};
+	}
+
+	&:hover {
+		background: ${({ theme }) => theme.colors.primaryLight};
+	}
 `;
 
 const TableHeaderCell = styled.th`
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.gray900};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
-  background: ${({ theme }) => theme.colors.gray50};
+	padding: 1rem;
+	text-align: left;
+	font-weight: 600;
+	color: ${({ theme }) => theme.colors.gray900};
+	border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+	background: ${({ theme }) => theme.colors.gray50};
 `;
 
 const TableCell = styled.td`
-  padding: 1rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
-  color: ${({ theme }) => theme.colors.gray700};
+	padding: 1rem;
+	border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+	color: ${({ theme }) => theme.colors.gray700};
 `;
 
 const ComplianceGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const ComplianceCard = styled.div<{ $status: 'compliant' | 'partial' | 'non_compliant' }>`
-  background: white;
-  border-radius: 12px;
-  box-shadow: ${({ theme }) => theme.shadows.sm};
-  border: 2px solid ${({ $status, theme }) => {
-		switch ($status) {
-			case 'compliant':
-				return theme.colors.success;
-			case 'partial':
-				return theme.colors.warning;
-			case 'non_compliant':
-				return theme.colors.danger;
-			default:
-				return theme.colors.gray200;
-		}
-	}};
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.shadows.lg};
-  }
+	background: white;
+	border-radius: 12px;
+	box-shadow: ${({ theme }) => theme.shadows.sm};
+	border: 2px solid
+		${({ $status, theme }) => {
+			switch ($status) {
+				case 'compliant':
+					return theme.colors.success;
+				case 'partial':
+					return theme.colors.warning;
+				case 'non_compliant':
+					return theme.colors.danger;
+				default:
+					return theme.colors.gray200;
+			}
+		}};
+	padding: 1.5rem;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: ${({ theme }) => theme.shadows.lg};
+	}
 `;
 
 const ComplianceHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
 `;
 
 const ComplianceTitle = styled.h4`
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.gray900};
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: ${({ theme }) => theme.colors.gray900};
 `;
 
 const ComplianceScore = styled.div<{ $score: number }>`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: ${({ $score, theme }) => {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: ${({ $score, theme }) => {
 		if ($score >= 95) return theme.colors.success;
 		if ($score >= 80) return theme.colors.warning;
 		return theme.colors.danger;
@@ -375,14 +378,14 @@ const ComplianceScore = styled.div<{ $score: number }>`
 `;
 
 const ComplianceStatus = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
 `;
 
 const ComplianceIcon = styled.div<{ $status: 'compliant' | 'partial' | 'non_compliant' }>`
-  color: ${({ $status, theme }) => {
+	color: ${({ $status, theme }) => {
 		switch ($status) {
 			case 'compliant':
 				return theme.colors.success;
@@ -394,17 +397,17 @@ const ComplianceIcon = styled.div<{ $status: 'compliant' | 'partial' | 'non_comp
 				return theme.colors.gray500;
 		}
 	}};
-  font-size: 1rem;
+	font-size: 1rem;
 `;
 
 const ComplianceDetails = styled.div`
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.gray600};
-  
-  .violations {
-    margin-top: 0.5rem;
-    color: ${({ theme }) => theme.colors.danger};
-  }
+	font-size: 0.875rem;
+	color: ${({ theme }) => theme.colors.gray600};
+
+	.violations {
+		margin-top: 0.5rem;
+		color: ${({ theme }) => theme.colors.danger};
+	}
 `;
 
 // Security Analytics Dashboard component

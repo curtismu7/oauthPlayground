@@ -11,7 +11,6 @@
 
 const MODULE_TAG = '[🔐 PKCE-STORAGE-V8U-MIGRATED]';
 
-import { PKCEStorageServiceV8UMigration } from '../../services/pkceStorageServiceV8UMigration';
 import type { V8UPKCECodes } from '../../services/unifiedTokenStorageService';
 import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 import { logger } from '../../utils/logger';
@@ -23,34 +22,8 @@ export type PKCECodes = V8UPKCECodes;
 // MIGRATION STATE
 // ============================================================================
 
-let migrationCompleted = false;
-let migrationPromise: Promise<void> | null = null;
-
-/**
- * Ensure migration is completed before any PKCE operation
- */
-const ensureMigration = async (): Promise<void> => {
-	if (migrationCompleted) {
-		return;
-	}
-
-	if (!migrationPromise) {
-		migrationPromise = (async () => {
-			try {
-				if (PKCEStorageServiceV8UMigration.needsMigration()) {
-					logger.info(`${MODULE_TAG} Starting automatic PKCE migration...`, "Logger info");
-					const result = await PKCEStorageServiceV8UMigration.migrateAll();
-					logger.info(`${MODULE_TAG} PKCE migration completed`, result);
-				}
-				migrationCompleted = true;
-			} finally {
-				migrationPromise = null;
-			}
-		})();
-	}
-
-	return migrationPromise;
-};
+// V8U → unified storage PKCE migration is complete — bridge removed.
+const ensureMigration = async (): Promise<void> => {};
 
 // ============================================================================
 // PKCE STORAGE SERVICE (Compatibility Layer)

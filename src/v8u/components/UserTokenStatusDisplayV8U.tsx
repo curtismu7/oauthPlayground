@@ -13,7 +13,7 @@
  * - Compact and detailed view modes
  */
 
-import { FiRefreshCw } from '@icons';
+import { FiRefreshCw } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { type UnifiedToken, unifiedTokenStorage } from '@/services/unifiedTokenStorageService';
@@ -44,7 +44,8 @@ const slideIn = keyframes`
 
 // Styled components
 const TokenContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' | 'info' }>`
-	background: linear-gradient(135deg, 
+	background: linear-gradient(
+		135deg,
 		${(props) =>
 			props.$variant === 'valid'
 				? 'rgba(59, 130, 246, 0.1)'
@@ -60,31 +61,35 @@ const TokenContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' | 
 					? 'rgba(251, 191, 36, 0.05)'
 					: props.$variant === 'info'
 						? 'rgba(34, 197, 94, 0.05)'
-						: 'rgba(248, 113, 113, 0.05)'});
-	border: 2px solid ${(props) =>
-		props.$variant === 'valid'
-			? '#3b82f6'
-			: props.$variant === 'warning'
-				? '#f59e0b'
-				: props.$variant === 'info'
-					? '#10b981'
-					: '#ef4444'};
+						: 'rgba(248, 113, 113, 0.05)'}
+	);
+	border: 2px solid
+		${(props) =>
+			props.$variant === 'valid'
+				? '#3b82f6'
+				: props.$variant === 'warning'
+					? '#f59e0b'
+					: props.$variant === 'info'
+						? '#10b981'
+						: '#ef4444'};
 	border-radius: 12px;
 	padding: 16px;
 	margin-bottom: 16px;
 	position: relative;
 	overflow: hidden;
 	backdrop-filter: blur(10px);
-	box-shadow: 
+	box-shadow:
 		0 4px 16px rgba(0, 0, 0, 0.1),
 		0 2px 8px rgba(0, 0, 0, 0.05),
 		inset 0 1px 0 rgba(255, 255, 255, 0.2);
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	animation: ${css`${slideIn} 0.5s ease-out`};
+	animation: ${css`
+		${slideIn} 0.5s ease-out
+	`};
 
 	&:hover {
 		transform: translateY(-1px);
-		box-shadow: 
+		box-shadow:
 			0 6px 24px rgba(0, 0, 0, 0.15),
 			0 3px 12px rgba(0, 0, 0, 0.08),
 			inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -93,8 +98,10 @@ const TokenContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' | 
 	${(props) =>
 		props.$variant === 'valid' &&
 		css`
-		animation: ${slideIn} 0.5s ease-out, ${glow} 3s ease-in-out infinite;
-	`}
+			animation:
+				${slideIn} 0.5s ease-out,
+				${glow} 3s ease-in-out infinite;
+		`}
 `;
 
 const TokenHeader = styled.div`
@@ -128,7 +135,8 @@ const TokenLabel = styled.div`
 const TokenValue = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' | 'info' }>`
 	font-size: 14px;
 	font-weight: 700;
-	background: linear-gradient(135deg, 
+	background: linear-gradient(
+		135deg,
 		${(props) =>
 			props.$variant === 'valid'
 				? '#3b82f6'
@@ -144,7 +152,8 @@ const TokenValue = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' | 'inf
 					? '#d97706'
 					: props.$variant === 'info'
 						? '#059669'
-						: '#dc2626'});
+						: '#dc2626'}
+	);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
@@ -207,12 +216,13 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 			: props.$variant === 'danger'
 				? '#ef4444'
 				: 'transparent'};
-	border: 1px solid ${(props) =>
-		props.$variant === 'primary'
-			? '#3b82f6'
-			: props.$variant === 'danger'
-				? '#ef4444'
-				: 'rgba(255, 255, 255, 0.2)'};
+	border: 1px solid
+		${(props) =>
+			props.$variant === 'primary'
+				? '#3b82f6'
+				: props.$variant === 'danger'
+					? '#ef4444'
+					: 'rgba(255, 255, 255, 0.2)'};
 	border-radius: 6px;
 	padding: 6px 10px;
 	color: ${(props) =>

@@ -60,9 +60,8 @@ async function attemptSilentTokenRetrieval(
 
 				// Fallback to MFA configuration service
 				try {
-					const { MFAConfigurationServiceV8 } = await import(
-						'@/v8/services/mfaConfigurationServiceV8'
-					);
+					const { MFAConfigurationServiceV8 } =
+						await import('@/v8/services/mfaConfigurationServiceV8');
 					const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 					silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
 					logger.info(
@@ -200,9 +199,8 @@ export async function handleShowWorkerTokenModal(
 			);
 			// Priority 3: Direct MFA service (fallback)
 			try {
-				const { MFAConfigurationServiceV8 } = await import(
-					'@/v8/services/mfaConfigurationServiceV8'
-				);
+				const { MFAConfigurationServiceV8 } =
+					await import('@/v8/services/mfaConfigurationServiceV8');
 				const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 				silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
 				logger.info(
@@ -235,9 +233,8 @@ export async function handleShowWorkerTokenModal(
 			);
 			// Priority 3: Direct MFA service (fallback)
 			try {
-				const { MFAConfigurationServiceV8 } = await import(
-					'@/v8/services/mfaConfigurationServiceV8'
-				);
+				const { MFAConfigurationServiceV8 } =
+					await import('@/v8/services/mfaConfigurationServiceV8');
 				const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 				showTokenAtEnd = mfaConfig.workerToken?.showTokenAtEnd ?? false;
 				logger.info(
@@ -343,5 +340,70 @@ export async function handleShowWorkerTokenModal(
 	if (forceShowModal || showTokenAtEnd) {
 		setShowModal(true);
 	} else {
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Simple credential-check helpers (merged from workerTokenModalHelperV8_SIMPLE)
+// ---------------------------------------------------------------------------
+
+/**
+ * DEAD SIMPLE worker token modal logic:
+ * 1. Check if credentials exist (browser storage or sqlite)
+ * 2. If credentials exist → NO MODAL (let silent API work)
+ * 3. If no credentials → SHOW MODAL (tell user they need to enter creds)
+ *
+ * This bypasses silentApiRetrieval/showTokenAtEnd complexity and focuses
+ * purely on: credentials present → no modal, missing → modal.
+ */
+export async function handleShowWorkerTokenModalSimple(
+	setShowModal: (show: boolean) => void,
+	forceShowModal: boolean = false
+): Promise<void> {
+	try {
+		logger.info(`${MODULE_TAG} Starting simple modal check`, 'Logger info');
+
+		if (forceShowModal) {
+			logger.info(`${MODULE_TAG} User clicked button → showing modal`, 'Logger info');
+			setShowModal(true);
+			return;
+		}
+
+		const credentials = await workerTokenServiceV8.loadCredentials();
+		const hasCredentials = credentials !== null;
+
+		logger.info(`${MODULE_TAG} Credentials check:`, { hasCredentials });
+
+		if (hasCredentials) {
+			logger.info(`${MODULE_TAG} Credentials exist → no modal needed`, 'Logger info');
+			setShowModal(false);
+		} else {
+			logger.info(
+				`${MODULE_TAG} No credentials → showing modal for credential entry`,
+				'Logger info'
+			);
+			setShowModal(true);
+		}
+	} catch (error) {
+		logger.error(`${MODULE_TAG} Error in simple modal logic:`, error);
+		setShowModal(true);
+	}
+}
+
+/**
+ * Synchronous check for credentials presence using localStorage.
+ * Use for immediate (non-async) gating decisions.
+ */
+export function hasCredentialsSync(): boolean {
+	try {
+		const stored = localStorage.getItem('unified_worker_token');
+		if (!stored) return false;
+		const data = JSON.parse(stored) as Record<string, unknown>;
+		const credentials =
+			(data.credentials as unknown) ??
+			((data.data as Record<string, unknown>)?.credentials as unknown);
+		return credentials !== null && typeof credentials === 'object';
+	} catch {
+		return false;
 	}
 }

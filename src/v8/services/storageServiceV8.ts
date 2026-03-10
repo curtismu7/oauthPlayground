@@ -25,7 +25,6 @@ const MODULE_TAG = '[💾 STORAGE-V8-MIGRATED]';
 // IMPORTS
 // ============================================================================
 
-import { StorageServiceV8Migration } from '../../services/storageServiceV8Migration';
 import type { Migration, StorageData } from '../../services/unifiedTokenStorageService';
 import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 
@@ -56,23 +55,8 @@ export const STORAGE_KEYS = {
 // MIGRATION STATE
 // ============================================================================
 
-let migrationCompleted = false;
-
-/**
- * Ensure migration is completed before any storage operation
- */
-const ensureMigration = async (): Promise<void> => {
-	if (!migrationCompleted) {
-		if (StorageServiceV8Migration.needsMigration()) {
-			logger.info(`${MODULE_TAG} Starting automatic migration...`, 'Logger info');
-			const result = await StorageServiceV8Migration.migrateAll();
-			logger.info(`${MODULE_TAG} Migration completed`, result);
-		}
-		// Single-threaded; no other code mutates migrationCompleted during await
-		// eslint-disable-next-line require-atomic-updates
-		migrationCompleted = true;
-	}
-};
+// V8 → unified storage migration is complete — bridge removed.
+const ensureMigration = async (): Promise<void> => {};
 
 // ============================================================================
 // STORAGE SERVICE CLASS (Compatibility Layer)

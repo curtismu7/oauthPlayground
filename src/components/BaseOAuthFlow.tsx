@@ -1,4 +1,4 @@
-import { FiAlertCircle, FiCheckCircle, FiInfo } from '@icons';
+import { FiAlertCircle, FiCheckCircle, FiInfo } from '../icons';
 import React, { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
@@ -17,134 +17,134 @@ interface WindowWithPingOne extends Window {
 
 // Base styled components that are reused across flows
 export const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 export const FlowOverview = styled(Card)`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 `;
 
 export const FlowDescription = styled.div`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 
-  h2 {
-    color: ${({ theme }) => theme.colors.gray900};
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
+	h2 {
+		color: ${({ theme }) => theme.colors.gray900};
+		font-size: 1.5rem;
+		margin-bottom: 1rem;
+	}
 
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    line-height: 1.6;
-    margin-bottom: 1rem;
-  }
+	p {
+		color: ${({ theme }) => theme.colors.gray600};
+		line-height: 1.6;
+		margin-bottom: 1rem;
+	}
 `;
 
 export const SecurityWarning = styled.div`
-  background-color: #fdecea;
-  border: 1px solid #f5c2c7;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+	background-color: #fdecea;
+	border: 1px solid #f5c2c7;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
 
-  .icon {
-    color: #dc3545;
-    margin-top: 0.125rem;
-    flex-shrink: 0;
-  }
+	.icon {
+		color: #dc3545;
+		margin-top: 0.125rem;
+		flex-shrink: 0;
+	}
 
-  .content {
-    flex: 1;
+	.content {
+		flex: 1;
 
-    h3 {
-      color: #dc3545;
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0 0 0.5rem 0;
-    }
+		h3 {
+			color: #dc3545;
+			font-size: 1rem;
+			font-weight: 600;
+			margin: 0 0 0.5rem 0;
+		}
 
-    p {
-      color: #dc3545;
-      margin: 0;
-      font-size: 0.875rem;
-      line-height: 1.5;
-    }
-  }
+		p {
+			color: #dc3545;
+			margin: 0;
+			font-size: 0.875rem;
+			line-height: 1.5;
+		}
+	}
 `;
 
 export const UseCaseHighlight = styled.div`
-  background-color: ${({ theme }) => theme.colors.success}10;
-  border: 1px solid ${({ theme }) => theme.colors.success}30;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+	background-color: ${({ theme }) => theme.colors.success}10;
+	border: 1px solid ${({ theme }) => theme.colors.success}30;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
 
-  .icon {
-    color: ${({ theme }) => theme.colors.success};
-    margin-top: 0.125rem;
-    flex-shrink: 0;
-  }
+	.icon {
+		color: ${({ theme }) => theme.colors.success};
+		margin-top: 0.125rem;
+		flex-shrink: 0;
+	}
 
-  .content {
-    flex: 1;
+	.content {
+		flex: 1;
 
-    h3 {
-      color: ${({ theme }) => theme.colors.success};
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0 0 0.5rem 0;
-    }
+		h3 {
+			color: ${({ theme }) => theme.colors.success};
+			font-size: 1rem;
+			font-weight: 600;
+			margin: 0 0 0.5rem 0;
+		}
 
-    p {
-      color: ${({ theme }) => theme.colors.gray700};
-      margin: 0;
-      font-size: 0.875rem;
-      line-height: 1.5;
-    }
-  }
+		p {
+			color: ${({ theme }) => theme.colors.gray700};
+			margin: 0;
+			font-size: 0.875rem;
+			line-height: 1.5;
+		}
+	}
 `;
 
 export const InfoHighlight = styled.div`
-  background-color: ${({ theme }) => theme.colors.primary}10;
-  border: 1px solid ${({ theme }) => theme.colors.primary}30;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+	background-color: ${({ theme }) => theme.colors.primary}10;
+	border: 1px solid ${({ theme }) => theme.colors.primary}30;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
 
-  .icon {
-    color: ${({ theme }) => theme.colors.primary};
-    margin-top: 0.125rem;
-    flex-shrink: 0;
-  }
+	.icon {
+		color: ${({ theme }) => theme.colors.primary};
+		margin-top: 0.125rem;
+		flex-shrink: 0;
+	}
 
-  .content {
-    flex: 1;
+	.content {
+		flex: 1;
 
-    h3 {
-      color: ${({ theme }) => theme.colors.primary};
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0 0 0.5rem 0;
-    }
+		h3 {
+			color: ${({ theme }) => theme.colors.primary};
+			font-size: 1rem;
+			font-weight: 600;
+			margin: 0 0 0.5rem 0;
+		}
 
-    p {
-      color: ${({ theme }) => theme.colors.gray700};
-      margin: 0;
-      font-size: 0.875rem;
-      line-height: 1.5;
-    }
-  }
+		p {
+			color: ${({ theme }) => theme.colors.gray700};
+			margin: 0;
+			font-size: 0.875rem;
+			line-height: 1.5;
+		}
+	}
 `;
 
 // Base OAuth Flow Props Interface
@@ -183,11 +183,11 @@ export const BaseOAuthFlow: React.FC<BaseOAuthFlowProps> = ({
 }) => {
 	const { user, isAuthenticated } = useAuth();
 	useEffect(() => {
-		logger.info(`[${flowType}] Flow component mounted`, "Logger info");
+		logger.info(`[${flowType}] Flow component mounted`, 'Logger info');
 
 		// Log flow access
 		if (isAuthenticated && user) {
-			logger.info(`[${flowType}] User ${user.email} accessed ${flowType} flow`, "Logger info");
+			logger.info(`[${flowType}] User ${user.email} accessed ${flowType} flow`, 'Logger info');
 		}
 	}, [flowType, isAuthenticated, user]);
 

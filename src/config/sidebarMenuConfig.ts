@@ -116,6 +116,8 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		items: items([
 			['/api-status', 'API Status', true],
 			['/custom-domain-test', 'Custom Domain & API Test', true],
+			['/cleanliness-dashboard', 'Component Cleanliness Dashboard', true],
+			['/cleanup-history', '100+ Hours Cleanup History', true],
 			['/v8/mfa-feature-flags', 'MFA Feature Flags', true],
 			['/environments', 'Environment Management', true],
 			['/configuration', 'Configuration Management', true],
@@ -205,6 +207,8 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		id: 'developer-tools',
 		label: 'Developer & Tools',
 		items: items([
+			['/v9/debug-logs-popout', 'Debug Log Viewer (V9)', true],
+			['/v8/debug-logs-popout', 'Debug Log Viewer (V8)', false],
 			['/postman-collection-generator', 'Postman Collection Generator', true],
 			['/postman-collection-generator-v9', 'Postman Generator V9', true],
 			['/oauth-code-generator-hub', 'OAuth Code Generator Hub', true],

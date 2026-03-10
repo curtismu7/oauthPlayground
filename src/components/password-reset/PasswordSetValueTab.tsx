@@ -1,7 +1,7 @@
 // src/components/password-reset/PasswordSetValueTab.tsx
 // Update Password (Set Value) Tab Component
 
-import { FiCheckCircle } from '@icons';
+import { FiCheckCircle } from '../../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -14,7 +14,7 @@ const HELIOMART_ACCENT_START = '#F59E0B';
 
 const Card = styled.div`
 	background: #ffffff;
-	border: 1px solid #E5E7EB;
+	border: 1px solid #e5e7eb;
 	border-radius: 1rem;
 	padding: 2rem;
 	margin-bottom: 2rem;
@@ -33,11 +33,12 @@ const Alert = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 		if (props.$type === 'error') return '#FEF2F2';
 		return '#EFF6FF';
 	}};
-	border: 1px solid ${(props) => {
-		if (props.$type === 'success') return '#22C55E';
-		if (props.$type === 'error') return '#DC2626';
-		return '#3B82F6';
-	}};
+	border: 1px solid
+		${(props) => {
+			if (props.$type === 'success') return '#22C55E';
+			if (props.$type === 'error') return '#DC2626';
+			return '#3B82F6';
+		}};
 	color: ${(props) => {
 		if (props.$type === 'success') return '#10b981';
 		if (props.$type === 'error') return '#991B1B';
@@ -61,9 +62,9 @@ const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
 	background: #ffffff;
-	border: 1px solid #D1D5DB;
+	border: 1px solid #d1d5db;
 	border-radius: 0.5rem;
-	color: #1F2937;
+	color: #1f2937;
 	font-size: 1rem;
 	transition: border-color 0.2s;
 
@@ -74,7 +75,7 @@ const Input = styled.input`
 	}
 
 	&::placeholder {
-		color: #9CA3AF;
+		color: #9ca3af;
 	}
 `;
 
@@ -118,8 +119,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 `;
 
 const UserCard = styled.div`
-	background: #F9FAFB;
-	border: 1px solid #E5E7EB;
+	background: #f9fafb;
+	border: 1px solid #e5e7eb;
 	border-radius: 0.5rem;
 	padding: 1.5rem;
 	margin-bottom: 1.5rem;
@@ -135,7 +136,7 @@ const UserAvatar = styled.div`
 	width: 3rem;
 	height: 3rem;
 	border-radius: 50%;
-	background: linear-gradient(135deg, ${HELIOMART_ACCENT_START} 0%, #F97316 100%);
+	background: linear-gradient(135deg, ${HELIOMART_ACCENT_START} 0%, #f97316 100%);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -169,7 +170,7 @@ const SuccessText = styled.p`
 const DocumentationSection = styled.div`
 	margin-bottom: 1.5rem;
 	padding-top: 1rem;
-	border-top: 1px solid #E5E7EB;
+	border-top: 1px solid #e5e7eb;
 `;
 
 const DocumentationLink = styled.a`
@@ -183,7 +184,7 @@ const DocumentationLink = styled.a`
 	transition: color 0.2s;
 
 	&:hover {
-		color: #F97316;
+		color: #f97316;
 		text-decoration: underline;
 	}
 `;
@@ -198,7 +199,9 @@ const SpinningIcon = styled.div`
 	animation: spin 0.6s linear infinite;
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 `;
 

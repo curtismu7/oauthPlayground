@@ -257,7 +257,8 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
 			? 'white'
 			: 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)'};
 	color: ${({ variant }) => (variant === 'secondary' ? '#059669' : 'white')};
-	border: ${({ variant }) => (variant === 'secondary' ? '2px solid V9_COLORS.PRIMARY.GREEN' : 'none')};
+	border: ${({ variant }) =>
+		variant === 'secondary' ? '2px solid V9_COLORS.PRIMARY.GREEN' : 'none'};
 
 	&:hover {
 		transform: translateY(-2px);
@@ -1291,7 +1292,7 @@ import java.net.URI;
 import java.util.Map;
 import com.google.gson.Gson;
 import { createModuleLogger } from '../utils/consoleMigrationHelper';
-import { FiCheckCircle, FiCode, FiExternalLink } from '@icons';
+import { FiCheckCircle, FiCode, FiExternalLink } from '../icons';
 
 import { logger } from '../utils/logger';
 public class DeviceFlowAuth {

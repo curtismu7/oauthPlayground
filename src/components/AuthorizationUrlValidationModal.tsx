@@ -1,4 +1,4 @@
-import { FiAlertTriangle, FiCheckCircle, FiExternalLink } from '@icons';
+import { FiAlertTriangle, FiCheckCircle, FiExternalLink } from '../icons';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -42,7 +42,9 @@ const ModalContent = styled.div`
 	width: 90%;
 	max-height: 80vh;
 	overflow-y: auto;
-	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	box-shadow:
+		0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
 `;
 
 const ModalHeader = styled.div`
@@ -70,7 +72,7 @@ const CloseButton = styled.button`
 	cursor: pointer;
 	padding: 0.25rem;
 	border-radius: 0.375rem;
-	
+
 	&:hover {
 		background: #f3f4f6;
 		color: V9_COLORS.TEXT.GRAY_DARK;
@@ -137,7 +139,7 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' }>`
 	cursor: pointer;
 	border: none;
 	transition: all 0.2s;
-	
+
 	${(props) =>
 		props.$variant === 'primary'
 			? `

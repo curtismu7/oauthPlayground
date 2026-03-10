@@ -4,7 +4,7 @@
  * @description Interactive page for crafting PingOne Create Device requests with editable JSON.
  */
 
-import { FiAlertTriangle, FiRefreshCw } from '@icons';
+import { FiAlertTriangle, FiRefreshCw } from '../../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';

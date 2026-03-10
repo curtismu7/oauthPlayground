@@ -1,7 +1,7 @@
 // src/v8/components/TokenExchangeAdminToggleV8.tsx
 // Token Exchange Phase 1 - Admin-only toggle component
 
-import { FiAlertCircle, FiSettings } from '@icons';
+import { FiAlertCircle, FiSettings } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -135,8 +135,12 @@ const LoadingSpinner = styled.div`
 	animation: spin 1s linear infinite;
 
 	@keyframes spin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
 	}
 `;
 

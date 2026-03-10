@@ -16,7 +16,7 @@
  * ========================================================================
  */
 
-import { FiChevronDown, FiMove } from '@icons';
+import { FiChevronDown, FiMove } from '../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -2711,7 +2711,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							}, 0);
 						};
 						return countItems(filteredMenuGroups);
-					})()} results for "{searchQuery}"
+					})()}{' '}
+					results for "{searchQuery}"
 				</div>
 			)}
 

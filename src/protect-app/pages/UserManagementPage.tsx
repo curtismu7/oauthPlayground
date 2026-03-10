@@ -12,7 +12,7 @@
  * - Open/Closed: Extensible for new user operations
  */
 
-import { FiUser } from '@icons';
+import { FiUser } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../../utils/logger';

@@ -140,7 +140,7 @@ interface PingOneMfaDetails {
 
 type PingOneMfaStatus = PingOneMfaDetails | null;
 
-import { FiAlertTriangle, FiRefreshCw, FiUser } from '@icons';
+import { FiAlertTriangle, FiRefreshCw, FiUser } from '../icons';
 import type { CSSProperties } from 'react';
 
 import { logger } from '../utils/logger';
@@ -936,7 +936,7 @@ const PingOneUserProfile: React.FC = () => {
 						.filter((role): role is PingOneUserRole => Boolean(role));
 				}
 
-				logger.info('[fetchUserBundle] ===== GROUPS DEBUG =====', "Logger info");
+				logger.info('[fetchUserBundle] ===== GROUPS DEBUG =====', 'Logger info');
 				logger.info('[fetchUserBundle] Final groups count:', groups.length);
 				logger.info('[fetchUserBundle] Groups payload keys:', Object.keys(groupsPayload || {}));
 				logger.info(
@@ -965,7 +965,7 @@ const PingOneUserProfile: React.FC = () => {
 					'[fetchUserBundle] First group (if any):',
 					groups.length > 0 ? groups[0] : 'NONE'
 				);
-				logger.info('[fetchUserBundle] ===== END GROUPS DEBUG =====', "Logger info");
+				logger.info('[fetchUserBundle] ===== END GROUPS DEBUG =====', 'Logger info');
 
 				logger.info('[fetchUserBundle] Groups, Roles, and Population:', {
 					groupsCount: groups.length,

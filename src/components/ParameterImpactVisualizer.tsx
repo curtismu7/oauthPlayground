@@ -116,18 +116,19 @@ const Timeline = styled.div`
 const TimelineEvent = styled.div<{ type: 'normal' | 'danger' | 'success' | 'warning' }>`
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border-left: 4px solid ${({ type }) => {
-		switch (type) {
-			case 'danger':
-				return '#ef4444';
-			case 'success':
-				return '#10b981';
-			case 'warning':
-				return '#f59e0b';
-			default:
-				return '#3b82f6';
-		}
-	}};
+	border-left: 4px solid
+		${({ type }) => {
+			switch (type) {
+				case 'danger':
+					return '#ef4444';
+				case 'success':
+					return '#10b981';
+				case 'warning':
+					return '#f59e0b';
+				default:
+					return '#3b82f6';
+			}
+		}};
 	background: ${({ type }) => {
 		switch (type) {
 			case 'danger':
@@ -555,7 +556,7 @@ if (idToken.nonce !== expectedNonce) {
 		},
 		code: `// Step 1: Generate PKCE pair
 import crypto from 'crypto';
-import { FiCheckCircle, FiShield } from '@icons';
+import { FiCheckCircle, FiShield } from '../icons';
 
 import { logger } from '../utils/logger';
 const codeVerifier = crypto.randomBytes(32).toString('hex');

@@ -1,4 +1,4 @@
-import { FiAlertTriangle, FiArrowRight, FiCheckCircle, FiCode, FiShield } from '@icons';
+import { FiAlertTriangle, FiArrowRight, FiCheckCircle, FiCode, FiShield } from '../../icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
@@ -23,217 +23,232 @@ interface OIDCFlow {
 
 // Responsive styled components
 const Container = styled.div`
-  min-height: 100vh;
-  background: #f9fafb;
-  padding: 1rem;
-  max-width: 100vw;
-  overflow-x: hidden;
-  
-  @media (max-width: 768px) {
-    padding: 0.5rem;
-  }
+	min-height: 100vh;
+	background: #f9fafb;
+	padding: 1rem;
+	max-width: 100vw;
+	overflow-x: hidden;
+
+	@media (max-width: 768px) {
+		padding: 0.5rem;
+	}
 `;
 
 const ContentWrapper = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0;
 `;
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 0.75rem;
+	text-align: center;
+	margin-bottom: 2rem;
+	padding: 1.5rem;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	border-radius: 0.75rem;
 
-  h1 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+	h1 {
+		font-size: 1.75rem;
+		font-weight: 700;
+		margin-bottom: 0.75rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
 
-  p {
-    font-size: 0.9rem;
-    line-height: 1.5;
-    opacity: 0.9;
-    max-width: 100%;
-  }
+	p {
+		font-size: 0.9rem;
+		line-height: 1.5;
+		opacity: 0.9;
+		max-width: 100%;
+	}
 
-  @media (max-width: 768px) {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    
-    h1 {
-      font-size: 1.5rem;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-    
-    p {
-      font-size: 0.8rem;
-    }
-  }
+	@media (max-width: 768px) {
+		padding: 1rem;
+		margin-bottom: 1.5rem;
+
+		h1 {
+			font-size: 1.5rem;
+			flex-direction: column;
+			gap: 0.25rem;
+		}
+
+		p {
+			font-size: 0.8rem;
+		}
+	}
 `;
 
 const SearchContainer = styled.div`
-  margin-bottom: 1.5rem;
-  position: relative;
+	margin-bottom: 1.5rem;
+	position: relative;
 `;
 
 const SearchInput = styled.input`
-  width: 100%;
-  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-  background: white;
-  
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-  
-  &::placeholder {
-    color: V9_COLORS.TEXT.GRAY_LIGHT;
-  }
+	width: 100%;
+	padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	font-size: 0.9rem;
+	transition: all 0.2s ease;
+	background: white;
+
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+
+	&::placeholder {
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
+	}
 `;
 
 const SearchIcon = styled.span`
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1rem;
+	position: absolute;
+	left: 0.75rem;
+	top: 50%;
+	transform: translateY(-50%);
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1rem;
 `;
 
 const FilterContainer = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 0.25rem;
-  }
+	display: flex;
+	gap: 0.5rem;
+	margin-bottom: 1.5rem;
+	flex-wrap: wrap;
+
+	@media (max-width: 768px) {
+		flex-direction: column;
+		gap: 0.25rem;
+	}
 `;
 
 const FilterButton = styled.button<{ $active?: boolean }>`
-  padding: 0.4rem 0.8rem;
-  border: 2px solid ${(props) => (props.$active ? '#3b82f6' : '#e5e7eb')};
-  border-radius: 0.375rem;
-  background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
-  color: ${(props) => (props.$active ? 'white' : '#1f2937')};
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.8rem;
-  
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    background: ${(props) => (props.$active ? '#2563eb' : '#f8fafc')};
-  }
+	padding: 0.4rem 0.8rem;
+	border: 2px solid ${(props) => (props.$active ? '#3b82f6' : '#e5e7eb')};
+	border-radius: 0.375rem;
+	background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
+	color: ${(props) => (props.$active ? 'white' : '#1f2937')};
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-size: 0.8rem;
+
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		background: ${(props) => (props.$active ? '#2563eb' : '#f8fafc')};
+	}
 `;
 
 const OverviewGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 0.75rem;
+	margin-bottom: 1.5rem;
+
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 0.5rem;
+	}
 `;
 
 const FlowCard = styled(Card)`
-  height: 100%;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+	height: 100%;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
 
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
+	&:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const FlowIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.75rem;
-  font-size: 1.25rem;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 0.75rem;
+	font-size: 1.25rem;
 
-  &.auth-code { background-color: #dbeafe; color: V9_COLORS.PRIMARY.BLUE_DARK; }
-  &.implicit { background-color: V9_COLORS.BG.WARNING; color: V9_COLORS.PRIMARY.YELLOW_DARK; }
-  &.hybrid { background-color: V9_COLORS.BG.SUCCESS; color: V9_COLORS.PRIMARY.GREEN_DARK; }
-  &.pkce { background-color: #f0fdf4; color: V9_COLORS.PRIMARY.GREEN_DARK; }
+	&.auth-code {
+		background-color: #dbeafe;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
+	}
+	&.implicit {
+		background-color: V9_COLORS.BG.WARNING;
+		color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	}
+	&.hybrid {
+		background-color: V9_COLORS.BG.SUCCESS;
+		color: V9_COLORS.PRIMARY.GREEN_DARK;
+	}
+	&.pkce {
+		background-color: #f0fdf4;
+		color: V9_COLORS.PRIMARY.GREEN_DARK;
+	}
 `;
 
 const TableContainer = styled.div`
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin: 1.5rem 0;
-  overflow-x: auto;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin: 1.5rem 0;
+	overflow-x: auto;
 `;
 
 const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.75rem;
-  min-width: 400px;
-  
-  th, td {
-    padding: 0.5rem;
-    text-align: left;
-    border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
-  }
-  
-  th {
-    background-color: V9_COLORS.TEXT.GRAY_DARK;
-    color: #f9fafb;
-    font-weight: 600;
-  }
-  
-  td {
-    color: V9_COLORS.TEXT.GRAY_LIGHTER;
-  }
-  
-  tr:hover {
-    background-color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.75rem;
+	min-width: 400px;
+
+	th,
+	td {
+		padding: 0.5rem;
+		text-align: left;
+		border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
+	}
+
+	th {
+		background-color: V9_COLORS.TEXT.GRAY_DARK;
+		color: #f9fafb;
+		font-weight: 600;
+	}
+
+	td {
+		color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	}
+
+	tr:hover {
+		background-color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 `;
 
 const TableHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  
-  h2 {
-    color: white;
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-  
-  svg {
-    color: V9_COLORS.PRIMARY.BLUE_LIGHT;
-  }
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+
+	h2 {
+		color: white;
+		margin: 0;
+		font-size: 1.25rem;
+		font-weight: 600;
+	}
+
+	svg {
+		color: V9_COLORS.PRIMARY.BLUE_LIGHT;
+	}
 `;
 
 const OIDCOverviewNew = () => {

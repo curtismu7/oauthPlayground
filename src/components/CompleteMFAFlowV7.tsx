@@ -41,7 +41,7 @@ import {
 	FiPackage,
 	FiRefreshCw,
 	FiSmartphone,
-} from '@icons';
+} from '../icons';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import DeviceRegistrationModal from '../components/DeviceRegistrationModal';
 import { EnhancedApiCallDisplay } from '../components/EnhancedApiCallDisplay';
@@ -183,34 +183,34 @@ const stepMetadata = [
 
 // Modern V7 Layout Components
 const Container = styled.div`
-  min-height: 100vh;
-  background-color: #f9fafb;
-  padding: 2rem 0 6rem;
+	min-height: 100vh;
+	background-color: #f9fafb;
+	padding: 2rem 0 6rem;
 `;
 
 const ContentWrapper = styled.div`
-  max-width: 64rem;
-  margin: 0 auto;
-  padding: 0 1rem;
+	max-width: 64rem;
+	margin: 0 auto;
+	padding: 0 1rem;
 `;
 
 const MainCard = styled.div`
-  background-color: V9_COLORS.TEXT.WHITE;
-  border-radius: 1rem;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  overflow: hidden;
+	background-color: V9_COLORS.TEXT.WHITE;
+	border-radius: 1rem;
+	box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	overflow: hidden;
 `;
 
 const InfoBox = styled.div<{ $variant: 'info' | 'success' | 'warning' | 'error' }>`
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  border-radius: 0.75rem;
-  margin: 1rem 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+	padding: 1rem 1.5rem;
+	border-radius: 0.75rem;
+	margin: 1rem 0;
 
-  ${(props) => {
+	${(props) => {
 		switch (props.$variant) {
 			case 'success':
 				return `
@@ -241,42 +241,46 @@ const InfoBox = styled.div<{ $variant: 'info' | 'success' | 'warning' | 'error' 
 `;
 
 const InfoContent = styled.div`
-  flex: 1;
+	flex: 1;
 `;
 
 const InfoTitle = styled.div`
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
 `;
 
 const InfoText = styled.div`
-  font-size: 0.875rem;
-  line-height: 1.5;
+	font-size: 0.875rem;
+	line-height: 1.5;
 `;
 
 const SpinningIcon = styled.div`
-  animation: spin 1s linear infinite;
+	animation: spin 1s linear infinite;
 
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	border: none;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
 
-  ${(props) => {
+	${(props) => {
 		switch (props.$variant) {
 			case 'primary':
 				return `
@@ -300,10 +304,10 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 		}
 	}}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 `;
 
 export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
@@ -384,7 +388,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 	// Reset flow function - same pattern as other flows
 	const handleResetFlow = useCallback(() => {
-		logger.info('🔄 [MFA Flow V7] Resetting flow to initial state', "Logger info");
+		logger.info('🔄 [MFA Flow V7] Resetting flow to initial state', 'Logger info');
 
 		// Reset to first step
 		setCurrentStep('username_login');
@@ -436,7 +440,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			sessionStorage.removeItem('pingone_mfa_v7_flow_context');
 		}
 
-		logger.info('✅ [MFA Flow V7] Flow reset complete', "Logger info");
+		logger.info('✅ [MFA Flow V7] Flow reset complete', 'Logger info');
 	}, [onStepChange]);
 
 	// Update step number when current step changes
@@ -494,7 +498,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 	// Initialize flow
 	useEffect(() => {
-		logger.info('🔑 [MFA Flow V7] Initializing modern PingOne MFA flow', "Logger info");
+		logger.info('🔑 [MFA Flow V7] Initializing modern PingOne MFA flow', 'Logger info');
 		const flowId = `mfa_flow_v7_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 		setFlowContext((prev) => ({ ...prev, flowId }));
 
@@ -525,7 +529,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			);
 			setWorkerTokenCredentials(savedWorkerTokenCreds);
 		} else {
-			logger.info('🔍 [MFA Flow V7] No worker token credentials found in storage', "Logger info");
+			logger.info('🔍 [MFA Flow V7] No worker token credentials found in storage', 'Logger info');
 
 			// TEMPORARY: Save worker token credentials for testing
 			const workerCreds = {
@@ -603,7 +607,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					state: state,
 				}));
 
-				logger.info('🔐 [CompleteMFAFlowV7] Moved to token retrieval step with authorization code', "Logger info");
+				logger.info(
+					'🔐 [CompleteMFAFlowV7] Moved to token retrieval step with authorization code',
+					'Logger info'
+				);
 			}
 		};
 
@@ -714,7 +721,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 		setIsLoading(true);
 		try {
-			logger.info('🔑 [MFA Flow V7] Requesting worker token...', "Logger info");
+			logger.info('🔑 [MFA Flow V7] Requesting worker token...', 'Logger info');
 			logger.info('🔍 [MFA Flow V7] Worker Token Credentials being used:', {
 				environmentId: workerTokenCredentials.environmentId,
 				clientId: workerTokenCredentials.clientId,
@@ -864,7 +871,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			setIsLoading(true);
 			try {
-				logger.info(`🔧 [MFA Flow V7] Making PingOne MFA API call with response=${responseType}`, "Logger info");
+				logger.info(
+					`🔧 [MFA Flow V7] Making PingOne MFA API call with response=${responseType}`,
+					'Logger info'
+				);
 
 				// Generate PKCE codes if not already present
 				let codeChallenge = '';
@@ -877,7 +887,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						const pkceData = JSON.parse(existingPkce);
 						codeChallenge = pkceData.codeChallenge;
 						codeVerifier = pkceData.codeVerifier;
-						logger.info('🔐 [MFA Flow V7] Using existing PKCE codes', "Logger info");
+						logger.info('🔐 [MFA Flow V7] Using existing PKCE codes', 'Logger info');
 					} else {
 						// Generate new PKCE codes
 						const { generateCodeVerifier, generateCodeChallenge } = await import('../utils/oauth');
@@ -893,7 +903,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								codeChallengeMethod: 'S256',
 							})
 						);
-						logger.info('🔐 [MFA Flow V7] Generated new PKCE codes', "Logger info");
+						logger.info('🔐 [MFA Flow V7] Generated new PKCE codes', 'Logger info');
 					}
 				} catch (error) {
 					logger.error('🔐 [MFA Flow V7] Failed to generate PKCE codes:', error);
@@ -929,7 +939,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				const validationErrors: string[] = [];
 
 				try {
-					logger.info(`🔧 [MFA Flow V7] Validating authorization URL: ${mfaUrl}`, "Logger info");
+					logger.info(`🔧 [MFA Flow V7] Validating authorization URL: ${mfaUrl}`, 'Logger info');
 
 					// Validate URL format
 					const url = new URL(mfaUrl);
@@ -970,7 +980,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						errorMessage = validationErrors.join('; ');
 						logger.error(`❌ [MFA Flow V7] URL validation failed:`, validationErrors);
 					} else {
-						logger.info(`✅ [MFA Flow V7] Authorization URL validation passed`, "Logger info");
+						logger.info(`✅ [MFA Flow V7] Authorization URL validation passed`, 'Logger info');
 					}
 				} catch (error) {
 					logger.error(`❌ [MFA Flow V7] URL validation error:`, error);
@@ -1090,7 +1100,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				message: 'Worker Token credentials saved successfully',
 				duration: 4000,
 			});
-			logger.info('[CompleteMFAFlowV7] Worker Token credentials saved successfully', "Logger info");
+			logger.info('[CompleteMFAFlowV7] Worker Token credentials saved successfully', 'Logger info');
 		} catch (error) {
 			logger.error('[CompleteMFAFlowV7] Failed to save worker token credentials:', error);
 			modernMessaging.showBanner({
@@ -1106,7 +1116,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 	const handleUsernameLogin = useCallback(
 		async (mode: 'redirect' | 'redirectless' = 'redirectless') => {
-			logger.info(`🔐 [MFA Flow V7] handleUsernameLogin called with mode: ${mode}`, "Logger info");
+			logger.info(`🔐 [MFA Flow V7] handleUsernameLogin called with mode: ${mode}`, 'Logger info');
 
 			// Clear any existing flow context when starting a new authentication
 			setFlowContext((prev) => ({
@@ -1131,10 +1141,14 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				}
 
 				logger.info(
-					`🔐 [MFA Flow V7] Starting redirectless authentication with response_mode=pi.flow`
-				, "Logger info");
-				logger.info(`🔐 [MFA Flow V7] Username: ${credentials.username}`, "Logger info");
-				logger.info(`🔐 [MFA Flow V7] Password: ${credentials.password ? '***' : 'NOT SET'}`, "Logger info");
+					`🔐 [MFA Flow V7] Starting redirectless authentication with response_mode=pi.flow`,
+					'Logger info'
+				);
+				logger.info(`🔐 [MFA Flow V7] Username: ${credentials.username}`, 'Logger info');
+				logger.info(
+					`🔐 [MFA Flow V7] Password: ${credentials.password ? '***' : 'NOT SET'}`,
+					'Logger info'
+				);
 
 				// Store current scroll position to prevent jumping to top
 				const currentScrollY = window.scrollY;
@@ -1152,12 +1166,14 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							const pkceData = JSON.parse(existingPkce);
 							codeVerifier = pkceData.codeVerifier;
 							codeChallenge = pkceData.codeChallenge;
-							logger.info('🔐 [MFA Flow V7] Using existing PKCE codes for redirectless auth', "Logger info");
+							logger.info(
+								'🔐 [MFA Flow V7] Using existing PKCE codes for redirectless auth',
+								'Logger info'
+							);
 						} else {
 							// Generate new PKCE codes
-							const { generateCodeVerifier, generateCodeChallenge } = await import(
-								'../utils/oauth'
-							);
+							const { generateCodeVerifier, generateCodeChallenge } =
+								await import('../utils/oauth');
 							codeVerifier = generateCodeVerifier();
 							codeChallenge = await generateCodeChallenge(codeVerifier);
 
@@ -1170,7 +1186,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									codeChallengeMethod: 'S256',
 								})
 							);
-							logger.info('🔐 [MFA Flow V7] Generated new PKCE codes for redirectless auth', "Logger info");
+							logger.info(
+								'🔐 [MFA Flow V7] Generated new PKCE codes for redirectless auth',
+								'Logger info'
+							);
 						}
 					} catch (error) {
 						logger.error(
@@ -1235,8 +1254,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 					// Use direct authorization request with response_mode=pi.flow (like V5/V6 flows)
 					logger.info(
-						`🔐 [MFA Flow V7] Using direct authorization request with response_mode=pi.flow`
-					, "Logger info");
+						`🔐 [MFA Flow V7] Using direct authorization request with response_mode=pi.flow`,
+						'Logger info'
+					);
 
 					// Build authorization request body for POST request (redirectless authentication)
 					// Note: No redirect_uri needed for redirectless authentication
@@ -1254,8 +1274,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					});
 
 					logger.info(
-						`🔐 [MFA Flow V7] Making POST request to authorize endpoint with response_mode=pi.flow`
-					, "Logger info");
+						`🔐 [MFA Flow V7] Making POST request to authorize endpoint with response_mode=pi.flow`,
+						'Logger info'
+					);
 					logger.info(`🔐 [MFA Flow V7] Authorization endpoint:`, authEndpoint);
 					logger.info(`🔐 [MFA Flow V7] Request body:`, {
 						response_type: 'code',
@@ -1271,7 +1292,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					});
 
 					// Make the POST request to PingOne authorize endpoint with response_mode=pi.flow
-					logger.info(`🔐 [MFA Flow V7] Making POST request to: ${authEndpoint}`, "Logger info");
+					logger.info(`🔐 [MFA Flow V7] Making POST request to: ${authEndpoint}`, 'Logger info');
 					logger.info(`🔐 [MFA Flow V7] Request body: ${authRequestBody.toString()}`);
 
 					const response = await fetch(authEndpoint, {
@@ -1284,8 +1305,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					});
 
 					logger.info(
-						`🔐 [MFA Flow V7] Response status: ${response.status} ${response.statusText}`
-					, "Logger info");
+						`🔐 [MFA Flow V7] Response status: ${response.status} ${response.statusText}`,
+						'Logger info'
+					);
 					logger.info(
 						`🔐 [MFA Flow V7] Response headers:`,
 						Object.fromEntries(response.headers.entries())
@@ -1438,8 +1460,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							});
 						} else {
 							logger.warn(
-								`⚠️ [MFA Flow V7] No userId found in flow response. User must complete authentication first.`
-							, "Logger warning");
+								`⚠️ [MFA Flow V7] No userId found in flow response. User must complete authentication first.`,
+								'Logger warning'
+							);
 							// Don't set userId - it will be extracted after flow completes
 							setFlowContext((prev) => {
 								const newContext = {
@@ -1458,12 +1481,16 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 						// For redirectless flow, we need to get a worker token for device registration
 						logger.info(
-							'🔐 [MFA Flow V7] Redirectless flow established - getting worker token for device registration'
-						, "Logger info");
+							'🔐 [MFA Flow V7] Redirectless flow established - getting worker token for device registration',
+							'Logger info'
+						);
 
 						// Get worker token using client credentials
 						try {
-							logger.info('🔐 [MFA Flow V7] Getting worker token for device registration', "Logger info");
+							logger.info(
+								'🔐 [MFA Flow V7] Getting worker token for device registration',
+								'Logger info'
+							);
 
 							// Use worker token credentials instead of authorization code credentials
 							const workerCredentials = workerTokenCredentials || authCodeCredentials;
@@ -1495,7 +1522,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								'🔐 [MFA Flow V7] Making worker token request to:',
 								`https://auth.pingone.com/${workerEnvironmentId}/as/token`
 							);
-							logger.info('🔐 [MFA Flow V7] Using Basic Authentication', "Logger info");
+							logger.info('🔐 [MFA Flow V7] Using Basic Authentication', 'Logger info');
 							logger.info('🔐 [MFA Flow V7] Client ID:', workerClientId);
 							logger.info('🔐 [MFA Flow V7] Client Secret length:', workerClientSecret.length);
 							logger.info(
@@ -1559,15 +1586,17 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						} catch (error) {
 							logger.info('🔐 [MFA Flow V7] Worker token request failed:', error);
 							logger.info(
-								'🔐 [MFA Flow V7] Continuing without worker token - device registration will use alternative method'
-							, "Logger info");
+								'🔐 [MFA Flow V7] Continuing without worker token - device registration will use alternative method',
+								'Logger info'
+							);
 							// Don't show error to user - worker token is optional for basic MFA flow
 						}
 
 						// For redirectless flow, we need to complete the authentication by calling the resumeUrl
 						logger.info(
-							'🔐 [MFA Flow V7] Completing redirectless authentication by calling resumeUrl'
-						, "Logger info");
+							'🔐 [MFA Flow V7] Completing redirectless authentication by calling resumeUrl',
+							'Logger info'
+						);
 
 						try {
 							const resumeResponse = await fetch('/api/pingone/resume', {
@@ -1590,7 +1619,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 								// Check if we got tokens or need to continue the flow
 								if (resumeData.access_token) {
-									logger.info('🔐 [MFA Flow V7] Authentication completed with tokens', "Logger info");
+									logger.info(
+										'🔐 [MFA Flow V7] Authentication completed with tokens',
+										'Logger info'
+									);
 									// Store tokens and get real user ID
 									const realUserId = resumeData.id_token
 										? JSON.parse(atob(resumeData.id_token.split('.')[1])).sub
@@ -1600,7 +1632,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										userId: realUserId,
 									}));
 								} else if (resumeData.userId) {
-									logger.info('🔐 [MFA Flow V7] Authentication completed with user ID', "Logger info");
+									logger.info(
+										'🔐 [MFA Flow V7] Authentication completed with user ID',
+										'Logger info'
+									);
 									setFlowContext((prev) => ({
 										...prev,
 										userId: resumeData.userId,
@@ -1670,10 +1705,16 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						const pkceData = JSON.parse(existingPkce);
 						codeVerifier = pkceData.codeVerifier;
 						codeChallenge = pkceData.codeChallenge;
-						logger.info('🔐 [MFA Flow V7] Using existing PKCE codes for redirect auth', "Logger info");
+						logger.info(
+							'🔐 [MFA Flow V7] Using existing PKCE codes for redirect auth',
+							'Logger info'
+						);
 					} else {
 						// Generate new PKCE codes
-						logger.info('🔐 [MFA Flow V7] Starting PKCE generation for redirect auth...', "Logger info");
+						logger.info(
+							'🔐 [MFA Flow V7] Starting PKCE generation for redirect auth...',
+							'Logger info'
+						);
 						const { generateCodeVerifier, generateCodeChallenge } = await import('../utils/oauth');
 						codeVerifier = generateCodeVerifier();
 						logger.info(
@@ -1696,7 +1737,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								codeChallengeMethod: 'S256',
 							})
 						);
-						logger.info('🔐 [MFA Flow V7] Generated new PKCE codes for redirect auth', "Logger info");
+						logger.info(
+							'🔐 [MFA Flow V7] Generated new PKCE codes for redirect auth',
+							'Logger info'
+						);
 					}
 				} catch (error) {
 					logger.error('🔐 [MFA Flow V7] Failed to generate PKCE codes for redirect auth:', error);
@@ -1719,7 +1763,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 				// Validate PKCE codes before building URL
 				if (!codeChallenge || codeChallenge.length === 0) {
-					logger.error('🔐 [MFA Flow V7] PKCE Error - codeChallenge is empty or undefined', "Logger error");
+					logger.error(
+						'🔐 [MFA Flow V7] PKCE Error - codeChallenge is empty or undefined',
+						'Logger error'
+					);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1730,7 +1777,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				}
 
 				if (!codeVerifier || codeVerifier.length === 0) {
-					logger.error('🔐 [MFA Flow V7] PKCE Error - codeVerifier is empty or undefined', "Logger error");
+					logger.error(
+						'🔐 [MFA Flow V7] PKCE Error - codeVerifier is empty or undefined',
+						'Logger error'
+					);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1832,13 +1882,14 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		setError(null);
 
 		try {
-			logger.info('🔐 [MFA Flow V7] User confirmed redirect/flow', "Logger info");
+			logger.info('🔐 [MFA Flow V7] User confirmed redirect/flow', 'Logger info');
 
 			// Check if we have flow context (from redirectless authentication)
 			if (flowContext.flowId && flowContext.resumeUrl) {
 				logger.info(
-					'🔐 [MFA Flow V7] Redirectless flow confirmed - opening resumeUrl for user to complete authentication'
-				, "Logger info");
+					'🔐 [MFA Flow V7] Redirectless flow confirmed - opening resumeUrl for user to complete authentication',
+					'Logger info'
+				);
 				logger.info('🔐 [MFA Flow V7] Flow ID:', flowContext.flowId);
 				logger.info('🔐 [MFA Flow V7] Resume URL:', flowContext.resumeUrl);
 
@@ -1857,16 +1908,18 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				}
 
 				logger.info(
-					'🔐 [MFA Flow V7] Opened resumeUrl in popup - waiting for user to complete authentication'
-				, "Logger info");
+					'🔐 [MFA Flow V7] Opened resumeUrl in popup - waiting for user to complete authentication',
+					'Logger info'
+				);
 
 				// Monitor the popup for completion
 				const checkClosed = setInterval(() => {
 					if (popup.closed) {
 						clearInterval(checkClosed);
 						logger.info(
-							'🔐 [MFA Flow V7] Authentication popup closed - assuming user completed authentication'
-						, "Logger info");
+							'🔐 [MFA Flow V7] Authentication popup closed - assuming user completed authentication',
+							'Logger info'
+						);
 
 						// Move to device pairing step after user completes authentication
 						setCurrentStep('device_pairing');
@@ -1880,7 +1933,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					}
 				}, 1000);
 			} else {
-				logger.info('🔐 [MFA Flow V7] Simulating redirect authentication', "Logger info");
+				logger.info('🔐 [MFA Flow V7] Simulating redirect authentication', 'Logger info');
 				// Simulate authentication process for regular redirect
 				await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -1917,7 +1970,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		setRetryCount((prev) => prev + 1);
 		setError(null);
 		setCurrentStep('username_login');
-		logger.info('🔄 [MFA Flow V7] Flow retried', "Logger info");
+		logger.info('🔄 [MFA Flow V7] Flow retried', 'Logger info');
 	}, []);
 
 	// Device registration validation
@@ -2615,7 +2668,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				try {
 					const payload = JSON.parse(atob(tokenData.id_token.split('.')[1]));
 					userId = payload.sub || payload.user_id || payload.id || '';
-					logger.info(`🔐 [MFA Flow V7] Extracted userId from id_token: ${userId}`, "Logger info");
+					logger.info(`🔐 [MFA Flow V7] Extracted userId from id_token: ${userId}`, 'Logger info');
 				} catch (error) {
 					logger.error('🔐 [MFA Flow V7] Failed to decode id_token:', error);
 				}

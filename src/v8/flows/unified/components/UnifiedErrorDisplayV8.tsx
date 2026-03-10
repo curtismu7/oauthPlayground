@@ -9,7 +9,7 @@
  * Following SWE-15 principles for reusable error handling
  */
 
-import { FiX } from '@icons';
+import { FiX } from '../../../../icons';
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';

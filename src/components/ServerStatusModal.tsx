@@ -1,4 +1,4 @@
-import { FiRefreshCw } from '@icons';
+import { FiRefreshCw } from '../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -18,76 +18,78 @@ interface ServerStatus {
 }
 
 const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	padding: 1rem;
 `;
 
 const ModalContent = styled.div`
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  width: 100%;
-  max-width: 600px;
-  max-height: 80vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+	background: white;
+	border-radius: 0.75rem;
+	box-shadow:
+		0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	width: 100%;
+	max-width: 600px;
+	max-height: 80vh;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 `;
 
 const ModalHeader = styled.div`
-  padding: 1.5rem 1.5rem 1rem 1.5rem;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+	padding: 1.5rem 1.5rem 1rem 1.5rem;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 `;
 
 const ModalTitle = styled.h2`
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const CloseButton = styled.button`
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  transition: all 0.2s;
+	background: none;
+	border: none;
+	padding: 0.5rem;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	transition: all 0.2s;
 
-  &:hover {
-    background: #f3f4f6;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	&:hover {
+		background: #f3f4f6;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 
-  svg {
-    font-size: 1.25rem;
-  }
+	svg {
+		font-size: 1.25rem;
+	}
 `;
 
 const ModalBody = styled.div`
-  padding: 1.5rem;
-  flex: 1;
-  overflow-y: auto;
+	padding: 1.5rem;
+	flex: 1;
+	overflow-y: auto;
 `;
 
 const ServerCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
-  background: ${({ $status }) => {
+	background: ${({ $status }) => {
 		switch ($status) {
 			case 'online':
 				return '#f0fdf4';
@@ -99,51 +101,52 @@ const ServerCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
 				return '#f9fafb';
 		}
 	}};
-  border: 2px solid ${({ $status }) => {
-		switch ($status) {
-			case 'online':
-				return '#10b981';
-			case 'offline':
-				return '#ef4444';
-			case 'checking':
-				return '#e5e7eb';
-			default:
-				return '#e5e7eb';
-		}
-	}};
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  transition: all 0.2s;
+	border: 2px solid
+		${({ $status }) => {
+			switch ($status) {
+				case 'online':
+					return '#10b981';
+				case 'offline':
+					return '#ef4444';
+				case 'checking':
+					return '#e5e7eb';
+				default:
+					return '#e5e7eb';
+			}
+		}};
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	margin-bottom: 1rem;
+	transition: all 0.2s;
 
-  &:last-child {
-    margin-bottom: 0;
-  }
+	&:last-child {
+		margin-bottom: 0;
+	}
 `;
 
 const ServerHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
 `;
 
 const ServerName = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusIndicator = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: ${({ $status }) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: ${({ $status }) => {
 		switch ($status) {
 			case 'online':
 				return '#059669';
@@ -158,53 +161,53 @@ const StatusIndicator = styled.div<{ $status: 'checking' | 'online' | 'offline' 
 `;
 
 const ServerDetails = styled.div`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 0.875rem;
-  line-height: 1.5;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.875rem;
+	line-height: 1.5;
 `;
 
 const RefreshButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: V9_COLORS.PRIMARY.BLUE;
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	background: V9_COLORS.PRIMARY.BLUE;
+	color: white;
+	border: none;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
 
-  &:hover:not(:disabled) {
-    background: V9_COLORS.PRIMARY.BLUE_DARK;
-  }
+	&:hover:not(:disabled) {
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
+	}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const ModalFooter = styled.div`
-  padding: 1rem 1.5rem;
-  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
+	padding: 1rem 1.5rem;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	display: flex;
+	justify-content: flex-end;
+	gap: 1rem;
 `;
 
 const FooterButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
+	padding: 0.75rem 1.5rem;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+	border: none;
 
-  ${({ $variant = 'secondary' }) =>
+	${({ $variant = 'secondary' }) =>
 		$variant === 'primary'
 			? `
     background: V9_COLORS.PRIMARY.BLUE;

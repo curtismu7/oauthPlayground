@@ -9,7 +9,7 @@
  * their actual secure login experience with distinctive button styling and brand colors.
  */
 
-import { FiLockIcon } from '@icons';
+import { FiLockIcon } from '../../../icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
@@ -31,186 +31,190 @@ const generateCodeVerifier = (): string => {
 // ============================================================================
 
 const LoginContainer = styled.div`
-  width: 100%;
-  max-width: 400px;
+	width: 100%;
+	max-width: 400px;
 `;
 
 const FormTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #333333; /* Dark gray for secure login */
-  margin: 0 0 1rem 0;
-  text-align: center;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #333333; /* Dark gray for secure login */
+	margin: 0 0 1rem 0;
+	text-align: center;
+	font-family: 'Helvetica Neue', Arial, sans-serif;
 `;
 
 const FormDescription = styled.p`
-  font-size: 0.875rem;
-  color: #666666; /* Medium gray */
-  margin: 0 0 2rem 0;
-  text-align: center;
-  line-height: 1.5;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+	font-size: 0.875rem;
+	color: #666666; /* Medium gray */
+	margin: 0 0 2rem 0;
+	text-align: center;
+	line-height: 1.5;
+	font-family: 'Helvetica Neue', Arial, sans-serif;
 `;
 
 const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
 `;
 
 const InputGroup = styled.div`
-  position: relative;
+	position: relative;
 `;
 
 const InputLabel = styled.label`
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #333333; /* Dark gray */
-  margin-bottom: 0.5rem;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+	display: block;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: #333333; /* Dark gray */
+	margin-bottom: 0.5rem;
+	font-family: 'Helvetica Neue', Arial, sans-serif;
 `;
 
 const StyledInput = styled.input`
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: white;
-  border: 1px solid #CCCCCC; /* Light gray border */
-  border-radius: 4px;
-  font-size: 1rem;
-  color: #333333; /* Dark gray text */
-  transition: border-color 0.2s, box-shadow 0.2s;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+	width: 100%;
+	padding: 0.75rem 1rem;
+	background: white;
+	border: 1px solid #cccccc; /* Light gray border */
+	border-radius: 4px;
+	font-size: 1rem;
+	color: #333333; /* Dark gray text */
+	transition:
+		border-color 0.2s,
+		box-shadow 0.2s;
+	font-family: 'Helvetica Neue', Arial, sans-serif;
 
-  &:focus {
-    outline: none;
-    border-color: #4D148C; /* FedEx purple on focus */
-    box-shadow: 0 0 0 2px rgba(77, 20, 140, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: #4d148c; /* FedEx purple on focus */
+		box-shadow: 0 0 0 2px rgba(77, 20, 140, 0.1);
+	}
 
-  &:invalid {
-    border-color: #CC0000; /* Red for errors */
-  }
+	&:invalid {
+		border-color: #cc0000; /* Red for errors */
+	}
 
-  &::placeholder {
-    color: #999999; /* Light gray placeholder */
-  }
+	&::placeholder {
+		color: #999999; /* Light gray placeholder */
+	}
 `;
 
 const PasswordToggle = styled.button`
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #666666; /* Medium gray */
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 2px;
-  transition: color 0.2s;
+	position: absolute;
+	right: 1rem;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	color: #666666; /* Medium gray */
+	cursor: pointer;
+	padding: 0.25rem;
+	border-radius: 2px;
+	transition: color 0.2s;
 
-  &:hover {
-    color: #4D148C; /* FedEx purple on hover */
-  }
+	&:hover {
+		color: #4d148c; /* FedEx purple on hover */
+	}
 
-  &:focus {
-    outline: none;
-    color: #4D148C; /* FedEx purple on focus */
-  }
+	&:focus {
+		outline: none;
+		color: #4d148c; /* FedEx purple on focus */
+	}
 `;
 
 const ErrorMessage = styled.div`
-  background: #FFF8F8; /* Very light red background */
-  border: 1px solid #FFCCCC; /* Light red border */
-  border-radius: 4px;
-  padding: 0.75rem;
-  color: #CC0000; /* Red text */
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+	background: #fff8f8; /* Very light red background */
+	border: 1px solid #ffcccc; /* Light red border */
+	border-radius: 4px;
+	padding: 0.75rem;
+	color: #cc0000; /* Red text */
+	font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+	font-family: 'Helvetica Neue', Arial, sans-serif;
 `;
 
 // FedEx specific button styling
 const FedExLoginButton = styled.button`
-  background: #4D148C; /* FedEx Purple */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 0.875rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  text-transform: none;
-  letter-spacing: normal;
-  box-shadow: 0 2px 4px rgba(77, 20, 140, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 48px;
-  position: relative;
-  overflow: hidden;
+	background: #4d148c; /* FedEx Purple */
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 0.875rem 1.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-family: 'Helvetica Neue', Arial, sans-serif;
+	text-transform: none;
+	letter-spacing: normal;
+	box-shadow: 0 2px 4px rgba(77, 20, 140, 0.2);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	min-height: 48px;
+	position: relative;
+	overflow: hidden;
 
-  &:hover {
-    background: #3A0F66; /* Darker purple on hover */
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(77, 20, 140, 0.3);
-  }
+	&:hover {
+		background: #3a0f66; /* Darker purple on hover */
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(77, 20, 140, 0.3);
+	}
 
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(77, 20, 140, 0.3), 0 2px 4px rgba(77, 20, 140, 0.2);
-  }
+	&:focus {
+		outline: none;
+		box-shadow:
+			0 0 0 2px rgba(77, 20, 140, 0.3),
+			0 2px 4px rgba(77, 20, 140, 0.2);
+	}
 
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(77, 20, 140, 0.2);
-  }
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 1px 2px rgba(77, 20, 140, 0.2);
+	}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: 0 1px 2px rgba(77, 20, 140, 0.1);
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+		box-shadow: 0 1px 2px rgba(77, 20, 140, 0.1);
+	}
 `;
 
 const FedExIcon = styled.div`
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 1rem;
+	width: 20px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+	font-size: 1rem;
 `;
 
 const QuickLinks = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #E5E7EB;
+	display: flex;
+	justify-content: space-between;
+	margin-top: 1.5rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid #e5e7eb;
 `;
 
 const QuickLink = styled.a`
-  color: #4D148C; /* FedEx purple */
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: color 0.2s;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+	color: #4d148c; /* FedEx purple */
+	text-decoration: none;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: color 0.2s;
+	font-family: 'Helvetica Neue', Arial, sans-serif;
 
-  &:hover {
-    color: #FF6600; /* FedEx orange on hover */
-  }
+	&:hover {
+		color: #ff6600; /* FedEx orange on hover */
+	}
 `;
 
 // ============================================================================

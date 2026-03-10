@@ -11,7 +11,7 @@
  * - Generic OIDC provider URLs
  */
 
-import { FiSearch } from '@icons';
+import { FiSearch } from '../../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -156,7 +156,9 @@ const Spinner = styled.div`
 	margin: 0 auto 1.5rem;
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 `;
 
@@ -270,7 +272,8 @@ const LastEnvironmentIdValue = styled.span`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+	font-family:
+		'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 	word-break: break-all;
 `;
 
@@ -365,7 +368,8 @@ const EndpointLabel = styled.span`
 
 const EndpointUrl = styled.span`
 	color: #6b7280;
-	font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+	font-family:
+		'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 	word-break: break-all;
 	word-wrap: break-word;
 	flex: 1;

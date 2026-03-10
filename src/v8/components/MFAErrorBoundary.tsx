@@ -5,7 +5,7 @@
  * @version 9.1.0
  */
 
-import { FiAlertTriangle } from '@icons';
+import { FiAlertTriangle } from '../../icons';
 import { Component, ErrorInfo, ReactNode } from 'react';
 
 import { logger } from '../../utils/logger';

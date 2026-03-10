@@ -8,7 +8,7 @@
  * and download documentation as PDF or Markdown.
  */
 
-import { FiDownload, FiFileText } from '@icons';
+import { FiDownload, FiFileText } from '../../../../../icons';
 import React, { useState } from 'react';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { logger } from '../../../../../utils/logger';
@@ -235,7 +235,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 	const handleDownload = async () => {
 		if (selectedUseCases.size === 0) {
 			// eslint-disable-next-line no-alert
-			console.warn("Alert: Please select at least one use case to download.");
+			console.warn('Alert: Please select at least one use case to download.');
 			return;
 		}
 
@@ -250,7 +250,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 		} catch (error) {
 			logger.error('Failed to download documentation:', error);
 			// eslint-disable-next-line no-alert
-			console.warn("Alert: Failed to download documentation. Please try again.");
+			console.warn('Alert: Failed to download documentation. Please try again.');
 		}
 	};
 

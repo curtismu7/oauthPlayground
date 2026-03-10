@@ -1,6 +1,6 @@
 // src/pages/URLDecoder.tsx - URL Decoder Utility
 
-import { FiRefreshCw } from '@icons';
+import { FiRefreshCw } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccessMessage';
@@ -9,145 +9,146 @@ import { copyToClipboard } from '../utils/clipboard';
 
 // Styled components
 const Container = styled.div<{ $sidebarWidth?: number }>`
-  min-height: 100vh;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  padding-top: 100px; /* Account for fixed Navbar (80px height + 20px spacing) */
-  padding-bottom: 4rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  
-  /* Ensure content doesn't get cut off by sidebar on desktop */
-  @media (min-width: 768px) {
-    /* Account for sidebar width when open */
-    margin-left: ${({ $sidebarWidth }) => ($sidebarWidth && $sidebarWidth > 0 ? `${$sidebarWidth}px` : '0')};
-    transition: margin-left 0.3s ease;
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-  
-  /* Responsive padding for mobile */
-  @media (max-width: 767px) {
-    padding-top: 100px;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    margin-left: 0;
-  }
+	min-height: 100vh;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	padding-top: 100px; /* Account for fixed Navbar (80px height + 20px spacing) */
+	padding-bottom: 4rem;
+	padding-left: 1rem;
+	padding-right: 1rem;
+
+	/* Ensure content doesn't get cut off by sidebar on desktop */
+	@media (min-width: 768px) {
+		/* Account for sidebar width when open */
+		margin-left: ${({ $sidebarWidth }) =>
+			$sidebarWidth && $sidebarWidth > 0 ? `${$sidebarWidth}px` : '0'};
+		transition: margin-left 0.3s ease;
+		padding-left: 2rem;
+		padding-right: 2rem;
+	}
+
+	/* Responsive padding for mobile */
+	@media (max-width: 767px) {
+		padding-top: 100px;
+		padding-left: 0.5rem;
+		padding-right: 0.5rem;
+		margin-left: 0;
+	}
 `;
 
 const _Header = styled.div`
-  text-align: center;
-  margin: 0 auto 3rem auto;
-  max-width: 90rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  
-  @media (min-width: 768px) {
-    width: calc(100% - 2rem);
-  }
+	text-align: center;
+	margin: 0 auto 3rem auto;
+	max-width: 90rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+
+	@media (min-width: 768px) {
+		width: calc(100% - 2rem);
+	}
 `;
 
 const _Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 1rem 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin: 0 0 1rem 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
 `;
 
 const _Subtitle = styled.p`
-  font-size: 1.125rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin: 0;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.6;
+	font-size: 1.125rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin: 0;
+	max-width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+	line-height: 1.6;
 `;
 
 const ContentCard = styled.div`
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  margin: 0 auto 2rem auto;
-  max-width: 90rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  
-  /* Ensure content is visible even when sidebar is open */
-  @media (min-width: 768px) {
-    margin-left: auto;
-    margin-right: auto;
-    width: calc(100% - 2rem);
-  }
+	background: white;
+	border-radius: 1rem;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	padding: 2rem;
+	margin: 0 auto 2rem auto;
+	max-width: 90rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+
+	/* Ensure content is visible even when sidebar is open */
+	@media (min-width: 768px) {
+		margin-left: auto;
+		margin-right: auto;
+		width: calc(100% - 2rem);
+	}
 `;
 
 const CardHeader = styled.div`
-  margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 `;
 
 const CardTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0 0 0.5rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0 0 0.5rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const CardDescription = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin: 0;
-  font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin: 0;
+	font-size: 0.875rem;
 `;
 
 const FormField = styled.div`
-  margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 `;
 
 const FormLabel = styled.label`
-  display: block;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
+	display: block;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
+	font-size: 0.875rem;
 `;
 
 const TextArea = styled.textarea`
-  width: 100%;
-  min-height: 120px;
-  padding: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  resize: vertical;
-  background: #f9fafb;
-  
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	min-height: 120px;
+	padding: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	resize: vertical;
+	background: #f9fafb;
+
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 'danger' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
-  
-  ${({ $variant = 'primary' }) => {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	border: none;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+	margin-right: 0.5rem;
+	margin-bottom: 0.5rem;
+
+	${({ $variant = 'primary' }) => {
 		switch ($variant) {
 			case 'primary':
 				return `
@@ -180,51 +181,51 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+	flex-wrap: wrap;
 `;
 
 const ResultCard = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-top: 1rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-top: 1rem;
 `;
 
 const ResultTitle = styled.h3`
-  font-size: 1rem;
-  font-weight: 600;
-  color: V9_COLORS.PRIMARY.BLUE;
-  margin: 0 0 0.75rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: V9_COLORS.PRIMARY.BLUE;
+	margin: 0 0 0.75rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const ResultContent = styled.pre`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid #90cdf4;
-  border-radius: 0.375rem;
-  padding: 0.75rem;
-  font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  white-space: pre-wrap;
-  word-break: break-all;
-  margin: 0;
-  overflow-x: auto;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid #90cdf4;
+	border-radius: 0.375rem;
+	padding: 0.75rem;
+	font-size: 0.75rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	white-space: pre-wrap;
+	word-break: break-all;
+	margin: 0;
+	overflow-x: auto;
 `;
 
 const InfoBox = styled.div<{ type?: 'info' | 'warning' | 'error' | 'success' }>`
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  
-  ${({ type = 'info' }) => {
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin-bottom: 1.5rem;
+	font-size: 0.875rem;
+	line-height: 1.5;
+
+	${({ type = 'info' }) => {
 		switch (type) {
 			case 'info':
 				return `

@@ -8,7 +8,7 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
  * @since 2024-11-16
  */
 
-import { FiHelpCircle } from '@icons';
+import { FiHelpCircle } from '../../icons';
 import React, { useState } from 'react';
 import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 

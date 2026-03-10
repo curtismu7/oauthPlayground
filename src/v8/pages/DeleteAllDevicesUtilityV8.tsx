@@ -13,7 +13,7 @@
  * - Shows device count before deletion
  */
 
-import { FiAlertCircle, FiLoader } from '@icons';
+import { FiAlertCircle, FiLoader } from '../../icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
@@ -105,8 +105,12 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				return stored.environmentId;
 			}
 		} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error(`${MODULE_TAG} Failed to load saved environment ID`, errorMessage, 'Environment ID load failed');
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(
+				`${MODULE_TAG} Failed to load saved environment ID`,
+				errorMessage,
+				'Environment ID load failed'
+			);
 		}
 		// Fall back to best available value from all sources
 		return readBestEnvironmentId();
@@ -124,8 +128,12 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			// Note: Username is user-specific, not stored in worker token credentials
 			// So we don't auto-populate it from worker token
 		} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error(`${MODULE_TAG} Failed to load saved username`, errorMessage, 'Username load failed');
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(
+				`${MODULE_TAG} Failed to load saved username`,
+				errorMessage,
+				'Username load failed'
+			);
 		}
 		return '';
 	});
@@ -140,8 +148,12 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				return stored.selectedDeviceType;
 			}
 		} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error(`${MODULE_TAG} Failed to load saved device type filter`, errorMessage, 'Device type filter load failed');
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(
+				`${MODULE_TAG} Failed to load saved device type filter`,
+				errorMessage,
+				'Device type filter load failed'
+			);
 		}
 		return 'ALL';
 	});
@@ -156,8 +168,12 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				return stored.selectedDeviceStatus;
 			}
 		} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error(`${MODULE_TAG} Failed to load saved device status filter`, errorMessage, 'Device status filter load failed');
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(
+				`${MODULE_TAG} Failed to load saved device status filter`,
+				errorMessage,
+				'Device status filter load failed'
+			);
 		}
 		return 'ALL';
 	});
@@ -253,7 +269,11 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				}
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error(`${MODULE_TAG} Failed to auto-populate environment ID:`, errorMessage, 'Environment ID auto-populate failed');
+				logger.error(
+					`${MODULE_TAG} Failed to auto-populate environment ID:`,
+					errorMessage,
+					'Environment ID auto-populate failed'
+				);
 			}
 		};
 
@@ -307,7 +327,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			lastAutoReloadKeyRef.current = `${environmentId.trim()}|${username.trim()}|${selectedDeviceType}|${selectedDeviceStatus}|${String(tokenStatus.isValid)}`;
 			logger.info(`${MODULE_TAG} ✅ Loaded ${filteredDevices.length} devices`, 'Logger info');
 		} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			logger.error(`${MODULE_TAG} Failed to load devices:`, errorMessage, 'Device load failed');
 			setError(error instanceof Error ? error.message : 'Failed to load devices');
 		} finally {
@@ -339,8 +359,12 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				EnvironmentIdServiceV8.saveEnvironmentId(state.environmentId);
 			}
 		} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error(`${MODULE_TAG} Failed to save delete-all-devices state`, errorMessage, 'State save failed');
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(
+				`${MODULE_TAG} Failed to save delete-all-devices state`,
+				errorMessage,
+				'State save failed'
+			);
 		}
 	}, [environmentId, username, selectedDeviceType, selectedDeviceStatus]);
 
@@ -386,13 +410,21 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						config.defaultMfaPolicyId
 					);
 					setPolicy(policyData);
-					logger.info(`${MODULE_TAG} ✅ Policy loaded:`, JSON.stringify(policyData.name), 'Policy loaded');
+					logger.info(
+						`${MODULE_TAG} ✅ Policy loaded:`,
+						JSON.stringify(policyData.name),
+						'Policy loaded'
+					);
 				} else {
 					logger.info(`${MODULE_TAG} ℹ️ No default policy configured`, 'Logger info');
 				}
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.warn(`${MODULE_TAG} Failed to fetch policy information:`, errorMessage, 'Policy fetch failed');
+				logger.warn(
+					`${MODULE_TAG} Failed to fetch policy information:`,
+					errorMessage,
+					'Policy fetch failed'
+				);
 			} finally {
 				// Policy loading complete
 			}
@@ -422,13 +454,21 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					error: null,
 				});
 
-				logger.info(`${MODULE_TAG} ✅ MFA Settings loaded:`, JSON.stringify({
-					maxAllowedDevices: maxDevices,
-					pairingKeyFormat: settings.pairing?.pairingKeyFormat,
-				}), 'MFA settings loaded');
+				logger.info(
+					`${MODULE_TAG} ✅ MFA Settings loaded:`,
+					JSON.stringify({
+						maxAllowedDevices: maxDevices,
+						pairingKeyFormat: settings.pairing?.pairingKeyFormat,
+					}),
+					'MFA settings loaded'
+				);
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.warn(`${MODULE_TAG} Failed to fetch MFA settings:`, errorMessage, 'MFA settings fetch failed');
+				logger.warn(
+					`${MODULE_TAG} Failed to fetch MFA settings:`,
+					errorMessage,
+					'MFA settings fetch failed'
+				);
 				setMfaSettings((prev) => ({
 					...prev,
 					loading: false,
@@ -515,12 +555,19 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						deviceId,
 					});
 					results.success++;
-					logger.info(`${MODULE_TAG} ✅ Deleted device: ${deviceNickname} (${deviceType})`, 'Device deleted');
+					logger.info(
+						`${MODULE_TAG} ✅ Deleted device: ${deviceNickname} (${deviceType})`,
+						'Device deleted'
+					);
 				} catch (deleteError) {
 					results.failed++;
 					const errorMessage = deleteError instanceof Error ? deleteError.message : 'Unknown error';
 					results.errors.push({ deviceId, error: errorMessage });
-					logger.error(`${MODULE_TAG} ❌ Failed to delete device ${deviceNickname}:`, errorMessage, 'Device delete failed');
+					logger.error(
+						`${MODULE_TAG} ❌ Failed to delete device ${deviceNickname}:`,
+						errorMessage,
+						'Device delete failed'
+					);
 				}
 			}
 

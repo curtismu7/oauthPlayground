@@ -30,7 +30,7 @@ const WorkerActions: React.FC<{
 	</div>
 );
 
-import { FiKey } from '@icons';
+import { FiKey } from '../icons';
 // src/pages/ClientGenerator.tsx
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -178,7 +178,11 @@ const ActionButton = styled.button`
 	cursor: pointer;
 	transition: all 0.2s;
 	border: none;
-	background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN} 0%, ${V9_COLORS.PRIMARY.GREEN_DARK} 100%);
+	background: linear-gradient(
+		135deg,
+		${V9_COLORS.PRIMARY.GREEN} 0%,
+		${V9_COLORS.PRIMARY.GREEN_DARK} 100%
+	);
 	box-shadow: 0 12px 30px -15px rgba(22, 163, 74, 0.6);
 	color: white;
 
@@ -209,7 +213,9 @@ const LoadingSpinner = styled.div`
 	animation: spin 1s ease-in-out infinite;
 
 	@keyframes spin {
-		to { transform: rotate(360deg); }
+		to {
+			transform: rotate(360deg);
+		}
 	}
 `;
 
@@ -312,7 +318,7 @@ const ClientGenerator: React.FC = () => {
 				}
 
 				// Token is now managed by unified service
-				logger.info('[App Generator] Worker token managed by unified service', "Logger info");
+				logger.info('[App Generator] Worker token managed by unified service', 'Logger info');
 				return workerToken;
 			} catch (error) {
 				logger.error(
@@ -353,7 +359,7 @@ const ClientGenerator: React.FC = () => {
 					// Check if we have a valid token already
 					const existingToken = await workerTokenServiceV8.getToken();
 					if (existingToken) {
-						logger.info('[App Generator] Using existing worker token from service', "Logger info");
+						logger.info('[App Generator] Using existing worker token from service', 'Logger info');
 						setWorkerToken(existingToken);
 					} else if (
 						credentials.clientId &&
@@ -361,7 +367,7 @@ const ClientGenerator: React.FC = () => {
 						credentials.environmentId
 					) {
 						// Silently get token if we have credentials but no token
-						logger.info('[App Generator] Silently requesting worker token...', "Logger info");
+						logger.info('[App Generator] Silently requesting worker token...', 'Logger info');
 						await getWorkerTokenSilently(credentials);
 					}
 				}
@@ -389,7 +395,7 @@ const ClientGenerator: React.FC = () => {
 	const handleSaveAndGetToken = useCallback(async () => {
 		try {
 			// Credentials are now managed by unified service
-			logger.info('[App Generator] Worker credentials managed by unified service', "Logger info");
+			logger.info('[App Generator] Worker credentials managed by unified service', 'Logger info');
 			// Save credentials to global service
 			await workerTokenServiceV8.saveCredentials({
 				environmentId: workerCredentials.environmentId,
@@ -559,7 +565,10 @@ const ClientGenerator: React.FC = () => {
 							variant="danger"
 							onClick={async () => {
 								// Clear credentials through unified service
-								logger.info('[App Generator] Clearing credentials through unified service', "Logger info");
+								logger.info(
+									'[App Generator] Clearing credentials through unified service',
+									'Logger info'
+								);
 								setWorkerCredentials({
 									environmentId: '',
 									clientId: '',
@@ -610,7 +619,10 @@ const ClientGenerator: React.FC = () => {
 							}}
 							// Clear token through unified service
 							onClearToken={async () => {
-								logger.info('[App Generator] Clearing token through unified service', "Logger info");
+								logger.info(
+									'[App Generator] Clearing token through unified service',
+									'Logger info'
+								);
 								setWorkerToken(null);
 								setTokenError(null);
 								setWorkerTokenRequest(null);
@@ -622,7 +634,7 @@ const ClientGenerator: React.FC = () => {
 							}}
 							// Clear all through unified service
 							onClearAll={async () => {
-								logger.info('[App Generator] Clearing all through unified service', "Logger info");
+								logger.info('[App Generator] Clearing all through unified service', 'Logger info');
 								setWorkerToken(null);
 								setTokenError(null);
 								setWorkerTokenRequest(null);

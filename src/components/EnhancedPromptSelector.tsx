@@ -1,7 +1,7 @@
 // src/components/EnhancedPromptSelector.tsx
 // Enhanced OIDC Prompt Parameter Selector with multiple values
 
-import { FiCheck, FiShield, FiUser, FiUsers } from '@icons';
+import { FiCheck, FiShield, FiUser, FiUsers } from '../icons';
 import React from 'react';
 import styled from 'styled-components';
 

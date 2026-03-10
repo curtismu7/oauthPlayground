@@ -9,7 +9,7 @@
  * risk evaluation summary, and OIDC token display.
  */
 
-import { FiInfo } from '@icons';
+import { FiInfo } from '../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../../../utils/logger';
@@ -27,105 +27,105 @@ import CompanyLogoHeader from './CompanyLogoHeader';
 // ============================================================================
 
 const SuccessContainer = styled.div`
-  width: 100%;
-  max-width: 800px;
-  text-align: center;
+	width: 100%;
+	max-width: 800px;
+	text-align: center;
 `;
 
 const SuccessTitle = styled.h2`
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--brand-success);
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  font-family: var(--brand-heading-font);
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: var(--brand-success);
+	margin: 0 0 1rem 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	font-family: var(--brand-heading-font);
 `;
 
 const SuccessMessage = styled.p`
-  font-size: 1.25rem;
-  color: var(--brand-text-secondary);
-  margin: 0 0 2rem 0;
-  line-height: 1.6;
-  font-family: var(--brand-body-font);
+	font-size: 1.25rem;
+	color: var(--brand-text-secondary);
+	margin: 0 0 2rem 0;
+	line-height: 1.6;
+	font-family: var(--brand-body-font);
 `;
 
 const UserInfoCard = styled.div`
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-lg);
-  padding: 2rem;
-  margin-bottom: 2rem;
+	background: var(--brand-surface);
+	border: 1px solid var(--brand-text-secondary);
+	border-radius: var(--brand-radius-lg);
+	padding: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const UserInfoHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
 `;
 
 const UserAvatar = styled.div`
-  width: 64px;
-  height: 64px;
-  background: var(--brand-primary);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.5rem;
-  font-weight: 700;
+	width: 64px;
+	height: 64px;
+	background: var(--brand-primary);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	font-size: 1.5rem;
+	font-weight: 700;
 `;
 
 const UserDetails = styled.div`
-  text-align: left;
+	text-align: left;
 `;
 
 const UserName = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--brand-text);
-  margin: 0 0 0.25rem 0;
-  font-family: var(--brand-heading-font);
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: var(--brand-text);
+	margin: 0 0 0.25rem 0;
+	font-family: var(--brand-heading-font);
 `;
 
 const UserEmail = styled.p`
-  font-size: 1rem;
-  color: var(--brand-text-secondary);
-  margin: 0;
-  font-family: var(--brand-body-font);
+	font-size: 1rem;
+	color: var(--brand-text-secondary);
+	margin: 0;
+	font-family: var(--brand-body-font);
 `;
 
 const UserInfoGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1rem;
 `;
 
 const UserInfoItem = styled.div`
-  text-align: left;
+	text-align: left;
 `;
 
 const InfoLabel = styled.div`
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--brand-text-secondary);
-  margin-bottom: 0.25rem;
-  font-family: var(--brand-body-font);
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--brand-text-secondary);
+	margin-bottom: 0.25rem;
+	font-family: var(--brand-body-font);
 `;
 
 const InfoValue = styled.div`
-  font-size: 1rem;
-  color: var(--brand-text);
-  font-family: var(--brand-body-font);
+	font-size: 1rem;
+	color: var(--brand-text);
+	font-family: var(--brand-body-font);
 `;
 
 const RiskSummaryCard = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
-  background: ${(props) => {
+	background: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
 				return 'var(--brand-success-light)';
@@ -137,45 +137,46 @@ const RiskSummaryCard = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
 				return 'var(--brand-surface)';
 		}
 	}};
-  border: 1px solid ${(props) => {
-		switch (props.riskLevel) {
-			case 'LOW':
-				return 'var(--brand-success)';
-			case 'MEDIUM':
-				return 'var(--brand-warning)';
-			case 'HIGH':
-				return 'var(--brand-error)';
-			default:
-				return 'var(--brand-text-secondary)';
-		}
-	}};
-  border-radius: var(--brand-radius-lg);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+	border: 1px solid
+		${(props) => {
+			switch (props.riskLevel) {
+				case 'LOW':
+					return 'var(--brand-success)';
+				case 'MEDIUM':
+					return 'var(--brand-warning)';
+				case 'HIGH':
+					return 'var(--brand-error)';
+				default:
+					return 'var(--brand-text-secondary)';
+			}
+		}};
+	border-radius: var(--brand-radius-lg);
+	padding: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const RiskHeader = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
 `;
 
 const RiskTitle = styled.h4`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--brand-text);
-  margin: 0 0 0.5rem 0;
-  font-family: var(--brand-heading-font);
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: var(--brand-text);
+	margin: 0 0 0.5rem 0;
+	font-family: var(--brand-heading-font);
 `;
 
 const _RiskLevelBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--brand-radius-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: white;
-  background: ${(props) => {
+	padding: 0.25rem 0.75rem;
+	border-radius: var(--brand-radius-sm);
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: white;
+	background: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
 				return 'var(--brand-success)';
@@ -190,245 +191,245 @@ const _RiskLevelBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
 `;
 
 const RiskDescription = styled.p`
-  font-size: 0.875rem;
-  color: var(--brand-text-secondary);
-  margin: 0 0 1rem 0;
-  line-height: 1.5;
-  font-family: var(--brand-body-font);
+	font-size: 0.875rem;
+	color: var(--brand-text-secondary);
+	margin: 0 0 1rem 0;
+	line-height: 1.5;
+	font-family: var(--brand-body-font);
 `;
 
 const TokenSection = styled.div`
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-lg);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+	background: var(--brand-surface);
+	border: 1px solid var(--brand-text-secondary);
+	border-radius: var(--brand-radius-lg);
+	padding: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const TokenHeader = styled.div`
-  background: #f9fafb;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  padding: 1rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+	background: #f9fafb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 1rem 1.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 `;
 
 const TokenTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--brand-text);
-  margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: var(--brand-text);
+	margin: 0;
 `;
 
 const TokenToggle = styled.button`
-  background: none;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  padding: 0.5rem;
-  color: var(--brand-text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
+	background: none;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	padding: 0.5rem;
+	color: var(--brand-text-secondary);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	transition: all 0.2s ease;
 
-  &:hover {
-    background: var(--brand-surface);
-    color: var(--brand-text);
-  }
+	&:hover {
+		background: var(--brand-surface);
+		color: var(--brand-text);
+	}
 `;
 
 const TokenContent = styled.div`
-  padding: 1.5rem;
+	padding: 1.5rem;
 `;
 
 const TokenType = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
 `;
 
 const TypeName = styled.div`
-  font-weight: 600;
-  color: var(--brand-text);
+	font-weight: 600;
+	color: var(--brand-text);
 `;
 
 const TypeBadge = styled.span`
-  background: var(--brand-surface);
-  color: var(--brand-text-secondary);
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
+	background: var(--brand-surface);
+	color: var(--brand-text-secondary);
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 500;
 `;
 
 const TokenPreview = styled.div`
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-text-secondary);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  color: var(--brand-text);
-  word-break: break-all;
-  position: relative;
+	background: var(--brand-surface);
+	border: 1px solid var(--brand-text-secondary);
+	border-radius: 0.5rem;
+	padding: 1rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	color: var(--brand-text);
+	word-break: break-all;
+	position: relative;
 `;
 
 const TokenFull = styled.div`
-  background: var(--brand-surface);
-  color: var(--brand-text);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.75rem;
-  word-break: break-all;
-  max-height: 200px;
-  overflow-y: auto;
+	background: var(--brand-surface);
+	color: var(--brand-text);
+	border-radius: 0.5rem;
+	padding: 1rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.75rem;
+	word-break: break-all;
+	max-height: 200px;
+	overflow-y: auto;
 `;
 
 const CopyButton = styled.button`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: var(--brand-primary);
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: all 0.2s ease;
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	background: var(--brand-primary);
+	color: white;
+	border: none;
+	border-radius: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	font-size: 0.75rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	transition: all 0.2s ease;
 
-  &:hover {
-    background: var(--brand-accent);
-  }
+	&:hover {
+		background: var(--brand-accent);
+	}
 
-  &:active {
-    background: var(--brand-accent-dark);
-  }
+	&:active {
+		background: var(--brand-accent-dark);
+	}
 `;
 
 const TokenInfo = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-  font-size: 0.875rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 1rem;
+	margin-top: 1rem;
+	font-size: 0.875rem;
 `;
 
 const TokenInfoItem = styled.div`
-  text-align: left;
+	text-align: left;
 `;
 
 const _TokenLabel = styled.div`
-  font-size: 0.75rem;
-  color: var(--brand-text-secondary);
-  margin-bottom: 0.25rem;
-  font-family: var(--brand-body-font);
+	font-size: 0.75rem;
+	color: var(--brand-text-secondary);
+	margin-bottom: 0.25rem;
+	font-family: var(--brand-body-font);
 `;
 
 const InfoValueSmall = styled.div`
-  color: var(--brand-text);
-  word-break: break-all;
+	color: var(--brand-text);
+	word-break: break-all;
 `;
 
 const ActionButtons = styled.div`
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 1rem;
+	justify-content: center;
+	flex-wrap: wrap;
 `;
 
 const _ActionButton = styled.button`
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: var(--brand-radius-md);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--brand-transition);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--brand-body-font);
+	padding: 0.75rem 1.5rem;
+	border: none;
+	border-radius: var(--brand-radius-md);
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: var(--brand-transition);
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-family: var(--brand-body-font);
 
-  &:first-child {
-    background: var(--brand-primary);
-    color: white;
+	&:first-child {
+		background: var(--brand-primary);
+		color: white;
 
-    &:hover {
-      background: var(--brand-accent);
-    }
-  }
+		&:hover {
+			background: var(--brand-accent);
+		}
+	}
 
-  &:last-child {
-    background: var(--brand-surface);
-    color: var(--brand-text);
-    border: 1px solid var(--brand-text-secondary);
+	&:last-child {
+		background: var(--brand-surface);
+		color: var(--brand-text);
+		border: 1px solid var(--brand-text-secondary);
 
-    &:hover {
-      background: var(--brand-text-secondary);
-      color: white;
-    }
-  }
+		&:hover {
+			background: var(--brand-text-secondary);
+			color: white;
+		}
+	}
 `;
 
 const EducationalSection = styled.div`
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-lg);
-  padding: 1.5rem;
-  text-align: left;
+	background: var(--brand-surface);
+	border: 1px solid var(--brand-text-secondary);
+	border-radius: var(--brand-radius-lg);
+	padding: 1.5rem;
+	text-align: left;
 `;
 
 const EducationalHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
 `;
 
 const EducationalTitle = styled.h4`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--brand-text);
-  margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: var(--brand-text);
+	margin: 0;
 `;
 
 const EducationalDescription = styled.p`
-  font-size: 0.875rem;
-  color: var(--brand-text-secondary);
-  margin: 0 0 1rem 0;
-  line-height: 1.5;
-  font-family: var(--brand-body-font);
+	font-size: 0.875rem;
+	color: var(--brand-text-secondary);
+	margin: 0 0 1rem 0;
+	line-height: 1.5;
+	font-family: var(--brand-body-font);
 `;
 
 const KeyPoints = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 `;
 
 const KeyPoint = styled.li`
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--brand-text);
-  line-height: 1.4;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
+	font-size: 0.875rem;
+	color: var(--brand-text);
+	line-height: 1.4;
 `;
 
 const KeyPointIcon = styled.span`
-  color: var(--brand-success);
-  flex-shrink: 0;
-  margin-top: 0.125rem;
+	color: var(--brand-success);
+	flex-shrink: 0;
+	margin-top: 0.125rem;
 `;
 
 // ============================================================================

@@ -14,7 +14,7 @@ import {
 	FiSmartphone,
 	FiUsers,
 	FiZap,
-} from '@icons';
+} from '../../icons';
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -35,7 +35,7 @@ const ResponsiveContainer = styled(Container)`
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 1rem;
-	
+
 	@media (max-width: 768px) {
 		padding: 0.5rem;
 		max-width: 100%;
@@ -45,7 +45,7 @@ const ResponsiveContainer = styled(Container)`
 const ResponsiveContentWrapper = styled(ContentWrapper)`
 	max-width: 100%;
 	overflow: hidden;
-	
+
 	@media (max-width: 768px) {
 		padding: 0;
 	}
@@ -58,17 +58,17 @@ const FlowGrid = styled.div`
 	margin: 3rem 0;
 	justify-items: stretch;
 	align-items: start;
-	
+
 	@media (max-width: 1200px) {
 		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 		gap: 1.5rem;
 	}
-	
+
 	@media (max-width: 768px) {
 		grid-template-columns: 1fr;
 		gap: 1.25rem;
 	}
-	
+
 	@media (max-width: 480px) {
 		gap: 1rem;
 	}
@@ -84,14 +84,12 @@ const FlowCard = styled(MainCard)`
 	flex-direction: column;
 	background: white;
 	padding: 1.5rem;
-	
+
 	&:hover {
 		transform: translateY(-4px);
 		box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
 		border-color: V9_COLORS.PRIMARY.BLUE;
 	}
-	
-
 `;
 
 const FlowIcon = styled.div<{ $color: string }>`
@@ -125,17 +123,29 @@ const SecurityLevel = styled.div<{ $level: number }>`
 	align-items: center;
 	gap: 0.5rem;
 	margin-bottom: 1rem;
-	
+
 	.stars {
 		display: flex;
 		gap: 0.125rem;
 	}
-	
+
 	.star {
 		width: 1rem;
 		height: 1rem;
-		background: ${(props) => (props.$level >= 3 ? '#10b981' : props.$level >= 2 ? '#f59e0b' : '#ef4444')};
-		clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+		background: ${(props) =>
+			props.$level >= 3 ? '#10b981' : props.$level >= 2 ? '#f59e0b' : '#ef4444'};
+		clip-path: polygon(
+			50% 0%,
+			61% 35%,
+			98% 35%,
+			68% 57%,
+			79% 91%,
+			50% 70%,
+			21% 91%,
+			32% 57%,
+			2% 35%,
+			39% 35%
+		);
 	}
 `;
 
@@ -146,7 +156,7 @@ const ConceptGrid = styled.div`
 	margin: 3rem 0;
 	justify-items: stretch;
 	align-items: start;
-	
+
 	@media (max-width: 768px) {
 		grid-template-columns: 1fr;
 		gap: 1rem;
@@ -161,25 +171,25 @@ const ConceptCard = styled(MainCard)`
 	flex-direction: column;
 	background: white;
 	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-	
+
 	&:hover {
 		transform: translateY(-2px);
 		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 	}
-	
+
 	.icon {
 		font-size: 2rem;
 		color: V9_COLORS.PRIMARY.BLUE;
 		margin-bottom: 1rem;
 	}
-	
+
 	h4 {
 		font-size: 1.125rem;
 		font-weight: 600;
 		margin-bottom: 0.5rem;
 		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
-	
+
 	p {
 		color: V9_COLORS.TEXT.GRAY_MEDIUM;
 		line-height: 1.6;
@@ -189,7 +199,7 @@ const ConceptCard = styled(MainCard)`
 const ComparisonTable = styled.div`
 	overflow-x: auto;
 	margin: 2rem 0;
-	
+
 	table {
 		width: 100%;
 		border-collapse: collapse;
@@ -197,19 +207,20 @@ const ComparisonTable = styled.div`
 		border-radius: 0.5rem;
 		overflow: hidden;
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-		
-		th, td {
+
+		th,
+		td {
 			padding: 1rem;
 			text-align: left;
 			border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 		}
-		
+
 		th {
 			background: #f9fafb;
 			font-weight: 600;
 			color: V9_COLORS.TEXT.GRAY_DARK;
 		}
-		
+
 		tr:hover {
 			background: #f9fafb;
 		}

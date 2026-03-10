@@ -14,7 +14,7 @@
  * - Device info hint card using tokens
  */
 
-import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiInfo } from '@icons';
+import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiInfo } from '../../../../icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';

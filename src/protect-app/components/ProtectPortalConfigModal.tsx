@@ -9,7 +9,7 @@
  * when environment variables are not available or need to be updated.
  */
 
-import { FiAlertTriangle } from '@icons';
+import { FiAlertTriangle } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import { logger } from '../../utils/logger';
 import { useProtectPortal } from '../contexts/ProtectPortalContext';

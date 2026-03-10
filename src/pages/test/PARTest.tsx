@@ -2,11 +2,15 @@
 // Test page for PingOne Pushed Authorization Request (PAR) Flow
 // Tests RFC 9126 PAR implementation with real PingOne API calls
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import ClientCredentialManager from '../../components/ClientCredentialManager';
-import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
+import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
 import { logger } from '../../utils/logger';
+import {
+	V9AppDiscoveryService,
+	type V9DiscoveredApp,
+} from '../../services/v9/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 
 // PAR Test Configuration
 interface PARTestConfig {
@@ -37,114 +41,114 @@ interface PARTestResult {
 }
 
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `;
 
 const Header = styled.div`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const Title = styled.h1`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1.1rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1.1rem;
 `;
 
 const TestSection = styled.div`
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  background: V9_COLORS.TEXT.WHITE;
+	margin-bottom: 2rem;
+	padding: 1.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	background: V9_COLORS.TEXT.WHITE;
 `;
 
 const SectionTitle = styled.h2`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 1rem;
+	font-size: 1.25rem;
 `;
 
 const Form = styled.div`
-  display: grid;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+	display: grid;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
 `;
 
 const FormRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 1rem;
 `;
 
 const FormGroup = styled.div`
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 0.5rem;
-  align-items: center;
+	display: grid;
+	grid-template-columns: 150px 1fr;
+	gap: 0.5rem;
+	align-items: center;
 `;
 
 const Label = styled.label`
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 0.875rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.875rem;
 `;
 
 const Input = styled.input`
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.25rem;
+	font-size: 0.875rem;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const Select = styled.select`
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.25rem;
+	font-size: 0.875rem;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const TextArea = styled.textarea`
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-  min-height: 80px;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.25rem;
+	font-size: 0.875rem;
+	font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+	min-height: 80px;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+	padding: 0.75rem 1.5rem;
+	border-radius: 0.375rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
 
-  ${(props) => {
+	${(props) => {
 		switch (props.variant) {
 			case 'primary':
 				return `
@@ -182,81 +186,89 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 		}
 	}}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 0.75rem;
+	margin-top: 1rem;
+	flex-wrap: wrap;
 `;
 
 const ResultsContainer = styled.div`
-  margin-top: 2rem;
+	margin-top: 2rem;
 `;
 
 const ResultCard = styled.div<{ success: boolean }>`
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-  border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
-  background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin-bottom: 1rem;
+	border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
+	background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
 `;
 
 const ResultHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.5rem;
 `;
 
 const ResultTitle = styled.h3`
-  margin: 0;
-  color: ${(props) => (props.success ? '#059669' : '#dc2626')};
+	margin: 0;
+	color: ${(props) => (props.success ? '#059669' : '#dc2626')};
 `;
 
 const ResultTime = styled.span`
-  font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.75rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const CodeBlock = styled.pre`
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  color: #f9fafb;
-  padding: 1rem;
-  border-radius: 0.25rem;
-  overflow-x: auto;
-  font-size: 0.75rem;
-  margin: 0.5rem 0;
-  max-height: 300px;
-  overflow-y: auto;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: #f9fafb;
+	padding: 1rem;
+	border-radius: 0.25rem;
+	overflow-x: auto;
+	font-size: 0.75rem;
+	margin: 0.5rem 0;
+	max-height: 300px;
+	overflow-y: auto;
 `;
 
 const PARBadge = styled.span`
-  background: V9_COLORS.BG.WARNING;
-  color: V9_COLORS.PRIMARY.YELLOW_DARK;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  margin-left: 0.5rem;
+	background: V9_COLORS.BG.WARNING;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	margin-left: 0.5rem;
 `;
 
-const PARTest: React.FC = () => {
-	const { apps, selectedAppId, selectApp, getActiveAppConfig } = useCredentialStoreV8();
+const FLOW_KEY = 'par-flow-test-v9';
 
-	const [config, setConfig] = useState<PARTestConfig>({
-		environmentId: '',
-		clientId: '',
-		clientSecret: '',
-		redirectUri: 'http://localhost:3000/test-callback',
-		scopes: 'openid profile email',
-		responseType: 'code',
-		responseMode: 'fragment',
+const PARTest: React.FC = () => {
+	const globalToken = useGlobalWorkerToken({ autoFetch: false });
+	const hasWorkerToken = globalToken.isValid;
+	const [discoveredApps, setDiscoveredApps] = useState<V9DiscoveredApp[]>([]);
+	const [selectedAppClientId, setSelectedAppClientId] = useState<string>('');
+
+	const [config, setConfig] = useState<PARTestConfig>(() => {
+		const saved = V9CredentialStorageService.loadSync(FLOW_KEY);
+		return {
+			environmentId: saved.environmentId || '',
+			clientId: saved.clientId || '',
+			clientSecret: saved.clientSecret || '',
+			redirectUri: saved.redirectUri || 'http://localhost:3000/test-callback',
+			scopes: saved.scope || 'openid profile email',
+			responseType: 'code',
+			responseMode: 'fragment',
+		};
 	});
 
 	const [results, setResults] = useState<PARTestResult[]>([]);
@@ -264,27 +276,33 @@ const PARTest: React.FC = () => {
 	const [authorizationUrl, setAuthorizationUrl] = useState<string>('');
 	const [isRunning, setIsRunning] = useState(false);
 
-	// Load credentials from selected app
-	useEffect(() => {
-		const activeApp = getActiveAppConfig();
-		if (activeApp) {
-			setConfig((prev) => ({
-				...prev,
-				environmentId: activeApp.environmentId || '',
-				clientId: activeApp.clientId || '',
-				clientSecret: activeApp.clientSecret || '',
-				redirectUri: activeApp.redirectUris?.[0] || prev.redirectUri,
-				scopes: activeApp.scopes?.join(' ') || prev.scopes,
-			}));
+	const discoverApps = useCallback(async () => {
+		if (!globalToken.token || !config.environmentId) return;
+		const result = await V9AppDiscoveryService.discoverApplications(
+			config.environmentId,
+			globalToken.token
+		);
+		if (result.success) {
+			setDiscoveredApps(result.apps);
 		}
-	}, [getActiveAppConfig]);
+	}, [globalToken.token, config.environmentId]);
 
 	const addResult = useCallback((result: Omit<PARTestResult, 'timestamp'>) => {
 		setResults((prev) => [...prev, { ...result, timestamp: new Date() }]);
 	}, []);
 
 	const handleConfigChange = (field: keyof PARTestConfig, value: string | null | undefined) => {
-		setConfig((prev) => ({ ...prev, [field]: value || undefined }));
+		setConfig((prev) => {
+			const next = { ...prev, [field]: value || undefined };
+			void V9CredentialStorageService.save(FLOW_KEY, {
+				environmentId: next.environmentId,
+				clientId: next.clientId,
+				clientSecret: next.clientSecret,
+				redirectUri: next.redirectUri,
+				scope: next.scopes,
+			});
+			return next;
+		});
 	};
 
 	// Test 1: PAR Request
@@ -292,7 +310,7 @@ const PARTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing PAR Request...', "Logger info");
+			logger.info('🧪 Testing PAR Request...', 'Logger info');
 
 			// Generate state and nonce
 			const state = config.state || generateState();
@@ -374,7 +392,7 @@ const PARTest: React.FC = () => {
 			const startTime = Date.now();
 
 			try {
-				logger.info('🧪 Testing Authorization URL Generation with request_uri...', "Logger info");
+				logger.info('🧪 Testing Authorization URL Generation with request_uri...', 'Logger info');
 
 				const requestUriToUse = requestUri || parRequestUri;
 				if (!requestUriToUse) {
@@ -438,7 +456,7 @@ const PARTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Full PAR Flow...', "Logger info");
+			logger.info('🧪 Testing Full PAR Flow...', 'Logger info');
 
 			// Step 1: PAR Request
 			const requestUri = await testPARRequest();
@@ -474,7 +492,7 @@ const PARTest: React.FC = () => {
 				duration,
 			});
 
-			logger.info('✅ Full PAR flow test completed successfully', "Logger info");
+			logger.info('✅ Full PAR flow test completed successfully', 'Logger info');
 			return { requestUri, authUrl };
 		} catch (error) {
 			const duration = Date.now() - startTime;
@@ -528,13 +546,45 @@ const PARTest: React.FC = () => {
 						<FormGroup>
 							<Label>Select App:</Label>
 							<Select
-								value={selectedAppId || ''}
-								onChange={(e) => selectApp(e.target.value || null)}
+								value={selectedAppClientId}
+								onChange={(e) => {
+									const clientId = e.target.value;
+									setSelectedAppClientId(clientId);
+									if (clientId) {
+										const app = discoveredApps.find((a) => a.clientId === clientId);
+										if (app) {
+											const appCreds = V9AppDiscoveryService.applyAppConfig(app);
+											setConfig((prev) => {
+												const next = {
+													...prev,
+													...(appCreds.clientId && { clientId: appCreds.clientId }),
+													...(appCreds.clientSecret && { clientSecret: appCreds.clientSecret }),
+													...(appCreds.redirectUri && { redirectUri: appCreds.redirectUri }),
+													...(appCreds.scope && { scopes: appCreds.scope }),
+												};
+												void V9CredentialStorageService.save(FLOW_KEY, {
+													environmentId: next.environmentId,
+													clientId: next.clientId,
+													clientSecret: next.clientSecret,
+													redirectUri: next.redirectUri,
+													scope: next.scopes,
+												});
+												return next;
+											});
+										}
+									}
+								}}
 							>
-								<option value="">Manual Configuration</option>
-								{apps.map((app) => (
-									<option key={app.id} value={app.id}>
-										{app.name} ({app.clientId?.substring(0, 8)}...)
+								<option value="">
+									{hasWorkerToken
+										? discoveredApps.length > 0
+											? 'Select an app'
+											: 'Manual Configuration'
+										: 'Set Worker Token to enable app discovery'}
+								</option>
+								{discoveredApps.map((app) => (
+									<option key={app.clientId} value={app.clientId}>
+										{app.name} ({app.clientId.substring(0, 8)}...)
 									</option>
 								))}
 							</Select>
@@ -712,24 +762,17 @@ const PARTest: React.FC = () => {
 					)}
 				</Form>
 
-				<ClientCredentialManager
-					onCredentialsUpdated={() => {
-						// Refresh the app list after credentials are updated
-						setTimeout(() => {
-							const activeApp = getActiveAppConfig();
-							if (activeApp) {
-								setConfig((prev) => ({
-									...prev,
-									environmentId: activeApp.environmentId || '',
-									clientId: activeApp.clientId || '',
-									clientSecret: activeApp.clientSecret || '',
-									redirectUri: activeApp.redirectUris?.[0] || prev.redirectUri,
-									scopes: activeApp.scopes?.join(' ') || prev.scopes,
-								}));
-							}
-						}, 100);
-					}}
-				/>
+				<ButtonGroup>
+					<Button
+						variant="secondary"
+						onClick={() => void discoverApps()}
+						disabled={!hasWorkerToken || !config.environmentId}
+					>
+						{discoveredApps.length > 0
+							? `${discoveredApps.length} apps found – re-discover`
+							: 'Discover Apps'}
+					</Button>
+				</ButtonGroup>
 
 				<ButtonGroup>
 					<Button variant="primary" onClick={runFullFlow} disabled={isRunning}>

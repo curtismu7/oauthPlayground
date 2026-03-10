@@ -23,7 +23,7 @@
  * />
  */
 
-import { FiArrowRight } from '@icons';
+import { FiArrowRight } from '../../icons';
 import React, { useState } from 'react';
 import { StepActionButtonsProps } from '@/v8/types/stepNavigation';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';

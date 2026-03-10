@@ -1,4 +1,4 @@
-import { FiLoader } from '@icons';
+import { FiLoader } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -13,218 +13,220 @@ import { logger } from '../utils/logger';
 import StandardMessage from './StandardMessage';
 
 const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 1rem;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.75);
+	backdrop-filter: blur(2px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999;
+	padding: 1rem;
 `;
 
 const ModalContent = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
-  border-radius: 12px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: V9_COLORS.TEXT.WHITE;
+	border-radius: 12px;
+	box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+	width: 100%;
+	max-width: 500px;
+	max-height: 90vh;
+	overflow-y: auto;
+	position: relative;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalHeader = styled.div`
-  padding: 2rem 2rem 1rem;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  text-align: center;
+	padding: 2rem 2rem 1rem;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	text-align: center;
 
-  h2 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-  }
+	h2 {
+		margin: 0 0 0.5rem 0;
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+	}
 
-  p {
-    margin: 0;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    font-size: 1rem;
-  }
+	p {
+		margin: 0;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		font-size: 1rem;
+	}
 `;
 
 const ModalBody = styled.div`
-  padding: 1.5rem 2rem;
+	padding: 1.5rem 2rem;
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-    font-size: 0.9rem;
-  }
+	label {
+		display: block;
+		margin-bottom: 0.5rem;
+		font-weight: 500;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+		font-size: 0.9rem;
+	}
 
-  input {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-    border-radius: 6px;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+	input {
+		width: 100%;
+		padding: 0.75rem;
+		font-size: 1rem;
+		border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+		border-radius: 6px;
+		transition:
+			border-color 0.15s ease-in-out,
+			box-shadow 0.15s ease-in-out;
 
-    &:focus {
-      outline: none;
-      border-color: V9_COLORS.PRIMARY.BLUE;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
+		&:focus {
+			outline: none;
+			border-color: V9_COLORS.PRIMARY.BLUE;
+			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+		}
 
-    &::placeholder {
-      color: V9_COLORS.TEXT.GRAY_LIGHT;
-    }
+		&::placeholder {
+			color: V9_COLORS.TEXT.GRAY_LIGHT;
+		}
 
-    &.is-invalid {
-      border-color: V9_COLORS.PRIMARY.RED;
-    }
-  }
+		&.is-invalid {
+			border-color: V9_COLORS.PRIMARY.RED;
+		}
+	}
 
-  .form-text {
-    display: block;
-    margin-top: 0.25rem;
-    font-size: 0.8rem;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  }
+	.form-text {
+		display: block;
+		margin-top: 0.25rem;
+		font-size: 0.8rem;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	}
 
-  .invalid-feedback {
-    display: block;
-    margin-top: 0.25rem;
-    font-size: 0.8rem;
-    color: V9_COLORS.PRIMARY.RED;
-  }
+	.invalid-feedback {
+		display: block;
+		margin-top: 0.25rem;
+		font-size: 0.8rem;
+		color: V9_COLORS.PRIMARY.RED;
+	}
 `;
 
 const ModalFooter = styled.div`
-  padding: 1rem 2rem 2rem;
-  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  text-align: right;
+	padding: 1rem 2rem 2rem;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	text-align: right;
 `;
 
 const SaveButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  color: white;
-  background-color: V9_COLORS.PRIMARY.GREEN;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	font-size: 1rem;
+	font-weight: 500;
+	color: white;
+	background-color: V9_COLORS.PRIMARY.GREEN;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
 
-  &:hover {
-    background-color: V9_COLORS.PRIMARY.GREEN_DARK;
-  }
+	&:hover {
+		background-color: V9_COLORS.PRIMARY.GREEN_DARK;
+	}
 
-  &:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.65;
+		cursor: not-allowed;
+	}
 
-  svg {
-    width: 16px;
-    height: 16px;
-  }
+	svg {
+		width: 16px;
+		height: 16px;
+	}
 `;
 
 const CancelButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  background-color: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  margin-right: 0.75rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	font-size: 1rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	background-color: white;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+	margin-right: 0.75rem;
 
-  &:hover {
-    background-color: #f9fafb;
-    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	&:hover {
+		background-color: #f9fafb;
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 
-  &:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.65;
+		cursor: not-allowed;
+	}
 
-  svg {
-    width: 16px;
-    height: 16px;
-  }
+	svg {
+		width: 16px;
+		height: 16px;
+	}
 `;
 
 const SecretInputContainer = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-  max-width: 600px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	max-width: 600px;
 
-  input {
-    padding-right: 3rem;
-    font-family: Monaco, Menlo, "Ubuntu Mono", monospace;
-    font-size: 0.875rem;
-  }
+	input {
+		padding-right: 3rem;
+		font-family: Monaco, Menlo, 'Ubuntu Mono', monospace;
+		font-size: 0.875rem;
+	}
 
-  .toggle-button {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #6c757d;
-    padding: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: all 0.2s;
+	.toggle-button {
+		position: absolute;
+		right: 0.75rem;
+		top: 50%;
+		transform: translateY(-50%);
+		background: none;
+		border: none;
+		cursor: pointer;
+		color: #6c757d;
+		padding: 0.25rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 4px;
+		transition: all 0.2s;
 
-    &:hover {
-      background-color: #f8f9fa;
-      color: #0070CC;
-    }
+		&:hover {
+			background-color: #f8f9fa;
+			color: #0070cc;
+		}
 
-    &:active {
-      transform: translateY(-50%) scale(0.95);
-    }
+		&:active {
+			transform: translateY(-50%) scale(0.95);
+		}
 
-    svg {
-      transition: all 0.2s;
-    }
-  }
+		svg {
+			transition: all 0.2s;
+		}
+	}
 `;
 
 interface CredentialSetupModalProps {
@@ -279,7 +281,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 	// Load credentials from environment variables
 	const loadFromEnvironmentVariables = useCallback(async () => {
 		try {
-			logger.info(' [CredentialSetupModal] Loading credentials from environment variables...', "Logger info");
+			logger.info(
+				' [CredentialSetupModal] Loading credentials from environment variables...',
+				'Logger info'
+			);
 
 			const response = await fetch('/api/env-config');
 			if (!response.ok) {
@@ -318,7 +323,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 	// Load existing credentials using V7 standardized system when modal opens
 	useEffect(() => {
 		if (isOpen) {
-			logger.info(' [CredentialSetupModal] Loading credentials using V7 standardized system...', "Logger info");
+			logger.info(
+				' [CredentialSetupModal] Loading credentials using V7 standardized system...',
+				'Logger info'
+			);
 
 			const loadCredentialsV7 = async () => {
 				try {
@@ -350,7 +358,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 					logger.info(' [CredentialSetupModal] V7 FlowCredentialService result:', v7Credentials);
 
 					if (v7Credentials.credentials?.clientId && v7Credentials.credentials?.environmentId) {
-						logger.info(' [CredentialSetupModal] Using V7 FlowCredentialService credentials', "Logger info");
+						logger.info(
+							' [CredentialSetupModal] Using V7 FlowCredentialService credentials',
+							'Logger info'
+						);
 						const newFormData = {
 							environmentId: v7Credentials.credentials.environmentId || '',
 							clientId: v7Credentials.credentials.clientId || '',
@@ -372,7 +383,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 				// Fallback to legacy credential manager
 				try {
-					logger.info(' [CredentialSetupModal] Loading from legacy credential manager...', "Logger info");
+					logger.info(
+						' [CredentialSetupModal] Loading from legacy credential manager...',
+						'Logger info'
+					);
 					const allCredentials = credentialManager.getAllCredentials();
 					logger.info(' [CredentialSetupModal] Legacy credentials result:', allCredentials);
 
@@ -411,7 +425,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 					// Pre-populate form with existing credentials
 					if (hasPermanentCredentials || hasSessionCredentials || oldCredentials) {
-						logger.info(' [CredentialSetupModal] Pre-populating form with existing credentials', "Logger info");
+						logger.info(
+							' [CredentialSetupModal] Pre-populating form with existing credentials',
+							'Logger info'
+						);
 						const newFormData = {
 							environmentId: allCredentials.environmentId || oldCredentials?.environmentId || '',
 							clientId: allCredentials.clientId || oldCredentials?.clientId || '',
@@ -546,7 +563,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			const minDelay = new Promise((resolve) => setTimeout(resolve, 500));
 
 			// Save using V7 standardized storage system
-			logger.info(' [CredentialSetupModal] Saving credentials using V7 standardized system...', "Logger info");
+			logger.info(
+				' [CredentialSetupModal] Saving credentials using V7 standardized system...',
+				'Logger info'
+			);
 
 			// Build base URL - use custom domain if provided, otherwise use region-based domain
 			const baseUrl = formData.customDomain.trim()
@@ -617,8 +637,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			await minDelay;
 
 			logger.info(
-				' [CredentialSetupModal] Configuration saved successfully using V7 standardized system and legacy compatibility'
-			, "Logger info");
+				' [CredentialSetupModal] Configuration saved successfully using V7 standardized system and legacy compatibility',
+				'Logger info'
+			);
 
 			setSaveStatus({
 				type: 'success',
@@ -640,7 +661,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 			// Auto-close after success
 			setTimeout(() => {
-				logger.info(' [CredentialSetupModal] Auto-closing modal after successful save', "Logger info");
+				logger.info(
+					' [CredentialSetupModal] Auto-closing modal after successful save',
+					'Logger info'
+				);
 				onClose();
 			}, 1500);
 		} catch (error) {
@@ -1066,11 +1090,15 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 									if (e.target.checked) {
 										localStorage.setItem('skip_startup_credentials_modal', 'true');
 										logger.info(
-											' [CredentialSetupModal] User chose to skip startup credentials modal'
-										, "Logger info");
+											' [CredentialSetupModal] User chose to skip startup credentials modal',
+											'Logger info'
+										);
 									} else {
 										localStorage.removeItem('skip_startup_credentials_modal');
-										logger.info(' [CredentialSetupModal] User will see startup credentials modal', "Logger info");
+										logger.info(
+											' [CredentialSetupModal] User will see startup credentials modal',
+											'Logger info'
+										);
 									}
 								}}
 							/>

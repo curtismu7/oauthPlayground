@@ -39,11 +39,7 @@ export default defineConfig(({ mode }) => {
 	// Use custom domain cert from run.sh/run-config-ssl.js when set (SSL_CERT_PATH / SSL_KEY_PATH)
 	const certPath = process.env.SSL_CERT_PATH;
 	const keyPath = process.env.SSL_KEY_PATH;
-	const useCustomHttps =
-		certPath &&
-		keyPath &&
-		fs.existsSync(certPath) &&
-		fs.existsSync(keyPath);
+	const useCustomHttps = certPath && keyPath && fs.existsSync(certPath) && fs.existsSync(keyPath);
 	const httpsOptions = useCustomHttps
 		? { key: fs.readFileSync(keyPath!), cert: fs.readFileSync(certPath!) }
 		: undefined;
@@ -166,12 +162,10 @@ export default defineConfig(({ mode }) => {
 			// Disable HMR when VITE_HMR_HOST is set OR when using a custom HTTPS cert (custom domain)
 			// to avoid "WebSocket connection to wss://api.pingdemo.com:3000 failed" console errors.
 			// The app works fine without HMR; hot reload only available on localhost without custom cert.
-			hmr: {
-				// Disable HMR for custom domains or HTTPS to prevent WebSocket errors
-				port: (env.VITE_HMR_HOST || httpsOptions) ? undefined : 3000,
-				host: (env.VITE_HMR_HOST || httpsOptions) ? undefined : 'localhost',
-				clientPort: (env.VITE_HMR_HOST || httpsOptions) ? undefined : 3000,
-			},
+			hmr:
+				env.VITE_HMR_HOST || httpsOptions
+					? false
+					: { port: 3000, host: 'localhost', clientPort: 3000 },
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
 			// Disable certificate verification for localhost development
 			proxy: {
@@ -204,19 +198,21 @@ export default defineConfig(({ mode }) => {
 						});
 					},
 					// Add bypass for when backend is down
-					bypass: function(req, res, _proxyOptions) {
+					bypass: function (req, res, _proxyOptions) {
 						// Return mock response for health checks when backend is down
 						if (req.url === '/api/health') {
-							res.writeHead(200, {'Content-Type': 'application/json'});
-							res.end(JSON.stringify({
-								status: 'ok', 
-								backend: 'mock',
-								message: 'Backend server not running - using mock response'
-							}));
+							res.writeHead(200, { 'Content-Type': 'application/json' });
+							res.end(
+								JSON.stringify({
+									status: 'ok',
+									backend: 'mock',
+									message: 'Backend server not running - using mock response',
+								})
+							);
 							return false;
 						}
 						return null;
-					}
+					},
 				},
 				// Proxy for PingOne Auth APIs to avoid CORS issues
 				'/pingone-auth': {
@@ -261,7 +257,7 @@ export default defineConfig(({ mode }) => {
 				output: {
 					manualChunks: (id) => {
 						const normalizedId = id.replace(/\\/g, '/');
-						
+
 						// Simple vendor separation only
 						if (normalizedId.includes('node_modules')) {
 							if (normalizedId.includes('react') || normalizedId.includes('react-dom')) {
@@ -275,7 +271,7 @@ export default defineConfig(({ mode }) => {
 							}
 							return 'vendor';
 						}
-						
+
 						// No other chunking to avoid circular dependencies
 						// Let Vite handle natural chunking
 						return undefined;

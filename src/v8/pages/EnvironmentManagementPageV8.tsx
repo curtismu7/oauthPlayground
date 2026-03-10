@@ -1,7 +1,7 @@
 // src/v8/pages/EnvironmentManagementPageV8.tsx
 // PingOne Environment Management Page V8 - Main dashboard for managing environments
 
-import { FiRefreshCw } from '@icons';
+import { FiRefreshCw } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../../utils/logger';
@@ -402,8 +402,12 @@ const LoadingIcon = styled.span`
 	animation: spin 1s linear infinite;
 
 	@keyframes spin {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 `;
 

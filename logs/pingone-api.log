@@ -53694,3 +53694,1864 @@
 * ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── *
 * END OF API CALL: Get Environments
 ******************************************************************************************************************************************************
+
+******************************************************************************************************************************************************
+*                                                                                                                                                    *
+*  🌐 PINGONE API CALL: List Users
+*  📅 Timestamp: 2026-03-09T13:43:11.836Z
+*  🕐 Local Time: 03/09/2026, 08:43:11
+*                                                                                                                                                    *
+******************************************************************************************************************************************************
+
+═══════════════════════════════════════════════════════════════════════════════
+📤 REQUEST
+═══════════════════════════════════════════════════════════════════════════════
+📍 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?limit=10
+🔧 METHOD: GET
+📋 REQUEST HEADERS: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer eyJraWQiOiI4MjkzOTZh...EDACTED***"
+}
+📦 REQUEST BODY (JSON): null
+📦 REQUEST BODY (Raw): null
+📊 REQUEST METADATA: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "limit": 10,
+  "offset": 0
+}
+
+─────────────────────────────────────────────────────────────────
+
+═══════════════════════════════════════════════════════════════════════════════
+📥 RESPONSE
+═══════════════════════════════════════════════════════════════════════════════
+📊 STATUS: 200 OK
+⏱️  DURATION: 314ms
+📋 RESPONSE HEADERS: {
+  "access-control-allow-credentials": "true",
+  "access-control-allow-origin": "*",
+  "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+  "connection": "keep-alive",
+  "content-length": "24914",
+  "content-type": "application/hal+json;charset=UTF-8",
+  "correlation-id": "498eb007-5ed7-41be-9f37-ca0db2f6088e",
+  "date": "Mon, 09 Mar 2026 13:43:11 GMT",
+  "expires": "0",
+  "pragma": "no-cache",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "via": "1.1 7cbc0a3bbd6fdffd951aba2405878348.cloudfront.net (CloudFront)",
+  "x-amz-apigw-id": "Z9UxhH7VCYcFeFg=",
+  "x-amz-cf-id": "JPGGynT3fUwy3SEyNOOxCCAvTkIJa8xw8jHWS7kGmMhx6dmyoJtJaA==",
+  "x-amz-cf-pop": "DFW59-P5",
+  "x-amzn-requestid": "498eb007-5ed7-41be-9f37-ca0db2f6088e",
+  "x-amzn-trace-id": "Root=1-69aece6f-5b763141346dae835a1aab40;Parent=31e671dd8b975fac;Sampled=0;Lineage=1:a3dff340:0",
+  "x-cache": "Miss from cloudfront",
+  "x-content-type-options": "nosniff"
+}
+📦 RESPONSE BODY (JSON): {
+  "_links": {
+    "next": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?limit=10&cursor=MIIBNwIEmOkcFQSCAS0wggEpBCtfX3BzZXVkby1iYWNrZW5kIGZvciBzdWJ0cmVlIHZpZXcgbz1waW5nb25lBIH5MIH2gCQwNTZiNzg4YS03YjVjLTNmMWYtYmZlMi0zZDg2ZWUwNTIyNWWBgc0wgcoECHVzZXJSb290BIG9ZW50cnlVVUlEPTEyMGVjMTNmLThhZWQtNGJkMS1hYjg0LTk4MDlhMzVkMWQxZCxvdT11c2VycyxlbnRyeVVVSUQ9Mzg0MGM5OGQtMjAyZC00ZjZhLTg4NzEtZjNiYzY2Y2IzZmE4LG91PXBvcHVsYXRpb25zLHBvLWVudklkPWI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSxvdT1lbnZpcm9ubWVudHMsbz1waW5nb25l"
+    },
+    "self": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?limit=10"
+    }
+  },
+  "_embedded": {
+    "users": [
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8/password"
+          }
+        },
+        "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.656Z",
+        "email": "cmuir@pingone.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lastSignOn": {
+          "at": "2026-02-15T12:19:33.454Z",
+          "remoteIp": "107.131.40.148"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2026-03-05T16:20:51.527Z",
+        "username": "elizabeth56120",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          }
+        },
+        "id": "12003cc0-e49e-4e5c-a750-432f4b9417bb",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.897Z",
+        "email": "steven73125@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lastSignOn": {
+          "at": "2026-02-17T19:56:02.163Z",
+          "remoteIp": "107.131.40.148"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "mobilePhone": "9725231586",
+        "name": {
+          "given": "Jane",
+          "family": "Doe",
+          "honorificPrefix": "Mrs"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "primaryPhone": "9725231586",
+        "updatedAt": "2026-02-17T19:56:02.201Z",
+        "username": "steven73125",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          }
+        },
+        "id": "05f65e8a-e99e-4544-b42e-c86478884004",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.906Z",
+        "email": "cmuir+clarence34128@pingone.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lastSignOn": {
+          "at": "2026-02-12T19:26:23.410Z",
+          "remoteIp": "107.131.40.148"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2026-02-12T19:26:23.445Z",
+        "username": "clarence34128",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/password"
+          }
+        },
+        "id": "7e46d27f-562f-40e2-b1a6-74204f617b1d",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.934Z",
+        "email": "cmuir+linsey@pingone.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lastSignOn": {
+          "at": "2026-01-16T16:24:42.337Z",
+          "remoteIp": "107.131.40.148"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "mobilePhone": "9725231586",
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "primaryPhone": "9725231586",
+        "updatedAt": "2026-01-16T16:24:42.368Z",
+        "username": "lindsayhernandez129",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/password"
+          }
+        },
+        "id": "c5896dcc-5978-4338-ba4d-c8808a256a85",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.980Z",
+        "email": "yleon126@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2025-07-07T18:43:33.980Z",
+        "username": "yleon126",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288/password"
+          }
+        },
+        "id": "78ee297f-67cd-4d36-914b-c20e84cb7288",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.994Z",
+        "email": "donnacampbell127@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2025-07-07T18:43:33.994Z",
+        "username": "donnacampbell127",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d/password"
+          }
+        },
+        "id": "e8d1631f-c860-4443-831c-a612f236ee7d",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:34.220Z",
+        "email": "cmuir+sanchezthomas130@pingone.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lastSignOn": {
+          "at": "2025-12-11T13:09:13.364Z",
+          "remoteIp": "107.131.40.148"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "mobilePhone": "9725231586",
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "primaryPhone": "9725231586",
+        "updatedAt": "2026-01-03T12:36:21.455Z",
+        "username": "sanchezthomas130",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87/password"
+          }
+        },
+        "id": "34bac1ae-86d0-48dc-8920-9a47291b1e87",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:34.224Z",
+        "email": "gibsonolivia131@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2025-07-07T18:43:34.224Z",
+        "username": "gibsonolivia131",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6/password"
+          }
+        },
+        "id": "b1fdb393-6880-4837-906e-abb4e9bc08b6",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:34.235Z",
+        "email": "jennifercruz132@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2025-07-07T18:43:34.235Z",
+        "username": "jennifercruz132",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167/password"
+          }
+        },
+        "id": "34067c5b-5402-42f3-86da-79061e73e167",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:34.247Z",
+        "email": "psanchez133@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2025-07-07T18:43:34.247Z",
+        "username": "psanchez133",
+        "verifyStatus": "NOT_INITIATED"
+      }
+    ]
+  },
+  "count": 16718,
+  "size": 10
+}
+📦 RESPONSE BODY (Raw): {
+  "_links": {
+    "next": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?limit=10&cursor=MIIBNwIEmOkcFQSCAS0wggEpBCtfX3BzZXVkby1iYWNrZW5kIGZvciBzdWJ0cmVlIHZpZXcgbz1waW5nb25lBIH5MIH2gCQwNTZiNzg4YS03YjVjLTNmMWYtYmZlMi0zZDg2ZWUwNTIyNWWBgc0wgcoECHVzZXJSb290BIG9ZW50cnlVVUlEPTEyMGVjMTNmLThhZWQtNGJkMS1hYjg0LTk4MDlhMzVkMWQxZCxvdT11c2VycyxlbnRyeVVVSUQ9Mzg0MGM5OGQtMjAyZC00ZjZhLTg4NzEtZjNiYzY2Y2IzZmE4LG91PXBvcHVsYXRpb25zLHBvLWVudklkPWI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSxvdT1lbnZpcm9ubWVudHMsbz1waW5nb25l"
+    },
+    "self": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?limit=10"
+    }
+  },
+  "_embedded": {
+    "users": [
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/921068ab-f9bc-432d-8864-916be4c462a8/password"
+          }
+        },
+        "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.656Z",
+        "email": "cmuir@pingone.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lastSignOn": {
+          "at": "2026-02-15T12:19:33.454Z",
+          "remoteIp": "107.131.40.148"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2026-03-05T16:20:51.527Z",
+        "username": "elizabeth56120",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          }
+        },
+        "id": "12003cc0-e49e-4e5c-a750-432f4b9417bb",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.897Z",
+        "email": "steven73125@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lastSignOn": {
+          "at": "2026-02-17T19:56:02.163Z",
+          "remoteIp": "107.131.40.148"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "mobilePhone": "9725231586",
+        "name": {
+          "given": "Jane",
+          "family": "Doe",
+          "honorificPrefix": "Mrs"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "primaryPhone": "9725231586",
+        "updatedAt": "2026-02-17T19:56:02.201Z",
+        "username": "steven73125",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          }
+        },
+        "id": "05f65e8a-e99e-4544-b42e-c86478884004",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.906Z",
+        "email": "cmuir+clarence34128@pingone.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lastSignOn": {
+          "at": "2026-02-12T19:26:23.410Z",
+          "remoteIp": "107.131.40.148"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2026-02-12T19:26:23.445Z",
+        "username": "clarence34128",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/password"
+          }
+        },
+        "id": "7e46d27f-562f-40e2-b1a6-74204f617b1d",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.934Z",
+        "email": "cmuir+linsey@pingone.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lastSignOn": {
+          "at": "2026-01-16T16:24:42.337Z",
+          "remoteIp": "107.131.40.148"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "mobilePhone": "9725231586",
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "primaryPhone": "9725231586",
+        "updatedAt": "2026-01-16T16:24:42.368Z",
+        "username": "lindsayhernandez129",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/password"
+          }
+        },
+        "id": "c5896dcc-5978-4338-ba4d-c8808a256a85",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.980Z",
+        "email": "yleon126@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2025-07-07T18:43:33.980Z",
+        "username": "yleon126",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/78ee297f-67cd-4d36-914b-c20e84cb7288/password"
+          }
+        },
+        "id": "78ee297f-67cd-4d36-914b-c20e84cb7288",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.994Z",
+        "email": "donnacampbell127@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2025-07-07T18:43:33.994Z",
+        "username": "donnacampbell127",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/e8d1631f-c860-4443-831c-a612f236ee7d/password"
+          }
+        },
+        "id": "e8d1631f-c860-4443-831c-a612f236ee7d",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:34.220Z",
+        "email": "cmuir+sanchezthomas130@pingone.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lastSignOn": {
+          "at": "2025-12-11T13:09:13.364Z",
+          "remoteIp": "107.131.40.148"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "mobilePhone": "9725231586",
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "primaryPhone": "9725231586",
+        "updatedAt": "2026-01-03T12:36:21.455Z",
+        "username": "sanchezthomas130",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34bac1ae-86d0-48dc-8920-9a47291b1e87/password"
+          }
+        },
+        "id": "34bac1ae-86d0-48dc-8920-9a47291b1e87",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:34.224Z",
+        "email": "gibsonolivia131@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2025-07-07T18:43:34.224Z",
+        "username": "gibsonolivia131",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/b1fdb393-6880-4837-906e-abb4e9bc08b6/password"
+          }
+        },
+        "id": "b1fdb393-6880-4837-906e-abb4e9bc08b6",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:34.235Z",
+        "email": "jennifercruz132@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2025-07-07T18:43:34.235Z",
+        "username": "jennifercruz132",
+        "verifyStatus": "NOT_INITIATED"
+      },
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/34067c5b-5402-42f3-86da-79061e73e167/password"
+          }
+        },
+        "id": "34067c5b-5402-42f3-86da-79061e73e167",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:34.247Z",
+        "email": "psanchez133@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2025-07-07T18:43:34.247Z",
+        "username": "psanchez133",
+        "verifyStatus": "NOT_INITIATED"
+      }
+    ]
+  },
+  "count": 16718,
+  "size": 10
+}
+
+******************************************************************************************************************************************************
+* ✅ List Users - SUCCESS (200 OK)
+* 📅 Date/Time: 03/09/2026, 08:43:11 (2026-03-09T13:43:11.836Z)
+* ⏱️  Duration: 314ms
+* 🔗 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?limit=10
+* 🔧 Method: GET
+* 📊 Metadata:
+*   {
+*     "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+*     "limit": 10,
+*     "offset": 0
+*   }
+* ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── *
+* END OF API CALL: List Users
+******************************************************************************************************************************************************
+
+******************************************************************************************************************************************************
+*                                                                                                                                                    *
+*  🌐 PINGONE API CALL: Lookup User by Username
+*  📅 Timestamp: 2026-03-09T13:48:15.103Z
+*  🕐 Local Time: 03/09/2026, 08:48:15
+*                                                                                                                                                    *
+******************************************************************************************************************************************************
+
+═══════════════════════════════════════════════════════════════════════════════
+📤 REQUEST
+═══════════════════════════════════════════════════════════════════════════════
+📍 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?filter=username eq "clarence34128"
+🔧 METHOD: GET
+📋 REQUEST HEADERS: {
+  "Authorization": "Bearer eyJraWQiOiI4MjkzOTZh...leMFIXvxpw"
+}
+📦 REQUEST BODY (JSON): null
+📦 REQUEST BODY (Raw): null
+📊 REQUEST METADATA: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "username": "clarence34128",
+  "filter": "username eq \"clarence34128\""
+}
+
+─────────────────────────────────────────────────────────────────
+
+═══════════════════════════════════════════════════════════════════════════════
+📥 RESPONSE
+═══════════════════════════════════════════════════════════════════════════════
+📊 STATUS: 200 OK
+⏱️  DURATION: 131ms
+📋 RESPONSE HEADERS: {
+  "access-control-allow-credentials": "true",
+  "access-control-allow-origin": "*",
+  "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+  "connection": "keep-alive",
+  "content-length": "2712",
+  "content-type": "application/hal+json;charset=UTF-8",
+  "correlation-id": "2cda5c4a-7d1f-4dbb-97a8-4c5a8fa33bc1",
+  "date": "Mon, 09 Mar 2026 13:48:15 GMT",
+  "expires": "0",
+  "pragma": "no-cache",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "via": "1.1 b2f45e80a3bc07d0821a0ca12db59c2c.cloudfront.net (CloudFront)",
+  "x-amz-apigw-id": "Z9Vg6EMGCYcFVQw=",
+  "x-amz-cf-id": "VAZMXM-66M2i3RlynnE8QToCYYBltERR0GXuIgmlWQ1MqToUVzgF7A==",
+  "x-amz-cf-pop": "DFW59-P5",
+  "x-amzn-requestid": "2cda5c4a-7d1f-4dbb-97a8-4c5a8fa33bc1",
+  "x-amzn-trace-id": "Root=1-69aecf9f-0a23376139acc2a433d548f5;Parent=71485bbcc7f35740;Sampled=0;Lineage=1:a3dff340:0",
+  "x-cache": "Miss from cloudfront",
+  "x-content-type-options": "nosniff"
+}
+📦 RESPONSE BODY (JSON): {
+  "_links": {
+    "self": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?limit=100&filter=username%20eq%20%22clarence34128%22"
+    }
+  },
+  "_embedded": {
+    "users": [
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          }
+        },
+        "id": "05f65e8a-e99e-4544-b42e-c86478884004",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.906Z",
+        "email": "cmuir+clarence34128@pingone.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lastSignOn": {
+          "at": "2026-02-12T19:26:23.410Z",
+          "remoteIp": "107.131.40.148"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2026-02-12T19:26:23.445Z",
+        "username": "clarence34128",
+        "verifyStatus": "NOT_INITIATED"
+      }
+    ]
+  },
+  "count": 1,
+  "size": 1
+}
+📦 RESPONSE BODY (Raw): {
+  "_links": {
+    "self": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?limit=100&filter=username%20eq%20%22clarence34128%22"
+    }
+  },
+  "_embedded": {
+    "users": [
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/password"
+          }
+        },
+        "id": "05f65e8a-e99e-4544-b42e-c86478884004",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.906Z",
+        "email": "cmuir+clarence34128@pingone.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lastSignOn": {
+          "at": "2026-02-12T19:26:23.410Z",
+          "remoteIp": "107.131.40.148"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2026-02-12T19:26:23.445Z",
+        "username": "clarence34128",
+        "verifyStatus": "NOT_INITIATED"
+      }
+    ]
+  },
+  "count": 1,
+  "size": 1
+}
+
+******************************************************************************************************************************************************
+* ✅ Lookup User by Username - SUCCESS (200 OK)
+* 📅 Date/Time: 03/09/2026, 08:48:15 (2026-03-09T13:48:15.103Z)
+* ⏱️  Duration: 131ms
+* 🔗 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?filter=username eq "clarence34128"
+* 🔧 Method: GET
+* 📊 Metadata:
+*   {
+*     "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+*     "username": "clarence34128",
+*     "filter": "username eq \"clarence34128\""
+*   }
+* ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── *
+* END OF API CALL: Lookup User by Username
+******************************************************************************************************************************************************
+
+******************************************************************************************************************************************************
+*                                                                                                                                                    *
+*  🌐 PINGONE API CALL: Get All MFA Devices
+*  📅 Timestamp: 2026-03-09T13:48:15.492Z
+*  🕐 Local Time: 03/09/2026, 08:48:15
+*                                                                                                                                                    *
+******************************************************************************************************************************************************
+
+═══════════════════════════════════════════════════════════════════════════════
+📤 REQUEST
+═══════════════════════════════════════════════════════════════════════════════
+📍 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices
+🔧 METHOD: GET
+📋 REQUEST HEADERS: {
+  "Authorization": "Bearer eyJraWQiOiI4MjkzOTZh...leMFIXvxpw",
+  "Content-Type": "application/json"
+}
+📦 REQUEST BODY (JSON): null
+📦 REQUEST BODY (Raw): null
+📊 REQUEST METADATA: {
+  "operation": "get-all-devices",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "userId": "05f65e8a-e99e-4544-b42e-c86478884004",
+  "username": "clarence34128",
+  "hasFilter": false,
+  "deviceCount": 4
+}
+
+─────────────────────────────────────────────────────────────────
+
+═══════════════════════════════════════════════════════════════════════════════
+📥 RESPONSE
+═══════════════════════════════════════════════════════════════════════════════
+📊 STATUS: 200 OK
+⏱️  DURATION: 199ms
+📋 RESPONSE HEADERS: {
+  "access-control-allow-credentials": "true",
+  "access-control-allow-origin": "*",
+  "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+  "connection": "keep-alive",
+  "content-length": "5068",
+  "content-type": "application/hal+json;charset=UTF-8",
+  "correlation-id": "ae7ce585-2bdb-4f7a-882e-25c9e9499d8b",
+  "date": "Mon, 09 Mar 2026 13:48:15 GMT",
+  "expires": "0",
+  "pragma": "no-cache",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "via": "1.1 f53d68c63e2426e385994bc8f8166d9c.cloudfront.net (CloudFront)",
+  "x-amz-apigw-id": "Z9Vg9FcKiYcF8hA=",
+  "x-amz-cf-id": "ybq_GwaYdqxJTeELCUjgWJed9fRx6f8nO3b8fhbjWVm3GWUEcRCqUA==",
+  "x-amz-cf-pop": "DFW59-P5",
+  "x-amzn-requestid": "ae7ce585-2bdb-4f7a-882e-25c9e9499d8b",
+  "x-amzn-trace-id": "Root=1-69aecf9f-3b9f429010b6db602aa1269d;Parent=5b0ddb66c34ba497;Sampled=0;Lineage=1:a3dff340:0",
+  "x-cache": "Miss from cloudfront",
+  "x-content-type-options": "nosniff"
+}
+📦 RESPONSE BODY (JSON): {
+  "_links": {
+    "self": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices"
+    },
+    "devices.reorder": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices"
+    }
+  },
+  "_embedded": {
+    "devices": [
+      {
+        "_links": {
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices/9a322444-a998-4cc4-8ab8-2f3d37c222ea"
+          },
+          "environment": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+          },
+          "user": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          }
+        },
+        "id": "9a322444-a998-4cc4-8ab8-2f3d37c222ea",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "user": {
+          "id": "05f65e8a-e99e-4544-b42e-c86478884004"
+        },
+        "type": "WHATSAPP",
+        "nickname": "WHATSAPP",
+        "lock": {
+          "status": "UNLOCKED"
+        },
+        "block": {
+          "status": "UNBLOCKED"
+        },
+        "status": "ACTIVE",
+        "createdAt": "2026-02-09T17:56:40.066Z",
+        "updatedAt": "2026-02-09T17:56:40.327Z",
+        "phone": "+1.9725231586"
+      },
+      {
+        "_links": {
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices/e142ee68-37cd-40c6-b553-12c958fafb96"
+          },
+          "environment": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+          },
+          "user": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          }
+        },
+        "id": "e142ee68-37cd-40c6-b553-12c958fafb96",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "user": {
+          "id": "05f65e8a-e99e-4544-b42e-c86478884004"
+        },
+        "type": "SMS",
+        "nickname": "SMS",
+        "lock": {
+          "status": "UNLOCKED"
+        },
+        "block": {
+          "status": "UNBLOCKED"
+        },
+        "status": "ACTIVE",
+        "createdAt": "2026-02-09T18:42:09.677Z",
+        "updatedAt": "2026-02-09T18:42:09.887Z",
+        "phone": "+1.9725231586"
+      },
+      {
+        "_links": {
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices/94f93604-763c-42c1-8887-739eb6e77d39"
+          },
+          "environment": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+          },
+          "user": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          }
+        },
+        "id": "94f93604-763c-42c1-8887-739eb6e77d39",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "user": {
+          "id": "05f65e8a-e99e-4544-b42e-c86478884004"
+        },
+        "type": "SMS",
+        "nickname": "SMS",
+        "lock": {
+          "status": "UNLOCKED"
+        },
+        "block": {
+          "status": "UNBLOCKED"
+        },
+        "status": "ACTIVE",
+        "createdAt": "2026-02-11T23:15:45.457Z",
+        "updatedAt": "2026-02-11T23:15:45.616Z",
+        "phone": "+1.9725231586"
+      },
+      {
+        "_links": {
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices/1e539c19-5722-4bb4-b895-2a7c9b3371d6"
+          },
+          "environment": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+          },
+          "user": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          },
+          "device.activate": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices/1e539c19-5722-4bb4-b895-2a7c9b3371d6"
+          }
+        },
+        "id": "1e539c19-5722-4bb4-b895-2a7c9b3371d6",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "user": {
+          "id": "05f65e8a-e99e-4544-b42e-c86478884004"
+        },
+        "type": "SMS",
+        "nickname": "SMS2",
+        "lock": {
+          "status": "UNLOCKED"
+        },
+        "block": {
+          "status": "UNBLOCKED"
+        },
+        "status": "ACTIVATION_REQUIRED",
+        "createdAt": "2026-02-11T23:16:02.821Z",
+        "updatedAt": "2026-02-11T23:16:02.953Z",
+        "phone": "+1.9725231586"
+      }
+    ]
+  },
+  "count": 4,
+  "size": 4
+}
+📦 RESPONSE BODY (Raw): {
+  "_links": {
+    "self": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices"
+    },
+    "devices.reorder": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices"
+    }
+  },
+  "_embedded": {
+    "devices": [
+      {
+        "_links": {
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices/9a322444-a998-4cc4-8ab8-2f3d37c222ea"
+          },
+          "environment": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+          },
+          "user": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          }
+        },
+        "id": "9a322444-a998-4cc4-8ab8-2f3d37c222ea",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "user": {
+          "id": "05f65e8a-e99e-4544-b42e-c86478884004"
+        },
+        "type": "WHATSAPP",
+        "nickname": "WHATSAPP",
+        "lock": {
+          "status": "UNLOCKED"
+        },
+        "block": {
+          "status": "UNBLOCKED"
+        },
+        "status": "ACTIVE",
+        "createdAt": "2026-02-09T17:56:40.066Z",
+        "updatedAt": "2026-02-09T17:56:40.327Z",
+        "phone": "+1.9725231586"
+      },
+      {
+        "_links": {
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices/e142ee68-37cd-40c6-b553-12c958fafb96"
+          },
+          "environment": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+          },
+          "user": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          }
+        },
+        "id": "e142ee68-37cd-40c6-b553-12c958fafb96",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "user": {
+          "id": "05f65e8a-e99e-4544-b42e-c86478884004"
+        },
+        "type": "SMS",
+        "nickname": "SMS",
+        "lock": {
+          "status": "UNLOCKED"
+        },
+        "block": {
+          "status": "UNBLOCKED"
+        },
+        "status": "ACTIVE",
+        "createdAt": "2026-02-09T18:42:09.677Z",
+        "updatedAt": "2026-02-09T18:42:09.887Z",
+        "phone": "+1.9725231586"
+      },
+      {
+        "_links": {
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices/94f93604-763c-42c1-8887-739eb6e77d39"
+          },
+          "environment": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+          },
+          "user": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          }
+        },
+        "id": "94f93604-763c-42c1-8887-739eb6e77d39",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "user": {
+          "id": "05f65e8a-e99e-4544-b42e-c86478884004"
+        },
+        "type": "SMS",
+        "nickname": "SMS",
+        "lock": {
+          "status": "UNLOCKED"
+        },
+        "block": {
+          "status": "UNBLOCKED"
+        },
+        "status": "ACTIVE",
+        "createdAt": "2026-02-11T23:15:45.457Z",
+        "updatedAt": "2026-02-11T23:15:45.616Z",
+        "phone": "+1.9725231586"
+      },
+      {
+        "_links": {
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices/1e539c19-5722-4bb4-b895-2a7c9b3371d6"
+          },
+          "environment": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+          },
+          "user": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004"
+          },
+          "device.activate": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices/1e539c19-5722-4bb4-b895-2a7c9b3371d6"
+          }
+        },
+        "id": "1e539c19-5722-4bb4-b895-2a7c9b3371d6",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "user": {
+          "id": "05f65e8a-e99e-4544-b42e-c86478884004"
+        },
+        "type": "SMS",
+        "nickname": "SMS2",
+        "lock": {
+          "status": "UNLOCKED"
+        },
+        "block": {
+          "status": "UNBLOCKED"
+        },
+        "status": "ACTIVATION_REQUIRED",
+        "createdAt": "2026-02-11T23:16:02.821Z",
+        "updatedAt": "2026-02-11T23:16:02.953Z",
+        "phone": "+1.9725231586"
+      }
+    ]
+  },
+  "count": 4,
+  "size": 4
+}
+
+******************************************************************************************************************************************************
+* ✅ Get All MFA Devices - SUCCESS (200 OK)
+* 📅 Date/Time: 03/09/2026, 08:48:15 (2026-03-09T13:48:15.492Z)
+* ⏱️  Duration: 199ms
+* 🔗 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/05f65e8a-e99e-4544-b42e-c86478884004/devices
+* 🔧 Method: GET
+* 📊 Metadata:
+*   {
+*     "operation": "get-all-devices",
+*     "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+*     "userId": "05f65e8a-e99e-4544-b42e-c86478884004",
+*     "username": "clarence34128",
+*     "hasFilter": false,
+*     "deviceCount": 4
+*   }
+* ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── *
+* END OF API CALL: Get All MFA Devices
+******************************************************************************************************************************************************

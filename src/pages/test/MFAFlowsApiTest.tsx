@@ -2,10 +2,15 @@
 // Comprehensive test page for MFA flows: OTP, TOTP, FIDO registration
 // Tests PingOne MFA API implementations and Admin Authentication scenarios
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
-import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
+import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
+import {
+	V9AppDiscoveryService,
+	type V9DiscoveredApp,
+} from '../../services/v9/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
 
@@ -38,156 +43,156 @@ interface TestResult {
 
 // Styled Components
 const Container = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 2rem;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `;
 
 const Header = styled.div`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const Title = styled.h1`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1.1rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1.1rem;
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: ${(props) => (props.variant === 'primary' ? '#3b82f6' : '#6b7280')};
-  color: white;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	border: none;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	background: ${(props) => (props.variant === 'primary' ? '#3b82f6' : '#6b7280')};
+	color: white;
 
-  &:hover {
-    background: ${(props) => (props.variant === 'primary' ? '#2563eb' : '#4b5563')};
-    transform: translateY(-1px);
-  }
+	&:hover {
+		background: ${(props) => (props.variant === 'primary' ? '#2563eb' : '#4b5563')};
+		transform: translateY(-1px);
+	}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		transform: none;
+	}
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 0.75rem;
+	margin-top: 1rem;
+	flex-wrap: wrap;
 `;
 
 const TestSection = styled.div`
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: white;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	margin-bottom: 2rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SectionTitle = styled.h2`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 1rem;
+	font-size: 1.25rem;
 `;
 
 const Form = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
 `;
 
 const FormRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 1rem;
 `;
 
 const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const Label = styled.label`
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 0.875rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.875rem;
 `;
 
 const Input = styled.input`
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const Select = styled.select`
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  background: white;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	background: white;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const ResultsContainer = styled.div`
-  margin-top: 2rem;
+	margin-top: 2rem;
 `;
 
 const ResultCard = styled.div<{ success: boolean }>`
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
-  background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-bottom: 1rem;
+	border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
+	background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
 `;
 
 const ResultHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.5rem;
 `;
 
 const ResultTitle = styled.h3<{ success: boolean }>`
-  margin: 0;
-  color: ${(props) => (props.success ? '#059669' : '#dc2626')};
+	margin: 0;
+	color: ${(props) => (props.success ? '#059669' : '#dc2626')};
 `;
 
 const ResultTime = styled.span`
-  font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.75rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const FlowTypeBadge = styled.span<{ flowtype: string }>`
-  background: ${(props) => {
+	background: ${(props) => {
 		switch (props.flowtype) {
 			case 'otp':
 				return '#dbeafe';
@@ -201,7 +206,7 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
 				return '#f3f4f6';
 		}
 	}};
-  color: ${(props) => {
+	color: ${(props) => {
 		switch (props.flowtype) {
 			case 'otp':
 				return '#2563eb';
@@ -215,74 +220,84 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
 				return '#1f2937';
 		}
 	}};
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  margin-left: 0.5rem;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	margin-left: 0.5rem;
 `;
 
 const CodeBlock = styled.pre`
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  color: #f9fafb;
-  padding: 1rem;
-  border-radius: 0.25rem;
-  overflow-x: auto;
-  font-size: 0.75rem;
-  margin: 0.5rem 0;
-  max-height: 300px;
-  overflow-y: auto;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: #f9fafb;
+	padding: 1rem;
+	border-radius: 0.25rem;
+	overflow-x: auto;
+	font-size: 0.75rem;
+	margin: 0.5rem 0;
+	max-height: 300px;
+	overflow-y: auto;
 `;
 
+const FLOW_KEY = 'mfa-flows-api-test-v9';
+
 const MFAFlowsApiTest: React.FC = () => {
-	const { apps, selectedAppId, selectApp, getActiveAppConfig } = useCredentialStoreV8();
 	const { tokenStatus, showWorkerTokenModal, setShowWorkerTokenModal } = useWorkerToken();
+	const globalToken = useGlobalWorkerToken({ autoFetch: false });
+	const [discoveredApps, setDiscoveredApps] = useState<V9DiscoveredApp[]>([]);
+	const [selectedAppClientId, setSelectedAppClientId] = useState<string>('');
 
 	const hasWorkerToken = tokenStatus.isValid;
 
-	// Mock worker token function
-	const getWorkerToken = async (): Promise<string> => {
-		// This would normally get the worker token from storage
-		return `mock-worker-token-${Date.now()}`;
-	};
+	const getWorkerToken = useCallback(async (): Promise<string> => {
+		if (!globalToken.token) throw new Error('Worker token not available');
+		return globalToken.token;
+	}, [globalToken.token]);
 
-	const [config, setConfig] = useState<MFATestConfig>({
-		environmentId: '',
-		clientId: '',
-		clientSecret: '',
-		redirectUri: 'http://localhost:3000/test-callback',
-		userId: '',
-		phoneNumber: '+1234567890',
-		email: 'test@example.com',
-		deviceId: '',
-		fidoDeviceName: 'Test FIDO Device',
-		totpSecret: '',
-		otpCode: '',
+	const [config, setConfig] = useState<MFATestConfig>(() => {
+		const saved = V9CredentialStorageService.loadSync(FLOW_KEY);
+		return {
+			environmentId: saved.environmentId || '',
+			clientId: saved.clientId || '',
+			clientSecret: saved.clientSecret || '',
+			redirectUri: saved.redirectUri || 'http://localhost:3000/test-callback',
+			userId: '',
+			phoneNumber: '+1234567890',
+			email: 'test@example.com',
+			deviceId: '',
+			fidoDeviceName: 'Test FIDO Device',
+			totpSecret: '',
+			otpCode: '',
+		};
 	});
 
 	const [results, setResults] = useState<TestResult[]>([]);
 	const [isRunning, setIsRunning] = useState(false);
 
-	// Load credentials from selected app
-	useEffect(() => {
-		const activeApp = getActiveAppConfig();
-		if (activeApp) {
-			setConfig((prev) => ({
-				...prev,
-				environmentId: activeApp.environmentId || '',
-				clientId: activeApp.clientId || '',
-				clientSecret: activeApp.clientSecret || '',
-				redirectUri: activeApp.redirectUris?.[0] || prev.redirectUri,
-			}));
-		}
-	}, [getActiveAppConfig]);
+	const discoverApps = useCallback(async () => {
+		if (!globalToken.token || !config.environmentId) return;
+		const result = await V9AppDiscoveryService.discoverApplications(
+			config.environmentId,
+			globalToken.token
+		);
+		if (result.success) setDiscoveredApps(result.apps);
+	}, [globalToken.token, config.environmentId]);
 
 	const addResult = useCallback((result: Omit<TestResult, 'timestamp'>) => {
 		setResults((prev) => [...prev, { ...result, timestamp: new Date() }]);
 	}, []);
 
 	const handleConfigChange = (field: keyof MFATestConfig, value: string) => {
-		setConfig((prev) => ({ ...prev, [field]: value }));
+		setConfig((prev) => {
+			const next = { ...prev, [field]: value };
+			void V9CredentialStorageService.save(FLOW_KEY, {
+				environmentId: next.environmentId,
+				clientId: next.clientId,
+				clientSecret: next.clientSecret,
+				redirectUri: next.redirectUri,
+			});
+			return next;
+		});
 	};
 
 	// Test 1: OTP Registration
@@ -290,7 +305,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing OTP Registration...', "Logger info");
+			logger.info('🧪 Testing OTP Registration...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for OTP registration test');
@@ -357,7 +372,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing OTP Verification...', "Logger info");
+			logger.info('🧪 Testing OTP Verification...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for OTP verification test');
@@ -422,7 +437,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing TOTP Registration...', "Logger info");
+			logger.info('🧪 Testing TOTP Registration...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for TOTP registration test');
@@ -487,7 +502,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing TOTP Verification...', "Logger info");
+			logger.info('🧪 Testing TOTP Verification...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for TOTP verification test');
@@ -552,7 +567,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing FIDO2 Registration...', "Logger info");
+			logger.info('🧪 Testing FIDO2 Registration...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for FIDO2 registration test');
@@ -694,7 +709,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		setResults([]);
 
 		try {
-			logger.info('🚀 Starting MFA Flow Tests...', "Logger info");
+			logger.info('🚀 Starting MFA Flow Tests...', 'Logger info');
 
 			// Test 1: OTP Registration
 			await testOTPRegistration();
@@ -711,7 +726,7 @@ const MFAFlowsApiTest: React.FC = () => {
 			// Test 5: FIDO2 Registration
 			await testFIDO2Registration();
 
-			logger.info('✅ MFA Flow tests completed!', "Logger info");
+			logger.info('✅ MFA Flow tests completed!', 'Logger info');
 		} catch (error) {
 			logger.error('MFAFlowsApiTest', '❌ MFA test suite failed:', undefined, error as Error);
 		} finally {
@@ -731,12 +746,12 @@ const MFAFlowsApiTest: React.FC = () => {
 		setResults([]);
 
 		try {
-			logger.info('🚀 Starting Admin Authentication Tests...', "Logger info");
+			logger.info('🚀 Starting Admin Authentication Tests...', 'Logger info');
 
 			// Test 1: Admin Authentication - Activation Required
 			await testAdminAuthActivationRequired();
 
-			logger.info('✅ Admin Authentication tests completed!', "Logger info");
+			logger.info('✅ Admin Authentication tests completed!', 'Logger info');
 		} catch (error) {
 			logger.error(
 				'MFAFlowsApiTest',
@@ -785,16 +800,40 @@ const MFAFlowsApiTest: React.FC = () => {
 						<FormGroup>
 							<Label>Select App:</Label>
 							<Select
-								value={selectedAppId || ''}
-								onChange={(e) => selectApp(e.target.value || null)}
+								value={selectedAppClientId}
+								onChange={(e) => {
+									const clientId = e.target.value;
+									setSelectedAppClientId(clientId);
+									if (clientId) {
+										const app = discoveredApps.find((a) => a.clientId === clientId);
+										if (app) {
+											const appCreds = V9AppDiscoveryService.applyAppConfig(app);
+											setConfig((prev) => {
+												const next = {
+													...prev,
+													...(appCreds.clientId && { clientId: appCreds.clientId }),
+													...(appCreds.clientSecret && { clientSecret: appCreds.clientSecret }),
+													...(appCreds.redirectUri && { redirectUri: appCreds.redirectUri }),
+												};
+												void V9CredentialStorageService.save(FLOW_KEY, {
+													environmentId: next.environmentId,
+													clientId: next.clientId,
+													clientSecret: next.clientSecret,
+													redirectUri: next.redirectUri,
+												});
+												return next;
+											});
+										}
+									}
+								}}
 								disabled={!hasWorkerToken}
 							>
-								<option value="">
-									{hasWorkerToken ? 'Manual Configuration' : 'Set Worker Token to load apps'}
+								<option key="manual" value="">
+									Manual Configuration
 								</option>
-								{apps.map((app) => (
-									<option key={app.id} value={app.id}>
-										{app.name} ({app.clientId?.substring(0, 8)}...)
+								{discoveredApps.map((app) => (
+									<option key={app.clientId} value={app.clientId}>
+										{app.name} ({app.clientId.substring(0, 8)}...)
 									</option>
 								))}
 							</Select>
@@ -860,6 +899,18 @@ const MFAFlowsApiTest: React.FC = () => {
 							/>
 						</FormGroup>
 					</FormRow>
+
+					<ButtonGroup>
+						<Button
+							variant="secondary"
+							onClick={() => void discoverApps()}
+							disabled={!hasWorkerToken || !config.environmentId}
+						>
+							{discoveredApps.length > 0
+								? `${discoveredApps.length} apps found – re-discover`
+								: 'Discover Apps'}
+						</Button>
+					</ButtonGroup>
 
 					<ButtonGroup>
 						<Button variant="primary" onClick={runMFATests} disabled={isRunning}>

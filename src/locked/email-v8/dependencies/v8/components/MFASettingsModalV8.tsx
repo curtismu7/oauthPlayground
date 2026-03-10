@@ -1,4 +1,4 @@
-import { FiSettings } from '@icons';
+import { FiSettings } from '../../../../../icons';
 import React, { useEffect, useState } from 'react';
 import { logger } from '../../../../../utils/logger';
 import { useDraggableModal } from '../hooks/useDraggableModal.ts';

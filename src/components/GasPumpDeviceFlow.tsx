@@ -1,7 +1,7 @@
 // src/components/GasPumpDeviceFlow.tsx
 // Gas Pump Style Device Authorization Flow Interface
 
-import { FiCheckCircle } from '@icons';
+import { FiCheckCircle } from '../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -11,247 +11,257 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Kroger Gas Pump Main Container - Red and White Design
 const GasPumpContainer = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED_DARK 0%, V9_COLORS.PRIMARY.RED 50%, V9_COLORS.PRIMARY.RED_DARK 100%);
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin: 2rem 0;
-  box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.2),
-    0 0 0 2px V9_COLORS.TEXT.WHITE,
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  position: relative;
-  overflow: hidden;
-  border: 3px solid V9_COLORS.TEXT.WHITE;
-  
-  /* Kroger pump design elements */
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
-    pointer-events: none;
-  }
-  
-  /* Kroger logo area */
-  &::after {
-    content: 'KROGER';
-    position: absolute;
-    top: 0.5rem;
-    left: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 800;
-    color: V9_COLORS.TEXT.WHITE;
-    letter-spacing: 1px;
-    z-index: 2;
-  }
+	background: linear-gradient(
+		135deg,
+		V9_COLORS.PRIMARY.RED_DARK 0%,
+		V9_COLORS.PRIMARY.RED 50%,
+		V9_COLORS.PRIMARY.RED_DARK 100%
+	);
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	margin: 2rem 0;
+	box-shadow:
+		0 25px 50px rgba(0, 0, 0, 0.2),
+		0 0 0 2px V9_COLORS.TEXT.WHITE,
+		inset 0 1px 0 rgba(255, 255, 255, 0.3);
+	position: relative;
+	overflow: hidden;
+	border: 3px solid V9_COLORS.TEXT.WHITE;
+
+	/* Kroger pump design elements */
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: linear-gradient(
+			90deg,
+			transparent 0%,
+			rgba(255, 255, 255, 0.1) 50%,
+			transparent 100%
+		);
+		pointer-events: none;
+	}
+
+	/* Kroger logo area */
+	&::after {
+		content: 'KROGER';
+		position: absolute;
+		top: 0.5rem;
+		left: 0.5rem;
+		font-size: 0.875rem;
+		font-weight: 800;
+		color: V9_COLORS.TEXT.WHITE;
+		letter-spacing: 1px;
+		z-index: 2;
+	}
 `;
 
 // Kroger Gas Pump Display Screen
 const TopScreen = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
-  border: 2px solid V9_COLORS.PRIMARY.RED_DARK;
-  border-radius: 0.25rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  text-align: center;
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  font-weight: 700;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-size: 0.875rem;
-  letter-spacing: 0.5px;
-  position: relative;
+	background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+	border: 2px solid V9_COLORS.PRIMARY.RED_DARK;
+	border-radius: 0.25rem;
+	padding: 1rem;
+	margin-bottom: 1rem;
+	text-align: center;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	font-weight: 700;
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+	font-size: 0.875rem;
+	letter-spacing: 0.5px;
+	position: relative;
 `;
 
 const ScreenTitle = styled.div`
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  letter-spacing: 0.05em;
+	font-size: 1.25rem;
+	font-weight: 800;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	margin-bottom: 0.5rem;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	letter-spacing: 0.05em;
 `;
 
 const ScreenSubtitle = styled.div`
-  font-size: 1rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin-bottom: 1rem;
+	font-size: 1rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin-bottom: 1rem;
 `;
 
 const EthanolLabel = styled.div`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: white;
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border: 1px solid V9_COLORS.PRIMARY.BLUE_DARK;
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	background: white;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	border: 1px solid V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 // Main Control Panel - Like the keypad and card reader area
 const ControlPanel = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-  align-items: start;
+	display: grid;
+	grid-template-columns: 1fr 2fr 1fr;
+	gap: 1.5rem;
+	margin-bottom: 1.5rem;
+	align-items: start;
 `;
 
 // Left Panel - Transaction options
 const LeftPanel = styled.div`
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	background: rgba(0, 0, 0, 0.1);
+	border-radius: 0.5rem;
+	padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const TransactionButton = styled.button<{ $active?: boolean }>`
-  background: ${(props) => (props.$active ? '#fbbf24' : 'rgba(255, 255, 255, 0.9)')};
-  color: ${(props) => (props.$active ? '#2563eb' : '#1f2937')};
-  border: 2px solid ${(props) => (props.$active ? '#f59e0b' : 'rgba(255, 255, 255, 0.3)')};
-  border-radius: 0.375rem;
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: V9_COLORS.PRIMARY.YELLOW_LIGHT;
-    color: V9_COLORS.PRIMARY.BLUE_DARK;
-    border-color: V9_COLORS.PRIMARY.YELLOW;
-  }
+	background: ${(props) => (props.$active ? '#fbbf24' : 'rgba(255, 255, 255, 0.9)')};
+	color: ${(props) => (props.$active ? '#2563eb' : '#1f2937')};
+	border: 2px solid ${(props) => (props.$active ? '#f59e0b' : 'rgba(255, 255, 255, 0.3)')};
+	border-radius: 0.375rem;
+	padding: 0.75rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: V9_COLORS.PRIMARY.YELLOW_LIGHT;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
+		border-color: V9_COLORS.PRIMARY.YELLOW;
+	}
 `;
 
 // Center Panel - User Code Display (like the main display on a gas pump)
 const CenterPanel = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
-  border: 3px solid V9_COLORS.PRIMARY.YELLOW_LIGHT;
-  border-radius: 0.75rem;
-  padding: 2rem;
-  text-align: center;
-  box-shadow: 
-    inset 0 2px 4px rgba(0, 0, 0, 0.3),
-    0 0 20px rgba(251, 191, 36, 0.3);
+	background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
+	border: 3px solid V9_COLORS.PRIMARY.YELLOW_LIGHT;
+	border-radius: 0.75rem;
+	padding: 2rem;
+	text-align: center;
+	box-shadow:
+		inset 0 2px 4px rgba(0, 0, 0, 0.3),
+		0 0 20px rgba(251, 191, 36, 0.3);
 `;
 
 const UserCodeLabel = styled.div`
-  color: V9_COLORS.PRIMARY.YELLOW_LIGHT;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+	color: V9_COLORS.PRIMARY.YELLOW_LIGHT;
+	font-size: 1rem;
+	font-weight: 600;
+	margin-bottom: 1rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 `;
 
 const UserCodeDisplay = styled.div`
-  background: V9_COLORS.TEXT.BLACK;
-  color: #00ff00;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 3rem;
-  font-weight: 700;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-  letter-spacing: 0.2em;
-  text-shadow: 0 0 10px #00ff00;
-  border: 2px solid #00ff00;
-  box-shadow: 
-    inset 0 0 20px rgba(0, 255, 0, 0.2),
-    0 0 20px rgba(0, 255, 0, 0.3);
+	background: V9_COLORS.TEXT.BLACK;
+	color: #00ff00;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 3rem;
+	font-weight: 700;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin-bottom: 1rem;
+	letter-spacing: 0.2em;
+	text-shadow: 0 0 10px #00ff00;
+	border: 2px solid #00ff00;
+	box-shadow:
+		inset 0 0 20px rgba(0, 255, 0, 0.2),
+		0 0 20px rgba(0, 255, 0, 0.3);
 `;
 
 const CopyCodeButton = styled.button`
-  background: V9_COLORS.PRIMARY.YELLOW_LIGHT;
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  &:hover {
-    background: V9_COLORS.PRIMARY.YELLOW;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
+	background: V9_COLORS.PRIMARY.YELLOW_LIGHT;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	border: none;
+	border-radius: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	&:hover {
+		background: V9_COLORS.PRIMARY.YELLOW;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	}
 `;
 
 // Right Panel - Card reader area
 const RightPanel = styled.div`
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+	background: rgba(0, 0, 0, 0.1);
+	border-radius: 0.5rem;
+	padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
 `;
 
 const CardReader = styled.div`
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  border: 2px solid V9_COLORS.TEXT.GRAY_MEDIUM;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  text-align: center;
-  position: relative;
-  
-  &::after {
-    content: 'Instructions';
-    position: absolute;
-    bottom: -1.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.75rem;
-    color: V9_COLORS.TEXT.GRAY_LIGHT;
-  }
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	border: 2px solid V9_COLORS.TEXT.GRAY_MEDIUM;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	text-align: center;
+	position: relative;
+
+	&::after {
+		content: 'Instructions';
+		position: absolute;
+		bottom: -1.5rem;
+		left: 50%;
+		transform: translateX(-50%);
+		font-size: 0.75rem;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
+	}
 `;
 
 const CardSlot = styled.div`
-  width: 100%;
-  height: 2rem;
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  border: 1px solid #4b5563;
-  border-radius: 0.25rem;
-  margin-bottom: 0.5rem;
-  position: relative;
-  
-  &::before {
-    content: '→';
-    position: absolute;
-    right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    font-size: 1.2rem;
-  }
+	width: 100%;
+	height: 2rem;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	border: 1px solid #4b5563;
+	border-radius: 0.25rem;
+	margin-bottom: 0.5rem;
+	position: relative;
+
+	&::before {
+		content: '→';
+		position: absolute;
+		right: 0.5rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		font-size: 1.2rem;
+	}
 `;
 
 // Fuel Selection Area - Like the fuel type buttons on a gas pump
 const FuelSelectionArea = styled.div`
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	gap: 1rem;
+	margin-bottom: 1.5rem;
 `;
 
 const FuelButton = styled.button<{
 	$type: 'regular' | 'special' | 'super' | 'diesel' | 'rec90';
 	$active?: boolean;
 }>`
-  background: ${(props) => {
+	background: ${(props) => {
 		switch (props.$type) {
 			case 'regular':
 				return props.$active ? '#10b981' : '#f3f4f6';
@@ -267,65 +277,65 @@ const FuelButton = styled.button<{
 				return '#f3f4f6';
 		}
 	}};
-  color: ${(props) => (props.$active ? 'white' : '#1f2937')};
-  border: 2px solid ${(props) => (props.$active ? 'currentColor' : '#e5e7eb')};
-  border-radius: 0.5rem;
-  padding: 1rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
+	color: ${(props) => (props.$active ? 'white' : '#1f2937')};
+	border: 2px solid ${(props) => (props.$active ? 'currentColor' : '#e5e7eb')};
+	border-radius: 0.5rem;
+	padding: 1rem;
+	text-align: center;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	position: relative;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	}
 `;
 
 const FuelLabel = styled.div`
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin-bottom: 0.25rem;
 `;
 
 const FuelPrice = styled.div`
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
+	font-size: 1.25rem;
+	font-weight: 700;
+	margin-bottom: 0.25rem;
 `;
 
 const FuelOctane = styled.div`
-  font-size: 0.75rem;
-  opacity: 0.8;
+	font-size: 0.75rem;
+	opacity: 0.8;
 `;
 
 // QR Code Section - Like a display area on the pump
 const QRCodeSection = styled.div`
-  background: white;
-  border: 3px solid V9_COLORS.PRIMARY.BLUE_DARK;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  text-align: center;
-  margin-bottom: 1.5rem;
+	background: white;
+	border: 3px solid V9_COLORS.PRIMARY.BLUE_DARK;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	text-align: center;
+	margin-bottom: 1.5rem;
 `;
 
 const QRCodeLabel = styled.div`
-  font-size: 1rem;
-  font-weight: 600;
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
-  margin-bottom: 1rem;
-  text-transform: uppercase;
+	font-size: 1rem;
+	font-weight: 600;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	margin-bottom: 1rem;
+	text-transform: uppercase;
 `;
 
 const QRCodeContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
+	display: flex;
+	justify-content: center;
+	margin-bottom: 1rem;
 `;
 
 // Status Display - Like the status indicators on a gas pump
 const StatusDisplay = styled.div<{ $status: string }>`
-  background: ${(props) => {
+	background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
 				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.PRIMARY.YELLOW_LIGHT 100%)';
@@ -339,107 +349,108 @@ const StatusDisplay = styled.div<{ $status: string }>`
 				return 'linear-gradient(135deg, #f3f4f6 0%, V9_COLORS.TEXT.GRAY_MEDIUM 100%)';
 		}
 	}};
-  border: 2px solid ${(props) => {
-		switch (props.$status) {
-			case 'pending':
-				return '#f59e0b';
-			case 'authorized':
-				return '#059669';
-			case 'denied':
-				return '#dc2626';
-			case 'expired':
-				return '#4b5563';
-			default:
-				return '#4b5563';
-		}
-	}};
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  text-align: center;
-  margin-bottom: 1rem;
+	border: 2px solid
+		${(props) => {
+			switch (props.$status) {
+				case 'pending':
+					return '#f59e0b';
+				case 'authorized':
+					return '#059669';
+				case 'denied':
+					return '#dc2626';
+				case 'expired':
+					return '#4b5563';
+				default:
+					return '#4b5563';
+			}
+		}};
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	text-align: center;
+	margin-bottom: 1rem;
 `;
 
 const StatusIcon = styled.div`
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+	font-size: 2rem;
+	margin-bottom: 0.5rem;
 `;
 
 const StatusText = styled.div`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const StatusMessage = styled.div`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 // Verification Section - Like additional controls on a gas pump
 const VerificationSection = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
 `;
 
 const VerificationButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#6b7280')};
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  
-  &:hover {
-    background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#4b5563')};
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
+	background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#6b7280')};
+	color: white;
+	border: none;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+
+	&:hover {
+		background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#4b5563')};
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	}
 `;
 
 // Brand Logo Area - Like the Mobil logo on a gas pump
 const BrandArea = styled.div`
-  text-align: center;
-  margin-top: 1.5rem;
+	text-align: center;
+	margin-top: 1.5rem;
 `;
 
 const BrandLogo = styled.div`
-  background: white;
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
-  padding: 1rem 2rem;
-  border-radius: 50%;
-  font-size: 1.5rem;
-  font-weight: 700;
-  display: inline-block;
-  border: 3px solid V9_COLORS.PRIMARY.BLUE_DARK;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	background: white;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	padding: 1rem 2rem;
+	border-radius: 50%;
+	font-size: 1.5rem;
+	font-weight: 700;
+	display: inline-block;
+	border: 3px solid V9_COLORS.PRIMARY.BLUE_DARK;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
 // Action Buttons
 const _ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | 'danger' }>`
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  ${({ $variant }) => {
+	padding: 0.75rem 1.5rem;
+	border: none;
+	border-radius: 0.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	margin-right: 0.5rem;
+	margin-bottom: 0.5rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
 				return `

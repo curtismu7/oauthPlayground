@@ -1,4 +1,4 @@
-import { FiCheck, FiInfo, FiShield, FiX } from '@icons';
+import { FiCheck, FiInfo, FiShield, FiX } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -68,7 +68,8 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 		background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
 		border-color: #2563eb;
 		color: #2563eb;
-		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
+		transform: ${({ $collapsed }) =>
+			$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
 		box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
 	}
 
@@ -96,87 +97,88 @@ const CollapsibleContent = styled.div`
 `;
 
 const AdvancedFeaturesContainer = styled.div`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 1px solid #cbd5e1;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin: 1rem 0;
+	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	border: 1px solid #cbd5e1;
+	border-radius: 12px;
+	padding: 1.5rem;
+	margin: 1rem 0;
 `;
 
 const FeaturesHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1.5rem;
 `;
 
 const FeaturesTitle = styled.h3`
-  color: #1e293b;
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0;
+	color: #1e293b;
+	font-size: 1.125rem;
+	font-weight: 600;
+	margin: 0;
 `;
 
 const FeaturesSubtitle = styled.p`
-  color: #64748b;
-  font-size: 0.875rem;
-  margin: 0 0 1.5rem 0;
-  line-height: 1.5;
+	color: #64748b;
+	font-size: 0.875rem;
+	margin: 0 0 1.5rem 0;
+	line-height: 1.5;
 `;
 
 const FeaturesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+	}
 `;
 
 const FeatureCard = styled.div<{ $enabled: boolean; $supported: boolean }>`
-  background: ${(props) => (props.$enabled ? '#f0fdf4' : props.$supported ? 'white' : '#fef2f2')};
-  border: 2px solid ${(props) => (props.$enabled ? '#86efac' : props.$supported ? '#e2e8f0' : '#fecaca')};
-  border-radius: 8px;
-  padding: 1rem;
-  cursor: ${(props) => (props.$supported ? 'pointer' : 'not-allowed')};
-  transition: all 0.2s ease;
-  opacity: ${(props) => (props.$supported ? '1' : '0.6')};
-  
-  &:hover {
-    ${(props) =>
+	background: ${(props) => (props.$enabled ? '#f0fdf4' : props.$supported ? 'white' : '#fef2f2')};
+	border: 2px solid
+		${(props) => (props.$enabled ? '#86efac' : props.$supported ? '#e2e8f0' : '#fecaca')};
+	border-radius: 8px;
+	padding: 1rem;
+	cursor: ${(props) => (props.$supported ? 'pointer' : 'not-allowed')};
+	transition: all 0.2s ease;
+	opacity: ${(props) => (props.$supported ? '1' : '0.6')};
+
+	&:hover {
+		${(props) =>
 			props.$supported &&
 			`
       border-color: ${props.$enabled ? '#22c55e' : '#3b82f6'};
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     `}
-  }
+	}
 `;
 
 const FeatureHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.75rem;
 `;
 
 const FeatureTitle = styled.h4<{ $supported: boolean }>`
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin: 0;
-  color: ${(props) => (props.$supported ? '#1e293b' : '#64748b')};
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin: 0;
+	color: ${(props) => (props.$supported ? '#1e293b' : '#64748b')};
 `;
 
 const FeatureStatus = styled.div<{ $enabled: boolean; $supported: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: ${(props) => {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: ${(props) => {
 		if (!props.$supported) return '#64748b';
 		if (props.$enabled) return '#166534';
 		return '#64748b';
@@ -184,57 +186,57 @@ const FeatureStatus = styled.div<{ $enabled: boolean; $supported: boolean }>`
 `;
 
 const FeatureDescription = styled.p<{ $supported: boolean }>`
-  font-size: 0.75rem;
-  margin: 0 0 0.75rem 0;
-  line-height: 1.4;
-  color: ${(props) => (props.$supported ? '#64748b' : '#9ca3af')};
+	font-size: 0.75rem;
+	margin: 0 0 0.75rem 0;
+	line-height: 1.4;
+	color: ${(props) => (props.$supported ? '#64748b' : '#9ca3af')};
 `;
 
 const FeatureDetails = styled.div<{ $expanded: boolean }>`
-  display: ${(props) => (props.$expanded ? 'block' : 'none')};
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #e2e8f0;
+	display: ${(props) => (props.$expanded ? 'block' : 'none')};
+	margin-top: 0.75rem;
+	padding-top: 0.75rem;
+	border-top: 1px solid #e2e8f0;
 `;
 
 const FeatureRequirements = styled.div`
-  margin-bottom: 0.5rem;
+	margin-bottom: 0.5rem;
 `;
 
 const RequirementTitle = styled.div`
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: #374151;
+	margin-bottom: 0.25rem;
 `;
 
 const RequirementList = styled.ul`
-  margin: 0;
-  padding-left: 1rem;
-  font-size: 0.6875rem;
-  color: #64748b;
-  line-height: 1.4;
+	margin: 0;
+	padding-left: 1rem;
+	font-size: 0.6875rem;
+	color: #64748b;
+	line-height: 1.4;
 `;
 
 const FeatureToggle = styled.button<{ $enabled: boolean; $supported: boolean }>`
-  background: ${(props) => (props.$enabled ? '#22c55e' : props.$supported ? '#3b82f6' : '#9ca3af')};
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: ${(props) => (props.$supported ? 'pointer' : 'not-allowed')};
-  transition: background-color 0.2s ease;
-  opacity: ${(props) => (props.$supported ? '1' : '0.5')};
-  
-  &:hover {
-    ${(props) =>
+	background: ${(props) => (props.$enabled ? '#22c55e' : props.$supported ? '#3b82f6' : '#9ca3af')};
+	color: white;
+	border: none;
+	border-radius: 6px;
+	padding: 0.375rem 0.75rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	cursor: ${(props) => (props.$supported ? 'pointer' : 'not-allowed')};
+	transition: background-color 0.2s ease;
+	opacity: ${(props) => (props.$supported ? '1' : '0.5')};
+
+	&:hover {
+		${(props) =>
 			props.$supported &&
 			`
       background: ${props.$enabled ? '#16a34a' : '#2563eb'};
     `}
-  }
+	}
 `;
 
 interface AdvancedFeature {

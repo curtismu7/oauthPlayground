@@ -1,7 +1,7 @@
 // src/v7/pages/V7MImplicitFlowV9.tsx
 /* eslint-disable no-alert */
 
-import { FiAlertTriangle } from '@icons';
+import { FiAlertTriangle } from '../../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { showGlobalError } from '../../contexts/NotificationSystem';
@@ -115,16 +115,18 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 
 	function handleUserInfo() {
 		if (!accessToken) {
-                        showGlobalError('No access token available');
-                        return;
-                }
-                const res = getUserInfoFromAccessToken(accessToken);
-                setUserinfoResponse(res);
-        }
+			showGlobalError('No access token available');
+			return;
+		}
+		const res = getUserInfoFromAccessToken(accessToken);
+		setUserinfoResponse(res);
+	}
 
-        function handleIntrospect() {
-                if (!accessToken) {
-                        showGlobalError('No access token available');
+	function handleIntrospect() {
+		if (!accessToken) {
+			showGlobalError('No access token available');
+			return;
+		}
 		const res = introspectToken(accessToken);
 		setIntrospectionResponse(res);
 	}
@@ -373,7 +375,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 							</small>
 						</div>
 					</div>
-					<button type="button" type="button" onClick={handleBuildAuthorize} style={buttonStyle}>
+					<button type="button" onClick={handleBuildAuthorize} style={buttonStyle}>
 						<span>📤</span> Build Authorization URL
 					</button>
 					{authorizationUrl && (
@@ -524,7 +526,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 					</header>
 					<div style={{ padding: 12 }}>
 						<div style={{ display: 'flex', gap: 8 }}>
-							<button type="button" type="button" onClick={handleUserInfo} style={buttonStyle}>
+							<button type="button" onClick={handleUserInfo} style={buttonStyle}>
 								Call UserInfo Endpoint
 								<V7MInfoIcon
 									label=""
@@ -532,7 +534,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 									onClick={() => setShowUserInfoHelp(true)}
 								/>
 							</button>
-							<button type="button" type="button" onClick={handleIntrospect} style={buttonStyle}>
+							<button type="button" onClick={handleIntrospect} style={buttonStyle}>
 								Introspect Token
 								<V7MInfoIcon
 									label=""

@@ -1,4 +1,4 @@
-import { FiLoader } from '@icons';
+import { FiLoader } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -7,24 +7,24 @@ import { logger } from '../../utils/logger';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
 const CallbackContainer = styled.div`
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #0070CC 0%, #0056A3 100%);
-  padding: 2rem;
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(135deg, #0070cc 0%, #0056a3 100%);
+	padding: 2rem;
 `;
 
 const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  text-align: center;
-  max-width: 500px;
-  width: 100%;
-  
-  ${({ $status }) => {
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+	padding: 2rem;
+	text-align: center;
+	max-width: 500px;
+	width: 100%;
+
+	${({ $status }) => {
 		switch ($status) {
 			case 'success':
 				return `
@@ -43,13 +43,13 @@ const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 `;
 
 const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  
-  svg {
-    ${({ $status }) => {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 1rem;
+
+	svg {
+		${({ $status }) => {
 			switch ($status) {
 				case 'success':
 					return `
@@ -69,38 +69,42 @@ const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
           `;
 			}
 		}}
-  }
-  
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
 const StatusTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const StatusMessage = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1rem;
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1rem;
+	margin-bottom: 1.5rem;
+	line-height: 1.5;
 `;
 
 const ErrorDetails = styled.pre`
-  background: #f3f4f6;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  font-size: 0.875rem;
-  text-align: left;
-  overflow-x: auto;
-  margin-top: 1rem;
+	background: #f3f4f6;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	font-size: 0.875rem;
+	text-align: left;
+	overflow-x: auto;
+	margin-top: 1rem;
 `;
 
 const DashboardCallback: React.FC = () => {

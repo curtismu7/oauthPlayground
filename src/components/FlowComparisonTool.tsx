@@ -7,7 +7,7 @@ import {
 	FiTarget,
 	FiUser,
 	FiXCircle,
-} from '@icons';
+} from '../icons';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -33,149 +33,149 @@ interface FlowComparison {
 }
 
 const ComparisonContainer = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 // Remove PageHeader since we now use FlowHeader
 
 const FlowSelector = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  justify-content: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	margin-bottom: 2rem;
+	justify-content: center;
 `;
 
 const FlowOption = styled.button<{ $selected: boolean; $added: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: 2px solid ${({ $selected, $added }) =>
-		$added ? '#dc2626' : $selected ? '#dc2626' : '#e5e7eb'};
-  border-radius: 0.5rem;
-  background-color: ${({ $selected, $added }) =>
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	border: 2px solid
+		${({ $selected, $added }) => ($added ? '#dc2626' : $selected ? '#dc2626' : '#e5e7eb')};
+	border-radius: 0.5rem;
+	background-color: ${({ $selected, $added }) =>
 		$added ? '#fef2f2' : $selected ? '#fef2f2' : 'white'};
-  color: ${({ $selected, $added }) => ($added ? '#dc2626' : $selected ? '#dc2626' : '#1f2937')};
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.RED_DARK;
-    background-color: V9_COLORS.BG.ERROR;
-    color: V9_COLORS.PRIMARY.RED_DARK;
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background-color: #f9fafb;
-    color: V9_COLORS.TEXT.GRAY_LIGHT;
-    border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
-  }
+	color: ${({ $selected, $added }) => ($added ? '#dc2626' : $selected ? '#dc2626' : '#1f2937')};
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.RED_DARK;
+		background-color: V9_COLORS.BG.ERROR;
+		color: V9_COLORS.PRIMARY.RED_DARK;
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		background-color: #f9fafb;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
+		border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	}
 `;
 
 const ComparisonGrid = styled.div<{ $columns: number }>`
-  display: grid;
-  grid-template-columns: repeat(${({ $columns }) => $columns}, 1fr);
-  gap: 1rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(${({ $columns }) => $columns}, 1fr);
+	gap: 1rem;
+	margin-bottom: 2rem;
 `;
 
 const ComparisonCard = styled(Card)`
-  border: 2px solid ${({ theme }) => theme.colors.gray200};
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  }
+	border: 2px solid ${({ theme }) => theme.colors.gray200};
+	transition: all 0.3s ease;
+
+	&:hover {
+		border-color: ${({ theme }) => theme.colors.primary};
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const FlowHeader = styled.div`
-  text-align: center;
-  margin-bottom: 1.5rem;
-  
-  .flow-icon {
-    font-size: 2.5rem;
-    color: ${({ theme }) => theme.colors.primary};
-    margin-bottom: 1rem;
-  }
-  
-  .flow-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-  }
-  
-  .flow-description {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 0.875rem;
-    line-height: 1.5;
-  }
+	text-align: center;
+	margin-bottom: 1.5rem;
+
+	.flow-icon {
+		font-size: 2.5rem;
+		color: ${({ theme }) => theme.colors.primary};
+		margin-bottom: 1rem;
+	}
+
+	.flow-title {
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray900};
+		margin-bottom: 0.5rem;
+	}
+
+	.flow-description {
+		color: ${({ theme }) => theme.colors.gray600};
+		font-size: 0.875rem;
+		line-height: 1.5;
+	}
 `;
 
 const ComparisonSection = styled.div`
-  margin-bottom: 1.5rem;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
-  
-  h4 {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray700};
-    margin-bottom: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
+	margin-bottom: 1.5rem;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+
+	h4 {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray700};
+		margin-bottom: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
 `;
 
 const MetricGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.75rem;
+	margin-bottom: 1rem;
 `;
 
 const MetricItem = styled.div`
-  text-align: center;
-  padding: 0.75rem;
-  background-color: ${({ theme }) => theme.colors.gray50};
-  border-radius: 0.5rem;
-  
-  .metric-label {
-    font-size: 0.75rem;
-    color: ${({ theme }) => theme.colors.gray600};
-    margin-bottom: 0.25rem;
-  }
-  
-  .metric-value {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-  }
+	text-align: center;
+	padding: 0.75rem;
+	background-color: ${({ theme }) => theme.colors.gray50};
+	border-radius: 0.5rem;
+
+	.metric-label {
+		font-size: 0.75rem;
+		color: ${({ theme }) => theme.colors.gray600};
+		margin-bottom: 0.25rem;
+	}
+
+	.metric-value {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray900};
+	}
 `;
 
 const SecurityBadge = styled.span<{ $level: string }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border-radius: 1rem;
-  
-  ${({ $level }) => {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.75rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	border-radius: 1rem;
+
+	${({ $level }) => {
 		switch ($level) {
 			case 'high':
 				return `
@@ -202,15 +202,15 @@ const SecurityBadge = styled.span<{ $level: string }>`
 `;
 
 const ComplexityBadge = styled.span<{ $level: string }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border-radius: 1rem;
-  
-  ${({ $level }) => {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.75rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	border-radius: 1rem;
+
+	${({ $level }) => {
 		switch ($level) {
 			case 'low':
 				return `
@@ -237,98 +237,98 @@ const ComplexityBadge = styled.span<{ $level: string }>`
 `;
 
 const ProsConsList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  
-  li {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0.5rem 0;
-    font-size: 0.875rem;
-    line-height: 1.4;
-    
-    .pros-icon {
-      color: ${({ theme }) => theme.colors.success};
-      font-size: 1rem;
-      margin-top: 0.125rem;
-      flex-shrink: 0;
-    }
-    
-    .cons-icon {
-      color: ${({ theme }) => theme.colors.error};
-      font-size: 1rem;
-      margin-top: 0.125rem;
-      flex-shrink: 0;
-    }
-  }
+	list-style: none;
+	padding: 0;
+	margin: 0;
+
+	li {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.5rem;
+		padding: 0.5rem 0;
+		font-size: 0.875rem;
+		line-height: 1.4;
+
+		.pros-icon {
+			color: ${({ theme }) => theme.colors.success};
+			font-size: 1rem;
+			margin-top: 0.125rem;
+			flex-shrink: 0;
+		}
+
+		.cons-icon {
+			color: ${({ theme }) => theme.colors.error};
+			font-size: 1rem;
+			margin-top: 0.125rem;
+			flex-shrink: 0;
+		}
+	}
 `;
 
 const UseCasesList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  
-  .use-case {
-    padding: 0.25rem 0.75rem;
-    background-color: ${({ theme }) => theme.colors.primary}10;
-    color: ${({ theme }) => theme.colors.primary};
-    border-radius: 0.375rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-  }
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+
+	.use-case {
+		padding: 0.25rem 0.75rem;
+		background-color: ${({ theme }) => theme.colors.primary}10;
+		color: ${({ theme }) => theme.colors.primary};
+		border-radius: 0.375rem;
+		font-size: 0.75rem;
+		font-weight: 500;
+	}
 `;
 
 const ActionButton = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background-color: V9_COLORS.PRIMARY.RED_DARK;
-  color: white !important;
-  border-radius: 0.5rem;
-  text-decoration: none;
-  font-weight: 600;
-  transition: all 0.2s;
-  width: 100%;
-  justify-content: center;
-  border: 2px solid V9_COLORS.PRIMARY.RED_DARK;
-  
-  &:hover {
-    background-color: V9_COLORS.PRIMARY.RED_DARK;
-    border-color: V9_COLORS.PRIMARY.RED_DARK;
-    color: white !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-  }
-  
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
-  }
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	background-color: V9_COLORS.PRIMARY.RED_DARK;
+	color: white !important;
+	border-radius: 0.5rem;
+	text-decoration: none;
+	font-weight: 600;
+	transition: all 0.2s;
+	width: 100%;
+	justify-content: center;
+	border: 2px solid V9_COLORS.PRIMARY.RED_DARK;
+
+	&:hover {
+		background-color: V9_COLORS.PRIMARY.RED_DARK;
+		border-color: V9_COLORS.PRIMARY.RED_DARK;
+		color: white !important;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+	}
+
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+	}
 `;
 
 const EmptyState = styled.div`
-  text-align: center;
-  padding: 3rem;
-  color: ${({ theme }) => theme.colors.gray500};
-  
-  .empty-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-  }
-  
-  h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-  
-  p {
-    font-size: 1rem;
-    line-height: 1.5;
-  }
+	text-align: center;
+	padding: 3rem;
+	color: ${({ theme }) => theme.colors.gray500};
+
+	.empty-icon {
+		font-size: 3rem;
+		margin-bottom: 1rem;
+	}
+
+	h3 {
+		font-size: 1.25rem;
+		font-weight: 600;
+		margin-bottom: 0.5rem;
+	}
+
+	p {
+		font-size: 1rem;
+		line-height: 1.5;
+	}
 `;
 
 const availableFlows: FlowComparison[] = [

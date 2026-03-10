@@ -1,4 +1,4 @@
-import { FiAlertCircle, FiDownload, FiEye, FiEyeOff, FiInfo, FiSend, FiUpload } from '@icons';
+import { FiAlertCircle, FiDownload, FiEye, FiEyeOff, FiInfo, FiSend, FiUpload } from '../../icons';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -29,195 +29,199 @@ const maskToken = (token: string): string => {
 };
 
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 const FlowOverview = styled.div`
-  background-color: #f0f8ff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-  margin-bottom: 2rem;
+	background-color: #f0f8ff;
+	border-radius: 0.5rem;
+	box-shadow:
+		0 1px 3px 0 rgba(0, 0, 0, 0.1),
+		0 1px 2px 0 rgba(0, 0, 0, 0.06);
+	overflow: hidden;
+	margin-bottom: 2rem;
 `;
 
 const FlowDescription = styled.div`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 
-  h2 {
-    color: ${({ theme }) => theme.colors.gray900};
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
+	h2 {
+		color: ${({ theme }) => theme.colors.gray900};
+		font-size: 1.5rem;
+		margin-bottom: 1rem;
+	}
 
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    line-height: 1.6;
-    margin-bottom: 1rem;
-  }
+	p {
+		color: ${({ theme }) => theme.colors.gray600};
+		line-height: 1.6;
+		margin-bottom: 1rem;
+	}
 `;
 
 const UseCaseHighlight = styled.div`
-  background-color: ${({ theme }) => theme.colors.success}10;
-  border: 1px solid ${({ theme }) => theme.colors.success}30;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+	background-color: ${({ theme }) => theme.colors.success}10;
+	border: 1px solid ${({ theme }) => theme.colors.success}30;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
 
-  svg {
-    color: ${({ theme }) => theme.colors.success};
-    flex-shink: 0;
-    margin-top: 0.1rem;
-  }
+	svg {
+		color: ${({ theme }) => theme.colors.success};
+		flex-shink: 0;
+		margin-top: 0.1rem;
+	}
 
-  h3 {
-    color: ${({ theme }) => theme.colors.success};
-    margin: 0 0 0.5rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-  }
+	h3 {
+		color: ${({ theme }) => theme.colors.success};
+		margin: 0 0 0.5rem 0;
+		font-size: 1rem;
+		font-weight: 600;
+	}
 
-  p {
-    margin: 0;
-    color: ${({ theme }) => theme.colors.success};
-    font-size: 0.9rem;
-  }
+	p {
+		margin: 0;
+		color: ${({ theme }) => theme.colors.success};
+		font-size: 0.9rem;
+	}
 `;
 
 const DemoSection = styled.div`
-  background-color: #f0f8ff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-  margin-bottom: 2rem;
+	background-color: #f0f8ff;
+	border-radius: 0.5rem;
+	box-shadow:
+		0 1px 3px 0 rgba(0, 0, 0, 0.1),
+		0 1px 2px 0 rgba(0, 0, 0, 0.06);
+	overflow: hidden;
+	margin-bottom: 2rem;
 `;
 
 const ErrorMessage = styled.div`
-  background-color: V9_COLORS.BG.ERROR;
-  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+	background-color: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	margin: 1rem 0;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
 
-  svg {
-    flex-shink: 0;
-    margin-top: 0.1rem;
-  }
+	svg {
+		flex-shink: 0;
+		margin-top: 0.1rem;
+	}
 `;
 
 const RequestResponseSection = styled.div`
-  margin: 2rem 0;
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
-  border-radius: 0.5rem;
-  overflow: hidden;
+	margin: 2rem 0;
+	border: 1px solid ${({ theme }) => theme.colors.gray200};
+	border-radius: 0.5rem;
+	overflow: hidden;
 `;
 
 const RequestSection = styled.div`
-  background-color: V9_COLORS.TEXT.GRAY_DARK;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
-  padding: 1.5rem;
-  color: #f9fafb;
+	background-color: V9_COLORS.TEXT.GRAY_DARK;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
+	padding: 1.5rem;
+	color: #f9fafb;
 
-  h3 {
-    margin: 0 0 1rem 0;
-    color: #f9fafb;
-    font-size: 1.125rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
+	h3 {
+		margin: 0 0 1rem 0;
+		color: #f9fafb;
+		font-size: 1.125rem;
+		font-weight: 600;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
 `;
 
 const ResponseSection = styled.div`
-  background-color: V9_COLORS.TEXT.GRAY_DARK;
-  padding: 1.5rem;
-  color: #f9fafb;
+	background-color: V9_COLORS.TEXT.GRAY_DARK;
+	padding: 1.5rem;
+	color: #f9fafb;
 
-  h3 {
-    margin: 0 0 1rem 0;
-    color: #f9fafb;
-    font-size: 1.125rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
+	h3 {
+		margin: 0 0 1rem 0;
+		color: #f9fafb;
+		font-size: 1.125rem;
+		font-weight: 600;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
 `;
 
 const CodeBlock = styled.pre`
-  background-color: ${({ theme }) => theme.colors.gray900};
-  color: ${({ theme }) => theme.colors.gray100};
-  padding: 1rem;
-  border-radius: 0.375rem;
-  overflow-x: auto;
-  font-size: 0.875rem;
-  margin: 1rem 0;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  border: 1px solid ${({ theme }) => theme.colors.gray800};
-  position: relative;
-  white-space: pre-wrap;
+	background-color: ${({ theme }) => theme.colors.gray900};
+	color: ${({ theme }) => theme.colors.gray100};
+	padding: 1rem;
+	border-radius: 0.375rem;
+	overflow-x: auto;
+	font-size: 0.875rem;
+	margin: 1rem 0;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	border: 1px solid ${({ theme }) => theme.colors.gray800};
+	position: relative;
+	white-space: pre-wrap;
 `;
 
 const CopyButton = styled.button`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	background: rgba(255, 255, 255, 0.1);
+	color: white;
+	border: none;
+	border-radius: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	font-size: 0.75rem;
+	cursor: pointer;
+	transition: all 0.2s;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
+	&:hover {
+		background: rgba(255, 255, 255, 0.2);
+	}
 `;
 
 const JsonResponse = styled.div`
-  background-color: white;
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
-  border-radius: 0.375rem;
-  padding: 1.5rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.gray800};
-  overflow-x: auto;
-  max-height: 400px;
-  overflow-y: auto;
+	background-color: white;
+	border: 1px solid ${({ theme }) => theme.colors.gray200};
+	border-radius: 0.375rem;
+	padding: 1.5rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	color: ${({ theme }) => theme.colors.gray800};
+	overflow-x: auto;
+	max-height: 400px;
+	overflow-y: auto;
 `;
 
 const JsonKey = styled.span`
-  color: V9_COLORS.PRIMARY.GREEN_DARK;
-  font-weight: 600;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	font-weight: 600;
 `;
 
 const JsonString = styled.span`
-  color: V9_COLORS.PRIMARY.RED_DARK;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 `;
 
 const JsonNumber = styled.span`
-  color: V9_COLORS.PRIMARY.GREEN_DARK;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 `;
 
 const JsonBoolean = styled.span`
-  color: #ea580c;
+	color: #ea580c;
 `;
 
 const JsonNull = styled.span`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-style: italic;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-style: italic;
 `;
 
 /**

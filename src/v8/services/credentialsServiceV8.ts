@@ -29,7 +29,6 @@ const MODULE_TAG = '[💾 CREDENTIALS-SERVICE-V8-MIGRATED]';
 const ENABLE_CREDENTIALS_DEBUG_LOGGING = false;
 
 import { safeAnalyticsFetch } from '@/v8/utils/analyticsServerCheckV8';
-import { CredentialsServiceV8Migration } from '../../services/credentialsServiceV8Migration';
 import type {
 	V8AppConfig,
 	V8Credentials,
@@ -53,21 +52,8 @@ export type AppConfig = V8AppConfig;
 // MIGRATION STATE
 // ============================================================================
 
-let migrationCompleted = false;
-
-/**
- * Ensure migration is completed before any credentials operation
- */
-const ensureMigration = async (): Promise<void> => {
-	if (!migrationCompleted) {
-		if (CredentialsServiceV8Migration.needsMigration()) {
-			logger.info(`${MODULE_TAG} Starting automatic credentials migration...`, 'Logger info');
-			const result = await CredentialsServiceV8Migration.migrateAll();
-			logger.info(`${MODULE_TAG} Credentials migration completed`, result);
-		}
-		migrationCompleted = true;
-	}
-};
+// V8 → unified storage migration is complete — bridge removed.
+const ensureMigration = async (): Promise<void> => {};
 
 // ============================================================================
 // CREDENTIALS SERVICE CLASS (Compatibility Layer)

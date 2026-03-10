@@ -28,7 +28,7 @@ import {
 	FiShield,
 	FiTrendingUp,
 	FiZap,
-} from '@icons';
+} from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import type {
@@ -65,7 +65,8 @@ const slideIn = keyframes`
 
 // Styled components with 3D effects
 const StatusContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }>`
-	background: linear-gradient(135deg, 
+	background: linear-gradient(
+		135deg,
 		${(props) =>
 			props.$variant === 'valid'
 				? 'rgba(16, 185, 129, 0.1)'
@@ -77,20 +78,28 @@ const StatusContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }
 				? 'rgba(34, 197, 94, 0.05)'
 				: props.$variant === 'warning'
 					? 'rgba(251, 191, 36, 0.05)'
-					: 'rgba(248, 113, 113, 0.05)'});
-	border: 2px solid ${(props) =>
-		props.$variant === 'valid' ? '#10b981' : props.$variant === 'warning' ? '#f59e0b' : '#ef4444'};
+					: 'rgba(248, 113, 113, 0.05)'}
+	);
+	border: 2px solid
+		${(props) =>
+			props.$variant === 'valid'
+				? '#10b981'
+				: props.$variant === 'warning'
+					? '#f59e0b'
+					: '#ef4444'};
 	border-radius: 16px;
 	padding: 16px 20px;
 	position: relative;
 	overflow: hidden;
 	backdrop-filter: blur(10px);
-	box-shadow: 
+	box-shadow:
 		0 8px 32px rgba(0, 0, 0, 0.1),
 		0 4px 16px rgba(0, 0, 0, 0.05),
 		inset 0 1px 0 rgba(255, 255, 255, 0.2);
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	animation: ${css`${slideIn} 0.5s ease-out`};
+	animation: ${css`
+		${slideIn} 0.5s ease-out
+	`};
 
 	&::before {
 		content: '';
@@ -99,11 +108,7 @@ const StatusContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }
 		left: 0;
 		right: 0;
 		height: 1px;
-		background: linear-gradient(90deg, 
-			transparent, 
-			rgba(255, 255, 255, 0.3), 
-			transparent
-		);
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
 	}
 
 	&::after {
@@ -113,16 +118,12 @@ const StatusContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }
 		left: 0;
 		right: 0;
 		height: 1px;
-		background: linear-gradient(90deg, 
-			transparent, 
-			rgba(255, 255, 255, 0.1), 
-			transparent
-		);
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
 	}
 
 	&:hover {
 		transform: translateY(-2px);
-		box-shadow: 
+		box-shadow:
 			0 12px 40px rgba(0, 0, 0, 0.15),
 			0 6px 20px rgba(0, 0, 0, 0.08),
 			inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -131,8 +132,10 @@ const StatusContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }
 	${(props) =>
 		props.$variant === 'valid' &&
 		css`
-		animation: ${slideIn} 0.5s ease-out, ${glow} 3s ease-in-out infinite;
-	`}
+			animation:
+				${slideIn} 0.5s ease-out,
+				${glow} 3s ease-in-out infinite;
+		`}
 `;
 
 const StatusHeader = styled.div`
@@ -155,7 +158,8 @@ const StatusIcon = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }>`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: linear-gradient(135deg, 
+	background: linear-gradient(
+		135deg,
 		${(props) =>
 			props.$variant === 'valid'
 				? '#10b981'
@@ -163,17 +167,16 @@ const StatusIcon = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }>`
 					? '#f59e0b'
 					: '#ef4444'},
 		${(props) =>
-			props.$variant === 'valid'
-				? '#059669'
-				: props.$variant === 'warning'
-					? '#d97706'
-					: '#dc2626'});
-	box-shadow: 
+			props.$variant === 'valid' ? '#059669' : props.$variant === 'warning' ? '#d97706' : '#dc2626'}
+	);
+	box-shadow:
 		0 4px 12px rgba(0, 0, 0, 0.15),
 		inset 0 1px 0 rgba(255, 255, 255, 0.2);
 	color: white;
 	font-size: 18px;
-	animation: ${css`${pulse} 2s ease-in-out infinite`};
+	animation: ${css`
+		${pulse} 2s ease-in-out infinite
+	`};
 `;
 
 const StatusText = styled.div`
@@ -240,7 +243,10 @@ const DetailLabel = styled.div`
 const DetailValue = styled.div<{ $highlight?: boolean }>`
 	font-size: 14px;
 	font-weight: 700; /* Bolder */
-	color: ${(props) => (props.$highlight ? WORKER_TOKEN_STATUS_STYLES.detailValue.highlight : WORKER_TOKEN_STATUS_STYLES.detailValue.normal)};
+	color: ${(props) =>
+		props.$highlight
+			? WORKER_TOKEN_STATUS_STYLES.detailValue.highlight
+			: WORKER_TOKEN_STATUS_STYLES.detailValue.normal};
 	text-shadow: ${WORKER_TOKEN_STATUS_STYLES.shadows.detail};
 `;
 

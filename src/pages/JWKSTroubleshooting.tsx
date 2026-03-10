@@ -1,4 +1,4 @@
-import { FiAlertCircle, FiCheckCircle, FiChevronDown, FiChevronRight } from '@icons';
+import { FiAlertCircle, FiCheckCircle, FiChevronDown, FiChevronRight } from '../icons';
 import { useCallback, useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -9,149 +9,149 @@ import { createModuleLogger } from '../utils/consoleMigrationHelper';
 import { logger } from '../utils/logger';
 
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-  min-height: 100vh;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	min-height: 100vh;
 `;
 
 const _Header = styled.div`
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+	background: white;
+	border-radius: 1rem;
+	padding: 2rem;
+	margin-bottom: 2rem;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 `;
 
 const _Title = styled.h1`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 `;
 
 const _Subtitle = styled.p`
-  color: #4a5568;
-  font-size: 1.2rem;
-  line-height: 1.6;
-  margin-bottom: 0;
+	color: #4a5568;
+	font-size: 1.2rem;
+	line-height: 1.6;
+	margin-bottom: 0;
 `;
 
 const Section = styled.div`
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+	background: white;
+	border-radius: 1rem;
+	padding: 2rem;
+	margin-bottom: 2rem;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 `;
 
 const SectionTitle = styled.h2`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1.8rem;
+	font-weight: 600;
+	margin-bottom: 1.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const IssueList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 `;
 
 const IssueItem = styled.li`
-  background: #f7fafc;
-  border-left: 4px solid #4299e1;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+	background: #f7fafc;
+	border-left: 4px solid #4299e1;
+	padding: 1rem;
+	margin-bottom: 1rem;
+	border-radius: 0.5rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
 `;
 
 const IssueNumber = styled.div`
-  background: #4299e1;
-  color: white;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  flex-shrink: 0;
+	background: #4299e1;
+	color: white;
+	width: 2rem;
+	height: 2rem;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+	flex-shrink: 0;
 `;
 
 const IssueContent = styled.div`
-  flex: 1;
+	flex: 1;
 `;
 
 const IssueTitle = styled.h3`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin: 0 0 0.5rem 0;
 `;
 
 const IssueDescription = styled.p`
-  color: #4a5568;
-  margin: 0;
-  line-height: 1.5;
+	color: #4a5568;
+	margin: 0;
+	line-height: 1.5;
 `;
 
 const CodeBlock = styled.pre`
-  background: V9_COLORS.TEXT.BLACK;
-  color: V9_COLORS.TEXT.GRAY_LIGHTER;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin: 1rem 0;
-  position: relative;
+	background: V9_COLORS.TEXT.BLACK;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 1.5rem;
+	border-radius: 0.5rem;
+	overflow-x: auto;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.9rem;
+	line-height: 1.5;
+	margin: 1rem 0;
+	position: relative;
 `;
 
 const CommandContainer = styled.div`
-  background: #f7fafc;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin: 1rem 0;
+	background: #f7fafc;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	margin: 1rem 0;
 `;
 
 const CommandHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: between;
-  margin-bottom: 1rem;
-  gap: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: between;
+	margin-bottom: 1rem;
+	gap: 1rem;
 `;
 
 const CommandTitle = styled.h4`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0;
-  flex: 1;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin: 0;
+	flex: 1;
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  gap: 0.5rem;
+	display: flex;
+	gap: 0.5rem;
 `;
 
 const Button = styled.button<{
 	$variant?: 'primary' | 'secondary' | 'success' | 'danger';
 }>`
-  background: ${(props) => {
+	background: ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
 				return '#4299e1';
@@ -163,61 +163,61 @@ const Button = styled.button<{
 				return '#e5e7eb';
 		}
 	}};
-  color: ${(props) => (props.$variant === 'secondary' ? '#4a5568' : 'white')};
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
+	color: ${(props) => (props.$variant === 'secondary' ? '#4a5568' : 'white')};
+	border: none;
+	border-radius: 0.375rem;
+	padding: 0.5rem 1rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: all 0.2s;
 
-  &:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
+	&:hover {
+		opacity: 0.9;
+		transform: translateY(-1px);
+	}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		transform: none;
+	}
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  margin-bottom: 1rem;
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 1rem;
+	margin-bottom: 1rem;
 
-  &:focus {
-    outline: none;
-    border-color: #4299e1;
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: #4299e1;
+		box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+	}
 `;
 
 const OutputContainer = styled.div`
-  background: V9_COLORS.TEXT.BLACK;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  margin-top: 1rem;
+	background: V9_COLORS.TEXT.BLACK;
+	border-radius: 0.5rem;
+	overflow: hidden;
+	margin-top: 1rem;
 `;
 
 const OutputHeader = styled.div`
-  background: V9_COLORS.TEXT.GRAY_MEDIUM;
-  color: V9_COLORS.TEXT.GRAY_LIGHTER;
-  padding: 0.75rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  user-select: none;
+	background: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 0.75rem 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+	user-select: none;
 `;
 
 const OutputTitle = styled.div`
@@ -244,12 +244,12 @@ const OutputContent = styled.pre<{ $isExpanded: boolean }>`
 const StatusIndicator = styled.div<{
 	status: 'idle' | 'running' | 'success' | 'error';
 }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: ${(props) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: ${(props) => {
 		switch (props.status) {
 			case 'running':
 				return '#4299e1';
@@ -264,45 +264,45 @@ const StatusIndicator = styled.div<{
 `;
 
 const Checklist = styled.div`
-  background: #f7fafc;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin: 1rem 0;
+	background: #f7fafc;
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	margin: 1rem 0;
 `;
 
 const ChecklistItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.5rem 0;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 
-  &:last-child {
-    border-bottom: none;
-  }
+	&:last-child {
+		border-bottom: none;
+	}
 `;
 
 const Checkbox = styled.input`
-  width: 1.25rem;
-  height: 1.25rem;
-  accent-color: #48bb78;
+	width: 1.25rem;
+	height: 1.25rem;
+	accent-color: #48bb78;
 `;
 
 const ChecklistLabel = styled.label`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-weight: 500;
-  cursor: pointer;
-  flex: 1;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-weight: 500;
+	cursor: pointer;
+	flex: 1;
 `;
 
 const Link = styled.a`
-  color: #4299e1;
-  text-decoration: none;
-  font-weight: 500;
+	color: #4299e1;
+	text-decoration: none;
+	font-weight: 500;
 
-  &:hover {
-    text-decoration: underline;
-  }
+	&:hover {
+		text-decoration: underline;
+	}
 `;
 
 interface CommandResult {
@@ -401,7 +401,7 @@ const JWKSTroubleshooting: React.FC = () => {
 			setRunningCommands((prev) => new Set(prev).add(url));
 
 			try {
-				logger.info(`[JWKS Troubleshooting] Making request to: ${url}`, "Logger info");
+				logger.info(`[JWKS Troubleshooting] Making request to: ${url}`, 'Logger info');
 
 				const response = await fetch(url, {
 					method: 'GET',

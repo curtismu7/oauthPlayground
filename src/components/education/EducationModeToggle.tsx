@@ -9,7 +9,7 @@
  * full, compact, and hidden education modes.
  */
 
-import { FiChevronDown } from '@icons';
+import { FiChevronDown } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {

@@ -1,4 +1,4 @@
-import { FiCheck, FiCopy, FiEye, FiEyeOff } from '@icons';
+import { FiCheck, FiCopy, FiEye, FiEyeOff } from '../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
@@ -18,37 +18,37 @@ interface TokenDisplayProps {
 }
 
 const TokenContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2.25rem;
-  margin-top: 1.75rem;
-  width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 2.25rem;
+	margin-top: 1.75rem;
+	width: 100%;
 `;
 
 const TokenHeaderMain = styled.div`
-  text-align: center;
-  margin-bottom: 1rem;
-  padding: 1.5rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border-radius: 1.5rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+	text-align: center;
+	margin-bottom: 1rem;
+	padding: 1.5rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border-radius: 1.5rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
 
-  h3 {
-    margin: 0;
-    font-size: 1.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	h3 {
+		margin: 0;
+		font-size: 1.85rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 
-  p {
-    margin: 0.5rem 0 0 0;
-    font-size: 1rem;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  }
+	p {
+		margin: 0.5rem 0 0 0;
+		font-size: 1rem;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	}
 `;
 
 const tokenBackgrounds: Record<'access' | 'id' | 'refresh' | 'info' | 'default', string> = {
@@ -60,38 +60,38 @@ const tokenBackgrounds: Record<'access' | 'id' | 'refresh' | 'info' | 'default',
 };
 
 const TokenSection = styled.div<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
-  background: ${({ $type }) => tokenBackgrounds[$type ?? 'default']};
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 1.5rem;
-  padding: 2.4rem;
-  position: relative;
-  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.18);
-  transition: all 0.3s ease;
-  width: 100%;
-  max-width: 640px;
-  margin: 0 auto;
+	background: ${({ $type }) => tokenBackgrounds[$type ?? 'default']};
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 1.5rem;
+	padding: 2.4rem;
+	position: relative;
+	box-shadow: 0 14px 32px rgba(15, 23, 42, 0.18);
+	transition: all 0.3s ease;
+	width: 100%;
+	max-width: 640px;
+	margin: 0 auto;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 22px 38px rgba(15, 23, 42, 0.2);
-  }
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 22px 38px rgba(15, 23, 42, 0.2);
+	}
 `;
 
 const TokenHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.6);
-  position: relative;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+	padding-bottom: 0.75rem;
+	border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+	position: relative;
 `;
 
 const TokenTypeLabel = styled.div<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
-  position: absolute;
-  top: -0.75rem;
-  right: 0;
-  background: ${({ $type }) => {
+	position: absolute;
+	top: -0.75rem;
+	right: 0;
+	background: ${({ $type }) => {
 		switch ($type) {
 			case 'access':
 				return '#3b82f6';
@@ -105,22 +105,22 @@ const TokenTypeLabel = styled.div<{ $type?: 'access' | 'id' | 'refresh' | 'info'
 				return '#6b7280';
 		}
 	}};
-  color: white;
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.25rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1;
+	color: white;
+	font-size: 0.65rem;
+	font-weight: 600;
+	padding: 0.25rem 0.75rem;
+	border-radius: 0.25rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	z-index: 1;
 `;
 
 const TokenLabel = styled.h4<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: ${({ $type }) => {
+	margin: 0;
+	font-size: 1.15rem;
+	font-weight: 700;
+	color: ${({ $type }) => {
 		switch ($type) {
 			case 'access':
 				return '#2563eb';
@@ -134,18 +134,18 @@ const TokenLabel = styled.h4<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
 				return '#1f2937';
 		}
 	}};
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 
-  &::before {
-    content: '';
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: ${({ $type }) => {
+	&::before {
+		content: '';
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		background: ${({ $type }) => {
 			switch ($type) {
 				case 'access':
 					return '#3b82f6';
@@ -159,133 +159,139 @@ const TokenLabel = styled.h4<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
 					return '#6b7280';
 			}
 		}};
-    display: inline-block;
-  }
+		display: inline-block;
+	}
 `;
 
 const TokenActions = styled.div`
-  display: flex;
-  gap: 0.5rem;
+	display: flex;
+	gap: 0.5rem;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#6b7280')};
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+	background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#6b7280')};
+	color: white;
+	border: none;
+	border-radius: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.8rem;
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 
-  &:hover {
-    background: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#4b5563')};
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.15);
-  }
+	&:hover {
+		background: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#4b5563')};
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.15);
+	}
 
-  &:active {
-    transform: translateY(0);
-  }
+	&:active {
+		transform: translateY(0);
+	}
 
-  svg {
-    width: 1rem;
-    height: 1rem;
-  }
+	svg {
+		width: 1rem;
+		height: 1rem;
+	}
 `;
 
 const TokenValue = styled.pre<{
 	$isMasked?: boolean;
 	$type?: 'access' | 'id' | 'refresh' | 'info';
 }>`
-  margin: 0;
-  font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
-  font-size: 1.08rem;
-  line-height: 1.9;
-  letter-spacing: 0.01em;
-  color: var(--color-text-primary, V9_COLORS.TEXT.BLACK);
-  background: #f0fdf4; /* Light green for generated content */
-  border: 2px solid ${({ $type }) => {
-		switch ($type) {
-			case 'access':
-				return '#93c5fd';
-			case 'id':
-				return '#fcd34d';
-			case 'refresh':
-				return '#6ee7b7';
-			default:
-				return '#e5e7eb';
-		}
-	}};
-  border-radius: 1rem;
-  padding: 2.1rem;
-  margin-top: 0.9rem;
-  overflow-x: auto;
-  word-break: break-word;
-  white-space: pre-wrap;
-  text-indent: 0;
-  box-shadow: inset 0 2px 6px 0 rgba(0, 0, 0, 0.08);
-  position: relative;
-  min-height: 7rem;
-  
-  /* Ensure text is always visible and readable */
-  &, & *, &::before, &::after {
-    color: var(--color-text-primary, V9_COLORS.TEXT.BLACK);
-    background-color: transparent;
-  }
-  
-  /* Override any inherited styles */
-  * {
-    color: var(--color-text-primary, V9_COLORS.TEXT.BLACK);
-    background-color: transparent;
-  }
+	margin: 0;
+	font-family:
+		'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
+	font-size: 1.08rem;
+	line-height: 1.9;
+	letter-spacing: 0.01em;
+	color: var(--color-text-primary, V9_COLORS.TEXT.BLACK);
+	background: #f0fdf4; /* Light green for generated content */
+	border: 2px solid
+		${({ $type }) => {
+			switch ($type) {
+				case 'access':
+					return '#93c5fd';
+				case 'id':
+					return '#fcd34d';
+				case 'refresh':
+					return '#6ee7b7';
+				default:
+					return '#e5e7eb';
+			}
+		}};
+	border-radius: 1rem;
+	padding: 2.1rem;
+	margin-top: 0.9rem;
+	overflow-x: auto;
+	word-break: break-word;
+	white-space: pre-wrap;
+	text-indent: 0;
+	box-shadow: inset 0 2px 6px 0 rgba(0, 0, 0, 0.08);
+	position: relative;
+	min-height: 7rem;
+
+	/* Ensure text is always visible and readable */
+	&,
+	& *,
+	&::before,
+	&::after {
+		color: var(--color-text-primary, V9_COLORS.TEXT.BLACK);
+		background-color: transparent;
+	}
+
+	/* Override any inherited styles */
+	* {
+		color: var(--color-text-primary, V9_COLORS.TEXT.BLACK);
+		background-color: transparent;
+	}
 `;
 
 const TokenInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
 `;
 
 const InfoRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 0.5rem;
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  transition: all 0.2s ease;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.75rem;
+	background: rgba(255, 255, 255, 0.6);
+	border-radius: 0.5rem;
+	border: 1px solid rgba(139, 92, 246, 0.2);
+	transition: all 0.2s ease;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.8);
-    border-color: rgba(139, 92, 246, 0.4);
-    transform: translateX(4px);
-  }
+	&:hover {
+		background: rgba(255, 255, 255, 0.8);
+		border-color: rgba(139, 92, 246, 0.4);
+		transform: translateX(4px);
+	}
 `;
 
 const InfoLabel = styled.span`
-  font-weight: 600;
-  color: V9_COLORS.PRIMARY.GREEN_DARK;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+	font-weight: 600;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	font-size: 0.9rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 `;
 
 const InfoValue = styled.span`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 0.9rem;
-  font-weight: 500;
-  font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
-  background: rgba(139, 92, 246, 0.1);
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  border: 1px solid rgba(139, 92, 246, 0.2);
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.9rem;
+	font-weight: 500;
+	font-family:
+		'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
+	background: rgba(139, 92, 246, 0.1);
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	border: 1px solid rgba(139, 92, 246, 0.2);
 `;
 
 const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
