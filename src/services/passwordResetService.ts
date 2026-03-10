@@ -43,6 +43,7 @@ export interface SendRecoveryCodeRequest {
 	environmentId: string;
 	userId: string;
 	workerToken: string;
+	region?: string;
 }
 
 export interface SendRecoveryCodeResponse {
@@ -86,7 +87,7 @@ export async function sendRecoveryCode(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Recovery code sent successfully', "Logger info");
+		logger.info('[🔐 PASSWORD] ✅ Recovery code sent successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Recovery code sent successfully',
@@ -109,7 +110,8 @@ export async function recoverPassword(
 	userId: string,
 	workerToken: string,
 	recoveryCode: string,
-	newPassword: string
+	newPassword: string,
+	region?: string
 ): Promise<PasswordOperationResponse> {
 	try {
 		logger.info('[🔐 PASSWORD] Recovering password...', {
@@ -130,6 +132,7 @@ export async function recoverPassword(
 				workerToken,
 				recoveryCode,
 				newPassword,
+				...(region ? { region } : {}),
 			}),
 			actualPingOneUrl,
 		});
@@ -145,7 +148,7 @@ export async function recoverPassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password recovered successfully', "Logger info");
+		logger.info('[🔐 PASSWORD] ✅ Password recovered successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password recovered successfully',
@@ -168,7 +171,8 @@ export async function recoverPassword(
 export async function forcePasswordChange(
 	environmentId: string,
 	userId: string,
-	workerToken: string
+	workerToken: string,
+	region?: string
 ): Promise<PasswordOperationResponse> {
 	try {
 		logger.info('[🔐 PASSWORD] Forcing password change...', {
@@ -187,6 +191,7 @@ export async function forcePasswordChange(
 				environmentId,
 				userId,
 				workerToken,
+				...(region ? { region } : {}),
 			}),
 			actualPingOneUrl,
 		});
@@ -202,7 +207,7 @@ export async function forcePasswordChange(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password change forced successfully', "Logger info");
+		logger.info('[🔐 PASSWORD] ✅ Password change forced successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'User will be required to change password on next sign-on',
@@ -232,7 +237,8 @@ export async function changePassword(
 	userId: string,
 	accessToken: string,
 	oldPassword: string,
-	newPassword: string
+	newPassword: string,
+	region?: string
 ): Promise<PasswordOperationResponse> {
 	try {
 		logger.info('[🔐 PASSWORD] Changing password...', {
@@ -253,6 +259,7 @@ export async function changePassword(
 				accessToken,
 				oldPassword,
 				newPassword,
+				...(region ? { region } : {}),
 			}),
 			actualPingOneUrl,
 		});
@@ -268,7 +275,7 @@ export async function changePassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password changed successfully', "Logger info");
+		logger.info('[🔐 PASSWORD] ✅ Password changed successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password changed successfully',
@@ -292,7 +299,8 @@ export async function checkPassword(
 	environmentId: string,
 	userId: string,
 	workerToken: string,
-	password: string
+	password: string,
+	region?: string
 ): Promise<PasswordOperationResponse> {
 	try {
 		logger.info('[🔐 PASSWORD] Checking password...', {
@@ -312,6 +320,7 @@ export async function checkPassword(
 				userId,
 				workerToken,
 				password,
+				...(region ? { region } : {}),
 			}),
 			actualPingOneUrl,
 		});
@@ -327,7 +336,7 @@ export async function checkPassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password check successful', "Logger info");
+		logger.info('[🔐 PASSWORD] ✅ Password check successful', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password check successful',
@@ -349,7 +358,8 @@ export async function checkPassword(
 export async function unlockPassword(
 	environmentId: string,
 	userId: string,
-	workerToken: string
+	workerToken: string,
+	region?: string
 ): Promise<PasswordOperationResponse> {
 	try {
 		logger.info('[🔐 PASSWORD] Unlocking password...', {
@@ -368,6 +378,7 @@ export async function unlockPassword(
 				environmentId,
 				userId,
 				workerToken,
+				...(region ? { region } : {}),
 			}),
 			actualPingOneUrl,
 		});
@@ -383,7 +394,7 @@ export async function unlockPassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password unlocked successfully', "Logger info");
+		logger.info('[🔐 PASSWORD] ✅ Password unlocked successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password unlocked successfully',
@@ -406,7 +417,8 @@ export async function unlockPassword(
 export async function readPasswordState(
 	environmentId: string,
 	userId: string,
-	workerToken: string
+	workerToken: string,
+	region?: string
 ): Promise<{
 	success: boolean;
 	passwordState?: Record<string, unknown>;
@@ -421,16 +433,15 @@ export async function readPasswordState(
 
 		const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
 
-		const response = await trackedFetch(
-			`/api/pingone/password/state?environmentId=${encodeURIComponent(environmentId)}&userId=${encodeURIComponent(userId)}&workerToken=${encodeURIComponent(workerToken)}`,
-			{
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				actualPingOneUrl,
-			}
-		);
+		const params = new URLSearchParams({ environmentId, userId, workerToken });
+		if (region) params.set('region', region);
+		const response = await trackedFetch(`/api/pingone/password/state?${params.toString()}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			actualPingOneUrl,
+		});
 
 		const data = await response.json();
 
@@ -443,7 +454,7 @@ export async function readPasswordState(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password state read successfully', "Logger info");
+		logger.info('[🔐 PASSWORD] ✅ Password state read successfully', 'Logger info');
 		return {
 			success: true,
 			passwordState: data.passwordState,
@@ -466,7 +477,7 @@ export async function setPasswordAdmin(
 	userId: string,
 	workerToken: string,
 	newPassword: string,
-	options?: { forceChange?: boolean; bypassPasswordPolicy?: boolean }
+	options?: { forceChange?: boolean; bypassPasswordPolicy?: boolean; region?: string }
 ): Promise<PasswordOperationResponse> {
 	try {
 		logger.info('[🔐 PASSWORD] Setting password (admin)...', {
@@ -488,6 +499,7 @@ export async function setPasswordAdmin(
 				newPassword,
 				forceChange: options?.forceChange || false,
 				bypassPasswordPolicy: options?.bypassPasswordPolicy || false,
+				...(options?.region ? { region: options.region } : {}),
 			}),
 			actualPingOneUrl,
 		});
@@ -533,7 +545,7 @@ export async function setPassword(
 	userId: string,
 	workerToken: string,
 	newPassword: string,
-	options?: { forceChange?: boolean; bypassPasswordPolicy?: boolean }
+	options?: { forceChange?: boolean; bypassPasswordPolicy?: boolean; region?: string }
 ): Promise<PasswordOperationResponse> {
 	try {
 		logger.info('[🔐 PASSWORD] Setting password...', {
@@ -555,6 +567,7 @@ export async function setPassword(
 				newPassword,
 				forceChange: options?.forceChange || false,
 				bypassPasswordPolicy: options?.bypassPasswordPolicy || false,
+				...(options?.region ? { region: options.region } : {}),
 			}),
 			actualPingOneUrl,
 		});
@@ -570,7 +583,7 @@ export async function setPassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password set successfully', "Logger info");
+		logger.info('[🔐 PASSWORD] ✅ Password set successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password set successfully',
@@ -595,7 +608,7 @@ export async function setPasswordValue(
 	userId: string,
 	workerToken: string,
 	passwordValue: string,
-	options?: { forceChange?: boolean; bypassPasswordPolicy?: boolean }
+	options?: { forceChange?: boolean; bypassPasswordPolicy?: boolean; region?: string }
 ): Promise<PasswordOperationResponse> {
 	try {
 		logger.info('[🔐 PASSWORD] Setting password value...', {
@@ -617,6 +630,7 @@ export async function setPasswordValue(
 				passwordValue,
 				forceChange: options?.forceChange || false,
 				bypassPasswordPolicy: options?.bypassPasswordPolicy || false,
+				...(options?.region ? { region: options.region } : {}),
 			}),
 			actualPingOneUrl,
 		});
@@ -632,7 +646,7 @@ export async function setPasswordValue(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password value set successfully', "Logger info");
+		logger.info('[🔐 PASSWORD] ✅ Password value set successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password value set successfully',
@@ -658,7 +672,7 @@ export async function setPasswordLdapGateway(
 	workerToken: string,
 	newPassword: string,
 	ldapGatewayId?: string,
-	options?: { forceChange?: boolean; bypassPasswordPolicy?: boolean }
+	options?: { forceChange?: boolean; bypassPasswordPolicy?: boolean; region?: string }
 ): Promise<PasswordOperationResponse> {
 	try {
 		logger.info('[🔐 PASSWORD] Setting password via LDAP Gateway...', {
@@ -681,6 +695,7 @@ export async function setPasswordLdapGateway(
 				ldapGatewayId: ldapGatewayId || undefined,
 				forceChange: options?.forceChange || false,
 				bypassPasswordPolicy: options?.bypassPasswordPolicy || false,
+				...(options?.region ? { region: options.region } : {}),
 			}),
 			actualPingOneUrl,
 		});
@@ -697,7 +712,7 @@ export async function setPasswordLdapGateway(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password set successfully via LDAP Gateway', "Logger info");
+		logger.info('[🔐 PASSWORD] ✅ Password set successfully via LDAP Gateway', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password set successfully via LDAP Gateway',
