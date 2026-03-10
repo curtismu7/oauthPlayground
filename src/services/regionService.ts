@@ -82,6 +82,20 @@ export const REGION_LABELS: Record<PingOneRegion, string> = {
 	sg: 'Singapore (api.pingone.sg)',
 };
 
+/**
+ * PingOne supported regions for dropdowns. Names and codes match the official table in
+ * "Working with PingOne APIs" (Region / Code / Top level domain).
+ * @see https://developer.pingidentity.com/pingone-api/verify/working-with-pingone-apis.html
+ */
+export const REGIONS_FOR_UI: Array<{ value: PingOneRegion; label: string }> = [
+	{ value: 'us', label: 'North America (excluding Canada) — api.pingone.com' },
+	{ value: 'ca', label: 'Canada region — api.pingone.ca' },
+	{ value: 'eu', label: 'European Union region — api.pingone.eu' },
+	{ value: 'ap', label: 'Asia-Pacific region — api.pingone.asia' },
+	{ value: 'au', label: 'Australia region — api.pingone.com.au' },
+	{ value: 'sg', label: 'Singapore region — api.pingone.sg' },
+];
+
 // ─── Storage keys ─────────────────────────────────────────────────────────────
 const IDB_NAME = 'oauth_playground_app_config';
 const IDB_STORE = 'settings';
