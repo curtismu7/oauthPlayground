@@ -6713,6 +6713,15 @@ app.post('/api/pingone/redirectless/authorize-mock', async (req, res) => {
 });
 
 // PingOne Redirectless Authorization Endpoint (for starting redirectless authentication)
+const AUTH_DOMAIN_MAP = {
+	us: 'auth.pingone.com',
+	na: 'auth.pingone.com',
+	eu: 'auth.pingone.eu',
+	ca: 'auth.pingone.ca',
+	ap: 'auth.pingone.asia',
+	asia: 'auth.pingone.asia',
+};
+
 app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 	try {
 		console.log(`[PingOne Redirectless] Received request body:`, JSON.stringify(req.body, null, 2));
@@ -6728,7 +6737,20 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			state,
 			username,
 			password,
+			region: reqRegion,
 		} = req.body;
+
+		// Resolve auth domain: request body > stored settings > default 'us'
+		let region =
+			typeof reqRegion === 'string' && reqRegion.trim() ? reqRegion.trim().toLowerCase() : null;
+		if (!region) {
+			region = await getStoredRegion();
+		}
+		if (!region) {
+			region = 'us';
+		}
+		const authDomain = AUTH_DOMAIN_MAP[region] || AUTH_DOMAIN_MAP.us;
+		console.log(`[PingOne Redirectless] Using region: ${region}, auth domain: ${authDomain}`);
 
 		if (!environmentId || !clientId) {
 			console.log(`[PingOne Redirectless] Validation failed: Missing required parameters`);
@@ -6829,7 +6851,7 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 		});
 
 		// For redirectless flow, send parameters in the POST body, NOT in URL query string
-		const authorizeUrl = `https://auth.pingone.com/${environmentId}/as/authorize`;
+		const authorizeUrl = `https://${authDomain}/${environmentId}/as/authorize`;
 		console.log(`[PingOne Redirectless] Authorization URL:`, authorizeUrl);
 		console.log(`[PingOne Redirectless] POST Body:`, authParams.toString());
 
@@ -11706,6 +11728,76 @@ app.delete('/api/webhooks/events', (_req, res) => {
 		res.status(500).json({
 			error: 'Failed to clear webhook events',
 			details: error.message,
+		});
+	}
+});
+
+/**
+ * Start ngrok tunnel for localhost webhook development (Mac).
+ * POST /api/dev/start-webhook-tunnel
+ * Spawns ngrok, waits for it to be ready, returns public URL.
+ * Requires ngrok to be installed (brew install ngrok).
+ */
+app.post('/api/dev/start-webhook-tunnel', async (_req, res) => {
+	const { spawn } = await import('child_process');
+	const http = await import('http');
+	const port = 3000;
+
+	try {
+		const proc = spawn('ngrok', ['http', String(port)], {
+			detached: true,
+			stdio: 'ignore',
+		});
+		proc.unref();
+
+		// Poll ngrok local API for tunnel URL (max 15s)
+		for (let i = 0; i < 30; i++) {
+			await new Promise((r) => setTimeout(r, 500));
+			const url = await new Promise((resolve) => {
+				const req = http.request(
+					{
+						hostname: '127.0.0.1',
+						port: 4040,
+						path: '/api/tunnels',
+						method: 'GET',
+					},
+					(resp) => {
+						let data = '';
+						resp.on('data', (ch) => (data += ch));
+						resp.on('end', () => {
+							try {
+								const j = JSON.parse(data);
+								const tunnels = j.tunnels || [];
+								const https = tunnels.find(
+									(t) => t.public_url && t.public_url.startsWith('https://')
+								);
+								resolve(https ? https.public_url : null);
+							} catch {
+								resolve(null);
+							}
+						});
+					}
+				);
+				req.on('error', () => resolve(null));
+				req.setTimeout(2000, () => {
+					req.destroy();
+					resolve(null);
+				});
+				req.end();
+			});
+			if (url) {
+				return res.json({ publicUrl: url, url });
+			}
+		}
+
+		res.status(408).json({
+			error:
+				'ngrok did not start in time. Ensure ngrok is installed (brew install ngrok) and not already running.',
+		});
+	} catch (e) {
+		const msg = e && typeof e === 'object' && 'message' in e ? String(e.message) : String(e);
+		res.status(500).json({
+			error: msg.includes('spawn') ? 'ngrok not found. Install with: brew install ngrok' : msg,
 		});
 	}
 });
