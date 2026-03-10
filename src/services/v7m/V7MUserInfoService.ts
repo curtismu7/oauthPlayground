@@ -64,10 +64,14 @@ function decodeJwtLike(
 	}
 }
 
+/** Base64url decode using browser-native APIs only. */
 function b64UrlDecode(input: string): string {
 	const b64 = input.replace(/-/g, '+').replace(/_/g, '/');
 	const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
-	return Buffer.from(padded, 'base64').toString('utf8');
+	const binary = atob(padded);
+	const bytes = new Uint8Array(binary.length);
+	for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+	return new TextDecoder().decode(bytes);
 }
 
 function stringOrEmpty(v: unknown): string {

@@ -161,6 +161,14 @@ export const FLOW_SCOPE_MAPPINGS: Record<string, FlowScopeMapping> = {
 		description: 'PingOne MFA Workflow Library (uses worker token with Management API scopes)',
 		category: 'worker-token',
 	},
+	'pingone-dashboard': {
+		flowType: 'pingone-dashboard',
+		flowName: 'PingOne Dashboard',
+		requiresOpenId: false,
+		defaultScopes: ['p1:read:users', 'p1:read:environments', 'p1:read:audit'],
+		description: 'PingOne Dashboard (Identity Metrics & Audit Activities)',
+		category: 'worker-token',
+	},
 	'pingone-identity-metrics': {
 		flowType: 'pingone-identity-metrics',
 		flowName: 'PingOne Identity Metrics',

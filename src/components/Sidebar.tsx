@@ -322,7 +322,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				)}
 			</SidebarHeader>
 
-			<div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+			<div
+				style={{
+					flex: 1,
+					minHeight: 0,
+					overflow: 'auto',
+					display: 'flex',
+					flexDirection: 'column',
+				}}
+			>
 				{USE_PING_MENU ? (
 					<SidebarMenuPing dragMode={isDragDropMode} searchQuery={searchQuery} />
 				) : (

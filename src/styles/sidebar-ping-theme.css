@@ -140,7 +140,8 @@
 	flex: 1;
 	overflow-y: auto;
 	overflow-x: hidden;
-	padding: 0.5rem 0;
+	padding: 0.5rem 0 2rem;
+	min-height: 0;
 }
 
 .sidebar-ping__group {
