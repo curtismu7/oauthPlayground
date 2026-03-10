@@ -47,6 +47,8 @@
 		"fix": "biome check --write .",
 		"icons:check": "node scripts/icons-check.mjs",
 		"icons:fix": "node scripts/icons-fix.mjs",
+		"update-dashboards": "node scripts/update-dashboards.mjs",
+		"update-dashboards:dry": "node scripts/update-dashboards.mjs --dry-run",
 		"precommit": "biome check --staged .",
 		"type-check": "tsc --noEmit",
 		"prepare": "husky",

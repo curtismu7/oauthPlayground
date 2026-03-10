@@ -145,9 +145,34 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 	},
 ];
 
-// --- V9 & Standardization (March 2026, from A-Migration / docs/updates-to-apps) ---
+// ─── AUTO-GENERATED: live scan items — do not edit manually ───
+// Last updated: 2026-03-10T11:44:08.329Z
 
 const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
+	{
+		id: 'bootstrap-icons-migration',
+		description: 'Bootstrap Icons replacing ❓ emoji placeholders',
+		status: 'pending',
+		countLabel: '266 ❓ remaining → 89 bi-* in use',
+		detail:
+			'266 ❓ spans remain outside src/locked/. 89 Bootstrap icon references already in place.',
+	},
+	{
+		id: 'active-sidebar-identified',
+		description: 'Active sidebar: SidebarMenuPing (USE_PING_MENU=true)',
+		status: 'fixed',
+		countLabel: '1 route items',
+		detail:
+			'Sidebar.tsx → SidebarMenuPing.tsx is the live path. DragDropSidebar.tsx is the locked legacy fallback. DragDropSidebar.V2.tsx and DragDropSidebar.tsx.V2.tsx are dead files (not imported anywhere).',
+	},
+	{
+		id: 'oauth-oidc-duplication',
+		description: 'OAuth/OIDC flow duplication reduced',
+		status: 'fixed',
+		countLabel: '~15,477 lines deleted',
+		detail:
+			'Dead V8 flows deleted, FlowCategories.tsx reorganized into 7 categories with correct V9 routes, App.tsx redirects added, 6 orphaned hooks/services removed.',
+	},
 	{
 		id: 'v9-flows-standardized',
 		description: 'V9 flows fully standardized',
@@ -158,98 +183,38 @@ const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 	},
 	{
 		id: 'v9-logger-migration',
-		description:
-			'console.* → logger.* migration (services, hooks, contexts, utils, components, pages)',
-		status: 'clean',
-		countLabel: '~615+ service, 133 hooks, 33 contexts, ~215 utils, ~160 components',
+		description: 'console.* → logger.* migration',
+		status: 'warning',
+		countLabel: '44 console.error/warn remaining',
 		detail:
 			'Structured logger across 90+ service files, 16 hooks, 3 contexts, 43 utils, 79 components. Intentional exceptions: loggingService, code-gen templates, CLI tools.',
 	},
 	{
-		id: 'v9-toast-migration',
-		description: 'toastV8 / v4ToastManager → modernMessaging',
-		status: 'clean',
-		countLabel: '117 files, ~1316 calls',
-		detail: 'Adapter intercepts legacy toast calls. V9 flows have 0 direct toastV8 usage.',
+		id: 'eslint-disable-count',
+		description: 'ESLint/Biome disable directives',
+		status: 'pending',
+		countLabel: '169 eslint-disable + 162 biome-ignore',
+		detail:
+			'Targeted suppression comments. Goal: eliminate no-explicit-any and exhaustive-deps groups.',
 	},
 	{
-		id: 'v9-envid-auto-populate',
-		description: 'Environment ID auto-populate (2026-02-26)',
-		status: 'clean',
-		countLabel: '9 pages + 2 services + 2 new files',
-		detail:
-			'useAutoEnvironmentId hook, cascade sync in unifiedWorkerTokenService + comprehensiveFlowDataService, environmentIdService dual storage (IndexedDB + SQLite API). Pages use readBestEnvironmentId().',
-	},
-	{
-		id: 'v9-helio-mart-hooks',
-		description: 'HelioMartPasswordReset Rules of Hooks crash',
-		status: 'fixed',
-		countLabel: '1 file',
-		detail:
-			'createPageLayout() moved to module scope (was inside useMemo → styled-components v6 useContext violation).',
+		id: 'ts-any-usage',
+		description: 'TypeScript `any` usage',
+		status: 'pending',
+		countLabel: '~447 occurrences',
+		detail: 'Tracked across non-locked src/. Reduction goal: replace with proper generics.',
 	},
 	{
 		id: 'v9-dead-flows-archived',
-		description: 'Dead flow files archived',
+		description: 'Dead flow files archived / deleted',
 		status: 'fixed',
-		countLabel: '31 files + 5 dirs → archive/dead-flows/',
+		countLabel: '31+ files + 5 dirs removed',
 		detail:
 			'Cleaned active codebase. Scope rule: only sidebar menu items + direct services in scope (sidebarMenuConfig.ts).',
 	},
-	{
-		id: 'v9-service-result',
-		description: 'throw → ServiceResult<T> migration (services)',
-		status: 'clean',
-		countLabel: '5 services',
-		detail:
-			'parService, samlService, workerTokenDiscoveryService, oidcDiscoveryService, unifiedWorkerTokenService.',
-	},
-	{
-		id: 'v9-credentials-import-export',
-		description: 'Credentials Import/Export on all active-menu credential flows',
-		status: 'clean',
-		countLabel: 'All flows covered',
-		detail: 'Including TokenRevocationFlow, SAMLServiceProviderFlowV1. V7M mock flows N/A.',
-	},
-	{
-		id: 'v9-runtime-api-region',
-		description: 'GET /api/settings/region — 500 on DB error',
-		status: 'fixed',
-		countLabel: '1 endpoint',
-		detail:
-			'On settingsDB.get() failure, return 200 with { value: null } so UI does not treat as backend down.',
-	},
-	{
-		id: 'v9-runtime-api-environments',
-		description: 'GET /api/environments — 401/403/504 mapping, timeouts',
-		status: 'fixed',
-		countLabel: 'server.js + vite proxy',
-		detail:
-			'Normalize accessToken/region query params; 25s fetch timeouts; map PingOne 401→401, 403→403, AbortError→504; pingOneFetch only records failure for 5xx so "Backend down" does not show for expired token.',
-	},
-	{
-		id: 'v9-runtime-hmr-websocket',
-		description: 'WebSocket HMR on custom domain (api.pingdemo.com)',
-		status: 'fixed',
-		countLabel: 'vite.config.ts',
-		detail:
-			'hmr: false when VITE_HMR_HOST or httpsOptions set to avoid "wss://api.pingdemo.com:3000 failed" console error.',
-	},
-	{
-		id: 'v9-ts-debt',
-		description: 'TypeScript technical debt (flows)',
-		status: 'pending',
-		countLabel: '203 errors, 211 warnings',
-		detail: '115 flow files. any types, banned {}; incremental improvements ongoing.',
-	},
-	{
-		id: 'v9-legacy-messaging',
-		description: 'Legacy flows still using v4ToastManager (via adapter)',
-		status: 'warning',
-		countLabel: '16 flows',
-		detail: 'Functional via adapter. Migrate to modernMessaging when touching those flows.',
-	},
 ];
+
+// ─── END AUTO-GENERATED v9 items ───
 
 const STATUS_CONFIG: Record<
 	AuditStatus,
