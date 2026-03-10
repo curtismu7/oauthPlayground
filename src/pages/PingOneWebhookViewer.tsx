@@ -319,6 +319,274 @@ interface WebhookEvent {
 	source: string;
 }
 
+// Setup tab: instructions for exposing localhost to receive PingOne webhooks on Mac.
+function SetupTab({
+	tunnelUrl,
+	tunnelLoading,
+	tunnelError,
+	onStartTunnel,
+}: {
+	tunnelUrl: string | null;
+	tunnelLoading: boolean;
+	tunnelError: string | null;
+	onStartTunnel: () => void;
+}) {
+	const copyToClipboard = (text: string, label: string) => {
+		navigator.clipboard.writeText(text);
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `${label} copied to clipboard`,
+			duration: 3000,
+		});
+	};
+
+	const webhookPath = '/api/webhooks/pingone';
+	const port = 3000; // Vite dev server; proxies /api to backend
+	const ngrokInstall = 'brew install ngrok';
+	const ngrokRun = `ngrok http ${port}`;
+	const cloudflaredInstall = 'brew install cloudflared';
+	const cloudflaredRun = `cloudflared tunnel --url http://localhost:${port}`;
+
+	return (
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				gap: '1.5rem',
+				maxWidth: 720,
+			}}
+		>
+			<div
+				style={{
+					background: '#eff6ff',
+					border: '1px solid #3b82f6',
+					borderRadius: '0.5rem',
+					padding: '1.25rem',
+				}}
+			>
+				<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', color: '#1e40af' }}>
+					Why a tunnel?
+				</h3>
+				<p style={{ margin: 0, fontSize: '0.9rem', color: '#1e3a8a', lineHeight: 1.5 }}>
+					PingOne sends webhooks to a public URL. When you run the app on localhost, there is no
+					public address. Use a tunnel (ngrok or Cloudflare) to expose port {port} so PingOne can
+					reach your webhook endpoint.
+				</p>
+			</div>
+
+			<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+				<h3 style={{ margin: 0, fontSize: '1rem' }}>Option A: ngrok</h3>
+				<ol style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.9rem', lineHeight: 2 }}>
+					<li>
+						Install:{' '}
+						<code
+							style={{
+								background: '#f1f5f9',
+								padding: '0.2rem 0.4rem',
+								borderRadius: 4,
+								fontFamily: 'monospace',
+							}}
+						>
+							{ngrokInstall}
+						</code>
+						<button
+							type="button"
+							style={{
+								marginLeft: 8,
+								padding: '0.25rem 0.5rem',
+								fontSize: 12,
+								background: '#e2e8f0',
+								border: 'none',
+								borderRadius: 4,
+								cursor: 'pointer',
+							}}
+							onClick={() => copyToClipboard(ngrokInstall, 'Install command')}
+						>
+							Copy
+						</button>
+					</li>
+					<li>
+						Run:{' '}
+						<code
+							style={{
+								background: '#f1f5f9',
+								padding: '0.2rem 0.4rem',
+								borderRadius: 4,
+								fontFamily: 'monospace',
+							}}
+						>
+							{ngrokRun}
+						</code>
+						<button
+							type="button"
+							style={{
+								marginLeft: 8,
+								padding: '0.25rem 0.5rem',
+								fontSize: 12,
+								background: '#e2e8f0',
+								border: 'none',
+								borderRadius: 4,
+								cursor: 'pointer',
+							}}
+							onClick={() => copyToClipboard(ngrokRun, 'ngrok command')}
+						>
+							Copy
+						</button>
+					</li>
+					<li>
+						Use the ngrok URL as webhook endpoint:{' '}
+						<code>https://YOUR-ID.ngrok-free.app{webhookPath}</code>
+					</li>
+				</ol>
+			</div>
+
+			<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+				<h3 style={{ margin: 0, fontSize: '1rem' }}>Option B: Cloudflare Tunnel</h3>
+				<ol style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.9rem', lineHeight: 2 }}>
+					<li>
+						Install:{' '}
+						<code
+							style={{
+								background: '#f1f5f9',
+								padding: '0.2rem 0.4rem',
+								borderRadius: 4,
+								fontFamily: 'monospace',
+							}}
+						>
+							{cloudflaredInstall}
+						</code>
+						<button
+							type="button"
+							style={{
+								marginLeft: 8,
+								padding: '0.25rem 0.5rem',
+								fontSize: 12,
+								background: '#e2e8f0',
+								border: 'none',
+								borderRadius: 4,
+								cursor: 'pointer',
+							}}
+							onClick={() => copyToClipboard(cloudflaredInstall, 'Install command')}
+						>
+							Copy
+						</button>
+					</li>
+					<li>
+						Run:{' '}
+						<code
+							style={{
+								background: '#f1f5f9',
+								padding: '0.2rem 0.4rem',
+								borderRadius: 4,
+								fontFamily: 'monospace',
+							}}
+						>
+							{cloudflaredRun}
+						</code>
+						<button
+							type="button"
+							style={{
+								marginLeft: 8,
+								padding: '0.25rem 0.5rem',
+								fontSize: 12,
+								background: '#e2e8f0',
+								border: 'none',
+								borderRadius: 4,
+								cursor: 'pointer',
+							}}
+							onClick={() => copyToClipboard(cloudflaredRun, 'cloudflared command')}
+						>
+							Copy
+						</button>
+					</li>
+					<li>Use the printed Cloudflare URL + {webhookPath} as your webhook endpoint.</li>
+				</ol>
+			</div>
+
+			<div
+				style={{
+					background: '#f8fafc',
+					border: '1px solid #e2e8f0',
+					borderRadius: '0.5rem',
+					padding: '1rem',
+				}}
+			>
+				<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Start tunnel for me</h3>
+				<p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', color: '#64748b' }}>
+					If ngrok is installed, we can start it from here. Make sure the app is running on port{' '}
+					{port}.
+				</p>
+				<button
+					type="button"
+					disabled={tunnelLoading}
+					onClick={onStartTunnel}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '0.5rem',
+						padding: '0.75rem 1.25rem',
+						background: '#3b82f6',
+						color: 'white',
+						border: 'none',
+						borderRadius: 0.5,
+						fontWeight: 600,
+						fontSize: '0.875rem',
+						cursor: tunnelLoading ? 'not-allowed' : 'pointer',
+					}}
+				>
+					{tunnelLoading ? 'Starting…' : '▶ Start ngrok'}
+				</button>
+				{tunnelError && (
+					<p style={{ margin: '0.75rem 0 0 0', fontSize: '0.875rem', color: '#dc2626' }}>
+						{tunnelError}
+					</p>
+				)}
+				{tunnelUrl && (
+					<div style={{ marginTop: '1rem' }}>
+						<label style={{ fontSize: '0.875rem', fontWeight: 600 }}>Webhook URL:</label>
+						<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: 4 }}>
+							<code
+								style={{
+									flex: 1,
+									background: 'white',
+									padding: '0.5rem',
+									borderRadius: 4,
+									border: '1px solid #e2e8f0',
+									fontSize: '0.85rem',
+									wordBreak: 'break-all' as const,
+								}}
+							>
+								{tunnelUrl.endsWith('/') ? tunnelUrl.slice(0, -1) : tunnelUrl}
+								{webhookPath}
+							</code>
+							<button
+								type="button"
+								onClick={() =>
+									copyToClipboard(
+										`${tunnelUrl.endsWith('/') ? tunnelUrl.slice(0, -1) : tunnelUrl}${webhookPath}`,
+										'Webhook URL'
+									)
+								}
+								style={{
+									padding: '0.5rem 1rem',
+									background: '#22c55e',
+									color: 'white',
+									border: 'none',
+									borderRadius: 4,
+									fontWeight: 600,
+									cursor: 'pointer',
+								}}
+							>
+								Copy
+							</button>
+						</div>
+					</div>
+				)}
+			</div>
+		</div>
+	);
+}
+
 interface WebhookSubscription {
 	id: string;
 	name: string;
@@ -347,7 +615,10 @@ interface WebhookSubscription {
 const PingOneWebhookViewer: React.FC = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const [activeTab, setActiveTab] = useState<'subscriptions' | 'events'>('events');
+	const [activeTab, setActiveTab] = useState<'subscriptions' | 'events' | 'setup'>('events');
+	const [tunnelUrl, setTunnelUrl] = useState<string | null>(null);
+	const [tunnelLoading, setTunnelLoading] = useState(false);
+	const [tunnelError, setTunnelError] = useState<string | null>(null);
 	const [webhooks, setWebhooks] = useState<WebhookEvent[]>([]);
 	const [subscriptions, setSubscriptions] = useState<WebhookSubscription[]>([]);
 	const [filter, setFilter] = useState<string>('all');
@@ -862,6 +1133,42 @@ const PingOneWebhookViewer: React.FC = () => {
 			duration: 4000,
 		});
 	}, [webhooks]);
+
+	// Starts ngrok tunnel via backend; returns the public URL for use as webhook endpoint.
+	const handleStartTunnel = useCallback(async () => {
+		setTunnelLoading(true);
+		setTunnelError(null);
+		setTunnelUrl(null);
+		try {
+			const res = await fetch('/api/dev/start-webhook-tunnel', { method: 'POST' });
+			const data = await res.json().catch(() => ({}));
+			if (!res.ok) {
+				throw new Error(data.error || `Tunnel failed (${res.status})`);
+			}
+			const url = data.publicUrl || data.url;
+			if (url) {
+				setTunnelUrl(url);
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Tunnel started — use the URL above as your webhook endpoint',
+					duration: 5000,
+				});
+			} else {
+				throw new Error('No tunnel URL returned');
+			}
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : 'Failed to start tunnel';
+			setTunnelError(msg);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Tunnel Error',
+				message: msg,
+				dismissible: true,
+			});
+		} finally {
+			setTunnelLoading(false);
+		}
+	}, []);
 
 	const handleCreateSubscription = useCallback(async () => {
 		const effectiveWorkerToken = getAnyWorkerToken();
@@ -1467,6 +1774,13 @@ const PingOneWebhookViewer: React.FC = () => {
 						>
 							Events ({webhooks.length})
 						</button>
+						<button
+							type="button"
+							style={styles.tab(activeTab === 'setup')}
+							onClick={() => setActiveTab('setup')}
+						>
+							Setup
+						</button>
 					</div>
 
 					{activeTab === 'subscriptions' && (
@@ -1948,6 +2262,15 @@ const PingOneWebhookViewer: React.FC = () => {
 								)}
 							</div>
 						</>
+					)}
+
+					{activeTab === 'setup' && (
+						<SetupTab
+							tunnelUrl={tunnelUrl}
+							tunnelLoading={tunnelLoading}
+							tunnelError={tunnelError}
+							onStartTunnel={handleStartTunnel}
+						/>
 					)}
 
 					<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
