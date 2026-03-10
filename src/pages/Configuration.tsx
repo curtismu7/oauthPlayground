@@ -18,8 +18,8 @@ import {
 	PINGONE_REGION_MAP,
 	type PingOneRegion,
 	REGION_LABELS,
+	REGIONS_FOR_UI,
 	saveRegion,
-	VALID_REGIONS,
 } from '../services/regionService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
@@ -980,7 +980,15 @@ const Configuration: React.FC = () => {
 							</label>
 							<select
 								id="region-select"
-								value={selectedRegion || ''}
+								value={
+									selectedRegion === 'na' || selectedRegion === 'com'
+										? 'us'
+										: selectedRegion === 'asia'
+											? 'ap'
+											: selectedRegion === 'com.au'
+												? 'au'
+												: selectedRegion || ''
+								}
 								onChange={(e) => handleRegionChange(e.target.value as PingOneRegion)}
 								style={{
 									padding: '0.75rem',
@@ -992,15 +1000,46 @@ const Configuration: React.FC = () => {
 									minWidth: '350px',
 								}}
 							>
-								{Object.entries(REGION_LABELS)
-									.filter(([region]) => VALID_REGIONS.includes(region as PingOneRegion))
-									.map(([value, label]) => (
-										<option key={value} value={value}>
-											{label}
-										</option>
-									))}
+								{REGIONS_FOR_UI.map(({ value, label }) => (
+									<option key={value} value={value}>
+										{label}
+									</option>
+								))}
 							</select>
 						</div>
+						<p style={{ marginTop: '0.5rem', marginBottom: 0, fontSize: '0.875rem' }}>
+							<a
+								href="https://developer.pingidentity.com/pingone-api/verify/working-with-pingone-apis.html"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{ color: '#2563eb' }}
+							>
+								Working with PingOne APIs
+							</a>
+						</p>
+						<p
+							style={{
+								marginTop: '0.75rem',
+								marginBottom: 0,
+								fontSize: '0.875rem',
+								color: '#6b7280',
+								lineHeight: 1.5,
+							}}
+						>
+							This is the PingOne data region where your organization and environments live. All
+							Management API and auth requests from this app are sent to the selected region’s API
+							host (e.g. api.pingone.ca for Canada). Choose the region that matches your PingOne
+							subscription. See{' '}
+							<a
+								href="https://developer.pingidentity.com/pingone-api/verify/working-with-pingone-apis.html"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{ color: '#2563eb' }}
+							>
+								Working with PingOne APIs
+							</a>{' '}
+							for the official region list and API domains.
+						</p>
 					</div>
 				)}
 			</div>

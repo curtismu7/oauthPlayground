@@ -55555,3 +55555,91 @@
 * ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── *
 * END OF API CALL: Get All MFA Devices
 ******************************************************************************************************************************************************
+
+******************************************************************************************************************************************************
+*                                                                                                                                                    *
+*  🌐 PINGONE API CALL: Get Environments
+*  📅 Timestamp: 2026-03-10T10:18:06.266Z
+*  🕐 Local Time: 03/10/2026, 05:18:06
+*                                                                                                                                                    *
+******************************************************************************************************************************************************
+
+═══════════════════════════════════════════════════════════════════════════════
+📤 REQUEST
+═══════════════════════════════════════════════════════════════════════════════
+📍 URL: https://api.pingdemo.com:3001/api/environments?page=1&pageSize=12&accessToken=eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMTRlMzAwNzItMGU1YS00ODlkLThhNmEtZGQwMjliZDU1ODAzIiwiaWF0IjoxNzczMTM0OTM4LCJleHAiOjE3NzMxMzg1MzgsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIxNGUzMDA3Mi0wZTVhLTQ4OWQtOGE2YS1kZDAyOWJkNTU4MDMifQ.MVXDAd0bEhy4oKQ00-lJTnQoaEPOGJp-k5W1wFar8fXNXWB9j5ELA4fjsadyVe-qSUJ6p4t6E_MjKI_fkw2laFzo1f3Ckkv242e7YaqpoyaWJVadQsd1mgxv8S7MIxoEouQnM_dgOeJfeAgJnzSpyab5bGVWFSY0WbxycJeDFQbcLMb2Cm0S9pqUWTOZ_QUBfHdZ1RcT1zqSXw4b740Sx8UgK2rNGmRp9ObaWUZ7ACCCVqigXW8PwXZIEIvF0gfpalT-MGbpokaJeYDMyMTgliB7EbUxWdn76N2BzM-9v_HnrZ2X4qC7Bm_w8b22jYHtjHsryn-DhxoFe2svV_gGwA&region=na
+🔧 METHOD: GET
+📋 REQUEST HEADERS: {
+  "Authorization": "Bearer eyJraWQiOiI4MjkzOTZh...jkzOTZh...",
+  "Content-Type": "application/json"
+}
+📦 REQUEST BODY (JSON): {
+  "typeFilters": [],
+  "statusFilters": [],
+  "regionFilters": [],
+  "search": null,
+  "page": 1,
+  "pageSize": 12
+}
+📦 REQUEST BODY (Raw): {
+  "typeFilters": [],
+  "statusFilters": [],
+  "regionFilters": [],
+  "search": null,
+  "page": 1,
+  "pageSize": 12
+}
+
+******************************************************************************************************************************************************
+* ⚠️ Get Environments - UNKNOWN (NO_RESPONSE No response received)
+* 📅 Date/Time: 03/10/2026, 05:18:06 (2026-03-10T10:18:06.266Z)
+* ⏱️  Duration: undefinedms
+* 🔗 URL: https://api.pingdemo.com:3001/api/environments?page=1&pageSize=12&accessToken=eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMTRlMzAwNzItMGU1YS00ODlkLThhNmEtZGQwMjliZDU1ODAzIiwiaWF0IjoxNzczMTM0OTM4LCJleHAiOjE3NzMxMzg1MzgsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIxNGUzMDA3Mi0wZTVhLTQ4OWQtOGE2YS1kZDAyOWJkNTU4MDMifQ.MVXDAd0bEhy4oKQ00-lJTnQoaEPOGJp-k5W1wFar8fXNXWB9j5ELA4fjsadyVe-qSUJ6p4t6E_MjKI_fkw2laFzo1f3Ckkv242e7YaqpoyaWJVadQsd1mgxv8S7MIxoEouQnM_dgOeJfeAgJnzSpyab5bGVWFSY0WbxycJeDFQbcLMb2Cm0S9pqUWTOZ_QUBfHdZ1RcT1zqSXw4b740Sx8UgK2rNGmRp9ObaWUZ7ACCCVqigXW8PwXZIEIvF0gfpalT-MGbpokaJeYDMyMTgliB7EbUxWdn76N2BzM-9v_HnrZ2X4qC7Bm_w8b22jYHtjHsryn-DhxoFe2svV_gGwA&region=na
+* 🔧 Method: GET
+* ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── *
+* END OF API CALL: Get Environments
+******************************************************************************************************************************************************
+
+******************************************************************************************************************************************************
+*                                                                                                                                                    *
+*  🌐 PINGONE API CALL: Get Environments
+*  📅 Timestamp: 2026-03-10T10:18:20.413Z
+*  🕐 Local Time: 03/10/2026, 05:18:20
+*                                                                                                                                                    *
+******************************************************************************************************************************************************
+
+═══════════════════════════════════════════════════════════════════════════════
+📤 REQUEST
+═══════════════════════════════════════════════════════════════════════════════
+📍 URL: https://api.pingdemo.com:3001/api/environments?page=1&pageSize=12&accessToken=eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMTRlMzAwNzItMGU1YS00ODlkLThhNmEtZGQwMjliZDU1ODAzIiwiaWF0IjoxNzczMTM0OTM4LCJleHAiOjE3NzMxMzg1MzgsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIxNGUzMDA3Mi0wZTVhLTQ4OWQtOGE2YS1kZDAyOWJkNTU4MDMifQ.MVXDAd0bEhy4oKQ00-lJTnQoaEPOGJp-k5W1wFar8fXNXWB9j5ELA4fjsadyVe-qSUJ6p4t6E_MjKI_fkw2laFzo1f3Ckkv242e7YaqpoyaWJVadQsd1mgxv8S7MIxoEouQnM_dgOeJfeAgJnzSpyab5bGVWFSY0WbxycJeDFQbcLMb2Cm0S9pqUWTOZ_QUBfHdZ1RcT1zqSXw4b740Sx8UgK2rNGmRp9ObaWUZ7ACCCVqigXW8PwXZIEIvF0gfpalT-MGbpokaJeYDMyMTgliB7EbUxWdn76N2BzM-9v_HnrZ2X4qC7Bm_w8b22jYHtjHsryn-DhxoFe2svV_gGwA&region=na
+🔧 METHOD: GET
+📋 REQUEST HEADERS: {
+  "Authorization": "Bearer eyJraWQiOiI4MjkzOTZh...jkzOTZh...",
+  "Content-Type": "application/json"
+}
+📦 REQUEST BODY (JSON): {
+  "typeFilters": [],
+  "statusFilters": [],
+  "regionFilters": [],
+  "search": null,
+  "page": 1,
+  "pageSize": 12
+}
+📦 REQUEST BODY (Raw): {
+  "typeFilters": [],
+  "statusFilters": [],
+  "regionFilters": [],
+  "search": null,
+  "page": 1,
+  "pageSize": 12
+}
+
+******************************************************************************************************************************************************
+* ⚠️ Get Environments - UNKNOWN (NO_RESPONSE No response received)
+* 📅 Date/Time: 03/10/2026, 05:18:20 (2026-03-10T10:18:20.413Z)
+* ⏱️  Duration: undefinedms
+* 🔗 URL: https://api.pingdemo.com:3001/api/environments?page=1&pageSize=12&accessToken=eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMTRlMzAwNzItMGU1YS00ODlkLThhNmEtZGQwMjliZDU1ODAzIiwiaWF0IjoxNzczMTM0OTM4LCJleHAiOjE3NzMxMzg1MzgsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIxNGUzMDA3Mi0wZTVhLTQ4OWQtOGE2YS1kZDAyOWJkNTU4MDMifQ.MVXDAd0bEhy4oKQ00-lJTnQoaEPOGJp-k5W1wFar8fXNXWB9j5ELA4fjsadyVe-qSUJ6p4t6E_MjKI_fkw2laFzo1f3Ckkv242e7YaqpoyaWJVadQsd1mgxv8S7MIxoEouQnM_dgOeJfeAgJnzSpyab5bGVWFSY0WbxycJeDFQbcLMb2Cm0S9pqUWTOZ_QUBfHdZ1RcT1zqSXw4b740Sx8UgK2rNGmRp9ObaWUZ7ACCCVqigXW8PwXZIEIvF0gfpalT-MGbpokaJeYDMyMTgliB7EbUxWdn76N2BzM-9v_HnrZ2X4qC7Bm_w8b22jYHtjHsryn-DhxoFe2svV_gGwA&region=na
+* 🔧 Method: GET
+* ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── *
+* END OF API CALL: Get Environments
+******************************************************************************************************************************************************
