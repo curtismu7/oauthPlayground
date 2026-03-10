@@ -170,8 +170,11 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 		}
 	}, [value, selectedUser, users]);
 
-	// Close dropdown when clicking outside
+	// Close dropdown when clicking outside. Defer listener to avoid the opening click
+	// being treated as outside (causes "flash and close" in modals/overlays).
 	useEffect(() => {
+		if (!isOpen) return;
+
 		const handleClickOutside = (event: MouseEvent) => {
 			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
 				setIsOpen(false);
@@ -179,10 +182,17 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 			}
 		};
 
-		if (isOpen) {
+		let cancelled = false;
+		const rafId = requestAnimationFrame(() => {
+			if (cancelled) return;
 			document.addEventListener('mousedown', handleClickOutside);
-			return () => document.removeEventListener('mousedown', handleClickOutside);
-		}
+		});
+
+		return () => {
+			cancelled = true;
+			cancelAnimationFrame(rafId);
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
 	}, [isOpen]);
 
 	// Focus search input when dropdown opens
@@ -318,15 +328,28 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 							<span style={{ fontSize: '16px' }}>❌</span>
 						</button>
 					)}
-					<div
+					<button
+						type="button"
+						tabIndex={-1}
+						onClick={(e) => {
+							e.stopPropagation();
+							e.preventDefault();
+							if (!disabled && !tokenMissing) setIsOpen((prev) => !prev);
+						}}
+						disabled={disabled || tokenMissing}
 						style={{
-							color: '#6b7280',
+							background: 'none',
+							border: 'none',
+							cursor: disabled || tokenMissing ? 'not-allowed' : 'pointer',
+							padding: '4px',
 							display: 'flex',
 							alignItems: 'center',
+							color: '#6b7280',
 						}}
+						aria-label="Open user list"
 					>
 						<span style={{ fontSize: '16px' }}>⬇️</span>
-					</div>
+					</button>
 				</div>
 			</div>
 
