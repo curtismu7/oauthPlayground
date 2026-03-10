@@ -1,3 +1,9 @@
+// Polyfill Buffer for browser (Node.js API not available in browser by default)
+import { Buffer } from 'buffer';
+if (typeof globalThis !== 'undefined') {
+	(globalThis as unknown as { Buffer?: typeof Buffer }).Buffer = Buffer;
+}
+
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './styles/vendor/end-user-nano.css';
 import './styles/icons.css';
