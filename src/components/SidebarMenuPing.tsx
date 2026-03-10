@@ -16,81 +16,147 @@ import { Icon } from './Icon/Icon';
 import { renderVersionBadge } from './VersionBadgeService';
 
 const PING_MENU_STORAGE_KEY = 'sidebarPing.menuOrder';
-const PING_MENU_VERSION = '1';
+const HIDDEN_ITEMS_STORAGE_KEY = 'sidebarPing.hiddenItems';
+// v7: restructured mock flows into OIDC / OAuth 2.0 / Unsupported groups
+const PING_MENU_VERSION = '8';
+
+function loadHiddenItems(): Set<string> {
+	try {
+		const raw = localStorage.getItem(HIDDEN_ITEMS_STORAGE_KEY);
+		if (!raw) return new Set();
+		const arr = JSON.parse(raw) as string[];
+		return Array.isArray(arr) ? new Set(arr) : new Set();
+	} catch {
+		return new Set();
+	}
+}
+
+function saveHiddenItems(hidden: Set<string>): void {
+	try {
+		localStorage.setItem(HIDDEN_ITEMS_STORAGE_KEY, JSON.stringify([...hidden]));
+	} catch (e) {
+		logger.warn('SidebarMenuPing', 'Failed to save hidden items', { error: e });
+	}
+}
 
 const GROUP_ICON: Record<string, string> = {
 	dashboard: 'chart-box',
-	'admin-configuration': 'cog',
-	'pingone-platform': 'account-group',
+	'setup-configuration': 'cog',
+	'mock-flows': 'alert-box',
+	'oidc-mock': 'account-key',
+	'oauth-2-mock': 'lock',
+	'unsupported-flows': 'alert-circle-outline',
 	'unified-production-flows': 'flash',
-	'oauth-flows': 'lock',
-	'oidc-flows': 'account-key',
-	'pingone-flows': 'key',
+	'flow-tools': 'tool',
 	'tokens-session': 'key-chain',
-	'developer-tools': 'code-tags',
-	'education-tutorials': 'school',
-	'mock-educational-flows': 'alert-box',
-	'ai-ping': 'robot',
 	'documentation-reference': 'book-open-variant',
-	'oauth-mock-flows': 'file-document-outline',
-	'advanced-mock-flows': 'flask-outline',
+	'artificial-intelligence': 'robot',
+	'ai-ping': 'robot',
+	'developer-tools': 'code-tags',
+	'admin-platform': 'account-cog',
 };
 
 const DEFAULT_ITEM_ICON = 'page-next-outline';
 
-/** Serializable order for persistence (group ids and item ids only). */
-interface SerializedGroup {
+/** Full item snapshot stored in localStorage. */
+interface StoredItem {
 	id: string;
-	items: Array<{ id: string }>;
-	subGroups?: SerializedGroup[];
+	path: string;
+	label: string;
+	migratedToV9?: boolean;
 }
 
-function serializeGroups(groups: SidebarMenuGroup[]): SerializedGroup[] {
+/** Full group snapshot stored in localStorage — captures placement and order. */
+interface StoredGroup {
+	id: string;
+	label: string;
+	items: StoredItem[];
+	subGroups?: StoredGroup[];
+}
+
+function serializeGroups(groups: SidebarMenuGroup[]): StoredGroup[] {
 	return groups.map((g) => ({
 		id: g.id,
-		items: g.items.map((i) => ({ id: i.id })),
+		label: g.label,
+		items: g.items.map((i) => ({
+			id: i.id,
+			path: i.path,
+			label: i.label,
+			...(i.migratedToV9 !== undefined && { migratedToV9: i.migratedToV9 }),
+		})),
 		subGroups: g.subGroups?.length ? serializeGroups(g.subGroups) : undefined,
 	}));
 }
 
-/** Restore group order from saved; fill in full item data from default groups. */
+/**
+ * Restore menu from storage.
+ * - Config is the authoritative source for item data (labels/paths/badges stay fresh).
+ * - Items are looked up globally across all groups so cross-group placements are honoured.
+ * - New groups/items added to the config are appended to their default locations.
+ * - Items no longer in the config are silently dropped.
+ */
 function restoreGroups(
-	saved: SerializedGroup[],
+	stored: StoredGroup[],
 	defaultGroups: SidebarMenuGroup[]
 ): SidebarMenuGroup[] {
-	return saved
-		.map((savedGroup) => {
-			const defaultGroup = defaultGroups.find((g) => g.id === savedGroup.id);
-			if (!defaultGroup) return null;
-			const seenIds = new Set<string>();
-			const items = savedGroup.items
-				.map((savedItem) => {
-					if (seenIds.has(savedItem.id)) return null;
-					seenIds.add(savedItem.id);
-					const found =
-						defaultGroup.items.find((i) => i.id === savedItem.id) ||
-						defaultGroup.subGroups?.flatMap((sg) => sg.items).find((i) => i.id === savedItem.id);
-					return found ?? null;
-				})
-				.filter(Boolean) as SidebarMenuItem[];
-			// Append any default items not in saved
-			for (const it of defaultGroup.items) {
-				if (!seenIds.has(it.id)) items.push(it);
-			}
-			for (const sg of defaultGroup.subGroups ?? []) {
-				for (const it of sg.items) {
-					if (!seenIds.has(it.id)) items.push(it);
-				}
-			}
-			let subGroups: SidebarMenuGroup[] | undefined;
-			if (defaultGroup.subGroups?.length && savedGroup.subGroups?.length) {
-				subGroups = restoreGroups(savedGroup.subGroups, defaultGroup.subGroups);
-			} else {
-				subGroups = defaultGroup.subGroups;
-			}
-			return { ...defaultGroup, items, subGroups };
+	// Build a global id → SidebarMenuItem map from the current config
+	const configItems = new Map<string, SidebarMenuItem>();
+	for (const g of defaultGroups) {
+		for (const it of g.items) configItems.set(it.id, it);
+		for (const sg of g.subGroups ?? []) {
+			for (const it of sg.items) configItems.set(it.id, it);
+		}
+	}
+
+	const placed = new Set<string>();
+
+	// Rebuild groups following the saved order; items are resolved globally
+	const restored = stored
+		.map((sg) => {
+			const defaultGroup = defaultGroups.find((g) => g.id === sg.id);
+			const baseGroup = defaultGroup ?? {
+				id: sg.id,
+				label: sg.label,
+				items: [] as SidebarMenuItem[],
+				subGroups: undefined,
+			};
+			const items = sg.items
+				.filter((si) => !placed.has(si.id) && configItems.has(si.id))
+				.map((si) => {
+					placed.add(si.id);
+					return configItems.get(si.id)!; // always use fresh config data
+				});
+
+			if (!defaultGroup && items.length === 0) return null; // ghost group, all items gone
+			return { ...baseGroup, items, subGroups: defaultGroup?.subGroups };
 		})
 		.filter(Boolean) as SidebarMenuGroup[];
+
+	// Index restored groups for fast lookup
+	const restoredMap = new Map(restored.map((g) => [g.id, g]));
+
+	// Append new config items/groups that haven't been placed yet
+	for (const dg of defaultGroups) {
+		const existing = restoredMap.get(dg.id);
+		if (!existing) {
+			// Brand-new group — add entirely (only unplaced items)
+			const newItems = dg.items.filter((it) => !placed.has(it.id));
+			for (const it of newItems) placed.add(it.id);
+			if (newItems.length > 0 || (dg.subGroups?.length ?? 0) > 0) {
+				restored.push({ ...dg, items: newItems });
+			}
+		} else {
+			// Existing group — append any items newly added to the config
+			for (const it of dg.items) {
+				if (!placed.has(it.id)) {
+					existing.items.push(it);
+					placed.add(it.id);
+				}
+			}
+		}
+	}
+
+	return restored;
 }
 
 function getInitialGroups(): SidebarMenuGroup[] {
@@ -99,9 +165,9 @@ function getInitialGroups(): SidebarMenuGroup[] {
 		if (version !== PING_MENU_VERSION) return getSidebarMenuGroupsWithVersionBadges();
 		const raw = localStorage.getItem(PING_MENU_STORAGE_KEY);
 		if (!raw) return getSidebarMenuGroupsWithVersionBadges();
-		const saved = JSON.parse(raw) as SerializedGroup[];
-		if (!Array.isArray(saved)) return getSidebarMenuGroupsWithVersionBadges();
-		return restoreGroups(saved, getSidebarMenuGroupsWithVersionBadges());
+		const stored = JSON.parse(raw) as StoredGroup[];
+		if (!Array.isArray(stored)) return getSidebarMenuGroupsWithVersionBadges();
+		return restoreGroups(stored, getSidebarMenuGroupsWithVersionBadges());
 	} catch {
 		return getSidebarMenuGroupsWithVersionBadges();
 	}
@@ -132,6 +198,7 @@ function MenuItemLink({
 	onDragEnd,
 	onDragOver,
 	onDrop,
+	onHideItem,
 }: {
 	item: SidebarMenuItem;
 	pathname: string;
@@ -146,6 +213,7 @@ function MenuItemLink({
 	onDragEnd?: (e: React.DragEvent) => void;
 	onDragOver?: (e: React.DragEvent) => void;
 	onDrop?: (e: React.DragEvent, groupId: string, itemIndex: number, subGroupId?: string) => void;
+	onHideItem?: (itemId: string) => void;
 }) {
 	const active = isActive(item.path, pathname, search);
 	const showDropLine =
@@ -156,6 +224,15 @@ function MenuItemLink({
 			className={`sidebar-ping__item ${active ? 'sidebar-ping__item--active' : ''}`}
 			aria-current={active ? 'page' : undefined}
 			onClick={dragMode ? (e) => e.preventDefault() : undefined}
+			onContextMenu={
+				onHideItem
+					? (e) => {
+							e.preventDefault();
+							onHideItem(item.id);
+						}
+					: undefined
+			}
+			title={onHideItem ? 'Right-click to hide from menu' : undefined}
 		>
 			{dragMode && (
 				<span className="sidebar-ping__drag-handle" aria-hidden title="Drag to reorder">
@@ -216,6 +293,8 @@ function GroupContent({
 	onItemDragEnd,
 	onItemDragOverHandler,
 	onItemDrop,
+	hiddenItems,
+	onHideItem,
 }: {
 	group: SidebarMenuGroup;
 	pathname: string;
@@ -229,12 +308,23 @@ function GroupContent({
 	onItemDragEnd?: (e: React.DragEvent) => void;
 	onItemDragOverHandler?: (e: React.DragEvent) => void;
 	onItemDrop?: (e: React.DragEvent, gid: string, itemIndex: number, subGroupId?: string) => void;
+	hiddenItems?: Set<string>;
+	onHideItem?: (itemId: string) => void;
 }) {
+	const visibleItems = hiddenItems
+		? group.items.filter((i) => !hiddenItems.has(i.id))
+		: group.items;
+	const countVisible = (g: SidebarMenuGroup): number =>
+		(g.items.filter((i) => !hiddenItems?.has(i.id)).length ?? 0) +
+		(g.subGroups?.reduce((acc, sg) => acc + countVisible(sg), 0) ?? 0);
+	const visibleSubGroups = hiddenItems
+		? group.subGroups?.filter((sg) => countVisible(sg) > 0)
+		: group.subGroups;
 	return (
 		<ul
 			className={`sidebar-ping__group-items ${indent ? 'sidebar-ping__group-items--nested' : ''}`}
 		>
-			{group.items.map((item, idx) => (
+			{visibleItems.map((item, idx) => (
 				<MenuItemLink
 					key={item.id}
 					item={item}
@@ -250,9 +340,10 @@ function GroupContent({
 					onDragEnd={onItemDragEnd}
 					onDragOver={onItemDragOverHandler}
 					onDrop={onItemDrop}
+					onHideItem={onHideItem}
 				/>
 			))}
-			{group.subGroups?.map((sub) => (
+			{visibleSubGroups?.map((sub) => (
 				<li key={sub.id}>
 					<GroupContent
 						group={sub}
@@ -267,6 +358,8 @@ function GroupContent({
 						onItemDragEnd={onItemDragEnd}
 						onItemDragOverHandler={onItemDragOverHandler}
 						onItemDrop={onItemDrop}
+						hiddenItems={hiddenItems}
+						onHideItem={onHideItem}
 					/>
 				</li>
 			))}
@@ -294,12 +387,24 @@ function GroupContent({
 	);
 }
 
+/** Build flat map of item id -> item for all items in groups */
+function buildItemMap(groups: SidebarMenuGroup[]): Map<string, SidebarMenuItem> {
+	const map = new Map<string, SidebarMenuItem>();
+	const add = (g: SidebarMenuGroup) => {
+		for (const i of g.items) map.set(i.id, i);
+		for (const sg of g.subGroups ?? []) add(sg);
+	};
+	for (const g of groups) add(g);
+	return map;
+}
+
 export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: string }> = ({
 	dragMode = false,
 	searchQuery = '',
 }) => {
 	const { pathname, search } = useLocation();
 	const [menuGroups, setMenuGroups] = useState<SidebarMenuGroup[]>(getInitialGroups);
+	const [hiddenItems, setHiddenItems] = useState<Set<string>>(loadHiddenItems);
 	const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
 		const initial = new Set<string>();
 		for (const g of menuGroups) initial.add(g.id);
@@ -339,6 +444,24 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 			const next = new Set(prev);
 			if (next.has(id)) next.delete(id);
 			else next.add(id);
+			return next;
+		});
+	}, []);
+
+	const handleHideItem = useCallback((itemId: string) => {
+		setHiddenItems((prev) => {
+			const next = new Set(prev);
+			next.add(itemId);
+			saveHiddenItems(next);
+			return next;
+		});
+	}, []);
+
+	const handleUnhideItem = useCallback((itemId: string) => {
+		setHiddenItems((prev) => {
+			const next = new Set(prev);
+			next.delete(itemId);
+			saveHiddenItems(next);
 			return next;
 		});
 	}, []);
@@ -405,39 +528,64 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 		[menuGroups, getDraggedData, saveOrder]
 	);
 
-	// Item reorder within same group (drop before target index).
-	const handleDropOnItemSameGroup = useCallback(
-		(e: React.DragEvent, groupId: string, targetIndex: number) => {
-			// Use dataTransfer as primary source — state may be stale if React hasn't re-rendered yet
-			const data = getDraggedData(e);
-			if (!data || data.type !== 'item') return;
+	// Unified item drop — handles same-group reorder AND cross-group moves.
+	const handleDropItem = useCallback(
+		(e: React.DragEvent, targetGroupId: string, targetIndex: number) => {
+			e.preventDefault();
+			e.stopPropagation();
 			setDropTargetItem(null);
-			const groupIdx = menuGroups.findIndex((g) => g.id === groupId);
-			if (groupIdx === -1) return;
-			const group = menuGroups[groupIdx];
-			const srcIdx = group.items.findIndex((i) => i.id === data.id);
-			if (srcIdx === -1) return;
-			if (srcIdx === targetIndex) return;
-			const next = [...menuGroups];
-			const items = [...next[groupIdx].items];
-			const [removed] = items.splice(srcIdx, 1);
-			const insertAt = targetIndex > srcIdx ? targetIndex - 1 : targetIndex;
-			items.splice(insertAt, 0, removed);
-			next[groupIdx] = { ...next[groupIdx], items };
+			// dataTransfer is the primary source — React state may be stale on first render
+			const data = getDraggedData(e);
+			if (!data || data.type !== 'item' || !data.groupId) return;
+			setDraggedItem(null);
+
+			const srcGroupIdx = menuGroups.findIndex((g) => g.id === data.groupId);
+			const tgtGroupIdx = menuGroups.findIndex((g) => g.id === targetGroupId);
+			if (srcGroupIdx === -1 || tgtGroupIdx === -1) return;
+
+			const srcItemIdx = menuGroups[srcGroupIdx].items.findIndex((i) => i.id === data.id);
+			if (srcItemIdx === -1) return;
+
+			// No-op: same group, same slot
+			if (data.groupId === targetGroupId && srcItemIdx === targetIndex) return;
+
+			// Deep-clone the affected groups' item arrays
+			const next = menuGroups.map((g) => ({ ...g, items: [...g.items] }));
+			const [removed] = next[srcGroupIdx].items.splice(srcItemIdx, 1);
+
+			if (data.groupId === targetGroupId) {
+				// Same-group reorder
+				const insertAt = targetIndex > srcItemIdx ? targetIndex - 1 : targetIndex;
+				next[srcGroupIdx].items.splice(Math.max(0, insertAt), 0, removed);
+			} else {
+				// Cross-group move — open the target group so the item is visible
+				setOpenGroups((prev) => new Set([...prev, targetGroupId]));
+				const clampedIndex = Math.min(targetIndex, next[tgtGroupIdx].items.length);
+				next[tgtGroupIdx].items.splice(clampedIndex, 0, removed);
+			}
+
 			setMenuGroups(next);
 			saveOrder(next);
-			setDraggedItem(null);
 		},
 		[menuGroups, getDraggedData, saveOrder]
 	);
 
-	// Search mode: flat filtered list across all groups
+	// Helper to count visible items in a group (excluding hidden)
+	const countVisibleInGroup = useCallback(
+		(g: SidebarMenuGroup): number =>
+			g.items.filter((i) => !hiddenItems.has(i.id)).length +
+			(g.subGroups?.reduce((acc, sg) => acc + countVisibleInGroup(sg), 0) ?? 0),
+		[hiddenItems]
+	);
+
+	// Search mode: flat filtered list across all groups (excludes hidden items)
 	if (searchQuery.trim()) {
 		const q = searchQuery.toLowerCase();
 		const results: Array<{ item: SidebarMenuItem; groupLabel: string }> = [];
 		for (const group of menuGroups) {
 			const allItems = [...group.items, ...(group.subGroups?.flatMap((sg) => sg.items) ?? [])];
 			for (const item of allItems) {
+				if (hiddenItems.has(item.id)) continue;
 				if (item.label.toLowerCase().includes(q) || item.path.toLowerCase().includes(q)) {
 					results.push({ item, groupLabel: group.label });
 				}
@@ -567,7 +715,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 										onDragStart={(e) => handleDragStart(e, 'item', group.items[0].id, group.id)}
 										onDragEnd={handleDragEnd}
 										onDragOver={handleDragOver}
-										onDrop={(e) => handleDropOnItemSameGroup(e, group.id, 0)}
+										onDrop={(e) => handleDropItem(e, group.id, 0)}
 									/>
 								</ul>
 							</div>
@@ -645,7 +793,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 										onItemDragStart={(e, itemId) => handleDragStart(e, 'item', itemId, group.id)}
 										onItemDragEnd={handleDragEnd}
 										onItemDragOverHandler={handleDragOver}
-										onItemDrop={(e, gid, idx) => handleDropOnItemSameGroup(e, gid, idx)}
+										onItemDrop={(e, gid, idx) => handleDropItem(e, gid, idx)}
 									/>
 								</section>
 							)}
