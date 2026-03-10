@@ -15,7 +15,27 @@
  * ========================================================================
  */
 
-import { FiChevronDown, FiMove } from '../icons';
+import {
+	FiActivity,
+	FiBarChart2,
+	FiBook,
+	FiCheckCircle,
+	FiChevronDown,
+	FiCode,
+	FiFileText,
+	FiGitBranch,
+	FiGitMerge,
+	FiKey,
+	FiLink,
+	FiLogOut,
+	FiMinimize2,
+	FiMove,
+	FiPackage,
+	FiPlay,
+	FiShield,
+	FiTerminal,
+	FiTool,
+} from '../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -394,7 +414,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Flow Comparison Tool',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>❓</span>
+								<span>
+									<FiGitBranch />
+								</span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -459,7 +481,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '🔥 New Unified MFA',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
-								<span>❓</span>
+								<span>
+									<FiShield />
+								</span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -587,7 +611,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'SDK Examples',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>❓</span>
+								<span>
+									<FiCode />
+								</span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -602,7 +628,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Debug Log Viewer',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<span>❓</span>
+								<span>
+									<FiTerminal />
+								</span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -636,7 +664,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '🔥 New Unified MFA',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
-								<span>❓</span>
+								<span>
+									<FiShield />
+								</span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -684,7 +714,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'All Flows API Test Suite',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<span>❓</span>
+								<span>
+									<FiCheckCircle />
+								</span>
 							</ColoredIcon>
 						),
 						badge: <MenuVersionBadge version="9.11.76" type="production" />,
@@ -1031,7 +1063,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Hybrid Flow (V7)',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>❓</span>
+								<span>
+									<FiGitMerge />
+								</span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1046,7 +1080,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Hybrid Flow (V8)',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>❓</span>
+								<span>
+									<FiGitMerge />
+								</span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1276,7 +1312,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'PingOne Logout',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
-								<span>❓</span>
+								<span>
+									<FiLogOut />
+								</span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1419,7 +1457,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'V7 Condensed (Prototype)',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
-										<span>❓</span>
+										<span>
+											<FiMinimize2 />
+										</span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1494,7 +1534,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				label: 'PingOne Tools',
 				icon: (
 					<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-						<span>❓</span>
+						<span>
+							<FiTool />
+						</span>
 					</ColoredIcon>
 				),
 				isOpen: false,
@@ -1531,7 +1573,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'Identity Metrics',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-										<span>❓</span>
+										<span>
+											<FiActivity />
+										</span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1562,7 +1606,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'PingOne Monitoring',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>❓</span>
+								<span>
+									<FiBarChart2 />
+								</span>
 							</ColoredIcon>
 						),
 						isOpen: false,
@@ -1621,7 +1667,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				label: 'Developer Tools',
 				icon: (
 					<ColoredIcon $color="#8b5cf6">
-						<span>❓</span>
+						<span>
+							<FiTerminal />
+						</span>
 					</ColoredIcon>
 				),
 				isOpen: false,
@@ -1632,7 +1680,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Core Developer Tools',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<span>❓</span>
+								<span>
+									<FiCode />
+								</span>
 							</ColoredIcon>
 						),
 						isOpen: false,
@@ -1674,7 +1724,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Developer Utilities',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
-								<span>❓</span>
+								<span>
+									<FiTool />
+								</span>
 							</ColoredIcon>
 						),
 						isOpen: false,
@@ -1685,7 +1737,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'JWKS Troubleshooting',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
-										<span>❓</span>
+										<span>
+											<FiKey />
+										</span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1700,7 +1754,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'URL Decoder',
 								icon: (
 									<ColoredIcon $color="#8b5cf6">
-										<span>❓</span>
+										<span>
+											<FiLink />
+										</span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1715,7 +1771,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'OAuth Code Generator Hub',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-										<span>❓</span>
+										<span>
+											<FiCode />
+										</span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1760,7 +1818,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'Service Test Runner',
 								icon: (
 									<ColoredIcon $color="#ec4899">
-										<span>❓</span>
+										<span>
+											<FiPlay />
+										</span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1775,7 +1835,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'Postman Collection Generator',
 								icon: (
 									<ColoredIcon $color="#f97316">
-										<span>❓</span>
+										<span>
+											<FiPackage />
+										</span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1876,7 +1938,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Mock & Educational Features',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
-								<span>❓</span>
+								<span>
+									<FiBook />
+								</span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1948,7 +2012,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'OIDC Specifications',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>❓</span>
+								<span>
+									<FiFileText />
+								</span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -2088,7 +2154,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'SDK Sample App',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>❓</span>
+								<span>
+									<FiCode />
+								</span>
 							</ColoredIcon>
 						),
 					},
