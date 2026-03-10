@@ -70,8 +70,12 @@ const createComponentTracker = (): ComponentTracker => {
 		const totalRenders = metrics.reduce((sum, comp) => sum + comp.renderCount, 0);
 		const averageRenders = metrics.length > 0 ? totalRenders / metrics.length : 0;
 
-		// Estimate memory usage based on component count and renders
-		const memoryUsage = metrics.length * 1024 * 1024; // Rough estimate: 1MB per component
+		// Use performance.memory when available (Chrome); else fallback estimate
+		const perf =
+			typeof performance !== 'undefined'
+				? (performance as { memory?: { usedJSHeapSize: number } })
+				: undefined;
+		const memoryUsage = perf?.memory?.usedJSHeapSize ?? metrics.length * 1024 * 1024;
 
 		return {
 			totalComponents: metrics.length,

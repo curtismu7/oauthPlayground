@@ -381,6 +381,25 @@ const CLEANUP_SESSIONS: CleanupSession[] = [
 		documentation: [
 			'A-Migration/STANDARDIZATION_HANDOFF.md',
 			'docs/standards/logging-implementation-plan.md',
+			{
+				id: 'runtime-api-dashboards-2026-03',
+				date: '2026-03-10',
+				duration: 1,
+				category: CLEANUP_CATEGORIES[3],
+				description:
+					'Runtime fixes: /api/settings/region 500→200, /api/environments 401/403/504, WebSocket HMR',
+				filesModified: 4,
+				linesOfCode: 0,
+				issuesResolved: 4,
+				documentation: [],
+				achievements: [
+					'GET /api/settings/region: on DB error return 200 with { value: null } so UI does not show backend down',
+					'GET /api/environments: map PingOne 401→401, 403→403, AbortError→504; normalize query params; 25s fetch timeouts',
+					'pingOneFetch only records backend failure for 5xx — expired token (401) no longer triggers "Backend appears to be down"',
+					'Vite: hmr: false when custom domain/HTTPS to avoid WebSocket connection to wss://api.pingdemo.com:3000 failed',
+				],
+				version: '9.13.6',
+			},
 		],
 		achievements: [
 			'~615 calls in 90+ service files; 133 in 16 hooks; 33 in 3 contexts; ~215 in 43 utils; ~160 in 79 components',
