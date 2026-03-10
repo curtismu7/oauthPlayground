@@ -43,6 +43,7 @@ import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
 import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
 import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { environmentIdPersistenceService } from '@/services/environmentIdPersistenceService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
@@ -180,13 +181,40 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		});
 	}, [environmentId, globalTokenStatus]);
 
-	// Load Environment ID and username from global services on mount
+	// Load Environment ID from new storage service (environmentIdPersistenceService), then fallbacks
 	useEffect(() => {
-		// Initialize the service first to load from localStorage
-		globalEnvironmentService.initialize();
-		const savedEnvId = globalEnvironmentService.getEnvironmentId();
-		if (savedEnvId) {
-			setEnvironmentId(savedEnvId);
+		// 1) New storage: app-wide environment ID (used by Worker Token, Environments, etc.)
+		const persistedEnvId = environmentIdPersistenceService.loadEnvironmentId();
+		if (persistedEnvId) {
+			setEnvironmentId(persistedEnvId);
+			globalEnvironmentService.initialize();
+		} else {
+			// 2) Sync global service and use its in-memory value (also backed by persistence)
+			globalEnvironmentService.initialize();
+			const savedEnvId = globalEnvironmentService.getEnvironmentId();
+			if (savedEnvId) {
+				setEnvironmentId(savedEnvId);
+			} else {
+				// 3) Legacy: MFA flow credentials and localStorage
+				const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+					flowKey: 'mfa-flow-v8',
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				if (mfaCreds?.environmentId) {
+					setEnvironmentId(mfaCreds.environmentId);
+					environmentIdPersistenceService.saveEnvironmentId(mfaCreds.environmentId, 'manual');
+				} else {
+					const legacyEnvId = localStorage.getItem('mfa_environmentId');
+					if (legacyEnvId) {
+						setEnvironmentId(legacyEnvId);
+						environmentIdPersistenceService.saveEnvironmentId(legacyEnvId, 'manual');
+					}
+				}
+			}
 		}
 
 		// Load username from localStorage
@@ -218,9 +246,10 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		}
 	}, [defaultPolicy, selectedPolicy, selectPolicy]);
 
-	// Sync environment ID to global service and CredentialsServiceV8 when it changes
+	// Sync environment ID to new storage service, global service, and CredentialsServiceV8 when it changes
 	useEffect(() => {
 		if (environmentId) {
+			environmentIdPersistenceService.saveEnvironmentId(environmentId, 'manual');
 			globalEnvironmentService.setEnvironmentId(environmentId);
 			localStorage.setItem('mfa_environmentId', environmentId);
 			// Also save to CredentialsServiceV8 for MFAFlowBase to read
@@ -876,13 +905,18 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							marginBottom: '60px',
 							paddingRight: '24px',
 							overflow: 'hidden',
+							position: 'relative',
+							zIndex: 1,
 						}}
 					>
-						<SilentApiConfigCheckboxV8 />
-						<ShowTokenConfigCheckboxV8 />
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' }}>
+							<SilentApiConfigCheckboxV8 />
+							<ShowTokenConfigCheckboxV8 />
+						</div>
 						{/* Worker Token Section */}
 						<WorkerTokenSectionV8
 							environmentId={environmentId}
+							showStatusCard={false}
 							onTokenUpdated={(_token) => {
 								// Token updated — global hook will auto-refresh
 							}}
@@ -1665,23 +1699,11 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 		return savedCreds?.accessToken || null;
 	});
 
-	// Global floating stepper
-	const { registerSteps, setCurrentStep: setStepperStep } = usePageStepper();
-
+	// Do not show floating stepper on this page (user requested removal)
+	const { clearSteps } = usePageStepper();
 	useEffect(() => {
-		registerSteps([
-			{ id: 'device-select', title: 'Select Device', description: 'Choose your MFA device type' },
-			{ id: 'configure', title: 'Configure', description: 'Set credentials and environment ID' },
-			{ id: 'user-login', title: 'User Login', description: 'Authenticate the user' },
-			{ id: 'register', title: 'Register', description: 'Generate OTP or QR code' },
-			{ id: 'validate', title: 'Validate', description: 'Complete OTP validation' },
-			{ id: 'success', title: 'Success', description: 'Device registered successfully' },
-		]);
-	}, [registerSteps]);
-
-	useEffect(() => {
-		setStepperStep(selectedDeviceType ? 1 : 0);
-	}, [selectedDeviceType, setStepperStep]);
+		clearSteps();
+	}, [clearSteps]);
 
 	// If no device type selected, show device type selection screen
 	if (!selectedDeviceType) {
@@ -2552,6 +2574,19 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		[config]
 	);
 
+	/** Steps 4–6: not used in this flow; fallback to Success so base never calls undefined. */
+	const renderStep4 = useCallback(
+		(props: MFAFlowBaseRenderProps) => {
+			if (MFAFeatureFlagsV8.isEnabled('mfa_modern_ui')) {
+				return <UnifiedSuccessStepModern {...props} config={config} />;
+			}
+			return <UnifiedSuccessStep {...props} config={config} />;
+		},
+		[config]
+	);
+	const renderStep5 = renderStep4;
+	const renderStep6 = renderStep4;
+
 	// ========================================================================
 	// STEP LABELS
 	// ========================================================================
@@ -2604,6 +2639,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				renderStep2={renderStep2}
 				renderStep3={renderStep3}
 				renderStep4={renderStep4}
+				renderStep5={renderStep5}
+				renderStep6={renderStep6}
 				validateStep0={validateStep0}
 				stepLabels={stepLabels}
 				shouldHideNextButton={shouldHideNextButton}

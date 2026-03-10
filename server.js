@@ -20,6 +20,7 @@ import { settingsDB } from './src/server/services/settingsDatabaseService.js';
 import { setupUserApiRoutes } from './src/server/routes/userApiRoutes.js';
 import { setupBackupApiRoutes } from './src/server/routes/backupApiRoutes.js';
 import { credentialsSqliteApi } from './src/api/credentialsSqliteApi.js';
+// import databaseApiRoutes from './src/server/routes/databaseApiRoutes.js';
 // import { registerTokenStorageRoutes } from './src/server/tokenStorageApi.js';
 
 dotenv.config();
@@ -76,6 +77,19 @@ const formatLogMessage = (level, ...args) => {
 	return `[${timestamp}] [${localTime}] [${levelEmoji} ${level}] ${message}\n`;
 };
 
+/**
+ * Prefix every line of a log block with date and time (same style as startup log entries).
+ * Use for pingone-api.log and client.log so each line has [timestamp] [localTime].
+ */
+function prefixLogLines(text, timestamp, localTime) {
+	const prefix = `[${timestamp}] [${localTime}] `;
+	if (!text || typeof text !== 'string') return text;
+	return text
+		.split('\n')
+		.map((line) => (line.length > 0 ? prefix + line : line))
+		.join('\n');
+}
+
 // Override console.log to write to both console and file (async, non-blocking)
 const originalLog = console.log;
 const originalError = console.error;
@@ -117,6 +131,42 @@ console.log(`📝 PingOne API logs: ${pingOneApiLogFile}`);
 console.log(`📝 Authz redirect logs: ${authzRedirectLogFile}`);
 console.log(`📝 Real API logs (no proxy): ${pingOneApiLogFile} (consolidated)`);
 console.log(`📝 Client logs: ${clientLogFile}`);
+
+// Log streams visible in Log Viewer (all use [timestamp] [localTime] format)
+const LOG_STREAMS = [
+	{ file: 'server.log', description: 'Server lifecycle and backend' },
+	{ file: 'pingone-api.log', description: 'PingOne API calls (MFA, OAuth, worker token, etc.)' },
+	{ file: 'client.log', description: 'Frontend / browser logs' },
+	{ file: 'authz-redirects.log', description: 'OAuth authz redirects and OIDC' },
+];
+console.log('📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):');
+LOG_STREAMS.forEach(({ file, description }) => {
+	originalLog(`   • ${file}: ${description}`);
+});
+
+// Bootstrap log files so they exist and appear in Log Viewer from first load (one line each, new format)
+function writeBootstrapLogLine(targetFile, message) {
+	const now = new Date();
+	const timestamp = now.toISOString();
+	const localTime = now.toLocaleString('en-US', {
+		timeZone: 'America/Chicago',
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		hour12: false,
+	});
+	const line = `[${timestamp}] [${localTime}] ${message}\n`;
+	const filePath = path.join(logsDir, targetFile);
+	fs.appendFile(filePath, line, 'utf8', (err) => {
+		if (err) originalError(`[Startup] Failed to bootstrap ${targetFile}:`, err.message);
+	});
+}
+writeBootstrapLogLine('pingone-api.log', 'Log stream started; PingOne API calls will appear here (format: [timestamp] [localTime]).');
+writeBootstrapLogLine('client.log', 'Log stream started; frontend logs will appear here (format: [timestamp] [localTime]).');
+writeBootstrapLogLine('authz-redirects.log', 'Log stream started; OAuth/authz redirects will appear here (format: [timestamp] [localTime]).');
 
 // Ensure fetch is available globally for server handlers that reference global.fetch
 if (typeof globalThis.fetch !== 'function') {
@@ -688,6 +738,9 @@ function logPingOneApiCall(
 	logMessage += `* END OF API CALL: ${operationName}\n`;
 	logMessage += `${'*'.repeat(LOG_WIDTH)}\n`;
 
+	// Prefix every line with date/time so all log entries show date and time like startup logs
+	logMessage = prefixLogLines(logMessage, timestamp, localTime);
+
 	// Check if this is a proxy call (case-insensitive check on operation name and URL)
 	const isProxyCall =
 		operationName.toLowerCase().includes('proxy') ||
@@ -809,6 +862,9 @@ setupBackupApiRoutes(app);
 // Setup enhanced credentials SQLite API
 credentialsSqliteApi(app);
 
+// Setup database viewer API routes (commented out until TypeScript is compiled)
+// app.use('/api/database', databaseApiRoutes);
+
 // Register token storage API routes
 // registerTokenStorageRoutes(app);
 
@@ -823,15 +879,31 @@ credentialsSqliteApi(app);
 app.post('/api/logs/authz-redirect', (req, res) => {
 	try {
 		const payload = req.body && typeof req.body === 'object' ? req.body : { value: req.body };
+		const now = new Date();
+		const timestamp = now.toISOString();
+		const localTime = now.toLocaleString('en-US', {
+			timeZone: 'America/Chicago',
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+			hour: '2-digit',
+			minute: '2-digit',
+			second: '2-digit',
+			hour12: false,
+		});
 		const logEntry = {
-			timestamp: new Date().toISOString(),
+			timestamp,
 			requestPath: req.path,
 			requestMethod: req.method,
 			clientIp: req.ip,
 			...payload,
 		};
 
-		fs.appendFileSync(authzRedirectLogFile, `${JSON.stringify(logEntry)}\n`, 'utf8');
+		fs.appendFileSync(
+			authzRedirectLogFile,
+			`[${timestamp}] [${localTime}] ${JSON.stringify(logEntry)}\n`,
+			'utf8'
+		);
 		return res.status(200).json({ success: true });
 	} catch (error) {
 		console.error('[AuthzRedirectLog] Failed to append authz redirect log:', error);
@@ -881,8 +953,18 @@ app.get('/api/logs/list', (req, res) => {
 					modified: stats.mtime,
 					category,
 				};
-			})
-			.sort((a, b) => b.modified - a.modified); // Most recent first
+			});
+
+		// Prefer order for main log streams so Log Viewer shows them first
+		const streamOrder = ['server.log', 'pingone-api.log', 'client.log', 'authz-redirects.log'];
+		logFiles.sort((a, b) => {
+			const ai = streamOrder.indexOf(a.name);
+			const bi = streamOrder.indexOf(b.name);
+			if (ai !== -1 && bi !== -1) return ai - bi;
+			if (ai !== -1) return -1;
+			if (bi !== -1) return 1;
+			return b.modified - a.modified; // Most recent first for others
+		});
 
 		res.json(logFiles);
 	} catch (error) {
@@ -1110,6 +1192,9 @@ app.post('/__client-log', async (req, res) => {
 		logMessage += `* ${'─'.repeat(LOG_WIDTH - 4)} *\n`;
 		logMessage += `* END OF CLIENT LOG ENTRY\n`;
 		logMessage += `${'*'.repeat(LOG_WIDTH)}\n`;
+
+		// Prefix every line with date/time so all log entries show date and time like startup logs
+		logMessage = prefixLogLines(logMessage, timestamp, localTime);
 
 		// Write to client.log file (async, non-blocking)
 		fs.appendFile(clientLogFile, logMessage, 'utf8', (err) => {

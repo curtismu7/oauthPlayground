@@ -28,7 +28,8 @@ export class PingOneLoginService {
 		environmentId: string,
 		clientId: string,
 		redirectUri: string,
-		scopes: string[] = ['openid', 'profile', 'email']
+		scopes: string[] = ['openid', 'profile', 'email'],
+		region?: string
 	): Promise<ServiceResponse<{ flowId: string; authorizeUrl: string }>> {
 		try {
 			logger.info(`${MODULE_TAG} Initializing PingOne embedded login`, {
@@ -44,7 +45,7 @@ export class PingOneLoginService {
 			const state = PingOneLoginService.generateState();
 
 			// Build request body for proxy endpoint
-			const requestBody = {
+			const requestBody: Record<string, unknown> = {
 				environmentId: environmentId,
 				clientId: clientId,
 				redirectUri: redirectUri,
@@ -55,6 +56,9 @@ export class PingOneLoginService {
 				codeChallengeMethod: 'S256',
 				state: state,
 			};
+			if (region && region.trim()) {
+				requestBody.region = region.trim().toLowerCase();
+			}
 
 			logger.info(`${MODULE_TAG} Request body:`, {
 				...requestBody,

@@ -20,6 +20,7 @@ import CredentialSetupModal from './components/CredentialSetupModal';
 import { EnhancedFloatingLogViewer } from './components/EnhancedFloatingLogViewer';
 import LoadingFallback from './components/LoadingFallback';
 import { WorkerTokenModal } from './components/WorkerTokenModal';
+import { V9ModernMessagingProvider } from './components/v9/V9ModernMessagingComponents';
 import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
 import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
 import { PromptModalV8 } from './v8/components/PromptModalV8';
@@ -166,6 +167,7 @@ import JWTBearerTokenFlowV9 from './pages/flows/v9/JWTBearerTokenFlowV9';
 import MFAWorkflowLibraryFlowV9 from './pages/flows/v9/MFAWorkflowLibraryFlowV9';
 import OAuthROPCFlowV9 from './pages/flows/v9/OAuthROPCFlowV9';
 import PingOnePARFlowV9 from './pages/flows/v9/PingOnePARFlowV9';
+import PARFlowV9 from './pages/flows/v9/PARFlowV9';
 import RARFlowV9 from './pages/flows/v9/RARFlowV9';
 import ResourcesAPIFlowV9 from './pages/flows/v9/ResourcesAPIFlowV9';
 import SAMLBearerAssertionFlowV9 from './pages/flows/v9/SAMLBearerAssertionFlowV9';
@@ -300,6 +302,7 @@ const ContentColumn = styled.div`
 	min-width: 0;
 	text-align: left;
 	direction: ltr;
+	overflow: hidden; /* Prevent content column from scrolling */
 `;
 
 const MainContent = styled.main<{ $sidebarWidth: number }>`
@@ -312,6 +315,8 @@ const MainContent = styled.main<{ $sidebarWidth: number }>`
 	background-color: ${({ theme }) => theme.colors.white};
 	text-align: left;
 	direction: ltr;
+	overflow-y: auto; /* Enable scrolling for main content only */
+	overflow-x: hidden; /* Prevent horizontal scrolling */
 	@keyframes fadeInPage {
 		from {
 			opacity: 0;
@@ -490,7 +495,7 @@ const AppRoutes: React.FC = () => {
 		// Scroll window to top
 		window.scrollTo(0, 0);
 
-		// Also scroll the main content area
+		// Scroll the main content area
 		const mainContent = document.querySelector('main');
 		if (mainContent) {
 			mainContent.scrollTop = 0;
@@ -503,12 +508,6 @@ const AppRoutes: React.FC = () => {
 				container.scrollTop = 0;
 			}
 		});
-
-		// Also scroll the content column if it exists
-		const contentColumn = document.querySelector('[data-content-column]');
-		if (contentColumn) {
-			contentColumn.scrollTop = 0;
-		}
 	}, [location.pathname]);
 
 	// Initialize sidebar state (force open on mount, then respect localStorage)
@@ -1325,8 +1324,10 @@ const AppRoutes: React.FC = () => {
 								<Route path="/p1auth-callback" element={<PingOneAuthenticationCallback />} />
 								{/* V7 RAR Flow */}
 								<Route path="/flows/rar-v7" element={<Navigate to="/flows/rar-v9" replace />} />
-								{/* V9 RAR Flow */}
+								{/* V9 RAR Flow (mock/educational) */}
 								<Route path="/flows/rar-v9" element={<RARFlowV9 />} />
+								{/* V9 PAR Flow (mock/educational) */}
+								<Route path="/flows/par-v9" element={<PARFlowV9 />} />
 								{/* DPoP Flow (Educational/Mock) */}
 								<Route path="/flows/dpop" element={<DPoPFlow />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
@@ -1811,7 +1812,9 @@ function AppContent() {
 												<NotificationContainer />
 												<ApiRequestModalProvider />
 												<FloatingStepperProvider>
-													<AppRoutes />
+													<V9ModernMessagingProvider>
+														<AppRoutes />
+													</V9ModernMessagingProvider>
 												</FloatingStepperProvider>
 											</PageStyleProvider>
 										</StartupWrapper>
