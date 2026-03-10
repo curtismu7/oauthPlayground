@@ -1416,9 +1416,9 @@ app.post('/api/file-storage/load', async (req, res) => {
 
 		const filePath = path.join(os.homedir(), '.pingone-playground', directory, filename);
 
-		// Check if file exists
+		// Return 200 with success: false when file doesn't exist (avoids console 404 noise)
 		if (!fs.existsSync(filePath)) {
-			return res.status(404).json({ error: 'File not found' });
+			return res.status(200).json({ success: false, error: 'File not found' });
 		}
 
 		// Read data from file
