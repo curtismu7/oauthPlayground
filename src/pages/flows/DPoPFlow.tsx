@@ -9,7 +9,9 @@ import { showFlowSuccess } from '../../components/CentralizedSuccessMessage';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import DPoPService, { type DPoPKeyPair, type DPoPProof } from '../../services/dpopService';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { copyToClipboard } from '../../utils/clipboard';
+import { generateMockAccessToken } from '../../utils/mockOAuth';
 
 const Container = styled.div`
 	max-width: 1400px;
@@ -26,7 +28,7 @@ const MainCard = styled(Card)`
 `;
 
 const WarningBox = styled.div`
-	background-color: V9_COLORS.BG.WARNING;
+	background-color: ${V9_COLORS.BG.WARNING};
 	border: 1px solid #fcd34d;
 	border-radius: 0.5rem;
 	padding: 1rem;
@@ -37,7 +39,7 @@ const WarningBox = styled.div`
 `;
 
 const WarningIcon = styled.div`
-	color: V9_COLORS.PRIMARY.YELLOW;
+	color: ${V9_COLORS.PRIMARY.YELLOW};
 	font-size: 1.25rem;
 	flex-shrink: 0;
 	margin-top: 0.125rem;
@@ -48,7 +50,7 @@ const WarningContent = styled.div`
 
 	h4 {
 		font-weight: 600;
-		color: V9_COLORS.PRIMARY.YELLOW_DARK;
+		color: ${V9_COLORS.PRIMARY.YELLOW_DARK};
 		margin-bottom: 0.5rem;
 	}
 
@@ -60,8 +62,8 @@ const WarningContent = styled.div`
 `;
 
 const InfoBox = styled.div`
-	background-color: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background-color: ${V9_COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -71,7 +73,7 @@ const InfoBox = styled.div`
 `;
 
 const InfoIcon = styled.div`
-	color: V9_COLORS.PRIMARY.BLUE;
+	color: ${V9_COLORS.PRIMARY.BLUE};
 	font-size: 1.25rem;
 	flex-shrink: 0;
 	margin-top: 0.125rem;
@@ -82,7 +84,7 @@ const InfoContent = styled.div`
 
 	h4 {
 		font-weight: 600;
-		color: V9_COLORS.PRIMARY.BLUE_DARK;
+		color: ${V9_COLORS.PRIMARY.BLUE_DARK};
 		margin-bottom: 0.5rem;
 	}
 
@@ -94,8 +96,8 @@ const InfoContent = styled.div`
 `;
 
 const CodeBlock = styled.pre`
-	background-color: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background-color: ${V9_COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.375rem;
 	padding: 1rem;
 	font-size: 0.875rem;
@@ -113,24 +115,63 @@ const CodeBlockHeader = styled.div`
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+`;
+
+/** Highlighted box for the DPoP header value so users can spot it easily */
+const DPoPHighlightBox = styled.div`
+	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+	border: 2px solid ${V9_COLORS.PRIMARY.BLUE};
+	border-radius: 0.5rem;
+	padding: 1rem 1.25rem;
+	margin: 1rem 0 1.25rem 0;
+	box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+`;
+
+const DPoPHighlightLabel = styled.div`
+	font-size: 0.8125rem;
+	font-weight: 700;
+	color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+	margin-bottom: 0.5rem;
+	letter-spacing: 0.02em;
+`;
+
+const DPoPHighlightValue = styled.pre`
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.8125rem;
+	line-height: 1.5;
+	color: #1e40af;
+	word-break: break-all;
+	white-space: pre-wrap;
+	margin: 0;
+	overflow-x: auto;
 `;
 
 const CopyButton = styled.button`
-	background: #f3f4f6;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: white;
+	border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
 	border-radius: 0.25rem;
 	padding: 0.25rem 0.5rem;
 	font-size: 0.75rem;
 	cursor: pointer;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: ${V9_COLORS.PRIMARY.BLUE};
 	display: flex;
 	align-items: center;
 	gap: 0.25rem;
 	transition: all 0.2s;
 
-	&:hover {
-		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	&:hover:not(:disabled) {
+		background: #eff6ff;
+		border-color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+		color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+	}
+
+	&:disabled {
+		background: #9ca3af;
+		color: white;
+		border-color: #9ca3af;
+		opacity: 0.9;
+		cursor: not-allowed;
 	}
 `;
 
@@ -145,22 +186,23 @@ const ActionButton = styled.button`
 	cursor: pointer;
 	transition: all 0.2s;
 	border: none;
-	background: V9_COLORS.PRIMARY.BLUE;
+	background: ${V9_COLORS.PRIMARY.BLUE};
 	color: white;
 
-	&:hover {
-		background: V9_COLORS.PRIMARY.BLUE_DARK;
+	&:hover:not(:disabled) {
+		background: ${V9_COLORS.PRIMARY.BLUE_DARK};
 	}
 
 	&:disabled {
-		opacity: 0.5;
+		background: #9ca3af;
+		opacity: 0.9;
 		cursor: not-allowed;
 	}
 `;
 
 const KeyPairDisplay = styled.div`
 	background: #f9fafb;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -170,7 +212,7 @@ const KeyPairInfo = styled.div`
 	margin-bottom: 1rem;
 
 	strong {
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: ${V9_COLORS.TEXT.GRAY_DARK};
 		font-weight: 600;
 		display: block;
 		margin-bottom: 0.5rem;
@@ -178,7 +220,7 @@ const KeyPairInfo = styled.div`
 
 	pre {
 		background: white;
-		border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+		border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 		border-radius: 0.25rem;
 		padding: 0.75rem;
 		font-size: 0.75rem;
@@ -189,7 +231,7 @@ const KeyPairInfo = styled.div`
 
 const ProofDisplay = styled.div`
 	background: #f0fdf4;
-	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+	border: 1px solid ${V9_COLORS.BG.SUCCESS_BORDER};
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -199,7 +241,7 @@ const ProofInfo = styled.div`
 	margin-bottom: 0.75rem;
 
 	strong {
-		color: V9_COLORS.PRIMARY.GREEN;
+		color: ${V9_COLORS.PRIMARY.GREEN};
 		font-weight: 600;
 		display: block;
 		margin-bottom: 0.25rem;
@@ -207,11 +249,11 @@ const ProofInfo = styled.div`
 
 	code {
 		background: white;
-		border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+		border: 1px solid ${V9_COLORS.BG.SUCCESS_BORDER};
 		border-radius: 0.25rem;
 		padding: 0.25rem 0.5rem;
 		font-size: 0.875rem;
-		color: V9_COLORS.PRIMARY.GREEN;
+		color: ${V9_COLORS.PRIMARY.GREEN};
 		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	}
 `;
@@ -223,7 +265,7 @@ const FormGroup = styled.div`
 const Label = styled.label`
 	display: block;
 	font-weight: 500;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
 	margin-bottom: 0.5rem;
 	font-size: 0.875rem;
 `;
@@ -231,14 +273,14 @@ const Label = styled.label`
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: all 0.2s;
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: ${V9_COLORS.PRIMARY.BLUE};
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -246,7 +288,7 @@ const Input = styled.input`
 const Select = styled.select`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	background: white;
@@ -254,19 +296,28 @@ const Select = styled.select`
 
 	&:focus {
 		outline: none;
-		border-color: V9_COLORS.PRIMARY.BLUE;
+		border-color: ${V9_COLORS.PRIMARY.BLUE};
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
 
+const getDefaultDpopDemoUrl = () =>
+	typeof window !== 'undefined'
+		? `${window.location.origin}/api/dpop/protected-resource`
+		: '/api/dpop/protected-resource';
+
 const DPoPFlow: React.FC = () => {
 	const [keyPair, setKeyPair] = useState<DPoPKeyPair | null>(null);
 	const [proof, setProof] = useState<DPoPProof | null>(null);
-	const [httpMethod, setHttpMethod] = useState('POST');
-	const [httpUri, setHttpUri] = useState('https://api.example.com/resource');
-	const [accessToken, setAccessToken] = useState('');
+	const [httpMethod, setHttpMethod] = useState('GET');
+	const [httpUri, setHttpUri] = useState(getDefaultDpopDemoUrl);
+	const [accessToken, setAccessToken] = useState(() => generateMockAccessToken());
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [isCreatingProof, setIsCreatingProof] = useState(false);
+	const [apiResult, setApiResult] = useState<{ ok: boolean; status: number; data: unknown } | null>(
+		null
+	);
+	const [isCallingApi, setIsCallingApi] = useState(false);
 
 	useEffect(() => {
 		// Check browser support — unsupported state handled by DPoPStatus.isSupported() in render
@@ -304,11 +355,56 @@ const DPoPFlow: React.FC = () => {
 		try {
 			const newProof = await DPoPService.createProof(httpMethod, httpUri, accessToken || undefined);
 			setProof(newProof);
+			setApiResult(null);
 			showFlowSuccess('DPoP proof created successfully');
 		} catch (_error) {
 			showFlowSuccess('Failed to create DPoP proof', 'error');
 		} finally {
 			setIsCreatingProof(false);
+		}
+	}, [keyPair, httpMethod, httpUri, accessToken]);
+
+	const handleTestApiCall = useCallback(async () => {
+		if (!keyPair) {
+			showFlowSuccess('Please generate a key pair first', 'error');
+			return;
+		}
+		if (!accessToken?.trim()) {
+			showFlowSuccess('Access token is required for the API call', 'error');
+			return;
+		}
+
+		setIsCallingApi(true);
+		setApiResult(null);
+		try {
+			const newProof = await DPoPService.createProof(httpMethod, httpUri, accessToken);
+			setProof(newProof);
+
+			const res = await fetch(httpUri, {
+				method: httpMethod,
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					DPoP: newProof.jwt,
+					'Content-Type': 'application/json',
+				},
+			});
+			const data = await res.json().catch(() => ({}));
+			setApiResult({ ok: res.ok, status: res.status, data });
+
+			if (res.ok) {
+				showFlowSuccess('API call successful! DPoP proof validated.');
+			} else {
+				showFlowSuccess(
+					`API returned ${res.status}: ${(data as { error_description?: string }).error_description || 'See details'}`,
+					'error'
+				);
+			}
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Network or CORS error';
+			setApiResult({ ok: false, status: 0, data: { error: message } });
+			showFlowSuccess(`API call failed: ${message}`, 'error');
+		} finally {
+			setIsCallingApi(false);
 		}
 	}, [keyPair, httpMethod, httpUri, accessToken]);
 
@@ -523,8 +619,13 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 								type="text"
 								value={httpUri}
 								onChange={(e) => setHttpUri(e.target.value)}
-								placeholder="https://api.example.com/resource"
+								placeholder="/api/dpop/protected-resource"
 							/>
+							<small style={{ color: '#6b7280', marginTop: '0.25rem', display: 'block' }}>
+								Default points to this app&apos;s demo endpoint (validates Bearer + DPoP). Use
+								&quot;Test API Call&quot; to verify. PingOne does not host this URL — it issues
+								DPoP-bound tokens; you call your own or PingOne APIs with the token + DPoP header.
+							</small>
 						</FormGroup>
 
 						<FormGroup>
@@ -541,17 +642,52 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 							</small>
 						</FormGroup>
 
-						<ActionButton onClick={handleCreateProof} disabled={isCreatingProof || !keyPair}>
-							{isCreatingProof ? (
-								<>
-									<span>🔄</span>Creating Proof...
-								</>
-							) : (
-								<>
-									<span>🛡️</span>Create DPoP Proof
-								</>
-							)}
-						</ActionButton>
+						<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+							<ActionButton onClick={handleCreateProof} disabled={isCreatingProof || !keyPair}>
+								{isCreatingProof ? (
+									<>
+										<span>🔄</span>Creating Proof...
+									</>
+								) : (
+									<>
+										<span>🛡️</span>Create DPoP Proof
+									</>
+								)}
+							</ActionButton>
+							<ActionButton
+								onClick={handleTestApiCall}
+								disabled={isCallingApi || !keyPair || !accessToken?.trim()}
+								style={{ background: '#059669' }}
+							>
+								{isCallingApi ? (
+									<>
+										<span>🔄</span>Calling API...
+									</>
+								) : (
+									<>
+										<span>➡️</span>Test API Call
+									</>
+								)}
+							</ActionButton>
+						</div>
+
+						{apiResult && (
+							<div
+								style={{
+									marginTop: '1rem',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									background: apiResult.ok ? '#f0fdf4' : '#fef2f2',
+									border: `1px solid ${apiResult.ok ? '#86efac' : '#fca5a5'}`,
+								}}
+							>
+								<strong>{apiResult.ok ? '✅ Success' : '❌ Error'}</strong> (HTTP {apiResult.status}
+								)
+								<CodeBlock style={{ marginTop: '0.5rem' }}>
+									{JSON.stringify(apiResult.data, null, 2)}
+								</CodeBlock>
+							</div>
+						)}
 
 						{proof && (
 							<ProofDisplay>
@@ -643,6 +779,13 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 						</p>
 
 						{proof && (
+							<DPoPHighlightBox>
+								<DPoPHighlightLabel>DPoP header (send this with your request)</DPoPHighlightLabel>
+								<DPoPHighlightValue>DPoP: {proof.jwt}</DPoPHighlightValue>
+							</DPoPHighlightBox>
+						)}
+
+						{proof && (
 							<CodeBlockHeader>
 								<span>Example API Request with DPoP</span>
 								<CopyButton
@@ -666,6 +809,13 @@ DPoP: ${proof.jwt}`
 Authorization: Bearer your_access_token_here
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`}
 						</CodeBlock>
+
+						{proof && (
+							<DPoPHighlightBox>
+								<DPoPHighlightLabel>Headers — DPoP value (use in fetch)</DPoPHighlightLabel>
+								<DPoPHighlightValue>{`'DPoP': '${proof.jwt}'`}</DPoPHighlightValue>
+							</DPoPHighlightBox>
+						)}
 
 						<CodeBlockHeader>
 							<span>JavaScript Fetch Example</span>

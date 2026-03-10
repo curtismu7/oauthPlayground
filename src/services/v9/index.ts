@@ -12,4 +12,5 @@ export * from './V9StateStore';
 export * from './V9TokenGenerator';
 export * from './V9TokenService';
 export * from './V9UserInfoService';
+export * from './V9LoggingService';
 export * from './v9CredentialValidationService';

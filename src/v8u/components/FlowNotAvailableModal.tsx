@@ -9,7 +9,7 @@
 import React from 'react';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { V9LoggingService } from '@/services/v9/V9LoggingService';
 
 interface FlowNotAvailableModalProps {
 	isOpen: boolean;
@@ -20,8 +20,6 @@ interface FlowNotAvailableModalProps {
 	onAccept: () => void;
 	onChangeSpec: () => void;
 }
-
-const _MODULE_TAG = '[🚫 FLOW-NOT-AVAILABLE-MODAL-V8U]';
 
 export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 	isOpen,
@@ -88,7 +86,7 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 		return `We recommend using ${fallbackFlowLabel} for ${specLabel}.`;
 	};
 
-	logger.debug(`Modal opened`, {
+	V9LoggingService.debug('Modal opened', {
 		requestedFlow,
 		specVersion,
 		fallbackFlow,
@@ -230,7 +228,7 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 					<button
 						type="button"
 						onClick={() => {
-							logger.debug(`User accepted fallback flow`, { fallbackFlow });
+							V9LoggingService.debug('User accepted fallback flow', { fallbackFlow });
 							onAccept();
 							onClose();
 						}}
@@ -261,7 +259,7 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 					<button
 						type="button"
 						onClick={() => {
-							logger.debug(`User wants to change spec version`, "Logger debug");
+							V9LoggingService.debug('User wants to change spec version', {});
 							onChangeSpec();
 							onClose();
 						}}
@@ -290,7 +288,7 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 					<button
 						type="button"
 						onClick={() => {
-							logger.debug(`User cancelled`, "Logger debug");
+							V9LoggingService.debug('User cancelled', {});
 							onClose();
 						}}
 						style={{

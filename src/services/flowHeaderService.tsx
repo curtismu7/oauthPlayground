@@ -77,7 +77,7 @@ const HeaderContainer = styled.div<{
 			return baseColors[$flowType] || baseColors.default;
 		}
 	}};
-	color: white;
+	color: white !important;
 	padding: 0.75rem 1.5rem;
 	border-radius: 12px;
 	margin-bottom: 1.5rem;
@@ -140,7 +140,7 @@ const HeaderBadge = styled.div<{
 	letter-spacing: 0.5px;
 	margin-bottom: 0.25rem;
 	border: 1px solid rgba(255, 255, 255, 0.3);
-	color: #ffffff;
+	color: #ffffff !important;
 `;
 
 const StatusBadge = styled.span<{ $type: 'experimental' | 'deprecated' }>`
@@ -165,7 +165,7 @@ const HeaderTitle = styled.h1`
 	font-weight: 700;
 	margin: 0;
 	line-height: 1.2;
-	color: #ffffff;
+	color: #ffffff !important;
 	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
 	@media (max-width: 768px) {
@@ -176,7 +176,7 @@ const HeaderTitle = styled.h1`
 const HeaderSubtitle = styled.p`
 	font-size: 0.9rem;
 	margin: 0;
-	color: rgba(255, 255, 255, 0.95);
+	color: rgba(255, 255, 255, 0.95) !important;
 	line-height: 1.5;
 	max-width: 800px;
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -192,7 +192,7 @@ const VersionDisplay = styled.div`
 	padding-top: 0.5rem;
 	border-top: 1px solid rgba(255, 255, 255, 0.2);
 	font-size: 0.8rem;
-	color: rgba(255, 255, 255, 0.9);
+	color: rgba(255, 255, 255, 0.9) !important;
 	font-weight: 500;
 `;
 
@@ -276,6 +276,15 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🛡️',
 		version: 'V7',
 	},
+	// V8U Unified OAuth & OIDC (real PingOne APIs, Worker Token service)
+	'v8u-unified': {
+		flowType: 'oauth',
+		title: 'Unified OAuth/OIDC Flow',
+		subtitle:
+			'🎯 Single UI for all OAuth 2.0, OAuth 2.1 / OIDC 2.1, and OIDC Core 1.0 flows using real PingOne APIs. Worker Token support.',
+		icon: '🎯',
+		version: 'V8U',
+	},
 	'client-credentials-v5': {
 		flowType: 'oauth',
 		title: 'Client Credentials Flow - Server-to-Server Authentication',
@@ -329,6 +338,24 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'🔄 Secure Application-to-Application (A2A) communication using OAuth 2.0 Token Exchange. Demonstrates scope reduction, audience restriction, and user delegation patterns for enterprise security architectures.',
 		icon: '🔄',
 		version: 'V7',
+	},
+
+	// Token Exchange V9 (canonical; V7 redirects here)
+	'token-exchange-v9': {
+		flowType: 'oauth',
+		title: 'OAuth 2.0 Token Exchange (V9) - RFC 8693',
+		subtitle:
+			'🔄 Secure Application-to-Application (A2A) communication using OAuth 2.0 Token Exchange. Scope reduction, audience restriction, and user delegation with V9 services.',
+		icon: '🔄',
+		version: 'V9',
+	},
+	'token-exchange': {
+		flowType: 'oauth',
+		title: 'OAuth 2.0 Token Exchange - RFC 8693',
+		subtitle:
+			'🔄 Secure Application-to-Application (A2A) communication using OAuth 2.0 Token Exchange. Scope reduction, audience restriction, and user delegation.',
+		icon: '🔄',
+		version: 'V9',
 	},
 
 	'oidc-hybrid-v7': {
@@ -595,6 +622,27 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			"Monitor your application's performance and component health in real-time. Track render counts, memory usage, and cleanliness scores across V7 and V8 code.",
 		icon: '🧹',
 	},
+	'api-status': {
+		flowType: 'pingone',
+		title: 'API Status',
+		subtitle:
+			'Server health monitoring and status information. View backend services, uptime, memory usage, and response times.',
+		icon: '🖥️',
+	},
+	environments: {
+		flowType: 'pingone',
+		title: 'Environment Management',
+		subtitle:
+			'Manage PingOne environments — the foundation of your identity infrastructure. List, create, update, and monitor production and sandbox environments.',
+		icon: '🌍',
+	},
+	'advanced-configuration': {
+		flowType: 'pingone',
+		title: 'Advanced Configuration',
+		subtitle:
+			'Configure default OAuth scopes, claims, and environment-wide settings used across all flows.',
+		icon: '⚙️',
+	},
 	'pingone-identity-metrics': {
 		flowType: 'pingone',
 		title: 'PingOne Identity Metrics',
@@ -722,6 +770,22 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'🎯 V7: Enhanced RAR implementation with V7 services - Fine-grained authorization using structured JSON (RFC 9396). Enables detailed permission specifications beyond simple scopes with comprehensive credential management and modern UI.',
 		icon: '🎯',
 		version: 'V7',
+	},
+	'rar-v9': {
+		flowType: 'pingone',
+		title: 'Rich Authorization Requests (RAR) Flow V9',
+		subtitle:
+			'Fine-grained OAuth authorization with structured permissions. Enhanced RAR implementation with V9 services. RFC 9396.',
+		icon: '🎯',
+		version: 'V9',
+	},
+	'par-v9': {
+		flowType: 'pingone',
+		title: 'Pushed Authorization Requests (PAR) Flow V9',
+		subtitle:
+			'Push authorization parameters to the AS before redirect. Mock/educational PAR implementation with V9 services. RFC 9126.',
+		icon: '📤',
+		version: 'V9',
 	},
 	'jwt-bearer': {
 		flowType: 'oauth',

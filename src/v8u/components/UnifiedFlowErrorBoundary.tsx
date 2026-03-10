@@ -1,5 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { V9LoggingService } from '@/services/v9/V9LoggingService';
 import ErrorBoundary from '../../components/ErrorBoundary';
 
 interface UnifiedFlowErrorBoundaryProps {
@@ -23,7 +23,15 @@ export class UnifiedFlowErrorBoundary extends Component<UnifiedFlowErrorBoundary
 
 	private handleError = (error: Error, errorInfo: ErrorInfo) => {
 		// Log flow-specific errors
-		logger.error(`Unified Flow Error [${this.getFlowContext()}]:`, error, errorInfo);
+		V9LoggingService.error(
+			`Unified Flow Error [${this.getFlowContext()}]`,
+			{
+				flowType: this.props.flowType,
+				specVersion: this.props.specVersion,
+				errorInfo: { componentStack: errorInfo.componentStack },
+			},
+			error
+		);
 
 		// Try to preserve user's current state before reload
 		try {
@@ -39,7 +47,7 @@ export class UnifiedFlowErrorBoundary extends Component<UnifiedFlowErrorBoundary
 
 			sessionStorage.setItem('unifiedFlowErrorRecovery', JSON.stringify(currentState));
 		} catch (e) {
-			logger.warn('Could not save error recovery state:', e);
+			V9LoggingService.warn('Could not save error recovery state', { error: e });
 		}
 	};
 

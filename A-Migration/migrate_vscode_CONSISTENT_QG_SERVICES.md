@@ -39,18 +39,21 @@ Keep flows/components thin. If code is reusable, protocol-specific, or touches r
 - [ ] **No duplicated protocol logic across flows** — centralize in services (token exchange, PAR, MFA operations, credential operations, worker token)
 - [ ] **Services own**: API calls, request shaping, response parsing, retries/timeouts, error normalization, and logging context
 - [ ] **UI owns**: state transitions, rendering, input collection/validation messages, and calling services
-- [ ] When you add “one-off” logic in a flow, ask: *Will another flow need this?* If yes, move it into a service now.
+- [ ] When you add “one-off” logic in a flow, ask: _Will another flow need this?_ If yes, move it into a service now.
 
 ### Services reuse & dependency hygiene (MANDATORY)
+
 **Goal:** keep flows thin and prevent duplicated protocol/business logic from creeping into UI code.
 
 **Before adding non-trivial logic to a flow/page component:**
+
 - **Search the services directory first** for an existing capability (or close analogue) to reuse or extend.
 - **Check service dependencies**: if your change would introduce a new dependency chain (e.g., service → service → service), confirm it’s justified and does not create cycles.
 - Prefer **small, composable service functions** over large “one-off” logic embedded in a component.
 - If you must add new service functionality, implement it behind a **typed interface** and keep UI integration minimal.
 
 **PR expectations**
+
 - Any net-new “logic chunk” (> ~20–30 lines of non-UI logic) should be either:
   - moved into a service/util, or
   - explicitly justified in the PR description (“why this can’t live in a service”).
@@ -61,42 +64,42 @@ Keep flows/components thin. If code is reusable, protocol-specific, or touches r
 
 ### ✅ Migrated to V9
 
-| Flow | V9 File | Route | Notes |
-|---|---|---|---|
-| Authorization Code + PKCE | `v9/OAuthAuthorizationCodeFlowV9.tsx` | `/flows/oauth-authorization-code-v9` | V7 route redirects → V9 |
-| Authorization Code Condensed | `v9/OAuthAuthorizationCodeFlowV9_Condensed.tsx` | `/flows/oauth-authorization-code-v9-condensed` | |
-| Implicit Flow (OAuth + OIDC) | `v9/ImplicitFlowV9.tsx` | `/flows/implicit-v9` | V7 route redirects → V9 |
-| Device Authorization (OAuth + OIDC) | `v9/DeviceAuthorizationFlowV9.tsx` | `/flows/device-authorization-v9` | V7 route redirects → V9 |
-| Client Credentials | `v9/ClientCredentialsFlowV9.tsx` | `/flows/client-credentials-v9` | V7 route redirects → V9 |
-| OIDC Hybrid | `v9/OIDCHybridFlowV9.tsx` | `/flows/oidc-hybrid-v9` | V7 **still also in sidebar** |
-| JWT Bearer Token | `v9/JWTBearerTokenFlowV9.tsx` | `/flows/jwt-bearer-token-v9` | V7 **still also in sidebar** |
-| SAML Bearer Assertion | `v9/SAMLBearerAssertionFlowV9.tsx` | `/flows/saml-bearer-assertion-v9` | V7 **still also in sidebar** |
-| RAR Flow | `v9/RARFlowV9.tsx` | `/flows/rar-v9` | V7 **still also in sidebar** |
-| CIBA | `pages/flows/CIBAFlowV9.tsx` | `/flows/ciba-v9` | Not in `v9/` subdir |
-| Redirectless | `pages/flows/RedirectlessFlowV9_Real.tsx` | `/flows/redirectless-v7-real` (shared route) | Not in `v9/` subdir |
+| Flow                                | V9 File                                         | Route                                          | Notes                        |
+| ----------------------------------- | ----------------------------------------------- | ---------------------------------------------- | ---------------------------- |
+| Authorization Code + PKCE           | `v9/OAuthAuthorizationCodeFlowV9.tsx`           | `/flows/oauth-authorization-code-v9`           | V7 route redirects → V9      |
+| Authorization Code Condensed        | `v9/OAuthAuthorizationCodeFlowV9_Condensed.tsx` | `/flows/oauth-authorization-code-v9-condensed` |                              |
+| Implicit Flow (OAuth + OIDC)        | `v9/ImplicitFlowV9.tsx`                         | `/flows/implicit-v9`                           | V7 route redirects → V9      |
+| Device Authorization (OAuth + OIDC) | `v9/DeviceAuthorizationFlowV9.tsx`              | `/flows/device-authorization-v9`               | V7 route redirects → V9      |
+| Client Credentials                  | `v9/ClientCredentialsFlowV9.tsx`                | `/flows/client-credentials-v9`                 | V7 route redirects → V9      |
+| OIDC Hybrid                         | `v9/OIDCHybridFlowV9.tsx`                       | `/flows/oidc-hybrid-v9`                        | V7 **still also in sidebar** |
+| JWT Bearer Token                    | `v9/JWTBearerTokenFlowV9.tsx`                   | `/flows/jwt-bearer-token-v9`                   | V7 **still also in sidebar** |
+| SAML Bearer Assertion               | `v9/SAMLBearerAssertionFlowV9.tsx`              | `/flows/saml-bearer-assertion-v9`              | V7 **still also in sidebar** |
+| RAR Flow                            | `v9/RARFlowV9.tsx`                              | `/flows/rar-v9`                                | V7 **still also in sidebar** |
+| CIBA                                | `pages/flows/CIBAFlowV9.tsx`                    | `/flows/ciba-v9`                               | Not in `v9/` subdir          |
+| Redirectless                        | `pages/flows/RedirectlessFlowV9_Real.tsx`       | `/flows/redirectless-v7-real` (shared route)   | Not in `v9/` subdir          |
 
 ### ❌ Not Yet Migrated to V9 (Still V7 in Sidebar)
 
-| Flow | Current Route | Priority | V8 Equivalent? | Notes |
-|---|---|---|---|---|
-| Token Exchange | `/flows/token-exchange-v7` | **CRITICAL** | Labeled "V8M" in sidebar | Complex RFC 8693 flow |
-| PingOne PAR | `/flows/pingone-par-v7` | High | `PingOnePARFlowV8` in `v8/flows/` | PAR + PKCE |
-| PingOne MFA | `/flows/pingone-complete-mfa-v7` | High | `CompleteMFAFlowV8.tsx` in `v8/flows/` | Complex MFA lifecycle |
-| PingOne MFA Workflow Library | `/flows/pingone-mfa-workflow-library-v7` | High | `MFAFlowV8.tsx` in `v8/flows/` | |
-| Worker Token | `/flows/worker-token-v7` | High | `WorkerTokenFlowV7` | Token acquisition flow |
-| ROPC | `/flows/oauth-ropc-v7` | Medium | — | Deprecated by OAuth 2.1 |
-| Auth Code Condensed (Mock) | `/flows/oauth-authorization-code-v7-condensed-mock` | Low | — | Educational mock |
-| V7 Condensed Prototype | `/flows/v7-condensed-mock` | Low | — | Prototype only |
+| Flow                         | Current Route                                       | Priority     | V8 Equivalent?                         | Notes                   |
+| ---------------------------- | --------------------------------------------------- | ------------ | -------------------------------------- | ----------------------- |
+| Token Exchange               | `/flows/token-exchange-v7`                          | **CRITICAL** | Labeled "V8M" in sidebar               | Complex RFC 8693 flow   |
+| PingOne PAR                  | `/flows/pingone-par-v7`                             | High         | `PingOnePARFlowV8` in `v8/flows/`      | PAR + PKCE              |
+| PingOne MFA                  | `/flows/pingone-complete-mfa-v7`                    | High         | `CompleteMFAFlowV8.tsx` in `v8/flows/` | Complex MFA lifecycle   |
+| PingOne MFA Workflow Library | `/flows/pingone-mfa-workflow-library-v7`            | High         | `MFAFlowV8.tsx` in `v8/flows/`         |                         |
+| Worker Token                 | `/flows/worker-token-v7`                            | High         | `WorkerTokenFlowV7`                    | Token acquisition flow  |
+| ROPC                         | `/flows/oauth-ropc-v7`                              | Medium       | —                                      | Deprecated by OAuth 2.1 |
+| Auth Code Condensed (Mock)   | `/flows/oauth-authorization-code-v7-condensed-mock` | Low          | —                                      | Educational mock        |
+| V7 Condensed Prototype       | `/flows/v7-condensed-mock`                          | Low          | —                                      | Prototype only          |
 
 ### ⚠️ V8 Flows in Sidebar (Not V9)
 
 These are V8-native flows with no V9 equivalent yet:
 
-| Flow | Route | File |
-|---|---|---|
-| Authorization Code V8 | `/flows/oauth-authorization-code-v8` | `v8/flows/OAuthAuthorizationCodeFlowV8.tsx` |
-| Implicit Flow V8 | `/flows/implicit-v8` | `v8/flows/ImplicitFlowV8.tsx` |
-| DPoP Authorization Code V8 | `/flows/dpop-authorization-code-v8` | — |
+| Flow                       | Route                                | File                                        |
+| -------------------------- | ------------------------------------ | ------------------------------------------- |
+| Authorization Code V8      | `/flows/oauth-authorization-code-v8` | `v8/flows/OAuthAuthorizationCodeFlowV8.tsx` |
+| Implicit Flow V8           | `/flows/implicit-v8`                 | `v8/flows/ImplicitFlowV8.tsx`               |
+| DPoP Authorization Code V8 | `/flows/dpop-authorization-code-v8`  | —                                           |
 
 ### 🧹 Cleanup Done (March 2, 2026)
 
@@ -110,6 +113,7 @@ Removed duplicate V7 sidebar entries from `sidebarMenuConfig.ts` — V9 is now t
 ### 📌 Remaining Migration TODOs
 
 **High Priority — V8 source exists, ready to migrate:**
+
 - [ ] Token Exchange V7 (`/flows/token-exchange-v7`, labeled "V8M") → V9 (source: `v8/flows/TokenExchangeFlowV8.tsx`)
 - [ ] PingOne PAR V7 → V9 (source: `v8/flows/PingOnePARFlowV8/`)
 - [ ] PingOne MFA V7 → V9 (source: `v8/flows/CompleteMFAFlowV8.tsx`)
@@ -117,18 +121,22 @@ Removed duplicate V7 sidebar entries from `sidebarMenuConfig.ts` — V9 is now t
 - [ ] Worker Token V7 → V9
 
 **Medium Priority:**
+
 - [ ] ROPC V7 → V9 (note: deprecated by OAuth 2.1 — consider educational-only status)
 
 **Low Priority / Prototype:**
+
 - [ ] Auth Code Condensed (Mock) V7 — evaluate if V9 condensed already covers this
 - [ ] V7 Condensed Prototype — evaluate for removal
 
 **V8 flows without V9 equivalent:**
+
 - [ ] Authorization Code V8 (`/flows/oauth-authorization-code-v8`) → V9
 - [ ] Implicit Flow V8 (`/flows/implicit-v8`) → V9
 - [ ] DPoP Authorization Code V8 (`/flows/dpop-authorization-code-v8`) → V9
 
 **V9 services still needed (per Priority 1 plan):**
+
 - [ ] `mfaServiceV8` → V9MFAService (High complexity)
 - [ ] `workerTokenServiceV8` → V9TokenService
 - [ ] `credentialsServiceV8` → V9CredentialService (High complexity)
@@ -136,29 +144,30 @@ Removed duplicate V7 sidebar entries from `sidebarMenuConfig.ts` — V9 is now t
 
 ### V9 Services Created
 
-| Service | File |
-|---|---|
-| Credential validation | `services/v9/v9CredentialValidationService.tsx` |
-| Worker token status | `services/v9/V9WorkerTokenStatusService.ts` |
-| Spec version | `services/v9/V9SpecVersionService.ts` |
-| Token service | `services/v9/V9TokenService.ts` |
-| Authorize service | `services/v9/V9AuthorizeService.ts` |
-| Device authorization | `services/v9/V9DeviceAuthorizationService.ts` |
-| Introspection | `services/v9/V9IntrospectionService.ts` |
-| User info | `services/v9/V9UserInfoService.ts` |
-| PKCE generation | `services/v9/core/V9PKCEGenerationService.ts` |
-| OAuth error handling | `services/v9/core/V9OAuthErrorHandlingService.ts` |
-| Flow credential service | `services/v9/core/V9FlowCredentialService.ts` |
-| Credentials service | `services/v9/credentialsServiceV9.ts` |
-| Environment ID | `services/v9/environmentIdServiceV9.ts` |
-| Postman generator | `services/v9/postmanCollectionGeneratorV9.ts` |
-| V8→V9 adapter | `services/v9/V8ToV9WorkerTokenStatusAdapter.ts` |
+| Service                 | File                                              |
+| ----------------------- | ------------------------------------------------- |
+| Credential validation   | `services/v9/v9CredentialValidationService.tsx`   |
+| Worker token status     | `services/v9/V9WorkerTokenStatusService.ts`       |
+| Spec version            | `services/v9/V9SpecVersionService.ts`             |
+| Token service           | `services/v9/V9TokenService.ts`                   |
+| Authorize service       | `services/v9/V9AuthorizeService.ts`               |
+| Device authorization    | `services/v9/V9DeviceAuthorizationService.ts`     |
+| Introspection           | `services/v9/V9IntrospectionService.ts`           |
+| User info               | `services/v9/V9UserInfoService.ts`                |
+| PKCE generation         | `services/v9/core/V9PKCEGenerationService.ts`     |
+| OAuth error handling    | `services/v9/core/V9OAuthErrorHandlingService.ts` |
+| Flow credential service | `services/v9/core/V9FlowCredentialService.ts`     |
+| Credentials service     | `services/v9/credentialsServiceV9.ts`             |
+| Environment ID          | `services/v9/environmentIdServiceV9.ts`           |
+| Postman generator       | `services/v9/postmanCollectionGeneratorV9.ts`     |
+| V8→V9 adapter           | `services/v9/V8ToV9WorkerTokenStatusAdapter.ts`   |
 
 ---
 
 ## �📖 CRITICAL: Read Before Starting
 
 **Before migrating any flow, read:**
+
 - [V9 Migration Lessons Learned](./V9_MIGRATION_LESSONS_LEARNED.md) - All errors discovered and solutions
 - [V7 to V9 Migration Guide](./V7_TO_V9_MIGRATION_GUIDE.md) - Original migration plan
 - [V7 to V8/V9 Upgrade Targets](./V7_TO_V8_UPGRADE_TARGETS.md) - Priority list of 18 V7 apps still in sidebar + service dependency analysis
@@ -172,17 +181,20 @@ This guide combines the migration workflow with lessons learned from the first p
 ## 🎯 Migration Overview
 
 ### What You're Migrating
+
 - **From:** V7 OAuth/OIDC flows in `src/pages/flows/`
 - **From:** V8 feature module in `src/v8/`
 - **To:** V9 flows in `src/pages/flows/v9/` subdirectory
 
 ### Why V9?
+
 - ✅ Modern credential validation
 - ✅ Better error handling
 - ✅ Improved state management
 - ✅ Version-specific services (no V7/V8 dependencies)
 
 ### Success Metrics (First Session)
+
 - **Time:** 2 days (vs 6-week estimate = **21x faster**)
 - **Files Created:** 8 (4 flows + 2 services + 2 tests)
 - **Import Errors Fixed:** 7 distinct types
@@ -217,41 +229,41 @@ src/v8/
 
 ### V8 Flows Catalog
 
-| Flow File | Route / Purpose |
-|---|---|
-| `ImplicitFlowV8.tsx` | OAuth 2.0 Implicit |
-| `OAuthAuthorizationCodeFlowV8.tsx` | Auth Code + PKCE |
-| `OIDCHybridFlowV8.tsx` | OIDC Hybrid |
-| `CIBAFlowV8.tsx` | CIBA (backchannel auth) |
-| `TokenExchangeFlowV8.tsx` | Token Exchange RFC 8693 |
-| `ResourcesAPIFlowV8.tsx` | Resource Indicators |
-| `PingOnePARFlowV8/` | Pushed Authorization Requests |
-| `PingOneProtectFlowV8.tsx` | PingOne Protect |
-| `MFAFlowV8.tsx` | MFA base flow |
-| `MFAAuthenticationMainPageV8.tsx` | MFA authentication |
-| `MFAConfigurationPageV8.tsx` | MFA setup/config |
-| `MFADeviceManagementFlowV8.tsx` | Device management |
-| `MFADeviceOrderingFlowV8.tsx` | Device ordering |
-| `EmailMFASignOnFlowV8.tsx` | Email MFA sign-on |
-| `CompleteMFAFlowV8.tsx` | Full MFA lifecycle |
-| `NewMFAFlowV8.tsx` | New MFA enrollment |
-| `MFASettingsV8.tsx` | MFA settings page |
-| `MFAReportingFlowV8.tsx` | MFA reporting |
+| Flow File                          | Route / Purpose               |
+| ---------------------------------- | ----------------------------- |
+| `ImplicitFlowV8.tsx`               | OAuth 2.0 Implicit            |
+| `OAuthAuthorizationCodeFlowV8.tsx` | Auth Code + PKCE              |
+| `OIDCHybridFlowV8.tsx`             | OIDC Hybrid                   |
+| `CIBAFlowV8.tsx`                   | CIBA (backchannel auth)       |
+| `TokenExchangeFlowV8.tsx`          | Token Exchange RFC 8693       |
+| `ResourcesAPIFlowV8.tsx`           | Resource Indicators           |
+| `PingOnePARFlowV8/`                | Pushed Authorization Requests |
+| `PingOneProtectFlowV8.tsx`         | PingOne Protect               |
+| `MFAFlowV8.tsx`                    | MFA base flow                 |
+| `MFAAuthenticationMainPageV8.tsx`  | MFA authentication            |
+| `MFAConfigurationPageV8.tsx`       | MFA setup/config              |
+| `MFADeviceManagementFlowV8.tsx`    | Device management             |
+| `MFADeviceOrderingFlowV8.tsx`      | Device ordering               |
+| `EmailMFASignOnFlowV8.tsx`         | Email MFA sign-on             |
+| `CompleteMFAFlowV8.tsx`            | Full MFA lifecycle            |
+| `NewMFAFlowV8.tsx`                 | New MFA enrollment            |
+| `MFASettingsV8.tsx`                | MFA settings page             |
+| `MFAReportingFlowV8.tsx`           | MFA reporting                 |
 
 ### Key V8 Services
 
-| Service | Purpose | Import Count |
-|---|---|---|
-| `workerTokenStatusServiceV8` | Worker token status/display | ~107 |
-| `specVersionServiceV8` | OAuth spec version detection | ~86 |
-| `mfaServiceV8` | MFA orchestration | ~75 |
-| `workerTokenServiceV8` | Worker token lifecycle | ~70 |
-| `credentialsServiceV8` | Credential management | ~70 |
-| `oauthIntegrationServiceV8` | OAuth flow integration | — |
-| `environmentIdServiceV8` | Environment ID resolution | — |
-| `validationServiceV8` | Input validation | — |
-| `storageServiceV8` | Dual storage (IndexedDB+SQLite) | — |
-| `uiNotificationServiceV8` | Notification management | — |
+| Service                      | Purpose                         | Import Count |
+| ---------------------------- | ------------------------------- | ------------ |
+| `workerTokenStatusServiceV8` | Worker token status/display     | ~107         |
+| `specVersionServiceV8`       | OAuth spec version detection    | ~86          |
+| `mfaServiceV8`               | MFA orchestration               | ~75          |
+| `workerTokenServiceV8`       | Worker token lifecycle          | ~70          |
+| `credentialsServiceV8`       | Credential management           | ~70          |
+| `oauthIntegrationServiceV8`  | OAuth flow integration          | —            |
+| `environmentIdServiceV8`     | Environment ID resolution       | —            |
+| `validationServiceV8`        | Input validation                | —            |
+| `storageServiceV8`           | Dual storage (IndexedDB+SQLite) | —            |
+| `uiNotificationServiceV8`    | Notification management         | —            |
 
 ### Key V8 Components Commonly Used Outside V8
 
@@ -285,15 +297,16 @@ import { messaging } from '../../../v8/utils/toastNotificationsV8';
 
 The correct import path **depends on where the consuming file lives**:
 
-| Consuming file location | Import V8 component as |
-|---|---|
-| `src/pages/SomePage.tsx` | `'../v8/components/...'` or `'@/v8/components/...'` |
-| `src/pages/flows/SomeFlow.tsx` | `'../../v8/components/...'` or `'@/v8/...'` |
-| `src/pages/flows/v9/SomeFlowV9.tsx` | `'../../../v8/components/...'` or `'@/v8/...'` |
-| `src/v8/flows/SomeFlowV8.tsx` | `'../components/...'` (within V8) |
-| `src/v8/services/someService.ts` | `'../utils/...'` (within V8) |
+| Consuming file location             | Import V8 component as                              |
+| ----------------------------------- | --------------------------------------------------- |
+| `src/pages/SomePage.tsx`            | `'../v8/components/...'` or `'@/v8/components/...'` |
+| `src/pages/flows/SomeFlow.tsx`      | `'../../v8/components/...'` or `'@/v8/...'`         |
+| `src/pages/flows/v9/SomeFlowV9.tsx` | `'../../../v8/components/...'` or `'@/v8/...'`      |
+| `src/v8/flows/SomeFlowV8.tsx`       | `'../components/...'` (within V8)                   |
+| `src/v8/services/someService.ts`    | `'../utils/...'` (within V8)                        |
 
 **Prefer the `@/v8/...` alias** when available — it works everywhere and never needs depth adjustment:
+
 ```typescript
 // ✅ Alias — path-depth independent
 import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
@@ -321,6 +334,7 @@ from '@/v8/components/WorkerTokenSectionV8'
 ```
 
 **Bulk fix V8 internal imports when putting into V9:**
+
 ```bash
 FLOW="src/pages/flows/v9/MyFlowV9.tsx"
 
@@ -338,6 +352,7 @@ sed -i '' "s|from '../utils/|from '@/v8/utils/|g" "$FLOW"
 **Approved Colors Only:** Red, Blue, Black, White
 
 **Primary Blue (Headers, Primary Actions):**
+
 - `#2563eb` - Primary blue (borders, accents)
 - `#1e40af` - Darker blue (headings)
 - `#1e3a8a` - Darkest blue (text)
@@ -345,10 +360,12 @@ sed -i '' "s|from '../utils/|from '@/v8/utils/|g" "$FLOW"
 - `#dbeafe` - Lighter blue background
 
 **Red (Errors, Warnings, Destructive Actions):**
+
 - `#dc2626` - Error red
 - `#fef2f2` - Light red background
 
 **Neutral (Backgrounds, Borders):**
+
 - `#111827` - Black (primary text)
 - `#1f2937` - Dark gray (code blocks)
 - `#6b7280` - Medium gray (secondary text)
@@ -357,17 +374,19 @@ sed -i '' "s|from '../utils/|from '@/v8/utils/|g" "$FLOW"
 - `white` / `#ffffff` - White
 
 **Header Gradient — Blue (default) or Red (PingOne admin pages):**
+
 ```typescript
 // Standard blue header (flows, utilities, general pages)
-background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)'
+background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)';
 // NOT purple: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) ❌
 
 // Red header (PingOne Management API pages — Webhook Viewer, Audit, etc.)
-background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
 // Title and subtitle must use color: white / rgba(255,255,255,0.85) ❌ not #0891b2
 ```
 
 **❌ FORBIDDEN COLORS:**
+
 - Purple (#8b5cf6, #7c3aed, #6d28d9, etc.)
 - Green (except status indicators — see below)
 - Orange/Amber (except status indicators — see below)
@@ -379,19 +398,21 @@ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
 
 Status indicator components — token displays, connection badges, health checks, progress states — **may use** Green / Amber / Red to communicate live state. This is an approved exception to the blue-only rule.
 
-| Status | Meaning | Color Name | Hex | When to use |
-|--------|---------|-----------|-----|-------------|
-| Valid | Token present / connected / OK | Emerald green | `#10b981` | Token is active and not expiring soon |
-| Warning | Token expiring soon | Amber / yellow | `#f59e0b` | Token expires in < 5 minutes |
-| Invalid | No token / auth failed / disconnected | Red | `#ef4444` / `#dc2626` | Token absent, expired, or auth error |
+| Status  | Meaning                               | Color Name     | Hex                   | When to use                           |
+| ------- | ------------------------------------- | -------------- | --------------------- | ------------------------------------- |
+| Valid   | Token present / connected / OK        | Emerald green  | `#10b981`             | Token is active and not expiring soon |
+| Warning | Token expiring soon                   | Amber / yellow | `#f59e0b`             | Token expires in < 5 minutes          |
+| Invalid | No token / auth failed / disconnected | Red            | `#ef4444` / `#dc2626` | Token absent, expired, or auth error  |
 
 **Scope — this exception applies ONLY to:**
+
 - Token status displays (`WorkerTokenStatusDisplayV8`, similar components)
 - Connection status badges
 - Health indicator dots and icons
 - Any component whose purpose is to show live valid/warning/error state
 
 **This exception does NOT apply to:**
+
 - Flow page headers (must stay blue or red per the gradient rules above)
 - Buttons that perform actions (must use blue or neutral styles)
 - General UI chrome, cards, or section titles
@@ -399,13 +420,13 @@ Status indicator components — token displays, connection badges, health checks
 ```tsx
 // ✅ Correct — status indicator using approved exception colors
 const statusColor = {
-  valid:   '#10b981', // emerald green — token present
-  warning: '#f59e0b', // amber        — expires in < 5 min
-  invalid: '#ef4444', // red          — no token / failed
+	valid: '#10b981', // emerald green — token present
+	warning: '#f59e0b', // amber        — expires in < 5 min
+	invalid: '#ef4444', // red          — no token / failed
 };
 
 // ❌ Wrong — using status colors in a flow page header
-background: 'linear-gradient(135deg, #10b981, #059669)' // never green headers
+background: 'linear-gradient(135deg, #10b981, #059669)'; // never green headers
 ```
 
 **Reference implementation:** [`src/v8/components/WorkerTokenStatusDisplayV8.tsx`](../../src/v8/components/WorkerTokenStatusDisplayV8.tsx)
@@ -413,6 +434,7 @@ background: 'linear-gradient(135deg, #10b981, #059669)' // never green headers
 ---
 
 **Reference Pages:**
+
 - ✅ [CustomDomainTestPage.tsx](../../src/pages/CustomDomainTestPage.tsx) - Approved blue/red palette
 - ✅ [Dashboard.tsx](../../src/pages/Dashboard.tsx) - Standard blue headers
 - ✅ [PingOneAuditActivities.tsx](../../src/pages/PingOneAuditActivities.tsx) - Red header (PingOne Management API page)
@@ -430,17 +452,19 @@ All flows and pages migrated or modified during V9 upgrades must use **Modern Me
 - **Footer messaging** for low-noise status/confirmations
 
 **Eliminate console errors:** runtime failures must not be “handled” with `console.error()` / `console.warn()`; instead:
-1) Log via the app’s logging service (structured, sanitized)
-2) Show a user message with clear guidance (retry / check settings / troubleshooting)
-3) Optionally expose sanitized technical details (error code, request id)
+
+1. Log via the app’s logging service (structured, sanitized)
+2. Show a user message with clear guidance (retry / check settings / troubleshooting)
+3. Optionally expose sanitized technical details (error code, request id)
 
 **User message quality:** plain language, short, actionable. Avoid “Something went wrong.”
-
 
 ## �🚨 Common Errors You WILL Encounter
 
 ### Error 1: Wrong Import Path Depth
+
 **Symptom:**
+
 ```
 Failed to resolve import "../../services/pingOneAppCreationService"
 ```
@@ -448,6 +472,7 @@ Failed to resolve import "../../services/pingOneAppCreationService"
 **Why:** V9 subdirectory requires `../../../` (3 levels), not `../../` (2 levels)
 
 **Fix:**
+
 ```bash
 # Bulk fix all imports in one command
 sed -i '' 's|from "../../services/|from "../../../services/|g' src/pages/flows/v9/YourFlowV9.tsx
@@ -456,7 +481,9 @@ sed -i '' 's|from "../../hooks/|from "../../../hooks/|g' src/pages/flows/v9/Your
 ```
 
 ### Error 2: Config File Path Wrong
+
 **Symptom:**
+
 ```
 Failed to resolve import "./config/OAuthAuthzCodeFlowV9.config"
 ```
@@ -464,6 +491,7 @@ Failed to resolve import "./config/OAuthAuthzCodeFlowV9.config"
 **Why:** Config is sibling directory, not child of v9/
 
 **Fix:**
+
 ```typescript
 // WRONG
 import { config } from './config/flow.config';
@@ -473,7 +501,9 @@ import { config } from '../config/flow.config';
 ```
 
 ### Error 3: Missing V9 Helper Class
+
 **Symptom:**
+
 ```
 'ImplicitFlowV9Helpers' does not exist
 ```
@@ -483,7 +513,9 @@ import { config } from '../config/flow.config';
 **Fix:** See "Creating V9 Service Classes" section below
 
 ### Error 4: Wrong Utility Filename
+
 **Symptom:**
+
 ```
 Failed to resolve import "../utils/Legacy Toast (`v4ToastManager`)"
 ```
@@ -491,6 +523,7 @@ Failed to resolve import "../utils/Legacy Toast (`v4ToastManager`)"
 **Why:** File is actually `v4ToastMessages.ts` not `Legacy Toast (`v4ToastManager`).ts`
 
 **Fix:**
+
 ```bash
 # Find all incorrect imports
 grep -rl "from.*Legacy Toast (`v4ToastManager`)" src/ --include="*.ts" --include="*.tsx"
@@ -500,7 +533,9 @@ find src -name "*.tsx" -o -name "*.ts" | xargs sed -i '' 's|utils/Legacy Toast (
 ```
 
 ### Error 5: Archived Files Missing
+
 **Symptom:**
+
 ```
 Cannot find module '../utils/v4ToastMessages'
 ```
@@ -508,6 +543,7 @@ Cannot find module '../utils/v4ToastMessages'
 **Why:** File was archived and not in active src/
 
 **Fix:**
+
 ```bash
 # Search archives
 find archived -name "v4ToastMessages.ts"
@@ -517,7 +553,9 @@ cp archived/v4/utils/v4ToastMessages.ts src/utils/
 ```
 
 ### Error 6: Using localStorage for Worker Tokens
+
 **Symptom:**
+
 ```typescript
 const stored = localStorage.getItem('unified_worker_token');
 const data = JSON.parse(stored);
@@ -526,7 +564,9 @@ const data = JSON.parse(stored);
 **Why:** Pages should use `unifiedWorkerTokenService` for consistent worker token management, dual storage (IndexedDB + SQLite), and event-driven updates.
 
 ### Error 7: V8 Internal Import Used Outside V8
+
 **Symptom:**
+
 ```
 Failed to resolve import "../services/workerTokenServiceV8"
 ```
@@ -534,6 +574,7 @@ Failed to resolve import "../services/workerTokenServiceV8"
 **Why:** File was copied from `src/v8/flows/` without updating the single-level V8-internal imports. From `src/pages/flows/v9/`, V8 modules are 3+ levels away.
 
 **Fix:**
+
 ```bash
 FLOW="src/pages/flows/v9/MyFlowV9.tsx"
 
@@ -545,7 +586,9 @@ sed -i '' "s|from '../utils/|from '@/v8/utils/|g" "$FLOW"
 ```
 
 ### Error 8: Wrong V8 Component Reference (WorkerTokenSectionV8)
+
 **Symptom:**
+
 ```
 Module '"../v8/components/WorkerTokenSectionV8"' has no exported member...
 ```
@@ -553,6 +596,7 @@ Module '"../v8/components/WorkerTokenSectionV8"' has no exported member...
 **Why:** `WorkerTokenSectionV8` has a named export. Confirm from `src/v8/components/WorkerTokenSectionV8.tsx`.
 
 **Fix:**
+
 ```typescript
 // ✅ Correct named import
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
@@ -561,6 +605,7 @@ import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
 ```
 
 **Fix:**
+
 ```bash
 # Check if page uses localStorage for worker tokens
 grep -n "localStorage.getItem('unified_worker_token')" src/pages/YourPage.tsx
@@ -580,6 +625,7 @@ sed -i '' "s/localStorage.removeItem('unified_worker_token');/unifiedWorkerToken
 ```
 
 **Examples:**
+
 - ✅ [PingOne User Profile](../updates-to-apps/pingone-user-profile-updates.md) - Migrated 2026-02-27
 - ✅ [Configuration](../updates-to-apps/configuration-dashboard-v8-migration.md) - Migrated 2026-02-27
 - ✅ [Dashboard](../updates-to-apps/configuration-dashboard-v8-migration.md) - Migrated 2026-02-27
@@ -611,7 +657,9 @@ This happens when a flow was refactored to use `useProductionSpinner` (which man
 const tokenExchangeSpinner = useProductionSpinner('token-exchange');
 
 // In JSX:
-{tokenExchangeSpinner.isLoading && <ButtonSpinner />}
+{
+	tokenExchangeSpinner.isLoading && <ButtonSpinner />;
+}
 ```
 
 **When migrating:** If the V7 source has `setIsLoading(true/false)` calls throughout, replace them with `someSpinner.withSpinner(async () => { ... })` wrapping the async block.
@@ -627,32 +675,32 @@ const tokenExchangeSpinner = useProductionSpinner('token-exchange');
 ```tsx
 // ❌ BAD — no cleanup, no abort
 useEffect(() => {
-  const check = async () => {
-    const enabled = await TokenExchangeConfigServiceV8.isEnabled(envId);
-    setIsAdminEnabled(enabled);  // fires even if unmounted
-  };
-  check();
+	const check = async () => {
+		const enabled = await TokenExchangeConfigServiceV8.isEnabled(envId);
+		setIsAdminEnabled(enabled); // fires even if unmounted
+	};
+	check();
 }, [envId]);
 
 // ✅ GOOD — AbortController pattern
 useEffect(() => {
-  const controller = new AbortController();
+	const controller = new AbortController();
 
-  const check = async () => {
-    try {
-      const enabled = await TokenExchangeConfigServiceV8.isEnabled(envId);
-      if (!controller.signal.aborted) {
-        setIsAdminEnabled(enabled);
-      }
-    } catch (err) {
-      if (!controller.signal.aborted) {
-        setError(/* ... */);
-      }
-    }
-  };
+	const check = async () => {
+		try {
+			const enabled = await TokenExchangeConfigServiceV8.isEnabled(envId);
+			if (!controller.signal.aborted) {
+				setIsAdminEnabled(enabled);
+			}
+		} catch (err) {
+			if (!controller.signal.aborted) {
+				setError(/* ... */);
+			}
+		}
+	};
 
-  check();
-  return () => controller.abort();
+	check();
+	return () => controller.abort();
 }, [envId]);
 ```
 
@@ -663,6 +711,7 @@ useEffect(() => {
 ### ⚠️ P1 — V9 Flows Still Using Legacy Toast (`v4ToastManager`) (Must Migrate to Modern Messaging)
 
 **Found in:** 8 out of 9 current V9 flows at `src/pages/flows/v9/`:
+
 - `OIDCHybridFlowV9.tsx`, `DeviceAuthorizationFlowV9.tsx`, `ImplicitFlowV9.tsx`
 - `SAMLBearerAssertionFlowV9.tsx`, `ClientCredentialsFlowV9.tsx`, `RARFlowV9.tsx`
 - `OAuthAuthorizationCodeFlowV9.tsx`, `JWTBearerTokenFlowV9.tsx`
@@ -670,6 +719,7 @@ useEffect(() => {
 These were migrated from V7 but the toast system was not updated.
 
 **Fix per file:**
+
 ```bash
 # In each V9 flow file:
 sed -i '' "s/import { Legacy Toast (`v4ToastManager`) } from '.*v4ToastMessages';//" "$FLOW"
@@ -730,10 +780,10 @@ const [result, setResult] = useState<FlowResult>(null);
 
 // If the type isn't defined yet, create a minimal interface:
 interface TokenResult {
-  access_token: string;
-  token_type: string;
-  expires_in?: number;
-  scope?: string;
+	access_token: string;
+	token_type: string;
+	expires_in?: number;
+	scope?: string;
 }
 const [result, setResult] = useState<TokenResult | null>(null);
 ```
@@ -745,26 +795,27 @@ const [result, setResult] = useState<TokenResult | null>(null);
 **Found in:** `TokenExchangeFlowV8.tsx` — `adminCheckSpinner` and `tokenExchangeSpinner` are in `useCallback` and `useEffect` dependency arrays.
 
 `useProductionSpinner` may return a new object reference each render. Including it in deps arrays can:
+
 - Cause `useEffect` to re-run on every render (infinite loop risk)
 - Cause `useCallback` to recreate its function unnecessarily
 
 ```tsx
 // ⚠️ RISKY — spinner in useEffect deps
 useEffect(() => {
-  checkAdminEnablement();
-}, [currentEnvironmentId, adminCheckSpinner]);  // ← spinner here
+	checkAdminEnablement();
+}, [currentEnvironmentId, adminCheckSpinner]); // ← spinner here
 
 // ✅ SAFER — check if useProductionSpinner is stable (memoized internally)
 // If not stable, extract the spinner method with useCallback first:
 const doAdminCheck = useCallback(
-  () => adminCheckSpinner.withSpinner(check, 'Checking...'),
-  // intentionally omit adminCheckSpinner if it changes identity each render
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  [currentEnvironmentId]
+	() => adminCheckSpinner.withSpinner(check, 'Checking...'),
+	// intentionally omit adminCheckSpinner if it changes identity each render
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	[currentEnvironmentId]
 );
 
 useEffect(() => {
-  doAdminCheck();
+	doAdminCheck();
 }, [doAdminCheck]);
 ```
 
@@ -791,21 +842,21 @@ const [isAdminEnabled, setIsAdminEnabled] = useState(false);
 
 // ✅ Centralized — easier reset, clearer state transitions
 interface TokenExchangeState {
-  subjectToken: string;
-  subjectTokenType: string;
-  requestedTokenType: string;
-  scope: string;
-  actorToken: string;
-  result: TokenExchangeResponse | null;
-  error: TokenExchangeError | null;
-  isAdminEnabled: boolean;
+	subjectToken: string;
+	subjectTokenType: string;
+	requestedTokenType: string;
+	scope: string;
+	actorToken: string;
+	result: TokenExchangeResponse | null;
+	error: TokenExchangeError | null;
+	isAdminEnabled: boolean;
 }
 
 type TokenExchangeAction =
-  | { type: 'SET_FIELD'; field: keyof TokenExchangeState; value: string }
-  | { type: 'SET_RESULT'; result: TokenExchangeResponse }
-  | { type: 'SET_ERROR'; error: TokenExchangeError }
-  | { type: 'RESET' };
+	| { type: 'SET_FIELD'; field: keyof TokenExchangeState; value: string }
+	| { type: 'SET_RESULT'; result: TokenExchangeResponse }
+	| { type: 'SET_ERROR'; error: TokenExchangeError }
+	| { type: 'RESET' };
 
 const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -829,6 +880,7 @@ dispatch({ type: 'RESET' });
 > simply ignored all scroll calls.
 >
 > **✅ Permanent fix already applied (do not revert):**
+>
 > - `src/App.tsx` — `<ContentColumn>` now has `data-content-column` attribute
 > - `src/utils/scrollManager.ts` — `scrollToTop()` now calls  
 >   `document.querySelector('[data-content-column]')?.scrollTop = 0`  
@@ -854,30 +906,33 @@ import { usePageScroll } from '../../../hooks/usePageScroll';
 const { scrollToTop } = usePageScroll();
 
 // Call on significant state transitions:
-const handleScenarioChange = useCallback((scenario: string) => {
-  setSelectedScenario(scenario as TokenExchangeScenario);
-  scrollToTop();
-}, [scrollToTop]);
+const handleScenarioChange = useCallback(
+	(scenario: string) => {
+		setSelectedScenario(scenario as TokenExchangeScenario);
+		scrollToTop();
+	},
+	[scrollToTop]
+);
 ```
 
 ---
 
 ### 💡 P3 — V8 Flows Define Own `Container` (Should Use `FlowUIService` in V9)
 
-**Found in:** V8 flows each define their own `const Container = styled.div\`` with inline max-width/padding. V9 flows in `src/pages/flows/v9/` all use `FlowUIService.getContainer()`.
+**Found in:** V8 flows each define their own `const Container = styled.div\`` with inline max-width/padding. V9 flows in `src/pages/flows/v9/`all use`FlowUIService.getContainer()`.
 
 When migrating a V8 flow to V9:
 
 ```tsx
 // ❌ V8 pattern — inline styled Container (don't keep this in V9)
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
 `;
 
 // ✅ V9 pattern — shared Container from FlowUIService
-import FlowUIService from '../../../services/flowUIService';  // 3-level depth
+import FlowUIService from '../../../services/flowUIService'; // 3-level depth
 const Container = FlowUIService.getContainer();
 const ContentWrapper = FlowUIService.getContentWrapper();
 ```
@@ -895,8 +950,8 @@ This ensures consistent layout across all V9 flows and makes global layout chang
 const ENABLE_CREDENTIALS_DEBUG_LOGGING = false;
 
 const debugLog = (...args: unknown[]): void => {
-  if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;
-  console.log(...args);
+	if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;
+	console.log(...args);
 };
 ```
 
@@ -921,11 +976,11 @@ This is a **low priority** quality issue (not a bug) but creates migration frict
 
 ```tsx
 // At the top of the flow file:
-const FLOW_COLOR = '#2563eb' as const;       // primary blue for V9 flows
-const FLOW_COLOR_DARK = '#1e40af' as const;  // gradient end
+const FLOW_COLOR = '#2563eb' as const; // primary blue for V9 flows
+const FLOW_COLOR_DARK = '#1e40af' as const; // gradient end
 
 const FlowHeader = styled.div`
-  background: linear-gradient(135deg, ${FLOW_COLOR} 0%, ${FLOW_COLOR_DARK} 100%);
+	background: linear-gradient(135deg, ${FLOW_COLOR} 0%, ${FLOW_COLOR_DARK} 100%);
 `;
 ```
 
@@ -933,19 +988,19 @@ const FlowHeader = styled.div`
 
 ### Checklist: Apply These Patterns When Migrating
 
-| # | Issue | Impact | File(s) Found | Status |
-|---|---|---|---|---|
-| P1 | Dead `_setIsLoading` state variable | Silent loading bug | `TokenExchangeFlowV8.tsx` L250 | ❌ Open |
-| P1 | `useEffect` async without `AbortController` | State-on-unmount warning | Token Exchange V8, MFA flows | ❌ Open |
-| P1 | V9 flows using `Legacy Toast (`v4ToastManager`)` | Wrong toast system in V9 | 8 of 9 V9 flows (see list above) | ❌ Open |
-| P2 | `err as SomeError` cast instead of type guard | Runtime crash risk | `TokenExchangeFlowV8.tsx` | ❌ Open |
-| P2 | `useState<any>` in V7 flows | Carry-forward type loss | `TokenExchangeFlowV7.tsx` L1697 | ❌ Open |
-| P2 | Spinner in `useCallback`/`useEffect` deps | Re-render loop risk | `TokenExchangeFlowV8.tsx` | ⚠️ Monitor |
-| P3 | 10+ `useState` calls → `useReducer` | Maintainability | All major flows | 💡 Improve |
-| P3 | `usePageScroll` dropped in V8 | UX regression | All V8 flows | ❌ Open |
-| P3 | V8's own `Container` vs `FlowUIService` | Layout inconsistency | All V8 flows copied to V9 | ❌ Open |
-| P3 | Bare `console.log` in services | Debug noise in prod | Multiple V7 services | 💡 Improve |
-| P4 | Hardcoded color strings in styled-components | Maintenance friction | All files | 💡 Long-term |
+| #   | Issue                                            | Impact                   | File(s) Found                    | Status       |
+| --- | ------------------------------------------------ | ------------------------ | -------------------------------- | ------------ |
+| P1  | Dead `_setIsLoading` state variable              | Silent loading bug       | `TokenExchangeFlowV8.tsx` L250   | ❌ Open      |
+| P1  | `useEffect` async without `AbortController`      | State-on-unmount warning | Token Exchange V8, MFA flows     | ❌ Open      |
+| P1  | V9 flows using `Legacy Toast (`v4ToastManager`)` | Wrong toast system in V9 | 8 of 9 V9 flows (see list above) | ❌ Open      |
+| P2  | `err as SomeError` cast instead of type guard    | Runtime crash risk       | `TokenExchangeFlowV8.tsx`        | ❌ Open      |
+| P2  | `useState<any>` in V7 flows                      | Carry-forward type loss  | `TokenExchangeFlowV7.tsx` L1697  | ❌ Open      |
+| P2  | Spinner in `useCallback`/`useEffect` deps        | Re-render loop risk      | `TokenExchangeFlowV8.tsx`        | ⚠️ Monitor   |
+| P3  | 10+ `useState` calls → `useReducer`              | Maintainability          | All major flows                  | 💡 Improve   |
+| P3  | `usePageScroll` dropped in V8                    | UX regression            | All V8 flows                     | ❌ Open      |
+| P3  | V8's own `Container` vs `FlowUIService`          | Layout inconsistency     | All V8 flows copied to V9        | ❌ Open      |
+| P3  | Bare `console.log` in services                   | Debug noise in prod      | Multiple V7 services             | 💡 Improve   |
+| P4  | Hardcoded color strings in styled-components     | Maintenance friction     | All files                        | 💡 Long-term |
 
 ---
 
@@ -955,11 +1010,11 @@ const FlowHeader = styled.div`
 
 Before running any checks, confirm whether you are migrating a **V7 flow** or a **V8 flow**:
 
-| Source | File Location | Import depth to V9 |
-|---|---|---|
-| **V7 flow** | `src/pages/flows/v7/` | `../../` → `../../../` |
-| **V8 flow** | `src/v8/flows/` | `../` (V8-internal) → `@/v8/...` (alias) |
-| **V8 page** | `src/v8/pages/` | `../` (V8-internal) → `@/v8/...` (alias) |
+| Source      | File Location         | Import depth to V9                       |
+| ----------- | --------------------- | ---------------------------------------- |
+| **V7 flow** | `src/pages/flows/v7/` | `../../` → `../../../`                   |
+| **V8 flow** | `src/v8/flows/`       | `../` (V8-internal) → `@/v8/...` (alias) |
+| **V8 page** | `src/v8/pages/`       | `../` (V8-internal) → `@/v8/...` (alias) |
 
 **Run BEFORE starting each flow migration:**
 
@@ -1012,6 +1067,7 @@ echo "✅ Pre-flight check complete!"
 ```
 
 **Usage:**
+
 ```bash
 chmod +x scripts/pre-migration-check.sh
 FLOW_NAME="ImplicitFlowV7" ./scripts/pre-migration-check.sh
@@ -1026,11 +1082,13 @@ FLOW_NAME="ImplicitFlowV7" ./scripts/pre-migration-check.sh
 ### Step 1: Create V9 Service Classes (If Needed)
 
 **Check if V7 services need V9 versions:**
+
 ```bash
 grep -o "V7[A-Za-z]*Service" src/pages/flows/v7/YourFlowV7.tsx | sort -u
 ```
 
 **Check if V8 services need V9 wrapping:**
+
 ```bash
 grep -o "[A-Za-z]*ServiceV8" src/v8/flows/YourFlowV8.tsx | sort -u
 # Most V8 services can be imported directly via @/v8/services/ — no copy needed
@@ -1063,8 +1121,8 @@ grep "export class" src/services/v9/v9CredentialValidationService.tsx
 5. Export in service object:
    ```typescript
    export const ImplicitFlowSharedService = {
-     // ... existing
-     V9Helpers: ImplicitFlowV9Helpers,  // Add this
+   	// ... existing
+   	V9Helpers: ImplicitFlowV9Helpers, // Add this
    };
    ```
 
@@ -1128,6 +1186,7 @@ grep "from ['\"]" "$FLOW" | head -20
 ### Step 6: Create Route and Menu Entry
 
 **Add to `src/App.tsx`:**
+
 ```typescript
 import ImplicitFlowV9 from './pages/flows/v9/ImplicitFlowV9';
 
@@ -1137,6 +1196,7 @@ import ImplicitFlowV9 from './pages/flows/v9/ImplicitFlowV9';
 ```
 
 **Add to `src/config/sidebarMenuConfig.ts`:**
+
 ```typescript
 ['/flows/implicit-v9', 'OAuth 2.0 Implicit Flow (V9)'],
 ['/flows/implicit-v9?variant=oidc', 'OIDC Implicit Flow (V9)'],
@@ -1158,19 +1218,22 @@ const POPUP_WIDTH = 1400;
 const POPUP_HEIGHT = 900;
 
 export function openMyPagePopout(): void {
-  const left = (window.screen.width - POPUP_WIDTH) / 2;
-  const top = (window.screen.height - POPUP_HEIGHT) / 2;
-  const popup = window.open(
-    '/my-page-popout',
-    'myPagePopout',
-    `width=${POPUP_WIDTH},height=${POPUP_HEIGHT},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no`
-  );
-  if (!popup) { alert('Popup blocked. Please allow popups for this site.'); return; }
-  popup.focus();
+	const left = (window.screen.width - POPUP_WIDTH) / 2;
+	const top = (window.screen.height - POPUP_HEIGHT) / 2;
+	const popup = window.open(
+		'/my-page-popout',
+		'myPagePopout',
+		`width=${POPUP_WIDTH},height=${POPUP_HEIGHT},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no`
+	);
+	if (!popup) {
+		alert('Popup blocked. Please allow popups for this site.');
+		return;
+	}
+	popup.focus();
 }
 
 export function isMyPagePopout(): boolean {
-  return window.location.pathname.includes('/my-page-popout');
+	return window.location.pathname.includes('/my-page-popout');
 }
 ```
 
@@ -1202,25 +1265,33 @@ import { FiExternalLink } from 'react-icons/fi';
 import { isMyPagePopout, openMyPagePopout } from '../v8/utils/myPagePopoutHelper';
 
 // In JSX header:
-{!isMyPagePopout() && (
-  <button
-    type="button"
-    onClick={openMyPagePopout}
-    style={{
-      display: 'flex', alignItems: 'center', gap: '0.4rem',
-      paddingInline: '0.85rem', paddingBlock: '0.45rem',
-      borderRadius: '0.5rem',
-      border: '1px solid rgba(255,255,255,0.4)',
-      background: 'rgba(255,255,255,0.15)',
-      color: 'white', fontSize: '0.8rem', fontWeight: 600,
-      cursor: 'pointer', whiteSpace: 'nowrap',
-    }}
-    title="Open in popout window to monitor while using the app"
-  >
-    <FiExternalLink size={14} />
-    Popout
-  </button>
-)}
+{
+	!isMyPagePopout() && (
+		<button
+			type="button"
+			onClick={openMyPagePopout}
+			style={{
+				display: 'flex',
+				alignItems: 'center',
+				gap: '0.4rem',
+				paddingInline: '0.85rem',
+				paddingBlock: '0.45rem',
+				borderRadius: '0.5rem',
+				border: '1px solid rgba(255,255,255,0.4)',
+				background: 'rgba(255,255,255,0.15)',
+				color: 'white',
+				fontSize: '0.8rem',
+				fontWeight: 600,
+				cursor: 'pointer',
+				whiteSpace: 'nowrap',
+			}}
+			title="Open in popout window to monitor while using the app"
+		>
+			<FiExternalLink size={14} />
+			Popout
+		</button>
+	);
+}
 ```
 
 **Reference implementation:** `src/pages/PingOneWebhookViewer.tsx` + `src/v8/utils/webhookViewerPopoutHelper.ts`
@@ -1232,6 +1303,7 @@ npm run dev
 ```
 
 Visit the new route and verify:
+
 - ✅ Page loads without errors
 - ✅ No import errors in console
 - ✅ Flow executes successfully
@@ -1275,6 +1347,7 @@ diff -u src/pages/flows/v7/YourFlowV7.tsx src/pages/flows/v9/YourFlowV9.tsx | le
 ```
 
 **Expected Differences:**
+
 - ✅ Import paths: `../../` → `../../../`
 - ✅ Service names: `V7` → `V9`
 - ✅ Component name: `FlowV7` → `FlowV9`
@@ -1297,6 +1370,7 @@ diff -u src/pages/flows/v7/YourFlowV7.tsx src/pages/flows/v9/YourFlowV9.tsx | le
 ### V8 Module Structure (Key Files)
 
 **Components (import via `@/v8/components/...`):**
+
 - `WorkerTokenSectionV8` — token status + Get/Update/Clear UI, most pages use this
 - `WorkerTokenModalV8` — modal to acquire/update worker token
 - `WorkerTokenExpiryBannerV8` — expiry warning banner
@@ -1306,6 +1380,7 @@ diff -u src/pages/flows/v7/YourFlowV7.tsx src/pages/flows/v9/YourFlowV9.tsx | le
 - `SilentApiConfigCheckboxV8` / `ShowTokenConfigCheckboxV8` — flow config controls
 
 **Services (import via `@/v8/services/...`):**
+
 - `workerTokenServiceV8` — token acquire/refresh/clear lifecycle
 - `workerTokenStatusServiceV8` — token status polling + events
 - `credentialsServiceV8` / `enhancedCredentialsServiceV8` — credential storage
@@ -1317,6 +1392,7 @@ diff -u src/pages/flows/v7/YourFlowV7.tsx src/pages/flows/v9/YourFlowV9.tsx | le
 - `environmentIdServiceV8` — environment ID resolution
 
 **Hooks (import via `@/v8/hooks/...`):**
+
 - `useWorkerToken` — subscribe to worker token state
 - `useMFADevices` — MFA device list management
 - `useMFAAuthentication` — MFA auth state machine
@@ -1324,23 +1400,28 @@ diff -u src/pages/flows/v7/YourFlowV7.tsx src/pages/flows/v9/YourFlowV9.tsx | le
 - `useCibaFlowV8` / `useHybridFlowV8` — flow-specific hooks
 
 **Utils (import via `@/v8/utils/...`):**
+
 - `toastNotificationsV8` — V8-style toasts (use sparingly per toast replacement guide)
 - `analyticsLoggerV8` — analytics/event logging
 - `webhookViewerPopoutHelper` — popout window utilities
 - `unifiedErrorHandlerV8` — centralized error handling
 
 ### Services Created (V9 Session)
+
 1. `src/services/v9/v9CredentialValidationService.tsx` (474 lines)
 2. `src/services/implicitFlowSharedService.ts` - Added `ImplicitFlowV9Helpers` class
 
 ### Flows Migrated (4 CRITICAL flows)
+
 1. `src/pages/flows/v9/ImplicitFlowV9.tsx` (2,084 lines)
 2. `src/pages/flows/v9/ClientCredentialsFlowV9.tsx` (1,156 lines)
 3. `src/pages/flows/v9/OAuthAuthorizationCodeFlowV9.tsx` (127KB)
 4. `src/pages/flows/v9/DeviceAuthorizationFlowV9.tsx` (4,430 lines)
 
 ### Import Fixes Applied (12 files)
+
 **Legacy Toast (`v4ToastManager`) → v4ToastMessages:**
+
 - WorkerTokenTester.tsx
 - CredentialBackupManager.tsx
 - FIDO2RegistrationModal.tsx
@@ -1355,6 +1436,7 @@ diff -u src/pages/flows/v7/YourFlowV7.tsx src/pages/flows/v9/YourFlowV9.tsx | le
 - credentialsWarningService.ts
 
 ### External Assets Localized
+
 - `src/styles/vendor/end-user-nano.css` (682KB) - Previously external URL (403 error)
 
 ---
@@ -1367,6 +1449,7 @@ Copy this for each new flow:
 ## Migration: [FlowName] V7 → V9
 
 ### Pre-Migration
+
 - [ ] Run pre-migration check script
 - [ ] Identify V7-specific services needed
 - [ ] Create V9 service classes
@@ -1374,6 +1457,7 @@ Copy this for each new flow:
 - [ ] Check external dependencies
 
 ### Migration
+
 - [ ] Copy V7 file to v9/ subdirectory
 - [ ] Fix all import paths (../../ → ../../../)
 - [ ] Fix config paths (./config/ → ../config/)
@@ -1382,6 +1466,7 @@ Copy this for each new flow:
 - [ ] Fix dynamic imports
 
 ### Validation
+
 - [ ] TypeScript compiles without errors
 - [ ] No import errors in Vite
 - [ ] Runtime testing passes
@@ -1389,12 +1474,14 @@ Copy this for each new flow:
 - [ ] Diff review shows only expected changes
 
 ### Integration
+
 - [ ] Add route to App.tsx
 - [ ] Add menu entries to sidebarMenuConfig.ts
 - [ ] Update migration guide
 - [ ] Test in production build
 
 ### Documentation
+
 - [ ] Update V7_TO_V9_MIGRATION_GUIDE.md
 - [ ] Document any new issues found
 - [ ] Update completion status
@@ -1407,6 +1494,7 @@ Copy this for each new flow:
 ### "Cannot find module" Errors
 
 **Step 1:** Check path depth
+
 ```bash
 # Count directories from v9/ to src/
 # v9/ → flows/ → pages/ → src/ = 3 levels
@@ -1414,12 +1502,14 @@ Copy this for each new flow:
 ```
 
 **Step 2:** Verify file exists
+
 ```bash
 # If import is: from '../../../services/myService'
 ls -la src/services/myService.ts
 ```
 
 **Step 3:** Check for typos in filename
+
 ```bash
 # Case sensitive!
 find src -iname "*myservice*"
@@ -1430,6 +1520,7 @@ find src -iname "*myservice*"
 **Cause:** Icon font files not loaded
 
 **Fix:**
+
 ```bash
 # Verify font files exist
 ls -la public/icons/
@@ -1442,6 +1533,7 @@ ls -la public/icons/
 ```
 
 If missing, install:
+
 ```bash
 npm install @mdi/font
 cp node_modules/@mdi/font/fonts/materialdesignicons-webfont.* public/icons/
@@ -1453,6 +1545,7 @@ cp node_modules/@mdi/font/fonts/materialdesignicons-webfont.* public/icons/
 **Cause:** External assets blocked
 
 **Fix:** Vendor locally
+
 ```bash
 # Download CSS file
 curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-user-nano/..."
@@ -1467,6 +1560,7 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 ## 💡 Best Practices
 
 ### DO:
+
 ✅ Run pre-migration checks before starting  
 ✅ Create V9 services BEFORE migrating flows  
 ✅ Use sed for bulk import fixes  
@@ -1474,33 +1568,37 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 ✅ Document restored archived files  
 ✅ Localize external dependencies  
 ✅ Verify helper classes exist and are exported  
-✅ Keep one-to-one mapping between V7 and V9 flows  
+✅ Keep one-to-one mapping between V7 and V9 flows
 
 ### DON'T:
+
 ❌ Copy V7 file and forget import depths  
 ❌ Assume archived files still in src/  
 ❌ Mix V7 and V9 service references  
 ❌ Skip validation steps  
 ❌ Rely on external CDN/asset URLs  
 ❌ Change business logic during migration  
-❌ Migrate without testing V7 flow first  
+❌ Migrate without testing V7 flow first
 
 ---
 
 ## 📊 Success Metrics
 
 ### Speed
+
 - **Estimated Time:** 6 weeks (original estimate)
 - **Actual Time:** 2 days
 - **Speedup:** 21x faster
 
 ### Quality
+
 - **Compilation Errors:** 0 (after fixes)
 - **Runtime Errors:** 0
 - **Regression Issues:** 0
 - **Code Coverage:** Same as V7
 
 ### Scope
+
 - **Flows Migrated:** 4 (all CRITICAL flows)
 - **Services Created:** 2
 - **Import Fixes:** 12 files
@@ -1525,6 +1623,7 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 ### ✅ **COMPLETED MIGRATIONS (Feb 28, 2026)**
 
 #### **1. workerTokenStatusServiceV8 → V9WorkerTokenStatusService**
+
 - **Usage**: 107 imports (highest priority)
 - **Files Created**:
   - `src/services/v9/V9WorkerTokenStatusService.ts` (389 lines)
@@ -1539,6 +1638,7 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 - **Status**: ✅ COMPLETE
 
 #### **2. specVersionServiceV8 → V9SpecVersionService**
+
 - **Usage**: 86 imports (second highest priority)
 - **Files Created**:
   - `src/services/v9/V9SpecVersionService.ts` (450+ lines)
@@ -1557,16 +1657,19 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 ### 🔄 **IN PROGRESS MIGRATIONS**
 
 #### **3. mfaServiceV8** (75 imports)
+
 - **Target**: V9MFAService
 - **Complexity**: High - Complex MFA workflows
 - **Status**: 🔄 Planning Phase
 
 #### **4. workerTokenServiceV8** (70 imports)
+
 - **Target**: V9TokenService (exists)
 - **Complexity**: Medium - Token lifecycle management
 - **Status**: 🔄 Planning Phase
 
 #### **5. credentialsServiceV8** (70 imports)
+
 - **Target**: V9CredentialService (partial exists)
 - **Complexity**: High - Unified storage integration
 - **Status**: 🔄 Planning Phase
@@ -1576,17 +1679,21 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 ### 📋 **Migration Strategy for Remaining Services**
 
 #### **Phase 1: Foundation Services (Week 1-2)**
+
 ✅ **COMPLETED**: specVersionServiceV8 → V9SpecVersionService
 🔄 **NEXT**: unifiedFlowLoggerServiceV8 → V9LoggingService
 
 #### **Phase 2: Token Services (Week 3-4)**
+
 ✅ **COMPLETED**: workerTokenStatusServiceV8 → V9WorkerTokenStatusService
 🔄 **NEXT**: workerTokenServiceV8 → V9TokenService
 
 #### **Phase 3: MFA Services (Week 5-6)**
+
 🔄 **NEXT**: mfaServiceV8 → V9MFAService
 
 #### **Phase 4: Credentials & Integration (Week 7-8)**
+
 🔄 **NEXT**: credentialsServiceV8 → V9CredentialService
 
 ---
@@ -1594,11 +1701,13 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 ### 📊 **Migration Statistics**
 
 #### **Completed Services**: 2/15 Priority 1 services (13.3%)
+
 - **workerTokenStatusServiceV8**: 107 imports → V9 ✅
 - **specVersionServiceV8**: 86 imports → V9 ✅
 - **Total Impact**: 193 imports migrated
 
 #### **Remaining Services**: 13/15 Priority 1 services (86.7%)
+
 - **Total Imports Remaining**: 384 imports
 - **High Complexity**: 3 services (mfaServiceV8, credentialsServiceV8, workerTokenServiceV8)
 - **Medium Complexity**: 5 services
@@ -1609,11 +1718,15 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 ### 🎯 **Next Steps**
 
 #### **Immediate Actions (This Week)**
-1. **Start unifiedFlowLoggerServiceV8 migration** - Low complexity, high impact
+
+1. ~~**Start unifiedFlowLoggerServiceV8 migration**~~ - **DONE**: `V9LoggingService` added at `src/services/v9/V9LoggingService.ts`; use for new V9 flows and when migrating callers from `unifiedFlowLoggerServiceV8U`. Two callers migrated: `UnifiedFlowErrorBoundary.tsx`, `FlowNotAvailableModal.tsx`. See **docs/UPDATE_LOG_AND_REGRESSION_PLAN.md** (Logging service migration) for details and regression checks.
 2. **Create V9MFAService foundation** - Begin complex MFA migration
 3. **Update existing V8 components to use V9 adapters** - Gradual rollout
 
+**Button styling (no grey unless disabled):** `WorkerTokenRequestModalV8.tsx` (Generated Worker Token modal) was updated so Close, Cancel, Copy, and preflight Close use outline primary; grey only for disabled Execute. Documented in **docs/UPDATE_LOG_AND_REGRESSION_PLAN.md** under Button styling and Do-Not-Break Areas.
+
 #### **Medium-term Goals (Next 2 Weeks)**
+
 1. **Complete all Phase 1 services** - Foundation services
 2. **Begin Phase 2 token services** - Core authentication
 3. **Test integration with existing V8 flows** - Compatibility verification
@@ -1623,9 +1736,13 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 ### 🚀 **Success Metrics Achieved**
 
 #### **Build Success**: ✅ All services compile without errors
+
 #### **TypeScript Compliance**: ✅ No TypeScript errors
+
 #### **Backward Compatibility**: ✅ Adapters provide drop-in replacement
+
 #### **Enhanced Features**: ✅ V9 services offer significant improvements
+
 #### **Documentation**: ✅ Complete API documentation and examples
 
 ---
@@ -1642,15 +1759,18 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 The page used direct `localStorage.getItem('unified_worker_token')` in two places — the `useState` initializer and the `workerTokenUpdated` event handler — instead of `unifiedWorkerTokenService` (Error 6 in this guide).
 
 **Changes:**
+
 - **Added import:** `unifiedWorkerTokenService` from `../services/unifiedWorkerTokenService`
 - **`useState` initializer:** Replaced try/catch localStorage parse → `unifiedWorkerTokenService.getTokenDataSync()?.credentials?.environmentId`
 - **`workerTokenUpdated` useEffect:** Replaced try/catch localStorage parse → `unifiedWorkerTokenService.getTokenDataSync()`
 
 **Additional V9 Compliance Fixes:**
+
 - **Color Standards:** Replaced forbidden purple color `#8b5cf6` with V9 compliant blue `#2563eb`
 - **PageLayoutService:** Fixed `FlowHeader` property usage → `PageHeader`
 
 **Examples:**
+
 - ✅ [AdvancedConfiguration.tsx](../../src/pages/AdvancedConfiguration.tsx) - Migrated 2026-02-28
 
 ---
@@ -1664,12 +1784,14 @@ The page used direct `localStorage.getItem('unified_worker_token')` in two place
 The page used direct `localStorage.getItem/removeItem('unified_worker_token')` in three places — the `useState` initializer, `handleClearWorkerToken`, and the `workerTokenUpdated` event handler — instead of `unifiedWorkerTokenService` (Error 6 in this guide).
 
 **Changes:**
+
 - **Added import:** `unifiedWorkerTokenService` from `../services/unifiedWorkerTokenService`
 - **`useState` initializer:** Replaced 8-line try/catch localStorage parse → `unifiedWorkerTokenService.getTokenDataSync()?.token ?? ''`
 - **`handleClearWorkerToken`:** `localStorage.removeItem('unified_worker_token')` → `unifiedWorkerTokenService.clearToken()`
 - **`workerTokenUpdated` useEffect:** Replaced try/catch localStorage parse → `unifiedWorkerTokenService.getTokenDataSync()`
 
 **Examples:**
+
 - ✅ [PingOneAuditActivities.tsx](../../src/pages/PingOneAuditActivities.tsx) - Migrated 2026-02-28
 - ✅ [PingOneWebhookViewer.tsx](../../src/pages/PingOneWebhookViewer.tsx) - Migrated 2026-02-27
 
@@ -1684,6 +1806,7 @@ The page used direct `localStorage.getItem/removeItem('unified_worker_token')` i
 The page used a blue header gradient and multiple forbidden purple/indigo colors (`#667eea`, `#6366f1`, `#c4b5fd`) throughout the UI. Per the migration guide, PingOne Management API pages (Audit, Webhook Viewer, etc.) must use the **red** header gradient.
 
 **Changes:**
+
 - **Header gradient:** `#2563eb → #1e40af` (blue) → `#ef4444 → #dc2626` (red — PingOne admin)
 - **Subtitle color:** `#bfdbfe` → `rgba(255, 255, 255, 0.85)` (white on red)
 - **Primary button:** `#667eea` (forbidden purple) → `#2563eb` blue
@@ -1706,6 +1829,7 @@ The page used a blue header gradient and multiple forbidden purple/indigo colors
 The page used a bespoke ad-hoc worker token flow (`WorkerTokenModal` + `WorkerTokenDetectedBanner` + inline env ID card) instead of the standard `WorkerTokenSectionV8` service component used by all other V8 pages. The page had no visible token status section — users could not see their token state or easily refresh/clear it.
 
 **Changes:**
+
 - **Removed imports:** `WorkerTokenModal`, `WorkerTokenDetectedBanner`
 - **Added import:** `WorkerTokenSectionV8` from `@/v8/components/WorkerTokenSectionV8`
 - **Removed state:** `showWorkerTokenModal` (managed internally by `WorkerTokenSectionV8`)
@@ -1716,6 +1840,7 @@ The page used a bespoke ad-hoc worker token flow (`WorkerTokenModal` + `WorkerTo
 - **Removed** the "Provide Worker Token" card inside the Subscriptions tab (now redundant — `WorkerTokenSectionV8` is always shown)
 
 **WorkerTokenSectionV8 features gained:**
+
 - ✅ Token status badge (green Active / red Not Set)
 - ✅ Get Worker Token / Update Token / Clear Token action buttons
 - ✅ `WorkerTokenStatusDisplayV8` embedded in compact mode

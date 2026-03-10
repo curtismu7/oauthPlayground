@@ -349,9 +349,8 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									onClick={async () => {
 										if (generatedToken) {
 											try {
-												const { workerTokenServiceV8 } = await import(
-													'@/v8/services/workerTokenServiceV8'
-												);
+												const { workerTokenServiceV8 } =
+													await import('@/v8/services/workerTokenServiceV8');
 												await workerTokenServiceV8.saveToken(generatedToken);
 												modernMessaging.showFooterMessage({
 													type: 'info',
@@ -359,8 +358,13 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 													duration: 3000,
 												});
 											} catch (error) {
-												const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-												logger.error('[WorkerTokenRequestModal] Failed to save token', errorMessage, { error });
+												const errorMessage =
+													error instanceof Error ? error.message : 'Unknown error';
+												logger.error(
+													'[WorkerTokenRequestModal] Failed to save token',
+													errorMessage,
+													{ error }
+												);
 												modernMessaging.showBanner({
 													type: 'error',
 													title: 'Error',
@@ -394,9 +398,9 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									style={{
 										flex: 1,
 										padding: '10px 16px',
-										background: '#e5e7eb',
-										color: '#1f2937',
-										border: 'none',
+										background: '#ffffff',
+										color: '#2563eb',
+										border: '1px solid #2563eb',
 										borderRadius: '4px',
 										fontSize: '14px',
 										fontWeight: '600',
@@ -444,9 +448,9 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 										onClick={() => handleCopy(requestDetails.tokenEndpoint, 'endpoint')}
 										style={{
 											padding: '4px 8px',
-											background: copiedField === 'endpoint' ? '#10b981' : '#e5e7eb',
-											color: copiedField === 'endpoint' ? 'white' : '#374151',
-											border: 'none',
+											background: copiedField === 'endpoint' ? '#10b981' : '#ffffff',
+											color: copiedField === 'endpoint' ? 'white' : '#2563eb',
+											border: copiedField === 'endpoint' ? 'none' : '1px solid #2563eb',
 											borderRadius: '4px',
 											fontSize: '12px',
 											cursor: 'pointer',
@@ -570,7 +574,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 													padding: '4px 8px',
 													background: 'none',
 													border: 'none',
-													color: '#6b7280',
+													color: '#2563eb',
 													cursor: 'pointer',
 													fontSize: '12px',
 													marginLeft: '8px',
@@ -622,7 +626,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 														padding: '4px 8px',
 														background: 'none',
 														border: 'none',
-														color: '#6b7280',
+														color: '#2563eb',
 														cursor: 'pointer',
 														fontSize: '12px',
 													}}
@@ -638,7 +642,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 														padding: '4px 8px',
 														background: 'none',
 														border: 'none',
-														color: '#6b7280',
+														color: '#2563eb',
 														cursor: 'pointer',
 														fontSize: '12px',
 													}}
@@ -693,7 +697,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 													padding: '4px 8px',
 													background: 'none',
 													border: 'none',
-													color: '#6b7280',
+													color: '#2563eb',
 													cursor: 'pointer',
 													fontSize: '12px',
 													marginLeft: '8px',
@@ -823,8 +827,8 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									color: '#92400e',
 								}}
 							>
-								<strong>⚠️ Security Note:</strong> Worker tokens have elevated privileges. Store them
-								securely and never expose them in client-side code.
+								<strong>⚠️ Security Note:</strong> Worker tokens have elevated privileges. Store
+								them securely and never expose them in client-side code.
 							</div>
 
 							{/* Actions */}
@@ -835,9 +839,9 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									style={{
 										flex: 1,
 										padding: '10px 16px',
-										background: '#e5e7eb',
-										color: '#1f2937',
-										border: 'none',
+										background: '#ffffff',
+										color: '#2563eb',
+										border: '1px solid #2563eb',
 										borderRadius: '4px',
 										fontSize: '14px',
 										fontWeight: '600',
@@ -992,9 +996,9 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 											style={{
 												flex: 1,
 												padding: '12px 16px',
-												background: '#6b7280',
-												color: 'white',
-												border: 'none',
+												background: '#ffffff',
+												color: '#2563eb',
+												border: '1px solid #2563eb',
 												borderRadius: '6px',
 												fontSize: '14px',
 												fontWeight: '600',
