@@ -76,6 +76,7 @@ export interface TokenStorageResult<T = UnifiedStorageItem> {
 }
 
 export interface TokenStorageOptions {
+	id?: string; // Stable id for credentials (avoids random ids so we never lose them)
 	environmentId?: string;
 	clientId?: string;
 	flowType?: string;
@@ -86,6 +87,7 @@ export interface TokenStorageOptions {
 // Legacy interfaces for backward compatibility
 export interface TokenQuery extends Omit<StorageQuery, 'type'> {
 	type?: UnifiedStorageItem['type'];
+	id?: string;
 }
 
 // V8 Storage Compatibility Interfaces
@@ -409,7 +411,7 @@ export class UnifiedTokenStorageService {
 
 			const unifiedToken: UnifiedStorageItem = {
 				...token,
-				id: this.generateTokenId(token),
+				id: options?.id ?? this.generateTokenId(token),
 				createdAt: Date.now(),
 				updatedAt: Date.now(),
 				...options,
@@ -588,6 +590,7 @@ export class UnifiedTokenStorageService {
 
 			// Only append parameters that have actual values
 			if (query) {
+				if (query.id) params.append('id', query.id);
 				if (query.type) params.append('type', query.type);
 				if (query.source) params.append('source', query.source);
 				if (query.environmentId) params.append('environmentId', query.environmentId);
@@ -618,6 +621,7 @@ export class UnifiedTokenStorageService {
 		if (!query) return tokens;
 
 		return tokens.filter((token) => {
+			if (query.id && token.id !== query.id) return false;
 			if (query.type && token.type !== query.type) return false;
 			if (query.source && token.source !== query.source) return false;
 			if (query.environmentId && token.environmentId !== query.environmentId) return false;
@@ -955,25 +959,71 @@ export class UnifiedTokenStorageService {
 	// ============================================================================
 
 	/**
+	 * Store worker token credentials (IndexedDB + SQLite). Once saved, credentials persist across
+	 * sessions and are never lost. Use getWorkerTokenCredentials to load them.
+	 */
+	async storeWorkerTokenCredentials(credentials: Record<string, unknown>): Promise<void> {
+		await this.storeToken(
+			{
+				type: 'worker_token',
+				value: JSON.stringify(credentials),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'worker_token',
+				flowType: 'worker_token',
+				flowName: 'unified_worker_credentials',
+				environmentId: (credentials.environmentId as string) || undefined,
+				clientId: (credentials.clientId as string) || undefined,
+				metadata: { credentials },
+			},
+			{ id: 'unified_worker_token_credentials' }
+		);
+		logger.info(MODULE_TAG, 'Worker token credentials saved to IndexedDB + SQLite');
+	}
+
+	/**
+	 * Load worker token credentials from IndexedDB (with SQLite fallback).
+	 */
+	async getWorkerTokenCredentials(): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'worker_token',
+			id: 'unified_worker_token_credentials',
+		});
+		if (!result.success || !result.data?.length) return null;
+		const token =
+			result.data.find((t) => t.id === 'unified_worker_token_credentials') ?? result.data[0];
+		try {
+			const parsed = JSON.parse(token.value) as Record<string, unknown>;
+			const fromMeta = token.metadata?.credentials as Record<string, unknown> | undefined;
+			return (fromMeta ?? parsed) as Record<string, unknown>;
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'Failed to parse worker token credentials', undefined, error);
+			return null;
+		}
+	}
+
+	/**
 	 * Store OAuth credentials
 	 */
 	async storeOAuthCredentials(
 		credentials: Record<string, unknown>,
 		options?: TokenStorageOptions
 	): Promise<void> {
-		await this.storeToken({
-			id: `oauth_${options?.environmentId || 'default'}_${options?.clientId || 'default'}`,
-			type: 'oauth_credentials',
-			value: JSON.stringify(credentials),
-			expiresAt: null,
-			issuedAt: Date.now(),
-			source: 'system',
-			environmentId: options?.environmentId,
-			clientId: options?.clientId,
-			flowType: options?.flowType,
-			flowName: options?.flowName,
-			metadata: { credentials },
-		});
+		await this.storeToken(
+			{
+				type: 'oauth_credentials',
+				value: JSON.stringify(credentials),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'system',
+				environmentId: options?.environmentId,
+				clientId: options?.clientId,
+				flowType: options?.flowType,
+				flowName: options?.flowName,
+				metadata: { credentials },
+			},
+			{ id: `oauth_${options?.environmentId || 'default'}_${options?.clientId || 'default'}` }
+		);
 	}
 
 	/**
