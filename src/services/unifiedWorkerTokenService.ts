@@ -381,9 +381,8 @@ class UnifiedWorkerTokenService {
 			const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
 
 			if (environmentId) {
-				const { UnifiedWorkerTokenBackupServiceV8 } = await import(
-					'./unifiedWorkerTokenBackupServiceV8'
-				);
+				const { UnifiedWorkerTokenBackupServiceV8 } =
+					await import('./unifiedWorkerTokenBackupServiceV8');
 				await UnifiedWorkerTokenBackupServiceV8.saveWorkerTokenBackup(credentials, {
 					environmentId,
 					enableBackup: true,
@@ -405,6 +404,17 @@ class UnifiedWorkerTokenService {
 
 		logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} ✅ Worker token credentials saved`);
 		return ok(undefined);
+	}
+
+	/**
+	 * Clear in-memory credentials cache so the next loadCredentials() reads from
+	 * IndexedDB/SQLite again. Call when opening the worker token modal so credentials
+	 * are never reported missing when they exist in storage.
+	 */
+	public clearCredentialsCache(): void {
+		this.credentialsCache = null;
+		this.credentialsCacheTime = 0;
+		this.lastLoadAttempt = 0;
 	}
 
 	/**
@@ -554,9 +564,8 @@ class UnifiedWorkerTokenService {
 
 			if (environmentId) {
 				logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} 🔍 Trying SQLite backup...`);
-				const { UnifiedWorkerTokenBackupServiceV8 } = await import(
-					'./unifiedWorkerTokenBackupServiceV8'
-				);
+				const { UnifiedWorkerTokenBackupServiceV8 } =
+					await import('./unifiedWorkerTokenBackupServiceV8');
 				const credentials = await UnifiedWorkerTokenBackupServiceV8.loadWorkerTokenBackup({
 					environmentId,
 					enableBackup: true,
@@ -611,9 +620,8 @@ class UnifiedWorkerTokenService {
 					'UnifiedWorkerTokenService',
 					`${MODULE_TAG} 🔍 Trying SQLite backup for server restart persistence...`
 				);
-				const { UnifiedWorkerTokenBackupServiceV8 } = await import(
-					'./unifiedWorkerTokenBackupServiceV8'
-				);
+				const { UnifiedWorkerTokenBackupServiceV8 } =
+					await import('./unifiedWorkerTokenBackupServiceV8');
 				const credentials = await UnifiedWorkerTokenBackupServiceV8.loadWorkerTokenBackup({
 					environmentId,
 					enableBackup: true,
@@ -825,11 +833,9 @@ class UnifiedWorkerTokenService {
 		try {
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 		} catch (error) {
-			logger.warn(
-				'UnifiedWorkerTokenService',
-				`${MODULE_TAG} Failed to update last used time`,
-				{ error: error as Error }
-			);
+			logger.warn('UnifiedWorkerTokenService', `${MODULE_TAG} Failed to update last used time`, {
+				error: error as Error,
+			});
 		}
 
 		return data.token;
