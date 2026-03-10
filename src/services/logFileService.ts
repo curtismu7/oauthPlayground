@@ -5,6 +5,8 @@
  * @version 1.0.0
  */
 
+import { logger } from '../utils/logger';
+
 const MODULE_TAG = '[📁 LOG-FILE-SERVICE]';
 
 /**
