@@ -703,6 +703,168 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				],
 			},
 			{
+				id: 'v9-flows',
+				label: 'V9 Flows (Real API)',
+				icon: <span>⚡</span>,
+				isOpen: false,
+				items: [
+					{
+						id: 'oauth-authorization-code-v9',
+						path: '/flows/oauth-authorization-code-v9',
+						label: 'Authorization Code + PKCE (V9)',
+						icon: (
+							<ColoredIcon $color="#06b6d4">
+								<span>🔑</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'client-credentials-v9',
+						path: '/flows/client-credentials-v9',
+						label: 'Client Credentials (V9)',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<span>👤</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'device-authorization-v9',
+						path: '/flows/device-authorization-v9',
+						label: 'Device Authorization (V9)',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<span>📱</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'worker-token-v9-sidebar',
+						path: '/flows/worker-token-v9',
+						label: 'Worker Token (V9)',
+						icon: (
+							<ColoredIcon $color="#fb923c">
+								<span>🔑</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'dpop-authorization-code-v9',
+						path: '/flows/dpop-authorization-code-v9',
+						label: 'DPoP Authorization Code (V9)',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<span>🛡️</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'pingone-par-v9-sidebar',
+						path: '/flows/pingone-par-v9',
+						label: 'PAR — Pushed Authorization (V9)',
+						icon: (
+							<ColoredIcon $color="#ea580c">
+								<span>🔒</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'ciba-v9',
+						path: '/flows/ciba-v9',
+						label: 'CIBA — Backchannel Auth (V9)',
+						icon: (
+							<ColoredIcon $color="#3b82f6">
+								<span>📲</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'oidc-hybrid-v9',
+						path: '/flows/oidc-hybrid-v9',
+						label: 'OIDC Hybrid Flow (V9)',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<span>🔄</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'jwt-bearer-token-v9',
+						path: '/flows/jwt-bearer-token-v9',
+						label: 'JWT Bearer Token (V9)',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<span>🔑</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'saml-bearer-assertion-v9',
+						path: '/flows/saml-bearer-assertion-v9',
+						label: 'SAML Bearer Assertion (V9)',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<span>🔐</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'token-exchange-v9',
+						path: '/flows/token-exchange-v9',
+						label: 'Token Exchange (V9)',
+						icon: (
+							<ColoredIcon $color="#7c3aed">
+								<span>🔁</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'oauth-ropc-v9',
+						path: '/flows/oauth-ropc-v9',
+						label: 'ROPC — Resource Owner Password (V9)',
+						icon: (
+							<ColoredIcon $color="#ef4444">
+								<span>⚠️</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'rar-v9',
+						path: '/flows/rar-v9',
+						label: 'RAR — Rich Authorization Requests (V9)',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<span>📋</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+					{
+						id: 'implicit-v9',
+						path: '/flows/implicit-v9',
+						label: 'Implicit Grant (V9 — Deprecated)',
+						icon: (
+							<ColoredIcon $color="#6b7280">
+								<span>⚠️</span>
+							</ColoredIcon>
+						),
+						badge: <MenuVersionBadge version="9" type="production" />,
+					},
+				],
+			},
+			{
 				id: 'reference-materials',
 				label: 'Reference Materials',
 				icon: (
@@ -997,8 +1159,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					},
 					{
 						id: 'par-flow',
-						path: '/flows/par',
-						label: 'PAR Flow',
+						path: '/flows/pingone-par-v9',
+						label: 'PAR (V9)',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
 								<span>🔒</span>
@@ -1023,19 +1185,15 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				isOpen: true,
 				items: [
 					{
-						id: 'worker-token-v7',
-						path: '/flows/worker-token-v7',
-						label: 'Worker Token (V7)',
+						id: 'worker-token-v9-token-apps',
+						path: '/flows/worker-token-v9',
+						label: 'Worker Token (V9)',
 						icon: (
 							<ColoredIcon $color="#fb923c">
 								<span>🔑</span>
 							</ColoredIcon>
 						),
-						badge: (
-							<MigrationBadge title="V7: Enhanced worker token flow">
-								<span>✅</span>
-							</MigrationBadge>
-						),
+						badge: <MenuVersionBadge version="9" type="production" />,
 					},
 					{
 						id: 'worker-token-tester',
@@ -1226,9 +1384,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								),
 							},
 							{
-								id: 'mock-oidc-ropc',
-								path: '/flows/mock-oidc-ropc',
-								label: 'Mock OIDC ROPC',
+								id: 'oauth-ropc-v9-mock',
+								path: '/flows/oauth-ropc-v9',
+								label: 'ROPC (V9)',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
 										<span>🔒</span>

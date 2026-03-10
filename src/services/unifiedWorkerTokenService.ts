@@ -31,10 +31,8 @@ declare global {
 
 const MODULE_TAG = '[🔑 UNIFIED-WORKER-TOKEN]';
 
-// Storage keys
+// Storage key for fast sync access (unifiedTokenStorage is canonical)
 const BROWSER_STORAGE_KEY = 'unified_worker_token';
-const INDEXEDDB_STORE_NAME = 'unified_worker_tokens';
-const INDEXEDDB_DB_NAME = 'oauth_playground_unified';
 
 // Unified interfaces that support all app requirements
 export interface UnifiedWorkerTokenCredentials {
@@ -146,7 +144,6 @@ export interface ApplicationKeyRotationStatus {
 class UnifiedWorkerTokenService {
 	private static instance: UnifiedWorkerTokenService;
 	private memoryCache: UnifiedWorkerTokenData | null = null;
-	private dbPromise: Promise<IDBDatabase> | null = null;
 	private credentialsCache: UnifiedWorkerTokenCredentials | null = null;
 	private credentialsCacheTime: number = 0;
 	private credentialsCacheExpiry: number = 30000; // 30 seconds
@@ -218,43 +215,6 @@ class UnifiedWorkerTokenService {
 	}
 
 	/**
-	 * Initialize IndexedDB database
-	 */
-	private async initDB(): Promise<IDBDatabase> {
-		if (this.dbPromise) {
-			return this.dbPromise;
-		}
-
-		this.dbPromise = new Promise((resolve, reject) => {
-			const request = indexedDB.open(INDEXEDDB_DB_NAME, 1);
-
-			request.onerror = () => {
-				logger.error('UnifiedWorkerTokenService', `${MODULE_TAG} Failed to open IndexedDB`, {
-					data: request.error,
-				});
-				reject(request.error);
-			};
-
-			request.onsuccess = () => {
-				resolve(request.result);
-			};
-
-			request.onupgradeneeded = (event) => {
-				const db = (event.target as IDBOpenDBRequest).result;
-				if (!db.objectStoreNames.contains(INDEXEDDB_STORE_NAME)) {
-					const store = db.createObjectStore(INDEXEDDB_STORE_NAME, { keyPath: 'id' });
-					store.createIndex('environmentId', 'environmentId', { unique: false });
-					store.createIndex('appId', 'appId', { unique: false });
-					store.createIndex('savedAt', 'savedAt', { unique: false });
-					store.createIndex('expiresAt', 'expiresAt', { unique: false });
-				}
-			};
-		});
-
-		return this.dbPromise;
-	}
-
-	/**
 	 * Save worker token credentials
 	 */
 	async saveCredentials(
@@ -287,7 +247,22 @@ class UnifiedWorkerTokenService {
 		// Update memory cache
 		this.memoryCache = data;
 
-		// Save to localStorage (primary storage)
+		// Save to unified storage (IndexedDB + SQLite) — primary source, credentials never lost
+		try {
+			await unifiedTokenStorage.storeWorkerTokenCredentials(
+				credentials as unknown as Record<string, unknown>
+			);
+		} catch (error) {
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to save to unified storage`,
+				undefined,
+				error as Error
+			);
+			// Continue — localStorage/IndexedDB below provide fallback
+		}
+
+		// Sync to localStorage for fast sync access (canonical is unifiedTokenStorage)
 		try {
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 		} catch (error) {
@@ -299,107 +274,15 @@ class UnifiedWorkerTokenService {
 			);
 		}
 
-		// Save to IndexedDB (backup storage)
-		try {
-			const db = await this.initDB();
-			const transaction = db.transaction([INDEXEDDB_STORE_NAME], 'readwrite');
-			const store = transaction.objectStore(INDEXEDDB_STORE_NAME);
-
-			const record = {
-				id: 'unified_worker_token',
-				...data,
-			};
-
-			await new Promise<void>((resolve, reject) => {
-				const request = store.put(record);
-				request.onsuccess = () => resolve();
-				request.onerror = () => reject(request.error);
-			});
-		} catch (error) {
-			logger.error(
-				'UnifiedWorkerTokenService',
-				`${MODULE_TAG} Failed to save to IndexedDB`,
-				undefined,
-				error as Error
-			);
-			// Don't throw - localStorage is primary
-		}
-
-		// Save to unified storage for persistence
-		try {
-			// Get current worker token data to backup
-			const currentData = this.getTokenDataSync();
-			if (currentData?.token) {
-				// Store worker token in unified storage
-				await unifiedTokenStorage.storeToken({
-					type: 'worker_token',
-					value: currentData.token,
-					expiresAt: currentData.expiresAt || null,
-					issuedAt: currentData.savedAt || Date.now(),
-					scope: [],
-					source: 'worker_token',
-					flowType: 'worker_token',
-					flowName: 'unified_worker_token',
-					environmentId: credentials.environmentId,
-					clientId: credentials.clientId,
-					metadata: {
-						credentials,
-						savedAt: currentData.savedAt,
-					},
-				});
-				logger.info(
-					'UnifiedWorkerTokenService',
-					`${MODULE_TAG} ✅ Worker token backed up to unified storage`
-				);
-			}
-		} catch (error) {
-			logger.error(
-				'UnifiedWorkerTokenService',
-				`${MODULE_TAG} Failed to backup to unified storage`,
-				undefined,
-				error as Error
-			);
-			// Don't throw - local storage is primary
-		}
-
-		// Sync environmentId to dual-store (IndexedDB + SQLite + localStorage) so all pages pick it up
+		// Sync environmentId so all pages pick it up
 		if (credentials.environmentId) {
 			import('../services/environmentIdService')
 				.then(({ saveEnvironmentId }) => saveEnvironmentId(credentials.environmentId))
 				.catch((error) => {
-					logger.warn(
-						'UnifiedWorkerTokenService',
-						`${MODULE_TAG} Failed to sync environmentId to dual store`,
-						{ error: error as Error }
-					);
+					logger.warn('UnifiedWorkerTokenService', `${MODULE_TAG} Failed to sync environmentId`, {
+						error: error as Error,
+					});
 				});
-		}
-
-		// Save to SQLite backup for server restart persistence
-		try {
-			const { EnvironmentIdServiceV8 } = await import('../v8/services/environmentIdServiceV8');
-			const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
-
-			if (environmentId) {
-				const { UnifiedWorkerTokenBackupServiceV8 } =
-					await import('./unifiedWorkerTokenBackupServiceV8');
-				await UnifiedWorkerTokenBackupServiceV8.saveWorkerTokenBackup(credentials, {
-					environmentId,
-					enableBackup: true,
-					backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
-				});
-				logger.info(
-					'UnifiedWorkerTokenService',
-					`${MODULE_TAG} ✅ Worker token credentials backed up to SQLite`
-				);
-			}
-		} catch (sqliteError) {
-			logger.warn(
-				'UnifiedWorkerTokenService',
-				`${MODULE_TAG} SQLite backup failed, using fallback`,
-				{ data: sqliteError }
-			);
-			// Don't throw - other storage methods should work
 		}
 
 		logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} ✅ Worker token credentials saved`);
@@ -463,16 +346,47 @@ class UnifiedWorkerTokenService {
 			return this.memoryCache.credentials;
 		}
 
-		// Try localStorage (primary)
+		// Try unified storage (IndexedDB + SQLite) — canonical source, credentials never lost
+		try {
+			const creds = await unifiedTokenStorage.getWorkerTokenCredentials();
+			if (creds && creds.environmentId && creds.clientId && creds.clientSecret) {
+				const credentials = creds as unknown as UnifiedWorkerTokenCredentials;
+				this.memoryCache = {
+					token: '',
+					credentials,
+					savedAt: Date.now(),
+				};
+				this.credentialsCache = credentials;
+				this.credentialsCacheTime = now;
+				try {
+					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(this.memoryCache));
+				} catch {}
+				return credentials;
+			}
+		} catch (error) {
+			logger.warn('UnifiedWorkerTokenService', `${MODULE_TAG} Unified storage load failed`, {
+				error: error as Error,
+			});
+		}
+
+		// Try localStorage (legacy — migrate to unified storage so credentials are never lost)
 		try {
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
-
 			if (stored) {
 				const data: UnifiedWorkerTokenData = JSON.parse(stored);
-				this.memoryCache = data;
-				this.credentialsCache = data.credentials;
-				this.credentialsCacheTime = Date.now();
-				return data.credentials;
+				if (
+					data.credentials?.environmentId &&
+					data.credentials?.clientId &&
+					data.credentials?.clientSecret
+				) {
+					this.memoryCache = data;
+					this.credentialsCache = data.credentials;
+					this.credentialsCacheTime = Date.now();
+					unifiedTokenStorage
+						.storeWorkerTokenCredentials(data.credentials as unknown as Record<string, unknown>)
+						.catch(() => {});
+					return data.credentials;
+				}
 			}
 		} catch (error) {
 			logger.error(
@@ -481,197 +395,6 @@ class UnifiedWorkerTokenService {
 				undefined,
 				error as Error
 			);
-		}
-
-		// Try IndexedDB (backup)
-		try {
-			const db = await this.initDB();
-			const transaction = db.transaction([INDEXEDDB_STORE_NAME], 'readonly');
-			const store = transaction.objectStore(INDEXEDDB_STORE_NAME);
-			const request = store.get('unified_worker_token');
-
-			const data = await new Promise<UnifiedWorkerTokenData | null>((resolve, reject) => {
-				request.onsuccess = () => resolve(request.result || null);
-				request.onerror = () => reject(request.error);
-			});
-
-			if (data) {
-				this.memoryCache = data;
-
-				// Restore to localStorage
-				try {
-					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
-				} catch (error) {
-					logger.warn(
-						'UnifiedWorkerTokenService',
-						`${MODULE_TAG} ⚠️ Failed to restore to localStorage`,
-						{ error: error as Error }
-					);
-				}
-				return data.credentials;
-			} else {
-				// No data in IndexedDB
-			}
-		} catch (error) {
-			logger.error(
-				'UnifiedWorkerTokenService',
-				`${MODULE_TAG} ❌ Failed to load from IndexedDB`,
-				undefined,
-				error as Error
-			);
-		}
-
-		// Try unified storage backup
-		try {
-			const result = await unifiedTokenStorage.getTokens({
-				type: 'worker_token',
-				source: 'worker_token',
-			});
-
-			if (result.success && result.data && result.data.length > 0) {
-				const workerToken = result.data[0];
-
-				// Extract credentials from metadata if available
-				const credentials = workerToken.metadata?.credentials as UnifiedWorkerTokenCredentials;
-				if (credentials) {
-					// Update memory cache and localStorage
-					const data: UnifiedWorkerTokenData = {
-						token: workerToken.value,
-						credentials,
-						...(workerToken.expiresAt != null && { expiresAt: workerToken.expiresAt }),
-						savedAt: workerToken.issuedAt,
-					};
-
-					this.memoryCache = data;
-					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
-
-					return credentials;
-				}
-			}
-		} catch (error) {
-			logger.error(
-				'UnifiedWorkerTokenService',
-				`${MODULE_TAG} ❌ Failed to load from database`,
-				undefined,
-				error as Error
-			);
-		}
-
-		// Try SQLite backup for server restart persistence
-		try {
-			const { EnvironmentIdServiceV8 } = await import('../v8/services/environmentIdServiceV8');
-			const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
-
-			if (environmentId) {
-				logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} 🔍 Trying SQLite backup...`);
-				const { UnifiedWorkerTokenBackupServiceV8 } =
-					await import('./unifiedWorkerTokenBackupServiceV8');
-				const credentials = await UnifiedWorkerTokenBackupServiceV8.loadWorkerTokenBackup({
-					environmentId,
-					enableBackup: true,
-				});
-
-				if (credentials) {
-					logger.info(
-						'UnifiedWorkerTokenService',
-						`${MODULE_TAG} ✅ Loaded worker token credentials from SQLite backup`
-					);
-
-					// Update memory cache and localStorage
-					const data: UnifiedWorkerTokenData = {
-						token: '', // Token will be fetched when needed
-						credentials,
-						savedAt: Date.now(),
-					};
-					this.memoryCache = data;
-
-					// Restore to localStorage
-					try {
-						localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
-					} catch (error) {
-						logger.warn(
-							'UnifiedWorkerTokenService',
-							`${MODULE_TAG} ⚠️ Failed to restore to localStorage`,
-							{ error: error as Error }
-						);
-					}
-
-					return credentials;
-				} else {
-					logger.info(
-						'UnifiedWorkerTokenService',
-						`${MODULE_TAG} ❌ No data found in SQLite backup`
-					);
-				}
-			}
-		} catch (sqliteError) {
-			logger.warn('UnifiedWorkerTokenService', `${MODULE_TAG} SQLite backup load failed`, {
-				data: sqliteError,
-			});
-		}
-
-		// Try SQLite backup for server restart persistence (NEW - before legacy migration)
-		try {
-			const { EnvironmentIdServiceV8 } = await import('../v8/services/environmentIdServiceV8');
-			const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
-
-			if (environmentId) {
-				logger.info(
-					'UnifiedWorkerTokenService',
-					`${MODULE_TAG} 🔍 Trying SQLite backup for server restart persistence...`
-				);
-				const { UnifiedWorkerTokenBackupServiceV8 } =
-					await import('./unifiedWorkerTokenBackupServiceV8');
-				const credentials = await UnifiedWorkerTokenBackupServiceV8.loadWorkerTokenBackup({
-					environmentId,
-					enableBackup: true,
-				});
-
-				if (credentials) {
-					logger.info(
-						'UnifiedWorkerTokenService',
-						`${MODULE_TAG} ✅ Loaded worker token credentials from SQLite backup`,
-						{
-							data: {
-								environmentId,
-								hasClientId: !!credentials.clientId,
-								hasClientSecret: !!credentials.clientSecret,
-								hasRegion: !!credentials.region,
-							},
-						}
-					);
-
-					// Update memory cache and localStorage
-					const data: UnifiedWorkerTokenData = {
-						token: '', // Token will be fetched when needed
-						credentials,
-						savedAt: Date.now(),
-					};
-					this.memoryCache = data;
-
-					// Restore to localStorage for faster future access
-					try {
-						localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
-					} catch (restoreError) {
-						logger.warn(
-							'UnifiedWorkerTokenService',
-							`${MODULE_TAG} ⚠️ Failed to restore to localStorage`,
-							{ data: restoreError }
-						);
-					}
-
-					return credentials;
-				} else {
-					logger.info(
-						'UnifiedWorkerTokenService',
-						`${MODULE_TAG} ❌ No SQLite backup found for environment: ${environmentId}`
-					);
-				}
-			}
-		} catch (sqliteError) {
-			logger.warn('UnifiedWorkerTokenService', `${MODULE_TAG} SQLite backup load failed`, {
-				data: sqliteError,
-			});
 		}
 
 		// Try legacy storage keys for migration
@@ -770,36 +493,26 @@ class UnifiedWorkerTokenService {
 		// Update memory cache
 		this.memoryCache = data;
 
-		// Save to localStorage
+		// Save to unified storage (IndexedDB + SQLite) and localStorage for sync access
+		try {
+			await unifiedTokenStorage.saveWorkerToken({
+				accessToken: token,
+				expiresAt: data.expiresAt ?? Date.now() + 3600 * 1000,
+				environmentId: credentials.environmentId,
+			});
+		} catch (error) {
+			logger.warn(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to save token to unified storage`,
+				{ error: error as Error }
+			);
+		}
 		try {
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 		} catch (error) {
 			logger.error(
 				'UnifiedWorkerTokenService',
 				`${MODULE_TAG} Failed to save token to localStorage`,
-				undefined,
-				error as Error
-			);
-		}
-
-		// Save to IndexedDB
-		try {
-			const db = await this.initDB();
-			const transaction = db.transaction([INDEXEDDB_STORE_NAME], 'readwrite');
-			const store = transaction.objectStore(INDEXEDDB_STORE_NAME);
-
-			await new Promise<void>((resolve, reject) => {
-				const request = store.put({
-					id: 'unified_worker_token',
-					...data,
-				});
-				request.onsuccess = () => resolve();
-				request.onerror = () => reject(request.error);
-			});
-		} catch (error) {
-			logger.error(
-				'UnifiedWorkerTokenService',
-				`${MODULE_TAG} Failed to save token to IndexedDB`,
 				undefined,
 				error as Error
 			);
@@ -969,33 +682,19 @@ class UnifiedWorkerTokenService {
 	 */
 	async clearCredentials(): Promise<void> {
 		this.memoryCache = null;
+		this.credentialsCache = null;
 
-		// Clear localStorage
 		try {
 			localStorage.removeItem(BROWSER_STORAGE_KEY);
-		} catch (error) {
-			logger.error(
-				'UnifiedWorkerTokenService',
-				`${MODULE_TAG} Failed to clear localStorage`,
-				undefined,
-				error as Error
-			);
-		}
-
-		// Clear IndexedDB
-		try {
-			const db = await this.initDB();
-			const transaction = db.transaction([INDEXEDDB_STORE_NAME], 'readwrite');
-			const store = transaction.objectStore(INDEXEDDB_STORE_NAME);
-			await new Promise<void>((resolve, reject) => {
-				const request = store.delete('unified_worker_token');
-				request.onsuccess = () => resolve();
-				request.onerror = () => reject(request.error);
+			await unifiedTokenStorage.deleteTokens({
+				type: 'worker_token',
+				id: 'unified_worker_token_credentials',
 			});
+			await unifiedTokenStorage.clearWorkerToken();
 		} catch (error) {
 			logger.error(
 				'UnifiedWorkerTokenService',
-				`${MODULE_TAG} Failed to clear IndexedDB`,
+				`${MODULE_TAG} Failed to clear credentials`,
 				undefined,
 				error as Error
 			);
@@ -1034,25 +733,16 @@ class UnifiedWorkerTokenService {
 			);
 		}
 
-		// Update IndexedDB
+		// Update unified storage (token cleared, credentials kept)
 		try {
-			const db = await this.initDB();
-			const transaction = db.transaction([INDEXEDDB_STORE_NAME], 'readwrite');
-			const store = transaction.objectStore(INDEXEDDB_STORE_NAME);
-			await new Promise<void>((resolve, reject) => {
-				const request = store.put({
-					id: 'unified_worker_token',
-					...data,
-				});
-				request.onsuccess = () => resolve();
-				request.onerror = () => reject(request.error);
-			});
+			await unifiedTokenStorage.clearWorkerToken();
 		} catch (error) {
-			logger.error(
+			logger.warn(
 				'UnifiedWorkerTokenService',
-				`${MODULE_TAG} Failed to clear token from IndexedDB`,
-				undefined,
-				error as Error
+				`${MODULE_TAG} Failed to clear token from unified storage`,
+				{
+					error: error as Error,
+				}
 			);
 		}
 	}
@@ -1062,13 +752,29 @@ class UnifiedWorkerTokenService {
 	// ============================================
 
 	/**
-	 * Load data from storage
+	 * Load data from storage — tries localStorage then unified storage (IndexedDB + SQLite)
 	 */
 	private async loadDataFromStorage(): Promise<UnifiedWorkerTokenData | null> {
 		try {
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
 			if (stored) {
 				return JSON.parse(stored) as UnifiedWorkerTokenData;
+			}
+			// Fallback to unified storage (IndexedDB + SQLite)
+			const tokenData = await unifiedTokenStorage.loadWorkerToken();
+			const credResult = await this.loadCredentials();
+			if (tokenData && credResult.success && credResult.data) {
+				const data: UnifiedWorkerTokenData = {
+					token: tokenData.accessToken,
+					credentials: credResult.data,
+					expiresAt: tokenData.expiresAt,
+					savedAt: Date.now(),
+				};
+				this.memoryCache = data;
+				try {
+					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
+				} catch {}
+				return data;
 			}
 		} catch (error) {
 			logger.error(
