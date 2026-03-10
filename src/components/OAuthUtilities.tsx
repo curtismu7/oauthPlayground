@@ -5,69 +5,69 @@ import { generateCodeChallenge, generateRandomString } from '../utils/oauth';
 import { Card, CardBody, CardHeader } from './Card';
 
 const UtilitiesContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const UtilityCard = styled(Card)`
-  height: fit-content;
+	height: fit-content;
 `;
 
 const InputGroup = styled.div`
-  margin-bottom: 1rem;
+	margin-bottom: 1rem;
 
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray700};
-  }
+	label {
+		display: block;
+		margin-bottom: 0.5rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray700};
+	}
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 2px solid ${({ theme }) => theme.colors.gray300};
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  transition: border-color 0.2s;
+	width: 100%;
+	padding: 0.75rem;
+	border: 2px solid ${({ theme }) => theme.colors.gray300};
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	transition: border-color 0.2s;
 
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.colors.primary};
-  }
+	&:focus {
+		outline: none;
+		border-color: ${({ theme }) => theme.colors.primary};
+	}
 `;
 
 const TextArea = styled.textarea`
-  width: 100%;
-  padding: 0.75rem;
-  border: 2px solid ${({ theme }) => theme.colors.gray300};
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-family: ${({ theme }) => theme.fonts.monospace};
-  resize: vertical;
-  min-height: 120px;
-  transition: border-color 0.2s;
+	width: 100%;
+	padding: 0.75rem;
+	border: 2px solid ${({ theme }) => theme.colors.gray300};
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-family: ${({ theme }) => theme.fonts.monospace};
+	resize: vertical;
+	min-height: 120px;
+	transition: border-color 0.2s;
 
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.colors.primary};
-  }
+	&:focus {
+		outline: none;
+		border-color: ${({ theme }) => theme.colors.primary};
+	}
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 0.375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  background-color: ${({ $variant, theme }) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1rem;
+	border: none;
+	border-radius: 0.375rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+	background-color: ${({ $variant, theme }) => {
 		switch ($variant) {
 			case 'success':
 				return theme.colors.success;
@@ -77,25 +77,25 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 				return theme.colors.primary;
 		}
 	}};
-  color: ${({ $variant, theme }) => ($variant === 'secondary' ? theme.colors.gray700 : 'white')};
+	color: ${({ $variant, theme }) => ($variant === 'secondary' ? theme.colors.gray700 : 'white')};
 
-  &:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
+	&:hover {
+		opacity: 0.9;
+		transform: translateY(-1px);
+	}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+	}
 `;
 
 const ResultBox = styled.div<{ $type?: 'success' | 'error' | 'info' }>`
-  margin-top: 1rem;
-  padding: 1rem;
-  border-radius: 0.375rem;
-  background-color: ${({ $type, theme }) => {
+	margin-top: 1rem;
+	padding: 1rem;
+	border-radius: 0.375rem;
+	background-color: ${({ $type, theme }) => {
 		switch ($type) {
 			case 'success':
 				return `${theme.colors.success}10`;
@@ -105,44 +105,45 @@ const ResultBox = styled.div<{ $type?: 'success' | 'error' | 'info' }>`
 				return `${theme.colors.info}10`;
 		}
 	}};
-  border: 1px solid ${({ $type, theme }) => {
-		switch ($type) {
-			case 'success':
-				return `${theme.colors.success}40`;
-			case 'error':
-				return `${theme.colors.danger}40`;
-			default:
-				return `${theme.colors.info}40`;
-		}
-	}};
+	border: 1px solid
+		${({ $type, theme }) => {
+			switch ($type) {
+				case 'success':
+					return `${theme.colors.success}40`;
+				case 'error':
+					return `${theme.colors.danger}40`;
+				default:
+					return `${theme.colors.info}40`;
+			}
+		}};
 
-  pre {
-    margin: 0;
-    font-family: ${({ theme }) => theme.fonts.monospace};
-    font-size: 0.875rem;
-    white-space: pre-wrap;
-    word-break: break-all;
-  }
+	pre {
+		margin: 0;
+		font-family: ${({ theme }) => theme.fonts.monospace};
+		font-size: 0.875rem;
+		white-space: pre-wrap;
+		word-break: break-all;
+	}
 `;
 
 const CopyButton = styled.button`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: ${({ theme }) => theme.colors.gray100};
-  border: 1px solid ${({ theme }) => theme.colors.gray300};
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-  font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: background-color 0.2s;
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	background: ${({ theme }) => theme.colors.gray100};
+	border: 1px solid ${({ theme }) => theme.colors.gray300};
+	border-radius: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	cursor: pointer;
+	font-size: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	transition: background-color 0.2s;
 
-  &:hover {
-    background: ${({ theme }) => theme.colors.gray200};
-  }
+	&:hover {
+		background: ${({ theme }) => theme.colors.gray200};
+	}
 `;
 
 const OAuthUtilities: React.FC = () => {
@@ -290,7 +291,7 @@ const OAuthUtilities: React.FC = () => {
 	return (
 		<div>
 			<h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-				<span>❓</span> OAuth Development Utilities
+				<i className="bi bi-question-circle"></i> OAuth Development Utilities
 			</h2>
 
 			<UtilitiesContainer>
@@ -328,7 +329,7 @@ const OAuthUtilities: React.FC = () => {
 									const sampleToken =
 										'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 									setJwtInput(sampleToken);
-									logger.info(' [JWT Decoder] Loaded sample token for testing', "Logger info");
+									logger.info(' [JWT Decoder] Loaded sample token for testing', 'Logger info');
 								}}
 							>
 								Load Sample Token

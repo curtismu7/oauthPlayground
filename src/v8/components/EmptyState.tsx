@@ -20,7 +20,7 @@ interface EmptyStateProps {
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
-	icon = <span style={{ fontSize: '64px' }}>❓</span>,
+	icon = <i className="bi bi-question-circle" style={{ fontSize: '64px' }}></i>,
 	title,
 	description,
 	action,

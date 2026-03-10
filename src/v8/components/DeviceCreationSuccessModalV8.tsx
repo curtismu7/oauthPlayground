@@ -248,7 +248,7 @@ export const DeviceCreationSuccessModalV8: React.FC<DeviceCreationSuccessModalV8
 			case 'FIDO2':
 				return <span>🛡️</span>;
 			case 'WHATSAPP':
-				return <span>❓</span>;
+				return <i className="bi bi-question-circle"></i>;
 			case 'MOBILE':
 			case 'OATH_TOKEN':
 				return <span>📱</span>;

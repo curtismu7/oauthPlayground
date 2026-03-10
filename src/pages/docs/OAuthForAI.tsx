@@ -5,92 +5,93 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { PageLayoutService } from '../../services/pageLayoutService';
 
 const _DocsContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 const _Section = styled.section`
-  margin-bottom: 3rem;
+	margin-bottom: 3rem;
 
-  h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.25rem;
-    display: flex;
-    align-items: center;
-    color: ${({ theme }) => theme.colors.gray800};
+	h2 {
+		font-size: 1.5rem;
+		margin-bottom: 1.25rem;
+		display: flex;
+		align-items: center;
+		color: ${({ theme }) => theme.colors.gray800};
 
-    svg {
-      margin-right: 0.75rem;
-      color: ${({ theme }) => theme.colors.primary};
-    }
-  }
+		svg {
+			margin-right: 0.75rem;
+			color: ${({ theme }) => theme.colors.primary};
+		}
+	}
 `;
 
 const CompatibilityTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin: 2rem 0;
-  background: white;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+	width: 100%;
+	border-collapse: collapse;
+	margin: 2rem 0;
+	background: white;
+	border-radius: 0.5rem;
+	overflow: hidden;
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 
-  th, td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
-  }
+	th,
+	td {
+		padding: 0.75rem 1rem;
+		text-align: left;
+		border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+	}
 
-  th {
-    background: ${({ theme }) => theme.colors.gray100};
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray800};
-    border-bottom: 2px solid ${({ theme }) => theme.colors.gray300};
-  }
+	th {
+		background: ${({ theme }) => theme.colors.gray100};
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray800};
+		border-bottom: 2px solid ${({ theme }) => theme.colors.gray300};
+	}
 
-  tr:hover {
-    background: ${({ theme }) => theme.colors.gray50};
-  }
+	tr:hover {
+		background: ${({ theme }) => theme.colors.gray50};
+	}
 
-  .status-supported {
-    color: V9_COLORS.PRIMARY.GREEN_DARK;
-    font-weight: 600;
-  }
+	.status-supported {
+		color: V9_COLORS.PRIMARY.GREEN_DARK;
+		font-weight: 600;
+	}
 
-  .status-partial {
-    color: V9_COLORS.PRIMARY.YELLOW;
-    font-weight: 600;
-  }
+	.status-partial {
+		color: V9_COLORS.PRIMARY.YELLOW;
+		font-weight: 600;
+	}
 
-  .status-not-supported {
-    color: V9_COLORS.PRIMARY.RED_DARK;
-    font-weight: 600;
-  }
+	.status-not-supported {
+		color: V9_COLORS.PRIMARY.RED_DARK;
+		font-weight: 600;
+	}
 
-  .status-draft {
-    color: #8b5cf6;
-    font-weight: 600;
-  }
+	.status-draft {
+		color: #8b5cf6;
+		font-weight: 600;
+	}
 
-  .status-proposed {
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    font-weight: 600;
-  }
+	.status-proposed {
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		font-weight: 600;
+	}
 `;
 
 const StatusBadge = styled.span<{
 	$status: 'supported' | 'partial' | 'not-supported' | 'draft' | 'proposed';
 }>`
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
+	display: inline-flex;
+	align-items: center;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
 
-  ${({ $status }) => {
+	${({ $status }) => {
 		switch ($status) {
 			case 'supported':
 				return `
@@ -122,30 +123,30 @@ const StatusBadge = styled.span<{
 `;
 
 const ReferenceList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 2rem 0;
+	list-style: none;
+	padding: 0;
+	margin: 2rem 0;
 
-  li {
-    margin-bottom: 0.5rem;
-    line-height: 1.6;
+	li {
+		margin-bottom: 0.5rem;
+		line-height: 1.6;
 
-    a {
-      color: ${({ theme }) => theme.colors.primary};
-      text-decoration: none;
+		a {
+			color: ${({ theme }) => theme.colors.primary};
+			text-decoration: none;
 
-      &:hover {
-        text-decoration: underline;
-      }
-    }
+			&:hover {
+				text-decoration: underline;
+			}
+		}
 
-    &::before {
-      content: "•";
-      color: ${({ theme }) => theme.colors.primary};
-      font-weight: bold;
-      margin-right: 0.5rem;
-    }
-  }
+		&::before {
+			content: '•';
+			color: ${({ theme }) => theme.colors.primary};
+			font-weight: bold;
+			margin-right: 0.5rem;
+		}
+	}
 `;
 
 const pageConfig = {
@@ -450,7 +451,7 @@ const OAuthForAI = () => {
 				<CollapsibleHeader
 					title="PingOne Components for AI"
 					subtitle="Relevant PingOne components and their OAuth capabilities for AI use cases"
-					icon={<span>❓</span>}
+					icon={<i className="bi bi-question-circle"></i>}
 					defaultCollapsed={false}
 				>
 					<CompatibilityTable>
@@ -511,7 +512,7 @@ const OAuthForAI = () => {
 				<CollapsibleHeader
 					title="Summary & Recommendations"
 					subtitle="Key takeaways and implementation guidance for AI-ready OAuth orchestration"
-					icon={<span>❓</span>}
+					icon={<i className="bi bi-question-circle"></i>}
 					defaultCollapsed={false}
 				>
 					<SpecCard title="PingOne AI-Ready Features">

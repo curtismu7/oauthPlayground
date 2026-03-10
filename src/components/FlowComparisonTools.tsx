@@ -6,80 +6,85 @@ import { logger } from '../utils/logger';
 
 // Styled components
 const ComparisonContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 1rem;
 `;
 
 const ComparisonHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const ComparisonTitle = styled.h1`
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.gray900};
+	margin: 0;
+	font-size: 2rem;
+	font-weight: 700;
+	color: ${({ theme }) => theme.colors.gray900};
 `;
 
 const ComparisonIcon = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
-  border-radius: 12px;
-  color: white;
-  font-size: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	background: linear-gradient(
+		135deg,
+		V9_COLORS.PRIMARY.GREEN 0%,
+		V9_COLORS.PRIMARY.GREEN_DARK 100%
+	);
+	border-radius: 12px;
+	color: white;
+	font-size: 24px;
 `;
 
 const ComparisonSubtitle = styled.p`
-  margin: 0;
-  font-size: 1.125rem;
-  color: ${({ theme }) => theme.colors.gray600};
-  line-height: 1.6;
+	margin: 0;
+	font-size: 1.125rem;
+	color: ${({ theme }) => theme.colors.gray600};
+	line-height: 1.6;
 `;
 
 const FlowSelector = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	margin-bottom: 2rem;
 `;
 
 const FlowChip = styled.button<{ $selected: boolean; $flowType: string }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 2rem;
-  border: 2px solid ${({ $selected, $flowType, theme }) => {
-		if ($selected) {
-			switch ($flowType) {
-				case 'authorization-code':
-					return theme.colors.primary;
-				case 'implicit':
-					return theme.colors.warning;
-				case 'client-credentials':
-					return theme.colors.success;
-				case 'device-code':
-					return theme.colors.info;
-				case 'password':
-					return theme.colors.danger;
-				default:
-					return theme.colors.primary;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	border-radius: 2rem;
+	border: 2px solid
+		${({ $selected, $flowType, theme }) => {
+			if ($selected) {
+				switch ($flowType) {
+					case 'authorization-code':
+						return theme.colors.primary;
+					case 'implicit':
+						return theme.colors.warning;
+					case 'client-credentials':
+						return theme.colors.success;
+					case 'device-code':
+						return theme.colors.info;
+					case 'password':
+						return theme.colors.danger;
+					default:
+						return theme.colors.primary;
+				}
 			}
-		}
-		return theme.colors.gray300;
-	}};
-  background: ${({ $selected, $flowType, theme }) => {
+			return theme.colors.gray300;
+		}};
+	background: ${({ $selected, $flowType, theme }) => {
 		if ($selected) {
 			switch ($flowType) {
 				case 'authorization-code':
@@ -98,7 +103,7 @@ const FlowChip = styled.button<{ $selected: boolean; $flowType: string }>`
 		}
 		return 'white';
 	}};
-  color: ${({ $selected, $flowType, theme }) => {
+	color: ${({ $selected, $flowType, theme }) => {
 		if ($selected) {
 			switch ($flowType) {
 				case 'authorization-code':
@@ -117,81 +122,82 @@ const FlowChip = styled.button<{ $selected: boolean; $flowType: string }>`
 		}
 		return theme.colors.gray700;
 	}};
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  &:focus {
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
-    outline-offset: 2px;
-  }
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	}
+
+	&:focus {
+		outline: 2px solid ${({ theme }) => theme.colors.primary};
+		outline-offset: 2px;
+	}
 `;
 
 const ComparisonGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const ComparisonCard = styled.div<{ $flowType: string }>`
-  background: white;
-  border-radius: 12px;
-  box-shadow: ${({ theme }) => theme.shadows.sm};
-  border: 2px solid ${({ $flowType, theme }) => {
-		switch ($flowType) {
-			case 'authorization-code':
-				return theme.colors.primary;
-			case 'implicit':
-				return theme.colors.warning;
-			case 'client-credentials':
-				return theme.colors.success;
-			case 'device-code':
-				return theme.colors.info;
-			case 'password':
-				return theme.colors.danger;
-			default:
-				return theme.colors.gray200;
-		}
-	}};
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: ${({ theme }) => theme.shadows.lg};
-  }
+	background: white;
+	border-radius: 12px;
+	box-shadow: ${({ theme }) => theme.shadows.sm};
+	border: 2px solid
+		${({ $flowType, theme }) => {
+			switch ($flowType) {
+				case 'authorization-code':
+					return theme.colors.primary;
+				case 'implicit':
+					return theme.colors.warning;
+				case 'client-credentials':
+					return theme.colors.success;
+				case 'device-code':
+					return theme.colors.info;
+				case 'password':
+					return theme.colors.danger;
+				default:
+					return theme.colors.gray200;
+			}
+		}};
+	padding: 1.5rem;
+	transition: all 0.3s ease;
+
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: ${({ theme }) => theme.shadows.lg};
+	}
 `;
 
 const FlowHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid ${({ theme }) => theme.colors.gray100};
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+	padding-bottom: 1rem;
+	border-bottom: 2px solid ${({ theme }) => theme.colors.gray100};
 `;
 
 const FlowName = styled.h3`
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.gray900};
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: ${({ theme }) => theme.colors.gray900};
 `;
 
 const FlowBadge = styled.div<{ $flowType: string }>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background: ${({ $flowType, theme }) => {
+	padding: 0.25rem 0.75rem;
+	border-radius: 1rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	background: ${({ $flowType, theme }) => {
 		switch ($flowType) {
 			case 'authorization-code':
 				return theme.colors.primary;
@@ -207,35 +213,35 @@ const FlowBadge = styled.div<{ $flowType: string }>`
 				return theme.colors.gray500;
 		}
 	}};
-  color: white;
+	color: white;
 `;
 
 const FlowDescription = styled.p`
-  margin: 0 0 1rem 0;
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.gray600};
-  line-height: 1.5;
+	margin: 0 0 1rem 0;
+	font-size: 0.875rem;
+	color: ${({ theme }) => theme.colors.gray600};
+	line-height: 1.5;
 `;
 
 const MetricsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 1rem;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const MetricItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: ${({ theme }) => theme.colors.gray50};
-  border-radius: 8px;
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem;
+	background: ${({ theme }) => theme.colors.gray50};
+	border-radius: 8px;
+	border: 1px solid ${({ theme }) => theme.colors.gray200};
 `;
 
 const MetricIcon = styled.div<{ $metric: string }>`
-  color: ${({ $metric, theme }) => {
+	color: ${({ $metric, theme }) => {
 		switch ($metric) {
 			case 'security':
 				return theme.colors.success;
@@ -249,108 +255,109 @@ const MetricIcon = styled.div<{ $metric: string }>`
 				return theme.colors.gray500;
 		}
 	}};
-  font-size: 1.25rem;
+	font-size: 1.25rem;
 `;
 
 const MetricContent = styled.div`
-  flex: 1;
-  
-  .metric-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray600};
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.25rem;
-  }
-  
-  .metric-value {
-    font-size: 1rem;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.gray900};
-  }
+	flex: 1;
+
+	.metric-label {
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray600};
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin-bottom: 0.25rem;
+	}
+
+	.metric-value {
+		font-size: 1rem;
+		font-weight: 700;
+		color: ${({ theme }) => theme.colors.gray900};
+	}
 `;
 
 const ComparisonTable = styled.div`
-  background: white;
-  border-radius: 12px;
-  box-shadow: ${({ theme }) => theme.shadows.sm};
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
-  overflow: hidden;
-  margin-bottom: 2rem;
+	background: white;
+	border-radius: 12px;
+	box-shadow: ${({ theme }) => theme.shadows.sm};
+	border: 1px solid ${({ theme }) => theme.colors.gray200};
+	overflow: hidden;
+	margin-bottom: 2rem;
 `;
 
 const TableHeader = styled.div`
-  background: ${({ theme }) => theme.colors.gray50};
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
-  
-  h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-  }
+	background: ${({ theme }) => theme.colors.gray50};
+	padding: 1rem 1.5rem;
+	border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+
+	h3 {
+		margin: 0;
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray900};
+	}
 `;
 
 const TableContent = styled.div`
-  overflow-x: auto;
+	overflow-x: auto;
 `;
 
 const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
+	width: 100%;
+	border-collapse: collapse;
 `;
 
 const TableRow = styled.tr`
-  &:nth-child(even) {
-    background: ${({ theme }) => theme.colors.gray25};
-  }
-  
-  &:hover {
-    background: ${({ theme }) => theme.colors.primaryLight};
-  }
+	&:nth-child(even) {
+		background: ${({ theme }) => theme.colors.gray25};
+	}
+
+	&:hover {
+		background: ${({ theme }) => theme.colors.primaryLight};
+	}
 `;
 
 const TableHeaderCell = styled.th`
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.gray900};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
-  background: ${({ theme }) => theme.colors.gray50};
+	padding: 1rem;
+	text-align: left;
+	font-weight: 600;
+	color: ${({ theme }) => theme.colors.gray900};
+	border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+	background: ${({ theme }) => theme.colors.gray50};
 `;
 
 const TableCell = styled.td`
-  padding: 1rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
-  color: ${({ theme }) => theme.colors.gray700};
+	padding: 1rem;
+	border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+	color: ${({ theme }) => theme.colors.gray700};
 `;
 
 const ComparisonActions = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-top: 2rem;
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+	margin-top: 2rem;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  border: 1px solid ${({ $variant, theme }) => {
-		switch ($variant) {
-			case 'primary':
-				return theme.colors.primary;
-			case 'success':
-				return theme.colors.success;
-			default:
-				return theme.colors.gray300;
-		}
-	}};
-  background: ${({ $variant, theme }) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	border-radius: 8px;
+	border: 1px solid
+		${({ $variant, theme }) => {
+			switch ($variant) {
+				case 'primary':
+					return theme.colors.primary;
+				case 'success':
+					return theme.colors.success;
+				default:
+					return theme.colors.gray300;
+			}
+		}};
+	background: ${({ $variant, theme }) => {
 		switch ($variant) {
 			case 'primary':
 				return theme.colors.primary;
@@ -360,7 +367,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 				return 'white';
 		}
 	}};
-  color: ${({ $variant }) => {
+	color: ${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
 			case 'success':
@@ -369,13 +376,13 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 				return '#1f2937';
 		}
 	}};
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover:not(:disabled) {
-    background: ${({ $variant, theme }) => {
+	font-weight: 600;
+	font-size: 0.875rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover:not(:disabled) {
+		background: ${({ $variant, theme }) => {
 			switch ($variant) {
 				case 'primary':
 					return theme.colors.primaryDark;
@@ -385,18 +392,18 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 					return theme.colors.gray100;
 			}
 		}};
-    transform: translateY(-1px);
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  &:focus {
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
-    outline-offset: 2px;
-  }
+		transform: translateY(-1px);
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	&:focus {
+		outline: 2px solid ${({ theme }) => theme.colors.primary};
+		outline-offset: 2px;
+	}
 `;
 
 // Flow comparison data
@@ -540,7 +547,7 @@ export const FlowComparisonTools: React.FC = () => {
 		<ComparisonContainer role="main" aria-label="OAuth flow comparison tools">
 			<ComparisonHeader>
 				<ComparisonIcon>
-					<span>❓</span>
+					<i className="bi bi-question-circle"></i>
 				</ComparisonIcon>
 				<div>
 					<ComparisonTitle>OAuth Flow Comparison Tools</ComparisonTitle>

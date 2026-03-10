@@ -15,84 +15,84 @@ import { FileDropHandler, validateFile } from '../utils/fileHandling';
 import { logger } from '../utils/logger';
 
 const Container = styled.div`
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 247, 255, 0.92) 100%);
-  border-radius: 1.25rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 28px 75px -40px rgba(15, 23, 42, 0.45);
-  border: 1px solid rgba(148, 163, 184, 0.35);
+	background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 247, 255, 0.92) 100%);
+	border-radius: 1.25rem;
+	padding: 2rem;
+	margin-bottom: 2rem;
+	box-shadow: 0 28px 75px -40px rgba(15, 23, 42, 0.45);
+	border: 1px solid rgba(148, 163, 184, 0.35);
 `;
 
 const Header = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1.5rem;
 `;
 
 const Title = styled.h3`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0;
 `;
 
 const Description = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin: 0.5rem 0 1.5rem 0;
-  font-size: 0.875rem;
-  line-height: 1.5;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin: 0.5rem 0 1.5rem 0;
+	font-size: 0.875rem;
+	line-height: 1.5;
 `;
 
 const ActionGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 2rem;
+
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+	}
 `;
 
 const ActionSection = styled.div`
-  padding: 1.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  background: white;
+	padding: 1.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	background: white;
 `;
 
 const ActionTitle = styled.h4`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0 0 0.75rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0 0 0.75rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const ActionDescription = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 0.875rem;
-  margin: 0 0 1.5rem 0;
-  line-height: 1.4;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.875rem;
+	margin: 0 0 1.5rem 0;
+	line-height: 1.4;
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | 'danger' }>`
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid transparent;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  justify-content: center;
+	padding: 0.75rem 1.5rem;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+	border: 1px solid transparent;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	width: 100%;
+	justify-content: center;
 
-  ${({ variant, theme }) => {
+	${({ variant, theme }) => {
 		switch (variant) {
 			case 'primary':
 				return `
@@ -135,65 +135,65 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
 		}
 	}}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
-  }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		transform: none !important;
+		box-shadow: none !important;
+	}
 `;
 
 const DropZone = styled.div.withConfig({
 	shouldForwardProp: (prop) => !['isDragOver', 'hasError'].includes(prop),
 })<{ isDragOver: boolean; hasError: boolean }>`
-  border: 2px dashed ${({ isDragOver, hasError }) =>
-		hasError ? '#ef4444' : isDragOver ? '#3b82f6' : '#e5e7eb'};
-  border-radius: 0.75rem;
-  padding: 2rem;
-  text-align: center;
-  background: ${({ isDragOver, hasError }) =>
+	border: 2px dashed
+		${({ isDragOver, hasError }) => (hasError ? '#ef4444' : isDragOver ? '#3b82f6' : '#e5e7eb')};
+	border-radius: 0.75rem;
+	padding: 2rem;
+	text-align: center;
+	background: ${({ isDragOver, hasError }) =>
 		hasError ? '#fef2f2' : isDragOver ? '#f8fafc' : '#f9fafb'};
-  transition: all 0.2s;
-  cursor: pointer;
-  margin-bottom: 1rem;
+	transition: all 0.2s;
+	cursor: pointer;
+	margin-bottom: 1rem;
 
-  &:hover {
-    border-color: ${({ hasError }) => (hasError ? '#ef4444' : '#3b82f6')};
-    background: ${({ hasError }) => (hasError ? '#fef2f2' : '#f8fafc')};
-  }
+	&:hover {
+		border-color: ${({ hasError }) => (hasError ? '#ef4444' : '#3b82f6')};
+		background: ${({ hasError }) => (hasError ? '#fef2f2' : '#f8fafc')};
+	}
 
-  &.drag-over {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    background: V9_COLORS.BG.GRAY_LIGHT;
-    transform: scale(1.02);
-  }
+	&.drag-over {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		background: V9_COLORS.BG.GRAY_LIGHT;
+		transform: scale(1.02);
+	}
 `;
 
 const DropZoneIcon = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== 'hasError',
 })<{ hasError: boolean }>`
-  font-size: 2rem;
-  color: ${({ hasError }) => (hasError ? '#ef4444' : '#6b7280')};
-  margin-bottom: 1rem;
+	font-size: 2rem;
+	color: ${({ hasError }) => (hasError ? '#ef4444' : '#6b7280')};
+	margin-bottom: 1rem;
 `;
 
 const DropZoneText = styled.div`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-weight: 500;
+	margin-bottom: 0.5rem;
 `;
 
 const DropZoneSubtext = styled.div`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.875rem;
 `;
 
 const ValidationResult = styled.div<{ type: 'success' | 'error' | 'warning' }>`
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-top: 1rem;
-  
-  ${({ type }) => {
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin-top: 1rem;
+
+	${({ type }) => {
 		switch (type) {
 			case 'success':
 				return `
@@ -218,44 +218,44 @@ const ValidationResult = styled.div<{ type: 'success' | 'error' | 'warning' }>`
 `;
 
 const ValidationTitle = styled.div`
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const ValidationList = styled.ul`
-  margin: 0;
-  padding-left: 1.5rem;
-  
-  li {
-    margin-bottom: 0.25rem;
-    font-size: 0.875rem;
-  }
+	margin: 0;
+	padding-left: 1.5rem;
+
+	li {
+		margin-bottom: 0.25rem;
+		font-size: 0.875rem;
+	}
 `;
 
 const FileInfo = styled.div`
-  background: #f3f4f6;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-top: 1rem;
-  font-size: 0.875rem;
+	background: #f3f4f6;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-top: 1rem;
+	font-size: 0.875rem;
 `;
 
 const FileInfoRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 0.5rem;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
 `;
 
 const HiddenInput = styled.input`
-  display: none;
+	display: none;
 `;
 
 interface ExportImportPanelProps {
@@ -408,7 +408,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 	return (
 		<Container>
 			<Header>
-				<span>❓</span>
+				<i className="bi bi-question-circle"></i>
 				<Title>Export & Import Configuration</Title>
 			</Header>
 

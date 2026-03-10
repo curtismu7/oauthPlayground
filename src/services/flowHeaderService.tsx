@@ -94,26 +94,26 @@ const HeaderContainer = styled.div<{
 		padding: 0.5rem 1rem;
 	}
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
-    pointer-events: none;
-  }
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+		pointer-events: none;
+	}
 `;
 
 const HeaderBadge = styled.div<{
 	$flowType: FlowHeaderConfig['flowType'];
 	$securityFeatures?: FlowHeaderConfig['securityFeatures'];
 }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: ${({ $securityFeatures }) => {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: ${({ $securityFeatures }) => {
 		const hasHighSecurity =
 			$securityFeatures?.highSecurityMode ||
 			($securityFeatures?.jwksEnabled && $securityFeatures?.parEnabled);
@@ -131,73 +131,73 @@ const HeaderBadge = styled.div<{
 			return 'rgba(255, 255, 255, 0.2)'; // Default white
 		}
 	}};
-  backdrop-filter: blur(10px);
-  padding: 0.5rem 1rem;
-  border-radius: 50px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #ffffff;
+	backdrop-filter: blur(10px);
+	padding: 0.5rem 1rem;
+	border-radius: 50px;
+	font-size: 0.875rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: 0.25rem;
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	color: #ffffff;
 `;
 
 const StatusBadge = styled.span<{ $type: 'experimental' | 'deprecated' }>`
-  display: inline-flex;
-  align-items: center;
-  background: ${({ $type }) =>
+	display: inline-flex;
+	align-items: center;
+	background: ${({ $type }) =>
 		$type === 'experimental'
 			? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'
 			: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'};
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-left: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
+	color: white;
+	padding: 0.25rem 0.75rem;
+	border-radius: 1rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	margin-left: 0.5rem;
+	text-transform: uppercase;
+	letter-spacing: 0.025em;
 `;
 
 const HeaderTitle = styled.h1`
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1.2;
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin: 0;
+	line-height: 1.2;
+	color: #ffffff;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
-  @media (max-width: 768px) {
-    font-size: 1.25rem;
-  }
+	@media (max-width: 768px) {
+		font-size: 1.25rem;
+	}
 `;
 
 const HeaderSubtitle = styled.p`
-  font-size: 0.9rem;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.95);
-  line-height: 1.5;
-  max-width: 800px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+	font-size: 0.9rem;
+	margin: 0;
+	color: rgba(255, 255, 255, 0.95);
+	line-height: 1.5;
+	max-width: 800px;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
-  @media (max-width: 768px) {
-    font-size: 0.8rem;
-  }
+	@media (max-width: 768px) {
+		font-size: 0.8rem;
+	}
 `;
 
 const VersionDisplay = styled.div`
-  text-align: center;
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
+	text-align: center;
+	margin-top: 0.5rem;
+	padding-top: 0.5rem;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+	font-size: 0.8rem;
+	color: rgba(255, 255, 255, 0.9);
+	font-weight: 500;
 `;
 
 const HeaderIcon = styled.span`
-  font-size: 1.5rem;
+	font-size: 1.5rem;
 `;
 
 // Predefined flow configurations - Updated for V7 flows - Cache bust: 2025-01-17-08:50
@@ -565,13 +565,6 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		title: 'Advanced Security Settings',
 		subtitle:
 			'Configure and manage advanced security settings for your OAuth/OIDC applications. Assess security posture, apply best-practice controls, and get actionable recommendations.',
-		icon: '🔒',
-	},
-	'advanced-security-settings-comparison': {
-		flowType: 'pingone',
-		title: 'Security Settings Comparison',
-		subtitle:
-			'Side-by-side comparison of Compact and Full Advanced Security Settings configurations. Review and contrast available security controls for your PingOne applications.',
 		icon: '🔒',
 	},
 	'credential-management': {

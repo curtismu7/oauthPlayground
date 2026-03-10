@@ -217,7 +217,7 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 			<Container className={className}>
 				<ToggleButton $isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
 					<span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<span>❓</span>
+						<i className="bi bi-question-circle"></i>
 						Code Examples
 					</span>
 					<FiChevronDown
@@ -274,7 +274,7 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 		<Container className={className}>
 			<ToggleButton $isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
 				<span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-					<span>❓</span>
+					<i className="bi bi-question-circle"></i>
 					Code Examples ({flowType} - {stepId})
 				</span>
 				<FiChevronDown

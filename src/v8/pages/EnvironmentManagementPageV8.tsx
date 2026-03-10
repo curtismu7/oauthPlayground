@@ -780,7 +780,7 @@ export const EnvironmentManagementPageV8: React.FC = () => {
 											View
 										</ActionButton>
 										<ActionButton>
-											<span>❓</span>
+											<i className="bi bi-question-circle"></i>
 											Edit
 										</ActionButton>
 										<DeleteButton>

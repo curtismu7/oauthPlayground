@@ -217,7 +217,7 @@ export const EducationModeToggle: React.FC<EducationModeToggleProps> = ({
 			case 'full':
 				return <span style={{ fontSize: '16px' }}>📖</span>;
 			case 'compact':
-				return <span style={{ fontSize: '16px' }}>❓</span>;
+				return <i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>;
 			case 'hidden':
 				return <span style={{ fontSize: '16px' }}>🙈</span>;
 			default:

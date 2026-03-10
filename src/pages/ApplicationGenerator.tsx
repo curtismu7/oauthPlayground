@@ -34,222 +34,243 @@ import '../utils/testAppGeneratorTokenDisplay'; // Auto-run token display tests 
 import '../utils/testConfigChecker';
 
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2.5rem;
-  min-height: calc(100vh - 4rem);
-  background: linear-gradient(180deg, V9_COLORS.BG.GRAY_LIGHT 0%, #eef2ff 100%);
-  border-radius: 1.75rem;
-  box-shadow: 0 28px 80px -40px rgba(15, 23, 42, 0.38);
-  position: relative;
-  
-  @media (max-width: 768px) {
-    padding: 1.5rem;
-    border-radius: 1rem;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 1rem;
-    border-radius: 0.75rem;
-  }
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2.5rem;
+	min-height: calc(100vh - 4rem);
+	background: linear-gradient(180deg, V9_COLORS.BG.GRAY_LIGHT 0%, #eef2ff 100%);
+	border-radius: 1.75rem;
+	box-shadow: 0 28px 80px -40px rgba(15, 23, 42, 0.38);
+	position: relative;
+
+	@media (max-width: 768px) {
+		padding: 1.5rem;
+		border-radius: 1rem;
+	}
+
+	@media (max-width: 480px) {
+		padding: 1rem;
+		border-radius: 0.75rem;
+	}
 `;
 
 const BackButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
-  border: none;
-  border-radius: 0.75rem;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  margin-bottom: 2.5rem;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+	border: none;
+	border-radius: 0.75rem;
+	color: white;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.25s ease;
+	margin-bottom: 2.5rem;
+	box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 
-  &:hover {
-    background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
-  }
+	&:hover {
+		background: linear-gradient(
+			135deg,
+			V9_COLORS.PRIMARY.BLUE_DARK 0%,
+			V9_COLORS.PRIMARY.BLUE_DARK 100%
+		);
+		transform: translateY(-1px);
+		box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+	}
 `;
 
 const CardGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  backdrop-filter: blur(2px);
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+	backdrop-filter: blur(2px);
 `;
 
 const AppTypeCard = styled.div<{ selected: boolean }>`
-  background: linear-gradient(160deg, V9_COLORS.TEXT.WHITE 0%, #f4f7ff 100%);
-  border: 2px solid ${({ selected, theme }) => (selected ? theme.colors.primary : 'rgba(148, 163, 184, 0.25)')};
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  box-shadow: 0 18px 45px -35px rgba(15, 23, 42, 0.5);
+	background: linear-gradient(160deg, V9_COLORS.TEXT.WHITE 0%, #f4f7ff 100%);
+	border: 2px solid
+		${({ selected, theme }) => (selected ? theme.colors.primary : 'rgba(148, 163, 184, 0.25)')};
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	position: relative;
+	box-shadow: 0 18px 45px -35px rgba(15, 23, 42, 0.5);
 
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
-    transform: translateY(-3px);
-    box-shadow: 0 25px 55px -35px rgba(79, 70, 229, 0.55);
-  }
+	&:hover {
+		border-color: ${({ theme }) => theme.colors.primary};
+		transform: translateY(-3px);
+		box-shadow: 0 25px 55px -35px rgba(79, 70, 229, 0.55);
+	}
 
-  .icon {
-    font-size: 2rem;
-    color: ${({ selected, theme }) => (selected ? theme.colors.primary : '#6b7280')};
-    margin-bottom: 1rem;
-  }
+	.icon {
+		font-size: 2rem;
+		color: ${({ selected, theme }) => (selected ? theme.colors.primary : '#6b7280')};
+		margin-bottom: 1rem;
+	}
 
-  .title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-    margin-bottom: 0.5rem;
-  }
+	.title {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+		margin-bottom: 0.5rem;
+	}
 
-  .description {
-    font-size: 0.875rem;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    line-height: 1.5;
-  }
+	.description {
+		font-size: 0.875rem;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		line-height: 1.5;
+	}
 `;
 
 const FormContainer = styled.div`
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 247, 255, 0.92) 100%);
-  border-radius: 1.25rem;
-  padding: 2.5rem;
-  box-shadow: 0 28px 75px -40px rgba(15, 23, 42, 0.45);
-  margin-bottom: 2.5rem;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  backdrop-filter: blur(6px);
+	background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 247, 255, 0.92) 100%);
+	border-radius: 1.25rem;
+	padding: 2.5rem;
+	box-shadow: 0 28px 75px -40px rgba(15, 23, 42, 0.45);
+	margin-bottom: 2.5rem;
+	border: 1px solid rgba(148, 163, 184, 0.35);
+	backdrop-filter: blur(6px);
 `;
 
 const FormTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 1.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 `;
 
 const FormGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
 `;
 
 const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const Label = styled.label`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input<{ $hasError?: boolean }>`
-  padding: 0.75rem;
-  border: 1px solid ${({ $hasError }) => ($hasError ? '#ef4444' : 'rgba(148, 163, 184, 0.4)')};
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  background: ${({ $hasError }) => ($hasError ? '#fef2f2' : 'rgba(255, 255, 255, 0.92)')};
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 12px 30px -22px rgba(15, 23, 42, 0.45);
+	padding: 0.75rem;
+	border: 1px solid ${({ $hasError }) => ($hasError ? '#ef4444' : 'rgba(148, 163, 184, 0.4)')};
+	border-radius: 0.75rem;
+	font-size: 0.875rem;
+	transition:
+		border-color 0.2s,
+		box-shadow 0.2s;
+	background: ${({ $hasError }) => ($hasError ? '#fef2f2' : 'rgba(255, 255, 255, 0.92)')};
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.65),
+		0 12px 30px -22px rgba(15, 23, 42, 0.45);
 
-  &:focus {
-    outline: none;
-    border-color: ${({ theme, $hasError }) => ($hasError ? '#ef4444' : theme.colors.primary)};
-    box-shadow: ${({ $hasError }) =>
+	&:focus {
+		outline: none;
+		border-color: ${({ theme, $hasError }) => ($hasError ? '#ef4444' : theme.colors.primary)};
+		box-shadow: ${({ $hasError }) =>
 			$hasError
 				? '0 0 0 3px rgba(239, 68, 68, 0.18), 0 20px 30px -30px rgba(239, 68, 68, 0.6)'
 				: '0 0 0 3px rgba(79, 70, 229, 0.18), 0 20px 30px -30px rgba(79, 70, 229, 0.6)'};
-  }
+	}
 `;
 
 const TextArea = styled.textarea<{ $hasError?: boolean }>`
-  padding: 0.75rem;
-  border: 1px solid ${({ $hasError }) => ($hasError ? '#ef4444' : 'rgba(148, 163, 184, 0.4)')};
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  min-height: 150px;
-  resize: vertical;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  background: ${({ $hasError }) => ($hasError ? '#fef2f2' : 'rgba(255, 255, 255, 0.92)')};
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 12px 30px -22px rgba(15, 23, 42, 0.45);
+	padding: 0.75rem;
+	border: 1px solid ${({ $hasError }) => ($hasError ? '#ef4444' : 'rgba(148, 163, 184, 0.4)')};
+	border-radius: 0.75rem;
+	font-size: 0.875rem;
+	min-height: 150px;
+	resize: vertical;
+	transition:
+		border-color 0.2s,
+		box-shadow 0.2s;
+	background: ${({ $hasError }) => ($hasError ? '#fef2f2' : 'rgba(255, 255, 255, 0.92)')};
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.65),
+		0 12px 30px -22px rgba(15, 23, 42, 0.45);
 
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18), 0 20px 30px -30px rgba(79, 70, 229, 0.6);
-  }
+	&:focus {
+		outline: none;
+		border-color: ${({ theme }) => theme.colors.primary};
+		box-shadow:
+			0 0 0 3px rgba(79, 70, 229, 0.18),
+			0 20px 30px -30px rgba(79, 70, 229, 0.6);
+	}
 `;
 
 const Select = styled.select`
-  padding: 0.75rem;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  background: white;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 12px 30px -22px rgba(15, 23, 42, 0.45);
+	padding: 0.75rem;
+	border: 1px solid rgba(148, 163, 184, 0.4);
+	border-radius: 0.75rem;
+	font-size: 0.875rem;
+	background: white;
+	transition:
+		border-color 0.2s,
+		box-shadow 0.2s;
+	background: rgba(255, 255, 255, 0.92);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.65),
+		0 12px 30px -22px rgba(15, 23, 42, 0.45);
 
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18), 0 20px 30px -30px rgba(79, 70, 229, 0.6);
-  }
+	&:focus {
+		outline: none;
+		border-color: ${({ theme }) => theme.colors.primary};
+		box-shadow:
+			0 0 0 3px rgba(79, 70, 229, 0.18),
+			0 20px 30px -30px rgba(79, 70, 229, 0.6);
+	}
 `;
 
 const CheckboxGroup = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1.5rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem 1.5rem;
 `;
 
 const CheckboxLabel = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	cursor: pointer;
 `;
 
 const Checkbox = styled.input`
-  width: 1rem;
-  height: 1rem;
-  accent-color: ${({ theme }) => theme.colors.primary};
+	width: 1rem;
+	height: 1rem;
+	accent-color: ${({ theme }) => theme.colors.primary};
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 'success' }>`
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid transparent;
+	padding: 0.75rem 1.5rem;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+	border: 1px solid transparent;
 
-  ${({ variant, theme }) => {
+	${({ variant, theme }) => {
 		if (variant === 'primary') {
 			return `
     background: linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.primaryDark} 100%);
@@ -489,7 +510,7 @@ const ApplicationGenerator: React.FC = () => {
 
 	// Clear all tokens and reset to step 1 on component mount
 	useEffect(() => {
-		logger.info('🧹 [App Generator] Clearing all tokens and resetting to step 1', "Logger info");
+		logger.info('🧹 [App Generator] Clearing all tokens and resetting to step 1', 'Logger info');
 		clearAllTokens();
 		setCurrentStep(1);
 		setCreationResult(null);
@@ -535,7 +556,10 @@ const ApplicationGenerator: React.FC = () => {
 
 	// Clear all tokens when the page loads
 	useEffect(() => {
-		logger.info('[ApplicationGenerator] Starting comprehensive token cleanup on page load...', "Logger info");
+		logger.info(
+			'[ApplicationGenerator] Starting comprehensive token cleanup on page load...',
+			'Logger info'
+		);
 
 		// Force clear tokens immediately
 		const result = clearAllTokens();
@@ -543,7 +567,10 @@ const ApplicationGenerator: React.FC = () => {
 		logger.info('[ApplicationGenerator] Token clearing result:', result);
 
 		if (result.success) {
-			logger.info(`[ApplicationGenerator] Successfully cleared ${result.clearedCount} token items`, "Logger info");
+			logger.info(
+				`[ApplicationGenerator] Successfully cleared ${result.clearedCount} token items`,
+				'Logger info'
+			);
 			if (result.clearedCount > 0) {
 				modernMessaging.showFooterMessage({
 					type: 'status',
@@ -551,7 +578,7 @@ const ApplicationGenerator: React.FC = () => {
 					duration: 4000,
 				});
 			} else {
-				logger.info('[ApplicationGenerator] No tokens found to clear', "Logger info");
+				logger.info('[ApplicationGenerator] No tokens found to clear', 'Logger info');
 			}
 		} else {
 			logger.error(
@@ -580,7 +607,7 @@ const ApplicationGenerator: React.FC = () => {
 			localStorage.removeItem('auth_tokens');
 			localStorage.removeItem('pingone_tokens');
 
-			logger.info('[ApplicationGenerator] Additional token cleanup completed', "Logger info");
+			logger.info('[ApplicationGenerator] Additional token cleanup completed', 'Logger info');
 		} catch (error) {
 			logger.warn('ApplicationGenerator', '[ApplicationGenerator] Additional cleanup warning:', {
 				error,
@@ -663,7 +690,7 @@ const ApplicationGenerator: React.FC = () => {
 		},
 		{
 			type: 'SINGLE_PAGE_APP',
-			icon: <span>❓</span>,
+			icon: <i className="bi bi-question-circle"></i>,
 			title: 'Single Page App',
 			description: 'JavaScript-based applications running entirely in the browser.',
 		},

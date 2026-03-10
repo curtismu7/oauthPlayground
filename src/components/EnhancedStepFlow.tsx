@@ -779,7 +779,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 										</>
 									) : (
 										<>
-											<span>❓</span>
+											<i className="bi bi-question-circle"></i>
 											Execute Step
 										</>
 									)}
@@ -788,7 +788,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 
 							{currentStep.canSkip && (
 								<ActionButton onClick={nextStep}>
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 									Skip Step
 								</ActionButton>
 							)}
