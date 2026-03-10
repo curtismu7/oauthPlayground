@@ -1,6 +1,6 @@
 // src/services/authenticationModalService.tsx
 
-import { FiExternalLink, FiInfo } from '@icons';
+import { FiExternalLink, FiInfo } from '../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
@@ -71,7 +71,7 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 const ModalContainer = styled.div`
 	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
 	border-radius: 1rem;
-	box-shadow: 
+	box-shadow:
 		0 25px 50px -12px rgba(0, 0, 0, 0.25),
 		0 0 0 1px rgba(255, 255, 255, 0.05);
 	max-width: 900px;
@@ -108,7 +108,7 @@ const HeaderIcon = styled.div`
 	color: white;
 	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 	flex-shrink: 0;
-	
+
 	svg {
 		width: 1.125rem;
 		height: 1.125rem;
@@ -153,7 +153,7 @@ const CloseButton = styled.button`
 		background: rgba(0, 0, 0, 0.05);
 		color: #1e293b;
 	}
-	
+
 	svg {
 		width: 1.125rem;
 		height: 1.125rem;
@@ -201,7 +201,7 @@ const SecurityIcon = styled.div`
 	color: #d97706;
 	margin-top: 0.0625rem;
 	flex-shrink: 0;
-	
+
 	svg {
 		width: 0.875rem;
 		height: 0.875rem;
@@ -241,7 +241,7 @@ const UrlTitle = styled.h3`
 	display: flex;
 	align-items: center;
 	gap: 0.375rem;
-	
+
 	svg {
 		width: 0.875rem;
 		height: 0.875rem;
@@ -270,7 +270,7 @@ const FlowInfo = styled.div`
 const FlowIcon = styled.div`
 	color: #059669;
 	flex-shrink: 0;
-	
+
 	svg {
 		width: 0.875rem;
 		height: 0.875rem;
@@ -314,7 +314,7 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'danger
 	gap: 0.375rem;
 	min-width: 100px;
 	justify-content: center;
-	
+
 	svg {
 		width: 0.875rem;
 		height: 0.875rem;
@@ -404,14 +404,16 @@ const EditableUrlTextarea = styled.textarea<{ $lineCount?: number }>`
 	background: #ffffff;
 	resize: none; /* Disable resize to prevent scrolling */
 	overflow-y: auto; /* Only show scrollbar if content truly exceeds max-height */
-	transition: border-color 0.2s ease, box-shadow 0.2s ease;
-	
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
+
 	&:focus {
 		outline: none;
 		border-color: #3b82f6;
 		box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 	}
-	
+
 	&::placeholder {
 		color: #94a3b8;
 	}

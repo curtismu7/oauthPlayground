@@ -1,6 +1,6 @@
 // src/components/CredentialStatusPanel.tsx
 
-import { FiRefreshCw } from '@icons';
+import { FiRefreshCw } from '../icons';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -12,116 +12,125 @@ import { logger } from '../utils/logger';
 import ServerStatusModal from './ServerStatusModal';
 
 const StatusPanel = styled.div`
-  background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 1rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background: linear-gradient(90deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_LIGHT, #6ee7b7);
-  }
+	background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 1rem;
+	padding: 2rem;
+	margin-bottom: 2rem;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	position: relative;
+	overflow: hidden;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 6px;
+		background: linear-gradient(
+			90deg,
+			V9_COLORS.PRIMARY.GREEN,
+			V9_COLORS.PRIMARY.GREEN_LIGHT,
+			#6ee7b7
+		);
+	}
 `;
 
 const StatusHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  
-  h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.5rem;
+
+	h3 {
+		margin: 0;
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  gap: 0.5rem;
+	display: flex;
+	gap: 0.5rem;
 `;
 
 const RefreshButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: linear-gradient(135deg, #f3f4f6 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  
-  &:hover {
-    background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_LIGHTER 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  &:disabled {
-    background: #f9fafb;
-    color: V9_COLORS.TEXT.GRAY_LIGHT;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.625rem 1rem;
+	background: linear-gradient(135deg, #f3f4f6 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+	&:hover {
+		background: linear-gradient(
+			135deg,
+			V9_COLORS.TEXT.GRAY_LIGHTER 0%,
+			V9_COLORS.TEXT.GRAY_LIGHTER 100%
+		);
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	&:disabled {
+		background: #f9fafb;
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
+		cursor: not-allowed;
+		transform: none;
+		box-shadow: none;
+	}
 `;
 
 const StatusButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
-  border: 2px solid #93c5fd;
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  
-  &:hover {
-    background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_LIGHTER 0%, #93c5fd 100%);
-    border-color: V9_COLORS.PRIMARY.BLUE_LIGHT;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.625rem 1rem;
+	background: linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	border: 2px solid #93c5fd;
+	border-radius: 0.75rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+	&:hover {
+		background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_LIGHTER 0%, #93c5fd 100%);
+		border-color: V9_COLORS.PRIMARY.BLUE_LIGHT;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const StatusIndicators = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+	flex-wrap: wrap;
 `;
 
 const StatusIndicator = styled.div<{ $type: 'tokens' | 'environment' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  background: ${(props) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.25rem;
+	border-radius: 0.75rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	background: ${(props) => {
 		switch (props.$type) {
 			case 'tokens':
 				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR 100%)';
@@ -129,7 +138,7 @@ const StatusIndicator = styled.div<{ $type: 'tokens' | 'environment' }>`
 				return 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)';
 		}
 	}};
-  color: ${(props) => {
+	color: ${(props) => {
 		switch (props.$type) {
 			case 'tokens':
 				return '#dc2626';
@@ -137,32 +146,33 @@ const StatusIndicator = styled.div<{ $type: 'tokens' | 'environment' }>`
 				return '#10b981';
 		}
 	}};
-  border: 2px solid ${(props) => {
-		switch (props.$type) {
-			case 'tokens':
-				return '#ef4444';
-			case 'environment':
-				return '#10b981';
-		}
-	}};
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
+	border: 2px solid
+		${(props) => {
+			switch (props.$type) {
+				case 'tokens':
+					return '#ef4444';
+				case 'environment':
+					return '#10b981';
+			}
+		}};
+	transition: all 0.2s ease;
+
+	&:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const FlowStatusGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 1rem;
 `;
 
 const FlowStatusCard = styled.div<{
 	$status: 'configured' | 'partial' | 'missing';
 }>`
-  background: ${(props) => {
+	background: ${(props) => {
 		switch (props.$status) {
 			case 'configured':
 				return 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)';
@@ -172,31 +182,32 @@ const FlowStatusCard = styled.div<{
 				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR_BORDER 100%)';
 		}
 	}};
-  border: 2px solid ${(props) => {
-		switch (props.$status) {
-			case 'configured':
-				return '#10b981';
-			case 'partial':
-				return '#fed7aa';
-			case 'missing':
-				return '#ef4444';
-		}
-	}};
-  border-radius: 0.75rem;
-  padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: ${(props) => {
+	border: 2px solid
+		${(props) => {
+			switch (props.$status) {
+				case 'configured':
+					return '#10b981';
+				case 'partial':
+					return '#fed7aa';
+				case 'missing':
+					return '#ef4444';
+			}
+		}};
+	border-radius: 0.75rem;
+	padding: 1.25rem;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	transition: all 0.3s ease;
+	position: relative;
+	overflow: hidden;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 4px;
+		background: ${(props) => {
 			switch (props.$status) {
 				case 'configured':
 					return 'linear-gradient(90deg, V9_COLORS.PRIMARY.GREEN, V9_COLORS.PRIMARY.GREEN_LIGHT)';
@@ -206,12 +217,12 @@ const FlowStatusCard = styled.div<{
 					return 'linear-gradient(90deg, V9_COLORS.PRIMARY.RED, V9_COLORS.PRIMARY.RED_LIGHT)';
 			}
 		}};
-  }
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border-color: ${(props) => {
+	}
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+		border-color: ${(props) => {
 			switch (props.$status) {
 				case 'configured':
 					return '#86efac';
@@ -221,31 +232,31 @@ const FlowStatusCard = styled.div<{
 					return '#fca5a5';
 			}
 		}};
-  }
+	}
 `;
 
 const FlowName = styled.h4`
-  margin: 0 0 0.75rem 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	margin: 0 0 0.75rem 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const StatusBadge = styled.div<{
 	$status: 'configured' | 'partial' | 'missing';
 }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.875rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  background: ${(props) => {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.375rem 0.875rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	background: ${(props) => {
 		switch (props.$status) {
 			case 'configured':
 				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.BG.SUCCESS_BORDER 100%)';
@@ -255,7 +266,7 @@ const StatusBadge = styled.div<{
 				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR 0%, V9_COLORS.BG.ERROR_BORDER 100%)';
 		}
 	}};
-  color: ${(props) => {
+	color: ${(props) => {
 		switch (props.$status) {
 			case 'configured':
 				return '#10b981';
@@ -265,61 +276,62 @@ const StatusBadge = styled.div<{
 				return '#dc2626';
 		}
 	}};
-  border: 1px solid ${(props) => {
-		switch (props.$status) {
-			case 'configured':
-				return '#86efac';
-			case 'partial':
-				return '#fcd34d';
-			case 'missing':
-				return '#fca5a5';
-		}
-	}};
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  }
+	border: 1px solid
+		${(props) => {
+			switch (props.$status) {
+				case 'configured':
+					return '#86efac';
+				case 'partial':
+					return '#fcd34d';
+				case 'missing':
+					return '#fca5a5';
+			}
+		}};
+	transition: all 0.2s ease;
+
+	&:hover {
+		transform: scale(1.05);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+	}
 `;
 
 const FlowDetails = styled.div`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin-top: 0.75rem;
-  
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.25rem;
-    
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-  
-  .field-name {
-    font-weight: 500;
-  }
-  
-  .field-status {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.75rem;
-  }
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin-top: 0.75rem;
+
+	.detail-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 0.25rem;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	.field-name {
+		font-weight: 500;
+	}
+
+	.field-status {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		font-size: 0.75rem;
+	}
 `;
 
 const EmptyState = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  
-  .icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-  }
+	text-align: center;
+	padding: 2rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+
+	.icon {
+		font-size: 2rem;
+		margin-bottom: 0.5rem;
+	}
 `;
 
 interface FlowCredentialStatus {
@@ -352,10 +364,10 @@ const CredentialStatusPanel: React.FC = () => {
 	);
 
 	const refreshStatuses = useCallback(async () => {
-		logger.info(' [CredentialStatusPanel] Refreshing statuses - button clicked', "Logger info");
+		logger.info(' [CredentialStatusPanel] Refreshing statuses - button clicked', 'Logger info');
 		setIsLoading(true);
 		try {
-			logger.info(' [CredentialStatusPanel] Loading credentials...', "Logger info");
+			logger.info(' [CredentialStatusPanel] Loading credentials...', 'Logger info');
 			const configCredentials = credentialManager.loadConfigCredentials();
 			const authzFlowCredentials = credentialManager.loadAuthzFlowCredentials();
 			const implicitFlowCredentials = credentialManager.loadImplicitFlowCredentials();
@@ -400,7 +412,7 @@ const CredentialStatusPanel: React.FC = () => {
 			setFlowStatuses(statuses);
 			setLastRefresh(new Date());
 
-			logger.info(' [CredentialStatusPanel] Statuses updated successfully', "Logger info");
+			logger.info(' [CredentialStatusPanel] Statuses updated successfully', 'Logger info');
 			logger.debug('CredentialStatusPanel', 'Statuses updated', statuses);
 			showGlobalSuccess(
 				' System Status Refreshed',

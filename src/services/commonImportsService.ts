@@ -270,7 +270,7 @@ import {
 	FiXCircle,
 	FiZap,
 	FiZap,
-} from '@icons';
+} from '../icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';

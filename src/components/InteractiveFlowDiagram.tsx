@@ -1,4 +1,4 @@
-import { FiArrowDown } from '@icons';
+import { FiArrowDown } from '../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
@@ -22,141 +22,142 @@ interface FlowDiagram {
 }
 
 const DiagramContainer = styled.div`
-  max-width: 100vw;
-  margin: 0 auto;
-  padding: 1rem;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+	max-width: 100vw;
+	margin: 0 auto;
+	padding: 1rem;
+	height: 100vh;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 `;
 
 const PageHeader = styled.div`
-  text-align: center;
-  margin-bottom: 1rem;
-  flex-shrink: 0;
-  
-  h1 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: V9_COLORS.PRIMARY.BLUE_DARK;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.GREEN);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  p {
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    font-size: 1rem;
-    max-width: 500px;
-    margin: 0 auto;
-    line-height: 1.4;
-  }
+	text-align: center;
+	margin-bottom: 1rem;
+	flex-shrink: 0;
+
+	h1 {
+		font-size: 1.8rem;
+		font-weight: 700;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
+		margin-bottom: 0.5rem;
+		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE, V9_COLORS.PRIMARY.GREEN);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	p {
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		font-size: 1rem;
+		max-width: 500px;
+		margin: 0 auto;
+		line-height: 1.4;
+	}
 `;
 
 const FlowSelector = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  justify-content: center;
-  flex-shrink: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+	justify-content: center;
+	flex-shrink: 0;
 `;
 
 const FlowButton = styled.button<{ $selected: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border: 2px solid ${({ $selected }) => ($selected ? '#3b82f6' : '#e5e7eb')};
-  border-radius: 0.5rem;
-  background: ${({ $selected }) =>
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	border: 2px solid ${({ $selected }) => ($selected ? '#3b82f6' : '#e5e7eb')};
+	border-radius: 0.5rem;
+	background: ${({ $selected }) =>
 		$selected ? 'linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER)' : 'white'};
-  color: ${({ $selected }) => ($selected ? '#2563eb' : '#1f2937')};
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: ${({ $selected }) =>
+	color: ${({ $selected }) => ($selected ? '#2563eb' : '#1f2937')};
+	font-weight: 600;
+	font-size: 0.875rem;
+	cursor: pointer;
+	transition: all 0.2s;
+	box-shadow: ${({ $selected }) =>
 		$selected ? '0 4px 6px rgba(59, 130, 246, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.1)'};
-  
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    background: linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-  }
+
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		background: linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER);
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+	}
 `;
 
 const ControlsPanel = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  justify-content: center;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT, V9_COLORS.TEXT.GRAY_LIGHTER);
-  border-radius: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+	justify-content: center;
+	padding: 0.75rem;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT, V9_COLORS.TEXT.GRAY_LIGHTER);
+	border-radius: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	flex-shrink: 0;
 `;
 
 const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: 1px solid ${({ $variant, theme }) =>
-		$variant === 'primary' ? theme.colors.primary : theme.colors.gray300};
-  border-radius: 0.5rem;
-  background-color: ${({ $variant, theme }) =>
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	border: 1px solid
+		${({ $variant, theme }) =>
+			$variant === 'primary' ? theme.colors.primary : theme.colors.gray300};
+	border-radius: 0.5rem;
+	background-color: ${({ $variant, theme }) =>
 		$variant === 'primary' ? theme.colors.primary : 'white'};
-  color: ${({ $variant, theme }) => ($variant === 'primary' ? 'white' : theme.colors.gray700)};
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  &:hover {
-    background-color: ${({ $variant, theme }) =>
+	color: ${({ $variant, theme }) => ($variant === 'primary' ? 'white' : theme.colors.gray700)};
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:hover {
+		background-color: ${({ $variant, theme }) =>
 			$variant === 'primary' ? theme.colors.primaryDark : theme.colors.gray100};
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const DiagramArea = styled.div`
-  position: relative;
-  flex: 1;
-  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
-  border-radius: 1rem;
-  padding: 1rem;
-  overflow: hidden;
-  display: flex;
-  align-items: stretch;
+	position: relative;
+	flex: 1;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	border-radius: 1rem;
+	padding: 1rem;
+	overflow: hidden;
+	display: flex;
+	align-items: stretch;
 `;
 
 const ActorColumn = styled.div<{ $actor: string }>`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0.5rem;
-  min-width: 0;
-  
-  &:not(:last-child) {
-    margin-right: 1rem;
-  }
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 0.5rem;
+	min-width: 0;
+
+	&:not(:last-child) {
+		margin-right: 1rem;
+	}
 `;
 
 const ActorCard = styled.div<{ $actor: string }>`
-  width: 100%;
-  padding: 1rem;
-  background: ${({ $actor }) => {
+	width: 100%;
+	padding: 1rem;
+	background: ${({ $actor }) => {
 		switch ($actor) {
 			case 'user':
 				return 'linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER)';
@@ -170,30 +171,31 @@ const ActorCard = styled.div<{ $actor: string }>`
 				return 'white';
 		}
 	}};
-  border: 2px solid ${({ $actor }) => {
-		switch ($actor) {
-			case 'user':
-				return '#3b82f6';
-			case 'client':
-				return '#10b981';
-			case 'auth-server':
-				return '#f59e0b';
-			case 'server':
-				return '#10b981';
-			default:
-				return '#e5e7eb';
-		}
-	}};
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  margin-bottom: 0.75rem;
-  flex-shrink: 0;
-  
-  .actor-icon {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-    color: ${({ $actor }) => {
+	border: 2px solid
+		${({ $actor }) => {
+			switch ($actor) {
+				case 'user':
+					return '#3b82f6';
+				case 'client':
+					return '#10b981';
+				case 'auth-server':
+					return '#f59e0b';
+				case 'server':
+					return '#10b981';
+				default:
+					return '#e5e7eb';
+			}
+		}};
+	border-radius: 0.75rem;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	text-align: center;
+	margin-bottom: 0.75rem;
+	flex-shrink: 0;
+
+	.actor-icon {
+		font-size: 1.2rem;
+		margin-bottom: 0.5rem;
+		color: ${({ $actor }) => {
 			switch ($actor) {
 				case 'user':
 					return '#2563eb';
@@ -207,12 +209,12 @@ const ActorCard = styled.div<{ $actor: string }>`
 					return '#6b7280';
 			}
 		}};
-  }
-  
-  .actor-title {
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: ${({ $actor }) => {
+	}
+
+	.actor-title {
+		font-size: 0.875rem;
+		font-weight: 700;
+		color: ${({ $actor }) => {
 			switch ($actor) {
 				case 'user':
 					return '#2563eb';
@@ -226,20 +228,20 @@ const ActorCard = styled.div<{ $actor: string }>`
 					return '#1f2937';
 			}
 		}};
-    margin-bottom: 0.25rem;
-  }
-  
-  .actor-description {
-    font-size: 0.75rem;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    line-height: 1.3;
-  }
+		margin-bottom: 0.25rem;
+	}
+
+	.actor-description {
+		font-size: 0.75rem;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		line-height: 1.3;
+	}
 `;
 
 const StepCard = styled.div<{ $status: string; $delay: number }>`
-  width: 100%;
-  padding: 1rem;
-  background: ${({ $status }) => {
+	width: 100%;
+	padding: 1rem;
+	background: ${({ $status }) => {
 		switch ($status) {
 			case 'active':
 				return 'linear-gradient(135deg, #dbeafe, V9_COLORS.TEXT.GRAY_LIGHTER)';
@@ -251,65 +253,8 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
 				return 'white';
 		}
 	}};
-  border: 2px solid ${({ $status }) => {
-		switch ($status) {
-			case 'active':
-				return '#3b82f6';
-			case 'completed':
-				return '#10b981';
-			case 'error':
-				return '#ef4444';
-			default:
-				return '#e5e7eb';
-		}
-	}};
-  border-radius: 0.75rem;
-  margin-bottom: 1rem;
-  opacity: ${({ $status }) => ($status === 'pending' ? 0.6 : 1)};
-  transform: ${({ $status }) => ($status === 'active' ? 'scale(1.02)' : 'scale(1)')};
-  transition: all 0.3s ease;
-  animation-delay: ${({ $delay }) => $delay}ms;
-  box-shadow: ${({ $status }) =>
-		$status === 'active' ? '0 4px 12px rgba(59, 130, 246, 0.3)' : '0 2px 6px rgba(0, 0, 0, 0.1)'};
-  
-  .step-title {
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: ${({ $status }) => {
-			switch ($status) {
-				case 'active':
-					return '#2563eb';
-				case 'completed':
-					return '#059669';
-				case 'error':
-					return '#dc2626';
-				default:
-					return '#1f2937';
-			}
-		}};
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .step-description {
-    font-size: 0.8rem;
-    color: #4b5563;
-    line-height: 1.4;
-    margin-bottom: 0.5rem;
-  }
-
-  .step-explanation {
-    font-size: 0.75rem;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    line-height: 1.3;
-    font-style: italic;
-    background: rgba(255, 255, 255, 0.6);
-    padding: 0.5rem;
-    border-radius: 0.375rem;
-    margin-bottom: 0.5rem;
-    border-left: 3px solid ${({ $status }) => {
+	border: 2px solid
+		${({ $status }) => {
 			switch ($status) {
 				case 'active':
 					return '#3b82f6';
@@ -321,33 +266,92 @@ const StepCard = styled.div<{ $status: string; $delay: number }>`
 					return '#e5e7eb';
 			}
 		}};
-  }
-  
-  .step-data {
-    font-size: 0.7rem;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-    font-family: 'Monaco', 'Menlo', monospace;
-    background-color: V9_COLORS.BG.GRAY_LIGHT;
-    border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-    padding: 0.75rem;
-    border-radius: 0.375rem;
-    margin-top: 0.5rem;
-    word-break: break-all;
-    white-space: pre-wrap;
-    line-height: 1.4;
-  }
+	border-radius: 0.75rem;
+	margin-bottom: 1rem;
+	opacity: ${({ $status }) => ($status === 'pending' ? 0.6 : 1)};
+	transform: ${({ $status }) => ($status === 'active' ? 'scale(1.02)' : 'scale(1)')};
+	transition: all 0.3s ease;
+	animation-delay: ${({ $delay }) => $delay}ms;
+	box-shadow: ${({ $status }) =>
+		$status === 'active' ? '0 4px 12px rgba(59, 130, 246, 0.3)' : '0 2px 6px rgba(0, 0, 0, 0.1)'};
+
+	.step-title {
+		font-size: 0.875rem;
+		font-weight: 700;
+		color: ${({ $status }) => {
+			switch ($status) {
+				case 'active':
+					return '#2563eb';
+				case 'completed':
+					return '#059669';
+				case 'error':
+					return '#dc2626';
+				default:
+					return '#1f2937';
+			}
+		}};
+		margin-bottom: 0.5rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.step-description {
+		font-size: 0.8rem;
+		color: #4b5563;
+		line-height: 1.4;
+		margin-bottom: 0.5rem;
+	}
+
+	.step-explanation {
+		font-size: 0.75rem;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		line-height: 1.3;
+		font-style: italic;
+		background: rgba(255, 255, 255, 0.6);
+		padding: 0.5rem;
+		border-radius: 0.375rem;
+		margin-bottom: 0.5rem;
+		border-left: 3px solid
+			${({ $status }) => {
+				switch ($status) {
+					case 'active':
+						return '#3b82f6';
+					case 'completed':
+						return '#10b981';
+					case 'error':
+						return '#ef4444';
+					default:
+						return '#e5e7eb';
+				}
+			}};
+	}
+
+	.step-data {
+		font-size: 0.7rem;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+		font-family: 'Monaco', 'Menlo', monospace;
+		background-color: V9_COLORS.BG.GRAY_LIGHT;
+		border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+		padding: 0.75rem;
+		border-radius: 0.375rem;
+		margin-top: 0.5rem;
+		word-break: break-all;
+		white-space: pre-wrap;
+		line-height: 1.4;
+	}
 `;
 
 const StatusIndicator = styled.div<{ $status: string }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.625rem;
-  font-weight: 500;
-  
-  ${({ $status }) => {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.625rem;
+	font-weight: 500;
+
+	${({ $status }) => {
 		switch ($status) {
 			case 'active':
 				return `

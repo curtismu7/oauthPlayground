@@ -13,7 +13,7 @@
  * - WorkerTokenStatusDisplayV8 → inline status block (no V9 component exists)
  */
 
-import { FiAlertCircle, FiCheckCircle, FiRefreshCw } from '@icons';
+import { FiAlertCircle, FiCheckCircle, FiRefreshCw } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
@@ -134,7 +134,9 @@ const Btn = styled.button<{ $variant: 'primary' | 'danger' | 'success' }>`
 	font-size: 0.875rem;
 	font-weight: 600;
 	cursor: pointer;
-	transition: background 0.15s, transform 0.1s;
+	transition:
+		background 0.15s,
+		transform 0.1s;
 	color: white;
 	background: ${({ $variant }) =>
 		$variant === 'primary' ? '#2563eb' : $variant === 'success' ? '#10b981' : '#ef4444'};

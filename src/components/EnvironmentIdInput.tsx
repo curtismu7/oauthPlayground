@@ -1,4 +1,4 @@
-import { FiLoader } from '@icons';
+import { FiLoader } from '../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
@@ -18,254 +18,260 @@ interface EnvironmentIdInputProps {
 }
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem;
-  background: ${V9_COLORS.BG.GRAY_LIGHT};
-  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
-  border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	padding: 1.5rem;
+	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border-radius: 8px;
 `;
 
 const Header = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h2`
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: ${V9_COLORS.TEXT.BLACK};
+	margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: ${V9_COLORS.TEXT.BLACK};
 `;
 
 const Description = styled.p`
-  margin: 0 0 1rem 0;
-  font-size: 0.875rem;
-  color: ${V9_COLORS.TEXT.BLACK};
-  line-height: 1.5;
+	margin: 0 0 1rem 0;
+	font-size: 0.875rem;
+	color: ${V9_COLORS.TEXT.BLACK};
+	line-height: 1.5;
 `;
 
 const InputContainer = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const Label = styled.label`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
 `;
 
 const InputGroup = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
+	position: relative;
+	display: flex;
+	align-items: center;
 `;
 
 const RegionSelector = styled.select`
-  padding: 0.75rem;
-  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
-  border-right: none;
-  border-radius: 6px 0 0 6px;
-  font-size: 0.875rem;
-  background: ${V9_COLORS.BG.WHITE};
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
-  min-width: 120px;
-  
-  &:focus {
-    outline: none;
-    border-color: ${V9_COLORS.PRIMARY.BLUE};
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	padding: 0.75rem;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border-right: none;
+	border-radius: 6px 0 0 6px;
+	font-size: 0.875rem;
+	background: ${V9_COLORS.BG.WHITE};
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	min-width: 120px;
+
+	&:focus {
+		outline: none;
+		border-color: ${V9_COLORS.PRIMARY.BLUE};
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const Input = styled.input<{ hasError?: boolean; hasSuccess?: boolean }>`
-  flex: 1;
-  padding: 0.75rem;
-  border: 1px solid ${(props) =>
-		props.hasError
-			? V9_COLORS.PRIMARY.RED_DARK
-			: props.hasSuccess
-				? V9_COLORS.PRIMARY.GREEN
-				: V9_COLORS.TEXT.GRAY_LIGHTER};
-  border-radius: 0 6px 6px 0;
-  font-size: 0.875rem;
-  background: ${V9_COLORS.BG.WHITE};
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
-  font-family: monospace;
-  transition: all 0.2s ease;
+	flex: 1;
+	padding: 0.75rem;
+	border: 1px solid
+		${(props) =>
+			props.hasError
+				? V9_COLORS.PRIMARY.RED_DARK
+				: props.hasSuccess
+					? V9_COLORS.PRIMARY.GREEN
+					: V9_COLORS.TEXT.GRAY_LIGHTER};
+	border-radius: 0 6px 6px 0;
+	font-size: 0.875rem;
+	background: ${V9_COLORS.BG.WHITE};
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	font-family: monospace;
+	transition: all 0.2s ease;
 
-  &:focus {
-    outline: none;
-    border-color: ${(props) =>
+	&:focus {
+		outline: none;
+		border-color: ${(props) =>
 			props.hasError
 				? V9_COLORS.PRIMARY.RED_DARK
 				: props.hasSuccess
 					? V9_COLORS.PRIMARY.GREEN
 					: V9_COLORS.PRIMARY.BLUE};
-    box-shadow: 0 0 0 3px ${(props) =>
-			props.hasError
-				? 'rgba(239, 68, 68, 0.1)'
-				: props.hasSuccess
-					? 'rgba(16, 185, 129, 0.1)'
-					: 'rgba(59, 130, 246, 0.1)'};
-  }
+		box-shadow: 0 0 0 3px
+			${(props) =>
+				props.hasError
+					? 'rgba(239, 68, 68, 0.1)'
+					: props.hasSuccess
+						? 'rgba(16, 185, 129, 0.1)'
+						: 'rgba(59, 130, 246, 0.1)'};
+	}
 
-  &:disabled {
-    background: ${V9_COLORS.BG.GRAY_MEDIUM};
-    color: ${V9_COLORS.TEXT.GRAY_LIGHT};
-    cursor: not-allowed;
-  }
+	&:disabled {
+		background: ${V9_COLORS.BG.GRAY_MEDIUM};
+		color: ${V9_COLORS.TEXT.GRAY_LIGHT};
+		cursor: not-allowed;
+	}
 `;
 
 const DiscoverButton = styled.button.withConfig({
 	shouldForwardProp: (prop) => !['isLoading'].includes(prop),
 })<{ isLoading?: boolean }>`
-  position: absolute;
-  right: 0.5rem;
-  padding: 0.5rem;
-  background: ${(props) => (props.isLoading ? V9_COLORS.TEXT.GRAY_LIGHTER : V9_COLORS.PRIMARY.GREEN)};
-  color: ${(props) => (props.isLoading ? V9_COLORS.TEXT.GRAY_MEDIUM : V9_COLORS.TEXT.WHITE)};
-  border: 1px solid ${(props) => (props.isLoading ? V9_COLORS.TEXT.GRAY_LIGHTER : V9_COLORS.PRIMARY.GREEN_DARK)};
-  border-radius: 0.375rem;
-  cursor: ${(props) => (props.isLoading ? 'not-allowed' : 'pointer')};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	position: absolute;
+	right: 0.5rem;
+	padding: 0.5rem;
+	background: ${(props) =>
+		props.isLoading ? V9_COLORS.TEXT.GRAY_LIGHTER : V9_COLORS.PRIMARY.GREEN};
+	color: ${(props) => (props.isLoading ? V9_COLORS.TEXT.GRAY_MEDIUM : V9_COLORS.TEXT.WHITE)};
+	border: 1px solid
+		${(props) => (props.isLoading ? V9_COLORS.TEXT.GRAY_LIGHTER : V9_COLORS.PRIMARY.GREEN_DARK)};
+	border-radius: 0.375rem;
+	cursor: ${(props) => (props.isLoading ? 'not-allowed' : 'pointer')};
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
-  &:hover:not(:disabled) {
-    background: ${V9_COLORS.PRIMARY.GREEN_DARK};
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
+	&:hover:not(:disabled) {
+		background: ${V9_COLORS.PRIMARY.GREEN_DARK};
+		transform: translateY(-1px);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
 
-  &:active:not(:disabled) {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  }
-  &:disabled {
-    cursor: not-allowed;
-  }
+	&:active:not(:disabled) {
+		transform: translateY(0);
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	}
+	&:disabled {
+		cursor: not-allowed;
+	}
 `;
 
 const SaveButton = styled.button<{ $isSaved?: boolean }>`
-  padding: 0.5rem 1rem;
-  background: ${(props) => (props.$isSaved ? V9_COLORS.PRIMARY.GREEN_DARK : V9_COLORS.PRIMARY.GREEN)};
-  color: ${V9_COLORS.TEXT.WHITE};
-  border: 1px solid ${(props) => (props.$isSaved ? '#047857' : V9_COLORS.PRIMARY.GREEN_DARK)};
-  border-radius: 0.375rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	padding: 0.5rem 1rem;
+	background: ${(props) =>
+		props.$isSaved ? V9_COLORS.PRIMARY.GREEN_DARK : V9_COLORS.PRIMARY.GREEN};
+	color: ${V9_COLORS.TEXT.WHITE};
+	border: 1px solid ${(props) => (props.$isSaved ? '#047857' : V9_COLORS.PRIMARY.GREEN_DARK)};
+	border-radius: 0.375rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
-  &:hover {
-    background: ${(props) => (props.$isSaved ? V9_COLORS.PRIMARY.GREEN_DARK : V9_COLORS.PRIMARY.BLUE)};
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
+	&:hover {
+		background: ${(props) =>
+			props.$isSaved ? V9_COLORS.PRIMARY.GREEN_DARK : V9_COLORS.PRIMARY.BLUE};
+		transform: translateY(-1px);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
 
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  }
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 `;
 
 const ResetButton = styled.button`
-  padding: 0.5rem 1rem;
-  background: ${V9_COLORS.TEXT.GRAY_MEDIUM};
-  color: ${V9_COLORS.TEXT.WHITE};
-  border: 1px solid #4b5563;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	padding: 0.5rem 1rem;
+	background: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	color: ${V9_COLORS.TEXT.WHITE};
+	border: 1px solid #4b5563;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
-  &:hover {
-    background: #4b5563;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
+	&:hover {
+		background: #4b5563;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
 
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  }
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 0.75rem;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
 `;
 
 const IssuerUrlDisplay = styled.div`
-  padding: 0.75rem;
-  background: ${V9_COLORS.BG.GRAY_MEDIUM};
-  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
-  border-radius: 6px;
-  font-family: monospace;
-  font-size: 0.875rem;
-  color: #334155;
-  word-break: break-all;
-  position: relative;
+	padding: 0.75rem;
+	background: ${V9_COLORS.BG.GRAY_MEDIUM};
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border-radius: 6px;
+	font-family: monospace;
+	font-size: 0.875rem;
+	color: #334155;
+	word-break: break-all;
+	position: relative;
 `;
 
 const CopyButton = styled.button`
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  background: ${V9_COLORS.PRIMARY.BLUE};
-  color: ${V9_COLORS.TEXT.WHITE};
-  border: none;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background: ${V9_COLORS.PRIMARY.BLUE_DARK};
-  }
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	padding: 0.25rem 0.5rem;
+	background: ${V9_COLORS.PRIMARY.BLUE};
+	color: ${V9_COLORS.TEXT.WHITE};
+	border: none;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	transition: background-color 0.2s;
+
+	&:hover {
+		background: ${V9_COLORS.PRIMARY.BLUE_DARK};
+	}
 `;
 
 const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loading' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border-radius: 6px;
-  background: ${(props) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem;
+	border-radius: 6px;
+	background: ${(props) => {
 		switch (props.type) {
 			case 'success':
 				return V9_COLORS.BG.SUCCESS;
@@ -279,21 +285,22 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
 				return V9_COLORS.BG.GRAY_LIGHT;
 		}
 	}};
-  border: 1px solid ${(props) => {
-		switch (props.type) {
-			case 'success':
-				return V9_COLORS.BG.SUCCESS_BORDER;
-			case 'error':
-				return V9_COLORS.BG.ERROR_BORDER;
-			case 'info':
-				return V9_COLORS.PRIMARY.BLUE;
-			case 'loading':
-				return V9_COLORS.TEXT.GRAY_LIGHTER;
-			default:
-				return V9_COLORS.TEXT.GRAY_LIGHTER;
-		}
-	}};
-  color: ${(props) => {
+	border: 1px solid
+		${(props) => {
+			switch (props.type) {
+				case 'success':
+					return V9_COLORS.BG.SUCCESS_BORDER;
+				case 'error':
+					return V9_COLORS.BG.ERROR_BORDER;
+				case 'info':
+					return V9_COLORS.PRIMARY.BLUE;
+				case 'loading':
+					return V9_COLORS.TEXT.GRAY_LIGHTER;
+				default:
+					return V9_COLORS.TEXT.GRAY_LIGHTER;
+			}
+		}};
+	color: ${(props) => {
 		switch (props.type) {
 			case 'success':
 				return '#10b981';
@@ -310,95 +317,96 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
 `;
 
 const StatusText = styled.div`
-  font-size: 0.875rem;
-  line-height: 1.4;
+	font-size: 0.875rem;
+	line-height: 1.4;
 `;
 
 const ErrorMessage = styled.div`
-  color: ${V9_COLORS.PRIMARY.RED};
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
+	color: ${V9_COLORS.PRIMARY.RED};
+	font-size: 0.875rem;
+	margin-top: 0.5rem;
 `;
 
 const RegionInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: ${V9_COLORS.BG.GRAY_LIGHT};
-  border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  color: ${V9_COLORS.TEXT.BLACK};
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
+	border-radius: 0.375rem;
+	font-size: 0.75rem;
+	color: ${V9_COLORS.TEXT.BLACK};
 `;
 
 const DiscoveryResultsBox = styled.div`
-  background: ${V9_COLORS.BG.GRAY_LIGHT};
-  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  overflow: hidden;
+	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	border-radius: 8px;
+	margin-bottom: 1rem;
+	overflow: hidden;
 `;
 
 const DiscoveryResultsHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 1rem;
-  background: ${V9_COLORS.PRIMARY.BLUE};
-  color: ${V9_COLORS.TEXT.WHITE};
-  font-weight: 600;
-  font-size: 0.875rem;
-  transition: background-color 0.2s ease;
-  
-  &:hover {
-    background: ${V9_COLORS.PRIMARY.BLUE_DARK};
-  }
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	width: 100%;
+	padding: 1rem;
+	background: ${V9_COLORS.PRIMARY.BLUE};
+	color: ${V9_COLORS.TEXT.WHITE};
+	font-weight: 600;
+	font-size: 0.875rem;
+	transition: background-color 0.2s ease;
+
+	&:hover {
+		background: ${V9_COLORS.PRIMARY.BLUE_DARK};
+	}
 `;
 
 const DiscoveryResultsHeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const DiscoveryResultsToggleIcon = styled.span<{ $collapsed: boolean }>`
-  display: inline-flex;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-  transition: transform 0.2s ease;
-  
-  &:hover {
-    transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
-  }
+	display: inline-flex;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transition: transform 0.2s ease;
+
+	&:hover {
+		transform: ${({ $collapsed }) =>
+			$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
+	}
 `;
 
 const DiscoveryResultsContent = styled.div`
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
+	padding: 1rem;
+	display: flex;
+	flex-direction: column;
 `;
 
 const DiscoveryResultItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  
-  strong {
-    color: ${V9_COLORS.TEXT.GRAY_DARK};
-    font-weight: 600;
-  }
-  
-  &:not(:last-child) {
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
-  }
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	font-size: 0.875rem;
+	line-height: 1.4;
+
+	strong {
+		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		font-weight: 600;
+	}
+
+	&:not(:last-child) {
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	}
 `;
 
 export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
@@ -642,7 +650,7 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 
 		// Trigger discovery if we have a valid environment ID, regardless of existing discovery result
 		if (autoDiscover && environmentId && environmentId.length > 10) {
-			logger.info('[EnvironmentIdInput] Triggering auto-discovery in 1 second...', "Logger info");
+			logger.info('[EnvironmentIdInput] Triggering auto-discovery in 1 second...', 'Logger info');
 			const timeoutId = setTimeout(() => {
 				logger.info(
 					'[EnvironmentIdInput] Auto-discovery timeout triggered, calling handleDiscover'

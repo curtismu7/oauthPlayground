@@ -181,20 +181,10 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	}, []);
 
 	// Credentials state
-	const [credentials, setCredentials] = useState<ProtectCredentials>(() => {
-		const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-			flowKey: FLOW_KEY,
-			flowType: 'oauth', // Use existing flow type
-			includeClientSecret: false,
-			includeRedirectUri: false,
-			includeLogoutUri: false,
-			includeScopes: false,
-		});
-		return {
-			environmentId: stored.environmentId || '',
-			workerToken: stored.workerToken || '',
-			region: (stored.region as ProtectCredentials['region']) || 'us',
-		};
+	const [credentials, setCredentials] = useState<ProtectCredentials>({
+		environmentId: '',
+		workerToken: '',
+		region: 'us',
 	});
 
 	// Flow state
@@ -239,8 +229,8 @@ export const PingOneProtectFlowV8: React.FC = () => {
 
 	// Sync credentials from storage
 	useEffect(() => {
-		const syncCredentials = () => {
-			const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+		const syncCredentials = async () => {
+			const stored = await CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 				flowKey: FLOW_KEY,
 				flowType: 'oauth',
 				includeClientSecret: false,
@@ -250,22 +240,27 @@ export const PingOneProtectFlowV8: React.FC = () => {
 			});
 			setCredentials({
 				environmentId: stored.environmentId || '',
-				workerToken: stored.workerToken || '',
+				workerToken: (stored.workerToken as string) || '',
 				region: (stored.region as ProtectCredentials['region']) || 'us',
 			});
 		};
 
-		syncCredentials();
-		window.addEventListener('storage', syncCredentials);
-		return () => window.removeEventListener('storage', syncCredentials);
+		void syncCredentials();
+		const handleStorageEvent = () => {
+			void syncCredentials();
+		};
+		window.addEventListener('storage', handleStorageEvent);
+		return () => window.removeEventListener('storage', handleStorageEvent);
 	}, []);
 
 	// Save credentials when they change
 	useEffect(() => {
 		const saveTimeout = setTimeout(() => {
-			CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+			void CredentialsServiceV8.saveCredentials(FLOW_KEY, {
 				environmentId: credentials.environmentId,
 				clientId: 'protect-flow-client', // Required field
+				workerToken: credentials.workerToken,
+				region: credentials.region,
 			} as Credentials);
 		}, 300);
 		return () => clearTimeout(saveTimeout);
@@ -584,9 +579,8 @@ export const PingOneProtectFlowV8: React.FC = () => {
 						onClick={async () => {
 							// Pass current checkbox values to override config (page checkboxes take precedence)
 							// forceShowModal=true because user explicitly clicked the button - always show modal
-							const { handleShowWorkerTokenModal } = await import(
-								'@/v8/utils/workerTokenModalHelperV8'
-							);
+							const { handleShowWorkerTokenModal } =
+								await import('@/v8/utils/workerTokenModalHelperV8');
 							await handleShowWorkerTokenModal(
 								setShowWorkerTokenModal,
 								setTokenStatus,
@@ -661,9 +655,8 @@ export const PingOneProtectFlowV8: React.FC = () => {
 										logger.info(
 											'[PINGONE-PROTECT-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
 										);
-										const { handleShowWorkerTokenModal } = await import(
-											'@/v8/utils/workerTokenModalHelperV8'
-										);
+										const { handleShowWorkerTokenModal } =
+											await import('@/v8/utils/workerTokenModalHelperV8');
 										await handleShowWorkerTokenModal(
 											setShowWorkerTokenModal,
 											setTokenStatus,

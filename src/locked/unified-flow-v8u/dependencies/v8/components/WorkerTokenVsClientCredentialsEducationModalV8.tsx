@@ -19,7 +19,7 @@
  * />
  */
 
-import { FiInfo, FiShield, FiXCircle } from '@icons';
+import { FiInfo, FiShield, FiXCircle } from '../../../../../icons';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -47,7 +47,9 @@ const ModalContainer = styled.div`
 	transform: translate(-50%, -50%);
 	background: white;
 	border-radius: 12px;
-	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	box-shadow:
+		0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
 	z-index: 9999;
 	max-width: 800px;
 	width: 90%;
@@ -123,8 +125,9 @@ const SectionContent = styled.div`
 const ConceptBox = styled.div`
 	background: ${(props: { variant: 'worker' | 'client' }) =>
 		props.variant === 'worker' ? '#fef3c7' : '#dbeafe'};
-	border: 2px solid ${(props: { variant: 'worker' | 'client' }) =>
-		props.variant === 'worker' ? '#fcd34d' : '#3b82f6'};
+	border: 2px solid
+		${(props: { variant: 'worker' | 'client' }) =>
+			props.variant === 'worker' ? '#fcd34d' : '#3b82f6'};
 	border-radius: 8px;
 	padding: 20px;
 	margin: 16px 0;

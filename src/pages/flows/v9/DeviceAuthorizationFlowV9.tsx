@@ -2,7 +2,7 @@
 // lint-file-disable: token-value-in-jsx
 // V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
 
-import { FiInfo, FiMonitor } from '@icons';
+import { FiInfo, FiMonitor } from '../../../icons';
 import { BarChart3, Play } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -209,13 +209,12 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 			if ($variant === 'error') return '#ef4444';
 			return '#3b82f6';
 		}};
-	background-color:
-		${({ $variant }) => {
-			if ($variant === 'warning') return '#fef3c7';
-			if ($variant === 'success') return '#ecfdf5';
-			if ($variant === 'error') return '#fef2f2';
-			return '#dbeafe';
-		}};
+	background-color: ${({ $variant }) => {
+		if ($variant === 'warning') return '#fef3c7';
+		if ($variant === 'success') return '#ecfdf5';
+		if ($variant === 'error') return '#fef2f2';
+		return '#dbeafe';
+	}};
 `;
 
 const InfoTitle = styled.h3`
@@ -435,8 +434,12 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	animation: fadeIn 0.2s ease;
 
 	@keyframes fadeIn {
-		from { opacity: 0; }
-		to { opacity: 1; }
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 `;
 
@@ -446,7 +449,9 @@ const ModalContent = styled.div<{ $position?: { x: number; y: number }; $isDragg
 	padding: 0;
 	max-width: 500px;
 	width: 100%;
-	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	box-shadow:
+		0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
 	animation: slideUp 0.3s ease;
 	position: ${(props) => (props.$position ? 'fixed' : 'relative')};
 	top: ${(props) => (props.$position ? `${props.$position.y}px` : 'auto')};
@@ -477,7 +482,7 @@ const ModalHeader = styled.div`
 	border-radius: 1rem 1rem 0 0;
 	cursor: grab;
 	user-select: none;
-	
+
 	&:active {
 		cursor: grabbing;
 	}
@@ -867,7 +872,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					environmentId: flowData.sharedEnvironment?.environmentId || '',
 					clientId: flowData.flowCredentials.clientId,
 					clientSecret: flowData.flowCredentials.clientSecret,
-					scopes: Array.isArray(flowData.flowCredentials.scopes) 
+					scopes: Array.isArray(flowData.flowCredentials.scopes)
 						? flowData.flowCredentials.scopes.join(' ')
 						: flowData.flowCredentials.scopes || '',
 				};
@@ -947,10 +952,9 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							'',
 						clientId: flowData.flowCredentials.clientId || '',
 						clientSecret: flowData.flowCredentials.clientSecret || '',
-						scopes:
-							Array.isArray(flowData.flowCredentials.scopes)
-								? flowData.flowCredentials.scopes.join(' ')
-								: flowData.flowCredentials.scopes ||
+						scopes: Array.isArray(flowData.flowCredentials.scopes)
+							? flowData.flowCredentials.scopes.join(' ')
+							: flowData.flowCredentials.scopes ||
 								(selectedVariant === 'oidc' ? 'openid profile email' : 'openid'),
 					};
 					logger.info('DeviceAuthorizationFlowV9', 'Setting loaded credentials', {
@@ -1077,7 +1081,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		credentials: deviceFlow.credentials ?? {},
 		currentStep,
 		onValidationFailure: (missingFields) => {
-			logger.warn('[Device Authorization V7] Missing required credentials:', JSON.stringify(missingFields), 'Missing credentials validation');
+			logger.warn(
+				'[Device Authorization V7] Missing required credentials:',
+				JSON.stringify(missingFields),
+				'Missing credentials validation'
+			);
 		},
 	});
 
@@ -3114,7 +3122,12 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								onError={(error) => {
 									// Handle errors
 									const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-									logger.error('DynamicDeviceFlow', 'Authorization error', errorMessage, 'Device flow authorization error');
+									logger.error(
+										'DynamicDeviceFlow',
+										'Authorization error',
+										errorMessage,
+										'Device flow authorization error'
+									);
 								}}
 							/>
 

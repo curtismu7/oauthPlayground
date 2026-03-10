@@ -1,13 +1,13 @@
-import { FiBook, FiCheck } from '@icons';
+import { FiBook, FiCheck } from '../../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 
 const GuidanceContainer = styled.div`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 1px solid #cbd5e1;
-  border-radius: 12px;
-  margin: 1rem 0;
+	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	border: 1px solid #cbd5e1;
+	border-radius: 12px;
+	margin: 1rem 0;
 `;
 
 const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
@@ -65,7 +65,8 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 		background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
 		border-color: #2563eb;
 		color: #2563eb;
-		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
+		transform: ${({ $collapsed }) =>
+			$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
 		box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
 	}
 
@@ -93,131 +94,131 @@ const CollapsibleContent = styled.div`
 `;
 
 const _GuidanceHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
 `;
 
 const _GuidanceTitle = styled.h3`
-  color: #1e293b;
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0;
+	color: #1e293b;
+	font-size: 1.125rem;
+	font-weight: 600;
+	margin: 0;
 `;
 
 const GuidanceSubtitle = styled.p`
-  color: #64748b;
-  font-size: 0.875rem;
-  margin: 0 0 1rem 0;
-  line-height: 1.5;
+	color: #64748b;
+	font-size: 0.875rem;
+	margin: 0 0 1rem 0;
+	line-height: 1.5;
 `;
 
 const UseCaseGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-  
-  @media (max-width: 480px) {
-    gap: 0.5rem;
-  }
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+	}
+
+	@media (max-width: 480px) {
+		gap: 0.5rem;
+	}
 `;
 
 const UseCaseCard = styled.div<{ $selected?: boolean }>`
-  background: ${(props) => (props.$selected ? '#dbeafe' : 'white')};
-  border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#e2e8f0')};
-  border-radius: 8px;
-  padding: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    border-color: #3b82f6;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
+	background: ${(props) => (props.$selected ? '#dbeafe' : 'white')};
+	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#e2e8f0')};
+	border-radius: 8px;
+	padding: 1rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		border-color: #3b82f6;
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const UseCaseIcon = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: #f1f5f9;
-  border-radius: 8px;
-  margin-bottom: 0.75rem;
-  color: #3b82f6;
-  font-size: 1.25rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	background: #f1f5f9;
+	border-radius: 8px;
+	margin-bottom: 0.75rem;
+	color: #3b82f6;
+	font-size: 1.25rem;
 `;
 
 const UseCaseTitle = styled.h4`
-  color: #1e293b;
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
+	color: #1e293b;
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin: 0 0 0.5rem 0;
 `;
 
 const UseCaseDescription = styled.p`
-  color: #64748b;
-  font-size: 0.75rem;
-  margin: 0;
-  line-height: 1.4;
+	color: #64748b;
+	font-size: 0.75rem;
+	margin: 0;
+	line-height: 1.4;
 `;
 
 const RecommendedFlow = styled.div`
-  background: #f0fdf4;
-  border: 1px solid #86efac;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 1rem;
+	background: #f0fdf4;
+	border: 1px solid #86efac;
+	border-radius: 8px;
+	padding: 1rem;
+	margin-top: 1rem;
 `;
 
 const RecommendedHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
 `;
 
 const RecommendedTitle = styled.h4`
-  color: #166534;
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin: 0;
+	color: #166534;
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin: 0;
 `;
 
 const RecommendedDescription = styled.p`
-  color: #15803d;
-  font-size: 0.75rem;
-  margin: 0;
-  line-height: 1.4;
+	color: #15803d;
+	font-size: 0.75rem;
+	margin: 0;
+	line-height: 1.4;
 `;
 
 const ActionButton = styled.button`
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.2s ease;
-  margin-top: 1rem;
-  
-  &:hover {
-    background: #2563eb;
-  }
+	background: #3b82f6;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	padding: 0.5rem 1rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: background-color 0.2s ease;
+	margin-top: 1rem;
+
+	&:hover {
+		background: #2563eb;
+	}
 `;
 
 interface UseCase {
