@@ -126,8 +126,8 @@ const InteractiveFlowDiagram: React.FC = () => {
 								color: '#dc2626',
 							}}
 						>
-							<strong>⚠️ Security Warning:</strong> The Implicit Flow is deprecated and should not be
-							used in new applications. It has been removed from OAuth 2.1 due to security
+							<strong>⚠️ Security Warning:</strong> The Implicit Flow is deprecated and should not
+							be used in new applications. It has been removed from OAuth 2.1 due to security
 							vulnerabilities.
 						</div>
 						<ImplicitDiagram />
@@ -137,7 +137,7 @@ const InteractiveFlowDiagram: React.FC = () => {
 				<CollapsibleHeader
 					title="Flow Comparison & Best Practices"
 					subtitle="Compare different OAuth 2.0 and OpenID Connect flows, understand their security implications, and learn when to use each flow type."
-					icon={<span>❓</span>}
+					icon={<i className="bi bi-question-circle"></i>}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>

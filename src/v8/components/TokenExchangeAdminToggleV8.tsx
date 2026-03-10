@@ -249,7 +249,13 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 								<span style={{ fontSize: '12px' }}>⚠️</span>
 							)}
 						</StatusIcon>
-						{isLoading ? <LoadingSpinner /> : isEnabled ? <span>❓</span> : <span>❓</span>}
+						{isLoading ? (
+							<LoadingSpinner />
+						) : isEnabled ? (
+							<i className="bi bi-question-circle"></i>
+						) : (
+							<i className="bi bi-question-circle"></i>
+						)}
 						{isLoading ? 'Updating...' : isEnabled ? 'Enabled' : 'Disabled'}
 					</ToggleButton>
 				</ToggleContainer>

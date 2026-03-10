@@ -250,7 +250,7 @@ export const AudienceParameterInput: React.FC<AudienceParameterInputProps> = ({
 		<Container>
 			<Label>
 				<LabelIcon>
-					<span>❓</span>
+					<i className="bi bi-question-circle"></i>
 				</LabelIcon>
 				Audience (API Target for Access Token)
 			</Label>
@@ -294,7 +294,7 @@ export const AudienceParameterInput: React.FC<AudienceParameterInputProps> = ({
 						<ExampleText>{example.value}</ExampleText>
 						{example.isFromDiscovery && <DiscoveryBadge>OIDC</DiscoveryBadge>}
 						<DragIcon>
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 						</DragIcon>
 					</ExampleItem>
 				))}

@@ -13,217 +13,217 @@ interface RARExampleSelectorProps {
 }
 
 const Container = styled.div`
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 8px;
-  padding: 1.5rem;
-  background: white;
-  margin-bottom: 1.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 8px;
+	padding: 1.5rem;
+	background: white;
+	margin-bottom: 1.5rem;
 `;
 
 const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
 `;
 
 const Title = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0;
 `;
 
 const Description = styled.p`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin: 0 0 1.5rem 0;
-  line-height: 1.5;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin: 0 0 1.5rem 0;
+	line-height: 1.5;
 `;
 
 const ExampleGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 1rem;
 `;
 
 const ExampleCard = styled.div`
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  overflow: hidden;
-  background: white;
-  transition: all 0.2s;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
+	overflow: hidden;
+	background: white;
+	transition: all 0.2s;
 
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const ExampleHeader = styled.div`
-  padding: 1rem;
-  background: #f9fafb;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 1rem;
+	background: #f9fafb;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ExampleTitle = styled.h4`
-  font-size: 1rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0 0 0.5rem 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0 0 0.5rem 0;
 `;
 
 const ExampleSubtitle = styled.p`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin: 0;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin: 0;
 `;
 
 const ExampleContent = styled.div`
-  padding: 1rem;
+	padding: 1rem;
 `;
 
 const ViewToggle = styled.div`
-  display: flex;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 1rem;
+	display: flex;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 4px;
+	overflow: hidden;
+	margin-bottom: 1rem;
 `;
 
 const ViewButton = styled.button<{ active: boolean }>`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  border: none;
-  background: ${(props) => (props.active ? '#3b82f6' : 'white')};
-  color: ${(props) => (props.active ? 'white' : '#6b7280')};
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	border: none;
+	background: ${(props) => (props.active ? '#3b82f6' : 'white')};
+	color: ${(props) => (props.active ? 'white' : '#6b7280')};
+	font-size: 0.75rem;
+	cursor: pointer;
+	transition: all 0.2s;
 
-  &:hover {
-    background: ${(props) => (props.active ? '#2563eb' : '#f9fafb')};
-  }
+	&:hover {
+		background: ${(props) => (props.active ? '#2563eb' : '#f9fafb')};
+	}
 `;
 
 const JsonDisplay = styled.pre`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 4px;
-  padding: 0.75rem;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  overflow-x: auto;
-  margin: 0 0 1rem 0;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 4px;
+	padding: 0.75rem;
+	font-size: 0.75rem;
+	line-height: 1.4;
+	overflow-x: auto;
+	margin: 0 0 1rem 0;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 `;
 
 const FormattedView = styled.div`
-  margin-bottom: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const DetailItem = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 4px;
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 4px;
+	padding: 0.75rem;
+	margin-bottom: 0.5rem;
 `;
 
 const DetailType = styled.div`
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 0.875rem;
-  margin-bottom: 0.5rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.875rem;
+	margin-bottom: 0.5rem;
 `;
 
 const DetailFields = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.5rem;
-  font-size: 0.75rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	gap: 0.5rem;
+	font-size: 0.75rem;
 `;
 
 const FieldItem = styled.div`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const FieldLabel = styled.span`
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ActionButtons = styled.div`
-  display: flex;
-  gap: 0.5rem;
+	display: flex;
+	gap: 0.5rem;
 `;
 
 const ActionButton = styled.button`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  background: white;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: white;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	cursor: pointer;
+	transition: all 0.2s;
 
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    color: V9_COLORS.PRIMARY.BLUE;
-  }
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		color: V9_COLORS.PRIMARY.BLUE;
+	}
 
-  &.primary {
-    background: V9_COLORS.PRIMARY.BLUE;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    color: white;
+	&.primary {
+		background: V9_COLORS.PRIMARY.BLUE;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		color: white;
 
-    &:hover {
-      background: V9_COLORS.PRIMARY.BLUE_DARK;
-    }
-  }
+		&:hover {
+			background: V9_COLORS.PRIMARY.BLUE_DARK;
+		}
+	}
 `;
 
 const CollapsibleSection = styled.div`
-  margin-top: 1rem;
+	margin-top: 1rem;
 `;
 
 const CollapsibleHeader = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  background: #f9fafb;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: #f9fafb;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border-radius: 6px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
 
-  &:hover {
-    background: #f3f4f6;
-  }
+	&:hover {
+		background: #f3f4f6;
+	}
 `;
 
 const CollapsibleContent = styled.div<{ isOpen: boolean }>`
-  display: ${(props) => (props.isOpen ? 'block' : 'none')};
-  padding: 1rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-top: none;
-  border-radius: 0 0 6px 6px;
-  background: white;
+	display: ${(props) => (props.isOpen ? 'block' : 'none')};
+	padding: 1rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-top: none;
+	border-radius: 0 0 6px 6px;
+	background: white;
 `;
 
 export const RARExampleSelector: React.FC<RARExampleSelectorProps> = ({
@@ -354,7 +354,7 @@ export const RARExampleSelector: React.FC<RARExampleSelectorProps> = ({
 							Formatted
 						</ViewButton>
 						<ViewButton active={viewMode === 'json'} onClick={() => toggleViewMode(config.id)}>
-							<span style={{ fontSize: '12px' }}>❓</span>
+							<i className="bi bi-question-circle" style={{ fontSize: '12px' }}></i>
 							JSON
 						</ViewButton>
 					</ViewToggle>

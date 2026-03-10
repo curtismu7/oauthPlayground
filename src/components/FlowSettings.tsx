@@ -424,7 +424,11 @@ const FlowSettings = ({ flowType, onSettingsChange, initialSettings = {} }) => {
 								className={settings[setting.key] ? 'enabled' : 'disabled'}
 								onClick={() => updateSetting(setting.key, !settings[setting.key])}
 							>
-								{settings[setting.key] ? <span>❓</span> : <span>❓</span>}
+								{settings[setting.key] ? (
+									<i className="bi bi-question-circle"></i>
+								) : (
+									<i className="bi bi-question-circle"></i>
+								)}
 								{settings[setting.key] ? 'Enabled' : 'Disabled'}
 							</ToggleButton>
 						</SettingItem>

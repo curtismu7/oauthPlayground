@@ -250,16 +250,17 @@ const CopyButton = styled.button`
 const TipBox = styled.div<{ variant: 'info' | 'warning' | 'success' }>`
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border-left: 4px solid ${({ variant }) => {
-		switch (variant) {
-			case 'info':
-				return '#3b82f6';
-			case 'warning':
-				return '#f59e0b';
-			case 'success':
-				return '#10b981';
-		}
-	}};
+	border-left: 4px solid
+		${({ variant }) => {
+			switch (variant) {
+				case 'info':
+					return '#3b82f6';
+				case 'warning':
+					return '#f59e0b';
+				case 'success':
+					return '#10b981';
+			}
+		}};
 	background: ${({ variant }) => {
 		switch (variant) {
 			case 'info':
@@ -289,7 +290,11 @@ const LinkButton = styled.a`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.75rem 1.5rem;
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+	background: linear-gradient(
+		135deg,
+		V9_COLORS.PRIMARY.BLUE_DARK 0%,
+		V9_COLORS.PRIMARY.BLUE_DARK 100%
+	);
 	color: white;
 	text-decoration: none;
 	border-radius: 0.5rem;
@@ -339,7 +344,9 @@ const ToolLinkCard = styled.a`
 	text-decoration: none;
 	color: V9_COLORS.TEXT.GRAY_DARK;
 	box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
-	transition: transform 0.2s, box-shadow 0.2s;
+	transition:
+		transform 0.2s,
+		box-shadow 0.2s;
 
 	&:hover {
 		transform: translateY(-3px);
@@ -945,7 +952,7 @@ const LiveRFCExplorer: React.FC = () => {
 					onClick={() => setDeepDive((prev) => !prev)}
 					aria-pressed={deepDive}
 				>
-					<span>❓</span>
+					<i className="bi bi-question-circle"></i>
 					{deepDive ? 'Deep Dive Mode: ON' : 'Enable Deep Dive Mode'}
 				</DeepDiveToggle>
 			</ToggleRow>
@@ -958,7 +965,7 @@ const LiveRFCExplorer: React.FC = () => {
 						onClick={() => setSelectedRFC(spec.id)}
 					>
 						<RFCNumber>
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 							{spec.number}
 						</RFCNumber>
 						<RFCTitle>{spec.title}</RFCTitle>
@@ -1006,7 +1013,7 @@ const LiveRFCExplorer: React.FC = () => {
 
 					<ContentSection>
 						<SubsectionTitle>
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 							Real Code Examples
 						</SubsectionTitle>
 						{rfc.examples.map((example, index) => (
@@ -1037,7 +1044,7 @@ const LiveRFCExplorer: React.FC = () => {
 						<>
 							<ContentSection>
 								<SubsectionTitle>
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 									Deep Dive Insights
 								</SubsectionTitle>
 								<InsightList>
@@ -1049,7 +1056,7 @@ const LiveRFCExplorer: React.FC = () => {
 
 							<ContentSection>
 								<SubsectionTitle>
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 									PingOne Implementation Notes
 								</SubsectionTitle>
 								{rfc.pingoneCallouts.map((callout) => (
@@ -1059,7 +1066,7 @@ const LiveRFCExplorer: React.FC = () => {
 
 							<ContentSection>
 								<SubsectionTitle>
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 									Practice With These Playground Tools
 								</SubsectionTitle>
 								<ToolLinkList>

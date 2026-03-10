@@ -6188,13 +6188,11 @@ app.post('/api/pingone/password/unlock', async (req, res) => {
 		res.json({ success: true, message: 'Password unlocked successfully' });
 	} catch (error) {
 		console.error('[🔐 PASSWORD] Error unlocking password:', error);
-		res
-			.status(500)
-			.json({
-				error: 'server_error',
-				error_description: 'Internal server error',
-				details: error.message,
-			});
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
 	}
 });
 
@@ -6240,13 +6238,11 @@ app.get('/api/pingone/password/state', async (req, res) => {
 		res.json({ success: true, passwordState: responseData });
 	} catch (error) {
 		console.error('[🔐 PASSWORD] Error reading password state:', error);
-		res
-			.status(500)
-			.json({
-				error: 'server_error',
-				error_description: 'Internal server error',
-				details: error.message,
-			});
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
 	}
 });
 
@@ -6304,13 +6300,11 @@ app.put('/api/pingone/password/admin-set', async (req, res) => {
 		});
 	} catch (error) {
 		console.error('[🔐 PASSWORD] Error setting password (admin):', error);
-		res
-			.status(500)
-			.json({
-				error: 'server_error',
-				error_description: 'Internal server error',
-				details: error.message,
-			});
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
 	}
 });
 
@@ -11016,8 +11010,18 @@ app.get('/api/pingone/subscriptions', async (req, res) => {
 			});
 		}
 
-		const regionMap = { na: 'us', eu: 'eu', asia: 'ap', ap: 'ap', ca: 'ca' };
-		const apiRegion = regionMap[region] || 'us';
+		// Map region codes to PingOne API TLDs per https://developer.pingidentity.com/pingone-api/verify/working-with-pingone-apis.html
+		const regionMap = {
+			us: 'com',
+			na: 'com',
+			eu: 'eu',
+			ca: 'ca',
+			ap: 'asia',
+			asia: 'asia',
+			au: 'com.au',
+			sg: 'sg',
+		};
+		const apiRegion = regionMap[region?.toLowerCase()] || 'com';
 		const apiUrl = `https://api.pingone.${apiRegion}/v1/environments/${environmentId}/subscriptions`;
 
 		console.log(`[Webhook Subscriptions] Fetching subscriptions from: ${apiUrl}`);
@@ -11091,8 +11095,18 @@ app.get('/api/pingone/subscriptions/:subscriptionId', async (req, res) => {
 			});
 		}
 
-		const regionMap = { na: 'us', eu: 'eu', asia: 'ap', ap: 'ap', ca: 'ca' };
-		const apiRegion = regionMap[region] || 'us';
+		// Map region codes to PingOne API TLDs per https://developer.pingidentity.com/pingone-api/verify/working-with-pingone-apis.html
+		const regionMap = {
+			us: 'com',
+			na: 'com',
+			eu: 'eu',
+			ca: 'ca',
+			ap: 'asia',
+			asia: 'asia',
+			au: 'com.au',
+			sg: 'sg',
+		};
+		const apiRegion = regionMap[region?.toLowerCase()] || 'com';
 		const apiUrl = `https://api.pingone.${apiRegion}/v1/environments/${environmentId}/subscriptions/${subscriptionId}`;
 
 		console.log(`[Webhook Subscriptions] Fetching subscription ${subscriptionId} from: ${apiUrl}`);
@@ -11171,8 +11185,18 @@ app.post('/api/pingone/subscriptions', express.json(), async (req, res) => {
 			});
 		}
 
-		const regionMap = { na: 'us', eu: 'eu', asia: 'ap', ap: 'ap', ca: 'ca' };
-		const apiRegion = regionMap[region] || 'us';
+		// Map region codes to PingOne API TLDs per https://developer.pingidentity.com/pingone-api/verify/working-with-pingone-apis.html
+		const regionMap = {
+			us: 'com',
+			na: 'com',
+			eu: 'eu',
+			ca: 'ca',
+			ap: 'asia',
+			asia: 'asia',
+			au: 'com.au',
+			sg: 'sg',
+		};
+		const apiRegion = regionMap[region?.toLowerCase()] || 'com';
 		const apiUrl = `https://api.pingone.${apiRegion}/v1/environments/${environmentId}/subscriptions`;
 
 		console.log(`[Webhook Subscriptions] Creating subscription:`, subscriptionData.name);
@@ -11246,8 +11270,18 @@ app.put('/api/pingone/subscriptions/:subscriptionId', express.json(), async (req
 			});
 		}
 
-		const regionMap = { na: 'us', eu: 'eu', asia: 'ap', ap: 'ap', ca: 'ca' };
-		const apiRegion = regionMap[region] || 'us';
+		// Map region codes to PingOne API TLDs per https://developer.pingidentity.com/pingone-api/verify/working-with-pingone-apis.html
+		const regionMap = {
+			us: 'com',
+			na: 'com',
+			eu: 'eu',
+			ca: 'ca',
+			ap: 'asia',
+			asia: 'asia',
+			au: 'com.au',
+			sg: 'sg',
+		};
+		const apiRegion = regionMap[region?.toLowerCase()] || 'com';
 		const apiUrl = `https://api.pingone.${apiRegion}/v1/environments/${environmentId}/subscriptions/${subscriptionId}`;
 
 		console.log(`[Webhook Subscriptions] Updating subscription ${subscriptionId}`);
@@ -11320,8 +11354,18 @@ app.delete('/api/pingone/subscriptions/:subscriptionId', async (req, res) => {
 			});
 		}
 
-		const regionMap = { na: 'us', eu: 'eu', asia: 'ap', ap: 'ap', ca: 'ca' };
-		const apiRegion = regionMap[region] || 'us';
+		// Map region codes to PingOne API TLDs per https://developer.pingidentity.com/pingone-api/verify/working-with-pingone-apis.html
+		const regionMap = {
+			us: 'com',
+			na: 'com',
+			eu: 'eu',
+			ca: 'ca',
+			ap: 'asia',
+			asia: 'asia',
+			au: 'com.au',
+			sg: 'sg',
+		};
+		const apiRegion = regionMap[region?.toLowerCase()] || 'com';
 		const apiUrl = `https://api.pingone.${apiRegion}/v1/environments/${environmentId}/subscriptions/${subscriptionId}`;
 
 		console.log(`[Webhook Subscriptions] Deleting subscription ${subscriptionId}`);

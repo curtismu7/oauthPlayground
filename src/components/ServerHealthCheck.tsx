@@ -15,15 +15,15 @@ const spin = keyframes`
 `;
 
 const HealthCheckContainer = styled.div`
-  position: fixed;
-  top: 80px;
-  right: 20px;
-  z-index: 1000;
-  max-width: 400px;
+	position: fixed;
+	top: 80px;
+	right: 20px;
+	z-index: 1000;
+	max-width: 400px;
 `;
 
 const HealthCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
-  background: ${({ $status }) => {
+	background: ${({ $status }) => {
 		switch ($status) {
 			case 'checking':
 				return '#fef3c7';
@@ -35,33 +35,39 @@ const HealthCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
 				return '#f3f4f6';
 		}
 	}};
-  border: 2px solid ${({ $status }) => {
-		switch ($status) {
-			case 'checking':
-				return '#f59e0b';
-			case 'online':
-				return '#10b981';
-			case 'offline':
-				return '#ef4444';
-			default:
-				return '#6b7280';
-		}
-	}};
-  border-radius: 0.75rem;
-  padding: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  animation: ${({ $status }) => ($status === 'checking' ? css`${pulse} 2s infinite` : 'none')};
+	border: 2px solid
+		${({ $status }) => {
+			switch ($status) {
+				case 'checking':
+					return '#f59e0b';
+				case 'online':
+					return '#10b981';
+				case 'offline':
+					return '#ef4444';
+				default:
+					return '#6b7280';
+			}
+		}};
+	border-radius: 0.75rem;
+	padding: 1rem;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	animation: ${({ $status }) =>
+		$status === 'checking'
+			? css`
+					${pulse} 2s infinite
+				`
+			: 'none'};
 `;
 
 const HealthHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 0.5rem;
 `;
 
 const HealthIcon = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
-  color: ${({ $status }) => {
+	color: ${({ $status }) => {
 		switch ($status) {
 			case 'checking':
 				return '#f59e0b';
@@ -73,117 +79,119 @@ const HealthIcon = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
 				return '#6b7280';
 		}
 	}};
-  font-size: 1.25rem;
-  
-  ${({ $status }) =>
+	font-size: 1.25rem;
+
+	${({ $status }) =>
 		$status === 'checking' &&
 		css`
-    animation: ${spin} 1s linear infinite;
-  `}
+			animation: ${spin} 1s linear infinite;
+		`}
 `;
 
 const HealthTitle = styled.h3`
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const HealthMessage = styled.p`
-  margin: 0;
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  line-height: 1.4;
+	margin: 0;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	line-height: 1.4;
 `;
 
 const HealthActions = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
 `;
 
 const HealthButton = styled.button`
-  background: V9_COLORS.PRIMARY.BLUE;
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background: V9_COLORS.PRIMARY.BLUE_DARK;
-  }
-  
-  &:disabled {
-    background: V9_COLORS.TEXT.GRAY_LIGHT;
-    cursor: not-allowed;
-  }
+	background: V9_COLORS.PRIMARY.BLUE;
+	color: white;
+	border: none;
+	border-radius: 0.375rem;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	transition: background-color 0.2s;
+
+	&:hover {
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
+	}
+
+	&:disabled {
+		background: V9_COLORS.TEXT.GRAY_LIGHT;
+		cursor: not-allowed;
+	}
 `;
 
 const DismissButton = styled.button`
-  background: transparent;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  &:hover {
-    background: #f3f4f6;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	background: transparent;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:hover {
+		background: #f3f4f6;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 `;
 
 const ModalBackdrop = styled.div`
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
 `;
 
 const ModalDialog = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  max-width: 420px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: V9_COLORS.TEXT.WHITE;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	max-width: 420px;
+	box-shadow:
+		0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalTitle = styled.h2`
-  margin: 0 0 0.5rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	margin: 0 0 0.5rem 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const ModalBody = styled.p`
-  margin: 0 0 1rem 0;
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  line-height: 1.5;
+	margin: 0 0 1rem 0;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	line-height: 1.5;
 `;
 
 const ModalActions = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
+	display: flex;
+	gap: 0.5rem;
+	justify-content: flex-end;
 `;
 
 interface ServerHealthCheckProps {
@@ -272,7 +280,7 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 				};
 			case 'offline':
 				return {
-					icon: <span>❓</span>,
+					icon: <i className="bi bi-question-circle"></i>,
 					title: 'Server is not running',
 					message: `The backend server is not responding. Start it with \`./run.sh\` from the project root to use logs, custom domain, and other API features.${retryCount > 0 ? ` (${retryCount} failed attempts)` : ''}`,
 				};

@@ -5,37 +5,37 @@ import { logger } from '../utils/logger';
 import JSONHighlighter from './JSONHighlighter';
 
 const DeviceFlowContainer = styled.div`
-  background: white;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin: 1rem 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	background: white;
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	margin: 1rem 0;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const DeviceFlowHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.5rem;
 `;
 
 const DeviceFlowTitle = styled.h3`
-  margin: 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	margin: 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1.25rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const StatusBadge = styled.div<{ $status: string }>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  
-  ${({ $status }) => {
+	padding: 0.25rem 0.75rem;
+	border-radius: 1rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+
+	${({ $status }) => {
 		switch ($status) {
 			case 'pending':
 				return `
@@ -67,74 +67,74 @@ const StatusBadge = styled.div<{ $status: string }>`
 `;
 
 const UserCodeSection = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  text-align: center;
-  margin-bottom: 1.5rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	text-align: center;
+	margin-bottom: 1.5rem;
 `;
 
 const UserCodeLabel = styled.div`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin-bottom: 0.5rem;
+	font-weight: 500;
 `;
 
 const UserCodeValue = styled.div`
-  font-size: 2rem;
-  font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  letter-spacing: 0.1em;
-  margin-bottom: 1rem;
+	font-size: 2rem;
+	font-weight: 700;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	letter-spacing: 0.1em;
+	margin-bottom: 1rem;
 `;
 
 const VerificationSection = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
 `;
 
 const VerificationItem = styled.div`
-  background: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  padding: 1rem;
+	background: #f9fafb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	padding: 1rem;
 `;
 
 const VerificationLabel = styled.div`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin-bottom: 0.5rem;
+	font-weight: 500;
 `;
 
 const VerificationValue = styled.div`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  word-break: break-all;
-  margin-bottom: 0.5rem;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	word-break: break-all;
+	margin-bottom: 0.5rem;
 `;
 
 const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | 'danger' }>`
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  ${({ $variant }) => {
+	padding: 0.5rem 1rem;
+	border: none;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	margin-right: 0.5rem;
+	margin-bottom: 0.5rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
 				return `
@@ -165,70 +165,70 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
 `;
 
 const StatusSection = styled.div`
-  background: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
+	background: #f9fafb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const StatusMessage = styled.div`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const StatusDetails = styled.div`
-  font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 0.5rem;
+	font-size: 0.75rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 0.5rem;
 `;
 
 const StatusDetail = styled.div`
-  display: flex;
-  flex-direction: column;
+	display: flex;
+	flex-direction: column;
 `;
 
 const StatusLabel = styled.span`
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusValue = styled.span`
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 `;
 
 const QRCodeSection = styled.div`
-  background: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  text-align: center;
-  margin-bottom: 1rem;
+	background: #f9fafb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	text-align: center;
+	margin-bottom: 1rem;
 `;
 
 const QRCodePlaceholder = styled.div`
-  width: 200px;
-  height: 200px;
-  background: V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  margin: 0 auto 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 0.875rem;
+	width: 200px;
+	height: 200px;
+	background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	margin: 0 auto 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.875rem;
 `;
 
 const Alert = styled.div<{ $type: 'info' | 'success' | 'warning' | 'error' }>`
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-  
-  ${({ $type }) => {
+	padding: 0.75rem;
+	border-radius: 0.375rem;
+	margin-bottom: 1rem;
+	font-size: 0.875rem;
+
+	${({ $type }) => {
 		switch ($type) {
 			case 'info':
 				return `
@@ -259,17 +259,19 @@ const Alert = styled.div<{ $type: 'info' | 'success' | 'warning' | 'error' }>`
 `;
 
 const LoadingSpinner = styled.div`
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid #f3f4f6;
-  border-radius: 50%;
-  border-top-color: V9_COLORS.PRIMARY.BLUE;
-  animation: spin 1s ease-in-out infinite;
-  
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+	display: inline-block;
+	width: 1rem;
+	height: 1rem;
+	border: 2px solid #f3f4f6;
+	border-radius: 50%;
+	border-top-color: V9_COLORS.PRIMARY.BLUE;
+	animation: spin 1s ease-in-out infinite;
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
 interface DeviceFlowDisplayProps {
@@ -391,7 +393,7 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 		<DeviceFlowContainer>
 			<DeviceFlowHeader>
 				<DeviceFlowTitle>
-					<span>❓</span>
+					<i className="bi bi-question-circle"></i>
 					Device Authorization
 				</DeviceFlowTitle>
 				<StatusBadge $status={state.status}>{state.status}</StatusBadge>

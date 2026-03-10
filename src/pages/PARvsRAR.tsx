@@ -11,217 +11,218 @@ import { copyToClipboard } from '../utils/clipboard';
 import { logger } from '../utils/logger';
 
 const Container = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1.5rem;
-  background: white;
-  min-height: 100vh;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  line-height: 1.6;
-  padding-top: 100px;
-  padding-bottom: 4rem;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 1.5rem;
+	background: white;
+	min-height: 100vh;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	line-height: 1.6;
+	padding-top: 100px;
+	padding-bottom: 4rem;
 `;
 
 const Header = styled.div`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
+	h1 {
+		font-size: 2.5rem;
+		font-weight: 600;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+		margin-bottom: 0.5rem;
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
 
-  p {
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    font-size: 1.1rem;
-    line-height: 1.6;
-  }
+	p {
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		font-size: 1.1rem;
+		line-height: 1.6;
+	}
 `;
 
 const OverviewCard = styled(Card)`
-  margin-bottom: 2rem;
-  border-left: 4px solid ${({ theme }) => theme.colors.primary};
+	margin-bottom: 2rem;
+	border-left: 4px solid ${({ theme }) => theme.colors.primary};
 `;
 
 const ComparisonGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
-  margin: 2rem 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+	gap: 1.5rem;
+	margin: 2rem 0;
 `;
 
 const ComparisonCard = styled(Card)<{ $type: 'par' | 'rar' }>`
-  border-left: 4px solid ${({ $type, theme }) => ($type === 'par' ? '#059669' : '#3b82f6')};
+	border-left: 4px solid ${({ $type, theme }) => ($type === 'par' ? '#059669' : '#3b82f6')};
 `;
 
 const CodeBlock = styled.pre`
-  background-color: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  overflow-x: auto;
-  margin: 1rem 0;
-  position: relative;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+	background-color: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	overflow-x: auto;
+	margin: 1rem 0;
+	position: relative;
+	white-space: pre-wrap;
+	word-wrap: break-word;
 `;
 
 const CodeBlockHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CopyButton = styled.button`
-  background: #f3f4f6;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: all 0.2s;
+	background: #f3f4f6;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	font-size: 0.75rem;
+	cursor: pointer;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	transition: all 0.2s;
 
-  &:hover {
-    background: V9_COLORS.TEXT.GRAY_LIGHTER;
-  }
+	&:hover {
+		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	}
 `;
 
 const InfoBox = styled.div`
-  background-color: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+	background-color: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin: 1rem 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
 `;
 
 const InfoIcon = styled.div`
-  color: V9_COLORS.PRIMARY.BLUE;
-  font-size: 1.25rem;
-  flex-shrink: 0;
-  margin-top: 0.125rem;
+	color: V9_COLORS.PRIMARY.BLUE;
+	font-size: 1.25rem;
+	flex-shrink: 0;
+	margin-top: 0.125rem;
 `;
 
 const InfoContent = styled.div`
-  flex: 1;
+	flex: 1;
 
-  h4 {
-    font-weight: 600;
-    color: V9_COLORS.PRIMARY.BLUE_DARK;
-    margin-bottom: 0.5rem;
-  }
+	h4 {
+		font-weight: 600;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
+		margin-bottom: 0.5rem;
+	}
 
-  p {
-    color: #1e3a8a;
-    margin: 0;
-  }
+	p {
+		color: #1e3a8a;
+		margin: 0;
+	}
 `;
 
 const WarningBox = styled(InfoBox)`
-  background-color: V9_COLORS.BG.WARNING;
-  border-color: #fcd34d;
+	background-color: V9_COLORS.BG.WARNING;
+	border-color: #fcd34d;
 
-  ${InfoIcon} {
-    color: V9_COLORS.PRIMARY.YELLOW;
-  }
+	${InfoIcon} {
+		color: V9_COLORS.PRIMARY.YELLOW;
+	}
 
-  h4 {
-    color: V9_COLORS.PRIMARY.YELLOW_DARK;
-  }
+	h4 {
+		color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	}
 
-  p {
-    color: #78350f;
-  }
+	p {
+		color: #78350f;
+	}
 `;
 
 const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1.5rem 0;
-  background: white;
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1.5rem 0;
+	background: white;
 
-  th, td {
-    padding: 0.75rem;
-    text-align: left;
-    border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  }
+	th,
+	td {
+		padding: 0.75rem;
+		text-align: left;
+		border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	}
 
-  th {
-    background-color: #f9fafb;
-    font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	th {
+		background-color: #f9fafb;
+		font-weight: 600;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 
-  td {
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	td {
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 
-  tr:nth-child(even) {
-    background-color: #f9fafb;
-  }
+	tr:nth-child(even) {
+		background-color: #f9fafb;
+	}
 `;
 
 const ExampleSection = styled.div`
-  margin: 2rem 0;
+	margin: 2rem 0;
 `;
 
 const ExampleTitle = styled.h3`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const FlowStep = styled.div`
-  margin: 1.5rem 0;
-  padding: 1rem;
-  background: #f9fafb;
-  border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
-  border-radius: 0.25rem;
+	margin: 1.5rem 0;
+	padding: 1rem;
+	background: #f9fafb;
+	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
+	border-radius: 0.25rem;
 `;
 
 const FlowStepNumber = styled.span`
-  display: inline-block;
-  background: V9_COLORS.PRIMARY.BLUE;
-  color: white;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  text-align: center;
-  line-height: 1.5rem;
-  font-weight: 600;
-  font-size: 0.875rem;
-  margin-right: 0.5rem;
+	display: inline-block;
+	background: V9_COLORS.PRIMARY.BLUE;
+	color: white;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 1.5rem;
+	font-weight: 600;
+	font-size: 0.875rem;
+	margin-right: 0.5rem;
 `;
 
 const FlowStepTitle = styled.h4`
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const FlowStepDescription = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin: 0;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin: 0;
 `;
 
 const PARvsRAR: React.FC = () => {
@@ -309,7 +310,7 @@ const PARvsRAR: React.FC = () => {
 
 						<ExampleSection>
 							<ExampleTitle>
-								<span>❓</span>
+								<i className="bi bi-question-circle"></i>
 								PAR Flow Example
 							</ExampleTitle>
 
@@ -421,7 +422,7 @@ nonce=random_nonce_string`}</CodeBlock>
 
 						<ExampleSection>
 							<ExampleTitle>
-								<span>❓</span>
+								<i className="bi bi-question-circle"></i>
 								JavaScript PAR Implementation
 							</ExampleTitle>
 							<CodeBlockHeader>
@@ -626,7 +627,7 @@ pushAuthorizationRequest(config)
 
 						<ExampleSection>
 							<ExampleTitle>
-								<span>❓</span>
+								<i className="bi bi-question-circle"></i>
 								RAR Authorization Details Example
 							</ExampleTitle>
 
@@ -736,7 +737,7 @@ pushAuthorizationRequest(config)
 
 						<ExampleSection>
 							<ExampleTitle>
-								<span>❓</span>
+								<i className="bi bi-question-circle"></i>
 								JavaScript RAR Implementation
 							</ExampleTitle>
 							<CodeBlockHeader>
@@ -862,7 +863,7 @@ logger.info('RAR Authorization URL:', authUrl);`}</CodeBlock>
 
 						<ExampleSection>
 							<ExampleTitle>
-								<span>❓</span>
+								<i className="bi bi-question-circle"></i>
 								RAR Use Cases
 							</ExampleTitle>
 							<ComparisonGrid>
@@ -1153,7 +1154,7 @@ code_challenge_method=S256`}</CodeBlock>
 
 						<ExampleSection>
 							<ExampleTitle>
-								<span>❓</span>
+								<i className="bi bi-question-circle"></i>
 								Complete PAR + RAR JavaScript Implementation
 							</ExampleTitle>
 							<CodeBlockHeader>
@@ -1469,7 +1470,7 @@ pushPARWithRAR(config, rarDetails)
 
 						<ExampleSection>
 							<ExampleTitle>
-								<span>❓</span>
+								<i className="bi bi-question-circle"></i>
 								JWT-Based Client Authentication Example
 							</ExampleTitle>
 							<FlowStep>
@@ -1599,7 +1600,7 @@ client_assertion=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImNsaWVudC1rZXktaWQ
 
 						<ExampleSection>
 							<ExampleTitle>
-								<span>❓</span>
+								<i className="bi bi-question-circle"></i>
 								DPoP Proof Creation Example
 							</ExampleTitle>
 							<FlowStep>
@@ -1779,7 +1780,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`}</
 
 						<ExampleSection>
 							<ExampleTitle>
-								<span>❓</span>
+								<i className="bi bi-question-circle"></i>
 								Complete Example: PAR + RAR + JWT Auth + DPoP
 							</ExampleTitle>
 							<CodeBlockHeader>

@@ -109,7 +109,7 @@ export const LoadingSpinnerModalV8U: React.FC<LoadingSpinnerModalV8UProps> = ({
 		<>
 			<Backdrop />
 			<Modal $theme={theme}>
-				{icon || <span>❓</span>}
+				{icon || <i className="bi bi-question-circle"></i>}
 				{message}
 			</Modal>
 		</>
