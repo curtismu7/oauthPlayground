@@ -370,8 +370,7 @@ class UnifiedWorkerTokenService {
 					logger.warn(
 						'UnifiedWorkerTokenService',
 						`${MODULE_TAG} Failed to sync environmentId to dual store`,
-						undefined,
-						error as Error
+						{ error: error as Error }
 					);
 				});
 		}
@@ -496,8 +495,7 @@ class UnifiedWorkerTokenService {
 					logger.warn(
 						'UnifiedWorkerTokenService',
 						`${MODULE_TAG} ⚠️ Failed to restore to localStorage`,
-						undefined,
-						error as Error
+						{ error: error as Error }
 					);
 				}
 				return data.credentials;
@@ -530,7 +528,7 @@ class UnifiedWorkerTokenService {
 					const data: UnifiedWorkerTokenData = {
 						token: workerToken.value,
 						credentials,
-						expiresAt: workerToken.expiresAt !== null ? workerToken.expiresAt : undefined,
+						...(workerToken.expiresAt != null && { expiresAt: workerToken.expiresAt }),
 						savedAt: workerToken.issuedAt,
 					};
 
@@ -585,8 +583,7 @@ class UnifiedWorkerTokenService {
 						logger.warn(
 							'UnifiedWorkerTokenService',
 							`${MODULE_TAG} ⚠️ Failed to restore to localStorage`,
-							undefined,
-							error as Error
+							{ error: error as Error }
 						);
 					}
 
@@ -728,8 +725,7 @@ class UnifiedWorkerTokenService {
 				logger.warn(
 					'UnifiedWorkerTokenService',
 					`${MODULE_TAG} ⚠️ Failed to migrate from legacy key ${key}:`,
-					undefined,
-					error as Error
+					{ error: error as Error }
 				);
 			}
 		}
@@ -748,10 +744,11 @@ class UnifiedWorkerTokenService {
 		expiresAt?: number,
 		tokenMetadata?: Partial<UnifiedWorkerTokenData>
 	): Promise<void> {
-		const credentials = await this.loadCredentials();
-		if (!credentials) {
+		const credResult = await this.loadCredentials();
+		if (!credResult.success || !credResult.data) {
 			throw new Error('No worker token credentials found. Please save credentials first.');
 		}
+		const credentials = credResult.data;
 
 		const data: UnifiedWorkerTokenData = {
 			token,
@@ -831,8 +828,7 @@ class UnifiedWorkerTokenService {
 			logger.warn(
 				'UnifiedWorkerTokenService',
 				`${MODULE_TAG} Failed to update last used time`,
-				undefined,
-				error as Error
+				{ error: error as Error }
 			);
 		}
 
@@ -843,7 +839,8 @@ class UnifiedWorkerTokenService {
 	 * Get worker token status
 	 */
 	async getStatus(): Promise<UnifiedWorkerTokenStatus> {
-		const credentials = await this.loadCredentials();
+		const credResult = await this.loadCredentials();
+		const credentials = credResult.success ? credResult.data : undefined;
 		const data = this.memoryCache || (await this.loadDataFromStorage());
 
 		const status: UnifiedWorkerTokenStatus = {
@@ -1005,10 +1002,11 @@ class UnifiedWorkerTokenService {
 	 * Clear only the access token (keep credentials)
 	 */
 	async clearToken(): Promise<void> {
-		const credentials = await this.loadCredentials();
-		if (!credentials) {
+		const credResult = await this.loadCredentials();
+		if (!credResult.success || !credResult.data) {
 			return;
 		}
+		const credentials = credResult.data;
 
 		const data: UnifiedWorkerTokenData = {
 			token: '',
@@ -1131,8 +1129,12 @@ class UnifiedWorkerTokenService {
 	 * Get key rotation policy status for the current worker token application
 	 */
 	async getKeyRotationStatus(): Promise<ApplicationKeyRotationStatus | null> {
-		const credentials = await this.loadCredentials();
-		if (!credentials || !credentials.environmentId || !credentials.clientId) {
+		const credResult = await this.loadCredentials();
+		if (!credResult.success || !credResult.data) {
+			return null;
+		}
+		const credentials = credResult.data;
+		if (!credentials.environmentId || !credentials.clientId) {
 			return null;
 		}
 
@@ -1202,8 +1204,12 @@ class UnifiedWorkerTokenService {
 	 * Get available key rotation policies for the environment
 	 */
 	async getKeyRotationPolicies(): Promise<KeyRotationPolicy[]> {
-		const credentials = await this.loadCredentials();
-		if (!credentials || !credentials.environmentId) {
+		const credResult = await this.loadCredentials();
+		if (!credResult.success || !credResult.data) {
+			return [];
+		}
+		const credentials = credResult.data;
+		if (!credentials.environmentId) {
 			return [];
 		}
 
@@ -1241,8 +1247,12 @@ class UnifiedWorkerTokenService {
 	 * Update application to use a specific key rotation policy
 	 */
 	async updateKeyRotationPolicy(policyId: string): Promise<boolean> {
-		const credentials = await this.loadCredentials();
-		if (!credentials || !credentials.environmentId || !credentials.clientId) {
+		const credResult = await this.loadCredentials();
+		if (!credResult.success || !credResult.data) {
+			return false;
+		}
+		const credentials = credResult.data;
+		if (!credentials.environmentId || !credentials.clientId) {
 			return false;
 		}
 
