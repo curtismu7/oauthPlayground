@@ -1,7 +1,7 @@
 // src/v8/components/NicknamePromptModalV8.tsx
 // Modal for prompting user to set device nickname after pairing
 
-import { FiCheck } from '@icons';
+import { FiCheck } from '../../icons';
 import React, { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 
@@ -77,7 +77,9 @@ const CloseButton = styled.button`
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	transition: background 0.2s ease, color 0.2s ease;
+	transition:
+		background 0.2s ease,
+		color 0.2s ease;
 
 	&:hover {
 		background: rgba(148, 163, 184, 0.15);
@@ -99,7 +101,10 @@ const PrimaryButton = styled.button`
 	font-weight: 600;
 	font-size: 0.95rem;
 	cursor: pointer;
-	transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+	transition:
+		background 0.2s ease,
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
 
 	&:hover:not(:disabled) {
 		background: #2563eb;
@@ -131,7 +136,9 @@ const SecondaryButton = styled.button`
 	font-weight: 600;
 	font-size: 0.95rem;
 	cursor: pointer;
-	transition: background 0.2s ease, color 0.2s ease;
+	transition:
+		background 0.2s ease,
+		color 0.2s ease;
 
 	&:hover:not(:disabled) {
 		background: #f3f4f6;
@@ -156,7 +163,9 @@ const Input = styled.input`
 	border-radius: 0.5rem;
 	font-size: 0.95rem;
 	margin-top: 0.75rem;
-	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
 
 	&:focus {
 		outline: none;

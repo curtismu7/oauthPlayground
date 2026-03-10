@@ -2,7 +2,7 @@
 // lint-file-disable: token-value-in-jsx
 // Educational modal showing worker token API request details
 
-import { FiRefreshCw } from '@icons';
+import { FiRefreshCw } from '../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNotifications } from '../hooks/useNotifications';
@@ -45,20 +45,32 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	animation: ${({ $isOpen }) => ($isOpen ? 'fadeIn 0.3s ease-out' : 'fadeOut 0.2s ease-in')};
 
 	@keyframes fadeIn {
-		from { opacity: 0; transform: scale(0.95); }
-		to { opacity: 1; transform: scale(1); }
+		from {
+			opacity: 0;
+			transform: scale(0.95);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
 	}
 
 	@keyframes fadeOut {
-		from { opacity: 1; transform: scale(1); }
-		to { opacity: 0; transform: scale(0.95); }
+		from {
+			opacity: 1;
+			transform: scale(1);
+		}
+		to {
+			opacity: 0;
+			transform: scale(0.95);
+		}
 	}
 `;
 
 const ModalContainer = styled.div`
 	background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
 	border-radius: 0.75rem;
-	box-shadow: 
+	box-shadow:
 		0 25px 50px -12px rgba(0, 0, 0, 0.25),
 		0 0 0 1px rgba(255, 255, 255, 0.05);
 	max-width: 700px;
@@ -88,7 +100,11 @@ const HeaderIcon = styled.div`
 	width: 2.5rem;
 	height: 2.5rem;
 	border-radius: 50%;
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%);
+	background: linear-gradient(
+		135deg,
+		V9_COLORS.PRIMARY.YELLOW 0%,
+		V9_COLORS.PRIMARY.YELLOW_DARK 100%
+	);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -212,7 +228,7 @@ const ParameterValue = styled.div`
 	max-width: 100%;
 	white-space: nowrap;
 	position: relative;
-  
+
 	pre {
 		margin: 0;
 		white-space: pre-wrap;
@@ -262,7 +278,7 @@ const FormInput = styled.input`
 	font-size: 0.875rem;
 	transition: border-color 0.2s;
 	background-color: V9_COLORS.TEXT.WHITE;
-  
+
 	&:focus {
 		outline: none;
 		border-color: V9_COLORS.PRIMARY.BLUE;

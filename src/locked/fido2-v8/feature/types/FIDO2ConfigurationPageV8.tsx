@@ -11,7 +11,7 @@
  * - Configuration before device registration
  */
 
-import { FiInfo } from '@icons';
+import { FiInfo } from '../../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { logger } from '../../../../utils/logger';
@@ -334,7 +334,10 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				}
 			} else {
 				// No policies found - this is not an error, just empty result
-				logger.info(`${MODULE_TAG} No FIDO2 policies found in environment ${environmentId}`, "Logger info");
+				logger.info(
+					`${MODULE_TAG} No FIDO2 policies found in environment ${environmentId}`,
+					'Logger info'
+				);
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
@@ -508,9 +511,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							onClick={async () => {
 								// Pass current checkbox values to override config (page checkboxes take precedence)
 								// forceShowModal=true because user explicitly clicked the button - always show modal
-								const { handleShowWorkerTokenModal } = await import(
-									'@/v8/utils/workerTokenModalHelperV8'
-								);
+								const { handleShowWorkerTokenModal } =
+									await import('@/v8/utils/workerTokenModalHelperV8');
 								await handleShowWorkerTokenModal(
 									setShowWorkerTokenModal,
 									setTokenStatus,
@@ -580,9 +582,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 												logger.info(
 													'[FIDO2-CONFIG-V8] Silent API retrieval enabled, attempting to fetch token now...'
 												);
-												const { handleShowWorkerTokenModal } = await import(
-													'@/v8/utils/workerTokenModalHelperV8'
-												);
+												const { handleShowWorkerTokenModal } =
+													await import('@/v8/utils/workerTokenModalHelperV8');
 												await handleShowWorkerTokenModal(
 													setShowWorkerTokenModal,
 													setTokenStatus,

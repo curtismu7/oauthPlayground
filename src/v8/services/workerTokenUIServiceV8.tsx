@@ -13,7 +13,7 @@
  * - Event system for configuration updates
  */
 
-import { FiLoader, FiTrash2 } from '@icons';
+import { FiLoader, FiTrash2 } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -70,12 +70,12 @@ const ClearTokensButton = styled.button<{
 	border-radius: 6px;
 	background: #ffffff;
 	color: #dc2626;
-	fontSize: 14px;
-	fontWeight: 500;
+	fontsize: 14px;
+	fontweight: 500;
 	cursor: pointer;
-	whiteSpace: nowrap;
+	whitespace: nowrap;
 	display: flex;
-	alignItems: center;
+	alignitems: center;
 	gap: 6px;
 	opacity: ${(props) => (props.$tokenStatus?.isValid ? 1 : 0.5)};
 	transition: all 0.2s ease;
@@ -108,12 +108,12 @@ const GetWorkerTokenButton = styled.button<{
 		return '#dc2626';
 	}};
 	color: ${(props) => (props.$variant === 'secondary' ? '#374151' : 'white')};
-	fontSize: 14px;
-	fontWeight: 500;
+	fontsize: 14px;
+	fontweight: 500;
 	cursor: ${(props) => (props.$isLoading ? 'not-allowed' : 'pointer')};
-	whiteSpace: nowrap;
+	whitespace: nowrap;
 	display: flex;
-	alignItems: center;
+	alignitems: center;
 	gap: 8px;
 	opacity: ${(props) => (props.$isLoading ? 0.7 : 1)};
 	transition: all 0.2s ease;
@@ -140,9 +140,9 @@ const SettingLabel = styled.label`
 	align-items: center;
 	gap: 12px;
 	cursor: pointer;
-	userSelect: none;
+	userselect: none;
 	padding: 8px;
-	borderRadius: 6px;
+	borderradius: 6px;
 	transition: background-color 0.2s ease;
 
 	&:hover {
@@ -154,8 +154,8 @@ const SettingCheckbox = styled.input`
 	width: 20px;
 	height: 20px;
 	cursor: pointer;
-	accentColor: #6366f1;
-	flexShrink: 0;
+	accentcolor: #6366f1;
+	flexshrink: 0;
 `;
 
 const SettingContent = styled.div`
@@ -165,13 +165,13 @@ const SettingContent = styled.div`
 `;
 
 const SettingTitle = styled.span`
-	fontSize: 14px;
+	fontsize: 14px;
 	color: #374151;
-	fontWeight: 500;
+	fontweight: 500;
 `;
 
 const SettingDescription = styled.span`
-	fontSize: 12px;
+	fontsize: 12px;
 	color: #6b7280;
 `;
 

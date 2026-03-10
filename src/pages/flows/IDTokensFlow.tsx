@@ -14,291 +14,171 @@ import { logger } from '../../utils/logger';
 import { getOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 const FlowOverview = styled.div`
-  background-color: #f0f8ff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-  margin-bottom: 2rem;
+	background-color: #f0f8ff;
+	border-radius: 0.5rem;
+	box-shadow:
+		0 1px 3px 0 rgba(0, 0, 0, 0.1),
+		0 1px 2px 0 rgba(0, 0, 0, 0.06);
+	overflow: hidden;
+	margin-bottom: 2rem;
 `;
 
 const FlowDescription = styled.div`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 
-  h2 {
-    color: ${({ theme }) => theme.colors.gray900};
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
+	h2 {
+		color: ${({ theme }) => theme.colors.gray900};
+		font-size: 1.5rem;
+		margin-bottom: 1rem;
+	}
 
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    line-height: 1.6;
-    margin-bottom: 1rem;
-  }
+	p {
+		color: ${({ theme }) => theme.colors.gray600};
+		line-height: 1.6;
+		margin-bottom: 1rem;
+	}
 `;
 
 const SecurityHighlight = styled.div`
-  background-color: ${({ theme }) => theme.colors.success}10;
-  border: 1px solid ${({ theme }) => theme.colors.success}30;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+	background-color: ${({ theme }) => theme.colors.success}10;
+	border: 1px solid ${({ theme }) => theme.colors.success}30;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
 
-  svg {
-    color: ${({ theme }) => theme.colors.success};
-    flex-shrink: 0;
-    margin-top: 0.1rem;
-  }
+	svg {
+		color: ${({ theme }) => theme.colors.success};
+		flex-shrink: 0;
+		margin-top: 0.1rem;
+	}
 
-  h3 {
-    color: ${({ theme }) => theme.colors.success};
-    margin: 0 0 0.5rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-  }
+	h3 {
+		color: ${({ theme }) => theme.colors.success};
+		margin: 0 0 0.5rem 0;
+		font-size: 1rem;
+		font-weight: 600;
+	}
 
-  p {
-    margin: 0;
-    color: ${({ theme }) => theme.colors.success};
-    font-size: 0.9rem;
-  }
+	p {
+		margin: 0;
+		color: ${({ theme }) => theme.colors.success};
+		font-size: 0.9rem;
+	}
 `;
 
 const DemoSection = styled.div`
-  background-color: #f0f8ff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-`;
-
-const _DemoButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &.primary {
-    background-color: ${({ theme }) => theme.colors.primary};
-    color: white;
-    border: 1px solid transparent;
-
-    &:hover {
-      background-color: ${({ theme }) => theme.colors.primaryDark};
-    }
-  }
-
-  &.secondary {
-    background-color: transparent;
-    color: ${({ theme }) => theme.colors.primary};
-    border: 1px solid ${({ theme }) => theme.colors.primary};
-
-    &:hover {
-      background-color: ${({ theme }) => theme.colors.primary}10;
-    }
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  svg {
-    width: 18px;
-    height: 18px;
-  }
-`;
-
-const _StatusIndicator = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-
-  &.idle {
-    background-color: ${({ theme }) => theme.colors.gray100};
-    color: ${({ theme }) => theme.colors.gray700};
-  }
-
-  &.loading {
-    background-color: ${({ theme }) => theme.colors.info}20;
-    color: ${({ theme }) => theme.colors.info};
-  }
-
-  &.success {
-    background-color: ${({ theme }) => theme.colors.success}20;
-    color: ${({ theme }) => theme.colors.success};
-  }
-
-  &.error {
-    background-color: ${({ theme }) => theme.colors.danger}20;
-    color: ${({ theme }) => theme.colors.danger};
-  }
-`;
-
-const _CodeBlock = styled.pre`
-  background-color: ${({ theme }) => theme.colors.gray900};
-  color: ${({ theme }) => theme.colors.gray100};
-  padding: 1rem;
-  border-radius: 0.375rem;
-  overflow-x: auto;
-  font-size: 0.875rem;
-  margin: 1rem 0;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  border: 1px solid ${({ theme }) => theme.colors.gray800};
-  white-space: pre-wrap;
+	background-color: #f0f8ff;
+	border-radius: 0.5rem;
+	box-shadow:
+		0 1px 3px 0 rgba(0, 0, 0, 0.1),
+		0 1px 2px 0 rgba(0, 0, 0, 0.06);
+	padding: 1.5rem;
+	margin-bottom: 2rem;
 `;
 
 const IDTokenDisplay = styled.div`
-  background-color: ${({ theme }) => theme.colors.warning}10;
-  border: 1px solid ${({ theme }) => theme.colors.warning}30;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
+	background-color: ${({ theme }) => theme.colors.warning}10;
+	border: 1px solid ${({ theme }) => theme.colors.warning}30;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	margin: 1rem 0;
 
-  h4 {
-    margin: 0 0 0.5rem 0;
-    color: ${({ theme }) => theme.colors.warning};
-    font-size: 1rem;
-    font-weight: 600;
-  }
+	h4 {
+		margin: 0 0 0.5rem 0;
+		color: ${({ theme }) => theme.colors.warning};
+		font-size: 1rem;
+		font-weight: 600;
+	}
 
-  .id-token {
-    background-color: white;
-    border: 1px solid ${({ theme }) => theme.colors.gray200};
-    border-radius: 0.25rem;
-    padding: 1rem;
-    font-family: monospace;
-    font-size: 0.8rem;
-    color: ${({ theme }) => theme.colors.gray800};
-    word-break: break-all;
-    margin-bottom: 1rem;
-  }
+	.id-token {
+		background-color: white;
+		border: 1px solid ${({ theme }) => theme.colors.gray200};
+		border-radius: 0.25rem;
+		padding: 1rem;
+		font-family: monospace;
+		font-size: 0.8rem;
+		color: ${({ theme }) => theme.colors.gray800};
+		word-break: break-all;
+		margin-bottom: 1rem;
+	}
 
-  .token-parts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-  }
+	.token-parts {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 1rem;
+		margin-top: 1rem;
+	}
 
-  .token-section {
-    background-color: white;
-    border: 1px solid ${({ theme }) => theme.colors.gray200};
-    border-radius: 0.25rem;
-    padding: 0.75rem;
+	.token-section {
+		background-color: white;
+		border: 1px solid ${({ theme }) => theme.colors.gray200};
+		border-radius: 0.25rem;
+		padding: 0.75rem;
 
-    h5 {
-      margin: 0 0 0.5rem 0;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: ${({ theme }) => theme.colors.gray900};
-    }
+		h5 {
+			margin: 0 0 0.5rem 0;
+			font-size: 0.9rem;
+			font-weight: 600;
+			color: ${({ theme }) => theme.colors.gray900};
+		}
 
-    .claims {
-      font-family: monospace;
-      font-size: 0.75rem;
-      color: ${({ theme }) => theme.colors.gray700};
-      line-height: 1.4;
-    }
-  }
+		.claims {
+			font-family: monospace;
+			font-size: 0.75rem;
+			color: ${({ theme }) => theme.colors.gray700};
+			line-height: 1.4;
+		}
+	}
 `;
 
 const ValidationResults = styled.div`
-  background-color: ${({ theme }) => theme.colors.success}10;
-  border: 1px solid ${({ theme }) => theme.colors.success}30;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
+	background-color: ${({ theme }) => theme.colors.success}10;
+	border: 1px solid ${({ theme }) => theme.colors.success}30;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	margin: 1rem 0;
 
-  h4 {
-    margin: 0 0 0.5rem 0;
-    color: ${({ theme }) => theme.colors.success};
-    font-size: 1rem;
-    font-weight: 600;
-  }
+	h4 {
+		margin: 0 0 0.5rem 0;
+		color: ${({ theme }) => theme.colors.success};
+		font-size: 1rem;
+		font-weight: 600;
+	}
 
-  .validation-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
+	.validation-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
+		font-size: 0.9rem;
 
-    &.valid {
-      color: ${({ theme }) => theme.colors.success};
-    }
+		&.valid {
+			color: ${({ theme }) => theme.colors.success};
+		}
 
-    &.invalid {
-      color: ${({ theme }) => theme.colors.danger};
-    }
-  }
+		&.invalid {
+			color: ${({ theme }) => theme.colors.danger};
+		}
+	}
 `;
 
 const ErrorMessage = styled.div`
-  background-color: ${({ theme }) => theme.colors.danger}10;
-  border: 1px solid ${({ theme }) => theme.colors.danger}30;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: ${({ theme }) => theme.colors.danger};
-  font-size: 0.9rem;
-`;
-
-const _ResponseBox = styled.div<{
-	$backgroundColor?: string;
-	$borderColor?: string;
-}>`
-  margin: 1rem 0;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid ${({ $borderColor }) => $borderColor || '#e5e7eb'};
-  background-color: ${({ $backgroundColor }) => $backgroundColor || '#f8fafc'};
-  font-family: monospace;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  white-space: pre-wrap;
-  word-break: break-all;
-  overflow: visible;
-  max-width: 100%;
-
-  h4 {
-    margin: 0 0 0.5rem 0;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
-
-  pre {
-    margin: 0;
-    background: none;
-    padding: 0;
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
-    white-space: pre-wrap;
-    word-break: break-all;
-    overflow: visible;
-    color: V9_COLORS.TEXT.GRAY_DARK !important;
-  }
+	background-color: ${({ theme }) => theme.colors.danger}10;
+	border: 1px solid ${({ theme }) => theme.colors.danger}30;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	margin: 1rem 0;
+	color: ${({ theme }) => theme.colors.danger};
+	font-size: 0.9rem;
 `;
 
 // JWT parsing utility
@@ -310,7 +190,7 @@ const parseJwt = (token: string) => {
 			atob(base64)
 				.split('')
 				.map((c) => {
-					return `%${(`00${c.charCodeAt(0).toString(16)}`).slice(-2)}`;
+					return `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`;
 				})
 				.join('')
 		);
@@ -339,7 +219,7 @@ const IDTokensFlow = () => {
 				{ clientId: app.clientId, environmentId: config?.environmentId || '' },
 				{ environmentId: config?.environmentId || '' }
 			);
-			logger.info(`IDTokensFlow: Selected app: ${app.name}`, "Logger info");
+			logger.info(`IDTokensFlow: Selected app: ${app.name}`, 'Logger info');
 		},
 		[config?.environmentId]
 	);
@@ -394,7 +274,7 @@ const IDTokensFlow = () => {
 					}
 				}
 
-				logger.info(' [IDTokensFlow] No ID token found in storage', "Logger info");
+				logger.info(' [IDTokensFlow] No ID token found in storage', 'Logger info');
 			} catch {
 				// Silently ignore storage read errors
 			}

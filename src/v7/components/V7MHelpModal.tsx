@@ -41,13 +41,7 @@ export const V7MHelpModal: React.FC<Props> = ({
 							{title}
 						</h2>
 					</div>
-					<button
-						type="button"
-						type="button"
-						onClick={onClose}
-						aria-label="Close"
-						style={closeBtnStyle}
-					>
+					<button type="button" onClick={onClose} aria-label="Close" style={closeBtnStyle}>
 						×
 					</button>
 				</div>

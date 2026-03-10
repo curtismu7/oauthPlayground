@@ -1,6 +1,6 @@
 // Device polling component for OIDC Device Code flow
 
-import { FiLoader } from '@icons';
+import { FiLoader } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DeviceCodeTokens } from '../../types/deviceCode';
@@ -19,29 +19,29 @@ interface DevicePollingProps {
 }
 
 const PollingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	padding: 2rem;
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 `;
 
 const Header = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 `;
 
 const StatusIcon = styled.div<{ status: 'polling' | 'success' | 'error' | 'expired' }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: ${(props) => {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: ${(props) => {
 		switch (props.status) {
 			case 'success':
 				return '#ecfdf5';
@@ -53,7 +53,7 @@ const StatusIcon = styled.div<{ status: 'polling' | 'success' | 'error' | 'expir
 				return '#f8fafc';
 		}
 	}};
-  color: ${(props) => {
+	color: ${(props) => {
 		switch (props.status) {
 			case 'success':
 				return '#059669';
@@ -68,114 +68,114 @@ const StatusIcon = styled.div<{ status: 'polling' | 'success' | 'error' | 'expir
 `;
 
 const StatusContent = styled.div`
-  flex: 1;
+	flex: 1;
 `;
 
 const StatusTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0 0 0.5rem 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0 0 0.5rem 0;
 `;
 
 const StatusDescription = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 0.875rem;
-  margin: 0;
-  line-height: 1.4;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.875rem;
+	margin: 0;
+	line-height: 1.4;
 `;
 
 const ProgressSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
 `;
 
 const ProgressBar = styled.div`
-  width: 100%;
-  height: 8px;
-  background: V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 4px;
-  overflow: hidden;
+	width: 100%;
+	height: 8px;
+	background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 4px;
+	overflow: hidden;
 `;
 
 const ProgressFill = styled.div<{ progress: number }>`
-  height: 100%;
-  background: V9_COLORS.PRIMARY.BLUE;
-  border-radius: 4px;
-  transition: width 0.3s ease;
-  width: ${(props) => props.progress}%;
+	height: 100%;
+	background: V9_COLORS.PRIMARY.BLUE;
+	border-radius: 4px;
+	transition: width 0.3s ease;
+	width: ${(props) => props.progress}%;
 `;
 
 const ProgressInfo = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const PollingDetails = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	padding: 1rem;
+	background: #f9fafb;
+	border-radius: 8px;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DetailRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.875rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 0.875rem;
 `;
 
 const DetailLabel = styled.span`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const DetailValue = styled.span`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-weight: 500;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-weight: 500;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 `;
 
 const ErrorMessage = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: V9_COLORS.BG.ERROR;
-  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-  border-radius: 8px;
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 1rem;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	border-radius: 8px;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	font-size: 0.875rem;
 `;
 
 const SuccessMessage = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: V9_COLORS.BG.SUCCESS;
-  border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
-  border-radius: 8px;
-  color: V9_COLORS.PRIMARY.GREEN_DARK;
-  font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 1rem;
+	background: V9_COLORS.BG.SUCCESS;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
+	border-radius: 8px;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
+	font-size: 0.875rem;
 `;
 
 const ExpiredMessage = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: V9_COLORS.BG.WARNING;
-  border: 1px solid V9_COLORS.BG.WARNING_BORDER;
-  border-radius: 8px;
-  color: V9_COLORS.PRIMARY.YELLOW_DARK;
-  font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 1rem;
+	background: V9_COLORS.BG.WARNING;
+	border: 1px solid V9_COLORS.BG.WARNING_BORDER;
+	border-radius: 8px;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	font-size: 0.875rem;
 `;
 
 const DevicePolling: React.FC<DevicePollingProps> = ({

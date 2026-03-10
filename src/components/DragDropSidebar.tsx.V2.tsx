@@ -12,7 +12,7 @@
  * ========================================================================
  */
 
-import { FiChevronDown } from '@icons';
+import { FiChevronDown } from '../icons';
 // Import only what's needed for this demo
 import React, { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -210,7 +210,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						};
 						countItems(filteredMenuGroups);
 						return count;
-					})()} results for "{searchQuery}"
+					})()}{' '}
+					results for "{searchQuery}"
 				</div>
 			)}
 

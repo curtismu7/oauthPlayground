@@ -9,7 +9,7 @@
  * showing progress and educational content about risk-based authentication.
  */
 
-import { FiShield } from '@icons';
+import { FiShield } from '../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
@@ -29,62 +29,62 @@ import type {
 // ============================================================================
 
 const EvaluationContainer = styled.div`
-  width: 100%;
-  max-width: 600px;
-  text-align: center;
+	width: 100%;
+	max-width: 600px;
+	text-align: center;
 `;
 
 const EvaluationTitle = styled.h2`
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0 0 1rem 0;
+	font-size: 1.875rem;
+	font-weight: 700;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0 0 1rem 0;
 `;
 
 const EvaluationDescription = styled.p`
-  font-size: 1rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin: 0 0 2rem 0;
-  line-height: 1.6;
+	font-size: 1rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin: 0 0 2rem 0;
+	line-height: 1.6;
 `;
 
 const ProgressContainer = styled.div`
-  background: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 1rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
+	background: #f9fafb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 1rem;
+	padding: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const ProgressHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	margin-bottom: 1.5rem;
 `;
 
 const ProgressTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0;
 `;
 
 const ProgressSteps = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
 `;
 
 const ProgressStep = styled.div<{ status: 'pending' | 'active' | 'complete' | 'error' }>`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  background: ${(props) => {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.75rem;
+	border-radius: 0.5rem;
+	background: ${(props) => {
 		switch (props.status) {
 			case 'active':
 				return '#f8fafc';
@@ -96,30 +96,31 @@ const ProgressStep = styled.div<{ status: 'pending' | 'active' | 'complete' | 'e
 				return 'transparent';
 		}
 	}};
-  border: 1px solid ${(props) => {
-		switch (props.status) {
-			case 'active':
-				return '#e5e7eb';
-			case 'complete':
-				return '#10b981';
-			case 'error':
-				return '#ef4444';
-			default:
-				return '#e5e7eb';
-		}
-	}};
+	border: 1px solid
+		${(props) => {
+			switch (props.status) {
+				case 'active':
+					return '#e5e7eb';
+				case 'complete':
+					return '#10b981';
+				case 'error':
+					return '#ef4444';
+				default:
+					return '#e5e7eb';
+			}
+		}};
 `;
 
 const StepIcon = styled.div<{ status: 'pending' | 'active' | 'complete' | 'error' }>`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  color: white;
-  background: ${(props) => {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1rem;
+	color: white;
+	background: ${(props) => {
 		switch (props.status) {
 			case 'active':
 				return '#3b82f6';
@@ -134,34 +135,38 @@ const StepIcon = styled.div<{ status: 'pending' | 'active' | 'complete' | 'error
 `;
 
 const StepContent = styled.div`
-  flex: 1;
-  text-align: left;
+	flex: 1;
+	text-align: left;
 `;
 
 const StepTitle = styled.div`
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.25rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.25rem;
 `;
 
 const StepDescription = styled.div`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const LoadingSpinner = styled.span`
-  animation: spin 1s linear infinite;
-  font-size: 1.5rem;
-  color: V9_COLORS.PRIMARY.BLUE;
+	animation: spin 1s linear infinite;
+	font-size: 1.5rem;
+	color: V9_COLORS.PRIMARY.BLUE;
 
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
 const ResultContainer = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
-  background: ${(props) => {
+	background: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
 				return '#f0fdf4';
@@ -171,28 +176,29 @@ const ResultContainer = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
 				return '#fef2f2';
 		}
 	}};
-  border: 2px solid ${(props) => {
-		switch (props.riskLevel) {
-			case 'LOW':
-				return '#10b981';
-			case 'MEDIUM':
-				return '#f59e0b';
-			case 'HIGH':
-				return '#ef4444';
-		}
-	}};
-  border-radius: 1rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
+	border: 2px solid
+		${(props) => {
+			switch (props.riskLevel) {
+				case 'LOW':
+					return '#10b981';
+				case 'MEDIUM':
+					return '#f59e0b';
+				case 'HIGH':
+					return '#ef4444';
+			}
+		}};
+	border-radius: 1rem;
+	padding: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const ResultHeader = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  color: ${(props) => {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+	color: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
 				return '#059669';
@@ -205,151 +211,151 @@ const ResultHeader = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
 `;
 
 const ResultIcon = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
-  font-size: 2rem;
+	font-size: 2rem;
 `;
 
 const ResultTitle = styled.h3`
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin: 0;
 `;
 
 const ResultDescription = styled.p`
-  font-size: 1rem;
-  margin: 0 0 1.5rem 0;
-  line-height: 1.6;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1rem;
+	margin: 0 0 1.5rem 0;
+	line-height: 1.6;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ResultDetails = styled.div`
-  background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
+	background: white;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-bottom: 1.5rem;
 `;
 
 const DetailRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f3f4f6;
+	display: flex;
+	justify-content: space-between;
+	padding: 0.5rem 0;
+	border-bottom: 1px solid #f3f4f6;
 
-  &:last-child {
-    border-bottom: none;
-  }
+	&:last-child {
+		border-bottom: none;
+	}
 `;
 
 const DetailLabel = styled.span`
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const DetailValue = styled.span`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const ErrorMessage = styled.div`
-  background: V9_COLORS.BG.ERROR;
-  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
 `;
 
 const EducationalSection = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 1rem;
-  padding: 1.5rem;
-  text-align: left;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 1rem;
+	padding: 1.5rem;
+	text-align: left;
 `;
 
 const EducationalHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
 `;
 
 const EducationalTitle = styled.h4`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
-  margin: 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	margin: 0;
 `;
 
 const EducationalDescription = styled.p`
-  font-size: 0.875rem;
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
-  margin: 0 0 1rem 0;
-  line-height: 1.5;
+	font-size: 0.875rem;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	margin: 0 0 1rem 0;
+	line-height: 1.5;
 `;
 
 const KeyPoints = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1rem 0;
+	list-style: none;
+	padding: 0;
+	margin: 0 0 1rem 0;
 `;
 
 const KeyPoint = styled.li`
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  line-height: 1.4;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	line-height: 1.4;
 `;
 
 const KeyPointIcon = styled.span`
-  color: V9_COLORS.PRIMARY.GREEN;
-  flex-shrink: 0;
-  margin-top: 0.125rem;
+	color: V9_COLORS.PRIMARY.GREEN;
+	flex-shrink: 0;
+	margin-top: 0.125rem;
 `;
 
 const LearnMoreLink = styled.a`
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.875rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: color 0.2s ease;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
+	text-decoration: none;
+	font-weight: 600;
+	font-size: 0.875rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: color 0.2s ease;
 
-  &:hover {
-    color: V9_COLORS.PRIMARY.BLUE_DARK;
-    text-decoration: underline;
-  }
+	&:hover {
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
+		text-decoration: underline;
+	}
 `;
 
 // Enhanced UI Components
 const RiskScoreContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+	padding: 1rem;
+	background: rgba(255, 255, 255, 0.5);
+	border-radius: 0.5rem;
 `;
 
 const RiskScoreLabel = styled.span`
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  min-width: 100px;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	min-width: 100px;
 `;
 
 const RiskScoreValue = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: ${(props) => {
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
 				return '#10b981';
@@ -359,21 +365,21 @@ const RiskScoreValue = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
 				return '#ef4444';
 		}
 	}};
-  min-width: 60px;
+	min-width: 60px;
 `;
 
 const RiskScoreBar = styled.div`
-  flex: 1;
-  height: 8px;
-  background: V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 4px;
-  overflow: hidden;
+	flex: 1;
+	height: 8px;
+	background: V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 4px;
+	overflow: hidden;
 `;
 
 const RiskScoreFill = styled.div<{ percentage: number; riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
-  height: 100%;
-  width: ${(props) => props.percentage}%;
-  background: ${(props) => {
+	height: 100%;
+	width: ${(props) => props.percentage}%;
+	background: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
 				return '#10b981';
@@ -383,43 +389,43 @@ const RiskScoreFill = styled.div<{ percentage: number; riskLevel: 'LOW' | 'MEDIU
 				return '#ef4444';
 		}
 	}};
-  transition: width 0.5s ease;
+	transition: width 0.5s ease;
 `;
 
 const RiskFactorsContainer = styled.div`
-  margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 `;
 
 const RiskFactorsTitle = styled.h4`
-  font-size: 1rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0 0 1rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const RiskFactorsList = styled.div`
-  display: grid;
-  gap: 0.75rem;
+	display: grid;
+	gap: 0.75rem;
 `;
 
 const RiskFactorItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const RiskBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: white;
-  background: ${(props) => {
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: white;
+	background: ${(props) => {
 		switch (props.riskLevel) {
 			case 'LOW':
 				return '#10b981';
@@ -432,33 +438,33 @@ const RiskBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
 `;
 
 const NextStepsContainer = styled.div`
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 0.5rem;
+	margin-top: 1.5rem;
+	padding: 1rem;
+	background: rgba(255, 255, 255, 0.7);
+	border-radius: 0.5rem;
 `;
 
 const NextStepsTitle = styled.h4`
-  font-size: 1rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin: 0 0 1rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const NextStepsContent = styled.div`
-  display: grid;
-  gap: 0.75rem;
+	display: grid;
+	gap: 0.75rem;
 `;
 
 const NextStepItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 // ============================================================================

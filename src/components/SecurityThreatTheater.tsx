@@ -162,17 +162,18 @@ const Actor = styled.div<{ role: 'user' | 'attacker' | 'server'; $active?: boole
 		}
 	}};
 	border-radius: 0.75rem;
-	border: 3px solid ${({ role, $active }) => {
-		if ($active) return '#fbbf24';
-		switch (role) {
-			case 'user':
-				return '#60a5fa';
-			case 'attacker':
-				return '#f87171';
-			case 'server':
-				return '#34d399';
-		}
-	}};
+	border: 3px solid
+		${({ role, $active }) => {
+			if ($active) return '#fbbf24';
+			switch (role) {
+				case 'user':
+					return '#60a5fa';
+				case 'attacker':
+					return '#f87171';
+				case 'server':
+					return '#34d399';
+			}
+		}};
 	animation: ${({ $active }) => ($active ? pulse : 'none')} 1.5s ease-in-out infinite;
 	flex: 1;
 	min-width: 150px;
@@ -217,18 +218,19 @@ const EventLog = styled.div`
 const LogEntry = styled.div<{ type: 'info' | 'warning' | 'danger' | 'success' }>`
 	padding: 0.5rem;
 	margin-bottom: 0.5rem;
-	border-left: 3px solid ${({ type }) => {
-		switch (type) {
-			case 'danger':
-				return '#ef4444';
-			case 'warning':
-				return '#f59e0b';
-			case 'success':
-				return '#10b981';
-			default:
-				return '#3b82f6';
-		}
-	}};
+	border-left: 3px solid
+		${({ type }) => {
+			switch (type) {
+				case 'danger':
+					return '#ef4444';
+				case 'warning':
+					return '#f59e0b';
+				case 'success':
+					return '#10b981';
+				default:
+					return '#3b82f6';
+			}
+		}};
 	color: ${({ type }) => {
 		switch (type) {
 			case 'danger':
@@ -811,7 +813,7 @@ await fetch('/api/redirectless/resume', {
 			parameter: 'client_assertion (private_key_jwt)',
 			code: `// Create signed JWT for PAR (private_key_jwt)
 import { SignJWT } from 'jose';
-import { FiAlertTriangle } from '@icons';
+import { FiAlertTriangle } from '../icons';
 
 import { logger } from '../utils/logger';
 const assertion = await new SignJWT({
@@ -1012,7 +1014,9 @@ const SecurityThreatTheater: React.FC = () => {
 							<span>🖥️</span>
 						</ActorIcon>
 						<ActorLabel>🖥️ Server</ActorLabel>
-						<ActorStatus>{activeActor === 'server' ? '⚙️ Processing...' : 'Waiting...'}</ActorStatus>
+						<ActorStatus>
+							{activeActor === 'server' ? '⚙️ Processing...' : 'Waiting...'}
+						</ActorStatus>
 					</Actor>
 				</ActorsContainer>
 

@@ -1,6 +1,6 @@
 // src/pages/CredentialManagement.tsx
 
-import { FiAlertCircle, FiCheckCircle, FiXCircle } from '@icons';
+import { FiAlertCircle, FiCheckCircle, FiXCircle } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 // import { FlowHeader } from '../services/flowHeaderService';

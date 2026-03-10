@@ -1,43 +1,60 @@
 # src/v8 Audit Report
 
-Date: March 8, 2026
-Audited: src/v8 | Total files: 392
+Date: March 10, 2026 (updated — all icon issues resolved, archive candidates identified)
+Audited: src/v8 | Total files: 392 (scanned 2324 files total)
 
 ## Summary
 
-| Check | Files |
-|---|---|
-| MDIIcon usages               | 0 |
-| MDI CSS classes              | 0 |
-| Missing icon imports         | 8 |
-| **Files with issues**        | **8** |
-| Clean files                  | 384 |
+| Check                  | Files                       |
+| ---------------------- | --------------------------- |
+| MDIIcon usages         | 0                           |
+| MDI CSS classes        | 0                           |
+| Missing icon imports   | **0** ✅ (was 8 on March 8) |
+| **Files with issues**  | **0**                       |
+| Clean files            | 392                         |
+| **Archive candidates** | **4**                       |
 
 ## Files With Issues
 
-### src/v8/components/RedirectUriValidatorV8.tsx (455 lines)
-  [Missing icon imports] ['FiX']
+✅ **All clear — no icon import issues remaining.**
 
-### src/v8/components/shared/ActionButtonV8.tsx (279 lines)
-  [Missing icon imports] ['FiCheck']
+> March 8 → March 10: All 8 previously flagged icon import problems have been fixed.
+> Note: `ActionButtonV8.tsx`'s `FiCheck` flag was a false positive — usage was in a JSDoc comment only.
 
-### src/v8/flows/PingOnePARFlowV8/PingOnePARFlowV8.tsx (790 lines)
-  [Missing icon imports] ['FiCheckCircle']
+## Archive Candidates
 
-### src/v8/flows/unified/components/UnifiedActivationStep.modern.tsx (659 lines)
-  [Missing icon imports] ['FiAlertCircle', 'FiArrowLeft', 'FiArrowRight', 'FiCheck', 'FiRefreshCw', 'FiSmartphone']
+Files with no active callers and naming conventions (`-old`, `_Legacy`, deprecated V2) that indicate dead code. Safe to delete.
 
-### src/v8/flows/unified/components/UnifiedErrorDisplayV8.tsx (271 lines)
-  [Missing icon imports] ['FiX']
+### src/v8/components/SuperSimpleApiDisplayV8-old.tsx (2200 lines)
 
-### src/v8/lockdown/fido2/snapshot/MFAAuthenticationMainPageV8.tsx (5668 lines)
-  [Missing icon imports] ['FiKey', 'FiMail', 'FiPhone']
+- **Reason**: `-old` suffix; zero callers found (`src/v8/components/SuperSimpleApiDisplayV8.tsx` is the active version)
+- **Action**: Delete
 
-### src/v8/pages/MFADeviceCreateDemoV8.tsx (664 lines)
-  [Missing icon imports] ['FiRefreshCw']
+### src/v8/services/mfaServiceV8_Legacy.ts (5741 lines)
 
-### src/v8/services/workerTokenUIServiceV8.tsx (690 lines)
-  [Missing icon imports] ['FiTrash2']
+- **Reason**: `_Legacy` suffix; zero callers found across `src/**`
+- **Action**: Delete
+
+### src/v8/flows/shared/MFAConfigurationStepV8-V2.tsx (858 lines)
+
+- **Reason**: V2 variant; zero callers found — superseded by `MFAConfigurationStepV8.tsx`
+- **Action**: Delete
+
+### src/v8/flows/NewMFAFlowV8.tsx (233 lines)
+
+- **Reason**: Zero callers outside self; superseded by active `MFAFlowV8.tsx` router (154 lines) + unified flow
+- **Action**: Delete
+
+## Active Files With Legacy-Looking Names — RESOLVED ✅
+
+All actionable legacy names have been standardized (March 10, 2026):
+
+| File                                                           | Action Taken                                                                                                                       |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` | Renamed → `UnifiedMFARegistrationFlowV8.tsx`; App.tsx + MFAFlowV8.tsx references updated                                           |
+| `src/v8/utils/workerTokenModalHelperV8_SIMPLE.ts`              | Merged `handleShowWorkerTokenModalSimple` + `hasCredentialsSync` into `workerTokenModalHelperV8.ts`; callers updated; file deleted |
+| `src/v8/lockdown/fido2/snapshot/*`                             | No change — intentional read-only lockdown snapshot, naming is correct                                                             |
+| `src/v8/lockdown/mfa-config/snapshot/*`                        | No change — intentional read-only lockdown snapshot, naming is correct                                                             |
 
 ## Clean Files
 
@@ -132,11 +149,11 @@ Audited: src/v8 | Total files: 392
 - src/v8/components/WorkerTokenSectionV8.tsx (417 lines)
 - src/v8/components/WorkerTokenStatusDisplayV8.tsx (1405 lines)
 - src/v8/components/WorkerTokenVsClientCredentialsEducationModalV8.tsx (547 lines)
-- src/v8/components/__tests__/ApiDisplayServiceDemo.tsx (507 lines)
-- src/v8/components/__tests__/MFAEducationDemo.tsx (363 lines)
-- src/v8/components/__tests__/StepActionButtonsV8.test.tsx (376 lines)
-- src/v8/components/__tests__/StepProgressBarV8.test.tsx (138 lines)
-- src/v8/components/__tests__/StepValidationFeedbackV8.test.tsx (286 lines)
+- src/v8/components/**tests**/ApiDisplayServiceDemo.tsx (507 lines)
+- src/v8/components/**tests**/MFAEducationDemo.tsx (363 lines)
+- src/v8/components/**tests**/StepActionButtonsV8.test.tsx (376 lines)
+- src/v8/components/**tests**/StepProgressBarV8.test.tsx (138 lines)
+- src/v8/components/**tests**/StepValidationFeedbackV8.test.tsx (286 lines)
 - src/v8/components/sections/AuthenticationSectionV8.tsx (236 lines)
 - src/v8/components/sections/DeviceManagementSectionV8.tsx (244 lines)
 - src/v8/components/sections/PolicySectionV8.tsx (266 lines)
@@ -190,9 +207,9 @@ Audited: src/v8 | Total files: 392
 - src/v8/flows/PingOneProtectFlowV8.tsx (1572 lines)
 - src/v8/flows/ResourcesAPIFlowV8.tsx (2049 lines)
 - src/v8/flows/TokenExchangeFlowV8.tsx (808 lines)
-- src/v8/flows/__tests__/ImplicitFlowV8.test.tsx (339 lines)
-- src/v8/flows/__tests__/OAuthAuthorizationCodeFlowV8.test.tsx (360 lines)
-- src/v8/flows/__tests__/TokenExchangeFlowV8.test.tsx (463 lines)
+- src/v8/flows/**tests**/ImplicitFlowV8.test.tsx (339 lines)
+- src/v8/flows/**tests**/OAuthAuthorizationCodeFlowV8.test.tsx (360 lines)
+- src/v8/flows/**tests**/TokenExchangeFlowV8.test.tsx (463 lines)
 - src/v8/flows/components/MFADeviceSelector.tsx (165 lines)
 - src/v8/flows/components/MFAOTPInput.tsx (77 lines)
 - src/v8/flows/components/SMSDeviceSelectionStepV8.tsx (271 lines)
@@ -236,7 +253,7 @@ Audited: src/v8 | Total files: 392
 - src/v8/flows/types/WhatsAppFlowV8.tsx (2446 lines)
 - src/v8/flows/types/WhatsAppOTPConfigurationPageV8.tsx (1124 lines)
 - src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx (2842 lines)
-- src/v8/flows/unified/__tests__/registrationStatus.test.ts (24 lines)
+- src/v8/flows/unified/**tests**/registrationStatus.test.ts (24 lines)
 - src/v8/flows/unified/components/APIComparisonModal.tsx (402 lines)
 - src/v8/flows/unified/components/DeviceComponentRegistry.tsx (676 lines)
 - src/v8/flows/unified/components/DynamicFormRenderer.tsx (500 lines)
@@ -258,11 +275,11 @@ Audited: src/v8 | Total files: 392
 - src/v8/flows/unified/services/unifiedFlowServiceIntegration.ts (166 lines)
 - src/v8/flows/unified/utils/deviceFlowHelpers.ts (413 lines)
 - src/v8/flows/unified/utils/unifiedFlowValidation.ts (370 lines)
-- src/v8/hooks/__tests__/useMFAAuthentication.test.ts (340 lines)
-- src/v8/hooks/__tests__/useMFADevices.test.ts (479 lines)
-- src/v8/hooks/__tests__/useMFAPolicies.test.ts (520 lines)
-- src/v8/hooks/__tests__/useStepNavigationV8.test.ts (371 lines)
-- src/v8/hooks/__tests__/useWorkerToken.test.ts (359 lines)
+- src/v8/hooks/**tests**/useMFAAuthentication.test.ts (340 lines)
+- src/v8/hooks/**tests**/useMFADevices.test.ts (479 lines)
+- src/v8/hooks/**tests**/useMFAPolicies.test.ts (520 lines)
+- src/v8/hooks/**tests**/useStepNavigationV8.test.ts (371 lines)
+- src/v8/hooks/**tests**/useWorkerToken.test.ts (359 lines)
 - src/v8/hooks/useActionButton.ts (53 lines)
 - src/v8/hooks/useApiDisplayPadding.ts (82 lines)
 - src/v8/hooks/useCibaFlowV8.ts (405 lines)
@@ -303,26 +320,26 @@ Audited: src/v8 | Total files: 392
 - src/v8/pages/SMSRegistrationDocsPageV8.tsx (89 lines)
 - src/v8/pages/UnifiedCredentialsMockupV8.tsx (736 lines)
 - src/v8/pages/WhatsAppRegistrationDocsPageV8.tsx (89 lines)
-- src/v8/services/__tests__/apiDisplayServiceV8.test.ts (110 lines)
-- src/v8/services/__tests__/appDiscoveryServiceV8.test.ts (256 lines)
-- src/v8/services/__tests__/configCheckerServiceV8.test.ts (356 lines)
-- src/v8/services/__tests__/errorHandlerV8.test.ts (413 lines)
-- src/v8/services/__tests__/flowResetServiceV8.test.ts (270 lines)
-- src/v8/services/__tests__/implicitFlowIntegrationServiceV8.test.ts (301 lines)
-- src/v8/services/__tests__/jarRequestObjectServiceV8.test.ts (406 lines)
-- src/v8/services/__tests__/mfaCredentialManagerV8.test.ts (441 lines)
-- src/v8/services/__tests__/mfaFeatureFlagsV8.test.ts (130 lines)
-- src/v8/services/__tests__/mfaTokenManagerV8.test.ts (359 lines)
-- src/v8/services/__tests__/oauthIntegrationServiceV8.test.ts (291 lines)
-- src/v8/services/__tests__/realPingOneTest.test.ts (268 lines)
-- src/v8/services/__tests__/specVersionServiceV8.test.ts (184 lines)
-- src/v8/services/__tests__/storageServiceV8.test.ts (432 lines)
-- src/v8/services/__tests__/tokenExchangeServiceV8.test.ts (119 lines)
-- src/v8/services/__tests__/unifiedMFASuccessPageServiceV8.test.tsx (321 lines)
-- src/v8/services/__tests__/validationServiceV8.test.ts (579 lines)
+- src/v8/services/**tests**/apiDisplayServiceV8.test.ts (110 lines)
+- src/v8/services/**tests**/appDiscoveryServiceV8.test.ts (256 lines)
+- src/v8/services/**tests**/configCheckerServiceV8.test.ts (356 lines)
+- src/v8/services/**tests**/errorHandlerV8.test.ts (413 lines)
+- src/v8/services/**tests**/flowResetServiceV8.test.ts (270 lines)
+- src/v8/services/**tests**/implicitFlowIntegrationServiceV8.test.ts (301 lines)
+- src/v8/services/**tests**/jarRequestObjectServiceV8.test.ts (406 lines)
+- src/v8/services/**tests**/mfaCredentialManagerV8.test.ts (441 lines)
+- src/v8/services/**tests**/mfaFeatureFlagsV8.test.ts (130 lines)
+- src/v8/services/**tests**/mfaTokenManagerV8.test.ts (359 lines)
+- src/v8/services/**tests**/oauthIntegrationServiceV8.test.ts (291 lines)
+- src/v8/services/**tests**/realPingOneTest.test.ts (268 lines)
+- src/v8/services/**tests**/specVersionServiceV8.test.ts (184 lines)
+- src/v8/services/**tests**/storageServiceV8.test.ts (432 lines)
+- src/v8/services/**tests**/tokenExchangeServiceV8.test.ts (119 lines)
+- src/v8/services/**tests**/unifiedMFASuccessPageServiceV8.test.tsx (321 lines)
+- src/v8/services/**tests**/validationServiceV8.test.ts (579 lines)
 - src/v8/services/apiDisplayServiceV8.ts (129 lines)
 - src/v8/services/appDiscoveryServiceV8.ts (825 lines)
-- src/v8/services/auth/__tests__/tokenGatewayV8.test.ts (336 lines)
+- src/v8/services/auth/**tests**/tokenGatewayV8.test.ts (336 lines)
 - src/v8/services/auth/tokenGatewayV8.ts (646 lines)
 - src/v8/services/authMethodServiceV8.ts (298 lines)
 - src/v8/services/backendConnectivityServiceV8.ts (162 lines)
@@ -403,7 +420,7 @@ Audited: src/v8 | Total files: 392
 - src/v8/types/services.ts (397 lines)
 - src/v8/types/stepNavigation.ts (171 lines)
 - src/v8/types/tokenExchangeTypesV8.ts (109 lines)
-- src/v8/utils/__tests__/toastNotificationsV8.test.ts (345 lines)
+- src/v8/utils/**tests**/toastNotificationsV8.test.ts (345 lines)
 - src/v8/utils/analyticsHelperV8.ts (40 lines)
 - src/v8/utils/analyticsLoggerV8.ts (24 lines)
 - src/v8/utils/analyticsServerCheckV8.ts (45 lines)

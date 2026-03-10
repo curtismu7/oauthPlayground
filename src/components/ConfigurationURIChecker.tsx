@@ -1,7 +1,7 @@
 // src/components/ConfigurationURIChecker.tsx
 // Component to display and check redirect and logout URIs against PingOne configuration
 
-import { FiInfo } from '@icons';
+import { FiInfo } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -27,171 +27,171 @@ interface URIStatus {
 }
 
 const Container = styled.div`
-  margin: 1.5rem 0;
-  padding: 1.5rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
+	margin: 1.5rem 0;
+	padding: 1.5rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
 `;
 
 const Header = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
 `;
 
 const Title = styled.h3`
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: #1e293b;
+	margin: 0;
 `;
 
 const InfoIcon = styled.span`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  cursor: help;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	cursor: help;
 `;
 
 const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1rem 0;
+	width: 100%;
+	border-collapse: collapse;
+	margin: 1rem 0;
 `;
 
 const TableHeader = styled.thead`
-  background: V9_COLORS.TEXT.WHITE;
+	background: V9_COLORS.TEXT.WHITE;
 `;
 
 const TableRow = styled.tr<{ $isEven?: boolean }>`
-  background: ${({ $isEven }) => ($isEven ? '#f8f9fa' : '#ffffff')};
+	background: ${({ $isEven }) => ($isEven ? '#f8f9fa' : '#ffffff')};
 
-  &:hover {
-    background: V9_COLORS.BG.GRAY_MEDIUM;
-  }
+	&:hover {
+		background: V9_COLORS.BG.GRAY_MEDIUM;
+	}
 `;
 
 const TableBody = styled.tbody``;
 
 const TableCell = styled.td`
-  padding: 0.75rem;
-  font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 0.75rem;
+	font-size: 0.75rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TableHeaderCell = styled.th`
-  padding: 0.75rem;
-  text-align: left;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	padding: 0.75rem;
+	text-align: left;
+	font-size: 0.875rem;
+	font-weight: 700;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const URICell = styled(TableCell)`
-  font-family: "Courier New", monospace;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 400px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
+	font-family: 'Courier New', monospace;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 400px;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 600;
 `;
 
 const StatusCell = styled(TableCell)`
-  text-align: center;
+	text-align: center;
 `;
 
 const StatusIndicator = styled.div<{ $status: boolean | null }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: ${({ $status }) => {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: ${({ $status }) => {
 		if ($status === null) return '#6b7280';
 		return $status ? '#059669' : '#dc2626';
 	}};
 `;
 
 const ActionBar = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: 1rem;
-  flex-wrap: wrap;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-top: 1rem;
+	flex-wrap: wrap;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  border: none;
-  background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
-  color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 120ms ease;
-  font-size: 0.875rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	border-radius: 0.5rem;
+	border: none;
+	background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
+	color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 120ms ease;
+	font-size: 0.875rem;
 
-  &:hover {
-    background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
-  }
+	&:hover {
+		background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
+	}
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 `;
 
 const LoadingSpinner = styled.span`
-  animation: spin 1s linear infinite;
+	animation: spin 1s linear infinite;
 
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
 const ErrorMessage = styled.div`
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	font-size: 0.875rem;
+	margin-top: 0.5rem;
 `;
 
 const HelperText = styled.p`
-  margin: 0;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 0.875rem;
+	margin: 0;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.875rem;
 `;
 
 const CopyButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.25rem;
-  background: white;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  cursor: pointer;
-  transition: background 120ms ease;
-  font-size: 0.75rem;
-  margin-left: 0.5rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.25rem;
+	background: white;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	cursor: pointer;
+	transition: background 120ms ease;
+	font-size: 0.75rem;
+	margin-left: 0.5rem;
 
-  &:hover {
-    background: #f9fafb;
-    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
-  }
+	&:hover {
+		background: #f9fafb;
+		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+	}
 `;
 
 const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
@@ -226,10 +226,16 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			try {
 				const token = await workerTokenServiceV8.getToken();
 				if (token) {
-					logger.info('[Config URI Checker] ✅ Worker token valid from global service', "Logger info");
+					logger.info(
+						'[Config URI Checker] ✅ Worker token valid from global service',
+						'Logger info'
+					);
 					setRetrievedWorkerToken(token);
 				} else {
-					logger.info('[Config URI Checker] ⚠️ No worker token found in global service', "Logger info");
+					logger.info(
+						'[Config URI Checker] ⚠️ No worker token found in global service',
+						'Logger info'
+					);
 					setRetrievedWorkerToken('');
 				}
 			} catch (error) {

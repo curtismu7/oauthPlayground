@@ -9,7 +9,7 @@
  * - Ask for User token (access token from Authorization Code Flow) OR Worker token (active or "ACTIVATION_REQUIRED")
  */
 
-import { FiLoader } from '@icons';
+import { FiLoader } from '../../../icons';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
@@ -553,10 +553,13 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		// Only update if credentials.tokenType doesn't match our local tokenType
 		if (credentials.tokenType !== tokenType) {
 			isUpdatingCredentialsRef.current = true;
-			logger.info(`[⚙️ MFA-CONFIG-STEP-V8] Syncing credentials.tokenType to match local tokenType`, {
-				credentialsTokenType: credentials.tokenType,
-				localTokenType: tokenType,
-			});
+			logger.info(
+				`[⚙️ MFA-CONFIG-STEP-V8] Syncing credentials.tokenType to match local tokenType`,
+				{
+					credentialsTokenType: credentials.tokenType,
+					localTokenType: tokenType,
+				}
+			);
 			setCredentials((prev) => {
 				// Only update if actually different to prevent unnecessary re-renders
 				if (
@@ -846,9 +849,8 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 									if (tokenStatus.isValid) {
 										// #region agent log
 										// #endregion
-										const { workerTokenServiceV8 } = await import(
-											'@/v8/services/workerTokenServiceV8'
-										);
+										const { workerTokenServiceV8 } =
+											await import('@/v8/services/workerTokenServiceV8');
 										await workerTokenServiceV8.clearToken();
 										// #region agent log
 										// #endregion
@@ -865,9 +867,8 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										// Use helper to check silentApiRetrieval before showing modal
 										// Pass current checkbox values to override config (page checkboxes take precedence)
 										// forceShowModal=true because user explicitly clicked the button - always show modal
-										const { handleShowWorkerTokenModal } = await import(
-											'@/v8/utils/workerTokenModalHelperV8'
-										);
+										const { handleShowWorkerTokenModal } =
+											await import('@/v8/utils/workerTokenModalHelperV8');
 										await handleShowWorkerTokenModal(
 											setShowWorkerTokenModal,
 											undefined,
@@ -1181,9 +1182,8 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 									if (tokenStatus.isValid) {
 										// #region agent log
 										// #endregion
-										const { workerTokenServiceV8 } = await import(
-											'@/v8/services/workerTokenServiceV8'
-										);
+										const { workerTokenServiceV8 } =
+											await import('@/v8/services/workerTokenServiceV8');
 										await workerTokenServiceV8.clearToken();
 										// #region agent log
 										// #endregion
@@ -1199,9 +1199,8 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 									} else {
 										// Use helper to check silentApiRetrieval before showing modal
 										// forceShowModal=true because user explicitly clicked the button - always show modal
-										const { handleShowWorkerTokenModal } = await import(
-											'@/v8/utils/workerTokenModalHelperV8'
-										);
+										const { handleShowWorkerTokenModal } =
+											await import('@/v8/utils/workerTokenModalHelperV8');
 										await handleShowWorkerTokenModal(
 											setShowWorkerTokenModal,
 											undefined,

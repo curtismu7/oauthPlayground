@@ -59,8 +59,6 @@ export const consoleReplacements = {
 	// Info logging
 	'logger.info(': 'logger.info(',
 	'logger.info(`': 'logger.info(',
-	'logger.info(': 'logger.info(',
-	'logger.info(`': 'logger.info(',
 
 	// Debug logging
 	'logger.debug(': 'logger.debug(',

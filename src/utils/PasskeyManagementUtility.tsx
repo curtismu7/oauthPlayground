@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-import { FiCheckCircle } from '@icons';
+import { FiCheckCircle } from '../icons';
 import React, { useEffect, useState } from 'react';
 import { showGlobalError, showGlobalWarning } from '../contexts/NotificationSystem';
 
@@ -160,7 +160,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 				// Don't throw - this is best effort, deletion from server is what matters
 			}
 		} else {
-			logger.info('ℹ️ WebAuthn Signal API not supported in this browser', "Logger info");
+			logger.info('ℹ️ WebAuthn Signal API not supported in this browser', 'Logger info');
 		}
 	};
 
