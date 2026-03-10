@@ -1,6 +1,6 @@
 // src/contexts/NotificationSystem.tsx
 
-import { FiAlertOctagon, FiAlertTriangle, FiCheckCircle, FiInfo, FiX } from '@icons';
+import { FiAlertOctagon, FiAlertTriangle, FiCheckCircle, FiInfo, FiX } from '../../../../icons';
 import type { ReactNode } from 'react';
 import {
 	createContext,
@@ -166,179 +166,182 @@ const progressSlide = keyframes`
 `;
 
 const ToastStack = styled.div`
-  position: fixed;
-  top: 1.25rem;
-  right: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  max-width: 360px;
-  z-index: 12000;
-  pointer-events: none;
+	position: fixed;
+	top: 1.25rem;
+	right: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	max-width: 360px;
+	z-index: 12000;
+	pointer-events: none;
 
-  @media (max-width: 640px) {
-    left: 1rem;
-    right: 1rem;
-    top: 0.75rem;
-    max-width: none;
-  }
+	@media (max-width: 640px) {
+		left: 1rem;
+		right: 1rem;
+		top: 0.75rem;
+		max-width: none;
+	}
 `;
 
 const Toast = styled.div<{ $tone: NotificationTone; $isExiting: boolean }>`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem 1.15rem 1.25rem;
-  border-radius: 0.9rem;
-  color: #ffffff;
-  background: ${({ $tone }) => toneStyles[$tone].background};
-  border: 1px solid ${({ $tone }) => toneStyles[$tone].border};
-  box-shadow: ${({ $tone }) => toneStyles[$tone].shadow};
-  pointer-events: auto;
-  animation: ${({ $isExiting }) => ($isExiting ? slideOut : slideIn)} 0.34s ease forwards;
-  outline: none;
-  backdrop-filter: blur(18px);
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	padding: 1rem 1.15rem 1.25rem;
+	border-radius: 0.9rem;
+	color: #ffffff;
+	background: ${({ $tone }) => toneStyles[$tone].background};
+	border: 1px solid ${({ $tone }) => toneStyles[$tone].border};
+	box-shadow: ${({ $tone }) => toneStyles[$tone].shadow};
+	pointer-events: auto;
+	animation: ${({ $isExiting }) => ($isExiting ? slideOut : slideIn)} 0.34s ease forwards;
+	outline: none;
+	backdrop-filter: blur(18px);
 
-  @media (prefers-reduced-motion: reduce) {
-    animation-duration: 1ms;
-    animation-iteration-count: 1;
-  }
+	@media (prefers-reduced-motion: reduce) {
+		animation-duration: 1ms;
+		animation-iteration-count: 1;
+	}
 
-  @media (max-width: 640px) {
-    width: 100%;
-  }
+	@media (max-width: 640px) {
+		width: 100%;
+	}
 `;
 
 const ToastHeader = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 0.75rem;
-  align-items: flex-start;
+	display: grid;
+	grid-template-columns: auto 1fr auto;
+	gap: 0.75rem;
+	align-items: flex-start;
 `;
 
 const IconWrap = styled.div<{ $tone: NotificationTone }>`
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  background: ${({ $tone }) => toneStyles[$tone].iconAccent};
-  border: 1px solid rgba(255, 255, 255, 0.32);
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #ffffff;
+	background: ${({ $tone }) => toneStyles[$tone].iconAccent};
+	border: 1px solid rgba(255, 255, 255, 0.32);
 `;
 
 const TextGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
 `;
 
 const Title = styled.div`
-  font-weight: 700;
-  font-size: 0.95rem;
-  line-height: 1.3;
+	font-weight: 700;
+	font-size: 0.95rem;
+	line-height: 1.3;
 `;
 
 const Description = styled.div`
-  font-size: 0.85rem;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.85);
+	font-size: 0.85rem;
+	line-height: 1.4;
+	color: rgba(255, 255, 255, 0.85);
 `;
 
 const CloseButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  cursor: pointer;
-  transition: background 0.2s ease;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	border: 1px solid rgba(255, 255, 255, 0.35);
+	background: rgba(255, 255, 255, 0.18);
+	color: #ffffff;
+	cursor: pointer;
+	transition: background 0.2s ease;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.26);
-  }
+	&:hover {
+		background: rgba(255, 255, 255, 0.26);
+	}
 
-  &:focus-visible {
-    outline: 3px solid rgba(255, 255, 255, 0.5);
-    outline-offset: 2px;
-  }
+	&:focus-visible {
+		outline: 3px solid rgba(255, 255, 255, 0.5);
+		outline-offset: 2px;
+	}
 `;
 
 const ActionRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
 `;
 
 const ActionButton = styled.button`
-  padding: 0.45rem 0.85rem;
-  border-radius: 0.6rem;
-  font-weight: 600;
-  font-size: 0.82rem;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+	padding: 0.45rem 0.85rem;
+	border-radius: 0.6rem;
+	font-weight: 600;
+	font-size: 0.82rem;
+	border: none;
+	cursor: pointer;
+	transition:
+		transform 0.18s ease,
+		background 0.18s ease,
+		color 0.18s ease;
 
-  ${({ 'data-variant': variant }) => {
+	${({ 'data-variant': variant }) => {
 		if (variant === 'primary') {
 			return css`
-        background: rgba(255, 255, 255, 0.25);
-        color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        &:hover {
-          transform: translateY(-1px);
-          background: rgba(255, 255, 255, 0.32);
-        }
-      `;
+				background: rgba(255, 255, 255, 0.25);
+				color: #ffffff;
+				border: 1px solid rgba(255, 255, 255, 0.4);
+				&:hover {
+					transform: translateY(-1px);
+					background: rgba(255, 255, 255, 0.32);
+				}
+			`;
 		}
 
 		return css`
-      background: rgba(255, 255, 255, 0.92);
-      color: #0f172a;
-      &:hover {
-        transform: translateY(-1px);
-        background: rgba(255, 255, 255, 0.98);
-      }
-    `;
+			background: rgba(255, 255, 255, 0.92);
+			color: #0f172a;
+			&:hover {
+				transform: translateY(-1px);
+				background: rgba(255, 255, 255, 0.98);
+			}
+		`;
 	}}
 
-  &:focus-visible {
-    outline: 3px solid rgba(255, 255, 255, 0.45);
-    outline-offset: 1px;
-  }
+	&:focus-visible {
+		outline: 3px solid rgba(255, 255, 255, 0.45);
+		outline-offset: 1px;
+	}
 `;
 
 const ProgressTrack = styled.div`
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: 0 0 0.9rem 0.9rem;
-  overflow: hidden;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: 4px;
+	background: rgba(255, 255, 255, 0.18);
+	border-radius: 0 0 0.9rem 0.9rem;
+	overflow: hidden;
 `;
 
 const ProgressIndicator = styled.div<{
 	$tone: NotificationTone;
 	$duration: number;
 }>`
-  width: 100%;
-  height: 100%;
-  background: ${({ $tone }) => toneStyles[$tone].progress};
-  transform-origin: left;
-  animation: ${progressSlide} ${({ $duration }) => `${$duration}ms`} linear forwards;
+	width: 100%;
+	height: 100%;
+	background: ${({ $tone }) => toneStyles[$tone].progress};
+	transform-origin: left;
+	animation: ${progressSlide} ${({ $duration }) => `${$duration}ms`} linear forwards;
 
-  @media (prefers-reduced-motion: reduce) {
-    animation-duration: 1ms;
-    animation-iteration-count: 1;
-  }
+	@media (prefers-reduced-motion: reduce) {
+		animation-duration: 1ms;
+		animation-iteration-count: 1;
+	}
 `;
 
 const generateId = (): string => {
@@ -426,7 +429,10 @@ const setGlobalBridge = (bridge: NotificationBridge | null) => {
 
 const warnMissingProvider = () => {
 	if (!globalBridge && typeof console !== 'undefined') {
-		logger.warn('[Notification] NotificationProvider is not mounted. Notification skipped.', "Logger warning");
+		logger.warn(
+			'[Notification] NotificationProvider is not mounted. Notification skipped.',
+			'Logger warning'
+		);
 	}
 };
 

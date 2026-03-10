@@ -1,4 +1,4 @@
-import { FiCpu, FiKey, FiLock, FiServer, FiShield, FiZap } from '@icons';
+import { FiCpu, FiKey, FiLock, FiServer, FiShield, FiZap } from '../icons';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
@@ -6,70 +6,75 @@ import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibl
 import { PageLayoutService } from '../services/pageLayoutService';
 
 const _Container = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 const FeatureGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
-  margin: 2rem 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+	gap: 2rem;
+	margin: 2rem 0;
 `;
 
 const FeatureCard = styled(Card)<{ $supported?: boolean | null }>`
-  border-left: 4px solid ${({ $supported, theme }) =>
-		$supported === true
-			? theme.colors.success
-			: $supported === false
-				? theme.colors.danger
-				: theme.colors.warning};
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+	border-left: 4px solid
+		${({ $supported, theme }) =>
+			$supported === true
+				? theme.colors.success
+				: $supported === false
+					? theme.colors.danger
+					: theme.colors.warning};
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  }
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const FeatureHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
 `;
 
 const FeatureTitle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 
-  h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin: 0;
-  }
+	h3 {
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray900};
+		margin: 0;
+	}
 
-  svg {
-    color: ${({ theme }) => theme.colors.primary};
-  }
+	svg {
+		color: ${({ theme }) => theme.colors.primary};
+	}
 `;
 
 const StatusBadge = styled.button<{ $status: 'supported' | 'not-supported' | 'partial' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	border: none;
+	cursor: pointer;
+	transition:
+		transform 0.1s ease,
+		box-shadow 0.1s ease;
 
-  ${({ $status }) => {
+	${({ $status }) => {
 		switch ($status) {
 			case 'supported':
 				return `
@@ -107,121 +112,123 @@ const StatusBadge = styled.button<{ $status: 'supported' | 'not-supported' | 'pa
 		}
 	}}
 
-  svg {
-    width: 16px;
-    height: 16px;
-  }
+	svg {
+		width: 16px;
+		height: 16px;
+	}
 
-  &:focus {
-    outline: 2px solid V9_COLORS.PRIMARY.BLUE;
-    outline-offset: 2px;
-  }
+	&:focus {
+		outline: 2px solid V9_COLORS.PRIMARY.BLUE;
+		outline-offset: 2px;
+	}
 `;
 
 const PopupOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	padding: 1rem;
 `;
 
 const PopupContent = styled.div`
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  max-width: 500px;
-  width: 100%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	background: white;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	max-width: 500px;
+	width: 100%;
+	max-height: 80vh;
+	overflow-y: auto;
+	box-shadow:
+		0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
-  h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	h3 {
+		margin: 0 0 1rem 0;
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 
-  p {
-    margin: 0 0 1rem 0;
-    line-height: 1.6;
-    color: #4b5563;
-  }
+	p {
+		margin: 0 0 1rem 0;
+		line-height: 1.6;
+		color: #4b5563;
+	}
 
-  ul {
-    margin: 0;
-    padding-left: 1.5rem;
-    color: #4b5563;
+	ul {
+		margin: 0;
+		padding-left: 1.5rem;
+		color: #4b5563;
 
-    li {
-      margin-bottom: 0.5rem;
-    }
-  }
+		li {
+			margin-bottom: 0.5rem;
+		}
+	}
 `;
 
 const CloseButton = styled.button`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  padding: 0.25rem;
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	cursor: pointer;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	padding: 0.25rem;
 
-  &:hover {
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	&:hover {
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 `;
 
 const FeatureDescription = styled.p`
-  color: ${({ theme }) => theme.colors.gray600};
-  line-height: 1.6;
-  margin-bottom: 1rem;
+	color: ${({ theme }) => theme.colors.gray600};
+	line-height: 1.6;
+	margin-bottom: 1rem;
 `;
 
 const TechnicalDetails = styled.div`
-  background-color: ${({ theme }) => theme.colors.gray100};
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-top: 1rem;
-  font-size: 0.875rem;
+	background-color: ${({ theme }) => theme.colors.gray100};
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-top: 1rem;
+	font-size: 0.875rem;
 
-  h4 {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin: 0 0 0.5rem 0;
-  }
+	h4 {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray900};
+		margin: 0 0 0.5rem 0;
+	}
 
-  ul {
-    margin: 0;
-    padding-left: 1.5rem;
-    color: ${({ theme }) => theme.colors.gray600};
-    
-    li {
-      margin-bottom: 0.25rem;
-    }
-  }
+	ul {
+		margin: 0;
+		padding-left: 1.5rem;
+		color: ${({ theme }) => theme.colors.gray600};
+
+		li {
+			margin-bottom: 0.25rem;
+		}
+	}
 `;
 
 const PingOneNote = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-top: 1rem;
-  
-  ${({ $type, theme }) => {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin-top: 1rem;
+
+	${({ $type, theme }) => {
 		switch ($type) {
 			case 'info':
 				return `
@@ -244,140 +251,149 @@ const PingOneNote = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
 		}
 	}}
 
-  svg {
-    flex-shrink: 0;
-    margin-top: 0.1rem;
-  }
+	svg {
+		flex-shrink: 0;
+		margin-top: 0.1rem;
+	}
 
-  div {
-    flex: 1;
-    
-    h4 {
-      margin: 0 0 0.5rem 0;
-      font-size: 1rem;
-      font-weight: 600;
-    }
+	div {
+		flex: 1;
 
-    p {
-      margin: 0;
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-  }
+		h4 {
+			margin: 0 0 0.5rem 0;
+			font-size: 1rem;
+			font-weight: 600;
+		}
+
+		p {
+			margin: 0;
+			font-size: 0.9rem;
+			line-height: 1.5;
+		}
+	}
 `;
 
 const ComparisonSection = styled(Card)`
-  margin: 3rem 0;
+	margin: 3rem 0;
 `;
 
 const ComparisonTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-  margin: 0;
-  background: white;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.875rem;
+	margin: 0;
+	background: white;
+	border-radius: 0.75rem;
+	overflow: hidden;
+	box-shadow:
+		0 4px 6px -1px rgba(0, 0, 0, 0.1),
+		0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
-  th, td {
-    padding: 1rem 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
-  }
+	th,
+	td {
+		padding: 1rem 0.75rem;
+		text-align: left;
+		border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
+	}
 
-  th {
-    background: linear-gradient(135deg, ${({ theme }) => theme.colors.gray100} 0%, ${({ theme }) => theme.colors.gray200} 100%);
-    color: ${({ theme }) => theme.colors.gray900};
-    font-weight: 700;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    border-bottom: 2px solid ${({ theme }) => theme.colors.gray300};
-  }
+	th {
+		background: linear-gradient(
+			135deg,
+			${({ theme }) => theme.colors.gray100} 0%,
+			${({ theme }) => theme.colors.gray200} 100%
+		);
+		color: ${({ theme }) => theme.colors.gray900};
+		font-weight: 700;
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		position: sticky;
+		top: 0;
+		z-index: 10;
+		border-bottom: 2px solid ${({ theme }) => theme.colors.gray300};
+	}
 
-  td {
-    color: ${({ theme }) => theme.colors.gray700};
-    vertical-align: middle;
-  }
+	td {
+		color: ${({ theme }) => theme.colors.gray700};
+		vertical-align: middle;
+	}
 
-  tr:last-child td {
-    border-bottom: none;
-  }
+	tr:last-child td {
+		border-bottom: none;
+	}
 
-  tr:hover {
-    background-color: ${({ theme }) => theme.colors.gray100};
-  }
+	tr:hover {
+		background-color: ${({ theme }) => theme.colors.gray100};
+	}
 
-  /* Mobile responsiveness */
-  @media (max-width: 1200px) {
-    font-size: 0.8rem;
-    th, td {
-      padding: 0.75rem 0.5rem;
-    }
-  }
+	/* Mobile responsiveness */
+	@media (max-width: 1200px) {
+		font-size: 0.8rem;
+		th,
+		td {
+			padding: 0.75rem 0.5rem;
+		}
+	}
 
-  @media (max-width: 768px) {
-    font-size: 0.75rem;
-    th, td {
-      padding: 0.5rem 0.25rem;
-    }
-  }
+	@media (max-width: 768px) {
+		font-size: 0.75rem;
+		th,
+		td {
+			padding: 0.5rem 0.25rem;
+		}
+	}
 `;
 
 // Collapsible Section Components
 const _CollapsibleSection = styled.div`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const CollapsibleHeader = styled.button`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 0.5rem;
-  
-  &:hover {
-    background: V9_COLORS.BG.GRAY_MEDIUM;
-    border-color: #cbd5e1;
-  }
-  
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-  
-  h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  
-  svg {
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    transition: transform 0.2s ease;
-  }
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem 1.5rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	margin-bottom: 0.5rem;
+
+	&:hover {
+		background: V9_COLORS.BG.GRAY_MEDIUM;
+		border-color: #cbd5e1;
+	}
+
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+
+	h2 {
+		margin: 0;
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	svg {
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		transition: transform 0.2s ease;
+	}
 `;
 
 const CollapsibleContent = styled.div<{ $isOpen: boolean }>`
-  max-height: ${({ $isOpen }) => ($isOpen ? '2000px' : '0')};
-  overflow: hidden;
-  transition: max-height 0.3s ease-in-out;
-  opacity: ${({ $isOpen }) => ($isOpen ? '1' : '0')};
-  transition: opacity 0.2s ease-in-out;
+	max-height: ${({ $isOpen }) => ($isOpen ? '2000px' : '0')};
+	overflow: hidden;
+	transition: max-height 0.3s ease-in-out;
+	opacity: ${({ $isOpen }) => ($isOpen ? '1' : '0')};
+	transition: opacity 0.2s ease-in-out;
 `;
 
 const pageConfig = {

@@ -1,4 +1,4 @@
-import { FiSettings } from '@icons';
+import { FiSettings } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';

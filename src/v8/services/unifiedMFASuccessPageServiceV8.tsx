@@ -16,7 +16,7 @@
  * - FIDO policy information (if applicable)
  */
 
-import { FiCheck, FiInfo } from '@icons';
+import { FiCheck, FiInfo } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';

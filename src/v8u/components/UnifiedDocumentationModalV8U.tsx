@@ -9,7 +9,7 @@
  * and download documentation as PDF or Markdown.
  */
 
-import { FiDownload, FiFileText } from '@icons';
+import { FiDownload, FiFileText } from '../../icons';
 import React, { useState } from 'react';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { logger } from '../../utils/logger';
@@ -235,7 +235,10 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 
 	const handleDownload = async () => {
 		if (selectedUseCases.size === 0) {
-			logger.warn('UnifiedDocumentationModalV8U', 'Please select at least one use case to download');
+			logger.warn(
+				'UnifiedDocumentationModalV8U',
+				'Please select at least one use case to download'
+			);
 			return;
 		}
 
@@ -249,7 +252,10 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 			}
 		} catch (error) {
 			logger.error('Failed to download documentation:', error);
-			logger.warn('UnifiedDocumentationModalV8U', 'Failed to download documentation. Please try again');
+			logger.warn(
+				'UnifiedDocumentationModalV8U',
+				'Failed to download documentation. Please try again'
+			);
 		}
 	};
 

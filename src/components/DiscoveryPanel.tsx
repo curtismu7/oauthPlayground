@@ -1,4 +1,4 @@
-import { FiRefreshCw } from '@icons';
+import { FiRefreshCw } from '../icons';
 import type React from 'react';
 import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
@@ -15,125 +15,125 @@ interface DiscoveryPanelProps {
 }
 
 const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	padding: 1rem;
 `;
 
 const Panel = styled.div`
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-  width: 100%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
+	background: white;
+	border-radius: 0.75rem;
+	box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+	width: 100%;
+	max-width: 800px;
+	max-height: 90vh;
+	overflow-y: auto;
 `;
 
 const Header = styled.div`
-  padding: 1.5rem 1.5rem 1rem;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+	padding: 1.5rem 1.5rem 1rem;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 `;
 
 const Title = styled.h2`
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const CloseButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  transition: all 0.2s;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0.5rem;
+	border-radius: 0.375rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	transition: all 0.2s;
 
-  &:hover {
-    background: #f3f4f6;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	&:hover {
+		background: #f3f4f6;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 `;
 
 const Content = styled.div`
-  padding: 1.5rem;
+	padding: 1.5rem;
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 `;
 
 const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	display: block;
+	margin-bottom: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  transition: border-color 0.2s;
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	transition: border-color 0.2s;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 
-  &:disabled {
-    background: #f9fafb;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  }
+	&:disabled {
+		background: #f9fafb;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	}
 `;
 
 const Select = styled.select`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  background: white;
-  transition: border-color 0.2s;
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	background: white;
+	transition: border-color 0.2s;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary'; size?: 'small' | 'normal' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-radius: 0.375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	border-radius: 0.375rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+	border: none;
 
-  ${({ variant = 'primary', size = 'normal' }) => `
+	${({ variant = 'primary', size = 'normal' }) => `
     ${
 			size === 'small'
 				? `
@@ -169,26 +169,26 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary'; size?: 'small'
 		}
   `}
 
-  &:active {
-    transform: translateY(0);
-  }
+	&:active {
+		transform: translateY(0);
+	}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin-bottom: 1rem;
+	font-size: 0.875rem;
 
-  ${({ type }) => {
+	${({ type }) => {
 		switch (type) {
 			case 'success':
 				return `
@@ -213,40 +213,40 @@ const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
 `;
 
 const ConfigurationDisplay = styled.div`
-  background: #f3f4f6;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-top: 1rem;
+	background: #f3f4f6;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-top: 1rem;
 `;
 
 const ConfigItem = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.5rem 0;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 
-  &:last-child {
-    border-bottom: none;
-  }
+	&:last-child {
+		border-bottom: none;
+	}
 `;
 
 const ConfigLabel = styled.span`
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 0.875rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.875rem;
 `;
 
 const ConfigValue = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  max-width: 60%;
-  word-break: break-all;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.75rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	max-width: 60%;
+	word-break: break-all;
 `;
 
 const CopyButton = styled.button`

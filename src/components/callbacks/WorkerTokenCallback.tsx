@@ -1,4 +1,4 @@
-import { FiLoader } from '@icons';
+import { FiLoader } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -7,17 +7,17 @@ import { logger } from '../../utils/logger';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
 const CallbackContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  padding: 2rem;
-  text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 60vh;
+	padding: 2rem;
+	text-align: center;
 `;
 
 const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
-  background: ${({ $status }) => {
+	background: ${({ $status }) => {
 		switch ($status) {
 			case 'success':
 				return '#f0fdf4';
@@ -27,25 +27,26 @@ const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 				return '#f8fafc';
 		}
 	}};
-  border: 1px solid ${({ $status }) => {
-		switch ($status) {
-			case 'success':
-				return '#10b981';
-			case 'error':
-				return '#ef4444';
-			default:
-				return '#e5e7eb';
-		}
-	}};
-  border-radius: 0.75rem;
-  padding: 2rem;
-  max-width: 500px;
-  width: 100%;
+	border: 1px solid
+		${({ $status }) => {
+			switch ($status) {
+				case 'success':
+					return '#10b981';
+				case 'error':
+					return '#ef4444';
+				default:
+					return '#e5e7eb';
+			}
+		}};
+	border-radius: 0.75rem;
+	padding: 2rem;
+	max-width: 500px;
+	width: 100%;
 `;
 
 const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
-  font-size: 3rem;
-  color: ${({ $status }) => {
+	font-size: 3rem;
+	color: ${({ $status }) => {
 		switch ($status) {
 			case 'success':
 				return '#059669';
@@ -55,31 +56,31 @@ const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 				return '#6b7280';
 		}
 	}};
-  margin-bottom: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const StatusTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1.5rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusMessage = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin-bottom: 1rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin-bottom: 1rem;
 `;
 
 const ErrorDetails = styled.pre`
-  background: #f3f4f6;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  font-size: 0.875rem;
-  text-align: left;
-  overflow-x: auto;
-  margin-top: 1rem;
+	background: #f3f4f6;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	font-size: 0.875rem;
+	text-align: left;
+	overflow-x: auto;
+	margin-top: 1rem;
 `;
 
 const WorkerTokenCallback: React.FC = () => {

@@ -10,7 +10,7 @@
  * functionality that was previously scattered across MFAConfigurationStepV8.
  */
 
-import { FiRefreshCw } from '@icons';
+import { FiRefreshCw } from '../../icons';
 import React, { useState } from 'react';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';

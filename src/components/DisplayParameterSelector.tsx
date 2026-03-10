@@ -1,7 +1,7 @@
 // src/components/DisplayParameterSelector.tsx
 // OIDC Display Parameter Selector - Controls UI presentation mode
 
-import { FiLayout, FiMonitor, FiSmartphone } from '@icons';
+import { FiLayout, FiMonitor, FiSmartphone } from '../icons';
 import React from 'react';
 import styled from 'styled-components';
 

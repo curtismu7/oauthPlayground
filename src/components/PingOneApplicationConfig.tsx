@@ -1,6 +1,6 @@
 // src/components/PingOneApplicationConfig.tsx
 
-import { FiInfo } from '@icons';
+import { FiInfo } from '../icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { DPoPStatus } from '../services/dpopService';
@@ -91,7 +91,7 @@ const Grid = styled.div`
 	grid-template-columns: 1fr 1fr;
 	gap: 1rem;
 	margin-bottom: 1rem;
-	
+
 	@media (max-width: 768px) {
 		grid-template-columns: 1fr;
 	}
@@ -115,7 +115,7 @@ const Select = styled.select`
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	background: white;
-	
+
 	&:focus {
 		outline: none;
 		border-color: V9_COLORS.PRIMARY.BLUE;
@@ -134,13 +134,13 @@ const Input = styled.input`
 	pointer-events: auto;
 	position: relative;
 	z-index: 5;
-	
+
 	&:focus {
 		outline: none;
 		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
-	
+
 	&:disabled {
 		background: #f9fafb;
 		color: V9_COLORS.TEXT.GRAY_MEDIUM;
@@ -173,7 +173,7 @@ const Textarea = styled.textarea`
 	font-family: monospace;
 	resize: vertical;
 	min-height: 120px;
-	
+
 	&:focus {
 		outline: none;
 		border-color: V9_COLORS.PRIMARY.BLUE;
@@ -190,12 +190,12 @@ const Toggle = styled.button<{ $active: boolean }>`
 	border-radius: 9999px;
 	cursor: pointer;
 	transition: background-color 0.2s;
-	
+
 	&:focus {
 		outline: none;
 		box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 	}
-	
+
 	span {
 		position: absolute;
 		top: 0.125rem;
@@ -282,7 +282,7 @@ const SaveButton = styled.button<{ $hasChanges?: boolean; $isSaving?: boolean }>
 	border: none;
 	cursor: pointer;
 	transition: all 0.2s;
-	
+
 	${({ $hasChanges, $isSaving }) => {
 		if ($isSaving) {
 			return `
@@ -310,7 +310,7 @@ const SaveButton = styled.button<{ $hasChanges?: boolean; $isSaving?: boolean }>
 			cursor: not-allowed;
 		`;
 	}}
-	
+
 	&:active:not(:disabled) {
 		transform: translateY(0);
 	}
@@ -768,8 +768,8 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<option value="S256_REQUIRED">S256 Required</option>
 						</Select>
 						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Enable PKCE enforcement in your PingOne application settings
-							to see this feature in the flow
+							⚙️ Configured in PingOne → Enable PKCE enforcement in your PingOne application
+							settings to see this feature in the flow
 						</Helper>
 					</Field>
 				</Grid>

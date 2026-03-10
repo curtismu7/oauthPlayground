@@ -2,10 +2,14 @@
 /* eslint-disable no-alert */
 // lint-file-disable: token-value-in-jsx
 
-import { FiBook } from '@icons';
+import { FiBook } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
-import { showGlobalError, showGlobalSuccess, showGlobalWarning } from '../../contexts/NotificationSystem';
+import {
+	showGlobalError,
+	showGlobalSuccess,
+	showGlobalWarning,
+} from '../../contexts/NotificationSystem';
 import {
 	requestDeviceAuthorization,
 	type V7MDeviceAuthorizationResponse,
@@ -78,15 +82,17 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 
 	function handleApproveDevice() {
 		if (!deviceCode) {
-                        showGlobalError('No device code available. Request device authorization first.');
-                        return;
-                }
-                const approved = V7MStateStore.approveDeviceCode(deviceCode);
-                if (approved) {
-                        setIsApproved(true);
-                        showGlobalSuccess('Device approved! You can now poll for tokens.');
-                } else {
-                        showGlobalError('Failed to approve device. Device code may be expired.');
+			showGlobalError('No device code available. Request device authorization first.');
+			return;
+		}
+		const approved = V7MStateStore.approveDeviceCode(deviceCode);
+		if (approved) {
+			setIsApproved(true);
+			showGlobalSuccess('Device approved! You can now poll for tokens.');
+		} else {
+			showGlobalError('Failed to approve device. Device code may be expired.');
+		}
+	}
 
 	async function handlePollToken() {
 		if (!deviceCode) {
@@ -110,7 +116,9 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 		});
 		if ('error' in res) {
 			if (res.error === 'authorization_pending') {
-				showGlobalWarning('User has not yet approved the device. Click "Simulate User Approval" first.');
+				showGlobalWarning(
+					'User has not yet approved the device. Click "Simulate User Approval" first.'
+				);
 			} else {
 				showGlobalError(`${res.error}: ${res.error_description ?? ''}`);
 			}
@@ -123,25 +131,27 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 
 	function handleUserInfo() {
 		if (!accessToken) {
-                        showGlobalError('No access token available');
-                        return;
-                }
-                const res = getUserInfoFromAccessToken(accessToken);
-                setUserinfoResponse(res);
-        }
+			showGlobalError('No access token available');
+			return;
+		}
+		const res = getUserInfoFromAccessToken(accessToken);
+		setUserinfoResponse(res);
+	}
 
-        function handleIntrospect() {
-                if (!accessToken) {
-                        showGlobalError('No access token available');
-                        return;
-                }
-                const res = introspectToken(accessToken);
-                setIntrospectionResponse(res);
-        }
+	function handleIntrospect() {
+		if (!accessToken) {
+			showGlobalError('No access token available');
+			return;
+		}
+		const res = introspectToken(accessToken);
+		setIntrospectionResponse(res);
+	}
 
-        function copyToClipboard(text: string) {
-                navigator.clipboard.writeText(text);
-                showGlobalSuccess('Copied to clipboard!');
+	function copyToClipboard(text: string) {
+		navigator.clipboard.writeText(text);
+		showGlobalSuccess('Copied to clipboard!');
+	}
+
 	return (
 		<div style={{ padding: 24 }}>
 			<div
@@ -240,7 +250,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 							/>
 						</label>
 					</div>
-					<button type="button" type="button" onClick={handleRequestDeviceAuth} style={primaryBtn}>
+					<button type="button" onClick={handleRequestDeviceAuth} style={primaryBtn}>
 						Request Device Authorization
 					</button>
 					{deviceResponse && !('error' in deviceResponse) && (
@@ -260,12 +270,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 									<code style={{ background: '#fff', padding: '4px 8px', borderRadius: 4 }}>
 										{userCode}
 									</code>
-									<button
-										type="button"
-										type="button"
-										onClick={() => copyToClipboard(userCode)}
-										style={copyBtn}
-									>
+									<button type="button" onClick={() => copyToClipboard(userCode)} style={copyBtn}>
 										<span>📋</span> Copy
 									</button>
 								</div>
@@ -274,12 +279,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 									<code style={{ background: '#fff', padding: '4px 8px', borderRadius: 4 }}>
 										{deviceCode}
 									</code>
-									<button
-										type="button"
-										type="button"
-										onClick={() => copyToClipboard(deviceCode)}
-										style={copyBtn}
-									>
+									<button type="button" onClick={() => copyToClipboard(deviceCode)} style={copyBtn}>
 										<span>📋</span> Copy
 									</button>
 								</div>
@@ -370,7 +370,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 							Once the device is approved, the client polls the token endpoint using the device code
 							to obtain tokens.
 						</p>
-						<button type="button" type="button" onClick={handlePollToken} style={primaryBtn}>
+						<button type="button" onClick={handlePollToken} style={primaryBtn}>
 							Poll for Tokens
 						</button>
 						{tokenResponse && (
@@ -388,20 +388,10 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 										>
 											Inspect Access Token
 										</button>
-										<button
-											type="button"
-											type="button"
-											onClick={handleUserInfo}
-											style={secondaryBtn}
-										>
+										<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
 											Call UserInfo
 										</button>
-										<button
-											type="button"
-											type="button"
-											onClick={handleIntrospect}
-											style={secondaryBtn}
-										>
+										<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
 											Introspect Token
 										</button>
 									</div>

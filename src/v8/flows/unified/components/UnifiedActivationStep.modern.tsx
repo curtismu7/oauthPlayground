@@ -22,7 +22,7 @@ import {
 	FiCheck,
 	FiRefreshCw,
 	FiSmartphone,
-} from '@icons';
+} from '../../../../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';

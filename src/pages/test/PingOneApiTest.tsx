@@ -4,9 +4,13 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import ClientCredentialManager from '../../components/ClientCredentialManager';
-import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
+import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
+import {
+	V9AppDiscoveryService,
+	type V9DiscoveredApp,
+} from '../../services/v9/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 
@@ -34,96 +38,96 @@ interface TestResult {
 }
 
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `;
 
 const Header = styled.div`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const Title = styled.h1`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1.1rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1.1rem;
 `;
 
 const TestSection = styled.div`
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  background: V9_COLORS.TEXT.WHITE;
+	margin-bottom: 2rem;
+	padding: 1.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	background: V9_COLORS.TEXT.WHITE;
 `;
 
 const SectionTitle = styled.h2`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 1rem;
+	font-size: 1.25rem;
 `;
 
 const Form = styled.form`
-  display: grid;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+	display: grid;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
 `;
 
 const FormGroup = styled.div`
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 0.5rem;
-  align-items: center;
+	display: grid;
+	grid-template-columns: 200px 1fr;
+	gap: 0.5rem;
+	align-items: center;
 `;
 
 const Label = styled.label`
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.25rem;
+	font-size: 0.875rem;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const Select = styled.select`
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.25rem;
+	font-size: 0.875rem;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const Checkbox = styled.input`
-  margin-right: 0.5rem;
+	margin-right: 0.5rem;
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+	padding: 0.75rem 1.5rem;
+	border-radius: 0.375rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
 
-  ${(props) =>
+	${(props) =>
 		props.variant === 'primary'
 			? `
     background: V9_COLORS.PRIMARY.BLUE;
@@ -146,82 +150,87 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
     }
   `}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
+	display: flex;
+	gap: 0.75rem;
+	margin-top: 1rem;
 `;
 
 const ResultsContainer = styled.div`
-  margin-top: 2rem;
+	margin-top: 2rem;
 `;
 
 const ResultCard = styled.div<{ success: boolean }>`
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-  border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
-  background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
+	padding: 1rem;
+	border-radius: 0.5rem;
+	margin-bottom: 1rem;
+	border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
+	background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
 `;
 
 const ResultHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.5rem;
 `;
 
 const ResultTitle = styled.h3`
-  margin: 0;
-  color: ${(props) => (props.success ? '#059669' : '#dc2626')};
+	margin: 0;
+	color: ${(props) => (props.success ? '#059669' : '#dc2626')};
 `;
 
 const ResultTime = styled.span`
-  font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.75rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const CodeBlock = styled.pre`
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  color: #f9fafb;
-  padding: 1rem;
-  border-radius: 0.25rem;
-  overflow-x: auto;
-  font-size: 0.75rem;
-  margin: 0.5rem 0;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: #f9fafb;
+	padding: 1rem;
+	border-radius: 0.25rem;
+	overflow-x: auto;
+	font-size: 0.75rem;
+	margin: 0.5rem 0;
 `;
 
+const FLOW_KEY = 'pingone-api-test-v9';
+
 const PingOneApiTest: React.FC = () => {
-	const { apps, selectedAppId, selectApp, getActiveAppConfig } = useCredentialStoreV8();
+	const globalToken = useGlobalWorkerToken({ autoFetch: false });
+	const [discoveredApps, setDiscoveredApps] = useState<V9DiscoveredApp[]>([]);
+	const [selectedAppClientId, setSelectedAppClientId] = useState<string>('');
 
 	// Get worker token status from unified service
 	const hasWorkerToken = unifiedWorkerTokenService.hasValidToken();
 
 	const [config, setConfig] = useState<TestConfig>(() => {
-		// Try to get environment ID from worker token credentials first
-		let envId = '';
+		const saved = V9CredentialStorageService.loadSync(FLOW_KEY);
+		// Worker token env ID as fallback
+		let workerTokenEnvId = '';
 		try {
 			const stored = localStorage.getItem('unified_worker_token');
 			if (stored) {
 				const data = JSON.parse(stored);
-				envId = data.credentials?.environmentId || '';
+				workerTokenEnvId = data.credentials?.environmentId || '';
 			}
 		} catch (error) {
 			logger.info('Failed to load environment ID from worker token:', error);
 		}
 
 		return {
-			environmentId: envId,
-			clientId: '',
-			clientSecret: '',
-			redirectUri: 'http://localhost:3000/test-callback',
-			scopes: 'openid profile email',
+			environmentId: saved.environmentId || workerTokenEnvId,
+			clientId: saved.clientId || '',
+			clientSecret: saved.clientSecret || '',
+			redirectUri: saved.redirectUri || 'http://localhost:3000/test-callback',
+			scopes: saved.scope || 'openid profile email',
 			responseType: 'code',
 			responseMode: 'fragment',
 			usePkce: true,
@@ -233,26 +242,8 @@ const PingOneApiTest: React.FC = () => {
 
 	// Load credentials from selected app
 	useEffect(() => {
-		const activeApp = getActiveAppConfig();
-		if (activeApp) {
-			// Ensure openid is always included in scopes
-			setConfig((prev) => {
-				let scopes = activeApp.scopes?.join(' ') || prev.scopes;
-				if (!scopes.includes('openid')) {
-					scopes = `openid ${scopes}`.trim();
-				}
-
-				return {
-					...prev,
-					environmentId: activeApp.environmentId || '',
-					clientId: activeApp.clientId || '',
-					clientSecret: activeApp.clientSecret || '',
-					redirectUri: activeApp.redirectUris?.[0] || prev.redirectUri,
-					scopes,
-				};
-			});
-		}
-	}, [getActiveAppConfig]);
+		/* replaced by V9CredentialStorageService.loadSync in initial state */
+	}, []);
 
 	// Listen for worker token updates and update environment ID
 	useEffect(() => {
@@ -293,12 +284,33 @@ const PingOneApiTest: React.FC = () => {
 		};
 	}, [config.environmentId]);
 
+	const discoverApps = useCallback(async () => {
+		if (!globalToken.token || !config.environmentId) return;
+		const result = await V9AppDiscoveryService.discoverApplications(
+			config.environmentId,
+			globalToken.token
+		);
+		if (result.success) {
+			setDiscoveredApps(result.apps);
+		}
+	}, [globalToken.token, config.environmentId]);
+
 	const addResult = useCallback((result: Omit<TestResult, 'timestamp'>) => {
 		setResults((prev) => [...prev, { ...result, timestamp: new Date() }]);
 	}, []);
 
 	const handleConfigChange = (field: keyof TestConfig, value: string | boolean | undefined) => {
-		setConfig((prev) => ({ ...prev, [field]: value }));
+		setConfig((prev) => {
+			const next = { ...prev, [field]: value };
+			void V9CredentialStorageService.save(FLOW_KEY, {
+				environmentId: typeof next.environmentId === 'string' ? next.environmentId : '',
+				clientId: typeof next.clientId === 'string' ? next.clientId : '',
+				clientSecret: typeof next.clientSecret === 'string' ? next.clientSecret : '',
+				redirectUri: typeof next.redirectUri === 'string' ? next.redirectUri : '',
+				scope: typeof next.scopes === 'string' ? next.scopes : '',
+			});
+			return next;
+		});
 	};
 
 	// Test 1: Authorization URL Generation
@@ -306,7 +318,7 @@ const PingOneApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Authorization URL Generation...', "Logger info");
+			logger.info('🧪 Testing Authorization URL Generation...', 'Logger info');
 
 			const params = new URLSearchParams();
 			params.set('client_id', config.clientId);
@@ -382,7 +394,7 @@ const PingOneApiTest: React.FC = () => {
 			const startTime = Date.now();
 
 			try {
-				logger.info('🧪 Testing Token Exchange...', "Logger info");
+				logger.info('🧪 Testing Token Exchange...', 'Logger info');
 
 				const codeVerifier = config.usePkce ? generateCodeVerifier() : undefined;
 
@@ -458,7 +470,7 @@ const PingOneApiTest: React.FC = () => {
 			const startTime = Date.now();
 
 			try {
-				logger.info('🧪 Testing Implicit Token Parsing...', "Logger info");
+				logger.info('🧪 Testing Implicit Token Parsing...', 'Logger info');
 
 				// Parse fragment (remove leading #)
 				const fragmentParams = new URLSearchParams(
@@ -524,7 +536,7 @@ const PingOneApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Token Exchange...', "Logger info");
+			logger.info('🧪 Testing Token Exchange...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for token exchange test');
@@ -605,7 +617,7 @@ const PingOneApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing User Info Endpoint...', "Logger info");
+			logger.info('🧪 Testing User Info Endpoint...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for user info test');
@@ -656,7 +668,7 @@ const PingOneApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Token Introspection...', "Logger info");
+			logger.info('🧪 Testing Token Introspection...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for token introspection test');
@@ -720,7 +732,7 @@ const PingOneApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing JWKS Endpoint...', "Logger info");
+			logger.info('🧪 Testing JWKS Endpoint...', 'Logger info');
 
 			if (!config.environmentId) {
 				throw new Error('Environment ID required for JWKS test');
@@ -769,7 +781,7 @@ const PingOneApiTest: React.FC = () => {
 		setResults([]);
 
 		try {
-			logger.info('🚀 Starting PingOne API Tests...', "Logger info");
+			logger.info('🚀 Starting PingOne API Tests...', 'Logger info');
 
 			// Test 1: Authorization URL Generation
 			await testAuthUrlGeneration();
@@ -786,7 +798,7 @@ const PingOneApiTest: React.FC = () => {
 			// Test 5: JWKS Endpoint
 			await testJwksEndpoint();
 
-			logger.info('✅ All PingOne API tests completed!', "Logger info");
+			logger.info('✅ All PingOne API tests completed!', 'Logger info');
 		} catch (error) {
 			logger.error('PingOneApiTest', '❌ Test suite failed:', undefined, error as Error);
 		} finally {
@@ -819,16 +831,46 @@ const PingOneApiTest: React.FC = () => {
 					<FormGroup>
 						<Label>Select App:</Label>
 						<Select
-							value={selectedAppId || ''}
-							onChange={(e) => selectApp(e.target.value || null)}
+							value={selectedAppClientId}
+							onChange={(e) => {
+								const clientId = e.target.value;
+								setSelectedAppClientId(clientId);
+								if (clientId) {
+									const app = discoveredApps.find((a) => a.clientId === clientId);
+									if (app) {
+										const appCreds = V9AppDiscoveryService.applyAppConfig(app);
+										setConfig((prev) => {
+											const next = {
+												...prev,
+												...(appCreds.clientId && { clientId: appCreds.clientId }),
+												...(appCreds.clientSecret && { clientSecret: appCreds.clientSecret }),
+												...(appCreds.redirectUri && { redirectUri: appCreds.redirectUri }),
+												...(appCreds.scope && { scopes: appCreds.scope }),
+											};
+											void V9CredentialStorageService.save(FLOW_KEY, {
+												environmentId: next.environmentId,
+												clientId: next.clientId,
+												clientSecret: next.clientSecret,
+												redirectUri: next.redirectUri,
+												scope: next.scopes,
+											});
+											return next;
+										});
+									}
+								}
+							}}
 							disabled={!hasWorkerToken}
 						>
 							<option value="">
-								{hasWorkerToken ? 'Manual Configuration' : 'Set Worker Token to load apps'}
+								{hasWorkerToken
+									? discoveredApps.length > 0
+										? 'Select an app'
+										: 'Set Worker Token to load apps'
+									: 'Set Worker Token to load apps'}
 							</option>
-							{apps.map((app) => (
-								<option key={app.id} value={app.id}>
-									{app.name} ({app.clientId?.substring(0, 8)}...)
+							{discoveredApps.map((app) => (
+								<option key={app.clientId} value={app.clientId}>
+									{app.name} ({app.clientId.substring(0, 8)}...)
 								</option>
 							))}
 						</Select>
@@ -858,9 +900,9 @@ const PingOneApiTest: React.FC = () => {
 					<FormGroup>
 						<Label>
 							Client ID:
-							{config.clientId && selectedAppId && (
+							{config.clientId && selectedAppClientId && (
 								<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
-									✓ From {apps.find((app) => app.id === selectedAppId)?.name}
+									✓ From {discoveredApps.find((app) => app.clientId === selectedAppClientId)?.name}
 								</span>
 							)}
 						</Label>
@@ -870,8 +912,8 @@ const PingOneApiTest: React.FC = () => {
 							onChange={(e) => handleConfigChange('clientId', e.target.value)}
 							placeholder="e.g. a1b2c3d4..."
 							style={{
-								backgroundColor: config.clientId && selectedAppId ? '#f0fdf4' : 'white',
-								borderColor: config.clientId && selectedAppId ? '#10b981' : '#e5e7eb',
+								backgroundColor: config.clientId && selectedAppClientId ? '#f0fdf4' : 'white',
+								borderColor: config.clientId && selectedAppClientId ? '#10b981' : '#e5e7eb',
 							}}
 						/>
 					</FormGroup>
@@ -879,9 +921,9 @@ const PingOneApiTest: React.FC = () => {
 					<FormGroup>
 						<Label>
 							Client Secret:
-							{config.clientSecret && selectedAppId && (
+							{config.clientSecret && selectedAppClientId && (
 								<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
-									✓ From {apps.find((app) => app.id === selectedAppId)?.name}
+									✓ From {discoveredApps.find((app) => app.clientId === selectedAppClientId)?.name}
 								</span>
 							)}
 						</Label>
@@ -891,8 +933,8 @@ const PingOneApiTest: React.FC = () => {
 							onChange={(e) => handleConfigChange('clientSecret', e.target.value)}
 							placeholder="Required for Authorization Code flow"
 							style={{
-								backgroundColor: config.clientSecret && selectedAppId ? '#f0fdf4' : 'white',
-								borderColor: config.clientSecret && selectedAppId ? '#10b981' : '#e5e7eb',
+								backgroundColor: config.clientSecret && selectedAppClientId ? '#f0fdf4' : 'white',
+								borderColor: config.clientSecret && selectedAppClientId ? '#10b981' : '#e5e7eb',
 							}}
 						/>
 					</FormGroup>
@@ -964,24 +1006,17 @@ const PingOneApiTest: React.FC = () => {
 					</FormGroup>
 				</Form>
 
-				<ClientCredentialManager
-					onCredentialsUpdated={() => {
-						// Refresh the app list after credentials are updated
-						setTimeout(() => {
-							const activeApp = getActiveAppConfig();
-							if (activeApp) {
-								setConfig((prev) => ({
-									...prev,
-									environmentId: activeApp.environmentId || '',
-									clientId: activeApp.clientId || '',
-									clientSecret: activeApp.clientSecret || '',
-									redirectUri: activeApp.redirectUris?.[0] || prev.redirectUri,
-									scopes: activeApp.scopes?.join(' ') || prev.scopes,
-								}));
-							}
-						}, 100);
-					}}
-				/>
+				<ButtonGroup>
+					<Button
+						variant="secondary"
+						onClick={() => void discoverApps()}
+						disabled={!hasWorkerToken || !config.environmentId}
+					>
+						{discoveredApps.length > 0
+							? `${discoveredApps.length} apps found – re-discover`
+							: 'Discover Apps'}
+					</Button>
+				</ButtonGroup>
 
 				<ButtonGroup>
 					<Button variant="primary" onClick={runAllTests} disabled={isRunning}>

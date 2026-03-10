@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import { FiMail } from '@icons';
+import { FiMail } from '../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -2739,9 +2739,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 										try {
 											// For authentication flow (when authenticationId exists), use selectDeviceForAuthentication
 											if (mfaState.authenticationId && mfaState.deviceId) {
-												const { MfaAuthenticationServiceV8 } = await import(
-													'@/v8/services/mfaAuthenticationServiceV8'
-												);
+												const { MfaAuthenticationServiceV8 } =
+													await import('@/v8/services/mfaAuthenticationServiceV8');
 												const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
 
 												// Get userId if not already available
@@ -2853,7 +2852,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 									}}
 								>
 									<p style={{ margin: '0', fontSize: '13px', fontWeight: '600' }}>
-										{validationAttempts >= 3 ? '⚠️ Multiple Failed Attempts' : '⚠️ Validation Failed'}
+										{validationAttempts >= 3
+											? '⚠️ Multiple Failed Attempts'
+											: '⚠️ Validation Failed'}
 									</p>
 									<p style={{ margin: '4px 0 0 0', fontSize: '12px' }}>{lastValidationError}</p>
 								</div>

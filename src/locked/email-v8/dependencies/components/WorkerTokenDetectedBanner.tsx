@@ -1,7 +1,7 @@
 // src/components/WorkerTokenDetectedBanner.tsx
 // Reusable banner component to display when a worker token is detected
 
-import { FiCheckCircle } from '@icons';
+import { FiCheckCircle } from '../../../../icons';
 import React from 'react';
 import styled from 'styled-components';
 import { logger } from '../../../../utils/logger';
@@ -60,8 +60,9 @@ const ExpiryMessage = styled.div<{ $isExpired: boolean; $isExpiringSoon: boolean
 	border-radius: 0.5rem;
 	background: ${({ $isExpired, $isExpiringSoon }) =>
 		$isExpired ? '#fee2e2' : $isExpiringSoon ? '#fef3c7' : '#d1fae5'};
-	border: 1px solid ${({ $isExpired, $isExpiringSoon }) =>
-		$isExpired ? '#f87171' : $isExpiringSoon ? '#fbbf24' : '#6ee7b7'};
+	border: 1px solid
+		${({ $isExpired, $isExpiringSoon }) =>
+			$isExpired ? '#f87171' : $isExpiringSoon ? '#fbbf24' : '#6ee7b7'};
 	color: ${({ $isExpired, $isExpiringSoon }) =>
 		$isExpired ? '#dc2626' : $isExpiringSoon ? '#d97706' : '#065f46'};
 	font-size: 0.8rem;
