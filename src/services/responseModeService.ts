@@ -261,7 +261,7 @@ export class ResponseModeService {
 	static getDisplayInfo(mode: ResponseMode): { name: string; icon: string; color: string } {
 		const modeInfo = ResponseModeService.getModeInfo(mode);
 		if (!modeInfo) {
-			return { name: 'Unknown', icon: '❓', color: '#6b7280' };
+			return { name: 'Unknown', icon: '?', color: '#6b7280' };
 		}
 
 		const displayMap: Record<ResponseMode, { icon: string; color: string }> = {
@@ -271,7 +271,7 @@ export class ResponseModeService {
 			'pi.flow': { icon: '⚡', color: '#f59e0b' },
 		};
 
-		const display = displayMap[mode] || { icon: '❓', color: '#6b7280' };
+		const display = displayMap[mode] || { icon: '?', color: '#6b7280' };
 		return {
 			name: modeInfo.name,
 			icon: display.icon,

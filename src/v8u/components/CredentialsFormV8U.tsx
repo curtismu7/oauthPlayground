@@ -35,6 +35,7 @@ import { ClientTypeRadioV8 } from '@/v8/components/ClientTypeRadioV8';
 import { type DisplayMode, DisplayModeDropdownV8 } from '@/v8/components/DisplayModeDropdownV8';
 import { IssuerURLInputV8 } from '@/v8/components/IssuerURLInputV8';
 import { LoginHintInputV8 } from '@/v8/components/LoginHintInputV8';
+import { UserSearchDropdownV8 as _UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { MaxAgeInputV8 } from '@/v8/components/MaxAgeInputV8';
 import {
 	OidcDiscoveryModalV8,
@@ -72,7 +73,7 @@ import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { analytics } from '@/v8/utils/analyticsV8';
-import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { logger } from '../../utils/logger';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 
@@ -5011,16 +5012,22 @@ Why it matters: Backend services communicate server-to-server without user conte
 									<h3>📋 Additional Options</h3>
 								</div>
 								<div className="section-content">
-									{/* Login Hint Input - Educational Component */}
+									{/* Login Hint Input - Using Username Dropdown Service */}
 									{flowOptions.supportsLoginHint && showLoginHint && (
 										<div className="form-group" style={{ marginBottom: '16px' }}>
-											<LoginHintInputV8
+											<_UserSearchDropdownV8
+												environmentId={credentials.environmentId || ''}
 												value={loginHint}
 												onChange={(value) => {
 													logger.info(`${MODULE_TAG} Login hint changed to ${value}`, "Logger info");
 													setLoginHint(value);
 													handleChange('loginHint', value);
-													// Removed toast message - LoginHintInputV8 component shows visual feedback
+												}}
+												placeholder="Search for a user or enter login hint..."
+												id="login-hint-dropdown"
+												onGetToken={() => {
+													// Open worker token modal if needed
+													logger.info(`${MODULE_TAG} User clicked get token for login hint`, "Logger info");
 												}}
 											/>
 											{/* Default indicator */}
@@ -5215,13 +5222,14 @@ Why it matters: Backend services communicate server-to-server without user conte
 								const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
 
 								return (
-									<WorkerTokenModalV9
+									<WorkerTokenModalV8
 										isOpen={showWorkerTokenModal}
 										onClose={() => {
 											setShowWorkerTokenModal(false);
 										}}
 										onTokenGenerated={(token) => {
 											logger.info('Worker token generated for credentials form:', token);
+											window.dispatchEvent(new Event('workerTokenUpdated'));
 											const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 											setTokenStatus(newStatus);
 											modernMessaging.showFooterMessage({
@@ -5236,7 +5244,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								);
 							} catch {
 								return (
-									<WorkerTokenModalV9
+									<WorkerTokenModalV8
 										isOpen={showWorkerTokenModal}
 										onClose={() => {
 											setShowWorkerTokenModal(false);
@@ -6074,7 +6082,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 											color: '#374151',
 										}}
 									>
-										❓ Why is JAR Not Supported?
+										<i className="bi bi-question-circle" style={{ marginRight: '8px' }} aria-hidden />
+										Why is JAR Not Supported?
 									</h3>
 									<p
 										style={{

@@ -2,7 +2,7 @@
 // V9 PingOne Worker Token Flow — Client Credentials grant for machine-to-machine API access
 
 import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import FlowSequenceDisplay from '../../../components/FlowSequenceDisplay';
@@ -14,18 +14,19 @@ import type { StepCredentials } from '../../../components/steps/CommonSteps';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { useWorkerTokenFlowController } from '../../../hooks/useWorkerTokenFlowController';
 import ComprehensiveCredentialsService from '../../../services/comprehensiveCredentialsService';
+import { environmentIdPersistenceService } from '../../../services/environmentIdPersistenceService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 import { OAuthErrorHandlingService } from '../../../services/oauthErrorHandlingService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import UnifiedTokenDisplayService from '../../../services/unifiedTokenDisplayService';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { unifiedWorkerTokenService } from '../../../services/unifiedWorkerTokenService';
 import { workerTokenDiscoveryService } from '../../../services/workerTokenDiscoveryService';
-import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import { logger } from '../../../utils/logger';
 import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
-import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
+import WorkerTokenModalV9 from '../../../components/WorkerTokenModalV9';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -45,7 +46,7 @@ const StepTitle = styled.h2`
 	font-size: 24px;
 	font-weight: 600;
 	margin-bottom: 16px;
-	color: ${V9_COLORS.TEXT.BLACK};
+	color: ${V9_COLORS.PRIMARY.BLUE};
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -70,6 +71,25 @@ const StyledSectionDivider = styled.div`
 	margin: 24px 0;
 `;
 
+/** Flow-type label so users know which PingOne app to use (e.g. Worker Token, Authorization Code, CIBA). */
+const FlowTypeLabel = styled.div`
+	padding: 0.75rem 1rem;
+	background: #eff6ff;
+	border: 1px solid #93c5fd;
+	border-radius: 0.5rem;
+	margin-bottom: 1rem;
+	font-size: 0.875rem;
+	line-height: 1.5;
+`;
+const FlowTypeLabelTitle = styled.div`
+	font-weight: 700;
+	color: ${V9_COLORS.PRIMARY.BLUE};
+	margin-bottom: 0.25rem;
+`;
+const FlowTypeLabelSub = styled.div`
+	color: #1e40af;
+`;
+
 const WorkerTokenFlowV9: React.FC = () => {
 	usePageScroll({ pageName: 'WorkerTokenFlowV9', force: true });
 
@@ -77,15 +97,21 @@ const WorkerTokenFlowV9: React.FC = () => {
 		flowKey: 'worker-token-v9',
 	});
 
-	// Load V9 4-layer credentials on mount (supplements controller's own load)
+	// Load credentials on mount: V9 storage, then default environment ID from unified worker token or persistence (user should not have to enter env ID)
 	// biome-ignore lint/correctness/useExhaustiveDependencies: mount-once
 	useEffect(() => {
-		checkCredentialsAndWarn(controller.credentials, {
-			flowName: 'Worker Token Flow',
-			requiredFields: ['environmentId', 'clientId', 'clientSecret'],
-			showToast: true,
-		});
+		const applyDefaults = (envId: string | null) => {
+			if (!envId?.trim()) return;
+			const current = controller.credentials.environmentId?.trim();
+			if (current) return;
+			controller.setCredentials({ ...controller.credentials, environmentId: envId });
+			V9CredentialStorageService.save('v9:worker-token', { environmentId: envId } as StepCredentials, {
+				environmentId: envId,
+			});
+		};
 
+		// Do not show credentials warning on mount: saved credentials load async and env ID is defaulted.
+		// Validation happens when the user opens Get Worker Token or tries to generate a token.
 		const saved = V9CredentialStorageService.loadSync('v9:worker-token');
 		if (saved && (saved.clientId || saved.environmentId)) {
 			controller.setCredentials({ ...controller.credentials, ...saved });
@@ -94,57 +120,105 @@ const WorkerTokenFlowV9: React.FC = () => {
 			if (c && (c.clientId || c.environmentId)) {
 				controller.setCredentials({ ...controller.credentials, ...c });
 			}
+			// If loaded credentials had no environment ID, use default from persistence
+			if (!c?.environmentId?.trim()) {
+				const persisted = environmentIdPersistenceService.loadEnvironmentId();
+				applyDefaults(persisted ?? null);
+			}
+		});
+
+		unifiedWorkerTokenService.loadCredentials().then((result) => {
+			if (!result.success || !result.data?.environmentId) return;
+			// Apply unified worker token env ID as default only when current credentials still have none
+			const current = controller.credentials.environmentId?.trim();
+			if (!current) applyDefaults(result.data.environmentId);
 		});
 	}, []);
 
 	const [currentStep] = useState(0);
 	const [workerToken, setWorkerToken] = useState(() => getAnyWorkerToken() ?? '');
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Keep workerToken display in sync with storage
 	useEffect(() => {
 		const onStorage = () => setWorkerToken(getAnyWorkerToken() ?? '');
+		const onTokenUpdated = () => setWorkerToken(getAnyWorkerToken() ?? '');
 		window.addEventListener('storage', onStorage);
-		return () => window.removeEventListener('storage', onStorage);
+		window.addEventListener('workerTokenUpdated', onTokenUpdated);
+		return () => {
+			window.removeEventListener('storage', onStorage);
+			window.removeEventListener('workerTokenUpdated', onTokenUpdated);
+		};
 	}, []);
 
-	// App picker callback — update controller + persist to V9 4-layer storage
-	const handleWorkerTokenAppSelected = useCallback(
-		(app: DiscoveredApp) => {
-			const updated = { ...controller.credentials, clientId: app.id };
-			controller.setCredentials(updated);
-			V9CredentialStorageService.save(
-				'v9:worker-token',
-				{
-					clientId: app.id,
-					clientSecret: updated.clientSecret,
-					...(updated.environmentId ? { environmentId: updated.environmentId } : {}),
-				},
-				updated.environmentId ? { environmentId: updated.environmentId } : {}
-			);
-		},
-		[controller]
+	// Worker Token section — Get Worker Token button + status display (same pattern as Unified OAuth page)
+	const renderWorkerTokenSection = () => (
+		<StepContainer>
+			<StepTitle>🔑 Get Worker Token</StepTitle>
+			<StyledHelperText>
+				Generate or manage your worker token for PingOne Management API access. Use the button below to open the worker token modal, then use the credentials section to configure environment and app.
+			</StyledHelperText>
+			<div style={{ marginBottom: '20px' }}>
+				<button
+					type="button"
+					onClick={() => setShowWorkerTokenModal(true)}
+					style={{
+						padding: '10px 20px',
+						border: 'none',
+						borderRadius: '8px',
+						background: `linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%)`,
+						color: 'white',
+						cursor: 'pointer',
+						fontWeight: 600,
+						fontSize: '14px',
+						display: 'inline-flex',
+						alignItems: 'center',
+						gap: '8px',
+					}}
+				>
+					<span>🔑</span>
+					<span>Get Worker Token</span>
+				</button>
+			</div>
+			<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
+		</StepContainer>
 	);
 
-	// Step 0 — Credentials
+	// Step 0 — Credentials (app picker + credentials form). Environment ID is defaulted; user can enter Issuer URL or provider.
+	const defaultEnvId = controller.credentials.environmentId?.trim() ?? '';
+	const discoveryInitialValue =
+		controller.credentials.issuerUrl?.trim() ||
+		(defaultEnvId ? `https://auth.pingone.com/${defaultEnvId}/as` : '');
+
 	const renderStep0 = () => (
 		<StepContainer>
 			<StepTitle>🔑 Configure Worker Token Credentials</StepTitle>
-			<StyledHelperText>
-				Configure your PingOne environment and worker application credentials. Worker tokens are
-				used for machine-to-machine authentication with PingOne Management APIs.
-			</StyledHelperText>
 
-			<CompactAppPickerV8U
-				environmentId={controller.credentials.environmentId ?? ''}
-				onAppSelected={handleWorkerTokenAppSelected}
-			/>
+			<FlowTypeLabel>
+				<FlowTypeLabelTitle>Worker Token (Client Credentials)</FlowTypeLabelTitle>
+				<FlowTypeLabelSub>
+					Use credentials from your <strong>PingOne Management API / Worker app</strong>. In PingOne: go to Applications → your M2M or API application used for Management API access. Use <strong>App lookup</strong> below to discover apps and apply Client ID and Secret without leaving this page.
+				</FlowTypeLabelSub>
+			</FlowTypeLabel>
+
+			<StyledHelperText>
+				Environment ID is used by default from your saved worker token or last-used environment. You do not need to enter it unless you want a different one. Optionally enter an <strong>Issuer URL</strong> or <strong>provider</strong> in the discovery field below to use a different environment.
+			</StyledHelperText>
 
 			<ComprehensiveCredentialsService
 				flowType="worker-token-v9"
-				environmentId={controller.credentials.environmentId || ''}
+				title="Worker Token credentials"
+				subtitle="Client ID and Secret from your PingOne Worker / Management API app. Use App lookup above to discover and apply."
+				environmentId={defaultEnvId}
+				initialDiscoveryInput={discoveryInitialValue}
+				discoveryPlaceholder="Optional: enter Issuer URL or provider to use instead of default environment"
 				clientId={controller.credentials.clientId || ''}
 				clientSecret={controller.credentials.clientSecret || ''}
 				scopes={controller.credentials.scopes || ''}
+				showConfigChecker={true}
+				workerToken={workerToken}
+				appLookupSectionTitle="App lookup – Worker Token"
+				appLookupSectionSubtitle="Discover apps from PingOne and apply Client ID + Secret to this section (no need to open PingOne)."
 				onEnvironmentIdChange={(value) => {
 					const updated = { ...controller.credentials, environmentId: value };
 					controller.setCredentials(updated);
@@ -267,8 +341,6 @@ const WorkerTokenFlowV9: React.FC = () => {
 				showLoginHint={false}
 				showAdvancedConfig={false}
 				defaultCollapsed={false}
-				workerToken={workerToken}
-				showConfigChecker={false}
 				region="NA"
 			/>
 
@@ -598,9 +670,21 @@ curl -X GET \\
 		<Container>
 			<FlowHeader flowId="worker-token-v9" />
 
+			{/* Get Worker Token display — button + status */}
+			{renderWorkerTokenSection()}
+
 			{currentStep === 0 && renderStep0()}
 			{currentStep === 1 && renderStep1()}
 			{currentStep === 2 && renderStep2()}
+
+			<WorkerTokenModalV9
+				isOpen={showWorkerTokenModal}
+				onClose={() => setShowWorkerTokenModal(false)}
+				onTokenGenerated={() => {
+					setWorkerToken(getAnyWorkerToken() ?? '');
+					window.dispatchEvent(new Event('workerTokenUpdated'));
+				}}
+			/>
 		</Container>
 	);
 };

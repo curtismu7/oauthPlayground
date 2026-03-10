@@ -7,6 +7,7 @@
  */
 
 import { logger } from '../../utils/logger';
+import { getAnyWorkerToken } from '../../utils/workerTokenDetection';
 export type TokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing';
 
 export interface TokenStatusInfo {
@@ -50,70 +51,80 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 
 /**
  * Synchronous check worker token status (for backward compatibility)
- * Uses memory cache only - may be stale but is fast
+ * Checks unified_worker_token first, then falls back to getAnyWorkerToken (worker_token, pingone_worker_token_*, etc.)
  */
 export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 	try {
-		// Quick synchronous check using localStorage only
+		// Try unified_worker_token first (full structure with expiration)
 		const stored = localStorage.getItem('unified_worker_token');
-		if (!stored) {
+		if (stored) {
+			const data = JSON.parse(stored);
+			const token = data.token || data.data?.token;
+			if (token) {
+				const now = Date.now();
+				const rawExpires =
+					data.expiresAt ||
+					data.data?.expiresAt ||
+					(data.savedAt || data.data?.savedAt || 0) + 3600 * 1000;
+				// Normalize to number (storage may have ISO string or ms number)
+				const expiresAt =
+					typeof rawExpires === 'number' && !Number.isNaN(rawExpires)
+						? rawExpires
+						: new Date(rawExpires).getTime();
+				const isExpired = Number.isNaN(expiresAt) ? true : now >= expiresAt;
+				const minutesRemaining = Number.isNaN(expiresAt)
+					? 0
+					: Math.max(0, Math.floor((expiresAt - now) / 60000));
+
+				if (isExpired) {
+					const expiresAtIso =
+						Number.isNaN(expiresAt) || expiresAt <= 0
+							? String(expiresAt)
+							: new Date(expiresAt).toISOString();
+					logger.warn('[WORKER-TOKEN-STATUS] Token expired:', {
+						now: new Date(now).toISOString(),
+						expiresAt: expiresAtIso,
+						minutesOverdue: Number.isNaN(expiresAt) ? 0 : Math.floor((now - expiresAt) / 60000),
+						tokenLength: token.length,
+						dataStructure: Object.keys(data),
+					});
+				}
+
+				let tokenStatus: TokenStatus = 'valid';
+				let message = 'Worker token is valid and ready to use.';
+				if (isExpired) {
+					tokenStatus = 'expired';
+					message = 'Worker token has expired. Please generate a new one.';
+				} else if (minutesRemaining < 5) {
+					tokenStatus = 'expiring-soon';
+					message = `Worker token expires in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}.`;
+				}
+				return {
+					status: tokenStatus,
+					message,
+					isValid: !isExpired,
+					expiresAt: Number.isNaN(expiresAt) ? undefined : expiresAt,
+					minutesRemaining,
+					token,
+				};
+			}
+		}
+
+		// Fallback: check worker_token, pingone_worker_token_*, etc. (from Worker Token flow, Token Monitoring, etc.)
+		const fallbackToken = getAnyWorkerToken();
+		if (fallbackToken) {
 			return {
-				status: 'missing',
-				message: 'No worker token data found.',
-				isValid: false,
+				status: 'valid',
+				message: 'Worker token found (from Worker Token flow or Token Monitoring).',
+				isValid: true,
+				token: fallbackToken,
 			};
-		}
-
-		const data = JSON.parse(stored);
-
-		// Handle unified service data structure
-		const token = data.token || data.data?.token;
-		if (!token) {
-			return {
-				status: 'missing',
-				message: 'No worker token found.',
-				isValid: false,
-			};
-		}
-
-		// Check expiration - handle both old and new data structures
-		const now = Date.now();
-		const expiresAt =
-			data.expiresAt ||
-			data.data?.expiresAt ||
-			(data.savedAt || data.data?.savedAt || 0) + 3600 * 1000; // Default 1 hour
-		const isExpired = now >= expiresAt;
-		const minutesRemaining = Math.max(0, Math.floor((expiresAt - now) / 60000));
-
-		// Debug logging for expired tokens
-		if (isExpired) {
-			logger.warn('[WORKER-TOKEN-STATUS] Token expired:', {
-				now: new Date(now).toISOString(),
-				expiresAt: new Date(expiresAt).toISOString(),
-				minutesOverdue: Math.floor((now - expiresAt) / 60000),
-				tokenLength: token.length,
-				dataStructure: Object.keys(data),
-			});
-		}
-
-		let tokenStatus: TokenStatus = 'valid';
-		let message = 'Worker token is valid and ready to use.';
-
-		if (isExpired) {
-			tokenStatus = 'expired';
-			message = 'Worker token has expired. Please generate a new one.';
-		} else if (minutesRemaining < 5) {
-			tokenStatus = 'expiring-soon';
-			message = `Worker token expires in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}.`;
 		}
 
 		return {
-			status: tokenStatus,
-			message,
-			isValid: !isExpired,
-			expiresAt,
-			minutesRemaining,
-			token: token, // Use the extracted token from either old or new structure
+			status: 'missing',
+			message: 'No worker token found.',
+			isValid: false,
 		};
 	} catch (error) {
 		logger.error('Error checking worker token status (sync):', error);

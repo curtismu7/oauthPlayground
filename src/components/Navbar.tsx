@@ -37,7 +37,8 @@ const NavbarContainer = styled.nav<{ $sidebarOpen?: boolean; $sidebarWidth?: num
 	display: flex;
 	align-items: center;
 	padding: 0 1.5rem;
-	z-index: 999;
+	/* Above EnhancedFloatingLogViewer (9999) so nav is never covered by floating panels */
+	z-index: 10050;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	transition: left 0.3s ease;
 

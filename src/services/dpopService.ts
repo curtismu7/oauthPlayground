@@ -222,12 +222,11 @@ export class DPoPService {
 		const signingInput = `${encodedHeader}.${encodedPayload}`;
 		const signingInputBytes = encoder.encode(signingInput);
 
-		let algorithm: AlgorithmIdentifier;
-		if (DPoPService.config.algorithm === 'RS256') {
-			algorithm = 'RSASSA-PKCS1-v1_5';
-		} else {
-			algorithm = 'ECDSA';
-		}
+		// Web Crypto sign() requires full algorithm objects; ECDSA needs hash.
+		const algorithm: RsaPssParams | EcdsaParams | AlgorithmIdentifier =
+			DPoPService.config.algorithm === 'RS256'
+				? { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }
+				: { name: 'ECDSA', hash: { name: 'SHA-256' } };
 
 		const signature = await window.crypto.subtle.sign(
 			algorithm,

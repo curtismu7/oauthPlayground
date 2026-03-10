@@ -5,6 +5,7 @@ import { FiAlertTriangle } from '../../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { showGlobalError } from '../../contexts/NotificationSystem';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { authorizeIssueCode, V7MAuthorizeRequest } from '../../services/v7m/V7MAuthorizeService';
 import {
 	introspectToken,
@@ -199,9 +200,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 					are generated deterministically based on your settings.
 				</p>
 			</div>
-			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<span>🔑</span> {title}
-			</h1>
+			<FlowHeader flowId="implicit-v7" />
 			<UnifiedCredentialManagerV9
 				environmentId="v7m-mock"
 				flowKey="v7m-implicit"
@@ -525,23 +524,23 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 						<span>📖</span> Step 3: Use Access Token
 					</header>
 					<div style={{ padding: 12 }}>
-						<div style={{ display: 'flex', gap: 8 }}>
+						<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
 							<button type="button" onClick={handleUserInfo} style={buttonStyle}>
 								Call UserInfo Endpoint
-								<V7MInfoIcon
-									label=""
-									title="About UserInfo Endpoint"
-									onClick={() => setShowUserInfoHelp(true)}
-								/>
 							</button>
+							<V7MInfoIcon
+								label=""
+								title="About UserInfo Endpoint"
+								onClick={() => setShowUserInfoHelp(true)}
+							/>
 							<button type="button" onClick={handleIntrospect} style={buttonStyle}>
 								Introspect Token
-								<V7MInfoIcon
-									label=""
-									title="About Token Introspection"
-									onClick={() => setShowIntrospectionHelp(true)}
-								/>
 							</button>
+							<V7MInfoIcon
+								label=""
+								title="About Token Introspection"
+								onClick={() => setShowIntrospectionHelp(true)}
+							/>
 						</div>
 						{userinfoResponse && (
 							<div style={{ marginTop: 12 }}>
@@ -785,9 +784,9 @@ const buttonStyle: React.CSSProperties = {
 
 const smallButtonStyle: React.CSSProperties = {
 	padding: '6px 12px',
-	background: '#6b7280',
-	color: 'white',
-	border: 'none',
+	background: 'white',
+	color: '#2563eb',
+	border: '1px solid #2563eb',
 	borderRadius: 4,
 	cursor: 'pointer',
 	fontSize: 12,

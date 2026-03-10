@@ -10,8 +10,12 @@ import fetch from 'node-fetch';
 
 dotenv.config();
 
-const BASE_URL = 'https://localhost:3000';
+const BASE_URL = process.env.BASE_URL || process.env.API_BASE_URL || 'https://localhost:3000';
 const API_BASE = `${BASE_URL}/api/pingone/password`;
+const region = process.env.PINGONE_REGION || process.env.REGION || 'us';
+
+// Auth region map (auth.pingone.{tld})
+const AUTH_REGION_MAP = { us: 'com', na: 'com', eu: 'eu', ca: 'ca', ap: 'asia', asia: 'asia', au: 'com.au', sg: 'sg' };
 
 // Test configuration
 const config = {
@@ -21,6 +25,7 @@ const config = {
 	testUserId: process.argv[2] || process.env.TEST_USER_ID || 'test-user-id',
 	testPassword: 'TestPassword123!',
 	testRecoveryCode: '123456',
+	region,
 };
 
 console.log(
@@ -58,7 +63,8 @@ async function getWorkerToken() {
 	log('\n🔑 Getting Worker Token...', colors.blue);
 
 	try {
-		const tokenEndpoint = `https://auth.pingone.com/${config.environmentId}/as/token`;
+		const authTld = AUTH_REGION_MAP[config.region?.toLowerCase()] || 'com';
+		const tokenEndpoint = `https://auth.pingone.${authTld}/${config.environmentId}/as/token`;
 		const response = await fetch(tokenEndpoint, {
 			method: 'POST',
 			headers: {
@@ -91,7 +97,13 @@ async function testPasswordState() {
 	log('\n📊 Testing: Read Password State', colors.blue);
 
 	try {
-		const url = `${API_BASE}/state?environmentId=${config.environmentId}&userId=${config.testUserId}&workerToken=${workerToken}`;
+		const params = new URLSearchParams({
+			environmentId: config.environmentId,
+			userId: config.testUserId,
+			workerToken,
+		});
+		if (config.region) params.set('region', config.region);
+		const url = `${API_BASE}/state?${params.toString()}`;
 		const response = await fetch(url, {
 			method: 'GET',
 			headers: {
@@ -129,6 +141,7 @@ async function testSendRecoveryCode() {
 				environmentId: config.environmentId,
 				userId: config.testUserId,
 				workerToken: workerToken,
+				...(config.region ? { region: config.region } : {}),
 			}),
 		});
 
@@ -163,6 +176,7 @@ async function testRecoverPassword() {
 				workerToken: workerToken,
 				recoveryCode: config.testRecoveryCode,
 				newPassword: config.testPassword,
+				...(config.region ? { region: config.region } : {}),
 			}),
 		});
 
@@ -196,6 +210,7 @@ async function testCheckPassword() {
 				userId: config.testUserId,
 				workerToken: workerToken,
 				password: config.testPassword,
+				...(config.region ? { region: config.region } : {}),
 			}),
 		});
 
@@ -230,6 +245,7 @@ async function testForcePasswordChange() {
 				environmentId: config.environmentId,
 				userId: config.testUserId,
 				workerToken: workerToken,
+				...(config.region ? { region: config.region } : {}),
 			}),
 		});
 
@@ -262,6 +278,7 @@ async function testUnlockPassword() {
 				environmentId: config.environmentId,
 				userId: config.testUserId,
 				workerToken: workerToken,
+				...(config.region ? { region: config.region } : {}),
 			}),
 		});
 
@@ -296,6 +313,7 @@ async function testSetPassword() {
 				workerToken: workerToken,
 				newPassword: config.testPassword,
 				forceChange: false,
+				...(config.region ? { region: config.region } : {}),
 			}),
 		});
 
@@ -330,6 +348,7 @@ async function testSetPasswordValue() {
 				workerToken: workerToken,
 				passwordValue: config.testPassword,
 				forceChange: false,
+				...(config.region ? { region: config.region } : {}),
 			}),
 		});
 
@@ -364,6 +383,7 @@ async function testAdminSetPassword() {
 				workerToken: workerToken,
 				newPassword: config.testPassword,
 				forceChange: false,
+				...(config.region ? { region: config.region } : {}),
 			}),
 		});
 
@@ -426,10 +446,11 @@ async function runTests() {
 	}
 
 	log(`\n📋 Configuration:`, colors.cyan);
+	log(`   Base URL: ${BASE_URL}`);
+	log(`   Region: ${config.region}`);
 	log(`   Environment ID: ${config.environmentId.substring(0, 20)}...`);
 	log(`   Client ID: ${config.clientId.substring(0, 20)}...`);
 	log(`   Test User ID: ${config.testUserId}`);
-	log(`   Base URL: ${BASE_URL}`);
 
 	// Get worker token first
 	const tokenObtained = await getWorkerToken();
