@@ -5605,11 +5605,26 @@ app.post('/api/par', async (req, res) => {
 // ============================================
 // PINGONE PASSWORD RESET ENDPOINTS
 // ============================================
+// Region map for PingOne API TLDs per https://developer.pingidentity.com/pingone-api/verify/working-with-pingone-apis.html
+const PASSWORD_REGION_MAP = {
+	us: 'com',
+	na: 'com',
+	eu: 'eu',
+	ca: 'ca',
+	ap: 'asia',
+	asia: 'asia',
+	au: 'com.au',
+	sg: 'sg',
+};
+function getPasswordApiBaseUrl(region) {
+	const tld = PASSWORD_REGION_MAP[region?.toLowerCase()] || 'com';
+	return `https://api.pingone.${tld}`;
+}
 
 // Send Recovery Code
 app.post('/api/pingone/password/send-recovery-code', async (req, res) => {
 	try {
-		const { environmentId, userId, workerToken } = req.body;
+		const { environmentId, userId, workerToken, region } = req.body;
 
 		if (!environmentId || !userId || !workerToken) {
 			return res.status(400).json({
@@ -5623,8 +5638,8 @@ app.post('/api/pingone/password/send-recovery-code', async (req, res) => {
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		// PingOne Platform API - Send recovery code
-		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password/recovery`;
+		const apiBase = getPasswordApiBaseUrl(region);
+		const pingOneUrl = `${apiBase}/v1/environments/${environmentId}/users/${userId}/password/recovery`;
 
 		const pingOneResponse = await fetch(pingOneUrl, {
 			method: 'POST',
@@ -5675,7 +5690,7 @@ app.post('/api/pingone/password/send-recovery-code', async (req, res) => {
 // Recover Password
 app.post('/api/pingone/password/recover', async (req, res) => {
 	try {
-		const { environmentId, userId, workerToken, recoveryCode, newPassword } = req.body;
+		const { environmentId, userId, workerToken, recoveryCode, newPassword, region } = req.body;
 
 		if (!environmentId || !userId || !workerToken || !recoveryCode || !newPassword) {
 			return res.status(400).json({
@@ -5690,7 +5705,8 @@ app.post('/api/pingone/password/recover', async (req, res) => {
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		const apiBase = getPasswordApiBaseUrl(region);
+		const pingOneUrl = `${apiBase}/v1/environments/${environmentId}/users/${userId}/password`;
 
 		const pingOneResponse = await fetch(pingOneUrl, {
 			method: 'POST',
@@ -5735,7 +5751,7 @@ app.post('/api/pingone/password/recover', async (req, res) => {
 // Force Password Change
 app.post('/api/pingone/password/force-change', async (req, res) => {
 	try {
-		const { environmentId, userId, workerToken } = req.body;
+		const { environmentId, userId, workerToken, region } = req.body;
 
 		if (!environmentId || !userId || !workerToken) {
 			return res.status(400).json({
@@ -5749,7 +5765,8 @@ app.post('/api/pingone/password/force-change', async (req, res) => {
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		const apiBase = getPasswordApiBaseUrl(region);
+		const pingOneUrl = `${apiBase}/v1/environments/${environmentId}/users/${userId}/password`;
 
 		const pingOneResponse = await fetch(pingOneUrl, {
 			method: 'POST',
@@ -5793,7 +5810,7 @@ app.post('/api/pingone/password/force-change', async (req, res) => {
 // Change Password
 app.post('/api/pingone/password/change', async (req, res) => {
 	try {
-		const { environmentId, userId, accessToken, oldPassword, newPassword } = req.body;
+		const { environmentId, userId, accessToken, oldPassword, newPassword, region } = req.body;
 
 		if (!environmentId || !userId || !accessToken || !oldPassword || !newPassword) {
 			return res.status(400).json({
@@ -5808,7 +5825,8 @@ app.post('/api/pingone/password/change', async (req, res) => {
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		const apiBase = getPasswordApiBaseUrl(region);
+		const pingOneUrl = `${apiBase}/v1/environments/${environmentId}/users/${userId}/password`;
 
 		const pingOneResponse = await fetch(pingOneUrl, {
 			method: 'POST',
@@ -5853,7 +5871,7 @@ app.post('/api/pingone/password/change', async (req, res) => {
 // Password Check
 app.post('/api/pingone/password/check', async (req, res) => {
 	try {
-		const { environmentId, userId, workerToken, password } = req.body;
+		const { environmentId, userId, workerToken, password, region } = req.body;
 
 		if (!environmentId || !userId || !workerToken || !password) {
 			return res.status(400).json({
@@ -5868,7 +5886,8 @@ app.post('/api/pingone/password/check', async (req, res) => {
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password/check`;
+		const apiBase = getPasswordApiBaseUrl(region);
+		const pingOneUrl = `${apiBase}/v1/environments/${environmentId}/users/${userId}/password/check`;
 
 		const pingOneResponse = await fetch(pingOneUrl, {
 			method: 'POST',
@@ -5912,8 +5931,15 @@ app.post('/api/pingone/password/check', async (req, res) => {
 // Update Password (Set)
 app.put('/api/pingone/password/set', async (req, res) => {
 	try {
-		const { environmentId, userId, workerToken, newPassword, forceChange, bypassPasswordPolicy } =
-			req.body;
+		const {
+			environmentId,
+			userId,
+			workerToken,
+			newPassword,
+			forceChange,
+			bypassPasswordPolicy,
+			region,
+		} = req.body;
 
 		if (!environmentId || !userId || !workerToken || !newPassword) {
 			return res.status(400).json({
@@ -5930,7 +5956,8 @@ app.put('/api/pingone/password/set', async (req, res) => {
 			bypassPasswordPolicy: bypassPasswordPolicy || false,
 		});
 
-		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		const apiBase = getPasswordApiBaseUrl(region);
+		const pingOneUrl = `${apiBase}/v1/environments/${environmentId}/users/${userId}/password`;
 
 		const requestBody = {
 			password: newPassword,
@@ -5986,8 +6013,15 @@ app.put('/api/pingone/password/set', async (req, res) => {
 // Update Password (Set Value)
 app.put('/api/pingone/password/set-value', async (req, res) => {
 	try {
-		const { environmentId, userId, workerToken, passwordValue, forceChange, bypassPasswordPolicy } =
-			req.body;
+		const {
+			environmentId,
+			userId,
+			workerToken,
+			passwordValue,
+			forceChange,
+			bypassPasswordPolicy,
+			region,
+		} = req.body;
 
 		if (!environmentId || !userId || !workerToken || !passwordValue) {
 			return res.status(400).json({
@@ -5997,12 +6031,13 @@ app.put('/api/pingone/password/set-value', async (req, res) => {
 			});
 		}
 
-		console.log('[🔐 PASSWORD] Reading password state...', {
+		console.log('[🔐 PASSWORD] Setting password value...', {
 			environmentId: `${environmentId?.substring(0, 20)}...`,
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		const apiBase = getPasswordApiBaseUrl(region);
+		const pingOneUrl = `${apiBase}/v1/environments/${environmentId}/users/${userId}/password`;
 
 		const requestBody = {
 			value: passwordValue,
@@ -6066,6 +6101,7 @@ app.put('/api/pingone/password/ldap-gateway', async (req, res) => {
 			ldapGatewayId,
 			forceChange,
 			bypassPasswordPolicy,
+			region,
 		} = req.body;
 
 		if (!environmentId || !userId || !workerToken || !newPassword) {
@@ -6083,7 +6119,8 @@ app.put('/api/pingone/password/ldap-gateway', async (req, res) => {
 			bypassPasswordPolicy: bypassPasswordPolicy || false,
 		});
 
-		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		const apiBase = getPasswordApiBaseUrl(region);
+		const pingOneUrl = `${apiBase}/v1/environments/${environmentId}/users/${userId}/password`;
 
 		const requestBody = {
 			password: newPassword,
@@ -6142,7 +6179,7 @@ app.put('/api/pingone/password/ldap-gateway', async (req, res) => {
 // Unlock Password (unlock a locked user account)
 app.post('/api/pingone/password/unlock', async (req, res) => {
 	try {
-		const { environmentId, userId, workerToken } = req.body;
+		const { environmentId, userId, workerToken, region } = req.body;
 
 		if (!environmentId || !userId || !workerToken) {
 			return res.status(400).json({
@@ -6156,7 +6193,8 @@ app.post('/api/pingone/password/unlock', async (req, res) => {
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		const apiBase = getPasswordApiBaseUrl(region);
+		const pingOneUrl = `${apiBase}/v1/environments/${environmentId}/users/${userId}/password`;
 
 		const pingOneResponse = await fetch(pingOneUrl, {
 			method: 'POST',
@@ -6199,7 +6237,7 @@ app.post('/api/pingone/password/unlock', async (req, res) => {
 // Read Password State (GET password status)
 app.get('/api/pingone/password/state', async (req, res) => {
 	try {
-		const { environmentId, userId, workerToken } = req.query;
+		const { environmentId, userId, workerToken, region } = req.query;
 
 		if (!environmentId || !userId || !workerToken) {
 			return res.status(400).json({
@@ -6213,7 +6251,8 @@ app.get('/api/pingone/password/state', async (req, res) => {
 			userId: `${String(userId).substring(0, 20)}...`,
 		});
 
-		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		const apiBase = getPasswordApiBaseUrl(region);
+		const pingOneUrl = `${apiBase}/v1/environments/${environmentId}/users/${userId}/password`;
 
 		const pingOneResponse = await fetch(pingOneUrl, {
 			method: 'GET',
@@ -6249,8 +6288,15 @@ app.get('/api/pingone/password/state', async (req, res) => {
 // Admin Set Password (PUT with admin/worker token)
 app.put('/api/pingone/password/admin-set', async (req, res) => {
 	try {
-		const { environmentId, userId, workerToken, newPassword, forceChange, bypassPasswordPolicy } =
-			req.body;
+		const {
+			environmentId,
+			userId,
+			workerToken,
+			newPassword,
+			forceChange,
+			bypassPasswordPolicy,
+			region,
+		} = req.body;
 
 		if (!environmentId || !userId || !workerToken || !newPassword) {
 			return res.status(400).json({
@@ -6265,7 +6311,8 @@ app.put('/api/pingone/password/admin-set', async (req, res) => {
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		const apiBase = getPasswordApiBaseUrl(region);
+		const pingOneUrl = `${apiBase}/v1/environments/${environmentId}/users/${userId}/password`;
 
 		const requestBody = { password: newPassword };
 		if (forceChange === true) requestBody.forceChange = true;
