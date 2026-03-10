@@ -5,7 +5,6 @@
 import { FiRefreshCw } from '../icons';
 import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
@@ -19,7 +18,6 @@ import {
 } from '../services/organizationLicensingService';
 import PageLayoutService from '../services/pageLayoutService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import V7StepperService from '../services/v7StepperService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { getOAuthTokens } from '../utils/tokenStorage';
@@ -211,36 +209,11 @@ const styles = {
 	} as React.CSSProperties,
 };
 
-// Create V5 stepper layout components
-const stepperComponents = V7StepperService.createStepLayout({
-	theme: 'blue',
-	showProgress: true,
-});
-
-const STEP_METADATA: Array<{ title: string; subtitle: string }> = [
-	{
-		title: 'Get Worker Token & License Information',
-		subtitle: 'Obtain a worker token and fetch organization licensing details',
-	},
-];
-
 const ORGANIZATION_ID_STORAGE_KEY = 'organizationLicensing.organizationId';
 
 const OrganizationLicensingV2: React.FC = () => {
 	usePageScroll({ pageName: 'Organization Licensing', force: true });
 
-	// Step management - only one step now (combined worker token + license info)
-	const [currentStep, setCurrentStep] = useState(0);
-
-	// Create stepper components dynamically
-	const currentStepData = STEP_METADATA[currentStep];
-	const StepperHeader = stepperComponents.StepHeader;
-	const StepperHeaderLeft = stepperComponents.StepHeaderLeft;
-	const StepperHeaderRight = stepperComponents.StepHeaderRight;
-	const StepperTitle = stepperComponents.StepHeaderTitle;
-	const StepperSubtitle = stepperComponents.StepHeaderSubtitle;
-	const StepperNumber = stepperComponents.StepNumber;
-	const StepperTotal = stepperComponents.StepTotal;
 	const [orgInfo, setOrgInfo] = useState<OrganizationInfo | null>(null);
 	const [allLicenses, setAllLicenses] = useState<OrganizationLicense[]>([]);
 	const [isFetchingOrgInfo, setIsFetchingOrgInfo] = useState(false);
@@ -349,7 +322,6 @@ const OrganizationLicensingV2: React.FC = () => {
 				});
 			}
 
-			setCurrentStep(0);
 			setHasInitialized(true);
 		};
 
@@ -375,25 +347,6 @@ const OrganizationLicensingV2: React.FC = () => {
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 	}, [credentials.environmentId]);
-
-	// Handle reset - go back to step 0 and reset initialized flag
-	const handleReset = () => {
-		setOrgInfo(null);
-		setAllLicenses([]);
-		setError(null);
-		// Reload credentials and tokens
-		const savedCreds = credentialManager.getAllCredentials();
-		if (savedCreds) {
-			setCredentials({
-				environmentId: savedCreds.environmentId || '',
-				clientId: savedCreds.clientId || '',
-				clientSecret: savedCreds.clientSecret || '',
-				redirectUri: savedCreds.redirectUri || '',
-				scope: 'p1:read:organization p1:read:licensing',
-				scopes: 'p1:read:organization p1:read:licensing',
-			});
-		}
-	};
 
 	const persistOrganizationId = (value: string) => {
 		setOrganizationId(value);
@@ -881,25 +834,6 @@ const OrganizationLicensingV2: React.FC = () => {
 		);
 	};
 
-	const canGoNext = () => {
-		// Only one step now, so navigation buttons are not needed
-		return false;
-	};
-
-	const canGoPrevious = () => false;
-
-	const handleNext = () => {
-		if (canGoNext()) {
-			setCurrentStep(currentStep + 1);
-		}
-	};
-
-	const handlePrevious = () => {
-		if (canGoPrevious()) {
-			setCurrentStep(currentStep - 1);
-		}
-	};
-
 	return (
 		<>
 			<FlowHeader flowId="organization-licensing" />
@@ -913,42 +847,16 @@ const OrganizationLicensingV2: React.FC = () => {
 							borderRadius: '12px',
 							marginBottom: '1.5rem',
 							boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-							display: 'flex',
-							justifyContent: 'space-between',
-							alignItems: 'center',
 						}}
 					>
-						<div>
-							<h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
-								📊 Organization Licensing
-							</h2>
-							<p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', opacity: 0.9 }}>
-								View your PingOne organization licensing information, usage statistics, and
-								available features
-							</p>
-						</div>
-						<div
-							style={{
-								background: 'rgba(255, 255, 255, 0.2)',
-								padding: '0.5rem 1rem',
-								borderRadius: '8px',
-								fontSize: '0.875rem',
-								fontWeight: 600,
-							}}
-						>
-							Step 1 of 1
-						</div>
+						<h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
+							📊 Organization Licensing
+						</h2>
+						<p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', opacity: 0.9 }}>
+							View your PingOne organization licensing information, usage statistics, and available
+							features
+						</p>
 					</div>
-					<StepperHeader>
-						<StepperHeaderLeft>
-							<StepperTitle>{currentStepData.title}</StepperTitle>
-							<StepperSubtitle>{currentStepData.subtitle}</StepperSubtitle>
-						</StepperHeaderLeft>
-						<StepperHeaderRight>
-							<StepperNumber>{currentStep + 1}</StepperNumber>
-							<StepperTotal>of {STEP_METADATA.length}</StepperTotal>
-						</StepperHeaderRight>
-					</StepperHeader>
 					{renderStep()}
 					{showWorkerTokenModal && (
 						<WorkerTokenModal
@@ -960,15 +868,6 @@ const OrganizationLicensingV2: React.FC = () => {
 							}}
 						/>
 					)}
-					<StepNavigationButtons
-						currentStep={currentStep}
-						totalSteps={STEP_METADATA.length}
-						onNext={handleNext}
-						onPrevious={handlePrevious}
-						onReset={handleReset}
-						canNavigateNext={canGoNext()}
-						isFirstStep
-					/>
 				</ContentWrapper>
 			</PageContainer>
 		</>
