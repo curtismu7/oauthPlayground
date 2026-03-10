@@ -122,6 +122,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/pingone-dashboard', 'Platform Dashboard', true],
 			['/cleanliness-dashboard', 'Component Cleanliness Dashboard', true],
 			['/api-status', 'API Status', true],
+			['/cleanup-history', 'App update History', true],
 		]),
 	},
 	{
@@ -174,6 +175,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/v7/oauth/ropc', 'Resource Owner Password (ROPC)', true, true],
 						['/flows/dpop', 'DPoP (Proof of Possession)', true, true],
 						['/flows/rar-v9', 'Rich Authorization Requests (RAR)', true, true],
+						['/flows/par-v9', 'Pushed Authorization Requests (PAR)', true, true],
 						['/flows/saml-sp-dynamic-acs-v1', 'SAML SP Dynamic ACS', true, true],
 						['/v8u/spiffe-spire/attest', 'SPIFFE/SPIRE', true, true],
 					],
@@ -298,7 +300,6 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/organization-licensing', 'Organization Licensing', true],
 			['/pingone-user-profile', 'User Profile', true],
 			['/security/password-reset', 'Password Reset', true],
-			['/cleanup-history', '100+ Hours Cleanup History', true],
 			['/v8/mfa-feature-flags', 'MFA Feature Flags', true],
 			['/advanced-security-settings', 'Advanced Security Settings', true],
 		]),

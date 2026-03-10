@@ -38,6 +38,9 @@ export type MFAFeatureFlag =
 
 export type RolloutPercentage = 0 | 10 | 50 | 100;
 
+/** When true, all flags are treated as 100% enabled; storage and admin UI are effectively hidden. */
+export const MFA_FLAGS_ALWAYS_100 = true;
+
 interface FeatureFlagState {
 	enabled: boolean;
 	rolloutPercentage: RolloutPercentage;
@@ -78,6 +81,7 @@ export class MFAFeatureFlagsV8 {
 	 * @returns true if flag is enabled for this user, false otherwise
 	 */
 	static isEnabled(flag: MFAFeatureFlag): boolean {
+		if (MFA_FLAGS_ALWAYS_100) return true;
 		const state = MFAFeatureFlagsV8.getFlagState(flag);
 
 		// If flag is disabled, always return false
@@ -130,6 +134,9 @@ export class MFAFeatureFlagsV8 {
 	 * @returns The current state of the flag
 	 */
 	static getFlagState(flag: MFAFeatureFlag): FeatureFlagState {
+		if (MFA_FLAGS_ALWAYS_100) {
+			return { enabled: true, rolloutPercentage: 100, lastUpdated: Date.now() };
+		}
 		const flags = MFAFeatureFlagsV8.getAllFlags();
 		return flags[flag] || DEFAULT_FLAGS[flag];
 	}
@@ -140,6 +147,16 @@ export class MFAFeatureFlagsV8 {
 	 * @returns Record of all feature flags and their states
 	 */
 	static getAllFlags(): Record<MFAFeatureFlag, FeatureFlagState> {
+		if (MFA_FLAGS_ALWAYS_100) {
+			const now = Date.now();
+			return (Object.keys(DEFAULT_FLAGS) as MFAFeatureFlag[]).reduce(
+				(acc, flag) => {
+					acc[flag] = { enabled: true, rolloutPercentage: 100, lastUpdated: now };
+					return acc;
+				},
+				{} as Record<MFAFeatureFlag, FeatureFlagState>
+			);
+		}
 		try {
 			const stored = localStorage.getItem(MFAFeatureFlagsV8.STORAGE_KEY);
 			if (!stored) return { ...DEFAULT_FLAGS };

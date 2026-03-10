@@ -29,7 +29,32 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Logging, log viewer & automation
+
+- **Log streams at startup and Log Viewer visibility (2026-03)**
+  - **What:** Startup script now lists all log streams (server.log, pingone-api.log, client.log, authz-redirects.log), bootstraps the three file-based streams so they exist from first run, and documents that all use `[timestamp] [localTime]` format. The log list API returns these four in a stable order first so the Log Viewer shows them consistently.
+  - **Files:** `server.js` (LOG_STREAMS, writeBootstrapLogLine, /api/logs/list sort order)
+  - **Regression check:** Start server; confirm startup logs mention all four streams and “format: [timestamp] [localTime]”. Open Log Viewer (floating or popout); select each of server.log, pingone-api.log, client.log, authz-redirects.log — all should be listed and viewable; entries should show date/time per line.
+
+- **Post-commit hook runs update-dashboards (2026-03)**
+  - **What:** After every commit, dashboards (e.g. cleanup history, session data) are refreshed by running `npm run update-dashboards`. Hook is version-controlled in `.husky/post-commit` so all clones get it after `npm install` (prepare runs husky).
+  - **Files:** `.husky/post-commit`, `scripts/update-dashboards.mjs`, `package.json` (script: `update-dashboards`)
+  - **Regression check:** Make a commit; verify no hook error; optionally open `/cleanup-history` (or dashboard that uses script output) and confirm data is up to date.
+
 ### Worker token & environments
+
+- **Worker token credentials: load/save from IndexedDB/SQLite across all apps (2026-02)**
+  - **Rule:** Opening any flow or app that uses worker token credentials should load from **unified storage (IndexedDB/SQLite) first**, so credentials saved in the Worker Token modal or elsewhere appear in the form. Saving credentials from the Worker Token page (or any flow that persists worker creds) must also update IndexedDB/SQLite so they persist and load correctly on the next visit.
+  - **Apps/services updated:**
+    - **useWorkerTokenFlowController** (used by `/flows/worker-token-v9` and any flow using this hook): Already loads from `unifiedTokenStorage.getWorkerTokenCredentials()` on mount and saves via `unifiedTokenStorage.storeWorkerTokenCredentials()` — no change.
+    - **ComprehensiveCredentialsService**: On mount, loads worker credentials from `unifiedWorkerTokenService.loadCredentials()` (IndexedDB/SQLite first); Config Checker uses `retrievedWorkerCredentials` state (populated from unified storage). Sync fallback remains `localStorage` in `checkWorkerToken`.
+    - **useAutoEnvironmentId**: If canonical `loadEnvironmentId()` returns no valid env ID, tries `unifiedWorkerTokenService.loadCredentials()` and sets environment ID from worker credentials so env ID saved in Worker Token modal appears.
+    - **PingOneAuditActivities** (`/audit-activities`): `executeApiCall` and `handleFetch` load region from `unifiedWorkerTokenService.loadCredentials()` first, then localStorage.
+    - **MFAFlow** (`/flows/mfa`): Both MFA API steps load region from `unifiedWorkerTokenService.loadCredentials()` first, then localStorage.
+    - **CompactAppPickerDemo**: On mount and on `workerTokenUpdated`, loads environment ID from `unifiedWorkerTokenService.loadCredentials()`; fallback to localStorage when unified storage has no env ID.
+  - **Saving:** Worker Token modal and Worker Token flow save via `unifiedWorkerTokenService` / `unifiedTokenStorage.storeWorkerTokenCredentials()`, so persistence to IndexedDB/SQLite is already in place for those paths.
+  - **Files:** `src/services/comprehensiveCredentialsService.tsx`, `src/hooks/useAutoEnvironmentId.ts`, `src/pages/PingOneAuditActivities.tsx`, `src/pages/flows/MFAFlow.tsx`, `src/pages/CompactAppPickerDemo.tsx`
+  - **Regression check:** Save worker token credentials on one page (e.g. Worker Token modal or `/flows/worker-token-v9`); open another app that uses worker credentials (e.g. Unified OAuth credential form, Audit Activities, Compact App Picker, or any page using `useAutoEnvironmentId`). Credentials (and env ID / region where used) must appear without re-entering.
 
 - **Environments page shows no environments despite valid worker token**
   - **Cause:** Token source mismatch: modal saves via `unifiedWorkerTokenService` (e.g. `localStorage` `unified_worker_token`), while `useGlobalWorkerToken` only used `workerTokenManager.getWorkerToken()`. Fetch could run before token was available or with a different token.
@@ -182,6 +207,7 @@ When changing the listed areas, run the corresponding checks to avoid regression
 
 ### Worker token & credentials
 
+- [ ] **Unified storage (IndexedDB/SQLite):** Any app that reads or displays worker token credentials (environmentId, clientId, clientSecret, region) must load from `unifiedWorkerTokenService.loadCredentials()` (or `unifiedTokenStorage.getWorkerTokenCredentials()`) first, then fall back to localStorage. Saving worker credentials must call `unifiedTokenStorage.storeWorkerTokenCredentials()` (or unifiedWorkerTokenService) so they persist. See Update log "Worker token credentials: load/save from IndexedDB/SQLite across all apps".
 - [ ] **Token source:** Any change to `unifiedWorkerTokenService`, `workerTokenManager`, or `workerTokenRepository` storage keys: verify `/environments` and “Discover Apps” still see a valid token after saving via Worker Token modal.
 - [ ] **useGlobalWorkerToken:** If you change how the hook gets the token, ensure it still prefers `unifiedWorkerTokenService` when that has a valid token (so it matches the modal).
 - [ ] **Environments page:** Changing `EnvironmentManagementPageV8.tsx` or `environmentServiceV8.ts`: with valid worker token, `/environments` must load the list; effect must depend on `isValid` and `token` so fetch runs when token becomes available.

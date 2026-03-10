@@ -33,7 +33,8 @@ const SidebarContainer = styled.div<{
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
-	z-index: 100; /* Ensure sidebar is above content */
+	/* Above EnhancedFloatingLogViewer (9999) so menu is never covered by floating panels */
+	z-index: 10050;
 `;
 
 // Resize handle - more visible and accessible
@@ -45,7 +46,7 @@ const ResizeHandle = styled.div`
 	height: 100%;
 	cursor: col-resize;
 	background: transparent;
-	z-index: 110; /* Above sidebar content */
+	z-index: 10051; /* Above sidebar content, keep within chrome stack */
 	transition: background 0.2s ease;
 
 	&::after {

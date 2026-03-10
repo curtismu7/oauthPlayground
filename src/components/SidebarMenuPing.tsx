@@ -528,37 +528,68 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 		[menuGroups, getDraggedData, saveOrder]
 	);
 
-	// Unified item drop — handles same-group reorder AND cross-group moves.
+	// Find item in group (main items or any subGroup) and remove it; returns [removedItem, nextGroups] or null.
+	function findAndRemoveItem(
+		groups: SidebarMenuGroup[],
+		groupId: string,
+		itemId: string
+	): { item: SidebarMenuItem; next: SidebarMenuGroup[] } | null {
+		const next = groups.map((g) => ({
+			...g,
+			items: [...g.items],
+			subGroups: g.subGroups?.map((sg) => ({ ...sg, items: [...sg.items] })),
+		}));
+		const gi = next.findIndex((g) => g.id === groupId);
+		if (gi === -1) return null;
+
+		const g = next[gi];
+		let srcIdx = g.items.findIndex((i) => i.id === itemId);
+		if (srcIdx !== -1) {
+			const [item] = g.items.splice(srcIdx, 1);
+			return { item, next };
+		}
+		if (g.subGroups) {
+			for (let si = 0; si < g.subGroups.length; si++) {
+				const sg = g.subGroups[si];
+				const idx = sg.items.findIndex((i) => i.id === itemId);
+				if (idx !== -1) {
+					const [item] = sg.items.splice(idx, 1);
+					return { item, next };
+				}
+			}
+		}
+		return null;
+	}
+
+	// Unified item drop — handles same-group reorder AND cross-group moves (including from subGroups).
 	const handleDropItem = useCallback(
 		(e: React.DragEvent, targetGroupId: string, targetIndex: number) => {
 			e.preventDefault();
 			e.stopPropagation();
 			setDropTargetItem(null);
-			// dataTransfer is the primary source — React state may be stale on first render
 			const data = getDraggedData(e);
 			if (!data || data.type !== 'item' || !data.groupId) return;
 			setDraggedItem(null);
 
-			const srcGroupIdx = menuGroups.findIndex((g) => g.id === data.groupId);
 			const tgtGroupIdx = menuGroups.findIndex((g) => g.id === targetGroupId);
-			if (srcGroupIdx === -1 || tgtGroupIdx === -1) return;
+			if (tgtGroupIdx === -1) return;
 
-			const srcItemIdx = menuGroups[srcGroupIdx].items.findIndex((i) => i.id === data.id);
-			if (srcItemIdx === -1) return;
+			const result = findAndRemoveItem(menuGroups, data.groupId, data.id);
+			if (!result) return;
 
-			// No-op: same group, same slot
-			if (data.groupId === targetGroupId && srcItemIdx === targetIndex) return;
+			const { item: removed, next } = result;
+			const sameGroup = data.groupId === targetGroupId;
 
-			// Deep-clone the affected groups' item arrays
-			const next = menuGroups.map((g) => ({ ...g, items: [...g.items] }));
-			const [removed] = next[srcGroupIdx].items.splice(srcItemIdx, 1);
-
-			if (data.groupId === targetGroupId) {
-				// Same-group reorder
-				const insertAt = targetIndex > srcItemIdx ? targetIndex - 1 : targetIndex;
-				next[srcGroupIdx].items.splice(Math.max(0, insertAt), 0, removed);
+			if (sameGroup) {
+				// Recompute source index from original (before removal) for same-group adjust
+				const srcGroup = menuGroups.find((g) => g.id === data.groupId);
+				let srcItemIdx = srcGroup?.items.findIndex((i) => i.id === data.id) ?? -1;
+				const inMain = srcItemIdx !== -1;
+				const insertAt = inMain
+					? (targetIndex > srcItemIdx ? targetIndex - 1 : targetIndex)
+					: Math.min(targetIndex, next[tgtGroupIdx].items.length);
+				next[tgtGroupIdx].items.splice(Math.max(0, insertAt), 0, removed);
 			} else {
-				// Cross-group move — open the target group so the item is visible
 				setOpenGroups((prev) => new Set([...prev, targetGroupId]));
 				const clampedIndex = Math.min(targetIndex, next[tgtGroupIdx].items.length);
 				next[tgtGroupIdx].items.splice(clampedIndex, 0, removed);
@@ -654,6 +685,9 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 				</output>
 			)}
 			{menuGroups.map((group, groupIndex) => {
+				// Hide Mock Flows section on unified flow pages so the UI shows no mock entries
+				if (pathname.startsWith('/v8u/unified') && group.id === 'mock-flows') return null;
+
 				const hasSub = (group.subGroups?.length ?? 0) > 0 || group.items.length > 1;
 				const isOpen = openGroups.has(group.id);
 				const iconName = GROUP_ICON[group.id] ?? 'folder-outline';
@@ -744,8 +778,50 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 							/>
 						)}
 						{/* biome-ignore lint/a11y/useSemanticElements: group wrapper for collapsible section, not form fieldset */}
-						<div role="group" className="sidebar-ping__group">
-							<div className="sidebar-ping__group-header-wrap">
+						<div
+							role="group"
+							className="sidebar-ping__group"
+							onDragOver={
+								dragMode && draggedItem?.type === 'item'
+									? (e) => {
+											e.preventDefault();
+											e.dataTransfer.dropEffect = 'move';
+											e.stopPropagation();
+										}
+									: undefined
+							}
+							onDrop={
+								dragMode && draggedItem?.type === 'item'
+									? (e) => {
+											e.preventDefault();
+											e.stopPropagation();
+											const countMain = group.items.length;
+											handleDropItem(e, group.id, countMain);
+										}
+									: undefined
+							}
+						>
+							<div
+								className="sidebar-ping__group-header-wrap"
+								onDragOver={
+									dragMode && draggedItem?.type === 'item'
+										? (e) => {
+												e.preventDefault();
+												e.dataTransfer.dropEffect = 'move';
+												e.stopPropagation();
+											}
+										: undefined
+								}
+								onDrop={
+									dragMode && draggedItem?.type === 'item'
+										? (e) => {
+												e.preventDefault();
+												e.stopPropagation();
+												handleDropItem(e, group.id, group.items.length);
+											}
+										: undefined
+								}
+							>
 								{dragMode && (
 									<span
 										className="sidebar-ping__drag-handle"

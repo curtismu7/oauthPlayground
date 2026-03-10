@@ -7,6 +7,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
@@ -258,11 +259,12 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 
 	if (!isOpen) return null;
 
-	return (
+	// Portal modal to document.body so it is never a descendant of a button (avoids validateDOMNesting)
+	const modalContent = (
 		<>
-			{/* Backdrop */}
-			<button
-				type="button"
+			{/* Backdrop - div to avoid button-inside-button DOM nesting */}
+			<div
+				role="presentation"
 				aria-label="Close app discovery modal"
 				onClick={onClose}
 				onKeyDown={(e) => {
@@ -282,7 +284,6 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'center',
-					border: 'none',
 					margin: 0,
 					padding: 0,
 					cursor: 'pointer',
@@ -561,13 +562,14 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 												style={{
 													padding: '8px 12px',
 													borderBottom: '1px solid #e5e7eb',
-													cursor: 'pointer',
+													borderTop: 'none',
+													borderRight: 'none',
 													borderLeft:
 														selectedAppId === app.id
 															? '3px solid #3b82f6'
 															: '3px solid transparent',
+													cursor: 'pointer',
 													transition: 'background 0.2s ease',
-													border: 'none',
 													background: selectedAppId === app.id ? '#eff6ff' : 'white',
 													textAlign: 'left',
 													width: '100%',
@@ -709,9 +711,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 							)}
 					</div>
 				</div>
-			</button>
+			</div>
 		</>
 	);
+	return createPortal(modalContent, document.body);
 };
 
 export default AppDiscoveryModalV8U;

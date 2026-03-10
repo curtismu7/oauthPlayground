@@ -315,7 +315,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 	// State management
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
 		config: false,
-		pingoneSetup: false,
+		pingoneSetup: true, // Collapsed by default — optional for mock exploration
 		authnRequest: false,
 		validation: false,
 		response: false,
@@ -822,7 +822,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 	const renderPingOneSetup = () => (
 		<CollapsibleHeader
-			title="PingOne Console Setup"
+			title="Optional: PingOne Console Setup (real credentials)"
 			icon={<span>🛡️</span>}
 			defaultCollapsed={collapsedSections.pingoneSetup}
 			showArrow={true}
@@ -830,10 +830,11 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			<InfoBox $variant="info">
 				<span>ℹ️</span>
 				<div>
-					<InfoTitle>Sync with PingOne SAML Application</InfoTitle>
+					<InfoTitle>Optional — Only for syncing with real PingOne</InfoTitle>
 					<InfoText>
-						Use your PingOne admin credentials to load or update the SAML application that should
-						always accept dynamic ACS URLs in signed AuthnRequests.
+						You can explore the full flow above without credentials. Provide PingOne admin
+						credentials here only if you want to fetch or update a real SAML application in your
+						PingOne environment.
 					</InfoText>
 				</div>
 			</InfoBox>
@@ -1258,6 +1259,26 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 	return (
 		<Container>
 			<FlowHeader flowId="saml-sp-dynamic-acs" />
+			<div
+				style={{
+					background: '#fef3c7',
+					border: '1px solid #fbbf24',
+					borderRadius: 8,
+					padding: 12,
+					margin: '0 auto 1.5rem',
+					maxWidth: 1200,
+					marginLeft: 'auto',
+					marginRight: 'auto',
+					marginBottom: '1.5rem',
+				}}
+			>
+				<strong>📚 Educational Mock Mode</strong>
+				<p style={{ margin: '8px 0 0 0', fontSize: 14 }}>
+					Configure and explore SAML SP Dynamic ACS without real credentials. Process AuthnRequests
+					locally. PingOne credentials are <strong>optional</strong> — only needed if you want to sync
+					with a real PingOne SAML application.
+				</p>
+			</div>
 			<ContentWrapper>
 				{renderConfiguration()}
 				<SectionDivider />

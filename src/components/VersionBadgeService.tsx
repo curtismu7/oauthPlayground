@@ -20,7 +20,8 @@ export type VersionBadgeType =
 	| 'production' // Production-ready applications
 	| 'new' // Newly created applications
 	| 'migrated' // Recently migrated applications
-	| 'updated'; // Updated with latest standards;
+	| 'updated' // Updated with latest standards
+	| 'mock'; // Mock / educational flow
 
 export interface VersionBadgeConfig {
 	type: VersionBadgeType;
@@ -89,6 +90,12 @@ const VERSION_BADGE_CONFIG = {
 		bgColor: 'rgba(16, 185, 129, 0.9)',
 		label: '✓ UPDATED',
 		description: 'Updated with Latest Standards',
+	},
+	mock: {
+		color: '#ffffff', // White text for purple background
+		bgColor: 'rgba(139, 92, 246, 0.9)',
+		label: 'MOCK',
+		description: 'Mock / Educational Flow',
 	},
 } as const;
 

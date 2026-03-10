@@ -2,6 +2,10 @@
 // Worker Token Credentials Service - Specialized service for managing PingOne Worker Token credentials
 // Provides client credentials grant configuration for machine-to-machine authentication
 
+import { logger } from '../utils/logger';
+import { unifiedTokenStorage } from './unifiedTokenStorageService';
+import { unifiedWorkerTokenService } from './unifiedWorkerTokenService';
+
 export interface WorkerTokenCredentials {
 	environmentId: string;
 	clientId: string;
@@ -62,9 +66,31 @@ class WorkerTokenCredentialsService {
 	};
 
 	/**
-	 * Load worker token credentials from storage
+	 * Load worker token credentials from storage. Tries IndexedDB/SQLite (unified storage) first so
+	 * credentials saved in the Worker Token modal or elsewhere appear here; falls back to localStorage.
 	 */
-	loadCredentials(flowType?: string): WorkerTokenCredentials | null {
+	async loadCredentials(flowType?: string): Promise<WorkerTokenCredentials | null> {
+		try {
+			const result = await unifiedWorkerTokenService.loadCredentials();
+			if (
+				result.success &&
+				result.data &&
+				(result.data.environmentId || result.data.clientId)
+			) {
+				const d = result.data;
+				return {
+					environmentId: d.environmentId || '',
+					clientId: d.clientId || '',
+					clientSecret: d.clientSecret ?? '',
+					scopes: d.scopes || this.DEFAULT_SCOPES,
+					tokenEndpoint: d.tokenEndpoint,
+					region: d.region || 'us',
+					tokenEndpointAuthMethod: d.tokenEndpointAuthMethod,
+				};
+			}
+		} catch {
+			// Fall through to localStorage
+		}
 		try {
 			const storageKey = this.getStorageKey(flowType);
 			const stored = localStorage.getItem(storageKey);
@@ -227,10 +253,16 @@ class WorkerTokenCredentialsService {
 	}
 
 	/**
-	 * Check if credentials exist in storage
+	 * Check if credentials exist in storage (localStorage only; for sync callers).
+	 * For full check including unified storage, use loadCredentials() and check for null.
 	 */
 	hasStoredCredentials(flowType?: string): boolean {
-		return this.loadCredentials(flowType) !== null;
+		try {
+			const storageKey = this.getStorageKey(flowType);
+			return localStorage.getItem(storageKey) !== null;
+		} catch {
+			return false;
+		}
 	}
 
 	/**

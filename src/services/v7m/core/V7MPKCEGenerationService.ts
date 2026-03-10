@@ -23,7 +23,10 @@ function stableHash(input: string): string {
 	return h.toString(16).padStart(8, '0');
 }
 
+/** Base64url encoding using browser-native Web APIs only (no Node.js Buffer). */
 function base64Url(input: string): string {
-	const b64 = Buffer.from(input, 'utf8').toString('base64');
-	return b64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+	const bytes = new TextEncoder().encode(input);
+	let binary = '';
+	for (const byte of bytes) binary += String.fromCharCode(byte);
+	return btoa(binary).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }

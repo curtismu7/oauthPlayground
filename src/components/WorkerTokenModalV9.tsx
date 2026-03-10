@@ -14,6 +14,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {
 	exportWorkerTokenCredentials,
@@ -24,8 +25,10 @@ import {
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageService';
 import { logger } from '../utils/logger';
+import { trackedFetch } from '../utils/trackedFetch';
 import { DraggableModal } from './DraggableModal';
 import { RegionSelect } from './RegionSelect';
+import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
 
 // ---------------------------------------------------------------------------
@@ -266,10 +269,11 @@ const StatusIndicator = styled.div<{ $status?: 'loading' | 'success' | 'error' }
 // MDI Icon Component
 // ---------------------------------------------------------------------------
 
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string; style?: React.CSSProperties }> = ({
 	icon,
 	size = 20,
 	className = '',
+	style,
 }) => {
 	const iconMap: Record<string, string> = {
 		FiKey: 'mdi-key',
@@ -282,11 +286,14 @@ const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = (
 		FiExternalLink: 'mdi-open-in-new',
 		FiEye: 'mdi-eye',
 		FiEyeOff: 'mdi-eye-off',
+		FiSettings: 'mdi-cog',
+		FiDownload: 'mdi-download',
+		FiUpload: 'mdi-upload',
 	};
 
 	const mdiIcon = iconMap[icon] || 'mdi-help';
 
-	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
+	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px`, ...style }}></i>;
 };
 
 // ---------------------------------------------------------------------------
@@ -310,6 +317,17 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 	onTokenGenerated,
 	skipCredentialsStep = false,
 }) => {
+	const navigate = useNavigate();
+
+	// Handler for Client Generator navigation
+	const handleGetWorkerToken = useCallback(() => {
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Navigating to Client Generator...',
+		});
+		navigate('/client-generator');
+		onClose();
+	}, [navigate, onClose]);
 	// State
 	const [credentials, setCredentials] = useState<{
 		environmentId: string;
@@ -339,6 +357,20 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 		'idle'
 	);
 	const [generatedToken, setGeneratedToken] = useState<string | null>(null);
+
+	// Educational mode state
+	const [showRequestModal, setShowRequestModal] = useState(false);
+	const [pendingRequestDetails, setPendingRequestDetails] = useState<{
+		tokenEndpoint: string;
+		requestParams: {
+			grant_type: string;
+			client_id: string;
+			client_secret: string;
+			scope?: string;
+		};
+		authMethod: string;
+		region: string;
+	} | null>(null);
 
 	const loadExistingCredentials = useCallback(async () => {
 		try {
@@ -431,41 +463,163 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 	}, [credentials]);
 
 	const handleGenerateToken = useCallback(async () => {
+		// Validate credentials first
+		if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
+			modernMessaging.showFooterMessage({
+				type: 'error',
+				message: 'Missing required credentials',
+			});
+			return;
+		}
+
+		// Build token endpoint
+		const region = credentials.region || 'us';
+		const tokenEndpoint = `https://auth.pingone.${region}/pingone/token`;
+
+		// Prepare request parameters
+		const bodyParams: Record<string, string> = {
+			grant_type: 'client_credentials',
+			client_id: credentials.clientId,
+			client_secret: credentials.clientSecret,
+		};
+
+		// Add scopes if provided
+		if (credentials.scopes && credentials.scopes.length > 0) {
+			bodyParams.scope = credentials.scopes.join(' ');
+		}
+
+		// Store request details and show educational modal
+		const requestDetails = {
+			tokenEndpoint,
+			requestParams: bodyParams,
+			authMethod: credentials.tokenEndpointAuthMethod || 'client_secret_post',
+			region,
+		};
+
+		setPendingRequestDetails(requestDetails);
+		setShowRequestModal(true);
+	}, [credentials]);
+
+	// Execute the actual token request (called from educational modal)
+	const executeTokenRequest = useCallback(async () => {
+		if (!pendingRequestDetails) {
+			modernMessaging.showFooterMessage({
+				type: 'error',
+				message: 'Request details not available',
+			});
+			return;
+		}
+
+		setShowRequestModal(false);
 		setIsGenerating(true);
 		setTokenStatus('generating');
 
 		try {
-			// Save credentials first if not already saved
+			const { tokenEndpoint, requestParams, authMethod } = pendingRequestDetails;
+
+			// Prepare headers and body based on authentication method
+			const headers: Record<string, string> = {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			};
+
+			const bodyParams: Record<string, string> = {
+				grant_type: requestParams.grant_type,
+				client_id: requestParams.client_id,
+				client_secret: requestParams.client_secret,
+			};
+
+			// Handle authentication method
+			switch (authMethod) {
+				case 'client_secret_basic':
+					headers['Authorization'] = `Basic ${btoa(`${requestParams.client_id}:${requestParams.client_secret}`)}`;
+					bodyParams.client_id = requestParams.client_id;
+					break;
+				case 'client_secret_post':
+					bodyParams.client_id = requestParams.client_id;
+					bodyParams.client_secret = requestParams.client_secret;
+					break;
+				default:
+					bodyParams.client_id = requestParams.client_id;
+					bodyParams.client_secret = requestParams.client_secret;
+			}
+
+			// Build request body
+			const body = new URLSearchParams();
+			Object.entries(bodyParams).forEach(([key, value]) => {
+				if (value !== undefined && value !== null && value !== '') {
+					body.append(key, String(value));
+				}
+			});
+
+			logger.info('WorkerTokenModalV9', 'Making real worker token request', {
+				endpoint: tokenEndpoint,
+				region: pendingRequestDetails.region,
+				hasScopes: !!bodyParams.scope,
+				authMethod,
+			});
+
+			// Make real API call
+			const response = await trackedFetch(tokenEndpoint, {
+				method: 'POST',
+				headers,
+				body: body.toString(),
+			});
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				let errorData: Record<string, unknown> = {};
+				try {
+					errorData = JSON.parse(errorText) as Record<string, unknown>;
+				} catch {
+					errorData = { raw: errorText };
+				}
+
+				throw new Error(
+					`Token request failed: ${response.status} ${response.statusText} - ${errorData.error_description || errorData.error || 'Unknown error'}`
+				);
+			}
+
+			const tokenData = await response.json();
+			const realToken = tokenData.access_token;
+
+			if (!realToken) {
+				throw new Error('No access token received');
+			}
+
+			// Save credentials and token
 			await unifiedWorkerTokenService.saveCredentials(credentials);
+			await unifiedWorkerTokenService.saveToken(realToken, {
+				expiresAt: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined,
+				expiresIn: tokenData.expires_in,
+				scope: tokenData.scope,
+				tokenType: tokenData.token_type,
+			});
 
-			// Generate token (this would integrate with actual token generation logic)
-			// For now, simulate token generation
-			await new Promise((resolve) => setTimeout(resolve, 2000));
-
-			const mockToken = `mock_worker_token_${Date.now()}`;
-
-			// Save token
-			await unifiedWorkerTokenService.saveToken(mockToken, credentials);
-
-			setGeneratedToken(mockToken);
+			setGeneratedToken(realToken);
 			setTokenStatus('success');
 
 			modernMessaging.showFooterMessage({
 				type: 'success',
-				message: 'Worker token generated successfully',
+				message: 'Real worker token generated successfully',
 			});
 
-			onTokenGenerated?.(mockToken);
-		} catch (_error) {
+			onTokenGenerated?.(realToken);
+		} catch (error) {
 			setTokenStatus('error');
+			const errorMessage = error instanceof Error ? error.message : 'Failed to generate worker token';
+			
+			logger.error('WorkerTokenModalV9', 'Token generation failed', {
+				error: errorMessage,
+			});
+
 			modernMessaging.showFooterMessage({
 				type: 'error',
-				message: 'Failed to generate worker token',
+				message: errorMessage,
 			});
 		} finally {
 			setIsGenerating(false);
 		}
-	}, [credentials, onTokenGenerated]);
+	}, [pendingRequestDetails, credentials, onTokenGenerated]);
 
 	const handleClearToken = useCallback(async () => {
 		try {
@@ -743,35 +897,52 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 						</InfoBox>
 					)}
 
-					{tokenStatus !== 'success' && (
-						<ButtonGroup>
-							<Button
-								$variant="primary"
-								onClick={handleGenerateToken}
-								disabled={!isFormValid || isGenerating}
-							>
-								{isGenerating ? (
-									<>
-										<MDIIcon
-											icon="FiRefreshCw"
-											size={16}
-											style={{ animation: 'spin 1s linear infinite' }}
-										/>
-										Generating...
-									</>
-								) : (
-									<>
-										<MDIIcon icon="FiKey" size={16} />
-										Generate Worker Token
-									</>
-								)}
-							</Button>
-						</ButtonGroup>
-					)}
-				</Section>
-			</ModalContent>
-		</DraggableModal>
-	);
+				{tokenStatus !== 'success' && (
+					<ButtonGroup>
+						<Button
+							$variant="primary"
+							onClick={handleGenerateToken}
+							disabled={!isFormValid || isGenerating}
+						>
+							{isGenerating ? (
+								<>
+									<MDIIcon
+										icon="FiRefreshCw"
+										size={16}
+										style={{ animation: 'spin 1s linear infinite' }}
+									/>
+									Generating...
+								</>
+							) : (
+								<>
+									<MDIIcon icon="FiKey" size={16} />
+									Generate Worker Token
+								</>
+							)}
+						</Button>
+						<Button $variant="secondary" onClick={handleGetWorkerToken}>
+							<MDIIcon icon="FiExternalLink" size={16} />
+							Use Client Generator
+						</Button>
+					</ButtonGroup>
+				)}
+			</Section>
+		</ModalContent>
+		
+		{/* Educational modal showing request details */}
+		{pendingRequestDetails && (
+			<WorkerTokenRequestModal
+				isOpen={showRequestModal}
+				onClose={() => setShowRequestModal(false)}
+				onProceed={executeTokenRequest}
+				tokenEndpoint={pendingRequestDetails.tokenEndpoint}
+				requestParams={pendingRequestDetails.requestParams}
+				authMethod={pendingRequestDetails.authMethod}
+				region={pendingRequestDetails.region}
+			/>
+		)}
+	</DraggableModal>
+);
 };
 
 export { WorkerTokenModalV9 };

@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { IdentityMetricsChart } from '../components/pingone/IdentityMetricsChart';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiRequestModalService } from '../services/apiRequestModalService';
@@ -283,7 +284,11 @@ const defaultDateRange = () => {
 
 type EndpointType = 'byDateRange' | 'byLicense' | 'simple';
 
-const PingOneIdentityMetrics: React.FC = () => {
+interface PingOneIdentityMetricsProps {
+	embedded?: boolean;
+}
+
+const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedded = false }) => {
 	const [{ start }, setDateRange] = useState(defaultDateRange);
 	const [samplingPeriod, setSamplingPeriod] = useState<string>('24'); // For activeIdentityCounts
 	const [endpointType, setEndpointType] = useState<EndpointType>('byDateRange');
@@ -579,8 +584,9 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 	return (
 		<>
-			<FlowHeader flowId="pingone-identity-metrics" />
-			<div style={styles.pageContainer}>
+			{!embedded && <FlowHeader flowId="pingone-identity-metrics" />}
+			<div style={embedded ? { ...styles.pageContainer, paddingTop: '0.5rem' } : styles.pageContainer}>
+				{!embedded && (
 				<div style={styles.headerCard}>
 					<div style={styles.titleRow}>
 						<i className="bi bi-bar-chart-line" />
@@ -605,6 +611,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 						</div>
 					)}
 				</div>
+				)}
 
 				<div style={styles.layoutGrid}>
 					<div style={styles.card}>
@@ -788,6 +795,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 						<div style={styles.resultContainer}>
 							{metrics ? (
 								<>
+									<IdentityMetricsChart activeIdentityCounts={activeIdentityCounts} />
 									{summary && (
 										<div
 											style={{

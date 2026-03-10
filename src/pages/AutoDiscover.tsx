@@ -134,7 +134,7 @@ const AutoDiscover: React.FC = () => {
 				timestamp: new Date(),
 			});
 
-			logger.success('AutoDiscover', 'Configuration saved to unified storage', {
+			logger.info('AutoDiscover', 'Configuration saved to unified storage', {
 				environmentId,
 				authEndpoint: config.authorization_endpoint,
 				tokenEndpoint: config.token_endpoint,

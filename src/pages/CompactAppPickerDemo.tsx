@@ -8,6 +8,7 @@ import { CompactApplicationPicker } from '../components/CompactApplicationPicker
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { logger } from '../utils/logger';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
 const PageContainer = styled.div`
@@ -179,6 +180,15 @@ const CompactAppPickerDemo: React.FC = () => {
 
 	const hasWorkerToken = !!workerToken;
 
+	// Load environment ID from unified storage (IndexedDB/SQLite) so credentials saved elsewhere appear
+	useEffect(() => {
+		unifiedWorkerTokenService.loadCredentials().then((result) => {
+			if (result.success && result.data?.environmentId) {
+				setEnvironmentId(result.data.environmentId);
+			}
+		});
+	}, []);
+
 	useEffect(() => {
 		const checkWorkerToken = () => {
 			const token = getAnyWorkerToken() || '';
@@ -193,11 +203,16 @@ const CompactAppPickerDemo: React.FC = () => {
 
 		const handleWorkerTokenUpdate = () => {
 			checkWorkerToken();
-			const credsStr = localStorage.getItem('worker_credentials');
-			const creds = credsStr ? JSON.parse(credsStr) : null;
-			if (creds?.environmentId) {
-				setEnvironmentId(creds.environmentId);
-			}
+			// Prefer unified storage (IndexedDB/SQLite), then localStorage
+			unifiedWorkerTokenService.loadCredentials().then((result) => {
+				if (result.success && result.data?.environmentId) {
+					setEnvironmentId(result.data.environmentId);
+					return;
+				}
+				const credsStr = localStorage.getItem('worker_credentials');
+				const creds = credsStr ? JSON.parse(credsStr) : null;
+				if (creds?.environmentId) setEnvironmentId(creds.environmentId);
+			});
 		};
 
 		window.addEventListener('storage', handleStorageChange);
