@@ -1158,3 +1158,17 @@ Node.js v22.16.0
   "flowKey": "oauth-authz-v8u_V8 oauth-authz-v8u_b9817c16-9910-4415-b67e-4ac687da74d9",
   "dataType": "object"
 }
+[2026-03-10T11:02:13.184Z] [03/10/2026, 06:02:13] [ℹ️ LOG] [2026-03-10T11:02:13.184Z] INFO  [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-10T11:02:14.122Z] [03/10/2026, 06:02:14] [ℹ️ LOG] [Config Checker] Handler called with query: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "workerToken": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMTRlMzAwNzItMGU1YS00ODlkLThhNmEtZGQwMjliZDU1ODAzIiwiaWF0IjoxNzczMTM0OTM4LCJleHAiOjE3NzMxMzg1MzgsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIxNGUzMDA3Mi0wZTVhLTQ4OWQtOGE2YS1kZDAyOWJkNTU4MDMifQ.MVXDAd0bEhy4oKQ00-lJTnQoaEPOGJp-k5W1wFar8fXNXWB9j5ELA4fjsadyVe-qSUJ6p4t6E_MjKI_fkw2laFzo1f3Ckkv242e7YaqpoyaWJVadQsd1mgxv8S7MIxoEouQnM_dgOeJfeAgJnzSpyab5bGVWFSY0WbxycJeDFQbcLMb2Cm0S9pqUWTOZ_QUBfHdZ1RcT1zqSXw4b740Sx8UgK2rNGmRp9ObaWUZ7ACCCVqigXW8PwXZIEIvF0gfpalT-MGbpokaJeYDMyMTgliB7EbUxWdn76N2BzM-9v_HnrZ2X4qC7Bm_w8b22jYHtjHsryn-DhxoFe2svV_gGwA"
+}
+[2026-03-10T11:02:14.122Z] [03/10/2026, 06:02:14] [ℹ️ LOG] [Config Checker] Using provided worker token
+[2026-03-10T11:02:14.122Z] [03/10/2026, 06:02:14] [ℹ️ LOG] [Config Checker] Fetching applications from: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/applications
+[2026-03-10T11:02:14.376Z] [03/10/2026, 06:02:14] [❌ ERROR] [Config Checker] Applications request failed: {"message":"User is not authorized to access this resource with an explicit deny in an identity-based policy"}
+[2026-03-10T11:02:17.210Z] [03/10/2026, 06:02:17] [ℹ️ LOG] [2026-03-10T11:02:17.210Z] INFO  [💾 BACKUP-DB] Saved backup: worker_token_b9817c16-9910-4415-b67e-4ac687da74d9 (type: worker_token)
+[2026-03-10T11:02:17.450Z] [03/10/2026, 06:02:17] [ℹ️ LOG] [Token Store] Storing token: {
+  "flowKey": "mfa-flow-v8_V8 mfa-flow-v8_b9817c16-9910-4415-b67e-4ac687da74d9",
+  "dataType": "object"
+}
