@@ -12,88 +12,88 @@ const Card = FlowUIService.getMainCard();
 const InfoBox = FlowUIService.getInfoBox();
 
 const ResourceGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-  margin: 1.5rem 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+	gap: 1.5rem;
+	margin: 1.5rem 0;
 `;
 
 const ResourceCard = styled.a`
-  background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
-  }
+	background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	text-decoration: none;
+	color: inherit;
+	transition: all 0.3s ease;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
 
-  h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		transform: translateY(-2px);
+		box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+	}
 
-  p {
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    font-size: 0.875rem;
-    line-height: 1.6;
-    margin: 0;
-  }
+	h3 {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+		margin: 0;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
 
-  .icon {
-    color: V9_COLORS.PRIMARY.BLUE;
-    font-size: 1.5rem;
-  }
+	p {
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		font-size: 0.875rem;
+		line-height: 1.6;
+		margin: 0;
+	}
 
-  .external-link {
-    margin-top: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: V9_COLORS.PRIMARY.BLUE;
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
+	.icon {
+		color: V9_COLORS.PRIMARY.BLUE;
+		font-size: 1.5rem;
+	}
+
+	.external-link {
+		margin-top: auto;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		color: V9_COLORS.PRIMARY.BLUE;
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
 `;
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
+	text-align: center;
+	margin-bottom: 3rem;
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, #8b5cf6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
+	h1 {
+		font-size: 2.5rem;
+		font-weight: 700;
+		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, #8b5cf6 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+		margin-bottom: 1rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+	}
 
-  p {
-    font-size: 1.25rem;
-    color: V9_COLORS.TEXT.GRAY_MEDIUM;
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
+	p {
+		font-size: 1.25rem;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		max-width: 800px;
+		margin: 0 auto;
+		line-height: 1.6;
+	}
 `;
 
 // Layout components at module scope — styled-components v6 calls useContext
@@ -364,6 +364,28 @@ const PingAIResources: React.FC = () => {
 								</p>
 								<span className="external-link">
 									View Guide <span>🔗</span>
+								</span>
+							</ResourceCard>
+
+							<ResourceCard
+								href="https://medium.com/data-science-collective/ai-agents-complete-course-f226aa4550a1"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<div className="icon">
+									<span>📚</span>
+								</div>
+								<h3>
+									AI Agents: Complete Course
+									<span>🔗</span>
+								</h3>
+								<p>
+									Structured guide from beginner to production by Marina Wyss (Amazon). Covers core
+									concepts, no-code experimentation, building and evaluating multi-agent systems,
+									and enterprise-scale agentic workflows.
+								</p>
+								<span className="external-link">
+									View Course <span>🔗</span>
 								</span>
 							</ResourceCard>
 						</ResourceGrid>

@@ -35,7 +35,7 @@ const AdvancedSecuritySettingsDemo = lazy(() => import('./pages/AdvancedSecurity
 
 // Lazy load heavy flow pages
 const MFAFlow = lazy(() => import('./pages/flows/MFAFlow'));
-const CIBAFlowV9 = lazy(() => import('./pages/flows/CIBAFlowV9'));
+// CIBAFlowV9 archived — /flows/ciba-v9 now redirects to /v8u/unified
 const DPoPFlow = lazy(() => import('./pages/flows/DPoPFlow'));
 const IDTokensFlow = lazy(() => import('./pages/flows/IDTokensFlow'));
 const JWTBearerFlow = lazy(() => import('./pages/flows/JWTBearerFlow'));
@@ -159,16 +159,12 @@ import TokenRevocationFlow from './pages/flows/TokenRevocationFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import UserInfoPostFlow from './pages/flows/UserInfoPostFlow';
 // V7RMOIDCResourceOwnerPasswordFlow removed — route redirects to /flows/oauth-ropc-v9
-import ClientCredentialsFlowV9 from './pages/flows/v9/ClientCredentialsFlowV9';
-import DeviceAuthorizationFlowV9 from './pages/flows/v9/DeviceAuthorizationFlowV9';
-import DPoPAuthorizationCodeFlowV9 from './pages/flows/v9/DPoPAuthorizationCodeFlowV9';
-import ImplicitFlowV9 from './pages/flows/v9/ImplicitFlowV9';
+// CIBAFlowV9, ClientCredentialsFlowV9, DeviceAuthorizationFlowV9, DPoPAuthorizationCodeFlowV9,
+// ImplicitFlowV9, OAuthAuthorizationCodeFlowV9, OAuthAuthorizationCodeFlowV9_Condensed, OIDCHybridFlowV9
+// — all redirect to /v8u/unified
 import JWTBearerTokenFlowV9 from './pages/flows/v9/JWTBearerTokenFlowV9';
 import MFAWorkflowLibraryFlowV9 from './pages/flows/v9/MFAWorkflowLibraryFlowV9';
-import OAuthAuthorizationCodeFlowV9 from './pages/flows/v9/OAuthAuthorizationCodeFlowV9';
-import OAuthAuthorizationCodeFlowV9_Condensed from './pages/flows/v9/OAuthAuthorizationCodeFlowV9_Condensed';
 import OAuthROPCFlowV9 from './pages/flows/v9/OAuthROPCFlowV9';
-import OIDCHybridFlowV9 from './pages/flows/v9/OIDCHybridFlowV9';
 import PingOnePARFlowV9 from './pages/flows/v9/PingOnePARFlowV9';
 import RARFlowV9 from './pages/flows/v9/RARFlowV9';
 import ResourcesAPIFlowV9 from './pages/flows/v9/ResourcesAPIFlowV9';
@@ -187,6 +183,7 @@ import { P1MFASamples } from './pages/P1MFASamples';
 import PARvsRAR from './pages/PARvsRAR';
 import PingAIResources from './pages/PingAIResources';
 import PingOneAuditActivities from './pages/PingOneAuditActivities';
+import PingOneDashboard from './pages/PingOneDashboard';
 import PingOneAuthentication from './pages/PingOneAuthentication';
 import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback';
 import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
@@ -211,7 +208,7 @@ import { PostmanCollectionGenerator as PostmanCollectionGeneratorV9 } from './pa
 import { FIDO2SampleApp } from './samples/p1mfa/fido2/FIDO2SampleApp';
 import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
 import { SMSSampleApp } from './samples/p1mfa/sms/SMSSampleApp';
-// CIBAFlowV8 archived — /flows/ciba-v8 now redirects to /flows/ciba-v9
+// CIBAFlowV8 — /flows/ciba-v8 redirects to /v8u/unified
 import { EmailMFASignOnFlowV8 } from './v8/flows/EmailMFASignOnFlowV8';
 // ImplicitFlowV8 archived — /flows/implicit-v8 now redirects to /flows/implicit-v9
 import { MFAConfigurationPageV8 } from './v8/flows/MFAConfigurationPageV8';
@@ -284,6 +281,8 @@ const V7MClientCredentialsV9 = lazy(() => import('./v7/pages/V7MClientCredential
 const V7MImplicitFlowV9 = lazy(() => import('./v7/pages/V7MImplicitFlowV9'));
 const V7MROPCV9 = lazy(() => import('./v7/pages/V7MROPCV9'));
 const V7MSettingsV9 = lazy(() => import('./v7/pages/V7MSettingsV9'));
+const V7MOIDCHybridFlowV9 = lazy(() => import('./v7/pages/V7MOIDCHybridFlowV9'));
+const V7MCIBAFlowV9 = lazy(() => import('./v7/pages/V7MCIBAFlowV9'));
 
 const AppContainer = styled.div`
 	display: flex;
@@ -687,19 +686,15 @@ const AppRoutes: React.FC = () => {
 								{/* V7 OAuth/OIDC Flow Routes — redirected to V9 */}
 								<Route
 									path="/flows/oauth-authorization-code-v7"
-									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
 								<Route
 									path="/flows/dpop-authorization-code-v8"
-									element={<Navigate to="/flows/dpop-authorization-code-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
 								<Route
 									path="/flows/dpop-authorization-code-v9"
-									element={
-										<React.Suspense fallback={<div>Loading...</div>}>
-											<DPoPAuthorizationCodeFlowV9 />
-										</React.Suspense>
-									}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
 								<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
 								<Route
@@ -796,7 +791,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/v8/protect" element={<PingOneProtectFlowV8 />} />
 								<Route
 									path="/flows/oauth-authorization-code-v7-condensed-mock"
-									element={<Navigate to="/flows/oauth-authorization-code-v9-condensed" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
 								<Route
 									path="/flows/mock-oidc-ropc"
@@ -874,39 +869,50 @@ const AppRoutes: React.FC = () => {
 										</Suspense>
 									}
 								/>
+								<Route
+									path="/v7/oidc/hybrid"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MOIDCHybridFlowV9 />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v7/oidc/ciba"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MCIBAFlowV9 />
+										</Suspense>
+									}
+								/>
 								<Route path="/flows/userinfo" element={<UserInfoPostFlow />} />
 								<Route path="/flows/token-revocation" element={<TokenRevocationFlow />} />
 								<Route path="/flows/pingone-logout" element={<PingOneLogoutFlow />} />
 								{/* Deprecated flows — redirect to V9 */}
 								<Route
 									path="/flows/oauth2-compliant-authorization-code"
-									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
 								<Route
 									path="/flows/oidc-compliant-authorization-code"
-									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
 								{/* Legacy V6 routes - redirect to V9 equivalents directly */}
 								<Route
 									path="/flows/oauth-authorization-code-v6"
-									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
 								<Route
 									path="/flows/oidc-authorization-code-v6"
-									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
-								{/* V7 Implicit Flow — redirected to V9 */}
+								{/* V7/V8 Implicit Flow — redirect to unified */}
+								<Route path="/flows/implicit-v7" element={<Navigate to="/v8u/unified" replace />} />
+								<Route path="/flows/implicit-v8" element={<Navigate to="/v8u/unified" replace />} />
 								<Route
-									path="/flows/implicit-v7"
-									element={<Navigate to="/flows/implicit-v9" replace />}
+									path="/flows/implicit-v9"
+									element={<Navigate to="/v7/oauth/implicit" replace />}
 								/>
-								{/* V8 Implicit Flow — redirected to V9 (same as v7) */}
-								<Route
-									path="/flows/implicit-v8"
-									element={<Navigate to="/flows/implicit-v9" replace />}
-								/>
-								{/* V9 Implicit Flow */}
-								<Route path="/flows/implicit-v9" element={<ImplicitFlowV9 />} />
 								{/* V8 Unified UI Mockup */}
 								<Route
 									path="/v8/unified-credentials-mockup"
@@ -1109,30 +1115,28 @@ const AppRoutes: React.FC = () => {
 								/>
 								<Route
 									path="/flows/oidc-implicit-v6"
-									element={<Navigate to="/flows/implicit-v9?variant=oidc" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
 								<Route
 									path="/flows/oauth-implicit-completion"
 									element={<OAuthImplicitFlowCompletion />}
 								/>
-								{/* V7 Device Authorization Flow — redirected to V9 */}
+								{/* Device Authorization — redirect to unified */}
 								<Route
 									path="/flows/device-authorization-v7"
-									element={<Navigate to="/flows/device-authorization-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
-								{/* V9 Device Authorization Flow */}
 								<Route
 									path="/flows/device-authorization-v9"
-									element={<DeviceAuthorizationFlowV9 />}
+									element={<Navigate to="/v7/oauth/device-authorization" replace />}
 								/>
-								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 								<Route
 									path="/flows/device-authorization-v6"
-									element={<Navigate to="/flows/device-authorization-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
 								<Route
 									path="/flows/oidc-device-authorization-v6"
-									element={<Navigate to="/flows/device-authorization-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
 								{/* V7 JWT Bearer Token Flow */}
 								<Route
@@ -1184,52 +1188,47 @@ const AppRoutes: React.FC = () => {
 									path="/flows/worker-token-v6"
 									element={<Navigate to="/flows/worker-token-v9" replace />}
 								/>
-								{/* V7 Client Credentials Flow — redirected to V9 */}
+								{/* Client Credentials — redirect to unified */}
 								<Route
 									path="/flows/client-credentials-v7"
-									element={<Navigate to="/flows/client-credentials-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
-								{/* V9 Client Credentials Flow */}
-								<Route path="/flows/client-credentials-v9" element={<ClientCredentialsFlowV9 />} />
-								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route
+									path="/flows/client-credentials-v9"
+									element={<Navigate to="/v7/oauth/client-credentials" replace />}
+								/>
 								<Route
 									path="/flows/client-credentials-v6"
-									element={<Navigate to="/flows/client-credentials-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
-								{/* V7 OIDC Hybrid Flow */}
+								{/* OIDC Hybrid — redirect to unified */}
 								<Route
 									path="/flows/oidc-hybrid-v7"
-									element={<Navigate to="/flows/oidc-hybrid-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
-								{/* V9 OIDC Hybrid Flow */}
-								<Route path="/flows/oidc-hybrid-v9" element={<OIDCHybridFlowV9 />} />
-								{/* V9 Authorization Code Flow */}
+								<Route
+									path="/flows/oidc-hybrid-v9"
+									element={<Navigate to="/v7/oidc/hybrid" replace />}
+								/>
+								{/* Authorization Code — redirect to unified */}
 								<Route
 									path="/flows/oauth-authorization-code-v9"
-									element={<OAuthAuthorizationCodeFlowV9 />}
+									element={<Navigate to="/v7/oidc/authorization-code" replace />}
 								/>
-								{/* V9 Authorization Code Flow - Condensed */}
 								<Route
 									path="/flows/oauth-authorization-code-v9-condensed"
-									element={<OAuthAuthorizationCodeFlowV9_Condensed />}
+									element={<Navigate to="/v7/oidc/authorization-code" replace />}
 								/>
-								{/* V8 OIDC Hybrid Flow — redirected to V9 (same as v6/v7) */}
-								<Route
-									path="/flows/hybrid-v8"
-									element={<Navigate to="/flows/oidc-hybrid-v9" replace />}
-								/>
-								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route path="/flows/hybrid-v8" element={<Navigate to="/v8u/unified" replace />} />
 								<Route
 									path="/flows/oidc-hybrid-v6"
-									element={<Navigate to="/flows/oidc-hybrid-v9" replace />}
+									element={<Navigate to="/v8u/unified" replace />}
 								/>
-								{/* V8 CIBA Flow — redirected to V9 (same as v6/v7) */}
-								<Route path="/flows/ciba-v8" element={<Navigate to="/flows/ciba-v9" replace />} />
-								{/* V9 CIBA Flow */}
-								<Route path="/flows/ciba-v9" element={<CIBAFlowV9 />} />
-								{/* Legacy V6/V7 routes - redirect to V9 for backward compatibility */}
-								<Route path="/flows/ciba-v6" element={<Navigate to="/flows/ciba-v9" replace />} />
-								<Route path="/flows/ciba-v7" element={<Navigate to="/flows/ciba-v9" replace />} />
+								{/* CIBA — redirect to unified */}
+								<Route path="/flows/ciba-v8" element={<Navigate to="/v7/oidc/ciba" replace />} />
+								<Route path="/flows/ciba-v9" element={<Navigate to="/v7/oidc/ciba" replace />} />
+								<Route path="/flows/ciba-v6" element={<Navigate to="/v7/oidc/ciba" replace />} />
+								<Route path="/flows/ciba-v7" element={<Navigate to="/v7/oidc/ciba" replace />} />
 								{/* Legacy Advanced Parameters V6 route - redirect to dashboard */}
 								<Route
 									path="/flows/advanced-parameters-v6/:flowType"
@@ -1311,8 +1310,15 @@ const AppRoutes: React.FC = () => {
 									element={<PingOneAuthenticationResult />}
 								/>
 								<Route path="/pingone-mock-features" element={<PingOneMockFeatures />} />
-								<Route path="/pingone-identity-metrics" element={<PingOneIdentityMetrics />} />
-								<Route path="/pingone-audit-activities" element={<PingOneAuditActivities />} />
+								<Route path="/pingone-dashboard" element={<PingOneDashboard />} />
+								<Route
+									path="/pingone-identity-metrics"
+									element={<Navigate to="/pingone-dashboard?tab=metrics" replace />}
+								/>
+								<Route
+									path="/pingone-audit-activities"
+									element={<Navigate to="/pingone-dashboard?tab=audit" replace />}
+								/>
 								<Route path="/pingone-webhook-viewer" element={<PingOneWebhookViewer />} />
 								<Route path="/organization-licensing" element={<OrganizationLicensing />} />
 								<Route path="/p1-callback" element={<PingOneAuthenticationCallback />} />
