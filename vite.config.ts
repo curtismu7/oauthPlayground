@@ -170,9 +170,9 @@ export default defineConfig(({ mode }) => {
 			// Disable certificate verification for localhost development
 			proxy: {
 				'/api': {
-					target: 'http://localhost:3001', // Backend server (HTTP) - changed from HTTPS
+					target: env.BACKEND_URL || env.VITE_BACKEND_URL || 'https://api.pingdemo.com:3001',
 					changeOrigin: true,
-					secure: false, // Allow self-signed certificates and HTTP->HTTP proxy
+					secure: false, // Allow self-signed certificates
 					timeout: 30000, // Long enough for /api/environments (PingOne upstream can be slow)
 					proxyTimeout: 30000,
 					rewrite: (path) => {

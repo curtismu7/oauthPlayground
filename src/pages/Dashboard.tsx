@@ -25,6 +25,7 @@ import {
 import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
+import { useComponentTracker } from '../utils/componentTracker';
 import { checkSavedCredentialsAsync } from '../utils/configurationStatus';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
@@ -45,6 +46,7 @@ function statusBadgeClass(status: 'active' | 'pending' | 'error'): string {
 }
 
 const Dashboard = () => {
+	useComponentTracker('Dashboard', 0);
 	const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [detailedServers, setDetailedServers] = useState<DetailedServerStatus[]>([]);
