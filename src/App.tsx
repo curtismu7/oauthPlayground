@@ -31,9 +31,6 @@ const AIAgentOverview = lazy(() => import('./pages/AIAgentOverview'));
 const AIGlossary = lazy(() => import('./pages/AIGlossary'));
 const ComprehensiveOAuthEducation = lazy(() => import('./pages/ComprehensiveOAuthEducation'));
 const CompetitiveAnalysis = lazy(() => import('./pages/CompetitiveAnalysis'));
-const AdvancedSecuritySettingsComparison = lazy(
-	() => import('./pages/AdvancedSecuritySettingsComparison')
-);
 const AdvancedSecuritySettingsDemo = lazy(() => import('./pages/AdvancedSecuritySettingsDemo'));
 
 // Lazy load heavy flow pages
@@ -300,10 +297,8 @@ const ContentColumn = styled.div`
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	height: 100vh;
-	min-height: 0;
+	min-height: 100vh;
 	min-width: 0;
-	overflow-y: auto;
 	text-align: left;
 	direction: ltr;
 `;
@@ -315,7 +310,6 @@ const MainContent = styled.main<{ $sidebarWidth: number }>`
 	max-width: 1400px;
 	margin: 0 auto;
 	width: 100%;
-	overflow-y: auto;
 	background-color: ${({ theme }) => theme.colors.white};
 	text-align: left;
 	direction: ltr;
@@ -1471,7 +1465,7 @@ const AppRoutes: React.FC = () => {
 								/>
 								<Route
 									path="/advanced-security-settings-comparison"
-									element={<AdvancedSecuritySettingsComparison />}
+									element={<Navigate to="/configuration" replace />}
 								/>
 								<Route path="/security/password-reset" element={<HelioMartPasswordReset />} />
 								{/* <Route path="/tutorials" element={<InteractiveTutorials />} /> */}{' '}

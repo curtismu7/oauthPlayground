@@ -129,7 +129,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-							<span style={{ fontSize: 32, color: 'white' }}>❓</span>
+							<i className="bi bi-question-circle" style={{ fontSize: 32, color: 'white' }}></i>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 								<h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: 'white' }}>
 									MFA Feature Flags Admin

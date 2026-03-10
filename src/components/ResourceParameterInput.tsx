@@ -261,7 +261,7 @@ const EducationalTitle = styled.h3`
 	font-size: 1.125rem;
 	font-weight: 700;
 	color: V9_COLORS.TEXT.GRAY_DARK;
-	
+
 	svg {
 		color: V9_COLORS.PRIMARY.BLUE;
 		font-size: 1.5rem;
@@ -272,20 +272,20 @@ const EducationalContent = styled.div`
 	font-size: 0.9375rem;
 	color: V9_COLORS.TEXT.GRAY_DARK;
 	line-height: 1.7;
-	
+
 	p {
 		margin: 0 0 1rem 0;
-		
+
 		&:last-child {
 			margin-bottom: 0;
 		}
 	}
-	
+
 	strong {
 		color: #075985;
 		font-weight: 600;
 	}
-	
+
 	code {
 		background: #dbeafe;
 		padding: 0.125rem 0.375rem;
@@ -299,10 +299,10 @@ const EducationalContent = styled.div`
 const UseCaseList = styled.ul`
 	margin: 1rem 0 0 0;
 	padding-left: 1.5rem;
-	
+
 	li {
 		margin-bottom: 0.5rem;
-		
+
 		&:last-child {
 			margin-bottom: 0;
 		}
@@ -315,14 +315,14 @@ const ExampleScenario = styled.div`
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-top: 1rem;
-	
+
 	strong {
 		display: block;
 		color: V9_COLORS.PRIMARY.BLUE;
 		margin-bottom: 0.5rem;
 		font-size: 0.875rem;
 	}
-	
+
 	div {
 		font-size: 0.8125rem;
 		color: #334155;
@@ -596,7 +596,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 						<ExampleText>{example.value}</ExampleText>
 						{example.isFromDiscovery && <DiscoveryBadge>OIDC</DiscoveryBadge>}
 						<DragIcon>
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 						</DragIcon>
 					</ExampleItem>
 				))}

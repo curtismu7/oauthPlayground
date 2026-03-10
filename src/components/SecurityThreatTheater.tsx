@@ -973,7 +973,7 @@ const SecurityThreatTheater: React.FC = () => {
 						onClick={() => runSimulation('vulnerable')}
 						disabled={isSimulating}
 					>
-						<span>❓</span>
+						<i className="bi bi-question-circle"></i>
 						Run Vulnerable Scenario
 					</SimulationButton>
 					<SimulationButton

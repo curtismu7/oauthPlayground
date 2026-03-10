@@ -143,7 +143,7 @@ const Input = styled.input`
 	font-size: 0.875rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	background: #f9fafb;
-	
+
 	&:focus {
 		outline: none;
 		border-color: V9_COLORS.PRIMARY.BLUE;
@@ -160,7 +160,7 @@ const _TextArea = styled.textarea`
 	background: #f9fafb;
 	min-height: 100px;
 	resize: vertical;
-	
+
 	&:focus {
 		outline: none;
 		border-color: V9_COLORS.PRIMARY.BLUE;
@@ -192,7 +192,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	
+
 	${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
@@ -259,7 +259,7 @@ const Tab = styled.button<{ $active: boolean }>`
 	border-bottom: 2px solid transparent;
 	color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
 	border-bottom-color: ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
-	
+
 	&:hover {
 		color: V9_COLORS.PRIMARY.BLUE;
 	}
@@ -290,7 +290,7 @@ const CopyButton = styled.button`
 	display: flex;
 	align-items: center;
 	gap: 0.25rem;
-	
+
 	&:hover {
 		background: rgba(255, 255, 255, 0.2);
 	}
@@ -344,7 +344,7 @@ const ExampleBox = styled.div<{ $variant?: 'success' | 'warning' | 'info' }>`
 	border-radius: 8px;
 	margin: 1rem 0;
 	border-left: 4px solid;
-	
+
 	${({ $variant }) => {
 		switch ($variant) {
 			case 'success':
@@ -381,7 +381,7 @@ const QuickFillCard = styled.button`
 	cursor: pointer;
 	text-align: left;
 	transition: all 0.2s;
-	
+
 	&:hover {
 		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
@@ -609,7 +609,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 							Use Existing PAR
 						</Tab>
 						<Tab $active={activeTab === 'builder'} onClick={() => setActiveTab('builder')}>
-							<span style={{ fontSize: '14px' }}>❓</span>
+							<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 							Build PAR Request
 						</Tab>
 						<Tab $active={activeTab === 'learn'} onClick={() => setActiveTab('learn')}>
@@ -676,7 +676,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 
 								<Field>
 									<Label>
-										<span style={{ fontSize: '14px' }}>❓</span>
+										<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 										Client ID *
 									</Label>
 									<Input
@@ -816,7 +816,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 										marginBottom: '0.5rem',
 									}}
 								>
-									<span style={{ fontSize: '16px' }}>❓</span>
+									<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 									<strong>Build Your PAR Request</strong>
 								</div>
 								<p style={{ margin: 0, fontSize: '0.875rem' }}>
@@ -1210,7 +1210,7 @@ Authorization: Basic <base64(client_id:client_secret)>`}
 
 					{activeTab === 'learn' && (
 						<Button type="button" $variant="primary" onClick={() => setActiveTab('builder')}>
-							<span>❓</span>
+							<i className="bi bi-question-circle"></i>
 							Try Building a PAR Request
 						</Button>
 					)}

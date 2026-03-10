@@ -10,6 +10,7 @@ import {
 import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
+import { RegionSelect } from './RegionSelect';
 import StandardMessage from './StandardMessage';
 
 const ModalOverlay = styled.div`
@@ -248,7 +249,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 		clientId: '',
 		clientSecret: '',
 		redirectUri: `${window.location.origin}/authz-callback`,
-		region: 'us' as 'us' | 'eu' | 'ap' | 'ca',
+		region: 'us' as 'us' | 'eu' | 'ap' | 'ca' | 'au' | 'sg',
 		customDomain: '',
 	});
 
@@ -300,7 +301,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				clientId: envConfig.clientId || '',
 				clientSecret: envConfig.clientSecret || '', // Pre-populate client secret from .env
 				redirectUri: envConfig.redirectUri || `${window.location.origin}/authz-callback`,
-				region: 'us' as 'us' | 'eu' | 'ap' | 'ca',
+				region: 'us' as 'us' | 'eu' | 'ap' | 'ca' | 'au' | 'sg',
 				customDomain: '',
 			};
 
@@ -953,12 +954,15 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 						<FormGroup>
 							<label htmlFor="region">Region</label>
-							<select
+							<RegionSelect
 								id="region"
-								name="region"
 								value={formData.region}
-								onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>)}
+								onChange={(r) => {
+									setFormData((prev) => ({ ...prev, region: r }));
+									if (errors.region) setErrors((e) => ({ ...e, region: undefined }));
+								}}
 								disabled={isLoading}
+								variant="compact"
 								style={{
 									width: '100%',
 									padding: '0.75rem',
@@ -966,12 +970,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.375rem',
 								}}
-							>
-								<option value="us">North America (US)</option>
-								<option value="eu">Europe (EU)</option>
-								<option value="ap">Asia Pacific (AP)</option>
-								<option value="ca">Canada (CA)</option>
-							</select>
+							/>
 							<div className="form-text">The region where your PingOne environment is hosted</div>
 						</FormGroup>
 

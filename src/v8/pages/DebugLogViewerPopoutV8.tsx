@@ -134,7 +134,11 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 		},
 		{ value: 'indexedDB', label: 'IndexedDB', icon: <span style={{ fontSize: '16px' }}>🗄️</span> },
 		{ value: 'sqlite', label: 'SQLite', icon: <span style={{ fontSize: '16px' }}>🗄️</span> },
-		{ value: 'file', label: 'File', icon: <span style={{ fontSize: '16px' }}>❓</span> },
+		{
+			value: 'file',
+			label: 'File',
+			icon: <i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>,
+		},
 		{
 			value: 'callback-debug',
 			label: 'Callback Debug',

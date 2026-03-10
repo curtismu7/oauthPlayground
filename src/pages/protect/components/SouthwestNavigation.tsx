@@ -15,156 +15,156 @@ import { useBrandTheme } from '../themes/theme-provider';
 // ============================================================================
 
 const NavContainer = styled.nav`
-  background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+	background: white;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	position: sticky;
+	top: 0;
+	z-index: 1000;
 `;
 
 const NavMain = styled.div`
-  background: #304cb2;
-  padding: 1rem 0;
+	background: #304cb2;
+	padding: 1rem 0;
 `;
 
 const NavMainContent = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 `;
 
 const Logo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 700;
-  font-size: 1.5rem;
-  color: white;
-  
-  img {
-    height: 40px;
-    width: auto;
-  }
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 700;
+	font-size: 1.5rem;
+	color: white;
+
+	img {
+		height: 40px;
+		width: auto;
+	}
 `;
 
 const NavLinks = styled.div`
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
+	display: flex;
+	gap: 2rem;
+	align-items: center;
+
+	@media (max-width: 768px) {
+		display: none;
+	}
 `;
 
 const NavLink = styled.a`
-  color: white;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  padding: 0.5rem 0;
-  border-bottom: 2px solid transparent;
-  
-  &:hover {
-    border-bottom-color: #f4c542;
-  }
+	color: white;
+	text-decoration: none;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	padding: 0.5rem 0;
+	border-bottom: 2px solid transparent;
+
+	&:hover {
+		border-bottom-color: #f4c542;
+	}
 `;
 
 const NavActions = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
+	display: flex;
+	gap: 1rem;
+	align-items: center;
 `;
 
 const SearchButton = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
+	background: none;
+	border: none;
+	color: white;
+	cursor: pointer;
+	padding: 0.5rem;
+	border-radius: 4px;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
 `;
 
 const BookButton = styled.button`
-  background: #f4c542;
-  color: #304cb2;
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 50px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: #e4b532;
-    transform: translateY(-1px);
-  }
+	background: #f4c542;
+	color: #304cb2;
+	border: none;
+	padding: 0.5rem 1.5rem;
+	border-radius: 50px;
+	font-weight: 700;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: #e4b532;
+		transform: translateY(-1px);
+	}
 `;
 
 const MobileMenuButton = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: none;
-  
-  @media (max-width: 768px) {
-    display: block;
-  }
+	background: none;
+	border: none;
+	color: white;
+	cursor: pointer;
+	padding: 0.5rem;
+	display: none;
+
+	@media (max-width: 768px) {
+		display: block;
+	}
 `;
 
 const MobileMenu = styled.div<{ isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: white;
-  z-index: 2000;
-  transform: translateX(${(props) => (props.isOpen ? '0' : '100%')});
-  transition: transform 0.3s ease;
-  
-  @media (min-width: 769px) {
-    display: none;
-  }
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: white;
+	z-index: 2000;
+	transform: translateX(${(props) => (props.isOpen ? '0' : '100%')});
+	transition: transform 0.3s ease;
+
+	@media (min-width: 769px) {
+		display: none;
+	}
 `;
 
 const MobileMenuHeader = styled.div`
-  background: #304cb2;
-  color: white;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+	background: #304cb2;
+	color: white;
+	padding: 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 `;
 
 const MobileMenuContent = styled.div`
-  padding: 1rem;
+	padding: 1rem;
 `;
 
 const MobileNavLink = styled.a`
-  display: block;
-  padding: 1rem 0;
-  color: #333;
-  text-decoration: none;
-  font-weight: 500;
-  border-bottom: 1px solid #eee;
-  
-  &:hover {
-    color: #304cb2;
-  }
+	display: block;
+	padding: 1rem 0;
+	color: #333;
+	text-decoration: none;
+	font-weight: 500;
+	border-bottom: 1px solid #eee;
+
+	&:hover {
+		color: #304cb2;
+	}
 `;
 
 // ============================================================================
@@ -208,7 +208,7 @@ const SouthwestNavigation: React.FC = () => {
 							</SearchButton>
 							<BookButton>Book Flight</BookButton>
 							<MobileMenuButton onClick={toggleMobileMenu}>
-								<span style={{ fontSize: '24px' }}>❓</span>
+								<i className="bi bi-question-circle" style={{ fontSize: '24px' }}></i>
 							</MobileMenuButton>
 						</NavActions>
 					</NavMainContent>

@@ -5,65 +5,65 @@ import { FlowHeader } from '../services/flowHeaderService';
 import { PageLayoutService } from '../services/pageLayoutService';
 
 const SummaryCard = styled(Card)`
-  border-left: 4px solid ${({ theme }) => theme.colors.primary};
-  margin-bottom: 1.5rem;
+	border-left: 4px solid ${({ theme }) => theme.colors.primary};
+	margin-bottom: 1.5rem;
 `;
 
 const SpecCard = styled(Card)`
-  border-left: 4px solid ${({ theme }) => theme.colors.info};
-  height: 100%;
+	border-left: 4px solid ${({ theme }) => theme.colors.info};
+	height: 100%;
 `;
 
 const SpecIcon = styled.div`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.75rem;
-  color: ${({ theme }) => theme.colors.primary};
-  margin-bottom: 1rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.75rem;
+	color: ${({ theme }) => theme.colors.primary};
+	margin-bottom: 1rem;
 `;
 
 const SpecTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.gray900};
-  margin-bottom: 0.5rem;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: ${({ theme }) => theme.colors.gray900};
+	margin-bottom: 0.5rem;
 `;
 
 const SpecSummary = styled.p`
-  color: ${({ theme }) => theme.colors.gray600};
-  line-height: 1.6;
-  margin-bottom: 1rem;
+	color: ${({ theme }) => theme.colors.gray600};
+	line-height: 1.6;
+	margin-bottom: 1rem;
 `;
 
 const SpecList = styled.ul`
-  margin: 0 0 1.25rem 1.25rem;
-  color: ${({ theme }) => theme.colors.gray700};
-  line-height: 1.6;
+	margin: 0 0 1.25rem 1.25rem;
+	color: ${({ theme }) => theme.colors.gray700};
+	line-height: 1.6;
 `;
 
 const ResourceLink = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.primary};
-  text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 600;
+	color: ${({ theme }) => theme.colors.primary};
+	text-decoration: none;
 
-  &:hover {
-    text-decoration: underline;
-  }
+	&:hover {
+		text-decoration: underline;
+	}
 `;
 
 const Highlight = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  background: ${({ theme }) => theme.colors.success}10;
-  color: ${({ theme }) => theme.colors.success};
-  font-weight: 600;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	border-radius: 0.5rem;
+	background: ${({ theme }) => theme.colors.success}10;
+	color: ${({ theme }) => theme.colors.success};
+	font-weight: 600;
 `;
 
 const specData = [
@@ -99,7 +99,7 @@ const specData = [
 	},
 	{
 		title: 'Identity and Authorization Chaining',
-		icon: <span>❓</span>,
+		icon: <i className="bi bi-question-circle"></i>,
 		summary:
 			'Preserves identity context and authorization data across multiple trust domains so chained services can verify who initiated a request and under which policy.',
 		points: [
@@ -114,7 +114,7 @@ const specData = [
 	},
 	{
 		title: 'Model Context Protocol (MCP) Client Registration',
-		icon: <span>❓</span>,
+		icon: <i className="bi bi-question-circle"></i>,
 		summary:
 			'The MCP ecosystem is reevaluating traditional Dynamic Client Registration for personal agents, experimenting with CIMD to streamline discovery and trust establishment.',
 		points: [
@@ -225,7 +225,7 @@ const EmergingAIStandards = () => {
 					<CollapsibleHeader
 						title="Further reading"
 						subtitle="Key discussions and reference material from industry contributors"
-						icon={<span>❓</span>}
+						icon={<i className="bi bi-question-circle"></i>}
 						defaultCollapsed={false}
 						theme="green"
 					>

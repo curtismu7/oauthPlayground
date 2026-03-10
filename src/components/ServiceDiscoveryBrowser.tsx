@@ -14,170 +14,170 @@ import {
 } from '../services/serviceDiscoveryService';
 
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `;
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
+	text-align: center;
+	margin-bottom: 3rem;
 `;
 
 const Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 1rem;
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 1rem;
 `;
 
 const Subtitle = styled.p`
-  font-size: 1.125rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
+	font-size: 1.125rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	max-width: 600px;
+	margin: 0 auto;
+	line-height: 1.6;
 `;
 
 const SearchSection = styled.div`
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+	background: white;
+	border-radius: 1rem;
+	padding: 2rem;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+	margin-bottom: 2rem;
 `;
 
 const SearchBar = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
 `;
 
 const SearchInput = styled.input`
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  transition: border-color 0.2s;
+	flex: 1;
+	padding: 0.75rem 1rem;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	font-size: 1rem;
+	transition: border-color 0.2s;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+	}
 `;
 
 const SearchButton = styled.button`
-  padding: 0.75rem 1.5rem;
-  background: V9_COLORS.PRIMARY.BLUE;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.2s;
+	padding: 0.75rem 1.5rem;
+	background: V9_COLORS.PRIMARY.BLUE;
+	color: white;
+	border: none;
+	border-radius: 0.5rem;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: background-color 0.2s;
 
-  &:hover {
-    background: V9_COLORS.PRIMARY.BLUE_DARK;
-  }
+	&:hover {
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
+	}
 `;
 
 const Filters = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
 `;
 
 const FilterGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 `;
 
 const FilterLabel = styled.label`
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const FilterSelect = styled.select`
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  background: white;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	background: white;
 `;
 
 const ResultsSection = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 2rem;
+	display: grid;
+	grid-template-columns: 1fr 2fr;
+	gap: 2rem;
 `;
 
 const ServiceList = styled.div`
-  background: white;
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  max-height: 600px;
-  overflow-y: auto;
+	background: white;
+	border-radius: 1rem;
+	padding: 1.5rem;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+	max-height: 600px;
+	overflow-y: auto;
 `;
 
 const ServiceListTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 1rem;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 1rem;
 `;
 
 const ServiceItem = styled.div<{ isSelected: boolean }>`
-  padding: 1rem;
-  border: 2px solid ${(props) => (props.isSelected ? '#3b82f6' : '#e5e7eb')};
-  border-radius: 0.5rem;
-  margin-bottom: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: ${(props) => (props.isSelected ? '#f8fafc' : 'white')};
+	padding: 1rem;
+	border: 2px solid ${(props) => (props.isSelected ? '#3b82f6' : '#e5e7eb')};
+	border-radius: 0.5rem;
+	margin-bottom: 0.75rem;
+	cursor: pointer;
+	transition: all 0.2s;
+	background: ${(props) => (props.isSelected ? '#f8fafc' : 'white')};
 
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    background: V9_COLORS.BG.GRAY_LIGHT;
-  }
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		background: V9_COLORS.BG.GRAY_LIGHT;
+	}
 `;
 
 const ServiceName = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const ServiceDescription = styled.p`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  margin-bottom: 0.75rem;
-  line-height: 1.4;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	margin-bottom: 0.75rem;
+	line-height: 1.4;
 `;
 
 const ServiceMeta = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
 `;
 
 const ServiceBadge = styled.span<{ variant: 'category' | 'complexity' | 'maturity' }>`
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
+	padding: 0.25rem 0.5rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
 
-  ${(props) => {
+	${(props) => {
 		switch (props.variant) {
 			case 'category':
 				return 'background: #dbeafe; color: V9_COLORS.PRIMARY.BLUE_DARK;';
@@ -192,131 +192,131 @@ const ServiceBadge = styled.span<{ variant: 'category' | 'complexity' | 'maturit
 `;
 
 const ServiceDetail = styled.div`
-  background: white;
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  max-height: 600px;
-  overflow-y: auto;
+	background: white;
+	border-radius: 1rem;
+	padding: 1.5rem;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+	max-height: 600px;
+	overflow-y: auto;
 `;
 
 const DetailHeader = styled.div`
-  margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 `;
 
 const DetailTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const DetailDescription = styled.p`
-  font-size: 1rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  line-height: 1.6;
+	font-size: 1rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	line-height: 1.6;
 `;
 
 const DetailSection = styled.div`
-  margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 `;
 
 const SectionTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const FeatureList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
+	list-style: none;
+	padding: 0;
+	margin: 0;
 `;
 
 const FeatureItem = styled.li`
-  padding: 0.5rem 0;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	padding: 0.5rem 0;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 
-  &:last-child {
-    border-bottom: none;
-  }
+	&:last-child {
+		border-bottom: none;
+	}
 
-  &::before {
-    content: '✓';
-    color: V9_COLORS.PRIMARY.GREEN;
-    font-weight: bold;
-  }
+	&::before {
+		content: '✓';
+		color: V9_COLORS.PRIMARY.GREEN;
+		font-weight: bold;
+	}
 `;
 
 const CodeExample = styled.pre`
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  color: #f9fafb;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  margin: 0.5rem 0;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: #f9fafb;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	overflow-x: auto;
+	font-size: 0.875rem;
+	line-height: 1.4;
+	margin: 0.5rem 0;
 `;
 
 const EmptyState = styled.div`
-  text-align: center;
-  padding: 3rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	text-align: center;
+	padding: 3rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const EmptyIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 1rem;
+	font-size: 3rem;
+	margin-bottom: 1rem;
 `;
 
 const EmptyTitle = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const StatisticsSection = styled.div`
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
+	background: white;
+	border-radius: 1rem;
+	padding: 2rem;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+	margin-bottom: 2rem;
 `;
 
 const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1.5rem;
 `;
 
 const StatCard = styled.div`
-  text-align: center;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  background: #f9fafb;
+	text-align: center;
+	padding: 1.5rem;
+	border-radius: 0.5rem;
+	background: #f9fafb;
 `;
 
 const StatNumber = styled.div`
-  font-size: 2rem;
-  font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  margin-bottom: 0.5rem;
+	font-size: 2rem;
+	font-weight: 700;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	margin-bottom: 0.5rem;
 `;
 
 const StatLabel = styled.div`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 `;
 
 interface ServiceDiscoveryBrowserProps {
@@ -566,7 +566,7 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 							{selectedService.usageExamples.length > 0 && (
 								<DetailSection>
 									<SectionTitle>
-										<span>❓</span>
+										<i className="bi bi-question-circle"></i>
 										Usage Examples
 									</SectionTitle>
 									{selectedService.usageExamples.map((example, index) => (
@@ -606,7 +606,7 @@ const ServiceDiscoveryBrowser: React.FC<ServiceDiscoveryBrowserProps> = ({
 							{selectedService.relatedServices.length > 0 && (
 								<DetailSection>
 									<SectionTitle>
-										<span>❓</span>
+										<i className="bi bi-question-circle"></i>
 										Related Services
 									</SectionTitle>
 									<div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>

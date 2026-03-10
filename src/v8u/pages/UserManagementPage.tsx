@@ -85,7 +85,7 @@ const UserManagementPage: React.FC = () => {
 	// Event handlers
 	const handleCreateUser = () => {
 		// TODO: Implement create user modal
-		logger.info('Create user clicked', "Logger info");
+		logger.info('Create user clicked', 'Logger info');
 	};
 
 	const handleEditUser = (user: User) => {
@@ -197,7 +197,10 @@ const UserManagementPage: React.FC = () => {
 						onChange={setSearchTerm}
 						placeholder="Search by username or email..."
 						onGetToken={() => {
-							logger.info('Worker token required for user search in UserManagementPage', "Logger info");
+							logger.info(
+								'Worker token required for user search in UserManagementPage',
+								'Logger info'
+							);
 						}}
 					/>
 				</div>
@@ -404,7 +407,7 @@ const UserManagementPage: React.FC = () => {
 										color: 'white',
 									}}
 								>
-									<span>❓</span>
+									<i className="bi bi-question-circle"></i>
 								</button>
 								<button
 									type="button"
