@@ -1,7 +1,7 @@
 // src/v7/pages/V7MOAuthAuthCodeV9.tsx
 /* eslint-disable no-alert */
 
-import { FiBook } from '@icons';
+import { FiBook } from '../../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { showGlobalError } from '../../contexts/NotificationSystem';
@@ -165,16 +165,18 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 
 	function handleUserInfo() {
 		if (!accessToken) {
-                        showGlobalError('No access token available');
-                        return;
-                }
-                const res = getUserInfoFromAccessToken(accessToken);
-                setUserinfoResponse(res);
-        }
+			showGlobalError('No access token available');
+			return;
+		}
+		const res = getUserInfoFromAccessToken(accessToken);
+		setUserinfoResponse(res);
+	}
 
-        function handleIntrospect() {
-                if (!accessToken) {
-                        showGlobalError('No access token available');
+	function handleIntrospect() {
+		if (!accessToken) {
+			showGlobalError('No access token available');
+			return;
+		}
 		const res = introspectToken(accessToken);
 		setIntrospectionResponse(res);
 	}
@@ -345,7 +347,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 						</label>
 					</div>
 					<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-						<button type="button" type="button" onClick={handleBuildAuthorize} style={primaryBtn}>
+						<button type="button" onClick={handleBuildAuthorize} style={primaryBtn}>
 							Build & Issue Code
 						</button>
 						<V7MInfoIcon
@@ -385,7 +387,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 					<span>📤</span> Exchange Token
 				</header>
 				<div style={{ padding: 12 }}>
-					<button type="button" type="button" onClick={handleExchangeToken} style={primaryBtn}>
+					<button type="button" onClick={handleExchangeToken} style={primaryBtn}>
 						Exchange Code for Tokens
 					</button>
 					{tokenResponse && (
@@ -396,12 +398,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 							<pre style={preJson}>{JSON.stringify(tokenResponse, null, 2)}</pre>
 							<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
 								{idToken && (
-									<button
-										type="button"
-										type="button"
-										onClick={() => setShowIdModal(true)}
-										style={secondaryBtn}
-									>
+									<button type="button" onClick={() => setShowIdModal(true)} style={secondaryBtn}>
 										Inspect ID Token
 									</button>
 								)}
@@ -415,17 +412,12 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 									</button>
 								)}
 								{accessToken && (
-									<button type="button" type="button" onClick={handleUserInfo} style={secondaryBtn}>
+									<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
 										Call UserInfo
 									</button>
 								)}
 								{accessToken && (
-									<button
-										type="button"
-										type="button"
-										onClick={handleIntrospect}
-										style={secondaryBtn}
-									>
+									<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
 										Introspect Token
 									</button>
 								)}

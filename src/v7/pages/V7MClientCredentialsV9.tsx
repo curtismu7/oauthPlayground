@@ -1,7 +1,7 @@
 // src/v7/pages/V7MClientCredentialsV9.tsx
 /* eslint-disable no-alert */
 
-import { FiBook } from '@icons';
+import { FiBook } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { showGlobalError } from '../../contexts/NotificationSystem';
@@ -68,16 +68,18 @@ export const V7MClientCredentialsV9: React.FC = () => {
 
 	function handleUserInfo() {
 		if (!accessToken) {
-                        showGlobalError('No access token available');
-                        return;
-                }
-                const res = getUserInfoFromAccessToken(accessToken);
-                setUserinfoResponse(res);
-        }
+			showGlobalError('No access token available');
+			return;
+		}
+		const res = getUserInfoFromAccessToken(accessToken);
+		setUserinfoResponse(res);
+	}
 
-        function handleIntrospect() {
-                if (!accessToken) {
-                        showGlobalError('No access token available');
+	function handleIntrospect() {
+		if (!accessToken) {
+			showGlobalError('No access token available');
+			return;
+		}
 		const res = introspectToken(accessToken);
 		setIntrospectionResponse(res);
 	}
@@ -183,7 +185,7 @@ export const V7MClientCredentialsV9: React.FC = () => {
 							/>
 						</label>
 					</div>
-					<button type="button" type="button" onClick={handleRequestToken} style={primaryBtn}>
+					<button type="button" onClick={handleRequestToken} style={primaryBtn}>
 						Request Access Token
 					</button>
 					{tokenResponse && (
@@ -201,15 +203,10 @@ export const V7MClientCredentialsV9: React.FC = () => {
 									>
 										Inspect Access Token
 									</button>
-									<button
-										type="button"
-										type="button"
-										onClick={handleIntrospect}
-										style={secondaryBtn}
-									>
+									<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
 										Introspect Token
 									</button>
-									<button type="button" type="button" onClick={handleUserInfo} style={secondaryBtn}>
+									<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
 										Call UserInfo (Note: May not work for client_credentials tokens)
 									</button>
 								</div>

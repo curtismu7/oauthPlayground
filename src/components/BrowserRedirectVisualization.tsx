@@ -1,4 +1,4 @@
-import { FiAlertCircle, FiCheckCircle } from '@icons';
+import { FiAlertCircle, FiCheckCircle } from '../icons';
 import React, { useEffect, useState } from 'react';
 
 interface BrowserRedirectVisualizationProps {

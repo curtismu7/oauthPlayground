@@ -1,7 +1,7 @@
 // src/components/UltimateTokenDisplay.tsx
 // Ultimate Token Display Component - Combines all the best features
 
-import { FiClock, FiTag, FiUnlock } from '@icons';
+import { FiClock, FiTag, FiUnlock } from '../icons';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -44,74 +44,75 @@ interface UltimateTokenDisplayProps {
 
 // Styled Components
 const Container = styled.div<{ $mode: DisplayMode }>`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ $mode }) => ($mode === 'compact' ? '0.75rem' : '1.25rem')};
-  background: V9_COLORS.TEXT.WHITE;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: ${({ $mode }) => ($mode === 'educational' ? '12px' : '8px')};
-  box-shadow: ${({ $mode }) =>
+	display: flex;
+	flex-direction: column;
+	gap: ${({ $mode }) => ($mode === 'compact' ? '0.75rem' : '1.25rem')};
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: ${({ $mode }) => ($mode === 'educational' ? '12px' : '8px')};
+	box-shadow: ${({ $mode }) =>
 		$mode === 'educational' ? '0 4px 12px rgba(0, 0, 0, 0.1)' : '0 1px 3px rgba(0, 0, 0, 0.1)'};
-  overflow: hidden;
+	overflow: hidden;
 `;
 
 const Header = styled.div<{ $mode: DisplayMode }>`
-  padding: ${({ $mode }) => ($mode === 'compact' ? '1rem' : '1.5rem')};
-  background: ${({ $mode }) =>
+	padding: ${({ $mode }) => ($mode === 'compact' ? '1rem' : '1.5rem')};
+	background: ${({ $mode }) =>
 		$mode === 'educational'
 			? 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)'
 			: '#f8fafc'};
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Title = styled.h3<{ $mode: DisplayMode }>`
-  margin: 0 0 ${({ $mode }) => ($mode === 'compact' ? '0.25rem' : '0.5rem')} 0;
-  font-size: ${({ $mode }) => ($mode === 'compact' ? '1rem' : '1.25rem')};
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	margin: 0 0 ${({ $mode }) => ($mode === 'compact' ? '0.25rem' : '0.5rem')} 0;
+	font-size: ${({ $mode }) => ($mode === 'compact' ? '1rem' : '1.25rem')};
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-  margin: 0;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 0.875rem;
-  line-height: 1.5;
+	margin: 0;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.875rem;
+	line-height: 1.5;
 `;
 
 const TokenSection = styled.div<{ $variant: TokenType; $mode: DisplayMode }>`
-  background: V9_COLORS.TEXT.WHITE;
-  border: 1px solid ${({ $variant }) => {
-		switch ($variant) {
-			case 'access':
-				return '#3b82f6';
-			case 'id':
-				return '#10b981';
-			case 'refresh':
-				return '#f59e0b';
-			default:
-				return '#e5e7eb';
-		}
-	}};
-  border-radius: 8px;
-  margin: ${({ $mode }) => ($mode === 'compact' ? '0.5rem' : '1rem')};
-  overflow: hidden;
-  transition: all 0.2s ease;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid
+		${({ $variant }) => {
+			switch ($variant) {
+				case 'access':
+					return '#3b82f6';
+				case 'id':
+					return '#10b981';
+				case 'refresh':
+					return '#f59e0b';
+				default:
+					return '#e5e7eb';
+			}
+		}};
+	border-radius: 8px;
+	margin: ${({ $mode }) => ($mode === 'compact' ? '0.5rem' : '1rem')};
+	overflow: hidden;
+	transition: all 0.2s ease;
 
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-1px);
-  }
+	&:hover {
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		transform: translateY(-1px);
+	}
 `;
 
 const TokenHeader = styled.div<{ $variant: TokenType }>`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.25rem;
-  background: ${({ $variant }) => {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 1.25rem;
+	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
 				return 'linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)';
@@ -123,26 +124,27 @@ const TokenHeader = styled.div<{ $variant: TokenType }>`
 				return '#f8fafc';
 		}
 	}};
-  border-bottom: 1px solid ${({ $variant }) => {
-		switch ($variant) {
-			case 'access':
-				return '#93c5fd';
-			case 'id':
-				return '#86efac';
-			case 'refresh':
-				return '#fcd34d';
-			default:
-				return '#e5e7eb';
-		}
-	}};
+	border-bottom: 1px solid
+		${({ $variant }) => {
+			switch ($variant) {
+				case 'access':
+					return '#93c5fd';
+				case 'id':
+					return '#86efac';
+				case 'refresh':
+					return '#fcd34d';
+				default:
+					return '#e5e7eb';
+			}
+		}};
 `;
 
 const TokenLabel = styled.div<{ $variant: TokenType }>`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-weight: 600;
-  color: ${({ $variant }) => {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	font-weight: 600;
+	color: ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
 				return '#2563eb';
@@ -157,15 +159,15 @@ const TokenLabel = styled.div<{ $variant: TokenType }>`
 `;
 
 const TokenBadge = styled.span<{ $variant: TokenType }>`
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background: ${({ $variant }) => {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'access':
 				return '#2563eb';
@@ -177,28 +179,28 @@ const TokenBadge = styled.span<{ $variant: TokenType }>`
 				return '#6b7280';
 		}
 	}};
-  color: white;
+	color: white;
 `;
 
 const ActionButtons = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 'warning' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  border: none;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  ${({ $variant }) => {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.5rem 0.75rem;
+	border-radius: 6px;
+	border: none;
+	font-size: 0.75rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
 				return `
@@ -228,33 +230,33 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 		}
 	}}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-  }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+		transform: none !important;
+	}
 `;
 
 const TokenContent = styled.div`
-  padding: 1.25rem;
+	padding: 1.25rem;
 `;
 
 const TokenValue = styled.div<{ $masked?: boolean; $highlighted?: boolean }>`
-  font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  background: ${({ $highlighted }) => ($highlighted ? '#f0fdf4' : '#f8fafc')};
-  border: 1px solid ${({ $highlighted }) => ($highlighted ? '#10b981' : '#e5e7eb')};
-  border-radius: 6px;
-  padding: 1rem;
-  word-break: break-all;
-  white-space: pre-wrap;
-  overflow-x: auto;
-  margin-bottom: 1rem;
-  position: relative;
-  
-  ${({ $masked }) =>
+	font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
+	font-size: 0.875rem;
+	line-height: 1.6;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	background: ${({ $highlighted }) => ($highlighted ? '#f0fdf4' : '#f8fafc')};
+	border: 1px solid ${({ $highlighted }) => ($highlighted ? '#10b981' : '#e5e7eb')};
+	border-radius: 6px;
+	padding: 1rem;
+	word-break: break-all;
+	white-space: pre-wrap;
+	overflow-x: auto;
+	margin-bottom: 1rem;
+	position: relative;
+
+	${({ $masked }) =>
 		$masked &&
 		`
     filter: blur(4px);
@@ -268,114 +270,127 @@ const TokenValue = styled.div<{ $masked?: boolean; $highlighted?: boolean }>`
 `;
 
 const DecodedSection = styled.div`
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DecodedTitle = styled.h4`
-  margin: 0 0 0.75rem 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	margin: 0 0 0.75rem 0;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const DecodedContent = styled.div`
-  background: #f0fdf4;
-  border: 1px solid V9_COLORS.PRIMARY.GREEN;
-  border-radius: 6px;
-  padding: 1rem;
-  font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
-  font-size: 0.75rem;
-  line-height: 1.5;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  max-height: 300px;
-  overflow-y: auto;
+	background: #f0fdf4;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN;
+	border-radius: 6px;
+	padding: 1rem;
+	font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	max-height: 300px;
+	overflow-y: auto;
 `;
 
 const MetadataGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-  padding: 1rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border-radius: 6px;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 1rem;
+	margin-top: 1rem;
+	padding: 1rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border-radius: 6px;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const MetadataItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
 `;
 
 const MetadataLabel = styled.span`
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 `;
 
 const MetadataValue = styled.span`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
 `;
 
 const EmptyState = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 2rem;
-  text-align: center;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 3rem 2rem;
+	text-align: center;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const EmptyStateIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
+	font-size: 3rem;
+	margin-bottom: 1rem;
+	opacity: 0.5;
 `;
 
 const EmptyStateText = styled.p`
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 500;
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 500;
 `;
 
 const OpaqueMessage = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: V9_COLORS.BG.WARNING;
-  border: 1px solid V9_COLORS.PRIMARY.YELLOW;
-  border-radius: 6px;
-  color: V9_COLORS.PRIMARY.YELLOW_DARK;
-  font-size: 0.875rem;
-  margin-top: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 1rem;
+	background: V9_COLORS.BG.WARNING;
+	border: 1px solid V9_COLORS.PRIMARY.YELLOW;
+	border-radius: 6px;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	font-size: 0.875rem;
+	margin-top: 1rem;
 `;
 
 const _SyntaxHighlightedJSON = styled.div`
-  font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  
-  .json-key { color: #7c3aed; font-weight: 600; }
-  .json-string { color: V9_COLORS.PRIMARY.GREEN_DARK; }
-  .json-number { color: V9_COLORS.PRIMARY.RED_DARK; }
-  .json-boolean { color: #ea580c; }
-  .json-null { color: V9_COLORS.TEXT.GRAY_MEDIUM; }
-  .json-punctuation { color: V9_COLORS.TEXT.GRAY_DARK; }
+	font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
+	font-size: 0.875rem;
+	line-height: 1.6;
+
+	.json-key {
+		color: #7c3aed;
+		font-weight: 600;
+	}
+	.json-string {
+		color: V9_COLORS.PRIMARY.GREEN_DARK;
+	}
+	.json-number {
+		color: V9_COLORS.PRIMARY.RED_DARK;
+	}
+	.json-boolean {
+		color: #ea580c;
+	}
+	.json-null {
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	}
+	.json-punctuation {
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 `;
 
 // Component Implementation

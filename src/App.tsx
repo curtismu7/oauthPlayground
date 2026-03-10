@@ -7,14 +7,16 @@ import { type UISettings, UISettingsProvider, useUISettings } from './contexts/U
 import { theme as baseTheme, GlobalStyle } from './styles/global';
 import { FlowStateProvider } from './v8/contexts/FlowStateContext';
 import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
+import { useComponentTracker } from './hooks/useComponentTracker';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
 import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all buttons have white text
 import { lazy, Suspense } from 'react';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
+import { CleanupHistoryDashboard } from './components/CleanupHistoryDashboard';
+import { CleanlinessDashboardWorking } from './components/CleanlinessDashboardWorking';
 import CredentialSetupModal from './components/CredentialSetupModal';
-import { FloatingLogToggle } from './components/FloatingLogToggle';
-import { FloatingLogViewer } from './components/FloatingLogViewer';
+import { EnhancedFloatingLogViewer } from './components/EnhancedFloatingLogViewer';
 import LoadingFallback from './components/LoadingFallback';
 import { WorkerTokenModal } from './components/WorkerTokenModal';
 import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
@@ -215,23 +217,23 @@ import { PostmanCollectionGenerator as PostmanCollectionGeneratorV9 } from './pa
 import { FIDO2SampleApp } from './samples/p1mfa/fido2/FIDO2SampleApp';
 import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
 import { SMSSampleApp } from './samples/p1mfa/sms/SMSSampleApp';
-import CIBAFlowV8 from './v8/flows/CIBAFlowV8';
+// CIBAFlowV8 archived — /flows/ciba-v8 now redirects to /flows/ciba-v9
 import { EmailMFASignOnFlowV8 } from './v8/flows/EmailMFASignOnFlowV8';
-import { ImplicitFlowV8 } from './v8/flows/ImplicitFlowV8';
+// ImplicitFlowV8 archived — /flows/implicit-v8 now redirects to /flows/implicit-v9
 import { MFAConfigurationPageV8 } from './v8/flows/MFAConfigurationPageV8';
 import MFADeviceManagementFlowV8 from './v8/flows/MFADeviceManagementFlowV8';
 import { MFADeviceOrderingFlowV8 } from './v8/flows/MFADeviceOrderingFlowV8';
 import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
 import MFAReportingFlowV8 from './v8/flows/MFAReportingFlowV8';
-import OIDCHybridFlowV8 from './v8/flows/OIDCHybridFlowV8';
+// OIDCHybridFlowV8 archived — /flows/hybrid-v8 now redirects to /flows/oidc-hybrid-v9
 import PingOneProtectFlowV8 from './v8/flows/PingOneProtectFlowV8';
 import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPageV8';
 import { MobileOTPConfigurationPageV8 } from './v8/flows/types/MobileOTPConfigurationPageV8';
 import { TokenMonitoringPage } from './v8u/pages/TokenMonitoringPage';
 
 // Lazy load unified MFA flow for code splitting
-const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(() =>
-	import('./v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy').then((module) => ({
+const UnifiedMFARegistrationFlowV8 = React.lazy(() =>
+	import('./v8/flows/unified/UnifiedMFARegistrationFlowV8').then((module) => ({
 		default: module.UnifiedMFARegistrationFlowV8,
 	}))
 );
@@ -249,7 +251,8 @@ import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
 // CreateCompanyPage - ARCHIVED
 import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import { logger } from './utils/logger';
-import { DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8';
+import { DebugLogViewerPopoutV8Test as DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8Test';
+import { DebugLogViewerPopoutV9 } from './pages/v9/DebugLogViewerPopoutV9';
 import DebugLogViewerV8 from './v8/pages/DebugLogViewerV8';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
@@ -289,52 +292,52 @@ const V7MROPCV9 = lazy(() => import('./v7/pages/V7MROPCV9'));
 const V7MSettingsV9 = lazy(() => import('./v7/pages/V7MSettingsV9'));
 
 const AppContainer = styled.div`
-  display: flex;
-  min-height: 100vh;
-  background-color: ${({ theme }) => theme.colors.gray100};
-  text-align: left;
-  direction: ltr;
+	display: flex;
+	min-height: 100vh;
+	background-color: ${({ theme }) => theme.colors.gray100};
+	text-align: left;
+	direction: ltr;
 `;
 
 const ContentColumn = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  min-height: 0;
-  min-width: 0;
-  overflow-y: auto;
-  text-align: left;
-  direction: ltr;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	min-height: 0;
+	min-width: 0;
+	overflow-y: auto;
+	text-align: left;
+	direction: ltr;
 `;
 
 const MainContent = styled.main<{ $sidebarWidth: number }>`
-  flex: 1;
-  padding: 1.5rem 2rem;
-  padding-top: calc(80px + 1.5rem); /* Account for fixed navbar (80px) + normal top padding */
-  max-width: 1400px;
-  margin: 0 auto;
-  width: 100%;
-  overflow-y: auto;
-  background-color: ${({ theme }) => theme.colors.white};
-  text-align: left;
-  direction: ltr;
-  @keyframes fadeInPage {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+	flex: 1;
+	padding: 1.5rem 2rem;
+	padding-top: calc(80px + 1.5rem); /* Account for fixed navbar (80px) + normal top padding */
+	max-width: 1400px;
+	margin: 0 auto;
+	width: 100%;
+	overflow-y: auto;
+	background-color: ${({ theme }) => theme.colors.white};
+	text-align: left;
+	direction: ltr;
+	@keyframes fadeInPage {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    padding: 1rem;
-    margin-left: 0;
-    margin-top: 100px;
-  }
+	@media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+		padding: 1rem;
+		margin-left: 0;
+		margin-top: 100px;
+	}
 `;
 
 const COLOR_SCHEMES: Record<UISettings['colorScheme'], Partial<DefaultTheme['colors']>> = {
@@ -422,7 +425,8 @@ function NotFoundRedirect() {
 
 const AppRoutes: React.FC = () => {
 	const { pathname } = useLocation();
-	const isDebugPopout = pathname === '/v8/debug-logs-popout';
+	const isDebugPopout =
+		pathname === '/v8/debug-logs-popout' || pathname === '/v9/debug-logs-popout';
 	const isWebhookPopout = pathname === '/pingone-webhook-viewer-popout';
 	const [sidebarOpen, setSidebarOpen] = useState(true);
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
@@ -588,7 +592,8 @@ const AppRoutes: React.FC = () => {
 				// Debug log viewer popout - render without layout
 				<Routes>
 					<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
-					<Route path="*" element={<Navigate to="/v8/debug-logs-popout" replace />} />
+					<Route path="/v9/debug-logs-popout" element={<DebugLogViewerPopoutV9 />} />
+					<Route path="*" element={<Navigate to="/v9/debug-logs-popout" replace />} />
 				</Routes>
 			) : isWebhookPopout ? (
 				// Webhook popout window only - render without sidebar layout
@@ -643,6 +648,8 @@ const AppRoutes: React.FC = () => {
 								<Route path="/callback/*" element={<AuthzCallback />} />
 								<Route path="/" element={<Navigate to="/dashboard" replace />} />
 								<Route path="/dashboard" element={<Dashboard />} />
+								<Route path="/cleanliness-dashboard" element={<CleanlinessDashboardWorking />} />
+								<Route path="/cleanup-history" element={<CleanupHistoryDashboard />} />
 								<Route path="/flows" element={<OAuthFlowsNew />}>
 									<Route
 										path="compare"
@@ -708,7 +715,7 @@ const AppRoutes: React.FC = () => {
 									path="/v8/unified-mfa"
 									element={
 										<React.Suspense fallback={<div>Loading...</div>}>
-											<UnifiedMFARegistrationFlowV8_Legacy registrationFlowType="admin" />
+											<UnifiedMFARegistrationFlowV8 registrationFlowType="admin" />
 										</React.Suspense>
 									}
 								/>
@@ -722,7 +729,7 @@ const AppRoutes: React.FC = () => {
 									element={
 										<React.Suspense fallback={<div>Loading...</div>}>
 											{/* Temporarily commented out due to import issue */}
-											{/* <UnifiedMFARegistrationFlowV8_Legacy deviceType="TOTP" /> */}
+											{/* <UnifiedMFARegistrationFlowV8 deviceType="TOTP" /> */}
 										</React.Suspense>
 									}
 								/>
@@ -903,8 +910,11 @@ const AppRoutes: React.FC = () => {
 									path="/flows/implicit-v7"
 									element={<Navigate to="/flows/implicit-v9" replace />}
 								/>
-								{/* V8 Implicit Flow */}
-								<Route path="/flows/implicit-v8" element={<ImplicitFlowV8 />} />
+								{/* V8 Implicit Flow — redirected to V9 (same as v7) */}
+								<Route
+									path="/flows/implicit-v8"
+									element={<Navigate to="/flows/implicit-v9" replace />}
+								/>
 								{/* V9 Implicit Flow */}
 								<Route path="/flows/implicit-v9" element={<ImplicitFlowV9 />} />
 								{/* V8 Unified UI Mockup */}
@@ -1040,6 +1050,8 @@ const AppRoutes: React.FC = () => {
 								<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
 								<Route path="/v8/debug-logs" element={<DebugLogViewerV8 />} />
 								<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
+								{/* V9 Utilities */}
+								<Route path="/v9/debug-logs-popout" element={<DebugLogViewerPopoutV9 />} />
 								{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
 								<Route
 									path="/v8u/spiffe-spire"
@@ -1211,15 +1223,18 @@ const AppRoutes: React.FC = () => {
 									path="/flows/oauth-authorization-code-v9-condensed"
 									element={<OAuthAuthorizationCodeFlowV9_Condensed />}
 								/>
-								{/* V8 OIDC Hybrid Flow */}
-								<Route path="/flows/hybrid-v8" element={<OIDCHybridFlowV8 />} />
+								{/* V8 OIDC Hybrid Flow — redirected to V9 (same as v6/v7) */}
+								<Route
+									path="/flows/hybrid-v8"
+									element={<Navigate to="/flows/oidc-hybrid-v9" replace />}
+								/>
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 								<Route
 									path="/flows/oidc-hybrid-v6"
 									element={<Navigate to="/flows/oidc-hybrid-v9" replace />}
 								/>
-								{/* V8 CIBA Flow */}
-								<Route path="/flows/ciba-v8" element={<CIBAFlowV8 />} />
+								{/* V8 CIBA Flow — redirected to V9 (same as v6/v7) */}
+								<Route path="/flows/ciba-v8" element={<Navigate to="/flows/ciba-v9" replace />} />
 								{/* V9 CIBA Flow */}
 								<Route path="/flows/ciba-v9" element={<CIBAFlowV9 />} />
 								{/* Legacy V6/V7 routes - redirect to V9 for backward compatibility */}
@@ -1648,6 +1663,7 @@ const buildTheme = (settings: UISettings): DefaultTheme => {
 };
 
 function App() {
+	useComponentTracker('App');
 	return (
 		<UISettingsProvider>
 			<AppContent />
@@ -1656,6 +1672,7 @@ function App() {
 }
 
 function AppContent() {
+	useComponentTracker('AppContent');
 	const { settings } = useUISettings();
 	const theme = useMemo(() => buildTheme(settings), [settings]);
 	const location = useLocation();
@@ -1674,8 +1691,8 @@ function AppContent() {
 		url: '',
 	});
 
-	// Floating log viewer state
-	const [isFloatingLogViewerOpen, setIsFloatingLogViewerOpen] = useState(false);
+	// Floating debug log viewer state
+	const [isFloatingDebugLogViewerOpen, setIsFloatingDebugLogViewerOpen] = useState(false);
 
 	// Enable prompts keyboard shortcut
 	usePromptsShortcut();
@@ -1748,22 +1765,22 @@ function AppContent() {
 
 	// Handle global worker token modal events
 	useEffect(() => {
-		logger.info('[App] Setting up worker token modal event listener...', "Logger info");
+		logger.info('[App] Setting up worker token modal event listener...', 'Logger info');
 
 		const handleWorkerTokenModalEvent = (event: CustomEvent) => {
 			logger.info('[App] Opening worker token modal from:', event.detail?.source || 'unknown');
-			logger.info('[App] Setting showWorkerTokenModal to true', "Logger info");
+			logger.info('[App] Setting showWorkerTokenModal to true', 'Logger info');
 			setShowWorkerTokenModal(true);
 		};
 
-		logger.info('[App] Adding event listener for open-worker-token-modal', "Logger info");
+		logger.info('[App] Adding event listener for open-worker-token-modal', 'Logger info');
 		window.addEventListener(
 			'open-worker-token-modal',
 			handleWorkerTokenModalEvent as EventListener
 		);
 
 		return () => {
-			logger.info('[App] Cleaning up worker token modal event listener', "Logger info");
+			logger.info('[App] Cleaning up worker token modal event listener', 'Logger info');
 			window.removeEventListener(
 				'open-worker-token-modal',
 				handleWorkerTokenModalEvent as EventListener
@@ -1772,21 +1789,9 @@ function AppContent() {
 	}, []);
 
 	if (isStandaloneLogViewerRoute) {
-		const standaloneWidth = Math.max(900, window.innerWidth - 40);
-		const standaloneHeight = Math.max(500, window.innerHeight - 40);
-
 		return (
 			<ThemeProvider theme={theme}>
 				<GlobalStyle />
-				<FloatingLogViewer
-					isOpen
-					standaloneMode
-					onClose={() => window.close()}
-					initialWidth={standaloneWidth}
-					initialHeight={standaloneHeight}
-					initialX={20}
-					initialY={20}
-				/>
 			</ThemeProvider>
 		);
 	}
@@ -1839,11 +1844,11 @@ function AppContent() {
 					<WorkerTokenModal
 						isOpen={showWorkerTokenModal}
 						onClose={() => {
-							logger.info('[App] WorkerTokenModal onClose called', "Logger info");
+							logger.info('[App] WorkerTokenModal onClose called', 'Logger info');
 							setShowWorkerTokenModal(false);
 						}}
 						onContinue={() => {
-							logger.info('[App] Worker token modal closed', "Logger info");
+							logger.info('[App] Worker token modal closed', 'Logger info');
 							setShowWorkerTokenModal(false);
 						}}
 						flowType="global"
@@ -1855,21 +1860,41 @@ function AppContent() {
 			{/* Global Backend Connectivity Modal */}
 			<BackendDownModalV8 />
 
+			{/* Debug Log Viewer Button */}
 			{!isStandaloneLogViewerRoute && (
-				<>
-					{/* Floating Log Viewer */}
-					<FloatingLogViewer
-						isOpen={isFloatingLogViewerOpen}
-						onClose={() => setIsFloatingLogViewerOpen(false)}
-					/>
-
-					{/* Floating Log Toggle */}
-					<FloatingLogToggle
-						isOpen={isFloatingLogViewerOpen}
-						onClick={() => setIsFloatingLogViewerOpen(!isFloatingLogViewerOpen)}
-					/>
-				</>
+				<button
+					type="button"
+					onClick={() => setIsFloatingDebugLogViewerOpen(true)}
+					style={{
+						position: 'fixed',
+						bottom: '20px',
+						right: '20px',
+						width: '50px',
+						height: '50px',
+						background: 'var(--ping-bg-primary, #2563eb)',
+						color: 'var(--ping-text-inverse, #ffffff)',
+						border: '1px solid var(--ping-border-primary, #d1d5db)',
+						borderRadius: '50%',
+						cursor: 'pointer',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+						zIndex: 9998,
+						transition: 'all 0.15s ease-in-out',
+						fontSize: '18px',
+					}}
+					title="Open Debug Log Viewer"
+				>
+					📋
+				</button>
 			)}
+
+			{/* Floating Debug Log Viewer */}
+			<EnhancedFloatingLogViewer
+				isOpen={isFloatingDebugLogViewerOpen}
+				onClose={() => setIsFloatingDebugLogViewerOpen(false)}
+			/>
 		</ThemeProvider>
 	);
 }

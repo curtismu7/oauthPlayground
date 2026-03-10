@@ -1,4 +1,4 @@
-import { FiAlertCircle, FiCheckCircle } from '@icons';
+import { FiAlertCircle, FiCheckCircle } from '../icons';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -28,15 +28,15 @@ interface ConfigurationStatusProps {
 }
 
 const StatusContainer = styled.div`
-  margin-bottom: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const CompactStatusBar = styled.div<{ $status: 'ready' | 'partial' | 'missing' }>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background-color: ${({ $status }) => {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.75rem 1rem;
+	background-color: ${({ $status }) => {
 		switch ($status) {
 			case 'ready':
 				return '#f0fdf4';
@@ -48,37 +48,38 @@ const CompactStatusBar = styled.div<{ $status: 'ready' | 'partial' | 'missing' }
 				return '#f9fafb';
 		}
 	}};
-  border: 1px solid ${({ $status }) => {
-		switch ($status) {
-			case 'ready':
-				return '#10b981';
-			case 'partial':
-				return '#f59e0b';
-			case 'missing':
-				return '#ef4444';
-			default:
-				return '#e5e7eb';
-		}
-	}};
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+	border: 1px solid
+		${({ $status }) => {
+			switch ($status) {
+				case 'ready':
+					return '#10b981';
+				case 'partial':
+					return '#f59e0b';
+				case 'missing':
+					return '#ef4444';
+				default:
+					return '#e5e7eb';
+			}
+		}};
+	border-radius: 0.5rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const StatusLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 `;
 
 const StatusIcon = styled.div<{ $status: 'ready' | 'partial' | 'missing' }>`
-  font-size: 1.25rem;
-  color: ${({ $status }) => {
+	font-size: 1.25rem;
+	color: ${({ $status }) => {
 		switch ($status) {
 			case 'ready':
 				return '#10b981';
@@ -93,106 +94,106 @@ const StatusIcon = styled.div<{ $status: 'ready' | 'partial' | 'missing' }>`
 `;
 
 const StatusText = styled.div`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.gray900};
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: ${({ theme }) => theme.colors.gray900};
 `;
 
 const StatusRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const CompactButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  background-color: ${({ theme }) => theme.colors.primary};
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.primaryDark};
-  }
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.375rem 0.75rem;
+	background-color: ${({ theme }) => theme.colors.primary};
+	color: white;
+	border: none;
+	border-radius: 0.375rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:hover {
+		background-color: ${({ theme }) => theme.colors.primaryDark};
+	}
 `;
 
 const CompactLinkButton = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  background-color: transparent;
-  color: ${({ theme }) => theme.colors.primary};
-  border: 1px solid ${({ theme }) => theme.colors.primary};
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.2s;
-  
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.primary}10;
-  }
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.375rem 0.75rem;
+	background-color: transparent;
+	color: ${({ theme }) => theme.colors.primary};
+	border: 1px solid ${({ theme }) => theme.colors.primary};
+	border-radius: 0.375rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	text-decoration: none;
+	transition: all 0.2s;
+
+	&:hover {
+		background-color: ${({ theme }) => theme.colors.primary}10;
+	}
 `;
 
 const ExpandableContent = styled.div<{ $expanded: boolean }>`
-  max-height: ${({ $expanded }) => ($expanded ? '500px' : '0')};
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  background-color: ${({ theme }) => theme.colors.gray50};
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
-  border-top: none;
-  border-radius: 0 0 0.5rem 0.5rem;
+	max-height: ${({ $expanded }) => ($expanded ? '500px' : '0')};
+	overflow: hidden;
+	transition: max-height 0.3s ease;
+	background-color: ${({ theme }) => theme.colors.gray50};
+	border: 1px solid ${({ theme }) => theme.colors.gray200};
+	border-top: none;
+	border-radius: 0 0 0.5rem 0.5rem;
 `;
 
 const ExpandedContent = styled.div`
-  padding: 1rem;
-  
-  .details-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray700};
-    margin-bottom: 0.75rem;
-  }
-  
-  .details-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    
-    li {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.25rem 0;
-      font-size: 0.875rem;
-      color: ${({ theme }) => theme.colors.gray600};
-      
-      .check-icon {
-        color: ${({ theme }) => theme.colors.success};
-        font-size: 1rem;
-      }
-      
-      .missing-icon {
-        color: ${({ theme }) => theme.colors.error};
-        font-size: 1rem;
-      }
-    }
-  }
-  
-  .action-buttons {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1rem;
-    flex-wrap: wrap;
-  }
+	padding: 1rem;
+
+	.details-title {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: ${({ theme }) => theme.colors.gray700};
+		margin-bottom: 0.75rem;
+	}
+
+	.details-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+
+		li {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 0.25rem 0;
+			font-size: 0.875rem;
+			color: ${({ theme }) => theme.colors.gray600};
+
+			.check-icon {
+				color: ${({ theme }) => theme.colors.success};
+				font-size: 1rem;
+			}
+
+			.missing-icon {
+				color: ${({ theme }) => theme.colors.error};
+				font-size: 1rem;
+			}
+		}
+	}
+
+	.action-buttons {
+		display: flex;
+		gap: 0.75rem;
+		margin-top: 1rem;
+		flex-wrap: wrap;
+	}
 `;
 
 const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
@@ -215,7 +216,10 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 	// Load initial status and update when credentials change
 	useEffect(() => {
 		const updateStatus = async () => {
-			logger.info(' [ConfigurationStatus] Checking credentials from unified storage...', "Logger info");
+			logger.info(
+				' [ConfigurationStatus] Checking credentials from unified storage...',
+				'Logger info'
+			);
 			const newStatus = await getSharedConfigurationStatusAsync(flowType);
 			setStatusData(newStatus);
 		};
@@ -262,7 +266,7 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 
 	const handleRefresh = async (e: React.MouseEvent) => {
 		e.stopPropagation();
-		logger.info(' [ConfigurationStatus] Manual refresh button clicked', "Logger info");
+		logger.info(' [ConfigurationStatus] Manual refresh button clicked', 'Logger info');
 		const newStatus = await getSharedConfigurationStatusAsync(flowType);
 		setStatusData(newStatus);
 	};

@@ -12,7 +12,7 @@
  * - Simplified configuration flow
  */
 
-import { FiAlertCircle, FiCheck } from '@icons';
+import { FiAlertCircle, FiCheck } from '../../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';

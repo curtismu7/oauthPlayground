@@ -1,6 +1,6 @@
 // src/v7m/ui/V7MJwtInspectorModal.tsx
 
-import { FiPackage } from '@icons';
+import { FiPackage } from '../../icons';
 import React, { useMemo, useState } from 'react';
 import { V7MHelpModal } from './V7MHelpModal';
 
@@ -22,20 +22,10 @@ export const V7MJwtInspectorModal: React.FC<Props> = ({ open, token, onClose }) 
 			themeColor="#0ea5e9"
 		>
 			<div style={{ marginBottom: 12 }}>
-				<button
-					type="button"
-					type="button"
-					style={tabBtn(tab === 'header')}
-					onClick={() => setTab('header')}
-				>
+				<button type="button" style={tabBtn(tab === 'header')} onClick={() => setTab('header')}>
 					Header
 				</button>
-				<button
-					type="button"
-					type="button"
-					style={tabBtn(tab === 'payload')}
-					onClick={() => setTab('payload')}
-				>
+				<button type="button" style={tabBtn(tab === 'payload')} onClick={() => setTab('payload')}>
 					Payload
 				</button>
 				<button

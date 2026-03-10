@@ -1,95 +1,95 @@
-import { FiCode } from '@icons';
+import { FiCode } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { type ApiCall, TokenMonitoringService } from '../services/tokenMonitoringService';
 
 const PageContainer = styled.div`
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+	padding: 2rem;
+	max-width: 1400px;
+	margin: 0 auto;
 `;
 
 const PageHeader = styled.div`
-  margin-bottom: 2rem;
-  text-align: center;
+	margin-bottom: 2rem;
+	text-align: center;
 `;
 
 const PageTitle = styled.h1`
-  color: #1e293b;
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+	color: #1e293b;
+	font-size: 2rem;
+	font-weight: 700;
+	margin-bottom: 0.5rem;
 `;
 
 const PageSubtitle = styled.p`
-  color: #64748b;
-  font-size: 1rem;
-  margin: 0;
+	color: #64748b;
+	font-size: 1rem;
+	margin: 0;
 `;
 
 const ControlsContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  align-items: center;
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 2rem;
+	flex-wrap: wrap;
+	align-items: center;
 `;
 
 const SearchBox = styled.div`
-  position: relative;
-  flex: 1;
-  min-width: 300px;
+	position: relative;
+	flex: 1;
+	min-width: 300px;
 `;
 
 const SearchInput = styled.input`
-  width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	padding: 0.75rem 1rem 0.75rem 2.5rem;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	font-size: 0.875rem;
+
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const SearchIcon = styled.div`
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #64748b;
+	position: absolute;
+	left: 0.75rem;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #64748b;
 `;
 
 const FilterSelect = styled.select`
-  padding: 0.75rem 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  background: white;
-  
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-  }
+	padding: 0.75rem 1rem;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	font-size: 0.875rem;
+	background: white;
+
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+	}
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  ${(props) => {
+	padding: 0.75rem 1rem;
+	border-radius: 8px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	border: 1px solid;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	${(props) => {
 		switch (props.$variant) {
 			case 'primary':
 				return `
@@ -119,49 +119,49 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 `;
 
 const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1rem;
+	margin-bottom: 2rem;
 `;
 
 const StatCard = styled.div`
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 1rem;
-  text-align: center;
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 1rem;
+	text-align: center;
 `;
 
 const StatValue = styled.div`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 0.25rem;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #1e293b;
+	margin-bottom: 0.25rem;
 `;
 
 const StatLabel = styled.div`
-  font-size: 0.75rem;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+	font-size: 0.75rem;
+	color: #64748b;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 `;
 
 const ApiCallGrid = styled.div`
-  display: grid;
-  gap: 1.5rem;
+	display: grid;
+	gap: 1.5rem;
 `;
 
 const ApiCallCard = styled.div`
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  overflow: hidden;
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	overflow: hidden;
 `;
 
 const ApiCallHeader = styled.div<{ $method: string }>`
-  padding: 1rem 1.5rem;
-  background: ${(props) => {
+	padding: 1rem 1.5rem;
+	background: ${(props) => {
 		switch (props.$method) {
 			case 'POST':
 				return '#dcfce7';
@@ -173,19 +173,19 @@ const ApiCallHeader = styled.div<{ $method: string }>`
 				return '#f3f4f6';
 		}
 	}};
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+	border-bottom: 1px solid #e2e8f0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 `;
 
 const MethodBadge = styled.span<{ $method: string }>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  background: ${(props) => {
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	background: ${(props) => {
 		switch (props.$method) {
 			case 'POST':
 				return '#16a34a';
@@ -197,171 +197,172 @@ const MethodBadge = styled.span<{ $method: string }>`
 				return '#6b7280';
 		}
 	}};
-  color: white;
+	color: white;
 `;
 
 const ApiUrl = styled.div`
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  color: #374151;
-  font-weight: 500;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	color: #374151;
+	font-weight: 500;
 `;
 
 const ApiCallBody = styled.div`
-  padding: 1.5rem;
+	padding: 1.5rem;
 `;
 
 const ApiSection = styled.div`
-  margin-bottom: 1.5rem;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
+	margin-bottom: 1.5rem;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
 `;
 
 const SectionTitle = styled.h4`
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #374151;
+	margin-bottom: 0.5rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
 `;
 
 const CodeBlock = styled.div<{ $expanded?: boolean }>`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 1rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-all;
-  max-height: ${(props) => (props.$expanded ? 'none' : '200px')};
-  overflow-y: ${(props) => (props.$expanded ? 'visible' : 'auto')};
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	padding: 1rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.75rem;
+	line-height: 1.4;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	word-break: break-all;
+	max-height: ${(props) => (props.$expanded ? 'none' : '200px')};
+	overflow-y: ${(props) => (props.$expanded ? 'visible' : 'auto')};
 `;
 
 const ExpandButton = styled.button`
-  background: none;
-  border: none;
-  color: #3b82f6;
-  font-size: 0.75rem;
-  cursor: pointer;
-  padding: 0.25rem 0;
-  margin-top: 0.5rem;
-  
-  &:hover {
-    text-decoration: underline;
-  }
+	background: none;
+	border: none;
+	color: #3b82f6;
+	font-size: 0.75rem;
+	cursor: pointer;
+	padding: 0.25rem 0;
+	margin-top: 0.5rem;
+
+	&:hover {
+		text-decoration: underline;
+	}
 `;
 
 const ResponseBlock = styled.div<{ $status: number }>`
-  background: ${(props) => {
+	background: ${(props) => {
 		if (props.$status >= 200 && props.$status < 300) return '#f0fdf4';
 		if (props.$status >= 400) return '#fef2f2';
 		return '#f8fafc';
 	}};
-  border: 1px solid ${(props) => {
-		if (props.$status >= 200 && props.$status < 300) return '#86efac';
-		if (props.$status >= 400) return '#fecaca';
-		return '#e2e8f0';
-	}};
-  border-radius: 6px;
-  padding: 1rem;
-  margin-top: 0.5rem;
+	border: 1px solid
+		${(props) => {
+			if (props.$status >= 200 && props.$status < 300) return '#86efac';
+			if (props.$status >= 400) return '#fecaca';
+			return '#e2e8f0';
+		}};
+	border-radius: 6px;
+	padding: 1rem;
+	margin-top: 0.5rem;
 `;
 
 const StatusBadge = styled.span<{ $status: number }>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: ${(props) => {
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	background: ${(props) => {
 		if (props.$status >= 200 && props.$status < 300) return '#16a34a';
 		if (props.$status >= 400) return '#dc2626';
 		return '#6b7280';
 	}};
-  color: white;
-  margin-bottom: 0.5rem;
-  display: inline-block;
+	color: white;
+	margin-bottom: 0.5rem;
+	display: inline-block;
 `;
 
 const Timestamp = styled.div`
-  font-size: 0.75rem;
-  color: #64748b;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+	font-size: 0.75rem;
+	color: #64748b;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
 `;
 
 const CopyButton = styled.button`
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
-  
-  &:hover {
-    background: #f3f4f6;
-    color: #374151;
-  }
+	background: none;
+	border: none;
+	color: #64748b;
+	cursor: pointer;
+	padding: 0.25rem;
+	border-radius: 4px;
+
+	&:hover {
+		background: #f3f4f6;
+		color: #374151;
+	}
 `;
 
 // New styled components for redirects
 const RedirectCard = styled.div`
-  background: #f0f9ff;
-  border: 1px solid #bae6fd;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-left: 4px solid #0ea5e9;
+	background: #f0f9ff;
+	border: 1px solid #bae6fd;
+	border-radius: 8px;
+	padding: 1rem;
+	margin-bottom: 1rem;
+	border-left: 4px solid #0ea5e9;
 `;
 
 const RedirectHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
 `;
 
 const RedirectTitle = styled.div`
-  font-weight: 600;
-  color: #0c4a6e;
-  font-size: 0.875rem;
+	font-weight: 600;
+	color: #0c4a6e;
+	font-size: 0.875rem;
 `;
 
 const RedirectUrl = styled.div`
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.75rem;
-  color: #64748b;
-  word-break: break-all;
-  background: white;
-  padding: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid #e2e8f0;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.75rem;
+	color: #64748b;
+	word-break: break-all;
+	background: white;
+	padding: 0.5rem;
+	border-radius: 4px;
+	border: 1px solid #e2e8f0;
 `;
 
 const RedirectDescription = styled.div`
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-top: 0.5rem;
+	font-size: 0.75rem;
+	color: #64748b;
+	margin-top: 0.5rem;
 `;
 
 const InteractionType = styled.div`
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+	display: inline-block;
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
 `;
 
 const RedirectInteractionType = styled(InteractionType)`
-  background: #fef3c7;
-  color: #92400e;
+	background: #fef3c7;
+	color: #92400e;
 `;
 
 export const TokenApiDocumentationPage: React.FC = () => {
