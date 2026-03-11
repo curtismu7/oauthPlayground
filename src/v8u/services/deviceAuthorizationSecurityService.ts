@@ -324,7 +324,7 @@ export class DeviceAuthorizationSecurityService {
 		Object.values(DeviceAuthorizationSecurityService.STORAGE_KEYS).forEach((key) => {
 			sessionStorage.removeItem(key);
 		});
-		logger.info(`${MODULE_TAG} Security metrics cleared`, "Logger info");
+		logger.info(`${MODULE_TAG} Security metrics cleared`, 'Logger info');
 	}
 
 	/**

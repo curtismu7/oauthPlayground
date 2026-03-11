@@ -4,6 +4,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+type StyledCache = ReturnType<typeof styled.div> | ReturnType<typeof styled.section> | null;
+
 export interface PageLayoutConfig {
 	flowType: 'oauth' | 'oidc' | 'pingone' | 'documentation';
 	theme: 'blue' | 'green' | 'orange' | 'purple' | 'red';
@@ -28,24 +30,15 @@ export class PageLayoutService {
 	// ============================================================================
 	// CACHE FOR STYLED COMPONENTS (prevents dynamic creation warnings)
 	// ============================================================================
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _mainCardCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _sectionContainerCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _contentGridCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _contentFlexCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _spacingCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _pageFooterCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _pageContainerCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _contentWrapperCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _pageHeaderCache = new Map<string, any>();
+	private static _mainCardCache: StyledCache = null;
+	private static _sectionContainerCache: StyledCache = null;
+	private static _contentGridCache = new Map<string, StyledCache>();
+	private static _contentFlexCache = new Map<string, StyledCache>();
+	private static _spacingCache = new Map<string, StyledCache>();
+	private static _pageFooterCache: StyledCache = null;
+	private static _pageContainerCache = new Map<string, StyledCache>();
+	private static _contentWrapperCache = new Map<string, StyledCache>();
+	private static _pageHeaderCache = new Map<string, StyledCache>();
 
 	// Main page container - ensures consistent sizing and structure
 	static getPageContainer(config: PageLayoutConfig) {

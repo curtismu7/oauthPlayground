@@ -100,7 +100,7 @@ export const getFlowNavigationState = (): FlowNavigationState | null => {
 export const clearFlowNavigationState = (): void => {
 	localStorage.removeItem('flow_navigation_state');
 	sessionStorage.removeItem('flow_navigation_state');
-	logger.info('🔗 [FlowNavigation] Cleared navigation state', "Logger info");
+	logger.info('🔗 [FlowNavigation] Cleared navigation state', 'Logger info');
 };
 
 /**

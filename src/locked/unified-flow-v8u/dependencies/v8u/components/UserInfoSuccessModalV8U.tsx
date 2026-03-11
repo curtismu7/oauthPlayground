@@ -6,8 +6,8 @@
  * @since 2024-11-17
  */
 
-import { FiCheckCircle } from '../../../../../icons';
 import React from 'react';
+import { FiCheckCircle } from '../../../../../icons';
 
 import { logger } from '../../../../../utils/logger';
 

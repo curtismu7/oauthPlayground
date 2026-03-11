@@ -6,8 +6,8 @@
  * @since 2026-02-06
  */
 
-import { FiAlertTriangle } from '../../icons';
 import React from 'react';
+import { FiAlertTriangle } from '../../icons';
 
 import { logger } from '../../utils/logger';
 

@@ -2453,8 +2453,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 					if (platformPreference.prefer) {
 						logger.info(
-							`[🔑 FIDO2-FLOW-V8] Using FIDO2 platform device preference: ${platformPreference.reason}`
-						, "Logger info");
+							`[🔑 FIDO2-FLOW-V8] Using FIDO2 platform device preference: ${platformPreference.reason}`,
+							'Logger info'
+						);
 					}
 
 					const webAuthnResult =

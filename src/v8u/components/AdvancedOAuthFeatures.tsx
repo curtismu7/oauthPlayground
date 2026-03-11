@@ -1,7 +1,7 @@
-import { FiCheck, FiInfo, FiShield, FiX } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiCheck, FiInfo, FiShield, FiX } from '../../icons';
 import { logger } from '../../utils/logger';
 import { PingOneClientServiceV8U } from '../services/pingOneClientServiceV8U';
 import FeatureEnableConfirmationModal from './FeatureEnableConfirmationModal';

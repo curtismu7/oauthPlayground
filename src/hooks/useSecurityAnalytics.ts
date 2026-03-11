@@ -88,7 +88,7 @@ export const useSecurityAnalytics = (config: UseSecurityAnalyticsConfig = {}) =>
 		});
 
 		if (debug) {
-			logger.info('[useSecurityAnalytics] Configuration updated', "Logger info");
+			logger.info('[useSecurityAnalytics] Configuration updated', 'Logger info');
 		}
 	}, [
 		enableRealTimeMonitoring,
@@ -124,7 +124,7 @@ export const useSecurityAnalytics = (config: UseSecurityAnalyticsConfig = {}) =>
 			}, 5000); // Update every 5 seconds
 
 			if (debug) {
-				logger.info('[useSecurityAnalytics] Security analytics initialized', "Logger info");
+				logger.info('[useSecurityAnalytics] Security analytics initialized', 'Logger info');
 			}
 		} else {
 			securityAnalyticsManager.setMonitoringEnabled(false);
@@ -458,7 +458,7 @@ export const useSecurityAnalytics = (config: UseSecurityAnalyticsConfig = {}) =>
 			});
 
 			if (debug) {
-				logger.info('[useSecurityAnalytics] Configuration updated', "Logger info");
+				logger.info('[useSecurityAnalytics] Configuration updated', 'Logger info');
 			}
 		},
 		[

@@ -28,8 +28,8 @@ import { logger } from '../utils/logger';
 import { trackedFetch } from '../utils/trackedFetch';
 import { DraggableModal } from './DraggableModal';
 import { RegionSelect } from './RegionSelect';
-import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
+import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
 
 // ---------------------------------------------------------------------------
 // PingOne UI Styled Components
@@ -269,12 +269,12 @@ const StatusIndicator = styled.div<{ $status?: 'loading' | 'success' | 'error' }
 // MDI Icon Component
 // ---------------------------------------------------------------------------
 
-const MDIIcon: React.FC<{ icon: string; size?: number; className?: string; style?: React.CSSProperties }> = ({
-	icon,
-	size = 20,
-	className = '',
-	style,
-}) => {
+const MDIIcon: React.FC<{
+	icon: string;
+	size?: number;
+	className?: string;
+	style?: React.CSSProperties;
+}> = ({ icon, size = 20, className = '', style }) => {
 	const iconMap: Record<string, string> = {
 		FiKey: 'mdi-key',
 		FiRefreshCw: 'mdi-refresh',
@@ -293,7 +293,9 @@ const MDIIcon: React.FC<{ icon: string; size?: number; className?: string; style
 
 	const mdiIcon = iconMap[icon] || 'mdi-help';
 
-	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px`, ...style }}></i>;
+	return (
+		<i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px`, ...style }}></i>
+	);
 };
 
 // ---------------------------------------------------------------------------
@@ -531,7 +533,8 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 			// Handle authentication method
 			switch (authMethod) {
 				case 'client_secret_basic':
-					headers['Authorization'] = `Basic ${btoa(`${requestParams.client_id}:${requestParams.client_secret}`)}`;
+					headers['Authorization'] =
+						`Basic ${btoa(`${requestParams.client_id}:${requestParams.client_secret}`)}`;
 					bodyParams.client_id = requestParams.client_id;
 					break;
 				case 'client_secret_post':
@@ -606,8 +609,9 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 			onTokenGenerated?.(realToken);
 		} catch (error) {
 			setTokenStatus('error');
-			const errorMessage = error instanceof Error ? error.message : 'Failed to generate worker token';
-			
+			const errorMessage =
+				error instanceof Error ? error.message : 'Failed to generate worker token';
+
 			logger.error('WorkerTokenModalV9', 'Token generation failed', {
 				error: errorMessage,
 			});
@@ -897,52 +901,52 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 						</InfoBox>
 					)}
 
-				{tokenStatus !== 'success' && (
-					<ButtonGroup>
-						<Button
-							$variant="primary"
-							onClick={handleGenerateToken}
-							disabled={!isFormValid || isGenerating}
-						>
-							{isGenerating ? (
-								<>
-									<MDIIcon
-										icon="FiRefreshCw"
-										size={16}
-										style={{ animation: 'spin 1s linear infinite' }}
-									/>
-									Generating...
-								</>
-							) : (
-								<>
-									<MDIIcon icon="FiKey" size={16} />
-									Generate Worker Token
-								</>
-							)}
-						</Button>
-						<Button $variant="secondary" onClick={handleGetWorkerToken}>
-							<MDIIcon icon="FiExternalLink" size={16} />
-							Use Client Generator
-						</Button>
-					</ButtonGroup>
-				)}
-			</Section>
-		</ModalContent>
-		
-		{/* Educational modal showing request details */}
-		{pendingRequestDetails && (
-			<WorkerTokenRequestModal
-				isOpen={showRequestModal}
-				onClose={() => setShowRequestModal(false)}
-				onProceed={executeTokenRequest}
-				tokenEndpoint={pendingRequestDetails.tokenEndpoint}
-				requestParams={pendingRequestDetails.requestParams}
-				authMethod={pendingRequestDetails.authMethod}
-				region={pendingRequestDetails.region}
-			/>
-		)}
-	</DraggableModal>
-);
+					{tokenStatus !== 'success' && (
+						<ButtonGroup>
+							<Button
+								$variant="primary"
+								onClick={handleGenerateToken}
+								disabled={!isFormValid || isGenerating}
+							>
+								{isGenerating ? (
+									<>
+										<MDIIcon
+											icon="FiRefreshCw"
+											size={16}
+											style={{ animation: 'spin 1s linear infinite' }}
+										/>
+										Generating...
+									</>
+								) : (
+									<>
+										<MDIIcon icon="FiKey" size={16} />
+										Generate Worker Token
+									</>
+								)}
+							</Button>
+							<Button $variant="secondary" onClick={handleGetWorkerToken}>
+								<MDIIcon icon="FiExternalLink" size={16} />
+								Use Client Generator
+							</Button>
+						</ButtonGroup>
+					)}
+				</Section>
+			</ModalContent>
+
+			{/* Educational modal showing request details */}
+			{pendingRequestDetails && (
+				<WorkerTokenRequestModal
+					isOpen={showRequestModal}
+					onClose={() => setShowRequestModal(false)}
+					onProceed={executeTokenRequest}
+					tokenEndpoint={pendingRequestDetails.tokenEndpoint}
+					requestParams={pendingRequestDetails.requestParams}
+					authMethod={pendingRequestDetails.authMethod}
+					region={pendingRequestDetails.region}
+				/>
+			)}
+		</DraggableModal>
+	);
 };
 
 export { WorkerTokenModalV9 };

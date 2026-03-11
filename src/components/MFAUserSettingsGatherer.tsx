@@ -1,10 +1,10 @@
 // src/components/MFAUserSettingsGatherer.tsx
 // Modern MFA User Settings Component with username input and MFA policy selection
 
-import { FiCheck, FiChevronDown } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiCheck, FiChevronDown } from '../icons';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
 import { workerTokenCredentialsService } from '../services/workerTokenCredentialsService';
 

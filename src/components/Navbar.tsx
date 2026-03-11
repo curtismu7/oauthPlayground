@@ -1,14 +1,3 @@
-import {
-	FiActivity,
-	FiDownload,
-	FiHelpCircle,
-	FiLogIn,
-	FiLogOut,
-	FiMenu,
-	FiSearch,
-	FiServer,
-	FiSettings,
-} from '../icons';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -20,6 +9,17 @@ import {
 } from '../config/sidebarMenuConfig';
 import { useAuth } from '../contexts/NewAuthContext';
 import { useAccessibility } from '../hooks/useAccessibility';
+import {
+	FiActivity,
+	FiDownload,
+	FiHelpCircle,
+	FiLogIn,
+	FiLogOut,
+	FiMenu,
+	FiSearch,
+	FiServer,
+	FiSettings,
+} from '../icons';
 import {
 	exportAllUseCasesAsMarkdown,
 	exportAllUseCasesAsPDF,

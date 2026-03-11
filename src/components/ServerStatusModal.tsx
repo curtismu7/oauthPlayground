@@ -1,6 +1,6 @@
-import { FiRefreshCw } from '../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiRefreshCw } from '../icons';
 
 import { logger } from '../utils/logger';
 

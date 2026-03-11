@@ -7,9 +7,9 @@
  */
 
 import React from 'react';
+import { V9LoggingService } from '@/services/v9/V9LoggingService';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
-import { V9LoggingService } from '@/services/v9/V9LoggingService';
 
 interface FlowNotAvailableModalProps {
 	isOpen: boolean;

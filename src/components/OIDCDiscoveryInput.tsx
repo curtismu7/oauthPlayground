@@ -7,9 +7,9 @@
  * feedback on discovery status.
  */
 
-import { FiLoader } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiLoader } from '../icons';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 
 import { logger } from '../utils/logger';
