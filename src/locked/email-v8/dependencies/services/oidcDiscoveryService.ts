@@ -291,7 +291,7 @@ class OIDCDiscoveryService {
 	 */
 	clearCache(): void {
 		this.cache.clear();
-		logger.info('[OIDC Discovery] Cache cleared', "Logger info");
+		logger.info('[OIDC Discovery] Cache cleared', 'Logger info');
 	}
 
 	/**

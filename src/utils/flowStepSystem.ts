@@ -46,8 +46,9 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 	const setStep = useCallback(
 		(stepIndex: number, reason?: string) => {
 			logger.info(
-				` [${config.flowType}] Setting step to ${stepIndex}${reason ? ` - ${reason}` : ''}`
-			, "Logger info");
+				` [${config.flowType}] Setting step to ${stepIndex}${reason ? ` - ${reason}` : ''}`,
+				'Logger info'
+			);
 			setCurrentStepIndex(stepIndex);
 			sessionStorage.setItem(`${config.persistKey}-step`, stepIndex.toString());
 		},
@@ -56,7 +57,7 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 
 	// Reset flow to beginning
 	const resetFlow = useCallback(() => {
-		logger.info(` [${config.flowType}] Resetting flow to step 0`, "Logger info");
+		logger.info(` [${config.flowType}] Resetting flow to step 0`, 'Logger info');
 		setCurrentStepIndex(0);
 		setStepMessages({});
 		sessionStorage.removeItem(`${config.persistKey}-step`);
@@ -102,7 +103,10 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 		const isFreshNavigation = !urlStep && !urlCode && location.pathname.includes('/flows/');
 
 		if (isFreshNavigation) {
-			logger.info(` [${config.flowType}] Fresh navigation detected - starting from step 0`, "Logger info");
+			logger.info(
+				` [${config.flowType}] Fresh navigation detected - starting from step 0`,
+				'Logger info'
+			);
 			setStep(0, 'fresh navigation from menu');
 			setIsInitialized(true);
 			return;

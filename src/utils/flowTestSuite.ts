@@ -424,7 +424,7 @@ export class FlowTestSuite {
 	 * Run comprehensive test suite
 	 */
 	async runTestSuite(): Promise<TestSuiteResult> {
-		logger.info('[Flow Test Suite] Starting comprehensive test suite...', "Logger info");
+		logger.info('[Flow Test Suite] Starting comprehensive test suite...', 'Logger info');
 
 		const flows: Array<{
 			flowName: string;
@@ -440,7 +440,7 @@ export class FlowTestSuite {
 
 		// Test each flow configuration
 		for (const config of this.testConfigs) {
-			logger.info(`[Flow Test Suite] Testing ${config.flowName}...`, "Logger info");
+			logger.info(`[Flow Test Suite] Testing ${config.flowName}...`, 'Logger info');
 
 			try {
 				// Run validation suite
@@ -476,8 +476,9 @@ export class FlowTestSuite {
 				}
 
 				logger.info(
-					`[Flow Test Suite] ${config.flowName}: ${testSuite.overallPassed ? 'PASSED' : 'FAILED'}`
-				, "Logger info");
+					`[Flow Test Suite] ${config.flowName}: ${testSuite.overallPassed ? 'PASSED' : 'FAILED'}`,
+					'Logger info'
+				);
 				if (criticalFailuresList.length > 0) {
 					logger.error(
 						`[Flow Test Suite] Critical failures in ${config.flowName}:`,
@@ -523,11 +524,14 @@ export class FlowTestSuite {
 	async runFlowTest(flowName: string): Promise<RegressionTestSuite | null> {
 		const config = this.testConfigs.find((c) => c.flowName === flowName);
 		if (!config) {
-			logger.error(`[Flow Test Suite] No configuration found for flow: ${flowName}`, "Logger error");
+			logger.error(
+				`[Flow Test Suite] No configuration found for flow: ${flowName}`,
+				'Logger error'
+			);
 			return null;
 		}
 
-		logger.info(`[Flow Test Suite] Testing specific flow: ${flowName}`, "Logger info");
+		logger.info(`[Flow Test Suite] Testing specific flow: ${flowName}`, 'Logger info');
 		return await regressionSafeguards.runValidationSuite(
 			flowName,
 			config.credentials,
@@ -540,7 +544,7 @@ export class FlowTestSuite {
 	 */
 	addTestConfig(config: FlowTestConfig): void {
 		this.testConfigs.push(config);
-		logger.info(`[Flow Test Suite] Added test configuration for ${config.flowName}`, "Logger info");
+		logger.info(`[Flow Test Suite] Added test configuration for ${config.flowName}`, 'Logger info');
 	}
 
 	/**

@@ -11,7 +11,6 @@
  * - Uses real PingOne APIs (no mocks)
  */
 
-import { FiChevronDown } from '../../../../../icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
@@ -43,6 +42,7 @@ import {
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
+import { FiChevronDown } from '../../../../../icons';
 import { logger } from '../../../../../utils/logger';
 import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
 import CredentialsFormV8U from '../components/CredentialsFormV8U';
@@ -2427,8 +2427,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							<button
 								type="button"
 								onClick={async () => {
-									const { handleShowWorkerTokenModal } =
-										await import('@/v8/utils/workerTokenModalHelperV8');
+									const { handleShowWorkerTokenModal } = await import(
+										'@/v8/utils/workerTokenModalHelperV8'
+									);
 									await handleShowWorkerTokenModal(
 										() => {}, // setShowModal - not needed here
 										undefined, // setTokenStatus - not needed here
@@ -2490,8 +2491,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										type="checkbox"
 										checked={workerTokenConfig.silentApiRetrieval}
 										onChange={async (e) => {
-											const { WorkerTokenConfigServiceV8 } =
-												await import('@/v8/services/workerTokenConfigServiceV8');
+											const { WorkerTokenConfigServiceV8 } = await import(
+												'@/v8/services/workerTokenConfigServiceV8'
+											);
 											WorkerTokenConfigServiceV8.setSilentApiRetrieval(e.target.checked);
 										}}
 										style={{
@@ -2520,8 +2522,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										type="checkbox"
 										checked={workerTokenConfig.showTokenAtEnd}
 										onChange={async (e) => {
-											const { WorkerTokenConfigServiceV8 } =
-												await import('@/v8/services/workerTokenConfigServiceV8');
+											const { WorkerTokenConfigServiceV8 } = await import(
+												'@/v8/services/workerTokenConfigServiceV8'
+											);
 											WorkerTokenConfigServiceV8.setShowTokenAtEnd(e.target.checked);
 										}}
 										style={{

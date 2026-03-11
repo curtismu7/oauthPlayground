@@ -4,9 +4,9 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { AuditActivityCharts } from '../components/pingone/AuditActivityCharts';
 import ApiCallList from '../components/ApiCallList';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
+import { AuditActivityCharts } from '../components/pingone/AuditActivityCharts';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { apiRequestModalService } from '../services/apiRequestModalService';
@@ -946,33 +946,36 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 	return (
 		<>
 			{!embedded && <FlowHeader flowId="pingone-audit-activities" />}
-			<div style={embedded ? { ...styles.pageContainer, paddingTop: '0.5rem' } : styles.pageContainer}>
+			<div
+				style={embedded ? { ...styles.pageContainer, paddingTop: '0.5rem' } : styles.pageContainer}
+			>
 				{!embedded && (
-				<div style={styles.headerCard}>
-					<div style={styles.titleRow}>
-						<i className="bi bi-activity" />
-						<h1 style={styles.title}>PingOne Audit Activities</h1>
-					</div>
-					<p style={styles.subtitle}>
-						Query and analyze audit events from your PingOne environment. Retrieve activities by ID,
-						filter by action type, status, actor, resource, or correlation ID. Track user actions,
-						system events, and security activities. Requires <strong>p1:read:audit</strong> scope.
-					</p>
-					{!hasWorkerToken && (
-						<div style={styles.warningBanner}>
-							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-								<span>⚠️</span>
-								<div style={{ flex: 1 }}>
-									<strong>Worker Token Required</strong>
-									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-										Use the Worker Token section below to generate a token with your PingOne
-										credentials.
-									</p>
+					<div style={styles.headerCard}>
+						<div style={styles.titleRow}>
+							<i className="bi bi-activity" />
+							<h1 style={styles.title}>PingOne Audit Activities</h1>
+						</div>
+						<p style={styles.subtitle}>
+							Query and analyze audit events from your PingOne environment. Retrieve activities by
+							ID, filter by action type, status, actor, resource, or correlation ID. Track user
+							actions, system events, and security activities. Requires{' '}
+							<strong>p1:read:audit</strong> scope.
+						</p>
+						{!hasWorkerToken && (
+							<div style={styles.warningBanner}>
+								<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+									<span>⚠️</span>
+									<div style={{ flex: 1 }}>
+										<strong>Worker Token Required</strong>
+										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
+											Use the Worker Token section below to generate a token with your PingOne
+											credentials.
+										</p>
+									</div>
 								</div>
 							</div>
-						</div>
-					)}
-				</div>
+						)}
+					</div>
 				)}
 
 				<div style={styles.layoutGrid}>

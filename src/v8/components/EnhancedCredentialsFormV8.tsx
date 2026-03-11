@@ -14,9 +14,9 @@
  * - Storage backend status display
  */
 
-import { FiClock } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiClock } from '../../icons';
 import { logger } from '../../utils/logger';
 import { useEnhancedCredentialsTracking } from '../hooks/useEnhancedCredentialsTracking';
 import { EnhancedCredentialsServiceV8 } from '../services/enhancedCredentialsServiceV8';

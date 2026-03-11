@@ -13,10 +13,10 @@
  * All company-specific forms should use this component, not duplicate the fields.
  */
 
-import { FiLockIcon } from '../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
+import { FiLockIcon } from '../../../icons';
 import { logger } from '../../../utils/logger';
 import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV8';
 import PingOneLoginService from '../services/pingOneLoginService';

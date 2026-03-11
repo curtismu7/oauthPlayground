@@ -148,10 +148,11 @@ export const DebugLogViewerPopoutV9: React.FC = () => {
 			let content = '';
 
 			switch (logSource) {
-				case 'file':
+				case 'file': {
 					const logContent = await LogFileService.readLogFile(selectedFile);
 					content = logContent.content;
 					break;
+				}
 				default:
 					content = 'Log source not implemented yet';
 					break;

@@ -10,9 +10,9 @@
 import { logger } from '../utils/logger';
 import { unifiedStorageManager } from './unifiedStorageManager';
 import {
-	unifiedWorkerTokenService,
 	type UnifiedWorkerTokenCredentials,
 	type UnifiedWorkerTokenData,
+	unifiedWorkerTokenService,
 } from './unifiedWorkerTokenService';
 
 const MODULE_TAG = '[ WORKER-TOKEN-REPO]';
@@ -97,8 +97,15 @@ export class WorkerTokenRepository {
 				savedAt?: number;
 			}>(TOKEN_KEY);
 
-			if (unified?.credentials?.environmentId && unified?.credentials?.clientId && unified?.credentials?.clientSecret) {
-				logger.info('WorkerTokenRepository', `${MODULE_TAG} ✅ Credentials loaded from unified_worker_token`);
+			if (
+				unified?.credentials?.environmentId &&
+				unified?.credentials?.clientId &&
+				unified?.credentials?.clientSecret
+			) {
+				logger.info(
+					'WorkerTokenRepository',
+					`${MODULE_TAG} ✅ Credentials loaded from unified_worker_token`
+				);
 				return this.ensureTokenEndpoint(unified.credentials);
 			}
 
@@ -107,8 +114,15 @@ export class WorkerTokenRepository {
 				const stored = localStorage.getItem(TOKEN_KEY);
 				if (stored) {
 					const parsed = JSON.parse(stored) as { credentials?: UnifiedWorkerTokenCredentials };
-					if (parsed?.credentials?.environmentId && parsed?.credentials?.clientId && parsed?.credentials?.clientSecret) {
-						logger.info('WorkerTokenRepository', `${MODULE_TAG} ✅ Credentials loaded from localStorage fallback`);
+					if (
+						parsed?.credentials?.environmentId &&
+						parsed?.credentials?.clientId &&
+						parsed?.credentials?.clientSecret
+					) {
+						logger.info(
+							'WorkerTokenRepository',
+							`${MODULE_TAG} ✅ Credentials loaded from localStorage fallback`
+						);
 						return this.ensureTokenEndpoint(parsed.credentials);
 					}
 				}
@@ -222,8 +236,7 @@ export class WorkerTokenRepository {
 		});
 
 		// Check expiration (guard against invalid expiresAt to avoid Invalid time value)
-		const expiresAtNum =
-			data.expiresAt != null ? new Date(data.expiresAt).getTime() : NaN;
+		const expiresAtNum = data.expiresAt != null ? new Date(data.expiresAt).getTime() : NaN;
 		if (!Number.isNaN(expiresAtNum) && Date.now() > expiresAtNum) {
 			logger.info('WorkerTokenRepository', `${MODULE_TAG} Token expired, clearing`);
 			await this.clearToken();

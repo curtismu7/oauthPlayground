@@ -1,11 +1,11 @@
 // src/v7/pages/V7MClientCredentialsV9.tsx
-/* eslint-disable no-alert */
 
-import { FiBook } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlowHeader } from '../../services/flowHeaderService';
+import { PingOneApiCallDisplay, PingOneApiExamples } from '../../components/PingOneApiCallDisplay';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { showGlobalError } from '../../contexts/NotificationSystem';
+import { FiBook } from '../../icons';
+import { FlowHeader } from '../../services/flowHeaderService';
 import {
 	introspectToken,
 	type V7MIntrospectionResponse,
@@ -22,7 +22,6 @@ import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorag
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
-import { PingOneApiCallDisplay, PingOneApiExamples } from '../../components/PingOneApiCallDisplay';
 
 export const V7MClientCredentialsV9: React.FC = () => {
 	const [clientId, setClientId] = useState('v7m-client-credentials');
@@ -97,7 +96,7 @@ export const V7MClientCredentialsV9: React.FC = () => {
 					marginBottom: 16,
 				}}
 			>
-				<strong>📚 Educational Mock Mode (V7M)</strong>
+				<strong>📚 Educational Mock Mode</strong>
 				<p style={{ margin: '8px 0 0 0', fontSize: 14 }}>
 					This flow simulates OAuth Client Credentials (RFC 6749) for machine-to-machine
 					authentication. No external APIs are called. Tokens are generated deterministically based
@@ -111,8 +110,8 @@ export const V7MClientCredentialsV9: React.FC = () => {
 				credentials={{ clientId, clientSecret }}
 				importExportOptions={{
 					flowType: 'v7m-client-credentials',
-					appName: 'V7M Client Credentials',
-					description: 'V7M Mock Client Credentials Flow',
+					appName: 'Client Credentials',
+					description: 'Mock Client Credentials Flow',
 				}}
 				onAppSelected={handleAppSelected}
 				grantType="client_credentials"
@@ -343,9 +342,11 @@ export const V7MClientCredentialsV9: React.FC = () => {
 					📚 Real PingOne API Call Examples
 				</h3>
 				<p style={{ marginBottom: 20, color: '#6b7280', fontSize: 14 }}>
-					These examples show exactly what real PingOne API calls look like for the Client Credentials flow. Use these as references when implementing machine-to-machine authentication.
+					These examples show exactly what real PingOne API calls look like for the Client
+					Credentials flow. Use these as references when implementing machine-to-machine
+					authentication.
 				</p>
-				
+
 				<PingOneApiCallDisplay {...PingOneApiExamples.tokenEndpoint} />
 			</div>
 		</div>

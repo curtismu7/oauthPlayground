@@ -164,7 +164,10 @@ export async function saveProductionAppCredentialsWithSQLite(
 				throw new Error(`Unknown app type: ${config.appType}`);
 		}
 
-		logger.info(`✅ [PRODUCTION-APP] ${config.appName} credentials saved with SQLite backup`, "Logger info");
+		logger.info(
+			`✅ [PRODUCTION-APP] ${config.appName} credentials saved with SQLite backup`,
+			'Logger info'
+		);
 	} catch (error) {
 		logger.warn(
 			'ProductionAppCredentialHelper',
@@ -330,7 +333,10 @@ export async function exportProductionAppCredentialsWithSQLite(
 		}
 
 		await exportStandardizedCredentials(credentials, metadata);
-		logger.info(`✅ Exported ${config.appName} credentials with SQLite backup metadata`, "Logger info");
+		logger.info(
+			`✅ Exported ${config.appName} credentials with SQLite backup metadata`,
+			'Logger info'
+		);
 	} catch (error) {
 		logger.error(
 			'ProductionAppCredentialHelper',
@@ -370,7 +376,7 @@ export async function importProductionAppCredentialsWithSQLite(
 
 		// Save credentials with SQLite backup
 		await saveProductionAppCredentialsWithSQLite(appId, importedData.credentials);
-		logger.info(`✅ Imported ${config.appName} credentials with SQLite backup`, "Logger info");
+		logger.info(`✅ Imported ${config.appName} credentials with SQLite backup`, 'Logger info');
 	} catch (error) {
 		logger.error(
 			'ProductionAppCredentialHelper',

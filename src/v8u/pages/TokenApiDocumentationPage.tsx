@@ -1,6 +1,6 @@
-import { FiCode } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiCode } from '../../icons';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { type ApiCall, TokenMonitoringService } from '../services/tokenMonitoringService';
 

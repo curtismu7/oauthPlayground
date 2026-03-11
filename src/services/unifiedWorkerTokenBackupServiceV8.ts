@@ -141,7 +141,7 @@ export class UnifiedWorkerTokenBackupServiceV8 {
 				const { unifiedWorkerTokenService } = await import('./unifiedWorkerTokenService');
 				const credentials = await unifiedWorkerTokenService.loadCredentials();
 				if (credentials) {
-					logger.info(`${MODULE_TAG} ✅ Loaded from IndexedDB`, "Logger info");
+					logger.info(`${MODULE_TAG} ✅ Loaded from IndexedDB`, 'Logger info');
 					return credentials;
 				}
 			} catch (indexedDBError) {

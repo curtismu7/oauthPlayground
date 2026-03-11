@@ -1,3 +1,13 @@
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';
+import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInput';
+import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
+import { CredentialsInput } from '../components/CredentialsInput';
+import { DraggableModal } from '../components/DraggableModal';
+import type { StepCredentials } from '../components/steps/CommonSteps';
+import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
+import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import {
 	FiActivity,
 	FiActivity,
@@ -271,16 +281,6 @@ import {
 	FiZap,
 	FiZap,
 } from '../icons';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';
-import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInput';
-import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
-import { CredentialsInput } from '../components/CredentialsInput';
-import { DraggableModal } from '../components/DraggableModal';
-import type { StepCredentials } from '../components/steps/CommonSteps';
-import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import type { ClientAuthMethod } from '../utils/clientAuthentication';
 import { trackedFetch } from '../utils/trackedFetch';
 import type { CodeDisplayProps, SupportedLanguage } from './codeHighlightingService';

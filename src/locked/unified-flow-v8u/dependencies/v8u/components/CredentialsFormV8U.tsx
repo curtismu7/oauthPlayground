@@ -23,8 +23,8 @@
  * />
  */
 
-import { FiChevronDown } from '../../../../../icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FiChevronDown } from '../../../../../icons';
 import { logger } from '../../../../../utils/logger';
 import { DraggableModal } from '../../components/DraggableModal.tsx';
 import { JWTConfigV8 } from '../../components/JWTConfigV8.tsx';
@@ -1776,7 +1776,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													tokenStatus.status === 'valid'
 														? '#d1fae5'
 														: tokenStatus.status === 'expiring-soon' ||
-															  tokenStatus.status === 'expired'
+																tokenStatus.status === 'expired'
 															? '#fef3c7'
 															: '#fee2e2',
 												border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(tokenStatus.status)}`,
@@ -1786,7 +1786,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													tokenStatus.status === 'valid'
 														? '#065f46'
 														: tokenStatus.status === 'expiring-soon' ||
-															  tokenStatus.status === 'expired'
+																tokenStatus.status === 'expired'
 															? '#92400e'
 															: '#991b1b',
 												display: 'flex',
@@ -1813,8 +1813,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 												onClick={async () => {
 													// Pass current checkbox values to override config (page checkboxes take precedence)
 													// forceShowModal=true because user explicitly clicked the button - always show modal
-													const { handleShowWorkerTokenModal } =
-														await import('@/v8/utils/workerTokenModalHelperV8');
+													const { handleShowWorkerTokenModal } = await import(
+														'@/v8/utils/workerTokenModalHelperV8'
+													);
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
 														setTokenStatus,
@@ -1906,8 +1907,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 																logger.info(
 																	'[CREDENTIALS-FORM-V8U] Silent API retrieval enabled, attempting to fetch token now...'
 																);
-																const { handleShowWorkerTokenModal } =
-																	await import('@/v8/utils/workerTokenModalHelperV8');
+																const { handleShowWorkerTokenModal } = await import(
+																	'@/v8/utils/workerTokenModalHelperV8'
+																);
 																await handleShowWorkerTokenModal(
 																	setShowWorkerTokenModal,
 																	setTokenStatus,

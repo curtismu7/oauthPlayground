@@ -194,7 +194,7 @@ export class OAuthIntegrationServiceV8 {
 				throw new Error('State parameter mismatch - possible CSRF attack');
 			}
 
-			logger.info(`${MODULE_TAG} Callback URL parsed successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Callback URL parsed successfully`, 'Logger info');
 
 			return { code, state };
 		} catch (error) {
@@ -364,7 +364,10 @@ export class OAuthIntegrationServiceV8 {
 			);
 
 			if (!response.ok) {
-				logger.error(`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`, "Logger error");
+				logger.error(
+					`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`,
+					'Logger error'
+				);
 				const errorData = responseData as Record<string, unknown>;
 				logger.error(`${MODULE_TAG} Error response:`, errorData);
 
@@ -379,7 +382,7 @@ export class OAuthIntegrationServiceV8 {
 					(errorData.error_description as string)?.toLowerCase().includes('must change password');
 
 				if (requiresPasswordChange) {
-					logger.info(`${MODULE_TAG} 🔐 Password change required detected`, "Logger info");
+					logger.info(`${MODULE_TAG} 🔐 Password change required detected`, 'Logger info');
 					const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
 					(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
 					(passwordChangeError as any).requiresPasswordChange = true;
@@ -472,7 +475,10 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 							payload.password_state || payload.password_status || payload.pwd_state;
 
 						if (passwordState === 'MUST_CHANGE_PASSWORD') {
-							logger.info(`${MODULE_TAG} 🔐 Password change required detected in ID token`, "Logger info");
+							logger.info(
+								`${MODULE_TAG} 🔐 Password change required detected in ID token`,
+								'Logger info'
+							);
 							const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
 							(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
 							(passwordChangeError as any).requiresPasswordChange = true;
@@ -485,7 +491,10 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 				} catch (_parseError) {
 					// If parsing fails, check response metadata
 					if (requiresPasswordChange) {
-						logger.info(`${MODULE_TAG} 🔐 Password change required detected in response metadata`, "Logger info");
+						logger.info(
+							`${MODULE_TAG} 🔐 Password change required detected in response metadata`,
+							'Logger info'
+						);
 						const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
 						(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
 						(passwordChangeError as any).requiresPasswordChange = true;
@@ -570,7 +579,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 			const tokens: TokenResponse = await response.json();
 
-			logger.info(`${MODULE_TAG} Access token refreshed successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Access token refreshed successfully`, 'Logger info');
 
 			return tokens;
 		} catch (error) {
@@ -585,7 +594,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		logger.info(`${MODULE_TAG} Decoding JWT token`, "Logger info");
+		logger.info(`${MODULE_TAG} Decoding JWT token`, 'Logger info');
 
 		try {
 			const parts = token.split('.');
@@ -598,7 +607,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 			const payload = JSON.parse(OAuthIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			logger.info(`${MODULE_TAG} Token decoded successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Token decoded successfully`, 'Logger info');
 
 			return { header, payload, signature };
 		} catch (error) {

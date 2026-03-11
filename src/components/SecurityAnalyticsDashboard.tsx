@@ -1,8 +1,8 @@
-import { FiRefreshCw, FiShield, FiTrendingUp } from '../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useSecurityAnalytics } from '../hooks/useSecurityAnalytics';
+import { FiRefreshCw, FiShield, FiTrendingUp } from '../icons';
 import { logger } from '../utils/logger';
 import { ComplianceStandard, SecuritySeverity } from '../utils/securityAnalytics';
 

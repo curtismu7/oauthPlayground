@@ -1,7 +1,7 @@
-import { FiAlertCircle, FiCheckCircle, FiInfo } from '../icons';
 import React, { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
+import { FiAlertCircle, FiCheckCircle, FiInfo } from '../icons';
 import { config } from '../services/config';
 import { logger } from '../utils/logger';
 import { Card, CardBody, CardHeader } from './Card';

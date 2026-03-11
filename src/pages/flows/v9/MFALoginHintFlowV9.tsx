@@ -2,6 +2,7 @@
 // MFA-Only Flow Using Login Hint Token - V9 Implementation with Modern Messaging
 
 import { useCallback, useEffect, useState } from 'react';
+import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import {
@@ -11,7 +12,6 @@ import {
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 
 // Types
 interface MFALoginHintConfig {
@@ -629,8 +629,8 @@ const MFALoginHintFlowV9: React.FC = () => {
 								url={`https://auth.pingone.com/${mfaConfig.environmentId}/as/login_hint_token`}
 								headers={{
 									'Content-Type': 'application/json',
-									'Accept': 'application/json',
-									'Authorization': `Basic ${btoa(`${mfaConfig.clientId}:***REDACTED***`)}`,
+									Accept: 'application/json',
+									Authorization: `Basic ${btoa(`${mfaConfig.clientId}:***REDACTED***`)}`,
 								}}
 								body={{
 									client_id: mfaConfig.clientId,
@@ -642,7 +642,9 @@ const MFALoginHintFlowV9: React.FC = () => {
 									status: 200,
 									statusText: 'OK',
 									data: {
-										login_hint_token: loginHintToken?.login_hint_token || 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJzdWIiOiJ1c2VyLTEyMzQ1IiwiYXVkIjoibG9naW4taGludCIsImV4cCI6MTY5NzQzMzAwMCwiaWF0IjoxNjk3NDI5NDAwfQ.signature',
+										login_hint_token:
+											loginHintToken?.login_hint_token ||
+											'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJzdWIiOiJ1c2VyLTEyMzQ1IiwiYXVkIjoibG9naW4taGludCIsImV4cCI6MTY5NzQzMzAwMCwiaWF0IjoxNjk3NDI5NDAwfQ.signature',
 										expires_in: loginHintToken?.expires_in || 300,
 										token_type: 'Bearer',
 										scope: loginHintToken?.scope || 'openid',

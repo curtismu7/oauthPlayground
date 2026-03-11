@@ -177,7 +177,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				const config = safeJsonParse<ClientCredentialsConfig>(savedConfig);
 				if (config) {
 					setConfigState(config);
-					logger.info(`${LOG_PREFIX} [INFO] Loaded config from localStorage`, "Logger info");
+					logger.info(`${LOG_PREFIX} [INFO] Loaded config from localStorage`, 'Logger info');
 				}
 			}
 		} catch (e) {
@@ -202,7 +202,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 						setDecodedToken(decoded);
 					}
 
-					logger.info(`${LOG_PREFIX} [INFO] Loaded tokens from localStorage`, "Logger info");
+					logger.info(`${LOG_PREFIX} [INFO] Loaded tokens from localStorage`, 'Logger info');
 				}
 			}
 		} catch (e) {
@@ -227,7 +227,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 		saveDebounceRef.current = setTimeout(() => {
 			try {
 				localStorage.setItem('client_credentials_config', JSON.stringify(newConfig));
-				logger.info(`${LOG_PREFIX} [INFO] Config saved to localStorage`, "Logger info");
+				logger.info(`${LOG_PREFIX} [INFO] Config saved to localStorage`, 'Logger info');
 			} catch (e) {
 				logger.warn('useClientCredentialsFlow', `Failed to save config to localStorage`, {
 					detail: String(e),
@@ -288,16 +288,16 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 		requestAbortController.current = new AbortController();
 
 		const timestamp = new Date().toISOString();
-		logger.info(`${LOG_PREFIX} [INFO] [${timestamp}] Requesting access token...`, "Logger info");
-		logger.info(`${LOG_PREFIX} [INFO] Auth method: ${config.authMethod}`, "Logger info");
-		logger.info(`${LOG_PREFIX} [INFO] Scopes: ${config.scopes}`, "Logger info");
-		logger.info(`${LOG_PREFIX} [INFO] Audience: ${config.audience || 'N/A'}`, "Logger info");
-		logger.info(`${LOG_PREFIX} [INFO] Resource: ${config.resource || 'N/A'}`, "Logger info");
+		logger.info(`${LOG_PREFIX} [INFO] [${timestamp}] Requesting access token...`, 'Logger info');
+		logger.info(`${LOG_PREFIX} [INFO] Auth method: ${config.authMethod}`, 'Logger info');
+		logger.info(`${LOG_PREFIX} [INFO] Scopes: ${config.scopes}`, 'Logger info');
+		logger.info(`${LOG_PREFIX} [INFO] Audience: ${config.audience || 'N/A'}`, 'Logger info');
+		logger.info(`${LOG_PREFIX} [INFO] Resource: ${config.resource || 'N/A'}`, 'Logger info');
 
 		try {
 			// Determine token endpoint
 			const tokenEndpoint = config.tokenEndpoint || `${config.issuer}/as/token`;
-			logger.info(`${LOG_PREFIX} [INFO] Token endpoint: ${tokenEndpoint}`, "Logger info");
+			logger.info(`${LOG_PREFIX} [INFO] Token endpoint: ${tokenEndpoint}`, 'Logger info');
 
 			// Build request body
 			const body = new URLSearchParams();
@@ -325,14 +325,14 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				case 'client_secret_basic': {
 					const credentials = btoa(`${config.clientId}:${config.clientSecret}`);
 					headers['Authorization'] = `Basic ${credentials}`;
-					logger.info(`${LOG_PREFIX} [INFO] Using Basic authentication`, "Logger info");
+					logger.info(`${LOG_PREFIX} [INFO] Using Basic authentication`, 'Logger info');
 					break;
 				}
 
 				case 'client_secret_post': {
 					body.append('client_id', config.clientId);
 					body.append('client_secret', config.clientSecret || '');
-					logger.info(`${LOG_PREFIX} [INFO] Using POST body authentication`, "Logger info");
+					logger.info(`${LOG_PREFIX} [INFO] Using POST body authentication`, 'Logger info');
 					break;
 				}
 
@@ -345,13 +345,13 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 						'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
 					);
 					body.append('client_assertion', assertion);
-					logger.info(`${LOG_PREFIX} [INFO] Using JWT assertion authentication`, "Logger info");
+					logger.info(`${LOG_PREFIX} [INFO] Using JWT assertion authentication`, 'Logger info');
 					break;
 				}
 
 				case 'tls_client_auth': {
 					body.append('client_id', config.clientId);
-					logger.info(`${LOG_PREFIX} [INFO] Using mTLS authentication`, "Logger info");
+					logger.info(`${LOG_PREFIX} [INFO] Using mTLS authentication`, 'Logger info');
 					logger.warn('useClientCredentialsFlow', `mTLS requires proper certificate configuration`);
 					break;
 				}
@@ -364,7 +364,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			}
 
 			// Make token request
-			logger.info(`${LOG_PREFIX} [INFO] Sending token request...`, "Logger info");
+			logger.info(`${LOG_PREFIX} [INFO] Sending token request...`, 'Logger info');
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
 				headers,
@@ -401,10 +401,16 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			if (tokenData.access_token && tokenData.access_token.split('.').length === 3) {
 				const decoded = decodeJWT(tokenData.access_token);
 				setDecodedToken(decoded);
-				logger.info(`${LOG_PREFIX} [INFO] JWT decoded successfully`, "Logger info");
-				logger.info(`${LOG_PREFIX} [INFO] Issuer: ${decoded?.payload.iss || 'N/A'}`, "Logger info");
-				logger.info(`${LOG_PREFIX} [INFO] Subject: ${decoded?.payload.sub || 'N/A'}`, "Logger info");
-				logger.info(`${LOG_PREFIX} [INFO] Audience: ${decoded?.payload.aud || 'N/A'}`, "Logger info");
+				logger.info(`${LOG_PREFIX} [INFO] JWT decoded successfully`, 'Logger info');
+				logger.info(`${LOG_PREFIX} [INFO] Issuer: ${decoded?.payload.iss || 'N/A'}`, 'Logger info');
+				logger.info(
+					`${LOG_PREFIX} [INFO] Subject: ${decoded?.payload.sub || 'N/A'}`,
+					'Logger info'
+				);
+				logger.info(
+					`${LOG_PREFIX} [INFO] Audience: ${decoded?.payload.aud || 'N/A'}`,
+					'Logger info'
+				);
 				logger.info(
 					`${LOG_PREFIX} [INFO] Expiry: ${decoded?.payload.exp ? new Date(decoded.payload.exp * 1000).toISOString() : 'N/A'}`
 				);
@@ -416,7 +422,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			// Store tokens in localStorage
 			try {
 				localStorage.setItem('client_credentials_tokens', JSON.stringify(tokenData));
-				logger.info(`${LOG_PREFIX} [INFO] Tokens saved to localStorage`, "Logger info");
+				logger.info(`${LOG_PREFIX} [INFO] Tokens saved to localStorage`, 'Logger info');
 			} catch (e) {
 				logger.warn('useClientCredentialsFlow', `Failed to save tokens to localStorage`, {
 					detail: String(e),
@@ -439,17 +445,23 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
 				localStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
 
-				logger.info(`${LOG_PREFIX} [INFO] Flow source and context saved for Token Management`, "Logger info");
+				logger.info(
+					`${LOG_PREFIX} [INFO] Flow source and context saved for Token Management`,
+					'Logger info'
+				);
 			} catch (e) {
 				logger.warn('useClientCredentialsFlow', `Failed to save flow context`, {
 					detail: String(e),
 				});
 			}
 
-			logger.info(`${LOG_PREFIX} [INFO] ✅ Token request successful!`, "Logger info");
-			logger.info(`${LOG_PREFIX} [INFO] Token type: ${tokenData.token_type}`, "Logger info");
-			logger.info(`${LOG_PREFIX} [INFO] Expires in: ${tokenData.expires_in || 'N/A'} seconds`, "Logger info");
-			logger.info(`${LOG_PREFIX} [INFO] Scope: ${tokenData.scope || 'N/A'}`, "Logger info");
+			logger.info(`${LOG_PREFIX} [INFO] ✅ Token request successful!`, 'Logger info');
+			logger.info(`${LOG_PREFIX} [INFO] Token type: ${tokenData.token_type}`, 'Logger info');
+			logger.info(
+				`${LOG_PREFIX} [INFO] Expires in: ${tokenData.expires_in || 'N/A'} seconds`,
+				'Logger info'
+			);
+			logger.info(`${LOG_PREFIX} [INFO] Scope: ${tokenData.scope || 'N/A'}`, 'Logger info');
 
 			modernMessaging.showFooterMessage({
 				type: 'status',
@@ -459,7 +471,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 		} catch (error) {
 			if (error instanceof Error) {
 				if (error.name === 'AbortError') {
-					logger.info(`${LOG_PREFIX} [INFO] Token request cancelled`, "Logger info");
+					logger.info(`${LOG_PREFIX} [INFO] Token request cancelled`, 'Logger info');
 					return;
 				}
 				logger.error('useClientCredentialsFlow', `Token request failed`, error.message);
@@ -497,7 +509,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			return;
 		}
 
-		logger.info(`${LOG_PREFIX} [INFO] Token introspection not yet implemented`, "Logger info");
+		logger.info(`${LOG_PREFIX} [INFO] Token introspection not yet implemented`, 'Logger info');
 		modernMessaging.showFooterMessage({
 			type: 'status',
 			message: 'Navigate to Token Management page for introspection',
@@ -513,7 +525,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 
 		try {
 			localStorage.removeItem('client_credentials_tokens');
-			logger.info(`${LOG_PREFIX} [INFO] Tokens cleared from localStorage`, "Logger info");
+			logger.info(`${LOG_PREFIX} [INFO] Tokens cleared from localStorage`, 'Logger info');
 		} catch (e) {
 			logger.warn('useClientCredentialsFlow', `Failed to clear tokens from localStorage`, {
 				detail: String(e),

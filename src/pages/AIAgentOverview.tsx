@@ -1,38 +1,78 @@
-import { FiCpu, FiKey, FiLock, FiServer, FiShield, FiZap } from '../icons';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
-import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { PageLayoutService } from '../services/pageLayoutService';
+
+// Bootstrap Icon Component for Ping UI compliance
+const BootstrapIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; style?: React.CSSProperties }> = ({ 
+  icon, 
+  size = 20, 
+  ariaLabel,
+  style = {} 
+}) => {
+  const getBootstrapIconClass = (iconName: string): string => {
+    const iconMap: Record<string, string> = {
+      'FiCpu': 'bi-cpu',
+      'FiKey': 'bi-key',
+      'FiLock': 'bi-lock',
+      'FiServer': 'bi-server',
+      'FiShield': 'bi-shield',
+      'FiZap': 'bi-lightning',
+      'FiCheck': 'bi-check',
+      'FiX': 'bi-x',
+      'FiInfo': 'bi-info',
+    };
+    return iconMap[iconName] || 'bi-question';
+  };
+
+  return (
+    <i 
+      className={`bi ${getBootstrapIconClass(icon)}`}
+      style={{ 
+        fontSize: `${size}px`, 
+        ...style 
+      }}
+      aria-label={ariaLabel}
+      {...(!ariaLabel && { 'aria-hidden': true })}
+    />
+  );
+};
+
+// Ping UI namespace wrapper
+const PingUIWrapper = styled.div`
+  &.end-user-nano {
+    /* All components inherit Ping UI styling */
+    * {
+      transition: var(--ping-transition-fast, 0.15s ease-in-out);
+    }
+  }
+`;
 
 const _Container = styled.div`
-	max-width: 1400px;
-	margin: 0 auto;
-	padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--ping-spacing-lg, 1.5rem);
 `;
 
 const FeatureGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-	gap: 2rem;
-	margin: 2rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--ping-spacing-xl, 2rem);
+  margin: var(--ping-spacing-xl, 2rem) 0;
 `;
 
 const FeatureCard = styled(Card)<{ $supported?: boolean | null }>`
 	border-left: 4px solid
-		${({ $supported, theme }) =>
+		${({ $supported }) =>
 			$supported === true
-				? theme.colors.success
+				? 'var(--ping-color-success, #10b981)'
 				: $supported === false
-					? theme.colors.danger
-					: theme.colors.warning};
-	transition:
-		transform 0.2s ease,
-		box-shadow 0.2s ease;
+					? 'var(--ping-color-danger, #ef4444)'
+					: 'var(--ping-color-warning, #f59e0b)'};
+	transition: var(--ping-transition-fast, 0.15s ease-in-out);
 
 	&:hover {
 		transform: translateY(-2px);
-		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+		box-shadow: var(--ping-shadow-lg, 0 8px 25px rgba(0, 0, 0, 0.1));
 	}
 `;
 
@@ -40,23 +80,23 @@ const FeatureHeader = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 1rem;
+	margin-bottom: var(--ping-spacing-md, 1rem);
 `;
 
 const FeatureTitle = styled.div`
 	display: flex;
 	align-items: center;
-	gap: 0.75rem;
+	gap: var(--ping-spacing-sm, 0.75rem);
 
 	h3 {
 		font-size: 1.25rem;
 		font-weight: 600;
-		color: ${({ theme }) => theme.colors.gray900};
+		color: var(--ping-color-text-primary, #111827);
 		margin: 0;
 	}
 
-	svg {
-		color: ${({ theme }) => theme.colors.primary};
+	i {
+		color: var(--ping-color-primary, #2563eb);
 	}
 `;
 
@@ -610,7 +650,7 @@ const AIAgentOverview = () => {
 		{
 			id: 'par',
 			title: 'Pushed Authorization Requests (PAR)',
-			icon: FiLock,
+			icon: 'FiLock',
 			status: 'supported' as const,
 			description:
 				'PAR allows clients to push authorization request parameters directly to the authorization server before redirecting the user. Critical for AI agents to securely transmit complex authorization parameters.',
@@ -630,7 +670,7 @@ const AIAgentOverview = () => {
 		{
 			id: 'rar',
 			title: 'Rich Authorization Requests (RAR)',
-			icon: FiZap,
+			icon: 'FiZap',
 			status: 'not-supported' as const,
 			description:
 				'RAR enables fine-grained authorization by allowing clients to specify detailed authorization requirements using structured JSON. Essential for AI agents requiring specific permissions and resource access.',
@@ -650,7 +690,7 @@ const AIAgentOverview = () => {
 		{
 			id: 'dpop',
 			title: 'DPoP (Demonstrating Proof of Possession)',
-			icon: FiKey,
+			icon: 'FiKey',
 			status: 'not-supported' as const,
 			description:
 				'DPoP provides sender-constrained tokens by requiring clients to prove possession of a private key. Critical for preventing token theft and replay attacks in AI agent scenarios.',
@@ -670,7 +710,7 @@ const AIAgentOverview = () => {
 		{
 			id: 'mtls',
 			title: 'Mutual TLS (mTLS)',
-			icon: FiShield,
+			icon: 'FiShield',
 			status: 'partial' as const,
 			description:
 				'mTLS provides certificate-based authentication and sender-constrained tokens. Important for high-security AI agent deployments requiring strong authentication.',
@@ -690,7 +730,7 @@ const AIAgentOverview = () => {
 		{
 			id: 'jwt-secured-auth',
 			title: 'JWT-Secured Authorization Request (JAR)',
-			icon: FiServer,
+			icon: 'FiServer',
 			status: 'supported' as const,
 			description:
 				'JAR allows authorization request parameters to be passed as a signed JWT. Provides integrity and authenticity for authorization requests from AI agents.',
@@ -710,7 +750,7 @@ const AIAgentOverview = () => {
 		{
 			id: 'client-credentials',
 			title: 'Client Credentials Grant',
-			icon: FiCpu,
+			icon: 'FiCpu',
 			status: 'supported' as const,
 			description:
 				'Essential OAuth 2.0 grant for machine-to-machine authentication. The primary flow for AI agents acting autonomously without user context.',
@@ -730,7 +770,7 @@ const AIAgentOverview = () => {
 		{
 			id: 'token-exchange',
 			title: 'Token Exchange',
-			icon: FiZap,
+			icon: 'FiZap',
 			status: 'not-supported' as const,
 			description:
 				'Enables secure token exchange and delegation scenarios. Important for AI agents that need to act on behalf of users or exchange tokens between services.',
@@ -750,7 +790,7 @@ const AIAgentOverview = () => {
 		{
 			id: 'device-code',
 			title: 'Device Authorization Grant',
-			icon: FiServer,
+			icon: 'FiServer',
 			status: 'supported' as const,
 			description:
 				'Enables authentication on input-constrained devices. Useful for AI agents running on IoT devices, CLIs, or environments without browser access.',
@@ -770,7 +810,8 @@ const AIAgentOverview = () => {
 	];
 
 	return (
-		<PageContainer>
+		<PingUIWrapper className="end-user-nano">
+			<PageContainer>
 			<ContentWrapper>
 				{LayoutFlowHeader && <LayoutFlowHeader />}
 
@@ -879,7 +920,7 @@ const AIAgentOverview = () => {
 								<CardBody>
 									<FeatureHeader>
 										<FeatureTitle>
-											<feature.icon size={24} />
+											<BootstrapIcon icon={feature.icon} size={24} ariaLabel={`${feature.title} icon`} />
 											<h3>{feature.title}</h3>
 										</FeatureTitle>
 										<StatusBadge $status={feature.status}>
@@ -1705,6 +1746,7 @@ const AIAgentOverview = () => {
 				)}
 			</ContentWrapper>
 		</PageContainer>
+		</PingUIWrapper>
 	);
 };
 

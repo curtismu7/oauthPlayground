@@ -3,8 +3,8 @@
 
 import React from 'react';
 import { logger } from '../../utils/logger';
-
 import { getButtonStyles } from './V9ColorStandards';
+import { modernMessaging } from './V9ModernMessagingService';
 
 interface V9FlowRestartButtonProps {
 	onRestart: () => void;
@@ -22,14 +22,23 @@ export const V9FlowRestartButton: React.FC<V9FlowRestartButtonProps> = ({
 	position = 'header',
 }) => {
 	const handleRestart = () => {
-		// Confirm restart if not on first step
 		if (currentStep > 0) {
-			const confirmMessage = `Are you sure you want to restart the flow? This will reset all progress and return to step 1.`;
-			// biome-ignore lint/suspicious/noAlert: user confirmation before destructive restart action
-			// eslint-disable-next-line no-alert
-			if (window.confirm(confirmMessage)) {
-				onRestart();
-			}
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Confirm restart',
+				message:
+					'Are you sure you want to restart the flow? This will reset all progress and return to step 1.',
+				actions: [
+					{ label: 'Cancel', action: () => modernMessaging.hideBanner() },
+					{
+						label: 'Restart',
+						action: () => {
+							modernMessaging.hideBanner();
+							onRestart();
+						},
+					},
+				],
+			});
 		} else {
 			onRestart();
 		}

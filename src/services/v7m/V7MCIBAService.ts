@@ -128,7 +128,10 @@ export const V7MCIBAService = {
 		const now = Math.floor(Date.now() / 1000);
 
 		if (!rec) {
-			return { error: 'expired_token', error_description: 'auth_req_id not found or already consumed' };
+			return {
+				error: 'expired_token',
+				error_description: 'auth_req_id not found or already consumed',
+			};
 		}
 		if (now > rec.expiresAt) {
 			store.delete(auth_req_id);

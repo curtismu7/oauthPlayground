@@ -26,7 +26,10 @@ export function openWebhookViewerPopout(): void {
 	);
 
 	if (!popup) {
-		logger.warn('webhookViewerPopoutHelper', 'Popup blocked. Please allow popups for this site to use the Webhook Viewer popout.');
+		logger.warn(
+			'webhookViewerPopoutHelper',
+			'Popup blocked. Please allow popups for this site to use the Webhook Viewer popout.'
+		);
 		// Also show a modern notification if possible
 		if (typeof window !== 'undefined' && 'Notification' in window) {
 			// Try to show a browser notification (will be blocked if not permitted)

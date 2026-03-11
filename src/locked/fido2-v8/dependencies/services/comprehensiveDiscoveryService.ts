@@ -255,7 +255,10 @@ export class ComprehensiveDiscoveryService {
 			if (envMatch) {
 				const environmentId = envMatch[1];
 
-				logger.info('[Comprehensive Discovery] Using bulletproof discovery for PingOne', "Logger info");
+				logger.info(
+					'[Comprehensive Discovery] Using bulletproof discovery for PingOne',
+					'Logger info'
+				);
 				logger.info('[Comprehensive Discovery] Environment ID:', environmentId);
 
 				const result = await bulletproofDiscovery.discover(environmentId, 'na');

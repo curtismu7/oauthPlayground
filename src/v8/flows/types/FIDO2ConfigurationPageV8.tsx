@@ -11,7 +11,6 @@
  * - Configuration before device registration
  */
 
-import { FiInfo } from '../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
@@ -33,6 +32,7 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { FiInfo } from '../../../icons';
 import { logger } from '../../../utils/logger';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
@@ -557,8 +557,9 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							onClick={async () => {
 								// Pass current checkbox values to override config (page checkboxes take precedence)
 								// forceShowModal=true because user explicitly clicked the button - always show modal
-								const { handleShowWorkerTokenModal } =
-									await import('@/v8/utils/workerTokenModalHelperV8');
+								const { handleShowWorkerTokenModal } = await import(
+									'@/v8/utils/workerTokenModalHelperV8'
+								);
 								await handleShowWorkerTokenModal(
 									setShowWorkerTokenModal,
 									setTokenStatus,
@@ -632,8 +633,9 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 												logger.info(
 													'[FIDO2-CONFIG-V8] Silent API retrieval enabled, attempting to fetch token now...'
 												);
-												const { handleShowWorkerTokenModal } =
-													await import('@/v8/utils/workerTokenModalHelperV8');
+												const { handleShowWorkerTokenModal } = await import(
+													'@/v8/utils/workerTokenModalHelperV8'
+												);
 												await handleShowWorkerTokenModal(
 													setShowWorkerTokenModal,
 													setTokenStatus,

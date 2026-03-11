@@ -262,20 +262,20 @@ export const MFAHubV8: React.FC = () => {
 			// Call auth context logout to clear local session state
 			try {
 				authContext.logout();
-				logger.info('[MFA-HUB-V8] Auth context logout called', "Logger info");
+				logger.info('[MFA-HUB-V8] Auth context logout called', 'Logger info');
 			} catch (error) {
 				logger.warn('[MFA-HUB-V8] Could not call auth context logout:', error);
 			}
 
 			// Clear worker token
 			await workerTokenServiceV8.clearCredentials();
-			logger.info('[MFA-HUB-V8] Worker token cleared', "Logger info");
+			logger.info('[MFA-HUB-V8] Worker token cleared', 'Logger info');
 
 			// Clear OAuth tokens from auth context
 			try {
 				oauthStorage.clearTokens();
 				oauthStorage.clearUserInfo();
-				logger.info('[MFA-HUB-V8] OAuth tokens cleared from auth context', "Logger info");
+				logger.info('[MFA-HUB-V8] OAuth tokens cleared from auth context', 'Logger info');
 			} catch (error) {
 				logger.warn('[MFA-HUB-V8] Could not clear OAuth tokens:', error);
 			}
@@ -298,7 +298,7 @@ export const MFAHubV8: React.FC = () => {
 						userToken: undefined,
 						tokenType: undefined,
 					});
-					logger.info('[MFA-HUB-V8] User token cleared from MFA flow credentials', "Logger info");
+					logger.info('[MFA-HUB-V8] User token cleared from MFA flow credentials', 'Logger info');
 				}
 			} catch (error) {
 				logger.warn('[MFA-HUB-V8] Could not clear user token from credentials:', error);
@@ -322,7 +322,7 @@ export const MFAHubV8: React.FC = () => {
 						userToken: undefined,
 						tokenType: undefined,
 					});
-					logger.info('[MFA-HUB-V8] User token cleared from user login credentials', "Logger info");
+					logger.info('[MFA-HUB-V8] User token cleared from user login credentials', 'Logger info');
 				}
 			} catch (error) {
 				logger.warn('[MFA-HUB-V8] Could not clear user token from user login credentials:', error);

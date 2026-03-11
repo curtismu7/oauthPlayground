@@ -2,8 +2,8 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { v4ToastManager } from '../../../../../utils/v4ToastMessages';
 import { logger } from '../../../../../utils/logger';
+import { v4ToastManager } from '../../../../../utils/v4ToastMessages';
 import {
 	JWTPayload,
 	TokenIntrospectionResponse,

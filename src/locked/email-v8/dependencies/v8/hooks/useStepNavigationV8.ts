@@ -131,7 +131,10 @@ export const useStepNavigationV8 = (
 	// Go to next step
 	const goToNext = useCallback(() => {
 		if (!canGoNext) {
-			logger.warn(`${MODULE_TAG} Cannot go to next step - validation errors present`, "Logger warning");
+			logger.warn(
+				`${MODULE_TAG} Cannot go to next step - validation errors present`,
+				'Logger warning'
+			);
 			return;
 		}
 
@@ -184,7 +187,7 @@ export const useStepNavigationV8 = (
 
 	// Reset to first step
 	const reset = useCallback(() => {
-		logger.info(`${MODULE_TAG} Resetting navigation`, "Logger info");
+		logger.info(`${MODULE_TAG} Resetting navigation`, 'Logger info');
 
 		setCurrentStep(initialStep);
 		setCompletedSteps([]);

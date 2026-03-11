@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FlowHeader } from '../services/flowHeaderService';
 import {
 	getComponentTracker,
@@ -150,62 +150,69 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 // Last updated: 2026-03-10T23:21:13.697Z
 
 const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
-  {
-    "id": "bootstrap-icons-migration",
-    "description": "Bootstrap Icons replacing question-mark emoji placeholders",
-    "status": "clean",
-    "countLabel": "345 bi-* icons in use",
-    "detail": "All user-visible question-mark placeholders replaced with Bootstrap Icons CSS classes (<i className=\"bi bi-*\">). 345 icon references across active components."
-  },
-  {
-    "id": "active-sidebar-identified",
-    "description": "Active sidebar: SidebarMenuPing (USE_PING_MENU=true)",
-    "status": "fixed",
-    "countLabel": "3 route items",
-    "detail": "Sidebar.tsx → SidebarMenuPing.tsx is the live path. DragDropSidebar.tsx is the locked legacy fallback. DragDropSidebar.V2.tsx and DragDropSidebar.tsx.V2.tsx are dead files (not imported anywhere)."
-  },
-  {
-    "id": "oauth-oidc-duplication",
-    "description": "OAuth/OIDC flow duplication reduced",
-    "status": "fixed",
-    "countLabel": "~15,477 lines deleted",
-    "detail": "Dead V8 flows deleted, FlowCategories.tsx reorganized into 7 categories with correct V9 routes, App.tsx redirects added, 6 orphaned hooks/services removed."
-  },
-  {
-    "id": "v9-flows-standardized",
-    "description": "V9 flows fully standardized",
-    "status": "clean",
-    "countLabel": "18 / 18 flows",
-    "detail": "All V9 flows use V9CredentialStorageService, CompactAppPickerV9, 0 console.error/warn violations. V7 routes redirect to V9."
-  },
-  {
-    "id": "v9-logger-migration",
-    "description": "console.* → logger.* migration",
-    "status": "warning",
-    "countLabel": "46 console.error/warn remaining",
-    "detail": "Structured logger across 90+ service files, 16 hooks, 3 contexts, 43 utils, 79 components. Intentional exceptions: loggingService, code-gen templates, CLI tools."
-  },
-  {
-    "id": "eslint-disable-count",
-    "description": "ESLint/Biome disable directives",
-    "status": "pending",
-    "countLabel": "172 eslint-disable + 158 biome-ignore",
-    "detail": "Targeted suppression comments. Goal: eliminate no-explicit-any and exhaustive-deps groups."
-  },
-  {
-    "id": "ts-any-usage",
-    "description": "TypeScript `any` usage",
-    "status": "pending",
-    "countLabel": "~451 occurrences",
-    "detail": "Tracked across non-locked src/. Reduction goal: replace with proper generics."
-  },
-  {
-    "id": "v9-dead-flows-archived",
-    "description": "Dead flow files archived / deleted",
-    "status": "fixed",
-    "countLabel": "31+ files + 5 dirs removed",
-    "detail": "Cleaned active codebase. Scope rule: only sidebar menu items + direct services in scope (sidebarMenuConfig.ts)."
-  }
+	{
+		id: 'bootstrap-icons-migration',
+		description: 'Bootstrap Icons replacing question-mark emoji placeholders',
+		status: 'clean',
+		countLabel: '345 bi-* icons in use',
+		detail:
+			'All user-visible question-mark placeholders replaced with Bootstrap Icons CSS classes (<i className="bi bi-*">). 345 icon references across active components.',
+	},
+	{
+		id: 'active-sidebar-identified',
+		description: 'Active sidebar: SidebarMenuPing (USE_PING_MENU=true)',
+		status: 'fixed',
+		countLabel: '3 route items',
+		detail:
+			'Sidebar.tsx → SidebarMenuPing.tsx is the live path. DragDropSidebar.tsx is the locked legacy fallback. DragDropSidebar.V2.tsx and DragDropSidebar.tsx.V2.tsx are dead files (not imported anywhere).',
+	},
+	{
+		id: 'oauth-oidc-duplication',
+		description: 'OAuth/OIDC flow duplication reduced',
+		status: 'fixed',
+		countLabel: '~15,477 lines deleted',
+		detail:
+			'Dead V8 flows deleted, FlowCategories.tsx reorganized into 7 categories with correct V9 routes, App.tsx redirects added, 6 orphaned hooks/services removed.',
+	},
+	{
+		id: 'v9-flows-standardized',
+		description: 'V9 flows fully standardized',
+		status: 'clean',
+		countLabel: '18 / 18 flows',
+		detail:
+			'All V9 flows use V9CredentialStorageService, CompactAppPickerV9, 0 console.error/warn violations. V7 routes redirect to V9.',
+	},
+	{
+		id: 'v9-logger-migration',
+		description: 'console.* → logger.* migration',
+		status: 'warning',
+		countLabel: '46 console.error/warn remaining',
+		detail:
+			'Structured logger across 90+ service files, 16 hooks, 3 contexts, 43 utils, 79 components. Intentional exceptions: loggingService, code-gen templates, CLI tools.',
+	},
+	{
+		id: 'eslint-disable-count',
+		description: 'ESLint/Biome disable directives',
+		status: 'pending',
+		countLabel: '172 eslint-disable + 158 biome-ignore',
+		detail:
+			'Targeted suppression comments. Goal: eliminate no-explicit-any and exhaustive-deps groups.',
+	},
+	{
+		id: 'ts-any-usage',
+		description: 'TypeScript `any` usage',
+		status: 'pending',
+		countLabel: '~451 occurrences',
+		detail: 'Tracked across non-locked src/. Reduction goal: replace with proper generics.',
+	},
+	{
+		id: 'v9-dead-flows-archived',
+		description: 'Dead flow files archived / deleted',
+		status: 'fixed',
+		countLabel: '31+ files + 5 dirs removed',
+		detail:
+			'Cleaned active codebase. Scope rule: only sidebar menu items + direct services in scope (sidebarMenuConfig.ts).',
+	},
 ];
 
 // ─── END AUTO-GENERATED v9 items ───
@@ -232,6 +239,7 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 	});
 
 	const [components, setComponents] = useState<ComponentMetrics[]>([]);
+	const [updateMessage, setUpdateMessage] = useState<string | null>(null);
 
 	const updateMetrics = useCallback(() => {
 		try {
@@ -304,8 +312,13 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 
 	useEffect(() => {
 		updateMetrics();
+		setUpdateMessage('Dashboard updated');
+		const clearMsg = setTimeout(() => setUpdateMessage(null), 4000);
 		const interval = setInterval(updateMetrics, 2000);
-		return () => clearInterval(interval);
+		return () => {
+			clearTimeout(clearMsg);
+			clearInterval(interval);
+		};
 	}, [updateMetrics]);
 
 	const formatTime = (timestamp: number) => {
@@ -336,6 +349,27 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 			}}
 		>
 			<FlowHeader flowId="cleanliness-dashboard" />
+			{updateMessage && (
+				<div
+					style={{
+						maxWidth: '720px',
+						margin: '0 auto 1rem',
+						padding: '0.5rem 1rem',
+						background: '#d4edda',
+						border: '1px solid #c3e6cb',
+						borderRadius: '0.5rem',
+						fontSize: '0.875rem',
+						color: '#155724',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '0.5rem',
+					}}
+					role="status"
+				>
+					<span aria-hidden>✓</span>
+					{updateMessage}
+				</div>
+			)}
 			<div
 				style={{
 					maxWidth: '720px',

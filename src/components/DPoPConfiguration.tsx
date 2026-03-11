@@ -4,10 +4,10 @@
  * Provides UI for configuring and managing DPoP (Demonstration of Proof of Possession)
  */
 
-import { FiAlertCircle, FiInfo, FiRefreshCw, FiShield } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiAlertCircle, FiInfo, FiRefreshCw, FiShield } from '../icons';
 import { type DPoPConfig, DPoPService, DPoPStatus } from '../services/dpopService';
 
 import { logger } from '../utils/logger';

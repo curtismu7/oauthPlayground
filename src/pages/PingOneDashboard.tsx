@@ -19,11 +19,19 @@ const PingOneDashboard: React.FC = () => {
 	const tabParam = searchParams.get('tab') as TabId | null;
 	const initialTab: TabId = tabParam === 'audit' || tabParam === 'metrics' ? tabParam : 'audit';
 	const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+	const [updateMessage, setUpdateMessage] = useState<string | null>(null);
 
 	useEffect(() => {
 		const t = searchParams.get('tab') as TabId | null;
 		if (t === 'audit' || t === 'metrics') setActiveTab(t);
 	}, [searchParams]);
+
+	// Show "Dashboard updated" when dashboard is ready (on mount)
+	useEffect(() => {
+		setUpdateMessage('Dashboard updated');
+		const t = setTimeout(() => setUpdateMessage(null), 4000);
+		return () => clearTimeout(t);
+	}, []);
 
 	const handleTabChange = (tab: TabId) => {
 		setActiveTab(tab);
@@ -80,6 +88,22 @@ const PingOneDashboard: React.FC = () => {
 						Explore audit activities and identity metrics in one place. Use the tabs below to switch
 						between views.
 					</p>
+					{updateMessage && (
+						<p
+							style={{
+								margin: '0.75rem 0 0',
+								fontSize: '0.875rem',
+								color: 'rgba(255, 255, 255, 0.95)',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+							role="status"
+						>
+							<i className="bi bi-check-circle-fill" aria-hidden />
+							{updateMessage}
+						</p>
+					)}
 				</div>
 
 				<div

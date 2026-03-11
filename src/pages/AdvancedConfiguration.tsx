@@ -1,9 +1,9 @@
-import { FiEdit } from '../icons';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import JsonEditor from '../components/JsonEditor';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { FiEdit } from '../icons';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
@@ -587,7 +587,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 	const hasCredentials = currentCredentials.environmentId && currentCredentials.clientId;
 	const _credentialStatus = hasCredentials ? 'complete' : 'missing';
 
-		return (
+	return (
 		<PageContainer>
 			<ContentWrapper>
 				<FlowHeader flowId="advanced-configuration" />

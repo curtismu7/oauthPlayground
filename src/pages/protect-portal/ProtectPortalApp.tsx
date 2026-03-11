@@ -5,10 +5,10 @@
  * Redesigned: FedEx branding only, modal-based auth flow.
  */
 
-import { FiLoader } from '../../icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
+import { FiLoader } from '../../icons';
 import { logger } from '../../utils/logger';
 import BaseLoginForm from './components/BaseLoginForm';
 import MFAAuthenticationFlow from './components/MFAAuthenticationFlow';

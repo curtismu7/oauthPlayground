@@ -1,10 +1,10 @@
 // src/components/FitnessTrackerDeviceFlow.tsx
 // Fitness Tracker Style Device Authorization Flow Interface
 
-import { FiCheckCircle } from '../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiCheckCircle } from '../icons';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
@@ -288,8 +288,7 @@ const WatchBand = styled.div`
 interface FitnessTrackerDeviceFlowProps {
 	state: DeviceFlowState;
 	onStateUpdate: (newState: DeviceFlowState) => void;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	onComplete: (tokens: any) => void;
+	onComplete: (tokens: Record<string, unknown>) => void;
 	onError: (error: string) => void;
 }
 
