@@ -32,7 +32,9 @@ biome-report.json
 .vscode/*
 !.vscode/extensions.json
 .windsurf/
-!PROJECT_RULES.md
+!.windsurf/project-rules.md
+!.windsurf/rules/
+!.windsurf/workflows/
 .idea
 .DS_Store
 *.suo

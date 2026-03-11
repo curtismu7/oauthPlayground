@@ -13,7 +13,7 @@ const ModalBackdrop = styled.div<{ $hidden?: boolean }>`
 	display: ${({ $hidden }) => ($hidden ? 'none' : 'flex')};
 	align-items: center;
 	justify-content: center;
-	z-index: 999998;
+	z-index: 12002; /* Above all other modals and dropdowns (12001) */
 	padding: 2rem;
 	pointer-events: ${({ $hidden }) => ($hidden ? 'none' : 'auto')};
 
@@ -70,7 +70,7 @@ const ModalContent = styled.div<{
 	left: ${(props) => props.$position.x}px;
 	cursor: ${(props) => (props.$isDragging ? 'grabbing' : 'default')};
 	transition: ${(props) => (props.$isDragging ? 'none' : 'all 0.2s ease')};
-	z-index: 999999;
+	z-index: 12003; /* Above all other modals and dropdowns (12001) */
 
 	/* Ensure modal stays within viewport */
 	max-width: calc(100vw - 2rem);
