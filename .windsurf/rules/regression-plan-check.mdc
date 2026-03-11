@@ -1,0 +1,82 @@
+# Regression Prevention Rule
+
+## Purpose
+This rule ensures that all code changes follow the UPDATE_LOG_AND_REGRESSION_PLAN.md process to prevent regressions and maintain code quality.
+
+## When to Apply
+This rule automatically applies when editing regression-sensitive files, including:
+- Worker token related files (`**/worker*`, `**/WorkerToken*`)
+- Sidebar and navigation files (`**/sidebar*`, `**/Sidebar*`, `**/navbar*`, `**/Navbar*`)
+- Modal components (`**/*modal*`, `**/*Modal*`)
+- Discovery and logging files (`**/discovery*`, `**/logger*`)
+- Button and UI components (`**/button*`, `**/Button*`)
+- Configuration and flow files (`**/config*`, `**/flow*`)
+
+## Before Making Changes
+1. **Read UPDATE_LOG_AND_REGRESSION_PLAN.md** - Section 4 (Regression Checklist) and Section 7 (Do-Not-Break Areas)
+2. **Identify affected areas** - Check if your changes touch any do-not-break areas
+3. **Understand impact** - Review existing fixes and regression checks for your target area
+4. **Plan your approach** - Ensure your changes won't introduce regressions
+
+## After Making Changes
+1. **Add Update Log Entry** - Document your fix in Section 3:
+   ```markdown
+   - **[Feature Name] (YYYY-MM-DD)**
+     - **What:** Brief description of what was wrong
+     - **Cause:** Why it happened
+     - **Fix:** What was changed and where
+     - **Files:** List of affected files
+     - **Regression check:** 1-2 concrete verification steps
+   ```
+
+2. **Add Regression Checklist Item** (if easy to regress):
+   ```markdown
+   - [ ] **[Area]:** When you change [specific component/behavior], verify [expected outcome].
+   ```
+
+3. **Update Do-Not-Break Areas** (if new area added):
+   - Add entry to Section 7 table
+   - Include key files and what not to break
+
+## Quality Gates
+- **No changes without documentation** - All fixes must be documented
+- **Root cause focus** - Address underlying issues, not just symptoms
+- **Prevention mindset** - Document how to prevent recurrence
+- **Verification steps** - Include concrete test steps
+
+## Examples
+
+### Before Fixing Worker Token Issue
+```
+1. Read Section 4: "Worker token & credentials" regression checklist
+2. Review Section 7: "Worker token → Environments" do-not-break area
+3. Understand current storage priority and token source requirements
+```
+
+### After Fixing Worker Token Issue
+```
+1. Add Update Log entry:
+   - **Worker token storage priority (2025-03-11)**
+   - **What:** Credentials not loading consistently across apps
+   - **Cause:** Storage priority mismatch between V9 and unified storage
+   - **Fix:** Reversed loading priority to unified first, V9 fallback
+   - **Files:** WorkerTokenModalV9.tsx, useGlobalWorkerToken.ts
+   - **Regression check:** Save credentials in modal → open environments page → environments load
+
+2. Add Regression Checklist item:
+   - **unifiedWorkerTokenService:** When changing token loading logic, verify unified storage is checked first and credentials persist across apps.
+```
+
+## Enforcement
+- **IDE Integration**: This rule is automatically triggered by Windsurf when editing sensitive files
+- **Code Review**: Reviewers should ask "is this in the update log / regression plan?" for non-trivial fixes
+- **Pre-commit**: Consider adding pre-commit hooks to verify UPDATE_LOG_AND_REGRESSION_PLAN.md is updated
+
+## References
+- **UPDATE_LOG_AND_REGRESSION_PLAN.md**: `/docs/UPDATE_LOG_AND_REGRESSION_PLAN.md`
+- **Issue Tracking System**: `/docs/issues/`
+- **Regression Prevention Checklist**: `/docs/issues/REGRESSION_PREVENTION_CHECKLIST.md`
+
+---
+
+**Remember**: Following this process prevents regressions and maintains the high quality of our codebase. When in doubt, document first, then implement!

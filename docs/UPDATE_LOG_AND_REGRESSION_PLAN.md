@@ -21,7 +21,9 @@ This document:
 | **When a bug “comes back”** | Search this doc for the feature (e.g. “environments”, “worker token”); run the listed checks.   |
 | **Release / PR**            | Optionally run the “Quick regression checklist” before merge.                                   |
 
-**IDE and agents:** A Cursor rule (`.cursor/rules/regression-plan-check.mdc`) runs when editing regression-sensitive files (sidebar, navbar, worker token, discovery, flow UI, etc.). It tells the agent to read this doc (Section 4 and 7) before changes and to add an Update log entry and run the relevant checks after every fix. That is the standard way for the IDE and agents to avoid reintroducing the errors listed here.
+**IDE and agents:** A Windsurf rule (`.windsurf/rules/regression-plan-check.mdc`) runs when editing regression-sensitive files (sidebar, navbar, worker token, discovery, flow UI, etc.). It tells the agent to read this doc (Section 4 and 7) before changes and to add an Update log entry and run the relevant checks after every fix. That is the standard way for the IDE and agents to avoid reintroducing the errors listed here.
+
+**Automation:** The regression prevention process is fully automated through Windsurf workflows (`.windsurf/workflows/regression-prevention.md`) which provides step-by-step guidance and ensures compliance before allowing commits.
 
 ---
 
@@ -40,6 +42,19 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
   - **What:** After every commit, dashboards (e.g. cleanup history, session data) are refreshed by running `npm run update-dashboards`. Hook is version-controlled in `.husky/post-commit` so all clones get it after `npm install` (prepare runs husky).
   - **Files:** `.husky/post-commit`, `scripts/update-dashboards.mjs`, `package.json` (script: `update-dashboards`)
   - **Regression check:** Make a commit; verify no hook error; optionally open `/cleanup-history` (or dashboard that uses script output) and confirm data is up to date.
+
+### Modal z-index hierarchy (2025-03-11)
+
+- **What:** Worker token modal and other modals using DraggableModal were being covered by dropdowns and notifications with higher z-index values (12001). The modal had z-index 999998/999999 but some components like BrandDropdownSelector (12001) and NotificationSystem (12000) were rendering on top.
+- **Cause:** Z-index hierarchy didn't account for all high-z-index components in the application.
+- **Fix:** Updated DraggableModal z-index values to 12002 (backdrop) and 12003 (content) to ensure all modals stay above dropdowns and notifications.
+- **Files:** `src/components/DraggableModal.tsx` (ModalBackdrop, ModalContent z-index values)
+- **Regression check:** Open worker token modal → verify it appears above all other UI elements including dropdowns and notifications. Test with multiple modals to ensure proper stacking.
+
+- **Redirect URI catalogue: only Unified MFA and Unified OAuth; fix stacking**
+  - **What:** The Configuration page “PingOne Redirect & Logout URIs” catalogue was showing every flow (mock, V8, V9, etc.). It now shows only the two URIs needed for PingOne app registration: **Unified OAuth (V8U)** and **Unified MFA**. Source URIs are taken from the app: `/unified-callback` and `/logout-callback` for V8U; `/v8/unified-mfa-callback` and `/mfa-unified-logout-callback` for Unified MFA. The catalogue card was also given `position: relative`, `zIndex: 10`, and `isolation: isolate` so it stacks above the Request Parameters panel/sidebar and is not covered.
+  - **Files:** `src/utils/flowRedirectUriMapping.ts` (REDIRECT_URI_CATALOG_FLOW_TYPES, new `v8u-unified` entry), `src/services/callbackUriService.ts` (unifiedOAuthCallback, catalog filter, getCallbackTypesForFlow for v8u), `src/pages/Configuration.tsx` (subtitle/copy, Card z-index), `src/v8u/components/CredentialsFormV8U.tsx` (catalog link → `#redirect-uri-catalog-v8u-unified`)
+  - **Regression check:** Open `/configuration`, expand “PingOne Redirect & Logout URIs”. Only two rows: “Unified OAuth/OIDC (V8U)” and “V8 Unified MFA Registration Flow”. Redirect URIs are `{origin}/unified-callback` and `{origin}/v8/unified-mfa-callback` respectively. Catalogue card is not covered by sidebar or other panels (scroll/layout); link from V8U credentials form “View all redirect URIs in Setup page” scrolls to the V8U row.
 
 ### Worker token & environments
 
@@ -232,6 +247,7 @@ When changing the listed areas, run the corresponding checks to avoid regression
 
 - [ ] **AppDiscoveryModalV8U:** Modal is portaled to `document.body` via `createPortal` so it is never a descendant of a button; backdrop remains `div` with `role="presentation"`. Do not remove the portal or wrap modal content in a button.
 - [ ] **AppDiscoveryModalV8U (backdrop):** Backdrop must remain a non-button element (e.g. `div` with `role="presentation"`) so there is no button-inside-button.
+- [ ] **DraggableModal z-index hierarchy:** When changing modal z-index values, ensure DraggableModal (12002/12003) stays above all other UI elements including BrandDropdownSelector (12001) and NotificationSystem (12000). All modals using DraggableModal must appear on top.
 
 ### Icons
 
@@ -248,6 +264,10 @@ When changing the listed areas, run the corresponding checks to avoid regression
 
 - [ ] **V9LoggingService:** New flows and migrated callers use `@/services/v9/V9LoggingService` for structured logging. When touching `UnifiedFlowErrorBoundary` or `FlowNotAvailableModal`, do not revert to `unifiedFlowLoggerServiceV8U`; keep using `V9LoggingService`.
 
+### Configuration page – redirect URI catalogue
+
+- [ ] **Redirect URI catalogue:** Changing `flowRedirectUriMapping.ts`, `callbackUriService.ts`, or the Configuration “PingOne Redirect & Logout URIs” section: the catalogue must show only **two** rows (Unified OAuth/V8U and Unified MFA). Do not re-add mock, V8-only, or V9 flows to the catalogue. URIs must match app routes: `/unified-callback`, `/logout-callback` for V8U; `/v8/unified-mfa-callback`, `/mfa-unified-logout-callback` for MFA. Catalogue card must keep `zIndex: 10` (or higher than surrounding panels) so it is not covered. See Update log “Redirect URI catalogue: only Unified MFA and Unified OAuth; fix stacking”.
+
 ---
 
 ## 5. Quick Regression Checklist (pre-PR or release)
@@ -261,6 +281,7 @@ Run these when doing a broader change or before release:
 5. **Log viewer:** Open log viewer → switch category filters → content filters as expected.
 6. **Worker token (invalid expiry):** If testing with bad/missing `expiresAt` in storage → no RangeError; status shows “Expired” or “—” instead of crashing.
 7. **Button styling:** On `/flows/rar-v9` (or any page with Credential Management), Export and Import buttons are green and blue when enabled, grey only when disabled.
+8. **Redirect URI catalogue:** Open `/configuration` → “PingOne Redirect & Logout URIs”: only two rows (Unified OAuth/V8U, Unified MFA); catalogue card not covered by sidebar/panels.
 
 ---
 
@@ -308,8 +329,9 @@ Run these when doing a broader change or before release:
 | MFA flags at 100%           | `mfaFeatureFlagsV8.ts`, `MFAFeatureFlagsAdminV8.tsx`                                                                                                    | When `MFA_FLAGS_ALWAYS_100` is true, all flags behave as 100%; admin UI shows message only.                            |
 | Discovery / logger          | `discoveryService.ts`                                                                                                                                   | No use of `logger.discovery`; use `logger.info` (or existing methods).                                                 |
 | Log viewer filters          | `EnhancedFloatingLogViewer.tsx`                                                                                                                         | Category filters must filter displayed log content.                                                                    |
-| Modal DOM                   | `AppDiscoveryModalV8U.tsx`                                                                                                                              | No button wrapping another button (backdrop is div).                                                                   |
+| Modal DOM                   | `AppDiscoveryModalV8U.tsx`, `DraggableModal.tsx`                                                                                              | No button wrapping another button (backdrop is div); DraggableModal z-index (12002/12003) must stay above all other UI elements. |
 | Icons (Fi\*)                | Any component using Feather icons                                                                                                                       | Import from `src/icons`; never use `FiRefreshCw` or other Fi\* without import.                                         |
+| Configuration redirect URI catalogue | `flowRedirectUriMapping.ts`, `callbackUriService.ts`, `Configuration.tsx`                                                                        | Catalogue shows only Unified MFA and Unified OAuth (V8U); URIs match app routes; card z-index keeps it above other content. |
 | Button styling              | `StandardizedCredentialExportImport.tsx`, FlowUIService, ConfigCheckerButtons, DiscoveryPanel, **WorkerTokenRequestModalV8.tsx**, **ApiStatusPage.tsx** | Buttons never grey when enabled; use V9_COLORS with `${}` interpolation or outline primary; grey only for `:disabled`. |
 | Logging (V9)                | `V9LoggingService.ts`, `UnifiedFlowErrorBoundary.tsx`, `FlowNotAvailableModal.tsx`                                                                      | Migrated callers use V9LoggingService; do not revert to unifiedFlowLoggerServiceV8U for these components.              |
 
