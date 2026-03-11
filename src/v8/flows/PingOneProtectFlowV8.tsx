@@ -579,8 +579,9 @@ export const PingOneProtectFlowV8: React.FC = () => {
 						onClick={async () => {
 							// Pass current checkbox values to override config (page checkboxes take precedence)
 							// forceShowModal=true because user explicitly clicked the button - always show modal
-							const { handleShowWorkerTokenModal } =
-								await import('@/v8/utils/workerTokenModalHelperV8');
+							const { handleShowWorkerTokenModal } = await import(
+								'@/v8/utils/workerTokenModalHelperV8'
+							);
 							await handleShowWorkerTokenModal(
 								setShowWorkerTokenModal,
 								setTokenStatus,
@@ -655,8 +656,9 @@ export const PingOneProtectFlowV8: React.FC = () => {
 										logger.info(
 											'[PINGONE-PROTECT-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
 										);
-										const { handleShowWorkerTokenModal } =
-											await import('@/v8/utils/workerTokenModalHelperV8');
+										const { handleShowWorkerTokenModal } = await import(
+											'@/v8/utils/workerTokenModalHelperV8'
+										);
 										await handleShowWorkerTokenModal(
 											setShowWorkerTokenModal,
 											setTokenStatus,

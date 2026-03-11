@@ -359,7 +359,7 @@ export class RegressionSafeguards {
 		credentials: StepCredentials,
 		tokens: unknown
 	): Promise<RegressionTestSuite> {
-		logger.info(`[Regression Safeguards] Running validation suite for ${flowName}`, "Logger info");
+		logger.info(`[Regression Safeguards] Running validation suite for ${flowName}`, 'Logger info');
 
 		const tests: FlowTestResult[] = [];
 

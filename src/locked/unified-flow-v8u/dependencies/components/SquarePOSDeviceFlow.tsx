@@ -2,10 +2,10 @@
 // Square POS Terminal Style Device Authorization Flow Interface
 // Designed to look like actual Square POS hardware
 
-import { FiCreditCard } from '../../../../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { FiCreditCard } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';

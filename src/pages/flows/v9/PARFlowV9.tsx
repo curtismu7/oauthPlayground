@@ -7,13 +7,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
-import { usePageScroll } from '../../../hooks/usePageScroll';
 import { usePageStepper } from '../../../contexts/FloatingStepperContext';
+import { usePageScroll } from '../../../hooks/usePageScroll';
 import { FlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
@@ -165,6 +165,7 @@ const STEP_METADATA = [
 
 const PARFlowV9: React.FC = () => {
 	usePageScroll({ pageName: 'PAR Flow V9', force: true });
+	const stepContentRef = useRef<HTMLDivElement>(null);
 
 	const { registerSteps, clearSteps, currentStep, setCurrentStep } = usePageStepper();
 	const PAR_SECTION_KEYS = [

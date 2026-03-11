@@ -1,8 +1,8 @@
-import { FiSettings } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
+import { FiSettings } from '../../icons';
 
 import { logger } from '../../utils/logger';
 

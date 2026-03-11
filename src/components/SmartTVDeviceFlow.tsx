@@ -1,10 +1,10 @@
 // src/components/SmartTVDeviceFlow.tsx
 // Smart TV Style Device Authorization Flow Interface
 
-import { FiCheckCircle } from '../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { FiCheckCircle } from '../icons';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
@@ -283,8 +283,7 @@ const TVStand = styled.div`
 interface SmartTVDeviceFlowProps {
 	state: DeviceFlowState;
 	onStateUpdate: (newState: DeviceFlowState) => void;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	onComplete: (tokens: any) => void;
+	onComplete: (tokens: Record<string, unknown>) => void;
 	onError: (error: string) => void;
 }
 

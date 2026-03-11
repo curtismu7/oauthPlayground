@@ -163,11 +163,17 @@ export class AppDiscoveryServiceV8 {
 				return null;
 			}
 
-			logger.info(`${MODULE_TAG} Retrieved stored worker token from global service (sync)`, 'Worker token retrieved', {});
+			logger.info(
+				`${MODULE_TAG} Retrieved stored worker token from global service (sync)`,
+				'Worker token retrieved',
+				{}
+			);
 			return data.token;
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error(`${MODULE_TAG} Failed to get stored worker token (sync)`, errorMessage, { error });
+			logger.error(`${MODULE_TAG} Failed to get stored worker token (sync)`, errorMessage, {
+				error,
+			});
 			return null;
 		}
 	}
@@ -254,13 +260,19 @@ export class AppDiscoveryServiceV8 {
 				localStorage.setItem('unified_worker_token', JSON.stringify(data));
 			}
 
-			logger.info(`${MODULE_TAG} Worker token stored to browser storage (sync)`, 'Worker token stored to browser', {
-				expiresIn: `${expiresIn / 1000 / 60 / 60} hours`,
-				expiresAt: new Date(expiresAt).toISOString(),
-			});
+			logger.info(
+				`${MODULE_TAG} Worker token stored to browser storage (sync)`,
+				'Worker token stored to browser',
+				{
+					expiresIn: `${expiresIn / 1000 / 60 / 60} hours`,
+					expiresAt: new Date(expiresAt).toISOString(),
+				}
+			);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error(`${MODULE_TAG} Failed to store worker token to browser (sync)`, errorMessage, { error });
+			logger.error(`${MODULE_TAG} Failed to store worker token to browser (sync)`, errorMessage, {
+				error,
+			});
 		}
 	}
 
@@ -271,7 +283,11 @@ export class AppDiscoveryServiceV8 {
 	static async clearWorkerToken(): Promise<void> {
 		try {
 			await workerTokenServiceV8.clearToken();
-			logger.info(`${MODULE_TAG} Worker token cleared from global service`, 'Worker token cleared', {});
+			logger.info(
+				`${MODULE_TAG} Worker token cleared from global service`,
+				'Worker token cleared',
+				{}
+			);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			logger.error(`${MODULE_TAG} Failed to clear worker token`, errorMessage, { error });
@@ -360,11 +376,15 @@ export class AppDiscoveryServiceV8 {
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
-				logger.error(`${MODULE_TAG} Failed to discover applications`, 'Application discovery failed', {
-					status: response.status,
-					statusText: response.statusText,
-					error: errorData,
-				});
+				logger.error(
+					`${MODULE_TAG} Failed to discover applications`,
+					'Application discovery failed',
+					{
+						status: response.status,
+						statusText: response.statusText,
+						error: errorData,
+					}
+				);
 
 				// Update API call tracking with error
 				apiCallTrackerService.updateApiCallResponse(
@@ -423,10 +443,14 @@ export class AppDiscoveryServiceV8 {
 				tokenFormat: rawApp.tokenFormat,
 			}));
 
-			logger.info(`${MODULE_TAG} Discovered ${applications.length} applications`, 'Application discovery successful', {
-				applicationsWithTokenAuthMethod: applications.filter((app) => app.tokenEndpointAuthMethod)
-					.length,
-			});
+			logger.info(
+				`${MODULE_TAG} Discovered ${applications.length} applications`,
+				'Application discovery successful',
+				{
+					applicationsWithTokenAuthMethod: applications.filter((app) => app.tokenEndpointAuthMethod)
+						.length,
+				}
+			);
 
 			return applications;
 		} catch (error) {
@@ -444,7 +468,10 @@ export class AppDiscoveryServiceV8 {
 	 * const config = AppDiscoveryServiceV8.getAppConfig(app);
 	 */
 	static getAppConfig(app: DiscoveredApplication): AppConfig {
-		logger.info(`${MODULE_TAG} Getting app config`, 'Getting application configuration', { appId: app.id, appName: app.name });
+		logger.info(`${MODULE_TAG} Getting app config`, 'Getting application configuration', {
+			appId: app.id,
+			appName: app.name,
+		});
 
 		// Determine best grant type (with null safety)
 		const grantType = app.grantTypes?.includes('authorization_code')
@@ -539,11 +566,15 @@ export class AppDiscoveryServiceV8 {
 		region: string = 'na'
 	): Promise<DiscoveredApplication | null> {
 		try {
-			logger.info(`${MODULE_TAG} Fetching application with secret`, 'Fetching application with client secret', {
-				environmentId,
-				appId,
-				region,
-			});
+			logger.info(
+				`${MODULE_TAG} Fetching application with secret`,
+				'Fetching application with client secret',
+				{
+					environmentId,
+					appId,
+					region,
+				}
+			);
 
 			// Use backend proxy to avoid CORS
 			const searchParams = new URLSearchParams({
@@ -588,13 +619,17 @@ export class AppDiscoveryServiceV8 {
 				} catch {
 					errorData = { message: errorText };
 				}
-				logger.error(`${MODULE_TAG} Failed to fetch application with secret`, 'Application fetch failed', {
-					status: response.status,
-					statusText: response.statusText,
-					url: proxyUrl,
-					error: errorData,
-					errorText: errorText.substring(0, 500), // First 500 chars of error text
-				});
+				logger.error(
+					`${MODULE_TAG} Failed to fetch application with secret`,
+					'Application fetch failed',
+					{
+						status: response.status,
+						statusText: response.statusText,
+						url: proxyUrl,
+						error: errorData,
+						errorText: errorText.substring(0, 500), // First 500 chars of error text
+					}
+				);
 
 				// Update API call tracking with error
 				apiCallTrackerService.updateApiCallResponse(
@@ -631,37 +666,41 @@ export class AppDiscoveryServiceV8 {
 			);
 
 			// Log the full response to debug clientSecret availability
-			logger.info(`${MODULE_TAG} Application response received`, 'Application response received with client secret', {
-				appId: app.id,
-				appName: app.name,
-				hasClientSecret: 'clientSecret' in app,
-				clientSecretType: typeof app.clientSecret,
-				clientSecretValue: app.clientSecret,
-				clientSecretIsNull: app.clientSecret === null,
-				clientSecretIsUndefined: app.clientSecret === undefined,
-				clientSecretLength: app.clientSecret?.length || 0,
-				clientSecretPreview: app.clientSecret
-					? `${app.clientSecret.substring(0, 10)}...`
-					: app.clientSecret === null
-						? 'null'
-						: 'none',
-				hasTokenEndpointAuthMethod:
-					'tokenEndpointAuthMethod' in app || 'token_endpoint_auth_method' in app,
-				tokenEndpointAuthMethod: app.tokenEndpointAuthMethod || app.token_endpoint_auth_method,
-				hasRedirectUris: 'redirectUris' in app || 'redirect_uris' in app,
-				redirectUris: app.redirectUris || app.redirect_uris,
-				redirectUrisLength: Array.isArray(app.redirectUris || app.redirect_uris)
-					? (app.redirectUris || app.redirect_uris).length
-					: 0,
-				allKeys: Object.keys(app),
-				// Check if secret might be in a different field
-				hasSecretField: 'secret' in app,
-				secretValue: app.secret
-					? `${app.secret.substring(0, 10)}...`
-					: app.secret === null
-						? 'null'
-						: 'none',
-			});
+			logger.info(
+				`${MODULE_TAG} Application response received`,
+				'Application response received with client secret',
+				{
+					appId: app.id,
+					appName: app.name,
+					hasClientSecret: 'clientSecret' in app,
+					clientSecretType: typeof app.clientSecret,
+					clientSecretValue: app.clientSecret,
+					clientSecretIsNull: app.clientSecret === null,
+					clientSecretIsUndefined: app.clientSecret === undefined,
+					clientSecretLength: app.clientSecret?.length || 0,
+					clientSecretPreview: app.clientSecret
+						? `${app.clientSecret.substring(0, 10)}...`
+						: app.clientSecret === null
+							? 'null'
+							: 'none',
+					hasTokenEndpointAuthMethod:
+						'tokenEndpointAuthMethod' in app || 'token_endpoint_auth_method' in app,
+					tokenEndpointAuthMethod: app.tokenEndpointAuthMethod || app.token_endpoint_auth_method,
+					hasRedirectUris: 'redirectUris' in app || 'redirect_uris' in app,
+					redirectUris: app.redirectUris || app.redirect_uris,
+					redirectUrisLength: Array.isArray(app.redirectUris || app.redirect_uris)
+						? (app.redirectUris || app.redirect_uris).length
+						: 0,
+					allKeys: Object.keys(app),
+					// Check if secret might be in a different field
+					hasSecretField: 'secret' in app,
+					secretValue: app.secret
+						? `${app.secret.substring(0, 10)}...`
+						: app.secret === null
+							? 'null'
+							: 'none',
+				}
+			);
 			// #region agent log
 			// #endregion
 
@@ -675,15 +714,19 @@ export class AppDiscoveryServiceV8 {
 				typeof clientSecretValue === 'string' &&
 				clientSecretValue.trim().length > 0;
 
-			logger.info(`${MODULE_TAG} Processing client secret`, 'Processing client secret for application', {
-				hasClientSecretField: 'clientSecret' in app,
-				hasSecretField: 'secret' in app,
-				clientSecretValue: clientSecretValue,
-				clientSecretType: typeof clientSecretValue,
-				clientSecretIsNull: clientSecretValue === null,
-				hasValidClientSecret,
-				willIncludeSecret: hasValidClientSecret,
-			});
+			logger.info(
+				`${MODULE_TAG} Processing client secret`,
+				'Processing client secret for application',
+				{
+					hasClientSecretField: 'clientSecret' in app,
+					hasSecretField: 'secret' in app,
+					clientSecretValue: clientSecretValue,
+					clientSecretType: typeof clientSecretValue,
+					clientSecretIsNull: clientSecretValue === null,
+					hasValidClientSecret,
+					willIncludeSecret: hasValidClientSecret,
+				}
+			);
 
 			// Normalize tokenEndpointAuthMethod to lowercase with underscores
 			// PingOne API may return CLIENT_SECRET_POST, CLIENT_SECRET_BASIC, etc. (uppercase)
@@ -694,12 +737,16 @@ export class AppDiscoveryServiceV8 {
 				.toLowerCase()
 				.replace(/-/g, '_');
 
-			logger.info(`${MODULE_TAG} Normalizing tokenEndpointAuthMethod in discoveredApp`, 'Normalizing token endpoint auth method', {
-				raw: rawTokenEndpointAuthMethod,
-				normalized: normalizedTokenEndpointAuthMethod,
-				fromTokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
-				fromTokenEndpointAuthMethodSnake: app.token_endpoint_auth_method,
-			});
+			logger.info(
+				`${MODULE_TAG} Normalizing tokenEndpointAuthMethod in discoveredApp`,
+				'Normalizing token endpoint auth method',
+				{
+					raw: rawTokenEndpointAuthMethod,
+					normalized: normalizedTokenEndpointAuthMethod,
+					fromTokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
+					fromTokenEndpointAuthMethodSnake: app.token_endpoint_auth_method,
+				}
+			);
 
 			const discoveredApp: DiscoveredApplication = {
 				id: app.id,
@@ -719,15 +766,19 @@ export class AppDiscoveryServiceV8 {
 				tokenFormat: app.tokenFormat,
 			};
 
-			logger.info(`${MODULE_TAG} ✅ Application with secret fetched`, 'Application successfully fetched with client secret', {
-				appId: discoveredApp.id,
-				appName: discoveredApp.name,
-				hasSecret: !!discoveredApp.clientSecret,
-				secretLength: discoveredApp.clientSecret?.length || 0,
-				secretValue: discoveredApp.clientSecret
-					? `${discoveredApp.clientSecret.substring(0, 10)}...`
-					: 'none',
-			});
+			logger.info(
+				`${MODULE_TAG} ✅ Application with secret fetched`,
+				'Application successfully fetched with client secret',
+				{
+					appId: discoveredApp.id,
+					appName: discoveredApp.name,
+					hasSecret: !!discoveredApp.clientSecret,
+					secretLength: discoveredApp.clientSecret?.length || 0,
+					secretValue: discoveredApp.clientSecret
+						? `${discoveredApp.clientSecret.substring(0, 10)}...`
+						: 'none',
+				}
+			);
 
 			return discoveredApp;
 		} catch (error) {
@@ -803,7 +854,11 @@ export class AppDiscoveryServiceV8 {
 	 * const apps = await AppDiscoveryServiceV8.discoverApps('12345678-1234-1234-1234-123456789012');
 	 */
 	static async discoverApps(environmentId: string): Promise<DiscoveredApplication[]> {
-		logger.info(`${MODULE_TAG} Discovering apps (convenience method)`, 'Discovering apps using convenience method', { environmentId });
+		logger.info(
+			`${MODULE_TAG} Discovering apps (convenience method)`,
+			'Discovering apps using convenience method',
+			{ environmentId }
+		);
 
 		// Get worker token from global service
 		const workerToken = await AppDiscoveryServiceV8.getStoredWorkerToken();

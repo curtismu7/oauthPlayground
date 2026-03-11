@@ -272,7 +272,7 @@ export class AppDiscoveryServiceV8 {
 	static async clearWorkerToken(): Promise<void> {
 		try {
 			await workerTokenServiceV8.clearToken();
-			logger.info(`${MODULE_TAG} Worker token cleared from global service`, "Logger info");
+			logger.info(`${MODULE_TAG} Worker token cleared from global service`, 'Logger info');
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to clear worker token`, {
 				error: error instanceof Error ? error.message : String(error),
@@ -509,7 +509,7 @@ export class AppDiscoveryServiceV8 {
 
 			const proxyUrl = `/api/pingone/applications/${appId}?${searchParams.toString()}`;
 
-			logger.info(`${MODULE_TAG} Fetching via backend proxy: ${proxyUrl}`, "Logger info");
+			logger.info(`${MODULE_TAG} Fetching via backend proxy: ${proxyUrl}`, 'Logger info');
 
 			const response = await fetch(proxyUrl, {
 				method: 'GET',
@@ -644,7 +644,7 @@ export class AppDiscoveryServiceV8 {
 	 * @returns New worker token or null
 	 */
 	static async refreshWorkerToken(): Promise<string | null> {
-		logger.info(`${MODULE_TAG} Refreshing worker token`, "Logger info");
+		logger.info(`${MODULE_TAG} Refreshing worker token`, 'Logger info');
 
 		AppDiscoveryServiceV8.clearWorkerToken();
 		return AppDiscoveryServiceV8.getWorkerToken();
@@ -663,7 +663,7 @@ export class AppDiscoveryServiceV8 {
 		// Get worker token from global service
 		const workerToken = await AppDiscoveryServiceV8.getStoredWorkerToken();
 		if (!workerToken) {
-			logger.error(`${MODULE_TAG} No worker token available for discovery`, "Logger error");
+			logger.error(`${MODULE_TAG} No worker token available for discovery`, 'Logger error');
 			throw new Error('Worker token required. Please generate a worker token first.');
 		}
 

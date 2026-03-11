@@ -12,8 +12,8 @@
  * />
  */
 
-import { FiChevronDown } from '../../icons';
 import React, { useState } from 'react';
+import { FiChevronDown } from '../../icons';
 
 import { logger } from '../../utils/logger';
 

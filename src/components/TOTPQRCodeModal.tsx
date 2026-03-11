@@ -54,7 +54,10 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 			setQrCodeData(result.totpUri);
 			setManualEntryKey(result.manualEntryKey);
 
-			logger.info(`🔐 [TOTP QR Code] Generated TOTP configuration for ${config.accountName}`, "Logger info");
+			logger.info(
+				`🔐 [TOTP QR Code] Generated TOTP configuration for ${config.accountName}`,
+				'Logger info'
+			);
 		} catch (error) {
 			logger.error(
 				'TOTPQRCodeModal',

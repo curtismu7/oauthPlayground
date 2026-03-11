@@ -6,8 +6,8 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import { type LogFile, LogFileService } from '../services/logFileService';
 import { logger } from '../utils/logger';
 
@@ -234,10 +234,11 @@ export const FloatingDebugLogViewer: React.FC<FloatingDebugLogViewerProps> = ({
 			let content = '';
 
 			switch (logSource) {
-				case 'file':
+				case 'file': {
 					const logContent = await LogFileService.readLogFile(selectedFile, lineCount, tailMode);
 					content = logContent.content;
 					break;
+				}
 				default:
 					content = 'Log source not implemented yet';
 					break;

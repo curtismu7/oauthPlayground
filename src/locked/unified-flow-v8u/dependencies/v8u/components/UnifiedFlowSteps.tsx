@@ -16,10 +16,10 @@
  * Use the mock ROPC flow instead.
  */
 
-import { FiArrowRight } from '../../../../../icons';
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { FiArrowRight } from '../../../../../icons';
 import { logger } from '../../../../../utils/logger';
 import { ColoredUrlDisplay } from '../../components/ColoredUrlDisplay.tsx';
 import DeviceTypeSelector from '../../components/DeviceTypeSelector.tsx';
@@ -3191,8 +3191,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const flowApiUrl = `https://auth.pingone.com/${credentials.environmentId}/flows/${flowId}`;
 
 				// Track API call for display
-				const { apiCallTrackerService: apiCallTrackerService2 } =
-					await import('@/services/apiCallTrackerService');
+				const { apiCallTrackerService: apiCallTrackerService2 } = await import(
+					'@/services/apiCallTrackerService'
+				);
 				const startTime2 = Date.now();
 				const requestBody2 = {
 					environmentId: credentials.environmentId,
@@ -3736,8 +3737,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			// Track API call for display
-			const { apiCallTrackerService: apiCallTrackerService3 } =
-				await import('@/services/apiCallTrackerService');
+			const { apiCallTrackerService: apiCallTrackerService3 } = await import(
+				'@/services/apiCallTrackerService'
+			);
 			const startTime3 = Date.now();
 			const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 			const requestBody3 = {
@@ -6677,8 +6679,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					let response: Response;
 					try {
 						// Track API call for display
-						const { apiCallTrackerService: apiCallTrackerService4 } =
-							await import('@/services/apiCallTrackerService');
+						const { apiCallTrackerService: apiCallTrackerService4 } = await import(
+							'@/services/apiCallTrackerService'
+						);
 						const startTime4 = Date.now();
 						const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 						const requestBodyForTracking = {
@@ -8612,8 +8615,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				});
 
 				// Track API call for display
-				const { apiCallTrackerService: apiCallTrackerService5 } =
-					await import('@/services/apiCallTrackerService');
+				const { apiCallTrackerService: apiCallTrackerService5 } = await import(
+					'@/services/apiCallTrackerService'
+				);
 				const startTime5 = Date.now();
 				const requestBody5 = {
 					token: '***REDACTED***',
@@ -9492,7 +9496,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											: selectedTokenType === 'access' && !operationRules.canIntrospectAccessToken
 												? operationRules.introspectionReason
 												: selectedTokenType === 'refresh' &&
-													  !operationRules.canIntrospectRefreshToken
+														!operationRules.canIntrospectRefreshToken
 													? 'Refresh token introspection not supported'
 													: selectedTokenType === 'id' && !operationRules.canIntrospectIdToken
 														? 'ID token introspection not recommended'

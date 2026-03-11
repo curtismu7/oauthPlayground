@@ -1,6 +1,6 @@
-import { FiChevronDown } from '../icons';
 import React, { useCallback, useState } from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { FiChevronDown } from '../icons';
 
 interface CountryCode {
 	code: string;

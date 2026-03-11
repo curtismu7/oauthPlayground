@@ -165,12 +165,20 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 			);
 
 			if (redirectUri && !credentials.redirectUri) {
-				logger.info(`${MODULE_TAG} Auto-setting redirect URI for flow`, JSON.stringify({ flowKey, redirectUri }), 'Auto-setting redirect URI');
+				logger.info(
+					`${MODULE_TAG} Auto-setting redirect URI for flow`,
+					JSON.stringify({ flowKey, redirectUri }),
+					'Auto-setting redirect URI'
+				);
 				onChange({ ...credentials, redirectUri });
 			}
 
 			if (postLogoutRedirectUri && !credentials.postLogoutRedirectUri) {
-				logger.info(`${MODULE_TAG} Auto-setting post-logout redirect URI for flow`, JSON.stringify({ flowKey, postLogoutRedirectUri }), 'Auto-setting post-logout redirect URI');
+				logger.info(
+					`${MODULE_TAG} Auto-setting post-logout redirect URI for flow`,
+					JSON.stringify({ flowKey, postLogoutRedirectUri }),
+					'Auto-setting post-logout redirect URI'
+				);
 				onChange({ ...credentials, postLogoutRedirectUri });
 			}
 		}
@@ -178,7 +186,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	const handleChange = useCallback(
 		(field: string, value: string) => {
-			logger.info(`${MODULE_TAG} Credential changed: ${field}`, JSON.stringify({ flowKey }), 'Credential field changed');
+			logger.info(
+				`${MODULE_TAG} Credential changed: ${field}`,
+				JSON.stringify({ flowKey }),
+				'Credential field changed'
+			);
 			const updated = { ...credentials, [field]: value };
 			onChange(updated);
 
@@ -203,10 +215,16 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 		try {
 			const result = await OidcDiscoveryServiceV8.discover(discoveryInput.trim());
 			if (result.success) {
-				logger.info(`${MODULE_TAG} Discovery successful`, `Discovery successful for: ${discoveryInput}`, { result });
+				logger.info(
+					`${MODULE_TAG} Discovery successful`,
+					`Discovery successful for: ${discoveryInput}`,
+					{ result }
+				);
 				onDiscoveryComplete(result);
 			} else {
-				logger.error(`${MODULE_TAG} Discovery failed`, `Discovery failed for: ${discoveryInput}`, { error: result.error });
+				logger.error(`${MODULE_TAG} Discovery failed`, `Discovery failed for: ${discoveryInput}`, {
+					error: result.error,
+				});
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Discovery Failed',
@@ -215,7 +233,9 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 				});
 			}
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Discovery error`, `Discovery error for: ${discoveryInput}`, { error });
+			logger.error(`${MODULE_TAG} Discovery error`, `Discovery error for: ${discoveryInput}`, {
+				error,
+			});
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Discovery Error',
@@ -229,7 +249,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	const handleApplyDiscovery = useCallback(
 		(result: OidcDiscoveryResult) => {
-			logger.info(`${MODULE_TAG} Applying discovery result`, JSON.stringify({ result }), 'Applying discovery result');
+			logger.info(
+				`${MODULE_TAG} Applying discovery result`,
+				JSON.stringify({ result }),
+				'Applying discovery result'
+			);
 			const updated = {
 				...credentials,
 				issuerUrl: result.issuer,
@@ -248,7 +272,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	const handleAppSelected = useCallback(
 		(app: DiscoveredApp) => {
-			logger.info(`${MODULE_TAG} App selected`, JSON.stringify({ appId: app.id, appName: app.name }), 'App selected');
+			logger.info(
+				`${MODULE_TAG} App selected`,
+				JSON.stringify({ appId: app.id, appName: app.name }),
+				'App selected'
+			);
 			const updated = {
 				...credentials,
 				clientId: app.id,
@@ -1053,7 +1081,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 									message: 'Credentials saved successfully',
 									duration: 3000,
 								});
-								logger.info(`${MODULE_TAG} Credentials saved`, JSON.stringify({ flowKey }), 'Credentials saved');
+								logger.info(
+									`${MODULE_TAG} Credentials saved`,
+									JSON.stringify({ flowKey }),
+									'Credentials saved'
+								);
 							}}
 						>
 							💾 Save Credentials

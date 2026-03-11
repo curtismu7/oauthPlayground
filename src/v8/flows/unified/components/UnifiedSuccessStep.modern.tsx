@@ -15,7 +15,6 @@
  * - All logic preserved unchanged
  */
 
-import { FiCheck, FiExternalLink, FiPlus } from '../../../../icons';
 import React, { useCallback, useEffect } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
@@ -23,6 +22,7 @@ import { PageTransition } from '@/v8/components/PageTransition';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
+import { FiCheck, FiExternalLink, FiPlus } from '../../../../icons';
 
 import { logger } from '../../../../utils/logger';
 

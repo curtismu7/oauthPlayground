@@ -102,7 +102,10 @@ export class ClientCredentialsIntegrationServiceV8 {
 			// NOTE: Client credentials is for machine-to-machine auth, NOT user auth
 			// Scopes are required for client credentials flow
 			if (!credentials.scopes || credentials.scopes.trim() === '') {
-				logger.error(`${MODULE_TAG} No scopes provided - client credentials flow requires scopes`, "Logger error");
+				logger.error(
+					`${MODULE_TAG} No scopes provided - client credentials flow requires scopes`,
+					'Logger error'
+				);
 				throw new Error(
 					'Scopes are required for client credentials flow. Use custom resource server scopes (e.g., api:read, api:write) or Management API scopes (e.g., p1:read:user, p1:read:environments). See https://apidocs.pingidentity.com/pingone/main/v1/api/#access-services-through-scopes-and-roles'
 				);
@@ -161,7 +164,10 @@ export class ClientCredentialsIntegrationServiceV8 {
 						proxyRequestBody.client_assertion_type =
 							'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 						proxyRequestBody.client_assertion = assertion;
-						logger.info(`${MODULE_TAG} Using Client Secret JWT assertion authentication`, "Logger info");
+						logger.info(
+							`${MODULE_TAG} Using Client Secret JWT assertion authentication`,
+							'Logger info'
+						);
 					} catch (error) {
 						logger.error(`${MODULE_TAG} Failed to generate client secret JWT assertion`, {
 							error,
@@ -192,7 +198,10 @@ export class ClientCredentialsIntegrationServiceV8 {
 						proxyRequestBody.client_assertion_type =
 							'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 						proxyRequestBody.client_assertion = assertion;
-						logger.info(`${MODULE_TAG} Using Private Key JWT assertion authentication`, "Logger info");
+						logger.info(
+							`${MODULE_TAG} Using Private Key JWT assertion authentication`,
+							'Logger info'
+						);
 					} catch (error) {
 						logger.error(`${MODULE_TAG} Failed to generate private key JWT assertion`, { error });
 						throw new Error(
@@ -231,7 +240,10 @@ export class ClientCredentialsIntegrationServiceV8 {
 					throw new Error('Client secret must be a string');
 				}
 				if (proxyRequestBody.client_secret.trim().length === 0) {
-					logger.error(`${MODULE_TAG} ❌ ERROR: client_secret is empty or whitespace!`, "Logger error");
+					logger.error(
+						`${MODULE_TAG} ❌ ERROR: client_secret is empty or whitespace!`,
+						'Logger error'
+					);
 					throw new Error('Client secret cannot be empty');
 				}
 			}
@@ -629,7 +641,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		logger.info(`${MODULE_TAG} Decoding JWT token`, "Logger info");
+		logger.info(`${MODULE_TAG} Decoding JWT token`, 'Logger info');
 
 		try {
 			const parts = token.split('.');
@@ -642,7 +654,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 			const payload = JSON.parse(ClientCredentialsIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			logger.info(`${MODULE_TAG} Token decoded successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Token decoded successfully`, 'Logger info');
 
 			return { header, payload, signature };
 		} catch (error) {

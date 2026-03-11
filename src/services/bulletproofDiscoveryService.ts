@@ -29,7 +29,11 @@ export class BulletproofDiscoveryService {
 			'[Bulletproof Discovery] Starting discovery for environment:',
 			JSON.stringify({ arg0: environmentId })
 		);
-		logger.info('BulletproofDiscoveryService', '[Bulletproof Discovery] Region:', JSON.stringify({ arg0: region }));
+		logger.info(
+			'BulletproofDiscoveryService',
+			'[Bulletproof Discovery] Region:',
+			JSON.stringify({ arg0: region })
+		);
 
 		try {
 			// Strategy 1: Backend proxy with retry and region failover
@@ -49,7 +53,9 @@ export class BulletproofDiscoveryService {
 				logger.warn(
 					'BulletproofDiscoveryService',
 					'[Bulletproof Discovery] Backend proxy failed:',
-					JSON.stringify({ arg0: proxyError instanceof Error ? proxyError.message : String(proxyError) })
+					JSON.stringify({
+						arg0: proxyError instanceof Error ? proxyError.message : String(proxyError),
+					})
 				);
 			}
 
@@ -70,7 +76,9 @@ export class BulletproofDiscoveryService {
 				logger.warn(
 					'BulletproofDiscoveryService',
 					'[Bulletproof Discovery] Direct discovery failed:',
-					JSON.stringify({ arg0: directError instanceof Error ? directError.message : String(directError) })
+					JSON.stringify({
+						arg0: directError instanceof Error ? directError.message : String(directError),
+					})
 				);
 			}
 

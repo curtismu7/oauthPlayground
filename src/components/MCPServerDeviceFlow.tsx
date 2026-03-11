@@ -1,10 +1,10 @@
 // src/components/MCPServerDeviceFlow.tsx
 // MCP Server Style Device Authorization Flow Interface
 
-import { FiDatabase, FiLink, FiServer } from '../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { FiDatabase, FiLink, FiServer } from '../icons';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
@@ -319,8 +319,7 @@ const ServerBase = styled.div`
 interface MCPServerDeviceFlowProps {
 	state: DeviceFlowState;
 	onStateUpdate: (newState: DeviceFlowState) => void;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	onComplete: (tokens: any) => void;
+	onComplete: (tokens: Record<string, unknown>) => void;
 	onError: (error: string) => void;
 }
 

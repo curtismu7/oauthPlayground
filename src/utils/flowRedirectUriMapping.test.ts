@@ -19,8 +19,8 @@ Object.defineProperty(window, 'location', {
 	writable: true,
 });
 
-logger.info('🧪 Testing Flow Redirect URI Mapping System', "Logger info");
-logger.info('==========================================', "Logger info");
+logger.info('🧪 Testing Flow Redirect URI Mapping System', 'Logger info');
+logger.info('==========================================', 'Logger info');
 
 // Test 1: Get redirect URI for OAuth Authorization Code V6
 const oauthAuthzV6Uri = generateRedirectUriForFlow('oauth-authorization-code-v6');
@@ -38,7 +38,7 @@ logger.info('3. Client Credentials V6:', clientCredsUri);
 // Expected: null (no redirect URI needed)
 
 // Test 4: Check if flows require redirect URI
-logger.info('4. Flow Requirements:', "Logger info");
+logger.info('4. Flow Requirements:', 'Logger info');
 logger.info(
 	'   - OAuth Authz V6 requires redirect URI:',
 	flowRequiresRedirectUri('oauth-authorization-code-v6')
@@ -55,28 +55,28 @@ logger.info(
 // Test 5: Get flow configurations
 const oauthAuthzConfig = getFlowRedirectUriConfig('oauth-authorization-code-v6');
 const hybridConfig = getFlowRedirectUriConfig('oidc-hybrid-v6');
-logger.info('5. Flow Configurations:', "Logger info");
+logger.info('5. Flow Configurations:', 'Logger info');
 logger.info('   - OAuth Authz V6:', oauthAuthzConfig);
 logger.info('   - OIDC Hybrid V6:', hybridConfig);
 
 // Test 6: Get flows requiring redirect URIs
 const flowsRequiringRedirect = getFlowsRequiringRedirectUri();
 const flowsNotRequiringRedirect = getFlowsNotRequiringRedirectUri();
-logger.info('6. Flows by Requirements:', "Logger info");
+logger.info('6. Flows by Requirements:', 'Logger info');
 logger.info('   - Flows requiring redirect URI:', flowsRequiringRedirect.length, 'flows');
 logger.info('   - Flows NOT requiring redirect URI:', flowsNotRequiringRedirect.length, 'flows');
 
 // Test 7: Show all V6 flows
 const v6Flows = FLOW_REDIRECT_URI_MAPPING.filter((config) => config.flowType.includes('v6'));
-logger.info('7. All V6 Flows:', "Logger info");
+logger.info('7. All V6 Flows:', 'Logger info');
 v6Flows.forEach((flow) => {
 	const uri = generateRedirectUriForFlow(flow.flowType);
-	logger.info(`   - ${flow.flowType}: ${uri || 'No redirect URI needed'}`, "Logger info");
+	logger.info(`   - ${flow.flowType}: ${uri || 'No redirect URI needed'}`, 'Logger info');
 });
 
-logger.info('\n✅ All tests completed!', "Logger info");
-logger.info('\n📋 Summary:', "Logger info");
-logger.info('- Centralized redirect URI mapping system is working', "Logger info");
-logger.info('- Each flow type has its correct callback path', "Logger info");
-logger.info('- System automatically adapts to different ports', "Logger info");
-logger.info('- Easy to maintain and extend with new flows', "Logger info");
+logger.info('\n✅ All tests completed!', 'Logger info');
+logger.info('\n📋 Summary:', 'Logger info');
+logger.info('- Centralized redirect URI mapping system is working', 'Logger info');
+logger.info('- Each flow type has its correct callback path', 'Logger info');
+logger.info('- System automatically adapts to different ports', 'Logger info');
+logger.info('- Easy to maintain and extend with new flows', 'Logger info');

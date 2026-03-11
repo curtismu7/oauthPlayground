@@ -45,7 +45,6 @@ import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { ClientAuthMethod } from '../utils/clientAuthentication';
 import { logger } from '../utils/logger';
 import { callbackUriService } from './callbackUriService';
-import { unifiedWorkerTokenService } from './unifiedWorkerTokenService';
 // import PingOneApplicationConfig, {
 // 	type PingOneApplicationState,
 // } from '../components/PingOneApplicationConfig';
@@ -55,6 +54,7 @@ import { environmentIdPersistenceService } from './environmentIdPersistenceServi
 import { FlowRedirectUriService } from './flowRedirectUriService';
 import { getDefaultScopesForFlow } from './flowScopeMappingService';
 import { oidcDiscoveryService } from './oidcDiscoveryService';
+import { unifiedWorkerTokenService } from './unifiedWorkerTokenService';
 
 // Response Type Selector Component
 const ResponseTypeSelector = styled.div`
@@ -1526,7 +1526,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				{showConfigChecker && (
 					<CollapsibleHeader
 						title={appLookupSectionTitle ?? 'App lookup'}
-						subtitle={appLookupSectionSubtitle ?? 'Discover apps from PingOne and apply credentials to this section'}
+						subtitle={
+							appLookupSectionSubtitle ??
+							'Discover apps from PingOne and apply credentials to this section'
+						}
 						defaultCollapsed={true}
 						icon={<MDIIcon icon="FiSettings" />}
 						theme="orange"

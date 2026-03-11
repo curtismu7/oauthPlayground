@@ -1,7 +1,7 @@
 // src/v7m/ui/V7MJwtInspectorModal.tsx
 
-import { FiPackage } from '../../icons';
 import React, { useMemo, useState } from 'react';
+import { FiPackage } from '../../icons';
 import { V7MHelpModal } from './V7MHelpModal';
 
 type Props = {

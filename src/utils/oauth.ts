@@ -60,27 +60,27 @@ export const parseUrlParams = (url: string): Record<string, string> => {
 	const params = new URLSearchParams(url.split('?')[1] || '');
 	const result = {};
 
-	logger.info(' [OAuth] Query parameters:', "Logger info");
+	logger.info(' [OAuth] Query parameters:', 'Logger info');
 	clientLog(`[OAuth] Query parameters:`);
 	for (const [key, value] of params.entries()) {
 		result[key] = value;
-		logger.info(`   ${key}: ${value}`, "Logger info");
+		logger.info(`   ${key}: ${value}`, 'Logger info');
 		clientLog(`   ${key}: ${value}`);
 	}
 
 	// Also check hash parameters
 	const hash = url.split('#')[1];
 	if (hash) {
-		logger.info(' [OAuth] Hash parameters:', "Logger info");
+		logger.info(' [OAuth] Hash parameters:', 'Logger info');
 		clientLog(`[OAuth] Hash parameters:`);
 		const hashParams = new URLSearchParams(hash);
 		for (const [key, value] of hashParams.entries()) {
 			result[key] = value;
-			logger.info(`   ${key}: ${value}`, "Logger info");
+			logger.info(`   ${key}: ${value}`, 'Logger info');
 			clientLog(`   ${key}: ${value}`);
 		}
 	} else {
-		logger.info(' [OAuth] No hash parameters found', "Logger info");
+		logger.info(' [OAuth] No hash parameters found', 'Logger info');
 		clientLog(`[OAuth] No hash parameters found`);
 	}
 
@@ -126,7 +126,7 @@ export const createSignedRequestObject = async (
 		const key = await importPKCS8(options.privateKey, alg);
 		const signedRequest = await jwt.sign(key);
 
-		logger.info(' [OAuth] Signed request object created successfully', "Logger info");
+		logger.info(' [OAuth] Signed request object created successfully', 'Logger info');
 		clientLog(`[OAuth] Signed request object created successfully`);
 
 		return signedRequest;
@@ -161,7 +161,7 @@ export const pushAuthorizationRequest = async ({
 	requestParams: Record<string, string>;
 	requestObject?: string;
 }): Promise<{ request_uri: string; expires_in: number }> => {
-	logger.info(' [OAuth] Pushing authorization request to PAR endpoint...', "Logger info");
+	logger.info(' [OAuth] Pushing authorization request to PAR endpoint...', 'Logger info');
 	clientLog(`[OAuth] Pushing authorization request to PAR endpoint...`);
 
 	const body = new URLSearchParams();
@@ -534,7 +534,7 @@ export const validateIdToken = async (
 	maxAge?: number,
 	accessToken?: string
 ): Promise<IdTokenPayload> => {
-	logger.info(' [OAuth] Validating ID token with signature verification...', "Logger info");
+	logger.info(' [OAuth] Validating ID token with signature verification...', 'Logger info');
 	clientLog(`[OAuth] Validating ID token with signature verification...`);
 	logger.info(' [OAuth] Expected issuer:', issuer);
 	clientLog(`[OAuth] Expected issuer: ${issuer}`);
@@ -554,7 +554,7 @@ export const validateIdToken = async (
 			? expectedIssuer.replace('/as', '')
 			: expectedIssuer;
 
-		logger.info(' [OAuth] Issuer validation details:', "Logger info");
+		logger.info(' [OAuth] Issuer validation details:', 'Logger info');
 		logger.info('   Expected base issuer:', expectedIssuerBase);
 		logger.info('   Expected issuer with /as:', expectedIssuerWithAs);
 
@@ -605,7 +605,7 @@ export const validateIdToken = async (
 				clientLog(`[OIDC] Nonce validation failed: expected=${nonce}, received=${payload.nonce}`);
 				throw new Error('Nonce validation failed - possible replay attack');
 			}
-			logger.info(' [OIDC] Nonce validation successful', "Logger info");
+			logger.info(' [OIDC] Nonce validation successful', 'Logger info');
 		} else {
 			logger.warn('OIDC', 'No nonce provided - this reduces security against replay attacks');
 		}
@@ -629,7 +629,7 @@ export const validateIdToken = async (
 					`Authentication too old: performed ${authAge} seconds ago, max_age allows ${maxAge} seconds`
 				);
 			}
-			logger.info(' [OIDC] auth_time validation successful', "Logger info");
+			logger.info(' [OIDC] auth_time validation successful', 'Logger info');
 		}
 
 		// 8. CONDITIONAL: Validate azp (authorized party) for multiple audiences
@@ -640,7 +640,7 @@ export const validateIdToken = async (
 					'ID token missing required azp (authorized party) claim for multiple audiences'
 				);
 			}
-			logger.info(' [OIDC] azp validation successful for multiple audiences', "Logger info");
+			logger.info(' [OIDC] azp validation successful for multiple audiences', 'Logger info');
 		}
 
 		// 9. OIDC CORE 1.0: Validate at_hash if access token is present (Section 3.1.3.6)
@@ -666,7 +666,7 @@ export const validateIdToken = async (
 					});
 					throw new Error('at_hash validation failed - access token may have been tampered with');
 				}
-				logger.info(' [OIDC] at_hash validation successful', "Logger info");
+				logger.info(' [OIDC] at_hash validation successful', 'Logger info');
 			} catch (error) {
 				logger.error('OIDC', 'at_hash validation error:', undefined, error as Error);
 				throw new Error(
@@ -686,7 +686,7 @@ export const validateIdToken = async (
 			}
 		}
 
-		logger.info(' [OAuth] ID token signature and claims validation successful', "Logger info");
+		logger.info(' [OAuth] ID token signature and claims validation successful', 'Logger info');
 		logger.info(' [OAuth] Validation details:', {
 			nonce: nonce ? (payload.nonce === nonce ? ' Valid' : ' Invalid') : 'Not checked',
 			maxAge: maxAge ? (payload.auth_time ? ' Checked' : ' Missing auth_time') : 'Not specified',

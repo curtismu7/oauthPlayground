@@ -117,7 +117,7 @@ const useAuthActions = ({
 					return { success: false, error: errorMessage };
 				}
 
-				logger.info(' [NewAuthContext] Configuration validated', "Logger info");
+				logger.info(' [NewAuthContext] Configuration validated', 'Logger info');
 
 				const state = Math.random().toString(36).substring(2, 15);
 				const nonce = Math.random().toString(36).substring(2, 15);
@@ -386,11 +386,18 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				});
 
 				setShowAuthModal(true);
-				logger.info('✅ [NewAuthContext] Modal opened - waiting for user to click Continue button', "Logger info");
-				logger.info('✅ [NewAuthContext] Modal will NOT auto-proceed - user must click Continue', "Logger info");
 				logger.info(
-					'✅ [NewAuthContext] User interaction flag cleared - modal will wait for user click'
-				, "Logger info");
+					'✅ [NewAuthContext] Modal opened - waiting for user to click Continue button',
+					'Logger info'
+				);
+				logger.info(
+					'✅ [NewAuthContext] Modal will NOT auto-proceed - user must click Continue',
+					'Logger info'
+				);
+				logger.info(
+					'✅ [NewAuthContext] User interaction flag cleared - modal will wait for user click',
+					'Logger info'
+				);
 
 				// Add a small delay to ensure state updates are processed
 				setTimeout(() => {
@@ -429,7 +436,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 			try {
 				FlowContextUtils.emergencyCleanup();
-				logger.info(' [NewAuthContext] Flow context cleaned up during logout', "Logger info");
+				logger.info(' [NewAuthContext] Flow context cleaned up during logout', 'Logger info');
 			} catch (flowCleanupError) {
 				logger.warn(
 					'useAuthActions',
@@ -505,14 +512,18 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 						if (isV6Flow || isV7Flow) {
 							logger.info(
-								' [NewAuthContext] V6/V7 FLOW DETECTED EARLY - Skipping state validation and redirecting to flow page'
-							, "Logger info");
+								' [NewAuthContext] V6/V7 FLOW DETECTED EARLY - Skipping state validation and redirecting to flow page',
+								'Logger info'
+							);
 
 							if (code) {
 								const isOIDCFlow = flow?.includes('oidc') ?? false;
 								const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
 								sessionStorage.setItem(authCodeKey, code);
-								logger.info(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey}`, "Logger info");
+								logger.info(
+									`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey}`,
+									'Logger info'
+								);
 							}
 							if (state) {
 								sessionStorage.setItem('oauth_state', state);
@@ -814,10 +825,13 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 	const proceedWithOAuth = useCallback(() => {
 		logger.info(
-			'🚨 [NewAuthContext] proceedWithOAuth called - this should ONLY happen when user clicks Continue button'
-		, "Logger info");
-		logger.info('🚨 [NewAuthContext] CRITICAL DEBUG - Call source analysis:', "Logger info");
-		logger.debug('useAuthActions', '[NewAuthContext] proceedWithOAuth stack trace', { stack: new Error().stack });
+			'🚨 [NewAuthContext] proceedWithOAuth called - this should ONLY happen when user clicks Continue button',
+			'Logger info'
+		);
+		logger.info('🚨 [NewAuthContext] CRITICAL DEBUG - Call source analysis:', 'Logger info');
+		logger.debug('useAuthActions', '[NewAuthContext] proceedWithOAuth stack trace', {
+			stack: new Error().stack,
+		});
 
 		// CRITICAL: Check if user actually clicked the Continue button
 		// The modal sets this flag in sessionStorage when user clicks Continue
@@ -848,7 +862,10 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 		// Clear the flag after checking
 		sessionStorage.removeItem('_user_clicked_proceed');
 
-		logger.info('🚨 [NewAuthContext] ✅ USER INTERACTION CONFIRMED - proceeding with OAuth', "Logger info");
+		logger.info(
+			'🚨 [NewAuthContext] ✅ USER INTERACTION CONFIRMED - proceeding with OAuth',
+			'Logger info'
+		);
 
 		if (authRequestData) {
 			logger.auth(
@@ -967,7 +984,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					}
 				);
 				if (success) {
-					logger.info(' [NewAuthContext] V7 credentials saved successfully', "Logger info");
+					logger.info(' [NewAuthContext] V7 credentials saved successfully', 'Logger info');
 					const newConfig = await loadAuthConfiguration();
 					setConfig(newConfig);
 				} else {
