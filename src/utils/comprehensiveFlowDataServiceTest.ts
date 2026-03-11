@@ -527,21 +527,21 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 	 */
 	private async runTest(testName: string, testFn: () => Promise<unknown>): Promise<void> {
 		try {
-			logger.info(`🧪 Running: ${testName}`, "Logger info");
+			logger.info(`🧪 Running: ${testName}`, 'Logger info');
 			const result = await testFn();
 			this.testResults.push({
 				testName,
 				passed: true,
 				details: result,
 			});
-			logger.info(`✅ Passed: ${testName}`, "Logger info");
+			logger.info(`✅ Passed: ${testName}`, 'Logger info');
 		} catch (error) {
 			this.testResults.push({
 				testName,
 				passed: false,
 				error: error instanceof Error ? error.message : String(error),
 			});
-			logger.error(`❌ Failed: ${testName} - ${error}`, "Logger error");
+			logger.error(`❌ Failed: ${testName} - ${error}`, 'Logger error');
 		}
 	}
 
@@ -551,7 +551,7 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 	private clearAllTestData(): void {
 		comprehensiveFlowDataService.clearAllFlowData();
 		comprehensiveFlowDataService.clearAllSharedData();
-		logger.info('🧹 Cleared all test data', "Logger info");
+		logger.info('🧹 Cleared all test data', 'Logger info');
 	}
 
 	/**
@@ -564,9 +564,9 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 		const failed = this.testResults.filter((r) => !r.passed).length;
 		const total = this.testResults.length;
 
-		logger.info(`📈 Total Tests: ${total}`, "Logger info");
-		logger.info(`✅ Passed: ${passed}`, "Logger info");
-		logger.info(`❌ Failed: ${failed}`, "Logger info");
+		logger.info(`📈 Total Tests: ${total}`, 'Logger info');
+		logger.info(`✅ Passed: ${passed}`, 'Logger info');
+		logger.info(`❌ Failed: ${failed}`, 'Logger info');
 		logger.info(`📊 Success Rate: ${((passed / total) * 100).toFixed(1)}%`);
 
 		if (failed > 0) {
@@ -574,7 +574,7 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 			this.testResults
 				.filter((r) => !r.passed)
 				.forEach((result) => {
-					logger.error(`  - ${result.testName}: ${result.error}`, "Logger error");
+					logger.error(`  - ${result.testName}: ${result.error}`, 'Logger error');
 				});
 			console.groupEnd();
 		}

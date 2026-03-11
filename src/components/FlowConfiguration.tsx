@@ -1,8 +1,8 @@
-import { FiChevronDown } from '../icons';
 import type React from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
+import { FiChevronDown } from '../icons';
 import { themeService } from '../services/themeService';
 import { logger } from '../utils/logger';
 import { Card, CardBody, CardHeader } from './Card';

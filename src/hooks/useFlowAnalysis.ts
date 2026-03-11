@@ -223,7 +223,7 @@ export const useFlowAnalysis = (config: UseFlowAnalysisConfig = {}) => {
 		link.click();
 
 		URL.revokeObjectURL(url);
-		logger.info('[useFlowAnalysis] Analysis results exported', "Logger info");
+		logger.info('[useFlowAnalysis] Analysis results exported', 'Logger info');
 	}, [state.analysisResult, state.selectedFlows, state.recommendations]);
 
 	// Share analysis results
@@ -241,14 +241,14 @@ export const useFlowAnalysis = (config: UseFlowAnalysisConfig = {}) => {
 		if (navigator.share) {
 			try {
 				await navigator.share(shareData);
-				logger.info('[useFlowAnalysis] Analysis results shared', "Logger info");
+				logger.info('[useFlowAnalysis] Analysis results shared', 'Logger info');
 			} catch (error) {
 				logger.error('[useFlowAnalysis] Failed to share analysis:', error);
 			}
 		} else {
 			// Fallback to clipboard
 			await navigator.clipboard.writeText(shareData.url);
-			logger.info('[useFlowAnalysis] Analysis URL copied to clipboard', "Logger info");
+			logger.info('[useFlowAnalysis] Analysis URL copied to clipboard', 'Logger info');
 		}
 	}, [state.analysisResult, state.selectedFlows]);
 

@@ -2,10 +2,10 @@
 // Square POS Terminal Style Device Authorization Flow Interface
 // Designed to look like actual Square POS hardware
 
-import { FiCreditCard } from '../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { FiCreditCard } from '../icons';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
@@ -418,8 +418,7 @@ const SuccessMessage = styled.div`
 interface SquarePOSDeviceFlowProps {
 	state: DeviceFlowState;
 	onStateUpdate: (newState: DeviceFlowState) => void;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	onComplete: (tokens: any) => void;
+	onComplete: (tokens: Record<string, unknown>) => void;
 	onError: (error: string) => void;
 }
 

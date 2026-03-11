@@ -1,10 +1,10 @@
 // src/v8/components/TokenExchangeAdminToggleV8.tsx
 // Token Exchange Phase 1 - Admin-only toggle component
 
-import { FiAlertCircle, FiSettings } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiAlertCircle, FiSettings } from '../../icons';
 import { logger } from '../../utils/logger';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';

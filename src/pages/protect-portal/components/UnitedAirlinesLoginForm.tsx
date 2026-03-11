@@ -9,10 +9,10 @@
  * their actual login experience: first email/mileage plus/phone number, then password.
  */
 
-import { FiLockIcon } from '../../../icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
+import { FiLockIcon } from '../../../icons';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 import CompanyLogoHeader from './CompanyLogoHeader';

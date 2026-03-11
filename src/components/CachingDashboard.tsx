@@ -329,10 +329,10 @@ export const CachingDashboard: React.FC = () => {
 		autoRegister: true,
 		autoUpdate: false,
 		onUpdateAvailable: () => {
-			logger.info('[CachingDashboard] Service worker update available', "Logger info");
+			logger.info('[CachingDashboard] Service worker update available', 'Logger info');
 		},
 		onUpdateInstalled: () => {
-			logger.info('[CachingDashboard] Service worker update installed', "Logger info");
+			logger.info('[CachingDashboard] Service worker update installed', 'Logger info');
 		},
 	});
 

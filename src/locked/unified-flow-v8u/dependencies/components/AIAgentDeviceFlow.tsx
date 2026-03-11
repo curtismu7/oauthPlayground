@@ -1,10 +1,10 @@
 // src/components/AIAgentDeviceFlow.tsx
 // AI Agent Style Device Authorization Flow Interface
 
-import { FiActivity, FiCpu } from '../../../../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { FiActivity, FiCpu } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import {
 	DeviceFlowState,

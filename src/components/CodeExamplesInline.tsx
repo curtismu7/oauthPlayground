@@ -1,8 +1,8 @@
 // src/components/CodeExamplesInline.tsx
 
-import { FiChevronDown } from '../icons';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { FiChevronDown } from '../icons';
 import {
 	CodeExample,
 	CodeExamplesConfig,

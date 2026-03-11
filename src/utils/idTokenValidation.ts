@@ -314,7 +314,10 @@ export class IDTokenValidationService {
 
 			// Use backend proxy for PingOne JWKS
 			const proxyUrl = `/api/jwks?environment_id=${environmentId}`;
-			logger.info(`[ID Token Validation] Fetching JWKS via backend proxy: ${proxyUrl}`, "Logger info");
+			logger.info(
+				`[ID Token Validation] Fetching JWKS via backend proxy: ${proxyUrl}`,
+				'Logger info'
+			);
 
 			const response = await fetch(proxyUrl);
 			if (!response.ok) {

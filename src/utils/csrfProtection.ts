@@ -56,7 +56,7 @@ export class CSRFProtection {
 		// Set up token refresh interval
 		this.setupTokenRefresh();
 
-		logger.info('[CSRF] CSRF protection initialized', "Logger info");
+		logger.info('[CSRF] CSRF protection initialized', 'Logger info');
 	}
 
 	// Generate a new CSRF token
@@ -85,7 +85,7 @@ export class CSRFProtection {
 			this.updateMetaTag(token);
 		}
 
-		logger.info('[CSRF] New CSRF token generated', "Logger info");
+		logger.info('[CSRF] New CSRF token generated', 'Logger info');
 		return token;
 	}
 
@@ -100,23 +100,23 @@ export class CSRFProtection {
 	// Validate CSRF token
 	validateToken(token: string): boolean {
 		if (!token) {
-			logger.warn('[CSRF] No token provided for validation', "Logger warning");
+			logger.warn('[CSRF] No token provided for validation', 'Logger warning');
 			return false;
 		}
 
 		const csrfToken = this.tokens.get(token);
 		if (!csrfToken) {
-			logger.warn('[CSRF] Invalid token provided for validation', "Logger warning");
+			logger.warn('[CSRF] Invalid token provided for validation', 'Logger warning');
 			return false;
 		}
 
 		if (!this.isTokenValid(token)) {
-			logger.warn('[CSRF] Expired token provided for validation', "Logger warning");
+			logger.warn('[CSRF] Expired token provided for validation', 'Logger warning');
 			this.tokens.delete(token);
 			return false;
 		}
 
-		logger.info('[CSRF] Token validation successful', "Logger info");
+		logger.info('[CSRF] Token validation successful', 'Logger info');
 		return true;
 	}
 
@@ -188,7 +188,7 @@ export class CSRFProtection {
 		const token = this.getTokenFromCookie();
 		if (token && this.validateToken(token)) {
 			this.currentToken = token;
-			logger.info('[CSRF] Token loaded from cookie', "Logger info");
+			logger.info('[CSRF] Token loaded from cookie', 'Logger info');
 		}
 	}
 
@@ -233,7 +233,7 @@ export class CSRFProtection {
 		}
 
 		if (cleanedCount > 0) {
-			logger.info(`[CSRF] Cleaned up ${cleanedCount} expired tokens`, "Logger info");
+			logger.info(`[CSRF] Cleaned up ${cleanedCount} expired tokens`, 'Logger info');
 		}
 	}
 
@@ -255,7 +255,7 @@ export class CSRFProtection {
 	// Update configuration
 	updateConfig(newConfig: Partial<CSRFConfig>): void {
 		this.config = { ...this.config, ...newConfig };
-		logger.info('[CSRF] Configuration updated', "Logger info");
+		logger.info('[CSRF] Configuration updated', 'Logger info');
 	}
 
 	// Clear all tokens
@@ -268,7 +268,7 @@ export class CSRFProtection {
 			document.cookie = `${this.config.cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 		}
 
-		logger.info('[CSRF] All tokens cleared', "Logger info");
+		logger.info('[CSRF] All tokens cleared', 'Logger info');
 	}
 
 	// Get token statistics

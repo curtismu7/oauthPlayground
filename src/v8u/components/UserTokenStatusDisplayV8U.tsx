@@ -13,12 +13,12 @@
  * - Compact and detailed view modes
  */
 
-import { FiRefreshCw } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { type UnifiedToken, unifiedTokenStorage } from '@/services/unifiedTokenStorageService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '@/utils/logger';
+import { FiRefreshCw } from '../../icons';
 
 // Flow types for dropdowns
 const FLOW_TYPES = [

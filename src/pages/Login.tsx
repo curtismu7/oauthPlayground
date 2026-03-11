@@ -27,7 +27,6 @@ const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = (
 	return <i className={`mdi ${mdiIcon} ${className}`} style={{ fontSize: `${size}px` }}></i>;
 };
 
-import { FiAlertCircle, FiCheckCircle } from '../icons';
 import styled from 'styled-components';
 import packageJson from '../../package.json';
 import AuthorizationRequestModal from '../components/AuthorizationRequestModal';
@@ -37,6 +36,7 @@ import Spinner from '../components/Spinner';
 import { useAuth } from '../contexts/NewAuthContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { FiAlertCircle, FiCheckCircle } from '../icons';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { logger } from '../utils/logger';

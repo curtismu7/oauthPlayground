@@ -458,31 +458,29 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	 * Handle restart flow functionality
 	 * Clears all state and resets the flow to the beginning
 	 */
-	const handleRestartFlow = useCallback(async () => {
-		const confirmed = await new Promise<boolean>((resolve) => {
-			// eslint-disable-next-line no-alert
-			const result = window.confirm(
-				'Are you sure you want to restart the flow? All progress will be lost.'
-			);
-			resolve(result);
+	const handleRestartFlow = useCallback(() => {
+		modernMessaging.showBanner({
+			type: 'warning',
+			title: 'Confirm restart',
+			message: 'Are you sure you want to restart the flow? All progress will be lost.',
+			actions: [
+				{ label: 'Cancel', action: () => modernMessaging.hideBanner() },
+				{
+					label: 'Restart',
+					action: () => {
+						modernMessaging.hideBanner();
+						logger.info(`${MODULE_TAG} Restarting flow - clearing all state`, 'Logger info');
+						sessionStorage.removeItem('mfa-flow-v8');
+						sessionStorage.removeItem('mfa_oauth_callback_step');
+						sessionStorage.removeItem('mfa_oauth_callback_timestamp');
+						sessionStorage.removeItem('mfa_target_step_after_callback');
+						localStorage.removeItem('mfa-flow-v8');
+						nav.goToStep(0);
+						window.location.reload();
+					},
+				},
+			],
 		});
-
-		if (confirmed) {
-			logger.info(`${MODULE_TAG} Restarting flow - clearing all state`, 'Logger info');
-
-			// Clear all storage
-			sessionStorage.removeItem('mfa-flow-v8');
-			sessionStorage.removeItem('mfa_oauth_callback_step');
-			sessionStorage.removeItem('mfa_oauth_callback_timestamp');
-			sessionStorage.removeItem('mfa_target_step_after_callback');
-			localStorage.removeItem('mfa-flow-v8');
-
-			// Reset to step 0
-			nav.goToStep(0);
-
-			// Reload the page to ensure complete reset
-			window.location.reload();
-		}
 	}, [nav]);
 
 	// Sync user token from user-login-v8 if available (for user flow)

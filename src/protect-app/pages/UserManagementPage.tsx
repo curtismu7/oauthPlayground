@@ -12,9 +12,9 @@
  * - Open/Closed: Extensible for new user operations
  */
 
-import { FiUser } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiUser } from '../../icons';
 import { logger } from '../../utils/logger';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { UserSearchDropdown } from '../components/UserSearchDropdown';

@@ -14,7 +14,6 @@
  * - Improved accessibility and user experience
  */
 
-import { FiSearch } from '../icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
@@ -24,6 +23,7 @@ import {
 	type V9TokenStatusInfo,
 	V9WorkerTokenStatusService,
 } from '@/services/v9/V9WorkerTokenStatusService';
+import { FiSearch } from '../icons';
 import { logger } from '../utils/logger';
 
 const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V9]';

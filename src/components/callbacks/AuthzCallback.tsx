@@ -1,8 +1,8 @@
-import { FiLoader } from '../../icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { FiLoader } from '../../icons';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 import { logger } from '../../utils/logger';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';

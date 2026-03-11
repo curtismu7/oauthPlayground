@@ -1,9 +1,9 @@
 // src/components/WorkerTokenDetectedBanner.tsx
 // Reusable banner component to display when a worker token is detected
 
-import { FiCheckCircle } from '../../../../icons';
 import React from 'react';
 import styled from 'styled-components';
+import { FiCheckCircle } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import { checkTokenExpiration, type TokenExpirationInfo } from '../services/tokenExpirationService';
 

@@ -1,10 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import packageJson from '../../package.json';
+import AdvancedSecuritySettingsMock from '../components/AdvancedSecuritySettingsMock';
 import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
+import { Icon } from '../components/Icon/Icon';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
+import { RegionSelect } from '../components/RegionSelect';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { callbackUriService } from '../services/callbackUriService';
@@ -20,14 +23,11 @@ import {
 	REGION_LABELS,
 	saveRegion,
 } from '../services/regionService';
-import { RegionSelect } from '../components/RegionSelect';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
-import AdvancedSecuritySettingsMock from '../components/AdvancedSecuritySettingsMock';
-import { Icon } from '../components/Icon/Icon';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({

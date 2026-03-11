@@ -2,18 +2,19 @@
 // CIBA (Client Initiated Backchannel Authentication) Mock — V7M educational implementation
 // OpenID Connect CIBA Core 1.0 — no external API calls, fully in-browser simulation
 
-import { FiBook, FiRefreshCw } from '../../icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { showGlobalError, showGlobalSuccess, showGlobalWarning } from '../../contexts/NotificationSystem';
 import {
-	V7MCIBAService,
-	type V7MCIBADeliveryMode,
-} from '../../services/v7m/V7MCIBAService';
+	showGlobalError,
+	showGlobalSuccess,
+	showGlobalWarning,
+} from '../../contexts/NotificationSystem';
+import { FiBook, FiRefreshCw } from '../../icons';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { type V7MCIBADeliveryMode, V7MCIBAService } from '../../services/v7m/V7MCIBAService';
 import {
 	introspectToken,
 	type V7MIntrospectionResponse,
 } from '../../services/v7m/V7MIntrospectionService';
-import { FlowHeader } from '../../services/flowHeaderService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
@@ -55,7 +56,9 @@ export const V7MCIBAFlowV9: React.FC = () => {
 	const [deliveryMode, setDeliveryMode] = useState<V7MCIBADeliveryMode>('poll');
 	const [authReqId, setAuthReqId] = useState('');
 	const [expiresIn, setExpiresIn] = useState<number | null>(null);
-	const [status, setStatus] = useState<'idle' | 'pending' | 'approved' | 'expired' | 'done'>('idle');
+	const [status, setStatus] = useState<'idle' | 'pending' | 'approved' | 'expired' | 'done'>(
+		'idle'
+	);
 	const [tokenResult, setTokenResult] = useState<TokenResult | null>(null);
 	const [introspectionResponse, setIntrospectionResponse] =
 		useState<V7MIntrospectionResponse | null>(null);
@@ -111,7 +114,9 @@ export const V7MCIBAFlowV9: React.FC = () => {
 
 	function handleSimulateUserApproval() {
 		if (!authReqId) {
-			showGlobalError('No backchannel auth request active. Click "Request Backchannel Auth" first.');
+			showGlobalError(
+				'No backchannel auth request active. Click "Request Backchannel Auth" first.'
+			);
 			return;
 		}
 		const ok = V7MCIBAService.approveRequest(authReqId);
@@ -177,8 +182,16 @@ export const V7MCIBAFlowV9: React.FC = () => {
 	return (
 		<div style={{ padding: 24 }}>
 			{/* Mock Banner */}
-			<div style={{ background: '#eff6ff', border: '1px solid #93c5fd', borderRadius: 8, padding: 12, marginBottom: 16 }}>
-				<strong>📚 Educational Mock Mode (V7M)</strong>
+			<div
+				style={{
+					background: '#eff6ff',
+					border: '1px solid #93c5fd',
+					borderRadius: 8,
+					padding: 12,
+					marginBottom: 16,
+				}}
+			>
+				<strong>📚 Educational Mock Mode</strong>
 				<p style={{ margin: '8px 0 0 0', fontSize: 14 }}>
 					Simulates OIDC CIBA Core 1.0 in-browser. No external APIs are called. Click{' '}
 					<strong>"Simulate User Approval"</strong> to mimic the out-of-band authentication device
@@ -186,21 +199,36 @@ export const V7MCIBAFlowV9: React.FC = () => {
 				</p>
 			</div>
 
-			<div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<FlowHeader flowId="ciba-v7" />
+			<FlowHeader flowId="ciba-v7" customConfig={{ flowType: 'pingone' }} />
+			<div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
 				<V7MInfoIcon label="" title="CIBA Overview" onClick={() => setShowCibaHelp(true)} />
 			</div>
 
 			{/* Delivery Mode */}
 			<section style={{ marginBottom: 16, border: '1px solid #e5e7eb', borderRadius: 8 }}>
-				<header style={{ padding: '10px 12px', background: '#dbeafe', display: 'flex', alignItems: 'center', gap: 8 }}>
+				<header
+					style={{
+						padding: '10px 12px',
+						background: '#dbeafe',
+						display: 'flex',
+						alignItems: 'center',
+						gap: 8,
+					}}
+				>
 					Delivery Mode
-					<V7MInfoIcon label="" title="Poll vs Ping vs Push" onClick={() => setShowDeliveryModeHelp(true)} />
+					<V7MInfoIcon
+						label=""
+						title="Poll vs Ping vs Push"
+						onClick={() => setShowDeliveryModeHelp(true)}
+					/>
 				</header>
 				<div style={{ padding: 12 }}>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
 						{DELIVERY_MODES.map((m) => (
-							<label key={m.value} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
+							<label
+								key={m.value}
+								style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}
+							>
 								<input
 									type="radio"
 									name="deliveryMode"
@@ -221,14 +249,26 @@ export const V7MCIBAFlowV9: React.FC = () => {
 
 			{/* Step 1: Backchannel Auth Request */}
 			<section style={{ marginBottom: 16, border: '1px solid #e5e7eb', borderRadius: 8 }}>
-				<header style={{ padding: '10px 12px', background: '#dbeafe', display: 'flex', alignItems: 'center', gap: 8 }}>
+				<header
+					style={{
+						padding: '10px 12px',
+						background: '#dbeafe',
+						display: 'flex',
+						alignItems: 'center',
+						gap: 8,
+					}}
+				>
 					<span>1️⃣</span> Step 1: BC-Authorize Request
 				</header>
 				<div style={{ padding: 12 }}>
 					<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
 						<label>
 							Client ID
-							<input value={clientId} onChange={(e) => setClientId(e.target.value)} style={inputStyle} />
+							<input
+								value={clientId}
+								onChange={(e) => setClientId(e.target.value)}
+								style={inputStyle}
+							/>
 						</label>
 						<label>
 							Scope
@@ -236,13 +276,29 @@ export const V7MCIBAFlowV9: React.FC = () => {
 						</label>
 						<label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 							Login Hint (user identifier)
-							<V7MInfoIcon label="" title="login_hint identifies the user on the consumption device" onClick={() => setShowLoginHintHelp(true)} />
-							<input value={loginHint} onChange={(e) => setLoginHint(e.target.value)} style={inputStyle} />
+							<V7MInfoIcon
+								label=""
+								title="login_hint identifies the user on the consumption device"
+								onClick={() => setShowLoginHintHelp(true)}
+							/>
+							<input
+								value={loginHint}
+								onChange={(e) => setLoginHint(e.target.value)}
+								style={inputStyle}
+							/>
 						</label>
 						<label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 							Binding Message
-							<V7MInfoIcon label="" title="Short message shown on both devices to confirm binding" onClick={() => setShowBindingMsgHelp(true)} />
-							<input value={bindingMessage} onChange={(e) => setBindingMessage(e.target.value)} style={inputStyle} />
+							<V7MInfoIcon
+								label=""
+								title="Short message shown on both devices to confirm binding"
+								onClick={() => setShowBindingMsgHelp(true)}
+							/>
+							<input
+								value={bindingMessage}
+								onChange={(e) => setBindingMessage(e.target.value)}
+								style={inputStyle}
+							/>
 						</label>
 					</div>
 					<button type="button" onClick={handleRequestBackchannelAuth} style={primaryBtn}>
@@ -253,8 +309,22 @@ export const V7MCIBAFlowV9: React.FC = () => {
 
 			{/* Step 2: Auth in Progress / Status */}
 			{authReqId && (
-				<section style={{ marginBottom: 16, border: `1px solid ${status === 'done' ? '#86efac' : '#fbbf24'}`, borderRadius: 8 }}>
-					<header style={{ padding: '10px 12px', background: statusColor[status], display: 'flex', alignItems: 'center', gap: 8 }}>
+				<section
+					style={{
+						marginBottom: 16,
+						border: `1px solid ${status === 'done' ? '#86efac' : '#fbbf24'}`,
+						borderRadius: 8,
+					}}
+				>
+					<header
+						style={{
+							padding: '10px 12px',
+							background: statusColor[status],
+							display: 'flex',
+							alignItems: 'center',
+							gap: 8,
+						}}
+					>
 						<span>2️⃣</span> Step 2: Backchannel Authentication In Progress
 					</header>
 					<div style={{ padding: 12 }}>
@@ -276,9 +346,15 @@ export const V7MCIBAFlowV9: React.FC = () => {
 								fontSize: 14,
 							}}
 						>
-							{status === 'pending' && <span>⏳ Waiting for user to approve on their authentication device…</span>}
-							{status === 'approved' && <span>✅ User approved! Poll the token endpoint to retrieve tokens.</span>}
-							{status === 'expired' && <span>❌ Request expired. Start a new backchannel auth request.</span>}
+							{status === 'pending' && (
+								<span>⏳ Waiting for user to approve on their authentication device…</span>
+							)}
+							{status === 'approved' && (
+								<span>✅ User approved! Poll the token endpoint to retrieve tokens.</span>
+							)}
+							{status === 'expired' && (
+								<span>❌ Request expired. Start a new backchannel auth request.</span>
+							)}
 							{status === 'done' && <span>🎉 Tokens issued successfully.</span>}
 						</div>
 
@@ -296,7 +372,11 @@ export const V7MCIBAFlowV9: React.FC = () => {
 									<button type="button" onClick={handlePollToken} style={secondaryBtn}>
 										<FiRefreshCw style={{ marginRight: 6 }} />
 										Poll Token Endpoint
-										{pollCount > 0 && <span style={{ marginLeft: 6, fontSize: 12, color: '#6b7280' }}>({pollCount} auto-polls)</span>}
+										{pollCount > 0 && (
+											<span style={{ marginLeft: 6, fontSize: 12, color: '#6b7280' }}>
+												({pollCount} auto-polls)
+											</span>
+										)}
 									</button>
 								)}
 								{deliveryMode === 'ping' && status === 'approved' && (
@@ -370,14 +450,22 @@ export const V7MCIBAFlowV9: React.FC = () => {
 					mobile banking app), without any browser redirect.
 				</p>
 				<ul>
-					<li><strong>Step 1:</strong> Client sends BC-Authorize request with a login_hint identifying the user.</li>
-					<li><strong>Step 2:</strong> Server pushes an auth request to the user's authentication device.</li>
-					<li><strong>Step 3:</strong> User approves on their device (out-of-band).</li>
-					<li><strong>Step 4:</strong> Client retrieves tokens via poll, ping, or push.</li>
+					<li>
+						<strong>Step 1:</strong> Client sends BC-Authorize request with a login_hint identifying
+						the user.
+					</li>
+					<li>
+						<strong>Step 2:</strong> Server pushes an auth request to the user's authentication
+						device.
+					</li>
+					<li>
+						<strong>Step 3:</strong> User approves on their device (out-of-band).
+					</li>
+					<li>
+						<strong>Step 4:</strong> Client retrieves tokens via poll, ping, or push.
+					</li>
 				</ul>
-				<p>
-					Common use cases: bank login on TV or kiosk, strong authentication with mobile app.
-				</p>
+				<p>Common use cases: bank login on TV or kiosk, strong authentication with mobile app.</p>
 			</V7MHelpModal>
 
 			<V7MHelpModal
@@ -389,12 +477,13 @@ export const V7MCIBAFlowV9: React.FC = () => {
 			>
 				<ul>
 					<li>
-						<strong>Poll:</strong> Client repeatedly calls the token endpoint until the user approves.
-						Simple but wastes requests. Server returns <code>authorization_pending</code> until ready.
+						<strong>Poll:</strong> Client repeatedly calls the token endpoint until the user
+						approves. Simple but wastes requests. Server returns <code>authorization_pending</code>{' '}
+						until ready.
 					</li>
 					<li>
-						<strong>Ping:</strong> Server notifies the client at a registered callback URI when ready.
-						Client then makes a single token request. More efficient than poll.
+						<strong>Ping:</strong> Server notifies the client at a registered callback URI when
+						ready. Client then makes a single token request. More efficient than poll.
 					</li>
 					<li>
 						<strong>Push:</strong> Server delivers the tokens directly to the client's registered
@@ -411,8 +500,8 @@ export const V7MCIBAFlowV9: React.FC = () => {
 				themeColor="#8b5cf6"
 			>
 				<p>
-					Identifies the user on the consumption device so the authorization server knows who to send
-					the authentication request to. Can be an email address, phone number, or subject
+					Identifies the user on the consumption device so the authorization server knows who to
+					send the authentication request to. Can be an email address, phone number, or subject
 					identifier. The server uses this to locate the user's authentication device (e.g., their
 					registered mobile app).
 				</p>
@@ -427,8 +516,8 @@ export const V7MCIBAFlowV9: React.FC = () => {
 			>
 				<p>
 					A short human-readable message displayed on <em>both</em> the consumption device and the
-					authentication device. The user verifies the messages match before approving — this prevents
-					man-in-the-middle attacks where an attacker's request is silently approved.
+					authentication device. The user verifies the messages match before approving — this
+					prevents man-in-the-middle attacks where an attacker's request is silently approved.
 				</p>
 				<p>Example: "Sign in to ACME Portal – ref: 7823"</p>
 			</V7MHelpModal>

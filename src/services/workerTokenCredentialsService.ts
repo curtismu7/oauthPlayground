@@ -72,11 +72,7 @@ class WorkerTokenCredentialsService {
 	async loadCredentials(flowType?: string): Promise<WorkerTokenCredentials | null> {
 		try {
 			const result = await unifiedWorkerTokenService.loadCredentials();
-			if (
-				result.success &&
-				result.data &&
-				(result.data.environmentId || result.data.clientId)
-			) {
+			if (result.success && result.data && (result.data.environmentId || result.data.clientId)) {
 				const d = result.data;
 				return {
 					environmentId: d.environmentId || '',

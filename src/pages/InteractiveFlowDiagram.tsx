@@ -126,8 +126,8 @@ const InteractiveFlowDiagram: React.FC = () => {
 								color: '#dc2626',
 							}}
 						>
-							<strong>⚠️ Security Warning:</strong> The Implicit Flow is deprecated and should not
-							be used in new applications. It has been removed from OAuth 2.1 due to security
+							<strong>⚠️ Security Warning:</strong> The Implicit Flow is deprecated and should not be
+							used in new applications. It has been removed from OAuth 2.1 due to security
 							vulnerabilities.
 						</div>
 						<ImplicitDiagram />

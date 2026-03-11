@@ -13,8 +13,8 @@
  * />
  */
 
-import { FiKey } from '../../icons';
 import React, { useState } from 'react';
+import { FiKey } from '../../icons';
 
 import { logger } from '../../utils/logger';
 

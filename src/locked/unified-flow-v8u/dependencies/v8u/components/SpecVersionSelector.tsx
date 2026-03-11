@@ -6,8 +6,8 @@
  * @since 2024-11-16
  */
 
-import { FiHelpCircle } from '../../../../../icons';
 import React, { useState } from 'react';
+import { FiHelpCircle } from '../../../../../icons';
 import { logger } from '../../../../../utils/logger';
 import { type SpecVersion, SpecVersionServiceV8 } from '../../v8/services/specVersionServiceV8.ts';
 

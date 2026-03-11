@@ -1,9 +1,9 @@
 // src/components/FlowConfigurationRequirements.tsx
 // Displays PingOne application configuration requirements for each OAuth/OIDC flow
 
-import { FiChevronDown } from '../../../../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { FiChevronDown } from '../../../../icons';
 
 interface FlowConfigRequirement {
 	clientSecret: 'required' | 'optional' | 'not-used';

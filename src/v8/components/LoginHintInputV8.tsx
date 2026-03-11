@@ -12,8 +12,8 @@
  * />
  */
 
-import { FiUser } from '../../icons';
 import React, { useEffect, useRef, useState } from 'react';
+import { FiUser } from '../../icons';
 
 import { logger } from '../../utils/logger';
 

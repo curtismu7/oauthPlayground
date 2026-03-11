@@ -12,8 +12,8 @@
  * />
  */
 
-import { FiClock } from '../../../../../icons';
 import React, { useState } from 'react';
+import { FiClock } from '../../../../../icons';
 
 import { logger } from '../../../../../utils/logger';
 

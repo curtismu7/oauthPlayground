@@ -33,7 +33,10 @@ class FieldEditingDiagnostic {
 	 * Diagnose all input fields in the current page
 	 */
 	diagnoseAllFields(): FieldEditingReport {
-		logger.info('fieldEditingDiagnostic', '[FIELD EDITING DIAGNOSTIC] Starting comprehensive field analysis...');
+		logger.info(
+			'fieldEditingDiagnostic',
+			'[FIELD EDITING DIAGNOSTIC] Starting comprehensive field analysis...'
+		);
 
 		const allInputs = this.getAllInputElements();
 		const issues: FieldEditingIssue[] = [];
@@ -57,7 +60,7 @@ class FieldEditingDiagnostic {
 				logger.warn(`❌ Field ${index + 1} has ${fieldIssues.length} issue(s):`, fieldIssues);
 			} else {
 				editableFields++;
-				logger.info(`✅ Field ${index + 1} is fully editable`, "Logger info");
+				logger.info(`✅ Field ${index + 1} is fully editable`, 'Logger info');
 			}
 		});
 
@@ -245,7 +248,7 @@ class FieldEditingDiagnostic {
 			if (input.hasAttribute('disabled')) {
 				input.removeAttribute('disabled');
 				(input as HTMLInputElement).disabled = false;
-				logger.info(`✅ Fixed disabled state for field ${index + 1}`, "Logger info");
+				logger.info(`✅ Fixed disabled state for field ${index + 1}`, 'Logger info');
 				fieldFixed = true;
 			}
 
@@ -253,7 +256,7 @@ class FieldEditingDiagnostic {
 			if (input.hasAttribute('readonly')) {
 				input.removeAttribute('readonly');
 				(input as HTMLInputElement).readOnly = false;
-				logger.info(`✅ Fixed readonly state for field ${index + 1}`, "Logger info");
+				logger.info(`✅ Fixed readonly state for field ${index + 1}`, 'Logger info');
 				fieldFixed = true;
 			}
 
@@ -261,7 +264,7 @@ class FieldEditingDiagnostic {
 			const computedStyle = window.getComputedStyle(input);
 			if (computedStyle.pointerEvents === 'none') {
 				(input as HTMLInputElement).style.pointerEvents = 'auto';
-				logger.info(`✅ Fixed pointer-events for field ${index + 1}`, "Logger info");
+				logger.info(`✅ Fixed pointer-events for field ${index + 1}`, 'Logger info');
 				fieldFixed = true;
 			}
 
@@ -270,14 +273,17 @@ class FieldEditingDiagnostic {
 			}
 		});
 
-		logger.info(`\n🎉 Fixed ${fixedCount} fields out of ${allInputs.length} total fields`, "Logger info");
+		logger.info(
+			`\n🎉 Fixed ${fixedCount} fields out of ${allInputs.length} total fields`,
+			'Logger info'
+		);
 	}
 
 	/**
 	 * Monitor field editing in real-time
 	 */
 	startMonitoring(): void {
-		logger.info('👀 [FIELD EDITING MONITOR] Starting real-time monitoring...', "Logger info");
+		logger.info('👀 [FIELD EDITING MONITOR] Starting real-time monitoring...', 'Logger info');
 
 		const observer = new MutationObserver((mutations) => {
 			mutations.forEach((mutation) => {

@@ -93,7 +93,7 @@ export class DavinciTodoService {
 				throw new Error(`Connection test failed: ${response.statusText}`);
 			}
 
-			logger.info('[DavinciTodoService] ✅ Client initialized successfully', "Logger info");
+			logger.info('[DavinciTodoService] ✅ Client initialized successfully', 'Logger info');
 			return { success: true };
 		} catch (error) {
 			logger.error('DavinciTodoService', ' Client initialization failed:', undefined, error);
@@ -465,7 +465,7 @@ export class DavinciTodoService {
 					DavinciTodoService.accessToken = newAccessToken;
 				}
 
-				logger.info('[DavinciTodoService] ✅ Authentication successful', "Logger info");
+				logger.info('[DavinciTodoService] ✅ Authentication successful', 'Logger info');
 			} else {
 				throw new Error('Client secret not configured for authentication');
 			}
@@ -498,7 +498,7 @@ export class DavinciTodoService {
 			DavinciTodoService.accessToken = null;
 
 			// In production, you might want to revoke the token with PingOne
-			logger.info('[DavinciTodoService] 👋 Logged out successfully', "Logger info");
+			logger.info('[DavinciTodoService] 👋 Logged out successfully', 'Logger info');
 		} catch (error) {
 			logger.error('DavinciTodoService', ' Logout failed:', undefined, error);
 			throw error;
@@ -518,7 +518,7 @@ export class DavinciTodoService {
 	 */
 	static clearCurrentUser(): void {
 		// In a real implementation, this would clear user information
-		logger.info('[DavinciTodoService] 👤 User cleared', "Logger info");
+		logger.info('[DavinciTodoService] 👤 User cleared', 'Logger info');
 	}
 
 	/**

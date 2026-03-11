@@ -242,7 +242,6 @@ const MFARedirectUriDebugger = {
 		} else {
 			logger.warn('⚠️ No flow configuration found for:', flowType);
 		}
-
 	},
 
 	/**
@@ -295,7 +294,6 @@ const MFARedirectUriDebugger = {
 		} else {
 			logger.info('✅ URI validation passed', 'Logger info');
 		}
-
 	},
 
 	/**
@@ -316,7 +314,6 @@ const MFARedirectUriDebugger = {
 				description: config.description,
 			});
 		});
-
 	},
 };
 

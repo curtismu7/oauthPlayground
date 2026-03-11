@@ -10,10 +10,10 @@
  * - Tab-based interface for switching between logs and databases
  */
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { EnhancedFloatingLogViewer } from './EnhancedFloatingLogViewer';
 import { DatabaseViewer } from './DatabaseViewer';
+import { EnhancedFloatingLogViewer } from './EnhancedFloatingLogViewer';
 
 const MODULE_TAG = '[🗄️ LOG-VIEWER-WITH-DB]';
 
@@ -21,7 +21,13 @@ const MODULE_TAG = '[🗄️ LOG-VIEWER-WITH-DB]';
 // STYLED COMPONENTS
 // ============================================================================
 
-const Container = styled.div<{ width: number; height: number; x: number; y: number; $isMinimized?: boolean }>`
+const Container = styled.div<{
+	width: number;
+	height: number;
+	x: number;
+	y: number;
+	$isMinimized?: boolean;
+}>`
 	position: fixed;
 	top: ${(props) => props.y}px;
 	left: ${(props) => props.x}px;
@@ -92,7 +98,9 @@ const Controls = styled.div`
 	gap: 6px;
 `;
 
-const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'close' }>`
+const ControlButton = styled.button<{
+	$variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'close';
+}>`
 	background: ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
@@ -217,32 +225,38 @@ export const EnhancedFloatingLogViewerWithDB: React.FC<EnhancedFloatingLogViewer
 	const dragRef = useRef<{ startX: number; startY: number }>({ startX: 0, startY: 0 });
 
 	// Handle mouse down for dragging
-	const handleMouseDown = useCallback((e: React.MouseEvent) => {
-		if (isMaximized || isMinimized) return;
-		
-		setIsDragging(true);
-		dragRef.current = {
-			startX: e.clientX - position.x,
-			startY: e.clientY - position.y,
-		};
-	}, [position.x, position.y, isMaximized, isMinimized]);
+	const handleMouseDown = useCallback(
+		(e: React.MouseEvent) => {
+			if (isMaximized || isMinimized) return;
+
+			setIsDragging(true);
+			dragRef.current = {
+				startX: e.clientX - position.x,
+				startY: e.clientY - position.y,
+			};
+		},
+		[position.x, position.y, isMaximized, isMinimized]
+	);
 
 	// Handle mouse move for dragging
-	const handleMouseMove = useCallback((e: MouseEvent) => {
-		if (!isDragging) return;
+	const handleMouseMove = useCallback(
+		(e: MouseEvent) => {
+			if (!isDragging) return;
 
-		const newX = e.clientX - dragRef.current.startX;
-		const newY = e.clientY - dragRef.current.startY;
+			const newX = e.clientX - dragRef.current.startX;
+			const newY = e.clientY - dragRef.current.startY;
 
-		// Keep within viewport bounds
-		const maxX = window.innerWidth - (isMinimized ? 280 : size.width);
-		const maxY = window.innerHeight - (isMinimized ? 40 : size.height);
+			// Keep within viewport bounds
+			const maxX = window.innerWidth - (isMinimized ? 280 : size.width);
+			const maxY = window.innerHeight - (isMinimized ? 40 : size.height);
 
-		setPosition({
-			x: Math.max(0, Math.min(newX, maxX)),
-			y: Math.max(0, Math.min(newY, maxY)),
-		});
-	}, [isDragging, size, isMinimized]);
+			setPosition({
+				x: Math.max(0, Math.min(newX, maxX)),
+				y: Math.max(0, Math.min(newY, maxY)),
+			});
+		},
+		[isDragging, size, isMinimized]
+	);
 
 	// Handle mouse up to stop dragging
 	const handleMouseUp = useCallback(() => {
@@ -254,7 +268,7 @@ export const EnhancedFloatingLogViewerWithDB: React.FC<EnhancedFloatingLogViewer
 		if (isDragging) {
 			document.addEventListener('mousemove', handleMouseMove);
 			document.addEventListener('mouseup', handleMouseUp);
-			
+
 			return () => {
 				document.removeEventListener('mousemove', handleMouseMove);
 				document.removeEventListener('mouseup', handleMouseUp);
@@ -298,7 +312,7 @@ export const EnhancedFloatingLogViewerWithDB: React.FC<EnhancedFloatingLogViewer
 					<StatusIndicator $status="active" />
 					{isMinimized ? '🗄️ Logs & DB' : '🗄️ Enhanced Log Viewer with Database'}
 				</Title>
-				
+
 				{!isMinimized && (
 					<Controls>
 						<ControlButton onClick={handleMaximize} title={isMaximized ? 'Restore' : 'Maximize'}>
@@ -339,14 +353,10 @@ export const EnhancedFloatingLogViewerWithDB: React.FC<EnhancedFloatingLogViewer
 								initialY={0}
 							/>
 						)}
-						
-						{activeTab === 'indexeddb' && (
-							<DatabaseViewer style={{ height: '100%' }} />
-						)}
-						
-						{activeTab === 'sqlite' && (
-							<DatabaseViewer style={{ height: '100%' }} />
-						)}
+
+						{activeTab === 'indexeddb' && <DatabaseViewer style={{ height: '100%' }} />}
+
+						{activeTab === 'sqlite' && <DatabaseViewer style={{ height: '100%' }} />}
 					</Content>
 				</>
 			)}

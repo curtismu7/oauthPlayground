@@ -1,10 +1,10 @@
 // src/components/DeviceTypeSelector.tsx
 // Device Type Selector for V7 Device Authorization Flow
 
-import { FiSpeaker } from '../../../../icons';
 import React from 'react';
 import { FaCar, FaTv } from 'react-icons/fa';
 import styled from 'styled-components';
+import { FiSpeaker } from '../../../../icons';
 
 const DeviceSelectorContainer = styled.div<{ $isCompact?: boolean }>`
 	background: ${(props) =>

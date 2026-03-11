@@ -1275,8 +1275,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				<strong>📚 Educational Mock Mode</strong>
 				<p style={{ margin: '8px 0 0 0', fontSize: 14 }}>
 					Configure and explore SAML SP Dynamic ACS without real credentials. Process AuthnRequests
-					locally. PingOne credentials are <strong>optional</strong> — only needed if you want to sync
-					with a real PingOne SAML application.
+					locally. PingOne credentials are <strong>optional</strong> — only needed if you want to
+					sync with a real PingOne SAML application.
 				</p>
 			</div>
 			<ContentWrapper>

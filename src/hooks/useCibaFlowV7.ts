@@ -272,7 +272,10 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 						if (errorCode === 'slow_down') {
 							// Polling too fast - increase interval
 							const newInterval = (data.interval || currentInterval) + 5;
-							logger.info(`[CIBA-V7] Slow down - increasing interval to ${newInterval}s`, "Logger info");
+							logger.info(
+								`[CIBA-V7] Slow down - increasing interval to ${newInterval}s`,
+								'Logger info'
+							);
 							currentInterval = newInterval;
 							if (pollingIntervalRef.current) {
 								clearInterval(pollingIntervalRef.current);
@@ -337,7 +340,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 					}
 
 					// Success - tokens received!
-					logger.info('[CIBA-V7] Tokens received successfully', "Logger info");
+					logger.info('[CIBA-V7] Tokens received successfully', 'Logger info');
 					if (pollingIntervalRef.current) {
 						clearInterval(pollingIntervalRef.current);
 						pollingIntervalRef.current = null;
@@ -412,7 +415,10 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 			setStage('initiating');
 
 			try {
-				logger.info('[CIBA-V7] Initiating CIBA backchannel authentication request...', "Logger info");
+				logger.info(
+					'[CIBA-V7] Initiating CIBA backchannel authentication request...',
+					'Logger info'
+				);
 				logger.info('[CIBA-V7] Config:', {
 					environmentId: config.environmentId,
 					clientId: config.clientId,
@@ -572,7 +578,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 	}, [config, validateConfig, initiateAuthRequest]);
 
 	const resetFlow = useCallback(() => {
-		logger.info('[CIBA-V7] Resetting flow...', "Logger info");
+		logger.info('[CIBA-V7] Resetting flow...', 'Logger info');
 
 		// Clear intervals and timeouts
 		if (pollingIntervalRef.current) {

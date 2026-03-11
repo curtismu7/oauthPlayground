@@ -23,13 +23,13 @@ export async function loadFlowCredentialsV2(
 	const result = await credentialStorageManager.loadFlowCredentials(flowKey);
 
 	if (result.success && result.data) {
-		logger.info(`✅ Loaded from ${result.source}`, "Logger info");
+		logger.info(`✅ Loaded from ${result.source}`, 'Logger info');
 		return result.data as StepCredentials;
 	}
 
 	// No credentials found - return empty credentials
-	logger.info(`❌ No credentials found for ${flowKey}`, "Logger info");
-	logger.info(`ℹ️ User will need to enter credentials or copy from Configuration`, "Logger info");
+	logger.info(`❌ No credentials found for ${flowKey}`, 'Logger info');
+	logger.info(`ℹ️ User will need to enter credentials or copy from Configuration`, 'Logger info');
 
 	return createEmptyCredentials(defaultRedirectUri);
 }
@@ -44,12 +44,12 @@ export async function saveFlowCredentialsV2(
 	flowKey: string,
 	credentials: StepCredentials
 ): Promise<boolean> {
-	logger.info(`💾 [CredentialLoaderV2] Saving credentials for: ${flowKey}`, "Logger info");
+	logger.info(`💾 [CredentialLoaderV2] Saving credentials for: ${flowKey}`, 'Logger info');
 
 	const result = await credentialStorageManager.saveFlowCredentials(flowKey, credentials);
 
 	if (result.success) {
-		logger.info(`✅ Credentials saved successfully`, "Logger info");
+		logger.info(`✅ Credentials saved successfully`, 'Logger info');
 		return true;
 	}
 
@@ -87,7 +87,7 @@ export function areCredentialsComplete(credentials: StepCredentials): boolean {
  * Clear credentials for a specific flow
  */
 export async function clearFlowCredentialsV2(flowKey: string): Promise<void> {
-	logger.info(`🗑️ [CredentialLoaderV2] Clearing credentials for: ${flowKey}`, "Logger info");
+	logger.info(`🗑️ [CredentialLoaderV2] Clearing credentials for: ${flowKey}`, 'Logger info');
 	await credentialStorageManager.clearFlowCredentials(flowKey);
-	logger.info(`✅ Credentials cleared`, "Logger info");
+	logger.info(`✅ Credentials cleared`, 'Logger info');
 }

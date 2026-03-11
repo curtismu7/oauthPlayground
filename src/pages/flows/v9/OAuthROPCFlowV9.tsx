@@ -3,7 +3,11 @@
 // OAuth Resource Owner Password Credentials Flow - V9 Implementation with Modern Messaging
 
 import { useCallback, useEffect, useState } from 'react';
-
+import {
+	createMockTokenEndpoint,
+	createMockUserInfoEndpoint,
+	MockApiCallDisplay,
+} from '../../../components/MockApiCallDisplay';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { getButtonStyles, getStepStyles, V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
@@ -12,7 +16,6 @@ import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessaging
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { MockApiCallDisplay, createMockTokenEndpoint, createMockUserInfoEndpoint } from '../../../components/MockApiCallDisplay';
 
 // Types
 interface ROPCConfig {
@@ -646,7 +649,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 								url={`https://auth.pingone.com/${ropcConfig.environmentId}/as/token`}
 								headers={{
 									'Content-Type': 'application/x-www-form-urlencoded',
-									'Accept': 'application/json',
+									Accept: 'application/json',
 								}}
 								body={{
 									grant_type: 'password',
@@ -660,7 +663,8 @@ const OAuthROPCFlowV9: React.FC = () => {
 									status: 200,
 									statusText: 'OK',
 									data: {
-										access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJzdWIiOiJ1c2VyLTEyMzQ1IiwiYXVkIjoiY2xpZW50LWlkIiwiZXhwIjoxNjk3NDMzMDAwLCJpYXQiOjE2OTc0Mjk0MDAsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwifQ.signature',
+										access_token:
+											'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJzdWIiOiJ1c2VyLTEyMzQ1IiwiYXVkIjoiY2xpZW50LWlkIiwiZXhwIjoxNjk3NDMzMDAwLCJpYXQiOjE2OTc0Mjk0MDAsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwifQ.signature',
 										token_type: 'Bearer',
 										expires_in: 3600,
 										refresh_token: 'refresh_token_value_here',
@@ -669,7 +673,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 									headers: {
 										'Content-Type': 'application/json',
 										'Cache-Control': 'no-store',
-										'Pragma': 'no-cache',
+										Pragma: 'no-cache',
 									},
 								}}
 								note="This is a mock API call example. In a real implementation, the password and client_secret would be sent securely, and the access_token would be a valid JWT."
@@ -743,8 +747,8 @@ const OAuthROPCFlowV9: React.FC = () => {
 								method="GET"
 								url={`https://auth.pingone.com/${ropcConfig.environmentId}/as/userinfo`}
 								headers={{
-									'Authorization': `Bearer ${tokenResponse.access_token.substring(0, 20)}...`,
-									'Accept': 'application/json',
+									Authorization: `Bearer ${tokenResponse.access_token.substring(0, 20)}...`,
+									Accept: 'application/json',
 								}}
 								response={{
 									status: 200,
@@ -848,7 +852,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 								url={`https://auth.pingone.com/${ropcConfig.environmentId}/as/token`}
 								headers={{
 									'Content-Type': 'application/x-www-form-urlencoded',
-									'Accept': 'application/json',
+									Accept: 'application/json',
 								}}
 								body={{
 									grant_type: 'refresh_token',
@@ -860,7 +864,8 @@ const OAuthROPCFlowV9: React.FC = () => {
 									status: 200,
 									statusText: 'OK',
 									data: {
-										access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJzdWIiOiJ1c2VyLTEyMzQ1IiwiYXVkIjoiY2xpZW50LWlkIiwiZXhwIjoxNjk3NDMzMDAwLCJpYXQiOjE2OTc0Mjk0MDAsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwifQ.refreshed_signature',
+										access_token:
+											'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJzdWIiOiJ1c2VyLTEyMzQ1IiwiYXVkIjoiY2xpZW50LWlkIiwiZXhwIjoxNjk3NDMzMDAwLCJpYXQiOjE2OTc0Mjk0MDAsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwifQ.refreshed_signature',
 										token_type: 'Bearer',
 										expires_in: 3600,
 										refresh_token: 'new_refresh_token_value_here',
@@ -869,7 +874,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 									headers: {
 										'Content-Type': 'application/json',
 										'Cache-Control': 'no-store',
-										'Pragma': 'no-cache',
+										Pragma: 'no-cache',
 									},
 								}}
 								note="The refresh token must be valid and not expired. Some implementations may return a new refresh token."

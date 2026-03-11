@@ -93,7 +93,7 @@ export class TokenDisplayServiceV8 {
 			// Base64 URL decode payload
 			const payload = JSON.parse(TokenDisplayServiceV8.base64UrlDecode(parts[1]));
 
-			logger.info(`${MODULE_TAG} Token decoded successfully`, "Logger info");
+			logger.info(`${MODULE_TAG} Token decoded successfully`, 'Logger info');
 
 			return {
 				header,
@@ -145,7 +145,7 @@ export class TokenDisplayServiceV8 {
 		try {
 			await navigator.clipboard.writeText(text);
 			if (label) {
-				logger.info(`${MODULE_TAG} Copied ${label} to clipboard`, "Logger info");
+				logger.info(`${MODULE_TAG} Copied ${label} to clipboard`, 'Logger info');
 			}
 			return true;
 		} catch (error) {

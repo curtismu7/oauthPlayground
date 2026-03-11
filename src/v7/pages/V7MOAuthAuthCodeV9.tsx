@@ -1,17 +1,18 @@
 // src/v7/pages/V7MOAuthAuthCodeV9.tsx
-/* eslint-disable no-alert */
 
-import { FiBook } from '../../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlowHeader } from '../../services/flowHeaderService';
+import { PingOneApiCallDisplay, PingOneApiExamples } from '../../components/PingOneApiCallDisplay';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { showGlobalError } from '../../contexts/NotificationSystem';
+import { FiBook } from '../../icons';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { V7MPKCEGenerationService } from '../../services/v7m/core/V7MPKCEGenerationService';
 import { authorizeIssueCode, V7MAuthorizeRequest } from '../../services/v7m/V7MAuthorizeService';
 import {
 	introspectToken,
 	type V7MIntrospectionResponse,
 } from '../../services/v7m/V7MIntrospectionService';
+import { V7MMockApiCalls } from '../../services/v7m/V7MMockApiLogger';
 import {
 	tokenExchangeAuthorizationCode,
 	type V7MTokenError,
@@ -26,8 +27,6 @@ import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U'
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
-import { V7MMockApiCalls } from '../../services/v7m/V7MMockApiLogger';
-import { PingOneApiCallDisplay, PingOneApiExamples } from '../../components/PingOneApiCallDisplay';
 
 type Props = {
 	oidc?: boolean;
@@ -36,7 +35,7 @@ type Props = {
 
 export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 	oidc = false,
-	title = 'V7M OAuth Authorization Code',
+	title = 'OAuth Authorization Code',
 }) => {
 	// Generate flowKey for bulletproof PKCE storage
 	const flowKey = useMemo(() => `v7m-${oidc ? 'oidc' : 'oauth'}-auth-code`, [oidc]);
@@ -236,21 +235,24 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 					marginBottom: 16,
 				}}
 			>
-				<strong>📚 Educational Mock Mode (V7M)</strong>
+				<strong>📚 Educational Mock Mode</strong>
 				<p style={{ margin: '8px 0 0 0', fontSize: 14 }}>
 					This flow simulates OAuth/OIDC endpoints for learning. No external APIs are called. Tokens
 					are generated deterministically based on your settings.
 				</p>
 			</div>
-			<FlowHeader flowId="oauth-authorization-code-v7" />
+			<FlowHeader
+				flowId="oauth-authorization-code-v7"
+				customConfig={oidc ? { flowType: 'pingone' } : undefined}
+			/>
 			<UnifiedCredentialManagerV9
 				environmentId="v7m-mock"
 				flowKey="v7m-auth-code"
 				credentials={{ clientId }}
 				importExportOptions={{
 					flowType: 'v7m-auth-code',
-					appName: 'V7M Auth Code',
-					description: 'V7M Mock OAuth Authorization Code Flow',
+					appName: 'Authorization Code',
+					description: 'Mock OAuth Authorization Code Flow',
 				}}
 				onAppSelected={handleAppSelected}
 				grantType="authorization_code"
@@ -672,15 +674,14 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 					📚 Real PingOne API Call Examples
 				</h3>
 				<p style={{ marginBottom: 20, color: '#6b7280', fontSize: 14 }}>
-					These examples show exactly what real PingOne API calls look like. Use these as references when implementing OAuth/OIDC with PingOne.
+					These examples show exactly what real PingOne API calls look like. Use these as references
+					when implementing OAuth/OIDC with PingOne.
 				</p>
-				
+
 				<PingOneApiCallDisplay {...PingOneApiExamples.authorizationEndpoint} />
 				<PingOneApiCallDisplay {...PingOneApiExamples.tokenEndpoint} />
-				
-				{oidc && (
-					<PingOneApiCallDisplay {...PingOneApiExamples.userInfoEndpoint} />
-				)}
+
+				{oidc && <PingOneApiCallDisplay {...PingOneApiExamples.userInfoEndpoint} />}
 			</div>
 		</div>
 	);

@@ -1,7 +1,7 @@
-import { FiAlertCircle, FiCheckCircle } from '../icons';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { FiAlertCircle, FiCheckCircle } from '../icons';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { type ConfigStatus, getSharedConfigurationStatusAsync } from '../utils/configurationStatus';
 import { credentialManager } from '../utils/credentialManager';

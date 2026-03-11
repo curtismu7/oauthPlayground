@@ -313,7 +313,7 @@ export class UnifiedOAuthCredentialsServiceV8U {
 			const localData = localStorage.getItem(storageKey);
 			if (localData) {
 				const credentials = JSON.parse(localData);
-				logger.debug(`${_MODULE_TAG} ✅ Loaded shared from localStorage`, "Logger debug");
+				logger.debug(`${_MODULE_TAG} ✅ Loaded shared from localStorage`, 'Logger debug');
 
 				// Trigger async backup refresh if enabled
 				if (options?.enableBackup && options.environmentId) {
@@ -333,7 +333,7 @@ export class UnifiedOAuthCredentialsServiceV8U {
 					if (indexedData) {
 						// Cache to localStorage
 						localStorage.setItem(storageKey, JSON.stringify(indexedData));
-						logger.debug(`${_MODULE_TAG} ✅ Loaded shared from IndexedDB`, "Logger debug");
+						logger.debug(`${_MODULE_TAG} ✅ Loaded shared from IndexedDB`, 'Logger debug');
 						return indexedData;
 					}
 				} catch (error) {
@@ -360,12 +360,12 @@ export class UnifiedOAuthCredentialsServiceV8U {
 						}
 					}
 
-					logger.info(`${_MODULE_TAG} ✅ Loaded shared from SQLite backup`, "Logger info");
+					logger.info(`${_MODULE_TAG} ✅ Loaded shared from SQLite backup`, 'Logger info');
 					return backupData.sharedCredentials;
 				}
 			}
 
-			logger.debug(`${_MODULE_TAG} No shared credentials found`, "Logger debug");
+			logger.debug(`${_MODULE_TAG} No shared credentials found`, 'Logger debug');
 			return null;
 		} catch (error) {
 			logger.error(`${_MODULE_TAG} ❌ Failed to load shared credentials`, {
@@ -466,7 +466,7 @@ export class UnifiedOAuthCredentialsServiceV8U {
 					// Only update if backup is newer
 					if (backupData.timestamp > (localCredentials.updatedAt || 0)) {
 						localStorage.setItem(storageKey, JSON.stringify(backupData.sharedCredentials));
-						logger.debug(`${_MODULE_TAG} 🔄 Refreshed shared from backup`, "Logger debug");
+						logger.debug(`${_MODULE_TAG} 🔄 Refreshed shared from backup`, 'Logger debug');
 					}
 				}
 			}

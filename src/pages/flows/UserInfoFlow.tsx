@@ -1,4 +1,3 @@
-import { FiAlertCircle, FiDownload, FiEye, FiEyeOff, FiInfo, FiSend, FiUpload } from '../../icons';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -11,6 +10,7 @@ import FlowCredentials from '../../components/FlowCredentials';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { FiAlertCircle, FiDownload, FiEye, FiEyeOff, FiInfo, FiSend, FiUpload } from '../../icons';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';

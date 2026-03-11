@@ -2,10 +2,10 @@
 // lint-file-disable: token-value-in-jsx
 // Educational modal showing worker token API request details
 
-import { FiRefreshCw } from '../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNotifications } from '../hooks/useNotifications';
+import { FiRefreshCw } from '../icons';
 import { logger } from '../utils/logger';
 // import { createModuleLogger } from '../utils/consoleMigrationHelper'; // Temporarily commented - not used
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';

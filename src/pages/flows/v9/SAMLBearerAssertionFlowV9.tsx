@@ -3,17 +3,17 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { FiRefreshCw } from '../../../icons';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { usePageScroll } from '../../../hooks/usePageScroll';
+import { FiRefreshCw } from '../../../icons';
 import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
 import { FlowCompletionService } from '../../../services/flowCompletionService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import SAMLAssertionService from '../../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { credentialManager } from '../../../utils/credentialManager';
 import { logger } from '../../../utils/logger';
@@ -1165,7 +1165,14 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 					</ParameterGrid>
 				</GeneratedContentBox>
 
-				<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						gap: '0.5rem',
+						alignItems: 'flex-start',
+					}}
+				>
 					<Button
 						onClick={makeTokenRequest}
 						$variant="success"

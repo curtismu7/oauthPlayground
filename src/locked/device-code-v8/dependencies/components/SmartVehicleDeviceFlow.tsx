@@ -1,10 +1,10 @@
 // src/components/SmartVehicleDeviceFlow.tsx
 // Smart Vehicle Style Device Authorization Flow Interface
 
-import { FiNavigation, FiTruck } from '../../../../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { FiNavigation, FiTruck } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';

@@ -1,9 +1,9 @@
 // src/v8/pages/EnvironmentManagementPageV8.tsx
 // PingOne Environment Management Page V8 - Main dashboard for managing environments
 
-import { FiRefreshCw } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiRefreshCw } from '../../icons';
 import { logger } from '../../utils/logger';
 import {
 	type EnvironmentListOptions,

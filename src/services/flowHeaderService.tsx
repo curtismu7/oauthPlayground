@@ -200,7 +200,7 @@ const HeaderIcon = styled.span`
 	font-size: 1.5rem;
 `;
 
-// Predefined flow configurations - Updated for V7 flows - Cache bust: 2025-01-17-08:50
+// Predefined flow configurations - Updated for flows - Cache bust: 2025-01-17-08:50
 export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	// OAuth 2.0 / OIDC V9 Flows
 	'oauth-authorization-code-v9': {
@@ -243,36 +243,36 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🛡️',
 		version: 'V9',
 	},
-	// OAuth 2.0 V7 Flows
+	// OAuth 2.0 Flows
 	'oauth-authorization-code-v7': {
 		flowType: 'oauth',
-		title: 'Authorization Code (V7) - Unified OAuth/OIDC',
+		title: 'Authorization Code - Unified OAuth/OIDC',
 		subtitle:
-			'🔐 V7: Unified OAuth/OIDC authorization code experience - Modern implementation supporting both OAuth 2.0 and OpenID Connect variants with enhanced security, PKCE, and comprehensive educational content.',
+			'🔐 Unified OAuth/OIDC authorization code experience - Modern implementation supporting both OAuth 2.0 and OpenID Connect variants with enhanced security, PKCE, and comprehensive educational content.',
 		icon: '🔐',
 		version: 'V7',
 	},
 	'implicit-v7': {
 		flowType: 'oauth',
-		title: 'Implicit Flow (V7) - Unified OAuth/OIDC',
+		title: 'Implicit Flow - Unified OAuth/OIDC',
 		subtitle:
-			'⚡ V7: Unified OAuth/OIDC implementation with variant selector - Modern implicit flow supporting both OAuth 2.0 and OpenID Connect with enhanced security features and educational content.',
+			'⚡ Unified OAuth/OIDC implementation with variant selector - Modern implicit flow supporting both OAuth 2.0 and OpenID Connect with enhanced security features and educational content.',
 		icon: '⚡',
 		version: 'V7',
 	},
 	'device-authorization-v7': {
 		flowType: 'oauth',
-		title: 'Device Authorization (V7) - Unified OAuth/OIDC',
+		title: 'Device Authorization - Unified OAuth/OIDC',
 		subtitle:
-			'📱 V7: Unified OAuth/OIDC device authorization for TVs, IoT devices, and CLI tools - Modern implementation with comprehensive device flow support.',
+			'📱 Unified OAuth/OIDC device authorization for TVs, IoT devices, and CLI tools - Modern implementation with comprehensive device flow support.',
 		icon: '📱',
 		version: 'V7',
 	},
 	'ciba-v7': {
 		flowType: 'oidc',
-		title: 'OIDC CIBA Flow (V7) - Client Initiated Backchannel Authentication',
+		title: 'OIDC CIBA Flow - Client Initiated Backchannel Authentication',
 		subtitle:
-			'🛡️ V7: Enhanced CIBA implementation with V7 services - Client Initiated Backchannel Authentication for secure, user-friendly authentication without redirects. Perfect for mobile apps, IoT devices, and scenarios requiring seamless user experience.',
+			'🛡️ Enhanced CIBA implementation with services - Client Initiated Backchannel Authentication for secure, user-friendly authentication without redirects. Perfect for mobile apps, IoT devices, and scenarios requiring seamless user experience.',
 		icon: '🛡️',
 		version: 'V7',
 	},
@@ -283,7 +283,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		subtitle:
 			'🎯 Single UI for all OAuth 2.0, OAuth 2.1 / OIDC 2.1, and OIDC Core 1.0 flows using real PingOne APIs. Worker Token support.',
 		icon: '🎯',
-		version: 'V8U',
+		version: undefined,
 	},
 	'client-credentials-v5': {
 		flowType: 'oauth',
@@ -295,9 +295,9 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 	'client-credentials-v7': {
 		flowType: 'oauth',
-		title: 'Client Credentials Flow V7 - Enhanced Server-to-Server Authentication',
+		title: 'Client Credentials Flow - Enhanced Server-to-Server Authentication',
 		subtitle:
-			'🔑 Enhanced machine-to-machine authentication for backend services and APIs. Obtain access tokens directly using client ID and secret without user interaction. Perfect for microservices, batch jobs, and automated processes. ✅ V7: Enhanced with new AuthMethodService and improved UI.',
+			'🔑 Enhanced machine-to-machine authentication for backend services and APIs. Obtain access tokens directly using client ID and secret without user interaction. Perfect for microservices, batch jobs, and automated processes. ✅ Enhanced with new AuthMethodService and improved UI.',
 		icon: '🔑',
 		version: 'V7',
 		isExperimental: false,
@@ -330,17 +330,17 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V5',
 	},
 
-	// V7 Unified Flows
+	// Unified Flows
 	'token-exchange-v7': {
 		flowType: 'oauth',
-		title: 'OAuth 2.0 Token Exchange V7 - RFC 8693',
+		title: 'OAuth 2.0 Token Exchange - RFC 8693',
 		subtitle:
 			'🔄 Secure Application-to-Application (A2A) communication using OAuth 2.0 Token Exchange. Demonstrates scope reduction, audience restriction, and user delegation patterns for enterprise security architectures.',
 		icon: '🔄',
 		version: 'V7',
 	},
 
-	// Token Exchange V9 (canonical; V7 redirects here)
+	// Token Exchange V9 (canonical; redirects here)
 	'token-exchange-v9': {
 		flowType: 'oauth',
 		title: 'OAuth 2.0 Token Exchange (V9) - RFC 8693',
@@ -360,17 +360,17 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 
 	'oidc-hybrid-v7': {
 		flowType: 'oidc',
-		title: 'Hybrid Flow (V7) - Unified OAuth/OIDC',
+		title: 'Hybrid Flow - Unified OAuth/OIDC',
 		subtitle:
-			'🔄 V7: Unified OAuth/OIDC hybrid flow implementation - Advanced flow combining Authorization Code and Implicit patterns with modern V7 architecture and enhanced educational content.',
+			'🔄 Unified OAuth/OIDC hybrid flow implementation - Advanced flow combining Authorization Code and Implicit patterns with modern architecture and enhanced educational content.',
 		icon: '🔄',
 		version: 'V7',
 	},
 	'jwt-bearer-token-v7': {
 		flowType: 'oidc',
-		title: 'JWT Bearer Token (V7)',
+		title: 'JWT Bearer Token',
 		subtitle:
-			'🛡️ V7: JWT Bearer with PingFederate/PingOne AIS examples - Modern implementation of RFC 7523 JWT Bearer Token flow for secure application-to-application authentication.',
+			'🛡️ JWT Bearer with PingFederate/PingOne AIS examples - Modern implementation of RFC 7523 JWT Bearer Token flow for secure application-to-application authentication.',
 		icon: '🛡️',
 		version: 'V7',
 	},
@@ -386,9 +386,9 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 	'worker-token-v7': {
 		flowType: 'pingone',
-		title: 'Worker Token Flow (V7) - Enhanced Administrative API Access',
+		title: 'Worker Token Flow - Enhanced Administrative API Access',
 		subtitle:
-			'🚀 V7: Enhanced PingOne worker token flow with comprehensive training, API examples, and best practices. Generate worker tokens for machine-to-machine authentication with PingOne Management APIs. Includes JavaScript examples, cURL commands, Postman collections, and security best practices.',
+			'🚀 Enhanced PingOne worker token flow with comprehensive training, API examples, and best practices. Generate worker tokens for machine-to-machine authentication with PingOne Management APIs. Includes JavaScript examples, cURL commands, Postman collections, and security best practices.',
 		icon: '⚙️',
 		version: 'V7',
 	},
@@ -402,9 +402,9 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 	'redirectless-v7': {
 		flowType: 'oauth',
-		title: 'Redirectless Flow (V7) - Enhanced Server-to-Server Authentication',
+		title: 'Redirectless Flow - Enhanced Server-to-Server Authentication',
 		subtitle:
-			'🚀 V7: Enhanced redirectless authentication with fresh PKCE generation, improved error handling, and comprehensive educational content - Perfect for embedded login experiences and mobile apps.',
+			'🚀 Enhanced redirectless authentication with fresh PKCE generation, improved error handling, and comprehensive educational content - Perfect for embedded login experiences and mobile apps.',
 		icon: '🚀',
 		version: 'V7',
 	},
@@ -418,9 +418,9 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 	'pingone-par-v7': {
 		flowType: 'pingone',
-		title: 'PAR (Pushed Authorization Requests) Flow V7 - Enhanced Security',
+		title: 'PAR (Pushed Authorization Requests) Flow - Enhanced Security',
 		subtitle:
-			'🔒 V7: Enhanced PAR implementation with authorization details support - RFC 9126 Pushed Authorization Requests with comprehensive authorization details configuration. Pushes authorization parameters via secure back-channel POST to /par endpoint before redirecting. Returns request_uri for compact authorization URL. ✅ Benefits: Parameters hidden from browser URLs, prevents tampering, no URL length limits, fine-grained authorization details. Perfect for production OIDC clients with sensitive scopes and complex authorization requirements.',
+			'🔒 Enhanced PAR implementation with authorization details support - RFC 9126 Pushed Authorization Requests with comprehensive authorization details configuration. Pushes authorization parameters via secure back-channel POST to /par endpoint before redirecting. Returns request_uri for compact authorization URL. ✅ Benefits: Parameters hidden from browser URLs, prevents tampering, no URL length limits, fine-grained authorization details. Perfect for production OIDC clients with sensitive scopes and complex authorization requirements.',
 		icon: '🔒',
 		version: 'V7',
 	},
@@ -450,9 +450,9 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 	'pingone-complete-mfa-v7': {
 		flowType: 'pingone',
-		title: 'PingOne Complete MFA Flow V7',
+		title: 'PingOne Complete MFA Flow',
 		subtitle:
-			'🔐 Complete multi-factor authentication implementation with modern V7 UI. Demonstrates user authentication, MFA enrollment, device pairing, challenge verification, and token retrieval with PingOne integration.',
+			'🔐 Complete multi-factor authentication implementation with modern UI. Demonstrates user authentication, MFA enrollment, device pairing, challenge verification, and token retrieval with PingOne integration.',
 		icon: '🔐',
 		version: 'V7',
 	},
@@ -460,15 +460,15 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		flowType: 'pingone',
 		title: 'PingOne Authentication',
 		subtitle:
-			'🔐 V7: Dedicated authentication page with inline and popup modes - Modern PingOne authentication interface with comprehensive user management and security features.',
+			'🔐 Dedicated authentication page with inline and popup modes - Modern PingOne authentication interface with comprehensive user management and security features.',
 		icon: '🔐',
 		version: 'V7',
 	},
 	'saml-bearer-assertion-v7': {
 		flowType: 'pingone',
-		title: 'SAML Bearer Assertion (V7)',
+		title: 'SAML Bearer Assertion',
 		subtitle:
-			'🛡️ V7: SAML Bearer with PingFederate/PingOne AIS examples - Modern implementation of SAML Bearer Assertion flow for enterprise authentication.',
+			'🛡️ SAML Bearer with PingFederate/PingOne AIS examples - Modern implementation of SAML Bearer Assertion flow for enterprise authentication.',
 		icon: '🛡️',
 		version: 'V7',
 	},
@@ -490,9 +490,9 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 	'redirectless-v7-real': {
 		flowType: 'pingone',
-		title: 'Redirectless Flow V7 (response_mode=pi.flow) - Enhanced Implementation',
+		title: 'Redirectless Flow (response_mode=pi.flow) - Enhanced Implementation',
 		subtitle:
-			'🚀 PingOne Proprietary V7 - Enhanced Authorization Code Flow with response_mode=pi.flow parameter. V7 improvements: Fresh PKCE generation every time, enhanced error handling, improved logging, and better state management. Eliminates browser redirects entirely - authentication happens via direct API calls to PingOne Flow API. Returns tokens directly without redirect_uri. ✅ Benefits: Embedded login UX, no browser navigation, seamless mobile/desktop experience, enhanced reliability. ⚠️ PingOne-specific, not OAuth/OIDC standard.',
+			'🚀 PingOne Proprietary - Enhanced Authorization Code Flow with response_mode=pi.flow parameter. improvements: Fresh PKCE generation every time, enhanced error handling, improved logging, and better state management. Eliminates browser redirects entirely - authentication happens via direct API calls to PingOne Flow API. Returns tokens directly without redirect_uri. ✅ Benefits: Embedded login UX, no browser navigation, seamless mobile/desktop experience, enhanced reliability. ⚠️ PingOne-specific, not OAuth/OIDC standard.',
 		icon: '🚀',
 		version: 'V7',
 		isExperimental: false,
@@ -619,7 +619,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		flowType: 'pingone',
 		title: 'Component Cleanliness Dashboard',
 		subtitle:
-			"Monitor your application's performance and component health in real-time. Track render counts, memory usage, and cleanliness scores across V7 and V8 code.",
+			"Monitor your application's performance and component health in real-time. Track render counts, memory usage, and cleanliness scores across implementations.",
 		icon: '🧹',
 	},
 	'api-status': {
@@ -732,9 +732,9 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 	'oauth-ropc-v7': {
 		flowType: 'oauth',
-		title: 'OAuth ROPC (V7)',
+		title: 'OAuth ROPC',
 		subtitle:
-			'🚀 V7 Enhanced implementation: Modern UI with improved user experience, enhanced error handling, and better visual design. Resource Owner Password Credentials flow with comprehensive educational content.',
+			'🚀 Enhanced implementation: Modern UI with improved user experience, enhanced error handling, and better visual design. Resource Owner Password Credentials flow with comprehensive educational content.',
 		version: 'V7',
 		icon: '🔑',
 		isExperimental: false,
@@ -765,9 +765,9 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 	'rar-v7': {
 		flowType: 'oauth',
-		title: 'RAR Flow (V7) - Rich Authorization Requests',
+		title: 'RAR Flow - Rich Authorization Requests',
 		subtitle:
-			'🎯 V7: Enhanced RAR implementation with V7 services - Fine-grained authorization using structured JSON (RFC 9396). Enables detailed permission specifications beyond simple scopes with comprehensive credential management and modern UI.',
+			'🎯 Enhanced RAR implementation with services - Fine-grained authorization using structured JSON (RFC 9396). Enables detailed permission specifications beyond simple scopes with comprehensive credential management and modern UI.',
 		icon: '🎯',
 		version: 'V7',
 	},
@@ -818,7 +818,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		flowType: 'pingone',
 		title: 'PingOne Authentication',
 		subtitle:
-			'🔐 V7: Dedicated authentication page with inline and popup modes - Modern PingOne authentication interface with comprehensive user management and security features.',
+			'🔐 Dedicated authentication page with inline and popup modes - Modern PingOne authentication interface with comprehensive user management and security features.',
 		icon: '🔐',
 		version: 'V7',
 	},
@@ -853,8 +853,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ flowId, flowType, custom
 
 	const getBadgeText = () => {
 		if (!config.flowType) return 'UNKNOWN';
-		const typeText = config.flowType.toUpperCase();
-		return config.version ? `${typeText} ${config.version}` : typeText;
+		return config.flowType.toUpperCase();
 	};
 
 	return (

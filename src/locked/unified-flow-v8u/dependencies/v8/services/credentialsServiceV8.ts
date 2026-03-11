@@ -27,7 +27,7 @@ const ENABLE_CREDENTIALS_DEBUG_LOGGING = false;
 
 const debugLog = (...args: unknown[]): void => {
 	if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;
-	logger.info(...args, "Logger info");
+	logger.info(...args, 'Logger info');
 };
 
 export interface Credentials {

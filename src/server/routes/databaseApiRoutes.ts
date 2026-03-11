@@ -27,7 +27,7 @@ const router = Router();
 router.get('/sqlite/schema', async (req, res) => {
 	try {
 		const db = req.app.get('db'); // Get database connection from app
-		
+
 		if (!db) {
 			return res.status(500).json({
 				error: 'Database connection not available',
@@ -42,7 +42,7 @@ router.get('/sqlite/schema', async (req, res) => {
 			WHERE type='table' AND name NOT LIKE 'sqlite_%'
 			ORDER BY name
 		`;
-		
+
 		const tables = await new Promise<any[]>((resolve, reject) => {
 			db.all(tablesQuery, (err, rows) => {
 				if (err) reject(err);
@@ -83,7 +83,7 @@ router.get('/sqlite/schema', async (req, res) => {
 				return {
 					name: table.table_name,
 					rowCount: countResult.count,
-					columns: columns.map(col => ({
+					columns: columns.map((col) => ({
 						name: col.name,
 						type: col.type || 'TEXT',
 						nullable: !col.notnull,
@@ -136,7 +136,7 @@ router.get('/sqlite/schema', async (req, res) => {
 router.get('/sqlite/tables', async (req, res) => {
 	try {
 		const db = req.app.get('db');
-		
+
 		if (!db) {
 			return res.status(500).json({
 				error: 'Database connection not available',
@@ -149,7 +149,7 @@ router.get('/sqlite/tables', async (req, res) => {
 			WHERE type='table' AND name NOT LIKE 'sqlite_%'
 			ORDER BY name
 		`;
-		
+
 		const tables = await new Promise<any[]>((resolve, reject) => {
 			db.all(query, (err, rows) => {
 				if (err) reject(err);
@@ -158,7 +158,7 @@ router.get('/sqlite/tables', async (req, res) => {
 		});
 
 		res.json({
-			tables: tables.map(t => t.table_name),
+			tables: tables.map((t) => t.table_name),
 		});
 	} catch (error) {
 		logger.error(`${MODULE_TAG} Failed to get SQLite tables:`, error);
@@ -174,14 +174,7 @@ router.get('/sqlite/tables', async (req, res) => {
  */
 router.get('/sqlite/query', async (req, res) => {
 	try {
-		const {
-			table,
-			limit = '100',
-			offset = '0',
-			where,
-			orderBy,
-			search,
-		} = req.query;
+		const { table, limit = '100', offset = '0', where, orderBy, search } = req.query;
 
 		if (!table || typeof table !== 'string') {
 			return res.status(400).json({
@@ -190,7 +183,7 @@ router.get('/sqlite/query', async (req, res) => {
 		}
 
 		const db = req.app.get('db');
-		
+
 		if (!db) {
 			return res.status(500).json({
 				error: 'Database connection not available',
@@ -224,15 +217,21 @@ router.get('/sqlite/query', async (req, res) => {
 			});
 
 			const searchConditions = columns
-				.filter(col => col.type?.toUpperCase().includes('TEXT') || col.type?.toUpperCase().includes('CHAR'))
-				.map(col => `${col.name} LIKE ?`)
+				.filter(
+					(col) =>
+						col.type?.toUpperCase().includes('TEXT') || col.type?.toUpperCase().includes('CHAR')
+				)
+				.map((col) => `${col.name} LIKE ?`)
 				.join(' OR ');
 
 			if (searchConditions) {
 				whereClause = `WHERE ${searchConditions}`;
 				const searchTerm = `%${search}%`;
-				columns.forEach(col => {
-					if (col.type?.toUpperCase().includes('TEXT') || col.type?.toUpperCase().includes('CHAR')) {
+				columns.forEach((col) => {
+					if (
+						col.type?.toUpperCase().includes('TEXT') ||
+						col.type?.toUpperCase().includes('CHAR')
+					) {
 						params.push(searchTerm);
 					}
 				});
@@ -257,10 +256,10 @@ router.get('/sqlite/query', async (req, res) => {
 		// Get data with pagination
 		const limitNum = Math.min(parseInt(limit) || 100, 1000); // Max 1000 rows
 		const offsetNum = Math.max(parseInt(offset) || 0, 0);
-		
+
 		const dataQuery = `SELECT * FROM ${table} ${whereClause} ${orderByClause} LIMIT ? OFFSET ?`;
 		const dataParams = [...params, limitNum, offsetNum];
-		
+
 		const rows = await new Promise<any[]>((resolve, reject) => {
 			db.all(dataQuery, dataParams, (err, rows) => {
 				if (err) reject(err);
@@ -282,7 +281,7 @@ router.get('/sqlite/query', async (req, res) => {
 		const result = {
 			data: rows,
 			totalRows: totalResult.total,
-			columns: columns.map(col => ({
+			columns: columns.map((col) => ({
 				name: col.name,
 				type: col.type || 'TEXT',
 				nullable: !col.notnull,
@@ -308,7 +307,7 @@ router.get('/sqlite/query', async (req, res) => {
 router.get('/sqlite/stats', async (req, res) => {
 	try {
 		const db = req.app.get('db');
-		
+
 		if (!db) {
 			return res.status(500).json({
 				error: 'Database connection not available',
@@ -321,7 +320,7 @@ router.get('/sqlite/stats', async (req, res) => {
 			FROM sqlite_master 
 			WHERE type='table' AND name NOT LIKE 'sqlite_%'
 		`;
-		
+
 		const tableCount = await new Promise<{ count: number }>((resolve, reject) => {
 			db.get(tableCountQuery, (err, row) => {
 				if (err) reject(err);
@@ -334,7 +333,7 @@ router.get('/sqlite/stats', async (req, res) => {
 			SELECT name FROM sqlite_master 
 			WHERE type='table' AND name NOT LIKE 'sqlite_%'
 		`;
-		
+
 		const tables = await new Promise<any[]>((resolve, reject) => {
 			db.all(tablesQuery, (err, rows) => {
 				if (err) reject(err);
@@ -352,9 +351,9 @@ router.get('/sqlite/stats', async (req, res) => {
 						else resolve(row);
 					});
 				});
-				
+
 				totalRows += countResult.count;
-				
+
 				return {
 					name: table.name,
 					rowCount: countResult.count,

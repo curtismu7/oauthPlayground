@@ -9,7 +9,6 @@
  * Following SWE-15 principles for reusable error handling
  */
 
-import { FiX } from '../../../../icons';
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
@@ -17,6 +16,7 @@ import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { colors, spacing } from '@/v8/styles/designTokens';
+import { FiX } from '../../../../icons';
 
 import { logger } from '../../../../utils/logger';
 

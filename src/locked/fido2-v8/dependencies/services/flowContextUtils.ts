@@ -103,7 +103,10 @@ export class FlowContextUtils {
 			});
 
 			if (!contextUpdated) {
-				logger.warn(`[FlowContextUtils] Failed to update flow context for ${flowId}`, "Logger warning");
+				logger.warn(
+					`[FlowContextUtils] Failed to update flow context for ${flowId}`,
+					'Logger warning'
+				);
 				return false;
 			}
 
@@ -142,7 +145,7 @@ export class FlowContextUtils {
 			// Clean up any expired states while we're at it
 			RedirectStateManager.cleanupExpiredStates();
 
-			logger.info(`[FlowContextUtils] Completed and cleaned up flow ${flowId}`, "Logger info");
+			logger.info(`[FlowContextUtils] Completed and cleaned up flow ${flowId}`, 'Logger info');
 		} catch (error) {
 			logger.error('[FlowContextUtils] Failed to complete flow:', error);
 		}
@@ -298,7 +301,10 @@ export class FlowContextUtils {
 	 */
 	static emergencyCleanup(): void {
 		try {
-			logger.warn('[FlowContextUtils] Performing emergency cleanup of all flow state', "Logger warning");
+			logger.warn(
+				'[FlowContextUtils] Performing emergency cleanup of all flow state',
+				'Logger warning'
+			);
 
 			// Clear all known flow context keys
 			const flowContextKeys = [
@@ -325,8 +331,9 @@ export class FlowContextUtils {
 			});
 
 			logger.info(
-				`[FlowContextUtils] Emergency cleanup completed. Removed ${flowContextKeys.length + keysToRemove.length} items.`
-			, "Logger info");
+				`[FlowContextUtils] Emergency cleanup completed. Removed ${flowContextKeys.length + keysToRemove.length} items.`,
+				'Logger info'
+			);
 		} catch (error) {
 			logger.error('[FlowContextUtils] Emergency cleanup failed:', error);
 		}

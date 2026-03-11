@@ -1,8 +1,8 @@
 // src/components/PingOneApplicationConfig.tsx
 
-import { FiInfo, FiSave } from '../../../../icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { FiInfo, FiSave } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import { DPoPStatus } from '../services/dpopService';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
@@ -736,8 +736,8 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<option value="S256_REQUIRED">S256 Required</option>
 						</Select>
 						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Enable PKCE enforcement in your PingOne application
-							settings to see this feature in the flow
+							⚙️ Configured in PingOne → Enable PKCE enforcement in your PingOne application settings
+							to see this feature in the flow
 						</Helper>
 					</Field>
 				</Grid>

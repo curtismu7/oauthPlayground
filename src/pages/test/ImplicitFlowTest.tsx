@@ -6,17 +6,17 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
+import {
+	V9AppDiscoveryService,
+	type V9DiscoveredApp,
+} from '../../services/v9/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 import {
 	buildPingOneImplicitAuthUrl,
 	generateNonce,
 	generateState,
 } from '../../utils/pingone-url-builders';
-import {
-	V9AppDiscoveryService,
-	type V9DiscoveredApp,
-} from '../../services/v9/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 
 /**
  * Utility function to mask tokens for security

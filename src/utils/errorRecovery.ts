@@ -198,7 +198,7 @@ export class EnhancedErrorRecovery {
 					icon: '',
 					action: async () => {
 						// Implement token refresh logic
-						logger.info(' Attempting token refresh...', "Logger info");
+						logger.info(' Attempting token refresh...', 'Logger info');
 					},
 					priority: 'high',
 				});
@@ -284,14 +284,15 @@ export class EnhancedErrorRecovery {
 		);
 
 		logger.info(
-			` [ErrorRecovery] Attempting retry ${this.retryCount}/${this.config.maxRetries} after ${delay}ms delay`
-		, "Logger info");
+			` [ErrorRecovery] Attempting retry ${this.retryCount}/${this.config.maxRetries} after ${delay}ms delay`,
+			'Logger info'
+		);
 
 		return new Promise((resolve) => {
 			setTimeout(async () => {
 				try {
 					await retryFunction();
-					logger.info(' [ErrorRecovery] Retry successful', "Logger info");
+					logger.info(' [ErrorRecovery] Retry successful', 'Logger info');
 					this.retryCount = 0; // Reset on success
 					resolve();
 				} catch (retryError) {

@@ -1092,10 +1092,7 @@ const flowConfigs: Record<string, DetailedFlowInfo> = {
 		validation: 'Educational content - no validation required',
 		recommendedFor: ['Developers learning OIDC', 'Security architects', 'API designers'],
 		notRecommendedFor: ['Production authentication', 'Live applications'],
-		implementationNotes: [
-			'Educational overview only',
-			'Use specific flows for implementation',
-		],
+		implementationNotes: ['Educational overview only', 'Use specific flows for implementation'],
 		commonIssues: [
 			{
 				issue: 'Choosing the right flow',
@@ -1165,9 +1162,13 @@ const normalizeFlowKey = (flowType: string): string => {
  */
 const getFlowInfo = (flowType: string): DetailedFlowInfo | null => {
 	if (!flowType || typeof flowType !== 'string') {
-		logger.warn('FlowInfoService', 'FlowInfoService.getFlowInfo called with invalid flowType:', JSON.stringify({
-			arg0: flowType,
-		}));
+		logger.warn(
+			'FlowInfoService',
+			'FlowInfoService.getFlowInfo called with invalid flowType:',
+			JSON.stringify({
+				arg0: flowType,
+			})
+		);
 		return null;
 	}
 

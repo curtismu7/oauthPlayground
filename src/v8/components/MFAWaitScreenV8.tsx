@@ -55,16 +55,29 @@ export const MFAWaitScreenV8: React.FC<MFAWaitScreenV8Props> = ({
 
 			{/* Loading Message */}
 			<div className="text-center">
-				<h5 className="mb-2" style={{ color: '#374151' }}>{message}</h5>
-				<p className="small mb-0" style={{ color: '#6b7280' }}>Please wait while we prepare the next step...</p>
+				<h5 className="mb-2" style={{ color: '#374151' }}>
+					{message}
+				</h5>
+				<p className="small mb-0" style={{ color: '#6b7280' }}>
+					Please wait while we prepare the next step...
+				</p>
 			</div>
 
 			{/* Progress Dots — blue only */}
 			<div className="d-flex justify-content-center mt-4">
 				<div className="d-flex gap-2">
-					<div className="rounded-circle" style={{ width: '8px', height: '8px', background: WAIT_SCREEN_BLUE }} />
-					<div className="rounded-circle" style={{ width: '8px', height: '8px', background: WAIT_SCREEN_BLUE }} />
-					<div className="rounded-circle" style={{ width: '8px', height: '8px', background: WAIT_SCREEN_BLUE }} />
+					<div
+						className="rounded-circle"
+						style={{ width: '8px', height: '8px', background: WAIT_SCREEN_BLUE }}
+					/>
+					<div
+						className="rounded-circle"
+						style={{ width: '8px', height: '8px', background: WAIT_SCREEN_BLUE }}
+					/>
+					<div
+						className="rounded-circle"
+						style={{ width: '8px', height: '8px', background: WAIT_SCREEN_BLUE }}
+					/>
 				</div>
 			</div>
 		</div>

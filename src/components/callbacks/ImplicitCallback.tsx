@@ -1,7 +1,7 @@
-import { FiLoader } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { FiLoader } from '../../icons';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 
 import { logger } from '../../utils/logger';

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-	cleanupHistoryService,
-	type CleanupSession,
-	type CleanupMetrics,
 	type CleanupCategory,
+	type CleanupMetrics,
+	type CleanupSession,
+	cleanupHistoryService,
 } from '../services/cleanupHistoryService';
 
 interface CleanupHistoryDashboardProps {
@@ -119,6 +119,7 @@ export const CleanupHistoryDashboard: React.FC<CleanupHistoryDashboardProps> = (
 						{showReport ? '📊 Hide Report' : '📊 Generate Report'}
 					</button>
 					<button
+						type="button"
 						onClick={exportHistory}
 						style={{
 							background: '#28A745',

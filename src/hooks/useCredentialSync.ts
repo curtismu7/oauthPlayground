@@ -45,7 +45,10 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 		const loadInitialCredentials = async () => {
 			setIsLoading(true);
 			try {
-				logger.info(`🔄 [useCredentialSync:${flowKey}] Loading initial credentials...`, "Logger info");
+				logger.info(
+					`🔄 [useCredentialSync:${flowKey}] Loading initial credentials...`,
+					'Logger info'
+				);
 
 				const { credentials: loadedCredentials } = await FlowCredentialService.loadFlowCredentials({
 					flowKey,
@@ -143,7 +146,7 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 	const refreshCredentials = async (): Promise<void> => {
 		setIsLoading(true);
 		try {
-			logger.info(`🔄 [useCredentialSync:${flowKey}] Manual refresh requested...`, "Logger info");
+			logger.info(`🔄 [useCredentialSync:${flowKey}] Manual refresh requested...`, 'Logger info');
 
 			const refreshedCredentials = await credentialSyncService.refreshFlowCredentials(flowKey);
 			setCredentials(refreshedCredentials);

@@ -74,24 +74,24 @@ class IndexedDBViewerService {
 	 */
 	static async getSchema(): Promise<DatabaseSchema> {
 		try {
-			const db = await this.openDatabase();
+			const db = await IndexedDBViewerService.openDatabase();
 			const tables: DatabaseTable[] = [];
 
 			// Get all object stores
 			const storeNames = Array.from(db.objectStoreNames);
-			
+
 			for (const storeName of storeNames) {
-				const table = await this.getTableInfo(db, storeName);
+				const table = await IndexedDBViewerService.getTableInfo(db, storeName);
 				tables.push(table);
 			}
 
 			// Get database metadata
-			const metadata = await this.getIndexedDBMetadata(db);
+			const metadata = await IndexedDBViewerService.getIndexedDBMetadata(db);
 
 			db.close();
 
 			return {
-				name: this.DB_NAME,
+				name: IndexedDBViewerService.DB_NAME,
 				type: 'indexeddb',
 				tables,
 				metadata,
@@ -110,9 +110,9 @@ class IndexedDBViewerService {
 		options: DatabaseViewerOptions = {}
 	): Promise<DatabaseQueryResult> {
 		const startTime = Date.now();
-		
+
 		try {
-			const db = await this.openDatabase();
+			const db = await IndexedDBViewerService.openDatabase();
 			const transaction = db.transaction([tableName], 'readonly');
 			const store = transaction.objectStore(tableName);
 
@@ -126,20 +126,20 @@ class IndexedDBViewerService {
 
 			return new Promise((resolve, reject) => {
 				const request = store.openCursor();
-				
+
 				request.onsuccess = (event) => {
 					const cursor = (event.target as IDBRequest).result;
-					
+
 					if (cursor) {
 						if (skipped < offset) {
 							skipped++;
 							cursor.continue();
 							return;
 						}
-						
+
 						if (count < limit) {
 							const record = cursor.value;
-							
+
 							// Apply search filter if provided
 							if (options.search) {
 								const searchLower = options.search.toLowerCase();
@@ -152,16 +152,16 @@ class IndexedDBViewerService {
 								data.push(record);
 								count++;
 							}
-							
+
 							cursor.continue();
 						} else {
 							// Done
 							const executionTime = Date.now() - startTime;
-							const columns = this.inferColumns(data);
-							
+							const columns = IndexedDBViewerService.inferColumns(data);
+
 							resolve({
 								data,
-								totalRows: await this.getTableRowCount(store),
+								totalRows: await IndexedDBViewerService.getTableRowCount(store),
 								columns,
 								executionTime,
 								query: `SELECT * FROM ${tableName} LIMIT ${limit} OFFSET ${offset}`,
@@ -170,11 +170,11 @@ class IndexedDBViewerService {
 					} else {
 						// No more cursor
 						const executionTime = Date.now() - startTime;
-						const columns = this.inferColumns(data);
-						
+						const columns = IndexedDBViewerService.inferColumns(data);
+
 						resolve({
 							data,
-							totalRows: await this.getTableRowCount(store),
+							totalRows: await IndexedDBViewerService.getTableRowCount(store),
 							columns,
 							executionTime,
 							query: `SELECT * FROM ${tableName} LIMIT ${limit} OFFSET ${offset}`,
@@ -197,12 +197,15 @@ class IndexedDBViewerService {
 	 */
 	private static async openDatabase(): Promise<IDBDatabase> {
 		return new Promise((resolve, reject) => {
-			const request = indexedDB.open(this.DB_NAME, this.DB_VERSION);
-			
+			const request = indexedDB.open(
+				IndexedDBViewerService.DB_NAME,
+				IndexedDBViewerService.DB_VERSION
+			);
+
 			request.onsuccess = () => {
 				resolve(request.result);
 			};
-			
+
 			request.onerror = () => {
 				reject(new Error(`Failed to open IndexedDB: ${request.error}`));
 			};
@@ -215,10 +218,10 @@ class IndexedDBViewerService {
 	private static async getTableInfo(db: IDBDatabase, storeName: string): Promise<DatabaseTable> {
 		const transaction = db.transaction([storeName], 'readonly');
 		const store = transaction.objectStore(storeName);
-		
-		const rowCount = await this.getTableRowCount(store);
-		const sampleData = await this.getSampleData(store, 5);
-		const columns = this.inferColumns(sampleData);
+
+		const rowCount = await IndexedDBViewerService.getTableRowCount(store);
+		const sampleData = await IndexedDBViewerService.getSampleData(store, 5);
+		const columns = IndexedDBViewerService.inferColumns(sampleData);
 
 		return {
 			name: storeName,
@@ -234,11 +237,11 @@ class IndexedDBViewerService {
 	private static async getTableRowCount(store: IDBObjectStore): Promise<number> {
 		return new Promise((resolve, reject) => {
 			const request = store.count();
-			
+
 			request.onsuccess = () => {
 				resolve(request.result);
 			};
-			
+
 			request.onerror = () => {
 				reject(new Error(`Failed to count rows: ${request.error}`));
 			};
@@ -248,16 +251,19 @@ class IndexedDBViewerService {
 	/**
 	 * Get sample data from IndexedDB object store
 	 */
-	private static async getSampleData(store: IDBObjectStore, limit: number): Promise<Record<string, unknown>[]> {
+	private static async getSampleData(
+		store: IDBObjectStore,
+		limit: number
+	): Promise<Record<string, unknown>[]> {
 		return new Promise((resolve, reject) => {
 			const data: Record<string, unknown>[] = [];
 			let count = 0;
-			
+
 			const request = store.openCursor();
-			
+
 			request.onsuccess = (event) => {
 				const cursor = (event.target as IDBRequest).result;
-				
+
 				if (cursor && count < limit) {
 					data.push(cursor.value);
 					count++;
@@ -266,7 +272,7 @@ class IndexedDBViewerService {
 					resolve(data);
 				}
 			};
-			
+
 			request.onerror = () => {
 				reject(new Error(`Failed to get sample data: ${request.error}`));
 			};
@@ -278,20 +284,20 @@ class IndexedDBViewerService {
 	 */
 	private static inferColumns(data: Record<string, unknown>[]): DatabaseColumn[] {
 		if (data.length === 0) return [];
-		
+
 		const columns: DatabaseColumn[] = [];
 		const sampleRecord = data[0];
-		
+
 		for (const [key, value] of Object.entries(sampleRecord)) {
-			const type = this.getValueType(value);
-			
+			const type = IndexedDBViewerService.getValueType(value);
+
 			columns.push({
 				name: key,
 				type,
-				nullable: data.some(record => record[key] == null),
+				nullable: data.some((record) => record[key] == null),
 			});
 		}
-		
+
 		return columns;
 	}
 
@@ -316,7 +322,7 @@ class IndexedDBViewerService {
 	private static async getIndexedDBMetadata(db: IDBDatabase): Promise<DatabaseSchema['metadata']> {
 		// Try to get storage estimate
 		let size: number | undefined;
-		
+
 		if ('storage' in navigator && 'estimate' in navigator.storage) {
 			try {
 				const estimate = await navigator.storage.estimate();
@@ -346,13 +352,13 @@ class SQLiteViewerService {
 	static async getSchema(): Promise<DatabaseSchema> {
 		try {
 			const response = await fetch('/api/database/sqlite/schema');
-			
+
 			if (!response.ok) {
 				throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 			}
-			
+
 			const data = await response.json();
-			
+
 			return {
 				name: 'PingOne Cache',
 				type: 'sqlite',
@@ -384,13 +390,13 @@ class SQLiteViewerService {
 			if (options.search) params.append('search', options.search);
 
 			const response = await fetch(`/api/database/sqlite/query?${params}`);
-			
+
 			if (!response.ok) {
 				throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 			}
-			
+
 			const data = await response.json();
-			
+
 			return {
 				data: data.rows,
 				totalRows: data.totalRows,
@@ -410,11 +416,11 @@ class SQLiteViewerService {
 	static async getTables(): Promise<string[]> {
 		try {
 			const response = await fetch('/api/database/sqlite/tables');
-			
+
 			if (!response.ok) {
 				throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 			}
-			
+
 			const data = await response.json();
 			return data.tables;
 		} catch (error) {
@@ -434,7 +440,7 @@ export class DatabaseViewerService {
 	 */
 	static async getAvailableDatabases(): Promise<DatabaseSchema[]> {
 		const databases: DatabaseSchema[] = [];
-		
+
 		try {
 			// Get IndexedDB schema
 			const indexedDbSchema = await IndexedDBViewerService.getSchema();
@@ -442,7 +448,7 @@ export class DatabaseViewerService {
 		} catch (error) {
 			logger.warn(`${MODULE_TAG} Failed to get IndexedDB schema:`, error);
 		}
-		
+
 		try {
 			// Get SQLite schema
 			const sqliteSchema = await SQLiteViewerService.getSchema();
@@ -450,7 +456,7 @@ export class DatabaseViewerService {
 		} catch (error) {
 			logger.warn(`${MODULE_TAG} Failed to get SQLite schema:`, error);
 		}
-		
+
 		return databases;
 	}
 
@@ -477,14 +483,16 @@ export class DatabaseViewerService {
 		tableName: string,
 		format: 'json' | 'csv' = 'json'
 	): Promise<string> {
-		const result = await this.queryTable(databaseType, tableName, { limit: 10000 });
-		
+		const result = await DatabaseViewerService.queryTable(databaseType, tableName, {
+			limit: 10000,
+		});
+
 		if (format === 'json') {
 			return JSON.stringify(result.data, null, 2);
 		} else if (format === 'csv') {
-			return this.convertToCSV(result.data, result.columns);
+			return DatabaseViewerService.convertToCSV(result.data, result.columns);
 		}
-		
+
 		throw new Error(`Unsupported export format: ${format}`);
 	}
 
@@ -493,22 +501,24 @@ export class DatabaseViewerService {
 	 */
 	private static convertToCSV(data: Record<string, unknown>[], columns: DatabaseColumn[]): string {
 		if (data.length === 0) return '';
-		
+
 		// Header row
-		const headers = columns.map(col => col.name).join(',');
-		
+		const headers = columns.map((col) => col.name).join(',');
+
 		// Data rows
-		const rows = data.map(record => {
-			return columns.map(col => {
-				const value = record[col.name];
-				if (value === null || value === undefined) return '';
-				if (typeof value === 'string' && value.includes(',')) {
-					return `"${value.replace(/"/g, '""')}"`;
-				}
-				return String(value);
-			}).join(',');
+		const rows = data.map((record) => {
+			return columns
+				.map((col) => {
+					const value = record[col.name];
+					if (value === null || value === undefined) return '';
+					if (typeof value === 'string' && value.includes(',')) {
+						return `"${value.replace(/"/g, '""')}"`;
+					}
+					return String(value);
+				})
+				.join(',');
 		});
-		
+
 		return [headers, ...rows].join('\n');
 	}
 }

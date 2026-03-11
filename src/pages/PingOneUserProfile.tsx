@@ -162,8 +162,8 @@ function formatUserName(
 	return [given, family].filter(Boolean).join(' ') || 'N/A';
 }
 
-import { FiAlertTriangle, FiRefreshCw, FiUser } from '../icons';
 import type { CSSProperties } from 'react';
+import { FiAlertTriangle, FiRefreshCw, FiUser } from '../icons';
 
 import { logger } from '../utils/logger';
 

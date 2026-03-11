@@ -1,6 +1,6 @@
-import { FiClock, FiRefreshCw } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiClock, FiRefreshCw } from '../../icons';
 import { logger } from '../../utils/logger';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 import { type SecurityScan, securityService } from '../services/securityService';

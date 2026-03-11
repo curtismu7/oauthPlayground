@@ -210,9 +210,10 @@ function getStatusDescription(tokenStatus: TokenStatusInfo): string {
  */
 export function formatWorkerTokenTimeRemaining(tokenStatus: TokenStatusInfo): string {
 	const raw = tokenStatus.expiresAt;
-	if (raw == null || raw === '') return 'No expiration';
+	if (raw == null || (typeof raw === 'string' && raw === '')) return 'No expiration';
 
-	const expiresAt = typeof raw === 'number' ? raw : Number(new Date(raw as unknown as string).getTime());
+	const expiresAt =
+		typeof raw === 'number' ? raw : Number(new Date(raw as unknown as string).getTime());
 	if (Number.isNaN(expiresAt)) return '—';
 
 	const now = Date.now();

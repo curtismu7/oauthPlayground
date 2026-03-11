@@ -148,7 +148,7 @@ export function usePersistedDiscovery(
 					discoveryPersistenceService.getDiscovery(input);
 
 				if (cached) {
-					logger.info('[usePersistedDiscovery] Using cached discovery', "Logger info");
+					logger.info('[usePersistedDiscovery] Using cached discovery', 'Logger info');
 					setPersistedData(cached);
 					setIsLoading(false);
 					return {
@@ -261,7 +261,7 @@ export function usePersistedDiscovery(
 		if (lastUsed) {
 			setPersistedData(lastUsed);
 			onRestore?.(lastUsed);
-			logger.info('[usePersistedDiscovery] Restored last used discovery', "Logger info");
+			logger.info('[usePersistedDiscovery] Restored last used discovery', 'Logger info');
 		}
 	}, [environmentId, issuerUrl, autoRestore, restore, restoreByIssuer, onRestore]);
 

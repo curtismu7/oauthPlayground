@@ -74,7 +74,10 @@ export const useGlobalWorkerToken = (
 			if (unifiedWorkerTokenService.hasValidTokenSync()) {
 				const data = unifiedWorkerTokenService.getTokenDataSync();
 				if (data?.token) {
-					logger.info('useGlobalWorkerToken', 'Using token from unifiedWorkerTokenService (modal source)');
+					logger.info(
+						'useGlobalWorkerToken',
+						'Using token from unifiedWorkerTokenService (modal source)'
+					);
 					setStatus({
 						token: data.token,
 						isValid: true,

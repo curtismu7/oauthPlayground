@@ -18,9 +18,9 @@ const V7MSettingsV9: React.FC = () => {
 	return (
 		<div style={{ padding: 24 }}>
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<span>📦</span> V7M Settings
+				<span>📦</span> Educational Mock Settings
 			</h1>
-			<p>Toggle V7M Educational Mock Mode for V7 flows.</p>
+			<p>Toggle Educational Mock Mode for mock flows.</p>
 			<div
 				style={{
 					display: 'inline-flex',
@@ -36,13 +36,13 @@ const V7MSettingsV9: React.FC = () => {
 					{enabled ? 'Enabled' : 'Disabled'}
 				</span>
 				<button type="button" onClick={handleToggle} style={btnStyle}>
-					{enabled ? 'Disable' : 'Enable'} V7M
+					{enabled ? 'Disable' : 'Enable'} Mock Mode
 				</button>
 			</div>
 			<div style={{ marginTop: 16, fontSize: 14, color: '#374151' }}>
 				<p>
-					When enabled, compatible V7 flows can use V7M simulators for authorization, token,
-					UserInfo, and introspection operations.
+					When enabled, compatible flows can use simulators for authorization, token, UserInfo, and
+					introspection operations.
 				</p>
 			</div>
 		</div>

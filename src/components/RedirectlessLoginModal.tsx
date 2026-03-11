@@ -1,7 +1,7 @@
-import { FiLoader, FiLock, FiUser } from '../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { FiLoader, FiLock, FiUser } from '../icons';
 
 import { logger } from '../utils/logger';
 

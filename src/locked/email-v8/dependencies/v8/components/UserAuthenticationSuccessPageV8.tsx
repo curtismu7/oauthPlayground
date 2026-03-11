@@ -9,10 +9,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { showGlobalInfo } from '../../../../../contexts/NotificationSystem';
 import { logger } from '../../../../../utils/logger';
 import { TokenDisplayServiceV8 } from '../services/tokenDisplayServiceV8.ts';
 import { toastV8 } from '../utils/toastNotificationsV8.ts';
-import { showGlobalInfo } from '../../../../../contexts/NotificationSystem';
 export interface UserInfo {
 	sub?: string;
 	username?: string;

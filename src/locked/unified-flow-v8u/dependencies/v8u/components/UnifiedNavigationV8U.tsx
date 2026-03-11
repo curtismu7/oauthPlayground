@@ -83,8 +83,9 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 			localStorage.removeItem('worker-apps-cache');
 
 			logger.info(
-				'🔄 [UnifiedNavigationV8U-locked] Back to main: cleared ConfigChecker and pre-flight cache data'
-			, "Logger info");
+				'🔄 [UnifiedNavigationV8U-locked] Back to main: cleared ConfigChecker and pre-flight cache data',
+				'Logger info'
+			);
 		} catch (error) {
 			logger.warn('[UnifiedNavigationV8U-locked] Failed to clear cache data:', error);
 		}

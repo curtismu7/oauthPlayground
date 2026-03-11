@@ -18,6 +18,7 @@
  */
 
 import { logger } from '../../../../../utils/logger';
+
 const MODULE_TAG = '[📡 OIDC-DISCOVERY-V8]';
 
 export interface DiscoveryResult {

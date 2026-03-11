@@ -1,17 +1,17 @@
-import { FiRefreshCw } from '../icons';
 import type React from 'react';
 import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { V9_COLORS } from '@/services/v9/V9ColorStandards';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiRefreshCw } from '../icons';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
-import { RegionSelect } from './RegionSelect';
 import { loadEnvironmentId } from '../services/environmentIdService';
 import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import CopyIcon from './CopyIcon';
+import { RegionSelect } from './RegionSelect';
 
 interface DiscoveryPanelProps {
 	onConfigurationDiscovered: (config: OpenIDConfiguration, environmentId: string) => void;

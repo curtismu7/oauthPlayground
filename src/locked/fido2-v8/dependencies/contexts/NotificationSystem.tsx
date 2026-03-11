@@ -1,6 +1,5 @@
 // src/contexts/NotificationSystem.tsx
 
-import { FiAlertOctagon, FiAlertTriangle, FiCheckCircle, FiInfo, FiX } from '../../../../icons';
 import type { ReactNode } from 'react';
 import {
 	createContext,
@@ -12,6 +11,7 @@ import {
 	useState,
 } from 'react';
 import styled, { css, keyframes } from 'styled-components';
+import { FiAlertOctagon, FiAlertTriangle, FiCheckCircle, FiInfo, FiX } from '../../../../icons';
 
 import { logger } from '../../../../utils/logger';
 export type NotificationTone = 'success' | 'error' | 'warning' | 'info';

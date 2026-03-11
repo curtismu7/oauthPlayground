@@ -134,7 +134,7 @@ export class ReturnTargetServiceV8U {
 			sessionStorage.removeItem(key);
 		});
 
-		logger.info(`${MODULE_TAG} Cleared all return targets`, "Logger info");
+		logger.info(`${MODULE_TAG} Cleared all return targets`, 'Logger info');
 	}
 
 	/**

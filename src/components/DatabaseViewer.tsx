@@ -5,14 +5,14 @@
  * @since 2026-03-10
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { 
-	DatabaseViewerService, 
-	type DatabaseSchema, 
-	type DatabaseTable, 
+import {
 	type DatabaseQueryResult,
-	type DatabaseViewerOptions 
+	type DatabaseSchema,
+	type DatabaseTable,
+	type DatabaseViewerOptions,
+	DatabaseViewerService,
 } from '../services/databaseViewerService';
 import { logger } from '../utils/logger';
 
@@ -263,7 +263,7 @@ const Loading = styled.div`
 	font-size: 14px;
 `;
 
-const Error = styled.div`
+const ErrorContainer = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -294,9 +294,9 @@ const PaginationButton = styled.button<{ disabled?: boolean }>`
 	padding: 4px 8px;
 	border: 1px solid #d1d5db;
 	border-radius: 4px;
-	background: ${props => props.disabled ? '#f9fafb' : '#ffffff'};
-	color: ${props => props.disabled ? '#9ca3af' : '#374151'};
-	cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+	background: ${(props) => (props.disabled ? '#f9fafb' : '#ffffff')};
+	color: ${(props) => (props.disabled ? '#9ca3af' : '#374151')};
+	cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
 	font-size: 12px;
 
 	&:hover:not(:disabled) {
@@ -345,7 +345,7 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 			setError(null);
 			const dbSchemas = await DatabaseViewerService.getAvailableDatabases();
 			setDatabases(dbSchemas);
-			
+
 			// Auto-select first database
 			if (dbSchemas.length > 0 && !selectedDatabase) {
 				setSelectedDatabase(dbSchemas[0]);
@@ -387,7 +387,7 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 	};
 
 	const handleDatabaseChange = (dbName: string) => {
-		const db = databases.find(d => d.name === dbName);
+		const db = databases.find((d) => d.name === dbName);
 		if (db) {
 			setSelectedDatabase(db);
 			setSelectedTable(null);
@@ -417,8 +417,8 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 				format
 			);
 
-			const blob = new Blob([data], { 
-				type: format === 'json' ? 'application/json' : 'text/csv' 
+			const blob = new Blob([data], {
+				type: format === 'json' ? 'application/json' : 'text/csv',
 			});
 			const url = URL.createObjectURL(blob);
 			const a = document.createElement('a');
@@ -447,7 +447,7 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 
 		return (
 			<TableGrid>
-				{selectedDatabase.tables.map(table => (
+				{selectedDatabase.tables.map((table) => (
 					<TableCard
 						key={table.name}
 						onClick={() => handleTableSelect(table)}
@@ -477,7 +477,7 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 					<Table>
 						<TableHeader>
 							<tr>
-								{queryResult.columns.map(column => (
+								{queryResult.columns.map((column) => (
 									<HeaderCell key={column.name}>
 										{column.name}
 										{column.primaryKey && ' 🔑'}
@@ -488,7 +488,7 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 						<tbody>
 							{queryResult.data.map((row, index) => (
 								<TableRow key={index}>
-									{queryResult.columns.map(column => (
+									{queryResult.columns.map((column) => (
 										<TableCell key={column.name} title={String(row[column.name] || '')}>
 											{formatCellValue(row[column.name])}
 										</TableCell>
@@ -498,7 +498,7 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 						</tbody>
 					</Table>
 				</DataTable>
-				
+
 				<Pagination>
 					<div>
 						Showing {startIndex + 1}-{endIndex} of {queryResult.totalRows} rows
@@ -547,7 +547,7 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 						onChange={(e) => handleDatabaseChange(e.target.value)}
 					>
 						<option value="">Select Database</option>
-						{databases.map(db => (
+						{databases.map((db) => (
 							<option key={db.name} value={db.name}>
 								{db.name} ({db.type})
 							</option>
@@ -558,12 +558,12 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 						<TableSelector
 							value={selectedTable?.name || ''}
 							onChange={(e) => {
-								const table = selectedDatabase.tables.find(t => t.name === e.target.value);
+								const table = selectedDatabase.tables.find((t) => t.name === e.target.value);
 								if (table) handleTableSelect(table);
 							}}
 						>
 							<option value="">Select Table</option>
-							{selectedDatabase.tables.map(table => (
+							{selectedDatabase.tables.map((table) => (
 								<option key={table.name} value={table.name}>
 									{table.name} ({table.rowCount} rows)
 								</option>
@@ -578,21 +578,21 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 						value={searchTerm}
 						onChange={(e) => handleSearch(e.target.value)}
 					/>
-					
+
 					<ExportButton
 						disabled={!selectedDatabase || !selectedTable}
 						onClick={() => handleExport('json')}
 					>
 						📄 Export JSON
 					</ExportButton>
-					
+
 					<ExportButton
 						disabled={!selectedDatabase || !selectedTable}
 						onClick={() => handleExport('csv')}
 					>
 						📊 Export CSV
 					</ExportButton>
-					
+
 					<RefreshButton onClick={handleRefresh} disabled={loading}>
 						🔄 Refresh
 					</RefreshButton>
@@ -601,26 +601,22 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 
 			<Content>
 				{loading && <Loading>Loading database...</Loading>}
-				
-				{error && <Error>{error}</Error>}
-				
+
+				{error && <ErrorContainer>{error}</ErrorContainer>}
+
 				{!loading && !error && !selectedTable && renderTableGrid()}
-				
+
 				{!loading && !error && selectedTable && (
 					<>
 						<TableInfo>
-							<h3 style={{ margin: '0 0 8px 0' }}>
-								{selectedTable.name}
-							</h3>
+							<h3 style={{ margin: '0 0 8px 0' }}>{selectedTable.name}</h3>
 							<div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: '#6b7280' }}>
 								<span>📊 {selectedTable.rowCount} total rows</span>
 								<span>📋 {selectedTable.columns.length} columns</span>
-								{queryResult && (
-									<span>⏱️ Query: {queryResult.executionTime}ms</span>
-								)}
+								{queryResult && <span>⏱️ Query: {queryResult.executionTime}ms</span>}
 							</div>
 						</TableInfo>
-						
+
 						{renderDataTable()}
 					</>
 				)}

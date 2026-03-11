@@ -2,10 +2,10 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 // src/components/PingOneAppConfig.tsx - Reusable PingOne Application Configuration Component
 
-import { FiChevronDown } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiChevronDown } from '../icons';
 
 import { logger } from '../utils/logger';
 

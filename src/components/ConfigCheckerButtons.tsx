@@ -1,10 +1,10 @@
 // src/components/ConfigCheckerButtons.tsx
 // Config Checker component for comparing form data against live PingOne applications
 
-import { FiCheckCircle, FiKey, FiLoader, FiMonitor } from '../icons';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiCheckCircle, FiKey, FiLoader, FiMonitor } from '../icons';
 import { ConfigComparisonService, ConfigDiffResult } from '../services/configComparisonService';
 import { pingOneAppCreationService } from '../services/pingOneAppCreationService';
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
@@ -577,7 +577,6 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 	};
 
 	// Get allowed grant types for the selected app type
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const getAllowedGrantTypes = (_appType: string) => {
 		// For create app modal, allow all grant types for maximum flexibility
 		// Users should be able to create apps with any combination they need

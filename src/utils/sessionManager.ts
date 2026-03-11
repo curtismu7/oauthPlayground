@@ -46,7 +46,7 @@ export class SessionManager {
 	private initialize(): void {
 		this.startCleanupInterval();
 		this.loadSessionsFromStorage();
-		logger.info('[SessionManager] Session manager initialized', "Logger info");
+		logger.info('[SessionManager] Session manager initialized', 'Logger info');
 	}
 
 	// Create a new session
@@ -109,7 +109,7 @@ export class SessionManager {
 		session.data = { ...session.data, ...data };
 		this.saveSessionsToStorage();
 
-		logger.info(`[SessionManager] Session updated: ${sessionId}`, "Logger info");
+		logger.info(`[SessionManager] Session updated: ${sessionId}`, 'Logger info');
 		return true;
 	}
 
@@ -120,7 +120,7 @@ export class SessionManager {
 		session.lastAccessed = now;
 
 		this.saveSessionsToStorage();
-		logger.info(`[SessionManager] Session renewed: ${session.id}`, "Logger info");
+		logger.info(`[SessionManager] Session renewed: ${session.id}`, 'Logger info');
 	}
 
 	// Check if session should be renewed
@@ -143,7 +143,7 @@ export class SessionManager {
 		this.sessions.delete(sessionId);
 		this.saveSessionsToStorage();
 
-		logger.info(`[SessionManager] Session destroyed: ${sessionId}`, "Logger info");
+		logger.info(`[SessionManager] Session destroyed: ${sessionId}`, 'Logger info');
 		return true;
 	}
 
@@ -160,7 +160,10 @@ export class SessionManager {
 
 		if (destroyedCount > 0) {
 			this.saveSessionsToStorage();
-			logger.info(`[SessionManager] Destroyed ${destroyedCount} sessions for user: ${userId}`, "Logger info");
+			logger.info(
+				`[SessionManager] Destroyed ${destroyedCount} sessions for user: ${userId}`,
+				'Logger info'
+			);
 		}
 
 		return destroyedCount;
@@ -195,7 +198,7 @@ export class SessionManager {
 
 		if (cleanedCount > 0) {
 			this.saveSessionsToStorage();
-			logger.info(`[SessionManager] Cleaned up ${cleanedCount} expired sessions`, "Logger info");
+			logger.info(`[SessionManager] Cleaned up ${cleanedCount} expired sessions`, 'Logger info');
 		}
 
 		return cleanedCount;
@@ -223,7 +226,10 @@ export class SessionManager {
 
 		if (removedCount > 0) {
 			this.saveSessionsToStorage();
-			logger.info(`[SessionManager] Removed ${removedCount} sessions to enforce limit`, "Logger info");
+			logger.info(
+				`[SessionManager] Removed ${removedCount} sessions to enforce limit`,
+				'Logger info'
+			);
 		}
 
 		return removedCount;
@@ -273,7 +279,10 @@ export class SessionManager {
 			if (sessionsData) {
 				const sessions = JSON.parse(sessionsData);
 				this.sessions = new Map(sessions);
-				logger.info(`[SessionManager] Loaded ${this.sessions.size} sessions from storage`, "Logger info");
+				logger.info(
+					`[SessionManager] Loaded ${this.sessions.size} sessions from storage`,
+					'Logger info'
+				);
 			}
 		} catch (error) {
 			errorHandler.handleError(error, 'Session storage load');
@@ -320,7 +329,7 @@ export class SessionManager {
 			this.startCleanupInterval();
 		}
 
-		logger.info('[SessionManager] Configuration updated', "Logger info");
+		logger.info('[SessionManager] Configuration updated', 'Logger info');
 	}
 
 	// Get current configuration
@@ -332,14 +341,14 @@ export class SessionManager {
 	clearAllSessions(): void {
 		this.sessions.clear();
 		this.saveSessionsToStorage();
-		logger.info('[SessionManager] All sessions cleared', "Logger info");
+		logger.info('[SessionManager] All sessions cleared', 'Logger info');
 	}
 
 	// Destroy session manager
 	destroy(): void {
 		this.stopCleanupInterval();
 		this.clearAllSessions();
-		logger.info('[SessionManager] Session manager destroyed', "Logger info");
+		logger.info('[SessionManager] Session manager destroyed', 'Logger info');
 	}
 }
 

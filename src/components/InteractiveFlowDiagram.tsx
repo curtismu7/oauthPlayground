@@ -1,6 +1,6 @@
-import { FiArrowDown } from '../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiArrowDown } from '../icons';
 
 interface FlowStep {
 	id: string;

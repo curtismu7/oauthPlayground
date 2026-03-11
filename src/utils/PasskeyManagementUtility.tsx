@@ -5,10 +5,10 @@
  * @version 1.0.0
  */
 
-import { FiCheckCircle } from '../icons';
 import React, { useEffect, useState } from 'react';
 import { showGlobalError, showGlobalWarning } from '../contexts/NotificationSystem';
-
+import { FiCheckCircle } from '../icons';
+import { modernMessaging } from '../services/v9/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 
 interface PasskeyDevice {
@@ -224,58 +224,65 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 			return;
 		}
 
-		if (
-			// eslint-disable-next-line no-alert
-			!confirm(
-				'Are you sure you want to delete this passkey device? This will also remove it from Chrome. This action cannot be undone.'
-			)
-		) {
-			return;
-		}
-
-		try {
-			// Delete from PingOne server
-			const response = await fetch(
-				`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`,
+		modernMessaging.showBanner({
+			type: 'warning',
+			title: 'Delete passkey device',
+			message:
+				'Are you sure you want to delete this passkey device? This will also remove it from Chrome. This action cannot be undone.',
+			actions: [
+				{ label: 'Cancel', action: () => modernMessaging.hideBanner() },
 				{
-					method: 'DELETE',
-					headers: {
-						Authorization: `Bearer ${workerToken}`,
-						'Content-Type': 'application/json',
+					label: 'Delete',
+					action: async () => {
+						modernMessaging.hideBanner();
+						try {
+							// Delete from PingOne server
+							const response = await fetch(
+								`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`,
+								{
+									method: 'DELETE',
+									headers: {
+										Authorization: `Bearer ${workerToken}`,
+										'Content-Type': 'application/json',
+									},
+								}
+							);
+
+							if (!response.ok) {
+								throw new Error(`Failed to delete device: ${response.statusText}`);
+							}
+
+							if (device.credentialId && device.rpId) {
+								await signalUnknownCredential(device.credentialId, device.rpId);
+							}
+
+							const remainingDevices = devices.filter((d) => d.id !== deviceId);
+							const remainingCredentialIds = remainingDevices
+								.map((d) => d.credentialId)
+								.filter((id): id is string => !!id);
+
+							await loadDevices();
+
+							if (remainingCredentialIds.length > 0 && device.rpId) {
+								await signalAllAcceptedCredentials(remainingCredentialIds, device.rpId);
+							}
+
+							onDeviceDeleted?.();
+						} catch (err) {
+							logger.error(
+								'PasskeyManagement',
+								'Failed to delete device:',
+								undefined,
+								err as Error
+							);
+							showGlobalError(
+								`Failed to delete device: ${err instanceof Error ? err.message : 'Unknown error'}`
+							);
+						}
 					},
-				}
-			);
-
-			if (!response.ok) {
-				throw new Error(`Failed to delete device: ${response.statusText}`);
-			}
-
-			// Signal Chrome to remove the passkey using WebAuthn Signal API
-			if (device.credentialId && device.rpId) {
-				await signalUnknownCredential(device.credentialId, device.rpId);
-			}
-
-			// Get remaining devices before deletion for signaling
-			const remainingDevices = devices.filter((d) => d.id !== deviceId);
-			const remainingCredentialIds = remainingDevices
-				.map((d) => d.credentialId)
-				.filter((id): id is string => !!id);
-
-			// Reload devices to get updated list
-			await loadDevices();
-
-			// Signal Chrome with all remaining valid credentials
-			if (remainingCredentialIds.length > 0 && device.rpId) {
-				await signalAllAcceptedCredentials(remainingCredentialIds, device.rpId);
-			}
-
-			onDeviceDeleted?.();
-		} catch (err) {
-			logger.error('PasskeyManagement', 'Failed to delete device:', undefined, err as Error);
-			showGlobalError(
-				`Failed to delete device: ${err instanceof Error ? err.message : 'Unknown error'}`
-			);
-		}
+				},
+			],
+		});
 	};
 
 	const openChromePasskeyManager = () => {

@@ -281,8 +281,7 @@ const IndustrialLabel = styled.div`
 interface IndustrialIoTControllerDeviceFlowProps {
 	state: DeviceFlowState;
 	onStateUpdate: (newState: DeviceFlowState) => void;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	onComplete: (tokens: any) => void;
+	onComplete: (tokens: Record<string, unknown>) => void;
 	onError: (error: string) => void;
 }
 

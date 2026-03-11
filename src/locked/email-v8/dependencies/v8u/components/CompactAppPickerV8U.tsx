@@ -6,8 +6,8 @@
  * @since 2024-11-16
  */
 
-import { FiSearch } from '../../../../../icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { FiSearch } from '../../../../../icons';
 import { logger } from '../../../../../utils/logger';
 import type { DiscoveredApp } from '../../v8/components/AppPickerV8.tsx';
 import { AppDiscoveryServiceV8 } from '../../v8/services/appDiscoveryServiceV8.ts';

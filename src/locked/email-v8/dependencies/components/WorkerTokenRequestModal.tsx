@@ -1,9 +1,9 @@
 // src/components/WorkerTokenRequestModal.tsx
 // Educational modal showing worker token API request details
 
-import { FiRefreshCw } from '../../../../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { FiRefreshCw } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 

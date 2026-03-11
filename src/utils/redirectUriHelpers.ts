@@ -19,7 +19,10 @@ export function storeRedirectUriFromAuthUrl(authUrl: string, flowKey: string): s
 		if (redirectUri) {
 			const storageKey = `${flowKey}_actual_redirect_uri`;
 			sessionStorage.setItem(storageKey, redirectUri);
-			logger.info(`🔐 [RedirectURI] Stored from auth URL for ${flowKey}: ${redirectUri}`, "Logger info");
+			logger.info(
+				`🔐 [RedirectURI] Stored from auth URL for ${flowKey}: ${redirectUri}`,
+				'Logger info'
+			);
 			return redirectUri;
 		}
 
@@ -49,7 +52,7 @@ export function getStoredRedirectUri(flowKey: string, fallback?: string): string
 	const stored = sessionStorage.getItem(storageKey);
 
 	if (stored) {
-		logger.info(`🔐 [RedirectURI] Retrieved stored value for ${flowKey}: ${stored}`, "Logger info");
+		logger.info(`🔐 [RedirectURI] Retrieved stored value for ${flowKey}: ${stored}`, 'Logger info');
 		return stored;
 	}
 
@@ -71,7 +74,7 @@ export function getStoredRedirectUri(flowKey: string, fallback?: string): string
 export function clearRedirectUri(flowKey: string): void {
 	const storageKey = `${flowKey}_actual_redirect_uri`;
 	sessionStorage.removeItem(storageKey);
-	logger.info(`🗑️ [RedirectURI] Cleared for ${flowKey}`, "Logger info");
+	logger.info(`🗑️ [RedirectURI] Cleared for ${flowKey}`, 'Logger info');
 }
 
 /**
@@ -126,7 +129,10 @@ export function auditRedirectUri(phase: string, redirectUri: string, flowKey: st
 				willFail: true,
 			});
 		} else if (stored) {
-			logger.info('✅ [RedirectURI] Match confirmed between authorization and token exchange', "Logger info");
+			logger.info(
+				'✅ [RedirectURI] Match confirmed between authorization and token exchange',
+				'Logger info'
+			);
 		}
 	}
 }

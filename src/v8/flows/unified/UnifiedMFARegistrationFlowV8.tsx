@@ -25,6 +25,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
+import { environmentIdPersistenceService } from '@/services/environmentIdPersistenceService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFADocumentationPageV8 } from '@/v8/components/MFADocumentationPageV8';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
@@ -43,7 +44,6 @@ import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
 import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
 import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
-import { environmentIdPersistenceService } from '@/services/environmentIdPersistenceService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
@@ -909,7 +909,14 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							zIndex: 1,
 						}}
 					>
-						<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' }}>
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '12px',
+								marginBottom: '12px',
+							}}
+						>
 							<SilentApiConfigCheckboxV8 />
 							<ShowTokenConfigCheckboxV8 />
 						</div>

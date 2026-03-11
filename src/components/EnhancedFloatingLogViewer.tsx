@@ -30,7 +30,8 @@ type LogLevel = 'error' | 'warn' | 'info' | 'debug' | 'none';
 /** Detect log level from a line (timestamp + level patterns). */
 function getLogLevel(line: string): LogLevel {
 	const trimmed = line.trim();
-	if (/\[ERROR\]|❌|\(ERROR\)|\bERROR\b.*\b(?:error|failed|exception)\b/i.test(trimmed)) return 'error';
+	if (/\[ERROR\]|❌|\(ERROR\)|\bERROR\b.*\b(?:error|failed|exception)\b/i.test(trimmed))
+		return 'error';
 	if (/\[WARN\]|⚠️|\(WARN\)|\bWARN\b/i.test(trimmed)) return 'warn';
 	if (/\[INFO\]|ℹ️|\[LOG\]/i.test(trimmed)) return 'info';
 	if (/\[DEBUG\]|🔍|\bDEBUG\b/i.test(trimmed)) return 'debug';
@@ -38,9 +39,18 @@ function getLogLevel(line: string): LogLevel {
 }
 
 /** Count lines by level in content. */
-function countByLevel(content: string): { total: number; error: number; warn: number; info: number; debug: number } {
+function countByLevel(content: string): {
+	total: number;
+	error: number;
+	warn: number;
+	info: number;
+	debug: number;
+} {
 	const lines = content.split('\n').filter((l) => l.length > 0);
-	let error = 0, warn = 0, info = 0, debug = 0;
+	let error = 0,
+		warn = 0,
+		info = 0,
+		debug = 0;
 	lines.forEach((line) => {
 		const level = getLogLevel(line);
 		if (level === 'error') error++;
@@ -62,8 +72,9 @@ function filterLogContentByCategory(content: string, category: LogCategory): str
 		switch (category) {
 			case 'API_CALLS':
 				return (
-					/API CALL START|API CALL END|REQUEST\/RESPONSE SUMMARY|Endpoint:|Method:|🔧 Method|📍 Endpoint|📋 BACKEND/.test(l) ||
-					/^(GET|POST|PUT|DELETE|PATCH)\s+https?:\/\//i.test(l)
+					/API CALL START|API CALL END|REQUEST\/RESPONSE SUMMARY|Endpoint:|Method:|🔧 Method|📍 Endpoint|📋 BACKEND/.test(
+						l
+					) || /^(GET|POST|PUT|DELETE|PATCH)\s+https?:\/\//i.test(l)
 				);
 			case 'ERRORS':
 				return (
@@ -72,8 +83,9 @@ function filterLogContentByCategory(content: string, category: LogCategory): str
 				);
 			case 'AUTH_FLOW':
 				return (
-					/auth|token|Bearer|authorize|oauth|pingone|OAuth|login|signoff|introspect|userinfo/i.test(lc) ||
-					/🔐|authorization_endpoint|token_endpoint/.test(l)
+					/auth|token|Bearer|authorize|oauth|pingone|OAuth|login|signoff|introspect|userinfo/i.test(
+						lc
+					) || /🔐|authorization_endpoint|token_endpoint/.test(l)
 				);
 			case 'DEBUG':
 				return (
@@ -183,7 +195,9 @@ const Controls = styled.div`
 	gap: 6px;
 `;
 
-const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'close' }>`
+const ControlButton = styled.button<{
+	$variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'close';
+}>`
 	background: ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
@@ -555,10 +569,11 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 			let content = '';
 
 			switch (logSource) {
-				case 'file':
+				case 'file': {
 					const logContent = await LogFileService.readLogFile(selectedFile, lineCount, tailMode);
 					content = logContent.content;
 					break;
+				}
 				default:
 					content = 'Log source not implemented yet';
 					break;
@@ -747,9 +762,9 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 					<ControlButton onClick={toggleMaximize} title={isMaximized ? 'Restore' : 'Maximize'}>
 						{isMaximized ? '🗗' : '🗖'}
 					</ControlButton>
-<ControlButton $variant="close" onClick={onClose} title="Close">
-										❌
-									</ControlButton>
+					<ControlButton $variant="close" onClick={onClose} title="Close">
+						❌
+					</ControlButton>
 				</Controls>
 			</Header>
 
@@ -757,10 +772,14 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 				{fileContent && (
 					<StatsBar>
 						{(() => {
-							const counts = countByLevel(filterLogContentByCategory(fileContent, selectedCategory));
+							const counts = countByLevel(
+								filterLogContentByCategory(fileContent, selectedCategory)
+							);
 							return (
 								<>
-									<StatItem>Lines: <strong>{counts.total}</strong></StatItem>
+									<StatItem>
+										Lines: <strong>{counts.total}</strong>
+									</StatItem>
 									<StatItem $highlight $color={counts.error > 0 ? '#dc2626' : undefined}>
 										Errors: {counts.error}
 									</StatItem>
@@ -770,7 +789,9 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 									<StatItem>Info: {counts.info}</StatItem>
 									<StatItem>Debug: {counts.debug}</StatItem>
 									{analysis && analysis.totalCalls > 0 && (
-										<StatItem>API calls: {analysis.totalCalls} ({analysis.successRate.toFixed(0)}% ok)</StatItem>
+										<StatItem>
+											API calls: {analysis.totalCalls} ({analysis.successRate.toFixed(0)}% ok)
+										</StatItem>
 									)}
 								</>
 							);
@@ -786,28 +807,40 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 					>
 						<FileOptions files={availableFiles} />
 					</Select>
-					<Select
-						value={lineCount}
-						onChange={(e) => setLineCount(Number(e.target.value))}
-					>
+					<Select value={lineCount} onChange={(e) => setLineCount(Number(e.target.value))}>
 						<option value={50}>50 lines</option>
 						<option value={100}>100 lines</option>
 						<option value={200}>200 lines</option>
 						<option value={500}>500 lines</option>
 					</Select>
-					<FilterChip $active={selectedCategory === 'ALL'} onClick={() => setSelectedCategory('ALL')}>
+					<FilterChip
+						$active={selectedCategory === 'ALL'}
+						onClick={() => setSelectedCategory('ALL')}
+					>
 						All
 					</FilterChip>
-					<FilterChip $active={selectedCategory === 'API_CALLS'} onClick={() => setSelectedCategory('API_CALLS')}>
+					<FilterChip
+						$active={selectedCategory === 'API_CALLS'}
+						onClick={() => setSelectedCategory('API_CALLS')}
+					>
 						API
 					</FilterChip>
-					<FilterChip $active={selectedCategory === 'ERRORS'} onClick={() => setSelectedCategory('ERRORS')}>
+					<FilterChip
+						$active={selectedCategory === 'ERRORS'}
+						onClick={() => setSelectedCategory('ERRORS')}
+					>
 						Errors
 					</FilterChip>
-					<FilterChip $active={selectedCategory === 'AUTH_FLOW'} onClick={() => setSelectedCategory('AUTH_FLOW')}>
+					<FilterChip
+						$active={selectedCategory === 'AUTH_FLOW'}
+						onClick={() => setSelectedCategory('AUTH_FLOW')}
+					>
 						Auth
 					</FilterChip>
-					<FilterChip $active={selectedCategory === 'DEBUG'} onClick={() => setSelectedCategory('DEBUG')}>
+					<FilterChip
+						$active={selectedCategory === 'DEBUG'}
+						onClick={() => setSelectedCategory('DEBUG')}
+					>
 						Debug
 					</FilterChip>
 					<SearchInput
@@ -827,42 +860,47 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 				{isLoading && <StatusMessage $type="loading">Loading logs…</StatusMessage>}
 				{error && <StatusMessage $type="error">{error}</StatusMessage>}
 				{!isLoading && !error && !fileContent && (
-					<StatusMessage $type="empty">No log file selected or log source unavailable.</StatusMessage>
+					<StatusMessage $type="empty">
+						No log file selected or log source unavailable.
+					</StatusMessage>
 				)}
-				{!isLoading && !error && fileContent && (() => {
-					const filtered = filterLogContentByCategory(fileContent, selectedCategory);
-					const lines = filtered ? filtered.split('\n') : [];
-					const searchLower = searchQuery.trim().toLowerCase();
-					const visibleLines = searchLower
-						? lines.filter((line) => line.toLowerCase().includes(searchLower))
-						: lines;
-					if (visibleLines.length === 0) {
+				{!isLoading &&
+					!error &&
+					fileContent &&
+					(() => {
+						const filtered = filterLogContentByCategory(fileContent, selectedCategory);
+						const lines = filtered ? filtered.split('\n') : [];
+						const searchLower = searchQuery.trim().toLowerCase();
+						const visibleLines = searchLower
+							? lines.filter((line) => line.toLowerCase().includes(searchLower))
+							: lines;
+						if (visibleLines.length === 0) {
+							return (
+								<LogContent>
+									<StatusMessage $type="empty">
+										{lines.length === 0
+											? `No lines match the "${selectedCategory === 'API_CALLS' ? 'API' : selectedCategory === 'AUTH_FLOW' ? 'Auth' : selectedCategory === 'ERRORS' ? 'Errors' : 'Debug'}" filter.`
+											: 'No lines match the search.'}
+									</StatusMessage>
+								</LogContent>
+							);
+						}
 						return (
 							<LogContent>
-								<StatusMessage $type="empty">
-									{lines.length === 0
-										? `No lines match the "${selectedCategory === 'API_CALLS' ? 'API' : selectedCategory === 'AUTH_FLOW' ? 'Auth' : selectedCategory === 'ERRORS' ? 'Errors' : 'Debug'}" filter.`
-										: 'No lines match the search.'}
-								</StatusMessage>
+								<LogTable>
+									{visibleLines.map((line, idx) => {
+										const level = getLogLevel(line);
+										return (
+											<LogLine key={idx} $level={level}>
+												<LineNum>{idx + 1}</LineNum>
+												<LineText>{line || ' '}</LineText>
+											</LogLine>
+										);
+									})}
+								</LogTable>
 							</LogContent>
 						);
-					}
-					return (
-						<LogContent>
-							<LogTable>
-								{visibleLines.map((line, idx) => {
-									const level = getLogLevel(line);
-									return (
-										<LogLine key={idx} $level={level}>
-											<LineNum>{idx + 1}</LineNum>
-											<LineText>{line || ' '}</LineText>
-										</LogLine>
-									);
-								})}
-							</LogTable>
-						</LogContent>
-					);
-				})()}
+					})()}
 			</Content>
 		</FloatingContainer>
 	);
@@ -873,8 +911,8 @@ const FileOptions: React.FC<{ files: LogFile[] }> = ({ files }) => (
 	<>
 		{files.map((file) => (
 			<option key={file.name} value={file.name}>
-				{file.name.includes('api') ? '🔌' : file.name.includes('server') ? '🖥️' : '📄'} {file.name}{' '}
-				({(file.size / 1024).toFixed(1)} KB)
+				{file.name.includes('api') ? '🔌' : file.name.includes('server') ? '🖥️' : '📄'} {file.name} (
+				{(file.size / 1024).toFixed(1)} KB)
 			</option>
 		))}
 	</>

@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useComponentTracker } from '../utils/componentTracker';
 import {
 	SIDEBAR_PING_MAX_WIDTH,
 	SIDEBAR_PING_MIN_WIDTH,
 	SIDEBAR_PING_WIDTH,
 	USE_PING_MENU,
 } from '../config/sidebarMenuConfig';
+import { useComponentTracker } from '../utils/componentTracker';
 import DragDropSidebar from './DragDropSidebar';
 import SidebarMenuPing from './SidebarMenuPing';
 import SidebarSearch from './SidebarSearch';

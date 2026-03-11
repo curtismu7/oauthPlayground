@@ -1,10 +1,10 @@
 // src/components/AmazonEchoShowDeviceFlow.tsx
 // Amazon Echo Show Style Device Authorization Flow Interface
 
-import { FiCheckCircle } from '../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { FiCheckCircle } from '../icons';
 import {
 	DeviceFlowState,
 	DeviceTokenResponse,

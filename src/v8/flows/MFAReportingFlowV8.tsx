@@ -16,7 +16,6 @@
  * <MFAReportingFlowV8 />
  */
 
-import { FiPackage } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -37,6 +36,7 @@ import {
 import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
+import { FiPackage } from '../../icons';
 
 import { logger } from '../../utils/logger';
 

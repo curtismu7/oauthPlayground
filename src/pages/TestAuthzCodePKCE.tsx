@@ -492,7 +492,7 @@ const TestAuthzCodePKCE: React.FC = () => {
 	};
 
 	const handleVerifyPKCE = () => {
-		logger.info('🔍 handleVerifyPKCE function called', "Logger info");
+		logger.info('🔍 handleVerifyPKCE function called', 'Logger info');
 		logger.info('pkceData:', pkceData);
 		logger.info('tokenData:', tokenData);
 		log('🔍 Verifying PKCE implementation...', 'info');
@@ -720,7 +720,7 @@ const TestAuthzCodePKCE: React.FC = () => {
 						<SectionTitle>6. Verify PKCE Flow</SectionTitle>
 						<Button
 							onClick={() => {
-								logger.info('🔍 Verify PKCE button clicked!', "Logger info");
+								logger.info('🔍 Verify PKCE button clicked!', 'Logger info');
 								handleVerifyPKCE();
 							}}
 						>

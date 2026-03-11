@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppVersionBadge from '../components/AppVersionBadge';
 import { Icon } from '../components/Icon/Icon';
+import { RegionSelect } from '../components/RegionSelect';
 import { useServerStatusOptional } from '../components/ServerStatusProvider';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
@@ -16,7 +17,6 @@ import {
 	saveCustomDomain,
 } from '../services/customDomainService';
 import { getCurrentRegion, type PingOneRegion, saveRegion } from '../services/regionService';
-import { RegionSelect } from '../components/RegionSelect';
 import {
 	type DetailedServerStatus,
 	fetchDetailedHealth,

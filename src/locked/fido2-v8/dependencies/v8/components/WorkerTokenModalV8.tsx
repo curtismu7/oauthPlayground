@@ -136,7 +136,10 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						setRegion(creds.region || 'us');
 						setCustomDomain(creds.customDomain || '');
 						setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
-						logger.info(`${MODULE_TAG} Loaded credentials from workerTokenServiceV8`, "Logger info");
+						logger.info(
+							`${MODULE_TAG} Loaded credentials from workerTokenServiceV8`,
+							'Logger info'
+						);
 					} else {
 						// Fallback to old storage location for backwards compatibility
 						const saved = localStorage.getItem('worker_credentials_v8');
@@ -154,7 +157,10 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								setRegion('us'); // Always default to 'us' (.com)
 								setCustomDomain(parsed.customDomain || '');
 								setAuthMethod(parsed.authMethod || 'client_secret_basic');
-								logger.info(`${MODULE_TAG} Loaded credentials from legacy storage location`, "Logger info");
+								logger.info(
+									`${MODULE_TAG} Loaded credentials from legacy storage location`,
+									'Logger info'
+								);
 							} catch (e) {
 								logger.error(`${MODULE_TAG} Failed to load saved credentials`, e);
 							}

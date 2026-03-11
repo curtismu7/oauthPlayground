@@ -1,12 +1,12 @@
 // src/services/authenticationModalService.tsx
 
-import { FiExternalLink, FiInfo } from '../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import PARInputInterface from '../components/PARInputInterface';
+import { FiExternalLink, FiInfo } from '../icons';
 import { logger } from '../utils/logger';
 
 // MDI Icon Component for React Icons migration

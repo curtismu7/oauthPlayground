@@ -5,7 +5,6 @@
  * @version 8.2.0
  */
 
-import { FiMail } from '../../../icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
@@ -23,6 +22,7 @@ import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; /
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat, validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
+import { FiMail } from '../../../icons';
 import { logger } from '../../../utils/logger';
 import { type Device, MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
@@ -1622,8 +1622,9 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 						});
 					} else if (isWorkerTokenError) {
 						// Use helper to show worker token modal (respects silent API retrieval setting)
-						const { handleShowWorkerTokenModal } =
-							await import('@/v8/utils/workerTokenModalHelperV8');
+						const { handleShowWorkerTokenModal } = await import(
+							'@/v8/utils/workerTokenModalHelperV8'
+						);
 						// Get current checkbox values from config
 						const config = MFAConfigurationServiceV8.loadConfiguration();
 						const silentApiRetrieval = config.workerToken.silentApiRetrieval || false;
@@ -2645,8 +2646,8 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 						</p>
 						{otpState.sendRetryCount > 0 && (
 							<p style={{ marginTop: '8px', fontSize: '13px', color: '#92400e' }}>
-								⚠️ Attempt {otpState.sendRetryCount + 1} - If you continue to have issues, check
-								your phone number and try again.
+								⚠️ Attempt {otpState.sendRetryCount + 1} - If you continue to have issues, check your
+								phone number and try again.
 							</p>
 						)}
 					</div>
@@ -3302,8 +3303,9 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 										try {
 											// For authentication flow (when authenticationId exists), use selectDeviceForAuthentication
 											if (mfaState.authenticationId && mfaState.deviceId) {
-												const { MfaAuthenticationServiceV8 } =
-													await import('@/v8/services/mfaAuthenticationServiceV8');
+												const { MfaAuthenticationServiceV8 } = await import(
+													'@/v8/services/mfaAuthenticationServiceV8'
+												);
 												const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
 
 												// Get userId if not already available

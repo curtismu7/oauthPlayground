@@ -3,12 +3,13 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ApiCallList from '../components/ApiCallList';
-import { FlowHeader } from '../services/flowHeaderService';
 import { WaitScreen } from '../components/v9/V9ModernMessagingComponents';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
+import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
+import { modernMessaging } from '../services/v9/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
@@ -41,12 +42,7 @@ const styles = {
 	} as React.CSSProperties,
 
 	button: (variant?: 'primary' | 'secondary' | 'danger'): React.CSSProperties => ({
-		background:
-			variant === 'secondary'
-				? 'white'
-				: variant === 'danger'
-					? '#dc2626'
-					: '#2563eb',
+		background: variant === 'secondary' ? 'white' : variant === 'danger' ? '#dc2626' : '#2563eb',
 		color: variant === 'secondary' ? '#2563eb' : 'white',
 		border: variant === 'secondary' ? '1px solid #2563eb' : 'none',
 		padding: '0.5rem 1rem',
@@ -447,7 +443,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	const pageSize = 12;
 	const STORAGE_KEY = 'environment-management-settings';
 	const [displayAll, _setDisplayAll] = useState(false);
-	const [_showCreateModal, _setShowCreateModal] = useState(false);
+	const [showCreateModal, setShowCreateModal] = useState(false);
+	const [createNameInput, setCreateNameInput] = useState('');
 	const [showEditModal, setShowEditModal] = useState(false);
 	const [editingEnvironment, setEditingEnvironment] = useState<PingOneEnvironment | null>(null);
 	const [editName, setEditName] = useState('');
@@ -745,7 +742,12 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		if (!globalTokenStatus.isLoading && globalTokenStatus.isValid && globalTokenStatus.token) {
 			fetchEnvironments();
 		}
-	}, [fetchEnvironments, globalTokenStatus.isLoading, globalTokenStatus.isValid, globalTokenStatus.token]);
+	}, [
+		fetchEnvironments,
+		globalTokenStatus.isLoading,
+		globalTokenStatus.isValid,
+		globalTokenStatus.token,
+	]);
 
 	const handleRefresh = () => {
 		fetchEnvironments();
@@ -772,18 +774,17 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	};
 
 	const handleCreateEnvironment = () => {
-		// eslint-disable-next-line no-alert
-		const name = window.prompt('Enter environment name:', '');
+		setCreateNameInput('');
+		setShowCreateModal(true);
+	};
 
-		if (name?.trim()) {
-			// Simple environment creation - in a real app this would call an API
-			logger.info('Create environment:', name.trim());
-
-			// For demo purposes, we'll just log it
-			// In production: await EnvironmentServiceV8.createEnvironment({ name: name.trim() });
-
+	const handleSubmitCreateEnvironment = () => {
+		const name = createNameInput.trim();
+		if (name) {
+			logger.info('Create environment:', name);
 			setEnvError('Environment created (demo mode - no API call made)');
-			// In production: fetchEnvironments();
+			setShowCreateModal(false);
+			setCreateNameInput('');
 		}
 	};
 
@@ -865,25 +866,30 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	};
 
 	const handleDeleteEnvironment = async (id: string) => {
-		try {
-			const environment = environments.find((env) => env.id === id);
-			if (!environment) return;
+		const environment = environments.find((env) => env.id === id);
+		if (!environment) return;
 
-			// Show confirmation dialog
-			// eslint-disable-next-line no-alert
-			const confirmed = window.confirm(
-				`Are you sure you want to delete the environment "${environment.name}"?\n\nThis action cannot be undone and will permanently remove the environment and all associated data.`
-			);
-
-			if (!confirmed) return;
-
-			setEnvError(null);
-
-			await EnvironmentServiceV8.deleteEnvironment(id);
-			fetchEnvironments();
-		} catch (err) {
-			setEnvError(err instanceof Error ? err.message : 'Failed to delete environment');
-		}
+		modernMessaging.showBanner({
+			type: 'warning',
+			title: 'Delete environment',
+			message: `Are you sure you want to delete "${environment.name}"? This cannot be undone.`,
+			actions: [
+				{ label: 'Cancel', action: () => modernMessaging.hideBanner() },
+				{
+					label: 'Delete',
+					action: async () => {
+						modernMessaging.hideBanner();
+						try {
+							setEnvError(null);
+							await EnvironmentServiceV8.deleteEnvironment(id);
+							fetchEnvironments();
+						} catch (err) {
+							setEnvError(err instanceof Error ? err.message : 'Failed to delete environment');
+						}
+					},
+				},
+			],
+		});
 	};
 
 	const handleToggleEnvironmentStatus = async (id: string) => {
@@ -1576,6 +1582,87 @@ const EnvironmentManagementPageV8: React.FC = () => {
 							}}
 						>
 							{hasUnsavedChanges ? 'Save Changes*' : editName.trim() ? 'Saved' : 'Save Changes'}
+						</button>
+					</div>
+				</div>
+
+				{/* Create Environment Modal */}
+				<button
+					type="button"
+					aria-label="Close create modal"
+					style={{ ...styles.apiDisplayOverlay(showCreateModal), border: 'none' }}
+					onClick={() => {
+						setShowCreateModal(false);
+						setCreateNameInput('');
+					}}
+				/>
+				<div style={styles.apiDisplayModal(showCreateModal)}>
+					<div style={styles.apiDisplayHeader}>
+						<h3 style={styles.apiDisplayTitle}>
+							<i className="bi bi-plus-circle" />
+							Create Environment
+						</h3>
+						<button
+							type="button"
+							style={styles.closeButton}
+							onClick={() => {
+								setShowCreateModal(false);
+								setCreateNameInput('');
+							}}
+						>
+							×
+						</button>
+					</div>
+					<div style={styles.apiDisplayContent}>
+						<div style={{ padding: '1rem' }}>
+							<label
+								htmlFor="create-env-name"
+								style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+							>
+								Environment Name
+							</label>
+							<input
+								id="create-env-name"
+								type="text"
+								value={createNameInput}
+								onChange={(e) => setCreateNameInput(e.target.value)}
+								placeholder="Enter environment name"
+								style={{
+									width: '100%',
+									padding: '0.5rem',
+									border: '1px solid #ddd',
+									borderRadius: '4px',
+									fontSize: '1rem',
+								}}
+							/>
+						</div>
+					</div>
+					<div
+						style={{
+							padding: '1rem',
+							borderTop: '1px solid #eee',
+							display: 'flex',
+							gap: '0.5rem',
+							justifyContent: 'flex-end',
+						}}
+					>
+						<button
+							type="button"
+							style={styles.button('secondary')}
+							onClick={() => {
+								setShowCreateModal(false);
+								setCreateNameInput('');
+							}}
+						>
+							Cancel
+						</button>
+						<button
+							type="button"
+							onClick={handleSubmitCreateEnvironment}
+							disabled={!createNameInput.trim()}
+							style={styles.button()}
+						>
+							Create
 						</button>
 					</div>
 				</div>

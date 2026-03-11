@@ -1,8 +1,8 @@
 // src/services/oauthFlowComparisonService.tsx
 // Service for displaying OAuth flow comparisons with collapsible headers
 
-import { FiAlertTriangle } from '../icons';
 import styled from 'styled-components';
+import { FiAlertTriangle } from '../icons';
 import { CollapsibleHeader } from './collapsibleHeaderService';
 
 // MDI Icon Component for React Icons migration

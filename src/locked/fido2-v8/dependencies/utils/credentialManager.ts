@@ -235,8 +235,9 @@ class CredentialManager {
 			// Check if global config is enabled - if so, use Dashboard credentials but with correct redirect URI
 			if (this.isGlobalConfigEnabled()) {
 				logger.info(
-					' [CredentialManager] Global config enabled - using Dashboard credentials for all flows'
-				, "Logger info");
+					' [CredentialManager] Global config enabled - using Dashboard credentials for all flows',
+					'Logger info'
+				);
 				const configCredentials = this.loadConfigCredentials();
 				// Override redirect URI to use flow-specific default for authorization flows
 				return {
@@ -329,8 +330,9 @@ class CredentialManager {
 			);
 
 			logger.info(
-				' [CredentialManager] Successfully saved implicit flow credentials to localStorage'
-			, "Logger info");
+				' [CredentialManager] Successfully saved implicit flow credentials to localStorage',
+				'Logger info'
+			);
 			return true;
 		} catch (error) {
 			logger.error(
@@ -756,7 +758,7 @@ class CredentialManager {
 		try {
 			// Test localStorage availability
 			if (typeof localStorage === 'undefined') {
-				logger.error(' [CredentialManager] localStorage is not available', "Logger error");
+				logger.error(' [CredentialManager] localStorage is not available', 'Logger error');
 				return false;
 			}
 
@@ -898,7 +900,7 @@ class CredentialManager {
 	 */
 	private async loadFromEnvironmentVariables(): Promise<PermanentCredentials> {
 		try {
-			logger.info(' [CredentialManager] Fetching environment config from server...', "Logger info");
+			logger.info(' [CredentialManager] Fetching environment config from server...', 'Logger info');
 
 			const response = await fetch('/api/env-config');
 			if (!response.ok) {
@@ -937,7 +939,7 @@ class CredentialManager {
 		try {
 			// Test sessionStorage availability
 			if (typeof sessionStorage === 'undefined') {
-				logger.error(' [CredentialManager] sessionStorage is not available', "Logger error");
+				logger.error(' [CredentialManager] sessionStorage is not available', 'Logger error');
 				return false;
 			}
 
@@ -1036,7 +1038,10 @@ class CredentialManager {
 		// 🔍 INSTRUMENTATION: Track global credential contamination
 		console.group(`🚨 [CREDENTIAL CONTAMINATION] saveAllCredentials called`);
 		logger.info(`📋 Credentials being saved globally:`, credentials);
-		logger.info(`📋 This will overwrite pingone_permanent_credentials for ALL flows!`, "Logger info");
+		logger.info(
+			`📋 This will overwrite pingone_permanent_credentials for ALL flows!`,
+			'Logger info'
+		);
 
 		const permanentSuccess = this.savePermanentCredentials({
 			environmentId: credentials.environmentId,
@@ -1057,7 +1062,7 @@ class CredentialManager {
 
 		logger.info(`📋 Permanent Save Success:`, permanentSuccess);
 		logger.info(`📋 Session Save Success:`, sessionSuccess);
-		logger.info(`🚨 GLOBAL CREDENTIAL CONTAMINATION COMPLETE!`, "Logger info");
+		logger.info(`🚨 GLOBAL CREDENTIAL CONTAMINATION COMPLETE!`, 'Logger info');
 		console.groupEnd();
 
 		return permanentSuccess && sessionSuccess;
@@ -1196,7 +1201,7 @@ class CredentialManager {
 	 * Debug method to check localStorage contents
 	 */
 	debugLocalStorage(): void {
-		logger.info(' [CredentialManager] Debug localStorage contents:', "Logger info");
+		logger.info(' [CredentialManager] Debug localStorage contents:', 'Logger info');
 		logger.info(' [CredentialManager] All localStorage keys:', Object.keys(localStorage));
 		logger.info(
 			' [CredentialManager] pingone_permanent_credentials:',
@@ -1366,7 +1371,7 @@ class CredentialManager {
 	 */
 	clearCache(): void {
 		this.cache = {};
-		logger.info(' [CredentialManager] Cache cleared', "Logger info");
+		logger.info(' [CredentialManager] Cache cleared', 'Logger info');
 	}
 
 	/**

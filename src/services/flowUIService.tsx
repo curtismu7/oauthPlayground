@@ -29,6 +29,13 @@ import {
 	CollapsibleHeader as V6CollapsibleHeader,
 } from './collapsibleHeaderService';
 
+type StyledCache =
+	| ReturnType<typeof styled.div>
+	| ReturnType<typeof styled.button>
+	| ReturnType<typeof styled.span>
+	| ReturnType<typeof styled.section>
+	| null;
+
 export interface CollapsibleHeaderAdapterProps extends Omit<CollapsibleHeaderProps, 'theme'> {
 	theme?: CollapsibleHeaderProps['theme'];
 	children: CollapsibleHeaderProps['children'];
@@ -93,56 +100,31 @@ export class FlowUIService {
 	// ============================================================================
 	// CACHE FOR STYLED COMPONENTS (prevents dynamic creation warnings)
 	// ============================================================================
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _containerCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _variantSelectorCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _variantButtonCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _variantTitleCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _variantDescriptionCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _contentWrapperCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _mainCardCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepHeaderCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepHeaderLeftCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepHeaderRightCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _versionBadgeCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepHeaderTitleCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepHeaderSubtitleCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepNumberCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepTotalCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepContentWrapperCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _collapsibleSectionCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _collapsibleHeaderButtonCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _collapsibleTitleCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _collapsibleToggleIconCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _collapsibleContentCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _infoBoxCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _infoTitleCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _infoTextCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _infoListCache: any = null;
+	private static _containerCache: StyledCache = null;
+	private static _variantSelectorCache: StyledCache = null;
+	private static _variantButtonCache: StyledCache = null;
+	private static _variantTitleCache: StyledCache = null;
+	private static _variantDescriptionCache: StyledCache = null;
+	private static _contentWrapperCache: StyledCache = null;
+	private static _mainCardCache: StyledCache = null;
+	private static _stepHeaderCache = new Map<string, StyledCache>();
+	private static _stepHeaderLeftCache: StyledCache = null;
+	private static _stepHeaderRightCache: StyledCache = null;
+	private static _versionBadgeCache = new Map<string, StyledCache>();
+	private static _stepHeaderTitleCache: StyledCache = null;
+	private static _stepHeaderSubtitleCache: StyledCache = null;
+	private static _stepNumberCache: StyledCache = null;
+	private static _stepTotalCache: StyledCache = null;
+	private static _stepContentWrapperCache: StyledCache = null;
+	private static _collapsibleSectionCache: StyledCache = null;
+	private static _collapsibleHeaderButtonCache = new Map<string, StyledCache>();
+	private static _collapsibleTitleCache: StyledCache = null;
+	private static _collapsibleToggleIconCache = new Map<string, StyledCache>();
+	private static _collapsibleContentCache: StyledCache = null;
+	private static _infoBoxCache: StyledCache = null;
+	private static _infoTitleCache: StyledCache = null;
+	private static _infoTextCache: StyledCache = null;
+	private static _infoListCache: StyledCache = null;
 
 	// ============================================================================
 	// LAYOUT COMPONENTS

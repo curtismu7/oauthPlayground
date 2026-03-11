@@ -543,7 +543,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 		if (gi === -1) return null;
 
 		const g = next[gi];
-		let srcIdx = g.items.findIndex((i) => i.id === itemId);
+		const srcIdx = g.items.findIndex((i) => i.id === itemId);
 		if (srcIdx !== -1) {
 			const [item] = g.items.splice(srcIdx, 1);
 			return { item, next };
@@ -583,10 +583,12 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 			if (sameGroup) {
 				// Recompute source index from original (before removal) for same-group adjust
 				const srcGroup = menuGroups.find((g) => g.id === data.groupId);
-				let srcItemIdx = srcGroup?.items.findIndex((i) => i.id === data.id) ?? -1;
+				const srcItemIdx = srcGroup?.items.findIndex((i) => i.id === data.id) ?? -1;
 				const inMain = srcItemIdx !== -1;
 				const insertAt = inMain
-					? (targetIndex > srcItemIdx ? targetIndex - 1 : targetIndex)
+					? targetIndex > srcItemIdx
+						? targetIndex - 1
+						: targetIndex
 					: Math.min(targetIndex, next[tgtGroupIdx].items.length);
 				next[tgtGroupIdx].items.splice(Math.max(0, insertAt), 0, removed);
 			} else {

@@ -1,9 +1,9 @@
 // src/components/CompactApplicationPicker.tsx
 // Compact version of application picker for use in modals
 
-import { FiRefreshCw } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiRefreshCw } from '../icons';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { fetchApplications } from '../services/pingOneApplicationService';
 

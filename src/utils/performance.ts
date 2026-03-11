@@ -89,7 +89,7 @@ export const usePerformanceMonitor = (componentName: string) => {
 
 	useEffect(() => {
 		renderCount.current++;
-		logger.info(` [Performance] ${componentName} render #${renderCount.current}`, "Logger info");
+		logger.info(` [Performance] ${componentName} render #${renderCount.current}`, 'Logger info');
 	});
 
 	return {

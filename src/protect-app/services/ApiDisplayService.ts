@@ -13,6 +13,7 @@
  */
 
 import { logger } from '../../utils/logger';
+
 const MODULE_TAG = '[🔍 PROTECT-API-DISPLAY]';
 
 export interface ProtectApiCall {
@@ -149,7 +150,7 @@ export const getApiCallsByCategory = (category: string): ProtectApiCall[] => {
  */
 export const clearCalls = (): void => {
 	apiCalls = [];
-	logger.info(`${MODULE_TAG} All API calls cleared`, "Logger info");
+	logger.info(`${MODULE_TAG} All API calls cleared`, 'Logger info');
 };
 
 /**
@@ -157,7 +158,7 @@ export const clearCalls = (): void => {
  */
 export const setEnabled = (enabled: boolean): void => {
 	config.enabled = enabled;
-	logger.info(`${MODULE_TAG} API display ${enabled ? 'enabled' : 'disabled'}`, "Logger info");
+	logger.info(`${MODULE_TAG} API display ${enabled ? 'enabled' : 'disabled'}`, 'Logger info');
 };
 
 /**

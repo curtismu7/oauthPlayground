@@ -13,7 +13,6 @@
  * - Shows device count before deletion
  */
 
-import { FiAlertCircle, FiLoader } from '../../icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
@@ -37,6 +36,7 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
+import { FiAlertCircle, FiLoader } from '../../icons';
 
 import { logger } from '../../utils/logger';
 

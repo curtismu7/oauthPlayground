@@ -249,8 +249,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				await unifiedWorkerTokenService.saveCredentials(credentials);
 
 				// Run preflight validation
-				const { PreFlightValidationServiceV8 } =
-					await import('@/v8/services/preFlightValidationServiceV8');
+				const { PreFlightValidationServiceV8 } = await import(
+					'@/v8/services/preFlightValidationServiceV8'
+				);
 
 				// Try to get worker token from current or cached source
 				const tokenValidation = await workerTokenCacheServiceV8.getWorkerTokenForValidation(

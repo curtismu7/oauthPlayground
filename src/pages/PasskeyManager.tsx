@@ -62,7 +62,7 @@ export const PasskeyManager: React.FC = () => {
 			setLoadingToken(true);
 			try {
 				// Token is already available from unified service
-				logger.info('[Passkey Manager] Using worker token from unified service', "Logger info");
+				logger.info('[Passkey Manager] Using worker token from unified service', 'Logger info');
 			} catch (error) {
 				logger.error('PasskeyManager', 'Failed to load worker token:', undefined, error as Error);
 				showGlobalError(

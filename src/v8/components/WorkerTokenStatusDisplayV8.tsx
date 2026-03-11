@@ -14,21 +14,6 @@
  * - Multiple display modes (compact, detailed, minimal)
  */
 
-import {
-	FiActivity,
-	FiCalendar,
-	FiClock,
-	FiCpu,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiLoader,
-	FiRefreshCw,
-	FiSettings,
-	FiShield,
-	FiTrendingUp,
-	FiZap,
-} from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import type {
@@ -45,6 +30,21 @@ import {
 	WORKER_TOKEN_STATUS_STYLES,
 	WorkerTokenStatusServiceV8U,
 } from '@/v8u/services/workerTokenStatusServiceV8U';
+import {
+	FiActivity,
+	FiCalendar,
+	FiClock,
+	FiCpu,
+	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiLoader,
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
+	FiTrendingUp,
+	FiZap,
+} from '../../icons';
 import { logger } from '../../utils/logger';
 
 // Animation keyframes

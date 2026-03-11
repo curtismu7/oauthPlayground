@@ -1,10 +1,10 @@
 // src/components/MobilePhoneDeviceFlow.tsx
 // Mobile Phone Style Device Authorization Flow Interface
 
-import { FiCheckCircle } from '../../../../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiCheckCircle } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';

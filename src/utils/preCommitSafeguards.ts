@@ -54,7 +54,7 @@ export class PreCommitSafeguards {
 	 * Run all pre-commit checks
 	 */
 	async runPreCommitChecks(): Promise<PreCommitResult> {
-		logger.info('[Pre-Commit Safeguards] Running pre-commit checks...', "Logger info");
+		logger.info('[Pre-Commit Safeguards] Running pre-commit checks...', 'Logger info');
 
 		const checks: Array<{
 			name: string;
@@ -144,10 +144,10 @@ export class PreCommitSafeguards {
 		logger.info('[Pre-Commit Safeguards] Pre-commit checks completed:', this.results.summary);
 
 		if (!this.results.passed) {
-			logger.error('[Pre-Commit Safeguards] ❌ Pre-commit checks failed!', "Logger error");
+			logger.error('[Pre-Commit Safeguards] ❌ Pre-commit checks failed!', 'Logger error');
 			this.logFailureDetails();
 		} else {
-			logger.info('[Pre-Commit Safeguards] ✅ All pre-commit checks passed!', "Logger info");
+			logger.info('[Pre-Commit Safeguards] ✅ All pre-commit checks passed!', 'Logger info');
 		}
 
 		return this.results;
@@ -168,7 +168,7 @@ export class PreCommitSafeguards {
 		try {
 			// In a real implementation, this would run ESLint
 			// For now, we'll simulate the check
-			logger.info('[Pre-Commit Safeguards] Running linting check...', "Logger info");
+			logger.info('[Pre-Commit Safeguards] Running linting check...', 'Logger info');
 
 			// Simulate linting process
 			await new Promise((resolve) => setTimeout(resolve, 100));
@@ -215,7 +215,7 @@ export class PreCommitSafeguards {
 		const name = 'Type Checking';
 
 		try {
-			logger.info('[Pre-Commit Safeguards] Running type checking...', "Logger info");
+			logger.info('[Pre-Commit Safeguards] Running type checking...', 'Logger info');
 
 			// Simulate type checking process
 			await new Promise((resolve) => setTimeout(resolve, 200));
@@ -262,7 +262,7 @@ export class PreCommitSafeguards {
 		const name = 'Flow Validation';
 
 		try {
-			logger.info('[Pre-Commit Safeguards] Running flow validation...', "Logger info");
+			logger.info('[Pre-Commit Safeguards] Running flow validation...', 'Logger info');
 
 			// Run flow test suite
 			const testResults = await flowTestSuite.runTestSuite();
@@ -307,7 +307,7 @@ export class PreCommitSafeguards {
 		const name = 'Automated Tests';
 
 		try {
-			logger.info('[Pre-Commit Safeguards] Running automated tests...', "Logger info");
+			logger.info('[Pre-Commit Safeguards] Running automated tests...', 'Logger info');
 
 			// Run critical flow tests
 			const criticalFlowResults = await Promise.all(
@@ -369,22 +369,22 @@ export class PreCommitSafeguards {
 	private logFailureDetails(): void {
 		if (!this.results) return;
 
-		logger.error('\n[Pre-Commit Safeguards] Failure Details:', "Logger error");
-		logger.error('=====================================', "Logger error");
+		logger.error('\n[Pre-Commit Safeguards] Failure Details:', 'Logger error');
+		logger.error('=====================================', 'Logger error');
 
 		this.results.checks.forEach((check) => {
 			if (!check.passed) {
-				logger.error(`❌ ${check.name}: ${check.error || 'Failed'}`, "Logger error");
+				logger.error(`❌ ${check.name}: ${check.error || 'Failed'}`, 'Logger error');
 			} else {
-				logger.info(`✅ ${check.name}: Passed`, "Logger info");
+				logger.info(`✅ ${check.name}: Passed`, 'Logger info');
 			}
 		});
 
-		logger.error('\n[Pre-Commit Safeguards] Summary:', "Logger error");
-		logger.error(`Total Checks: ${this.results.summary.totalChecks}`, "Logger error");
-		logger.error(`Passed: ${this.results.summary.passedChecks}`, "Logger error");
-		logger.error(`Failed: ${this.results.summary.failedChecks}`, "Logger error");
-		logger.error(`Critical Failures: ${this.results.summary.criticalFailures}`, "Logger error");
+		logger.error('\n[Pre-Commit Safeguards] Summary:', 'Logger error');
+		logger.error(`Total Checks: ${this.results.summary.totalChecks}`, 'Logger error');
+		logger.error(`Passed: ${this.results.summary.passedChecks}`, 'Logger error');
+		logger.error(`Failed: ${this.results.summary.failedChecks}`, 'Logger error');
+		logger.error(`Critical Failures: ${this.results.summary.criticalFailures}`, 'Logger error');
 	}
 
 	/**

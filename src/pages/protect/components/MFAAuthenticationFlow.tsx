@@ -9,10 +9,10 @@
  * including device selection and authentication methods.
  */
 
-import { FiAlertTriangle, FiCheckCircle, FiLoader } from '../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { showGlobalInfo } from '../../../contexts/NotificationSystem';
+import { FiAlertTriangle, FiCheckCircle, FiLoader } from '../../../icons';
 import { logger } from '../../../utils/logger';
 import MFAAuthenticationService from '../services/mfaAuthenticationService';
 import type {

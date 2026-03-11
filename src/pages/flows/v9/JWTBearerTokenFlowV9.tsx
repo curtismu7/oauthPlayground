@@ -408,8 +408,8 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 				>
 					<strong>📚 Educational Mock Mode (V7M)</strong>
 					<p style={{ margin: '8px 0 0 0', fontSize: 14 }}>
-						This flow simulates the OAuth 2.0 JWT Bearer Token flow (RFC 7523) in-browser. No external
-						APIs are called. JWT and token responses are generated for learning.
+						This flow simulates the OAuth 2.0 JWT Bearer Token flow (RFC 7523) in-browser. No
+						external APIs are called. JWT and token responses are generated for learning.
 					</p>
 				</div>
 				<V9FlowHeader flowId="jwt-bearer-token-v7" />

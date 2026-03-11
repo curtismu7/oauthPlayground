@@ -110,7 +110,7 @@ export const storeOAuthTokensSafely = async (
 			logger.success(`[${flowType}] Tokens stored successfully for ${flowName}`);
 			return true;
 		} else {
-			logger.error(`[${flowType}] Failed to store tokens for ${flowName}`, "Logger error");
+			logger.error(`[${flowType}] Failed to store tokens for ${flowName}`, 'Logger error');
 			return false;
 		}
 	} catch (error) {
