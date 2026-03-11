@@ -311,7 +311,8 @@ const MainContent = styled.main<{ $sidebarWidth: number }>`
 	padding-top: calc(80px + 1.5rem); /* Account for fixed navbar (80px) + normal top padding */
 	max-width: 1400px;
 	margin: 0 auto;
-	width: 100%;
+	margin-left: ${({ $sidebarWidth }) => `${$sidebarWidth}px`}; /* Account for sidebar width */
+	width: calc(100% - ${({ $sidebarWidth }) => `${$sidebarWidth}px`}); /* Adjust width for sidebar */
 	background-color: ${({ theme }) => theme.colors.white};
 	text-align: left;
 	direction: ltr;
@@ -332,6 +333,7 @@ const MainContent = styled.main<{ $sidebarWidth: number }>`
 		padding: 1rem;
 		margin-left: 0;
 		margin-top: 100px;
+		width: 100%; /* Full width on mobile */
 	}
 `;
 
