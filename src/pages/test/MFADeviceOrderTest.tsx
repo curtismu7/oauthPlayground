@@ -21,7 +21,7 @@ const MFADeviceOrderTest: React.FC = () => {
 				environmentId={testCredentials.environmentId}
 				userId={testCredentials.userId}
 				onOrderUpdated={() => {
-					logger.info('Device order updated!', "Logger info");
+					logger.info('Device order updated!', 'Logger info');
 				}}
 			/>
 		</div>

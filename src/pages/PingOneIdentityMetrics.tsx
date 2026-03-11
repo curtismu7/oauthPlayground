@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { IdentityMetricsChart } from '../components/pingone/IdentityMetricsChart';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
+import { IdentityMetricsChart } from '../components/pingone/IdentityMetricsChart';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiRequestModalService } from '../services/apiRequestModalService';
 import { FlowHeader } from '../services/flowHeaderService';
@@ -342,8 +342,9 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 				if (globalEnvId) {
 					environmentId = globalEnvId;
 					logger.info(
-						'🔧 Applied global environment ID fallback for PingOneIdentityMetrics executeApiCall'
-					, "Logger info");
+						'🔧 Applied global environment ID fallback for PingOneIdentityMetrics executeApiCall',
+						'Logger info'
+					);
 				}
 			}
 		} catch (error) {
@@ -440,8 +441,9 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 				if (globalEnvId) {
 					environmentId = globalEnvId;
 					logger.info(
-						'🔧 Applied global environment ID fallback for PingOneIdentityMetrics handleFetch'
-					, "Logger info");
+						'🔧 Applied global environment ID fallback for PingOneIdentityMetrics handleFetch',
+						'Logger info'
+					);
 				}
 			}
 		} catch (error) {
@@ -585,32 +587,34 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 	return (
 		<>
 			{!embedded && <FlowHeader flowId="pingone-identity-metrics" />}
-			<div style={embedded ? { ...styles.pageContainer, paddingTop: '0.5rem' } : styles.pageContainer}>
+			<div
+				style={embedded ? { ...styles.pageContainer, paddingTop: '0.5rem' } : styles.pageContainer}
+			>
 				{!embedded && (
-				<div style={styles.headerCard}>
-					<div style={styles.titleRow}>
-						<i className="bi bi-bar-chart-line" />
-						<h1 style={styles.title}>PingOne Identity Counts</h1>
-					</div>
-					<p style={styles.subtitle}>
-						Query PingOne active identity counts with time-series data and sampling periods.
-						Requires <strong>Identity Data Admin</strong> role.
-					</p>
-					{!hasWorkerToken && (
-						<div style={styles.warningBanner}>
-							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-								<span>⚠️</span>
-								<div style={{ flex: 1 }}>
-									<strong>Worker Token Required</strong>
-									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-										Click "Get Worker Token" below to generate a token with your PingOne
-										credentials.
-									</p>
+					<div style={styles.headerCard}>
+						<div style={styles.titleRow}>
+							<i className="bi bi-bar-chart-line" />
+							<h1 style={styles.title}>PingOne Identity Counts</h1>
+						</div>
+						<p style={styles.subtitle}>
+							Query PingOne active identity counts with time-series data and sampling periods.
+							Requires <strong>Identity Data Admin</strong> role.
+						</p>
+						{!hasWorkerToken && (
+							<div style={styles.warningBanner}>
+								<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+									<span>⚠️</span>
+									<div style={{ flex: 1 }}>
+										<strong>Worker Token Required</strong>
+										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
+											Click "Get Worker Token" below to generate a token with your PingOne
+											credentials.
+										</p>
+									</div>
 								</div>
 							</div>
-						</div>
-					)}
-				</div>
+						)}
+					</div>
 				)}
 
 				<div style={styles.layoutGrid}>

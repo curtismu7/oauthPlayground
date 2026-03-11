@@ -1,8 +1,8 @@
 // Device polling component for OIDC Device Code flow
 
-import { FiLoader } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiLoader } from '../../icons';
 import { DeviceCodeTokens } from '../../types/deviceCode';
 import { pollTokenEndpoint } from '../../utils/deviceCode';
 import { logger } from '../../utils/logger';

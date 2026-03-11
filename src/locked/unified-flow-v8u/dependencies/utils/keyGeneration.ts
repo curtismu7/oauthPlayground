@@ -12,6 +12,7 @@
  */
 
 import { logger } from '../../../../utils/logger';
+
 const MODULE_TAG = '[🔐 KEY-GENERATION]';
 
 export interface GeneratedKeyPair {

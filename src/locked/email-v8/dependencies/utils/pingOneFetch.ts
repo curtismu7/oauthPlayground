@@ -199,45 +199,41 @@ export async function pingOneFetch(
 	while (attempt < maxAttempts) {
 		attempt += 1;
 
-
-	try {
-		const _response = await fetch(input, {
-			...init,
-			headers,
-		});
-
-
-	if (!retryStatuses.has(response.status) || attempt === maxAttempts) {
-		await logBackendPingOneCalls(response);
-		return response;
-	}
-
-	const retryAfter = parseRetryAfter(response.headers.get('Retry-After'));
-	const waitTime = retryAfter ?? baseDelayMs * backoffFactor ** (attempt - 1);
-
-	if (response.body) {
 		try {
-			response.body.cancel();
-		} catch {
-			// ignore cancellation errors
+			const _response = await fetch(input, {
+				...init,
+				headers,
+			});
+
+			if (!retryStatuses.has(response.status) || attempt === maxAttempts) {
+				await logBackendPingOneCalls(response);
+				return response;
+			}
+
+			const retryAfter = parseRetryAfter(response.headers.get('Retry-After'));
+			const waitTime = retryAfter ?? baseDelayMs * backoffFactor ** (attempt - 1);
+
+			if (response.body) {
+				try {
+					response.body.cancel();
+				} catch {
+					// ignore cancellation errors
+				}
+			}
+
+			await delay(waitTime);
+		} catch (error) {
+			lastError = error;
+			if (attempt >= maxAttempts) {
+				throw error;
+			}
+
+			const waitTime = baseDelayMs * backoffFactor ** (attempt - 1);
+			await delay(waitTime);
 		}
 	}
 
-	await delay(waitTime);
-}
-catch (error)
-{
-	lastError = error;
-	if (attempt >= maxAttempts) {
-		throw error;
-	}
-
-	const waitTime = baseDelayMs * backoffFactor ** (attempt - 1);
-	await delay(waitTime);
-}
-}
-
-throw lastError instanceof Error ? lastError : new Error('PingOne request failed after retries.');
+	throw lastError instanceof Error ? lastError : new Error('PingOne request failed after retries.');
 }
 
 export default pingOneFetch;

@@ -3,17 +3,17 @@
 
 import React from 'react';
 import {
-	BarChart,
 	Bar,
+	BarChart,
+	CartesianGrid,
+	Cell,
+	Legend,
+	Pie,
+	PieChart,
+	ResponsiveContainer,
+	Tooltip,
 	XAxis,
 	YAxis,
-	CartesianGrid,
-	Tooltip,
-	ResponsiveContainer,
-	Cell,
-	PieChart,
-	Pie,
-	Legend,
 } from 'recharts';
 
 interface AuditActivity {

@@ -1207,8 +1207,7 @@ export class MFAServiceV8 {
 			}
 
 			// Remove metadata from device data before processing
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			const { _metadata, ...deviceDataWithoutMetadata } = deviceDataWithMetadata;
+			const { _metadata: _omitMetadata, ...deviceDataWithoutMetadata } = deviceDataWithMetadata;
 
 			// Debug: Log raw response to see what we received
 			// Check for publicKeyCredentialCreationOptions in multiple ways

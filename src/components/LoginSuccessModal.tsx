@@ -142,7 +142,7 @@ const LoginSuccessModal: React.FC<LoginSuccessModalProps> = ({
 	autoCloseDelay = 3000,
 }) => {
 	const handleClose = () => {
-		logger.info('🔴 [LoginSuccessModal] Close button clicked', "Logger info");
+		logger.info('🔴 [LoginSuccessModal] Close button clicked', 'Logger info');
 		onClose();
 	};
 	// Auto-close after delay
@@ -173,7 +173,7 @@ const LoginSuccessModal: React.FC<LoginSuccessModalProps> = ({
 	// Close on overlay click
 	const handleOverlayClick = (event: React.MouseEvent) => {
 		if (event.target === event.currentTarget) {
-			logger.info('🔴 [LoginSuccessModal] Overlay clicked', "Logger info");
+			logger.info('🔴 [LoginSuccessModal] Overlay clicked', 'Logger info');
 			onClose();
 		}
 	};

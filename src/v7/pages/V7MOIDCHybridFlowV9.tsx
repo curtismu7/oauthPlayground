@@ -3,9 +3,10 @@
 // response_type: 'code id_token' (most common) | 'code token' | 'code id_token token'
 // Note: Hybrid flow is deprecated per RFC 9700 / OAuth 2.0 Security BCP; presented for learning only.
 
-import { FiAlertTriangle, FiBook } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import { showGlobalError } from '../../contexts/NotificationSystem';
+import { FiAlertTriangle, FiBook } from '../../icons';
+import { FlowHeader } from '../../services/flowHeaderService';
 import {
 	authorizeIssueHybrid,
 	type V7MHybridAuthorizeResult,
@@ -19,7 +20,6 @@ import {
 	type V7MTokenSuccess,
 } from '../../services/v7m/V7MTokenService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
-import { FlowHeader } from '../../services/flowHeaderService';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
@@ -107,14 +107,18 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 			ttls: { accessTokenSeconds: 900, idTokenSeconds: 900, refreshTokenSuccess: 86400 } as never,
 		});
 		if ('error' in res) {
-			showGlobalError(`${res.error}: ${(res as { error_description?: string }).error_description ?? ''}`);
+			showGlobalError(
+				`${res.error}: ${(res as { error_description?: string }).error_description ?? ''}`
+			);
 			return;
 		}
 		setTokenCodeResponse(res as V7MTokenSuccess);
 	}
 
 	function handleIntrospect() {
-		const token = tokenCodeResponse?.access_token ?? (hybridResult?.type === 'hybrid' ? hybridResult.tokens.access_token : undefined);
+		const token =
+			tokenCodeResponse?.access_token ??
+			(hybridResult?.type === 'hybrid' ? hybridResult.tokens.access_token : undefined);
 		if (!token) {
 			showGlobalError('No access token available');
 			return;
@@ -122,8 +126,10 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 		setIntrospectionResponse(introspectToken(token));
 	}
 
-	const frontChannelIdToken = hybridResult?.type === 'hybrid' ? hybridResult.tokens.id_token : undefined;
-	const frontChannelAccessToken = hybridResult?.type === 'hybrid' ? hybridResult.tokens.access_token : undefined;
+	const frontChannelIdToken =
+		hybridResult?.type === 'hybrid' ? hybridResult.tokens.id_token : undefined;
+	const frontChannelAccessToken =
+		hybridResult?.type === 'hybrid' ? hybridResult.tokens.access_token : undefined;
 	const backChannelAccessToken = tokenCodeResponse?.access_token;
 
 	return (
@@ -145,14 +151,19 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 				<div>
 					<strong>⚠️ Hybrid Flow is Deprecated</strong>
 					<p style={{ margin: '4px 0 0 0', fontSize: 13 }}>
-						OIDC Hybrid Flow is deprecated per{' '}
-						<strong>RFC 9700 / OAuth 2.0 Security BCP</strong>. Tokens returned in the authorization
-						response bypass the session binding of the code exchange, weakening security. Use
-						Authorization Code + PKCE instead.{' '}
+						OIDC Hybrid Flow is deprecated per <strong>RFC 9700 / OAuth 2.0 Security BCP</strong>.
+						Tokens returned in the authorization response bypass the session binding of the code
+						exchange, weakening security. Use Authorization Code + PKCE instead.{' '}
 						<button
 							type="button"
 							onClick={() => setShowDeprecationHelp(true)}
-							style={{ color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+							style={{
+								color: '#2563eb',
+								background: 'none',
+								border: 'none',
+								cursor: 'pointer',
+								padding: 0,
+							}}
 						>
 							Learn more
 						</button>
@@ -170,17 +181,21 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 					marginBottom: 16,
 				}}
 			>
-				<strong>📚 Educational Mock Mode (V7M)</strong>
+				<strong>📚 Educational Mock Mode</strong>
 				<p style={{ margin: '8px 0 0 0', fontSize: 14 }}>
 					Simulates OIDC Hybrid Flow in-browser. No external APIs are called. The id_token in the
-					front-channel response includes a <code>c_hash</code> claim binding it to the authorization
-					code, and a <code>nonce</code> for replay protection.
+					front-channel response includes a <code>c_hash</code> claim binding it to the
+					authorization code, and a <code>nonce</code> for replay protection.
 				</p>
 			</div>
 
-			<div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<FlowHeader flowId="oidc-hybrid-v7" />
-				<V7MInfoIcon label="" title="OIDC Hybrid Flow overview" onClick={() => setShowHybridHelp(true)} />
+			<FlowHeader flowId="oidc-hybrid-v7" customConfig={{ flowType: 'pingone' }} />
+			<div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+				<V7MInfoIcon
+					label=""
+					title="OIDC Hybrid Flow overview"
+					onClick={() => setShowHybridHelp(true)}
+				/>
 			</div>
 
 			{/* Response Type Selector */}
@@ -191,7 +206,10 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 				<div style={{ padding: 12 }}>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
 						{RESPONSE_TYPE_OPTIONS.map((opt) => (
-							<label key={opt.value} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
+							<label
+								key={opt.value}
+								style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}
+							>
 								<input
 									type="radio"
 									name="responseType"
@@ -202,7 +220,9 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 								/>
 								<div>
 									<code style={{ fontWeight: 600 }}>{opt.value}</code>
-									<div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>{opt.description}</div>
+									<div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>
+										{opt.description}
+									</div>
 								</div>
 							</label>
 						))}
@@ -212,18 +232,34 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 
 			{/* Step 1: Authorization Request */}
 			<section style={{ marginBottom: 16, border: '1px solid #e5e7eb', borderRadius: 8 }}>
-				<header style={{ padding: '10px 12px', background: '#dbeafe', display: 'flex', alignItems: 'center', gap: 8 }}>
+				<header
+					style={{
+						padding: '10px 12px',
+						background: '#dbeafe',
+						display: 'flex',
+						alignItems: 'center',
+						gap: 8,
+					}}
+				>
 					<span>1️⃣</span> Step 1: Authorization Request
 				</header>
 				<div style={{ padding: 12 }}>
 					<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
 						<label>
 							Client ID
-							<input value={clientId} onChange={(e) => setClientId(e.target.value)} style={inputStyle} />
+							<input
+								value={clientId}
+								onChange={(e) => setClientId(e.target.value)}
+								style={inputStyle}
+							/>
 						</label>
 						<label>
 							Redirect URI
-							<input value={redirectUri} onChange={(e) => setRedirectUri(e.target.value)} style={inputStyle} />
+							<input
+								value={redirectUri}
+								onChange={(e) => setRedirectUri(e.target.value)}
+								style={inputStyle}
+							/>
 						</label>
 						<label>
 							Scope
@@ -235,12 +271,20 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 						</label>
 						<label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 							Nonce
-							<V7MInfoIcon label="" title="Replay protection — must match nonce in id_token" onClick={() => setShowNonceHelp(true)} />
+							<V7MInfoIcon
+								label=""
+								title="Replay protection — must match nonce in id_token"
+								onClick={() => setShowNonceHelp(true)}
+							/>
 							<input value={nonce} onChange={(e) => setNonce(e.target.value)} style={inputStyle} />
 						</label>
 						<label>
 							User Email (mock identity)
-							<input value={userEmail} onChange={(e) => setUserEmail(e.target.value)} style={inputStyle} />
+							<input
+								value={userEmail}
+								onChange={(e) => setUserEmail(e.target.value)}
+								style={inputStyle}
+							/>
 						</label>
 					</div>
 					<button type="button" onClick={handleAuthorize} style={primaryBtn}>
@@ -252,7 +296,15 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 			{/* Step 2: Front-Channel Response */}
 			{hybridResult && hybridResult.type === 'hybrid' && (
 				<section style={{ marginBottom: 16, border: '1px solid #86efac', borderRadius: 8 }}>
-					<header style={{ padding: '10px 12px', background: '#d1fae5', display: 'flex', alignItems: 'center', gap: 8 }}>
+					<header
+						style={{
+							padding: '10px 12px',
+							background: '#d1fae5',
+							display: 'flex',
+							alignItems: 'center',
+							gap: 8,
+						}}
+					>
 						<span>2️⃣</span> Step 2: Front-Channel Response (fragment / redirect)
 					</header>
 					<div style={{ padding: 12 }}>
@@ -277,16 +329,37 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 										<button
 											type="button"
 											onClick={() => setShowCHashHelp(true)}
-											style={{ color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12 }}
+											style={{
+												color: '#2563eb',
+												background: 'none',
+												border: 'none',
+												cursor: 'pointer',
+												padding: 0,
+												fontSize: 12,
+											}}
 										>
 											(what is c_hash?)
 										</button>
 									</span>
 									<div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
-										<code style={{ fontSize: 11, wordBreak: 'break-all', flex: 1, background: '#fff', padding: '4px 6px', borderRadius: 4, border: '1px solid #e5e7eb' }}>
+										<code
+											style={{
+												fontSize: 11,
+												wordBreak: 'break-all',
+												flex: 1,
+												background: '#fff',
+												padding: '4px 6px',
+												borderRadius: 4,
+												border: '1px solid #e5e7eb',
+											}}
+										>
 											{hybridResult.tokens.id_token.slice(0, 80)}…
 										</code>
-										<button type="button" onClick={() => setShowIdTokenModal(true)} style={secondaryBtn}>
+										<button
+											type="button"
+											onClick={() => setShowIdTokenModal(true)}
+											style={secondaryBtn}
+										>
 											Inspect
 										</button>
 									</div>
@@ -296,10 +369,24 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 								<div>
 									<strong>Access Token (front-channel):</strong>
 									<div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
-										<code style={{ fontSize: 11, wordBreak: 'break-all', flex: 1, background: '#fff', padding: '4px 6px', borderRadius: 4, border: '1px solid #e5e7eb' }}>
+										<code
+											style={{
+												fontSize: 11,
+												wordBreak: 'break-all',
+												flex: 1,
+												background: '#fff',
+												padding: '4px 6px',
+												borderRadius: 4,
+												border: '1px solid #e5e7eb',
+											}}
+										>
 											{hybridResult.tokens.access_token.slice(0, 80)}…
 										</code>
-										<button type="button" onClick={() => setShowFrontChannelModal(true)} style={secondaryBtn}>
+										<button
+											type="button"
+											onClick={() => setShowFrontChannelModal(true)}
+											style={secondaryBtn}
+										>
 											Inspect
 										</button>
 									</div>
@@ -313,13 +400,22 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 			{/* Step 3: Back-Channel Code Exchange (optional) */}
 			{hybridResult && hybridResult.type === 'hybrid' && (
 				<section style={{ marginBottom: 16, border: '1px solid #e5e7eb', borderRadius: 8 }}>
-					<header style={{ padding: '10px 12px', background: '#f0f9ff', display: 'flex', alignItems: 'center', gap: 8 }}>
+					<header
+						style={{
+							padding: '10px 12px',
+							background: '#f0f9ff',
+							display: 'flex',
+							alignItems: 'center',
+							gap: 8,
+						}}
+					>
 						<span>3️⃣</span> Step 3: Back-Channel Code Exchange (optional — server-side)
 					</header>
 					<div style={{ padding: 12 }}>
 						<p style={{ fontSize: 13, color: '#6b7280', marginBottom: 10 }}>
-							Exchange the authorization code at the token endpoint (server-to-server). This produces
-							a fresh access token bound to the code — stronger than the front-channel token.
+							Exchange the authorization code at the token endpoint (server-to-server). This
+							produces a fresh access token bound to the code — stronger than the front-channel
+							token.
 						</p>
 						<button type="button" onClick={handleExchangeCode} style={primaryBtn}>
 							Exchange Code → Tokens
@@ -381,9 +477,16 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 					authorization endpoint returns both a code <em>and</em> tokens in the same response.
 				</p>
 				<ul>
-					<li>The <strong>code</strong> can be exchanged at the token endpoint server-side.</li>
-					<li>The <strong>id_token</strong> contains a <code>c_hash</code> claim that cryptographically binds it to the code.</li>
-					<li>The <strong>nonce</strong> in the id_token prevents replay attacks.</li>
+					<li>
+						The <strong>code</strong> can be exchanged at the token endpoint server-side.
+					</li>
+					<li>
+						The <strong>id_token</strong> contains a <code>c_hash</code> claim that
+						cryptographically binds it to the code.
+					</li>
+					<li>
+						The <strong>nonce</strong> in the id_token prevents replay attacks.
+					</li>
 					<li>Defined in OIDC Core 1.0 §3.3 — now discouraged per OAuth 2.0 Security BCP.</li>
 				</ul>
 			</V7MHelpModal>
@@ -399,11 +502,19 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 					<strong>RFC 9700 / OAuth 2.0 Security BCP</strong> states:
 				</p>
 				<ul>
-					<li>Tokens in the authorization response are exposed to the browser history, redirects, and referrer headers.</li>
-					<li>The front-channel id_token cannot be bound to the TLS session (unlike the back-channel code exchange).</li>
+					<li>
+						Tokens in the authorization response are exposed to the browser history, redirects, and
+						referrer headers.
+					</li>
+					<li>
+						The front-channel id_token cannot be bound to the TLS session (unlike the back-channel
+						code exchange).
+					</li>
 					<li>Authorization Code + PKCE achieves the same goals with better security posture.</li>
 				</ul>
-				<p>Use this flow for <strong>learning only</strong>. Do not implement in new applications.</p>
+				<p>
+					Use this flow for <strong>learning only</strong>. Do not implement in new applications.
+				</p>
 			</V7MHelpModal>
 
 			<V7MHelpModal
@@ -414,10 +525,10 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 				themeColor="#0ea5e9"
 			>
 				<p>
-					The <code>nonce</code> parameter is included in the authorization request and mirrored into
-					the id_token's <code>nonce</code> claim. The client MUST verify the nonce in the id_token
-					matches the one it sent — this prevents replay attacks where an attacker reuses an old
-					id_token.
+					The <code>nonce</code> parameter is included in the authorization request and mirrored
+					into the id_token's <code>nonce</code> claim. The client MUST verify the nonce in the
+					id_token matches the one it sent — this prevents replay attacks where an attacker reuses
+					an old id_token.
 				</p>
 			</V7MHelpModal>
 
@@ -434,9 +545,7 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 					id_token to the authorization code — an attacker who intercepts the id_token cannot use it
 					with a different code.
 				</p>
-				<p>
-					See OIDC Core 1.0 §3.3.2.11 for the full specification.
-				</p>
+				<p>See OIDC Core 1.0 §3.3.2.11 for the full specification.</p>
 			</V7MHelpModal>
 		</div>
 	);

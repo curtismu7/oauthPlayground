@@ -9,9 +9,9 @@
  * Following SWE-15 principles for reusable validation components
  */
 
-import { FiAlertTriangle, FiCheck, FiX } from '../../icons';
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiAlertTriangle, FiCheck, FiX } from '../../icons';
 
 const _MODULE_TAG = '[🔗 REDIRECT-URI-VALIDATOR-V8]';
 

@@ -10,9 +10,9 @@
  */
 const SERVICE_VERSION = '2.0.0';
 
-import { FiCheckCircle } from '../../../../icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { FiCheckCircle } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';
 import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInput';
@@ -2214,8 +2214,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							}) => {
 								// Create a new PingOne application using the current flow configuration
 								try {
-									const { pingOneAppCreationService } =
-										await import('../services/pingOneAppCreationService');
+									const { pingOneAppCreationService } = await import(
+										'../services/pingOneAppCreationService'
+									);
 
 									// Initialize the service with worker token
 									await pingOneAppCreationService.initialize(
@@ -2556,8 +2557,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									}}
 								>
 									<p style={{ margin: 0, fontSize: '0.875rem', color: '#92400e' }}>
-										<strong>⚠️ Configuration Mismatch:</strong> Make sure your PingOne application
-										is configured to use <code>{clientAuthMethod}</code> as the token endpoint
+										<strong>⚠️ Configuration Mismatch:</strong> Make sure your PingOne application is
+										configured to use <code>{clientAuthMethod}</code> as the token endpoint
 										authentication method.
 									</p>
 								</div>

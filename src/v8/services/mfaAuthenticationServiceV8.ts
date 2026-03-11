@@ -209,7 +209,12 @@ export class MfaAuthenticationServiceV8 {
 					}
 				} catch (error) {
 					// If lookup fails, let the backend handle it (it will return proper error)
-					logger.warn(`${MODULE_TAG} Could not verify user lock status, continuing:`, error);
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					logger.warn(
+						`${MODULE_TAG} Could not verify user lock status, continuing:`,
+						'User lock verification failed, proceeding with authentication',
+						{ error: errorMessage, originalError: error }
+					);
 				}
 			} else {
 				logger.info(
@@ -1156,9 +1161,19 @@ export class MfaAuthenticationServiceV8 {
 			// For expected policy errors (like WhatsApp not allowed), use warn instead of error
 			const errorWithCode = error as Error & { errorCode?: string };
 			if (errorWithCode.errorCode === 'WHATSAPP_DEVICE_SELECTION_NOT_SUPPORTED') {
-				logger.warn(`${MODULE_TAG} WhatsApp device selection not supported by policy:`, error);
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				logger.warn(
+					`${MODULE_TAG} WhatsApp device selection not supported by policy:`,
+					'WhatsApp device selection blocked by policy configuration',
+					{ error: errorMessage, originalError: error }
+				);
 			} else {
-				logger.error(`${MODULE_TAG} Error selecting device for authentication`, error);
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				logger.error(
+					`${MODULE_TAG} Error selecting device for authentication`,
+					'Exception occurred in device selection for authentication',
+					{ error: errorMessage, originalError: error }
+				);
 			}
 			throw error;
 		}
@@ -1194,7 +1209,12 @@ export class MfaAuthenticationServiceV8 {
 					}
 				}
 			} catch (error) {
-				logger.warn(`${MODULE_TAG} Could not decode token to check expiry:`, error);
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				logger.warn(
+					`${MODULE_TAG} Could not decode token to check expiry:`,
+					'JWT token decode failed for expiry check',
+					{ error: errorMessage, originalError: error }
+				);
 			}
 		}
 
@@ -1360,16 +1380,24 @@ export class MfaAuthenticationServiceV8 {
 						: undefined;
 
 					await workerTokenServiceV8.saveToken(newToken, expiresAt);
-					logger.info(`${MODULE_TAG} Worker token renewed successfully`, 'Logger info');
+					logger.info(
+						`${MODULE_TAG} Worker token renewed successfully`,
+						'Worker token automatically renewed with new expiry'
+					);
 
 					// Dispatch event for status update
 					window.dispatchEvent(new Event('workerTokenUpdated'));
 
 					workerToken = newToken;
 				} catch (renewError) {
-					logger.error(`${MODULE_TAG} Failed to renew token automatically:`, renewError);
+					const errorMessage = renewError instanceof Error ? renewError.message : 'Unknown error';
+					logger.error(
+						`${MODULE_TAG} Failed to renew token automatically:`,
+						'Automatic worker token renewal failed',
+						{ error: errorMessage, originalError: renewError }
+					);
 					throw new Error(
-						`Worker token expired and automatic renewal failed: ${renewError instanceof Error ? renewError.message : 'Unknown error'}. Please generate a new worker token.`
+						`Worker token expired and automatic renewal failed: ${errorMessage}. Please generate a new worker token.`
 					);
 				}
 			}
@@ -1532,7 +1560,7 @@ export class MfaAuthenticationServiceV8 {
 				...(data._links && { _links: data._links }),
 			};
 
-			logger.info(`${MODULE_TAG} OTP validation result`, {
+			logger.info(`${MODULE_TAG} OTP validation result`, 'OTP validation completed with result', {
 				valid: result.valid,
 				status: result.status,
 				hasLinks: !!result._links,
@@ -1540,7 +1568,12 @@ export class MfaAuthenticationServiceV8 {
 
 			return result;
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Error validating OTP`, error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(
+				`${MODULE_TAG} Error validating OTP`,
+				'Exception occurred during OTP validation',
+				{ error: errorMessage, originalError: error }
+			);
 			throw error;
 		}
 	}
@@ -1550,7 +1583,11 @@ export class MfaAuthenticationServiceV8 {
 	 * Used for Push notifications and WebAuthn challenges
 	 */
 	static async pollAuthenticationStatus(pollUrl: string): Promise<DeviceAuthenticationResponse> {
-		logger.info(`${MODULE_TAG} Polling authentication status`, { pollUrl });
+		logger.info(
+			`${MODULE_TAG} Polling authentication status`,
+			'Authentication status polling initiated',
+			{ pollUrl }
+		);
 
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
@@ -1570,14 +1607,23 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = await response.json();
-			logger.info(`${MODULE_TAG} Authentication status polled`, {
-				status: data.status,
-				nextStep: data.nextStep,
-			});
+			logger.info(
+				`${MODULE_TAG} Authentication status polled`,
+				'Authentication status polling completed',
+				{
+					status: data.status,
+					nextStep: data.nextStep,
+				}
+			);
 
 			return data;
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Error polling authentication status`, error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(
+				`${MODULE_TAG} Error polling authentication status`,
+				'Exception occurred during authentication status polling',
+				{ error: errorMessage, originalError: error }
+			);
 			throw error;
 		}
 	}
@@ -1694,7 +1740,12 @@ export class MfaAuthenticationServiceV8 {
 
 			return result;
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Error completing authentication`, error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(
+				`${MODULE_TAG} Error completing authentication`,
+				'Exception occurred during authentication completion',
+				{ error: errorMessage, originalError: error }
+			);
 			throw error;
 		}
 	}
@@ -1781,11 +1832,20 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const result = data as { status: string; [key: string]: unknown };
-			logger.info(`${MODULE_TAG} Device authentication canceled`, { status: result.status });
+			logger.info(
+				`${MODULE_TAG} Device authentication canceled`,
+				'Device authentication cancellation completed successfully',
+				{ status: result.status }
+			);
 
 			return result;
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Error canceling device authentication`, error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(
+				`${MODULE_TAG} Error canceling device authentication`,
+				'Exception occurred during device authentication cancellation',
+				{ error: errorMessage, originalError: error }
+			);
 			throw error;
 		}
 	}
@@ -2090,14 +2150,19 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = responseData as { status: string; nextStep?: string; [key: string]: unknown };
-			logger.info(`${MODULE_TAG} FIDO2 assertion checked`, {
+			logger.info(`${MODULE_TAG} FIDO2 assertion checked`, 'FIDO2 assertion check completed', {
 				status: data.status,
 				nextStep: data.nextStep,
 			});
 
 			return data;
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Error checking FIDO2 assertion`, error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(
+				`${MODULE_TAG} Error checking FIDO2 assertion`,
+				'Exception occurred during FIDO2 assertion check',
+				{ error: errorMessage, originalError: error }
+			);
 			throw error;
 		}
 	}
@@ -2239,7 +2304,12 @@ export class MfaAuthenticationServiceV8 {
 				return reselectResult;
 			}
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Error resending OTP for ACTIVE device:`, error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			logger.error(
+				`${MODULE_TAG} Error resending OTP for ACTIVE device:`,
+				'Exception occurred during OTP resend for ACTIVE device',
+				{ error: errorMessage, originalError: error }
+			);
 			throw error;
 		}
 	}

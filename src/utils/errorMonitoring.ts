@@ -368,7 +368,7 @@ export class ErrorMonitoring {
 	 */
 	addAlertRule(rule: AlertRule): void {
 		this.alertRules.push(rule);
-		logger.info(`[Error Monitoring] Added alert rule: ${rule.name}`, "Logger info");
+		logger.info(`[Error Monitoring] Added alert rule: ${rule.name}`, 'Logger info');
 	}
 
 	/**
@@ -376,7 +376,7 @@ export class ErrorMonitoring {
 	 */
 	removeAlertRule(ruleId: string): void {
 		this.alertRules = this.alertRules.filter((rule) => rule.id !== ruleId);
-		logger.info(`[Error Monitoring] Removed alert rule: ${ruleId}`, "Logger info");
+		logger.info(`[Error Monitoring] Removed alert rule: ${ruleId}`, 'Logger info');
 	}
 
 	/**
@@ -421,7 +421,7 @@ export class ErrorMonitoring {
 	clearErrorHistory(): void {
 		this.errorHistory = [];
 		this.metrics = null;
-		logger.info('[Error Monitoring] Error history cleared', "Logger info");
+		logger.info('[Error Monitoring] Error history cleared', 'Logger info');
 	}
 
 	/**

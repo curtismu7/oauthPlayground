@@ -1,6 +1,6 @@
-import { FiBarChart2, FiCheck, FiInfo, FiX } from '../../icons';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { FiBarChart2, FiCheck, FiInfo, FiX } from '../../icons';
 import { type FlowType, type SpecVersion } from '../../v8/services/specVersionServiceV8';
 
 export type SpecFilterOption = 'all' | SpecVersion;
@@ -540,7 +540,11 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 								$selected={selectedFlowTypes.includes(flow)}
 								$disabled={disabled}
 								onClick={() => toggleFlowSelection(flow)}
-								title={disabled ? `Not in ${specFilter === 'oauth2.0' ? 'OAuth 2.0' : specFilter === 'oauth2.1' ? 'OAuth 2.1' : 'OIDC 2.0'}` : undefined}
+								title={
+									disabled
+										? `Not in ${specFilter === 'oauth2.0' ? 'OAuth 2.0' : specFilter === 'oauth2.1' ? 'OAuth 2.1' : 'OIDC 2.0'}`
+										: undefined
+								}
 							>
 								<FlowIcon>{metrics.icon}</FlowIcon>
 								<FlowName>{metrics.name}</FlowName>

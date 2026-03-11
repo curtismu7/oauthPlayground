@@ -1,12 +1,12 @@
 // src/components/UltimateTokenDisplay.tsx
 // Ultimate Token Display Component - Combines all the best features
 
-import { FiClock, FiTag, FiUnlock } from '../icons';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiClock, FiTag, FiUnlock } from '../icons';
 import TokenDisplayService from '../services/tokenDisplayService';
 
 interface TokenSet {

@@ -1,9 +1,9 @@
 // src/services/unifiedTokenDisplayService.tsx
 
-import { FiInfo } from '../../../../icons';
 import React from 'react';
 import { type NavigateFunction, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { FiInfo } from '../../../../icons';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import TokenDisplayService from './tokenDisplayService';
 

@@ -1,6 +1,6 @@
-import { FiActivity, FiClock } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiActivity, FiClock } from '../../icons';
 import { type TokenInfo } from '../services/tokenMonitoringService';
 
 const DashboardContainer = styled.div`

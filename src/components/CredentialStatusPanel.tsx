@@ -1,12 +1,12 @@
 // src/components/CredentialStatusPanel.tsx
 
-import { FiRefreshCw } from '../icons';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useAuth } from '../contexts/NewAuthContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
+import { FiRefreshCw } from '../icons';
 import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import ServerStatusModal from './ServerStatusModal';

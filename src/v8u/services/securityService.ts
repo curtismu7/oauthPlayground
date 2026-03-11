@@ -95,7 +95,7 @@ export class SecurityService {
 
 	// Security Scanning
 	async performSecurityScan(): Promise<SecurityScan> {
-		logger.debug('[Security] Performing security scan...', "Logger debug");
+		logger.debug('[Security] Performing security scan...', 'Logger debug');
 
 		const threats: SecurityThreat[] = [];
 		const scanId = this.generateId();

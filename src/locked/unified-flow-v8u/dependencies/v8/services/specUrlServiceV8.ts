@@ -128,91 +128,105 @@ export class SpecUrlServiceV8 {
 	static getFlowSpecInfo(flowType: FlowType): FlowSpecInfo {
 		logger.info(`${MODULE_TAG} Getting flow spec info for`, { flowType });
 
+		switch (flowType) {
+			case 'oauth-authz':
+				return {
+					primarySpec: SPEC_URLS.OAUTH2_RFC6749,
+					specLabel: 'OAuth 2.0 Authorization Code Flow',
+					relatedSpecs: [
+						{
+							label: 'Section 4.1 - Authorization Code Grant',
+							url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.1`,
+						},
+						{ label: 'RFC 7636 - PKCE (Recommended)', url: SPEC_URLS.PKCE_RFC7636 },
+					],
+				};
 
-switch (flowType) {
-	case 'oauth-authz':
-		return {
-				primarySpec: SPEC_URLS.OAUTH2_RFC6749,
-				specLabel: 'OAuth 2.0 Authorization Code Flow',
-				relatedSpecs: [
-					{
-						label: 'Section 4.1 - Authorization Code Grant',
-						url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.1`,
-					},
-					{ label: 'RFC 7636 - PKCE (Recommended)', url: SPEC_URLS.PKCE_RFC7636 },
-				],
-			};
+			case 'implicit':
+				return {
+					primarySpec: SPEC_URLS.OAUTH2_RFC6749,
+					specLabel: 'OAuth 2.0 Implicit Flow',
+					relatedSpecs: [
+						{
+							label: 'Section 4.2 - Implicit Grant',
+							url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.2`,
+						},
+						{ label: '⚠️ Deprecated in OAuth 2.1', url: SPEC_URLS.OAUTH2_1_DRAFT },
+					],
+				};
 
-	case 'implicit':
-		return {
-				primarySpec: SPEC_URLS.OAUTH2_RFC6749,
-				specLabel: 'OAuth 2.0 Implicit Flow',
-				relatedSpecs: [
-					{
-						label: 'Section 4.2 - Implicit Grant',
-						url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.2`,
-					},
-					{ label: '⚠️ Deprecated in OAuth 2.1', url: SPEC_URLS.OAUTH2_1_DRAFT },
-				],
-			};
+			case 'client-credentials':
+				return {
+					primarySpec: SPEC_URLS.OAUTH2_RFC6749,
+					specLabel: 'OAuth 2.0 Client Credentials Flow',
+					relatedSpecs: [
+						{
+							label: 'Section 4.4 - Client Credentials Grant',
+							url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.4`,
+						},
+					],
+				};
 
-	case 'client-credentials':
-		return {
-				primarySpec: SPEC_URLS.OAUTH2_RFC6749,
-				specLabel: 'OAuth 2.0 Client Credentials Flow',
-				relatedSpecs: [
-					{
-						label: 'Section 4.4 - Client Credentials Grant',
-						url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.4`,
-					},
-				],
-			};
+			case 'ropc':
+				return {
+					primarySpec: SPEC_URLS.OAUTH2_RFC6749,
+					specLabel: 'OAuth 2.0 Resource Owner Password Credentials',
+					relatedSpecs: [
+						{
+							label: 'Section 4.3 - Resource Owner Password Credentials Grant',
+							url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.3`,
+						},
+						{ label: '⚠️ Deprecated in OAuth 2.1', url: SPEC_URLS.OAUTH2_1_DRAFT },
+					],
+				};
 
-	case 'ropc':
-		return {
-				primarySpec: SPEC_URLS.OAUTH2_RFC6749,
-				specLabel: 'OAuth 2.0 Resource Owner Password Credentials',
-				relatedSpecs: [
-					{
-						label: 'Section 4.3 - Resource Owner Password Credentials Grant',
-						url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.3`,
-					},
-					{ label: '⚠️ Deprecated in OAuth 2.1', url: SPEC_URLS.OAUTH2_1_DRAFT },
-				],
-			};
+			case 'device-code':
+				return {
+					primarySpec: SPEC_URLS.DEVICE_AUTH_RFC8628,
+					specLabel: 'OAuth 2.0 Device Authorization Grant',
+					relatedSpecs: [
+						{
+							label: 'Section 3.1 - Device Authorization Request',
+							url: `${SPEC_URLS.DEVICE_AUTH_RFC8628}#section-3.1`,
+						},
+						{
+							label: 'Section 3.2 - Device Authorization Response',
+							url: `${SPEC_URLS.DEVICE_AUTH_RFC8628}#section-3.2`,
+						},
+						{
+							label: 'Section 3.4 - Token Request',
+							url: `${SPEC_URLS.DEVICE_AUTH_RFC8628}#section-3.4`,
+						},
+						{ label: 'RFC 8628 - Device Authorization Grant', url: SPEC_URLS.DEVICE_AUTH_RFC8628 },
+					],
+				};
 
-	case 'device-code':
-		return {
-				primarySpec: SPEC_URLS.DEVICE_AUTH_RFC8628,
-				specLabel: 'OAuth 2.0 Device Authorization Grant',
-				relatedSpecs: [
-					{ label: 'Section 3.1 - Device Authorization Request', url: `${SPEC_URLS.DEVICE_AUTH_RFC8628}#section-3.1` },
-					{ label: 'Section 3.2 - Device Authorization Response', url: `${SPEC_URLS.DEVICE_AUTH_RFC8628}#section-3.2` },
-					{ label: 'Section 3.4 - Token Request', url: `${SPEC_URLS.DEVICE_AUTH_RFC8628}#section-3.4` },
-					{ label: 'RFC 8628 - Device Authorization Grant', url: SPEC_URLS.DEVICE_AUTH_RFC8628 },
-				],
-			};
+			case 'hybrid':
+				return {
+					primarySpec: SPEC_URLS.OIDC_CORE,
+					specLabel: 'OpenID Connect Hybrid Flow',
+					relatedSpecs: [
+						{
+							label: 'Section 3.3 - Hybrid Flow Authentication',
+							url: `${SPEC_URLS.OIDC_CORE}#HybridFlowAuth`,
+						},
+						{
+							label: 'Section 3.3.1 - Hybrid Flow Steps',
+							url: `${SPEC_URLS.OIDC_CORE}#HybridFlowSteps`,
+						},
+						{ label: 'OpenID Connect Core 1.0', url: SPEC_URLS.OIDC_CORE },
+					],
+				};
 
-	case 'hybrid':
-		return {
-				primarySpec: SPEC_URLS.OIDC_CORE,
-				specLabel: 'OpenID Connect Hybrid Flow',
-				relatedSpecs: [
-					{ label: 'Section 3.3 - Hybrid Flow Authentication', url: `${SPEC_URLS.OIDC_CORE}#HybridFlowAuth` },
-					{ label: 'Section 3.3.1 - Hybrid Flow Steps', url: `${SPEC_URLS.OIDC_CORE}#HybridFlowSteps` },
-					{ label: 'OpenID Connect Core 1.0', url: SPEC_URLS.OIDC_CORE },
-				],
-			};
+			default:
+				return {
+					primarySpec: SPEC_URLS.OAUTH2_RFC6749,
+					specLabel: 'OAuth 2.0',
+					relatedSpecs: [],
+				};
+		}
+	}
 
-	default:
-		return {
-				primarySpec: SPEC_URLS.OAUTH2_RFC6749,
-				specLabel: 'OAuth 2.0',
-				relatedSpecs: [],
-			};
-}
-}
-	
 	/**
 	 * Log specification URL results for debugging
 	 */
@@ -221,9 +235,7 @@ switch (flowType) {
 		flowType: FlowType,
 		flowSpecs: FlowSpecInfo,
 		versionSpecs: ReturnType<typeof SpecUrlServiceV8.getSpecUrls>
-	): void
-{
-}
+	): void {}
 
 	/**
 	 * Get combined spec URLs for a spec version and flow type
@@ -234,66 +246,64 @@ switch (flowType) {
 	static getCombinedSpecUrls(
 		specVersion: SpecVersion,
 		flowType: FlowType
-	):
-{
-	primary: string;
-	primaryLabel: string;
-	allSpecs: Array<{ label: string; url: string; isPrimary?: boolean }>;
-}
-{
-	const versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
-	const flowSpecs = SpecUrlServiceV8.getFlowSpecInfo(flowType);
+	): {
+		primary: string;
+		primaryLabel: string;
+		allSpecs: Array<{ label: string; url: string; isPrimary?: boolean }>;
+	} {
+		const versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
+		const flowSpecs = SpecUrlServiceV8.getFlowSpecInfo(flowType);
 
-	// Combine specs, prioritizing flow-specific spec as primary if different
-	const allSpecs: Array<{ label: string; url: string; isPrimary?: boolean }> = [];
+		// Combine specs, prioritizing flow-specific spec as primary if different
+		const allSpecs: Array<{ label: string; url: string; isPrimary?: boolean }> = [];
 
-	// Add flow-specific primary spec first if it's different from version spec
-	if (flowSpecs.primarySpec !== versionSpecs.primary) {
+		// Add flow-specific primary spec first if it's different from version spec
+		if (flowSpecs.primarySpec !== versionSpecs.primary) {
+			allSpecs.push({
+				label: flowSpecs.specLabel,
+				url: flowSpecs.primarySpec,
+				isPrimary: true,
+			});
+		}
+
+		// Add version-specific primary spec
 		allSpecs.push({
-			label: flowSpecs.specLabel,
-			url: flowSpecs.primarySpec,
-			isPrimary: true,
+			label: versionSpecs.primaryLabel,
+			url: versionSpecs.primary,
+			isPrimary: flowSpecs.primarySpec === versionSpecs.primary,
 		});
-	}
 
-	// Add version-specific primary spec
-	allSpecs.push({
-		label: versionSpecs.primaryLabel,
-		url: versionSpecs.primary,
-		isPrimary: flowSpecs.primarySpec === versionSpecs.primary,
-	});
+		// Add flow-related specs
+		if (flowSpecs.relatedSpecs) {
+			flowSpecs.relatedSpecs.forEach((spec) => {
+				if (!allSpecs.find((s) => s.url === spec.url)) {
+					allSpecs.push({ label: spec.label, url: spec.url });
+				}
+			});
+		}
 
-	// Add flow-related specs
-	if (flowSpecs.relatedSpecs) {
-		flowSpecs.relatedSpecs.forEach((spec) => {
+		// Add version-related specs
+		versionSpecs.related.forEach((spec) => {
 			if (!allSpecs.find((s) => s.url === spec.url)) {
 				allSpecs.push({ label: spec.label, url: spec.url });
 			}
 		});
-	}
 
-	// Add version-related specs
-	versionSpecs.related.forEach((spec) => {
-		if (!allSpecs.find((s) => s.url === spec.url)) {
-			allSpecs.push({ label: spec.label, url: spec.url });
-		}
-	});
+		// Determine primary URL (flow-specific takes precedence)
+		const primaryUrl =
+			flowSpecs.primarySpec !== versionSpecs.primary ? flowSpecs.primarySpec : versionSpecs.primary;
 
-	// Determine primary URL (flow-specific takes precedence)
-	const primaryUrl =
-		flowSpecs.primarySpec !== versionSpecs.primary ? flowSpecs.primarySpec : versionSpecs.primary;
+		const primaryLabel =
+			flowSpecs.primarySpec !== versionSpecs.primary
+				? flowSpecs.specLabel
+				: versionSpecs.primaryLabel;
 
-	const primaryLabel =
-		flowSpecs.primarySpec !== versionSpecs.primary
-			? flowSpecs.specLabel
-			: versionSpecs.primaryLabel;
-
-	return {
+		return {
 			primary: primaryUrl,
 			primaryLabel,
 			allSpecs,
 		};
-}
+	}
 }
 
 export default SpecUrlServiceV8;

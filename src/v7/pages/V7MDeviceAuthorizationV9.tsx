@@ -1,16 +1,15 @@
 // src/v7/pages/V7MDeviceAuthorizationV9.tsx
-/* eslint-disable no-alert */
 // lint-file-disable: token-value-in-jsx
 
-import { FiBook } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import {
 	showGlobalError,
 	showGlobalSuccess,
 	showGlobalWarning,
 } from '../../contexts/NotificationSystem';
+import { FiBook } from '../../icons';
+import { FlowHeader } from '../../services/flowHeaderService';
 import {
 	requestDeviceAuthorization,
 	type V7MDeviceAuthorizationResponse,
@@ -164,7 +163,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 					marginBottom: 16,
 				}}
 			>
-				<strong>📚 Educational Mock Mode (V7M)</strong>
+				<strong>📚 Educational Mock Mode</strong>
 				<p style={{ margin: '8px 0 0 0', fontSize: 14 }}>
 					This flow simulates OAuth Device Authorization (RFC 8628) for learning. No external APIs
 					are called. Tokens are generated deterministically based on your settings.
@@ -177,8 +176,8 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 				credentials={{ clientId }}
 				importExportOptions={{
 					flowType: 'v7m-device-authorization',
-					appName: 'V7M Device Authorization',
-					description: 'V7M Mock Device Authorization Flow (RFC 8628)',
+					appName: 'Device Authorization',
+					description: 'Mock Device Authorization Flow (RFC 8628)',
 				}}
 				onAppSelected={handleAppSelected}
 				grantType="urn:ietf:params:oauth:grant-type:device_code"

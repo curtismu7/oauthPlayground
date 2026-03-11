@@ -1,10 +1,10 @@
 // src/components/CredentialBackupManager.tsx
 // V7 Credential Backup Manager Component
 
-import { FiRefreshCw } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiRefreshCw } from '../icons';
 import { credentialBackupService, type EnvBackupData } from '../services/credentialBackupService';
 import { logger } from '../utils/logger';
 import ConfirmationModal from './ConfirmationModal';

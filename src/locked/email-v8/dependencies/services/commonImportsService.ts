@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import {
 	FiActivity,
 	FiAlertCircle,
@@ -140,8 +142,6 @@ import {
 	FiXCircle,
 	FiZap,
 } from '../../../../icons';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
 import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';
 import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInput';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';

@@ -16,11 +16,11 @@
  * ========================================================================
  */
 
-import { FiChevronDown, FiMove } from '../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiChevronDown, FiMove } from '../icons';
 import { logger } from '../utils/logger';
 import { openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
 
@@ -418,7 +418,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8: Learn PingOne Resources API - OAuth 2.0 resources, scopes, and custom claims">
+							<MigrationBadge title="Learn PingOne Resources API - OAuth 2.0 resources, scopes, and custom claims">
 								EDUCATION
 							</MigrationBadge>
 						),
@@ -664,7 +664,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8: Demonstrating Proof of Possession (RFC 9449) with mock server">
+							<MigrationBadge title="Demonstrating Proof of Possession (RFC 9449) with mock server">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -679,7 +679,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8: Simplified UI with educational content in modals">
+							<MigrationBadge title="Simplified UI with educational content in modals">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -694,7 +694,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8: Simplified UI with educational content in modals">
+							<MigrationBadge title="Simplified UI with educational content in modals">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -789,14 +789,14 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					{
 						id: 'oauth-authorization-code-v7-2',
 						path: '/flows/oauth-authorization-code-v7-2',
-						label: 'Authorization Code (V7.2)',
+						label: 'Authorization Code',
 						icon: (
 							<ColoredIcon $color="#06b6d4">
 								<span>🔑</span>
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7.2: Adds optional redirectless (pi.flow) with Custom Login">
+							<MigrationBadge title="Adds optional redirectless (pi.flow) with Custom Login">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -811,7 +811,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector">
+							<MigrationBadge title="Unified OAuth/OIDC implementation with variant selector">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -826,7 +826,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7: Unified OAuth/OIDC device authorization">
+							<MigrationBadge title="Unified OAuth/OIDC device authorization">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -841,7 +841,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7: Enhanced client credentials">
+							<MigrationBadge title="Enhanced client credentials">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -861,14 +861,14 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					{
 						id: 'oidc-authorization-code-v7-2',
 						path: '/flows/oauth-authorization-code-v7-2',
-						label: 'Authorization Code (V7.2)',
+						label: 'Authorization Code',
 						icon: (
 							<ColoredIcon $color="#06b6d4">
 								<span>🔑</span>
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7.2: Adds optional redirectless (pi.flow) with Custom Login">
+							<MigrationBadge title="Adds optional redirectless (pi.flow) with Custom Login">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -883,7 +883,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector">
+							<MigrationBadge title="Unified OAuth/OIDC implementation with variant selector">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -898,7 +898,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7: Unified OAuth/OIDC device authorization">
+							<MigrationBadge title="Unified OAuth/OIDC device authorization">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -913,7 +913,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7: Unified OAuth/OIDC hybrid flow implementation">
+							<MigrationBadge title="Unified OAuth/OIDC hybrid flow implementation">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -940,7 +940,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7: Enhanced Pushed Authorization Request with Authorization Details">
+							<MigrationBadge title="Enhanced Pushed Authorization Request with Authorization Details">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -955,7 +955,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7: Enhanced PingOne Multi-Factor Authentication">
+							<MigrationBadge title="Enhanced PingOne Multi-Factor Authentication">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -970,7 +970,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7: PingOne Workflow Library Steps 11-20 - Authorization Code with MFA">
+							<MigrationBadge title="PingOne Workflow Library Steps 11-20 - Authorization Code with MFA">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -1015,7 +1015,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7: PingOne Redirectless Flow (pi.flow)">
+							<MigrationBadge title="PingOne Redirectless Flow (pi.flow)">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -1057,7 +1057,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7: Enhanced worker token flow">
+							<MigrationBadge title="Enhanced worker token flow">
 								<span>✅</span>
 							</MigrationBadge>
 						),
@@ -1185,7 +1185,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									</ColoredIcon>
 								),
 								badge: (
-									<MigrationBadge title="V7M Mock: OAuth 2.0 Authorization Code with PKCE — no real API calls">
+									<MigrationBadge title="Mock: OAuth 2.0 Authorization Code with PKCE — no real API calls">
 										<span>⚡</span>
 									</MigrationBadge>
 								),
@@ -1200,7 +1200,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									</ColoredIcon>
 								),
 								badge: (
-									<MigrationBadge title="V7M Mock: OIDC Authorization Code with ID token — no real API calls">
+									<MigrationBadge title="Mock: OIDC Authorization Code with ID token — no real API calls">
 										<span>⚡</span>
 									</MigrationBadge>
 								),
@@ -1215,7 +1215,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									</ColoredIcon>
 								),
 								badge: (
-									<MigrationBadge title="V7M Mock: OAuth 2.0 Implicit Flow (deprecated) — no real API calls">
+									<MigrationBadge title="Mock: OAuth 2.0 Implicit Flow (deprecated) — no real API calls">
 										<span>⚡</span>
 									</MigrationBadge>
 								),
@@ -1230,7 +1230,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									</ColoredIcon>
 								),
 								badge: (
-									<MigrationBadge title="V7M Mock: OIDC Implicit Flow with ID token — no real API calls">
+									<MigrationBadge title="Mock: OIDC Implicit Flow with ID token — no real API calls">
 										<span>⚡</span>
 									</MigrationBadge>
 								),
@@ -1245,7 +1245,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									</ColoredIcon>
 								),
 								badge: (
-									<MigrationBadge title="V7M Mock: Device Authorization Flow (RFC 8628) — no real API calls">
+									<MigrationBadge title="Mock: Device Authorization Flow (RFC 8628) — no real API calls">
 										<span>⚡</span>
 									</MigrationBadge>
 								),
@@ -1260,7 +1260,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									</ColoredIcon>
 								),
 								badge: (
-									<MigrationBadge title="V7M Mock: Client Credentials Flow — no real API calls">
+									<MigrationBadge title="Mock: Client Credentials Flow — no real API calls">
 										<span>⚡</span>
 									</MigrationBadge>
 								),
@@ -1275,7 +1275,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									</ColoredIcon>
 								),
 								badge: (
-									<MigrationBadge title="V7M Mock: Resource Owner Password Credentials (deprecated) — no real API calls">
+									<MigrationBadge title="Mock: Resource Owner Password Credentials (deprecated) — no real API calls">
 										<span>⚡</span>
 									</MigrationBadge>
 								),
@@ -1290,7 +1290,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									</ColoredIcon>
 								),
 								badge: (
-									<MigrationBadge title="V7M Mock: OIDC Resource Owner Password Credentials with ID token — no real API calls">
+									<MigrationBadge title="Mock: OIDC Resource Owner Password Credentials with ID token — no real API calls">
 										<span>⚡</span>
 									</MigrationBadge>
 								),
@@ -1422,7 +1422,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									</ColoredIcon>
 								),
 								badge: (
-									<MigrationBadge title="Educational/Mock: V7 Flow Condensation Prototype">
+									<MigrationBadge title="Educational/Mock: Flow Condensation Prototype">
 										<span>⚠️</span>
 									</MigrationBadge>
 								),
@@ -2696,8 +2696,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							}, 0);
 						};
 						return countItems(filteredMenuGroups);
-					})()}{' '}
-					results for "{searchQuery}"
+					})()} results for "{searchQuery}"
 				</div>
 			)}
 

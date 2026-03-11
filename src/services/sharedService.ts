@@ -108,7 +108,7 @@ export class V7IDTokenValidationManager {
 		jwksUri?: string,
 		flowName?: V7FlowName
 	): Promise<IDTokenValidationResult> {
-		logger.info(`Validating ID token for flow: ${flowName || 'unknown'}`, "Logger info");
+		logger.info(`Validating ID token for flow: ${flowName || 'unknown'}`, 'Logger info');
 
 		try {
 			const result = await IDTokenValidationService.validateIDToken(
@@ -180,7 +180,10 @@ export class V7ErrorHandlingManager {
 	 * Create scenario-specific error
 	 */
 	static createScenarioError(scenario: string, context?: ErrorContext): StandardizedErrorResponse {
-		logger.warn(`Creating scenario error: ${scenario} for flow: ${context?.flowName || 'unknown'}`, "Logger warning");
+		logger.warn(
+			`Creating scenario error: ${scenario} for flow: ${context?.flowName || 'unknown'}`,
+			'Logger warning'
+		);
 
 		return StandardizedErrorHandler.createScenarioError(scenario, context);
 	}
@@ -197,7 +200,7 @@ export class V7ErrorHandlingManager {
 	 */
 	static clearErrorLog(): void {
 		StandardizedErrorHandler.clearErrorLog();
-		logger.info('Error log cleared', "Logger info");
+		logger.info('Error log cleared', 'Logger info');
 	}
 }
 
@@ -213,7 +216,7 @@ export class V7ParameterValidationManager {
 		flowName: V7FlowName,
 		parameters: Record<string, any>
 	): ParameterValidationResult {
-		logger.info(`Validating parameters for flow: ${flowName}`, "Logger info");
+		logger.info(`Validating parameters for flow: ${flowName}`, 'Logger info');
 
 		const result = ParameterValidationService.validateFlowParameters(flowName, parameters);
 
@@ -266,7 +269,7 @@ export class V7SecurityHeadersManager {
 	 * Get security headers for a specific V7 flow
 	 */
 	static getSecurityHeaders(flowName: V7FlowName): SecurityHeaders {
-		logger.info(`Getting security headers for flow: ${flowName}`, "Logger info");
+		logger.info(`Getting security headers for flow: ${flowName}`, 'Logger info');
 
 		return SecurityHeadersService.getSecurityHeaders(flowName);
 	}

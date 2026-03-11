@@ -133,7 +133,7 @@ export class PingOneSignalsService {
 		const actualTimeout = timeout || PingOneSignalsService.DEFAULT_TIMEOUT;
 
 		try {
-			logger.info(`${PingOneSignalsService.MODULE_TAG} Getting device payload`, "Logger info");
+			logger.info(`${PingOneSignalsService.MODULE_TAG} Getting device payload`, 'Logger info');
 
 			// Wait for SDK readiness
 			await PingOneSignalsService.waitForReadiness(actualTimeout);
@@ -207,7 +207,10 @@ export class PingOneSignalsService {
 	static pauseBehavioralData(): void {
 		if (PingOneSignalsService.isSdkLoaded()) {
 			window._pingOneSignals.pauseBehavioralData();
-			logger.info(`${PingOneSignalsService.MODULE_TAG} Behavioral data collection paused`, "Logger info");
+			logger.info(
+				`${PingOneSignalsService.MODULE_TAG} Behavioral data collection paused`,
+				'Logger info'
+			);
 		}
 	}
 
@@ -217,7 +220,10 @@ export class PingOneSignalsService {
 	static resumeBehavioralData(): void {
 		if (PingOneSignalsService.isSdkLoaded()) {
 			window._pingOneSignals.resumeBehavioralData();
-			logger.info(`${PingOneSignalsService.MODULE_TAG} Behavioral data collection resumed`, "Logger info");
+			logger.info(
+				`${PingOneSignalsService.MODULE_TAG} Behavioral data collection resumed`,
+				'Logger info'
+			);
 		}
 	}
 
@@ -231,7 +237,7 @@ export class PingOneSignalsService {
 			script.async = true;
 
 			script.onload = () => {
-				logger.info(`${PingOneSignalsService.MODULE_TAG} SDK script loaded`, "Logger info");
+				logger.info(`${PingOneSignalsService.MODULE_TAG} SDK script loaded`, 'Logger info');
 				resolve();
 			};
 
@@ -284,7 +290,7 @@ export class PingOneSignalsService {
 		window.dispatchEvent(new Event('PingOneCollectionReady'));
 		PingOneSignalsService.isReady = true;
 
-		logger.info(`${PingOneSignalsService.MODULE_TAG} SDK ready for data collection`, "Logger info");
+		logger.info(`${PingOneSignalsService.MODULE_TAG} SDK ready for data collection`, 'Logger info');
 	}
 
 	/**
