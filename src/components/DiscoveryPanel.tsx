@@ -475,14 +475,20 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 			return;
 		}
 
-		// Save discovery preferences
-		credentialManager.saveDiscoveryPreferences({
+		// Prevent multiple simultaneous requests
+		if (isLoading) {
+			logger.warn('DiscoveryPanel', 'Discovery already in progress');
+			return;
+		}
+
+		logger.info('DiscoveryPanel', 'Starting discovery', {
 			environmentId,
 			region,
 		});
 
 		setIsLoading(true);
 		setStatus(null);
+
 		try {
 			const result = await discoveryService.discoverConfiguration(environmentId, region);
 
@@ -535,6 +541,8 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				message:
 					'Failed to discover configuration. Please verify your Environment ID and try again.',
 			});
+		} finally {
+			setIsLoading(false); // Always reset loading state
 		}
 	};
 
