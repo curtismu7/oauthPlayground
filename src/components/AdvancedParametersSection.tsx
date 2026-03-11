@@ -207,11 +207,7 @@ export const AdvancedParametersSection: React.FC<AdvancedParametersSectionProps>
 				)}
 
 				{/* Audience Parameter (available for most flows) */}
-				<CollapsibleHeader
-					title="Audience Parameter"
-					icon={<span>🛡️</span>}
-					defaultCollapsed={true}
-				>
+				<CollapsibleHeader title="Audience Parameter" icon={<span>🛡️</span>} defaultCollapsed={true}>
 					<InfoBox>
 						<strong>About Audience Parameter:</strong> Specifies the target API for the access
 						token. This helps authorization servers issue tokens with the correct audience claim.

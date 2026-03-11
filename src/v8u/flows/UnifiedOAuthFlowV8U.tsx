@@ -11,7 +11,7 @@
  * - Uses real PingOne APIs (no mocks)
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { EducationModeToggle } from '@/components/education/EducationModeToggle';
 import { MasterEducationSection } from '@/components/education/MasterEducationSection';
@@ -59,11 +59,13 @@ import { FlowTypeSelector } from '../components/FlowTypeSelector';
 import { MobileResponsiveWrapper } from '../components/MobileResponsiveWrapper';
 import { SecurityScorecard } from '../components/SecurityScorecard';
 import { SpecVersionSelector } from '../components/SpecVersionSelector';
+
 // Lazy load the heavy UnifiedFlowSteps component
 const UnifiedFlowSteps = lazy(() => import('../components/UnifiedFlowSteps'));
+
+import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
-import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
@@ -1870,8 +1872,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									message: 'Opening worker token settings…',
 									duration: 3000,
 								});
-								const { handleShowWorkerTokenModal } =
-									await import('@/v8/utils/workerTokenModalHelperV8');
+								const { handleShowWorkerTokenModal } = await import(
+									'@/v8/utils/workerTokenModalHelperV8'
+								);
 								await handleShowWorkerTokenModal(
 									setShowWorkerTokenModal,
 									setWorkerTokenWarning,
@@ -2777,8 +2780,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							<button
 								type="button"
 								onClick={async () => {
-									const { handleShowWorkerTokenModal } =
-										await import('@/v8/utils/workerTokenModalHelperV8');
+									const { handleShowWorkerTokenModal } = await import(
+										'@/v8/utils/workerTokenModalHelperV8'
+									);
 									await handleShowWorkerTokenModal(
 										() => {}, // setShowModal - not needed here
 										undefined, // setTokenStatus - not needed here
@@ -2831,8 +2835,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
 											try {
-												const { handleShowWorkerTokenModal } =
-													await import('@/v8/utils/workerTokenModalHelperV8');
+												const { handleShowWorkerTokenModal } = await import(
+													'@/v8/utils/workerTokenModalHelperV8'
+												);
 												// Attempt silent retrieval (will show modal if credentials are missing)
 												await handleShowWorkerTokenModal(
 													() => {}, // setShowModal - not needed here

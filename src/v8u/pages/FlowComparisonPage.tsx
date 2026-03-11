@@ -1,6 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { type FlowType, type SpecVersion, SpecVersionServiceV8 } from '../../v8/services/specVersionServiceV8';
+import {
+	type FlowType,
+	type SpecVersion,
+	SpecVersionServiceV8,
+} from '../../v8/services/specVersionServiceV8';
 import { FlowComparisonTool, type SpecFilterOption } from '../components/FlowComparisonTool';
 
 const PageContainer = styled.div`

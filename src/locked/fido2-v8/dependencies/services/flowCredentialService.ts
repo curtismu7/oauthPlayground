@@ -108,8 +108,9 @@ export const loadSharedCredentials = async (
 		}
 
 		logger.info(
-			`[FlowCredentialService:${flowKey}] No shared credentials found in credentialManager`
-		, "Logger info");
+			`[FlowCredentialService:${flowKey}] No shared credentials found in credentialManager`,
+			'Logger info'
+		);
 		return null;
 	} catch (error) {
 		logger.error(`[FlowCredentialService:${flowKey}] Failed to load shared credentials:`, error);
@@ -131,8 +132,9 @@ export const loadFlowState = <T = unknown>(flowKey: string): FlowPersistentState
 		const parsed = safeJsonParse(savedState) as FlowPersistentState<T>;
 		if (parsed) {
 			logger.info(
-				`[FlowCredentialService:${flowKey}] Loaded flow-specific state from localStorage`
-			, "Logger info");
+				`[FlowCredentialService:${flowKey}] Loaded flow-specific state from localStorage`,
+				'Logger info'
+			);
 			return parsed;
 		}
 
@@ -153,7 +155,10 @@ export const saveSharedCredentials = async (
 	options: { showToast?: boolean } = { showToast: true }
 ): Promise<boolean> => {
 	try {
-		logger.info(`[FlowCredentialService:${flowKey}] Starting saveSharedCredentials...`, "Logger info");
+		logger.info(
+			`[FlowCredentialService:${flowKey}] Starting saveSharedCredentials...`,
+			'Logger info'
+		);
 		logger.info(`[FlowCredentialService:${flowKey}] Credentials to save:`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
@@ -255,7 +260,10 @@ export const saveFlowState = <T = unknown>(
 
 		localStorage.setItem(flowKey, JSON.stringify(stateWithTimestamp));
 
-		logger.info(`[FlowCredentialService:${flowKey}] Saved flow-specific state to localStorage`, "Logger info");
+		logger.info(
+			`[FlowCredentialService:${flowKey}] Saved flow-specific state to localStorage`,
+			'Logger info'
+		);
 		return true;
 	} catch (error) {
 		logger.error(`[FlowCredentialService:${flowKey}] Failed to save flow state:`, error);
@@ -277,7 +285,7 @@ export const saveFlowCredentials = async <T = unknown>(
 	try {
 		// 🔍 INSTRUMENTATION: Track credential saving behavior
 		console.group(`🔍 [CREDENTIAL AUDIT] Saving credentials for flow: ${flowKey}`);
-		logger.info(`📋 Flow Key: ${flowKey}`, "Logger info");
+		logger.info(`📋 Flow Key: ${flowKey}`, 'Logger info');
 		logger.info(`📋 Credentials to Save:`, credentials);
 		logger.info(`📋 Flow Config:`, flowConfig);
 
@@ -286,12 +294,12 @@ export const saveFlowCredentials = async <T = unknown>(
 		logger.info(`📋 localStorage Keys BEFORE Save:`, beforeKeys);
 
 		// Save to credentialManager (shared across flows)
-		logger.info(`📋 Saving to shared credentialManager...`, "Logger info");
+		logger.info(`📋 Saving to shared credentialManager...`, 'Logger info');
 		const sharedSaved = await saveSharedCredentials(flowKey, credentials, { showToast: false });
 		logger.info(`📋 Shared Save Result:`, sharedSaved);
 
 		// Save flow-specific state to localStorage
-		logger.info(`📋 Saving to flow-specific localStorage...`, "Logger info");
+		logger.info(`📋 Saving to flow-specific localStorage...`, 'Logger info');
 		const flowState: FlowPersistentState<T> = {
 			credentials,
 			flowConfig,
@@ -345,7 +353,7 @@ export const loadFlowCredentials = async <T = unknown>(
 
 	// 🔍 INSTRUMENTATION: Track credential loading behavior
 	console.group(`🔍 [CREDENTIAL AUDIT] Loading credentials for flow: ${flowKey}`);
-	logger.info(`📋 Flow Key: ${flowKey}`, "Logger info");
+	logger.info(`📋 Flow Key: ${flowKey}`, 'Logger info');
 	logger.info(`📋 Default Credentials:`, defaultCredentials);
 
 	// Load flow-specific state from localStorage - PRIMARY SOURCE
@@ -379,8 +387,9 @@ export const loadFlowCredentials = async <T = unknown>(
 		finalCredentials = flowState.credentials;
 		credentialSource = 'flow-specific';
 		logger.info(
-			`✅ [FlowCredentialService:${flowKey}] Using flow-specific credentials from localStorage`
-		, "Logger info");
+			`✅ [FlowCredentialService:${flowKey}] Using flow-specific credentials from localStorage`,
+			'Logger info'
+		);
 	} else if (sharedCredentials) {
 		// Fall back to shared credentials only if no flow-specific credentials exist
 		finalCredentials = sharedCredentials;
@@ -389,11 +398,12 @@ export const loadFlowCredentials = async <T = unknown>(
 			`⚠️ [FlowCredentialService:${flowKey}] Using shared credentials (no flow-specific credentials found)`
 		);
 		logger.info(
-			`🚨 POTENTIAL CREDENTIAL BLEEDING DETECTED! Flow ${flowKey} is using shared credentials`
-		, "Logger info");
+			`🚨 POTENTIAL CREDENTIAL BLEEDING DETECTED! Flow ${flowKey} is using shared credentials`,
+			'Logger info'
+		);
 	}
 
-	logger.info(`📋 Final Credentials Source: ${credentialSource}`, "Logger info");
+	logger.info(`📋 Final Credentials Source: ${credentialSource}`, 'Logger info');
 	logger.info(`📋 Final Credentials:`, finalCredentials);
 	console.groupEnd();
 
@@ -411,7 +421,7 @@ export const loadFlowCredentials = async <T = unknown>(
 export const clearFlowState = (flowKey: string): boolean => {
 	try {
 		localStorage.removeItem(flowKey);
-		logger.info(`[FlowCredentialService:${flowKey}] Cleared flow-specific state`, "Logger info");
+		logger.info(`[FlowCredentialService:${flowKey}] Cleared flow-specific state`, 'Logger info');
 		return true;
 	} catch (error) {
 		logger.error(`[FlowCredentialService:${flowKey}] Failed to clear flow state:`, error);
@@ -439,9 +449,9 @@ export const saveFlowCredentialsIsolated = async <T = unknown>(
 ): Promise<boolean> => {
 	try {
 		console.group(`🔒 [ISOLATED CREDENTIALS] Saving credentials for flow: ${flowKey}`);
-		logger.info(`📋 Flow Key: ${flowKey}`, "Logger info");
+		logger.info(`📋 Flow Key: ${flowKey}`, 'Logger info');
 		logger.info(`📋 Credentials:`, credentials);
-		logger.info(`📋 Use Shared Fallback: ${options.useSharedFallback}`, "Logger info");
+		logger.info(`📋 Use Shared Fallback: ${options.useSharedFallback}`, 'Logger info');
 
 		// Save to isolated storage (per-flow-first)
 		const isolatedSaved = flowCredentialIsolationService.saveFlowCredentials(flowKey, credentials, {
@@ -532,7 +542,7 @@ export const clearFlowCredentialsIsolated = (flowKey: string): boolean => {
 export const clearSharedCredentials = async (flowKey: string): Promise<boolean> => {
 	try {
 		await credentialManager.clearAllCredentials();
-		logger.info(`[FlowCredentialService:${flowKey}] Cleared shared credentials`, "Logger info");
+		logger.info(`[FlowCredentialService:${flowKey}] Cleared shared credentials`, 'Logger info');
 		return true;
 	} catch (error) {
 		logger.error(`[FlowCredentialService:${flowKey}] Failed to clear shared credentials:`, error);
@@ -547,7 +557,7 @@ export const clearAllFlowData = async (flowKey: string): Promise<boolean> => {
 	try {
 		clearFlowState(flowKey);
 		await clearSharedCredentials(flowKey);
-		logger.info(`[FlowCredentialService:${flowKey}] Cleared all flow data`, "Logger info");
+		logger.info(`[FlowCredentialService:${flowKey}] Cleared all flow data`, 'Logger info');
 		return true;
 	} catch (error) {
 		logger.error(`[FlowCredentialService:${flowKey}] Failed to clear all flow data:`, error);

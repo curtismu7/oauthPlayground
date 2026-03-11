@@ -169,7 +169,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						? defaultRedirectUriForMfa
 						: savedRedirectUri;
 
-
 				setRedirectUri(initialRedirectUri);
 
 				previousRedirectUriRef.current = initialRedirectUri;
@@ -207,7 +206,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 	// Check for callback authorization code on mount and when URL changes
 	useEffect(() => {
-
 		// Check if we're returning from a callback (check both when modal opens and on URL change)
 		const checkCallback = async () => {
 			// Prevent concurrent processing
@@ -225,7 +223,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const error = searchParams.get('error') || windowSearchParams.get('error');
 			const state = searchParams.get('state') || windowSearchParams.get('state');
 
-
 			// Only process if we have a stored state (confirms this is from our user login flow)
 			const storedState = sessionStorage.getItem('user_login_state_v8');
 			if (!storedState) {
@@ -239,7 +236,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			// Validate state if we have both stored state and URL state
 			if (state && storedState !== state) {
-				logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`, "Logger warning");
+				logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`, 'Logger warning');
 				toastV8.error('Security validation failed. Please try again.');
 				sessionStorage.removeItem('user_login_state_v8');
 				sessionStorage.removeItem('user_login_code_verifier_v8');
@@ -298,7 +295,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				try {
 					let credentials = JSON.parse(storedCredentials);
 
-
 					// CRITICAL: Fetch app config from PingOne to ensure we use the correct auth method
 					// This prevents "Unsupported authentication method" errors
 					if (credentials.environmentId && credentials.clientId) {
@@ -306,8 +302,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							const workerToken = await workerTokenServiceV8.getToken();
 							if (workerToken) {
 								logger.info(
-									`${MODULE_TAG} Fetching app config from PingOne before token exchange...`
-								, "Logger info");
+									`${MODULE_TAG} Fetching app config from PingOne before token exchange...`,
+									'Logger info'
+								);
 								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 									credentials.environmentId,
 									credentials.clientId,
@@ -360,7 +357,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						storedCodeVerifier
 					);
 
-
 					// Clean up session storage
 					sessionStorage.removeItem('user_login_state_v8');
 					sessionStorage.removeItem('user_login_code_verifier_v8');
@@ -378,7 +374,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						tokenType: 'user', // Mark as user token type
 					};
 					CredentialsServiceV8.saveCredentials(FLOW_KEY, updatedCredentials);
-					logger.info(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`, "Logger info");
+					logger.info(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`, 'Logger info');
 
 					// Store session info for success page
 					const newSessionInfo: SessionInfo = {
@@ -395,7 +391,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 					// Show success page - CRITICAL: Set this AFTER sessionInfo to ensure both are set
 					setShowSuccessPage(true);
-
 
 					// Use access token (callback for parent components)
 
@@ -475,7 +470,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		const windowHasCode = windowSearchParams.get('code');
 		const windowHasError = windowSearchParams.get('error');
 
-
 		// Only process if we have a code/error AND stored state (to avoid processing other OAuth flows)
 		// Use window.location.search as fallback since window.location.replace bypasses React Router
 		const shouldProcess =
@@ -524,7 +518,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				if (!storedState) return;
 
 				if (storedState && state && storedState !== state) {
-					logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`, "Logger warning");
+					logger.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`, 'Logger warning');
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
 				}
@@ -557,8 +551,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								const workerToken = await workerTokenServiceV8.getToken();
 								if (workerToken) {
 									logger.info(
-										`${MODULE_TAG} Fetching app config from PingOne before token exchange...`
-									, "Logger info");
+										`${MODULE_TAG} Fetching app config from PingOne before token exchange...`,
+										'Logger info'
+									);
 									const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 										credentials.environmentId,
 										credentials.clientId,
@@ -625,7 +620,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							tokenType: 'user', // Mark as user token type
 						};
 						CredentialsServiceV8.saveCredentials(FLOW_KEY, updatedCredentials);
-						logger.info(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`, "Logger info");
+						logger.info(
+							`${MODULE_TAG} ✅ Saved user token to credentials.userToken`,
+							'Logger info'
+						);
 
 						handleTokenReceived(tokenResponse.access_token);
 					} catch (error) {
@@ -662,7 +660,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					// Get worker token
 					const workerToken = await workerTokenServiceV8.getToken();
 					if (!workerToken) {
-						logger.warn(`${MODULE_TAG} No worker token available to update PingOne app`, "Logger warning");
+						logger.warn(
+							`${MODULE_TAG} No worker token available to update PingOne app`,
+							'Logger warning'
+						);
 						// eslint-disable-next-line require-atomic-updates
 						previousRedirectUriRef.current = newRedirectUri;
 						return;
@@ -798,7 +799,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		// Use the value from the modal field, only fall back if empty or invalid
 		const fieldValue = redirectUri.trim();
 
-
 		const finalRedirectUri =
 			fieldValue &&
 			!fieldValue.includes('implicit-callback') &&
@@ -806,7 +806,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			!(isMfaFlow && (fieldValue.includes('/v8/mfa-hub') || fieldValue.includes('mfa-hub')))
 				? fieldValue
 				: defaultRedirectUriForMfa;
-
 
 		// Save credentials using CredentialsServiceV8 (always use user-login-callback for User Login Flow)
 		const FLOW_KEY = 'user-login-v8';
@@ -837,7 +836,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const urlObj = new URL(authorizationUrl);
 			const urlRedirectUri = urlObj.searchParams.get('redirect_uri');
 
-
 			// Store state, code verifier, and credentials for validation and token exchange
 			sessionStorage.setItem('user_login_state_v8', state);
 			sessionStorage.setItem('user_login_code_verifier_v8', codeVerifier);
@@ -865,7 +863,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				// Store path directly as a string (no need for JSON.stringify on a string)
 				// CRITICAL: Store BEFORE redirect to ensure it's available when callback returns
 				sessionStorage.setItem('user_login_return_to_mfa', fullPath);
-
 			} else {
 				logger.warn(
 					`${MODULE_TAG} ⚠️ Not storing return path - current path does not start with /v8/mfa:`,
@@ -1224,8 +1221,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 															const workerToken = await workerTokenServiceV8.getToken();
 															if (workerToken) {
 																logger.info(
-																	`${MODULE_TAG} Fetching application secret from PingOne API...`
-																, "Logger info");
+																	`${MODULE_TAG} Fetching application secret from PingOne API...`,
+																	'Logger info'
+																);
 																const fetchedApp =
 																	await AppDiscoveryServiceV8.fetchApplicationWithSecret(
 																		environmentId.trim(),

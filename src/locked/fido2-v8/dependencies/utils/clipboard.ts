@@ -62,7 +62,7 @@ const showCopySuccess = (label: string) => {
 export const copyToClipboard = async (text: string, label?: string): Promise<void> => {
 	try {
 		await navigator.clipboard.writeText(text);
-		logger.info(` [Clipboard] Copied ${label || 'text'} to clipboard`, "Logger info");
+		logger.info(` [Clipboard] Copied ${label || 'text'} to clipboard`, 'Logger info');
 
 		// Show visual success feedback
 		const labelText = label || 'Text';
@@ -83,7 +83,7 @@ export const copyToClipboard = async (text: string, label?: string): Promise<voi
 			document.execCommand('copy');
 			textArea.remove();
 
-			logger.info(` [Clipboard] Copied ${label || 'text'} using fallback method`, "Logger info");
+			logger.info(` [Clipboard] Copied ${label || 'text'} using fallback method`, 'Logger info');
 			showCopySuccess(label || 'Text');
 		} catch (fallbackError) {
 			logger.error(' [Clipboard] Fallback copy failed:', fallbackError);

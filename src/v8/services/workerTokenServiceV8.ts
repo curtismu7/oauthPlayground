@@ -87,8 +87,12 @@ class WorkerTokenServiceV8 {
 		}
 
 		// Convert back to V8 format (remove app-specific fields)
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { appId, appName, appVersion, ...v8Credentials } = unifiedCredentials;
+		const {
+			appId: _appId,
+			appName: _appName,
+			appVersion: _appVersion,
+			...v8Credentials
+		} = unifiedCredentials;
 		return v8Credentials as WorkerTokenCredentials;
 	}
 
@@ -157,8 +161,12 @@ class WorkerTokenServiceV8 {
 					);
 					return null;
 				}
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
-				const { appId, appName, appVersion, ...v8Credentials } = data.credentials;
+				const {
+					appId: _appId,
+					appName: _appName,
+					appVersion: _appVersion,
+					...v8Credentials
+				} = data.credentials;
 				return v8Credentials as WorkerTokenCredentials;
 			}
 		} catch (error) {

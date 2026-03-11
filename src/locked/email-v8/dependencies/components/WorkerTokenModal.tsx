@@ -1,10 +1,10 @@
 // src/components/WorkerTokenModal.tsx
 // Modal for configuring worker token when not available
 
-import { FiAlertTriangle, FiInfo } from '../../../../icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { FiAlertTriangle, FiInfo } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import { showTokenSuccessMessage } from '../services/tokenExpirationService';
 import { trackedFetch } from '../utils/trackedFetch';

@@ -4,7 +4,6 @@
  * @description Interactive page for crafting PingOne Create Device requests with editable JSON.
  */
 
-import { FiAlertTriangle, FiRefreshCw } from '../../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -15,6 +14,7 @@ import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import deviceCreateDemoServiceV8 from '@/v8/services/deviceCreateDemoServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
+import { FiAlertTriangle, FiRefreshCw } from '../../icons';
 
 import { logger } from '../../utils/logger';
 

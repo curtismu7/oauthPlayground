@@ -129,31 +129,29 @@ export const convertTrackedCallsToDocumentation = (
 const getApiDocsUrlForFlow = (_flowType: FlowType): string => {
 	const _baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 
+	let url: string;
+	switch (flowType) {
+		case 'oauth-authz':
+			url = `${baseUrl}#authorization-and-authentication-apis-authorize-authorization-code`;
+			break;
+		case 'implicit':
+			url = `${baseUrl}#authorization-and-authentication-apis-authorize-implicit`;
+			break;
+		case 'client-credentials':
+			url = `${baseUrl}#authorization-and-authentication-apis-token-client-credentials`;
+			break;
+		case 'device-code':
+			url = `${baseUrl}#authorization-and-authentication-apis-device-authorization-request`;
+			break;
+		case 'hybrid':
+			url = `${baseUrl}#openid-connect`;
+			break;
+		default:
+			url = baseUrl;
+	}
 
-let url: string;
-switch (flowType) {
-	case 'oauth-authz':
-		url = `${baseUrl}#authorization-and-authentication-apis-authorize-authorization-code`;
-		break;
-	case 'implicit':
-		url = `${baseUrl}#authorization-and-authentication-apis-authorize-implicit`;
-		break;
-	case 'client-credentials':
-		url = `${baseUrl}#authorization-and-authentication-apis-token-client-credentials`;
-		break;
-	case 'device-code':
-		url = `${baseUrl}#authorization-and-authentication-apis-device-authorization-request`;
-		break;
-	case 'hybrid':
-		url = `${baseUrl}#openid-connect`;
-		break;
-	default:
-		url = baseUrl;
-}
-
-
-return url;
-}
+	return url;
+};
 
 /**
  * Generate markdown documentation
@@ -242,30 +240,28 @@ export const generateUnifiedFlowMarkdown = (
 	const _specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, flowType);
 	const _versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
 
-
-// Add primary specification with section anchor if available
-if (flowSpecs.relatedSpecs && flowSpecs.relatedSpecs.length > 0) {
-	flowSpecs.relatedSpecs.forEach((spec) => {
-		md += `- [${spec.label}](${spec.url})\n`;
-	});
-} else {
-	// Fallback to primary spec
-	md += `- [${specUrls.primaryLabel}](${specUrls.primary})\n`;
-}
-
-// Add version-specific related specs
-versionSpecs.related.forEach((spec) => {
-	// Avoid duplicates
-	if (!flowSpecs.relatedSpecs?.some((s) => s.url === spec.url)) {
-		md += `- [${spec.label}](${spec.url})\n`;
+	// Add primary specification with section anchor if available
+	if (flowSpecs.relatedSpecs && flowSpecs.relatedSpecs.length > 0) {
+		flowSpecs.relatedSpecs.forEach((spec) => {
+			md += `- [${spec.label}](${spec.url})\n`;
+		});
+	} else {
+		// Fallback to primary spec
+		md += `- [${specUrls.primaryLabel}](${specUrls.primary})\n`;
 	}
-});
 
-// Add PingOne API documentation with flow-specific anchor
-const _apiDocsUrl = getApiDocsUrlForFlow(flowType);
+	// Add version-specific related specs
+	versionSpecs.related.forEach((spec) => {
+		// Avoid duplicates
+		if (!flowSpecs.relatedSpecs?.some((s) => s.url === spec.url)) {
+			md += `- [${spec.label}](${spec.url})\n`;
+		}
+	});
 
+	// Add PingOne API documentation with flow-specific anchor
+	const _apiDocsUrl = getApiDocsUrlForFlow(flowType);
 
-md += `- [PingOne API Documentation - $
+	md += `- [PingOne API Documentation - $
 {
 	flowTypeLabels[flowType];
 }
@@ -274,10 +270,10 @@ Flow;
 {
 	_apiDocsUrl;
 }
-)\n`
+)\n`;
 
-return md;
-}
+	return md;
+};
 
 export const downloadAsMarkdown = (content: string, filename: string): void => {
 	const blob = new Blob([content], { type: 'text/markdown' });

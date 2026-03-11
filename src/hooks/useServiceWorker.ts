@@ -88,7 +88,7 @@ export const useServiceWorker = (config: UseServiceWorkerConfig = {}) => {
 		try {
 			await serviceWorkerManager.register();
 			await updateState();
-			logger.info('[useServiceWorker] Service worker registered', "Logger info");
+			logger.info('[useServiceWorker] Service worker registered', 'Logger info');
 		} catch (err) {
 			setError(err as Error);
 			logger.error('[useServiceWorker] Failed to register service worker:', err);
@@ -105,7 +105,7 @@ export const useServiceWorker = (config: UseServiceWorkerConfig = {}) => {
 		try {
 			await serviceWorkerManager.unregister();
 			await updateState();
-			logger.info('[useServiceWorker] Service worker unregistered', "Logger info");
+			logger.info('[useServiceWorker] Service worker unregistered', 'Logger info');
 		} catch (err) {
 			setError(err as Error);
 			logger.error('[useServiceWorker] Failed to unregister service worker:', err);
@@ -122,7 +122,7 @@ export const useServiceWorker = (config: UseServiceWorkerConfig = {}) => {
 		try {
 			await serviceWorkerManager.update();
 			await updateState();
-			logger.info('[useServiceWorker] Service worker updated', "Logger info");
+			logger.info('[useServiceWorker] Service worker updated', 'Logger info');
 		} catch (err) {
 			setError(err as Error);
 			logger.error('[useServiceWorker] Failed to update service worker:', err);
@@ -139,7 +139,7 @@ export const useServiceWorker = (config: UseServiceWorkerConfig = {}) => {
 		try {
 			await serviceWorkerManager.skipWaiting();
 			setState((prev) => ({ ...prev, updateAvailable: false }));
-			logger.info('[useServiceWorker] Service worker skip waiting', "Logger info");
+			logger.info('[useServiceWorker] Service worker skip waiting', 'Logger info');
 		} catch (err) {
 			setError(err as Error);
 			logger.error('[useServiceWorker] Failed to skip waiting:', err);
@@ -156,7 +156,7 @@ export const useServiceWorker = (config: UseServiceWorkerConfig = {}) => {
 		try {
 			await clearAllCaches();
 			await updateState();
-			logger.info('[useServiceWorker] All caches cleared', "Logger info");
+			logger.info('[useServiceWorker] All caches cleared', 'Logger info');
 		} catch (err) {
 			setError(err as Error);
 			logger.error('[useServiceWorker] Failed to clear caches:', err);
@@ -174,7 +174,7 @@ export const useServiceWorker = (config: UseServiceWorkerConfig = {}) => {
 			try {
 				await preloadResources(urls);
 				await updateState();
-				logger.info('[useServiceWorker] Resources preloaded', "Logger info");
+				logger.info('[useServiceWorker] Resources preloaded', 'Logger info');
 			} catch (err) {
 				setError(err as Error);
 				logger.error('[useServiceWorker] Failed to preload resources:', err);
@@ -199,14 +199,14 @@ export const useServiceWorker = (config: UseServiceWorkerConfig = {}) => {
 	const handleUpdateAvailable = useCallback(() => {
 		setState((prev) => ({ ...prev, updateAvailable: true }));
 		onUpdateAvailable?.();
-		logger.info('[useServiceWorker] Update available', "Logger info");
+		logger.info('[useServiceWorker] Update available', 'Logger info');
 	}, [onUpdateAvailable]);
 
 	// Handle update installed
 	const handleUpdateInstalled = useCallback(() => {
 		setState((prev) => ({ ...prev, updateAvailable: false }));
 		onUpdateInstalled?.();
-		logger.info('[useServiceWorker] Update installed', "Logger info");
+		logger.info('[useServiceWorker] Update installed', 'Logger info');
 	}, [onUpdateInstalled]);
 
 	// Initialize service worker

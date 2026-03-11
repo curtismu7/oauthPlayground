@@ -4,10 +4,10 @@
  * Analyzes real OAuth URLs from any provider and explains every parameter
  */
 
-import { FiInfo } from '../icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiInfo } from '../icons';
 
 import { logger } from '../utils/logger';
 

@@ -139,7 +139,10 @@ export const useResourceOwnerPasswordFlowController =
 
 		const saveCredentials = useCallback(async () => {
 			try {
-				logger.info(`${LOG_PREFIX} [SAVE] Saving Resource Owner Password credentials...`, "Logger info");
+				logger.info(
+					`${LOG_PREFIX} [SAVE] Saving Resource Owner Password credentials...`,
+					'Logger info'
+				);
 
 				// Save to sessionStorage for persistence
 				sessionStorage.setItem(
@@ -147,7 +150,7 @@ export const useResourceOwnerPasswordFlowController =
 					JSON.stringify(credentials)
 				);
 
-				logger.info(`${LOG_PREFIX} [SUCCESS] Credentials saved successfully`, "Logger info");
+				logger.info(`${LOG_PREFIX} [SUCCESS] Credentials saved successfully`, 'Logger info');
 			} catch (error) {
 				logger.error(
 					'useResourceOwnerPasswordFlowController',

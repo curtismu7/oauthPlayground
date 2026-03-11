@@ -30,7 +30,6 @@ const WorkerActions: React.FC<{
 	</div>
 );
 
-import { FiKey } from '../icons';
 // src/pages/ClientGenerator.tsx
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -40,6 +39,7 @@ import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { CredentialsInput } from '../components/CredentialsInput';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { FiKey } from '../icons';
 import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { logger } from '../utils/logger';

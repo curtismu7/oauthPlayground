@@ -1,10 +1,10 @@
 // src/components/SmartVehicleDeviceFlow.tsx
 // Smart Vehicle Style Device Authorization Flow Interface
 
-import { FiNavigation, FiTruck } from '../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { FiNavigation, FiTruck } from '../icons';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
@@ -338,8 +338,7 @@ const VehicleBase = styled.div`
 interface SmartVehicleDeviceFlowProps {
 	state: DeviceFlowState;
 	onStateUpdate: (newState: DeviceFlowState) => void;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	onComplete: (tokens: any) => void;
+	onComplete: (tokens: Record<string, unknown>) => void;
 	onError: (error: string) => void;
 }
 

@@ -15,6 +15,7 @@
  */
 
 import { logger } from '../../../../../utils/logger';
+
 const MODULE_TAG = '[🔑 WORKER-TOKEN-V8]';
 
 const BROWSER_STORAGE_KEY = 'v8:worker_token';
@@ -400,7 +401,7 @@ class WorkerTokenServiceV8 {
 			logger.error(`${MODULE_TAG} Failed to clear IndexedDB`, error);
 		}
 
-		logger.info(`${MODULE_TAG} Cleared all credentials`, "Logger info");
+		logger.info(`${MODULE_TAG} Cleared all credentials`, 'Logger info');
 	}
 
 	/**

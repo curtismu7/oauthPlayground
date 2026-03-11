@@ -25,7 +25,7 @@ export function clearFlowSessionStorage(): void {
 		sessionStorage.removeItem(key);
 	});
 
-	logger.info('✅ [SessionStorage] All flow data cleared', "Logger info");
+	logger.info('✅ [SessionStorage] All flow data cleared', 'Logger info');
 }
 
 /**

@@ -11,9 +11,9 @@
  * - Generic OIDC provider URLs
  */
 
-import { FiSearch } from '../../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiSearch } from '../../../../icons';
 import {
 	comprehensiveDiscoveryService,
 	DiscoveryResult,

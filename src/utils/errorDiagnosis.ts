@@ -613,7 +613,7 @@ async function retryWithBackoff(fn, maxRetries = 3) {
 	// Clear error history
 	public clearErrorHistory(): void {
 		this.errorHistory = [];
-		logger.info('[ErrorDiagnosisManager] Error history cleared', "Logger info");
+		logger.info('[ErrorDiagnosisManager] Error history cleared', 'Logger info');
 	}
 
 	// Export error data

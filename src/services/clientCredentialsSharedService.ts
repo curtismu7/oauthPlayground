@@ -197,7 +197,7 @@ export class ClientCredentialsSync {
 
 		// Validate credentials
 		if (!credentials.clientId || !credentials.clientSecret) {
-			logger.warn('Missing required credentials for client credentials flow', "Logger warning");
+			logger.warn('Missing required credentials for client credentials flow', 'Logger warning');
 			return;
 		}
 	}

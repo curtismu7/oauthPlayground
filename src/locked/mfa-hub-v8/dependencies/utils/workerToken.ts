@@ -78,7 +78,7 @@ export async function requestClientCredentialsToken(
 	});
 
 	// Debug: Log the scopes being sent
-	logger.info('🔍 [requestClientCredentialsToken] Scopes debug:', "Logger info");
+	logger.info('🔍 [requestClientCredentialsToken] Scopes debug:', 'Logger info');
 	logger.info('  - scopes array:', scopes);
 	logger.info('  - scopes length:', scopes.length);
 	logger.info('  - scopes joined:', scopes.join(' '));
@@ -111,7 +111,7 @@ export async function requestClientCredentialsToken(
 	});
 
 	// Debug: Log the final body
-	logger.info('🔍 [requestClientCredentialsToken] Final body:', "Logger info");
+	logger.info('🔍 [requestClientCredentialsToken] Final body:', 'Logger info');
 	logger.info('  - grant_type:', body.get('grant_type'));
 	logger.info('  - scope:', body.get('scope'));
 	logger.info('  - client_id:', body.get('client_id'));

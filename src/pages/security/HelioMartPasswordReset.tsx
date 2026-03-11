@@ -33,8 +33,8 @@ const _helioMartLayout = PageLayoutService.createPageLayout({
 	responsive: true,
 });
 
-import { FiAlertCircle, FiCheckCircle, FiLock } from '../../icons';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiAlertCircle, FiCheckCircle, FiLock } from '../../icons';
 import {
 	changePassword,
 	checkPassword,
@@ -1007,15 +1007,11 @@ const HelioMartPasswordReset: React.FC = () => {
 
 		// Log for debugging if environment ID is missing
 		if (!effectiveEnvId || effectiveEnvId.trim() === '') {
-			logger.warn(
-				'HelioMartPasswordReset',
-				'[HelioMartPasswordReset] ⚠️ No environment ID found:',
-				{
-					sharedEnvId: sharedEnv?.environmentId || '(empty)',
-					stateEnvId: environmentId || '(empty)',
-					effectiveEnvId: effectiveEnvId || '(empty)',
-				}
-			);
+			logger.warn('HelioMartPasswordReset', '[HelioMartPasswordReset] ⚠️ No environment ID found:', {
+				sharedEnvId: sharedEnv?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvId || '(empty)',
+			});
 		}
 
 		return effectiveEnvId;
@@ -1136,7 +1132,13 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setRecoverLoading(false);
 		}
-	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
+	}, [
+		persistedIdentifier,
+		globalTokenStatus,
+		environmentId,
+		getEffectiveEnvironmentId,
+		workerRegion,
+	]);
 
 	// Recover password
 	const handleRecoverPassword = useCallback(async () => {
@@ -1281,7 +1283,13 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
+	}, [
+		persistedIdentifier,
+		globalTokenStatus,
+		environmentId,
+		getEffectiveEnvironmentId,
+		workerRegion,
+	]);
 
 	// Force password reset
 	const handleForcePasswordReset = useCallback(async () => {
@@ -1490,7 +1498,13 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
+	}, [
+		persistedIdentifier,
+		globalTokenStatus,
+		environmentId,
+		getEffectiveEnvironmentId,
+		workerRegion,
+	]);
 
 	// Check password
 	const handleCheckPassword = useCallback(async () => {
@@ -1633,7 +1647,13 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
+	}, [
+		persistedIdentifier,
+		globalTokenStatus,
+		environmentId,
+		getEffectiveEnvironmentId,
+		workerRegion,
+	]);
 
 	// Unlock password
 	const handleUnlockPassword = useCallback(async () => {
@@ -1760,7 +1780,13 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
+	}, [
+		persistedIdentifier,
+		globalTokenStatus,
+		environmentId,
+		getEffectiveEnvironmentId,
+		workerRegion,
+	]);
 
 	// Read password state
 	const handleReadPasswordState = useCallback(async () => {
@@ -1888,7 +1914,13 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
+	}, [
+		persistedIdentifier,
+		globalTokenStatus,
+		environmentId,
+		getEffectiveEnvironmentId,
+		workerRegion,
+	]);
 
 	// Admin set password
 	const handleAdminSetPassword = useCallback(async () => {
@@ -2035,7 +2067,13 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
+	}, [
+		persistedIdentifier,
+		globalTokenStatus,
+		environmentId,
+		getEffectiveEnvironmentId,
+		workerRegion,
+	]);
 
 	// Set password
 	const handleSetPassword = useCallback(async () => {
@@ -2182,7 +2220,13 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId, workerRegion]);
+	}, [
+		persistedIdentifier,
+		globalTokenStatus,
+		environmentId,
+		getEffectiveEnvironmentId,
+		workerRegion,
+	]);
 
 	// Set password via LDAP Gateway
 	const handleSetPasswordLdap = useCallback(async () => {
@@ -3136,8 +3180,8 @@ export { changePassword, handleChangePassword };`;
 									<div>
 										<strong>Recovery code sent!</strong>
 										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-											We've sent a recovery code to <strong>{persistedIdentifier}</strong>. Please check
-											your email and enter the code below.
+											We've sent a recovery code to <strong>{persistedIdentifier}</strong>. Please
+											check your email and enter the code below.
 										</p>
 									</div>
 								</Alert>
@@ -3279,9 +3323,9 @@ export { changePassword, handleChangePassword };`;
 										application/vnd.pingidentity.password.forceChange+json
 									</code>
 									<br />
-									<strong style={{ color: '#DC2626' }}>⚠️ WARNING:</strong> This operation will
-									force the user to change their password on their next sign-on. If you just want to
-									set a password without forcing a change, use{' '}
+									<strong style={{ color: '#DC2626' }}>⚠️ WARNING:</strong> This operation will force
+									the user to change their password on their next sign-on. If you just want to set a
+									password without forcing a change, use{' '}
 									<strong>"Update Password (Set Value)"</strong> instead.
 								</p>
 							</div>
@@ -3831,7 +3875,10 @@ export { changePassword, handleChangePassword };`;
 									value={persistedIdentifier}
 									onChange={(e) => setPersistedIdentifier(e.target.value)}
 								/>
-								<Button onClick={handleUnlockLookup} disabled={unlockLoading || !persistedIdentifier}>
+								<Button
+									onClick={handleUnlockLookup}
+									disabled={unlockLoading || !persistedIdentifier}
+								>
 									{unlockLoading ? <SpinningIcon /> : <span>🔍</span>}
 									Lookup
 								</Button>

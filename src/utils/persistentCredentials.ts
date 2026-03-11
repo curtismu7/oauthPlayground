@@ -96,8 +96,9 @@ class PersistentCredentialsManager {
 			// Check if global config is enabled - if so, always use global credentials
 			if (this.isGlobalConfigEnabled()) {
 				logger.info(
-					' [PersistentCredentials] Global config enabled - using global credentials for all flows'
-				, "Logger info");
+					' [PersistentCredentials] Global config enabled - using global credentials for all flows',
+					'Logger info'
+				);
 				return this.loadGlobalCredentials();
 			}
 

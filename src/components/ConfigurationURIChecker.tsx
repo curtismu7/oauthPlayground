@@ -1,10 +1,10 @@
 // src/components/ConfigurationURIChecker.tsx
 // Component to display and check redirect and logout URIs against PingOne configuration
 
-import { FiInfo } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiInfo } from '../icons';
 import { callbackUriService } from '../services/callbackUriService';
 import { fetchApplications } from '../services/pingOneApplicationService';
 import { logger } from '../utils/logger';

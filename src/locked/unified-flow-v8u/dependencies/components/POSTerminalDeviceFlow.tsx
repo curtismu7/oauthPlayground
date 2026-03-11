@@ -1,10 +1,10 @@
 // src/components/POSTerminalDeviceFlow.tsx
 // POS Terminal Style Device Authorization Flow Interface
 
-import { FiCreditCard, FiDollarSign } from '../../../../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { FiCreditCard, FiDollarSign } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';

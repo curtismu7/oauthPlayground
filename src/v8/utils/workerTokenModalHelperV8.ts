@@ -60,8 +60,9 @@ async function attemptSilentTokenRetrieval(
 
 				// Fallback to MFA configuration service
 				try {
-					const { MFAConfigurationServiceV8 } =
-						await import('@/v8/services/mfaConfigurationServiceV8');
+					const { MFAConfigurationServiceV8 } = await import(
+						'@/v8/services/mfaConfigurationServiceV8'
+					);
 					const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 					silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
 					logger.info(
@@ -199,8 +200,9 @@ export async function handleShowWorkerTokenModal(
 			);
 			// Priority 3: Direct MFA service (fallback)
 			try {
-				const { MFAConfigurationServiceV8 } =
-					await import('@/v8/services/mfaConfigurationServiceV8');
+				const { MFAConfigurationServiceV8 } = await import(
+					'@/v8/services/mfaConfigurationServiceV8'
+				);
 				const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 				silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
 				logger.info(
@@ -233,8 +235,9 @@ export async function handleShowWorkerTokenModal(
 			);
 			// Priority 3: Direct MFA service (fallback)
 			try {
-				const { MFAConfigurationServiceV8 } =
-					await import('@/v8/services/mfaConfigurationServiceV8');
+				const { MFAConfigurationServiceV8 } = await import(
+					'@/v8/services/mfaConfigurationServiceV8'
+				);
 				const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 				showTokenAtEnd = mfaConfig.workerToken?.showTokenAtEnd ?? false;
 				logger.info(

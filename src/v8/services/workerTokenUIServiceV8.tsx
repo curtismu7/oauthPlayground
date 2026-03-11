@@ -13,11 +13,11 @@
  * - Event system for configuration updates
  */
 
-import { FiLoader, FiTrash2 } from '../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
+import { FiLoader, FiTrash2 } from '../../icons';
 import { logger } from '../../utils/logger';
 import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U';
 import type { DiscoveredApp } from '../components/AppPickerV8';

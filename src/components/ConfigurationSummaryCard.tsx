@@ -176,7 +176,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 
 			// Encrypt the client secret if it exists
 			if (configToExport.clientSecret?.trim()) {
-				logger.info('🔐 [ConfigurationSummaryCard] Encrypting client secret...', "Logger info");
+				logger.info('🔐 [ConfigurationSummaryCard] Encrypting client secret...', 'Logger info');
 				configToExport.clientSecret = await encryptSecret(configToExport.clientSecret);
 				configToExport.isEncrypted = true;
 			}
@@ -198,7 +198,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 			document.body.removeChild(link);
 			URL.revokeObjectURL(url);
 
-			logger.info('✅ [ConfigurationSummaryCard] Export completed successfully', "Logger info");
+			logger.info('✅ [ConfigurationSummaryCard] Export completed successfully', 'Logger info');
 			showGlobalSuccess('Configuration exported successfully!');
 		} catch (error) {
 			logger.error(
@@ -213,7 +213,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 
 	const handleImportConfiguration = async () => {
 		try {
-			logger.info('🔄 [ConfigurationSummaryCard] Starting import...', "Logger info");
+			logger.info('🔄 [ConfigurationSummaryCard] Starting import...', 'Logger info');
 
 			// Create file input element
 			const input = document.createElement('input');
@@ -234,10 +234,16 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 					// Decrypt the client secret if it's encrypted
 					if (importedConfig.isEncrypted && importedConfig.clientSecret) {
 						try {
-							logger.info('🔓 [ConfigurationSummaryCard] Decrypting client secret...', "Logger info");
+							logger.info(
+								'🔓 [ConfigurationSummaryCard] Decrypting client secret...',
+								'Logger info'
+							);
 							importedConfig.clientSecret = await decryptSecret(importedConfig.clientSecret);
 							delete importedConfig.isEncrypted;
-							logger.info('✅ [ConfigurationSummaryCard] Client secret decrypted successfully', "Logger info");
+							logger.info(
+								'✅ [ConfigurationSummaryCard] Client secret decrypted successfully',
+								'Logger info'
+							);
 						} catch (error) {
 							logger.error(
 								'ConfigurationSummaryCard',

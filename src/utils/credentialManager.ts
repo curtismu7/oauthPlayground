@@ -233,13 +233,16 @@ class CredentialManager {
 			// Check if global config is enabled - if so, use Dashboard credentials but with correct redirect URI
 			if (this.isGlobalConfigEnabled()) {
 				logger.info(
-					' [CredentialManager] Global config enabled - using Dashboard credentials for all flows'
-				, "Logger info");
+					' [CredentialManager] Global config enabled - using Dashboard credentials for all flows',
+					'Logger info'
+				);
 				const configCredentials = this.loadConfigCredentials();
 				// Override redirect URI to use flow-specific default for authorization flows
 				return {
 					...configCredentials,
-					redirectUri: configCredentials.redirectUri || callbackUrls.getCallbackUrlForFlow('authorization-code'),
+					redirectUri:
+						configCredentials.redirectUri ||
+						callbackUrls.getCallbackUrlForFlow('authorization-code'),
 				};
 			}
 
@@ -252,7 +255,8 @@ class CredentialManager {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					clientSecret: credentials.clientSecret || '',
-					redirectUri: credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('authorization-code'),
+					redirectUri:
+						credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('authorization-code'),
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -326,8 +330,9 @@ class CredentialManager {
 			);
 
 			logger.info(
-				' [CredentialManager] Successfully saved implicit flow credentials to localStorage'
-			, "Logger info");
+				' [CredentialManager] Successfully saved implicit flow credentials to localStorage',
+				'Logger info'
+			);
 			return true;
 		} catch (error) {
 			logger.error(
@@ -459,7 +464,8 @@ class CredentialManager {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					clientSecret: credentials.clientSecret || '',
-					redirectUri: credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('oidc-hybrid-v3'),
+					redirectUri:
+						credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('oidc-hybrid-v3'),
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -542,7 +548,8 @@ class CredentialManager {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					clientSecret: credentials.clientSecret || '',
-					redirectUri: credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('authorization-code'),
+					redirectUri:
+						credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('authorization-code'),
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					loginHint: credentials.loginHint || '',
 					authEndpoint: credentials.authEndpoint,
@@ -633,7 +640,8 @@ class CredentialManager {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					clientSecret: credentials.clientSecret || '',
-					redirectUri: credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('oidc-device-code-v3'),
+					redirectUri:
+						credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('oidc-device-code-v3'),
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -924,7 +932,7 @@ class CredentialManager {
 	 */
 	private async loadFromEnvironmentVariables(): Promise<PermanentCredentials> {
 		try {
-			logger.info(' [CredentialManager] Fetching environment config from server...', "Logger info");
+			logger.info(' [CredentialManager] Fetching environment config from server...', 'Logger info');
 
 			const response = await fetch('/api/env-config');
 			if (!response.ok) {
@@ -1067,7 +1075,10 @@ class CredentialManager {
 		// 🔍 INSTRUMENTATION: Track global credential contamination
 		logger.warn('credentialManager', '[CREDENTIAL CONTAMINATION] saveAllCredentials called');
 		logger.info(`📋 Credentials being saved globally:`, credentials);
-		logger.info(`📋 This will overwrite pingone_permanent_credentials for ALL flows!`, "Logger info");
+		logger.info(
+			`📋 This will overwrite pingone_permanent_credentials for ALL flows!`,
+			'Logger info'
+		);
 
 		const permanentSuccess = this.savePermanentCredentials({
 			environmentId: credentials.environmentId,
@@ -1088,7 +1099,7 @@ class CredentialManager {
 
 		logger.info(`📋 Permanent Save Success:`, permanentSuccess);
 		logger.info(`📋 Session Save Success:`, sessionSuccess);
-		logger.info(`🚨 GLOBAL CREDENTIAL CONTAMINATION COMPLETE!`, "Logger info");
+		logger.info(`🚨 GLOBAL CREDENTIAL CONTAMINATION COMPLETE!`, 'Logger info');
 
 		return permanentSuccess && sessionSuccess;
 	}
@@ -1226,7 +1237,7 @@ class CredentialManager {
 	 * Debug method to check localStorage contents
 	 */
 	debugLocalStorage(): void {
-		logger.info(' [CredentialManager] Debug localStorage contents:', "Logger info");
+		logger.info(' [CredentialManager] Debug localStorage contents:', 'Logger info');
 		logger.info(' [CredentialManager] All localStorage keys:', Object.keys(localStorage));
 		logger.info(
 			' [CredentialManager] pingone_permanent_credentials:',
@@ -1289,7 +1300,8 @@ class CredentialManager {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
-				redirectUri: credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('authorization-code'),
+				redirectUri:
+					credentials.redirectUri || callbackUrls.getCallbackUrlForFlow('authorization-code'),
 				scopes: credentials.supportedScopes.includes('openid')
 					? ['openid', 'profile', 'email']
 					: ['openid'],
@@ -1396,7 +1408,7 @@ class CredentialManager {
 	 */
 	clearCache(): void {
 		this.cache = {};
-		logger.info(' [CredentialManager] Cache cleared', "Logger info");
+		logger.info(' [CredentialManager] Cache cleared', 'Logger info');
 	}
 
 	/**

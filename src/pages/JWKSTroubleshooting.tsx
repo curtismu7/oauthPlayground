@@ -1,7 +1,7 @@
-import { FiAlertCircle, FiCheckCircle, FiChevronDown, FiChevronRight } from '../icons';
 import { useCallback, useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiAlertCircle, FiCheckCircle, FiChevronDown, FiChevronRight } from '../icons';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { createModuleLogger } from '../utils/consoleMigrationHelper';

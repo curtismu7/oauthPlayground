@@ -260,7 +260,7 @@ export class ScreenReaderAnnouncer {
 			}
 		}, 1000);
 
-		logger.info(`[ScreenReaderAnnouncer] Announced: ${message}`, "Logger info");
+		logger.info(`[ScreenReaderAnnouncer] Announced: ${message}`, 'Logger info');
 	}
 
 	// Announce page change
@@ -487,7 +487,7 @@ export class AccessibilityManager {
 	// Update configuration
 	updateConfig(newConfig: Partial<AccessibilityConfig>): void {
 		this.config = { ...this.config, ...newConfig };
-		logger.info('[AccessibilityManager] Configuration updated', "Logger info");
+		logger.info('[AccessibilityManager] Configuration updated', 'Logger info');
 	}
 
 	// Get current configuration
@@ -505,7 +505,7 @@ export class AccessibilityManager {
 	destroy(): void {
 		this.announcer.destroy();
 		this.focusManager.clearHistory();
-		logger.info('[AccessibilityManager] Destroyed', "Logger info");
+		logger.info('[AccessibilityManager] Destroyed', 'Logger info');
 	}
 }
 

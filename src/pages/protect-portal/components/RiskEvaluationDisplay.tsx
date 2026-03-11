@@ -9,11 +9,11 @@
  * showing progress and educational content about risk-based authentication.
  */
 
-import { FiShield } from '../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { workerTokenManager } from '@/services/workerTokenManager';
+import { FiShield } from '../../../icons';
 import { logger } from '../../../utils/logger';
 import RiskEvaluationService from '../services/riskEvaluationService';
 import type {
