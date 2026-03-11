@@ -12,7 +12,6 @@
  * Migrated to V9 standards: V9_COLORS, styled-components, Modern Messaging.
  */
 
-import { FiRefreshCw } from '../../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
@@ -21,6 +20,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { workerTokenManager } from '@/services/workerTokenManager';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
+import { FiRefreshCw } from '../../icons';
 import { logger } from '../../utils/logger';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
@@ -359,9 +359,8 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 
 				{!compact && (
 					<Description>
-						Worker tokens are service account credentials used for administrative operations.
-						They allow you to register devices with custom status (ACTIVE or
-						ACTIVATION_REQUIRED).
+						Worker tokens are service account credentials used for administrative operations. They
+						allow you to register devices with custom status (ACTIVE or ACTIVATION_REQUIRED).
 					</Description>
 				)}
 
@@ -376,7 +375,12 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 							)}
 						</div>
 						{showSettings && (
-							<RefreshBtn type="button" onClick={handleRefreshToken} disabled={isRefreshing} title="Refresh token status">
+							<RefreshBtn
+								type="button"
+								onClick={handleRefreshToken}
+								disabled={isRefreshing}
+								title="Refresh token status"
+							>
 								<FiRefreshCw
 									size={12}
 									style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }}

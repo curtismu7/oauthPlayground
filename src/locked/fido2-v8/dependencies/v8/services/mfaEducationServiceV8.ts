@@ -10,6 +10,7 @@
  */
 
 import { logger } from '../../../../../utils/logger';
+
 const MODULE_TAG = '[📚 MFA-EDUCATION-V8]';
 
 export interface MFAEducationContent {
@@ -45,7 +46,7 @@ export class MFAEducationServiceV8 {
 		const content = MFAEducationServiceV8.educationContent[key];
 
 		if (!content) {
-			logger.warn(`${MODULE_TAG} No education content found for key: ${key}`, "Logger warning");
+			logger.warn(`${MODULE_TAG} No education content found for key: ${key}`, 'Logger warning');
 			return {
 				title: 'Information',
 				description: 'No additional information available.',

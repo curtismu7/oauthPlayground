@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import type { P1MFASDK } from '@/sdk/p1mfa';
+import { modernMessaging } from '../../../services/v9/V9ModernMessagingService';
 
 interface ResetDevicesHelperProps {
 	sdk: P1MFASDK | null;
@@ -26,63 +27,64 @@ export const ResetDevicesHelper: React.FC<ResetDevicesHelperProps> = ({
 		deleted: number;
 	} | null>(null);
 
-	const handleReset = async () => {
+	const handleReset = () => {
 		if (!sdk || !userId) return;
+		modernMessaging.showBanner({
+			type: 'warning',
+			title: 'Delete all MFA devices',
+			message: `Are you sure you want to delete ALL MFA devices for user ${userId}? This action cannot be undone.`,
+			actions: [
+				{ label: 'Cancel', action: () => modernMessaging.hideBanner() },
+				{
+					label: 'Delete all',
+					action: async () => {
+						modernMessaging.hideBanner();
+						setLoading(true);
+						setResult(null);
+						try {
+							const devices = await sdk.listDevices(userId);
+							let deleted = 0;
+							const errors: string[] = [];
 
-		if (
-			// eslint-disable-next-line no-alert
-			!confirm(
-				`Are you sure you want to delete ALL MFA devices for user ${userId}? This action cannot be undone.`
-			)
-		) {
-			return;
-		}
+							for (const device of devices) {
+								try {
+									await sdk.deleteDevice(userId, device.id);
+									deleted++;
+								} catch (error) {
+									errors.push(
+										`Failed to delete ${device.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+									);
+								}
+							}
 
-		setLoading(true);
-		setResult(null);
+							if (errors.length > 0) {
+								setResult({
+									success: false,
+									message: `Deleted ${deleted} of ${devices.length} devices. Errors: ${errors.join(', ')}`,
+									deleted,
+								});
+							} else {
+								setResult({
+									success: true,
+									message: `Successfully deleted ${deleted} device(s)`,
+									deleted,
+								});
+							}
 
-		try {
-			// Get all devices
-			const devices = await sdk.listDevices(userId);
-			let deleted = 0;
-			const errors: string[] = [];
-
-			// Delete each device
-			for (const device of devices) {
-				try {
-					await sdk.deleteDevice(userId, device.id);
-					deleted++;
-				} catch (error) {
-					errors.push(
-						`Failed to delete ${device.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
-					);
-				}
-			}
-
-			if (errors.length > 0) {
-				setResult({
-					success: false,
-					message: `Deleted ${deleted} of ${devices.length} devices. Errors: ${errors.join(', ')}`,
-					deleted,
-				});
-			} else {
-				setResult({
-					success: true,
-					message: `Successfully deleted ${deleted} device(s)`,
-					deleted,
-				});
-			}
-
-			onDevicesReset?.();
-		} catch (error) {
-			setResult({
-				success: false,
-				message: `Failed to reset devices: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				deleted: 0,
-			});
-		} finally {
-			setLoading(false);
-		}
+							onDevicesReset?.();
+						} catch (error) {
+							setResult({
+								success: false,
+								message: `Failed to reset devices: ${error instanceof Error ? error.message : 'Unknown error'}`,
+								deleted: 0,
+							});
+						} finally {
+							setLoading(false);
+						}
+					},
+				},
+			],
+		});
 	};
 
 	if (!sdk || !userId) {

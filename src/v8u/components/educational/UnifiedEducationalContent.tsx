@@ -6,8 +6,8 @@
  * @since 2026-01-25
  */
 
-import { FiAlertTriangle, FiChevronDown, FiInfo } from '../../../icons';
 import React from 'react';
+import { FiAlertTriangle, FiChevronDown, FiInfo } from '../../../icons';
 import { useUnifiedFlowStore } from '../../services/UnifiedFlowStateManager';
 
 // Educational section styles

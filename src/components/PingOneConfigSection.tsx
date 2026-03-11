@@ -235,8 +235,9 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 		// Don't proceed if no valid Environment ID
 		if (!hasValidEnvironmentId) {
 			logger.info(
-				' [PingOneConfigSection] Console button clicked but no valid Environment ID available'
-			, "Logger info");
+				' [PingOneConfigSection] Console button clicked but no valid Environment ID available',
+				'Logger info'
+			);
 			return;
 		}
 

@@ -415,7 +415,10 @@ export const TokenMonitoringPage: React.FC = () => {
 
 		const initialTokens = freshService.getAllTokens();
 		setTokens(initialTokens);
-		logger.debug(`[TokenMonitoringPage] Loaded ${initialTokens.length} initial tokens after reset`, "Logger debug");
+		logger.debug(
+			`[TokenMonitoringPage] Loaded ${initialTokens.length} initial tokens after reset`,
+			'Logger debug'
+		);
 
 		// Debug: Log token details
 		initialTokens.forEach((token, index) => {
@@ -432,7 +435,10 @@ export const TokenMonitoringPage: React.FC = () => {
 
 		const unsubscribe = freshService.subscribe((newTokens: TokenInfo[]) => {
 			setTokens(newTokens);
-			logger.debug(`[TokenMonitoringPage] Updated tokens: ${newTokens.length} tokens`, "Logger debug");
+			logger.debug(
+				`[TokenMonitoringPage] Updated tokens: ${newTokens.length} tokens`,
+				'Logger debug'
+			);
 
 			try {
 				const tokenCount = newTokens.length;
@@ -444,8 +450,9 @@ export const TokenMonitoringPage: React.FC = () => {
 					lastApiCall: Date.now(),
 				});
 				logger.debug(
-					`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`
-				, "Logger debug");
+					`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`,
+					'Logger debug'
+				);
 			} catch (enhancedErr) {
 				logger.warn('[TokenMonitoringPage] Failed to update enhanced state management', {
 					error: enhancedErr instanceof Error ? enhancedErr.message : String(enhancedErr),
@@ -460,7 +467,7 @@ export const TokenMonitoringPage: React.FC = () => {
 		});
 
 		setTimeout(() => {
-			logger.debug('[TokenMonitoringPage] Attempting second worker token sync...', "Logger debug");
+			logger.debug('[TokenMonitoringPage] Attempting second worker token sync...', 'Logger debug');
 			freshService.manualSyncWorkerToken().catch((err) => {
 				logger.warn('[TokenMonitoringPage] Second worker token sync failed', {
 					error: err instanceof Error ? err.message : String(err),
@@ -578,7 +585,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					setMessage(`Found ${tokenType} in localStorage`);
 					setMessageType('success');
 				} else {
-					logger.info('No tokens found in localStorage', "Logger info");
+					logger.info('No tokens found in localStorage', 'Logger info');
 					setMessage('No tokens found in localStorage');
 					setMessageType('info');
 				}
@@ -748,7 +755,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					)}
 					<ActionButton
 						onClick={() => {
-							logger.debug('[TokenMonitoringPage] Manual refresh triggered', "Logger debug");
+							logger.debug('[TokenMonitoringPage] Manual refresh triggered', 'Logger debug');
 							TokenMonitoringService.resetInstance();
 							const freshService = TokenMonitoringService.getInstance();
 							freshService.manualSyncWorkerToken().catch((err) => {

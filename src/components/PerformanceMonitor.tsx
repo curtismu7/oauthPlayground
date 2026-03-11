@@ -261,20 +261,20 @@ export const PerformanceMonitor: React.FC = () => {
 	// Start performance monitoring
 	const startMonitoring = useCallback(() => {
 		setIsMonitoring(true);
-		logger.info('[PerformanceMonitor] Started performance monitoring', "Logger info");
+		logger.info('[PerformanceMonitor] Started performance monitoring', 'Logger info');
 	}, []);
 
 	// Stop performance monitoring
 	const stopMonitoring = useCallback(() => {
 		setIsMonitoring(false);
-		logger.info('[PerformanceMonitor] Stopped performance monitoring', "Logger info");
+		logger.info('[PerformanceMonitor] Stopped performance monitoring', 'Logger info');
 	}, []);
 
 	// Clear performance data
 	const clearData = useCallback(() => {
 		setPerformanceHistory([]);
 		lazyLoadingMetrics.clearMetrics();
-		logger.info('[PerformanceMonitor] Cleared performance data', "Logger info");
+		logger.info('[PerformanceMonitor] Cleared performance data', 'Logger info');
 	}, [lazyLoadingMetrics]);
 
 	// Update metrics periodically

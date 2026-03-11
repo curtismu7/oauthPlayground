@@ -1,3 +1,9 @@
+import { useCallback, useMemo, useState } from 'react';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../../components/Card';
+import FlowConfigurationTable from '../../components/FlowConfigurationTable';
+import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertTriangle,
 	FiArrowRight,
@@ -10,12 +16,6 @@ import {
 	FiUsers,
 	FiZap,
 } from '../../icons';
-import { useCallback, useMemo, useState } from 'react';
-import styled from 'styled-components';
-import { Card, CardBody, CardHeader } from '../../components/Card';
-import FlowConfigurationTable from '../../components/FlowConfigurationTable';
-import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
-import { usePageScroll } from '../../hooks/usePageScroll';
 
 // Enhanced TypeScript interfaces
 interface OIDCFlow {

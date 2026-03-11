@@ -9,10 +9,10 @@
  * their actual secure login experience with distinctive button styling and brand colors.
  */
 
-import { FiLockIcon } from '../../../icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
+import { FiLockIcon } from '../../../icons';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 

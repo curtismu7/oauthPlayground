@@ -168,8 +168,9 @@ export class RedirectlessAuthService {
 		}
 
 		logger.info(
-			`[RedirectlessAuthService] Starting authorization flow for ${flowKey || 'default'}`
-		, "Logger info");
+			`[RedirectlessAuthService] Starting authorization flow for ${flowKey || 'default'}`,
+			'Logger info'
+		);
 		logger.info(`[RedirectlessAuthService] 🐛 DEBUG - Request details:`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'MISSING',
@@ -359,8 +360,9 @@ export class RedirectlessAuthService {
 		// CRITICAL: Redirect immediately to prevent flow expiration
 		// PingOne flows expire after ~15 minutes, so we need to redirect ASAP
 		logger.info(
-			`[RedirectlessAuthService] ⚠️ IMPORTANT: Redirecting immediately to prevent flow expiration`
-		, "Logger info");
+			`[RedirectlessAuthService] ⚠️ IMPORTANT: Redirecting immediately to prevent flow expiration`,
+			'Logger info'
+		);
 
 		// Call optional callback
 		if (config.onSignOnPageRequired) {
@@ -541,7 +543,10 @@ export class RedirectlessAuthService {
 		const storagePrefix = flowKey || RedirectlessAuthService.DEFAULT_STORAGE_PREFIX;
 
 		try {
-			logger.info(`[RedirectlessAuthService] 🔍 Checking page for completed flow JSON...`, "Logger info");
+			logger.info(
+				`[RedirectlessAuthService] 🔍 Checking page for completed flow JSON...`,
+				'Logger info'
+			);
 			logger.info(`[RedirectlessAuthService] 🔍 Current URL:`, window.location.href);
 			logger.info(`[RedirectlessAuthService] 🔍 Page hostname:`, window.location.hostname);
 
@@ -550,7 +555,7 @@ export class RedirectlessAuthService {
 			logger.info(`[RedirectlessAuthService] 🔍 Page content preview:`, pageText.substring(0, 200));
 
 			if (!pageText.trim()) {
-				logger.info(`[RedirectlessAuthService] 🔍 No page content found`, "Logger info");
+				logger.info(`[RedirectlessAuthService] 🔍 No page content found`, 'Logger info');
 				return null;
 			}
 
@@ -572,7 +577,10 @@ export class RedirectlessAuthService {
 
 			// Method 2: If not pure JSON, search for JSON patterns within HTML content
 			if (!flowData && pageText.includes('authorizeResponse')) {
-				logger.info(`[RedirectlessAuthService] 🔍 Searching for JSON patterns in HTML content...`, "Logger info");
+				logger.info(
+					`[RedirectlessAuthService] 🔍 Searching for JSON patterns in HTML content...`,
+					'Logger info'
+				);
 
 				// Find JSON objects that contain "authorizeResponse" and "COMPLETED"
 				const jsonMatches = pageText.match(
@@ -597,16 +605,18 @@ export class RedirectlessAuthService {
 					}
 				} else {
 					logger.info(
-						`[RedirectlessAuthService] 🔍 No COMPLETED + authorizeResponse JSON patterns found`
-					, "Logger info");
+						`[RedirectlessAuthService] 🔍 No COMPLETED + authorizeResponse JSON patterns found`,
+						'Logger info'
+					);
 				}
 			}
 
 			// Method 3: Fallback - search for any JSON with authorizeResponse
 			if (!flowData && pageText.includes('authorizeResponse')) {
 				logger.info(
-					`[RedirectlessAuthService] 🔍 Fallback: searching for any authorizeResponse JSON...`
-				, "Logger info");
+					`[RedirectlessAuthService] 🔍 Fallback: searching for any authorizeResponse JSON...`,
+					'Logger info'
+				);
 
 				const broadMatches = pageText.match(/\{[\s\S]*?"authorizeResponse"[\s\S]*?\}/g);
 				if (broadMatches && broadMatches.length > 0) {
@@ -631,7 +641,10 @@ export class RedirectlessAuthService {
 			}
 
 			if (!flowData) {
-				logger.info(`[RedirectlessAuthService] 🔍 No valid JSON found in page content`, "Logger info");
+				logger.info(
+					`[RedirectlessAuthService] 🔍 No valid JSON found in page content`,
+					'Logger info'
+				);
 				return null;
 			}
 

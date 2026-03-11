@@ -64,7 +64,7 @@ class V7MMockApiLogger {
 		const startTime = Date.now();
 
 		// Log API call start
-		this.logApiCallStart({
+		V7MMockApiLogger.logApiCallStart({
 			method,
 			url,
 			endpoint,
@@ -80,7 +80,7 @@ class V7MMockApiLogger {
 		// Simulate network delay and log response
 		setTimeout(() => {
 			if (responseError) {
-				this.logApiCallError({
+				V7MMockApiLogger.logApiCallError({
 					method,
 					url,
 					endpoint,
@@ -91,7 +91,7 @@ class V7MMockApiLogger {
 					step,
 				});
 			} else {
-				this.logApiCallSuccess({
+				V7MMockApiLogger.logApiCallSuccess({
 					method,
 					url,
 					endpoint,
@@ -169,12 +169,19 @@ class V7MMockApiLogger {
 
 		// Add flow context
 		if (flowType || step || environmentId || clientId) {
-			mockLogEntries.push('🏷️  FLOW CONTEXT: ' + JSON.stringify({
-				flowType,
-				step,
-				environmentId,
-				clientId,
-			}, null, 2));
+			mockLogEntries.push(
+				'🏷️  FLOW CONTEXT: ' +
+					JSON.stringify(
+						{
+							flowType,
+							step,
+							environmentId,
+							clientId,
+						},
+						null,
+						2
+					)
+			);
 		}
 
 		// Add mock note
@@ -186,7 +193,7 @@ class V7MMockApiLogger {
 		);
 
 		// Log each line
-		mockLogEntries.forEach(line => {
+		mockLogEntries.forEach((line) => {
 			logger.info(MODULE_TAG, line);
 		});
 	}
@@ -204,39 +211,39 @@ class V7MMockApiLogger {
 		flowType?: string;
 		step?: string;
 	}): void {
-		const {
-			method,
-			url,
-			endpoint,
-			responseStatus,
-			responseData,
-			duration,
-			flowType,
-			step,
-		} = options;
+		const { method, url, endpoint, responseStatus, responseData, duration, flowType, step } =
+			options;
 
 		const mockLogEntries = [
 			'',
 			'═══════════════════════════════════════════════════════════════════════════════',
 			'📥 RESPONSE',
 			'═══════════════════════════════════════════════════════════════════════════════',
-			`✅ STATUS: ${responseStatus} ${this.getStatusText(responseStatus)}`,
+			`✅ STATUS: ${responseStatus} ${V7MMockApiLogger.getStatusText(responseStatus)}`,
 			`⏱️  DURATION: ${duration}ms`,
 		];
 
 		// Add response data
 		if (responseData) {
-			const dataStr = typeof responseData === 'string' ? responseData : JSON.stringify(responseData, null, 2);
+			const dataStr =
+				typeof responseData === 'string' ? responseData : JSON.stringify(responseData, null, 2);
 			mockLogEntries.push('📦 RESPONSE BODY (JSON): ' + dataStr);
 		}
 
 		// Add flow context
 		if (flowType || step) {
-			mockLogEntries.push('🏷️  FLOW CONTEXT: ' + JSON.stringify({
-				flowType,
-				step,
-				completed: true,
-			}, null, 2));
+			mockLogEntries.push(
+				'🏷️  FLOW CONTEXT: ' +
+					JSON.stringify(
+						{
+							flowType,
+							step,
+							completed: true,
+						},
+						null,
+						2
+					)
+			);
 		}
 
 		mockLogEntries.push(
@@ -249,7 +256,7 @@ class V7MMockApiLogger {
 		);
 
 		// Log each line
-		mockLogEntries.forEach(line => {
+		mockLogEntries.forEach((line) => {
 			logger.info(MODULE_TAG, line);
 		});
 	}
@@ -267,35 +274,34 @@ class V7MMockApiLogger {
 		flowType?: string;
 		step?: string;
 	}): void {
-		const {
-			method,
-			url,
-			endpoint,
-			responseStatus,
-			responseError,
-			duration,
-			flowType,
-			step,
-		} = options;
+		const { method, url, endpoint, responseStatus, responseError, duration, flowType, step } =
+			options;
 
 		const mockLogEntries = [
 			'',
 			'═══════════════════════════════════════════════════════════════════════════════',
 			'📥 RESPONSE',
 			'═══════════════════════════════════════════════════════════════════════════════',
-			`❌ STATUS: ${responseStatus} ${this.getStatusText(responseStatus)}`,
+			`❌ STATUS: ${responseStatus} ${V7MMockApiLogger.getStatusText(responseStatus)}`,
 			`⏱️  DURATION: ${duration}ms`,
 			`🚨 ERROR: ${responseError}`,
 		];
 
 		// Add flow context
 		if (flowType || step) {
-			mockLogEntries.push('🏷️  FLOW CONTEXT: ' + JSON.stringify({
-				flowType,
-				step,
-				completed: false,
-				error: true,
-			}, null, 2));
+			mockLogEntries.push(
+				'🏷️  FLOW CONTEXT: ' +
+					JSON.stringify(
+						{
+							flowType,
+							step,
+							completed: false,
+							error: true,
+						},
+						null,
+						2
+					)
+			);
 		}
 
 		mockLogEntries.push(
@@ -308,7 +314,7 @@ class V7MMockApiLogger {
 		);
 
 		// Log each line
-		mockLogEntries.forEach(line => {
+		mockLogEntries.forEach((line) => {
 			logger.error(MODULE_TAG, line);
 		});
 	}
@@ -357,7 +363,8 @@ export class V7MMockApiCalls {
 
 		if (options.state) queryParams.state = options.state;
 		if (options.codeChallenge) queryParams.code_challenge = options.codeChallenge;
-		if (options.codeChallengeMethod) queryParams.code_challenge_method = options.codeChallengeMethod;
+		if (options.codeChallengeMethod)
+			queryParams.code_challenge_method = options.codeChallengeMethod;
 
 		V7MMockApiLogger.logMockApiCall({
 			method: 'GET',
@@ -423,16 +430,13 @@ export class V7MMockApiCalls {
 	/**
 	 * Mock userinfo endpoint call
 	 */
-	static logUserInfoEndpoint(options: {
-		environmentId: string;
-		accessToken: string;
-	}): void {
+	static logUserInfoEndpoint(options: { environmentId: string; accessToken: string }): void {
 		V7MMockApiLogger.logMockApiCall({
 			method: 'GET',
 			url: `https://auth.pingone.com/${options.environmentId}/as/userinfo`,
 			endpoint: 'UserInfo Endpoint',
 			headers: {
-				'Authorization': `Bearer ${options.accessToken}`,
+				Authorization: `Bearer ${options.accessToken}`,
 			},
 			responseStatus: 200,
 			responseData: {

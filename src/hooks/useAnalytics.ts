@@ -86,7 +86,7 @@ export const useAnalytics = (config: UseAnalyticsConfig = {}) => {
 			isInitialized.current = true;
 
 			if (debug) {
-				logger.info('[useAnalytics] Analytics initialized', "Logger info");
+				logger.info('[useAnalytics] Analytics initialized', 'Logger info');
 			}
 		}
 	}, [enabled, debug]);
@@ -220,7 +220,7 @@ export const useAnalytics = (config: UseAnalyticsConfig = {}) => {
 			await analyticsManager.flush();
 
 			if (debug) {
-				logger.info('[useAnalytics] Analytics data flushed', "Logger info");
+				logger.info('[useAnalytics] Analytics data flushed', 'Logger info');
 			}
 		}
 	}, [enabled, debug]);

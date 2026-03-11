@@ -78,7 +78,7 @@ class TokenSourceTracker {
 	clearTokenSources(): void {
 		try {
 			localStorage.removeItem(this.STORAGE_KEY);
-			logger.info(' [TokenSourceTracker] Cleared all token sources', "Logger info");
+			logger.info(' [TokenSourceTracker] Cleared all token sources', 'Logger info');
 		} catch (error) {
 			logger.error(
 				'TokenSourceTracker',

@@ -239,7 +239,7 @@ const copyToClipboard = async (text: string, label: string) => {
 	try {
 		await navigator.clipboard.writeText(text);
 		// You could add a toast notification here
-		logger.info(`${label} copied to clipboard`, "Logger info");
+		logger.info(`${label} copied to clipboard`, 'Logger info');
 	} catch (err) {
 		logger.error(
 			'AuthorizationUrlExplainer',

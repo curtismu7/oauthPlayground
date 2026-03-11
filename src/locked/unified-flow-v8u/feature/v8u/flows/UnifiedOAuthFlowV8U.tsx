@@ -1109,32 +1109,31 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const getApiDocsUrl = (flow: FlowType): string => {
 		const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 
-	let url: string;
-	switch (flow) {
-		case 'oauth-authz':
-			url = `${baseUrl}#authorization-and-authentication-apis-authorize-authorization-code`;
-			break;
-		case 'implicit':
-			url = `${baseUrl}#authorization-and-authentication-apis-authorize-implicit`;
-			break;
-		case 'client-credentials':
-			url = `${baseUrl}#authorization-and-authentication-apis-token-client-credentials`;
-			break;
-		case 'device-code':
-			url = `${baseUrl}#authorization-and-authentication-apis-device-authorization-request`;
-			break;
-		case 'hybrid':
-			url = `${baseUrl}#openid-connect`;
-			break;
-		default:
-			url = baseUrl;
-	}
+		let url: string;
+		switch (flow) {
+			case 'oauth-authz':
+				url = `${baseUrl}#authorization-and-authentication-apis-authorize-authorization-code`;
+				break;
+			case 'implicit':
+				url = `${baseUrl}#authorization-and-authentication-apis-authorize-implicit`;
+				break;
+			case 'client-credentials':
+				url = `${baseUrl}#authorization-and-authentication-apis-token-client-credentials`;
+				break;
+			case 'device-code':
+				url = `${baseUrl}#authorization-and-authentication-apis-device-authorization-request`;
+				break;
+			case 'hybrid':
+				url = `${baseUrl}#openid-connect`;
+				break;
+			default:
+				url = baseUrl;
+		}
 
+		return url;
+	};
 
-return url;
-}
-
-return (
+	return (
 		<div
 			style={{
 				maxWidth: '1200px',
@@ -1206,7 +1205,8 @@ return (
 						zIndex: 1,
 					}}
 				>
-					Single UI for all OAuth 2.0, OAuth 2.1 / OIDC 2.1, and OIDC Core 1.0 flows using real PingOne APIs
+					Single UI for all OAuth 2.0, OAuth 2.1 / OIDC 2.1, and OIDC Core 1.0 flows using real
+					PingOne APIs
 				</p>
 			</div>
 
@@ -1237,109 +1237,121 @@ return (
 					/>
 				</div>
 
-					{/* Postman Collection Download Button */}
-					<div
-						style={{
-							marginBottom: '12px',
+				{/* Postman Collection Download Button */}
+				<div
+					style={{
+						marginBottom: '12px',
+					}}
+				>
+					<button
+						type="button"
+						onClick={() => {
+							const collection = generateComprehensiveUnifiedPostmanCollection({
+								environmentId: credentials.environmentId,
+								clientId: credentials.clientId,
+								clientSecret: credentials.clientSecret,
+							});
+							const date = new Date().toISOString().split('T')[0];
+							const filename = `pingone-unified-flows-complete-${date}-collection.json`;
+							downloadPostmanCollectionWithEnvironment(
+								collection,
+								filename,
+								'PingOne Unified Flows Environment'
+							);
+							toastV8.success(
+								'Postman collection and environment downloaded! Import both into Postman to test all Unified flows.'
+							);
 						}}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '12px 24px',
+							background: '#8b5cf6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '15px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#7c3aed';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#8b5cf6';
+							e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 92, 246, 0.3)';
+						}}
+						title="Download comprehensive Postman collection for all Unified flows (Authorization Code, Implicit, Client Credentials, Device Code, Hybrid) grouped by Registration and Authentication"
 					>
-						<button
-							type="button"
-							onClick={() => {
-								const collection = generateComprehensiveUnifiedPostmanCollection({
-									environmentId: credentials.environmentId,
-									clientId: credentials.clientId,
-									clientSecret: credentials.clientSecret,
-								});
-								const date = new Date().toISOString().split('T')[0];
-								const filename = `pingone-unified-flows-complete-${date}-collection.json`;
-								downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Unified Flows Environment');
-								toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all Unified flows.');
-							}}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								padding: '12px 24px',
-								background: '#8b5cf6',
-								color: 'white',
-								border: 'none',
-								borderRadius: '8px',
-								fontSize: '15px',
-								fontWeight: '600',
-								cursor: 'pointer',
-								boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
-								transition: 'all 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.background = '#7c3aed';
-								e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.4)';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.background = '#8b5cf6';
-								e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 92, 246, 0.3)';
-							}}
-							title="Download comprehensive Postman collection for all Unified flows (Authorization Code, Implicit, Client Credentials, Device Code, Hybrid) grouped by Registration and Authentication"
-						>
-							<span style={{ fontSize: '18px' }}>📦</span>
-							Download All Unified Flows Postman Collection
-						</button>
-						<button
-							type="button"
-							onClick={() => {
-								// Get MFA credentials
-								const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
-									flowKey: 'mfa-v8',
-									flowType: 'oauth' as const,
-									includeClientSecret: false,
-									includeScopes: false,
-									includeRedirectUri: false,
-									includeLogoutUri: false,
-								});
-								
-								const collection = generateCompletePostmanCollection({
-									environmentId: credentials.environmentId,
-									clientId: credentials.clientId,
-									clientSecret: credentials.clientSecret,
-									username: mfaCreds?.username,
-								});
-								const date = new Date().toISOString().split('T')[0];
-								const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
-								downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
-								toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
-							}}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								padding: '12px 24px',
-								background: '#10b981',
-								color: 'white',
-								border: 'none',
-								borderRadius: '8px',
-								fontSize: '15px',
-								fontWeight: '600',
-								cursor: 'pointer',
-								boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-								transition: 'all 0.2s ease',
-								marginTop: '12px',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.background = '#059669';
-								e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.background = '#10b981';
-								e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
-							}}
-							title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
-						>
-							<span style={{ fontSize: '18px' }}>📦</span>
-							Download Complete Collection (Unified + MFA)
-						</button>
-					</div>
+						<span style={{ fontSize: '18px' }}>📦</span>
+						Download All Unified Flows Postman Collection
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							// Get MFA credentials
+							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
+								flowKey: 'mfa-v8',
+								flowType: 'oauth' as const,
+								includeClientSecret: false,
+								includeScopes: false,
+								includeRedirectUri: false,
+								includeLogoutUri: false,
+							});
 
-					{/* API Documentation and Specification Links */}
+							const collection = generateCompletePostmanCollection({
+								environmentId: credentials.environmentId,
+								clientId: credentials.clientId,
+								clientSecret: credentials.clientSecret,
+								username: mfaCreds?.username,
+							});
+							const date = new Date().toISOString().split('T')[0];
+							const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
+							downloadPostmanCollectionWithEnvironment(
+								collection,
+								filename,
+								'PingOne Complete Collection Environment'
+							);
+							toastV8.success(
+								'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.'
+							);
+						}}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '12px 24px',
+							background: '#10b981',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '15px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+							transition: 'all 0.2s ease',
+							marginTop: '12px',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#059669';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#10b981';
+							e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
+						}}
+						title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
+					>
+						<span style={{ fontSize: '18px' }}>📦</span>
+						Download Complete Collection (Unified + MFA)
+					</button>
+				</div>
+
+				{/* API Documentation and Specification Links */}
 				<div
 					style={{
 						display: 'flex',
@@ -1638,8 +1650,9 @@ return (
 											};
 											handleCredentialsChange(updatedCredentials);
 											logger.info(
-												`${MODULE_TAG} Auto-enabled PKCE for ${appType} application type`
-											, "Logger info");
+												`${MODULE_TAG} Auto-enabled PKCE for ${appType} application type`,
+												'Logger info'
+											);
 										}
 									} else {
 										logger.info(`${MODULE_TAG} Suggested flow not available for spec`, {
@@ -1697,6 +1710,6 @@ return (
 			<SuperSimpleApiDisplayV8 flowFilter="unified" />
 		</div>
 	);
-}
+};
 
 export default UnifiedOAuthFlowV8U;

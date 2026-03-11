@@ -774,7 +774,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	}, [activationOtp, otpLength]);
 
 	// Track successful registration (unused but kept for potential future use)
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [_deviceRegisteredActive, _setDeviceRegisteredActive] = useState<{
 		deviceId: string;
 		deviceName: string;

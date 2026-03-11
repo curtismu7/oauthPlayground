@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import { type Device, type P1MFAConfig, P1MFASDK } from '@/sdk/p1mfa';
+import { modernMessaging } from '../../../services/v9/V9ModernMessagingService';
 import { logger } from '../../../utils/logger';
 import { CredentialsForm } from '../shared/CredentialsForm';
 import { DeviceList } from '../shared/DeviceList';
@@ -49,18 +50,28 @@ export const SMSSampleApp: React.FC = () => {
 		}
 	};
 
-	const handleDeleteDevice = async (deviceId: string) => {
+	const handleDeleteDevice = (deviceId: string) => {
 		if (!sdk || !userId) return;
-
-		// eslint-disable-next-line no-alert
-		if (!confirm('Are you sure you want to delete this device?')) return;
-
-		try {
-			await sdk.deleteDevice(userId, deviceId);
-			await handleLoadDevices();
-		} catch (error) {
-			logger.error('SMSSampleApp', 'Failed to delete device:', undefined, error);
-		}
+		modernMessaging.showBanner({
+			type: 'warning',
+			title: 'Delete device',
+			message: 'Are you sure you want to delete this device?',
+			actions: [
+				{ label: 'Cancel', action: () => modernMessaging.hideBanner() },
+				{
+					label: 'Delete',
+					action: async () => {
+						modernMessaging.hideBanner();
+						try {
+							await sdk.deleteDevice(userId, deviceId);
+							await handleLoadDevices();
+						} catch (error) {
+							logger.error('SMSSampleApp', 'Failed to delete device:', undefined, error);
+						}
+					},
+				},
+			],
+		});
 	};
 
 	return (

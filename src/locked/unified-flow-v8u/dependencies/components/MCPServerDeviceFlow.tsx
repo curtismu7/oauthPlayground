@@ -1,10 +1,10 @@
 // src/components/MCPServerDeviceFlow.tsx
 // MCP Server Style Device Authorization Flow Interface
 
-import { FiDatabase, FiLink, FiServer } from '../../../../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { FiDatabase, FiLink, FiServer } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';

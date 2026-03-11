@@ -59,27 +59,27 @@ export const parseUrlParams = (url: string): Record<string, string> => {
 	const params = new URLSearchParams(url.split('?')[1] || '');
 	const result = {};
 
-	logger.info(' [OAuth] Query parameters:', "Logger info");
+	logger.info(' [OAuth] Query parameters:', 'Logger info');
 	clientLog(`[OAuth] Query parameters:`);
 	for (const [key, value] of params.entries()) {
 		result[key] = value;
-		logger.info(`   ${key}: ${value}`, "Logger info");
+		logger.info(`   ${key}: ${value}`, 'Logger info');
 		clientLog(`   ${key}: ${value}`);
 	}
 
 	// Also check hash parameters
 	const hash = url.split('#')[1];
 	if (hash) {
-		logger.info(' [OAuth] Hash parameters:', "Logger info");
+		logger.info(' [OAuth] Hash parameters:', 'Logger info');
 		clientLog(`[OAuth] Hash parameters:`);
 		const hashParams = new URLSearchParams(hash);
 		for (const [key, value] of hashParams.entries()) {
 			result[key] = value;
-			logger.info(`   ${key}: ${value}`, "Logger info");
+			logger.info(`   ${key}: ${value}`, 'Logger info');
 			clientLog(`   ${key}: ${value}`);
 		}
 	} else {
-		logger.info(' [OAuth] No hash parameters found', "Logger info");
+		logger.info(' [OAuth] No hash parameters found', 'Logger info');
 		clientLog(`[OAuth] No hash parameters found`);
 	}
 
@@ -125,7 +125,7 @@ export const createSignedRequestObject = async (
 		const key = await importPKCS8(options.privateKey, alg);
 		const signedRequest = await jwt.sign(key);
 
-		logger.info(' [OAuth] Signed request object created successfully', "Logger info");
+		logger.info(' [OAuth] Signed request object created successfully', 'Logger info');
 		clientLog(`[OAuth] Signed request object created successfully`);
 
 		return signedRequest;
@@ -160,7 +160,7 @@ export const pushAuthorizationRequest = async ({
 	requestParams: Record<string, string>;
 	requestObject?: string;
 }): Promise<{ request_uri: string; expires_in: number }> => {
-	logger.info(' [OAuth] Pushing authorization request to PAR endpoint...', "Logger info");
+	logger.info(' [OAuth] Pushing authorization request to PAR endpoint...', 'Logger info');
 	clientLog(`[OAuth] Pushing authorization request to PAR endpoint...`);
 
 	const body = new URLSearchParams();
@@ -533,7 +533,7 @@ export const validateIdToken = async (
 	maxAge?: number,
 	accessToken?: string
 ): Promise<IdTokenPayload> => {
-	logger.info(' [OAuth] Validating ID token with signature verification...', "Logger info");
+	logger.info(' [OAuth] Validating ID token with signature verification...', 'Logger info');
 	clientLog(`[OAuth] Validating ID token with signature verification...`);
 	logger.info(' [OAuth] Expected issuer:', issuer);
 	clientLog(`[OAuth] Expected issuer: ${issuer}`);
@@ -553,7 +553,7 @@ export const validateIdToken = async (
 			? expectedIssuer.replace('/as', '')
 			: expectedIssuer;
 
-		logger.info(' [OAuth] Issuer validation details:', "Logger info");
+		logger.info(' [OAuth] Issuer validation details:', 'Logger info');
 		logger.info('   Expected base issuer:', expectedIssuerBase);
 		logger.info('   Expected issuer with /as:', expectedIssuerWithAs);
 
@@ -600,19 +600,22 @@ export const validateIdToken = async (
 		// 6. CONDITIONAL: Validate nonce if provided (Section 15.5.2) - REQUIRED for security
 		if (nonce) {
 			if (!payload.nonce || payload.nonce !== nonce) {
-				logger.error(' [OIDC] Nonce validation failed', "Logger error");
+				logger.error(' [OIDC] Nonce validation failed', 'Logger error');
 				clientLog(`[OIDC] Nonce validation failed: expected=${nonce}, received=${payload.nonce}`);
 				throw new Error('Nonce validation failed - possible replay attack');
 			}
-			logger.info(' [OIDC] Nonce validation successful', "Logger info");
+			logger.info(' [OIDC] Nonce validation successful', 'Logger info');
 		} else {
-			logger.warn(' [OIDC] No nonce provided - this reduces security against replay attacks', "Logger warning");
+			logger.warn(
+				' [OIDC] No nonce provided - this reduces security against replay attacks',
+				'Logger warning'
+			);
 		}
 
 		// 7. CONDITIONAL: Validate auth_time if max_age was specified (Section 3.1.2.1)
 		if (maxAge && maxAge > 0) {
 			if (!payload.auth_time || typeof payload.auth_time !== 'number') {
-				logger.error(' [OIDC] Missing auth_time claim when max_age is specified', "Logger error");
+				logger.error(' [OIDC] Missing auth_time claim when max_age is specified', 'Logger error');
 				throw new Error('ID token missing required auth_time claim when max_age is used');
 			}
 
@@ -620,7 +623,7 @@ export const validateIdToken = async (
 			const authAge = now - payload.auth_time;
 
 			if (authAge > maxAge) {
-				logger.error(' [OIDC] Authentication too old based on max_age', "Logger error");
+				logger.error(' [OIDC] Authentication too old based on max_age', 'Logger error');
 				clientLog(
 					`[OIDC] Authentication too old: auth_time=${payload.auth_time}, age=${authAge}s, max_age=${maxAge}s`
 				);
@@ -628,18 +631,18 @@ export const validateIdToken = async (
 					`Authentication too old: performed ${authAge} seconds ago, max_age allows ${maxAge} seconds`
 				);
 			}
-			logger.info(' [OIDC] auth_time validation successful', "Logger info");
+			logger.info(' [OIDC] auth_time validation successful', 'Logger info');
 		}
 
 		// 8. CONDITIONAL: Validate azp (authorized party) for multiple audiences
 		if (Array.isArray(payload.aud) && payload.aud.length > 1) {
 			if (!payload.azp || payload.azp !== clientId) {
-				logger.error(' [OIDC] Missing or invalid azp claim for multiple audiences', "Logger error");
+				logger.error(' [OIDC] Missing or invalid azp claim for multiple audiences', 'Logger error');
 				throw new Error(
 					'ID token missing required azp (authorized party) claim for multiple audiences'
 				);
 			}
-			logger.info(' [OIDC] azp validation successful for multiple audiences', "Logger info");
+			logger.info(' [OIDC] azp validation successful for multiple audiences', 'Logger info');
 		}
 
 		// 9. OIDC CORE 1.0: Validate at_hash if access token is present (Section 3.1.3.6)
@@ -659,12 +662,12 @@ export const validateIdToken = async (
 					.replace(/=+$/, '');
 
 				if (payload.at_hash !== expectedAtHash) {
-					logger.error(' [OIDC] at_hash validation failed', "Logger error");
+					logger.error(' [OIDC] at_hash validation failed', 'Logger error');
 					logger.error('   Expected:', expectedAtHash);
 					logger.error('   Received:', payload.at_hash);
 					throw new Error('at_hash validation failed - access token may have been tampered with');
 				}
-				logger.info(' [OIDC] at_hash validation successful', "Logger info");
+				logger.info(' [OIDC] at_hash validation successful', 'Logger info');
 			} catch (error) {
 				logger.error(' [OIDC] at_hash validation error:', error);
 				throw new Error(
@@ -672,7 +675,10 @@ export const validateIdToken = async (
 				);
 			}
 		} else if (accessToken && !payload.at_hash) {
-			logger.warn(' [OIDC] Access token provided but no at_hash claim in ID token', "Logger warning");
+			logger.warn(
+				' [OIDC] Access token provided but no at_hash claim in ID token',
+				'Logger warning'
+			);
 		}
 
 		// 10. SECURITY: Check for explicitly set suspicious claims (not inherited)
@@ -684,7 +690,7 @@ export const validateIdToken = async (
 			}
 		}
 
-		logger.info(' [OAuth] ID token signature and claims validation successful', "Logger info");
+		logger.info(' [OAuth] ID token signature and claims validation successful', 'Logger info');
 		logger.info(' [OAuth] Validation details:', {
 			nonce: nonce ? (payload.nonce === nonce ? ' Valid' : ' Invalid') : 'Not checked',
 			maxAge: maxAge ? (payload.auth_time ? ' Checked' : ' Missing auth_time') : 'Not specified',

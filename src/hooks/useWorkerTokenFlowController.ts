@@ -89,7 +89,10 @@ const loadInitialCredentials = (): StepCredentials => {
 		// Fallback to credentialManager if no worker token credentials found
 		const stored = credentialManager.getAllCredentials();
 		if (stored.environmentId && stored.clientId) {
-			logger.info('🔄 [useWorkerTokenFlowController] Loaded credentials from credentialManager', "Logger info");
+			logger.info(
+				'🔄 [useWorkerTokenFlowController] Loaded credentials from credentialManager',
+				'Logger info'
+			);
 			return { ...createEmptyCredentials(), ...stored };
 		}
 	} catch (error) {
@@ -105,7 +108,10 @@ const loadStoredConfig = (storageKey: string, defaultConfig: FlowConfig): FlowCo
 		const stored = sessionStorage.getItem(storageKey);
 		if (stored) {
 			const parsed = safeJsonParse(stored, {});
-			logger.info('🔄 [useWorkerTokenFlowController] Loaded flow config from storage', "Logger info");
+			logger.info(
+				'🔄 [useWorkerTokenFlowController] Loaded flow config from storage',
+				'Logger info'
+			);
 			return { ...defaultConfig, ...parsed };
 		}
 	} catch (error) {
@@ -260,12 +266,16 @@ export const useWorkerTokenFlowController = (
 										: defaults.scopes) || defaults.scopes,
 						};
 						if (unifiedCreds.region) merged.region = String(unifiedCreds.region);
-						if (unifiedCreds.tokenEndpoint) merged.tokenEndpoint = String(unifiedCreds.tokenEndpoint);
-						logger.info('✅ [useWorkerTokenFlowController] Loaded credentials from IndexedDB/SQLite', {
-							flowKey: persistKey,
-							environmentId: merged.environmentId,
-							clientId: `${merged.clientId?.substring(0, 8)}...`,
-						});
+						if (unifiedCreds.tokenEndpoint)
+							merged.tokenEndpoint = String(unifiedCreds.tokenEndpoint);
+						logger.info(
+							'✅ [useWorkerTokenFlowController] Loaded credentials from IndexedDB/SQLite',
+							{
+								flowKey: persistKey,
+								environmentId: merged.environmentId,
+								clientId: `${merged.clientId?.substring(0, 8)}...`,
+							}
+						);
 						setCredentials(merged);
 						setHasCredentialsSaved(true);
 						return;
@@ -300,7 +310,10 @@ export const useWorkerTokenFlowController = (
 
 					if (flowState?.flowConfig) {
 						setFlowConfig(flowState.flowConfig);
-						logger.info('✅ [useWorkerTokenFlowController] Loaded flow config from saved state', 'Logger info');
+						logger.info(
+							'✅ [useWorkerTokenFlowController] Loaded flow config from saved state',
+							'Logger info'
+						);
 					}
 				} else {
 					logger.info('ℹ️ [useWorkerTokenFlowController] No saved credentials found', 'Logger info');
@@ -322,7 +335,10 @@ export const useWorkerTokenFlowController = (
 		(newConfig: FlowConfig) => {
 			setFlowConfig(newConfig);
 			sessionStorage.setItem(configStorageKey, JSON.stringify(newConfig));
-			logger.info('💾 [useWorkerTokenFlowController] Flow config updated and persisted', "Logger info");
+			logger.info(
+				'💾 [useWorkerTokenFlowController] Flow config updated and persisted',
+				'Logger info'
+			);
 		},
 		[configStorageKey]
 	);
@@ -396,7 +412,10 @@ export const useWorkerTokenFlowController = (
 			trackTokenOperation('worker-token-request', true, 'Token requested successfully');
 			showGlobalSuccess('Worker token requested successfully!');
 
-			logger.info('✅ [useWorkerTokenFlowController] Token request completed successfully', "Logger info");
+			logger.info(
+				'✅ [useWorkerTokenFlowController] Token request completed successfully',
+				'Logger info'
+			);
 		} catch (error) {
 			logger.error(
 				'useWorkerTokenFlowController',
@@ -463,7 +482,10 @@ export const useWorkerTokenFlowController = (
 			trackTokenOperation('token-introspection', true, 'Token introspection completed');
 			showGlobalSuccess('Token introspection completed successfully!');
 
-			logger.info('✅ [useWorkerTokenFlowController] Token introspection completed successfully', "Logger info");
+			logger.info(
+				'✅ [useWorkerTokenFlowController] Token introspection completed successfully',
+				'Logger info'
+			);
 		} catch (error) {
 			logger.error(
 				'useWorkerTokenFlowController',
@@ -485,7 +507,10 @@ export const useWorkerTokenFlowController = (
 
 	const saveCredentials = useCallback(async () => {
 		try {
-			logger.info('💾 [useWorkerTokenFlowController] Save credentials button clicked!', "Logger info");
+			logger.info(
+				'💾 [useWorkerTokenFlowController] Save credentials button clicked!',
+				'Logger info'
+			);
 			logger.info(
 				'📋 [useWorkerTokenFlowController] Credentials object:',
 				JSON.stringify(credentials, null, 2)
@@ -578,7 +603,10 @@ export const useWorkerTokenFlowController = (
 				// Dispatch events to notify dashboard and other components
 				window.dispatchEvent(new CustomEvent('pingone-config-changed'));
 				window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
-				logger.info('📢 [useWorkerTokenFlowController] Configuration change events dispatched', "Logger info");
+				logger.info(
+					'📢 [useWorkerTokenFlowController] Configuration change events dispatched',
+					'Logger info'
+				);
 			} else {
 				throw new Error('Failed to save credentials via FlowCredentialService');
 			}
@@ -618,7 +646,7 @@ export const useWorkerTokenFlowController = (
 	}, [clearStepResults, stepManager, credentials]);
 
 	const loadCredentials = useCallback((config: StepCredentials) => {
-		logger.info('📥 [useWorkerTokenFlowController] Loading credentials from config', "Logger info");
+		logger.info('📥 [useWorkerTokenFlowController] Loading credentials from config', 'Logger info');
 		setCredentials(config);
 		originalCredentialsRef.current = { ...config };
 		setHasUnsavedCredentialChanges(false);

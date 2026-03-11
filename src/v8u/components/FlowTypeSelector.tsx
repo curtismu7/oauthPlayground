@@ -55,8 +55,9 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 		// Show warnings for problematic flow types
 		if (newFlowType === 'implicit') {
 			logger.warn(
-				'Implicit Flow selected - This flow is deprecated in OAuth 2.1 and has security limitations'
-			, "Logger warning");
+				'Implicit Flow selected - This flow is deprecated in OAuth 2.1 and has security limitations',
+				'Logger warning'
+			);
 		}
 
 		onChange(newFlowType);

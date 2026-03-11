@@ -235,7 +235,7 @@ export const PerformanceDashboard: React.FC = () => {
 	}, [lazyLoadingMetrics]);
 
 	const handleRefreshMetrics = () => {
-		logger.info('[PerformanceDashboard] Refreshing performance metrics', "Logger info");
+		logger.info('[PerformanceDashboard] Refreshing performance metrics', 'Logger info');
 		// Force update of performance data
 		const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
 		const paint = performance.getEntriesByType('paint');
@@ -252,7 +252,7 @@ export const PerformanceDashboard: React.FC = () => {
 	};
 
 	const handleClearMetrics = () => {
-		logger.info('[PerformanceDashboard] Clearing performance metrics', "Logger info");
+		logger.info('[PerformanceDashboard] Clearing performance metrics', 'Logger info');
 		lazyLoadingMetrics.clearMetrics();
 		setPerformanceData((prev) => ({
 			...prev,

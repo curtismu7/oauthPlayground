@@ -219,8 +219,9 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 	useEffect(() => {
 		const checkWorkerToken = async () => {
 			try {
-				const { handleShowWorkerTokenModalSimple } =
-					await import('@/v8/utils/workerTokenModalHelperV8');
+				const { handleShowWorkerTokenModalSimple } = await import(
+					'@/v8/utils/workerTokenModalHelperV8'
+				);
 				// forceShowModal=false: this is an automatic check, not a user click
 				await handleShowWorkerTokenModalSimple(
 					setShowWorkerTokenModal,

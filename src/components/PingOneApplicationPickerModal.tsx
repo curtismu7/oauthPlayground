@@ -433,8 +433,8 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 
 				{missingWorkerToken && (
 					<StatusBar $variant="warning">
-						<span style={{ fontSize: '16px' }}>ℹ️</span> Generate a worker token first so we can
-						call the PingOne Admin API.
+						<span style={{ fontSize: '16px' }}>ℹ️</span> Generate a worker token first so we can call
+						the PingOne Admin API.
 						<Button
 							onClick={() => setShowWorkerTokenModal(true)}
 							style={{

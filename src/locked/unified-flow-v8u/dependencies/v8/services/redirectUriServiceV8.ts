@@ -9,6 +9,7 @@
  */
 
 import { logger } from '../../../../../utils/logger';
+
 const MODULE_TAG = '[🔗 REDIRECT-URI-V8]';
 
 export interface FlowRedirectUriConfig {

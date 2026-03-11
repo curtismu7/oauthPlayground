@@ -32,6 +32,13 @@ interface CompleteMfaCredentials extends MfaCredentials {
 		| 'private_key_jwt';
 }
 
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import DeviceRegistrationModal from '../components/DeviceRegistrationModal';
+import { EnhancedApiCallDisplay } from '../components/EnhancedApiCallDisplay';
+import FIDO2RegistrationModal from '../components/FIDO2RegistrationModal';
+import LoginSuccessModal from '../components/LoginSuccessModal';
+import PhoneNumberInput from '../components/PhoneNumberInput';
+import TOTPQRCodeModal from '../components/TOTPQRCodeModal';
 import {
 	FiAlertCircle,
 	FiAlertTriangle,
@@ -42,13 +49,6 @@ import {
 	FiRefreshCw,
 	FiSmartphone,
 } from '../icons';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import DeviceRegistrationModal from '../components/DeviceRegistrationModal';
-import { EnhancedApiCallDisplay } from '../components/EnhancedApiCallDisplay';
-import FIDO2RegistrationModal from '../components/FIDO2RegistrationModal';
-import LoginSuccessModal from '../components/LoginSuccessModal';
-import PhoneNumberInput from '../components/PhoneNumberInput';
-import TOTPQRCodeModal from '../components/TOTPQRCodeModal';
 import { AuthenticationModalService } from '../services/authenticationModalService';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
 import {
@@ -311,15 +311,11 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 `;
 
 export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	requireMFA: _requireMFA = true,
 	maxRetries = 3,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onFlowComplete: _onFlowComplete,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	onFlowError: _onFlowError,
 	onStepChange,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	showNetworkStatus: _showNetworkStatus = true,
 }) => {
 	const [currentStep, setCurrentStep] = useState<FlowStep>('username_login');
@@ -1173,8 +1169,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							);
 						} else {
 							// Generate new PKCE codes
-							const { generateCodeVerifier, generateCodeChallenge } =
-								await import('../utils/oauth');
+							const { generateCodeVerifier, generateCodeChallenge } = await import(
+								'../utils/oauth'
+							);
 							codeVerifier = generateCodeVerifier();
 							codeChallenge = await generateCodeChallenge(codeVerifier);
 

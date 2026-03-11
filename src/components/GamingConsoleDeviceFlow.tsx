@@ -1,10 +1,10 @@
 // src/components/GamingConsoleDeviceFlow.tsx
 // Gaming Console Style Device Authorization Flow Interface
 
-import { FiCheckCircle, FiTv } from '../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { FiCheckCircle, FiTv } from '../icons';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
@@ -325,8 +325,7 @@ const ConsoleBase = styled.div`
 interface GamingConsoleDeviceFlowProps {
 	state: DeviceFlowState;
 	onStateUpdate: (newState: DeviceFlowState) => void;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	onComplete: (tokens: any) => void;
+	onComplete: (tokens: Record<string, unknown>) => void;
 	onError: (error: string) => void;
 }
 

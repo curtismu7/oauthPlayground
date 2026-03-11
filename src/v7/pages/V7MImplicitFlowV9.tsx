@@ -1,10 +1,9 @@
 // src/v7/pages/V7MImplicitFlowV9.tsx
-/* eslint-disable no-alert */
 
-import { FiAlertTriangle } from '../../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { showGlobalError } from '../../contexts/NotificationSystem';
+import { FiAlertTriangle } from '../../icons';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { authorizeIssueCode, V7MAuthorizeRequest } from '../../services/v7m/V7MAuthorizeService';
 import {
@@ -27,7 +26,7 @@ type Props = {
 
 export const V7MImplicitFlowV9: React.FC<Props> = ({
 	oidc = false,
-	title = 'V7M OAuth Implicit Flow',
+	title = 'OAuth Implicit Flow',
 }) => {
 	const [variant, setVariant] = useState<'oauth' | 'oidc'>(oidc ? 'oidc' : 'oauth');
 	const [clientId, setClientId] = useState('v7m-client');
@@ -194,7 +193,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 					marginBottom: 16,
 				}}
 			>
-				<strong>📚 Educational Mock Mode (V7M)</strong>
+				<strong>📚 Educational Mock Mode</strong>
 				<p style={{ margin: '8px 0 0 0', fontSize: 14 }}>
 					This flow simulates OAuth/OIDC endpoints for learning. No external APIs are called. Tokens
 					are generated deterministically based on your settings.
@@ -207,8 +206,8 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 				credentials={{ clientId }}
 				importExportOptions={{
 					flowType: 'v7m-implicit',
-					appName: 'V7M Implicit Flow',
-					description: 'V7M Mock OAuth Implicit Flow (deprecated)',
+					appName: 'Implicit Flow',
+					description: 'Mock OAuth Implicit Flow (deprecated)',
 				}}
 				onAppSelected={handleAppSelected}
 				grantType="implicit"

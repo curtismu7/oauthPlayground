@@ -5,11 +5,11 @@ import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
 const FlowContainer = styled.div`
   max-width: 1200px;

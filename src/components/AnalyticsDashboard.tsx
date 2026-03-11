@@ -1,9 +1,9 @@
-import { FiRefreshCw, FiTrendingUp } from '../icons';
 import { BarChart3 } from 'lucide-react';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useAnalytics } from '../hooks/useAnalytics';
+import { FiRefreshCw, FiTrendingUp } from '../icons';
 
 import { logger } from '../utils/logger';
 

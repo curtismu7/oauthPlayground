@@ -1,6 +1,11 @@
 // src/pages/docs/OIDCOverviewV7.tsx
 // V7 OIDC Overview with Enhanced Architecture
 
+import React, { useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiArrowRight,
 	FiCode,
@@ -15,11 +20,6 @@ import {
 	FiUsers,
 	FiZap,
 } from '../../icons';
-import React, { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 // Import V7 service architecture components
 import { FlowHeader } from '../../services/flowHeaderService';

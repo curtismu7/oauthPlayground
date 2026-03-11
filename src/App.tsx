@@ -4,23 +4,23 @@ import styled, { type DefaultTheme, ThemeProvider } from 'styled-components';
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
 import { type UISettings, UISettingsProvider, useUISettings } from './contexts/UISettingsContext';
+import { useComponentTracker } from './hooks/useComponentTracker';
 import { theme as baseTheme, GlobalStyle } from './styles/global';
+import { useComponentTracker as useCleanlinessTracker } from './utils/componentTracker';
 import { FlowStateProvider } from './v8/contexts/FlowStateContext';
 import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
-import { useComponentTracker } from './hooks/useComponentTracker';
-import { useComponentTracker as useCleanlinessTracker } from './utils/componentTracker';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
 import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all buttons have white text
 import { lazy, Suspense } from 'react';
-import CodeExamplesDemo from './components/CodeExamplesDemo';
-import { CleanupHistoryDashboard } from './components/CleanupHistoryDashboard';
 import { CleanlinessDashboardWorking } from './components/CleanlinessDashboardWorking';
+import { CleanupHistoryDashboard } from './components/CleanupHistoryDashboard';
+import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import { EnhancedFloatingLogViewer } from './components/EnhancedFloatingLogViewer';
 import LoadingFallback from './components/LoadingFallback';
-import { WorkerTokenModal } from './components/WorkerTokenModal';
 import { V9ModernMessagingProvider } from './components/v9/V9ModernMessagingComponents';
+import { WorkerTokenModal } from './components/WorkerTokenModal';
 import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
 import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
 import { PromptModalV8 } from './v8/components/PromptModalV8';
@@ -166,8 +166,8 @@ import UserInfoPostFlow from './pages/flows/UserInfoPostFlow';
 import JWTBearerTokenFlowV9 from './pages/flows/v9/JWTBearerTokenFlowV9';
 import MFAWorkflowLibraryFlowV9 from './pages/flows/v9/MFAWorkflowLibraryFlowV9';
 import OAuthROPCFlowV9 from './pages/flows/v9/OAuthROPCFlowV9';
-import PingOnePARFlowV9 from './pages/flows/v9/PingOnePARFlowV9';
 import PARFlowV9 from './pages/flows/v9/PARFlowV9';
+import PingOnePARFlowV9 from './pages/flows/v9/PingOnePARFlowV9';
 import RARFlowV9 from './pages/flows/v9/RARFlowV9';
 import ResourcesAPIFlowV9 from './pages/flows/v9/ResourcesAPIFlowV9';
 import SAMLBearerAssertionFlowV9 from './pages/flows/v9/SAMLBearerAssertionFlowV9';
@@ -185,10 +185,10 @@ import { P1MFASamples } from './pages/P1MFASamples';
 import PARvsRAR from './pages/PARvsRAR';
 import PingAIResources from './pages/PingAIResources';
 import PingOneAuditActivities from './pages/PingOneAuditActivities';
-import PingOneDashboard from './pages/PingOneDashboard';
 import PingOneAuthentication from './pages/PingOneAuthentication';
 import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback';
 import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
+import PingOneDashboard from './pages/PingOneDashboard';
 import PingOneIdentityMetrics from './pages/PingOneIdentityMetrics';
 import PingOneMockFeatures from './pages/PingOneMockFeatures';
 import PingOneScopesReference from './pages/PingOneScopesReference';
@@ -241,11 +241,11 @@ import { FloatingStepperProvider } from './contexts/FloatingStepperContext';
 import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
 // Import Protect Portal
 import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
+import { DebugLogViewerPopoutV9 } from './pages/v9/DebugLogViewerPopoutV9';
 // CreateCompanyPage - ARCHIVED
 import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import { logger } from './utils/logger';
 import { DebugLogViewerPopoutV8Test as DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8Test';
-import { DebugLogViewerPopoutV9 } from './pages/v9/DebugLogViewerPopoutV9';
 import DebugLogViewerV8 from './v8/pages/DebugLogViewerV8';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
@@ -447,7 +447,7 @@ const AppRoutes: React.FC = () => {
 	useEffect(() => {
 		let lastKnownWidth = localStorage.getItem('sidebar.width');
 		let pollInterval: NodeJS.Timeout | null = null;
-		
+
 		const handleStorageChange = () => {
 			try {
 				const saved = localStorage.getItem('sidebar.width');
@@ -459,7 +459,10 @@ const AppRoutes: React.FC = () => {
 						parsed <= SIDEBAR_PING_MAX_WIDTH
 					) {
 						if (parsed !== sidebarWidth) {
-							logger.info('🌍 [SidebarWidth] Updating sidebar width:', `old: ${sidebarWidth}, new: ${parsed}`);
+							logger.info(
+								'🌍 [SidebarWidth] Updating sidebar width:',
+								`old: ${sidebarWidth}, new: ${parsed}`
+							);
 							setSidebarWidth(parsed);
 						}
 						return;
@@ -467,7 +470,10 @@ const AppRoutes: React.FC = () => {
 				}
 				if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) {
 					if (parsed !== sidebarWidth) {
-						logger.info('🌍 [SidebarWidth] Updating sidebar width:', `old: ${sidebarWidth}, new: ${parsed}`);
+						logger.info(
+							'🌍 [SidebarWidth] Updating sidebar width:',
+							`old: ${sidebarWidth}, new: ${parsed}`
+						);
 						setSidebarWidth(parsed);
 					}
 				}
@@ -495,7 +501,7 @@ const AppRoutes: React.FC = () => {
 				lastKnownWidth = currentWidth;
 				handleStorageChange();
 				startPolling(); // Start fast polling during resize
-				
+
 				// Stop fast polling after 2 seconds of no changes
 				setTimeout(stopPolling, 2000);
 			}
@@ -881,7 +887,7 @@ const AppRoutes: React.FC = () => {
 									path="/v7/oidc/implicit"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
-											<V7MImplicitFlowV9 oidc={true} title="V7M OIDC Implicit Flow" />
+											<V7MImplicitFlowV9 oidc={true} title="OIDC Implicit Flow" />
 										</Suspense>
 									}
 								/>
@@ -889,7 +895,7 @@ const AppRoutes: React.FC = () => {
 									path="/v7/oauth/ropc"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
-											<V7MROPCV9 oidc={false} title="V7M Resource Owner Password Credentials" />
+											<V7MROPCV9 oidc={false} title="Resource Owner Password Credentials" />
 										</Suspense>
 									}
 								/>
@@ -897,7 +903,7 @@ const AppRoutes: React.FC = () => {
 									path="/v7/oidc/ropc"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
-											<V7MROPCV9 oidc={true} title="V7M OIDC Resource Owner Password Credentials" />
+											<V7MROPCV9 oidc={true} title="OIDC Resource Owner Password Credentials" />
 										</Suspense>
 									}
 								/>

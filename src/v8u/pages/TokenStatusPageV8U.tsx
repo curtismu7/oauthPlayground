@@ -329,8 +329,9 @@ const TokenStatusPageV8U: React.FC = () => {
 													logger.debug(
 														'[TOKEN-STATUS-V8U] Silent API retrieval enabled, attempting to fetch token now...'
 													);
-													const { handleShowWorkerTokenModal } =
-														await import('@/v8/utils/workerTokenModalHelperV8');
+													const { handleShowWorkerTokenModal } = await import(
+														'@/v8/utils/workerTokenModalHelperV8'
+													);
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
 														setTokenStatus,

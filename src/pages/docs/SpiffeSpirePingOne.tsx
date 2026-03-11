@@ -1,10 +1,10 @@
 // src/pages/docs/SpiffeSpirePingOne.tsx
 // SPIFFE/SPIRE Education Page - Integration with PingOne SSO
 
-import { FiAlertTriangle, FiCheckCircle, FiInfo } from '../../icons';
 import React from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
+import { FiAlertTriangle, FiCheckCircle, FiInfo } from '../../icons';
 
 const PageContainer = styled.div`
 	max-width: 1200px;

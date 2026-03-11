@@ -245,7 +245,7 @@ export function saveCredentialsBeforeReset(
 		};
 		SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
 
-		logger.info(`${MODULE_TAG} ✅ Credentials saved before reset`, "Logger info");
+		logger.info(`${MODULE_TAG} ✅ Credentials saved before reset`, 'Logger info');
 	} catch (error) {
 		logger.error(`${MODULE_TAG} ❌ Error saving credentials before reset`, {
 			flowKey,

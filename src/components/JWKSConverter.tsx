@@ -1,10 +1,10 @@
 // src/components/JWKSConverter.tsx
 
-import { FiRefreshCw } from '../icons';
 import type React from 'react';
 import { useId, useState } from 'react';
 import styled from 'styled-components';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
+import { FiRefreshCw } from '../icons';
 import { convertPrivateKeyToJWKS, formatJWKS, isPrivateKey } from '../utils/jwksConverter';
 
 const Container = styled.div`

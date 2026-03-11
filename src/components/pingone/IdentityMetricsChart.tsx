@@ -3,13 +3,13 @@
 
 import React from 'react';
 import {
-	AreaChart,
 	Area,
+	AreaChart,
+	CartesianGrid,
+	ResponsiveContainer,
+	Tooltip,
 	XAxis,
 	YAxis,
-	CartesianGrid,
-	Tooltip,
-	ResponsiveContainer,
 } from 'recharts';
 
 interface ActiveIdentityCount {
@@ -28,7 +28,11 @@ export function IdentityMetricsChart({ activeIdentityCounts }: IdentityMetricsCh
 	const chartData = activeIdentityCounts
 		.map((item) => ({
 			date: item.startDate
-				? new Date(item.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })
+				? new Date(item.startDate).toLocaleDateString('en-US', {
+						month: 'short',
+						day: 'numeric',
+						year: '2-digit',
+					})
 				: '—',
 			count: item.count ?? 0,
 			fullDate: item.startDate,

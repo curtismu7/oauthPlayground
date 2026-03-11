@@ -176,7 +176,7 @@ export class DPoPService {
 	 */
 	static clearKeyPair(): void {
 		DPoPService.keyPair = null;
-		logger.info('🔐 [DPoP] Key pair cleared', "Logger info");
+		logger.info('🔐 [DPoP] Key pair cleared', 'Logger info');
 	}
 
 	/**

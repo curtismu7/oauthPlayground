@@ -1,12 +1,12 @@
 // src/components/SecurityFeaturesDemo.tsx
 // lint-file-disable: token-value-in-jsx
 
-import { FiRefreshCw } from '../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalSuccess } from '../hooks/useNotifications';
+import { FiRefreshCw } from '../icons';
 import {
 	buildLogoutUrl,
 	terminateSession as terminateSessionService,

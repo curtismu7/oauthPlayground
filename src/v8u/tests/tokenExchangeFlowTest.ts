@@ -7,6 +7,7 @@
  */
 
 import { logger } from '../../utils/logger';
+
 interface TestResult {
 	testName: string;
 	passed: boolean;
@@ -439,7 +440,7 @@ class TokenExchangeFlowTest {
 	 * Run all tests
 	 */
 	public runAllTests(): void {
-		logger.info('', "Logger info");
+		logger.info('', 'Logger info');
 
 		this.results = [];
 

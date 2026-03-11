@@ -17,8 +17,8 @@ export function fixEnvironmentIdInStorage(): void {
 		return;
 	}
 
-	logger.info('🔧 Fixing Environment ID in localStorage...', "Logger info");
-	logger.info(`Correct Environment ID: ${CORRECT_ENV_ID}\n`, "Logger info");
+	logger.info('🔧 Fixing Environment ID in localStorage...', 'Logger info');
+	logger.info(`Correct Environment ID: ${CORRECT_ENV_ID}\n`, 'Logger info');
 
 	let fixedCount = 0;
 
@@ -29,11 +29,14 @@ export function fixEnvironmentIdInStorage(): void {
 		if (workerTokenData) {
 			const parsed = JSON.parse(workerTokenData);
 			if (parsed.environmentId && parsed.environmentId !== CORRECT_ENV_ID) {
-				logger.info(`❌ Found wrong Environment ID in ${workerTokenKey}: ${parsed.environmentId}`, "Logger info");
+				logger.info(
+					`❌ Found wrong Environment ID in ${workerTokenKey}: ${parsed.environmentId}`,
+					'Logger info'
+				);
 				parsed.environmentId = CORRECT_ENV_ID;
 				parsed.lastUpdated = Date.now();
 				localStorage.setItem(workerTokenKey, JSON.stringify(parsed));
-				logger.info(`✅ Fixed ${workerTokenKey}`, "Logger info");
+				logger.info(`✅ Fixed ${workerTokenKey}`, 'Logger info');
 				fixedCount++;
 			}
 		}
@@ -55,8 +58,9 @@ export function fixEnvironmentIdInStorage(): void {
 				parsed.credentials.environmentId !== CORRECT_ENV_ID
 			) {
 				logger.info(
-					`❌ Found wrong Environment ID in ${flowDataKey}.credentials: ${parsed.credentials.environmentId}`
-				, "Logger info");
+					`❌ Found wrong Environment ID in ${flowDataKey}.credentials: ${parsed.credentials.environmentId}`,
+					'Logger info'
+				);
 				parsed.credentials.environmentId = CORRECT_ENV_ID;
 				parsed.credentials.lastUpdated = Date.now();
 				updated = true;
@@ -68,8 +72,9 @@ export function fixEnvironmentIdInStorage(): void {
 				parsed.sharedEnvironment.environmentId !== CORRECT_ENV_ID
 			) {
 				logger.info(
-					`❌ Found wrong Environment ID in ${flowDataKey}.sharedEnvironment: ${parsed.sharedEnvironment.environmentId}`
-				, "Logger info");
+					`❌ Found wrong Environment ID in ${flowDataKey}.sharedEnvironment: ${parsed.sharedEnvironment.environmentId}`,
+					'Logger info'
+				);
 				parsed.sharedEnvironment.environmentId = CORRECT_ENV_ID;
 				parsed.sharedEnvironment.lastUpdated = Date.now();
 				updated = true;
@@ -77,7 +82,7 @@ export function fixEnvironmentIdInStorage(): void {
 
 			if (updated) {
 				localStorage.setItem(flowDataKey, JSON.stringify(parsed));
-				logger.info(`✅ Fixed ${flowDataKey}`, "Logger info");
+				logger.info(`✅ Fixed ${flowDataKey}`, 'Logger info');
 				fixedCount++;
 			}
 		}
@@ -92,7 +97,10 @@ export function fixEnvironmentIdInStorage(): void {
 		if (sharedEnv) {
 			const parsed = JSON.parse(sharedEnv);
 			if (parsed.environmentId && parsed.environmentId !== CORRECT_ENV_ID) {
-				logger.info(`❌ Found wrong Environment ID in ${sharedEnvKey}: ${parsed.environmentId}`, "Logger info");
+				logger.info(
+					`❌ Found wrong Environment ID in ${sharedEnvKey}: ${parsed.environmentId}`,
+					'Logger info'
+				);
 				parsed.environmentId = CORRECT_ENV_ID;
 				parsed.lastUpdated = Date.now();
 				// Update issuer URL if it contains the old environment ID
@@ -103,7 +111,7 @@ export function fixEnvironmentIdInStorage(): void {
 					);
 				}
 				localStorage.setItem(sharedEnvKey, JSON.stringify(parsed));
-				logger.info(`✅ Fixed ${sharedEnvKey}`, "Logger info");
+				logger.info(`✅ Fixed ${sharedEnvKey}`, 'Logger info');
 				fixedCount++;
 			}
 		}
@@ -119,8 +127,9 @@ export function fixEnvironmentIdInStorage(): void {
 			const parsed = JSON.parse(sharedDiscovery);
 			if (parsed.environmentId && parsed.environmentId !== CORRECT_ENV_ID) {
 				logger.info(
-					`❌ Found wrong Environment ID in ${sharedDiscoveryKey}: ${parsed.environmentId}`
-				, "Logger info");
+					`❌ Found wrong Environment ID in ${sharedDiscoveryKey}: ${parsed.environmentId}`,
+					'Logger info'
+				);
 				parsed.environmentId = CORRECT_ENV_ID;
 				parsed.timestamp = Date.now();
 				// Update discovery document issuer if it contains the old environment ID
@@ -131,7 +140,7 @@ export function fixEnvironmentIdInStorage(): void {
 					);
 				}
 				localStorage.setItem(sharedDiscoveryKey, JSON.stringify(parsed));
-				logger.info(`✅ Fixed ${sharedDiscoveryKey}`, "Logger info");
+				logger.info(`✅ Fixed ${sharedDiscoveryKey}`, 'Logger info');
 				fixedCount++;
 			}
 		}
@@ -147,12 +156,13 @@ export function fixEnvironmentIdInStorage(): void {
 			const parsed = JSON.parse(envPersistence);
 			if (parsed.environmentId && parsed.environmentId !== CORRECT_ENV_ID) {
 				logger.info(
-					`❌ Found wrong Environment ID in ${envPersistenceKey}: ${parsed.environmentId}`
-				, "Logger info");
+					`❌ Found wrong Environment ID in ${envPersistenceKey}: ${parsed.environmentId}`,
+					'Logger info'
+				);
 				parsed.environmentId = CORRECT_ENV_ID;
 				parsed.lastUpdated = Date.now();
 				localStorage.setItem(envPersistenceKey, JSON.stringify(parsed));
-				logger.info(`✅ Fixed ${envPersistenceKey}`, "Logger info");
+				logger.info(`✅ Fixed ${envPersistenceKey}`, 'Logger info');
 				fixedCount++;
 			}
 		}
@@ -161,7 +171,7 @@ export function fixEnvironmentIdInStorage(): void {
 	}
 
 	// Scan for any other keys that might contain wrong environment IDs
-	logger.info('\n🔍 Scanning all localStorage keys for wrong environment IDs...\n', "Logger info");
+	logger.info('\n🔍 Scanning all localStorage keys for wrong environment IDs...\n', 'Logger info');
 	const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 	const keysToCheck = [
 		'pingone_worker_token_credentials_heb-grocery-store-mfa',
@@ -202,7 +212,7 @@ export function fixEnvironmentIdInStorage(): void {
 									parsed.lastUpdated = Date.now();
 								}
 								localStorage.setItem(key, JSON.stringify(parsed));
-								logger.info(`✅ Fixed ${key}`, "Logger info");
+								logger.info(`✅ Fixed ${key}`, 'Logger info');
 								fixedCount++;
 							}
 						}
@@ -215,7 +225,7 @@ export function fixEnvironmentIdInStorage(): void {
 	}
 
 	logger.info(`\n✅ Fixed ${fixedCount} storage location(s)`);
-	logger.info(`✅ Environment ID fix complete!`, "Logger info");
+	logger.info(`✅ Environment ID fix complete!`, 'Logger info');
 
 	// Also make it available globally for manual execution
 	if (typeof window !== 'undefined') {

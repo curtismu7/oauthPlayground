@@ -18,15 +18,6 @@
  * - Dashboard features (device list, policy summary)
  */
 
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiKey,
-	FiLoader,
-	FiMail,
-	FiPhone,
-	FiShield,
-} from '../../../../icons';
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
@@ -61,6 +52,15 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import {
+	FiAlertCircle,
+	FiCheck,
+	FiKey,
+	FiLoader,
+	FiMail,
+	FiPhone,
+	FiShield,
+} from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import {
@@ -1250,8 +1250,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			// Per PingOne MFA API: "If the user is paired with a FIDO2 platform device and a session
 			// token cookie exists on the browser, the FIDO2 platform device is used for authentication
 			// even if it is not the default device."
-			const { shouldPreferFIDO2PlatformDevice } =
-				await import('@/v8/services/fido2SessionCookieServiceV8');
+			const { shouldPreferFIDO2PlatformDevice } = await import(
+				'@/v8/services/fido2SessionCookieServiceV8'
+			);
 			const platformPreference = shouldPreferFIDO2PlatformDevice();
 
 			if (platformPreference.prefer && authDevices.length > 0) {
@@ -1876,8 +1877,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						<button
 							type="button"
 							onClick={async () => {
-								const { handleShowWorkerTokenModal } =
-									await import('@/v8/utils/workerTokenModalHelperV8');
+								const { handleShowWorkerTokenModal } = await import(
+									'@/v8/utils/workerTokenModalHelperV8'
+								);
 								// Pass current checkbox values to override config (page checkboxes take precedence)
 								// forceShowModal=true because user explicitly clicked the button - always show modal
 								await handleShowWorkerTokenModal(
@@ -1995,8 +1997,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											logger.info(
 												'[MFA-AUTHN-MAIN-V8] Silent API retrieval enabled, attempting to fetch token now...'
 											);
-											const { handleShowWorkerTokenModal } =
-												await import('@/v8/utils/workerTokenModalHelperV8');
+											const { handleShowWorkerTokenModal } = await import(
+												'@/v8/utils/workerTokenModalHelperV8'
+											);
 											await handleShowWorkerTokenModal(
 												setShowWorkerTokenModal,
 												setTokenStatus,
@@ -3915,8 +3918,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												setAuthState((prev) => ({ ...prev, isLoading: true }));
 
 												try {
-													const { PasskeyServiceV8 } =
-														await import('@/v8/services/passkeyServiceV8');
+													const { PasskeyServiceV8 } = await import(
+														'@/v8/services/passkeyServiceV8'
+													);
 													const result = await PasskeyServiceV8.registerPasskey({
 														environmentId: credentials.environmentId,
 														username: usernameInput.trim(),
@@ -5623,8 +5627,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										(p) => p.id === credentials.deviceAuthenticationPolicyId
 									);
 									const policyName = selectedPolicy?.name;
-									const deviceSelectionBehavior = selectedPolicy?.authentication
-										?.deviceSelection as string | undefined;
+									const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
+										| string
+										| undefined;
 
 									// Navigate to success page
 									navigate('/v8/mfa/authentication/success', {

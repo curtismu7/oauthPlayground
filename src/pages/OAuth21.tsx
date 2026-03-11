@@ -1,7 +1,7 @@
-import { FiCheck, FiInfo, FiShield, FiX } from '../icons';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { SpecCard } from '../components/SpecCard';
+import { FiCheck, FiInfo, FiShield, FiX } from '../icons';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
@@ -720,8 +720,8 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 									<strong>✓ Bearer Token Security:</strong> Proper token handling practices
 								</li>
 								<li>
-									<strong>⚠️ Enhanced Refresh Tokens:</strong> One-time use refresh tokens
-									supported. Sender-constrained tokens (mTLS, DPoP) not yet available.
+									<strong>⚠️ Enhanced Refresh Tokens:</strong> One-time use refresh tokens supported.
+									Sender-constrained tokens (mTLS, DPoP) not yet available.
 								</li>
 								<li>
 									<strong>✓ Backward Compatibility:</strong> Gradual migration support

@@ -95,7 +95,10 @@ export class SafeguardIntegration {
 	private initialize(): void {
 		if (this.isInitialized) return;
 
-		logger.info('[Safeguard Integration] Initializing comprehensive safeguard system...', "Logger info");
+		logger.info(
+			'[Safeguard Integration] Initializing comprehensive safeguard system...',
+			'Logger info'
+		);
 
 		// Initialize error monitoring
 		if (this.config.enableErrorMonitoring) {
@@ -121,14 +124,14 @@ export class SafeguardIntegration {
 		this.startHealthChecks();
 
 		this.isInitialized = true;
-		logger.info('[Safeguard Integration] Safeguard system initialized successfully', "Logger info");
+		logger.info('[Safeguard Integration] Safeguard system initialized successfully', 'Logger info');
 	}
 
 	/**
 	 * Setup error monitoring
 	 */
 	private setupErrorMonitoring(): void {
-		logger.info('[Safeguard Integration] Setting up error monitoring...', "Logger info");
+		logger.info('[Safeguard Integration] Setting up error monitoring...', 'Logger info');
 
 		// Add custom alert rules for critical flows
 		this.config.criticalFlows.forEach((flowName) => {
@@ -150,12 +153,15 @@ export class SafeguardIntegration {
 	 * Setup regression testing
 	 */
 	private setupRegressionTesting(): void {
-		logger.info('[Safeguard Integration] Setting up regression testing...', "Logger info");
+		logger.info('[Safeguard Integration] Setting up regression testing...', 'Logger info');
 
 		// Add custom test configurations for critical flows
 		this.config.criticalFlows.forEach((flowName) => {
 			// This would add specific test configurations for each critical flow
-			logger.info(`[Safeguard Integration] Added regression testing for ${flowName}`, "Logger info");
+			logger.info(
+				`[Safeguard Integration] Added regression testing for ${flowName}`,
+				'Logger info'
+			);
 		});
 	}
 
@@ -163,7 +169,7 @@ export class SafeguardIntegration {
 	 * Setup pre-commit checks
 	 */
 	private setupPreCommitChecks(): void {
-		logger.info('[Safeguard Integration] Setting up pre-commit checks...', "Logger info");
+		logger.info('[Safeguard Integration] Setting up pre-commit checks...', 'Logger info');
 
 		// Configure pre-commit safeguards
 		// This would integrate with git hooks in a real implementation
@@ -173,11 +179,11 @@ export class SafeguardIntegration {
 	 * Setup flow validation
 	 */
 	private setupFlowValidation(): void {
-		logger.info('[Safeguard Integration] Setting up flow validation...', "Logger info");
+		logger.info('[Safeguard Integration] Setting up flow validation...', 'Logger info');
 
 		// Add validation rules for critical flows
 		this.config.criticalFlows.forEach((flowName) => {
-			logger.info(`[Safeguard Integration] Added flow validation for ${flowName}`, "Logger info");
+			logger.info(`[Safeguard Integration] Added flow validation for ${flowName}`, 'Logger info');
 		});
 	}
 
@@ -201,7 +207,7 @@ export class SafeguardIntegration {
 	 * Run comprehensive health check
 	 */
 	async runHealthCheck(): Promise<SafeguardStatus> {
-		logger.info('[Safeguard Integration] Running comprehensive health check...', "Logger info");
+		logger.info('[Safeguard Integration] Running comprehensive health check...', 'Logger info');
 
 		const startTime = Date.now();
 		const components = {
@@ -322,13 +328,13 @@ export class SafeguardIntegration {
 	private checkAlerts(status: SafeguardStatus): void {
 		// Critical status alert
 		if (status.overall === 'critical') {
-			logger.error('[CRITICAL ALERT] Safeguard system detected critical issues!', "Logger error");
+			logger.error('[CRITICAL ALERT] Safeguard system detected critical issues!', 'Logger error');
 			this.triggerCriticalAlert(status);
 		}
 
 		// High error rate alert
 		if (status.metrics.criticalErrors > 0) {
-			logger.warn('[WARNING ALERT] Critical errors detected in safeguard system', "Logger warning");
+			logger.warn('[WARNING ALERT] Critical errors detected in safeguard system', 'Logger warning');
 		}
 
 		// Low success rate alert
@@ -336,7 +342,10 @@ export class SafeguardIntegration {
 			status.metrics.totalTests > 0 ? status.metrics.passedTests / status.metrics.totalTests : 1;
 
 		if (successRate < this.config.alertThresholds.successRate) {
-			logger.warn('[WARNING ALERT] Low success rate detected in safeguard system', "Logger warning");
+			logger.warn(
+				'[WARNING ALERT] Low success rate detected in safeguard system',
+				'Logger warning'
+			);
 		}
 	}
 
@@ -409,7 +418,7 @@ export class SafeguardIntegration {
 		};
 		summary: SafeguardStatus;
 	}> {
-		logger.info('[Safeguard Integration] Running comprehensive safeguard check...', "Logger info");
+		logger.info('[Safeguard Integration] Running comprehensive safeguard check...', 'Logger info');
 
 		const results = {
 			regressionTesting: null,
@@ -443,7 +452,10 @@ export class SafeguardIntegration {
 
 		const passed = summary.overall === 'healthy';
 
-		logger.info(`[Safeguard Integration] Comprehensive check ${passed ? 'PASSED' : 'FAILED'}`, "Logger info");
+		logger.info(
+			`[Safeguard Integration] Comprehensive check ${passed ? 'PASSED' : 'FAILED'}`,
+			'Logger info'
+		);
 
 		return {
 			passed,
@@ -479,7 +491,7 @@ export class SafeguardIntegration {
 		errorMonitoring.clearErrorHistory();
 		flowTestSuite.clearResults();
 		this.lastStatus = null;
-		logger.info('[Safeguard Integration] All safeguard data cleared', "Logger info");
+		logger.info('[Safeguard Integration] All safeguard data cleared', 'Logger info');
 	}
 }
 

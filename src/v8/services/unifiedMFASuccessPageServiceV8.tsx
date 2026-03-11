@@ -16,7 +16,6 @@
  * - FIDO policy information (if applicable)
  */
 
-import { FiCheck, FiInfo } from '../../icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -27,6 +26,7 @@ import {
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { showGlobalInfo } from '../../contexts/NotificationSystem';
+import { FiCheck, FiInfo } from '../../icons';
 import { logger } from '../../utils/logger';
 import type { DeviceType } from '../flows/shared/MFATypes';
 export interface UnifiedMFASuccessPageData {

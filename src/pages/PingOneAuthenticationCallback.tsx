@@ -109,7 +109,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
 	// Token exchange function for authorization code flow
 	const exchangeCodeForTokens = async (code: string, _flowContext: unknown) => {
-		logger.info('[PingOneAuthenticationCallback] Starting token exchange...', "Logger info");
+		logger.info('[PingOneAuthenticationCallback] Starting token exchange...', 'Logger info');
 
 		// Get the stored PKCE code verifier from bulletproof storage
 		const flowKeyRedirect = 'pingone-authentication-redirect';
@@ -441,7 +441,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 				});
 
 				try {
-					logger.info('[PingOneAuthenticationCallback] Starting token exchange...', "Logger info");
+					logger.info('[PingOneAuthenticationCallback] Starting token exchange...', 'Logger info');
 					const tokenResponse = await exchangeCodeForTokens(mergedTokens.code, flowContext);
 					logger.info('[PingOneAuthenticationCallback] Token exchange successful:', {
 						hasAccessToken: !!tokenResponse.access_token,
@@ -592,7 +592,10 @@ const PingOneAuthenticationCallback: React.FC = () => {
 			});
 
 			if (popupDetected) {
-				logger.info('[PingOneAuthenticationCallback] Detected popup - sending message to opener', "Logger info");
+				logger.info(
+					'[PingOneAuthenticationCallback] Detected popup - sending message to opener',
+					'Logger info'
+				);
 				try {
 					if (window.opener && window.opener !== window) {
 						logger.info('[PingOneAuthenticationCallback] Sending message to opener:', {
@@ -609,9 +612,9 @@ const PingOneAuthenticationCallback: React.FC = () => {
 							window.location.origin
 						);
 
-						logger.info('[PingOneAuthenticationCallback] Message sent successfully', "Logger info");
+						logger.info('[PingOneAuthenticationCallback] Message sent successfully', 'Logger info');
 					} else {
-						logger.info('[PingOneAuthenticationCallback] No valid opener found', "Logger info");
+						logger.info('[PingOneAuthenticationCallback] No valid opener found', 'Logger info');
 					}
 				} catch (error) {
 					logger.warn(
@@ -621,7 +624,7 @@ const PingOneAuthenticationCallback: React.FC = () => {
 					);
 				}
 				setIsProcessing(false);
-				logger.info('[PingOneAuthenticationCallback] Closing popup window', "Logger info");
+				logger.info('[PingOneAuthenticationCallback] Closing popup window', 'Logger info');
 
 				// Add a small delay before closing to ensure message is sent
 				setTimeout(() => {
@@ -633,14 +636,16 @@ const PingOneAuthenticationCallback: React.FC = () => {
 			// Fallback: If we're not in a popup but have tokens, try to detect if we should be in a popup
 			if (Object.keys(tokens).length > 0 && !popupDetected) {
 				logger.info(
-					'[PingOneAuthenticationCallback] Not in popup but have tokens - checking if we should be'
-				, "Logger info");
+					'[PingOneAuthenticationCallback] Not in popup but have tokens - checking if we should be',
+					'Logger info'
+				);
 
 				// Check if there's a parent window that might be expecting this
 				if (window.parent && window.parent !== window) {
 					logger.info(
-						'[PingOneAuthenticationCallback] Found parent window - trying to communicate'
-					, "Logger info");
+						'[PingOneAuthenticationCallback] Found parent window - trying to communicate',
+						'Logger info'
+					);
 					try {
 						window.parent.postMessage(
 							{
@@ -649,7 +654,10 @@ const PingOneAuthenticationCallback: React.FC = () => {
 							},
 							window.location.origin
 						);
-						logger.info('[PingOneAuthenticationCallback] Message sent to parent window', "Logger info");
+						logger.info(
+							'[PingOneAuthenticationCallback] Message sent to parent window',
+							'Logger info'
+						);
 					} catch (error) {
 						logger.warn(
 							'PingOneAuthenticationCallback',

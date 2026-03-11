@@ -13,8 +13,8 @@
  * />
  */
 
-import { FiAlertTriangle, FiChevronDown } from '../../../../../icons';
 import React, { useState } from 'react';
+import { FiAlertTriangle, FiChevronDown } from '../../../../../icons';
 
 import { logger } from '../../../../../utils/logger';
 
