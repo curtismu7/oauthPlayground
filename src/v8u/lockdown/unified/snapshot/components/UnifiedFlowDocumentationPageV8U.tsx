@@ -130,7 +130,6 @@ export const convertTrackedCallsToDocumentation = (
 const getApiDocsUrlForFlow = (flowType: FlowType): string => {
 	const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 
-
 	let url: string;
 	switch (flowType) {
 		case 'oauth-authz':
@@ -151,7 +150,6 @@ const getApiDocsUrlForFlow = (flowType: FlowType): string => {
 		default:
 			url = baseUrl;
 	}
-
 
 	return url;
 };
@@ -243,7 +241,6 @@ export const generateUnifiedFlowMarkdown = (
 	const specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, flowType);
 	const versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
 
-
 	// Add primary specification with section anchor if available
 	if (flowSpecs.relatedSpecs && flowSpecs.relatedSpecs.length > 0) {
 		flowSpecs.relatedSpecs.forEach((spec) => {
@@ -264,7 +261,6 @@ export const generateUnifiedFlowMarkdown = (
 
 	// Add PingOne API documentation with flow-specific anchor
 	const apiDocsUrl = getApiDocsUrlForFlow(flowType);
-
 
 	md += `- [PingOne API Documentation - ${flowTypeLabels[flowType]} Flow](${apiDocsUrl})\n`;
 

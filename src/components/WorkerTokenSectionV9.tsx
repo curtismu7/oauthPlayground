@@ -13,9 +13,9 @@
  * - WorkerTokenStatusDisplayV8 → inline status block (no V9 component exists)
  */
 
-import { FiAlertCircle, FiCheckCircle, FiRefreshCw } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiAlertCircle, FiCheckCircle, FiRefreshCw } from '../icons';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import {
 	V9checkWorkerTokenStatus,
@@ -166,7 +166,6 @@ export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
 	onTokenUpdated,
 	compact = false,
 	// showSettings kept for interface compatibility — V9 section has no settings UI
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	showSettings: _showSettings = true,
 }) => {
 	const [showModal, setShowModal] = useState(false);

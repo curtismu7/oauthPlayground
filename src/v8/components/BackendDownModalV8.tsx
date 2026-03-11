@@ -25,7 +25,11 @@ export const BackendDownModalV8: React.FC = () => {
 	}, []);
 
 	const handleRetry = () => {
-		logger.info('[BACKEND-MODAL] User clicked retry - resetting connectivity state', 'User clicked retry', {});
+		logger.info(
+			'[BACKEND-MODAL] User clicked retry - resetting connectivity state',
+			'User clicked retry',
+			{}
+		);
 		backendConnectivityService.reset();
 		setIsVisible(false);
 		// Reload the page to retry API calls

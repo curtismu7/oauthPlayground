@@ -199,13 +199,11 @@ export async function pingOneFetch(
 	while (attempt < maxAttempts) {
 		attempt += 1;
 
-
 		try {
 			const response = await fetch(input, {
 				...init,
 				headers,
 			});
-
 
 			if (!retryStatuses.has(response.status) || attempt === maxAttempts) {
 				await logBackendPingOneCalls(response);

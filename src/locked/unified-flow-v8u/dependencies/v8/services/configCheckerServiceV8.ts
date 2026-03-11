@@ -21,6 +21,7 @@
  */
 
 import { logger } from '../../../../../utils/logger';
+
 const MODULE_TAG = '[🔍 CONFIG-CHECKER-V8]';
 
 // ============================================================================
@@ -234,7 +235,7 @@ export class ConfigCheckerServiceV8 {
 		},
 		pingOneConfig: PingOneApplication
 	): ConfigComparison {
-		logger.info(`${MODULE_TAG} Comparing configurations`, "Logger info");
+		logger.info(`${MODULE_TAG} Comparing configurations`, 'Logger info');
 
 		const comparison: ConfigComparison = {
 			clientId: { match: userConfig.clientId === pingOneConfig.id },
@@ -405,7 +406,7 @@ export class ConfigCheckerServiceV8 {
 			});
 		}
 
-		logger.info(`${MODULE_TAG} Generated ${suggestions.length} fix suggestions`, "Logger info");
+		logger.info(`${MODULE_TAG} Generated ${suggestions.length} fix suggestions`, 'Logger info');
 
 		return suggestions;
 	}

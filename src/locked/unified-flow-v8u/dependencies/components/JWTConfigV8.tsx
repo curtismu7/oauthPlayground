@@ -2,9 +2,9 @@
 // V8 JWT Configuration Component - Clean UI matching V8 style
 // Supports both Client Secret JWT and Private Key JWT configuration and generation
 
-import { FiCode } from '../../../../icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { FiCode } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import {
 	type ClientSecretJWTConfig,

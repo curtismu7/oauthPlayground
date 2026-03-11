@@ -1,10 +1,10 @@
 // src/components/SmartSpeakerDeviceFlow.tsx
 // Smart Speaker Style Device Authorization Flow Interface
 
-import { FiMic, FiVolume2 } from '../../../../icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
+import { FiMic, FiVolume2 } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';

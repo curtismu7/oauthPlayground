@@ -1,6 +1,6 @@
-import { FiCheckCircle } from '../icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiCheckCircle } from '../icons';
 import { Card, CardBody, CardHeader } from './Card';
 import TutorialStep from './TutorialStep';
 

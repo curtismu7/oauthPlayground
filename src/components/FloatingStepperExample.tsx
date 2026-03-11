@@ -84,7 +84,7 @@ const FloatingStepperExample: React.FC = () => {
 	};
 
 	const handleComplete = () => {
-		logger.info('Flow completed!', "Logger info");
+		logger.info('Flow completed!', 'Logger info');
 		// Handle completion logic
 	};
 

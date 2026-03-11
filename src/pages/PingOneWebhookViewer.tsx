@@ -3,15 +3,15 @@ import { FlowHeader } from '../services/flowHeaderService';
 // src/pages/PingOneWebhookViewer.tsx
 // PingOne Webhook Viewer - Real-time webhook event monitoring and subscription management
 
-import { FiAlertCircle, FiGlobe } from '../icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ApiCallList from '../components/ApiCallList';
 import { RegionSelect } from '../components/RegionSelect';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
-import { REGION_TO_TLD } from '../services/regionService';
+import { FiAlertCircle, FiGlobe } from '../icons';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
+import { REGION_TO_TLD } from '../services/regionService';
 import { logger } from '../utils/logger';
 import { secureLog } from '../utils/secureLogging';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
@@ -1396,67 +1396,79 @@ const PingOneWebhookViewer: React.FC = () => {
 				return;
 			}
 
-			// biome-ignore lint/suspicious/noAlert: confirmation dialog before destructive action
-			// eslint-disable-next-line no-alert
-			if (!confirm('Are you sure you want to delete this webhook subscription?')) {
-				return;
-			}
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Delete webhook subscription',
+				message: 'Are you sure you want to delete this webhook subscription?',
+				actions: [
+					{ label: 'Cancel', action: () => modernMessaging.hideBanner() },
+					{
+						label: 'Delete',
+						action: async () => {
+							modernMessaging.hideBanner();
+							try {
+								setIsLoadingSubscriptions(true);
+								let callId: string | null = null;
 
-			try {
-				setIsLoadingSubscriptions(true);
-				let callId: string | null = null;
+								const url = `/api/pingone/subscriptions/${subscriptionId}?environmentId=${encodeURIComponent(environmentId)}&workerToken=${encodeURIComponent(effectiveWorkerToken)}&region=${selectedRegion}`;
 
-				const url = `/api/pingone/subscriptions/${subscriptionId}?environmentId=${encodeURIComponent(environmentId)}&workerToken=${encodeURIComponent(effectiveWorkerToken)}&region=${selectedRegion}`;
+								callId = apiCallTrackerService.trackApiCall({
+									method: 'DELETE',
+									url,
+									headers: {
+										Authorization: 'Bearer ***',
+									},
+								});
 
-				callId = apiCallTrackerService.trackApiCall({
-					method: 'DELETE',
-					url,
-					headers: {
-						Authorization: 'Bearer ***',
+								const response = await fetch(url, {
+									method: 'DELETE',
+								});
+
+								const responseData =
+									response.status === 204 ? {} : await response.json().catch(() => ({}));
+
+								if (callId) {
+									apiCallTrackerService.updateApiCallResponse(callId, {
+										status: response.status,
+										statusText: response.statusText,
+										headers: Object.fromEntries(response.headers.entries()),
+										data: responseData,
+									});
+								}
+
+								if (!response.ok) {
+									throw new Error(`Failed to delete subscription (${response.status})`);
+								}
+
+								modernMessaging.showFooterMessage({
+									type: 'status',
+									message: 'Webhook subscription deleted successfully',
+									duration: 4000,
+								});
+								await fetchSubscriptions();
+							} catch (error) {
+								logger.error(
+									'PingOneWebhookViewer',
+									'[Webhook Viewer] Error deleting subscription:',
+									undefined,
+									error as Error
+								);
+								modernMessaging.showBanner({
+									type: 'error',
+									title: 'Error',
+									message:
+										error instanceof Error
+											? error.message
+											: 'Failed to delete webhook subscription',
+									dismissible: true,
+								});
+							} finally {
+								setIsLoadingSubscriptions(false);
+							}
+						},
 					},
-				});
-
-				const response = await fetch(url, {
-					method: 'DELETE',
-				});
-
-				const responseData = response.status === 204 ? {} : await response.json().catch(() => ({}));
-
-				if (callId) {
-					apiCallTrackerService.updateApiCallResponse(callId, {
-						status: response.status,
-						statusText: response.statusText,
-						headers: Object.fromEntries(response.headers.entries()),
-						data: responseData,
-					});
-				}
-
-				if (!response.ok) {
-					throw new Error(`Failed to delete subscription (${response.status})`);
-				}
-
-				modernMessaging.showFooterMessage({
-					type: 'status',
-					message: 'Webhook subscription deleted successfully',
-					duration: 4000,
-				});
-				await fetchSubscriptions();
-			} catch (error) {
-				logger.error(
-					'PingOneWebhookViewer',
-					'[Webhook Viewer] Error deleting subscription:',
-					undefined,
-					error as Error
-				);
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: error instanceof Error ? error.message : 'Failed to delete webhook subscription',
-					dismissible: true,
-				});
-			} finally {
-				setIsLoadingSubscriptions(false);
-			}
+				],
+			});
 		},
 		[environmentId, fetchSubscriptions, selectedRegion]
 	);
@@ -1690,19 +1702,46 @@ const PingOneWebhookViewer: React.FC = () => {
 						<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: '#1e40af' }}>
 							📡 Getting webhooks on localhost (Mac)
 						</h3>
-						<p style={{ margin: '0 0 0.75rem 0', fontSize: '0.875rem', color: '#1e3a8a', lineHeight: 1.5 }}>
+						<p
+							style={{
+								margin: '0 0 0.75rem 0',
+								fontSize: '0.875rem',
+								color: '#1e3a8a',
+								lineHeight: 1.5,
+							}}
+						>
 							PingOne sends webhooks to a public URL. When running on localhost, use a tunnel app to
-							expose your dev server. Install <strong>ngrok</strong> or <strong>Cloudflare Tunnel</strong>{' '}
-							on Mac:
+							expose your dev server. Install <strong>ngrok</strong> or{' '}
+							<strong>Cloudflare Tunnel</strong> on Mac:
 						</p>
-						<ul style={{ margin: '0 0 0.75rem 0', paddingLeft: '1.25rem', fontSize: '0.875rem', color: '#1e3a8a', lineHeight: 1.8 }}>
+						<ul
+							style={{
+								margin: '0 0 0.75rem 0',
+								paddingLeft: '1.25rem',
+								fontSize: '0.875rem',
+								color: '#1e3a8a',
+								lineHeight: 1.8,
+							}}
+						>
 							<li>
-								<strong>ngrok:</strong> <code style={{ background: '#e0e7ff', padding: '0.1rem 0.3rem', borderRadius: 4 }}>brew install ngrok</code> then{' '}
-								<code style={{ background: '#e0e7ff', padding: '0.1rem 0.3rem', borderRadius: 4 }}>ngrok http 3000</code>
+								<strong>ngrok:</strong>{' '}
+								<code style={{ background: '#e0e7ff', padding: '0.1rem 0.3rem', borderRadius: 4 }}>
+									brew install ngrok
+								</code>{' '}
+								then{' '}
+								<code style={{ background: '#e0e7ff', padding: '0.1rem 0.3rem', borderRadius: 4 }}>
+									ngrok http 3000
+								</code>
 							</li>
 							<li>
-								<strong>Cloudflare:</strong> <code style={{ background: '#e0e7ff', padding: '0.1rem 0.3rem', borderRadius: 4 }}>brew install cloudflared</code> then{' '}
-								<code style={{ background: '#e0e7ff', padding: '0.1rem 0.3rem', borderRadius: 4 }}>cloudflared tunnel --url http://localhost:3000</code>
+								<strong>Cloudflare:</strong>{' '}
+								<code style={{ background: '#e0e7ff', padding: '0.1rem 0.3rem', borderRadius: 4 }}>
+									brew install cloudflared
+								</code>{' '}
+								then{' '}
+								<code style={{ background: '#e0e7ff', padding: '0.1rem 0.3rem', borderRadius: 4 }}>
+									cloudflared tunnel --url http://localhost:3000
+								</code>
 							</li>
 						</ul>
 						<p style={{ margin: 0, fontSize: '0.8rem', color: '#3b82f6' }}>

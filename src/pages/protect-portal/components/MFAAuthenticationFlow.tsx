@@ -9,10 +9,10 @@
  * including device selection and authentication methods.
  */
 
-import { FiAlertTriangle, FiCheckCircle, FiLoader } from '../../../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { showGlobalInfo } from '../../../contexts/NotificationSystem';
+import { FiAlertTriangle, FiCheckCircle, FiLoader } from '../../../icons';
 import { logger } from '../../../utils/logger';
 import MFAAuthenticationService from '../services/mfaAuthenticationService';
 import type {
@@ -504,10 +504,6 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 	}, [selectedDevice, userContext, mfaCredentials, onError]);
 
 	const handleStartRegistration = useCallback(() => {
-		// Redirect to MFA registration or show registration modal
-		// For now, we'll show an alert with instructions
-		// biome-ignore lint/suspicious/noAlert: instructional MFA alert for demo portal
-		// eslint-disable-next-line no-alert
 		showGlobalInfo(
 			'MFA Registration: Please visit the MFA registration page to set up your authentication devices.'
 		);

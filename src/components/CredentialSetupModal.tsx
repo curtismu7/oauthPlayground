@@ -1,6 +1,6 @@
-import { FiLoader } from '../icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiLoader } from '../icons';
 import {
 	type AuthzCredentials,
 	exportAuthzCredentials,

@@ -65,7 +65,7 @@ export class UnifiedStorageServiceTests {
 	 * Run all tests
 	 */
 	async runAllTests(): Promise<void> {
-		logger.info('🧪 Starting Unified Storage Service Tests...', "Logger info");
+		logger.info('🧪 Starting Unified Storage Service Tests...', 'Logger info');
 		logger.info('='.repeat(60));
 
 		const startTime = Date.now();
@@ -109,21 +109,21 @@ export class UnifiedStorageServiceTests {
 		try {
 			// Test store token
 			await unifiedTokenStorage.storeToken(mockToken);
-			logger.info('✅ Token stored successfully', "Logger info");
+			logger.info('✅ Token stored successfully', 'Logger info');
 
 			// Test get token
 			const retrieved = await unifiedTokenStorage.getToken(mockToken.id);
 			if (!retrieved || retrieved.value !== mockToken.value) {
 				throw new Error('Token retrieval failed - value mismatch');
 			}
-			logger.info('✅ Token retrieved successfully', "Logger info");
+			logger.info('✅ Token retrieved successfully', 'Logger info');
 
 			// Test get tokens
 			const tokens = await unifiedTokenStorage.getTokens({ type: 'access_token' });
 			if (!tokens || tokens.length === 0) {
 				throw new Error('Token query failed - no tokens found');
 			}
-			logger.info('✅ Token query successful', "Logger info");
+			logger.info('✅ Token query successful', 'Logger info');
 
 			// Test delete token
 			await unifiedTokenStorage.deleteToken(mockToken.id);
@@ -131,7 +131,7 @@ export class UnifiedStorageServiceTests {
 			if (deleted) {
 				throw new Error('Token deletion failed - token still exists');
 			}
-			logger.info('✅ Token deleted successfully', "Logger info");
+			logger.info('✅ Token deleted successfully', 'Logger info');
 
 			this.results[testName] = { passed: true, duration: Date.now() - startTime };
 		} catch (error) {
@@ -188,7 +188,7 @@ export class UnifiedStorageServiceTests {
 				await unifiedTokenStorage.deleteToken(token.id);
 			}
 
-			logger.info('✅ Token query and filtering tests passed', "Logger info");
+			logger.info('✅ Token query and filtering tests passed', 'Logger info');
 			this.results[testName] = { passed: true, duration: Date.now() - startTime };
 		} catch (error) {
 			this.results[testName] = {
@@ -238,7 +238,7 @@ export class UnifiedStorageServiceTests {
 			// Cleanup
 			await unifiedTokenStorage.deleteToken(expiredToken.id);
 
-			logger.info('✅ Token expiration tests passed', "Logger info");
+			logger.info('✅ Token expiration tests passed', 'Logger info');
 			this.results[testName] = { passed: true, duration: Date.now() - startTime };
 		} catch (error) {
 			this.results[testName] = {
@@ -272,7 +272,7 @@ export class UnifiedStorageServiceTests {
 				// Expected to handle gracefully
 			}
 
-			logger.info('✅ Error handling tests passed', "Logger info");
+			logger.info('✅ Error handling tests passed', 'Logger info');
 			this.results[testName] = { passed: true, duration: Date.now() - startTime };
 		} catch (error) {
 			this.results[testName] = {
@@ -325,7 +325,7 @@ export class UnifiedStorageServiceTests {
 				throw new Error('Flow storage data removal failed');
 			}
 
-			logger.info('✅ FlowStorageService compatibility tests passed', "Logger info");
+			logger.info('✅ FlowStorageService compatibility tests passed', 'Logger info');
 			this.results[testName] = { passed: true, duration: Date.now() - startTime };
 		} catch (error) {
 			this.results[testName] = {
@@ -367,7 +367,7 @@ export class UnifiedStorageServiceTests {
 			// Cleanup
 			await unifiedTokenStorage.removeFlowStorageData('session', 'test-flow', 'migration-test');
 
-			logger.info('✅ FlowStorageService migration tests passed', "Logger info");
+			logger.info('✅ FlowStorageService migration tests passed', 'Logger info');
 			this.results[testName] = { passed: true, duration: Date.now() - startTime };
 		} catch (error) {
 			this.results[testName] = {
@@ -415,7 +415,7 @@ export class UnifiedStorageServiceTests {
 			await unifiedTokenStorage.clearFlowCredentials('test-flow');
 			await unifiedTokenStorage.clearPKCECodes('test-flow');
 
-			logger.info('✅ CredentialStorageManager compatibility tests passed', "Logger info");
+			logger.info('✅ CredentialStorageManager compatibility tests passed', 'Logger info');
 			this.results[testName] = { passed: true, duration: Date.now() - startTime };
 		} catch (error) {
 			this.results[testName] = {
@@ -460,7 +460,7 @@ export class UnifiedStorageServiceTests {
 			await unifiedTokenStorage.clearFlowCredentials('migration-test');
 			await unifiedTokenStorage.clearPKCECodes('migration-test');
 
-			logger.info('✅ CredentialStorageManager migration tests passed', "Logger info");
+			logger.info('✅ CredentialStorageManager migration tests passed', 'Logger info');
 			this.results[testName] = { passed: true, duration: Date.now() - startTime };
 		} catch (error) {
 			this.results[testName] = {
@@ -511,7 +511,7 @@ export class UnifiedStorageServiceTests {
 			await unifiedTokenStorage.deleteToken(mockToken.id);
 			await unifiedTokenStorage.clearFlowCredentials('export-test');
 
-			logger.info('✅ Import/Export tests passed', "Logger info");
+			logger.info('✅ Import/Export tests passed', 'Logger info');
 			this.results[testName] = { passed: true, duration: Date.now() - startTime };
 		} catch (error) {
 			this.results[testName] = {
@@ -574,7 +574,7 @@ export class UnifiedStorageServiceTests {
 			await unifiedTokenStorage.clearPKCECodes('auto-test');
 			await unifiedTokenStorage.removeFlowStorageData('session', 'auto-test', 'auth-code');
 
-			logger.info('✅ Automatic migration tests passed', "Logger info");
+			logger.info('✅ Automatic migration tests passed', 'Logger info');
 			this.results[testName] = { passed: true, duration: Date.now() - startTime };
 		} catch (error) {
 			this.results[testName] = {
@@ -653,7 +653,7 @@ export class UnifiedStorageServiceTests {
 	 */
 	private printResults(totalTime: number): void {
 		logger.info('='.repeat(60));
-		logger.info('🧪 Unified Storage Service Test Results', "Logger info");
+		logger.info('🧪 Unified Storage Service Test Results', 'Logger info');
 		logger.info('='.repeat(60));
 
 		const passed = Object.values(this.results).filter((r) => r.passed).length;
@@ -661,10 +661,10 @@ export class UnifiedStorageServiceTests {
 		const failed = total - passed;
 
 		logger.info(`\n📊 Summary: ${passed}/${total} tests passed (${failed} failed)`);
-		logger.info(`⏱️  Total time: ${totalTime}ms`, "Logger info");
+		logger.info(`⏱️  Total time: ${totalTime}ms`, 'Logger info');
 
 		if (failed > 0) {
-			logger.info('\n❌ Failed Tests:', "Logger info");
+			logger.info('\n❌ Failed Tests:', 'Logger info');
 			Object.entries(this.results).forEach(([name, result]) => {
 				if (!result.passed) {
 					logger.info(`  - ${name}: ${result.error} (${result.duration}ms)`);
@@ -672,7 +672,7 @@ export class UnifiedStorageServiceTests {
 			});
 		}
 
-		logger.info('\n✅ Passed Tests:', "Logger info");
+		logger.info('\n✅ Passed Tests:', 'Logger info');
 		Object.entries(this.results).forEach(([name, result]) => {
 			if (result.passed) {
 				logger.info(`  - ${name} (${result.duration}ms)`);
@@ -680,7 +680,10 @@ export class UnifiedStorageServiceTests {
 		});
 
 		logger.info(`\n${'='.repeat(60)}`);
-		logger.info(`🎯 Overall Result: ${failed === 0 ? 'SUCCESS' : 'PARTIAL SUCCESS'}`, "Logger info");
+		logger.info(
+			`🎯 Overall Result: ${failed === 0 ? 'SUCCESS' : 'PARTIAL SUCCESS'}`,
+			'Logger info'
+		);
 		logger.info('='.repeat(60));
 	}
 }

@@ -243,15 +243,19 @@ export const PingOneApiCallDisplay: React.FC<PingOneApiCallProps> = ({
 					<p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.875rem' }}>
 						{description}
 					</p>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+					<div
+						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}
+					>
 						<strong style={{ fontSize: '0.875rem', color: '#374151' }}>Endpoint:</strong>
-						<code style={{ 
-							background: '#f3f4f6', 
-							padding: '0.25rem 0.5rem', 
-							borderRadius: '4px', 
-							fontSize: '0.875rem',
-							color: '#1f2937'
-						}}>
+						<code
+							style={{
+								background: '#f3f4f6',
+								padding: '0.25rem 0.5rem',
+								borderRadius: '4px',
+								fontSize: '0.875rem',
+								color: '#1f2937',
+							}}
+						>
 							{url}
 						</code>
 					</div>
@@ -260,7 +264,7 @@ export const PingOneApiCallDisplay: React.FC<PingOneApiCallProps> = ({
 				{/* Request Section */}
 				<Section>
 					<SectionTitle>📤 Request</SectionTitle>
-					
+
 					{Object.keys(headers).length > 0 && (
 						<div style={{ marginBottom: '1rem' }}>
 							<SectionTitle>Headers</SectionTitle>
@@ -290,8 +294,10 @@ export const PingOneApiCallDisplay: React.FC<PingOneApiCallProps> = ({
 				{/* Response Section */}
 				<Section>
 					<SectionTitle>📥 Response</SectionTitle>
-					
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+
+					<div
+						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}
+					>
 						<StatusBadge $status={responseStatus}>{responseStatus}</StatusBadge>
 						<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
 							{getStatusText(responseStatus)}
@@ -320,14 +326,16 @@ export const PingOneApiCallDisplay: React.FC<PingOneApiCallProps> = ({
 							<strong>📚 Educational Notes:</strong>
 							<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
 								{educationalNotes.map((note, index) => (
-									<li key={index} style={{ marginBottom: '0.25rem' }}>{note}</li>
+									<li key={index} style={{ marginBottom: '0.25rem' }}>
+										{note}
+									</li>
 								))}
 							</ul>
 							{learnMoreUrl && (
 								<div style={{ marginTop: '0.5rem' }}>
-									<a 
-										href={learnMoreUrl} 
-										target="_blank" 
+									<a
+										href={learnMoreUrl}
+										target="_blank"
 										rel="noopener noreferrer"
 										style={{ color: '#1e40af', textDecoration: 'underline' }}
 									>
@@ -353,7 +361,8 @@ export const PingOneApiExamples = {
 		method: 'GET' as const,
 		url: 'https://auth.pingone.com/{environmentId}/as/authorization',
 		title: 'OAuth Authorization Endpoint',
-		description: 'Initiates the OAuth 2.0 Authorization Code flow. The user is redirected to PingOne\'s login page.',
+		description:
+			"Initiates the OAuth 2.0 Authorization Code flow. The user is redirected to PingOne's login page.",
 		queryParams: {
 			response_type: 'code',
 			client_id: 'your-client-id',
@@ -371,7 +380,7 @@ export const PingOneApiExamples = {
 			'The <ParameterHighlight>response_type=code</ParameterHighlight> parameter specifies Authorization Code flow',
 			'The <ParameterHighlight>code_challenge</ParameterHighlight> and <ParameterHighlight>code_challenge_method=S256</ParameterHighlight> enable PKCE security',
 			'The <ParameterHighlight>state</ParameterHighlight> parameter prevents CSRF attacks',
-			'The 302 response redirects the user\'s browser to PingOne\'s login page',
+			"The 302 response redirects the user's browser to PingOne's login page",
 		],
 		learnMoreUrl: 'https://apidocs.pingidentity.com/pingone/platform/v1/api/#post-authorization',
 	},
@@ -383,7 +392,7 @@ export const PingOneApiExamples = {
 		description: 'Exchanges the authorization code for access, ID, and refresh tokens.',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
-			'Authorization': 'Basic base64(client_id:client_secret)',
+			Authorization: 'Basic base64(client_id:client_secret)',
 		},
 		body: {
 			grant_type: 'authorization_code',
@@ -395,14 +404,15 @@ export const PingOneApiExamples = {
 		responseHeaders: {
 			'Content-Type': 'application/json',
 			'Cache-Control': 'no-store',
-			'Pragma': 'no-cache',
+			Pragma: 'no-cache',
 		},
 		responseData: {
 			access_token: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMzQ1Njc4OTAifQ.eyJzdWIiOiI1N...',
 			token_type: 'Bearer',
 			expires_in: 3600,
 			refresh_token: 'def50200e3b4b8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8',
-			id_token: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMzQ1Njc4OTAifQ.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20v...',
+			id_token:
+				'eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMzQ1Njc4OTAifQ.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20v...',
 			scope: 'openid profile email',
 		},
 		educationalNotes: [
@@ -420,7 +430,7 @@ export const PingOneApiExamples = {
 		title: 'OIDC UserInfo Endpoint',
 		description: 'Returns user profile information using the access token.',
 		headers: {
-			'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMzQ1Njc4OTAifQ.eyJzdWIiOiI1N...',
+			Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMzQ1Njc4OTAifQ.eyJzdWIiOiI1N...',
 		},
 		responseStatus: 200,
 		responseData: {
@@ -435,7 +445,7 @@ export const PingOneApiExamples = {
 		},
 		educationalNotes: [
 			'The access token is sent in the <ParameterHighlight>Authorization: Bearer</ParameterHighlight> header',
-			'The <ParameterHighlight>sub</ParameterHighlight> claim is the user\'s unique identifier',
+			"The <ParameterHighlight>sub</ParameterHighlight> claim is the user's unique identifier",
 			'The response includes user profile information based on requested scopes',
 			'Use this endpoint to get user details after authentication',
 		],
@@ -450,7 +460,7 @@ export const PingOneApiExamples = {
 		description: 'Initiates a multi-factor authentication challenge for the user.',
 		headers: {
 			'Content-Type': 'application/json',
-			'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMzQ1Njc4OTAifQ...',
+			Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMzQ1Njc4OTAifQ...',
 		},
 		body: {
 			deviceId: '12345678-1234-1234-1234-123456789012',
@@ -479,10 +489,10 @@ export const PingOneApiExamples = {
 		method: 'POST' as const,
 		url: 'https://auth.pingone.com/{environmentId}/as/mfa/verify',
 		title: 'MFA Challenge Verification',
-		description: 'Verifies the user\'s response to an MFA challenge.',
+		description: "Verifies the user's response to an MFA challenge.",
 		headers: {
 			'Content-Type': 'application/json',
-			'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMzQ1Njc4OTAifQ...',
+			Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjEyMzQ1Njc4OTAifQ...',
 		},
 		body: {
 			challengeId: 'challenge-12345',
@@ -497,7 +507,7 @@ export const PingOneApiExamples = {
 			verifiedAt: '2026-03-10T22:45:30.000Z',
 		},
 		educationalNotes: [
-			'This endpoint verifies the user\'s MFA response (OTP code, push approval, etc.)',
+			"This endpoint verifies the user's MFA response (OTP code, push approval, etc.)",
 			'The <ParameterHighlight>challengeId</ParameterHighlight> must match the initiated challenge',
 			'The <ParameterHighlight>code</ParameterHighlight> is the OTP code entered by the user',
 			'A successful verification allows the authentication flow to continue',
@@ -513,7 +523,7 @@ export const PingOneApiExamples = {
 		description: 'Creates a new OAuth/OIDC application in PingOne.',
 		headers: {
 			'Content-Type': 'application/json',
-			'Authorization': 'Bearer worker-access-token',
+			Authorization: 'Bearer worker-access-token',
 		},
 		body: {
 			name: 'My OAuth Application',
@@ -556,7 +566,7 @@ export const PingOneApiExamples = {
 		description: 'Initiates the OAuth Device Authorization flow for devices without browsers.',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
-			'Authorization': 'Basic base64(client_id:client_secret)',
+			Authorization: 'Basic base64(client_id:client_secret)',
 		},
 		body: {
 			client_id: 'your-client-id',
@@ -578,7 +588,8 @@ export const PingOneApiExamples = {
 			'The <ParameterHighlight>device_code</ParameterHighlight> is used internally to poll for token completion',
 			'The <ParameterHighlight>expires_in</ParameterHighlight> is typically 30 minutes (1800 seconds)',
 		],
-		learnMoreUrl: 'https://apidocs.pingidentity.com/pingone/platform/v1/api/#post-device-authorization',
+		learnMoreUrl:
+			'https://apidocs.pingidentity.com/pingone/platform/v1/api/#post-device-authorization',
 	},
 
 	deviceToken: {
@@ -588,7 +599,7 @@ export const PingOneApiExamples = {
 		description: 'Polls for tokens after user completes device authorization.',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
-			'Authorization': 'Basic base64(client_id:client_secret)',
+			Authorization: 'Basic base64(client_id:client_secret)',
 		},
 		body: {
 			grant_type: 'urn:ietf:params:oauth:grant-type:device_code',

@@ -11,6 +11,7 @@ import {
 	ResultsHeading,
 } from '../../../components/ResultsPanel';
 import type { StepCredentials } from '../../../components/steps/CommonSteps';
+import WorkerTokenModalV9 from '../../../components/WorkerTokenModalV9';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { useWorkerTokenFlowController } from '../../../hooks/useWorkerTokenFlowController';
 import ComprehensiveCredentialsService from '../../../services/comprehensiveCredentialsService';
@@ -19,14 +20,13 @@ import { FlowHeader } from '../../../services/flowHeaderService';
 import { OAuthErrorHandlingService } from '../../../services/oauthErrorHandlingService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import UnifiedTokenDisplayService from '../../../services/unifiedTokenDisplayService';
+import { unifiedWorkerTokenService } from '../../../services/unifiedWorkerTokenService';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import { unifiedWorkerTokenService } from '../../../services/unifiedWorkerTokenService';
 import { workerTokenDiscoveryService } from '../../../services/workerTokenDiscoveryService';
 import { logger } from '../../../utils/logger';
 import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
-import WorkerTokenModalV9 from '../../../components/WorkerTokenModalV9';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -105,9 +105,13 @@ const WorkerTokenFlowV9: React.FC = () => {
 			const current = controller.credentials.environmentId?.trim();
 			if (current) return;
 			controller.setCredentials({ ...controller.credentials, environmentId: envId });
-			V9CredentialStorageService.save('v9:worker-token', { environmentId: envId } as StepCredentials, {
-				environmentId: envId,
-			});
+			V9CredentialStorageService.save(
+				'v9:worker-token',
+				{ environmentId: envId } as StepCredentials,
+				{
+					environmentId: envId,
+				}
+			);
 		};
 
 		// Do not show credentials warning on mount: saved credentials load async and env ID is defaulted.
@@ -156,7 +160,9 @@ const WorkerTokenFlowV9: React.FC = () => {
 		<StepContainer>
 			<StepTitle>🔑 Get Worker Token</StepTitle>
 			<StyledHelperText>
-				Generate or manage your worker token for PingOne Management API access. Use the button below to open the worker token modal, then use the credentials section to configure environment and app.
+				Generate or manage your worker token for PingOne Management API access. Use the button below
+				to open the worker token modal, then use the credentials section to configure environment
+				and app.
 			</StyledHelperText>
 			<div style={{ marginBottom: '20px' }}>
 				<button
@@ -197,12 +203,18 @@ const WorkerTokenFlowV9: React.FC = () => {
 			<FlowTypeLabel>
 				<FlowTypeLabelTitle>Worker Token (Client Credentials)</FlowTypeLabelTitle>
 				<FlowTypeLabelSub>
-					Use credentials from your <strong>PingOne Management API / Worker app</strong>. In PingOne: go to Applications → your M2M or API application used for Management API access. Use <strong>App lookup</strong> below to discover apps and apply Client ID and Secret without leaving this page.
+					Use credentials from your <strong>PingOne Management API / Worker app</strong>. In
+					PingOne: go to Applications → your M2M or API application used for Management API access.
+					Use <strong>App lookup</strong> below to discover apps and apply Client ID and Secret
+					without leaving this page.
 				</FlowTypeLabelSub>
 			</FlowTypeLabel>
 
 			<StyledHelperText>
-				Environment ID is used by default from your saved worker token or last-used environment. You do not need to enter it unless you want a different one. Optionally enter an <strong>Issuer URL</strong> or <strong>provider</strong> in the discovery field below to use a different environment.
+				Environment ID is used by default from your saved worker token or last-used environment. You
+				do not need to enter it unless you want a different one. Optionally enter an{' '}
+				<strong>Issuer URL</strong> or <strong>provider</strong> in the discovery field below to use
+				a different environment.
 			</StyledHelperText>
 
 			<ComprehensiveCredentialsService

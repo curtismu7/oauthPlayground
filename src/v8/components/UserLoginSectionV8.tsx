@@ -10,10 +10,10 @@
  * previously scattered across MFAConfigurationStepV8.
  */
 
-import { FiRefreshCw } from '../../icons';
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiRefreshCw } from '../../icons';
 import { logger } from '../../utils/logger';
 import { UserLoginModalV8 } from './UserLoginModalV8';
 

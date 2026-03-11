@@ -8,8 +8,8 @@
 // lint-file-disable: token-value-in-jsx
 
 import React, { useState } from 'react';
-import { logger } from '@/utils/logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '@/utils/logger';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 interface WorkerTokenRequestModalV8Props {
@@ -349,8 +349,9 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									onClick={async () => {
 										if (generatedToken) {
 											try {
-												const { workerTokenServiceV8 } =
-													await import('@/v8/services/workerTokenServiceV8');
+												const { workerTokenServiceV8 } = await import(
+													'@/v8/services/workerTokenServiceV8'
+												);
 												await workerTokenServiceV8.saveToken(generatedToken);
 												modernMessaging.showFooterMessage({
 													type: 'info',
@@ -827,8 +828,8 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									color: '#92400e',
 								}}
 							>
-								<strong>⚠️ Security Note:</strong> Worker tokens have elevated privileges. Store
-								them securely and never expose them in client-side code.
+								<strong>⚠️ Security Note:</strong> Worker tokens have elevated privileges. Store them
+								securely and never expose them in client-side code.
 							</div>
 
 							{/* Actions */}

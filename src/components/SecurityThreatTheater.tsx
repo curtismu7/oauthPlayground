@@ -1014,9 +1014,7 @@ const SecurityThreatTheater: React.FC = () => {
 							<span>🖥️</span>
 						</ActorIcon>
 						<ActorLabel>🖥️ Server</ActorLabel>
-						<ActorStatus>
-							{activeActor === 'server' ? '⚙️ Processing...' : 'Waiting...'}
-						</ActorStatus>
+						<ActorStatus>{activeActor === 'server' ? '⚙️ Processing...' : 'Waiting...'}</ActorStatus>
 					</Actor>
 				</ActorsContainer>
 

@@ -1,7 +1,7 @@
-import { FiAlertTriangle, FiCheckCircle, FiToggleRight } from '../icons';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
+import { FiAlertTriangle, FiCheckCircle, FiToggleRight } from '../icons';
 
 const SettingsPanel = styled(Card)`
 	margin-bottom: 2rem;
