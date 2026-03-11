@@ -288,7 +288,9 @@ const V7MCIBAFlowV9 = lazy(() => import('./v7/pages/V7MCIBAFlowV9'));
 
 const AppContainer = styled.div`
 	display: flex;
+	height: 100vh;
 	min-height: 100vh;
+	overflow: hidden;
 	background-color: ${({ theme }) => theme.colors.gray100};
 	text-align: left;
 	direction: ltr;
@@ -298,21 +300,20 @@ const ContentColumn = styled.div`
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	min-height: 100vh;
+	min-height: 0; /* Allow flex child to shrink so MainContent can scroll */
 	min-width: 0;
 	text-align: left;
 	direction: ltr;
-	overflow: hidden; /* Prevent content column from scrolling */
+	overflow: hidden;
 `;
 
 const MainContent = styled.main<{ $sidebarWidth: number }>`
 	flex: 1;
+	min-height: 0; /* Allow flex child to shrink so overflow-y: auto can scroll */
 	padding: 1.5rem 2rem;
 	padding-top: calc(80px + 1.5rem); /* Account for fixed navbar (80px) + normal top padding */
-	max-width: 1400px;
-	margin: 0 auto;
-	margin-left: ${({ $sidebarWidth }) => `${$sidebarWidth}px`}; /* Account for sidebar width */
-	width: calc(100% - ${({ $sidebarWidth }) => `${$sidebarWidth}px`}); /* Adjust width for sidebar */
+	max-width: 100%; /* Use full content column width; no extra margin so area next to sidebar scrolls */
+	width: 100%;
 	background-color: ${({ theme }) => theme.colors.white};
 	text-align: left;
 	direction: ltr;
@@ -331,9 +332,7 @@ const MainContent = styled.main<{ $sidebarWidth: number }>`
 
 	@media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
 		padding: 1rem;
-		margin-left: 0;
 		margin-top: 100px;
-		width: 100%; /* Full width on mobile */
 	}
 `;
 
@@ -446,6 +445,9 @@ const AppRoutes: React.FC = () => {
 
 	// Listen for sidebar width changes from localStorage
 	useEffect(() => {
+		let lastKnownWidth = localStorage.getItem('sidebar.width');
+		let pollInterval: NodeJS.Timeout | null = null;
+		
 		const handleStorageChange = () => {
 			try {
 				const saved = localStorage.getItem('sidebar.width');
@@ -455,28 +457,65 @@ const AppRoutes: React.FC = () => {
 						Number.isFinite(parsed) &&
 						parsed >= SIDEBAR_PING_MIN_WIDTH &&
 						parsed <= SIDEBAR_PING_MAX_WIDTH
-					)
-						setSidebarWidth(parsed);
-					return;
+					) {
+						if (parsed !== sidebarWidth) {
+							logger.info('🌍 [SidebarWidth] Updating sidebar width:', `old: ${sidebarWidth}, new: ${parsed}`);
+							setSidebarWidth(parsed);
+						}
+						return;
+					}
 				}
-				if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) setSidebarWidth(parsed);
+				if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) {
+					if (parsed !== sidebarWidth) {
+						logger.info('🌍 [SidebarWidth] Updating sidebar width:', `old: ${sidebarWidth}, new: ${parsed}`);
+						setSidebarWidth(parsed);
+					}
+				}
 			} catch {}
+		};
+
+		// Start polling only when sidebar width changes (more efficient)
+		const startPolling = () => {
+			if (pollInterval) clearInterval(pollInterval);
+			pollInterval = setInterval(handleStorageChange, 100); // Faster polling during resize
+		};
+
+		// Stop polling when not resizing
+		const stopPolling = () => {
+			if (pollInterval) {
+				clearInterval(pollInterval);
+				pollInterval = null;
+			}
+		};
+
+		// Check for width changes and manage polling accordingly
+		const checkForWidthChange = () => {
+			const currentWidth = localStorage.getItem('sidebar.width');
+			if (currentWidth !== lastKnownWidth) {
+				lastKnownWidth = currentWidth;
+				handleStorageChange();
+				startPolling(); // Start fast polling during resize
+				
+				// Stop fast polling after 2 seconds of no changes
+				setTimeout(stopPolling, 2000);
+			}
 		};
 
 		// Check on mount
 		handleStorageChange();
 
-		// Listen for storage events (in case sidebar updates localStorage)
+		// Listen for storage events (in case sidebar updates localStorage from other tabs)
 		window.addEventListener('storage', handleStorageChange);
 
-		// Also poll occasionally for same-tab updates (since storage event only fires cross-tab)
-		const interval = setInterval(handleStorageChange, 500);
+		// Poll for changes with adaptive frequency
+		const adaptiveInterval = setInterval(checkForWidthChange, 200); // Check every 200ms
 
 		return () => {
 			window.removeEventListener('storage', handleStorageChange);
-			clearInterval(interval);
+			if (pollInterval) clearInterval(pollInterval);
+			clearInterval(adaptiveInterval);
 		};
-	}, []);
+	}, [sidebarWidth]); // Add sidebarWidth dependency to prevent stale closures
 
 	const [showCredentialModal, setShowCredentialModal] = useState(false);
 	const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
@@ -802,7 +841,7 @@ const AppRoutes: React.FC = () => {
 									path="/v7/oauth/authorization-code"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
-											<V7MOAuthAuthCodeV9 oidc={false} title="V7M OAuth Authorization Code" />
+											<V7MOAuthAuthCodeV9 oidc={false} title="OAuth Authorization Code" />
 										</Suspense>
 									}
 								/>
@@ -810,7 +849,7 @@ const AppRoutes: React.FC = () => {
 									path="/v7/oidc/authorization-code"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
-											<V7MOAuthAuthCodeV9 oidc={true} title="V7M OIDC Authorization Code" />
+											<V7MOAuthAuthCodeV9 oidc={true} title="OIDC Authorization Code" />
 										</Suspense>
 									}
 								/>
@@ -834,7 +873,7 @@ const AppRoutes: React.FC = () => {
 									path="/v7/oauth/implicit"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
-											<V7MImplicitFlowV9 oidc={false} title="V7M OAuth Implicit Flow" />
+											<V7MImplicitFlowV9 oidc={false} title="OAuth Implicit Flow" />
 										</Suspense>
 									}
 								/>
