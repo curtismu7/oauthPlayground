@@ -2,7 +2,7 @@
 // Provides secure server-side OAuth flow implementations
 
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { execSync } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import https from 'node:https';
@@ -31,6 +31,10 @@ const __dirname = path.dirname(__filename);
 const logsDir = path.join(__dirname, 'logs');
 const logFile = path.join(logsDir, 'server.log');
 const clientLogFile = path.join(logsDir, 'client.log');
+
+// Credential file paths — declared early so api-key routes can use them
+const GROQ_KEY_FILE  = path.join(os.homedir(), '.pingone-playground', 'credentials', 'groq-config.json');
+const BRAVE_KEY_FILE = path.join(os.homedir(), '.pingone-playground', 'credentials', 'brave-config.json');
 
 // Create logs directory if it doesn't exist
 if (!fs.existsSync(logsDir)) {
@@ -138,6 +142,8 @@ const LOG_STREAMS = [
 	{ file: 'pingone-api.log', description: 'PingOne API calls (MFA, OAuth, worker token, etc.)' },
 	{ file: 'client.log', description: 'Frontend / browser logs' },
 	{ file: 'authz-redirects.log', description: 'OAuth authz redirects and OIDC' },
+	{ file: 'mcp-server.log', description: 'PingOne MCP tool calls and AI agent requests' },
+	{ file: 'ai-assistant.log', description: 'AI Assistant chat activity (Groq + RAG + NL queries)' },
 ];
 console.log('📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):');
 LOG_STREAMS.forEach(({ file, description }) => {
@@ -164,9 +170,32 @@ function writeBootstrapLogLine(targetFile, message) {
 		if (err) originalError(`[Startup] Failed to bootstrap ${targetFile}:`, err.message);
 	});
 }
+writeBootstrapLogLine('server.log', 'Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).');
 writeBootstrapLogLine('pingone-api.log', 'Log stream started; PingOne API calls will appear here (format: [timestamp] [localTime]).');
 writeBootstrapLogLine('client.log', 'Log stream started; frontend logs will appear here (format: [timestamp] [localTime]).');
 writeBootstrapLogLine('authz-redirects.log', 'Log stream started; OAuth/authz redirects will appear here (format: [timestamp] [localTime]).');
+writeBootstrapLogLine('mcp-server.log', 'Log stream started; PingOne MCP server logs will appear here (format: [timestamp] [localTime]).');
+writeBootstrapLogLine('ai-assistant.log', 'Log stream started; AI Assistant activity (Groq LLM, MCP queries, NL commands) will appear here (format: [timestamp] [localTime]).');
+
+// Helper: write a structured line to mcp-server.log
+function writeToMcpLog(level, message, extra) {
+	const now = new Date();
+	const ts = now.toISOString();
+	const local = now.toLocaleString('en-US', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+	const extraStr = extra ? ' ' + JSON.stringify(extra) : '';
+	const line = `[${ts}] [${local}] [MCP] [${level.toUpperCase()}] ${message}${extraStr}\n`;
+	fs.appendFile(path.join(logsDir, 'mcp-server.log'), line, 'utf8', () => {});
+}
+
+// Helper: write a structured line to ai-assistant.log
+function writeToAiLog(level, message, extra) {
+	const now = new Date();
+	const ts = now.toISOString();
+	const local = now.toLocaleString('en-US', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+	const extraStr = extra ? ' ' + JSON.stringify(extra) : '';
+	const line = `[${ts}] [${local}] [AI] [${level.toUpperCase()}] ${message}${extraStr}\n`;
+	fs.appendFile(path.join(logsDir, 'ai-assistant.log'), line, 'utf8', () => {});
+}
 
 // Ensure fetch is available globally for server handlers that reference global.fetch
 if (typeof globalThis.fetch !== 'function') {
@@ -241,7 +270,9 @@ const recordPingOneCall = (res, call) => {
 	res.locals.__pingOneCalls.push(call);
 };
 
-const originalGlobalFetch = globalThis.fetch.bind(globalThis);
+const originalGlobalFetch = process.env.NODE_ENV !== 'test'
+	? globalThis.fetch.bind(globalThis)
+	: null;
 const _normalizeHeaderObject = (inputHeaders) => {
 	if (!inputHeaders) {
 		return undefined;
@@ -298,7 +329,7 @@ const encodeBodyToBase64 = (body) => {
 	return undefined;
 };
 
-globalThis.fetch = async (input, init = {}) => {
+if (process.env.NODE_ENV !== 'test') globalThis.fetch = async (input, init = {}) => {
 	const startTime = Date.now();
 	const requestHeaders = (() => {
 		const headers = new Headers();
@@ -927,21 +958,19 @@ app.get('/api/logs/list', (req, res) => {
 		const frontendLogFiles = new Set(['client.log']);
 		const mfaLogFiles = new Set(['fido.log', 'sms.log', 'email.log', 'whatsapp.log', 'voice.log']);
 		const oauthLogFiles = new Set(['authz-redirects.log', 'oauth.log', 'oidc.log']);
-		const logFiles = files
-			.filter((f) => f.endsWith('.log'))
-			.map((f) => {
-				const filePath = path.join(logsDir, f);
-				const stats = fs.statSync(filePath);
+                const mcpLogFiles = new Set(['mcp-server.log']);
+                const logFiles = files
+                        .filter((f) => f.endsWith('.log'))
+                        .map((f) => {
+                                const filePath = path.join(logsDir, f);
+                                const stats = fs.statSync(filePath);
 
-				// Categorize log files
-				let category = 'other';
-				if (serverLogFiles.has(f) || /^server(-|_).+\.log$/i.test(f)) {
-					category = 'server';
-				} else if (apiLogFiles.has(f) || /(api|pingone).+\.log$/i.test(f)) {
-					category = 'api';
-				} else if (frontendLogFiles.has(f) || /(client|frontend|browser).+\.log$/i.test(f)) {
-					category = 'frontend';
-				} else if (mfaLogFiles.has(f) || /(fido|sms|email|whatsapp|voice|mfa).+\.log$/i.test(f)) {
+                                // Categorize log files
+                                let category = 'other';
+                                if (serverLogFiles.has(f) || /^server(-|_).+\.log$/i.test(f)) {
+                                        category = 'server';
+                                } else if (mcpLogFiles.has(f) || /^mcp.+\.log$/i.test(f)) {
+                                        category = 'mcp';
 					category = 'mfa';
 				} else if (oauthLogFiles.has(f) || /(authz|oauth|oidc|redirect).+\.log$/i.test(f)) {
 					category = 'oauth';
@@ -956,7 +985,7 @@ app.get('/api/logs/list', (req, res) => {
 			});
 
 		// Prefer order for main log streams so Log Viewer shows them first
-		const streamOrder = ['server.log', 'pingone-api.log', 'client.log', 'authz-redirects.log'];
+		const streamOrder = ['server.log', 'pingone-api.log', 'mcp-server.log', 'client.log', 'authz-redirects.log'];
 		logFiles.sort((a, b) => {
 			const ai = streamOrder.indexOf(a.name);
 			const bi = streamOrder.indexOf(b.name);
@@ -2746,6 +2775,285 @@ app.get('/api/version', (_req, res) => {
 	});
 });
 
+// ─── API key SQLite-store helpers ────────────────────────────────────────────
+function _readApiKeyStore() {
+	try {
+		const store = JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8'));
+		return store.__api_keys__?.credentials ?? {};
+	} catch { return {}; }
+}
+function _writeApiKeyStore(service, apiKey) {
+	try {
+		let store = {};
+		try { store = JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8')); } catch { /* new file */ }
+		const creds = store.__api_keys__?.credentials ?? {};
+		creds[service] = apiKey;
+		store.__api_keys__ = { credentials: creds, savedAt: new Date().toISOString() };
+		fs.mkdirSync(path.dirname(SQLITE_STORE_FILE), { recursive: true });
+		fs.writeFileSync(SQLITE_STORE_FILE, JSON.stringify(store, null, 2), 'utf8');
+		console.log(`[API-KEY-STORAGE] Key for '${service}' written to sqlite-store.json`);
+	} catch (e) {
+		console.warn('[API-KEY-STORAGE] Could not write sqlite-store.json:', e.message);
+	}
+}
+function _deleteApiKeyStore(service) {
+	try {
+		let store = {};
+		try { store = JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8')); } catch { return; }
+		if (store.__api_keys__?.credentials) {
+			delete store.__api_keys__.credentials[service];
+			store.__api_keys__.savedAt = new Date().toISOString();
+			fs.writeFileSync(SQLITE_STORE_FILE, JSON.stringify(store, null, 2), 'utf8');
+		}
+	} catch (e) {
+		console.warn('[API-KEY-STORAGE] Could not remove key from sqlite-store.json:', e.message);
+	}
+}
+
+// API Key bridge endpoint - get stored API key from frontend
+app.get('/api/api-key/:service', async (req, res) => {
+	const { service } = req.params;
+	
+	try {
+		let apiKey = null;
+		
+		if (service === 'brave-search') {
+			apiKey = process.env.BRAVE_API_KEY;
+			if (!apiKey) {
+				try { const s = JSON.parse(fs.readFileSync(BRAVE_KEY_FILE, 'utf8')); apiKey = s.apiKey; if (apiKey) process.env.BRAVE_API_KEY = apiKey; } catch { /* ok */ }
+			}
+		} else if (service === 'github') {
+			apiKey = process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
+		} else if (service === 'groq') {
+			apiKey = process.env.GROQ_API_KEY;
+			if (!apiKey) {
+				try { const s = JSON.parse(fs.readFileSync(GROQ_KEY_FILE, 'utf8')); apiKey = s.apiKey; if (apiKey) process.env.GROQ_API_KEY = apiKey; } catch { /* ok */ }
+			}
+		}
+
+		// Final fallback: sqlite-store.json (survives env resets and missing disk files)
+		if (!apiKey || apiKey.includes('your_') || apiKey.includes('placeholder')) {
+			const sqliteKeys = _readApiKeyStore();
+			if (sqliteKeys[service]) {
+				apiKey = sqliteKeys[service];
+				console.log(`[API-KEY-STORAGE] Recovered '${service}' key from sqlite-store.json`);
+				// Restore to env so future requests skip this path
+				if (service === 'brave-search') process.env.BRAVE_API_KEY = apiKey;
+				else if (service === 'groq') process.env.GROQ_API_KEY = apiKey;
+				else if (service === 'github') process.env.GITHUB_PERSONAL_ACCESS_TOKEN = apiKey;
+			}
+		}
+		
+		if (!apiKey || apiKey.includes('your_') || apiKey.includes('placeholder')) {
+			res.json({ success: false, message: `API key for ${service} not configured` });
+			return;
+		}
+		
+		res.json({ success: true, apiKey });
+	} catch (error) {
+		res.status(500).json({ success: false, message: 'Error retrieving API key' });
+	}
+});
+
+// API Key storage endpoint - store API key from frontend
+app.post('/api/api-key/:service', express.json(), async (req, res) => {
+	const { service } = req.params;
+	const { apiKey } = req.body;
+	
+	if (!apiKey || typeof apiKey !== 'string') {
+		res.status(400).json({ 
+			success: false, 
+			message: 'Invalid API key' 
+		});
+		return;
+	}
+	
+	try {
+		// For now, just log the API key (in production, this would store securely)
+		console.log(`[API-KEY-STORAGE] Storing API key for ${service}: ${apiKey.substring(0, 8)}...`);
+		
+		// In a production deployment, this would store in secure storage
+		// For now, we'll set environment variable for this session
+		if (service === 'brave-search') {
+			process.env.BRAVE_API_KEY = apiKey;
+			try {
+				fs.mkdirSync(path.dirname(BRAVE_KEY_FILE), { recursive: true });
+				fs.writeFileSync(BRAVE_KEY_FILE, JSON.stringify({ apiKey }, null, 2), 'utf8');
+				console.log('[API-KEY-STORAGE] Brave key persisted to', BRAVE_KEY_FILE);
+			} catch (writeErr) {
+				console.warn('[API-KEY-STORAGE] Could not persist Brave key to disk:', writeErr.message);
+			}
+		} else if (service === 'github') {
+			process.env.GITHUB_PERSONAL_ACCESS_TOKEN = apiKey;
+		} else if (service === 'groq') {
+			process.env.GROQ_API_KEY = apiKey;
+			try {
+				fs.mkdirSync(path.dirname(GROQ_KEY_FILE), { recursive: true });
+				fs.writeFileSync(GROQ_KEY_FILE, JSON.stringify({ apiKey }, null, 2), 'utf8');
+				console.log('[API-KEY-STORAGE] Groq key persisted to', GROQ_KEY_FILE);
+			} catch (writeErr) {
+				console.warn('[API-KEY-STORAGE] Could not persist Groq key to disk:', writeErr.message);
+			}
+		}
+
+		// Always also write to sqlite-store.json — the universal fallback
+		_writeApiKeyStore(service, apiKey);
+		
+		res.json({ 
+			success: true, 
+			message: `API key for ${service} stored successfully` 
+		});
+	} catch (error) {
+		console.error('[API-KEY-STORAGE] Error:', error?.message, error?.stack?.split('\n')[1]);
+		res.status(500).json({ 
+			success: false, 
+			message: `Error storing API key: ${error?.message}` 
+		});
+	}
+});
+
+// Web search (Brave Search API) for AI Assistant "Include web" results
+app.get('/api/search-web', async (req, res) => {
+	const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+	
+	if (!q) {
+		res.json({ results: [] });
+		return;
+	}
+
+	try {
+		// Get API key from bridge endpoint (which will use secure storage in production)
+		const keyResponse = await fetch(`${req.protocol}://${req.get('host')}/api/api-key/brave-search`);
+		const keyData = await keyResponse.json();
+		
+		if (!keyData.success) {
+			res.json({ 
+				results: [], 
+				message: 'Web search not configured. Please add your Brave Search API key in the Configuration page.' 
+			});
+			return;
+		}
+		
+		const apiKey = keyData.apiKey;
+
+		const url = new URL('https://api.search.brave.com/res/v1/web/search');
+		url.searchParams.set('q', q);
+		url.searchParams.set('count', '5');
+		const response = await fetch(url.toString(), {
+			headers: {
+				Accept: 'application/json',
+				'X-Subscription-Token': apiKey,
+			},
+		});
+		if (!response.ok) {
+			console.warn('[search-web] Brave API error:', response.status, await response.text());
+			res.json({ results: [] });
+			return;
+		}
+		const data = await response.json();
+		const raw = data?.web?.results ?? [];
+		const results = raw.slice(0, 5).map((r) => ({
+			title: r.title || 'Untitled',
+			content: r.description || '',
+			url: r.url || '',
+		}));
+		res.json({ results });
+	} catch (err) {
+		console.warn('[search-web] Error:', err?.message || err);
+		res.json({ results: [] });
+	}
+});
+
+// MCP-wrapped Brave web search — returns McpQueryResult format for the AI Assistant
+app.post('/api/mcp/web-search', async (req, res) => {
+	const query = typeof req.body?.query === 'string' ? req.body.query.trim() : '';
+	if (!query) {
+		res.status(400).json({
+			success: false,
+			answer: 'Missing query',
+			mcpTool: 'brave_web_search',
+			apiCall: null,
+			howItWorks: null,
+			data: null,
+		});
+		return;
+	}
+
+	const howItWorks =
+		'The brave_web_search MCP tool queries the Brave Search REST API ' +
+		'(https://api.search.brave.com/res/v1/web/search) using your stored API key. ' +
+		'Results are returned as a ranked list of web pages with title, URL, and description — ' +
+		'great for finding documentation, community answers, and recent announcements.';
+
+	try {
+		const keyResponse = await fetch(`${req.protocol}://${req.get('host')}/api/api-key/brave-search`);
+		const keyData = await keyResponse.json();
+
+		if (!keyData.success) {
+			res.json({
+				success: false,
+				answer: 'Brave Search is not configured. Add your API key in the Configuration page.',
+				mcpTool: 'brave_web_search',
+				apiCall: { method: 'GET', path: 'https://api.search.brave.com/res/v1/web/search' },
+				howItWorks,
+				data: null,
+				credentialsRequired: true,
+			});
+			return;
+		}
+
+		const url = new URL('https://api.search.brave.com/res/v1/web/search');
+		url.searchParams.set('q', query);
+		url.searchParams.set('count', '5');
+		const response = await fetch(url.toString(), {
+			headers: {
+				Accept: 'application/json',
+				'X-Subscription-Token': keyData.apiKey,
+			},
+		});
+
+		if (!response.ok) {
+			console.warn('[mcp/web-search] Brave API error:', response.status, await response.text());
+			res.json({
+				success: false,
+				answer: 'Brave Search request failed.',
+				mcpTool: 'brave_web_search',
+				apiCall: { method: 'GET', path: 'https://api.search.brave.com/res/v1/web/search' },
+				howItWorks,
+				data: null,
+			});
+			return;
+		}
+
+		const rawData = await response.json();
+		const rawResults = rawData?.web?.results ?? [];
+		const results = rawResults.slice(0, 5).map((r) => ({
+			title: r.title || 'Untitled',
+			content: r.description || '',
+			url: r.url || '',
+		}));
+
+		res.json({
+			success: true,
+			answer: `Found ${results.length} web result${results.length !== 1 ? 's' : ''} for "${query}".`,
+			mcpTool: 'brave_web_search',
+			apiCall: { method: 'GET', path: 'https://api.search.brave.com/res/v1/web/search' },
+			howItWorks,
+			data: results,
+		});
+	} catch (err) {
+		console.warn('[mcp/web-search] Error:', err?.message || err);
+		res.json({
+			success: false,
+			answer: 'Web search failed unexpectedly.',
+			mcpTool: 'brave_web_search',
+			apiCall: { method: 'GET', path: 'https://api.search.brave.com/res/v1/web/search' },
+			howItWorks,
+			data: null,
+		});
+	}
+});
+
 // Ensure errors are returned as JSON (prevents empty/plain 500s)
 app.use((err, _req, res, _next) => {
 	try {
@@ -2871,12 +3179,63 @@ app.post('/api/credentials/save', (req, res) => {
 
 		console.log(`📁 [Server] Saved credentials to: ${safeDirectory}/${filename}`);
 
+		// Also write MCP config so PingOne MCP server can use these credentials from storage
+		const mcpConfigPath = path.join(CREDENTIALS_DIR, 'mcp-config.json');
+		const mcpPayload =
+			data.environmentId != null || data.clientId != null
+				? {
+						environmentId: data.environmentId ?? process.env.PINGONE_ENVIRONMENT_ID ?? '',
+						clientId: data.clientId ?? process.env.PINGONE_CLIENT_ID ?? '',
+						clientSecret: data.clientSecret ?? process.env.PINGONE_CLIENT_SECRET ?? '',
+						apiUrl: data.apiUrl ?? process.env.PINGONE_API_URL ?? 'https://auth.pingone.com',
+					}
+				: null;
+		if (mcpPayload && (mcpPayload.environmentId || mcpPayload.clientId)) {
+			try {
+				fs.writeFileSync(mcpConfigPath, JSON.stringify(mcpPayload, null, 2), 'utf8');
+				console.log('📁 [Server] Updated MCP config (mcp-config.json) for PingOne MCP server');
+			} catch (mcpErr) {
+				console.warn('[Server] Failed to write mcp-config.json:', mcpErr?.message || mcpErr);
+			}
+		}
+
 		res.json({
 			success: true,
 			path: `${safeDirectory}/${filename}`,
 		});
 	} catch (error) {
 		console.error(`❌ [Server] Failed to save credentials:`, error);
+		res.status(500).json({
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		});
+	}
+});
+
+/**
+ * Save MCP config only (environmentId, clientId, clientSecret) for PingOne MCP server.
+ * POST /api/credentials/save-mcp-config
+ * Body: { environmentId?, clientId?, clientSecret?, apiUrl? }
+ */
+app.post('/api/credentials/save-mcp-config', (req, res) => {
+	try {
+		const { environmentId, clientId, clientSecret, apiUrl } = req.body || {};
+		const mcpConfigPath = path.join(CREDENTIALS_DIR, 'mcp-config.json');
+		const dir = path.dirname(mcpConfigPath);
+		if (!fs.existsSync(dir)) {
+			fs.mkdirSync(dir, { recursive: true });
+		}
+		const payload = {
+			environmentId: environmentId ?? process.env.PINGONE_ENVIRONMENT_ID ?? '',
+			clientId: clientId ?? process.env.PINGONE_CLIENT_ID ?? '',
+			clientSecret: clientSecret ?? process.env.PINGONE_CLIENT_SECRET ?? '',
+			apiUrl: apiUrl ?? process.env.PINGONE_API_URL ?? 'https://auth.pingone.com',
+		};
+		fs.writeFileSync(mcpConfigPath, JSON.stringify(payload, null, 2), 'utf8');
+		console.log('📁 [Server] Saved MCP config (mcp-config.json)');
+		res.json({ success: true });
+	} catch (error) {
+		console.error('❌ [Server] Failed to save MCP config:', error);
 		res.status(500).json({
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error',
@@ -2982,6 +3341,55 @@ app.delete('/api/credentials/delete', (req, res) => {
 			error: error instanceof Error ? error.message : 'Unknown error',
 		});
 	}
+});
+
+// ─── SQLite-compatible credential store (file-backed JSON, keyed by environmentId) ──
+//   POST   /api/credentials/sqlite/save    — upsert a keyed credential object
+//   GET    /api/credentials/sqlite/load    — load by key (?environmentId=xxx)
+//   DELETE /api/credentials/sqlite/delete  — remove by key
+
+const SQLITE_STORE_FILE = path.join(CREDENTIALS_DIR, 'sqlite-store.json');
+
+function _readSqliteStore() {
+	try { return JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8')); } catch { return {}; }
+}
+function _writeSqliteStore(data) {
+	fs.mkdirSync(CREDENTIALS_DIR, { recursive: true });
+	fs.writeFileSync(SQLITE_STORE_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+app.post('/api/credentials/sqlite/save', express.json(), (req, res) => {
+	const { environmentId, credentials, timestamp } = req.body ?? {};
+	if (!environmentId || !credentials) {
+		return res.status(400).json({ success: false, error: 'Missing environmentId or credentials' });
+	}
+	const store = _readSqliteStore();
+	store[environmentId] = { credentials, savedAt: timestamp ?? new Date().toISOString() };
+	_writeSqliteStore(store);
+	console.log(`📁 [SQLite Store] Saved credentials for key: ${environmentId}`);
+	res.json({ success: true });
+});
+
+app.get('/api/credentials/sqlite/load', (req, res) => {
+	const { environmentId } = req.query;
+	if (!environmentId) {
+		return res.status(400).json({ success: false, error: 'Missing environmentId' });
+	}
+	const store = _readSqliteStore();
+	const entry = store[String(environmentId)];
+	res.json({ credentials: entry?.credentials ?? null });
+});
+
+app.delete('/api/credentials/sqlite/delete', express.json(), (req, res) => {
+	const { environmentId } = req.body ?? {};
+	if (!environmentId) {
+		return res.status(400).json({ success: false, error: 'Missing environmentId' });
+	}
+	const store = _readSqliteStore();
+	delete store[environmentId];
+	_writeSqliteStore(store);
+	console.log(`📁 [SQLite Store] Deleted credentials for key: ${environmentId}`);
+	res.json({ success: true });
 });
 
 // OAuth Token Exchange Endpoint
@@ -17833,7 +18241,10 @@ app.post('/api/tokens/store', async (req, res) => {
 			});
 		}
 
-		console.log('[Token Store] Storing token:', { flowKey, dataType: typeof data });
+		// Log only in development to reduce noise; flowKey may be e.g. worker_token_unified_worker_credentials_<envId>
+		if (process.env.NODE_ENV === 'development' && process.env.DEBUG_TOKEN_STORE) {
+			console.log('[Token Store] Storing token:', { flowKey, dataType: typeof data });
+		}
 
 		// For now, return success since we're using IndexedDB as primary storage
 		// SQLite is backup/fallback only
@@ -20722,55 +21133,6 @@ app.get('/api/cli-cache/:environmentId', (req, res) => {
 	}
 });
 
-// API endpoint not found handler - MUST be after all API route definitions
-app.use('/api', (req, res) => {
-	console.error('[API 404] Endpoint not found:', {
-		method: req.method,
-		path: req.path,
-		query: req.query,
-		body: req.body,
-	});
-	res.status(404).json({
-		error: 'endpoint_not_found',
-		message: `API endpoint not found: ${req.method} ${req.path}`,
-		path: req.path,
-		method: req.method,
-	});
-});
-
-// Catch-all handler for React Router - MUST be after all API routes and static files
-// This ensures client-side routing works for routes like /mfa-unified-callback
-app.use((req, res, next) => {
-	// Skip API routes and static files
-	if (req.path.startsWith('/api') || req.path.startsWith('/.well-known')) {
-		return res.status(404).json({
-			error: 'endpoint_not_found',
-			message: `API endpoint not found: ${req.method} ${req.path}`,
-			path: req.path,
-			method: req.method,
-		});
-	}
-
-	// Only handle GET requests for React Router
-	if (req.method !== 'GET') {
-		return next();
-	}
-
-	// Serve index.html for all other routes to support React Router
-	const indexPath = path.join(__dirname, 'dist', 'index.html');
-
-	// Check if index.html exists
-	fs.access(indexPath, fs.constants.F_OK, (err) => {
-		if (err) {
-			console.error('[React Router 404] index.html not found:', indexPath);
-			return res.status(404).send('Application not found. Please build the application first.');
-		}
-
-		console.log(`[React Router] Serving index.html for route: ${req.path}`);
-		res.sendFile(indexPath);
-	});
-});
-
 // ============================================================================
 // SERVER STARTUP
 // ============================================================================
@@ -20794,6 +21156,1456 @@ async function initializeDatabases() {
 		process.exit(1);
 	}
 }
+
+// ─── MCP Query Endpoint ──────────────────────────────────────────────────────
+//
+// ─── MCP Server Process Management ──────────────────────────────────────────
+//   GET  /api/mcp/server/status         — is the server running? credentials ok?
+//   POST /api/mcp/server/build          — run tsc inside pingone-mcp-server/
+//   POST /api/mcp/server/start          — spawn node dist/index.js
+//   POST /api/mcp/server/stop           — kill by pid file
+//   GET  /api/mcp/server/credentials    — read mcp-config.json
+//   POST /api/mcp/server/credentials    — write mcp-config.json
+//   POST /api/mcp/server/add-tool       — generate + write a new action file
+
+const MCP_SERVER_DIR = path.join(__dirname, 'pingone-mcp-server');
+const MCP_PID_FILE  = path.join(MCP_SERVER_DIR, 'mcp-server.pid');
+const MCP_CRED_FILE = path.join(os.homedir(), '.pingone-playground', 'credentials', 'mcp-config.json');
+// GROQ_KEY_FILE / BRAVE_KEY_FILE declared at top of file
+
+// Load persisted Groq key from disk on startup
+try {
+	const saved = JSON.parse(fs.readFileSync(GROQ_KEY_FILE, 'utf8'));
+	if (saved.apiKey && !process.env.GROQ_API_KEY) {
+		process.env.GROQ_API_KEY = saved.apiKey;
+		console.log('[Groq] Loaded API key from', GROQ_KEY_FILE);
+	}
+} catch { /* file does not exist yet - that is fine */ }
+
+// Load persisted Brave Search key from disk on startup
+try {
+	const saved = JSON.parse(fs.readFileSync(BRAVE_KEY_FILE, 'utf8'));
+	if (saved.apiKey && !process.env.BRAVE_API_KEY) {
+		process.env.BRAVE_API_KEY = saved.apiKey;
+		console.log('[BraveSearch] Loaded API key from', BRAVE_KEY_FILE);
+	}
+} catch { /* file does not exist yet - that is fine */ }
+
+// Load any API keys from sqlite-store.json on startup (ultimate fallback layer)
+try {
+	const sqliteStore = JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8'));
+	const sqliteCreds = sqliteStore.__api_keys__?.credentials ?? {};
+	if (sqliteCreds['groq'] && !process.env.GROQ_API_KEY) {
+		process.env.GROQ_API_KEY = sqliteCreds['groq'];
+		console.log('[API-KEY-STARTUP] Groq key loaded from sqlite-store.json');
+	}
+	if (sqliteCreds['brave-search'] && !process.env.BRAVE_API_KEY) {
+		process.env.BRAVE_API_KEY = sqliteCreds['brave-search'];
+		console.log('[API-KEY-STARTUP] Brave key loaded from sqlite-store.json');
+	}
+	if (sqliteCreds['github'] && !process.env.GITHUB_PERSONAL_ACCESS_TOKEN) {
+		process.env.GITHUB_PERSONAL_ACCESS_TOKEN = sqliteCreds['github'];
+		console.log('[API-KEY-STARTUP] GitHub key loaded from sqlite-store.json');
+	}
+} catch { /* sqlite-store.json not yet created - that is fine */ }
+
+function _mcpGetPid() {
+	try { return parseInt(fs.readFileSync(MCP_PID_FILE, 'utf8').trim(), 10); } catch { return null; }
+}
+function _mcpIsRunning(pid) {
+	if (!pid || isNaN(pid)) return false;
+	try { process.kill(pid, 0); return true; } catch { return false; }
+}
+
+// ─── Groq LLM Chat Endpoint ───────────────────────────────────────────────────
+
+const GROQ_SYSTEM_PROMPT = `You are an expert assistant embedded in the PingOne OAuth Playground — a developer tool for learning and testing OAuth 2.0 and OpenID Connect (OIDC) with PingOne.
+
+You can help with:
+- Explaining OAuth 2.0 flows: Authorization Code (with/without PKCE), Client Credentials, Implicit, Device, Hybrid
+- OpenID Connect (OIDC) concepts: ID tokens, claims, userinfo, discovery, JWKS
+- PingOne-specific setup: environments, applications, populations, groups, MFA, subscriptions
+- Token operations: access tokens, refresh tokens, introspection, revocation, token exchange
+- Security topics: PKCE, state/nonce, token binding, DPoP, PAR, RAR, JARM
+
+CRITICAL RULES — you MUST follow these without exception:
+1. NEVER simulate, fake, or roleplay PingOne API calls. You do NOT have access to any PingOne environment.
+2. NEVER invent, fabricate, or display example user lists, app lists, group lists, or any other PingOne data.
+3. NEVER output lines like "Executing command:", "Retrieving users...", "Response: (users would appear here)", or any mock API output.
+4. For ANY request to list, create, delete, find, or show PingOne resources (users, apps, groups, populations, subscriptions, MFA policies, tokens, licenses, environments), you MUST respond using EXACTLY this format — no extra text before or after:
+
+🔌 **Live toggle is off.** To get real PingOne data, enable the **Live** toggle in the chat header — it connects directly to your PingOne environment via MCP.##LIVE_NUDGE##
+
+5. Only answer OAuth/OIDC conceptual questions, explain how things work, or help with configuration. Never attempt to execute PingOne operations.
+
+Keep responses concise and technical. Use code blocks for examples. Prefer bullet points for lists.`;
+
+app.post('/api/groq/chat', express.json(), async (req, res) => {
+	const { messages, systemPrompt } = req.body || {};
+
+	if (!Array.isArray(messages) || messages.length === 0) {
+		return res.status(400).json({ error: 'messages array is required' });
+	}
+
+	const apiKey = process.env.GROQ_API_KEY;
+	if (!apiKey || apiKey.includes('your_')) {
+		writeToAiLog('warn', 'Groq API key not configured');
+		return res.status(503).json({
+			error: 'groq_not_configured',
+			message: 'GROQ_API_KEY is not set. Add it to your .env file or set it via the API key configuration.',
+		});
+	}
+
+	const userMsg = messages[messages.length - 1]?.content?.slice(0, 200) || '';
+	writeToAiLog('info', `Groq request`, { query: userMsg, historyLen: messages.length - 1 });
+
+	try {
+		const payload = {
+			model: 'llama-3.3-70b-versatile',
+			messages: [
+				{ role: 'system', content: systemPrompt || GROQ_SYSTEM_PROMPT },
+				...messages,
+			],
+			max_tokens: 1024,
+			temperature: 0.6,
+		};
+
+		const response = await global.fetch('https://api.groq.com/openai/v1/chat/completions', {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${apiKey}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(payload),
+		});
+
+		if (!response.ok) {
+			const err = await response.json().catch(() => ({ error: { message: response.statusText } }));
+			const msg = err?.error?.message || response.statusText;
+			return res.status(response.status).json({ error: 'groq_api_error', message: msg });
+		}
+
+		const data = await response.json();
+		const content = data.choices?.[0]?.message?.content ?? '';
+		writeToAiLog('info', 'Groq response OK', { model: data.model, tokens: data.usage?.total_tokens });
+		return res.json({
+			content,
+			model: data.model,
+			usage: data.usage,
+		});
+	} catch (err) {
+		writeToAiLog('error', `Groq fetch error: ${err.message}`);
+		console.error('[Groq] Error:', err);
+		return res.status(500).json({ error: 'groq_fetch_error', message: err.message });
+	}
+});
+
+// ─── End Groq LLM Chat Endpoint ──────────────────────────────────────────────
+
+// ─── Groq Streaming Chat Endpoint ────────────────────────────────────────────
+
+app.post('/api/groq/chat/stream', express.json(), async (req, res) => {
+	const { messages, systemPrompt } = req.body || {};
+
+	if (!Array.isArray(messages) || messages.length === 0) {
+		return res.status(400).json({ error: 'messages array is required' });
+	}
+
+	const apiKey = process.env.GROQ_API_KEY;
+	if (!apiKey || apiKey.includes('your_')) {
+		return res.status(503).json({ error: 'groq_not_configured' });
+	}
+
+	// Set Server-Sent Events headers
+	res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+	res.setHeader('Cache-Control', 'no-cache, no-transform');
+	res.setHeader('Connection', 'keep-alive');
+	res.setHeader('X-Accel-Buffering', 'no'); // disable nginx buffering if proxied
+	res.flushHeaders();
+
+	const userMsg = messages[messages.length - 1]?.content?.slice(0, 200) || '';
+	writeToAiLog('info', `Groq stream request`, { query: userMsg, historyLen: messages.length - 1 });
+
+	try {
+		const payload = {
+			model: 'llama-3.3-70b-versatile',
+			messages: [
+				{ role: 'system', content: systemPrompt || GROQ_SYSTEM_PROMPT },
+				...messages,
+			],
+			max_tokens: 2048,
+			temperature: 0.6,
+			stream: true,
+		};
+
+		const groqRes = await global.fetch('https://api.groq.com/openai/v1/chat/completions', {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${apiKey}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(payload),
+		});
+
+		if (!groqRes.ok) {
+			const err = await groqRes.json().catch(() => ({ error: { message: groqRes.statusText } }));
+			const msg = err?.error?.message || groqRes.statusText;
+			res.write(`data: ${JSON.stringify({ error: msg })}\n\n`);
+			res.end();
+			return;
+		}
+
+		// Stream SSE tokens from Groq to the browser
+		const reader = groqRes.body.getReader();
+		const decoder = new TextDecoder();
+		let buffer = '';
+		let totalTokens = 0;
+
+		while (true) {
+			const { value, done } = await reader.read();
+			if (done) break;
+			buffer += decoder.decode(value, { stream: true });
+			const lines = buffer.split('\n');
+			buffer = lines.pop() ?? '';
+			for (const line of lines) {
+				const trimmed = line.trim();
+				if (!trimmed || !trimmed.startsWith('data:')) continue;
+				const payload = trimmed.slice(5).trim();
+				if (payload === '[DONE]') continue;
+				try {
+					const chunk = JSON.parse(payload);
+					const token = chunk.choices?.[0]?.delta?.content;
+					if (token) {
+						totalTokens++;
+						res.write(`data: ${JSON.stringify({ token })}\n\n`);
+					}
+				} catch { /* malformed chunk — skip */ }
+			}
+		}
+
+		writeToAiLog('info', 'Groq stream complete', { tokens: totalTokens });
+		res.write('data: [DONE]\n\n');
+		res.end();
+	} catch (err) {
+		writeToAiLog('error', `Groq stream error: ${err.message}`);
+		try { res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`); res.end(); } catch { /* already closed */ }
+	}
+});
+
+// ─── End Groq Streaming Endpoint ─────────────────────────────────────────────
+
+// In-memory worker token cache (lives for the duration of the server process)
+const _mcpTokenCache = { token: null, expiry: 0 };
+export const _testResetTokenCache = () => { _mcpTokenCache.token = null; _mcpTokenCache.expiry = 0; };
+
+/**
+ * Read MCP credentials from mcp-config.json, falling back to environment variables.
+ * Returns { environmentId, clientId, clientSecret, apiUrl }
+ */
+function _mcpReadCredentials() {
+	const fromEnv = {
+		environmentId: process.env.PINGONE_ENVIRONMENT_ID || process.env.VITE_PINGONE_ENVIRONMENT_ID || '',
+		clientId: process.env.PINGONE_CLIENT_ID || process.env.VITE_PINGONE_CLIENT_ID || '',
+		clientSecret: process.env.PINGONE_CLIENT_SECRET || '',
+		apiUrl: process.env.PINGONE_AUTH_URL || 'https://auth.pingone.com',
+		tokenAuthMethod: 'CLIENT_SECRET_POST',
+		scope: 'openid',
+	};
+	try {
+		const raw = JSON.parse(fs.readFileSync(MCP_CRED_FILE, 'utf8'));
+		return {
+			environmentId: raw.environmentId || fromEnv.environmentId,
+			clientId: raw.clientId || fromEnv.clientId,
+			clientSecret: raw.clientSecret || fromEnv.clientSecret,
+			apiUrl: raw.apiUrl || fromEnv.apiUrl,
+			tokenAuthMethod: raw.tokenAuthMethod || fromEnv.tokenAuthMethod,
+			scope: raw.scope || fromEnv.scope,
+		};
+	} catch {
+		return fromEnv;
+	}
+}
+
+/**
+ * Call the PingOne token endpoint with client_credentials grant.
+ * Returns the raw token response: { access_token, token_type, expires_in, scope }
+ */
+async function _mcpFetchWorkerToken(creds) {
+	const {
+		environmentId, clientId, clientSecret,
+		apiUrl = 'https://auth.pingone.com',
+		tokenAuthMethod = 'CLIENT_SECRET_POST',
+		scope = 'openid',
+	} = creds;
+	if (!environmentId || !clientId || !clientSecret) {
+		throw new Error('Missing credentials: environmentId, clientId, and clientSecret are required. Save them in MCP Server Config.');
+	}
+	const baseUrl = apiUrl.replace(/\/$/, '');
+	const tokenUrl = `${baseUrl}/${environmentId}/as/token`;
+
+	let headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+	let bodyParams = { grant_type: 'client_credentials', scope };
+
+	if (tokenAuthMethod === 'CLIENT_SECRET_BASIC') {
+		// Credentials in Basic auth header
+		headers.Authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
+	} else {
+		// CLIENT_SECRET_POST — credentials in request body
+		bodyParams.client_id = clientId;
+		bodyParams.client_secret = clientSecret;
+	}
+
+	const resp = await global.fetch(tokenUrl, {
+		method: 'POST',
+		headers,
+		body: new URLSearchParams(bodyParams).toString(),
+	});
+	if (!resp.ok) {
+		const err = await resp.json().catch(() => ({ error: resp.statusText }));
+		throw new Error(`Token request failed (${resp.status}): ${err.error_description || err.error || resp.statusText}`);
+	}
+	return resp.json();
+}
+
+app.get('/api/mcp/server/status', (req, res) => {
+	const pid = _mcpGetPid();
+	const running = _mcpIsRunning(pid);
+	let config = null;
+	try { config = JSON.parse(fs.readFileSync(MCP_CRED_FILE, 'utf8')); } catch { /* not configured yet */ }
+	const distExists = fs.existsSync(path.join(MCP_SERVER_DIR, 'dist', 'index.js'));
+	res.json({
+		running,
+		pid: running ? pid : null,
+		version: '0.1.0',
+		distExists,
+		configExists: !!config,
+		credentialsConfigured: !!(config?.environmentId && config?.clientId),
+		environmentId: config?.environmentId ?? null,
+		region: config?.apiUrl ?? null,
+	});
+});
+
+app.post('/api/mcp/server/build', (req, res) => {
+	try {
+		const output = execSync('npm run build', {
+			cwd: MCP_SERVER_DIR,
+			timeout: 60000,
+			encoding: 'utf8',
+			stderr: 'pipe',
+		});
+		res.json({ success: true, output: output || '(build completed with no output)' });
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message, output: err.stderr ?? err.stdout ?? '' });
+	}
+});
+
+app.post('/api/mcp/server/start', (req, res) => {
+	const existingPid = _mcpGetPid();
+	if (_mcpIsRunning(existingPid)) {
+		return res.json({ success: true, already_running: true, pid: existingPid });
+	}
+	const distIndex = path.join(MCP_SERVER_DIR, 'dist', 'index.js');
+	if (!fs.existsSync(distIndex)) {
+		return res.status(400).json({ success: false, error: 'dist/index.js not found. Run Build first.' });
+	}
+	try {
+		const child = spawn('node', [distIndex], {
+			cwd: MCP_SERVER_DIR,
+			detached: true,
+			stdio: 'ignore',
+		});
+		child.unref();
+		fs.writeFileSync(MCP_PID_FILE, String(child.pid));
+		res.json({ success: true, pid: child.pid });
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+
+app.post('/api/mcp/server/stop', (req, res) => {
+	const pid = _mcpGetPid();
+	if (!_mcpIsRunning(pid)) {
+		try { fs.unlinkSync(MCP_PID_FILE); } catch { /* already gone */ }
+		return res.json({ success: true, was_already_stopped: true });
+	}
+	try {
+		process.kill(pid);
+		try { fs.unlinkSync(MCP_PID_FILE); } catch { /* ignore */ }
+		res.json({ success: true });
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+
+app.get('/api/mcp/server/credentials', (req, res) => {
+	try {
+		const raw = fs.readFileSync(MCP_CRED_FILE, 'utf8');
+		res.json({ success: true, credentials: JSON.parse(raw) });
+	} catch {
+		res.json({ success: true, credentials: {} });
+	}
+});
+
+app.post('/api/mcp/server/credentials', express.json(), (req, res) => {
+	const { environmentId, clientId, clientSecret, apiUrl, tokenAuthMethod, scope } = req.body ?? {};
+	try {
+		fs.mkdirSync(path.dirname(MCP_CRED_FILE), { recursive: true });
+		const cfg = { environmentId, clientId, clientSecret, apiUrl, tokenAuthMethod, scope };
+		fs.writeFileSync(MCP_CRED_FILE, JSON.stringify(cfg, null, 2));
+		res.json({ success: true });
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+
+app.post('/api/mcp/server/add-tool', express.json(), (req, res) => {
+	const { toolId, description, method = 'GET', apiPath = '', params = [] } = req.body ?? {};
+	if (!toolId || !/^[a-z][a-z0-9_]*$/.test(toolId)) {
+		return res.status(400).json({ success: false, error: 'toolId must be snake_case' });
+	}
+	const pascal = toolId.replace(/(^|_)([a-z])/g, (_, _sep, c) => c.toUpperCase());
+	const registerFn = `register${pascal}Tools`;
+	const fileName = `${toolId}.ts`;
+	const actionsDir = path.join(MCP_SERVER_DIR, 'src', 'actions');
+	const filePath = path.join(actionsDir, fileName);
+	if (fs.existsSync(filePath)) {
+		return res.status(409).json({ success: false, error: `${fileName} already exists` });
+	}
+	// Generate the tool params schema
+	const paramLines = params.map(p =>
+		`\t\t${p.name}: { type: '${p.type ?? 'string'}' as const${p.optional ? '' : ''} },`
+	).join('\n');
+	const paramArgs = params.map(p => `\t\tconst ${p.name} = args.${p.name};`).join('\n');
+	const code = [
+		`import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';`,
+		`import type { Logger } from '../services/logger.js';`,
+		`import { z } from 'zod';`,
+		``,
+		`export function ${registerFn}(server: McpServer, logger: Logger): void {`,
+		`\tserver.registerTool(`,
+		`\t\t'${toolId}',`,
+		`\t\t{`,
+		`\t\t\tdescription: ${JSON.stringify(description ?? toolId)},`,
+		`\t\t\tinputSchema: {`,
+		 paramLines || `\t\t\t\t// No parameters defined`,
+		`\t\t\t},`,
+		`\t\t},`,
+		`\t\tasync (args) => {`,
+		 paramArgs || `\t\t\t// TODO: implement`,
+		`\t\t\tlogger.log('[${toolId}] called', { ${params.map(p => p.name).join(', ')} });`,
+		`\t\t\t// TODO: call PingOne API — ${method} ${apiPath}`,
+		`\t\t\treturn { content: [{ type: 'text', text: 'Not yet implemented' }] };`,
+		`\t\t}`,
+		`\t);`,
+		`}`,
+	].join('\n');
+	try {
+		fs.writeFileSync(filePath, code, 'utf8');
+		// Inject import + register call into index.ts
+		const indexPath = path.join(MCP_SERVER_DIR, 'src', 'index.ts');
+		let indexSrc = fs.readFileSync(indexPath, 'utf8');
+		const importLine = `import { ${registerFn} } from './actions/${toolId}.js';`;
+		const registerLine = `  ${registerFn}(server, logger);`;
+		if (!indexSrc.includes(importLine)) {
+			// Insert after last existing actions import
+			indexSrc = indexSrc.replace(
+				/(import \{ register\w+Tools \} from '\.\/actions\/\w+\.js';\n)(?!import)/,
+				`$1${importLine}\n`
+			);
+		}
+		if (!indexSrc.includes(registerLine.trim())) {
+			// Insert before the transport connect line
+			indexSrc = indexSrc.replace(
+				/(\s*const transport = new StdioServerTransport)/,
+				`\n${registerLine}$1`
+			);
+		}
+		fs.writeFileSync(indexPath, indexSrc, 'utf8');
+		res.json({ success: true, fileName, code });
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+
+// POST /api/mcp/query
+// Body: { query: string, workerToken?: string, environmentId?: string, region?: string }
+//
+// Classifies the natural-language query into a PingOne intent, calls the real
+// PingOne API, and returns the result together with educational metadata:
+//   { success, answer, mcpTool, apiCall: { method, path }, howItWorks, data }
+//
+// This is the backend half of the AI Assistant + MCP wiring.  The frontend
+// mcpQueryService.ts calls this endpoint when the "Live" toggle is on.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const MCP_INTENTS = [
+	// ── Worker token ────────────────────────────────────────────────────────
+	{
+		id: 'worker_token',
+		patterns: [/worker.?token|client.?credentials|access.?token|get.?token|issue.?token/i],
+		mcpTool: 'pingone_get_worker_token',
+		apiCall: { method: 'POST', path: '/environments/{envId}/as/token' },
+		howItWorks: 'Calls the PingOne token endpoint using the client_credentials grant. Exchanges clientId + clientSecret for a short-lived access token used by all other MCP tools.',
+	},
+	// ── Applications ────────────────────────────────────────────────────────
+	{
+		id: 'list_applications',
+		patterns: [/list.*app|show.*app|get.*app|all.*app|what.*app|fetch.*app/i],
+		mcpTool: 'pingone.applications.list',
+		apiCall: { method: 'GET', path: '/environments/{envId}/applications' },
+		howItWorks: 'Calls GET /environments/{envId}/applications to retrieve all OAuth/OIDC application registrations. Each entry has a clientId, grant types, redirect URIs, and OIDC settings.',
+	},
+	{
+		id: 'get_application',
+		patterns: [/app(?:lication)?\s+(?:details|info|secret|named?|called?)|find\s+app(?:lication)?|which\s+app/i],
+		mcpTool: 'pingone_get_application',
+		apiCall: { method: 'GET', path: '/environments/{envId}/applications/{appId}' },
+		howItWorks: 'Calls GET /environments/{envId}/applications to search by name, or GET …/applications/{id} for a direct lookup. Returns full application config including clientId, grantTypes, and redirectUris.',
+	},
+	{
+		id: 'get_application_secret',
+		patterns: [/client\s+secret|app.*secret|secret.*app|show.*secret/i],
+		mcpTool: 'pingone_get_application_secret',
+		apiCall: { method: 'GET', path: '/environments/{envId}/applications/{appId}/secret' },
+		howItWorks: 'Calls GET /environments/{envId}/applications/{id}/secret. Returns the current clientSecret for the application. Keep this value secure — it is the credential used in client_credentials and authorization_code flows.',
+	},
+	{
+		id: 'rotate_application_secret',
+		patterns: [/rotate.*secret|regenerate.*secret|new.*secret.*app|refresh.*client.*secret/i],
+		mcpTool: 'pingone_rotate_application_secret',
+		apiCall: { method: 'POST', path: '/environments/{envId}/applications/{appId}/secret' },
+		howItWorks: 'Calls POST /environments/{envId}/applications/{id}/secret to issue a new clientSecret, invalidating the previous one. Any client using the old secret must be updated.',
+	},
+	{
+		id: 'create_application',
+		patterns: [/creat.*app(?:lication)?|add.*app(?:lication)?|new.*app(?:lication)?|register.*app/i],
+		mcpTool: 'pingone_create_application',
+		apiCall: { method: 'POST', path: '/environments/{envId}/applications' },
+		howItWorks: 'Calls POST /environments/{envId}/applications to create a new OAuth/OIDC client registration. Requires a name, protocol (OPENID_CONNECT), and grantTypes. Returns the new clientId.',
+	},
+	{
+		id: 'delete_application',
+		patterns: [/delet.*app(?:lication)?|remov.*app(?:lication)?/i],
+		mcpTool: 'pingone_delete_application',
+		apiCall: { method: 'DELETE', path: '/environments/{envId}/applications/{appId}' },
+		howItWorks: 'Calls DELETE /environments/{envId}/applications/{id}. This permanently removes the application and invalidates its clientId. This action is irreversible.',
+	},
+	// ── Users ────────────────────────────────────────────────────────────────
+	{
+		id: 'list_users',
+		patterns: [/list.*user|show.*user|all.*user|get.*users|fetch.*user/i],
+		mcpTool: 'pingone_list_users',
+		apiCall: { method: 'GET', path: '/environments/{envId}/users' },
+		howItWorks: 'Calls GET /environments/{envId}/users. Supports SCIM filter syntax (e.g. username eq "alice") to narrow results. Returns user id, username, email, name, population, and account status.',
+	},
+	{
+		id: 'get_user',
+		patterns: [/get\s+user|find\s+user|look\s*up\s+user|show\s+user|user\s+info|who\s+is\s+user/i],
+		mcpTool: 'pingone_get_user',
+		apiCall: { method: 'GET', path: '/environments/{envId}/users?filter=username eq "{value}"' },
+		howItWorks: 'Looks up a user by email or username using SCIM filter: GET /environments/{envId}/users?filter=username eq "value". Returns the full user object including status, population, and MFA settings.',
+	},
+	{
+		id: 'create_user',
+		patterns: [/creat.*user|add.*user|new.*user|register.*user|onboard.*user/i],
+		mcpTool: 'pingone_create_user',
+		apiCall: { method: 'POST', path: '/environments/{envId}/users' },
+		howItWorks: 'Calls POST /environments/{envId}/users with a body containing username (email), name.given, name.family, and population.id. Returns the newly created user with its permanent userId.',
+	},
+	{
+		id: 'delete_user',
+		patterns: [/delet.*user|remov.*user|deactivat.*user/i],
+		mcpTool: 'pingone_delete_user',
+		apiCall: { method: 'DELETE', path: '/environments/{envId}/users/{userId}' },
+		howItWorks: 'Calls DELETE /environments/{envId}/users/{id}. Permanently removes the user account and all associated data. This action is irreversible — consider disabling the account (PATCH status=DISABLED) first.',
+	},
+	{
+		id: 'get_user_groups',
+		patterns: [/user.*groups?|groups?.*for.*user|what.*groups?.*user|user.*member/i],
+		mcpTool: 'pingone_get_user_groups',
+		apiCall: { method: 'GET', path: '/environments/{envId}/users/{userId}/memberOfGroups' },
+		howItWorks: 'Calls GET /environments/{envId}/users/{userId}/memberOfGroups. Returns all groups the user belongs to, including the group id, name, and description.',
+	},
+	{
+		id: 'add_user_to_group',
+		patterns: [/add.*user.*group|put.*user.*group|assign.*user.*group|user.*join.*group/i],
+		mcpTool: 'pingone_add_user_to_group',
+		apiCall: { method: 'POST', path: '/environments/{envId}/users/{userId}/memberOfGroups' },
+		howItWorks: 'Calls POST /environments/{envId}/users/{userId}/memberOfGroups with body { id: groupId }. Adds the user to the specified group. Requires both a userId and a groupId.',
+	},
+	{
+		id: 'remove_user_from_group',
+		patterns: [/remov.*user.*group|tak.*user.*out.*group|unassign.*user.*group|user.*leav.*group/i],
+		mcpTool: 'pingone_remove_user_from_group',
+		apiCall: { method: 'DELETE', path: '/environments/{envId}/users/{userId}/memberOfGroups/{groupId}' },
+		howItWorks: 'Calls DELETE /environments/{envId}/users/{userId}/memberOfGroups/{groupId}. Removes the user from the group without deleting the user or the group.',
+	},
+	// ── Groups ───────────────────────────────────────────────────────────────
+	{
+		id: 'list_groups',
+		patterns: [/list.*group|show.*group|all.*group|get.*groups/i],
+		mcpTool: 'pingone_list_groups',
+		apiCall: { method: 'GET', path: '/environments/{envId}/groups' },
+		howItWorks: 'Calls GET /environments/{envId}/groups. Returns all groups with id, name, description, and population. Supports SCIM filter (e.g. name eq "Admins").',
+	},
+	{
+		id: 'get_group',
+		patterns: [/get\s+group|find\s+group|show\s+group\s+named?|group\s+details|group\s+info/i],
+		mcpTool: 'pingone_get_group',
+		apiCall: { method: 'GET', path: '/environments/{envId}/groups?filter=name eq "{value}"' },
+		howItWorks: 'Looks up a group by name using SCIM filter: GET /environments/{envId}/groups?filter=name eq "value". Returns the group id, name, description, and population.',
+	},
+	{
+		id: 'create_group',
+		patterns: [/creat.*group|add.*group|new.*group/i],
+		mcpTool: 'pingone_create_group',
+		apiCall: { method: 'POST', path: '/environments/{envId}/groups' },
+		howItWorks: 'Calls POST /environments/{envId}/groups with { name, description }. Creates a new group that users can be added to. Returns the new group id.',
+	},
+	{
+		id: 'delete_group',
+		patterns: [/delet.*group|remov.*group/i],
+		mcpTool: 'pingone_delete_group',
+		apiCall: { method: 'DELETE', path: '/environments/{envId}/groups/{groupId}' },
+		howItWorks: 'Calls DELETE /environments/{envId}/groups/{id}. Permanently removes the group. Members are not deleted but lose the group membership.',
+	},
+	// ── Populations ──────────────────────────────────────────────────────────
+	{
+		id: 'list_populations',
+		patterns: [/list.*pop|show.*pop|all.*pop|get.*pop/i],
+		mcpTool: 'pingone_list_populations',
+		apiCall: { method: 'GET', path: '/environments/{envId}/populations' },
+		howItWorks: 'Calls GET /environments/{envId}/populations. Returns all user populations with id, name, description, and passwordPolicy. Each user belongs to exactly one population.',
+	},
+	// ── MFA ──────────────────────────────────────────────────────────────────
+	{
+		id: 'list_mfa_devices',
+		patterns: [/mfa.*device|device.*mfa|list.*device|show.*device|authenticat.*device/i],
+		mcpTool: 'pingone.mfa.devices.list',
+		apiCall: { method: 'GET', path: '/environments/{envId}/users/{userId}/devices' },
+		howItWorks: 'Calls GET /environments/{envId}/users/{userId}/devices. Returns all registered MFA devices — TOTP authenticator apps, SMS numbers, email addresses, FIDO2 keys — with device id, type, nickname, and activation status.',
+	},
+	{
+		id: 'list_mfa_policies',
+		patterns: [/mfa.*polic|polic.*mfa|list.*mfa|show.*mfa.*polic/i],
+		mcpTool: 'pingone.mfa.policy.list',
+		apiCall: { method: 'GET', path: '/environments/{envId}/deviceAuthenticationPolicies' },
+		howItWorks: 'Calls GET /environments/{envId}/deviceAuthenticationPolicies. Returns all MFA policies including their method requirements (SMS, TOTP, FIDO2), enforcement, and default settings.',
+	},
+	// ── Subscriptions / Webhooks ─────────────────────────────────────────────
+	{
+		id: 'list_subscriptions',
+		patterns: [/list.*subscri|show.*subscri|all.*subscri|webhooks?/i],
+		mcpTool: 'pingone_list_subscriptions',
+		apiCall: { method: 'GET', path: '/environments/{envId}/subscriptions' },
+		howItWorks: 'Calls GET /environments/{envId}/subscriptions. Returns all webhook subscriptions — the endpoint URL, enabled status, signing key, and which event types (user.created, session.started, etc.) they subscribe to.',
+	},
+	{
+		id: 'create_subscription',
+		patterns: [/creat.*subscri|add.*subscri|new.*subscri|register.*webhook/i],
+		mcpTool: 'pingone_create_subscription',
+		apiCall: { method: 'POST', path: '/environments/{envId}/subscriptions' },
+		howItWorks: 'Calls POST /environments/{envId}/subscriptions with { name, httpEndpointUrl, format, filterOptions }. Creates a webhook that POSTs PingOne events to your endpoint.',
+	},
+	{
+		id: 'delete_subscription',
+		patterns: [/delet.*subscri|remov.*subscri|delete.*webhook/i],
+		mcpTool: 'pingone_delete_subscription',
+		apiCall: { method: 'DELETE', path: '/environments/{envId}/subscriptions/{id}' },
+		howItWorks: 'Calls DELETE /environments/{envId}/subscriptions/{id}. Permanently removes the webhook subscription. No more events will be delivered to that endpoint.',
+	},
+	// ── Risk ─────────────────────────────────────────────────────────────────
+	{
+		id: 'risk_evaluation',
+		patterns: [/risk.*eval|eval.*risk|risk.*score|assess.*risk|risk.*user/i],
+		mcpTool: 'pingone_risk_evaluation',
+		apiCall: { method: 'POST', path: '/environments/{envId}/riskEvaluations' },
+		howItWorks: 'Calls POST /environments/{envId}/riskEvaluations with a user + event context. PingOne Protect returns a risk level (LOW/MEDIUM/HIGH) and contributing risk factors (IP reputation, anomalous behavior, impossible travel, etc.).',
+	},
+	// ── Org Licenses ─────────────────────────────────────────────────────────
+	{
+		id: 'org_licenses',
+		patterns: [/licens|org.*licens|subscri.*licens|what.*licens|capacity/i],
+		mcpTool: 'pingone_get_organization_licenses',
+		apiCall: { method: 'GET', path: '/environments/{envId}/licenses' },
+		howItWorks: 'Calls the PingOne Licensing API to return your organization\'s active licenses — product names, seat counts, expiry dates, and included feature flags.',
+	},
+	// ── OIDC ─────────────────────────────────────────────────────────────────
+	{
+		id: 'oidc_discovery',
+		patterns: [/oidc|openid|discovery|\.well-known|issuer/i],
+		mcpTool: 'pingone_oidc_config',
+		apiCall: { method: 'GET', path: '/environments/{envId}/as/.well-known/openid-configuration' },
+		howItWorks: 'Fetches the OIDC Discovery document — a standard RFC 8414 endpoint that advertises supported grant types, scopes, algorithms, and endpoint URLs. No credentials needed.',
+	},
+	// ── Token introspect ─────────────────────────────────────────────────────
+	{
+		id: 'introspect_token',
+		patterns: [/introspect|inspect.*token|token.*info|validate.*token/i],
+		mcpTool: 'pingone_introspect_token',
+		apiCall: { method: 'POST', path: '/environments/{envId}/as/introspect' },
+		howItWorks: 'Calls the PingOne token introspection endpoint (RFC 7662). Returns whether the token is active, plus its claims — expiry, scope, subject, client_id, and more.',
+	},
+	// ── Auth / UserInfo ───────────────────────────────────────────────────────
+	{
+		id: 'userinfo',
+		patterns: [/userinfo|user\s+profile\s+claim|id.?token.*claim|current.*user.*claim/i],
+		mcpTool: 'pingone_userinfo',
+		apiCall: { method: 'GET', path: '/environments/{envId}/as/userinfo' },
+		howItWorks: 'Calls GET /environments/{envId}/as/userinfo with a Bearer token. Returns OIDC standard claims (sub, name, email, phone_number) for the authenticated user. Useful for testing what claims an issued token carries.',
+	},
+	// ── Help ─────────────────────────────────────────────────────────────────
+	{
+		id: 'help',
+		patterns: [
+			/^help$/i,
+			/what can (you|i|we) do/i,
+			/what can.*look.?up/i,
+			/what.*commands/i,
+			/how do i (use|start|get start)/i,
+			/how can.*help/i,
+			/what.*can.*do.*chat/i,
+			/what.*user.*chat|chat.*user/i,
+			/what.*look.*up.*ping|what.*ping.*look/i,
+		],
+		mcpTool: 'ai_assistant_help',
+		apiCall: null,
+		howItWorks: 'Returns a full guide to all available chat capabilities. No credentials needed.',
+	},
+];
+
+function classifyMcpIntent(query) {
+	for (const intent of MCP_INTENTS) {
+		for (const pattern of intent.patterns) {
+			if (pattern.test(query)) {
+				return intent;
+			}
+		}
+	}
+	return null;
+}
+
+function buildRegionUrl(region) {
+	const r = (region || 'us').toLowerCase();
+	if (r === 'eu') return 'api.pingone.eu';
+	if (r === 'ca') return 'api.pingone.ca';
+	if (r === 'ap' || r === 'asia') return 'api.pingone.asia';
+	if (r === 'au') return 'api.pingone.com.au';
+	if (r === 'sg') return 'api.pingone.sg';
+	return 'api.pingone.com';
+}
+
+async function getStoredCustomDomain() {
+	try {
+		const raw = await settingsDB.get(CUSTOM_DOMAIN_KEY);
+		return typeof raw === 'string' && raw.trim() ? raw.trim() : DEFAULT_CUSTOM_DOMAIN;
+	} catch {
+		return DEFAULT_CUSTOM_DOMAIN;
+	}
+}
+
+async function mcpCallPingOne({ environmentId, workerToken, region, path, method = 'GET', body = null }) {
+	const customDomain = await getStoredCustomDomain();
+	const host = customDomain || buildRegionUrl(region);
+	const url = `https://${host}/v1/environments/${environmentId}${path}`;
+	const opts = {
+		method,
+		headers: { Authorization: `Bearer ${workerToken}`, Accept: 'application/json' },
+	};
+	if (body != null) {
+		opts.headers['Content-Type'] = 'application/json';
+		opts.body = JSON.stringify(body);
+	}
+	const response = await global.fetch(url, opts);
+	if (method === 'DELETE' && response.status === 204) return { success: true };
+	if (!response.ok) {
+		const err = await response.json().catch(() => ({ message: response.statusText }));
+		throw Object.assign(new Error(err.message || response.statusText), { status: response.status, details: err });
+	}
+	return response.json();
+}
+
+/** Pull the first email-looking token from a query string. */
+function _extractEmail(query) {
+	const m = query.match(/[\w.+%-]+@[\w-]+\.[a-z]{2,}/i);
+	return m ? m[0] : null;
+}
+/** Pull text after "named?|called?" or in quotes. */
+function _extractName(query) {
+	const inQuotes = query.match(/["']([^"']+)["']/);
+	if (inQuotes) return inQuotes[1];
+	const after = query.match(/(?:name[ds]?|called?|for)\s+(\S+)/i);
+	return after ? after[1] : null;
+}
+/** Pull a UUID from the query. */
+function _extractUuid(query) {
+	const m = query.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+	return m ? m[0] : null;
+}
+/** Pull a username prefix from phrases like "start with X", "starting with X", "begin with X", "users named X" */
+function _extractUsernamePrefix(query) {
+	const m = query.match(/(?:start(?:ing)?\s+with|begin(?:ning)?\s+with|named?\s+|called?\s+|whose\s+(?:name|username)\s+(?:is|starts?\s+with)\s+)["']?([\w.@+-]+)["']?/i);
+	return m ? m[1] : null;
+}
+/** Pull an explicit count/limit from phrases like "show me 5", "get 2 users", "first 10", "top 3" */
+function _extractLimit(query) {
+	const m = query.match(/\b(?:show\s+(?:me\s+)?|get\s+(?:me\s+)?|list\s+(?:me\s+)?|fetch\s+(?:me\s+)?|first\s+|top\s+|only\s+)?(\d{1,4})\s*(?:users?|results?|records?)?\b/i);
+	if (m) {
+		const n = parseInt(m[1], 10);
+		// Ignore stray numbers that are clearly not a count (e.g. port numbers, UUIDs picked up)
+		if (n >= 1 && n <= 200) return n;
+	}
+	return null;
+}
+/** Pull an explicit SCIM filter from the query (e.g. 'filter: username eq "alice"') */
+function _extractScimFilter(query) {
+	const m = query.match(/filter\s*[:=]?\s*(.+?)(?:\s+limit\s+\d+)?$/i);
+	return m ? m[1].trim() : null;
+}
+/** Returns true if the query is asking for raw/JSON output */
+function _wantsJson(query) {
+	return /\b(?:json|raw|as json|in json|raw json|json format|raw format|raw output|raw data)\b/i.test(query);
+}
+/**
+ * Extract application-specific filters from natural language.
+ * Returns { nameFilter, typeFilter, enabledFilter, protocolFilter }
+ *   nameFilter: string | null  — partial name match (case-insensitive)
+ *   typeFilter: string | null  — app type, e.g. WORKER, SINGLE_PAGE_APP, WEB_APP, NATIVE_APP, SERVICE
+ *   enabledFilter: boolean | null — true = enabled only, false = disabled only
+ *   protocolFilter: string | null — OPENID_CONNECT | SAML
+ */
+function _extractAppFilter(query) {
+	const q = query;
+	let nameFilter = null;
+	let typeFilter = null;
+	let enabledFilter = null;
+	let protocolFilter = null;
+
+	// Name matches: 'named X', 'called X', 'app X', 'named "X"'
+	const nameMatch = q.match(/(?:named?|called?)\s+["']?([\w .@+-]{2,40})["']?/i);
+	if (nameMatch) nameFilter = nameMatch[1].trim();
+
+	// Type matches
+	if (/\bworker\b/i.test(q)) typeFilter = 'WORKER';
+	else if (/\bsingle.?page\b|\bspa\b/i.test(q)) typeFilter = 'SINGLE_PAGE_APP';
+	else if (/\bnative\b/i.test(q)) typeFilter = 'NATIVE_APP';
+	else if (/\bweb.?app\b/i.test(q)) typeFilter = 'WEB_APP';
+	else if (/\bservice\b|\bnon.?interactive\b/i.test(q)) typeFilter = 'SERVICE';
+	else if (/\bdevice\b/i.test(q)) typeFilter = 'DEVICE';
+
+	// Protocol matches
+	if (/\bsaml\b/i.test(q)) protocolFilter = 'SAML';
+	else if (/\boidc\b|\bopenid\b/i.test(q)) protocolFilter = 'OPENID_CONNECT';
+
+	// Enabled/disabled
+	if (/\benabled\b/i.test(q) && !/\bdisabled\b/i.test(q)) enabledFilter = true;
+	else if (/\bdisabled\b/i.test(q)) enabledFilter = false;
+
+	return { nameFilter, typeFilter, enabledFilter, protocolFilter };
+}
+/**
+ * Extract a name search term from natural language for groups/populations.
+ * e.g. "groups named Admins", "group called Dev Team"
+ */
+function _extractGroupNameFilter(query) {
+	const m = query.match(/(?:named?|called?|matching|with\s+name)\s+["']?([\w .@+-]{2,40})["']?/i);
+	return m ? m[1].trim() : null;
+}
+
+app.post('/api/mcp/query', async (req, res) => {
+	// Declared outside try so the catch block can include intent metadata in error responses
+	let _intent = null;
+	const _start = Date.now();
+	try {
+		const { query, workerToken, environmentId: reqEnvId, region } = req.body || {};
+
+		if (!query || typeof query !== 'string' || !query.trim()) {
+			return res.status(400).json({ error: 'invalid_request', error_description: 'query is required' });
+		}
+
+		const intent = classifyMcpIntent(query.trim());
+		_intent = intent;
+
+		writeToMcpLog('info', `MCP query received`, { query: query.trim().slice(0, 150), intent: intent?.id ?? 'unrecognized' });
+		writeToAiLog('info', `NL→MCP dispatch`, { query: query.trim().slice(0, 150), intent: intent?.id ?? 'unrecognized' });
+
+		if (!intent) {
+			return res.json({
+				success: false,
+				answer: "I couldn't identify a specific PingOne operation in that query. Try asking to list applications, list users, list groups, fetch OIDC discovery, or get a worker token. Ask \"What can I do?\" for a full guide.",
+				mcpTool: null,
+				apiCall: null,
+				howItWorks: null,
+				data: null,
+			});
+		}
+
+		// Help intent — no credentials needed, always answer
+		if (intent.id === 'help') {
+			return res.json({
+				success: true,
+				answer:
+					'🤖 Here\'s what you can do via chat:\n\n' +
+					'🔵 PingOne (always active — no toggles needed):\n' +
+					'• "Get worker token" — authenticate once, all other calls use the cached token\n\n' +
+					'📋 List & search:\n' +
+					'• "Show all apps" / "List applications"\n' +
+					'• "Show all users" / "List users"\n' +
+					'• "List groups" / "List populations"\n' +
+					'• "List MFA policies" / "List subscriptions"\n' +
+					'• "Show org licenses"\n\n' +
+					'🔍 Get specific items:\n' +
+					'• "Find user john@acme.com"\n' +
+					'• "Get group named Admins"\n' +
+					'• "What groups is user <id> in?"\n' +
+					'• "Show app secret for <app-name>"\n' +
+					'• "Rotate secret for <app-name>"\n\n' +
+					'👤 User management:\n' +
+					'• "Create user john@acme.com"\n' +
+					'• "Delete user john@acme.com"\n' +
+					'• "Add user <id> to group <id>"\n' +
+					'• "Remove user <id> from group <id>"\n\n' +
+					'🏷️ Group management:\n' +
+					'• "Create group named DevTeam"\n' +
+					'• "Delete group <id>"\n\n' +
+					'🔐 Auth & tokens:\n' +
+					'• "Get OIDC discovery document"\n' +
+					'• "Introspect token"\n' +
+					'• "Get userinfo"\n\n' +
+					'📡 Webhooks:\n' +
+					'• "List subscriptions" / "Delete subscription <id>"\n\n' +
+					'🌐 Web (Brave toggle) — live internet search\n' +
+					'📚 Always on — OAuth/OIDC/IAM local knowledge\n\n' +
+					'💡 Start with: "Get worker token" then ask anything above.',
+				mcpTool: 'ai_assistant_help',
+				apiCall: null,
+				howItWorks: intent.howItWorks,
+				data: null,
+			});
+		}
+
+		// Worker token intent — actually call the PingOne token endpoint
+		if (intent.id === 'worker_token') {
+			try {
+				const creds = _mcpReadCredentials();
+				const now = Date.now();
+				if (_mcpTokenCache.token && _mcpTokenCache.expiry > now + 60_000) {
+					return res.json({
+						success: true,
+						answer: `✅ Worker token is active (cached). Expires in ${Math.round((_mcpTokenCache.expiry - now) / 1000)}s. Ready for PingOne API calls.`,
+						mcpTool: intent.mcpTool,
+						apiCall: intent.apiCall,
+						howItWorks: intent.howItWorks,
+						data: { cached: true, expiresIn: Math.round((_mcpTokenCache.expiry - now) / 1000) },
+					});
+				}
+				const tokenData = await _mcpFetchWorkerToken(creds);
+				_mcpTokenCache.token = tokenData.access_token;
+				_mcpTokenCache.expiry = Date.now() + (tokenData.expires_in ?? 3600) * 1000;
+				return res.json({
+					success: true,
+					answer: `✅ Worker token obtained for environment ${creds.environmentId}. Expires in ${tokenData.expires_in ?? 3600}s. Scope: ${tokenData.scope || '(default)'}. All subsequent MCP calls will use this token automatically.`,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: { tokenType: tokenData.token_type, expiresIn: tokenData.expires_in, scope: tokenData.scope },
+				});
+			} catch (tokenErr) {
+				return res.json({
+					success: false,
+					answer: `❌ Could not obtain worker token: ${tokenErr.message}`,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+					credentialsRequired: true,
+				});
+			}
+		}
+
+		// Resolve credentials — request body > env vars > in-memory token cache
+		const envId = reqEnvId
+			|| process.env.PINGONE_ENVIRONMENT_ID
+			|| process.env.VITE_PINGONE_ENVIRONMENT_ID
+			|| _mcpReadCredentials().environmentId;
+		const token = workerToken
+			|| process.env.PINGONE_WORKER_TOKEN
+			|| (_mcpTokenCache.expiry > Date.now() ? _mcpTokenCache.token : null);
+		const ctx = { environmentId: envId, workerToken: token, region };
+
+		// OIDC discovery — no token needed, try live then fall back to educational
+		if (intent.id === 'oidc_discovery') {
+			let data = null;
+			if (envId) {
+				try {
+					const tld = buildRegionUrl(region).replace('api.pingone.', '');
+					const url = `https://auth.pingone.${tld}/${envId}/as/.well-known/openid-configuration`;
+					const resp = await global.fetch(url, { headers: { Accept: 'application/json' } });
+					if (resp.ok) data = await resp.json();
+				} catch (_) { /* best-effort */ }
+			}
+			return res.json({
+				success: true,
+				answer: data
+					? `Fetched OIDC discovery document for environment ${envId}.`
+					: 'Set PINGONE_ENVIRONMENT_ID (or save credentials in MCP Server Config) to fetch live OIDC discovery.',
+				mcpTool: intent.mcpTool,
+				apiCall: intent.apiCall,
+				howItWorks: intent.howItWorks,
+				data,
+				credentialsRequired: !data,
+			});
+		}
+
+		// All remaining intents require a token + envId
+		if (!envId || !token) {
+			return res.json({
+				success: false,
+				answer: `🔑 Type "Get worker token" first to authenticate, then ask again for live PingOne data.`,
+				mcpTool: intent.mcpTool,
+				apiCall: intent.apiCall,
+				howItWorks: intent.howItWorks,
+				data: null,
+				credentialsRequired: true,
+			});
+		}
+
+		// ── Dispatch live API calls by intent ──────────────────────────────
+		let data = null;
+		let summary = '';
+
+		const q = query.trim();  // shorthand
+
+		// ── LIST / GET (read-only) ─────────────────────────────────────────
+		if (intent.id === 'list_applications') {
+			// PingOne applications API does not support server-side SCIM filtering,
+			// so we fetch all and filter client-side.
+			const requestedLimit = _extractLimit(q);
+			const { nameFilter, typeFilter, enabledFilter, protocolFilter } = _extractAppFilter(q);
+			const raw = await mcpCallPingOne({ ...ctx, path: '/applications?limit=100' });
+			let apps = raw?._embedded?.applications || [];
+			const filterDesc = [];
+			if (nameFilter) {
+				apps = apps.filter(a => a.name && a.name.toLowerCase().includes(nameFilter.toLowerCase()));
+				filterDesc.push(`name contains "${nameFilter}"`);
+			}
+			if (typeFilter) {
+				apps = apps.filter(a => a.type === typeFilter);
+				filterDesc.push(`type=${typeFilter}`);
+			}
+			if (protocolFilter) {
+				apps = apps.filter(a => a.protocol === protocolFilter);
+				filterDesc.push(`protocol=${protocolFilter}`);
+			}
+			if (enabledFilter !== null) {
+				apps = apps.filter(a => a.enabled === enabledFilter);
+				filterDesc.push(enabledFilter ? 'enabled only' : 'disabled only');
+			}
+			if (requestedLimit) apps = apps.slice(0, requestedLimit);
+			data = apps;
+			const filterSuffix = filterDesc.length ? ` (${filterDesc.join(', ')})` : '';
+			summary = `Found ${data.length} application(s)${filterSuffix} in environment ${envId}.`;
+
+		} else if (intent.id === 'list_users') {
+			const emailFilter    = _extractEmail(q);
+			const usernamePrefix = !emailFilter ? _extractUsernamePrefix(q) : null;
+			const explicitFilter = _extractScimFilter(q);
+			const requestedLimit = _extractLimit(q);
+			// Use user-specified limit, capped at 100; default 10 (not 20) to avoid over-fetching
+			const limit = Math.min(requestedLimit || 10, 100);
+
+			let filterParam = '';
+			let filterDesc  = '';
+			if (explicitFilter) {
+				// Caller passed their own SCIM filter — use it verbatim
+				filterParam = `&filter=${encodeURIComponent(explicitFilter)}`;
+				filterDesc  = ` matching filter "${explicitFilter}"`;
+			} else if (emailFilter) {
+				// SCIM: emails[primary eq true].value eq "addr" — PingOne SCIM syntax
+				filterParam = `&filter=${encodeURIComponent(`emails[primary eq true].value eq "${emailFilter}"`)}`;
+				filterDesc  = ` matching email ${emailFilter}`;
+			} else if (usernamePrefix) {
+				// SCIM: username sw "prefix"
+				filterParam = `&filter=${encodeURIComponent(`username sw "${usernamePrefix}"`)}`;
+				filterDesc  = ` whose username starts with "${usernamePrefix}"`;
+			}
+
+			const path = `/users?limit=${limit}${filterParam}`;
+			const raw = await mcpCallPingOne({ ...ctx, path });
+			data = raw?._embedded?.users || [];
+			summary = `Found ${data.length} user(s)${filterDesc} in environment ${envId}. (limit=${limit})`;
+
+		} else if (intent.id === 'get_user') {
+			const email = _extractEmail(q);
+			const uuid = _extractUuid(q);
+			if (uuid) {
+				data = await mcpCallPingOne({ ...ctx, path: `/users/${uuid}` });
+				summary = `Found user ${data.username || uuid}.`;
+			} else if (email) {
+				const raw = await mcpCallPingOne({ ...ctx, path: `/users?filter=email eq "${email}"&limit=5` });
+				data = raw?._embedded?.users || [];
+				summary = `Found ${data.length} user(s) matching ${email}.`;
+			} else {
+				return res.json({
+					success: false,
+					answer: 'Please include an email address or user ID. Example: "Find user john@acme.com"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+
+		} else if (intent.id === 'get_user_groups') {
+			const uuid = _extractUuid(q);
+			if (!uuid) {
+				return res.json({
+					success: false,
+					answer: 'Please provide a user UUID. Example: "What groups is user 3fa...uuid...abc in?"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			const raw = await mcpCallPingOne({ ...ctx, path: `/users/${uuid}/memberOfGroups` });
+			data = raw?._embedded?.groupMemberships || [];
+			summary = `User ${uuid} is a member of ${data.length} group(s).`;
+
+		} else if (intent.id === 'list_groups') {
+			const requestedLimit = _extractLimit(q) || 50;
+			const nameFilter = _extractGroupNameFilter(q);
+			let groupPath = `/groups?limit=${Math.min(requestedLimit, 100)}`;
+			let groupFilterDesc = '';
+			if (nameFilter) {
+				// Groups support server-side SCIM filter
+				groupPath += `&filter=${encodeURIComponent(`name sw "${nameFilter}"`)}` ;
+				groupFilterDesc = ` starting with "${nameFilter}"`;
+			}
+			const raw = await mcpCallPingOne({ ...ctx, path: groupPath });
+			data = raw?._embedded?.groups || [];
+			summary = `Found ${data.length} group(s)${groupFilterDesc} in environment ${envId}.`;
+
+		} else if (intent.id === 'get_group') {
+			const name = _extractName(q);
+			const uuid = _extractUuid(q);
+			if (uuid) {
+				data = await mcpCallPingOne({ ...ctx, path: `/groups/${uuid}` });
+				summary = `Found group "${data.name}".`;
+			} else if (name) {
+				const raw = await mcpCallPingOne({ ...ctx, path: `/groups?filter=name eq "${name}"` });
+				data = raw?._embedded?.groups || [];
+				summary = `Found ${data.length} group(s) named "${name}".`;
+			} else {
+				return res.json({
+					success: false,
+					answer: 'Please include a group name or UUID. Example: "Find group named Admins"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+
+		} else if (intent.id === 'list_populations') {
+			const requestedLimit = _extractLimit(q) || 50;
+			const raw = await mcpCallPingOne({ ...ctx, path: `/populations?limit=${Math.min(requestedLimit, 100)}` });
+			data = raw?._embedded?.populations || [];
+			summary = `Found ${data.length} population(s) in environment ${envId}.`;
+
+		} else if (intent.id === 'get_application') {
+			const name = _extractName(q);
+			const uuid = _extractUuid(q);
+			if (uuid) {
+				data = await mcpCallPingOne({ ...ctx, path: `/applications/${uuid}` });
+				summary = `Found application "${data.name}".`;
+			} else if (name) {
+				const raw = await mcpCallPingOne({ ...ctx, path: `/applications?limit=50` });
+				const apps = raw?._embedded?.applications || [];
+				data = apps.filter(a => a.name?.toLowerCase().includes(name.toLowerCase()));
+				summary = `Found ${data.length} application(s) matching "${name}".`;
+			} else {
+				return res.json({
+					success: false,
+					answer: 'Please include an app name or UUID. Example: "Find app named MyApp"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+
+		} else if (intent.id === 'get_application_secret') {
+			const uuid = _extractUuid(q);
+			if (!uuid) {
+				return res.json({
+					success: false,
+					answer: 'Please include the application UUID. Example: "Get app secret for 3fa...uuid...abc"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			data = await mcpCallPingOne({ ...ctx, path: `/applications/${uuid}/secret` });
+			summary = `Retrieved client secret for application ${uuid}. ⚠️ Treat this value as a password.`;
+
+		} else if (intent.id === 'list_mfa_policies') {
+			const raw = await mcpCallPingOne({ ...ctx, path: '/deviceAuthenticationPolicies' });
+			data = raw?._embedded?.deviceAuthenticationPolicies || raw?._embedded?.mfaPolicies || [];
+			summary = `Found ${data.length} MFA policy/policies.`;
+
+		} else if (intent.id === 'list_mfa_devices') {
+			const uuid = _extractUuid(q);
+			if (!uuid) {
+				return res.json({
+					success: false,
+					answer: 'Please provide a user UUID. Example: "List MFA devices for user 3fa...uuid...abc"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			const raw = await mcpCallPingOne({ ...ctx, path: `/users/${uuid}/devices` });
+			data = raw?._embedded?.devices || [];
+			summary = `Found ${data.length} MFA device(s) for user ${uuid}.`;
+
+		} else if (intent.id === 'list_subscriptions') {
+			const raw = await mcpCallPingOne({ ...ctx, path: '/subscriptions' });
+			data = raw?._embedded?.subscriptions || [];
+			summary = `Found ${data.length} webhook subscription(s).`;
+
+		} else if (intent.id === 'org_licenses') {
+			const raw = await mcpCallPingOne({ ...ctx, path: '/licenses' });
+			data = raw?._embedded?.licenses || [];
+			summary = `Found ${data.length} license(s) for this organization.`;
+
+		} else if (intent.id === 'userinfo') {
+			data = await mcpCallPingOne({ ...ctx, path: '/as/userinfo' });
+			summary = `Retrieved userinfo claims: sub=${data?.sub || '(unknown)'}.`;
+
+		// ── WRITE operations ────────────────────────────────────────────────
+		} else if (intent.id === 'create_user') {
+			const email = _extractEmail(q);
+			if (!email) {
+				return res.json({
+					success: false,
+					answer: 'Please include an email address. Example: "Create user john@acme.com"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			// Get default population
+			const popsRaw = await mcpCallPingOne({ ...ctx, path: '/populations?limit=1' });
+			const defaultPop = popsRaw?._embedded?.populations?.[0];
+			const namePart = email.split('@')[0];
+			const body = {
+				username: email,
+				email,
+				name: { given: namePart, family: '' },
+				population: { id: defaultPop?.id ?? '' },
+			};
+			data = await mcpCallPingOne({ ...ctx, path: '/users', method: 'POST', body });
+			summary = `✅ Created user ${email} with ID ${data.id}. Population: ${defaultPop?.name || '(default)'}.`;
+
+		} else if (intent.id === 'delete_user') {
+			const email = _extractEmail(q);
+			const uuid = _extractUuid(q);
+			let userId = uuid;
+			if (!userId && email) {
+				const raw = await mcpCallPingOne({ ...ctx, path: `/users?filter=email eq "${email}"&limit=1` });
+				userId = raw?._embedded?.users?.[0]?.id;
+			}
+			if (!userId) {
+				return res.json({
+					success: false,
+					answer: 'Please include a user email or UUID. Example: "Delete user john@acme.com"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			await mcpCallPingOne({ ...ctx, path: `/users/${userId}`, method: 'DELETE' });
+			data = { deleted: true, userId };
+			summary = `✅ Deleted user ${email || userId}.`;
+
+		} else if (intent.id === 'create_group') {
+			const name = _extractName(q);
+			if (!name) {
+				return res.json({
+					success: false,
+					answer: 'Please include a group name. Example: "Create group named DevTeam"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			data = await mcpCallPingOne({ ...ctx, path: '/groups', method: 'POST', body: { name } });
+			summary = `✅ Created group "${name}" with ID ${data.id}.`;
+
+		} else if (intent.id === 'delete_group') {
+			const uuid = _extractUuid(q);
+			const name = _extractName(q);
+			let groupId = uuid;
+			if (!groupId && name) {
+				const raw = await mcpCallPingOne({ ...ctx, path: `/groups?filter=name eq "${name}"&limit=1` });
+				groupId = raw?._embedded?.groups?.[0]?.id;
+			}
+			if (!groupId) {
+				return res.json({
+					success: false,
+					answer: 'Please include a group UUID or name. Example: "Delete group named DevTeam"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			await mcpCallPingOne({ ...ctx, path: `/groups/${groupId}`, method: 'DELETE' });
+			data = { deleted: true, groupId };
+			summary = `✅ Deleted group ${name || groupId}.`;
+
+		} else if (intent.id === 'add_user_to_group') {
+			const uuids = [...q.matchAll(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi)].map(m => m[0]);
+			const [userId, groupId] = uuids;
+			if (!userId || !groupId) {
+				return res.json({
+					success: false,
+					answer: 'Please include both a user UUID and a group UUID. Example: "Add user <userId> to group <groupId>"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			data = await mcpCallPingOne({ ...ctx, path: `/users/${userId}/memberOfGroups`, method: 'POST', body: { id: groupId } });
+			summary = `✅ Added user ${userId} to group ${groupId}.`;
+
+		} else if (intent.id === 'remove_user_from_group') {
+			const uuids = [...q.matchAll(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi)].map(m => m[0]);
+			const [userId, groupId] = uuids;
+			if (!userId || !groupId) {
+				return res.json({
+					success: false,
+					answer: 'Please include both a user UUID and a group UUID. Example: "Remove user <userId> from group <groupId>"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			await mcpCallPingOne({ ...ctx, path: `/users/${userId}/memberOfGroups/${groupId}`, method: 'DELETE' });
+			data = { removed: true, userId, groupId };
+			summary = `✅ Removed user ${userId} from group ${groupId}.`;
+
+		} else if (intent.id === 'create_application') {
+			const name = _extractName(q);
+			if (!name) {
+				return res.json({
+					success: false,
+					answer: 'Please include an app name. Example: "Create application named MyApp"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			data = await mcpCallPingOne({
+				...ctx, path: '/applications', method: 'POST',
+				body: { name, enabled: true, protocol: 'OPENID_CONNECT', type: 'WEB_APP', grantTypes: ['AUTHORIZATION_CODE'], redirectUris: [] },
+			});
+			summary = `✅ Created application "${name}" with clientId ${data.oidcOptions?.clientId || data.id}.`;
+
+		} else if (intent.id === 'delete_application') {
+			const uuid = _extractUuid(q);
+			const name = _extractName(q);
+			let appId = uuid;
+			if (!appId && name) {
+				const raw = await mcpCallPingOne({ ...ctx, path: '/applications?limit=50' });
+				const found = raw?._embedded?.applications?.find(a => a.name?.toLowerCase() === name.toLowerCase());
+				appId = found?.id;
+			}
+			if (!appId) {
+				return res.json({
+					success: false,
+					answer: 'Please include an application UUID or name. Example: "Delete application named MyApp"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			await mcpCallPingOne({ ...ctx, path: `/applications/${appId}`, method: 'DELETE' });
+			data = { deleted: true, appId };
+			summary = `✅ Deleted application ${name || appId}.`;
+
+		} else if (intent.id === 'rotate_application_secret') {
+			const uuid = _extractUuid(q);
+			if (!uuid) {
+				return res.json({
+					success: false,
+					answer: 'Please include the application UUID. Example: "Rotate secret for 3fa...uuid...abc"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			data = await mcpCallPingOne({ ...ctx, path: `/applications/${uuid}/secret`, method: 'POST' });
+			summary = `✅ Rotated client secret for application ${uuid}. Old secret is now invalid.`;
+
+		} else if (intent.id === 'delete_subscription') {
+			const uuid = _extractUuid(q);
+			if (!uuid) {
+				return res.json({
+					success: false,
+					answer: 'Please include the subscription UUID. Example: "Delete subscription 3fa...uuid...abc"',
+					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+				});
+			}
+			await mcpCallPingOne({ ...ctx, path: `/subscriptions/${uuid}`, method: 'DELETE' });
+			data = { deleted: true, subscriptionId: uuid };
+			summary = `✅ Deleted subscription ${uuid}.`;
+
+		} else if (intent.id === 'introspect_token') {
+			summary = 'Token introspection requires a token value. Use the Token Tools page to introspect a specific token, or provide it in the request body.';
+			data = null;
+
+		} else if (intent.id === 'risk_evaluation') {
+			summary = 'Risk evaluation requires a userId and event context. This is an educational description: PingOne Protect evaluates IP reputation, device fingerprint, behavioral analytics, and past activity to produce a LOW/MEDIUM/HIGH risk score.';
+			data = null;
+
+		} else {
+			summary = `Intent "${intent.id}" recognised but no live handler is wired yet.`;
+		}
+
+		writeToMcpLog('info', `MCP query success`, { intent: intent.id, tool: intent.mcpTool, durationMs: Date.now() - _start, records: Array.isArray(data) ? data.length : (data ? 1 : 0) });
+		writeToAiLog('info', `MCP result ready`, { intent: intent.id, durationMs: Date.now() - _start });
+		return res.json({
+			success: true,
+			answer: summary || 'Done.',
+			mcpTool: intent.mcpTool,
+			apiCall: intent.apiCall,
+			howItWorks: intent.howItWorks,
+			data,
+			rawJson: _wantsJson(q) || undefined,
+		});
+	} catch (error) {
+		console.error('[MCP Query] Error:', error);
+		writeToMcpLog('error', `MCP query failed: ${error.message}`, { intent: _intent?.id, tool: _intent?.mcpTool, durationMs: Date.now() - _start });
+		writeToAiLog('error', `MCP query error: ${error.message}`, { intent: _intent?.id });
+		return res.status(500).json({
+			success: false,
+			answer: `PingOne API call failed: ${error.message}`,
+			mcpTool: _intent?.mcpTool ?? null,
+			apiCall: _intent?.apiCall ?? null,
+			howItWorks: _intent?.howItWorks ?? null,
+			data: null,
+			error: error.message,
+		});
+	}
+});
+
+// ─── End MCP Query Endpoint ───────────────────────────────────────────────────
+
+// API endpoint not found handler - MUST be after all API route definitions
+app.use('/api', (req, res) => {
+	console.error('[API 404] Endpoint not found:', {
+		method: req.method,
+		path: req.path,
+		query: req.query,
+		body: req.body,
+	});
+	res.status(404).json({
+		error: 'endpoint_not_found',
+		message: `API endpoint not found: ${req.method} ${req.path}`,
+		path: req.path,
+		method: req.method,
+	});
+});
+
+// Catch-all handler for React Router - MUST be after all API routes and static files
+// This ensures client-side routing works for routes like /mfa-unified-callback
+app.use((req, res, next) => {
+	// Only handle GET requests for React Router
+	if (req.method !== 'GET') {
+		return next();
+	}
+
+	// Serve index.html for all other routes to support React Router
+	const indexPath = path.join(__dirname, 'dist', 'index.html');
+
+	// Check if index.html exists
+	fs.access(indexPath, fs.constants.F_OK, (err) => {
+		if (err) {
+			console.error('[React Router 404] index.html not found:', indexPath);
+			return res.status(404).send('Application not found. Please build the application first.');
+		}
+
+		console.log(`[React Router] Serving index.html for route: ${req.path}`);
+		res.sendFile(indexPath);
+	});
+});
 
 // Load or generate self-signed certificates for HTTPS (env SSL_CERT_PATH/SSL_KEY_PATH take precedence)
 const certs = getCertPaths();
@@ -20899,7 +22711,11 @@ if (httpsServer) {
 }
 
 // Start the servers
-startServers().catch((error) => {
-	console.error('❌ Failed to start servers:', error);
-	process.exit(1);
-});
+if (process.env.NODE_ENV !== 'test') {
+	startServers().catch((error) => {
+		console.error('❌ Failed to start servers:', error);
+		process.exit(1);
+	});
+}
+
+export default app;
