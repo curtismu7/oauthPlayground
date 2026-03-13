@@ -184,47 +184,67 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		});
 	}, [environmentId, globalTokenStatus]);
 
-	// Load Environment ID from new storage service (environmentIdPersistenceService), then fallbacks
+	// Load Environment ID from MCP server first, then new storage service, then fallbacks
 	useEffect(() => {
-		// 1) New storage: app-wide environment ID (used by Worker Token, Environments, etc.)
-		const persistedEnvId = environmentIdPersistenceService.loadEnvironmentId();
-		if (persistedEnvId) {
-			setEnvironmentId(persistedEnvId);
-			globalEnvironmentService.initialize();
-		} else {
-			// 2) Sync global service and use its in-memory value (also backed by persistence)
-			globalEnvironmentService.initialize();
-			const savedEnvId = globalEnvironmentService.getEnvironmentId();
-			if (savedEnvId) {
-				setEnvironmentId(savedEnvId);
-			} else {
-				// 3) Legacy: MFA flow credentials and localStorage
-				const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
-					flowKey: 'mfa-flow-v8',
-					flowType: 'oidc',
-					includeClientSecret: false,
-					includeRedirectUri: false,
-					includeLogoutUri: false,
-					includeScopes: false,
-				});
-				if (mfaCreds?.environmentId) {
-					setEnvironmentId(mfaCreds.environmentId);
-					environmentIdPersistenceService.saveEnvironmentId(mfaCreds.environmentId, 'manual');
-				} else {
-					const legacyEnvId = localStorage.getItem('mfa_environmentId');
-					if (legacyEnvId) {
-						setEnvironmentId(legacyEnvId);
-						environmentIdPersistenceService.saveEnvironmentId(legacyEnvId, 'manual');
+		const loadEnvironmentId = async () => {
+			try {
+				// 1) Try MCP server credentials first (primary source for stored credentials)
+				const mcpResponse = await fetch('/api/mcp/server/credentials');
+				if (mcpResponse.ok) {
+					const mcpData = await mcpResponse.json();
+					if (mcpData.success && mcpData.credentials?.environmentId) {
+						const mcpEnvId = mcpData.credentials.environmentId;
+						logger.info('UnifiedMFARegistrationFlowV8', 'Loaded Environment ID from MCP server:', mcpEnvId);
+						setEnvironmentId(mcpEnvId);
+						environmentIdPersistenceService.saveEnvironmentId(mcpEnvId, 'manual');
+						globalEnvironmentService.setEnvironmentId(mcpEnvId);
+						return;
 					}
 				}
+			} catch (mcpError) {
+				logger.warn('UnifiedMFARegistrationFlowV8', 'Failed to load from MCP server, trying storage services:', mcpError);
 			}
-		}
 
-		// Load username from localStorage
-		const savedUsername = localStorage.getItem('mfa_unified_username');
-		if (savedUsername) {
-			setUsername(savedUsername);
-		}
+			try {
+				// 2) New storage: app-wide environment ID (used by Worker Token, Environments, etc.)
+				const persistedEnvId = environmentIdPersistenceService.loadEnvironmentId();
+				if (persistedEnvId) {
+					setEnvironmentId(persistedEnvId);
+					globalEnvironmentService.initialize();
+				} else {
+					// 3) Sync global service and use its in-memory value (also backed by persistence)
+					globalEnvironmentService.initialize();
+					const savedEnvId = globalEnvironmentService.getEnvironmentId();
+					if (savedEnvId) {
+						setEnvironmentId(savedEnvId);
+					} else {
+						// 4) Legacy: MFA flow credentials and localStorage
+						const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+							flowKey: 'mfa-flow-v8',
+							flowType: 'mfa',
+							includeClientSecret: false,
+							includeRedirectUri: false,
+							includeLogoutUri: false,
+							includeScopes: false,
+						});
+						if (mfaCreds?.environmentId) {
+							setEnvironmentId(mfaCreds.environmentId);
+							environmentIdPersistenceService.saveEnvironmentId(mfaCreds.environmentId, 'manual');
+						} else {
+							const legacyEnvId = localStorage.getItem('mfa_environmentId');
+							if (legacyEnvId) {
+								setEnvironmentId(legacyEnvId);
+								environmentIdPersistenceService.saveEnvironmentId(legacyEnvId, 'manual');
+							}
+						}
+					}
+				}
+			} catch (error) {
+				logger.error('UnifiedMFARegistrationFlowV8', 'Error loading Environment ID:', error);
+			}
+		};
+
+		loadEnvironmentId();
 	}, []);
 
 	// Use MFA policies hook
