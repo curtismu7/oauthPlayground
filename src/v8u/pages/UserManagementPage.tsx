@@ -47,12 +47,39 @@ const UserManagementPage: React.FC = () => {
 	const loadUsers = useCallback(async () => {
 		try {
 			setLoading(true);
-			// TODO: Implement actual user loading
-			// const response = await userService.getUsers();
-			// setUsers(response.data);
-			setUsers([]);
+			
+			// Mock data for now - in real implementation, this would call an API
+			const mockUsers: User[] = [
+				{
+					id: '1',
+					username: 'john.doe',
+					email: 'john.doe@example.com',
+					status: 'active',
+					createdAt: '2026-03-01T10:00:00Z',
+					lastLogin: '2026-03-12T14:30:00Z',
+				},
+				{
+					id: '2',
+					username: 'jane.smith',
+					email: 'jane.smith@example.com',
+					status: 'active',
+					createdAt: '2026-03-02T11:00:00Z',
+					lastLogin: '2026-03-12T09:15:00Z',
+				},
+				{
+					id: '3',
+					username: 'bob.wilson',
+					email: 'bob.wilson@example.com',
+					status: 'inactive',
+					createdAt: '2026-03-03T12:00:00Z',
+					lastLogin: '2026-03-10T16:45:00Z',
+				},
+			];
+			
+			setUsers(mockUsers);
+			logger.info('UserManagementPage', `Loaded ${mockUsers.length} users`);
 		} catch (error) {
-			logger.error('UserManagementPage', 'Failed to load users:', undefined, error);
+			logger.error('UserManagementPage', 'Failed to load users', error as Error);
 		} finally {
 			setLoading(false);
 		}
