@@ -119,7 +119,7 @@ export const UnifiedRegistrationStepModern: React.FC<UnifiedRegistrationStepMode
 				duration: 3000,
 			});
 
-			nav.next();
+			nav.goToNext();
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Registration failed:`, error);
 			const msg = error instanceof Error ? error.message : 'Registration failed';
@@ -318,7 +318,7 @@ export const UnifiedRegistrationStepModern: React.FC<UnifiedRegistrationStepMode
 					<Button
 						variant="secondary"
 						size="md"
-						onClick={() => nav.previous()}
+						onClick={() => nav.goToPrevious()}
 						disabled={isLoading}
 						leftIcon={<FiArrowLeft size={16} />}
 					>
