@@ -6,11 +6,11 @@
  * @since 2026-03-11
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useApiKeyManager } from '../hooks/useApiKeyManager';
-import { type ApiKeyInfo, apiKeyService, type ApiKeyConfig } from '../services/apiKeyService';
 import { type BackupStatus } from '../services/apiKeyBackupService';
+import { type ApiKeyConfig, type ApiKeyInfo, apiKeyService } from '../services/apiKeyService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
@@ -71,7 +71,7 @@ const BackupTitle = styled.h4`
 	margin: 0;
 `;
 
-const BackupStatus = styled.div`
+const BackupStatusStyled = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
@@ -103,8 +103,8 @@ const StatusIndicator = styled.span<{ $hasBackup: boolean }>`
 	border-radius: 4px;
 	font-size: 11px;
 	font-weight: 500;
-	background: ${props => props.$hasBackup ? V9_COLORS.SUCCESS.LIGHT : V9_COLORS.ERROR.LIGHT};
-	color: ${props => props.$hasBackup ? V9_COLORS.SUCCESS.DARK : V9_COLORS.ERROR.DARK};
+	background: ${(props) => (props.$hasBackup ? V9_COLORS.SUCCESS.LIGHT : V9_COLORS.ERROR.LIGHT)};
+	color: ${(props) => (props.$hasBackup ? V9_COLORS.SUCCESS.DARK : V9_COLORS.ERROR.DARK)};
 `;
 
 const BackupActions = styled.div`
@@ -239,7 +239,9 @@ const EyeButton = styled.button`
 	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 	font-size: 16px;
 	line-height: 1;
-	&:hover { color: ${V9_COLORS.TEXT.GRAY_DARK}; }
+	&:hover {
+		color: ${V9_COLORS.TEXT.GRAY_DARK};
+	}
 `;
 
 const KeyValueRow = styled.div`
@@ -315,12 +317,7 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 	const [backupStatus, setBackupStatus] = useState<BackupStatus[]>([]);
 	const [loadingBackup, setLoadingBackup] = useState(false);
 
-	// Load backup status on mount and when API keys change
-	useEffect(() => {
-		loadBackupStatus();
-	}, [apiKeys]);
-
-	const loadBackupStatus = async () => {
+	const loadBackupStatus = useCallback(async () => {
 		try {
 			setLoadingBackup(true);
 			const status = await apiKeyService.getBackupStatus();
@@ -330,7 +327,12 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 		} finally {
 			setLoadingBackup(false);
 		}
-	};
+	}, []);
+
+	// Load backup status on mount and when API keys change
+	useEffect(() => {
+		loadBackupStatus();
+	}, [loadBackupStatus]);
 
 	const handleCreateBackup = async () => {
 		try {
@@ -338,7 +340,7 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 			await apiKeyService.syncBackups();
 			setMessage({ type: 'success', text: 'Backup created successfully' });
 			await loadBackupStatus(); // Refresh status
-		} catch (error) {
+		} catch (_error) {
 			setMessage({ type: 'error', text: 'Failed to create backup' });
 		} finally {
 			setLoadingBackup(false);
@@ -352,7 +354,7 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 			await apiKeyService.restoreFromBackup();
 			setMessage({ type: 'success', text: 'Backup restored successfully' });
 			await loadBackupStatus(); // Refresh status
-		} catch (error) {
+		} catch (_error) {
 			setMessage({ type: 'error', text: 'Failed to restore backup' });
 		} finally {
 			setLoadingBackup(false);
@@ -550,14 +552,14 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 					);
 				})}
 			</ApiKeyList>
-			
+
 			{/* Backup Section */}
 			<BackupSection>
 				<BackupHeader>
 					<BackupTitle>🔄 API Key Backup</BackupTitle>
 				</BackupHeader>
-				
-				<BackupStatus>
+
+				<BackupStatusStyled>
 					{backupStatus.map((status) => (
 						<BackupItem key={status.service}>
 							<ServiceName>{status.service}</ServiceName>
@@ -574,20 +576,13 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 							</StatusIndicators>
 						</BackupItem>
 					))}
-				</BackupStatus>
-				
+				</BackupStatusStyled>
+
 				<BackupActions>
-					<Button
-						onClick={handleCreateBackup}
-						disabled={loadingBackup}
-						$variant="primary"
-					>
+					<Button onClick={handleCreateBackup} disabled={loadingBackup} $variant="primary">
 						💾 Create Backup
 					</Button>
-					<Button
-						onClick={handleRestoreBackup}
-						disabled={loadingBackup}
-					>
+					<Button onClick={handleRestoreBackup} disabled={loadingBackup}>
 						🔄 Restore from Backup
 					</Button>
 				</BackupActions>
