@@ -148,7 +148,7 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 ];
 
 // ─── AUTO-GENERATED: live scan items — do not edit manually ───
-// Last updated: 2026-03-13T12:26:26.579Z
+// Last updated: 2026-03-13T14:58:52.144Z
 
 const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 	{
@@ -187,7 +187,7 @@ const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 		id: 'v9-logger-migration',
 		description: 'console.* → logger.* migration',
 		status: 'warning',
-		countLabel: '53 console.error/warn remaining',
+		countLabel: '54 console.error/warn remaining',
 		detail:
 			'Structured logger across 90+ service files, 16 hooks, 3 contexts, 43 utils, 79 components. Intentional exceptions: loggingService, code-gen templates, CLI tools.',
 	},
@@ -195,7 +195,7 @@ const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 		id: 'eslint-disable-count',
 		description: 'ESLint/Biome disable directives',
 		status: 'clean',
-		countLabel: '47 eslint-disable + 156 biome-ignore',
+		countLabel: '47 eslint-disable + 138 biome-ignore',
 		detail:
 			'Targeted suppression comments. Goal: eliminate no-explicit-any and exhaustive-deps groups.',
 	},

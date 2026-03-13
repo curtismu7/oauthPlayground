@@ -210,15 +210,31 @@ export async function callMcpQuery(
 	});
 
 	if (!response.ok) {
-		const err = await response.json().catch(() => ({ error_description: response.statusText }));
+		let err: Record<string, unknown> = {};
+		const text = await response.text().catch(() => '');
+		try {
+			const json = text ? JSON.parse(text) : null;
+			err = (typeof json === 'object' && json !== null ? json : {}) as Record<string, unknown>;
+		} catch {
+			// Body may be HTML; use plain text only if short and not HTML
+			if (text && text.length < 500 && !/<\s*html/i.test(text)) {
+				err = { answer: text };
+			}
+		}
+		const msg =
+			(typeof err?.answer === 'string' && err.answer.trim()) ||
+			(typeof err?.error === 'string' && err.error.trim()) ||
+			(typeof err?.error_description === 'string' && err.error_description.trim()) ||
+			(typeof err?.message === 'string' && err.message.trim()) ||
+			response.statusText;
 		return {
 			success: false,
-			answer: `MCP query failed (${response.status}): ${err.error_description ?? response.statusText}`,
-			mcpTool: null,
-			apiCall: null,
-			howItWorks: null,
+			answer: `MCP query failed (${response.status}): ${msg}`,
+			mcpTool: (err?.mcpTool as string) ?? null,
+			apiCall: (err?.apiCall as { method: string; path: string }) ?? null,
+			howItWorks: (err?.howItWorks as string) ?? null,
 			data: null,
-			error: err.error_description ?? response.statusText,
+			error: msg,
 		};
 	}
 
