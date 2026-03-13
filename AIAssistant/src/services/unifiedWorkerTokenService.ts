@@ -336,12 +336,11 @@ class UnifiedWorkerTokenService {
 			const clientSecret = (c.clientSecret as string) ?? '';
 			if (!environmentId || !clientId || !clientSecret) return null;
 			const scopesRaw = c.scopes;
-			const scopes: string[] =
-				Array.isArray(scopesRaw)
-					? scopesRaw
-					: typeof scopesRaw === 'string'
-						? scopesRaw.split(/\s+/).filter(Boolean)
-						: [];
+			const scopes: string[] = Array.isArray(scopesRaw)
+				? scopesRaw
+				: typeof scopesRaw === 'string'
+					? scopesRaw.split(/\s+/).filter(Boolean)
+					: [];
 			const credentials: UnifiedWorkerTokenCredentials = {
 				environmentId,
 				clientId,
@@ -394,12 +393,11 @@ class UnifiedWorkerTokenService {
 		credentials: UnifiedWorkerTokenCredentials
 	): Promise<void> {
 		try {
-			const scopesStr =
-				Array.isArray(credentials.scopes)
-					? credentials.scopes.join(' ')
-					: typeof credentials.scopes === 'string'
-						? credentials.scopes
-						: null;
+			const scopesStr = Array.isArray(credentials.scopes)
+				? credentials.scopes.join(' ')
+				: typeof credentials.scopes === 'string'
+					? credentials.scopes
+					: null;
 			const body = {
 				environmentId: WORKER_TOKEN_SQLITE_KEY,
 				credentials: {
@@ -484,7 +482,7 @@ class UnifiedWorkerTokenService {
 			unifiedTokenStorage
 				.storeWorkerTokenCredentials(sqliteCreds as unknown as Record<string, unknown>)
 				.catch(() => {});
-			// Sync to mcp-config so MCP backend finds credentials (e.g. user saved via modal before)
+			// Sync to mcp-config so MCP backend can use these credentials
 			this._syncCredentialsToMcpConfig(sqliteCreds);
 			return sqliteCreds;
 		}
