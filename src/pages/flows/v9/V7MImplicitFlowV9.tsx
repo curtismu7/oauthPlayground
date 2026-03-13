@@ -154,7 +154,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 		setIntrospectionResponse(res);
 	}
 
-	async function copyToClipboard(text: string) {
+	async function _copyToClipboard(text: string) {
 		try {
 			await navigator.clipboard.writeText(text);
 			showGlobalSuccess('Copied to clipboard!');
@@ -569,9 +569,9 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 									url={`${apiBase}/${environmentId}/as/introspect`}
 									headers={{
 										'Content-Type': 'application/x-www-form-urlencoded',
-										Authorization: 'Basic ' + btoa(`${clientId}:***`),
+										Authorization: `Basic ${btoa(`${clientId}:***`)}`,
 									}}
-									body={`token=${accessToken ? encodeURIComponent(String(accessToken).substring(0, 20)) + '...' : '***'}`}
+									body={`token=${accessToken ? `${encodeURIComponent(String(accessToken).substring(0, 20))}...` : '***'}`}
 									response={{ status: 200, statusText: 'OK', data: introspectionResponse }}
 									defaultExpanded={true}
 								/>

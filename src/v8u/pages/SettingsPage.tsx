@@ -7,8 +7,8 @@
  */
 
 import React, { useState } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
 import { logger } from '../../utils/logger';
+import { useTheme } from '../contexts/ThemeContext';
 
 export const SettingsPage: React.FC = () => {
 	const { currentTheme, setTheme } = useTheme();
@@ -20,7 +20,7 @@ export const SettingsPage: React.FC = () => {
 	});
 
 	const handleSettingChange = (key: string, value: any) => {
-		setSettings(prev => ({ ...prev, [key]: value }));
+		setSettings((prev) => ({ ...prev, [key]: value }));
 		logger.info('SettingsPage', `Setting changed: ${key} = ${value}`);
 	};
 
@@ -78,9 +78,7 @@ export const SettingsPage: React.FC = () => {
 								className="w-4 h-4 rounded"
 								style={{ accentColor: currentTheme.colors.primary }}
 							/>
-							<span style={{ color: currentTheme.colors.text }}>
-								Enable push notifications
-							</span>
+							<span style={{ color: currentTheme.colors.text }}>Enable push notifications</span>
 						</label>
 						<label className="flex items-center space-x-3">
 							<input
@@ -90,9 +88,7 @@ export const SettingsPage: React.FC = () => {
 								className="w-4 h-4 rounded"
 								style={{ accentColor: currentTheme.colors.primary }}
 							/>
-							<span style={{ color: currentTheme.colors.text }}>
-								Auto-refresh data
-							</span>
+							<span style={{ color: currentTheme.colors.text }}>Auto-refresh data</span>
 						</label>
 					</div>
 				</div>
@@ -159,7 +155,10 @@ export const SettingsPage: React.FC = () => {
 				</div>
 
 				{/* Action Buttons */}
-				<div className="flex space-x-4 pt-6 border-t" style={{ borderColor: currentTheme.colors.border }}>
+				<div
+					className="flex space-x-4 pt-6 border-t"
+					style={{ borderColor: currentTheme.colors.border }}
+				>
 					<button
 						onClick={handleSaveSettings}
 						className="px-6 py-2 rounded font-medium"
