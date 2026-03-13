@@ -6,10 +6,11 @@
  * @since 2026-03-11
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useApiKeyManager } from '../hooks/useApiKeyManager';
-import { type ApiKeyInfo, apiKeyService } from '../services/apiKeyService';
+import { type ApiKeyInfo, apiKeyService, type ApiKeyConfig } from '../services/apiKeyService';
+import { type BackupStatus } from '../services/apiKeyBackupService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
@@ -48,6 +49,68 @@ const ApiKeyList = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
+`;
+
+const BackupSection = styled.div`
+	margin-top: 24px;
+	padding-top: 20px;
+	border-top: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+`;
+
+const BackupHeader = styled.div`
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 16px;
+`;
+
+const BackupTitle = styled.h4`
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0;
+`;
+
+const BackupStatus = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 16px;
+`;
+
+const BackupItem = styled.div`
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 12px;
+	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	border-radius: 6px;
+	font-size: 13px;
+`;
+
+const ServiceName = styled.span`
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	font-weight: 500;
+`;
+
+const StatusIndicators = styled.div`
+	display: flex;
+	gap: 8px;
+`;
+
+const StatusIndicator = styled.span<{ $hasBackup: boolean }>`
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 11px;
+	font-weight: 500;
+	background: ${props => props.$hasBackup ? V9_COLORS.SUCCESS.LIGHT : V9_COLORS.ERROR.LIGHT};
+	color: ${props => props.$hasBackup ? V9_COLORS.SUCCESS.DARK : V9_COLORS.ERROR.DARK};
+`;
+
+const BackupActions = styled.div`
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
 `;
 
 const ApiKeyItem = styled.div`
@@ -249,6 +312,53 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 	const [showInputKey, setShowInputKey] = useState(false);
 	const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
 	const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+	const [backupStatus, setBackupStatus] = useState<BackupStatus[]>([]);
+	const [loadingBackup, setLoadingBackup] = useState(false);
+
+	// Load backup status on mount and when API keys change
+	useEffect(() => {
+		loadBackupStatus();
+	}, [apiKeys]);
+
+	const loadBackupStatus = async () => {
+		try {
+			setLoadingBackup(true);
+			const status = await apiKeyService.getBackupStatus();
+			setBackupStatus(status);
+		} catch (error) {
+			console.error('Failed to load backup status:', error);
+		} finally {
+			setLoadingBackup(false);
+		}
+	};
+
+	const handleCreateBackup = async () => {
+		try {
+			setLoadingBackup(true);
+			await apiKeyService.syncBackups();
+			setMessage({ type: 'success', text: 'Backup created successfully' });
+			await loadBackupStatus(); // Refresh status
+		} catch (error) {
+			setMessage({ type: 'error', text: 'Failed to create backup' });
+		} finally {
+			setLoadingBackup(false);
+			setTimeout(clearMessage, 3000);
+		}
+	};
+
+	const handleRestoreBackup = async () => {
+		try {
+			setLoadingBackup(true);
+			await apiKeyService.restoreFromBackup();
+			setMessage({ type: 'success', text: 'Backup restored successfully' });
+			await loadBackupStatus(); // Refresh status
+		} catch (error) {
+			setMessage({ type: 'error', text: 'Failed to restore backup' });
+		} finally {
+			setLoadingBackup(false);
+			setTimeout(clearMessage, 3000);
+		}
+	};
 
 	const toggleShowKey = (service: string) =>
 		setShowKeys((prev) => ({ ...prev, [service]: !prev[service] }));
@@ -440,6 +550,48 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 					);
 				})}
 			</ApiKeyList>
+			
+			{/* Backup Section */}
+			<BackupSection>
+				<BackupHeader>
+					<BackupTitle>🔄 API Key Backup</BackupTitle>
+				</BackupHeader>
+				
+				<BackupStatus>
+					{backupStatus.map((status) => (
+						<BackupItem key={status.service}>
+							<ServiceName>{status.service}</ServiceName>
+							<StatusIndicators>
+								<StatusIndicator $hasBackup={status.hasPrimary}>
+									Primary: {status.hasPrimary ? '✅' : '❌'}
+								</StatusIndicator>
+								<StatusIndicator $hasBackup={status.hasLocalStorage}>
+									Local: {status.hasLocalStorage ? '✅' : '❌'}
+								</StatusIndicator>
+								<StatusIndicator $hasBackup={status.hasFilesystem}>
+									File: {status.hasFilesystem ? '✅' : '❌'}
+								</StatusIndicator>
+							</StatusIndicators>
+						</BackupItem>
+					))}
+				</BackupStatus>
+				
+				<BackupActions>
+					<Button
+						onClick={handleCreateBackup}
+						disabled={loadingBackup}
+						$variant="primary"
+					>
+						💾 Create Backup
+					</Button>
+					<Button
+						onClick={handleRestoreBackup}
+						disabled={loadingBackup}
+					>
+						🔄 Restore from Backup
+					</Button>
+				</BackupActions>
+			</BackupSection>
 		</Container>
 	);
 };

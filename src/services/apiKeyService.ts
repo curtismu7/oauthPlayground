@@ -14,6 +14,7 @@
 
 import { logger } from '../utils/logger';
 import { UnifiedTokenStorageService } from './unifiedTokenStorageService';
+import { apiKeyBackupService } from './apiKeyBackupService';
 
 const MODULE_TAG = '[🔑 API-KEY-SERVICE]';
 
@@ -144,6 +145,15 @@ class ApiKeyService {
 			}
 		} catch (error) {
 			logger.warn('ApiKeyService', 'Failed to store API key on backend', { error: String(error) });
+		}
+
+		// Create backup after successful storage
+		try {
+			await apiKeyBackupService.createBackup();
+			logger.info('ApiKeyService', `Created backup for ${service} API key`);
+		} catch (backupError) {
+			logger.warn('ApiKeyService', 'Failed to create backup after storing API key', { error: String(backupError) });
+			// Don't throw error - backup failure shouldn't prevent key storage
 		}
 	}
 
@@ -379,6 +389,27 @@ class ApiKeyService {
 		}
 
 		return { isValid: true };
+	}
+
+	/**
+	 * Get backup status for all API keys
+	 */
+	public async getBackupStatus(): Promise<import('./apiKeyBackupService').BackupStatus[]> {
+		return apiKeyBackupService.getBackupStatus();
+	}
+
+	/**
+	 * Sync all API keys to backup locations
+	 */
+	public async syncBackups(): Promise<void> {
+		return apiKeyBackupService.syncAllBackups();
+	}
+
+	/**
+	 * Restore API keys from backup
+	 */
+	public async restoreFromBackup(preferLocation?: 'localStorage' | 'filesystem' | 'primary'): Promise<void> {
+		return apiKeyBackupService.restoreFromBackup(preferLocation);
 	}
 
 	/**
