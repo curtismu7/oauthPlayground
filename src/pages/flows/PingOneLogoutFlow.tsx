@@ -252,7 +252,7 @@ const PingOneLogoutFlow: React.FC<PingOneLogoutFlowProps> = ({ credentials }) =>
 				}));
 			}
 		});
-	}, []);
+	}, [formData.clientId, formData.environmentId]);
 
 	const handleAppSelected = useCallback((app: DiscoveredApp) => {
 		setFormData((prev) => ({

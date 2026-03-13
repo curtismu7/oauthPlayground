@@ -7,8 +7,8 @@
  */
 
 import React, { useState } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
 import { logger } from '../../utils/logger';
+import { useTheme } from '../contexts/ThemeContext';
 
 export const ReportsPage: React.FC = () => {
 	const { currentTheme } = useTheme();
@@ -59,7 +59,7 @@ export const ReportsPage: React.FC = () => {
 		setTimeout(() => {
 			setIsGenerating(false);
 			logger.success('ReportsPage', 'Report generated successfully');
-			
+
 			// In a real implementation, this would download or display the report
 			const reportData = {
 				reportType: selectedReport,
@@ -67,7 +67,7 @@ export const ReportsPage: React.FC = () => {
 				generatedAt: new Date().toISOString(),
 				data: generateMockData(selectedReport),
 			};
-			
+
 			console.log('Generated Report:', reportData);
 		}, 2000);
 	};
@@ -137,12 +137,14 @@ export const ReportsPage: React.FC = () => {
 								onClick={() => setSelectedReport(report.id)}
 								className="p-4 rounded-lg border cursor-pointer transition-all"
 								style={{
-									borderColor: selectedReport === report.id 
-										? currentTheme.colors.primary 
-										: currentTheme.colors.border,
-									backgroundColor: selectedReport === report.id 
-										? `${currentTheme.colors.primary}10` 
-										: 'transparent',
+									borderColor:
+										selectedReport === report.id
+											? currentTheme.colors.primary
+											: currentTheme.colors.border,
+									backgroundColor:
+										selectedReport === report.id
+											? `${currentTheme.colors.primary}10`
+											: 'transparent',
 								}}
 							>
 								<div className="flex items-center space-x-3">
@@ -174,7 +176,7 @@ export const ReportsPage: React.FC = () => {
 							<input
 								type="date"
 								value={dateRange.start}
-								onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+								onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))}
 								className="w-full p-2 rounded border"
 								style={{
 									backgroundColor: currentTheme.colors.background,
@@ -190,7 +192,7 @@ export const ReportsPage: React.FC = () => {
 							<input
 								type="date"
 								value={dateRange.end}
-								onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+								onChange={(e) => setDateRange((prev) => ({ ...prev, end: e.target.value }))}
 								className="w-full p-2 rounded border"
 								style={{
 									backgroundColor: currentTheme.colors.background,

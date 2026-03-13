@@ -11,9 +11,9 @@ import { useSamlSpFlowController } from '../../hooks/useSamlSpFlowController';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowCompletionService } from '../../services/flowCompletionService';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
 import { samlService as SAMLService } from '../../services/samlService';
 import { logger } from '../../utils/logger';
+import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
 
 // Styled Components
 const Container = styled.div`
@@ -51,18 +51,19 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 				return '#f8fafc';
 		}
 	}};
-	border: 1px solid ${(props) => {
-		switch (props.$variant) {
-			case 'warning':
-				return '#fbbf24';
-			case 'success':
-				return '#10b981';
-			case 'error':
-				return '#fca5a5';
-			default:
-				return '#e5e7eb';
-		}
-	}};
+	border: 1px solid
+		${(props) => {
+			switch (props.$variant) {
+				case 'warning':
+					return '#fbbf24';
+				case 'success':
+					return '#10b981';
+				case 'error':
+					return '#fca5a5';
+				default:
+					return '#e5e7eb';
+			}
+		}};
 	border-radius: 0.75rem;
 	margin: 1.5rem 0;
 	font-size: 0.875rem;
@@ -355,8 +356,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 	const isAdminConfigured = Boolean(
 		pingOneAdminCredentials.environmentId &&
-			pingOneAdminCredentials.clientId &&
-			pingOneAdminCredentials.clientSecret
+		pingOneAdminCredentials.clientId &&
+		pingOneAdminCredentials.clientSecret
 	);
 
 	// AuthnRequest processing

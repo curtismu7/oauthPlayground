@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import RedirectlessLoginModal from './RedirectlessLoginModal';
 
 // Standardized V9 wrapper for redirectless login modal

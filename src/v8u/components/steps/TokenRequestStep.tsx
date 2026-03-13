@@ -7,18 +7,14 @@
  */
 
 import React, { useState } from 'react';
-import { BaseUnifiedStep } from './BaseUnifiedStep';
 import { logger } from '../../../utils/logger';
+import { BaseUnifiedStep } from './BaseUnifiedStep';
 
-export const TokenRequestStep: React.FC<{ 
-	isCompleted?: boolean; 
+export const TokenRequestStep: React.FC<{
+	isCompleted?: boolean;
 	isActive?: boolean;
 	onComplete?: () => void;
-}> = ({
-	isCompleted = false,
-	isActive = false,
-	onComplete,
-}) => {
+}> = ({ isCompleted = false, isActive = false, onComplete }) => {
 	const [isRequesting, setIsRequesting] = useState(false);
 	const [requestData, setRequestData] = useState({
 		grantType: 'authorization_code',
@@ -30,27 +26,28 @@ export const TokenRequestStep: React.FC<{
 	const [response, setResponse] = useState<any>(null);
 
 	const handleInputChange = (field: string, value: string) => {
-		setRequestData(prev => ({ ...prev, [field]: value }));
+		setRequestData((prev) => ({ ...prev, [field]: value }));
 	};
 
 	const makeTokenRequest = async () => {
 		setIsRequesting(true);
 		setResponse(null);
-		
+
 		logger.info('TokenRequestStep', 'Making token request', { grantType: requestData.grantType });
-		
+
 		try {
 			// Simulate API call
-			await new Promise(resolve => setTimeout(resolve, 2000));
-			
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
 			const mockResponse = {
-				access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+				access_token:
+					'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
 				token_type: 'Bearer',
 				expires_in: 3600,
 				refresh_token: 'refresh_token_here',
 				scope: 'read write',
 			};
-			
+
 			setResponse(mockResponse);
 			logger.success('TokenRequestStep', 'Token request successful');
 			onComplete?.();
@@ -73,8 +70,15 @@ export const TokenRequestStep: React.FC<{
 			<div>
 				<h4>Token Request</h4>
 				<p>Configure and send a token request to the OAuth authorization server.</p>
-				
-				<div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+
+				<div
+					style={{
+						padding: '1rem',
+						background: '#f8fafc',
+						borderRadius: '0.5rem',
+						marginBottom: '1rem',
+					}}
+				>
 					<div style={{ display: 'grid', gap: '1rem' }}>
 						<div>
 							<label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: '500' }}>
@@ -88,7 +92,7 @@ export const TokenRequestStep: React.FC<{
 									padding: '0.5rem',
 									border: '1px solid #d1d5db',
 									borderRadius: '4px',
-									background: 'white'
+									background: 'white',
 								}}
 							>
 								<option value="authorization_code">Authorization Code</option>
@@ -96,7 +100,7 @@ export const TokenRequestStep: React.FC<{
 								<option value="refresh_token">Refresh Token</option>
 							</select>
 						</div>
-						
+
 						{requestData.grantType === 'authorization_code' && (
 							<div>
 								<label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: '500' }}>
@@ -111,12 +115,12 @@ export const TokenRequestStep: React.FC<{
 										width: '100%',
 										padding: '0.5rem',
 										border: '1px solid #d1d5db',
-										borderRadius: '4px'
+										borderRadius: '4px',
 									}}
 								/>
 							</div>
 						)}
-						
+
 						<div>
 							<label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: '500' }}>
 								Redirect URI
@@ -129,11 +133,11 @@ export const TokenRequestStep: React.FC<{
 									width: '100%',
 									padding: '0.5rem',
 									border: '1px solid #d1d5db',
-									borderRadius: '4px'
+									borderRadius: '4px',
 								}}
 							/>
 						</div>
-						
+
 						<div>
 							<label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: '500' }}>
 								Client ID
@@ -146,11 +150,11 @@ export const TokenRequestStep: React.FC<{
 									width: '100%',
 									padding: '0.5rem',
 									border: '1px solid #d1d5db',
-									borderRadius: '4px'
+									borderRadius: '4px',
 								}}
 							/>
 						</div>
-						
+
 						<div>
 							<label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: '500' }}>
 								Client Secret
@@ -163,7 +167,7 @@ export const TokenRequestStep: React.FC<{
 									width: '100%',
 									padding: '0.5rem',
 									border: '1px solid #d1d5db',
-									borderRadius: '4px'
+									borderRadius: '4px',
 								}}
 							/>
 						</div>
@@ -180,7 +184,7 @@ export const TokenRequestStep: React.FC<{
 							color: 'white',
 							border: 'none',
 							borderRadius: '4px',
-							cursor: isRequesting || isCompleted ? 'not-allowed' : 'pointer'
+							cursor: isRequesting || isCompleted ? 'not-allowed' : 'pointer',
 						}}
 					>
 						{isRequesting ? 'Requesting...' : isCompleted ? 'Completed' : 'Request Token'}
@@ -188,23 +192,29 @@ export const TokenRequestStep: React.FC<{
 				</div>
 
 				{response && (
-					<div style={{ 
-						padding: '1rem', 
-						background: response.error ? '#fef2f2' : '#f0fdf4', 
-						borderRadius: '0.5rem',
-						border: `1px solid ${response.error ? '#fecaca' : '#bbf7d0'}`
-					}}>
-						<h5 style={{ 
-							marginBottom: '0.5rem',
-							color: response.error ? '#dc2626' : '#059669'
-						}}>
+					<div
+						style={{
+							padding: '1rem',
+							background: response.error ? '#fef2f2' : '#f0fdf4',
+							borderRadius: '0.5rem',
+							border: `1px solid ${response.error ? '#fecaca' : '#bbf7d0'}`,
+						}}
+					>
+						<h5
+							style={{
+								marginBottom: '0.5rem',
+								color: response.error ? '#dc2626' : '#059669',
+							}}
+						>
 							{response.error ? 'Error' : 'Success'}
 						</h5>
-						<pre style={{ 
-							fontSize: '0.875rem',
-							whiteSpace: 'pre-wrap',
-							color: response.error ? '#dc2626' : '#059669'
-						}}>
+						<pre
+							style={{
+								fontSize: '0.875rem',
+								whiteSpace: 'pre-wrap',
+								color: response.error ? '#dc2626' : '#059669',
+							}}
+						>
 							{JSON.stringify(response, null, 2)}
 						</pre>
 					</div>
