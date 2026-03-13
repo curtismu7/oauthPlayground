@@ -7,7 +7,6 @@ import {
 	refreshAndStoreToken,
 	type WorkerTokenStatus,
 } from '../services/aiAssistantWorkerTokenService';
-import { apiKeyService } from '../services/apiKeyService';
 import { callGroq, type GroqMessage, isGroqAvailable } from '../services/groqService';
 import {
 	callMcpQuery,
@@ -1179,7 +1178,7 @@ const HeaderTitle = styled.div`
 	white-space: nowrap;
 `;
 
-const HeaderSubtitle = styled.div`
+const _HeaderSubtitle = styled.div`
 	font-size: 12px;
 	opacity: 0.9;
 `;
@@ -1969,7 +1968,7 @@ const GroqBadge = styled.span`
 
 // ─── Groq not-configured banner ───────────────────────────────────────────────
 
-const GroqBanner = styled.div`
+const _GroqBanner = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -1982,7 +1981,7 @@ const GroqBanner = styled.div`
 	flex-shrink: 0;
 `;
 
-const GroqBannerLink = styled.button`
+const _GroqBannerLink = styled.button`
 	background: none;
 	border: none;
 	font-size: 12px;

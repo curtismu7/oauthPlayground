@@ -36,6 +36,9 @@ export interface FlowSettings {
 	specVersion: SpecVersion;
 	lastUsed: number; // Timestamp
 	credentialsCollapsed?: boolean; // UI state
+	workerTokenStatusCollapsed?: boolean; // UI state
+	/** Per-section collapse state for UnifiedFlowSteps educational sections */
+	sectionCollapsed?: Record<string, boolean>;
 }
 
 const STORAGE_PREFIX = 'v8u_flow_settings_';
@@ -121,6 +124,7 @@ export function getAllSettings(): Record<FlowType, FlowSettings | null> {
 		'ropc',
 		'device-code',
 		'hybrid',
+		'unified-mfa-v8',
 	];
 
 	const allSettings: Record<string, FlowSettings | null> = {};
@@ -156,6 +160,7 @@ export function clearAllSettings(): void {
 		'ropc',
 		'device-code',
 		'hybrid',
+		'unified-mfa-v8',
 	];
 
 	for (const flowType of flowTypes) {

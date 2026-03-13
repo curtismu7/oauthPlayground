@@ -320,7 +320,7 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 	{
 		flowType: 'implicit-v8u',
 		requiresRedirectUri: true,
-		callbackPath: 'unified-callback',
+		callbackPath: 'oauth-implicit-callback',
 		description: 'V8U Implicit Flow',
 		specification: 'RFC 6749, Section 4.2',
 	},
@@ -372,7 +372,11 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
  * Flow types shown in the Configuration redirect/logout URI catalogue.
  * Only PingOne apps need these: Unified MFA and Unified OAuth (V8U).
  */
-export const REDIRECT_URI_CATALOG_FLOW_TYPES: string[] = ['v8u-unified', 'unified-mfa-v8'];
+export const REDIRECT_URI_CATALOG_FLOW_TYPES: string[] = [
+	'v8u-unified',
+	'implicit-v8u',
+	'unified-mfa-v8',
+];
 
 /**
  * Get the redirect URI configuration for a specific flow type
