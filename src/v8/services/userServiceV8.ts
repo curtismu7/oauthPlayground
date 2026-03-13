@@ -121,7 +121,16 @@ export class UserServiceV8 {
 			const data = await response.json();
 			return data;
 		} catch (error) {
-			logger.error(`${MODULE_TAG} List users error`, error);
+			const msg = error instanceof Error ? error.message : String(error);
+			const isTokenUnavailable =
+				msg.toLowerCase().includes('worker token') ||
+				msg.toLowerCase().includes('authenticate first');
+			if (isTokenUnavailable) {
+				// Expected precondition — UI shows "Worker token required"; avoid ERROR noise
+				logger.debug(`${MODULE_TAG} List users skipped (no token)`, { message: msg });
+			} else {
+				logger.error(`${MODULE_TAG} List users error`, error);
+			}
 			throw error;
 		}
 	}

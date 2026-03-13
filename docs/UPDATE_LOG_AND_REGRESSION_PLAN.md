@@ -31,6 +31,13 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### UserServiceV8: avoid ERROR log for expected "no worker token" (2026-03)
+
+- **What:** Console showed `[UserServiceV8] List users error Error: Worker token not available` when opening MFA user search without a worker token. `checkWorkerTokenStatusSync()` and async `getToken()` can disagree (token expired, refresh failed), so the API is still called.
+- **Fix:** In UserServiceV8.listUsers catch block, when the error is the expected "worker token not available" precondition, log at debug level instead of error. The UI (UserSearchDropdownV8) already handles this and shows "Worker token required" — no need for ERROR noise.
+- **Files:** `src/v8/services/userServiceV8.ts`
+- **Regression check:** Open `/v8/unified-mfa` → select device → open user search before getting worker token → no ERROR in console; UI shows worker token prompt. After getting token → user list loads.
+
 ### Unified MFA: Restart Flow button moved to bottom (2026-03)
 
 - **What:** Restart Flow button was in the flow header; user wanted it at the bottom with Previous/Next.
