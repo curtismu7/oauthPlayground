@@ -31,6 +31,18 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Username dropdown independence from environment ID (2026-03-13)
+- **What:** Username dropdown in unified MFA flow was disabled when environment ID field was empty, preventing user search even though worker token modal handles environment context internally.
+- **Fixes:** (1) **Made environmentId optional**: Updated UserSearchDropdownV8 props to make environmentId optional since worker token modal provides context. (2) **Removed disabled state**: Removed `disabled={!environmentId}` from username dropdown in unified MFA flow. (3) **Updated loading logic**: Modified loadUsers function and useEffect hooks to not require environment ID for API calls. (4) **Worker token context**: Let MFAServiceV8 handle environment ID internally when not provided.
+- **Files:** `src/v8/components/UserSearchDropdownV8.tsx`, `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`
+- **Regression check:** Navigate to `/v8/unified-mfa` with empty environment ID → username dropdown is enabled and functional. Click dropdown → opens user search modal → worker token modal handles environment context. Search works regardless of environment ID field state.
+
+### MCP PingOne API debug logging (2026-03)
+- **What:** Added logging to verify which host is used for PingOne API calls (api.pingone.com vs api.pingdemo.com).
+- **Fix:** In `mcpCallPingOne`, log `host`, `region`, `method`, and truncated `path` via `writeToMcpLog` before each fetch. Check MCP logs to confirm host is api.pingone.com (or regional variant), never api.pingdemo.com.
+- **Files:** `server.js`
+- **Regression check:** Live MCP ON → "list all users" → inspect MCP log; host should be api.pingone.com or api.pingone.{tld}, never api.pingdemo.com.
+
 ### Unified MFA environment ID restoration from MCP server (2026-03-13)
 - **What:** Unified MFA flow at `/v8/unified-mfa` wasn't restoring environment ID from stored MCP credentials, showing empty field instead of the stored environment ID.
 - **Fixes:** (1) **MCP server as primary source**: Modified environment ID loading to first try `/api/mcp/server/credentials` before falling back to storage services. (2) **Sync to all storage**: When MCP credentials are loaded, sync environment ID to environmentIdPersistenceService, globalEnvironmentService, and localStorage. (3) **Maintain fallback chain**: Preserve existing fallback to storage services and localStorage if MCP server unavailable. (4) **Error handling**: Add proper try/catch with logging for MCP server failures.
