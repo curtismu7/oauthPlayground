@@ -291,6 +291,20 @@ kill_all_servers() {
         kill -9 "$backend_pid" 2>/dev/null || true
     fi
     
+    # Kill MCP server (PingOne) by PID file
+    if [ -f "$MCP_PID_FILE_REL" ]; then
+        local pid=$(cat "$MCP_PID_FILE_REL" 2>/dev/null)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            print_info "Killing MCP server (PID: $pid)"
+            kill "$pid" 2>/dev/null || true
+            sleep 1
+            if kill -0 "$pid" 2>/dev/null; then
+                kill -9 "$pid" 2>/dev/null || true
+            fi
+        fi
+        rm -f "$MCP_PID_FILE_REL"
+    fi
+
     # Kill MCP Inspector by PID file or port
     if [ -f "$MCP_INSPECTOR_PID_FILE" ]; then
         local pid=$(cat "$MCP_INSPECTOR_PID_FILE" 2>/dev/null)
@@ -1242,18 +1256,20 @@ while [ $# -gt 0 ]; do
             echo "    2. Run: ./run.sh"
             echo "    3. Wait for servers to start, then open: $FRONTEND_URL"
             echo ""
-            echo "  AI Assistant only (backend + MCP + standalone UI):"
+            echo "  AI Assistant only (backend + MCP + MCP Inspector + standalone UI):"
             echo "    1. cd to the OAuth Playground directory"
             echo "    2. Run: ./run.sh -assistant"
-            echo "    3. Open: https://localhost:3002"
-            echo "    4. Logs: backend.log | mcp-server.log | assistant.log"
+            echo "    3. Open: https://localhost:3002 (AI Assistant)"
+            echo "    4. MCP Inspector: http://localhost:${MCP_INSPECTOR_PORT} (test PingOne MCP tools)"
+            echo "    5. Logs: backend.log | mcp-server.log | mcp-inspector.log | assistant.log"
             echo ""
             echo "  Full stack + AI Assistant (all services at once):"
             echo "    1. cd to the OAuth Playground directory"
             echo "    2. Run: ./run.sh -both"
             echo "    3. OAuth Playground: https://localhost:3000"
             echo "    4. AI Assistant:     https://localhost:3002"
-            echo "    5. Logs: backend.log | frontend.log | mcp-server.log | assistant.log"
+            echo "    5. MCP Inspector:    http://localhost:${MCP_INSPECTOR_PORT} (test PingOne MCP tools)"
+            echo "    6. Logs: backend.log | frontend.log | mcp-server.log | mcp-inspector.log | assistant.log"
             echo ""
             echo "╔══════════════════════════════════════════════════════════════════════════════╗"
             echo "║                    Happy coding with OAuth Playground! 🚀                    ║"
@@ -1348,7 +1364,7 @@ start_mcp_inspector() {
         lsof -ti:$MCP_INSPECTOR_PORT | xargs kill -9 2>/dev/null || true
         sleep 2
     fi
-    npx @modelcontextprotocol/inspector --config mcp-inspector-config.json --server pingone > mcp-inspector.log 2>&1 &
+    npx @modelcontextprotocol/inspector --config mcp-inspector-config.json --server pingone --no-open > mcp-inspector.log 2>&1 &
     local inspector_pid=$!
     echo $inspector_pid > "$MCP_INSPECTOR_PID_FILE"
     sleep 2
@@ -1417,9 +1433,10 @@ run_assistant_mode() {
     echo "║                                                                              ║"
     echo "║              🤖 AI Assistant Mode — Standalone Startup 🤖                   ║"
     echo "║                                                                              ║"
-    echo "║  Backend:        https://localhost:3001  (Express API)                       ║"
-    echo "║  MCP Server:     pingone-mcp-server/dist/index.js (stdio, background)        ║"
-    echo "║  AI Assistant:   https://localhost:3002  (Vite standalone)                   ║"
+    echo "║  Backend:        https://localhost:3001  (Express API)                        ║"
+    echo "║  MCP Server:     pingone-mcp-server (stdio, background)                      ║"
+    echo "║  MCP Inspector:   http://localhost:${MCP_INSPECTOR_PORT}  (test MCP tools)           ║"
+    echo "║  AI Assistant:   https://localhost:${ASSISTANT_PORT}  (Vite standalone)                 ║"
     echo "║                                                                              ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -1463,23 +1480,27 @@ run_assistant_mode() {
         exit 1
     }
 
-    # Status summary
+    # Status summary — all services started with URLs
+    print_success "All services started. Key URLs:"
     echo ""
     echo -e "${GREEN}╔══════════════════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║                    ✅ AI ASSISTANT MODE RUNNING                              ║${NC}"
+    echo -e "${GREEN}║              ✅ BACKEND + MCP + MCP INSPECTOR + AI ASSISTANT STARTED         ║${NC}"
     echo -e "${GREEN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
-    echo -e "${GREEN}║${NC} Backend API:      ${BLUE}https://localhost:3001${NC}"
-    echo -e "${GREEN}║${NC} MCP Server:       ${BLUE}background process${NC} (mcp-server.log)"
-    echo -e "${GREEN}║${NC} MCP Inspector:    ${BLUE}http://localhost:${MCP_INSPECTOR_PORT}${NC} (test MCP tools)"
-    echo -e "${GREEN}║${NC} AI Assistant:     ${BLUE}https://localhost:${ASSISTANT_PORT}${NC}"
+    echo -e "${GREEN}║${NC} ${CYAN}Open in browser:${NC}"
+    echo -e "${GREEN}║${NC}   Backend API:      ${BLUE}https://localhost:${BACKEND_PORT}${NC}"
+    echo -e "${GREEN}║${NC}   AI Assistant:     ${BLUE}https://localhost:${ASSISTANT_PORT}${NC}"
+    echo -e "${GREEN}║${NC}   MCP Inspector:    ${BLUE}http://localhost:${MCP_INSPECTOR_PORT}${NC} (test PingOne MCP tools)"
+    echo -e "${GREEN}║${NC}"
+    echo -e "${GREEN}║${NC} ${CYAN}Background (no URL):${NC}"
+    echo -e "${GREEN}║${NC}   MCP Server:       ${BLUE}stdio process${NC} → logs/mcp-server.log"
     echo -e "${GREEN}║${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Log files:${NC}"
     echo -e "${GREEN}║${NC}   backend.log       — Express API server"
-    echo -e "${GREEN}║${NC}   mcp-server.log   — PingOne MCP server"
-    echo -e "${GREEN}║${NC}   mcp-inspector.log— MCP Inspector"
-    echo -e "${GREEN}║${NC}   assistant.log    — Vite dev server"
+    echo -e "${GREEN}║${NC}   mcp-server.log    — PingOne MCP server"
+    echo -e "${GREEN}║${NC}   mcp-inspector.log — MCP Inspector"
+    echo -e "${GREEN}║${NC}   assistant.log     — AI Assistant (Vite)"
     echo -e "${GREEN}║${NC}"
-    echo -e "${GREEN}║${NC} ${CYAN}Stop all:  pkill -f 'server.js'; lsof -ti:3002 | xargs kill -9${NC}"
+    echo -e "${GREEN}║${NC} ${CYAN}Stop all:${NC} pkill -f 'server.js'; lsof -ti:${ASSISTANT_PORT},${MCP_INSPECTOR_PORT} | xargs kill -9"
     echo -e "${GREEN}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 
@@ -1512,9 +1533,10 @@ run_both_mode() {
     echo "║          🚀 Full Stack + AI Assistant — Combined Mode 🤖                   ║"
     echo "║                                                                             ║"
     echo "║  Backend:        https://localhost:3001  (Express API)                      ║"
-    echo "║  MCP Server:     pingone-mcp-server/dist/index.js (stdio, background)       ║"
     echo "║  OAuth Frontend: https://localhost:3000  (Vite main app)                    ║"
-    echo "║  AI Assistant:   https://localhost:3002  (Vite standalone)                  ║"
+    echo "║  MCP Server:     pingone-mcp-server (stdio, background)                     ║"
+    echo "║  MCP Inspector:  http://localhost:${MCP_INSPECTOR_PORT}  (test MCP tools)             ║"
+    echo "║  AI Assistant:   https://localhost:${ASSISTANT_PORT}  (Vite standalone)                ║"
     echo "║                                                                             ║"
     echo "╚═════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -1558,16 +1580,20 @@ run_both_mode() {
     # Start AI Assistant frontend (non-fatal)
     start_assistant_frontend || print_warning "AI Assistant frontend failed to start"
 
-    # Status summary
+    # Status summary — all services started with URLs
+    print_success "All services started. Key URLs:"
     echo ""
     echo -e "${GREEN}╔══════════════════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║            ✅ FULL STACK + AI ASSISTANT RUNNING                              ║${NC}"
+    echo -e "${GREEN}║        ✅ BACKEND + FRONTEND + MCP + MCP INSPECTOR + AI ASSISTANT STARTED    ║${NC}"
     echo -e "${GREEN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
-    echo -e "${GREEN}║${NC} Backend API:      ${BLUE}https://localhost:3001${NC}"
-    echo -e "${GREEN}║${NC} OAuth Playground: ${BLUE}https://localhost:${FRONTEND_PORT}${NC}"
-    echo -e "${GREEN}║${NC} MCP Server:       ${BLUE}background process${NC} (mcp-server.log)"
-    echo -e "${GREEN}║${NC} MCP Inspector:    ${BLUE}http://localhost:${MCP_INSPECTOR_PORT}${NC} (test MCP tools)"
-    echo -e "${GREEN}║${NC} AI Assistant:     ${BLUE}https://localhost:${ASSISTANT_PORT}${NC}"
+    echo -e "${GREEN}║${NC} ${CYAN}Open in browser:${NC}"
+    echo -e "${GREEN}║${NC}   Backend API:      ${BLUE}https://localhost:${BACKEND_PORT}${NC}"
+    echo -e "${GREEN}║${NC}   OAuth Playground: ${BLUE}https://localhost:${FRONTEND_PORT}${NC}"
+    echo -e "${GREEN}║${NC}   AI Assistant:     ${BLUE}https://localhost:${ASSISTANT_PORT}${NC}"
+    echo -e "${GREEN}║${NC}   MCP Inspector:    ${BLUE}http://localhost:${MCP_INSPECTOR_PORT}${NC} (test PingOne MCP tools)"
+    echo -e "${GREEN}║${NC}"
+    echo -e "${GREEN}║${NC} ${CYAN}Background (no URL):${NC}"
+    echo -e "${GREEN}║${NC}   MCP Server:       ${BLUE}stdio process${NC} → logs/mcp-server.log"
     echo -e "${GREEN}║${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Log files:${NC}"
     echo -e "${GREEN}║${NC}   backend.log        — Express API server"
@@ -1576,7 +1602,7 @@ run_both_mode() {
     echo -e "${GREEN}║${NC}   mcp-inspector.log  — MCP Inspector"
     echo -e "${GREEN}║${NC}   assistant.log      — AI Assistant (Vite)"
     echo -e "${GREEN}║${NC}"
-    echo -e "${GREEN}║${NC} ${CYAN}Stop all:${NC} pkill -f 'server.js'; lsof -ti:3000,3002 | xargs kill -9"
+    echo -e "${GREEN}║${NC} ${CYAN}Stop all:${NC} pkill -f 'server.js'; lsof -ti:${FRONTEND_PORT},${ASSISTANT_PORT},${MCP_INSPECTOR_PORT} | xargs kill -9"
     echo -e "${GREEN}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 
