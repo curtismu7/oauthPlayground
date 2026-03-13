@@ -906,15 +906,12 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 		}
 	};
 
-	const handleGetWorkerTokenForConfig = async () => {
-		// Import and show worker token modal
-		const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-		await handleShowWorkerTokenModal(
-			() => {}, // setShowModal - not needed for config
-			() => {}, // setTokenStatus - not needed for config
-			false, // silentApiRetrieval - false for explicit user action
-			false, // showTokenAtEnd - false for config
-			true // forceShowModal - always show for config
+	const handleGetWorkerTokenForConfig = () => {
+		// Open global Worker Token modal (WorkerTokenModalV9 / unified worker token service)
+		window.dispatchEvent(
+			new CustomEvent('open-worker-token-modal', {
+				detail: { source: 'WorkerTokenStatusDisplayV8' },
+			})
 		);
 	};
 

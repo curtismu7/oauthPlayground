@@ -621,17 +621,6 @@ const FedExPortalContent: React.FC<Omit<ProtectPortalAppProps, 'initialStep'>> =
 	const [errorMsg, setErrorMsg] = useState<string>('');
 	const overlayRef = useRef<HTMLDivElement>(null);
 
-	// Close on Escape
-	useEffect(() => {
-		const onKey = (e: KeyboardEvent) => {
-			if (e.key === 'Escape') closeModal();
-		};
-		document.addEventListener('keydown', onKey);
-		return () => document.removeEventListener('keydown', onKey);
-	}, []);
-
-	const openModal = () => setModalStep('login');
-
 	const closeModal = useCallback(() => {
 		setModalStep(null);
 		setUserCtx(null);
@@ -640,6 +629,17 @@ const FedExPortalContent: React.FC<Omit<ProtectPortalAppProps, 'initialStep'>> =
 		setTokens(null);
 		setErrorMsg('');
 	}, []);
+
+	// Close on Escape
+	useEffect(() => {
+		const onKey = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') closeModal();
+		};
+		document.addEventListener('keydown', onKey);
+		return () => document.removeEventListener('keydown', onKey);
+	}, [closeModal]);
+
+	const openModal = () => setModalStep('login');
 
 	const handleLoginSuccess = useCallback((uc: UserContext, lc: LoginContext) => {
 		logger.info('FedExPortal', 'Login success, starting risk evaluation', { userId: uc.id });

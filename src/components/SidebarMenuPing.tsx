@@ -388,7 +388,7 @@ function GroupContent({
 }
 
 /** Build flat map of item id -> item for all items in groups */
-function buildItemMap(groups: SidebarMenuGroup[]): Map<string, SidebarMenuItem> {
+function _buildItemMap(groups: SidebarMenuGroup[]): Map<string, SidebarMenuItem> {
 	const map = new Map<string, SidebarMenuItem>();
 	const add = (g: SidebarMenuGroup) => {
 		for (const i of g.items) map.set(i.id, i);
@@ -448,7 +448,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 		});
 	}, []);
 
-	const handleHideItem = useCallback((itemId: string) => {
+	const _handleHideItem = useCallback((itemId: string) => {
 		setHiddenItems((prev) => {
 			const next = new Set(prev);
 			next.add(itemId);
@@ -457,7 +457,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 		});
 	}, []);
 
-	const handleUnhideItem = useCallback((itemId: string) => {
+	const _handleUnhideItem = useCallback((itemId: string) => {
 		setHiddenItems((prev) => {
 			const next = new Set(prev);
 			next.delete(itemId);
@@ -600,7 +600,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 			setMenuGroups(next);
 			saveOrder(next);
 		},
-		[menuGroups, getDraggedData, saveOrder]
+		[menuGroups, getDraggedData, saveOrder, findAndRemoveItem]
 	);
 
 	// Helper to count visible items in a group (excluding hidden)

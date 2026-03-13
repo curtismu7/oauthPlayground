@@ -446,7 +446,15 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 	};
 
 	const getRecommendation = () => {
-		const flows = selectedFlowTypes.map((flow) => FlowMetrics[flow]);
+		const flows = selectedFlowTypes.map((flow) => FlowMetrics[flow]).filter(Boolean);
+
+		if (flows.length === 0) {
+			return {
+				title: 'Select flows to compare',
+				description: 'Choose one or more OAuth flows above to see recommendations.',
+				recommendations: ['Select at least one flow to get started'],
+			};
+		}
 
 		if (flows.length === 1) {
 			const flow = flows[0];
@@ -459,21 +467,23 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 
 		// Compare multiple flows
 		const securityScores = flows.map((f) => ({ name: f.name, score: f.security }));
-		const bestSecurity = securityScores.reduce((best, current) =>
-			current.score === 'excellent' ? current : best
+		const bestSecurity = securityScores.reduce(
+			(best, current) => (current.score === 'excellent' ? current : best),
+			securityScores[0]
 		);
 
 		const complexityScores = flows.map((f) => ({ name: f.name, score: f.complexity }));
-		const simplest = complexityScores.reduce((best, current) =>
-			current.score === 'excellent' ? current : best
+		const simplest = complexityScores.reduce(
+			(best, current) => (current.score === 'excellent' ? current : best),
+			complexityScores[0]
 		);
 
 		return {
 			title: 'Flow Comparison Analysis',
 			description: `Comparing ${flows.map((f) => f.name).join(' vs ')}`,
 			recommendations: [
-				`${bestSecurity.name} offers the best security profile`,
-				`${simplest.name} is the easiest to implement`,
+				`${bestSecurity?.name ?? 'Selected flow'} offers the best security profile`,
+				`${simplest?.name ?? 'Selected flow'} is the easiest to implement`,
 				'Consider your specific use case and security requirements',
 			],
 		};
@@ -495,7 +505,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 			</ComparisonSubtitle>
 
 			<div style={{ marginBottom: '1rem' }}>
-				<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+				<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', alignItems: 'center' }}>
 					<button
 						type="button"
 						onClick={() => setComparisonMode('detailed')}
@@ -528,6 +538,29 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 					>
 						Matrix View
 					</button>
+					{selectedFlowTypes.length > 0 && (
+						<button
+							type="button"
+							onClick={() => setSelectedFlowTypes([])}
+							title="Clear all selected flows"
+							style={{
+								marginLeft: 'auto',
+								padding: '0.5rem 1rem',
+								borderRadius: '6px',
+								border: '1px solid #fca5a5',
+								background: 'white',
+								color: '#dc2626',
+								cursor: 'pointer',
+								fontSize: '0.875rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.375rem',
+							}}
+						>
+							<FiX style={{ fontSize: '0.875rem' }} />
+							Clear
+						</button>
+					)}
 				</div>
 
 				<FlowSelector>

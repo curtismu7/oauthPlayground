@@ -302,7 +302,14 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		specification: 'RFC 6749, Section 4.1 + RFC 7636',
 	},
 
-	// V8U Unified Flows
+	// V8U Unified Flows (catalog shows single row for Unified OAuth)
+	{
+		flowType: 'v8u-unified',
+		requiresRedirectUri: true,
+		callbackPath: 'unified-callback',
+		description: 'Unified OAuth/OIDC (V8U)',
+		specification: 'RFC 6749 / OIDC Core 1.0',
+	},
 	{
 		flowType: 'oauth-authz-v8u',
 		requiresRedirectUri: true,
@@ -360,6 +367,12 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		specification: 'RFC 6749, Section 4.3',
 	},
 ];
+
+/**
+ * Flow types shown in the Configuration redirect/logout URI catalogue.
+ * Only PingOne apps need these: Unified MFA and Unified OAuth (V8U).
+ */
+export const REDIRECT_URI_CATALOG_FLOW_TYPES: string[] = ['v8u-unified', 'unified-mfa-v8'];
 
 /**
  * Get the redirect URI configuration for a specific flow type

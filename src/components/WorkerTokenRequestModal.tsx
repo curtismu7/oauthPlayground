@@ -416,6 +416,8 @@ interface WorkerTokenRequestModalProps {
 	};
 	authMethod: string;
 	region: string;
+	/** When provided, used instead of direct fetch (avoids CORS). Should return access_token or null. */
+	onSendRequest?: () => Promise<string | null>;
 }
 
 export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = ({
@@ -426,6 +428,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 	requestParams,
 	authMethod,
 	region,
+	onSendRequest,
 }) => {
 	const { showSuccess } = useNotifications();
 	const [copiedCurl, setCopiedCurl] = useState(false);
@@ -445,34 +448,41 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 	const handleSendRequest = async () => {
 		try {
 			setIsLoading(true);
-			const response = await fetch(tokenEndpoint, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					...(authMethod === 'client_secret_basic' && {
-						Authorization: `Basic ${btoa(`${requestParams.client_id}:${requestParams.client_secret}`)}`,
-					}),
-				},
-				body: new URLSearchParams({
-					grant_type: 'client_credentials',
-					...(authMethod !== 'client_secret_basic' && {
-						client_id: requestParams.client_id,
-						client_secret: requestParams.client_secret,
-					}),
-					...(requestParams.scope && { scope: requestParams.scope }),
-				}).toString(),
-			});
-
-			const data = await response.json();
-			if (data.access_token) {
-				setGeneratedToken(data.access_token);
-				setIsTokenStep(true);
+			if (onSendRequest) {
+				const token = await onSendRequest();
+				if (token) {
+					setGeneratedToken(token);
+					setIsTokenStep(true);
+				}
 			} else {
-				throw new Error(data.error_description || 'Failed to get access token');
+				const response = await fetch(tokenEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+						...(authMethod === 'client_secret_basic' && {
+							Authorization: `Basic ${btoa(`${requestParams.client_id}:${requestParams.client_secret}`)}`,
+						}),
+					},
+					body: new URLSearchParams({
+						grant_type: 'client_credentials',
+						...(authMethod !== 'client_secret_basic' && {
+							client_id: requestParams.client_id,
+							client_secret: requestParams.client_secret,
+						}),
+						...(requestParams.scope && { scope: requestParams.scope }),
+					}).toString(),
+				});
+
+				const data = await response.json();
+				if (data.access_token) {
+					setGeneratedToken(data.access_token);
+					setIsTokenStep(true);
+				} else {
+					throw new Error(data.error_description || 'Failed to get access token');
+				}
 			}
 		} catch (error) {
 			logger.error('WorkerTokenRequestModal', 'Error generating token:', undefined, error as Error);
-			// Handle error (show toast or error message)
 		} finally {
 			setIsLoading(false);
 		}

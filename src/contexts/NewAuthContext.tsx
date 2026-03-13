@@ -478,7 +478,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 					// Only update if config actually changed to prevent unnecessary re-renders
 					const changed = JSON.stringify(prevConfig) !== JSON.stringify(newConfig);
 					if (changed) {
-						logger.config('NewAuthContext', 'Configuration updated', newConfig);
+						logger.info('NewAuthContext', 'Configuration updated', newConfig);
 						return newConfig;
 					}
 					return prevConfig;
@@ -509,11 +509,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 	// Function to refresh configuration
 	const refreshConfig = useCallback(async () => {
-		logger.config('NewAuthContext', 'Refreshing configuration...');
+		logger.info('NewAuthContext', 'Refreshing configuration...');
 		try {
 			const newConfig = await loadConfiguration();
 			setConfig(newConfig);
-			logger.config('NewAuthContext', 'Configuration refreshed successfully', newConfig);
+			logger.info('NewAuthContext', 'Configuration refreshed successfully', newConfig);
 		} catch (error) {
 			logger.error('NewAuthContext', 'Error refreshing configuration', error);
 			setConfig((prev) => ({
@@ -527,7 +527,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	useEffect(() => {
 		const handleStorageChange = (e: StorageEvent) => {
 			if (e.key === 'pingone_config') {
-				logger.config('NewAuthContext', 'PingOne config changed in localStorage, refreshing...');
+				logger.info('NewAuthContext', 'PingOne config changed in localStorage, refreshing...');
 				refreshConfig();
 			}
 		};

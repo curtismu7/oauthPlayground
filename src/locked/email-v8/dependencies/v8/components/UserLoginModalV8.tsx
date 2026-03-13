@@ -20,7 +20,6 @@ import { CredentialsServiceV8 } from '../services/credentialsServiceV8.ts';
 import { MFAConfigurationServiceV8 } from '../services/mfaConfigurationServiceV8.ts';
 import { OAuthIntegrationServiceV8 } from '../services/oauthIntegrationServiceV8.ts';
 import { workerTokenServiceV8 } from '../services/workerTokenServiceV8.ts';
-import { sendAnalyticsLog } from '../utils/analyticsLoggerV8.ts';
 import { toastV8 } from '../utils/toastNotificationsV8.ts';
 import type { DiscoveredApp } from './AppPickerV8.tsx';
 import {
@@ -492,7 +491,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 		window.addEventListener('popstate', handlePopState);
 		return () => window.removeEventListener('popstate', handlePopState);
-	}, [isOpen, searchParams, location.search, onTokenReceived, sessionInfo, showSuccessPage]);
+	}, [searchParams, onTokenReceived]);
 
 	// Process callback even when modal is not open (for auto-processing on page load)
 	// This ensures callbacks are handled even if the modal wasn't explicitly opened
@@ -834,7 +833,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			// CRITICAL DEBUG: Verify redirect_uri in the actual authorization URL
 			const urlObj = new URL(authorizationUrl);
-			const urlRedirectUri = urlObj.searchParams.get('redirect_uri');
+			const _urlRedirectUri = urlObj.searchParams.get('redirect_uri');
 
 			// Store state, code verifier, and credentials for validation and token exchange
 			sessionStorage.setItem('user_login_state_v8', state);

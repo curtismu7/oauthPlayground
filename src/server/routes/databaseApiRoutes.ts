@@ -100,7 +100,7 @@ router.get('/sqlite/schema', async (req, res) => {
 		let dbSize = 0;
 		if (dbPath) {
 			try {
-				const fs = await import('fs');
+				const fs = await import('node:fs');
 				const stats = fs.statSync(dbPath);
 				dbSize = stats.size;
 			} catch (error) {
@@ -254,8 +254,8 @@ router.get('/sqlite/query', async (req, res) => {
 		});
 
 		// Get data with pagination
-		const limitNum = Math.min(parseInt(limit) || 100, 1000); // Max 1000 rows
-		const offsetNum = Math.max(parseInt(offset) || 0, 0);
+		const limitNum = Math.min(parseInt(limit, 10) || 100, 1000); // Max 1000 rows
+		const offsetNum = Math.max(parseInt(offset, 10) || 0, 0);
 
 		const dataQuery = `SELECT * FROM ${table} ${whereClause} ${orderByClause} LIMIT ? OFFSET ?`;
 		const dataParams = [...params, limitNum, offsetNum];
@@ -366,7 +366,7 @@ router.get('/sqlite/stats', async (req, res) => {
 		let dbSize = 0;
 		if (dbPath) {
 			try {
-				const fs = await import('fs');
+				const fs = await import('node:fs');
 				const stats = fs.statSync(dbPath);
 				dbSize = stats.size;
 			} catch (error) {

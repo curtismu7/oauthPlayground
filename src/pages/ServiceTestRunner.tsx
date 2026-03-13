@@ -8,6 +8,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { FlowHeader } from '../services/flowHeaderService';
 import { comprehensiveFlowDataServiceTest } from '../utils/comprehensiveFlowDataServiceTest';
 import { logger } from '../utils/logger';
 
@@ -17,7 +18,7 @@ const TestRunnerContainer = styled.div`
   margin: 0 auto;
 `;
 
-const TestRunnerHeader = styled.div`
+const _TestRunnerHeader = styled.div`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 30px;
@@ -26,13 +27,13 @@ const TestRunnerHeader = styled.div`
   text-align: center;
 `;
 
-const TestRunnerTitle = styled.h1`
+const _TestRunnerTitle = styled.h1`
   margin: 0 0 10px 0;
   font-size: 2.5rem;
   font-weight: 700;
 `;
 
-const TestRunnerSubtitle = styled.p`
+const _TestRunnerSubtitle = styled.p`
   margin: 0;
   font-size: 1.2rem;
   opacity: 0.9;
@@ -294,12 +295,7 @@ export const ServiceTestRunner: React.FC = () => {
 
 	return (
 		<TestRunnerContainer>
-			<TestRunnerHeader>
-				<TestRunnerTitle>🧪 Service Test Runner</TestRunnerTitle>
-				<TestRunnerSubtitle>
-					Comprehensive testing for ComprehensiveFlowDataService
-				</TestRunnerSubtitle>
-			</TestRunnerHeader>
+			<FlowHeader flowId="service-test-runner" />
 
 			<TestControls>
 				<TestButton variant="primary" onClick={runTests} disabled={isRunning}>

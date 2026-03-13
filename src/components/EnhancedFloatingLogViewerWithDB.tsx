@@ -15,7 +15,7 @@ import styled from 'styled-components';
 import { DatabaseViewer } from './DatabaseViewer';
 import { EnhancedFloatingLogViewer } from './EnhancedFloatingLogViewer';
 
-const MODULE_TAG = '[🗄️ LOG-VIEWER-WITH-DB]';
+const _MODULE_TAG = '[🗄️ LOG-VIEWER-WITH-DB]';
 
 // ============================================================================
 // STYLED COMPONENTS

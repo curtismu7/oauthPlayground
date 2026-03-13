@@ -1,10 +1,15 @@
 import type React from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
+import { modernMessaging } from '../../services/v9/V9ModernMessagingService';
 import { logger } from '../../utils/logger';
+import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
+import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
+import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -236,6 +241,36 @@ const UserInfoPostFlow: React.FC<UserInfoPostFlowProps> = ({ credentials }) => {
 	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
+
+	// Pre-fill credentials from Worker Token modal / unified storage so user does not have to enter manually
+	useEffect(() => {
+		unifiedWorkerTokenService.loadCredentials().then((result) => {
+			if (
+				result.success &&
+				result.data &&
+				(formData.environmentId === '' || formData.clientId === '')
+			) {
+				setFormData((prev) => ({
+					...prev,
+					environmentId: prev.environmentId || result.data?.environmentId || '',
+					clientId: prev.clientId || result.data?.clientId || '',
+					clientSecret: prev.clientSecret || result.data?.clientSecret || '',
+				}));
+			}
+		});
+	}, []);
+
+	const handleAppSelected = useCallback((app: DiscoveredApp) => {
+		setFormData((prev) => ({
+			...prev,
+			clientId: app.id,
+		}));
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: `App "${app.name}" selected – Client ID updated`,
+			duration: 3000,
+		});
+	}, []);
 
 	const steps = [
 		{
@@ -577,6 +612,47 @@ const retryUserInfoRequest = async (retryCount = 0) => {
 					URL parameters.
 				</p>
 			</InfoContainer>
+
+			<FormContainer>
+				<h3 style={{ marginTop: 0 }}>🔑 Worker Token & App Lookup</h3>
+				<p style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+					Get a worker token and/or pick an app to fill credentials below without typing them in.
+				</p>
+				<div style={{ marginBottom: '1rem' }}>
+					<button
+						type="button"
+						onClick={() =>
+							window.dispatchEvent(
+								new CustomEvent('open-worker-token-modal', {
+									detail: { source: 'UserInfoPostFlow' },
+								})
+							)
+						}
+						style={{
+							padding: '0.5rem 1rem',
+							borderRadius: '6px',
+							border: 'none',
+							background: '#2563eb',
+							color: 'white',
+							fontWeight: 600,
+							cursor: 'pointer',
+							display: 'inline-flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+						}}
+					>
+						<span>🔑</span>
+						Get Worker Token
+					</button>
+				</div>
+				<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
+				<div style={{ marginTop: '1rem' }}>
+					<CompactAppPickerV8U
+						environmentId={formData.environmentId}
+						onAppSelected={handleAppSelected}
+					/>
+				</div>
+			</FormContainer>
 
 			<FlowCredentials
 				flowType="userinfo-post"

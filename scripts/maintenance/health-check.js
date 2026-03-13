@@ -11,7 +11,7 @@ const config = {
 		name: 'Frontend (Vite)',
 	},
 	backend: {
-		url: 'http://localhost:3001/api/health',
+		url: 'https://localhost:3001/api/health',
 		port: 3001,
 		name: 'Backend (Express)',
 	},

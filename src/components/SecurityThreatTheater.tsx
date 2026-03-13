@@ -7,6 +7,7 @@
 import React, { useCallback, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { FiAlertTriangle } from '../icons';
 
 const TheaterContainer = styled.div`
 	background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e3a8a 100%);

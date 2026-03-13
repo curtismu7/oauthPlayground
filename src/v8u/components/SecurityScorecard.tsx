@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import {
+	UnifiedFlowCollapsibleContent,
+	UnifiedFlowCollapsibleHeaderButton,
+	UnifiedFlowCollapsibleSection,
+	UnifiedFlowCollapsibleTitle,
+	UnifiedFlowCollapsibleToggleIcon,
+} from '@/services/collapsibleHeaderService';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { FiInfo, FiShield } from '../../icons';
@@ -9,89 +16,6 @@ const ScorecardContainer = styled.div`
 	border: 1px solid #cbd5e1;
 	border-radius: 12px;
 	margin: 1rem 0;
-`;
-
-const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-	padding: 1.5rem 1.75rem;
-	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%);
-	border: 3px solid transparent;
-	border-radius: 1rem;
-	cursor: pointer;
-	font-size: 1.2rem;
-	font-weight: 700;
-	color: #14532d;
-	transition: all 0.3s ease;
-	position: relative;
-	box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
-
-	&:hover {
-		background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
-		border-color: #86efac;
-		transform: translateY(-2px);
-		box-shadow: 0 8px 24px rgba(34, 197, 94, 0.2);
-	}
-
-	&:active {
-		transform: translateY(0);
-		box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
-	}
-`;
-
-const CollapsibleTitle = styled.span`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-`;
-
-const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 48px;
-	height: 48px;
-	border-radius: 12px;
-	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-	border: 3px solid #3b82f6;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	transition: all 0.3s ease;
-	cursor: pointer;
-	color: #3b82f6;
-	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-
-	&:hover {
-		background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-		border-color: #2563eb;
-		color: #2563eb;
-		transform: ${({ $collapsed }) =>
-			$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
-		box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
-	}
-
-	svg {
-		width: 24px;
-		height: 24px;
-		stroke-width: 3px;
-		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-	}
-`;
-
-const CollapsibleContent = styled.div`
-	padding: 1.5rem;
-	padding-top: 0;
-	animation: fadeIn 0.2s ease;
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
 `;
 
 const ScorecardHeader = styled.div`
@@ -562,152 +486,157 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
 
 	return (
 		<ScorecardContainer>
-			<CollapsibleHeaderButton
-				onClick={() => setIsCollapsed(!isCollapsed)}
-				aria-expanded={!isCollapsed}
-			>
-				<CollapsibleTitle>
-					<FiShield style={{ color: '#3b82f6', fontSize: '1.25rem' }} />
-					Security Scorecard
-				</CollapsibleTitle>
-				<CollapsibleToggleIcon $collapsed={isCollapsed}>
-					<span>⬇️</span>
-				</CollapsibleToggleIcon>
-			</CollapsibleHeaderButton>
+			<UnifiedFlowCollapsibleSection>
+				<UnifiedFlowCollapsibleHeaderButton
+					$collapsed={isCollapsed}
+					onClick={() => setIsCollapsed(!isCollapsed)}
+					aria-expanded={!isCollapsed}
+				>
+					<UnifiedFlowCollapsibleTitle>
+						<FiShield style={{ color: '#3b82f6', fontSize: '1.25rem' }} />
+						Security Scorecard
+					</UnifiedFlowCollapsibleTitle>
+					<UnifiedFlowCollapsibleToggleIcon $collapsed={isCollapsed} aria-hidden>
+						<span>⬇️</span>
+					</UnifiedFlowCollapsibleToggleIcon>
+				</UnifiedFlowCollapsibleHeaderButton>
 
-			{!isCollapsed && (
-				<CollapsibleContent>
-					<ScorecardHeader>
-						<ScorecardTitle>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-								<FiShield style={{ color: '#3b82f6', fontSize: '1.25rem' }} />
-								<ScorecardHeading>Security Scorecard</ScorecardHeading>
-							</div>
-						</ScorecardTitle>
+				{!isCollapsed && (
+					<UnifiedFlowCollapsibleContent>
+						<ScorecardHeader>
+							<ScorecardTitle>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+									<FiShield style={{ color: '#3b82f6', fontSize: '1.25rem' }} />
+									<ScorecardHeading>Security Scorecard</ScorecardHeading>
+								</div>
+							</ScorecardTitle>
 
-						<ScoreOverview>
-							<ScoreCircle $score={score} $grade={grade}>
-								{grade}
-							</ScoreCircle>
-							<ScoreText>
-								<ScoreValue $grade={grade}>{score}%</ScoreValue>
-								<ScoreLabel>Security Score</ScoreLabel>
-							</ScoreText>
-						</ScoreOverview>
-					</ScorecardHeader>
+							<ScoreOverview>
+								<ScoreCircle $score={score} $grade={grade}>
+									{grade}
+								</ScoreCircle>
+								<ScoreText>
+									<ScoreValue $grade={grade}>{score}%</ScoreValue>
+									<ScoreLabel>Security Score</ScoreLabel>
+								</ScoreText>
+							</ScoreOverview>
+						</ScorecardHeader>
 
-					<SecurityCategories>
-						{securityChecks.map((check, index) => (
-							<SecurityCategory
-								key={index}
-								$status={
-									check.items.some((item) => item.status === 'fail')
-										? 'fail'
-										: check.items.some((item) => item.status === 'warning')
-											? 'warning'
-											: 'pass'
-								}
-							>
-								<CategoryHeader>
-									{getStatusIcon(
+						<SecurityCategories>
+							{securityChecks.map((check, index) => (
+								<SecurityCategory
+									key={index}
+									$status={
 										check.items.some((item) => item.status === 'fail')
 											? 'fail'
 											: check.items.some((item) => item.status === 'warning')
 												? 'warning'
 												: 'pass'
-									)}
-									<CategoryTitle
-										$status={
+									}
+								>
+									<CategoryHeader>
+										{getStatusIcon(
 											check.items.some((item) => item.status === 'fail')
 												? 'fail'
 												: check.items.some((item) => item.status === 'warning')
 													? 'warning'
 													: 'pass'
-										}
-									>
-										{check.category}
-									</CategoryTitle>
-								</CategoryHeader>
-								<CategoryItems>
-									{check.items.map((item, itemIndex) => {
-										// Determine if this item should have an action button
-										const shouldShowPKCEButton =
-											item.name === 'PKCE Method' &&
-											(flowType === 'oauth-authz' || flowType === 'hybrid') &&
-											onTogglePKCE;
+										)}
+										<CategoryTitle
+											$status={
+												check.items.some((item) => item.status === 'fail')
+													? 'fail'
+													: check.items.some((item) => item.status === 'warning')
+														? 'warning'
+														: 'pass'
+											}
+										>
+											{check.category}
+										</CategoryTitle>
+									</CategoryHeader>
+									<CategoryItems>
+										{check.items.map((item, itemIndex) => {
+											// Determine if this item should have an action button
+											const shouldShowPKCEButton =
+												item.name === 'PKCE Method' &&
+												(flowType === 'oauth-authz' || flowType === 'hybrid') &&
+												onTogglePKCE;
 
-										const shouldShowRefreshTokenButton =
-											item.name === 'Refresh Token Usage' && onToggleRefreshToken;
+											const shouldShowRefreshTokenButton =
+												item.name === 'Refresh Token Usage' && onToggleRefreshToken;
 
-										if (shouldShowPKCEButton) {
+											if (shouldShowPKCEButton) {
+												return (
+													<SecurityItemWithAction key={itemIndex}>
+														<span>
+															{getStatusIcon(item.status)}
+															<strong>{item.name}:</strong> {item.description}
+														</span>
+														<ActionButton
+															$enabled={!!credentials?.usePKCE}
+															onClick={() => onTogglePKCE?.(!credentials?.usePKCE)}
+														>
+															{credentials?.usePKCE ? 'Disable' : 'Enable'} PKCE
+														</ActionButton>
+													</SecurityItemWithAction>
+												);
+											}
+
+											if (shouldShowRefreshTokenButton) {
+												return (
+													<SecurityItemWithAction key={itemIndex}>
+														<span>
+															{getStatusIcon(item.status)}
+															<strong>{item.name}:</strong> {item.description}
+														</span>
+														<ActionButton
+															$enabled={!!credentials?.enableRefreshToken}
+															onClick={() =>
+																onToggleRefreshToken?.(!credentials?.enableRefreshToken)
+															}
+														>
+															{credentials?.enableRefreshToken ? 'Disable' : 'Enable'} Refresh Token
+														</ActionButton>
+													</SecurityItemWithAction>
+												);
+											}
+
 											return (
-												<SecurityItemWithAction key={itemIndex}>
+												<SecurityItem key={itemIndex} $status={item.status}>
+													{getStatusIcon(item.status)}
 													<span>
-														{getStatusIcon(item.status)}
 														<strong>{item.name}:</strong> {item.description}
 													</span>
-													<ActionButton
-														$enabled={!!credentials?.usePKCE}
-														onClick={() => onTogglePKCE?.(!credentials?.usePKCE)}
-													>
-														{credentials?.usePKCE ? 'Disable' : 'Enable'} PKCE
-													</ActionButton>
-												</SecurityItemWithAction>
+												</SecurityItem>
 											);
-										}
+										})}
+									</CategoryItems>
+								</SecurityCategory>
+							))}
+						</SecurityCategories>
 
-										if (shouldShowRefreshTokenButton) {
-											return (
-												<SecurityItemWithAction key={itemIndex}>
-													<span>
-														{getStatusIcon(item.status)}
-														<strong>{item.name}:</strong> {item.description}
-													</span>
-													<ActionButton
-														$enabled={!!credentials?.enableRefreshToken}
-														onClick={() => onToggleRefreshToken?.(!credentials?.enableRefreshToken)}
-													>
-														{credentials?.enableRefreshToken ? 'Disable' : 'Enable'} Refresh Token
-													</ActionButton>
-												</SecurityItemWithAction>
-											);
-										}
+						{recommendations.length > 0 && (
+							<Recommendations>
+								<RecommendationsHeader>
+									<FiInfo style={{ color: '#166534' }} />
+									<RecommendationsTitle>Security Recommendations</RecommendationsTitle>
+								</RecommendationsHeader>
+								<RecommendationList>
+									{recommendations.map((rec, index) => (
+										<li key={index}>{rec}</li>
+									))}
+								</RecommendationList>
+							</Recommendations>
+						)}
 
-										return (
-											<SecurityItem key={itemIndex} $status={item.status}>
-												{getStatusIcon(item.status)}
-												<span>
-													<strong>{item.name}:</strong> {item.description}
-												</span>
-											</SecurityItem>
-										);
-									})}
-								</CategoryItems>
-							</SecurityCategory>
-						))}
-					</SecurityCategories>
-
-					{recommendations.length > 0 && (
-						<Recommendations>
-							<RecommendationsHeader>
-								<FiInfo style={{ color: '#166534' }} />
-								<RecommendationsTitle>Security Recommendations</RecommendationsTitle>
-							</RecommendationsHeader>
-							<RecommendationList>
-								{recommendations.map((rec, index) => (
-									<li key={index}>{rec}</li>
-								))}
-							</RecommendationList>
-						</Recommendations>
-					)}
-
-					<div style={{ marginTop: '1rem', textAlign: 'center' }}>
-						<small style={{ color: '#64748b' }}>
-							🔒 Security score based on OAuth 2.0/2.1 and OpenID Connect best practices
-						</small>
-					</div>
-				</CollapsibleContent>
-			)}
+						<div style={{ marginTop: '1rem', textAlign: 'center' }}>
+							<small style={{ color: '#64748b' }}>
+								🔒 Security score based on OAuth 2.0/2.1 and OpenID Connect best practices
+							</small>
+						</div>
+					</UnifiedFlowCollapsibleContent>
+				)}
+			</UnifiedFlowCollapsibleSection>
 		</ScorecardContainer>
 	);
 };

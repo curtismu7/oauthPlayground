@@ -1,11 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import {
-	type FlowType,
-	type SpecVersion,
-	SpecVersionServiceV8,
-} from '../../v8/services/specVersionServiceV8';
+import V9FlowHeader from '../../services/v9/v9FlowHeaderService';
+import { type FlowType, SpecVersionServiceV8 } from '../../v8/services/specVersionServiceV8';
 import { FlowComparisonTool, type SpecFilterOption } from '../components/FlowComparisonTool';
+
+const OuterWrapper = styled.div`
+	padding-top: 96px;
+	padding-bottom: 2rem;
+	min-height: 100vh;
+	background: white;
+`;
 
 const PageContainer = styled.div`
 	padding: 2rem;
@@ -419,7 +423,7 @@ export const FlowComparisonPage: React.FC = () => {
 		if (!availableFlowsForSpec || availableFlowsForSpec.length === 0) return;
 		const allowed = new Set(availableFlowsForSpec);
 		setSelectedFlows((prev) => prev.filter((f) => allowed.has(f)));
-	}, [specFilter, availableFlowsForSpec]);
+	}, [availableFlowsForSpec]);
 
 	// Handle flow selection
 	const handleFlowSelect = (flowType: FlowType) => {
@@ -486,226 +490,229 @@ export const FlowComparisonPage: React.FC = () => {
 	};
 
 	return (
-		<PageContainer>
-			<PageHeader>
-				<PageTitle>📊 Flow Comparison Tool</PageTitle>
-				<PageSubtitle>
-					Compare different OAuth flows to understand their security implications, performance
-					characteristics, and best use cases
-				</PageSubtitle>
-			</PageHeader>
+		<OuterWrapper>
+			<V9FlowHeader flowId="flow-comparison-v8u" customConfig={{ flowType: 'pingone' }} />
+			<PageContainer>
+				<PageHeader>
+					<PageTitle>📊 Flow Comparison Tool</PageTitle>
+					<PageSubtitle>
+						Compare different OAuth flows to understand their security implications, performance
+						characteristics, and best use cases
+					</PageSubtitle>
+				</PageHeader>
 
-			{message && (
-				<div
-					style={{
-						marginBottom: '1rem',
-					}}
-				>
+				{message && (
 					<div
 						style={{
-							padding: '1rem',
-							borderRadius: '8px',
-							background:
-								messageType === 'success'
-									? '#f0fdf4'
-									: messageType === 'error'
-										? '#fef2f2'
-										: '#eff6ff',
-							border: `1px solid ${messageType === 'success' ? '#86efac' : messageType === 'error' ? '#fecaca' : '#bfdbfe'}`,
-							color:
-								messageType === 'success'
-									? '#166534'
-									: messageType === 'error'
-										? '#991b1b'
-										: '#1e40af',
-							textAlign: 'center',
+							marginBottom: '1rem',
 						}}
 					>
-						{message}
-					</div>
-				</div>
-			)}
-
-			{/* Statistics */}
-			<StatsGrid>
-				<StatCard>
-					<StatIcon $color="#3b82f6">
-						<i className="bi bi-question-circle"></i>
-					</StatIcon>
-					<StatValue>{stats.totalFlows}</StatValue>
-					<StatLabel>Total Flows</StatLabel>
-				</StatCard>
-
-				<StatCard>
-					<StatIcon $color="#10b981">
-						<span>✅</span>
-					</StatIcon>
-					<StatValue>{stats.selectedFlows}</StatValue>
-					<StatLabel>Selected Flows</StatLabel>
-				</StatCard>
-
-				<StatCard>
-					<StatIcon $color="#f59e0b">
-						<span>🛡️</span>
-					</StatIcon>
-					<StatValue>{stats.avgSecurity.toFixed(1)}</StatValue>
-					<StatLabel>Avg Security</StatLabel>
-				</StatCard>
-
-				<StatCard>
-					<StatIcon $color="#8b5cf6">
-						<span>🕐</span>
-					</StatIcon>
-					<StatValue>{stats.avgComplexity.toFixed(1)}</StatValue>
-					<StatLabel>Avg Complexity</StatLabel>
-				</StatCard>
-			</StatsGrid>
-
-			{/* Spec / Standard filter — OAuth 2.0, OAuth 2.1, OIDC 2.0 for comparison */}
-			<SectionContainer>
-				<SectionHeader>
-					<SectionIcon>
-						<span>📋</span>
-					</SectionIcon>
-					<SectionTitle>Spec / Standard</SectionTitle>
-				</SectionHeader>
-				<SpecFilterRow>
-					<SpecFilterLabel>Compare by:</SpecFilterLabel>
-					{SPEC_FILTER_OPTIONS.map((opt) => (
-						<SpecFilterChip
-							key={opt.value}
-							$active={specFilter === opt.value}
-							type="button"
-							onClick={() => setSpecFilter(opt.value)}
+						<div
+							style={{
+								padding: '1rem',
+								borderRadius: '8px',
+								background:
+									messageType === 'success'
+										? '#f0fdf4'
+										: messageType === 'error'
+											? '#fef2f2'
+											: '#eff6ff',
+								border: `1px solid ${messageType === 'success' ? '#86efac' : messageType === 'error' ? '#fecaca' : '#bfdbfe'}`,
+								color:
+									messageType === 'success'
+										? '#166534'
+										: messageType === 'error'
+											? '#991b1b'
+											: '#1e40af',
+								textAlign: 'center',
+							}}
 						>
-							{opt.label}
-						</SpecFilterChip>
-					))}
-				</SpecFilterRow>
-				{specFilter !== 'all' && (
-					<p style={{ margin: 0, fontSize: '0.875rem', color: '#64748b' }}>
-						{specFilter === 'oauth2.0' &&
-							'OAuth 2.0 (RFC 6749): all flow types including Implicit.'}
-						{specFilter === 'oauth2.1' &&
-							'OAuth 2.1: Authorization Code, Client Credentials, Device Code only; Implicit and ROPC deprecated.'}
-						{specFilter === 'oidc' &&
-							'OIDC 2.0 (OpenID Connect Core 1.0): identity layer; Authorization Code, Implicit, Hybrid, Device Code.'}
-					</p>
+							{message}
+						</div>
+					</div>
 				)}
-			</SectionContainer>
 
-			{/* Flow Comparison Tool */}
-			<FlowComparisonTool
-				onFlowSelect={handleFlowSelect}
-				selectedFlows={selectedFlows}
-				specFilter={specFilter}
-				availableFlowsForSpec={availableFlowsForSpec}
-			/>
-
-			{/* Features Overview */}
-			<SectionContainer>
-				<SectionHeader>
-					<SectionIcon>
-						<span>🗄️</span>
-					</SectionIcon>
-					<SectionTitle>Comparison Features</SectionTitle>
-				</SectionHeader>
-
-				<FeatureList>
-					<FeatureItem>
-						<FeatureIcon $color="#10b981">
-							<span>🛡️</span>
-						</FeatureIcon>
-						<FeatureText>Comprehensive security analysis with detailed ratings</FeatureText>
-						<FeatureStatus $enabled={true}>Active</FeatureStatus>
-					</FeatureItem>
-
-					<FeatureItem>
-						<FeatureIcon $color="#3b82f6">
+				{/* Statistics */}
+				<StatsGrid>
+					<StatCard>
+						<StatIcon $color="#3b82f6">
 							<i className="bi bi-question-circle"></i>
-						</FeatureIcon>
-						<FeatureText>Performance metrics and complexity assessment</FeatureText>
-						<FeatureStatus $enabled={true}>Active</FeatureStatus>
-					</FeatureItem>
+						</StatIcon>
+						<StatValue>{stats.totalFlows}</StatValue>
+						<StatLabel>Total Flows</StatLabel>
+					</StatCard>
 
-					<FeatureItem>
-						<FeatureIcon $color="#8b5cf6">
-							<span>👥</span>
-						</FeatureIcon>
-						<FeatureText>User experience evaluation and recommendations</FeatureText>
-						<FeatureStatus $enabled={true}>Active</FeatureStatus>
-					</FeatureItem>
+					<StatCard>
+						<StatIcon $color="#10b981">
+							<span>✅</span>
+						</StatIcon>
+						<StatValue>{stats.selectedFlows}</StatValue>
+						<StatLabel>Selected Flows</StatLabel>
+					</StatCard>
 
-					<FeatureItem>
-						<FeatureIcon $color="#10b981">
+					<StatCard>
+						<StatIcon $color="#f59e0b">
+							<span>🛡️</span>
+						</StatIcon>
+						<StatValue>{stats.avgSecurity.toFixed(1)}</StatValue>
+						<StatLabel>Avg Security</StatLabel>
+					</StatCard>
+
+					<StatCard>
+						<StatIcon $color="#8b5cf6">
+							<span>🕐</span>
+						</StatIcon>
+						<StatValue>{stats.avgComplexity.toFixed(1)}</StatValue>
+						<StatLabel>Avg Complexity</StatLabel>
+					</StatCard>
+				</StatsGrid>
+
+				{/* Spec / Standard filter — OAuth 2.0, OAuth 2.1, OIDC 2.0 for comparison */}
+				<SectionContainer>
+					<SectionHeader>
+						<SectionIcon>
+							<span>📋</span>
+						</SectionIcon>
+						<SectionTitle>Spec / Standard</SectionTitle>
+					</SectionHeader>
+					<SpecFilterRow>
+						<SpecFilterLabel>Compare by:</SpecFilterLabel>
+						{SPEC_FILTER_OPTIONS.map((opt) => (
+							<SpecFilterChip
+								key={opt.value}
+								$active={specFilter === opt.value}
+								type="button"
+								onClick={() => setSpecFilter(opt.value)}
+							>
+								{opt.label}
+							</SpecFilterChip>
+						))}
+					</SpecFilterRow>
+					{specFilter !== 'all' && (
+						<p style={{ margin: 0, fontSize: '0.875rem', color: '#64748b' }}>
+							{specFilter === 'oauth2.0' &&
+								'OAuth 2.0 (RFC 6749): all flow types including Implicit.'}
+							{specFilter === 'oauth2.1' &&
+								'OAuth 2.1: Authorization Code, Client Credentials, Device Code only; Implicit and ROPC deprecated.'}
+							{specFilter === 'oidc' &&
+								'OIDC 2.0 (OpenID Connect Core 1.0): identity layer; Authorization Code, Implicit, Hybrid, Device Code.'}
+						</p>
+					)}
+				</SectionContainer>
+
+				{/* Flow Comparison Tool */}
+				<FlowComparisonTool
+					onFlowSelect={handleFlowSelect}
+					selectedFlows={selectedFlows}
+					specFilter={specFilter}
+					availableFlowsForSpec={availableFlowsForSpec}
+				/>
+
+				{/* Features Overview */}
+				<SectionContainer>
+					<SectionHeader>
+						<SectionIcon>
 							<span>🗄️</span>
-						</FeatureIcon>
-						<FeatureText>Detailed pros and cons for each flow type</FeatureText>
-						<FeatureStatus $enabled={true}>Active</FeatureStatus>
-					</FeatureItem>
+						</SectionIcon>
+						<SectionTitle>Comparison Features</SectionTitle>
+					</SectionHeader>
 
-					<FeatureItem>
-						<FeatureIcon $color="#f59e0b">
-							<span>➡️</span>
-						</FeatureIcon>
-						<FeatureText>Best use case recommendations and guidance</FeatureText>
-						<FeatureStatus $enabled={true}>Active</FeatureStatus>
-					</FeatureItem>
+					<FeatureList>
+						<FeatureItem>
+							<FeatureIcon $color="#10b981">
+								<span>🛡️</span>
+							</FeatureIcon>
+							<FeatureText>Comprehensive security analysis with detailed ratings</FeatureText>
+							<FeatureStatus $enabled={true}>Active</FeatureStatus>
+						</FeatureItem>
 
-					<FeatureItem>
-						<FeatureIcon $color="#ef4444">
-							<span>⚠️</span>
-						</FeatureIcon>
-						<FeatureText>Security warnings and deprecation notices</FeatureText>
-						<FeatureStatus $enabled={true}>Active</FeatureStatus>
-					</FeatureItem>
-				</FeatureList>
-			</SectionContainer>
+						<FeatureItem>
+							<FeatureIcon $color="#3b82f6">
+								<i className="bi bi-question-circle"></i>
+							</FeatureIcon>
+							<FeatureText>Performance metrics and complexity assessment</FeatureText>
+							<FeatureStatus $enabled={true}>Active</FeatureStatus>
+						</FeatureItem>
 
-			{/* Comparison Statistics */}
-			<SectionContainer>
-				<SectionHeader>
-					<SectionIcon>
-						<i className="bi bi-question-circle"></i>
-					</SectionIcon>
-					<SectionTitle>Comparison Statistics</SectionTitle>
-				</SectionHeader>
+						<FeatureItem>
+							<FeatureIcon $color="#8b5cf6">
+								<span>👥</span>
+							</FeatureIcon>
+							<FeatureText>User experience evaluation and recommendations</FeatureText>
+							<FeatureStatus $enabled={true}>Active</FeatureStatus>
+						</FeatureItem>
 
-				<ComparisonStats>
-					<StatItem>
-						<StatItemValue>{stats.selectedFlows}</StatItemValue>
-						<StatItemLabel>Flows Compared</StatItemLabel>
-					</StatItem>
+						<FeatureItem>
+							<FeatureIcon $color="#10b981">
+								<span>🗄️</span>
+							</FeatureIcon>
+							<FeatureText>Detailed pros and cons for each flow type</FeatureText>
+							<FeatureStatus $enabled={true}>Active</FeatureStatus>
+						</FeatureItem>
 
-					<StatItem>
-						<StatItemValue>{stats.avgSecurity.toFixed(1)}/4</StatItemValue>
-						<StatItemLabel>Avg Security Score</StatItemLabel>
-					</StatItem>
+						<FeatureItem>
+							<FeatureIcon $color="#f59e0b">
+								<span>➡️</span>
+							</FeatureIcon>
+							<FeatureText>Best use case recommendations and guidance</FeatureText>
+							<FeatureStatus $enabled={true}>Active</FeatureStatus>
+						</FeatureItem>
 
-					<StatItem>
-						<StatItemValue>{stats.avgComplexity.toFixed(1)}/4</StatItemValue>
-						<StatItemLabel>Avg Complexity Score</StatItemLabel>
-					</StatItem>
+						<FeatureItem>
+							<FeatureIcon $color="#ef4444">
+								<span>⚠️</span>
+							</FeatureIcon>
+							<FeatureText>Security warnings and deprecation notices</FeatureText>
+							<FeatureStatus $enabled={true}>Active</FeatureStatus>
+						</FeatureItem>
+					</FeatureList>
+				</SectionContainer>
 
-					<StatItem>
-						<StatItemValue>{comparisonMode === 'detailed' ? 'Detailed' : 'Matrix'}</StatItemValue>
-						<StatItemLabel>View Mode</StatItemLabel>
-					</StatItem>
-				</ComparisonStats>
-			</SectionContainer>
+				{/* Comparison Statistics */}
+				<SectionContainer>
+					<SectionHeader>
+						<SectionIcon>
+							<i className="bi bi-question-circle"></i>
+						</SectionIcon>
+						<SectionTitle>Comparison Statistics</SectionTitle>
+					</SectionHeader>
 
-			{/* Export Actions */}
-			<ActionButtons>
-				<ActionButton onClick={handleExportComparison}>
-					<span>📥</span> Export Comparison
-				</ActionButton>
-				<ActionButton
-					onClick={() => setComparisonMode(comparisonMode === 'detailed' ? 'matrix' : 'detailed')}
-				>
-					<span>🔄</span> Switch to {comparisonMode === 'detailed' ? 'Matrix' : 'Detailed'} View
-				</ActionButton>
-			</ActionButtons>
-		</PageContainer>
+					<ComparisonStats>
+						<StatItem>
+							<StatItemValue>{stats.selectedFlows}</StatItemValue>
+							<StatItemLabel>Flows Compared</StatItemLabel>
+						</StatItem>
+
+						<StatItem>
+							<StatItemValue>{stats.avgSecurity.toFixed(1)}/4</StatItemValue>
+							<StatItemLabel>Avg Security Score</StatItemLabel>
+						</StatItem>
+
+						<StatItem>
+							<StatItemValue>{stats.avgComplexity.toFixed(1)}/4</StatItemValue>
+							<StatItemLabel>Avg Complexity Score</StatItemLabel>
+						</StatItem>
+
+						<StatItem>
+							<StatItemValue>{comparisonMode === 'detailed' ? 'Detailed' : 'Matrix'}</StatItemValue>
+							<StatItemLabel>View Mode</StatItemLabel>
+						</StatItem>
+					</ComparisonStats>
+				</SectionContainer>
+
+				{/* Export Actions */}
+				<ActionButtons>
+					<ActionButton onClick={handleExportComparison}>
+						<span>📥</span> Export Comparison
+					</ActionButton>
+					<ActionButton
+						onClick={() => setComparisonMode(comparisonMode === 'detailed' ? 'matrix' : 'detailed')}
+					>
+						<span>🔄</span> Switch to {comparisonMode === 'detailed' ? 'Matrix' : 'Detailed'} View
+					</ActionButton>
+				</ActionButtons>
+			</PageContainer>
+		</OuterWrapper>
 	);
 };
 

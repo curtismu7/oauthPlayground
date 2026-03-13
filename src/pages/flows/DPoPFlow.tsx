@@ -8,8 +8,10 @@ import { Card, CardBody } from '../../components/Card';
 import { showFlowSuccess } from '../../components/CentralizedSuccessMessage';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import DPoPService, { type DPoPKeyPair, type DPoPProof } from '../../services/dpopService';
-import { FlowHeader } from '../../services/flowHeaderService';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
+import { V9FlowRestartButton } from '../../services/v9/V9FlowRestartButton';
+import V9FlowHeader from '../../services/v9/v9FlowHeaderService';
+import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
 import { copyToClipboard } from '../../utils/clipboard';
 import { generateMockAccessToken } from '../../utils/mockOAuth';
 
@@ -408,13 +410,27 @@ const DPoPFlow: React.FC = () => {
 		}
 	}, [keyPair, httpMethod, httpUri, accessToken]);
 
+	const handleReset = useCallback(() => {
+		setKeyPair(null);
+		setProof(null);
+		setApiResult(null);
+		setAccessToken(generateMockAccessToken());
+		setHttpMethod('GET');
+		setHttpUri(getDefaultDpopDemoUrl());
+	}, []);
+
 	return (
 		<Container>
-			<FlowHeader
-				title="DPoP (Demonstration of Proof-of-Possession)"
-				subtitle="RFC 9449 - Educational/Mock Implementation"
-				flowId="dpop-flow"
-			/>
+			<V7MMockBanner description="This is an educational demonstration of DPoP (RFC 9449). PingOne does not currently support DPoP. DPoP proofs and requests are simulated in-browser for learning." />
+			<V9FlowHeader flowId="dpop-flow" customConfig={{ flowType: 'pingone' }} />
+			<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+				<V9FlowRestartButton
+					onRestart={handleReset}
+					currentStep={0}
+					totalSteps={1}
+					position="header"
+				/>
+			</div>
 
 			<WarningBox>
 				<WarningIcon>

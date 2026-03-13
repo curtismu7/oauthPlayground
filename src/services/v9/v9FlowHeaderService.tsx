@@ -66,4 +66,5 @@ export const getV9FlowConfig = (flowId: string): FlowHeaderConfig | null => {
 	}
 };
 
+export { V9FlowHeader };
 export default V9FlowHeader;

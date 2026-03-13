@@ -27,7 +27,6 @@ import {
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { useUserSearch } from '@/v8/hooks/useUserSearch';
@@ -223,7 +222,10 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 	// Reactive worker token status via global hook
 	const tokenStatus = useGlobalWorkerToken();
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
+	function openGlobalWorkerTokenModal(source: string): void {
+		window.dispatchEvent(new CustomEvent('open-worker-token-modal', { detail: { source } }));
+	}
 	const {
 		users,
 		isLoading: isLoadingUsers,
@@ -608,7 +610,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 	return (
 		<div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
 			<WorkerTokenExpiryBannerV8
-				onFixToken={() => setShowWorkerTokenModal(true)}
+				onFixToken={() => openGlobalWorkerTokenModal('DeleteAllDevicesUtilityV8-Fix')}
 				marginBottom="24px"
 			/>
 			{/* Header */}
@@ -913,7 +915,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						/>
 					</div>
 
-					{/* Username */}
+					{/* Username — always show dropdown; disabled when worker token invalid so it is not "lost" */}
 					<div>
 						<label
 							htmlFor="delete-devices-username"
@@ -927,14 +929,19 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						>
 							Username *
 						</label>
-						{environmentId && tokenStatus.isValid ? (
+						{environmentId ? (
 							<SearchableDropdownV8
-								id="username"
+								id="delete-devices-username"
 								value={username || ''}
 								options={userOptions}
 								onChange={setUsername}
 								onSearchChange={setSearchQuery}
-								placeholder="Search for username..."
+								placeholder={
+									tokenStatus.isValid
+										? 'Search for username...'
+										: 'Valid worker token required to search users'
+								}
+								disabled={!tokenStatus.isValid}
 								isLoading={isLoadingUsers}
 								style={{
 									width: '100%',
@@ -946,7 +953,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 								type="text"
 								value={username}
 								onChange={(e) => setUsername(e.target.value)}
-								placeholder="Enter username (requires valid worker token for search)"
+								placeholder="Enter environment ID first, then get worker token"
 								style={{
 									width: '100%',
 									padding: '10px 12px',
@@ -1401,10 +1408,6 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			</div>
 
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" reserveSpace={true} />
-			<WorkerTokenModalV8
-				isOpen={showWorkerTokenModal}
-				onClose={() => setShowWorkerTokenModal(false)}
-			/>
 		</div>
 	);
 };

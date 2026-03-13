@@ -1,11 +1,26 @@
+// src/pages/AIGlossary.tsx
+// AI Glossary - Ping UI Migrated Version
+// Comprehensive glossary of AI and authentication terms
+
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { PingIcon } from '../components/PingIcon';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
 
+// Ping UI namespace wrapper
+const PingUIWrapper = styled.div`
+  &.end-user-nano {
+    /* All components inherit Ping UI styling */
+    * {
+      transition: var(--ping-transition-fast, 0.15s ease-in-out);
+    }
+  }
+`;
+
 const PageContainer = styled.main`
 	min-height: 100vh;
-	background: var(--app-background, #f8f9fa);
+	background: var(--ping-color-background, #f8f9fa);
 	padding: clamp(1.5rem, 4vw, 3rem);
 `;
 
@@ -26,15 +41,15 @@ const SearchInput = styled.input`
 	width: 100%;
 	padding: 1.1rem 3.25rem 1.1rem 3.5rem;
 	border-radius: 18px;
-	border: 2px solid var(--border-subtle, V9_COLORS.TEXT.GRAY_LIGHTER);
+	border: 2px solid var(--ping-color-gray-light, #e5e7eb);
 	font-size: 1rem;
-	background: var(--surface-color, V9_COLORS.TEXT.WHITE);
-	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
-	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	background: var(--ping-color-white, #ffffff);
+	box-shadow: var(--ping-shadow-md, 0 10px 20px rgba(15, 23, 42, 0.06));
+	transition: var(--ping-transition-fast, 0.15s ease-in-out);
 
 	&:focus {
 		outline: none;
-		border-color: var(--primary-color, #4f46e5);
+		border-color: var(--ping-color-primary, #4f46e5);
 		box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18);
 	}
 `;
@@ -44,13 +59,13 @@ const SearchIcon = styled.span`
 	left: 1.25rem;
 	width: 1.25rem;
 	height: 1.25rem;
-	color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
+	color: var(--ping-color-text-secondary, #6b7280);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 
 	&::before {
-		content: '🔍';
+		content: '';
 	}
 `;
 
@@ -59,7 +74,7 @@ const ClearButton = styled.button<{ $inactive?: boolean }>`
 	right: 1rem;
 	background: transparent;
 	border: none;
-	color: V9_COLORS.TEXT.GRAY_LIGHT;
+	color: var(--ping-color-gray-light, #9ca3af);
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -72,7 +87,7 @@ const ClearButton = styled.button<{ $inactive?: boolean }>`
 	transition: color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
 
 	&:hover {
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: var(--ping-color-gray-dark, #374151);
 		background: rgba(156, 163, 175, 0.12);
 	}
 
@@ -113,14 +128,14 @@ const TermExample = styled.div`
 	display: grid;
 	gap: 0.4rem;
 	font-size: 0.95rem;
-	color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
+	color: var(--ping-color-text-secondary, #6b7280);
 
 	strong {
 		font-size: 0.8rem;
 		font-weight: 600;
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
-		color: #334155;
+		color: var(--ping-color-text-primary, #374151);
 	}
 `;
 
@@ -132,12 +147,12 @@ const TermTitle = styled.h3`
 	margin: 0;
 	font-size: clamp(1.05rem, 2.4vw, 1.2rem);
 	font-weight: 600;
-	color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
+	color: var(--ping-color-text-primary, #374151);
 `;
 
 const TermDefinition = styled.p`
 	margin: 0;
-	color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
+	color: var(--ping-color-text-secondary, #6b7280);
 	line-height: 1.7;
 	font-size: clamp(0.95rem, 2.2vw, 1.05rem);
 `;
@@ -168,19 +183,19 @@ const NoResults = styled.div`
 	h3 {
 		margin: 0;
 		size: 1.2rem;
-		color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
+		color: var(--ping-color-text-primary, #374151);
 	}
 
 	p {
 		margin: 0;
-		color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
+		color: var(--ping-color-text-secondary, #6b7280);
 		font-size: 0.98rem;
 	}
 `;
 
 const Footer = styled.footer`
 	text-align: center;
-	color: var(--color-text-muted, V9_COLORS.TEXT.GRAY_MEDIUM);
+	color: var(--ping-color-text-secondary, #6b7280);
 	font-size: 0.95rem;
 	padding: 0.5rem 0 1rem;
 `;
@@ -1434,77 +1449,81 @@ const AIGlossary: React.FC = () => {
 	const hasResults = filteredData.length > 0;
 
 	return (
-		<PageContainer>
-			<PageContent>
-				<FlowHeader flowId="ai-glossary" />
+		<PingUIWrapper className="end-user-nano">
+			<PageContainer>
+				<PageContent>
+					<FlowHeader flowId="ai-glossary" />
 
-				<SearchBar>
-					<SearchInput
-						type="text"
-						placeholder="Search AI terms, standards, or concepts..."
-						value={searchTerm}
-						onChange={(event) => setSearchTerm(event.target.value)}
-					/>
-					<SearchIcon />
-					<ClearButton
-						type="button"
-						onClick={() => searchTerm && setSearchTerm('')}
-						title="Clear search"
-						$inactive={!searchTerm}
-					>
-						❌
-					</ClearButton>
-				</SearchBar>
+					<SearchBar>
+						<SearchInput
+							type="text"
+							placeholder="Search AI terms, standards, or concepts..."
+							value={searchTerm}
+							onChange={(event) => setSearchTerm(event.target.value)}
+						/>
+						<SearchIcon>
+							<PingIcon icon="FiSearch" size={20} ariaLabel="Search" />
+						</SearchIcon>
+						<ClearButton
+							type="button"
+							onClick={() => searchTerm && setSearchTerm('')}
+							title="Clear search"
+							$inactive={!searchTerm}
+						>
+							<PingIcon icon="FiX" size={16} ariaLabel="Clear search" />
+						</ClearButton>
+					</SearchBar>
 
-				{!hasResults ? (
-					<NoResults>
-						<h3>No matching terms found</h3>
-						<p>Try different keywords or clear the search to browse all glossary entries.</p>
-					</NoResults>
-				) : (
-					<CategoryList>
-						{filteredData.map((category, categoryIndex) => (
-							<CollapsibleHeader
-								key={categoryIndex}
-								title={category.category}
-								subtitle={`${category.terms.length} terms`}
-								icon={<CategoryIcon>{category.icon}</CategoryIcon>}
-								defaultCollapsed={categoryIndex !== 0}
-							>
-								<TermsList>
-									<TermsGrid>
-										{category.terms.map((item, termIndex) => (
-											<TermItem key={termIndex}>
-												<TermTitle>{item.term}</TermTitle>
-												<TermDefinition>{item.definition}</TermDefinition>
-												{item.example && (
-													<TermExample>
-														<strong>Example:</strong>
-														{item.example}
-													</TermExample>
-												)}
-												{item.relatedTerms && item.relatedTerms.length > 0 && (
-													<RelatedTerms>
-														<strong>Related:</strong>{' '}
-														{item.relatedTerms.map((term, idx) => (
-															<span key={idx}>{term}</span>
-														))}
-													</RelatedTerms>
-												)}
-											</TermItem>
-										))}
-									</TermsGrid>
-								</TermsList>
-							</CollapsibleHeader>
-						))}
-					</CategoryList>
-				)}
+					{!hasResults ? (
+						<NoResults>
+							<h3>No matching terms found</h3>
+							<p>Try different keywords or clear the search to browse all glossary entries.</p>
+						</NoResults>
+					) : (
+						<CategoryList>
+							{filteredData.map((category, categoryIndex) => (
+								<CollapsibleHeader
+									key={categoryIndex}
+									title={category.category}
+									subtitle={`${category.terms.length} terms`}
+									icon={<CategoryIcon>{category.icon}</CategoryIcon>}
+									defaultCollapsed={categoryIndex !== 0}
+								>
+									<TermsList>
+										<TermsGrid>
+											{category.terms.map((item, termIndex) => (
+												<TermItem key={termIndex}>
+													<TermTitle>{item.term}</TermTitle>
+													<TermDefinition>{item.definition}</TermDefinition>
+													{item.example && (
+														<TermExample>
+															<strong>Example:</strong>
+															{item.example}
+														</TermExample>
+													)}
+													{item.relatedTerms && item.relatedTerms.length > 0 && (
+														<RelatedTerms>
+															<strong>Related:</strong>{' '}
+															{item.relatedTerms.map((term, idx) => (
+																<span key={idx}>{term}</span>
+															))}
+														</RelatedTerms>
+													)}
+												</TermItem>
+											))}
+										</TermsGrid>
+									</TermsList>
+								</CollapsibleHeader>
+							))}
+						</CategoryList>
+					)}
 
-				<Footer>
-					<p>This glossary covers AI terminology as of 2025. The field evolves rapidly.</p>
-				</Footer>
-			</PageContent>
-		</PageContainer>
+					<Footer>
+						<p>This glossary covers AI terminology as of 2025. The field evolves rapidly.</p>
+					</Footer>
+				</PageContent>
+			</PageContainer>
+		</PingUIWrapper>
 	);
 };
 

@@ -31,7 +31,6 @@
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { pingOneFetch } from '@/utils/pingOneFetch';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
-import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { logger } from '../../../../../utils/logger';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';

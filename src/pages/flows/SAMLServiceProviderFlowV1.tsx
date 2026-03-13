@@ -11,6 +11,7 @@ import { useSamlSpFlowController } from '../../hooks/useSamlSpFlowController';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowCompletionService } from '../../services/flowCompletionService';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
 import { samlService as SAMLService } from '../../services/samlService';
 import { logger } from '../../utils/logger';
 
@@ -1258,27 +1259,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 	// Main render
 	return (
 		<Container>
+			<V7MMockBanner description="Configure and explore SAML SP Dynamic ACS without real credentials. Process AuthnRequests locally. PingOne credentials are optional — only needed if you want to sync with a real PingOne SAML application." />
 			<FlowHeader flowId="saml-sp-dynamic-acs" />
-			<div
-				style={{
-					background: '#fef3c7',
-					border: '1px solid #fbbf24',
-					borderRadius: 8,
-					padding: 12,
-					margin: '0 auto 1.5rem',
-					maxWidth: 1200,
-					marginLeft: 'auto',
-					marginRight: 'auto',
-					marginBottom: '1.5rem',
-				}}
-			>
-				<strong>📚 Educational Mock Mode</strong>
-				<p style={{ margin: '8px 0 0 0', fontSize: 14 }}>
-					Configure and explore SAML SP Dynamic ACS without real credentials. Process AuthnRequests
-					locally. PingOne credentials are <strong>optional</strong> — only needed if you want to
-					sync with a real PingOne SAML application.
-				</p>
-			</div>
 			<ContentWrapper>
 				{renderConfiguration()}
 				<SectionDivider />

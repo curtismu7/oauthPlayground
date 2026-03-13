@@ -3,8 +3,10 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import { PingIcon } from '../components/PingIcon';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { FlowHeader } from '../services/flowHeaderService';
 import { FlowUIService } from '../services/flowUIService';
 import { PageLayoutService } from '../services/pageLayoutService';
 
@@ -99,19 +101,15 @@ const Header = styled.div`
 // Layout components at module scope — styled-components v6 calls useContext
 // internally when creating styled components; must not run inside a component.
 const pageConfig = {
-	flowType: 'documentation' as const,
-	theme: 'purple' as const,
+	flowType: 'pingone' as const,
+	theme: 'red' as const,
 	maxWidth: '1200px',
-	showHeader: true,
+	showHeader: false,
 	showFooter: false,
 	responsive: true,
 	flowId: 'ping-ai-resources',
 };
-const {
-	PageContainer,
-	ContentWrapper,
-	FlowHeader: LayoutFlowHeader,
-} = PageLayoutService.createPageLayout(pageConfig);
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
 const PingAIResources: React.FC = () => {
 	usePageScroll({ pageName: 'Ping AI Resources', force: true });
@@ -119,11 +117,11 @@ const PingAIResources: React.FC = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>
-				{LayoutFlowHeader && <LayoutFlowHeader />}
+				<FlowHeader flowId="ping-ai-resources" />
 
 				<Header>
 					<h1>
-						<i className="bi bi-cpu" />
+						<PingIcon icon="FiCpu" size={32} />
 						Ping Identity AI Resources
 					</h1>
 					<p>
@@ -135,7 +133,7 @@ const PingAIResources: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Agent Types & Architecture"
 					subtitle="Understanding different types of AI agents and their identity requirements"
-					icon={<i className="bi bi-cpu" />}
+					icon={<PingIcon icon="FiCpu" size={24} />}
 					theme="purple"
 					defaultCollapsed={false}
 				>
@@ -169,7 +167,7 @@ const PingAIResources: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Identity Documentation"
 					subtitle="Official Ping Identity documentation for AI-powered identity solutions"
-					icon={<span>📖</span>}
+					icon={<PingIcon icon="FiBook" size={24} />}
 					theme="blue"
 					defaultCollapsed={false}
 				>
@@ -286,7 +284,7 @@ const PingAIResources: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Security & Best Practices"
 					subtitle="Security considerations and best practices for AI identity implementations"
-					icon={<span>🛡️</span>}
+					icon={<PingIcon icon="FiShield" size={24} />}
 					theme="red"
 					defaultCollapsed={false}
 				>
@@ -340,7 +338,7 @@ const PingAIResources: React.FC = () => {
 				<CollapsibleHeader
 					title="Agentic AI & Identity"
 					subtitle="Resources for understanding and implementing agentic AI with proper identity management"
-					icon={<span>👥</span>}
+					icon={<PingIcon icon="FiUsers" size={24} />}
 					theme="green"
 					defaultCollapsed={false}
 				>
@@ -395,7 +393,7 @@ const PingAIResources: React.FC = () => {
 				<CollapsibleHeader
 					title="Ping Identity Developer Resources"
 					subtitle="Essential Ping Identity documentation, APIs, SDKs, and configuration guides"
-					icon={<span>🔧</span>}
+					icon={<PingIcon icon="FiCode" size={24} />}
 					theme="orange"
 					defaultCollapsed={false}
 				>

@@ -123,6 +123,34 @@ Central registry of all tracked issues with status, priority, and tracking infor
 - **Root Cause**: Missing filter implementation
 - **Fix Status**: Filter functionality implemented
 
+#### 6. Groq API Key Storage – apiKeyService + server.js crashes - FIXED
+- **ID**: #009
+- **File**: `groq-api-key-storage.md`
+- **Status**: FIXED
+- **Priority**: MEDIUM
+- **Severity**: Runtime Errors / Feature Broken
+- **Created**: 2026-03-12
+- **Assignee**: Development Team
+- **Target Fix**: 2026-03-12
+- **Components**: McpServerConfig, apiKeyService, groqService, server.js
+- **Impact**: POST /api/api-key/groq always returned `{"success":false,"message":"Error storing API key"}`, blocking Groq AI chat
+- **Root Cause**: (1) `GROQ_KEY_FILE` const declared after first use in server.js (ES module, not hoisted → ReferenceError). (2) `logger.info`/`logger.warn` called in POST handler but `logger` is not defined in server.js. (3) McpServerConfig used raw fetch instead of apiKeyService.
+- **Fix Status**: Moved GROQ_KEY_FILE to top of file; replaced logger calls with console; wired apiKeyService in McpServerConfig and groqService.
+
+#### 7. DPoP Flow Migration & Rules - OPEN
+- **ID**: #010
+- **File**: `dpop-flow-migration-rules.md`
+- **Status**: OPEN
+- **Priority**: MEDIUM
+- **Severity**: UI/UX consistency, documentation gap
+- **Created**: 2026-03-11
+- **Assignee**: TBD
+- **Target Fix**: TBD
+- **Components**: DPoPFlow.tsx, field-rules system, flowHeaderService
+- **Impact**: DPoP flow at `/flows/dpop` only partially uses PingOne UI (header + reset); uses CollapsibleHeader instead of step-by-step pattern; not in v9 folder; not wired to field rules
+- **Root Cause**: Flow was given V9 header/reset but never fully migrated to V9 pattern; field-rules task for dpop-v7 marked done but no implementation in src
+- **Fix Status**: Tracked; fix deferred until prioritization
+
 ### 📝 Low Priority Issues (0)
 
 *No low priority issues currently tracked.*
@@ -130,16 +158,17 @@ Central registry of all tracked issues with status, priority, and tracking infor
 ## Issue Statistics
 
 ### Current Status
-- **Total Issues**: 8
+- **Total Issues**: 10
 - **Critical Issues**: 1
 - **High Priority**: 2
-- **Medium Priority**: 5
+- **Medium Priority**: 7
 - **Low Priority**: 0
 
 ### By Status
 - **Investigation Required**: 1
 - **In Progress**: 0
 - **Fixed**: 7
+- **Open (tracked)**: 1
 - **Deployed**: 7
 - **Closed**: 0
 
@@ -150,6 +179,15 @@ Central registry of all tracked issues with status, priority, and tracking infor
 - **Older than 1 Month**: 0
 
 ## Recent Activity
+
+### 2026-03-11
+- 📋 **DPoP flow migration & rules (#010):** Added issue and doc. DPoP at `/flows/dpop` has V9 header + reset but is not fully migrated (still CollapsibleHeader, not in v9 folder, not in field-rules). Documented in `dpop-flow-migration-rules.md`; status OPEN, fix deferred.
+
+### 2026-03-12
+- ✅ **Groq API key storage (#009):** Fixed `GROQ_KEY_FILE` const hoisting + `logger is not defined` in `server.js` POST handler. Wired `McpServerConfig`, `groqService`, and `apiKeyService` together. `POST /api/api-key/groq` now succeeds and persists key to disk; Groq chat works end-to-end.
+
+### 2026-03-11
+- ✅ **Mock flow services rename (V7M → V9Mock):** Renamed all mock OAuth/OIDC service files and symbols under `src/services/v9/mock/` from V7M* to V9Mock* (e.g. V7MAuthorizeService → V9MockAuthorizeService, V7MTokenSuccess → V9MockTokenSuccess, generateV7MTokens → generateV9MockTokens). Updated flow pages in `pages/flows/v9/`, `v7/facade.ts`, `v7/index.ts`, and barrel/tests. Session key set to `v9mock:state`. Documented in UPDATE_LOG_AND_REGRESSION_PLAN.md. Vitest for `src/services/v9/mock/__tests__` passes (16 tests).
 
 ### 2025-03-11
 - ✅ Created comprehensive issue tracking system
@@ -193,6 +231,7 @@ Central registry of all tracked issues with status, priority, and tracking infor
 - [ ] Add debugging logs to track the issue
 - [ ] Test fix with existing stored credentials
 - [ ] Update issue status to "In Progress"
+- [ ] (Optional) Prioritize DPoP flow full migration (#010) or document as accepted gap
 
 ### Short Term (Next Week)
 - [ ] Deploy fix to staging for testing
@@ -295,7 +334,8 @@ Central registry of all tracked issues with status, priority, and tracking infor
 
 ---
 
-**Last Updated**: 2025-03-11  
-**Next Review**: 2025-03-12 (Daily)  
+**Last Updated**: 2026-03-11  
+**Next Review**: 2026-03-12 (Daily)  
+**Changelog**: 2026-03-11 — Added #010 DPoP flow migration & rules (OPEN).  
 **Maintained by**: Development Team  
 **Review Frequency**: Daily/Weekly/Monthly/Quarterly

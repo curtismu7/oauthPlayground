@@ -30,11 +30,11 @@ import { JWTConfigV8 } from '@/components/JWTConfigV8';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { ResponseMode } from '@/services/responseModeService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { V9RedirectUriService as RedirectUriServiceV8 } from '@/services/v9/V9RedirectUriService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { ClientTypeRadioV8 } from '@/v8/components/ClientTypeRadioV8';
 import { type DisplayMode, DisplayModeDropdownV8 } from '@/v8/components/DisplayModeDropdownV8';
 import { IssuerURLInputV8 } from '@/v8/components/IssuerURLInputV8';
-import { LoginHintInputV8 } from '@/v8/components/LoginHintInputV8';
 import { MaxAgeInputV8 } from '@/v8/components/MaxAgeInputV8';
 import {
 	OidcDiscoveryModalV8,
@@ -51,7 +51,6 @@ import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
 import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpointAuthMethodDropdownV8';
 import { TooltipV8 } from '@/v8/components/TooltipV8';
 import { UserSearchDropdownV8 as _UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
@@ -61,7 +60,6 @@ import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { FlowOptionsServiceV8 } from '@/v8/services/flowOptionsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
-import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
 import { ResponseTypeServiceV8 } from '@/v8/services/responseTypeServiceV8';
 import { SharedCredentialsServiceV8 } from '@/v8/services/sharedCredentialsServiceV8';
 import {
@@ -516,8 +514,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [discoveryResult, setDiscoveryResult] = useState<OidcDiscoveryResult | null>(null);
 	const [showDiscoveryInfo, setShowDiscoveryInfo] = useState(false);
 
-	// Worker Token Modal
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	// App Discovery Modal
 	const [showAppDiscoveryModal, setShowAppDiscoveryModal] = useState(false);
 	const [hasDiscoveredApps, setHasDiscoveredApps] = useState(false);
@@ -528,6 +524,25 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 	// Worker Token Settings - Use centralized hook for consistency
 	const { silentApiRetrieval, showTokenAtEnd } = useWorkerTokenConfigV8();
+
+	// Open global worker token modal (WorkerTokenModalV9 in App.tsx)
+	const openGlobalWorkerTokenModal = useCallback((source: string) => {
+		window.dispatchEvent(new CustomEvent('open-worker-token-modal', { detail: { source } }));
+	}, []);
+
+	// Refresh token status and show message when token is updated (e.g. from global modal)
+	useEffect(() => {
+		const handleTokenUpdated = () => {
+			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Worker token generated and saved!',
+				duration: 3000,
+			});
+		};
+		window.addEventListener('workerTokenUpdated', handleTokenUpdated);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdated);
+	}, []);
 
 	// Helper function to determine if a required field should have red outline
 	const shouldHighlightField = useCallback(
@@ -2233,20 +2248,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<button
 												type="button"
 												className={tokenStatus.isValid ? 'btn-token-has' : 'btn-token-none'}
-												onClick={async () => {
-													// Pass current checkbox values to override config (page checkboxes take precedence)
-													// forceShowModal=true because user explicitly clicked the button - always show modal
-													const { handleShowWorkerTokenModal } = await import(
-														'@/v8/utils/workerTokenModalHelperV8'
-													);
-													await handleShowWorkerTokenModal(
-														setShowWorkerTokenModal,
-														setTokenStatus,
-														silentApiRetrieval, // Page checkbox value takes precedence
-														showTokenAtEnd, // Page checkbox value takes precedence
-														true // Force show modal - user clicked button
-													);
-												}}
+												onClick={() => openGlobalWorkerTokenModal('CredentialsFormV8U')}
 												title={
 													tokenStatus.isValid
 														? 'Worker token is stored - click to manage'
@@ -2332,18 +2334,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 																WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 															if (!currentStatus.isValid) {
 																logger.info(
-																	'[CREDENTIALS-FORM-V8U] Silent API retrieval enabled, attempting to fetch token now...'
+																	'[CREDENTIALS-FORM-V8U] Silent API retrieval enabled, opening global worker token modal...'
 																);
-																const { handleShowWorkerTokenModal } = await import(
-																	'@/v8/utils/workerTokenModalHelperV8'
-																);
-																await handleShowWorkerTokenModal(
-																	setShowWorkerTokenModal,
-																	setTokenStatus,
-																	newValue, // Use new value
-																	showTokenAtEnd,
-																	false // Not forced - respect silent setting
-																);
+																openGlobalWorkerTokenModal('CredentialsFormV8U-SilentCheckbox');
 															}
 														}
 													}}
@@ -3454,7 +3447,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										<small style={{ display: 'block', marginTop: '8px' }}>
 											💡{' '}
 											<a
-												href={`/configuration#redirect-uri-catalog-${effectiveFlowType}`}
+												href="/configuration#redirect-uri-catalog-v8u-unified"
 												style={{
 													color: '#0ea5e9',
 													textDecoration: 'none',
@@ -5057,13 +5050,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 												}}
 												placeholder="Search for a user or enter login hint..."
 												id="login-hint-dropdown"
-												onGetToken={() => {
-													// Open worker token modal if needed
-													logger.info(
-														`${MODULE_TAG} User clicked get token for login hint`,
-														'Logger info'
-													);
-												}}
+												onGetToken={() =>
+													openGlobalWorkerTokenModal('CredentialsFormV8U-LoginHint')
+												}
 											/>
 											{/* Default indicator */}
 											<div
@@ -5248,61 +5237,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 						onClose={() => setShowDiscoveryModal(false)}
 						onApply={handleApplyDiscovery}
 					/>
-
-					{showWorkerTokenModal &&
-						(() => {
-							// Check if we should show token only (matches MFA pattern)
-							try {
-								const config = MFAConfigurationServiceV8.loadConfiguration();
-								const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-
-								// Show token-only if showTokenAtEnd is ON and token is valid
-								const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-
-								return (
-									<WorkerTokenModalV8
-										isOpen={showWorkerTokenModal}
-										onClose={() => {
-											setShowWorkerTokenModal(false);
-										}}
-										onTokenGenerated={(token) => {
-											logger.info('Worker token generated for credentials form:', token);
-											window.dispatchEvent(new Event('workerTokenUpdated'));
-											const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-											setTokenStatus(newStatus);
-											modernMessaging.showFooterMessage({
-												type: 'info',
-												message: 'Worker token generated and saved!',
-												duration: 3000,
-											});
-										}}
-										environmentId={credentials.environmentId}
-										showTokenOnly={showTokenOnly}
-									/>
-								);
-							} catch {
-								return (
-									<WorkerTokenModalV8
-										isOpen={showWorkerTokenModal}
-										onClose={() => {
-											setShowWorkerTokenModal(false);
-											setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-										}}
-										onTokenGenerated={() => {
-											window.dispatchEvent(new Event('workerTokenUpdated'));
-											const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-											setTokenStatus(newStatus);
-											modernMessaging.showFooterMessage({
-												type: 'info',
-												message: 'Worker token generated and saved!',
-												duration: 3000,
-											});
-										}}
-										environmentId={credentials.environmentId}
-									/>
-								);
-							}
-						})()}
 
 					<AppDiscoveryModalV8U
 						isOpen={showAppDiscoveryModal}

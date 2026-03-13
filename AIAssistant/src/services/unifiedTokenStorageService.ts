@@ -1,0 +1,3176 @@
+/**
+ * @file unifiedTokenStorageService.ts
+ * @description Unified token storage service using IndexedDB and SQLite
+ * @version 1.0.0
+ * @since 2026-02-15
+ *
+ * This service provides a unified token storage solution that:
+ * 1. Uses IndexedDB as primary storage (browser-native, persistent)
+ * 2. Uses SQLite via backend API as backup storage
+ * 3. Provides automatic synchronization between storage layers
+ * 4. Ensures all apps look up tokens from the same place
+ * 5. Supports token lifecycle management and cleanup
+ */
+
+import { logger } from '../utils/logger';
+
+const MODULE_TAG = '[🔑 UNIFIED-TOKEN-STORAGE]';
+const INDEXEDDB_NAME = 'OAuthPlaygroundTokenStorage';
+const INDEXEDDB_VERSION = 1;
+const TOKEN_STORE_NAME = 'tokens';
+
+// Unified storage interface for all data types
+export interface UnifiedStorageItem {
+	id: string;
+	type:
+		| 'access_token'
+		| 'refresh_token'
+		| 'id_token'
+		| 'worker_token'
+		| 'oauth_credentials'
+		| 'mfa_credentials'
+		| 'environment_settings'
+		| 'ui_preferences'
+		| 'pkce_state'
+		| 'flow_state'
+		| 'api_key'
+		// Legacy compat types used by V8/V8U storages:
+		| 'v8_storage'
+		| 'v8_credentials'
+		| 'v8u_pkce';
+	value: string;
+	expiresAt: number | null;
+	issuedAt: number;
+	scope?: string[];
+	source: 'oauth_flow' | 'worker_token' | 'manual' | 'system' | 'user_input';
+	flowType?: string;
+	flowName?: string;
+	environmentId?: string;
+	clientId?: string;
+	metadata?: Record<string, unknown>;
+	createdAt: number;
+	updatedAt: number;
+}
+
+// Legacy token interface for backward compatibility
+export interface UnifiedToken extends Omit<UnifiedStorageItem, 'type'> {
+	type: 'access_token' | 'refresh_token' | 'id_token' | 'worker_token';
+}
+
+export interface StorageQuery {
+	type?: UnifiedStorageItem['type'];
+	source?: UnifiedStorageItem['source'];
+	environmentId?: string;
+	clientId?: string;
+	flowType?: string;
+	flowName?: string;
+	expired?: boolean;
+	activeOnly?: boolean;
+	expiredOnly?: boolean;
+}
+
+export interface TokenStorageResult<T = UnifiedStorageItem> {
+	success: boolean;
+	data?: T[];
+	error?: string;
+	source?: 'indexeddb' | 'sqlite' | 'cache';
+}
+
+export interface TokenStorageOptions {
+	id?: string; // Stable id for credentials (avoids random ids so we never lose them)
+	environmentId?: string;
+	clientId?: string;
+	flowType?: string;
+	flowName?: string;
+	source?: UnifiedStorageItem['source'];
+}
+
+// Legacy interfaces for backward compatibility
+export interface TokenQuery extends Omit<StorageQuery, 'type'> {
+	type?: UnifiedStorageItem['type'];
+	id?: string;
+}
+
+// V8 Storage Compatibility Interfaces
+export interface V8FlowData {
+	flowType: string;
+	discovery?: V8DiscoveryData;
+	credentials?: V8CredentialsData;
+	advanced?: V8AdvancedData;
+	savedAt?: number;
+}
+
+export interface V8DiscoveryData {
+	issuerUrl?: string;
+	authorizationEndpoint?: string;
+	tokenEndpoint?: string;
+	userInfoEndpoint?: string;
+	jwksUrl?: string;
+	endSessionEndpoint?: string;
+	discoveryDocument?: Record<string, unknown>;
+	discoveredAt?: number;
+}
+
+export interface V8CredentialsData {
+	environmentId?: string;
+	region?: string;
+	clientId?: string;
+	clientSecret?: string;
+	redirectUri?: string;
+	postLogoutRedirectUri?: string;
+	scopes?: string | string[];
+	loginHint?: string;
+	clientAuthMethod?: string;
+}
+
+export interface V8AdvancedData {
+	privateKey?: string;
+	jwksUrl?: string;
+	issuer?: string;
+	subject?: string;
+	tokenEndpointAuthMethod?: string;
+	[key: string]: unknown;
+}
+
+// StorageServiceV8 Compatibility Interfaces
+export interface StorageData<T = unknown> {
+	version: number;
+	data: T;
+	timestamp: number;
+	flowKey?: string;
+}
+
+export interface Migration {
+	fromVersion: number;
+	toVersion: number;
+	migrate: (data: unknown) => unknown;
+}
+
+export interface ExportData {
+	version: number;
+	exportedAt: string;
+	data: Record<string, StorageData>;
+}
+
+// CredentialsServiceV8 Compatibility Interfaces
+export interface V8Credentials {
+	environmentId: string;
+	clientId: string;
+	clientSecret?: string;
+	redirectUri?: string;
+	postLogoutRedirectUri?: string;
+	logoutUri?: string;
+	scopes?: string;
+	loginHint?: string;
+	responseType?: string;
+	issuerUrl?: string;
+	clientAuthMethod?:
+		| 'none'
+		| 'client_secret_basic'
+		| 'client_secret_post'
+		| 'client_secret_jwt'
+		| 'private_key_jwt';
+	// OAuth/OIDC advanced parameters
+	responseMode?: 'query' | 'fragment' | 'form_post' | 'pi.flow';
+	maxAge?: number;
+	display?: 'page' | 'popup' | 'touch' | 'wap';
+	prompt?: 'none' | 'login' | 'consent';
+	[key: string]: unknown;
+}
+
+export interface V8CredentialsConfig {
+	flowKey: string;
+	flowType: 'oauth' | 'oidc' | 'client-credentials' | 'device-code' | 'ropc' | 'hybrid' | 'pkce';
+	includeClientSecret: boolean;
+	includeRedirectUri: boolean;
+	includeLogoutUri: boolean;
+	includeScopes: boolean;
+	defaultScopes?: string;
+	defaultRedirectUri?: string;
+	defaultLogoutUri?: string;
+}
+
+export interface V8AppConfig {
+	clientId: string;
+	redirectUris: string[];
+	logoutUris?: string[];
+	grantTypes: string[];
+	scopes?: string[];
+	responseTypes?: string[];
+}
+
+// PKCEStorageServiceV8U Compatibility Interfaces
+export interface V8UPKCECodes {
+	codeVerifier: string;
+	codeChallenge: string;
+	codeChallengeMethod: string;
+	savedAt: number;
+	flowKey: string;
+}
+
+// FlowStorageService Compatibility Interfaces
+export interface FlowStorageAuthCodeData {
+	code: string;
+	timestamp: number;
+	expiresAt?: number;
+}
+
+export interface FlowStorageStateData {
+	state: string;
+	timestamp: number;
+}
+
+export interface FlowStoragePKCEData {
+	codeVerifier: string;
+	codeChallenge: string;
+	codeChallengeMethod: 'S256' | 'plain';
+}
+
+export interface FlowStorageTokenData {
+	access_token: string;
+	refresh_token?: string;
+	id_token?: string;
+	token_type: string;
+	expires_in: number;
+	scope?: string;
+	[key: string]: unknown;
+}
+
+export interface FlowStorageCredentialsData {
+	environmentId: string;
+	clientId: string;
+	clientSecret?: string;
+	redirectUri: string;
+	scopes: string;
+	[key: string]: unknown;
+}
+
+export interface FlowStorageNavigationData {
+	flowId: string;
+	currentStep: number;
+	returnPath?: string;
+	context?: Record<string, unknown>;
+}
+
+export interface FlowStorageDeviceCodeData {
+	device_code: string;
+	user_code: string;
+	verification_uri: string;
+	verification_uri_complete?: string;
+	expires_in: number;
+	interval: number;
+	timestamp: number;
+}
+
+export interface FlowStorageAdvancedParametersData {
+	audience?: string;
+	resources?: string[];
+	displayMode?: string;
+	promptValues?: string[];
+	claimsRequest?: Record<string, unknown> | null;
+	uiLocales?: string;
+	claimsLocales?: string;
+	loginHint?: string;
+	acrValues?: string[];
+	maxAge?: number;
+}
+
+/**
+ * Unified Token Storage Service
+ *
+ * Provides centralized token storage with IndexedDB primary storage
+ * and SQLite backup via backend API.
+ */
+export class UnifiedTokenStorageService {
+	private static instance: UnifiedTokenStorageService | null = null;
+	private db: IDBDatabase | null = null;
+	private isInitialized = false;
+	private cache: Map<string, UnifiedStorageItem> = new Map();
+	private readonly CACHE_KEY = 'unified_token_cache';
+
+	private constructor() {
+		this.initializeIndexedDB();
+	}
+
+	/**
+	 * Get singleton instance
+	 */
+	public static getInstance(): UnifiedTokenStorageService {
+		if (!UnifiedTokenStorageService.instance) {
+			UnifiedTokenStorageService.instance = new UnifiedTokenStorageService();
+		}
+		return UnifiedTokenStorageService.instance;
+	}
+
+	/**
+	 * Initialize IndexedDB database
+	 */
+	private async initializeIndexedDB(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			if (this.isInitialized) {
+				resolve();
+				return;
+			}
+
+			const request = indexedDB.open(INDEXEDDB_NAME, INDEXEDDB_VERSION);
+
+			request.onerror = () => {
+				logger.error(MODULE_TAG, 'Failed to open IndexedDB', request.error || undefined);
+				reject(request.error);
+			};
+
+			request.onsuccess = () => {
+				this.db = request.result;
+				this.isInitialized = true;
+				logger.info(MODULE_TAG, 'IndexedDB initialized successfully');
+				this.loadCache();
+				resolve();
+			};
+
+			request.onupgradeneeded = (event) => {
+				const db = (event.target as IDBOpenDBRequest).result;
+
+				// Create tokens object store
+				if (!db.objectStoreNames.contains(TOKEN_STORE_NAME)) {
+					const store = db.createObjectStore(TOKEN_STORE_NAME, { keyPath: 'id' });
+
+					// Create indexes for efficient querying
+					store.createIndex('type', 'type', { unique: false });
+					store.createIndex('source', 'source', { unique: false });
+					store.createIndex('environmentId', 'environmentId', { unique: false });
+					store.createIndex('clientId', 'clientId', { unique: false });
+					store.createIndex('expiresAt', 'expiresAt', { unique: false });
+					store.createIndex('issuedAt', 'issuedAt', { unique: false });
+
+					logger.info(MODULE_TAG, 'IndexedDB schema created');
+				}
+			};
+		});
+	}
+
+	/**
+	 * Load cache from localStorage for fast access
+	 */
+	private loadCache(): void {
+		try {
+			const cached = localStorage.getItem(this.CACHE_KEY);
+			if (cached) {
+				const tokens = JSON.parse(cached) as UnifiedToken[];
+				tokens.forEach((token) => {
+					this.cache.set(token.id, token);
+				});
+				logger.debug(MODULE_TAG, `Loaded ${tokens.length} tokens from cache`);
+			}
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'Failed to load cache', { error: String(error) });
+		}
+	}
+
+	/**
+	 * Save cache to localStorage
+	 */
+	private saveCache(): void {
+		try {
+			const tokens = Array.from(this.cache.values());
+			localStorage.setItem(this.CACHE_KEY, JSON.stringify(tokens));
+			logger.debug(MODULE_TAG, `Saved ${tokens.length} tokens to cache`);
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'Failed to save cache', { error: String(error) });
+		}
+	}
+
+	/**
+	 * Store a token in all storage layers
+	 */
+	public async storeToken(
+		token: Omit<UnifiedStorageItem, 'id' | 'createdAt' | 'updatedAt'>,
+		options?: TokenStorageOptions
+	): Promise<TokenStorageResult<string>> {
+		try {
+			await this.initializeIndexedDB();
+
+			// Validate that the token type is compatible with storage
+			const validTokenTypes: UnifiedStorageItem['type'][] = [
+				'access_token',
+				'refresh_token',
+				'id_token',
+				'worker_token',
+				'oauth_credentials',
+				'mfa_credentials',
+				'environment_settings',
+				'ui_preferences',
+				'pkce_state',
+				'flow_state',
+				'v8_storage',
+				'v8_credentials',
+				'v8u_pkce',
+			];
+
+			if (!validTokenTypes.includes(token.type)) {
+				throw new Error(`Invalid token type: ${token.type}`);
+			}
+
+			const unifiedToken: UnifiedStorageItem = {
+				...token,
+				id: options?.id ?? this.generateTokenId(token),
+				createdAt: Date.now(),
+				updatedAt: Date.now(),
+				...options,
+			};
+
+			// Store in IndexedDB
+			await this.storeInIndexedDB(unifiedToken);
+
+			// Store in cache
+			this.cache.set(unifiedToken.id, unifiedToken);
+			this.saveCache();
+
+			// Store in SQLite via backend (async, don't wait)
+			this.storeInSQLite(unifiedToken).catch((error) => {
+				logger.warn(MODULE_TAG, 'Failed to store token in SQLite', { error: String(error) });
+			});
+
+			return {
+				success: true,
+				data: [unifiedToken.id],
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to store token', undefined, error instanceof Error ? error : undefined);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : String(error),
+			};
+		}
+	}
+
+	/**
+	 * Store token in IndexedDB
+	 */
+	private async storeInIndexedDB(token: UnifiedStorageItem): Promise<void> {
+		if (!this.db) throw new Error('IndexedDB not initialized');
+
+		return new Promise((resolve, reject) => {
+			const transaction = this.db!.transaction([TOKEN_STORE_NAME], 'readwrite');
+			const store = transaction.objectStore(TOKEN_STORE_NAME);
+			const request = store.put(token);
+
+			request.onsuccess = () => resolve();
+			request.onerror = () => reject(request.error);
+		});
+	}
+
+	/**
+	 * Store token in SQLite via backend API
+	 */
+	private async storeInSQLite(token: UnifiedStorageItem): Promise<void> {
+		try {
+			const response = await fetch('/api/tokens/store', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					flowKey: `${token.flowType || 'unknown'}_${token.flowName || 'unknown'}_${token.environmentId || 'unknown'}`,
+					data: token,
+				}),
+			});
+
+			if (!response.ok) {
+				throw new Error(`SQLite storage failed: ${response.statusText}`);
+			}
+
+			logger.debug(MODULE_TAG, 'Token stored in SQLite', { tokenId: token.id });
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'SQLite storage failed', { error: String(error) });
+			throw error;
+		}
+	}
+
+	/**
+	 * Retrieve tokens by query
+	 */
+	public async getTokens(query?: TokenQuery): Promise<TokenStorageResult<UnifiedStorageItem>> {
+		try {
+			await this.initializeIndexedDB();
+
+			// First try cache for performance
+			const cachedTokens = this.queryCache(query);
+			if (cachedTokens.length > 0) {
+				return {
+					success: true,
+					data: cachedTokens,
+					source: 'cache',
+				};
+			}
+
+			// Then try IndexedDB
+			const indexedDbTokens = await this.queryIndexedDB(query);
+			if (indexedDbTokens.length > 0) {
+				// Update cache
+				indexedDbTokens.forEach((token) => {
+					this.cache.set(token.id, token);
+				});
+				this.saveCache();
+
+				return {
+					success: true,
+					data: indexedDbTokens,
+					source: 'indexeddb',
+				};
+			}
+
+			// Finally try SQLite as fallback
+			const sqliteTokens = await this.querySQLite(query);
+			if (sqliteTokens.length > 0) {
+				// Update cache and IndexedDB
+				for (const token of sqliteTokens) {
+					this.cache.set(token.id, token);
+					await this.storeInIndexedDB(token);
+				}
+				this.saveCache();
+
+				return {
+					success: true,
+					data: sqliteTokens,
+					source: 'sqlite',
+				};
+			}
+
+			return {
+				success: true,
+				data: [],
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get tokens', undefined, error instanceof Error ? error : undefined);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : String(error),
+			};
+		}
+	}
+
+	/**
+	 * Query cache
+	 */
+	private queryCache(query?: TokenQuery): UnifiedStorageItem[] {
+		const tokens = Array.from(this.cache.values());
+		return this.filterTokens(tokens, query);
+	}
+
+	/**
+	 * Query IndexedDB
+	 */
+	private async queryIndexedDB(query?: TokenQuery): Promise<UnifiedStorageItem[]> {
+		if (!this.db) throw new Error('IndexedDB not initialized');
+
+		return new Promise((resolve, reject) => {
+			const transaction = this.db!.transaction([TOKEN_STORE_NAME], 'readonly');
+			const store = transaction.objectStore(TOKEN_STORE_NAME);
+			const request = store.getAll();
+
+			request.onsuccess = () => {
+				const tokens = request.result as UnifiedStorageItem[];
+				const filtered = this.filterTokens(tokens, query);
+				resolve(filtered);
+			};
+
+			request.onerror = () => reject(request.error);
+		});
+	}
+
+	/**
+	 * Query SQLite via backend API
+	 */
+	private async querySQLite(query?: TokenQuery): Promise<UnifiedStorageItem[]> {
+		try {
+			const params = new URLSearchParams();
+
+			// Only append parameters that have actual values
+			if (query) {
+				if (query.id) params.append('id', query.id);
+				if (query.type) params.append('type', query.type);
+				if (query.source) params.append('source', query.source);
+				if (query.environmentId) params.append('environmentId', query.environmentId);
+				if (query.clientId) params.append('clientId', query.clientId);
+				if (query.flowType) params.append('flowType', query.flowType);
+				if (query.flowName) params.append('flowName', query.flowName);
+			}
+
+			const queryString = params.toString();
+			const url = queryString ? `/api/tokens/query?${queryString}` : '/api/tokens/query';
+			const response = await fetch(url);
+			if (!response.ok) {
+				throw new Error(`SQLite query failed: ${response.statusText}`);
+			}
+
+			const tokens = (await response.json()) as UnifiedStorageItem[];
+			return tokens;
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'SQLite query failed', { error: String(error) });
+			return [];
+		}
+	}
+
+	/**
+	 * Filter tokens based on query
+	 */
+	private filterTokens(tokens: UnifiedStorageItem[], query?: TokenQuery): UnifiedStorageItem[] {
+		if (!query) return tokens;
+
+		return tokens.filter((token) => {
+			if (query.id && token.id !== query.id) return false;
+			if (query.type && token.type !== query.type) return false;
+			if (query.source && token.source !== query.source) return false;
+			if (query.environmentId && token.environmentId !== query.environmentId) return false;
+			if (query.clientId && token.clientId !== query.clientId) return false;
+			if (query.flowType && token.flowType !== query.flowType) return false;
+			if (query.flowName && token.flowName !== query.flowName) return false;
+
+			const now = Date.now();
+			if (query.activeOnly && (!token.expiresAt || token.expiresAt <= now)) return false;
+			if (query.expiredOnly && (!token.expiresAt || token.expiresAt > now)) return false;
+
+			return true;
+		});
+	}
+
+	/**
+	 * Get a specific token by ID
+	 */
+	public async getToken(tokenId: string): Promise<TokenStorageResult<UnifiedStorageItem | null>> {
+		try {
+			// Check cache first
+			const cached = this.cache.get(tokenId);
+			if (cached) {
+				return {
+					success: true,
+					data: [cached],
+					source: 'cache',
+				};
+			}
+
+			// Check IndexedDB
+			await this.initializeIndexedDB();
+			const indexedDbToken = await this.getFromIndexedDB(tokenId);
+			if (indexedDbToken) {
+				this.cache.set(tokenId, indexedDbToken);
+				return {
+					success: true,
+					data: [indexedDbToken],
+					source: 'indexeddb',
+				};
+			}
+
+			// Check SQLite as fallback
+			const sqliteToken = await this.getFromSQLite(tokenId);
+			if (sqliteToken) {
+				this.cache.set(tokenId, sqliteToken);
+				await this.storeInIndexedDB(sqliteToken);
+				return {
+					success: true,
+					data: [sqliteToken],
+					source: 'sqlite',
+				};
+			}
+
+			return {
+				success: true,
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get token', { tokenId }, error instanceof Error ? error : undefined);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : String(error),
+			};
+		}
+	}
+
+	/**
+	 * Get token from IndexedDB
+	 */
+	private async getFromIndexedDB(tokenId: string): Promise<UnifiedStorageItem | null> {
+		if (!this.db) throw new Error('IndexedDB not initialized');
+
+		return new Promise((resolve, reject) => {
+			const transaction = this.db!.transaction([TOKEN_STORE_NAME], 'readonly');
+			const store = transaction.objectStore(TOKEN_STORE_NAME);
+			const request = store.get(tokenId);
+
+			request.onsuccess = () => resolve(request.result as UnifiedStorageItem | null);
+			request.onerror = () => reject(request.error);
+		});
+	}
+
+	/**
+	 * Get token from SQLite via backend API
+	 */
+	private async getFromSQLite(tokenId: string): Promise<UnifiedStorageItem | null> {
+		try {
+			const response = await fetch(`/api/tokens/${tokenId}`);
+			if (!response.ok) {
+				if (response.status === 404) return null;
+				throw new Error(`SQLite get failed: ${response.statusText}`);
+			}
+
+			const token = (await response.json()) as UnifiedStorageItem;
+			return token;
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'SQLite get failed', { tokenId, error: String(error) });
+			return null;
+		}
+	}
+
+	/**
+	 * Delete a token from all storage layers
+	 */
+	public async deleteToken(tokenId: string): Promise<TokenStorageResult<void>> {
+		try {
+			// Remove from cache
+			this.cache.delete(tokenId);
+			this.saveCache();
+
+			// Remove from IndexedDB
+			await this.deleteFromIndexedDB(tokenId);
+
+			// Remove from SQLite (async, don't wait)
+			this.deleteFromSQLite(tokenId).catch((error) => {
+				logger.warn(MODULE_TAG, 'Failed to delete token from SQLite', { tokenId, error: String(error) });
+			});
+
+			logger.info(MODULE_TAG, 'Token deleted successfully', { tokenId });
+
+			return {
+				success: true,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to delete token', { tokenId }, error instanceof Error ? error : undefined);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : String(error),
+			};
+		}
+	}
+
+	/**
+	 * Delete multiple tokens based on query
+	 */
+	public async deleteTokens(query: TokenQuery): Promise<TokenStorageResult<void>> {
+		try {
+			const tokensResult = await this.getTokens(query);
+
+			if (!tokensResult.success || !tokensResult.data) {
+				throw new Error('Failed to get tokens for deletion');
+			}
+
+			// Delete each token
+			for (const token of tokensResult.data) {
+				await this.deleteToken(token.id);
+			}
+
+			logger.info(MODULE_TAG, 'Tokens deleted successfully', {
+				count: tokensResult.data.length,
+				query,
+			});
+
+			return {
+				success: true,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to delete tokens', { query }, error instanceof Error ? error : undefined);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : String(error),
+			};
+		}
+	}
+
+	/**
+	 * Delete token from IndexedDB
+	 */
+	private async deleteFromIndexedDB(tokenId: string): Promise<void> {
+		if (!this.db) throw new Error('IndexedDB not initialized');
+
+		return new Promise((resolve, reject) => {
+			const transaction = this.db!.transaction([TOKEN_STORE_NAME], 'readwrite');
+			const store = transaction.objectStore(TOKEN_STORE_NAME);
+			const request = store.delete(tokenId);
+
+			request.onsuccess = () => resolve();
+			request.onerror = () => reject(request.error);
+		});
+	}
+
+	/**
+	 * Delete token from SQLite via backend API
+	 */
+	private async deleteFromSQLite(tokenId: string): Promise<void> {
+		try {
+			const response = await fetch(`/api/tokens/${tokenId}`, {
+				method: 'DELETE',
+			});
+
+			if (!response.ok) {
+				throw new Error(`SQLite delete failed: ${response.statusText}`);
+			}
+
+			logger.debug(MODULE_TAG, 'Token deleted from SQLite', { tokenId });
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'SQLite delete failed', { tokenId, error: String(error) });
+			throw error;
+		}
+	}
+
+	/**
+	 * Clean up expired tokens
+	 */
+	public async cleanupExpiredTokens(): Promise<TokenStorageResult<number>> {
+		try {
+			const now = Date.now();
+			const allTokensResult = await this.getTokens();
+
+			if (!allTokensResult.success || !allTokensResult.data) {
+				throw new Error('Failed to get tokens for cleanup');
+			}
+
+			const expiredTokens = allTokensResult.data.filter(
+				(token) => token.expiresAt && token.expiresAt <= now
+			);
+
+			let deletedCount = 0;
+			for (const token of expiredTokens) {
+				const deleteResult = await this.deleteToken(token.id);
+				if (deleteResult.success) {
+					deletedCount++;
+				}
+			}
+
+			logger.info(MODULE_TAG, 'Cleanup completed', {
+				totalTokens: allTokensResult.data.length,
+				expiredTokens: expiredTokens.length,
+				deletedCount,
+			});
+
+			return {
+				success: true,
+				data: [deletedCount],
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to cleanup expired tokens', undefined, error instanceof Error ? error : undefined);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : String(error),
+			};
+		}
+	}
+
+	/**
+	 * Internal helper: returns just the token data array (empty on miss or error)
+	 */
+	private async getTokensData(query?: TokenQuery): Promise<UnifiedStorageItem[]> {
+		const result = await this.getTokens(query);
+		return result.data ?? [];
+	}
+
+	/**
+	 * Generate unique token ID
+	 */
+	private generateTokenId(token: Omit<UnifiedStorageItem, 'id' | 'createdAt' | 'updatedAt'>): string {
+		const prefix = token.type.replace('_', '');
+		const timestamp = Date.now();
+		const random = Math.random().toString(36).substr(2, 9);
+		return `${prefix}-${timestamp}-${random}`;
+	}
+
+	/**
+	 * Clear all tokens (for testing/reset purposes)
+	 */
+	public async clearAllTokens(): Promise<TokenStorageResult<void>> {
+		try {
+			// Clear cache
+			this.cache.clear();
+			localStorage.removeItem(this.CACHE_KEY);
+
+			// Clear IndexedDB
+			await this.clearIndexedDB();
+
+			// Clear SQLite (async, don't wait)
+			this.clearSQLite().catch((error) => {
+				logger.warn(MODULE_TAG, 'Failed to clear SQLite', { error: String(error) });
+			});
+
+			logger.info(MODULE_TAG, 'All tokens cleared');
+
+			return {
+				success: true,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear all tokens', undefined, error instanceof Error ? error : undefined);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : String(error),
+			};
+		}
+	}
+
+	/**
+	 * Clear IndexedDB
+	 */
+	private async clearIndexedDB(): Promise<void> {
+		if (!this.db) throw new Error('IndexedDB not initialized');
+
+		return new Promise((resolve, reject) => {
+			const transaction = this.db!.transaction([TOKEN_STORE_NAME], 'readwrite');
+			const store = transaction.objectStore(TOKEN_STORE_NAME);
+			const request = store.clear();
+
+			request.onsuccess = () => resolve();
+			request.onerror = () => reject(request.error);
+		});
+	}
+
+	/**
+	 * Clear SQLite via backend API
+	 */
+	private async clearSQLite(): Promise<void> {
+		try {
+			const response = await fetch('/api/tokens/clear', {
+				method: 'DELETE',
+			});
+
+			if (!response.ok) {
+				throw new Error(`SQLite clear failed: ${response.statusText}`);
+			}
+
+			logger.debug(MODULE_TAG, 'SQLite cleared');
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'SQLite clear failed', { error: String(error) });
+			throw error;
+		}
+	}
+
+	// ============================================================================
+	// CREDENTIALS AND SETTINGS METHODS
+	// ============================================================================
+
+	/**
+	 * Store worker token credentials (IndexedDB + SQLite). Once saved, credentials persist across
+	 * sessions and are never lost. Use getWorkerTokenCredentials to load them.
+	 */
+	async storeWorkerTokenCredentials(credentials: Record<string, unknown>): Promise<void> {
+		await this.storeToken(
+			{
+				type: 'worker_token',
+				value: JSON.stringify(credentials),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'worker_token',
+				flowType: 'worker_token',
+				flowName: 'unified_worker_credentials',
+				environmentId: (credentials.environmentId as string) || undefined,
+				clientId: (credentials.clientId as string) || undefined,
+				metadata: { credentials },
+			},
+			{ id: 'unified_worker_token_credentials' }
+		);
+		logger.info(MODULE_TAG, 'Worker token credentials saved to IndexedDB + SQLite');
+	}
+
+	/**
+	 * Load worker token credentials from IndexedDB (with SQLite fallback).
+	 */
+	async getWorkerTokenCredentials(): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'worker_token',
+			id: 'unified_worker_token_credentials',
+		});
+		if (!result.success || !result.data?.length) return null;
+		const token =
+			result.data.find((t) => t.id === 'unified_worker_token_credentials') ?? result.data[0];
+		try {
+			const parsed = JSON.parse(token.value) as Record<string, unknown>;
+			const fromMeta = token.metadata?.credentials as Record<string, unknown> | undefined;
+			return (fromMeta ?? parsed) as Record<string, unknown>;
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'Failed to parse worker token credentials', undefined, error instanceof Error ? error : undefined);
+			return null;
+		}
+	}
+
+	/**
+	 * Store OAuth credentials
+	 */
+	async storeOAuthCredentials(
+		credentials: Record<string, unknown>,
+		options?: TokenStorageOptions
+	): Promise<void> {
+		await this.storeToken(
+			{
+				type: 'oauth_credentials',
+				value: JSON.stringify(credentials),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'system',
+				environmentId: options?.environmentId,
+				clientId: options?.clientId,
+				flowType: options?.flowType,
+				flowName: options?.flowName,
+				metadata: { credentials },
+			},
+			{ id: `oauth_${options?.environmentId || 'default'}_${options?.clientId || 'default'}` }
+		);
+	}
+
+	/**
+	 * Get OAuth credentials
+	 */
+	async getOAuthCredentials(
+		options?: TokenStorageOptions
+	): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'oauth_credentials',
+			environmentId: options?.environmentId,
+			clientId: options?.clientId,
+		});
+
+		if (result.success && result.data && result.data.length > 0) {
+			try {
+				return JSON.parse(result.data[0].value) as Record<string, unknown>;
+			} catch (error) {
+				logger.warn(MODULE_TAG, 'Failed to parse OAuth credentials', undefined, error instanceof Error ? error : undefined);
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Store MFA credentials
+	 */
+	async storeMFACredentials(
+		credentials: Record<string, unknown>,
+		options?: TokenStorageOptions
+	): Promise<void> {
+		await this.storeToken(
+			{
+				type: 'mfa_credentials',
+				value: JSON.stringify(credentials),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'system',
+				environmentId: options?.environmentId,
+				clientId: options?.clientId,
+				flowType: options?.flowType,
+				flowName: options?.flowName,
+				metadata: { credentials },
+			},
+			{ id: `mfa_${options?.environmentId || 'default'}_${options?.clientId || 'default'}` }
+		);
+	}
+
+	/**
+	 * Get MFA credentials
+	 */
+	async getMFACredentials(options?: TokenStorageOptions): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'mfa_credentials',
+			environmentId: options?.environmentId,
+			clientId: options?.clientId,
+		});
+
+		if (result.success && result.data && result.data.length > 0) {
+			try {
+				return JSON.parse(result.data[0].value) as Record<string, unknown>;
+			} catch (error) {
+				logger.warn(MODULE_TAG, 'Failed to parse MFA credentials', undefined, error instanceof Error ? error : undefined);
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Store environment settings
+	 */
+	async storeEnvironmentSettings(
+		settings: Record<string, unknown>,
+		options?: TokenStorageOptions
+	): Promise<void> {
+		await this.storeToken(
+			{
+				type: 'environment_settings',
+				value: JSON.stringify(settings),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'user_input',
+				environmentId: options?.environmentId,
+				metadata: { settings },
+			},
+			{ id: `env_settings_${options?.environmentId || 'default'}` }
+		);
+	}
+
+	/**
+	 * Get environment settings
+	 */
+	async getEnvironmentSettings(environmentId?: string): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'environment_settings',
+			environmentId,
+		});
+
+		if (result.success && result.data && result.data.length > 0) {
+			try {
+				return JSON.parse(result.data[0].value) as Record<string, unknown>;
+			} catch (error) {
+				logger.warn(MODULE_TAG, 'Failed to parse environment settings', undefined, error instanceof Error ? error : undefined);
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Store UI preferences
+	 */
+	async storeUIPreferences(preferences: Record<string, unknown>, userId?: string): Promise<void> {
+		await this.storeToken(
+			{
+				type: 'ui_preferences',
+				value: JSON.stringify(preferences),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'user_input',
+				metadata: { preferences, userId },
+			},
+			{ id: `ui_prefs_${userId || 'default'}` }
+		);
+	}
+
+	/**
+	 * Get UI preferences
+	 */
+	async getUIPreferences(_userId?: string): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'ui_preferences',
+		});
+
+		if (result.success && result.data && result.data.length > 0) {
+			try {
+				return JSON.parse(result.data[0].value) as Record<string, unknown>;
+			} catch (error) {
+				logger.warn(MODULE_TAG, 'Failed to parse UI preferences', undefined, error instanceof Error ? error : undefined);
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Store PKCE state
+	 */
+	async storePKCEState(state: Record<string, unknown>, flowId: string): Promise<void> {
+		await this.storeToken(
+			{
+				type: 'pkce_state',
+				value: JSON.stringify(state),
+				expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+				issuedAt: Date.now(),
+				source: 'system',
+				flowName: flowId,
+				metadata: { flowId },
+			},
+			{ id: `pkce_${flowId}` }
+		);
+	}
+
+	/**
+	 * Get PKCE state
+	 */
+	async getPKCEState(flowId: string): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'pkce_state',
+			flowName: flowId,
+		});
+
+		if (result.success && result.data && result.data.length > 0) {
+			try {
+				return JSON.parse(result.data[0].value) as Record<string, unknown>;
+			} catch (error) {
+				logger.warn(MODULE_TAG, 'Failed to parse PKCE state', undefined, error instanceof Error ? error : undefined);
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Store flow state
+	 */
+	async storeFlowState(state: Record<string, unknown>, flowId: string): Promise<void> {
+		await this.storeToken(
+			{
+				type: 'flow_state',
+				value: JSON.stringify(state),
+				expiresAt: Date.now() + 30 * 60 * 1000, // 30 minutes
+				issuedAt: Date.now(),
+				source: 'system',
+				flowName: flowId,
+				metadata: { flowId },
+			},
+			{ id: `flow_${flowId}` }
+		);
+	}
+
+	/**
+	 * Get flow state
+	 */
+	async getFlowState(flowId: string): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'flow_state',
+			flowName: flowId,
+		});
+
+		if (result.success && result.data && result.data.length > 0) {
+			try {
+				return JSON.parse(result.data[0].value) as Record<string, unknown>;
+			} catch (error) {
+				logger.warn(MODULE_TAG, 'Failed to parse flow state', undefined, error instanceof Error ? error : undefined);
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	// ===== V8 STORAGE COMPATIBILITY METHODS =====
+	// These methods provide backward compatibility with v8StorageService
+
+	/**
+	 * Save V8 flow data (compatibility method)
+	 */
+	async saveV8FlowData(flowType: string, data: V8FlowData): Promise<boolean> {
+		try {
+			const itemId = `v8_flow_${flowType}`;
+
+			await this.storeToken(
+				{
+					type: 'oauth_credentials',
+					value: JSON.stringify(data),
+					expiresAt: null,
+					issuedAt: Date.now(),
+					source: 'user_input',
+					flowType,
+					flowName: `V8 ${flowType}`,
+					environmentId: data.credentials?.environmentId,
+					clientId: data.credentials?.clientId,
+					metadata: {
+						version: 'v8',
+						sections: {
+							discovery: !!data.discovery,
+							credentials: !!data.credentials,
+							advanced: !!data.advanced,
+						},
+					},
+				},
+				{ id: itemId }
+			);
+
+			return true;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8 flow data', undefined, error instanceof Error ? error : undefined);
+			return false;
+		}
+	}
+
+	/**
+	 * Load V8 flow data (compatibility method)
+	 */
+	async loadV8FlowData(flowType: string): Promise<V8FlowData | null> {
+		try {
+			const items = await this.getTokens({
+				type: 'oauth_credentials',
+				flowType,
+			});
+
+			if (items.success && items.data && items.data.length > 0) {
+				const item = items.data[0];
+				return JSON.parse(item.value) as V8FlowData;
+			}
+
+			return null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8 flow data', undefined, error instanceof Error ? error : undefined);
+			return null;
+		}
+	}
+
+	/**
+	 * Save V8 discovery data (compatibility method)
+	 */
+	async saveV8Discovery(flowType: string, data: V8DiscoveryData): Promise<boolean> {
+		try {
+			const existingData = (await this.loadV8FlowData(flowType)) || { flowType };
+			const updatedData = {
+				...existingData,
+				discovery: data,
+				savedAt: Date.now(),
+			};
+
+			return await this.saveV8FlowData(flowType, updatedData);
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8 discovery data', undefined, error instanceof Error ? error : undefined);
+			return false;
+		}
+	}
+
+	/**
+	 * Save V8 credentials data (compatibility method)
+	 */
+	async saveV8Credentials(flowType: string, data: V8CredentialsData): Promise<boolean> {
+		try {
+			const existingData = (await this.loadV8FlowData(flowType)) || { flowType };
+			const updatedData = {
+				...existingData,
+				credentials: data,
+				savedAt: Date.now(),
+			};
+
+			return await this.saveV8FlowData(flowType, updatedData);
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8 credentials data', undefined, error instanceof Error ? error : undefined);
+			return false;
+		}
+	}
+
+	/**
+	 * Save V8 advanced data (compatibility method)
+	 */
+	async saveV8Advanced(flowType: string, data: V8AdvancedData): Promise<boolean> {
+		try {
+			const existingData = (await this.loadV8FlowData(flowType)) || { flowType };
+			const updatedData = {
+				...existingData,
+				advanced: data,
+				savedAt: Date.now(),
+			};
+
+			return await this.saveV8FlowData(flowType, updatedData);
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8 advanced data', undefined, error instanceof Error ? error : undefined);
+			return false;
+		}
+	}
+
+	/**
+	 * Load V8 discovery data (compatibility method)
+	 */
+	async loadV8Discovery(flowType: string): Promise<V8DiscoveryData | null> {
+		try {
+			const flowData = await this.loadV8FlowData(flowType);
+			return flowData?.discovery || null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8 discovery data', undefined, error instanceof Error ? error : undefined);
+			return null;
+		}
+	}
+
+	/**
+	 * Load V8 credentials data (compatibility method)
+	 */
+	async loadV8Credentials(flowType: string): Promise<V8CredentialsData | null> {
+		try {
+			const flowData = await this.loadV8FlowData(flowType);
+			return flowData?.credentials || null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8 credentials data', undefined, error instanceof Error ? error : undefined);
+			return null;
+		}
+	}
+
+	/**
+	 * Load V8 advanced data (compatibility method)
+	 */
+	async loadV8Advanced(flowType: string): Promise<V8AdvancedData | null> {
+		try {
+			const flowData = await this.loadV8FlowData(flowType);
+			return flowData?.advanced || null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8 advanced data', undefined, error instanceof Error ? error : undefined);
+			return null;
+		}
+	}
+
+	/**
+	 * Clear V8 flow data (compatibility method)
+	 */
+	async clearV8FlowData(flowType: string): Promise<void> {
+		try {
+			await this.deleteTokens({
+				type: 'oauth_credentials',
+				flowType,
+			});
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear V8 flow data', undefined, error instanceof Error ? error : undefined);
+		}
+	}
+
+	// ===== STORAGE SERVICE V8 COMPATIBILITY METHODS =====
+	// These methods provide backward compatibility with StorageServiceV8
+
+	/**
+	 * Save data with versioning (StorageServiceV8 compatibility)
+	 */
+	async saveV8Versioned<T>(key: string, data: T, version: number, flowKey?: string): Promise<void> {
+		try {
+			const storageData: StorageData<T> = {
+				version,
+				data,
+				timestamp: Date.now(),
+				flowKey,
+			};
+
+			await this.storeToken(
+				{
+					type: 'v8_storage',
+					value: JSON.stringify(storageData),
+					expiresAt: null,
+					issuedAt: Date.now(),
+					source: 'system',
+					flowName: flowKey || 'v8',
+					metadata: {
+						version,
+						flowKey,
+						key,
+					},
+				},
+				{ id: key }
+			);
+
+			logger.info(MODULE_TAG, 'V8 versioned data saved', { key, version, flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8 versioned data', undefined, error instanceof Error ? error : undefined);
+			throw error;
+		}
+	}
+
+	/**
+	 * Load data with migration support (StorageServiceV8 compatibility)
+	 */
+	async loadV8Versioned<T>(key: string, migrations?: Migration[]): Promise<T | null> {
+		try {
+			const result = await this.getTokens({
+				type: 'v8_storage',
+				key,
+			});
+			const tokens = result.data ?? [];
+
+			if (tokens.length === 0) {
+				logger.info(MODULE_TAG, 'No V8 versioned data found', { key });
+				return null;
+			}
+
+			const token = tokens[0];
+			let storageData: StorageData<T> = JSON.parse(token.value);
+
+			// Apply migrations if needed
+			if (migrations && migrations.length > 0) {
+				const currentVersion = storageData.version;
+				const targetVersion = Math.max(...migrations.map((m) => m.toVersion));
+
+				if (currentVersion < targetVersion) {
+					logger.info(MODULE_TAG, 'Migrating V8 data', {
+						key,
+						from: currentVersion,
+						to: targetVersion,
+					});
+
+					storageData = this.applyV8Migrations(storageData, migrations);
+
+					// Save migrated data
+					await this.saveV8Versioned(
+						key,
+						storageData.data,
+						storageData.version,
+						storageData.flowKey
+					);
+				}
+			}
+
+			logger.info(MODULE_TAG, 'V8 versioned data loaded', {
+				key,
+				version: storageData.version,
+				age: Date.now() - storageData.timestamp,
+			});
+
+			return storageData.data;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8 versioned data', undefined, error instanceof Error ? error : undefined);
+			return null;
+		}
+	}
+
+	/**
+	 * Apply migrations to V8 data
+	 */
+	private applyV8Migrations<T>(
+		storageData: StorageData<T>,
+		migrations: Migration[]
+	): StorageData<T> {
+		let currentData = storageData.data;
+		let currentVersion = storageData.version;
+
+		// Sort migrations by version
+		const sortedMigrations = [...migrations].sort((a, b) => a.fromVersion - b.fromVersion);
+
+		for (const migration of sortedMigrations) {
+			if (currentVersion === migration.fromVersion) {
+				logger.info(MODULE_TAG, 'Applying V8 migration', {
+					from: migration.fromVersion,
+					to: migration.toVersion,
+				});
+
+				currentData = migration.migrate(currentData) as T;
+				currentVersion = migration.toVersion;
+			}
+		}
+
+		return {
+			...storageData,
+			version: currentVersion,
+			data: currentData,
+			timestamp: Date.now(),
+		};
+	}
+
+	/**
+	 * Clear specific V8 key
+	 */
+	async clearV8Key(key: string): Promise<void> {
+		try {
+			await this.deleteTokens({
+				type: 'v8_storage',
+				id: key,
+			});
+			logger.info(MODULE_TAG, 'V8 key cleared', { key });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear V8 key', undefined, error instanceof Error ? error : undefined);
+		}
+	}
+
+	/**
+	 * Clear all V8 data
+	 */
+	async clearAllV8(): Promise<void> {
+		try {
+			await this.deleteTokens({
+				type: 'v8_storage',
+			});
+			logger.info(MODULE_TAG, 'All V8 data cleared');
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear all V8 data', undefined, error instanceof Error ? error : undefined);
+		}
+	}
+
+	/**
+	 * Get all V8 storage keys
+	 */
+	async getAllV8Keys(): Promise<string[]> {
+		try {
+			const result = await this.getTokens({
+				type: 'v8_storage',
+			});
+			return (result.data ?? []).map((token) => (token.metadata?.key as string | undefined) || token.id);
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get all V8 keys', undefined, error instanceof Error ? error : undefined);
+			return [];
+		}
+	}
+
+	/**
+	 * Export all V8 data
+	 */
+	async exportAllV8(): Promise<string> {
+		try {
+			const result = await this.getTokens({
+				type: 'v8_storage',
+			});
+			const data: Record<string, StorageData> = {};
+
+			(result.data ?? []).forEach((token) => {
+				try {
+					const storageData: StorageData = JSON.parse(token.value);
+					const key = token.metadata?.key || token.id;
+					data[key] = storageData;
+				} catch (_error) {
+					logger.warn(MODULE_TAG, 'Failed to parse V8 data for export', { key: token.id });
+				}
+			});
+
+			const exportData: ExportData = {
+				version: 1,
+				exportedAt: new Date().toISOString(),
+				data,
+			};
+
+			const exported = JSON.stringify(exportData, null, 2);
+
+			logger.info(MODULE_TAG, 'V8 data exported', {
+				keyCount: tokens.length,
+				size: exported.length,
+			});
+
+			return exported;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to export V8 data', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Import V8 data
+	 */
+	async importAllV8(jsonData: string, overwrite = false): Promise<void> {
+		try {
+			const exportData: ExportData = JSON.parse(jsonData);
+
+			if (!exportData.version || !exportData.data) {
+				throw new Error('Invalid export data format');
+			}
+
+			let imported = 0;
+			let skipped = 0;
+
+			for (const [key, storageData] of Object.entries(exportData.data)) {
+				// Check if key already exists
+				if (!overwrite) {
+					const existing = await this.getTokens({
+						type: 'v8_storage',
+						key,
+					});
+					if (existing.length > 0) {
+						logger.info(MODULE_TAG, 'Skipping existing V8 key', { key });
+						skipped++;
+						continue;
+					}
+				}
+
+				// Import data
+				await this.saveV8Versioned(key, storageData.data, storageData.version, storageData.flowKey);
+				imported++;
+			}
+
+			logger.info(MODULE_TAG, 'V8 data imported', {
+				imported,
+				skipped,
+				total: Object.keys(exportData.data).length,
+			});
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to import V8 data', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Check if V8 key exists
+	 */
+	async hasV8Key(key: string): Promise<boolean> {
+		try {
+			const result = await this.getTokens({
+				type: 'v8_storage',
+				key,
+			});
+			return (result.data?.length ?? 0) > 0;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to check V8 key existence', error as Error);
+			return false;
+		}
+	}
+
+	/**
+	 * Get V8 data age in milliseconds
+	 */
+	async getV8Age(key: string): Promise<number | null> {
+		try {
+			const result = await this.getTokens({
+				type: 'v8_storage',
+				key,
+			});
+			const tokens = result.data ?? [];
+
+			if (tokens.length === 0) {
+				return null;
+			}
+
+			const token = tokens[0];
+			const storageData: StorageData = JSON.parse(token.value);
+			return Date.now() - storageData.timestamp;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get V8 data age', error as Error);
+			return null;
+		}
+	}
+
+	/**
+	 * Check if V8 data is expired
+	 */
+	async isV8Expired(key: string, maxAge: number): Promise<boolean> {
+		const age = await this.getV8Age(key);
+		if (age === null) {
+			return true;
+		}
+		return age > maxAge;
+	}
+
+	/**
+	 * Clean up expired V8 data
+	 */
+	async cleanupExpiredV8(maxAge: number): Promise<number> {
+		try {
+			const tokens = await this.getTokensData({
+				type: 'v8_storage',
+			});
+			let cleaned = 0;
+
+			for (const token of tokens) {
+				const key = token.metadata?.key || token.id;
+				if (await this.isV8Expired(key, maxAge)) {
+					await this.clearV8Key(key);
+					cleaned++;
+				}
+			}
+
+			logger.info(MODULE_TAG, 'Expired V8 data cleaned up', {
+				cleaned,
+				maxAge,
+			});
+
+			return cleaned;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to cleanup expired V8 data', error as Error);
+			return 0;
+		}
+	}
+
+	// ===== CREDENTIALS SERVICE V8 COMPATIBILITY METHODS =====
+	// These methods provide backward compatibility with CredentialsServiceV8
+
+	/**
+	 * Load V8 credentials with backup fallback (CredentialsServiceV8 compatibility)
+	 */
+	async loadV8CredentialsWithBackup(flowKey: string): Promise<V8Credentials | null> {
+		// Try unified storage first
+		const credentials = await this.loadV8Credentials(flowKey);
+		if (credentials) {
+			return credentials;
+		}
+
+		// Fallback to localStorage migration
+		try {
+			const storageKey = `v8_credentials_${flowKey}`;
+			const stored = localStorage.getItem(storageKey);
+			if (stored) {
+				const parsed: V8Credentials = JSON.parse(stored);
+				// Migrate to unified storage
+				await this.saveV8Credentials(flowKey, parsed);
+				// Remove from localStorage
+				localStorage.removeItem(storageKey);
+				logger.info(MODULE_TAG, 'V8 credentials migrated from localStorage', { flowKey });
+				return parsed;
+			}
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'Failed to migrate from localStorage', { flowKey, error });
+		}
+
+		return null;
+	}
+
+	/**
+	 * Clear V8 credentials (CredentialsServiceV8 compatibility)
+	 */
+	async clearV8Credentials(flowKey: string): Promise<void> {
+		try {
+			await this.deleteTokens({
+				type: 'v8_credentials',
+				id: `v8_credentials_${flowKey}`,
+			});
+			logger.info(MODULE_TAG, 'V8 credentials cleared', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear V8 credentials', error as Error);
+		}
+	}
+
+	/**
+	 * Check if V8 credentials exist (CredentialsServiceV8 compatibility)
+	 */
+	async hasV8Credentials(flowKey: string): Promise<boolean> {
+		try {
+			const credentials = await this.loadV8Credentials(flowKey);
+			return credentials !== null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to check V8 credentials existence', error as Error);
+			return false;
+		}
+	}
+
+	/**
+	 * Get V8 credentials summary (CredentialsServiceV8 compatibility)
+	 */
+	async getV8CredentialsSummary(flowKey: string): Promise<string> {
+		try {
+			const credentials = await this.loadV8Credentials(flowKey);
+			if (!credentials) {
+				return 'No credentials';
+			}
+
+			const parts: string[] = [];
+
+			// Environment
+			if (credentials.environmentId) {
+				const shortEnv = credentials.environmentId.substring(0, 8);
+				parts.push(`Env: ${shortEnv}...`);
+			}
+
+			// Client
+			if (credentials.clientId) {
+				const shortClient = credentials.clientId.substring(0, 8);
+				parts.push(`Client: ${shortClient}...`);
+			}
+
+			// Auth method
+			if (credentials.clientAuthMethod) {
+				parts.push(`Auth: ${credentials.clientAuthMethod}`);
+			}
+
+			// Scopes
+			if (credentials.scopes) {
+				const scopeCount = credentials.scopes.split(' ').filter((s) => s.trim()).length;
+				parts.push(`Scopes: ${scopeCount}`);
+			}
+
+			// Secrets
+			if (credentials.clientSecret) {
+				parts.push('Has Secret');
+			}
+
+			return parts.join(', ') || 'Empty credentials';
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get V8 credentials summary', error as Error);
+			return 'Error loading credentials';
+		}
+	}
+
+	/**
+	 * Sanitize V8 credentials for logging (CredentialsServiceV8 compatibility)
+	 */
+	sanitizeV8CredentialsForLogging(credentials: V8Credentials): Record<string, unknown> {
+		if (!credentials) {
+			return { error: 'No credentials provided' };
+		}
+
+		return {
+			environmentId: credentials.environmentId || '(empty)',
+			clientId: credentials.clientId || '(empty)',
+			// Secret indicators (never log actual values)
+			hasClientSecret: !!credentials.clientSecret,
+			clientSecretLength: credentials.clientSecret?.length || 0,
+			hasPrivateKey: !!(credentials as V8AdvancedData).privateKey,
+			// Safe fields
+			redirectUri: credentials.redirectUri || '(empty)',
+			postLogoutRedirectUri: credentials.postLogoutRedirectUri || '(empty)',
+			scopes: credentials.scopes || '(empty)',
+			clientAuthMethod: credentials.clientAuthMethod || 'none',
+			responseMode: credentials.responseMode || 'query',
+			// Metadata
+			fieldCount: Object.keys(credentials).length,
+			timestamp: new Date().toISOString(),
+		};
+	}
+
+	/**
+	 * Compare V8 credentials for changes (CredentialsServiceV8 compatibility)
+	 */
+	hasV8CredentialsChanged(
+		oldCreds: V8Credentials,
+		newCreds: V8Credentials,
+		ignoreFields: string[] = []
+	): boolean {
+		if (!oldCreds || !newCreds) {
+			return true; // Consider it changed if either is missing
+		}
+
+		// Core fields to compare
+		const fieldsToCompare = [
+			'environmentId',
+			'clientId',
+			'clientSecret',
+			'redirectUri',
+			'postLogoutRedirectUri',
+			'logoutUri',
+			'scopes',
+			'clientAuthMethod',
+			'responseMode',
+			'maxAge',
+			'display',
+			'prompt',
+			'loginHint',
+			'responseType',
+			'issuerUrl',
+		];
+
+		// Check each field
+		for (const field of fieldsToCompare) {
+			if (ignoreFields.includes(field)) {
+				continue; // Skip ignored fields
+			}
+
+			const oldValue = oldCreds[field];
+			const newValue = newCreds[field];
+
+			// Normalize empty values (undefined, null, '') to empty string
+			const normalizedOld = oldValue ?? '';
+			const normalizedNew = newValue ?? '';
+
+			if (normalizedOld !== normalizedNew) {
+				logger.info(MODULE_TAG, 'V8 credentials field changed', {
+					field,
+					old: normalizedOld,
+					new: normalizedNew,
+				});
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get all V8 credentials keys
+	 */
+	async getAllV8CredentialsKeys(): Promise<string[]> {
+		try {
+			const tokens = await this.getTokensData({
+				type: 'v8_credentials',
+			});
+			return tokens.map(
+				(token) => token.metadata?.flowKey || token.id.replace('v8_credentials_', '')
+			);
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get all V8 credentials keys', error as Error);
+			return [];
+		}
+	}
+
+	/**
+	 * Export all V8 credentials
+	 */
+	async exportAllV8Credentials(): Promise<string> {
+		try {
+			const tokens = await this.getTokensData({
+				type: 'v8_credentials',
+			});
+			const data: Record<string, V8Credentials> = {};
+
+			tokens.forEach((token) => {
+				try {
+					const credentials: V8Credentials = JSON.parse(token.value);
+					const flowKey = token.metadata?.flowKey || token.id.replace('v8_credentials_', '');
+					data[flowKey] = credentials;
+				} catch (_error) {
+					logger.warn(MODULE_TAG, 'Failed to parse V8 credentials for export', { id: token.id });
+				}
+			});
+
+			const exported = JSON.stringify(data, null, 2);
+
+			logger.info(MODULE_TAG, 'V8 credentials exported', {
+				keyCount: tokens.length,
+				size: exported.length,
+			});
+
+			return exported;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to export V8 credentials', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Import V8 credentials
+	 */
+	async importAllV8Credentials(jsonData: string, overwrite = false): Promise<void> {
+		try {
+			const data: Record<string, V8Credentials> = JSON.parse(jsonData);
+
+			let imported = 0;
+			let skipped = 0;
+
+			for (const [flowKey, credentials] of Object.entries(data)) {
+				// Check if credentials already exist
+				if (!overwrite) {
+					const existing = await this.hasV8Credentials(flowKey);
+					if (existing) {
+						logger.info(MODULE_TAG, 'Skipping existing V8 credentials', { flowKey });
+						skipped++;
+						continue;
+					}
+				}
+
+				// Import credentials
+				await this.saveV8Credentials(flowKey, credentials);
+				imported++;
+			}
+
+			logger.info(MODULE_TAG, 'V8 credentials imported', {
+				imported,
+				skipped,
+				total: Object.keys(data).length,
+			});
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to import V8 credentials', error as Error);
+			throw error;
+		}
+	}
+
+	// ===== PKCE STORAGE SERVICE V8U COMPATIBILITY METHODS =====
+	// These methods provide backward compatibility with PKCEStorageServiceV8U
+
+	/**
+	 * Save PKCE codes (PKCEStorageServiceV8U compatibility)
+	 */
+	async saveV8UPKCECodes(
+		flowKey: string,
+		codes: { codeVerifier: string; codeChallenge: string; codeChallengeMethod?: string }
+	): Promise<void> {
+		try {
+			const pkceData: V8UPKCECodes = {
+				codeVerifier: codes.codeVerifier,
+				codeChallenge: codes.codeChallenge,
+				codeChallengeMethod: codes.codeChallengeMethod || 'S256',
+				savedAt: Date.now(),
+				flowKey,
+			};
+
+			await this.storeToken({
+				id: `v8u_pkce_${flowKey}`,
+				type: 'v8u_pkce',
+				value: JSON.stringify(pkceData),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowKey,
+				metadata: {
+					flowKey,
+					savedAt: pkceData.savedAt,
+					challengeMethod: pkceData.codeChallengeMethod,
+				},
+			});
+
+			logger.info(MODULE_TAG, 'V8U PKCE codes saved', {
+				flowKey,
+				challengeMethod: pkceData.codeChallengeMethod,
+			});
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8U PKCE codes', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Load PKCE codes (PKCEStorageServiceV8U compatibility)
+	 */
+	async loadV8UPKCECodesAsync(flowKey: string): Promise<V8UPKCECodes | null> {
+		try {
+			const tokens = await this.getTokensData({
+				type: 'v8u_pkce',
+				id: `v8u_pkce_${flowKey}`,
+			});
+
+			if (tokens.length === 0) {
+				logger.info(MODULE_TAG, 'No V8U PKCE codes found', { flowKey });
+				return null;
+			}
+
+			const token = tokens[0];
+			const pkceCodes: V8UPKCECodes = JSON.parse(token.value);
+
+			logger.info(MODULE_TAG, 'V8U PKCE codes loaded', { flowKey });
+			return pkceCodes;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8U PKCE codes', error as Error);
+			return null;
+		}
+	}
+
+	/**
+	 * Load PKCE codes with fallback (PKCEStorageServiceV8U compatibility)
+	 */
+	async loadV8UPKCECodesWithFallback(flowKey: string): Promise<V8UPKCECodes | null> {
+		// Try unified storage first
+		const pkceCodes = await this.loadV8UPKCECodesAsync(flowKey);
+		if (pkceCodes) {
+			return pkceCodes;
+		}
+
+		// Fallback to localStorage migration
+		try {
+			const storageKey = `v8u_pkce_${flowKey}`;
+			const stored = localStorage.getItem(storageKey);
+			if (stored) {
+				const parsed: V8UPKCECodes = JSON.parse(stored);
+				// Migrate to unified storage
+				await this.saveV8UPKCECodes(flowKey, parsed);
+				// Remove from localStorage
+				localStorage.removeItem(storageKey);
+				logger.info(MODULE_TAG, 'V8U PKCE codes migrated from localStorage', { flowKey });
+				return parsed;
+			}
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'Failed to migrate from localStorage', { flowKey, error });
+		}
+
+		return null;
+	}
+
+	/**
+	 * Load PKCE codes synchronously (PKCEStorageServiceV8U compatibility)
+	 */
+	loadV8UPKCECodes(flowKey: string): V8UPKCECodes | null {
+		// For sync compatibility, try sessionStorage first
+		try {
+			const sessionData = sessionStorage.getItem(`v8u_pkce_${flowKey}`);
+			if (sessionData) {
+				const parsed: V8UPKCECodes = JSON.parse(sessionData);
+				logger.info(MODULE_TAG, 'V8U PKCE codes loaded from sessionStorage', { flowKey });
+				return parsed;
+			}
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load from sessionStorage', { flowKey, error });
+		}
+
+		// Try localStorage
+		try {
+			const localData = localStorage.getItem(`v8u_pkce_${flowKey}`);
+			if (localData) {
+				const parsed: V8UPKCECodes = JSON.parse(localData);
+				logger.info(MODULE_TAG, 'V8U PKCE codes loaded from localStorage', { flowKey });
+				return parsed;
+			}
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load from localStorage', { flowKey, error });
+		}
+
+		logger.warn(MODULE_TAG, 'No V8U PKCE codes found in sync storage', { flowKey });
+		return null;
+	}
+
+	/**
+	 * Clear PKCE codes (PKCEStorageServiceV8U compatibility)
+	 */
+	async clearV8UPKCECodes(flowKey: string): Promise<void> {
+		try {
+			await this.deleteTokens({
+				type: 'v8u_pkce',
+				id: `v8u_pkce_${flowKey}`,
+			});
+
+			// Also clear from localStorage/sessionStorage for compatibility
+			try {
+				localStorage.removeItem(`v8u_pkce_${flowKey}`);
+				sessionStorage.removeItem(`v8u_pkce_${flowKey}`);
+				sessionStorage.removeItem('v8u_pkce_codes');
+			} catch {}
+
+			logger.info(MODULE_TAG, 'V8U PKCE codes cleared', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear V8U PKCE codes', error as Error);
+		}
+	}
+
+	/**
+	 * Check if PKCE codes exist (PKCEStorageServiceV8U compatibility)
+	 */
+	async hasV8UPKCECodes(flowKey: string): Promise<boolean> {
+		try {
+			const pkceCodes = await this.loadV8UPKCECodesAsync(flowKey);
+			return pkceCodes !== null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to check V8U PKCE codes existence', error as Error);
+			return false;
+		}
+	}
+
+	/**
+	 * Get all V8U PKCE keys
+	 */
+	async getAllV8UPKCEKeys(): Promise<string[]> {
+		try {
+			const tokens = await this.getTokensData({
+				type: 'v8u_pkce',
+			});
+			return tokens.map((token) => token.metadata?.flowKey || token.id.replace('v8u_pkce_', ''));
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get all V8U PKCE keys', error as Error);
+			return [];
+		}
+	}
+
+	/**
+	 * Export all V8U PKCE codes
+	 */
+	async exportAllV8UPKCECodes(): Promise<string> {
+		try {
+			const tokens = await this.getTokensData({
+				type: 'v8u_pkce',
+			});
+			const data: Record<string, V8UPKCECodes> = {};
+
+			tokens.forEach((token) => {
+				try {
+					const pkceCodes: V8UPKCECodes = JSON.parse(token.value);
+					const flowKey = token.metadata?.flowKey || token.id.replace('v8u_pkce_', '');
+					data[flowKey] = pkceCodes;
+				} catch (_error) {
+					logger.warn(MODULE_TAG, 'Failed to parse V8U PKCE codes for export', { id: token.id });
+				}
+			});
+
+			const exported = JSON.stringify(data, null, 2);
+
+			logger.info(MODULE_TAG, 'V8U PKCE codes exported', {
+				keyCount: tokens.length,
+				size: exported.length,
+			});
+
+			return exported;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to export V8U PKCE codes', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Import V8U PKCE codes
+	 */
+	async importAllV8UPKCECodes(jsonData: string, overwrite = false): Promise<void> {
+		try {
+			const data: Record<string, V8UPKCECodes> = JSON.parse(jsonData);
+
+			let imported = 0;
+			let skipped = 0;
+
+			for (const [flowKey, pkceCodes] of Object.entries(data)) {
+				// Check if PKCE codes already exist
+				if (!overwrite) {
+					const existing = await this.hasV8UPKCECodes(flowKey);
+					if (existing) {
+						logger.info(MODULE_TAG, 'Skipping existing V8U PKCE codes', { flowKey });
+						skipped++;
+						continue;
+					}
+				}
+
+				// Import PKCE codes
+				await this.saveV8UPKCECodes(flowKey, pkceCodes);
+				imported++;
+			}
+
+			logger.info(MODULE_TAG, 'V8U PKCE codes imported', {
+				imported,
+				skipped,
+				total: Object.keys(data).length,
+			});
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to import V8U PKCE codes', error as Error);
+			throw error;
+		}
+	}
+
+	// ===== FLOW STORAGE SERVICE COMPATIBILITY METHODS =====
+	// These methods provide backward compatibility with FlowStorageService
+
+	/**
+	 * Save flow storage data (FlowStorageService compatibility)
+	 */
+	async saveFlowStorageData(
+		storageType: 'session' | 'local',
+		flowId: string,
+		dataType: string,
+		data: unknown
+	): Promise<void> {
+		try {
+			const key = `${storageType}:${flowId}:${dataType}`;
+			const storageData = {
+				data,
+				timestamp: Date.now(),
+				storageType,
+				flowId,
+				dataType,
+			};
+
+			await this.storeToken({
+				id: `flow_storage_${key}`,
+				type: 'flow_state',
+				value: JSON.stringify(storageData),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowId,
+				metadata: {
+					originalKey: key,
+					storageType,
+					flowId,
+					dataType,
+				},
+			});
+
+			// Also save to original storage for immediate compatibility
+			try {
+				if (storageType === 'session') {
+					sessionStorage.setItem(key, JSON.stringify(storageData));
+				} else {
+					localStorage.setItem(key, JSON.stringify(storageData));
+				}
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Flow storage data saved', { storageType, flowId, dataType });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save flow storage data', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Load flow storage data (FlowStorageService compatibility)
+	 */
+	async loadFlowStorageData(
+		storageType: 'session' | 'local',
+		flowId: string,
+		dataType: string
+	): Promise<unknown | null> {
+		try {
+			const key = `${storageType}:${flowId}:${dataType}`;
+
+			// Try unified storage first
+			const tokens = await this.getTokensData({
+				type: 'flow_state',
+				id: `flow_storage_${key}`,
+			});
+
+			if (tokens.length > 0) {
+				const token = tokens[0];
+				const storageData = JSON.parse(token.value);
+				logger.info(MODULE_TAG, 'Flow storage data loaded from unified storage', {
+					storageType,
+					flowId,
+					dataType,
+				});
+				return storageData.data;
+			}
+
+			// Fallback to original storage
+			try {
+				const stored =
+					storageType === 'session' ? sessionStorage.getItem(key) : localStorage.getItem(key);
+				if (stored) {
+					const storageData = JSON.parse(stored);
+					// Migrate to unified storage
+					await this.saveFlowStorageData(storageType, flowId, dataType, storageData.data);
+					// Remove from original storage
+					if (storageType === 'session') {
+						sessionStorage.removeItem(key);
+					} else {
+						localStorage.removeItem(key);
+					}
+					logger.info(MODULE_TAG, 'Flow storage data migrated from original storage', {
+						storageType,
+						flowId,
+						dataType,
+					});
+					return storageData.data;
+				}
+			} catch (error) {
+				logger.error(MODULE_TAG, 'Failed to load from original storage', { key, error });
+			}
+
+			return null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load flow storage data', {
+				storageType,
+				flowId,
+				dataType,
+				error,
+			});
+			return null;
+		}
+	}
+
+	/**
+	 * Remove flow storage data (FlowStorageService compatibility)
+	 */
+	async removeFlowStorageData(
+		storageType: 'session' | 'local',
+		flowId: string,
+		dataType: string
+	): Promise<void> {
+		try {
+			const key = `${storageType}:${flowId}:${dataType}`;
+
+			// Remove from unified storage
+			await this.deleteTokens({
+				type: 'flow_state',
+				id: `flow_storage_${key}`,
+			});
+
+			// Remove from original storage
+			try {
+				if (storageType === 'session') {
+					sessionStorage.removeItem(key);
+				} else {
+					localStorage.removeItem(key);
+				}
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Flow storage data removed', { storageType, flowId, dataType });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to remove flow storage data', {
+				storageType,
+				flowId,
+				dataType,
+				error,
+			});
+		}
+	}
+
+	/**
+	 * Check if flow storage data exists (FlowStorageService compatibility)
+	 */
+	async hasFlowStorageData(
+		storageType: 'session' | 'local',
+		flowId: string,
+		dataType: string
+	): Promise<boolean> {
+		try {
+			const key = `${storageType}:${flowId}:${dataType}`;
+
+			// Check unified storage first
+			const tokens = await this.getTokensData({
+				type: 'flow_state',
+				id: `flow_storage_${key}`,
+			});
+
+			if (tokens.length > 0) {
+				return true;
+			}
+
+			// Check original storage
+			if (storageType === 'session') {
+				return sessionStorage.getItem(key) !== null;
+			} else {
+				return localStorage.getItem(key) !== null;
+			}
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to check flow storage data existence', {
+				storageType,
+				flowId,
+				dataType,
+				error,
+			});
+			return false;
+		}
+	}
+
+	/**
+	 * Clear all flow storage data for a flow (FlowStorageService compatibility)
+	 */
+	async clearFlowStorageData(flowId: string): Promise<void> {
+		try {
+			// Get all flow storage keys for this flow
+			const tokens = await this.getTokensData({
+				type: 'flow_state',
+				flowName: flowId,
+			});
+
+			// Remove from unified storage
+			for (const token of tokens) {
+				await this.deleteTokens({
+					type: 'flow_state',
+					id: token.id,
+				});
+			}
+
+			// Remove from original storage
+			const sessionKeys = this.getFlowStorageKeysFromStorage('session', flowId);
+			const localKeys = this.getFlowStorageKeysFromStorage('local', flowId);
+
+			for (const key of sessionKeys) {
+				sessionStorage.removeItem(key);
+			}
+			for (const key of localKeys) {
+				localStorage.removeItem(key);
+			}
+
+			logger.info(MODULE_TAG, 'All flow storage data cleared', { flowId });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear flow storage data', { flowId, error });
+		}
+	}
+
+	/**
+	 * Get flow storage keys from storage (helper method)
+	 */
+	private getFlowStorageKeysFromStorage(
+		storageType: 'session' | 'local',
+		flowId: string
+	): string[] {
+		const keys: string[] = [];
+		const storage = storageType === 'session' ? sessionStorage : localStorage;
+		const prefix = `${storageType}:${flowId}:`;
+
+		for (let i = 0; i < storage.length; i++) {
+			const key = storage.key(i);
+			if (key?.startsWith(prefix)) {
+				keys.push(key);
+			}
+		}
+
+		return keys;
+	}
+
+	/**
+	 * Export all flow storage data
+	 */
+	async exportAllFlowStorageData(): Promise<string> {
+		try {
+			const tokens = await this.getTokensData({
+				type: 'flow_state',
+			});
+			const data: Record<string, unknown> = {};
+
+			tokens.forEach((token) => {
+				try {
+					const storageData = JSON.parse(token.value);
+					const key = token.metadata?.originalKey || token.id.replace('flow_storage_', '');
+					data[key] = storageData.data;
+				} catch (_error) {
+					logger.warn(MODULE_TAG, 'Failed to parse flow storage data for export', { id: token.id });
+				}
+			});
+
+			const exported = JSON.stringify(data, null, 2);
+
+			logger.info(MODULE_TAG, 'Flow storage data exported', {
+				keyCount: tokens.length,
+				size: exported.length,
+			});
+
+			return exported;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to export flow storage data', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Import flow storage data
+	 */
+	async importAllFlowStorageData(jsonData: string, overwrite = false): Promise<void> {
+		try {
+			const data: Record<string, unknown> = JSON.parse(jsonData);
+
+			let imported = 0;
+			let skipped = 0;
+
+			for (const [key, value] of Object.entries(data)) {
+				// Parse the key to extract storage info
+				const parts = key.split(':');
+				if (parts.length >= 3) {
+					const storageType = parts[0] as 'session' | 'local';
+					const flowId = parts[1];
+					const dataType = parts.slice(2).join(':');
+
+					// Check if data already exists
+					if (!overwrite) {
+						const exists = await this.hasFlowStorageData(storageType, flowId, dataType);
+						if (exists) {
+							logger.info(MODULE_TAG, 'Skipping existing flow storage data', {
+								storageType,
+								flowId,
+								dataType,
+							});
+							skipped++;
+							continue;
+						}
+					}
+
+					// Import flow storage data
+					await this.saveFlowStorageData(storageType, flowId, dataType, value);
+					imported++;
+				}
+			}
+
+			logger.info(MODULE_TAG, 'Flow storage data imported', {
+				imported,
+				skipped,
+				total: Object.keys(data).length,
+			});
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to import flow storage data', error as Error);
+			throw error;
+		}
+	}
+
+	// ===== CREDENTIAL STORAGE MANAGER COMPATIBILITY METHODS =====
+	// These methods provide backward compatibility with CredentialStorageManager
+
+	/**
+	 * Load flow credentials (CredentialStorageManager compatibility)
+	 */
+	async loadFlowCredentials(flowKey: string): Promise<{
+		success: boolean;
+		data: unknown;
+		source: string;
+		timestamp?: number;
+		error?: string;
+	}> {
+		try {
+			// Try unified storage first
+			const tokens = await this.getTokensData({
+				type: 'oauth_credentials',
+				flowName: flowKey,
+			});
+
+			if (tokens.length > 0) {
+				const token = tokens[0];
+				logger.info(MODULE_TAG, 'Flow credentials loaded from unified storage', { flowKey });
+				return {
+					success: true,
+					data: token.value,
+					source: 'unified',
+					timestamp: token.issuedAt,
+				};
+			}
+
+			// Fallback to localStorage
+			try {
+				const stored = localStorage.getItem(`flow_credentials_${flowKey}`);
+				if (stored) {
+					const credentials = JSON.parse(stored);
+					// Migrate to unified storage
+					await this.saveFlowCredentials(flowKey, credentials);
+					// Remove from localStorage
+					localStorage.removeItem(`flow_credentials_${flowKey}`);
+					logger.info(MODULE_TAG, 'Flow credentials migrated from localStorage', { flowKey });
+					return {
+						success: true,
+						data: credentials,
+						source: 'localStorage',
+						timestamp: Date.now(),
+					};
+				}
+			} catch (error) {
+				logger.error(MODULE_TAG, 'Failed to load from localStorage', { flowKey, error });
+			}
+
+			return {
+				success: false,
+				data: null,
+				source: 'none',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load flow credentials', { flowKey, error });
+			return {
+				success: false,
+				data: null,
+				source: 'none',
+				error: error instanceof Error ? error.message : 'Unknown error',
+			};
+		}
+	}
+
+	/**
+	 * Save flow credentials (CredentialStorageManager compatibility)
+	 */
+	async saveFlowCredentials(
+		flowKey: string,
+		credentials: Record<string, unknown>
+	): Promise<{ success: boolean; source: string; error?: string }> {
+		try {
+			// Add timestamp
+			const credentialsWithMetadata = {
+				...credentials,
+				savedAt: Date.now(),
+			};
+
+			// Save to unified storage
+			await this.storeToken({
+				id: `flow_credentials_${flowKey}`,
+				type: 'oauth_credentials',
+				value: JSON.stringify(credentialsWithMetadata),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowKey,
+				metadata: {
+					originalKey: `flow_credentials_${flowKey}`,
+					savedAt: Date.now(),
+				},
+			});
+
+			// Also save to localStorage for immediate compatibility
+			try {
+				localStorage.setItem(
+					`flow_credentials_${flowKey}`,
+					JSON.stringify(credentialsWithMetadata)
+				);
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Flow credentials saved to unified storage', { flowKey });
+			return {
+				success: true,
+				source: 'unified',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save flow credentials', { flowKey, error });
+			return {
+				success: false,
+				source: 'none',
+				error: error instanceof Error ? error.message : 'Unknown error',
+			};
+		}
+	}
+
+	/**
+	 * Clear flow credentials (CredentialStorageManager compatibility)
+	 */
+	async clearFlowCredentials(flowKey: string): Promise<void> {
+		try {
+			// Remove from unified storage
+			await this.deleteTokens({
+				type: 'oauth_credentials',
+				id: `flow_credentials_${flowKey}`,
+			});
+
+			// Remove from localStorage
+			try {
+				localStorage.removeItem(`flow_credentials_${flowKey}`);
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Flow credentials cleared', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear flow credentials', { flowKey, error });
+		}
+	}
+
+	/**
+	 * Clear all credentials (CredentialStorageManager compatibility)
+	 */
+	async clearAllCredentials(): Promise<void> {
+		try {
+			// Remove all credential tokens from unified storage
+			const tokens = await this.getTokensData({
+				type: 'oauth_credentials',
+			});
+
+			for (const token of tokens) {
+				await this.deleteTokens({
+					type: 'oauth_credentials',
+					id: token.id,
+				});
+			}
+
+			// Clear localStorage
+			try {
+				const keysToRemove: string[] = [];
+				for (let i = 0; i < localStorage.length; i++) {
+					const key = localStorage.key(i);
+					if (key?.startsWith('flow_credentials_')) {
+						keysToRemove.push(key);
+					}
+				}
+				keysToRemove.forEach((key) => {
+					localStorage.removeItem(key);
+				});
+			} catch {}
+
+			logger.info(MODULE_TAG, 'All credentials cleared');
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear all credentials', error);
+		}
+	}
+
+	/**
+	 * Save PKCE codes (CredentialStorageManager compatibility)
+	 */
+	async savePKCECodes(
+		flowKey: string,
+		pkceCodes: {
+			codeVerifier: string;
+			codeChallenge: string;
+			codeChallengeMethod: 'S256' | 'plain';
+		}
+	): Promise<void> {
+		try {
+			const key = `flow_pkce_${flowKey}`;
+			const data = {
+				...pkceCodes,
+				savedAt: Date.now(),
+			};
+
+			// Save to unified storage
+			await this.storeToken({
+				id: key,
+				type: 'pkce_state',
+				value: JSON.stringify(data),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowKey,
+				metadata: {
+					originalKey: key,
+					savedAt: Date.now(),
+				},
+			});
+
+			// Also save to localStorage for immediate compatibility
+			try {
+				localStorage.setItem(key, JSON.stringify(data));
+			} catch {}
+
+			logger.info(MODULE_TAG, 'PKCE codes saved to unified storage', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save PKCE codes', { flowKey, error });
+		}
+	}
+
+	/**
+	 * Load PKCE codes (CredentialStorageManager compatibility)
+	 */
+	async loadPKCECodes(flowKey: string): Promise<{
+		codeVerifier: string;
+		codeChallenge: string;
+		codeChallengeMethod: 'S256' | 'plain';
+	} | null> {
+		try {
+			const key = `flow_pkce_${flowKey}`;
+
+			// Try unified storage first
+			const tokens = await this.getTokensData({
+				type: 'pkce_state',
+				id: key,
+			});
+
+			if (tokens.length > 0) {
+				const token = tokens[0];
+				const data = JSON.parse(token.value);
+				logger.info(MODULE_TAG, 'PKCE codes loaded from unified storage', { flowKey });
+				return data;
+			}
+
+			// Fallback to localStorage
+			try {
+				const stored = localStorage.getItem(key);
+				if (stored) {
+					const data = JSON.parse(stored);
+					// Migrate to unified storage
+					await this.savePKCECodes(flowKey, data);
+					// Remove from localStorage
+					localStorage.removeItem(key);
+					logger.info(MODULE_TAG, 'PKCE codes migrated from localStorage', { flowKey });
+					return data;
+				}
+			} catch (error) {
+				logger.error(MODULE_TAG, 'Failed to load PKCE codes from localStorage', { flowKey, error });
+			}
+
+			return null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load PKCE codes', { flowKey, error });
+			return null;
+		}
+	}
+
+	/**
+	 * Clear PKCE codes (CredentialStorageManager compatibility)
+	 */
+	async clearPKCECodes(flowKey: string): Promise<void> {
+		try {
+			const key = `flow_pkce_${flowKey}`;
+
+			// Remove from unified storage
+			await this.deleteTokens({
+				type: 'pkce_state',
+				id: key,
+			});
+
+			// Remove from localStorage
+			try {
+				localStorage.removeItem(key);
+			} catch {}
+
+			logger.info(MODULE_TAG, 'PKCE codes cleared', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear PKCE codes', { flowKey, error });
+		}
+	}
+
+	/**
+	 * Save flow state (CredentialStorageManager compatibility)
+	 */
+	async saveFlowState(flowKey: string, state: Record<string, unknown>): Promise<void> {
+		try {
+			const key = `flow_state_${flowKey}`;
+			const data = {
+				...state,
+				savedAt: Date.now(),
+			};
+
+			// Save to unified storage
+			await this.storeToken({
+				id: key,
+				type: 'flow_state',
+				value: JSON.stringify(data),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowKey,
+				metadata: {
+					originalKey: key,
+					savedAt: Date.now(),
+				},
+			});
+
+			// Also save to sessionStorage for immediate compatibility
+			try {
+				sessionStorage.setItem(key, JSON.stringify(data));
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Flow state saved to unified storage', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save flow state', { flowKey, error });
+		}
+	}
+
+	/**
+	 * Load flow state (CredentialStorageManager compatibility)
+	 */
+	async loadFlowState(flowKey: string): Promise<unknown> {
+		try {
+			const key = `flow_state_${flowKey}`;
+
+			// Try unified storage first
+			const tokens = await this.getTokensData({
+				type: 'flow_state',
+				id: key,
+			});
+
+			if (tokens.length > 0) {
+				const token = tokens[0];
+				const data = JSON.parse(token.value);
+				logger.info(MODULE_TAG, 'Flow state loaded from unified storage', { flowKey });
+				return data;
+			}
+
+			// Fallback to sessionStorage
+			try {
+				const stored = sessionStorage.getItem(key);
+				if (stored) {
+					const data = JSON.parse(stored);
+					// Migrate to unified storage
+					await this.saveFlowState(flowKey, data);
+					// Remove from sessionStorage
+					sessionStorage.removeItem(key);
+					logger.info(MODULE_TAG, 'Flow state migrated from sessionStorage', { flowKey });
+					return data;
+				}
+			} catch (error) {
+				logger.error(MODULE_TAG, 'Failed to load flow state from sessionStorage', {
+					flowKey,
+					error,
+				});
+			}
+
+			return null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load flow state', { flowKey, error });
+			return null;
+		}
+	}
+
+	/**
+	 * Clear flow state (CredentialStorageManager compatibility)
+	 */
+	async clearFlowState(flowKey: string): Promise<void> {
+		try {
+			const key = `flow_state_${flowKey}`;
+
+			// Remove from unified storage
+			await this.deleteTokens({
+				type: 'flow_state',
+				id: key,
+			});
+
+			// Remove from sessionStorage
+			try {
+				sessionStorage.removeItem(key);
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Flow state cleared', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear flow state', { flowKey, error });
+		}
+	}
+
+	/**
+	 * Save worker token (CredentialStorageManager compatibility)
+	 */
+	async saveWorkerToken(data: {
+		accessToken: string;
+		expiresAt: number;
+		environmentId: string;
+	}): Promise<{ success: boolean; source: string; error?: string }> {
+		try {
+			const flowKey = 'worker-token';
+			const tokenData = {
+				...data,
+				savedAt: Date.now(),
+			};
+
+			// Save to unified storage
+			await this.storeToken({
+				id: 'worker_token',
+				type: 'worker_token',
+				value: JSON.stringify(tokenData),
+				expiresAt: data.expiresAt,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowKey,
+				metadata: {
+					environmentId: data.environmentId,
+					savedAt: Date.now(),
+				},
+			});
+
+			// Also save to localStorage for immediate compatibility
+			try {
+				localStorage.setItem('worker_token', JSON.stringify(tokenData));
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Worker token saved to unified storage', {
+				environmentId: data.environmentId,
+			});
+			return {
+				success: true,
+				source: 'unified',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save worker token', { data, error });
+			return {
+				success: false,
+				source: 'none',
+				error: error instanceof Error ? error.message : 'Unknown error',
+			};
+		}
+	}
+
+	/**
+	 * Load worker token (CredentialStorageManager compatibility)
+	 */
+	async loadWorkerToken(): Promise<{
+		accessToken: string;
+		expiresAt: number;
+		environmentId: string;
+	} | null> {
+		try {
+			// Try unified storage first
+			const tokens = await this.getTokensData({
+				type: 'worker_token',
+				id: 'worker_token',
+			});
+
+			if (tokens.length > 0) {
+				const token = tokens[0];
+				const data = JSON.parse(token.value);
+
+				// Check if token is expired
+				if (data.expiresAt && data.expiresAt < Date.now()) {
+					logger.info(MODULE_TAG, 'Worker token expired, removing');
+					await this.deleteTokens({
+						type: 'worker_token',
+						id: 'worker_token',
+					});
+					return null;
+				}
+
+				logger.info(MODULE_TAG, 'Worker token loaded from unified storage', {
+					environmentId: data.environmentId,
+				});
+				return data;
+			}
+
+			// Fallback to localStorage
+			try {
+				const stored = localStorage.getItem('worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+
+					// Check if token is expired
+					if (data.expiresAt && data.expiresAt < Date.now()) {
+						localStorage.removeItem('worker_token');
+						return null;
+					}
+
+					// Migrate to unified storage
+					await this.saveWorkerToken(data);
+					// Remove from localStorage
+					localStorage.removeItem('worker_token');
+					logger.info(MODULE_TAG, 'Worker token migrated from localStorage', {
+						environmentId: data.environmentId,
+					});
+					return data;
+				}
+			} catch (error) {
+				logger.error(MODULE_TAG, 'Failed to load worker token from localStorage', { error });
+			}
+
+			return null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load worker token', { error });
+			return null;
+		}
+	}
+
+	/**
+	 * Clear worker token (CredentialStorageManager compatibility)
+	 */
+	async clearWorkerToken(): Promise<void> {
+		try {
+			// Remove from unified storage
+			await this.deleteTokens({
+				type: 'worker_token',
+				id: 'worker_token',
+			});
+
+			// Remove from localStorage
+			try {
+				localStorage.removeItem('worker_token');
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Worker token cleared');
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear worker token', { error });
+		}
+	}
+}
+
+// Export singleton instance
+export const unifiedTokenStorage = UnifiedTokenStorageService.getInstance();

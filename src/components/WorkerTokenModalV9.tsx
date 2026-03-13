@@ -23,13 +23,13 @@ import {
 	type WorkerTokenCredentials,
 } from '../services/credentialExportImportService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageService';
 import { logger } from '../utils/logger';
 import { trackedFetch } from '../utils/trackedFetch';
 import { DraggableModal } from './DraggableModal';
 import { RegionSelect } from './RegionSelect';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
-import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
 
 // ---------------------------------------------------------------------------
 // PingOne UI Styled Components
@@ -138,7 +138,7 @@ const ButtonGroup = styled.div`
 	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
-const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
+const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | 'warning' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
@@ -151,41 +151,48 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 		switch ($variant) {
 			case 'primary':
 				return `
-					background: V9_COLORS.PRIMARY.BLUE;
-					color: V9_COLORS.TEXT.WHITE;
-					border-color: V9_COLORS.PRIMARY.BLUE;
-
+					background: ${V9_COLORS.PRIMARY.BLUE};
+					color: ${V9_COLORS.TEXT.WHITE};
+					border-color: ${V9_COLORS.PRIMARY.BLUE};
 					&:hover {
-						background: V9_COLORS.PRIMARY.BLUE_DARK;
-						border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+						background: ${V9_COLORS.PRIMARY.BLUE_DARK};
+						border-color: ${V9_COLORS.PRIMARY.BLUE_DARK};
 					}
-
 					&:disabled {
-						background: V9_COLORS.TEXT.GRAY_LIGHT;
-						border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+						background: ${V9_COLORS.TEXT.GRAY_LIGHT};
+						border-color: ${V9_COLORS.TEXT.GRAY_LIGHT};
 						cursor: not-allowed;
 					}
 				`;
 			case 'danger':
 				return `
-					background: V9_COLORS.PRIMARY.RED;
-					color: V9_COLORS.TEXT.WHITE;
-					border-color: V9_COLORS.PRIMARY.RED;
-
+					background: ${V9_COLORS.PRIMARY.RED};
+					color: ${V9_COLORS.TEXT.WHITE};
+					border-color: ${V9_COLORS.PRIMARY.RED};
 					&:hover {
-						background: V9_COLORS.PRIMARY.RED_DARK;
-						border-color: V9_COLORS.PRIMARY.RED_DARK;
+						background: ${V9_COLORS.PRIMARY.RED_DARK};
+						border-color: ${V9_COLORS.PRIMARY.RED_DARK};
+					}
+				`;
+			case 'warning':
+				return `
+					background: #eab308;
+					color: #1f2937;
+					border-color: #eab308;
+					&:hover {
+						background: #ca8a04;
+						border-color: #ca8a04;
 					}
 				`;
 			default:
 				return `
-					background: V9_COLORS.TEXT.WHITE;
-					color: V9_COLORS.TEXT.GRAY_DARK;
-					border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
-
+					background: ${V9_COLORS.TEXT.WHITE};
+					color: ${V9_COLORS.PRIMARY.BLUE};
+					border-color: ${V9_COLORS.PRIMARY.BLUE};
 					&:hover {
-						background: #f9fafb;
-						border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+						background: ${V9_COLORS.BG.GRAY_LIGHT};
+						border-color: ${V9_COLORS.PRIMARY.BLUE_DARK};
+						color: ${V9_COLORS.PRIMARY.BLUE_DARK};
 					}
 				`;
 		}
@@ -330,6 +337,13 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 		navigate('/client-generator');
 		onClose();
 	}, [navigate, onClose]);
+	/** Normalize scopes to array (storage may return string). */
+	const normalizeScopes = (scopes: string[] | string | undefined): string[] => {
+		if (Array.isArray(scopes)) return scopes;
+		if (typeof scopes === 'string' && scopes.trim()) return scopes.trim().split(/\s+/);
+		return [];
+	};
+
 	// State
 	const [credentials, setCredentials] = useState<{
 		environmentId: string;
@@ -360,20 +374,6 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 	);
 	const [generatedToken, setGeneratedToken] = useState<string | null>(null);
 
-	// Educational mode state
-	const [showRequestModal, setShowRequestModal] = useState(false);
-	const [pendingRequestDetails, setPendingRequestDetails] = useState<{
-		tokenEndpoint: string;
-		requestParams: {
-			grant_type: string;
-			client_id: string;
-			client_secret: string;
-			scope?: string;
-		};
-		authMethod: string;
-		region: string;
-	} | null>(null);
-
 	const loadExistingCredentials = useCallback(async () => {
 		try {
 			// First try V9CredentialStorageService (primary for V9 flows)
@@ -397,7 +397,10 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 						clientId: creds.clientId || prev.clientId,
 						clientSecret: creds.clientSecret || prev.clientSecret,
 						region: creds.region || prev.region,
-						scopes: creds.scopes || prev.scopes,
+						scopes:
+							normalizeScopes(creds.scopes).length > 0
+								? normalizeScopes(creds.scopes)
+								: prev.scopes,
 						tokenEndpointAuthMethod: creds.tokenEndpointAuthMethod || prev.tokenEndpointAuthMethod,
 					}));
 				}
@@ -465,7 +468,6 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 	}, [credentials]);
 
 	const handleGenerateToken = useCallback(async () => {
-		// Validate credentials first
 		if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
 			modernMessaging.showFooterMessage({
 				type: 'error',
@@ -474,98 +476,43 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 			return;
 		}
 
-		// Build token endpoint
-		const region = credentials.region || 'us';
-		const tokenEndpoint = `https://auth.pingone.${region}/pingone/token`;
+		setIsGenerating(true);
+		setTokenStatus('generating');
 
-		// Prepare request parameters
+		const region = credentials.region || 'us';
+		const authMethod = credentials.tokenEndpointAuthMethod || 'client_secret_post';
 		const bodyParams: Record<string, string> = {
 			grant_type: 'client_credentials',
 			client_id: credentials.clientId,
 			client_secret: credentials.clientSecret,
 		};
+		const scopesArr = normalizeScopes(credentials.scopes);
+		if (scopesArr.length > 0) bodyParams.scope = scopesArr.join(' ');
 
-		// Add scopes if provided
-		if (credentials.scopes && credentials.scopes.length > 0) {
-			bodyParams.scope = credentials.scopes.join(' ');
-		}
-
-		// Store request details and show educational modal
-		const requestDetails = {
-			tokenEndpoint,
-			requestParams: bodyParams,
-			authMethod: credentials.tokenEndpointAuthMethod || 'client_secret_post',
+		const urlEncodedBody = new URLSearchParams(bodyParams).toString();
+		const proxyPayload: Record<string, unknown> = {
+			environment_id: credentials.environmentId,
 			region,
+			body: urlEncodedBody,
+			auth_method: authMethod,
 		};
-
-		setPendingRequestDetails(requestDetails);
-		setShowRequestModal(true);
-	}, [credentials]);
-
-	// Execute the actual token request (called from educational modal)
-	const executeTokenRequest = useCallback(async () => {
-		if (!pendingRequestDetails) {
-			modernMessaging.showFooterMessage({
-				type: 'error',
-				message: 'Request details not available',
-			});
-			return;
+		if (authMethod === 'client_secret_basic') {
+			proxyPayload.headers = {
+				Authorization: `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
+			};
 		}
-
-		setShowRequestModal(false);
-		setIsGenerating(true);
-		setTokenStatus('generating');
 
 		try {
-			const { tokenEndpoint, requestParams, authMethod } = pendingRequestDetails;
-
-			// Prepare headers and body based on authentication method
-			const headers: Record<string, string> = {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			};
-
-			const bodyParams: Record<string, string> = {
-				grant_type: requestParams.grant_type,
-				client_id: requestParams.client_id,
-				client_secret: requestParams.client_secret,
-			};
-
-			// Handle authentication method
-			switch (authMethod) {
-				case 'client_secret_basic':
-					headers['Authorization'] =
-						`Basic ${btoa(`${requestParams.client_id}:${requestParams.client_secret}`)}`;
-					bodyParams.client_id = requestParams.client_id;
-					break;
-				case 'client_secret_post':
-					bodyParams.client_id = requestParams.client_id;
-					bodyParams.client_secret = requestParams.client_secret;
-					break;
-				default:
-					bodyParams.client_id = requestParams.client_id;
-					bodyParams.client_secret = requestParams.client_secret;
-			}
-
-			// Build request body
-			const body = new URLSearchParams();
-			Object.entries(bodyParams).forEach(([key, value]) => {
-				if (value !== undefined && value !== null && value !== '') {
-					body.append(key, String(value));
-				}
-			});
-
-			logger.info('WorkerTokenModalV9', 'Making real worker token request', {
-				endpoint: tokenEndpoint,
-				region: pendingRequestDetails.region,
-				hasScopes: !!bodyParams.scope,
+			logger.info('WorkerTokenModalV9', 'Making worker token request via proxy', {
+				environmentId: credentials.environmentId,
+				region,
 				authMethod,
 			});
 
-			// Make real API call
-			const response = await trackedFetch(tokenEndpoint, {
+			const response = await trackedFetch('/api/pingone/token', {
 				method: 'POST',
-				headers,
-				body: body.toString(),
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(proxyPayload),
 			});
 
 			if (!response.ok) {
@@ -576,7 +523,6 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 				} catch {
 					errorData = { raw: errorText };
 				}
-
 				throw new Error(
 					`Token request failed: ${response.status} ${response.statusText} - ${errorData.error_description || errorData.error || 'Unknown error'}`
 				);
@@ -584,12 +530,8 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 
 			const tokenData = await response.json();
 			const realToken = tokenData.access_token;
+			if (!realToken) throw new Error('No access token received');
 
-			if (!realToken) {
-				throw new Error('No access token received');
-			}
-
-			// Save credentials and token
 			await unifiedWorkerTokenService.saveCredentials(credentials);
 			await unifiedWorkerTokenService.saveToken(realToken, {
 				expiresAt: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined,
@@ -600,30 +542,21 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 
 			setGeneratedToken(realToken);
 			setTokenStatus('success');
-
 			modernMessaging.showFooterMessage({
 				type: 'success',
-				message: 'Real worker token generated successfully',
+				message: 'Worker token generated successfully',
 			});
-
 			onTokenGenerated?.(realToken);
 		} catch (error) {
 			setTokenStatus('error');
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to generate worker token';
-
-			logger.error('WorkerTokenModalV9', 'Token generation failed', {
-				error: errorMessage,
-			});
-
-			modernMessaging.showFooterMessage({
-				type: 'error',
-				message: errorMessage,
-			});
+			logger.error('WorkerTokenModalV9', 'Token generation failed', { error: errorMessage });
+			modernMessaging.showFooterMessage({ type: 'error', message: errorMessage });
 		} finally {
 			setIsGenerating(false);
 		}
-	}, [pendingRequestDetails, credentials, onTokenGenerated]);
+	}, [credentials, onTokenGenerated]);
 
 	const handleClearToken = useCallback(async () => {
 		try {
@@ -651,7 +584,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 					clientId: credentials.clientId,
 					clientSecret: credentials.clientSecret,
 					region: credentials.region,
-					scopes: credentials.scopes,
+					scopes: normalizeScopes(credentials.scopes),
 					tokenEndpointAuthMethod: credentials.tokenEndpointAuthMethod,
 				},
 			};
@@ -675,12 +608,13 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 
 				if (imported.workerToken) {
 					const wt = imported.workerToken;
+					const scopeArray = normalizeScopes(wt.scopes);
 					const updatedCredentials = {
 						environmentId: wt.environmentId || '',
 						clientId: wt.clientId || '',
 						clientSecret: wt.clientSecret || '',
 						region: wt.region || ('us' as const),
-						scopes: wt.scopes || ['openid', 'pingone'],
+						scopes: scopeArray.length > 0 ? scopeArray : ['openid', 'pingone'],
 						tokenEndpointAuthMethod: wt.tokenEndpointAuthMethod || ('client_secret_basic' as const),
 					};
 
@@ -822,11 +756,11 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 									</>
 								)}
 							</Button>
-							<Button onClick={handleExportCredentials} variant="outline">
+							<Button onClick={handleExportCredentials} $variant="secondary">
 								<MDIIcon icon="FiDownload" size={16} />
 								Export
 							</Button>
-							<Button onClick={handleImportCredentials} variant="outline">
+							<Button onClick={handleImportCredentials} $variant="secondary">
 								<MDIIcon icon="FiUpload" size={16} />
 								Import
 							</Button>
@@ -881,7 +815,24 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 							</InfoBox>
 
 							<ButtonGroup>
-								<Button $variant="danger" onClick={handleClearToken}>
+								<Button $variant="primary" onClick={handleGenerateToken} disabled={isGenerating}>
+									{isGenerating ? (
+										<>
+											<MDIIcon
+												icon="FiRefreshCw"
+												size={16}
+												style={{ animation: 'spin 1s linear infinite' }}
+											/>
+											Updating...
+										</>
+									) : (
+										<>
+											<MDIIcon icon="FiRefreshCw" size={16} />
+											Update Token
+										</>
+									)}
+								</Button>
+								<Button $variant="warning" onClick={handleClearToken}>
 									<MDIIcon icon="FiX" size={16} />
 									Clear Token
 								</Button>
@@ -904,7 +855,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 					{tokenStatus !== 'success' && (
 						<ButtonGroup>
 							<Button
-								$variant="primary"
+								$variant="danger"
 								onClick={handleGenerateToken}
 								disabled={!isFormValid || isGenerating}
 							>
@@ -920,7 +871,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 								) : (
 									<>
 										<MDIIcon icon="FiKey" size={16} />
-										Generate Worker Token
+										Get Worker Token
 									</>
 								)}
 							</Button>
@@ -932,19 +883,6 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 					)}
 				</Section>
 			</ModalContent>
-
-			{/* Educational modal showing request details */}
-			{pendingRequestDetails && (
-				<WorkerTokenRequestModal
-					isOpen={showRequestModal}
-					onClose={() => setShowRequestModal(false)}
-					onProceed={executeTokenRequest}
-					tokenEndpoint={pendingRequestDetails.tokenEndpoint}
-					requestParams={pendingRequestDetails.requestParams}
-					authMethod={pendingRequestDetails.authMethod}
-					region={pendingRequestDetails.region}
-				/>
-			)}
 		</DraggableModal>
 	);
 };

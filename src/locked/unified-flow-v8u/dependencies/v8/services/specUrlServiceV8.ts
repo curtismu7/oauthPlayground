@@ -231,10 +231,10 @@ export class SpecUrlServiceV8 {
 	 * Log specification URL results for debugging
 	 */
 	static logSpecUrls(
-		specVersion: SpecVersion,
-		flowType: FlowType,
-		flowSpecs: FlowSpecInfo,
-		versionSpecs: ReturnType<typeof SpecUrlServiceV8.getSpecUrls>
+		_specVersion: SpecVersion,
+		_flowType: FlowType,
+		_flowSpecs: FlowSpecInfo,
+		_versionSpecs: ReturnType<typeof SpecUrlServiceV8.getSpecUrls>
 	): void {}
 
 	/**

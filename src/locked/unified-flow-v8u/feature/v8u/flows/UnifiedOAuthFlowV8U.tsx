@@ -196,7 +196,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			// URL doesn't have a flow type - mark current flow as synced to prevent loops
 			lastSyncedUrlFlowTypeRef.current = flowType;
 		}
-	}, [urlFlowType, flowType, currentStep, location.pathname]);
+	}, [urlFlowType, flowType]);
 
 	/**
 	 * Load spec version when flow type changes and update last used timestamp
@@ -238,7 +238,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// CRITICAL: Only depend on flowType, NOT specVersion to avoid loops
 		// Intentionally omitting specVersion from dependencies to prevent loops
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [flowType]);
+	}, [flowType, specVersion]);
 
 	// Credentials section collapsed state - collapsed by default after step 0
 	const [isCredentialsCollapsed, setIsCredentialsCollapsed] = useState(() => {
@@ -490,7 +490,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			fallback,
 		});
 		return fallback;
-	}, [flowType, availableFlows, specVersion]);
+	}, [flowType, availableFlows]);
 
 	/**
 	 * Show modal when selected flow is not available for current spec version

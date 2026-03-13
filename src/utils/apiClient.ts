@@ -1,6 +1,5 @@
 // PingOne Management API client utilities
 
-import { logger } from '../utils/logger';
 import { logger } from './logger';
 import { generateManagementApiUrl } from './workerToken';
 export interface PingOneClient {

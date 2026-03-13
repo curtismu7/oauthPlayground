@@ -1,5 +1,9 @@
 @charset "UTF-8";
 
+/* Ping end-user-nano CSS — local copy.
+ * Source: https://assets.pingone.com/ux/end-user-nano/0.1.0-alpha.9/end-user-nano.css
+ * Use .end-user-nano wrapper for scoped styling. Imported in src/main.tsx.
+ */
 /* src/end-user-nano/index.scss */
 @font-face {
 	font-family: "iconfont";

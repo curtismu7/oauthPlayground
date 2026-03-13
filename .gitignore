@@ -29,6 +29,7 @@ backups/
 biome-report.json
 
 # Editor directories and files
+.cursor/mcp.json
 .vscode/*
 !.vscode/extensions.json
 .windsurf/

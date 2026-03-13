@@ -1,6 +1,5 @@
 // Worker Token flow utilities for PingOne Worker Token implementation
 
-import { logger } from '../../../../utils/logger';
 import { logger } from './logger';
 export interface WorkerTokenResponse {
 	access_token: string;

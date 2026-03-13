@@ -207,6 +207,8 @@ interface UnifiedTokenDisplayProps {
 	flowKey: string;
 	showCopyButtons?: boolean;
 	showDecodeButtons?: boolean;
+	/** When true, show full token value instead of masked (e.g. for educational flows). */
+	showFullToken?: boolean;
 	className?: string;
 }
 
@@ -217,6 +219,7 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 	flowKey,
 	showCopyButtons = true,
 	showDecodeButtons = true,
+	showFullToken = false,
 	className,
 }) => {
 	// Hooks must be called before any early returns
@@ -337,7 +340,7 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 				</TokenHeader>
 				<TokenContent>
 					{!isDecoded ? (
-						<TokenValue>{maskToken(token)}</TokenValue>
+						<TokenValue>{showFullToken ? token : maskToken(token)}</TokenValue>
 					) : (
 						<DecodedContent>
 							{decoded
@@ -390,6 +393,8 @@ export class UnifiedTokenDisplayService {
 		options?: {
 			showCopyButtons?: boolean;
 			showDecodeButtons?: boolean;
+			/** When true, show full token (no masking) for copy/decode/encode inline. */
+			showFullToken?: boolean;
 			className?: string;
 		}
 	) {
@@ -400,6 +405,7 @@ export class UnifiedTokenDisplayService {
 				flowKey={flowKey}
 				showCopyButtons={options?.showCopyButtons}
 				showDecodeButtons={options?.showDecodeButtons}
+				showFullToken={options?.showFullToken}
 				className={options?.className}
 			/>
 		);

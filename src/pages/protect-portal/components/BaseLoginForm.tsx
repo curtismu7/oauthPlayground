@@ -367,7 +367,16 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 				setIsLoading(false);
 			}
 		},
-		[formData, environmentId, clientId, redirectUri, onLoginSuccess, onError, rememberUsername]
+		[
+			formData,
+			environmentId,
+			clientId,
+			redirectUri,
+			onLoginSuccess,
+			onError,
+			rememberUsername,
+			region,
+		]
 	);
 
 	// ============================================================================

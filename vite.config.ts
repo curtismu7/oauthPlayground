@@ -159,11 +159,14 @@ export default defineConfig(({ mode }) => {
 			...(httpsOptions && { https: httpsOptions }),
 			// In production, Vercel will handle HTTPS
 			// With custom domain + self-signed cert, browser often rejects wss:// so HMR fails.
-			// Disable HMR when VITE_HMR_HOST is set OR when using a custom HTTPS cert (custom domain)
+			// Disable HMR when using custom HTTPS cert, VITE_HMR_HOST (set by run.sh), or VITE_DISABLE_HMR,
 			// to avoid "WebSocket connection to wss://api.pingdemo.com:3000 failed" console errors.
 			// The app works fine without HMR; hot reload only available on localhost without custom cert.
 			hmr:
-				env.VITE_HMR_HOST || httpsOptions
+				httpsOptions ||
+				env.VITE_HMR_HOST ||
+				env.VITE_DISABLE_HMR === '1' ||
+				env.VITE_DISABLE_HMR === 'true'
 					? false
 					: { port: 3000, host: 'localhost', clientPort: 3000 },
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)

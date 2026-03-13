@@ -12,8 +12,8 @@
 
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { V9MFARedirectUriService as MFARedirectUriServiceV8 } from '@/services/v9/V9MFARedirectUriService';
 import { trackOAuthFlow } from '@/utils/activityTracker';
-import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import {
 	checkPingOneAuthentication,
 	performDetailedAuthenticationCheck,
@@ -34,7 +34,41 @@ const extractStepFromPath = (path: string): string | null => {
 	}
 };
 
-// Enhanced logging function that saves to disk via API
+/** Known V8U state flow type prefixes; state format is "v8u-{flowType}-{random}". */
+const KNOWN_FLOW_TYPES = [
+	'oauth-authz',
+	'client-credentials',
+	'device-code',
+	'implicit',
+	'hybrid',
+	'ropc',
+] as const;
+
+/**
+ * Parses the OAuth state parameter to determine flow type (e.g. oauth-authz, implicit).
+ * State format: "v8u-{flowType}-{random}".
+ */
+const detectFlowTypeFromState = (state: string | null): string => {
+	if (!state?.startsWith('v8u-')) return 'oauth-authz';
+	const parts = state.split('-');
+	if (parts.length >= 3) {
+		const twoPart = `${parts[1]}-${parts[2]}`;
+		if (KNOWN_FLOW_TYPES.includes(twoPart as (typeof KNOWN_FLOW_TYPES)[number])) return twoPart;
+	}
+	if (parts.length >= 2 && KNOWN_FLOW_TYPES.includes(parts[1] as (typeof KNOWN_FLOW_TYPES)[number]))
+		return parts[1];
+	return 'oauth-authz';
+};
+
+/**
+ * Derives the step index to redirect to after callback from state (and flow).
+ * Authz code flow uses step 3 (callback/token exchange); step is not encoded in state.
+ */
+const detectStepFromState = (_state: string | null): number => {
+	return 3; // Callback/token exchange step for authz code flow
+};
+
+// Enhanced logging function that saves to disk via API (uses authz-redirect endpoint)
 const logToDisk = (event: string, data: Record<string, unknown>) => {
 	try {
 		const logEntry = {
@@ -46,15 +80,13 @@ const logToDisk = (event: string, data: Record<string, unknown>) => {
 			sessionId: sessionStorage.getItem('mfa_redirect_log_session_id') || 'unknown',
 		};
 
-		// Use sendBeacon for reliable logging even during redirect
 		const body = JSON.stringify(logEntry);
 
 		if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
 			const blob = new Blob([body], { type: 'application/json' });
-			navigator.sendBeacon('/api/logs/callback-debug', blob);
+			navigator.sendBeacon(AUTHZ_REDIRECT_LOG_ENDPOINT, blob);
 		} else {
-			// Fallback for older browsers
-			void fetch('/api/logs/callback-debug', {
+			void fetch(AUTHZ_REDIRECT_LOG_ENDPOINT, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body,
@@ -381,7 +413,8 @@ export const CallbackHandlerV8U: React.FC = () => {
 			// IMPROVED FALLBACK: Use path-based detection with better logic
 			logger.info(`${MODULE_TAG} 🔍 No valid stored context, using path-based detection`);
 
-			let fallbackPath = '/v8/unified-mfa?step=2'; // Default: return to device selection
+			// Use V9MFARedirectUriService so fallback routes stay in sync with the service mapping.
+			let fallbackPath = `${MFARedirectUriServiceV8.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // Default: return to device selection
 			let fallbackReason = 'default';
 
 			// Check for MFA-specific callback paths first
@@ -389,10 +422,10 @@ export const CallbackHandlerV8U: React.FC = () => {
 				currentPath.includes('mfa-unified-callback') ||
 				currentPath.includes('unified-mfa-callback')
 			) {
-				fallbackPath = '/v8/unified-mfa?step=2'; // MFA flow: device selection step
+				fallbackPath = `${MFARedirectUriServiceV8.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // MFA flow: device selection step
 				fallbackReason = 'mfa-callback-path';
 			} else if (currentPath.includes('mfa-hub-callback')) {
-				fallbackPath = '/v8/mfa-hub?step=2'; // MFA hub: authentication flow
+				fallbackPath = `${MFARedirectUriServiceV8.getDefaultReturnPath('mfa-hub-v8')}?step=2`; // MFA hub: authentication flow
 				fallbackReason = 'mfa-hub-path';
 			} else if (
 				currentPath.includes('user-login-callback') ||
@@ -404,10 +437,10 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 				if (code && state) {
 					// This looks like an OAuth callback, likely from MFA flow
-					fallbackPath = '/v8/unified-mfa?step=2'; // Return to MFA flow
+					fallbackPath = `${MFARedirectUriServiceV8.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // Return to MFA flow
 					fallbackReason = 'user-login-oauth-callback';
 				} else {
-					fallbackPath = '/v8/unified-mfa?step=2'; // Default to MFA flow
+					fallbackPath = `${MFARedirectUriServiceV8.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // Default to MFA flow
 					fallbackReason = 'user-login-default';
 				}
 			}

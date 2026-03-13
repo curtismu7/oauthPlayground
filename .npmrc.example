@@ -1,0 +1,15 @@
+# Copy to .npmrc and set your Ping Identity / org registry for @pingux scope.
+# Required to install @pingux/astro (depends on @pingux/onyx-tokens, not on public npm).
+#
+# Quick start:
+#   1. cp .npmrc.example .npmrc
+#   2. Edit .npmrc: set @pingux:registry= to your org's registry URL (get from Ping Identity or internal docs; may be VPN-only).
+#   3. If the registry requires auth, add a line: //your-registry-host/:_authToken=${NPM_TOKEN}
+#   4. pnpm install
+#
+# Example (replace with your registry URL and auth if needed):
+# @pingux:registry=https://npm.pingidentity.com/
+# //npm.pingidentity.com/:_authToken=${NPM_TOKEN}
+#
+# After configuring, run: pnpm install
+# See docs/ASTRO_MIGRATION_PLAN.md for full migration steps.

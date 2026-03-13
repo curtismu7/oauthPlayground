@@ -99,18 +99,18 @@ export const FLOW_REDIRECT_URI_MAPPING_V8: FlowRedirectUriConfig[] = [
 		specification: 'OIDC Core 1.0, Section 3.3',
 	},
 
-	// V8U Unified Flows (same mappings as V8 but with -v8u suffix)
+	// V8U Unified Flows — one redirect path per flow type; authz and hybrid use authz-callback, implicit uses oauth-implicit-callback (pi.flow uses urn:pingidentity:redirectless)
 	{
 		flowType: 'oauth-authz-v8u',
 		requiresRedirectUri: true,
-		callbackPath: 'unified-callback',
+		callbackPath: 'authz-callback',
 		description: 'OAuth 2.0 Authorization Code Flow V8U (Unified)',
 		specification: 'RFC 6749, Section 4.1',
 	},
 	{
 		flowType: 'implicit-v8u',
 		requiresRedirectUri: true,
-		callbackPath: 'unified-callback',
+		callbackPath: 'oauth-implicit-callback',
 		description: 'OAuth 2.0 Implicit Flow V8U (Unified)',
 		specification: 'RFC 6749, Section 4.2',
 	},
@@ -138,7 +138,7 @@ export const FLOW_REDIRECT_URI_MAPPING_V8: FlowRedirectUriConfig[] = [
 	{
 		flowType: 'hybrid-v8u',
 		requiresRedirectUri: true,
-		callbackPath: 'unified-callback',
+		callbackPath: 'authz-callback',
 		description: 'OpenID Connect Hybrid Flow V8U (Unified)',
 		specification: 'OIDC Core 1.0, Section 3.3',
 	},

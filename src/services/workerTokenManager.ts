@@ -10,6 +10,17 @@ import { logger } from '../utils/logger';
 
 import { workerTokenRepository } from './workerTokenRepository';
 
+/** Normalize scopes to a space-separated string; credentials.scopes may be string (from storage) or array. */
+function normalizeScopesToScopeString(scopes: unknown): string {
+	if (Array.isArray(scopes) && scopes.length > 0) {
+		return scopes.map(String).filter(Boolean).join(' ');
+	}
+	if (typeof scopes === 'string' && scopes.trim()) {
+		return scopes.trim();
+	}
+	return '';
+}
+
 /**
  * Worker Token Manager
  *
@@ -204,17 +215,20 @@ export class WorkerTokenManager {
 			try {
 				logger.info('WorkerTokenManager', `🔄 Token fetch attempt ${attempt}/${maxRetries}`);
 
+				const scopeString = normalizeScopesToScopeString(credentials.scopes);
+				const bodyParams: Record<string, string> = {
+					grant_type: 'client_credentials',
+					client_id: credentials.clientId,
+					client_secret: credentials.clientSecret,
+				};
+				if (scopeString) bodyParams.scope = scopeString;
+
 				const response = await fetch(credentials.tokenEndpoint, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/x-www-form-urlencoded',
 					},
-					body: new URLSearchParams({
-						grant_type: 'client_credentials',
-						client_id: credentials.clientId,
-						client_secret: credentials.clientSecret,
-						scope: credentials.scopes.join(' '),
-					}),
+					body: new URLSearchParams(bodyParams),
 				});
 
 				if (!response.ok) {

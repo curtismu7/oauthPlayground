@@ -2,8 +2,74 @@
 **MasterFlow API PingOne Integration via Model Context Protocol**
 
 **Date**: March 9, 2026  
-**Status**: 📋 **PLANNING PHASE**  
+**Status**: ✅ **Phases A, B, C, 5, 6, 7, 8, 9 complete**; AI Assistant + MCP next (see **Current implementation** and **Next steps** below)  
 **Target**: Complete MCP server implementation for PingOne APIs
+
+**Related**: [docs/MCP_SERVER_PLAN_ASSESSMENT.md](docs/MCP_SERVER_PLAN_ASSESSMENT.md) — assessment, remaining gaps, suggested tools from `server.js`, and AI Assistant + MCP goal.
+
+---
+
+## 📍 **CURRENT IMPLEMENTATION** (pingone-mcp-server/)
+
+The live MCP server lives in **`pingone-mcp-server/`** (not a separate `mcp-pingone-server/`). Credentials come from app storage (`~/.pingone-playground/credentials/mcp-config.json`) or env. See **docs/MCP_SERVER_PLAN_ASSESSMENT.md** for phased status.
+
+### Implemented tools
+
+| Category | Tool | Description |
+|----------|------|-------------|
+| **Auth** | (auth tools) | Login, refresh, revoke, userinfo (`actions/auth.ts`) |
+| **Worker** | `pingone.workerToken.issue` | Exchange client credentials for worker token |
+| **Worker** | `pingone_get_worker_token` | Alias for `pingone.workerToken.issue` (same behavior) |
+| **Worker** | `pingone.applications.list` | List applications (worker token or client credentials) |
+| **Application** | `pingone_get_application` | Get single application by ID |
+| **Application** | `pingone_get_application_resources` | Get resource (scopes) configuration for an application |
+| **OIDC** | `pingone_oidc_config` | Fetch OIDC discovery for environment (no auth) |
+| **OIDC** | `pingone_oidc_discovery` | Fetch OIDC discovery from arbitrary issuer URL (no auth) |
+| **User** | `pingone_get_user` | Get user profile by ID |
+| **User** | `pingone_list_users` | List users with optional SCIM filter |
+| **User** | `pingone_get_user_groups` | Get groups for a user (memberOfGroups) |
+| **User** | `pingone_get_user_roles` | Get role assignments for a user |
+| **User** | `pingone_lookup_users` | Look up users by identifier (UUID or username/email) |
+| **Directory** | `pingone_get_population` | Get population by ID |
+| **Directory** | `pingone_list_populations` | List populations in environment |
+| **User CRUD** | `pingone_create_user` | Create a new user (requires username + population.id) |
+| **User CRUD** | `pingone_update_user` | Update user profile (PATCH semantics) |
+| **User CRUD** | `pingone_delete_user` | Delete a user (irreversible) |
+| **User CRUD** | `pingone_add_user_to_group` | Add user to a group |
+| **User CRUD** | `pingone_remove_user_from_group` | Remove user from a group |
+| **App CRUD** | `pingone_create_application` | Create a new application |
+| **App CRUD** | `pingone_update_application` | Update application (PATCH semantics) |
+| **App CRUD** | `pingone_delete_application` | Delete an application (irreversible) |
+| **App CRUD** | `pingone_get_application_secret` | Get current application client secret |
+| **App CRUD** | `pingone_rotate_application_secret` | Rotate (regenerate) application client secret |
+| **Group** | `pingone_list_groups` | List groups (optional SCIM filter + limit) |
+| **Group** | `pingone_get_group` | Get a group by ID |
+| **Group** | `pingone_create_group` | Create a new group |
+| **Group** | `pingone_update_group` | Update a group (PATCH semantics) |
+| **Group** | `pingone_delete_group` | Delete a group (irreversible) |
+| **OAuth** | `pingone_introspect_token` | Token introspection (RFC 7662) |
+| **OAuth** | `pingone_device_authorization` | Device authorization (RFC 8628) |
+| **Password** | `pingone_password_state` | Get password state for a user (worker token) |
+| **Password** | `pingone_password_send_recovery_code` | Send password recovery code (worker token) |
+| **Risk** | `pingone_risk_evaluation` | Returns NOT_IMPLEMENTED (no PingOne Protect API call) |
+| **Token** | `pingone_token_exchange` | Exchange auth code (or other grant) for tokens |
+| **UserInfo** | `pingone_userinfo` | UserInfo with token (endpoint or environmentId) |
+| **Flow** | `pingone_check_username_password` | Validate username/password in flow context |
+| **MFA** | (MFA tools) | MFA operations (`actions/mfa.ts`) |
+| **Redirectless** | (redirectless tools) | Redirectless flows (`actions/redirectless.ts`) |
+
+### Implemented support
+
+- **Standardized errors**: `services/mcpErrors.ts` — `ERROR_CODES`, `toMcpErrorPayload()`, `buildToolErrorResult()`.
+- **Credentials**: `services/credentialLoader.ts` — load from `mcp-config.json` or env.
+- **Resources**: Training resources (static); optional `pingone://applications` resource (dynamic list when read).
+
+### Planned (not yet implemented)
+
+- **AI Assistant + MCP**: Wire chatbot so answers include results and education (tool name, API, how it works).
+- **MFA expansion (incremental)**: device-authentication-policies, OATH tokens, FIDO2 policies, bypass, OTP validate.
+- Streaming / audit logs (deferred).
+- Further resource providers (e.g. user list, environment info).
 
 ---
 
@@ -31,6 +97,7 @@ Transform our existing Express.js server with 50+ PingOne API endpoints into a c
 ## 🏗️ **ARCHITECTURE DESIGN**
 
 ### **MCP Server Structure**
+_(Actual folder: **`pingone-mcp-server/`** at repo root.)_
 ```
 mcp-pingone-server/
 ├── src/
@@ -302,7 +369,100 @@ export class PingOneAPIService {
 
 ---
 
-### **🎨 Phase 4: Polish & Documentation (Week 4)**
+### **📂 Phase 5: User & directory tools (from server.js)** ✅ COMPLETE
+**Goal**: User groups, roles, lookup, and populations — high value for learning and admin
+
+**Reference**: `server.js` endpoints; **docs/MCP_SERVER_PLAN_ASSESSMENT.md** — Suggested additional MCP tools (High priority user & directory).
+
+| Tool | server.js endpoint | Description |
+|------|--------------------|-------------|
+| `pingone_get_user_groups` | `GET /api/pingone/user/:userId/groups` | Get groups for a user (worker token). |
+| `pingone_get_user_roles` | `GET /api/pingone/user/:userId/roles` | Get roles for a user. |
+| `pingone_lookup_users` | `POST /api/pingone/users/lookup` | Look up users by identifier (email/username); complements `pingone_list_users`. |
+| `pingone_get_population` | `GET /api/pingone/population/:populationId` | Get population by ID (worker token). |
+| `pingone_list_populations` | `GET .../populations` (Management API) | List populations in environment. |
+
+**Deliverables**
+- ✅ 5 MCP tools (user groups, roles, lookup, get population, list populations).
+- ✅ Reuse worker token / client credentials from storage; `buildToolErrorResult` for errors.
+
+---
+
+### **🔗 Phase 6: OIDC & application config tools (from server.js)** ✅ COMPLETE
+**Goal**: OIDC discovery and application resources — no-auth config for learning
+
+**Reference**: **docs/MCP_SERVER_PLAN_ASSESSMENT.md** — Suggested additional MCP tools (High priority OIDC & config).
+
+| Tool | server.js endpoint | Description |
+|------|--------------------|-------------|
+| `pingone_oidc_config` | `GET /api/pingone/oidc-config` | Fetch OIDC discovery (`.well-known/openid_configuration`); no auth. |
+| `pingone_oidc_discovery` | `POST /api/pingone/oidc-discovery` | Discovery with custom URL/params. |
+| `pingone_get_application_resources` | `GET /api/pingone/applications/:appId/resources` | Get resource (scopes) configuration for an application. |
+
+**Deliverables**
+- ✅ 3 MCP tools (OIDC config, OIDC discovery, application resources).
+- ✅ OIDC config and discovery tools usable without credentials for learning and config checks.
+
+---
+
+### **🔐 Phase 7: Password, risk, token & flow tools (from server.js)** ✅ COMPLETE
+**Goal**: Password state/recovery, risk evaluation, token exchange, flow checks
+
+**Reference**: **docs/MCP_SERVER_PLAN_ASSESSMENT.md** — Suggested additional MCP tools (Medium priority).
+
+| Tool | server.js endpoint | Description |
+|------|--------------------|-------------|
+| `pingone_password_state` | `GET /api/pingone/password/state` | Get password state for a user. |
+| `pingone_password_send_recovery_code` | `POST /api/pingone/password/send-recovery-code` | Send password recovery code. |
+| `pingone_risk_evaluation` | `POST /api/pingone/risk-evaluations` | Returns NOT_IMPLEMENTED; no real PingOne Protect API call. |
+| `pingone_token_exchange` | `POST /api/pingone/token` | Exchange auth code (or other grant) for tokens. |
+| `pingone_check_username_password` | `POST /api/pingone/flows/check-username-password` | Validate username/password in flow context. |
+| `pingone_userinfo` | `POST /api/pingone/userinfo` | Call UserInfo with token (endpoint or environmentId). |
+
+**Deliverables**
+- ✅ 6 MCP tools (password state, send recovery code, risk evaluation, token exchange, check username/password, userinfo).
+- ✅ Password/risk use worker token; userinfo/token exchange use access token or URL-encoded body.
+
+---
+
+### **📱 Phase 8: Subscriptions, consents, and licensing** ✅ **IMPLEMENTED**
+**Goal**: Webhook subscriptions, user consents, organization licensing
+
+| Category | Tool(s) | Files |
+|----------|---------|-------|
+| **User consents** | `pingone_get_user_consents` | `services/pingoneUserClient.ts`, `actions/users.ts` |
+| **Subscriptions** | `pingone_list_subscriptions`, `pingone_get_subscription`, `pingone_create_subscription`, `pingone_update_subscription`, `pingone_delete_subscription` | `services/pingoneSubscriptionsClient.ts`, `actions/subscriptions.ts` |
+| **Licensing** | `pingone_get_organization_licenses` | `services/pingoneLicensingClient.ts`, `actions/phase8.ts` |
+
+**Notes**
+- User consents prefer `accessToken` (user context); fall back to `workerToken` (graceful 403 → empty array).
+- Subscriptions use worker token with region-aware URL (`api.pingone.{tld}/v1/environments/{envId}/subscriptions`).
+- Licensing fetches org info, license catalog, and environment → license mappings in a single tool call.
+- MFA expansion (device-authentication-policies, OATH tokens, FIDO2 policies) is incremental — add as needed.
+
+---
+
+### **✅ Phase 9: User CRUD, Application CRUD + Secrets, Group Management** ✅ **IMPLEMENTED**
+**Goal**: Full write-capable management tools for users, applications, and groups
+
+| Category | Tool(s) | Files |
+|----------|---------|-------|
+| **User CRUD** | `pingone_create_user`, `pingone_update_user`, `pingone_delete_user` | `services/pingoneUserClient.ts`, `actions/users.ts` |
+| **User groups (write)** | `pingone_add_user_to_group`, `pingone_remove_user_from_group` | `services/pingoneUserClient.ts`, `actions/users.ts` |
+| **App CRUD** | `pingone_create_application`, `pingone_update_application`, `pingone_delete_application` | `services/pingoneManagementClient.ts`, `actions/worker.ts` |
+| **App secrets** | `pingone_get_application_secret`, `pingone_rotate_application_secret` | `services/pingoneManagementClient.ts`, `actions/worker.ts` |
+| **Group CRUD** | `pingone_list_groups`, `pingone_get_group`, `pingone_create_group`, `pingone_update_group`, `pingone_delete_group` | `services/pingoneGroupClient.ts`, `actions/groups.ts` |
+
+**Notes**
+- User create requires `username` + `population.id` in the `user` object; scope `p1:create:user`.
+- Application create requires `name` + `type` (e.g. `WEB_APP`, `NATIVE_APP`, `WORKER`).
+- Group create requires `name`; optionally `description` and `population.id`.
+- Write operations (create/update/delete) use worker token or auto-issued client credentials.
+- All delete operations are irreversible — tool descriptions call this out explicitly.
+
+---
+
+### **🎨 Phase 10: Polish & Documentation**
 **Goal**: Production-ready MCP server
 
 #### **Tasks**
@@ -565,17 +725,20 @@ MCP_RATE_LIMIT_WINDOW=60000
 
 ## 🎯 **NEXT STEPS**
 
-### **Immediate Actions (Week 1)**
-1. **Create MCP project structure**
-2. **Setup basic authentication service**
-3. **Migrate 5 core API functions**
-4. **Implement basic MCP server**
+**Implementation status:** The MCP server is implemented in **`pingone-mcp-server/`**. See **Current implementation** (top of this document) for implemented tools and **docs/MCP_SERVER_PLAN_ASSESSMENT.md** for phased status (Phase A ✅, Phase B ✅, Phase C in progress) and recommended next work.
 
-### **Short-term Goals (Weeks 2-3)**
-1. **Implement all 40 MCP tools**
-2. **Add resource providers**
-3. **Implement streaming capabilities**
-4. **Add comprehensive error handling**
+### **Immediate Actions (Week 1)** — *partially done*
+1. ~~Create MCP project structure~~ ✅ (`pingone-mcp-server/`)
+2. ~~Setup basic authentication service~~ ✅ (auth tools + credentialLoader)
+3. ~~Migrate 5 core API functions~~ ✅ (worker token, applications, users, introspect, device auth)
+4. ~~Implement basic MCP server~~ ✅ (stdio transport, tools + resources)
+
+### **Short-term Goals (Phases 5–8, from server.js)**
+1. **Phase 5** — User & directory: `pingone_get_user_groups`, `pingone_get_user_roles`, `pingone_lookup_users`, `pingone_get_population`, `pingone_list_populations`
+2. **Phase 6** — OIDC & config: `pingone_oidc_config`, `pingone_oidc_discovery`, `pingone_get_application_resources`
+3. **Phase 7** — Password, risk, token & flows: `pingone_password_state`, `pingone_password_send_recovery_code`, `pingone_risk_evaluation`, `pingone_token_exchange`, `pingone_check_username_password`, `pingone_userinfo`
+4. **Phase 8** — MFA expansion, subscriptions, consents (incremental)
+5. **Add resource providers** and **streaming** as needed
 
 ### **Long-term Goals (Week 4+)**
 1. **Production deployment**

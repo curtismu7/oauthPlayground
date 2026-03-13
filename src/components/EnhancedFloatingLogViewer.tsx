@@ -11,7 +11,7 @@ import { type LogFile, LogFileService } from '../services/logFileService';
 import { logger } from '../utils/logger';
 
 // Maximum string length to avoid browser crashes (approximately 50MB)
-const MAX_STRING_LENGTH = 50 * 1024 * 1024;
+const _MAX_STRING_LENGTH = 50 * 1024 * 1024;
 
 interface LogEntry {
 	timestamp: string;
@@ -22,7 +22,16 @@ interface LogEntry {
 	url: string;
 }
 
-type LogCategory = 'ALL' | 'API_CALLS' | 'AUTH_FLOW' | 'ERRORS' | 'DEBUG' | 'SERVER' | 'FRONTEND';
+type LogCategory =
+	| 'ALL'
+	| 'API_CALLS'
+	| 'AUTH_FLOW'
+	| 'ERRORS'
+	| 'DEBUG'
+	| 'SERVER'
+	| 'FRONTEND'
+	| 'MCP'
+	| 'AI';
 
 /** Log level for professional level-based coloring and counts */
 type LogLevel = 'error' | 'warn' | 'info' | 'debug' | 'none';
@@ -92,6 +101,14 @@ function filterLogContentByCategory(content: string, category: LogCategory): str
 					/DEBUG|🚀|🏁|START:|END:|───|===|📝 Operation|📊 Metadata|📊 Context/.test(l) ||
 					/API CALL START|API CALL END/.test(l)
 				);
+			case 'MCP':
+				return /\[MCP\]|MCP Server|MCP Request|MCP Tool|tool_call|tool_result|listTools|callTool/i.test(
+					l
+				);
+			case 'AI':
+				return /\[AI\]|Groq|groq|NL→MCP|AI Assistant|ai-assistant|llama|LLM|chat completion/i.test(
+					l
+				);
 			default:
 				return true;
 		}
@@ -124,17 +141,23 @@ const FloatingContainer = styled.div<{
 	x: number;
 	y: number;
 	$isMinimized?: boolean;
+	$standalone?: boolean;
 }>`
 	position: fixed;
-	top: ${(props) => props.y}px;
-	left: ${(props) => props.x}px;
-	width: ${(props) => (props.$isMinimized ? '280px' : `${props.width}px`)};
-	height: ${(props) => (props.$isMinimized ? '40px' : `${props.height}px`)};
+	top: ${(props) => (props.$standalone ? 0 : props.y)}px;
+	left: ${(props) => (props.$standalone ? 0 : props.x)}px;
+	width: ${(props) =>
+		props.$standalone ? '100vw' : props.$isMinimized ? '280px' : `${props.width}px`};
+	height: ${(props) =>
+		props.$standalone ? '100vh' : props.$isMinimized ? '40px' : `${props.height}px`};
 	background: #ffffff;
-	border: 1px solid #e2e8f0;
-	border-radius: ${(props) => (props.$isMinimized ? '20px' : '8px')};
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-	z-index: 9999;
+	border: ${(props) => (props.$standalone ? 'none' : '1px solid #e2e8f0')};
+	border-radius: ${(props) => (props.$isMinimized ? '20px' : props.$standalone ? 0 : '8px')};
+	box-shadow: ${(props) =>
+		props.$standalone
+			? 'none'
+			: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'};
+	z-index: 10100;
 	display: flex;
 	flex-direction: column;
 	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -163,7 +186,7 @@ const Title = styled.div<{ $isMinimized?: boolean }>`
 	letter-spacing: 0.01em;
 `;
 
-const StatusIndicator = styled.div<{ $status: 'active' | 'idle' | 'error' }>`
+const StatusIndicator = styled.div<{ $status: 'active' | 'idle' | 'error'; $standalone?: boolean }>`
 	width: 8px;
 	height: 8px;
 	border-radius: 50%;
@@ -177,7 +200,8 @@ const StatusIndicator = styled.div<{ $status: 'active' | 'idle' | 'error' }>`
 				return '#f59e0b';
 		}
 	}};
-	animation: ${(props) => (props.$status === 'active' ? 'pulse 2s infinite' : 'none')};
+	animation: ${(props) =>
+		props.$status === 'active' && !props.$standalone ? 'pulse 2s infinite' : 'none'};
 
 	@keyframes pulse {
 		0%,
@@ -196,7 +220,7 @@ const Controls = styled.div`
 `;
 
 const ControlButton = styled.button<{
-	$variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'close';
+	$variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'close' | 'popout';
 }>`
 	background: ${(props) => {
 		switch (props.$variant) {
@@ -208,14 +232,24 @@ const ControlButton = styled.button<{
 				return '#ef4444';
 			case 'close':
 				return '#ffffff';
+			case 'popout':
+				return '#ffffff';
 			default:
 				return 'transparent';
 		}
 	}};
-	color: ${(props) => (props.$variant === 'close' ? '#dc2626' : 'white')};
-	border: 1px solid ${(props) => (props.$variant === 'close' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.3)')};
+	color: ${(props) => {
+		if (props.$variant === 'close') return '#dc2626';
+		if (props.$variant === 'popout') return '#1e293b';
+		return 'white';
+	}};
+	border: 1px solid ${(props) => {
+		if (props.$variant === 'close') return 'rgba(255, 255, 255, 0.5)';
+		if (props.$variant === 'popout') return '#94a3b8';
+		return 'rgba(255, 255, 255, 0.3)';
+	}};
 	border-radius: 4px;
-	padding: 4px 6px;
+	padding: ${(props) => (props.$variant === 'popout' ? '4px 8px' : '4px 6px')};
 	cursor: pointer;
 	font-size: 11px;
 	transition: all 0.15s ease-in-out;
@@ -224,7 +258,11 @@ const ControlButton = styled.button<{
 	gap: 2px;
 
 	&:hover {
-		background: ${(props) => (props.$variant === 'close' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.3)')};
+		background: ${(props) => {
+			if (props.$variant === 'close') return 'rgba(255, 255, 255, 0.9)';
+			if (props.$variant === 'popout') return '#e0f2fe';
+			return 'rgba(255, 255, 255, 0.3)';
+		}};
 		transform: scale(1.05);
 	}
 `;
@@ -284,8 +322,8 @@ const FilterChip = styled.button<{ $active?: boolean }>`
 	transition: all 0.12s ease;
 
 	&:hover {
-		background: ${(props) => (props.$active ? '#1d4ed8' : '#f1f5f9')};
-		border-color: ${(props) => (props.$active ? '#1d4ed8' : '#94a3b8')};
+		background: ${(props) => (props.$active ? '#1d4ed8' : '#eff6ff')};
+		border-color: ${(props) => (props.$active ? '#1d4ed8' : '#2563eb')};
 	}
 `;
 
@@ -312,8 +350,9 @@ const ToolbarBtn = styled.button`
 	cursor: pointer;
 	transition: all 0.12s ease;
 	&:hover:not(:disabled) {
-		background: #f1f5f9;
-		border-color: #94a3b8;
+		background: #eff6ff;
+		border-color: #2563eb;
+		color: #1d4ed8;
 	}
 	&:disabled {
 		opacity: 0.6;
@@ -321,14 +360,14 @@ const ToolbarBtn = styled.button`
 	}
 `;
 
-const LogContent = styled.div`
+const LogContent = styled.div<{ $standalone?: boolean }>`
 	flex: 1;
 	overflow-y: auto;
 	font-family: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Menlo', monospace;
 	font-size: 12px;
 	line-height: 1.5;
-	background: #0f172a;
-	color: #e2e8f0;
+	background: ${(props) => (props.$standalone ? '#ffffff' : '#0f172a')};
+	color: ${(props) => (props.$standalone ? '#111827' : '#e2e8f0')};
 	white-space: pre;
 	word-break: break-all;
 `;
@@ -339,7 +378,7 @@ const LogTable = styled.div`
 	min-width: 100%;
 `;
 
-const LogLine = styled.div<{ $level: LogLevel }>`
+const LogLine = styled.div<{ $level: LogLevel; $standalone?: boolean }>`
 	display: flex;
 	align-items: stretch;
 	border-left: 3px solid
@@ -359,16 +398,16 @@ const LogLine = styled.div<{ $level: LogLevel }>`
 		}};
 	background: ${(props) => (props.$level === 'error' ? 'rgba(220, 38, 38, 0.08)' : 'transparent')};
 	&:hover {
-		background: rgba(248, 250, 252, 0.04);
+		background: ${(props) => (props.$standalone ? 'rgba(0, 0, 0, 0.04)' : 'rgba(248, 250, 252, 0.04)')};
 	}
 `;
 
-const LineNum = styled.span`
+const LineNum = styled.span<{ $standalone?: boolean }>`
 	display: inline-block;
 	min-width: 48px;
 	padding: 2px 10px 2px 12px;
 	text-align: right;
-	color: #64748b;
+	color: ${(props) => (props.$standalone ? '#6b7280' : '#64748b')};
 	font-size: 11px;
 	user-select: none;
 	flex-shrink: 0;
@@ -380,7 +419,7 @@ const LineText = styled.span`
 	word-break: break-all;
 `;
 
-const APICallCard = styled.div<{ $success?: boolean }>`
+const _APICallCard = styled.div<{ $success?: boolean }>`
 	margin: 4px 0;
 	padding: 8px;
 	background: ${(props) => (props.$success ? '#10b98120' : '#ef444420')};
@@ -389,14 +428,14 @@ const APICallCard = styled.div<{ $success?: boolean }>`
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `;
 
-const APICallHeader = styled.div`
+const _APICallHeader = styled.div`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 4px;
 `;
 
-const APIMethod = styled.span<{ $method: string }>`
+const _APIMethod = styled.span<{ $method: string }>`
 	padding: 2px 6px;
 	border-radius: 3px;
 	font-size: 9px;
@@ -418,20 +457,20 @@ const APIMethod = styled.span<{ $method: string }>`
 	color: white;
 `;
 
-const APIUrl = styled.div`
+const _APIUrl = styled.div`
 	font-size: 10px;
 	color: #94a3b8;
 	margin-bottom: 2px;
 `;
 
-const APIDetails = styled.div`
+const _APIDetails = styled.div`
 	font-size: 9px;
 	color: #64748b;
 	display: flex;
 	gap: 12px;
 `;
 
-const LearningTip = styled.div`
+const _LearningTip = styled.div`
 	padding: 8px 12px;
 	background: linear-gradient(135deg, #fef3c7, #fde68a);
 	border-left: 3px solid #f59e0b;
@@ -464,6 +503,8 @@ interface EnhancedFloatingLogViewerProps {
 	initialHeight?: number;
 	initialX?: number;
 	initialY?: number;
+	/** When true, viewer fills the viewport (e.g. in popout window). Same data/behavior as in-browser. */
+	standalone?: boolean;
 }
 
 export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps> = ({
@@ -473,6 +514,7 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 	initialHeight = 700,
 	initialX = 50,
 	initialY = 50,
+	standalone = false,
 }) => {
 	const [position, setPosition] = useState({ x: initialX, y: initialY });
 	const [size, setSize] = useState({ width: initialWidth, height: initialHeight });
@@ -484,16 +526,17 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 
 	// Log viewer state
 	const [availableFiles, setAvailableFiles] = useState<LogFile[]>([]);
-	const [selectedFile, setSelectedFile] = useState<string>('pingone-api.log');
+	const [selectedFile, setSelectedFile] = useState<string>('server.log');
 	const [fileContent, setFileContent] = useState<string>('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string>('');
-	const [logSource, setLogSource] = useState<LogSource>('file');
+	const [logSource, _setLogSource] = useState<LogSource>('file');
 	const [selectedCategory, setSelectedCategory] = useState<LogCategory>('ALL');
 	const [lineCount, setLineCount] = useState<number>(50);
-	const [tailMode, setTailMode] = useState<boolean>(true);
+	const [tailMode, _setTailMode] = useState<boolean>(true);
+	const [combineLogs, setCombineLogs] = useState<boolean>(false);
 	const [analysis, setAnalysis] = useState<LogAnalysis | null>(null);
-	const [apiCalls, setApiCalls] = useState<APICallSummary[]>([]);
+	const [_apiCalls, setApiCalls] = useState<APICallSummary[]>([]);
 	const [searchQuery, setSearchQuery] = useState('');
 
 	// Parse API calls from log content
@@ -510,9 +553,9 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 				calls.push({
 					method: apiCallMatch[1],
 					url: apiCallMatch[2],
-					status: parseInt(apiCallMatch[3]),
+					status: parseInt(apiCallMatch[3], 10),
 					timestamp: line.substring(0, 23) || new Date().toISOString(),
-					success: parseInt(apiCallMatch[3]) < 400,
+					success: parseInt(apiCallMatch[3], 10) < 400,
 				});
 			}
 		});
@@ -543,14 +586,22 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 		[parseAPICalls]
 	);
 
+	// Default combined log order: server, frontend/client, API, authz
+	const COMBINED_LOG_ORDER = ['server.log', 'client.log', 'pingone-api.log', 'authz-redirects.log'];
+
 	// Load available files
 	const loadAvailableFiles = useCallback(async () => {
 		try {
 			const files = await LogFileService.listLogFiles();
 			setAvailableFiles(files);
-			if (files.length > 0 && !selectedFile) {
-				const apiFile = files.find((f) => f.name.includes('api')) || files[0];
-				setSelectedFile(apiFile.name);
+			if (files.length > 0) {
+				const names = new Set(files.map((f) => f.name));
+				const serverLog = files.find((f) => f.name === 'server.log');
+				if (serverLog) {
+					setSelectedFile('server.log');
+				} else if (!names.has(selectedFile)) {
+					setSelectedFile(files[0].name);
+				}
 			}
 		} catch (err) {
 			setError('Failed to load available files');
@@ -558,38 +609,64 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 		}
 	}, [selectedFile]);
 
-	// Load file content
+	// Load file content (single file or combined)
 	const loadFileContent = useCallback(async () => {
-		if (!selectedFile) return;
-
 		setIsLoading(true);
 		setError('');
 
 		try {
 			let content = '';
 
-			switch (logSource) {
-				case 'file': {
-					const logContent = await LogFileService.readLogFile(selectedFile, lineCount, tailMode);
-					content = logContent.content;
-					break;
+			if (combineLogs && availableFiles.length > 0) {
+				const names = new Set(availableFiles.map((f) => f.name));
+				const toFetch = COMBINED_LOG_ORDER.filter((name) => names.has(name));
+				const parts: string[] = [];
+				for (const file of toFetch) {
+					try {
+						const logContent = await LogFileService.readLogFile(file, lineCount, tailMode);
+						parts.push(`\n========== ${file} ==========\n${logContent.content}`);
+					} catch (e) {
+						parts.push(
+							`\n========== ${file} ==========\n[Failed to load: ${e instanceof Error ? e.message : 'Unknown error'}]\n`
+						);
+					}
 				}
-				default:
-					content = 'Log source not implemented yet';
-					break;
+				content = parts.length > 0 ? parts.join('') : 'No log files available to combine.';
+			} else if (selectedFile) {
+				switch (logSource) {
+					case 'file': {
+						const logContent = await LogFileService.readLogFile(selectedFile, lineCount, tailMode);
+						content = logContent.content;
+						break;
+					}
+					default:
+						content = 'Log source not implemented yet';
+						break;
+				}
 			}
 
-			setFileContent(content);
-			const calls = parseAPICalls(content);
+			// Normalize empty: backend can return '' when file is missing or empty
+			const normalizedContent = typeof content === 'string' && content.trim() === '' ? '' : content;
+			setFileContent(normalizedContent);
+			const calls = parseAPICalls(normalizedContent || '');
 			setApiCalls(calls);
-			setAnalysis(analyzeLogs(content));
+			setAnalysis(analyzeLogs(normalizedContent || ''));
 		} catch (err) {
 			setError(`Failed to load content: ${err instanceof Error ? err.message : 'Unknown error'}`);
 			logger.error('EnhancedFloatingLogViewer: Failed to load content', err);
 		} finally {
 			setIsLoading(false);
 		}
-	}, [selectedFile, logSource, lineCount, tailMode, parseAPICalls, analyzeLogs]);
+	}, [
+		selectedFile,
+		logSource,
+		lineCount,
+		tailMode,
+		combineLogs,
+		availableFiles,
+		parseAPICalls,
+		analyzeLogs,
+	]);
 
 	// Initialize
 	useEffect(() => {
@@ -598,23 +675,34 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 		}
 	}, [isOpen, loadAvailableFiles]);
 
-	// Load content when file changes
+	// Load content when file or combine mode changes
 	useEffect(() => {
-		if (selectedFile && isOpen) {
+		if (isOpen && (selectedFile || combineLogs)) {
 			loadFileContent();
 		}
-	}, [selectedFile, logSource, lineCount, tailMode, isOpen, loadFileContent]);
+	}, [selectedFile, combineLogs, isOpen, loadFileContent]);
 
-	// Realtime updates
+	// Standalone (popout) window: retry load after a short delay so requests run after window is ready
+	useEffect(() => {
+		if (!standalone || !isOpen) return;
+		const t = setTimeout(() => {
+			loadAvailableFiles();
+			loadFileContent();
+		}, 250);
+		return () => clearTimeout(t);
+	}, [standalone, isOpen, loadAvailableFiles, loadFileContent]);
+
+	// Realtime updates (longer interval in standalone to reduce blinking)
 	useEffect(() => {
 		let interval: NodeJS.Timeout;
 		if (isRealtime && isOpen) {
+			const ms = standalone ? 5000 : 2000;
 			interval = setInterval(() => {
 				loadFileContent();
-			}, 2000);
+			}, ms);
 		}
 		return () => clearInterval(interval);
-	}, [isRealtime, isOpen, loadFileContent]);
+	}, [isRealtime, isOpen, loadFileContent, standalone]);
 
 	// Drag handlers
 	const handleMouseDown = useCallback(
@@ -674,7 +762,7 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 		});
 	}, [fileContent, selectedCategory]);
 
-	/** Open Enhanced API Debugger in a separate window (outside the main browser tab). */
+	/** Open log viewer in a separate window and close the in-browser viewer so only one is open. */
 	const openPopout = () => {
 		const w = 1200;
 		const h = 800;
@@ -682,11 +770,14 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 		const top = Math.max(0, (window.screen.height - h) / 2);
 		const features = `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,noopener,noreferrer`;
 		const popup = window.open('/v9/debug-logs-popout', 'enhancedApiDebuggerPopout', features);
-		if (popup) popup.focus();
+		if (popup) {
+			popup.focus();
+			onClose();
+		}
 	};
 
 	// Generate learning tips
-	const generateLearningTip = (): string => {
+	const _generateLearningTip = (): string => {
 		if (!analysis) return '';
 
 		if (analysis.errorCalls > 0) {
@@ -708,10 +799,17 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 
 	if (isMinimized) {
 		return (
-			<FloatingContainer width={280} height={40} x={position.x} y={position.y} $isMinimized>
-				<Header $isMinimized onMouseDown={handleMouseDown}>
+			<FloatingContainer
+				width={280}
+				height={40}
+				x={position.x}
+				y={position.y}
+				$isMinimized
+				$standalone={standalone}
+			>
+				<Header $isMinimized onMouseDown={standalone ? undefined : handleMouseDown}>
 					<Title $isMinimized>
-						<StatusIndicator $status={analysis?.errorCalls > 0 ? 'error' : 'active'} />
+						<StatusIndicator $status={analysis?.errorCalls > 0 ? 'error' : 'active'} $standalone={standalone} />
 						<span>Log Viewer</span>
 						{analysis && (
 							<span style={{ fontSize: '10px', opacity: 0.8 }}>({analysis.totalCalls} calls)</span>
@@ -734,11 +832,13 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 			x={position.x}
 			y={position.y}
 			$isMinimized={isMinimized}
+			$standalone={standalone}
 		>
-			<Header $isMinimized={isMinimized} onMouseDown={handleMouseDown}>
+			<Header $isMinimized={isMinimized} onMouseDown={standalone ? undefined : handleMouseDown}>
 				<Title>
 					<StatusIndicator
 						$status={analysis?.errorCalls > 0 ? 'error' : isRealtime ? 'active' : 'idle'}
+						$standalone={standalone}
 					/>
 					<span>Log Viewer</span>
 				</Title>
@@ -750,9 +850,15 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 					>
 						{isRealtime ? '⏸️' : '▶️'}
 					</ControlButton>
-					<ControlButton onClick={openPopout} title="Open in new window">
-						🔗
-					</ControlButton>
+					{!standalone && (
+						<ControlButton
+							onClick={openPopout}
+							title="Open log viewer in a new window"
+							$variant="popout"
+						>
+							🔗 Popout
+						</ControlButton>
+					)}
 					<ControlButton
 						onClick={() => setIsMinimized(!isMinimized)}
 						title={isMinimized ? 'Expand' : 'Minimize'}
@@ -800,11 +906,33 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 				)}
 
 				<Toolbar>
-					<Select
-						value={selectedFile}
-						onChange={(e) => setSelectedFile(e.target.value)}
-						disabled={!availableFiles.length}
+					<label
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: 6,
+							fontSize: 12,
+							fontWeight: 500,
+							color: '#475569',
+							cursor: 'pointer',
+							userSelect: 'none',
+						}}
 					>
+						<input
+							type="checkbox"
+							checked={combineLogs}
+							onChange={(e) => setCombineLogs(e.target.checked)}
+							style={{ width: 14, height: 14, cursor: 'pointer' }}
+						/>
+						Combine logs
+					</label>
+					<Select
+						value={combineLogs ? '' : selectedFile}
+						onChange={(e) => setSelectedFile(e.target.value)}
+						disabled={!availableFiles.length || combineLogs}
+						title={combineLogs ? 'Disabled when Combine logs is on' : 'Select log file'}
+					>
+						{combineLogs && <option value="">Combined (Server, Frontend, API…)</option>}
 						<FileOptions files={availableFiles} />
 					</Select>
 					<Select value={lineCount} onChange={(e) => setLineCount(Number(e.target.value))}>
@@ -843,6 +971,15 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 					>
 						Debug
 					</FilterChip>
+					<FilterChip
+						$active={selectedCategory === 'MCP'}
+						onClick={() => setSelectedCategory('MCP')}
+					>
+						🤖 MCP
+					</FilterChip>
+					<FilterChip $active={selectedCategory === 'AI'} onClick={() => setSelectedCategory('AI')}>
+						✨ AI
+					</FilterChip>
 					<SearchInput
 						type="text"
 						placeholder="Search logs..."
@@ -859,14 +996,17 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 
 				{isLoading && <StatusMessage $type="loading">Loading logs…</StatusMessage>}
 				{error && <StatusMessage $type="error">{error}</StatusMessage>}
-				{!isLoading && !error && !fileContent && (
+				{!isLoading && !error && (!fileContent || fileContent.trim() === '') && (
 					<StatusMessage $type="empty">
-						No log file selected or log source unavailable.
+						{selectedFile || combineLogs
+							? `${combineLogs ? 'Combined logs' : selectedFile} is empty or not created yet. Ensure the backend is running and writing logs, or try Refresh.`
+							: 'No log file selected or log source unavailable.'}
 					</StatusMessage>
 				)}
 				{!isLoading &&
 					!error &&
 					fileContent &&
+					fileContent.trim() !== '' &&
 					(() => {
 						const filtered = filterLogContentByCategory(fileContent, selectedCategory);
 						const lines = filtered ? filtered.split('\n') : [];
@@ -876,23 +1016,23 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 							: lines;
 						if (visibleLines.length === 0) {
 							return (
-								<LogContent>
+								<LogContent $standalone={standalone}>
 									<StatusMessage $type="empty">
 										{lines.length === 0
-											? `No lines match the "${selectedCategory === 'API_CALLS' ? 'API' : selectedCategory === 'AUTH_FLOW' ? 'Auth' : selectedCategory === 'ERRORS' ? 'Errors' : 'Debug'}" filter.`
+											? `No lines match the "${selectedCategory === 'API_CALLS' ? 'API' : selectedCategory === 'AUTH_FLOW' ? 'Auth' : selectedCategory === 'ERRORS' ? 'Errors' : selectedCategory === 'MCP' ? 'MCP' : selectedCategory === 'AI' ? 'AI' : 'Debug'}" filter.`
 											: 'No lines match the search.'}
 									</StatusMessage>
 								</LogContent>
 							);
 						}
 						return (
-							<LogContent>
+							<LogContent $standalone={standalone}>
 								<LogTable>
 									{visibleLines.map((line, idx) => {
 										const level = getLogLevel(line);
 										return (
-											<LogLine key={idx} $level={level}>
-												<LineNum>{idx + 1}</LineNum>
+											<LogLine key={idx} $level={level} $standalone={standalone}>
+												<LineNum $standalone={standalone}>{idx + 1}</LineNum>
 												<LineText>{line || ' '}</LineText>
 											</LogLine>
 										);

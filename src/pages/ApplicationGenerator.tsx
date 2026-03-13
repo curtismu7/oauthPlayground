@@ -310,13 +310,14 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
 		}
 
 		return `
-    background: rgba(255, 255, 255, 0.92);
-    color: ${theme.colors.gray700};
-    border-color: rgba(148, 163, 184, 0.4);
+    background: #ffffff;
+    color: #2563eb;
+    border: 1px solid #3b82f6;
     box-shadow: 0 14px 30px -28px rgba(15, 23, 42, 0.45);
     &:hover {
-      background: rgba(255, 255, 255, 0.98);
-      border-color: rgba(99, 102, 241, 0.45);
+      background: #f8fafc;
+      border-color: #2563eb;
+      color: #1d4ed8;
       transform: translateY(-1px);
     }
   `;
@@ -1896,7 +1897,7 @@ const ApplicationGenerator: React.FC = () => {
 
 	return (
 		<Container style={{ scrollBehavior: 'auto' }}>
-			<FlowHeader flowId="configuration" />
+			<FlowHeader flowId="application-generator" />
 
 			<BackButton
 				onClick={() => navigate('/client-generator', { state: { workerToken, environmentId } })}

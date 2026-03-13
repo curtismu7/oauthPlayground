@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 
 // PingOne UI Design System - Colors
 const PING_ONE_COLORS = {
@@ -301,7 +302,7 @@ export const CleanlinessDashboardFixed: React.FC = () => {
 				setComponents([]);
 			}
 		} catch (error) {
-			console.error('CleanlinessDashboard: Error updating metrics', error);
+			logger.error('CleanlinessDashboard', 'Error updating metrics', { error: String(error) });
 			// Set safe defaults on error
 			setMetrics({
 				totalComponents: 0,

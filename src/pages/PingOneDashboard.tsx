@@ -52,59 +52,22 @@ const PingOneDashboard: React.FC = () => {
 					width: '100%',
 				}}
 			>
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						gap: '1rem',
-						padding: '1.75rem',
-						borderRadius: '1rem',
-						background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
-						border: '1px solid rgba(220, 38, 38, 0.4)',
-					}}
-				>
-					<div
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '0.75rem',
-							color: '#ffffff',
-						}}
-					>
-						<i className="bi bi-grid-3x3-gap" style={{ fontSize: '1.75rem' }} />
-						<h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700, color: '#ffffff' }}>
-							PingOne Platform Dashboard
-						</h1>
-					</div>
+				{updateMessage && (
 					<p
 						style={{
 							margin: 0,
-							color: 'rgba(255, 255, 255, 0.9)',
-							maxWidth: '720px',
-							lineHeight: 1.6,
-							fontSize: '0.95rem',
+							fontSize: '0.875rem',
+							color: '#059669',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
 						}}
+						role="status"
 					>
-						Explore audit activities and identity metrics in one place. Use the tabs below to switch
-						between views.
+						<i className="bi bi-check-circle-fill" aria-hidden />
+						{updateMessage}
 					</p>
-					{updateMessage && (
-						<p
-							style={{
-								margin: '0.75rem 0 0',
-								fontSize: '0.875rem',
-								color: 'rgba(255, 255, 255, 0.95)',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-							}}
-							role="status"
-						>
-							<i className="bi bi-check-circle-fill" aria-hidden />
-							{updateMessage}
-						</p>
-					)}
-				</div>
+				)}
 
 				<div
 					style={{

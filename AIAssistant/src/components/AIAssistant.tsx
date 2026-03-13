@@ -328,13 +328,16 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 		};
 	}, [isOpen]);
 
-	// Load worker token status when assistant opens so we can show refresh option
+	// Load worker token status and credentials when assistant opens (credentials sync to mcp-config for MCP backend)
 	useEffect(() => {
 		if (!isOpen) return;
 		getTokenStatus()
 			.then(setWorkerTokenStatus)
 			.catch(() => setWorkerTokenStatus(null));
-	}, [isOpen]);
+		if (includeLive) {
+			unifiedWorkerTokenService.loadCredentials().catch(() => {});
+		}
+	}, [isOpen, includeLive]);
 
 	// Check Groq availability when assistant opens (or when it becomes open again)
 	useEffect(() => {
@@ -524,6 +527,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 					streamedContent = answer;
 					console.warn('[AIAssistant] Groq stream error, using local fallback:', err.message);
 				},
+				{ includeLive },
 			);
 		} catch {
 			usedFallback = true;
@@ -950,7 +954,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 										<McpResultCard>
 											<McpResultHeader>
 												<McpBadge>🔌 MCP</McpBadge>
-												<McpToolName>{message.mcpResult.mcpTool ?? 'unknown'}</McpToolName>
+												<McpToolName>{message.mcpResult.mcpTool ?? 'PingOne MCP'}</McpToolName>
 											</McpResultHeader>
 											{message.mcpResult.apiCall && (
 												<McpApiRow>

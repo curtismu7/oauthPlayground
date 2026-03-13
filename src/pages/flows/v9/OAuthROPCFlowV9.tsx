@@ -3,11 +3,7 @@
 // OAuth Resource Owner Password Credentials Flow - V9 Implementation with Modern Messaging
 
 import { useCallback, useEffect, useState } from 'react';
-import {
-	createMockTokenEndpoint,
-	createMockUserInfoEndpoint,
-	MockApiCallDisplay,
-} from '../../../components/MockApiCallDisplay';
+import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { getButtonStyles, getStepStyles, V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';

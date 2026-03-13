@@ -1,6 +1,8 @@
 import styled from 'styled-components';
+import { PingIcon } from '../../components/PingIcon';
 import { SpecCard } from '../../components/SpecCard';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { PageLayoutService } from '../../services/pageLayoutService';
 
 const _DocsContainer = styled.div`
@@ -72,30 +74,26 @@ const ExternalLink = styled.a`
 `;
 
 const pageConfig = {
-	flowType: 'documentation' as const,
-	theme: 'blue' as const,
+	flowType: 'pingone' as const,
+	theme: 'red' as const,
 	maxWidth: '1200px',
-	showHeader: true,
+	showHeader: false,
 	showFooter: false,
 	responsive: true,
 	flowId: 'oidc-for-ai',
 };
-const {
-	PageContainer,
-	ContentWrapper,
-	FlowHeader: LayoutFlowHeader,
-} = PageLayoutService.createPageLayout(pageConfig);
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
 const OIDCForAI = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>
-				{LayoutFlowHeader && <LayoutFlowHeader />}
+				<FlowHeader flowId="oidc-for-ai" />
 
 				<CollapsibleHeader
 					title="Industry Resources"
 					subtitle="Comprehensive guides and resources for implementing OAuth 2.0 and OpenID Connect for AI applications"
-					icon={<span>🛡️</span>}
+					icon={<PingIcon icon="FiShield" size={24} />}
 					defaultCollapsed={false}
 				>
 					<LinkGrid>
@@ -163,7 +161,7 @@ const OIDCForAI = () => {
 				<CollapsibleHeader
 					title="Research & Standards"
 					subtitle="Official specifications and research papers for OAuth 2.0 and OpenID Connect"
-					icon={<i className="bi bi-question-circle"></i>}
+					icon={<PingIcon icon="FiInfo" size={24} />}
 					defaultCollapsed={false}
 				>
 					<LinkGrid>
@@ -210,7 +208,7 @@ const OIDCForAI = () => {
 				<CollapsibleHeader
 					title="AI Authentication Training"
 					subtitle="Comprehensive training content for AI authentication and authorization"
-					icon={<span>👥</span>}
+					icon={<PingIcon icon="FiUsers" size={24} />}
 					defaultCollapsed={false}
 				>
 					<SpecCard title="AI Authentication Fundamentals">
@@ -394,7 +392,7 @@ audience=https://downstream-api.example.com`}
 				<CollapsibleHeader
 					title="Implementation Guides"
 					subtitle="Step-by-step guides for implementing OAuth 2.0 and OpenID Connect in AI applications"
-					icon={<i className="bi bi-question-circle"></i>}
+					icon={<PingIcon icon="FiInfo" size={24} />}
 					defaultCollapsed={false}
 				>
 					<LinkGrid>

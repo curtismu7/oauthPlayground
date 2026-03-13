@@ -424,8 +424,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					{
-						id: 'spiffe-spire-flow-v8u',
-						path: '/v8u/spiffe-spire',
+						id: 'spiffe-spire-flow-v9',
+						path: '/flows/spiffe-spire-v9',
 						label: 'SPIFFE/SPIRE Mock',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
@@ -1177,7 +1177,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						items: [
 							{
 								id: 'v7m-oauth-auth-code',
-								path: '/v7/oauth/authorization-code',
+								path: '/flows/oauth-authorization-code-v9',
 								label: 'OAuth Auth Code (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
@@ -1192,7 +1192,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							},
 							{
 								id: 'v7m-oidc-auth-code',
-								path: '/v7/oidc/authorization-code',
+								path: '/flows/oidc-authorization-code-v9',
 								label: 'OIDC Auth Code (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
@@ -1207,7 +1207,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							},
 							{
 								id: 'v7m-oauth-implicit',
-								path: '/v7/oauth/implicit',
+								path: '/flows/implicit-v9',
 								label: 'OAuth Implicit (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
@@ -1222,7 +1222,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							},
 							{
 								id: 'v7m-oidc-implicit',
-								path: '/v7/oidc/implicit',
+								path: '/flows/oidc-implicit-v9',
 								label: 'OIDC Implicit (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
@@ -1237,7 +1237,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							},
 							{
 								id: 'v7m-device-authorization',
-								path: '/v7/oauth/device-authorization',
+								path: '/flows/device-authorization-v9',
 								label: 'Device Authorization (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
@@ -1252,7 +1252,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							},
 							{
 								id: 'v7m-client-credentials',
-								path: '/v7/oauth/client-credentials',
+								path: '/flows/client-credentials-v9',
 								label: 'Client Credentials (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
@@ -1632,21 +1632,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								),
 								badge: (
 									<MigrationBadge title="OIDC Discovery and Configuration">
-										<span>✅</span>
-									</MigrationBadge>
-								),
-							},
-							{
-								id: 'advanced-config',
-								path: '/advanced-configuration',
-								label: 'Advanced Configuration',
-								icon: (
-									<ColoredIcon $color="#8b5cf6">
-										<span>⚙️</span>
-									</ColoredIcon>
-								),
-								badge: (
-									<MigrationBadge title="Advanced Configuration Options">
 										<span>✅</span>
 									</MigrationBadge>
 								),

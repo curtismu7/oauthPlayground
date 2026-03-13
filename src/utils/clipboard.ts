@@ -1,4 +1,3 @@
-import { logger } from '../utils/logger';
 import { logger } from './logger';
 
 // src/utils/clipboard.ts - Clipboard utilities

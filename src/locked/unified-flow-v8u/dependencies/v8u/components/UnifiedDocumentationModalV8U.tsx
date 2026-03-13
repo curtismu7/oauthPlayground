@@ -235,7 +235,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 	const handleDownload = async () => {
 		if (selectedUseCases.size === 0) {
 			// eslint-disable-next-line no-alert
-			console.warn('Alert: Please select at least one use case to download.');
+			logger.warn('UnifiedDocumentation', 'Please select at least one use case to download');
 			return;
 		}
 
@@ -248,9 +248,13 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 				await downloadPDF(selectedCases);
 			}
 		} catch (error) {
-			logger.error('Failed to download documentation:', error);
+			logger.error(
+				'UnifiedDocumentation',
+				'Failed to download documentation:',
+				error instanceof Error ? error : undefined
+			);
 			// eslint-disable-next-line no-alert
-			console.warn('Alert: Failed to download documentation. Please try again.');
+			logger.warn('UnifiedDocumentation', 'Failed to download documentation. Please try again.');
 		}
 	};
 

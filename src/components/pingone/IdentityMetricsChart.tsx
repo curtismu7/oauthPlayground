@@ -1,7 +1,6 @@
 // src/components/pingone/IdentityMetricsChart.tsx
 // Dashboard chart for PingOne Active Identity Counts
 
-import React from 'react';
 import {
 	Area,
 	AreaChart,

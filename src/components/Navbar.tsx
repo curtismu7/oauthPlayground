@@ -16,6 +16,7 @@ import {
 	FiLogIn,
 	FiLogOut,
 	FiMenu,
+	FiMessageCircle,
 	FiSearch,
 	FiServer,
 	FiSettings,
@@ -37,7 +38,7 @@ const NavbarContainer = styled.nav<{ $sidebarOpen?: boolean; $sidebarWidth?: num
 	display: flex;
 	align-items: center;
 	padding: 0 1.5rem;
-	/* Above EnhancedFloatingLogViewer (9999) so nav is never covered by floating panels */
+	/* App chrome; EnhancedFloatingLogViewer (10100) opens above when open */
 	z-index: 10050;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	transition: left 0.3s ease;
@@ -442,6 +443,10 @@ const Navbar: React.FC<NavbarProps> = ({
 				</Logo>
 
 				<NavItems role="navigation" aria-label="Main navigation">
+					<Link to="/ai-assistant" title="Open OAuth Assistant - ask about flows, config, and OIDC">
+						<FiMessageCircle aria-hidden="true" />
+						<span>Assistant</span>
+					</Link>
 					<Link to="/docs/prompts/prompt-all" title="🚀 AI Development Prompts">
 						<FiActivity aria-hidden="true" />
 						<span>AI Prompts</span>

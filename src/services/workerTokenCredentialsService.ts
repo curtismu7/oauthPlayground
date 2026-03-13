@@ -3,7 +3,6 @@
 // Provides client credentials grant configuration for machine-to-machine authentication
 
 import { logger } from '../utils/logger';
-import { unifiedTokenStorage } from './unifiedTokenStorageService';
 import { unifiedWorkerTokenService } from './unifiedWorkerTokenService';
 
 export interface WorkerTokenCredentials {

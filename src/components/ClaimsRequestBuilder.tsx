@@ -3,6 +3,7 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { FiAlertCircle, FiCheckCircle, FiInfo } from '../icons';
 
 export interface ClaimRequest {
 	name: string;
@@ -153,7 +154,8 @@ const EssentialToggle = styled.button<{ $essential: boolean }>`
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${(props) => (props.$essential ? '#dc2626' : '#f3f4f6')};
+		background: ${(props) => (props.$essential ? '#dc2626' : '#eff6ff')};
+		border-color: ${(props) => (props.$essential ? '#dc2626' : '#3b82f6')};
 	}
 `;
 

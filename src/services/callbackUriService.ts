@@ -5,7 +5,10 @@
  * to eliminate hardcoded localhost URLs and ensure proper flow-specific routing.
  */
 
-import { FLOW_REDIRECT_URI_MAPPING } from '../utils/flowRedirectUriMapping';
+import {
+	FLOW_REDIRECT_URI_MAPPING,
+	REDIRECT_URI_CATALOG_FLOW_TYPES,
+} from '../utils/flowRedirectUriMapping';
 import { logger } from '../utils/logger';
 
 const OVERRIDE_STORAGE_KEY = 'callback_uri_overrides';
@@ -28,6 +31,7 @@ export interface FlowCallbackUris {
 	dashboardCallback: string;
 	p1authCallback: string;
 	unifiedMFACallback: string;
+	unifiedOAuthCallback: string;
 	authzLogoutCallback: string;
 	implicitLogoutCallback: string;
 	hybridLogoutCallback: string;
@@ -56,6 +60,7 @@ class CallbackUriService {
 		dashboardCallback: '/dashboard-callback',
 		p1authCallback: '/p1auth-callback',
 		unifiedMFACallback: '/v8/unified-mfa-callback',
+		unifiedOAuthCallback: '/unified-callback',
 		authzLogoutCallback: '/logout-callback',
 		implicitLogoutCallback: '/logout-callback-implicit',
 		hybridLogoutCallback: '/hybrid-logout-callback',
@@ -228,6 +233,13 @@ class CallbackUriService {
 			return { redirect: 'unifiedMFACallback', logout: 'unifiedMFALogoutCallback' };
 		}
 
+		if (
+			normalized === 'v8u-unified' ||
+			(normalized.includes('v8u') && !normalized.includes('mfa'))
+		) {
+			return { redirect: 'unifiedOAuthCallback', logout: 'authzLogoutCallback' };
+		}
+
 		return { redirect: 'authzCallback', logout: 'authzLogoutCallback' };
 	}
 
@@ -358,7 +370,10 @@ class CallbackUriService {
 		isOverrideRedirect: boolean;
 		isOverrideLogout: boolean;
 	}> {
-		return FLOW_REDIRECT_URI_MAPPING.map((config) => {
+		const catalogConfigs = FLOW_REDIRECT_URI_MAPPING.filter((config) =>
+			REDIRECT_URI_CATALOG_FLOW_TYPES.includes(config.flowType)
+		);
+		return catalogConfigs.map((config) => {
 			const { redirect, logout } = this.getCallbackTypesForFlow(config.flowType);
 			const redirectUri = config.requiresRedirectUri
 				? this.getCallbackUri(redirect)

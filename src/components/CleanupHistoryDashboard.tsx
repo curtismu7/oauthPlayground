@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-	type CleanupCategory,
-	type CleanupMetrics,
-	type CleanupSession,
-	cleanupHistoryService,
-} from '../services/cleanupHistoryService';
+import { type CleanupMetrics, cleanupHistoryService } from '../services/cleanupHistoryService';
 
 interface CleanupHistoryDashboardProps {
 	className?: string;
@@ -103,6 +98,7 @@ export const CleanupHistoryDashboard: React.FC<CleanupHistoryDashboardProps> = (
 					}}
 				>
 					<button
+						type="button"
 						onClick={() => setShowReport(!showReport)}
 						style={{
 							background: '#0066CC',
@@ -232,6 +228,7 @@ export const CleanupHistoryDashboard: React.FC<CleanupHistoryDashboardProps> = (
 					}}
 				>
 					<button
+						type="button"
 						onClick={() => setSelectedCategory(null)}
 						style={{
 							background: selectedCategory === null ? '#212529' : '#F8F9FA',
@@ -248,6 +245,7 @@ export const CleanupHistoryDashboard: React.FC<CleanupHistoryDashboardProps> = (
 					</button>
 					{history.categories.map((category) => (
 						<button
+							type="button"
 							key={category.id}
 							onClick={() => setSelectedCategory(category.id)}
 							style={{
@@ -297,12 +295,18 @@ export const CleanupHistoryDashboard: React.FC<CleanupHistoryDashboardProps> = (
 
 				<div style={{ maxHeight: '600px', overflowY: 'auto' }}>
 					{filteredSessions.map((session) => (
-						<div
+						<button
 							key={session.id}
+							type="button"
 							style={{
 								padding: '1.5rem',
 								borderBottom: '1px solid #F1F3F4',
 								transition: 'background-color 0.15s ease-in-out',
+								cursor: 'pointer',
+								background: 'none',
+								border: 'none',
+								textAlign: 'left',
+								width: '100%',
 							}}
 							onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F8F9FA')}
 							onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
@@ -428,7 +432,7 @@ export const CleanupHistoryDashboard: React.FC<CleanupHistoryDashboardProps> = (
 									</div>
 								</div>
 							)}
-						</div>
+						</button>
 					))}
 				</div>
 			</div>
@@ -472,6 +476,7 @@ export const CleanupHistoryDashboard: React.FC<CleanupHistoryDashboardProps> = (
 								📊 Cleanup History Report
 							</h2>
 							<button
+								type="button"
 								onClick={() => setShowReport(false)}
 								style={{
 									background: 'none',

@@ -554,7 +554,7 @@ const flowCategories: FlowCategory[] = [
 				complexity: 'low',
 				implementationTime: '< 5 min',
 				useCases: ['Learning', 'Demos', 'Presentations'],
-				route: '/v7/oauth/authorization-code',
+				route: '/flows/oauth-authorization-code-v9',
 			},
 			{
 				id: 'mock-oidc-authcode',
@@ -566,7 +566,7 @@ const flowCategories: FlowCategory[] = [
 				complexity: 'low',
 				implementationTime: '< 5 min',
 				useCases: ['Learning', 'OIDC Demos'],
-				route: '/v7/oidc/authorization-code',
+				route: '/flows/oidc-authorization-code-v9',
 			},
 			{
 				id: 'mock-device',
@@ -578,7 +578,7 @@ const flowCategories: FlowCategory[] = [
 				complexity: 'low',
 				implementationTime: '< 5 min',
 				useCases: ['Learning', 'IoT Demos'],
-				route: '/v7/oauth/device-authorization',
+				route: '/flows/device-authorization-v9',
 			},
 			{
 				id: 'mock-client-credentials',
@@ -590,7 +590,7 @@ const flowCategories: FlowCategory[] = [
 				complexity: 'low',
 				implementationTime: '< 5 min',
 				useCases: ['Learning', 'API Demos'],
-				route: '/v7/oauth/client-credentials',
+				route: '/flows/client-credentials-v9',
 			},
 			{
 				id: 'mock-implicit',
@@ -602,7 +602,7 @@ const flowCategories: FlowCategory[] = [
 				complexity: 'low',
 				implementationTime: '< 5 min',
 				useCases: ['Learning', 'Legacy Demos'],
-				route: '/v7/oauth/implicit',
+				route: '/flows/implicit-v9',
 			},
 			{
 				id: 'mock-ropc',
@@ -727,7 +727,7 @@ const FlowCategories: React.FC = () => {
 						Authorization Code (Live)
 					</Link>
 					<Link
-						to="/v7/oauth/authorization-code"
+						to="/flows/oauth-authorization-code-v9"
 						className="quick-start-button"
 						style={{
 							background: 'rgba(255, 255, 255, 0.2)',

@@ -47,7 +47,7 @@ node server.js &
 BACKEND_PID=$!
 
 # Wait for backend to be ready
-wait_for_server "http://localhost:3001/api/health" "Backend"
+wait_for_server "https://localhost:3001/api/health" "Backend"
 
 # Start frontend
 echo "🔧 Starting frontend server..."

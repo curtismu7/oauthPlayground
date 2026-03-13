@@ -40,9 +40,10 @@ import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 
 // Create module-specific logger
-const log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
+const _log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
 
 import { ButtonSpinner } from '@/components/ui';
+import { getRedirectUriForUnifiedFlow } from '@/services/v9/V9UnifiedRedirectUriService';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { FiArrowRight } from '../../icons';
 import { logger } from '../../utils/logger';
@@ -5150,20 +5151,19 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				setPreFlightStatus('🔑 Retrieving worker token...');
 				let workerToken = await workerTokenServiceV8.getToken();
 
-				// If no worker token, try silent retrieval (will ask for credentials if missing)
+				// If no worker token, respect Silent API Retrieval checkbox: if ON try silent first; if OFF don't
 				if (!workerToken) {
 					try {
 						const { handleShowWorkerTokenModal } = await import(
 							'@/v8/utils/workerTokenModalHelperV8'
 						);
-						// Attempt silent retrieval (will show modal if credentials are missing)
 						await handleShowWorkerTokenModal(
 							setShowWorkerTokenModal,
 							undefined, // setTokenStatus
-							true, // silentApiRetrieval - enable silent retrieval
-							false, // showTokenAtEnd - don't show modal, just get token
-							false, // forceShowModal - not forced, automatic call
-							setSilentLoading // setSilentLoading - for spinner during silent retrieval
+							undefined, // use config silentApiRetrieval
+							undefined, // use config showTokenAtEnd
+							false, // forceShowModal: automatic call, not user button click
+							setSilentLoading
 						);
 						// Try again after silent retrieval attempt
 						await new Promise((resolve) => setTimeout(resolve, 500));
@@ -5927,14 +5927,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														'@/v8/services/workerTokenStatusServiceV8'
 													);
 
-													// Attempt silent retrieval (silentApiRetrieval=true, forceShowModal=false)
+													// User clicked "Get Worker Token" — show modal (respect Silent checkbox only for automatic fetches)
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
 														undefined, // setTokenStatus
-														true, // overrideSilentApiRetrieval - enable silent retrieval
-														false, // overrideShowTokenAtEnd - don't show modal, just get token
-														false, // forceShowModal - not forced, automatic call
-														setIsSilentLoading // loading state for spinner
+														undefined, // use config silentApiRetrieval
+														undefined, // use config showTokenAtEnd
+														true, // forceShowModal: user clicked button
+														setIsSilentLoading
 													);
 
 													// Wait a moment for token to be saved, then check if token is now available
@@ -6255,7 +6255,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 															borderRadius: '3px',
 														}}
 													>
-														{credentials.redirectUri || `${window.location.origin}/authz-callback`}
+														{credentials.redirectUri ||
+															getRedirectUriForUnifiedFlow(flowType) ||
+															`${window.location.origin}/authz-callback`}
 													</code>
 												</li>
 												<li>Save changes</li>
@@ -8128,7 +8130,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		};
 
 		// Get the redirect URI that was configured (this is where PingOne will redirect to)
-		const redirectUri = credentials.redirectUri || `${window.location.origin}/authz-callback`;
+		const redirectUri =
+			credentials.redirectUri ||
+			getRedirectUriForUnifiedFlow(flowType) ||
+			`${window.location.origin}/authz-callback`;
 
 		// Check for errors in callback data (from sessionStorage)
 		const callbackDataStr = sessionStorage.getItem('v8u_callback_data');

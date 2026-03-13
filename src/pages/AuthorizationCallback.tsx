@@ -98,7 +98,7 @@ const RedirectingMessage = styled.div`
   font-style: italic;
 `;
 
-const log = createModuleLogger('src/pages/AuthorizationCallback.tsx');
+const _log = createModuleLogger('src/pages/AuthorizationCallback.tsx');
 
 const AuthorizationCallback: React.FC = () => {
 	const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');

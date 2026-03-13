@@ -1,6 +1,6 @@
 // src/components/PingOneApplicationPicker.tsx
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
@@ -180,23 +180,23 @@ const FieldValue = styled.span`
 `;
 
 const CopyButton = styled.button`
-	background: none;
-	border: 1px solid #dee2e6;
+	background: #ffffff;
+	border: 1px solid #3b82f6;
 	border-radius: 3px;
 	padding: 0.25rem;
-	color: #6c757d;
+	color: #2563eb;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	transition: all 0.2s ease;
-	
+
 	&:hover {
-		background: #f8f9fa;
-		border-color: #007bff;
-		color: #007bff;
+		background: #eff6ff;
+		border-color: #2563eb;
+		color: #1d4ed8;
 	}
-	
+
 	&:active {
 		transform: scale(0.95);
 	}
@@ -283,6 +283,8 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<string | null>(null);
 	const [showClientSecret, setShowClientSecret] = useState(false);
+	// Prevent auto-fetch loop when fetch fails (e.g. 401): only attempt once per credential set
+	const autoFetchAttemptedRef = useRef(false);
 
 	const fetchApplications = useCallback(async () => {
 		if (!environmentId || (!clientId && !clientSecret) || !workerToken) {
@@ -319,6 +321,11 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 		}
 	}, [environmentId, clientId, clientSecret, region, workerToken]);
 
+	// Reset auto-fetch attempt when credentials change so new credentials get one attempt
+	useEffect(() => {
+		autoFetchAttemptedRef.current = false;
+	}, [environmentId, clientId, clientSecret, workerToken]);
+
 	const handleApplicationChange = useCallback(
 		(appId: string) => {
 			logger.info('[PingOneApplicationPicker] Application changed:', appId);
@@ -349,15 +356,17 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 		});
 	}, []);
 
-	// Auto-fetch applications when credentials are available
+	// Auto-fetch applications once when credentials are available; avoid loop on 401/failure
 	useEffect(() => {
 		if (
 			environmentId &&
 			(clientId || clientSecret) &&
 			workerToken &&
 			applications.length === 0 &&
-			!loading
+			!loading &&
+			!autoFetchAttemptedRef.current
 		) {
+			autoFetchAttemptedRef.current = true;
 			logger.info('[PingOneApplicationPicker] Auto-fetching applications with:', {
 				hasEnvironmentId: !!environmentId,
 				hasClientId: !!clientId,

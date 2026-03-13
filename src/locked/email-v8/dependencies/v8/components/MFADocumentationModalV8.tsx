@@ -102,7 +102,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 	const handleDownload = async () => {
 		if (selectedUseCases.size === 0) {
 			// eslint-disable-next-line no-alert
-			console.warn('Alert: Please select at least one use case to download.');
+			logger.warn('MFADocumentation', 'Please select at least one use case to download');
 			return;
 		}
 
@@ -115,9 +115,13 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 				await downloadPDF(selectedCases);
 			}
 		} catch (error) {
-			logger.error('Failed to download documentation:', error);
+			logger.error(
+				'MFADocumentation',
+				'Failed to download documentation:',
+				error instanceof Error ? error : undefined
+			);
 			// eslint-disable-next-line no-alert
-			console.warn('Alert: Failed to download documentation. Please try again.');
+			logger.warn('MFADocumentation', 'Failed to download documentation. Please try again.');
 		}
 	};
 

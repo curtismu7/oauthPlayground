@@ -6,48 +6,45 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { PageLayoutService } from '../services/pageLayoutService';
 
 // Bootstrap Icon Component for Ping UI compliance
-const BootstrapIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; style?: React.CSSProperties }> = ({ 
-  icon, 
-  size = 20, 
-  ariaLabel,
-  style = {} 
-}) => {
-  const getBootstrapIconClass = (iconName: string): string => {
-    const iconMap: Record<string, string> = {
-      'FiCpu': 'bi-cpu',
-      'FiKey': 'bi-key',
-      'FiLock': 'bi-lock',
-      'FiServer': 'bi-server',
-      'FiShield': 'bi-shield',
-      'FiZap': 'bi-lightning',
-      'FiCheck': 'bi-check',
-      'FiX': 'bi-x',
-      'FiInfo': 'bi-info',
-      'FiBookOpen': 'bi-book',
-      'FiCode': 'bi-code',
-      'FiCpu': 'bi-cpu',
-      'FiExternalLink': 'bi-box-arrow-up-right',
-      'FiLayers': 'bi-layers',
-      'FiShield': 'bi-shield',
-      'FiUsers': 'bi-people',
-    };
-    return iconMap[iconName] || 'bi-question';
-  };
+const BootstrapIcon: React.FC<{
+	icon: string;
+	size?: number;
+	ariaLabel?: string;
+	style?: React.CSSProperties;
+}> = ({ icon, size = 20, ariaLabel, style = {} }) => {
+	const getBootstrapIconClass = (iconName: string): string => {
+		const iconMap: Record<string, string> = {
+			FiKey: 'bi-key',
+			FiLock: 'bi-lock',
+			FiServer: 'bi-server',
+			FiZap: 'bi-lightning',
+			FiCheck: 'bi-check',
+			FiX: 'bi-x',
+			FiInfo: 'bi-info',
+			FiBookOpen: 'bi-book',
+			FiCode: 'bi-code',
+			FiCpu: 'bi-cpu',
+			FiExternalLink: 'bi-box-arrow-up-right',
+			FiLayers: 'bi-layers',
+			FiShield: 'bi-shield',
+			FiUsers: 'bi-people',
+		};
+		return iconMap[iconName] || 'bi-question';
+	};
 
-  return (
-    <i 
-      className={`bi ${getBootstrapIconClass(icon)}`}
-      style={{ 
-        fontSize: `${size}px`, 
-        ...style 
-      }}
-      aria-label={ariaLabel}
-      aria-hidden={!ariaLabel}
-    />
-  );
+	return (
+		<i
+			className={`bi ${getBootstrapIconClass(icon)}`}
+			style={{
+				fontSize: `${size}px`,
+				...style,
+			}}
+			aria-label={ariaLabel}
+			aria-hidden={!ariaLabel}
+		/>
+	);
 };
 
 // Ping UI namespace wrapper
@@ -76,11 +73,11 @@ const FeatureGrid = styled.div`
 const FeatureCard = styled(Card)<{ $supported?: boolean | null }>`
   border-left: 4px solid
     ${({ $supported }) =>
-      $supported === true
-        ? 'var(--ping-color-success, #10b981)'
-        : $supported === false
-          ? 'var(--ping-color-danger, #ef4444)'
-          : 'var(--ping-color-warning, #f59e0b)'};
+			$supported === true
+				? 'var(--ping-color-success, #10b981)'
+				: $supported === false
+					? 'var(--ping-color-danger, #ef4444)'
+					: 'var(--ping-color-warning, #f59e0b)'};
   transition: var(--ping-transition-fast, 0.15s ease-in-out);
 
   &:hover {
@@ -126,9 +123,9 @@ const StatusBadge = styled.button<{ $status: 'supported' | 'not-supported' | 'pa
   transition: var(--ping-transition-fast, 0.15s ease-in-out);
 
   ${({ $status }) => {
-    switch ($status) {
-      case 'supported':
-        return `
+		switch ($status) {
+			case 'supported':
+				return `
           background-color: var(--ping-color-success-light, #d1fae5);
           color: var(--ping-color-success-dark, #065f46);
           &:hover {
@@ -138,8 +135,8 @@ const StatusBadge = styled.button<{ $status: 'supported' | 'not-supported' | 'pa
             box-shadow: 0 2px 8px rgba(22, 101, 52, 0.2);
           }
         `;
-      case 'not-supported':
-        return `
+			case 'not-supported':
+				return `
           background-color: var(--ping-color-danger-light, #fee2e2);
           color: var(--ping-color-danger-dark, #991b1b);
           &:hover {
@@ -149,8 +146,8 @@ const StatusBadge = styled.button<{ $status: 'supported' | 'not-supported' | 'pa
             box-shadow: 0 2px 8px rgba(153, 27, 27, 0.2);
           }
         `;
-      case 'partial':
-        return `
+			case 'partial':
+				return `
           background-color: var(--ping-color-warning-light, #fef3c7);
           color: var(--ping-color-warning-dark, #92400e);
           border: 2px solid var(--ping-color-warning, #f59e0b);
@@ -163,8 +160,8 @@ const StatusBadge = styled.button<{ $status: 'supported' | 'not-supported' | 'pa
             border-color: #b45309;
           }
         `;
-    }
-  }}
+		}
+	}}
 
   i {
     width: 16px;
@@ -232,124 +229,148 @@ const CloseButton = styled.button`
 
 // Feature data
 const aiFeatures = [
-  {
-    id: 'oauth2-for-ai-agents',
-    title: 'OAuth 2.0 for AI Agents',
-    description: 'Standard OAuth 2.0 flows adapted for AI agent authentication with proper scope management and token handling.',
-    icon: 'FiKey',
-    supported: true,
-    details: 'AI agents can use standard OAuth 2.0 Authorization Code, Client Credentials, and Device Authorization flows with proper AI-specific scopes and token validation.'
-  },
-  {
-    id: 'oidc-for-ai-agents',
-    title: 'OpenID Connect for AI',
-    description: 'OIDC integration providing identity verification for AI agents with JWT tokens and user info endpoints.',
-    icon: 'FiShield',
-    supported: true,
-    details: 'Complete OpenID Connect support including ID tokens, userinfo endpoints, and AI-specific claims for agent identity verification.'
-  },
-  {
-    id: 'machine-credentials',
-    title: 'Machine-to-Machine Auth',
-    description: 'Client Credentials flow optimized for AI agent-to-agent communication and service authentication.',
-    icon: 'FiServer',
-    supported: true,
-    details: 'Optimized client credentials flow with JWT assertions, certificate-based authentication, and AI agent credential management.'
-  },
-  {
-    id: 'device-auth-flow',
-    title: 'Device Authorization Flow',
-    description: 'Device flow for AI agents running on constrained devices or headless environments.',
-    icon: 'FiCpu',
-    supported: 'partial',
-    details: 'Device Authorization Flow support for AI agents on IoT devices, headless systems, and constrained environments with polling optimization.'
-  },
-  {
-    id: 'token-exchange',
-    title: 'OAuth Token Exchange',
-    description: 'Token exchange for delegation and impersonation scenarios in multi-agent AI systems.',
-    icon: 'FiZap',
-    supported: false,
-    details: 'OAuth 2.0 Token Exchange for AI agent delegation, impersonation, and cross-system token translation in complex AI ecosystems.'
-  },
-  {
-    id: 'jwt-bearer-grant',
-    title: 'JWT Bearer Grant',
-    description: 'JWT-based authentication for AI agents using signed assertions for service-to-service communication.',
-    icon: 'FiLock',
-    supported: true,
-    details: 'JWT Bearer Grant Type for AI agent authentication with signed assertions, certificate validation, and service-to-service communication.'
-  }
+	{
+		id: 'oauth2-for-ai-agents',
+		title: 'OAuth 2.0 for AI Agents',
+		description:
+			'Standard OAuth 2.0 flows adapted for AI agent authentication with proper scope management and token handling.',
+		icon: 'FiKey',
+		supported: true,
+		details:
+			'AI agents can use standard OAuth 2.0 Authorization Code, Client Credentials, and Device Authorization flows with proper AI-specific scopes and token validation.',
+	},
+	{
+		id: 'oidc-for-ai-agents',
+		title: 'OpenID Connect for AI',
+		description:
+			'OIDC integration providing identity verification for AI agents with JWT tokens and user info endpoints.',
+		icon: 'FiShield',
+		supported: true,
+		details:
+			'Complete OpenID Connect support including ID tokens, userinfo endpoints, and AI-specific claims for agent identity verification.',
+	},
+	{
+		id: 'machine-credentials',
+		title: 'Machine-to-Machine Auth',
+		description:
+			'Client Credentials flow optimized for AI agent-to-agent communication and service authentication.',
+		icon: 'FiServer',
+		supported: true,
+		details:
+			'Optimized client credentials flow with JWT assertions, certificate-based authentication, and AI agent credential management.',
+	},
+	{
+		id: 'device-auth-flow',
+		title: 'Device Authorization Flow',
+		description:
+			'Device flow for AI agents running on constrained devices or headless environments.',
+		icon: 'FiCpu',
+		supported: 'partial',
+		details:
+			'Device Authorization Flow support for AI agents on IoT devices, headless systems, and constrained environments with polling optimization.',
+	},
+	{
+		id: 'token-exchange',
+		title: 'OAuth Token Exchange',
+		description:
+			'Token exchange for delegation and impersonation scenarios in multi-agent AI systems.',
+		icon: 'FiZap',
+		supported: false,
+		details:
+			'OAuth 2.0 Token Exchange for AI agent delegation, impersonation, and cross-system token translation in complex AI ecosystems.',
+	},
+	{
+		id: 'jwt-bearer-grant',
+		title: 'JWT Bearer Grant',
+		description:
+			'JWT-based authentication for AI agents using signed assertions for service-to-service communication.',
+		icon: 'FiLock',
+		supported: true,
+		details:
+			'JWT Bearer Grant Type for AI agent authentication with signed assertions, certificate validation, and service-to-service communication.',
+	},
 ];
 
 const AIAgentOverview: React.FC = () => {
-  const [selectedFeature, setSelectedFeature] = useState<typeof aiFeatures[0] | null>(null);
+	const [selectedFeature, setSelectedFeature] = useState<(typeof aiFeatures)[0] | null>(null);
 
-  const getStatusConfig = (supported: boolean | null) => {
-    if (supported === true) return { status: 'supported' as const, icon: 'FiCheck', label: 'Supported' };
-    if (supported === false) return { status: 'not-supported' as const, icon: 'FiX', label: 'Not Supported' };
-    return { status: 'partial' as const, icon: 'FiInfo', label: 'Partial Support' };
-  };
+	const getStatusConfig = (supported: boolean | null) => {
+		if (supported === true)
+			return { status: 'supported' as const, icon: 'FiCheck', label: 'Supported' };
+		if (supported === false)
+			return { status: 'not-supported' as const, icon: 'FiX', label: 'Not Supported' };
+		return { status: 'partial' as const, icon: 'FiInfo', label: 'Partial Support' };
+	};
 
-  return (
-    <PingUIWrapper className="end-user-nano">
-      <_Container>
-        <V6CollapsibleHeader 
-          title="AI Agent Authentication Overview"
-          subtitle="Comprehensive overview of authentication and authorization capabilities for AI agents"
-        />
-        
-        <FeatureGrid>
-          {aiFeatures.map((feature) => {
-            const statusConfig = getStatusConfig(feature.supported);
-            
-            return (
-              <FeatureCard key={feature.id} $supported={feature.supported}>
-                <CardBody>
-                  <FeatureHeader>
-                    <FeatureTitle>
-                      <BootstrapIcon icon={feature.icon} size={24} ariaLabel={`${feature.title} icon`} />
-                      <h3>{feature.title}</h3>
-                    </FeatureTitle>
-                    <StatusBadge 
-                      $status={statusConfig.status}
-                      onClick={() => setSelectedFeature(feature)}
-                      aria-label={`View details for ${feature.title}`}
-                    >
-                      <BootstrapIcon icon={statusConfig.icon} size={16} />
-                      {statusConfig.label}
-                    </StatusBadge>
-                  </FeatureHeader>
-                  <p style={{ color: 'var(--ping-color-text-secondary, #6b7280)', lineHeight: 1.6 }}>
-                    {feature.description}
-                  </p>
-                </CardBody>
-              </FeatureCard>
-            );
-          })}
-        </FeatureGrid>
+	return (
+		<PingUIWrapper className="end-user-nano">
+			<_Container>
+				<V6CollapsibleHeader
+					title="AI Agent Authentication Overview"
+					subtitle="Comprehensive overview of authentication and authorization capabilities for AI agents"
+				/>
 
-        {selectedFeature && (
-          <PopupOverlay onClick={() => setSelectedFeature(null)}>
-            <PopupContent onClick={(e) => e.stopPropagation()}>
-              <PopupHeader>
-                <h3>
-                  <BootstrapIcon icon={selectedFeature.icon} size={20} style={{ marginRight: '0.5rem' }} />
-                  {selectedFeature.title}
-                </h3>
-                <CloseButton onClick={() => setSelectedFeature(null)} aria-label="Close popup">
-                  <BootstrapIcon icon="FiX" size={20} />
-                </CloseButton>
-              </PopupHeader>
-              <p style={{ color: 'var(--ping-color-text-secondary, #6b7280)', lineHeight: 1.6 }}>
-                {selectedFeature.details}
-              </p>
-            </PopupContent>
-          </PopupOverlay>
-        )}
-      </_Container>
-    </PingUIWrapper>
-  );
+				<FeatureGrid>
+					{aiFeatures.map((feature) => {
+						const statusConfig = getStatusConfig(feature.supported);
+
+						return (
+							<FeatureCard key={feature.id} $supported={feature.supported}>
+								<CardBody>
+									<FeatureHeader>
+										<FeatureTitle>
+											<BootstrapIcon
+												icon={feature.icon}
+												size={24}
+												ariaLabel={`${feature.title} icon`}
+											/>
+											<h3>{feature.title}</h3>
+										</FeatureTitle>
+										<StatusBadge
+											$status={statusConfig.status}
+											onClick={() => setSelectedFeature(feature)}
+											aria-label={`View details for ${feature.title}`}
+										>
+											<BootstrapIcon icon={statusConfig.icon} size={16} />
+											{statusConfig.label}
+										</StatusBadge>
+									</FeatureHeader>
+									<p
+										style={{ color: 'var(--ping-color-text-secondary, #6b7280)', lineHeight: 1.6 }}
+									>
+										{feature.description}
+									</p>
+								</CardBody>
+							</FeatureCard>
+						);
+					})}
+				</FeatureGrid>
+
+				{selectedFeature && (
+					<PopupOverlay onClick={() => setSelectedFeature(null)}>
+						<PopupContent onClick={(e) => e.stopPropagation()}>
+							<PopupHeader>
+								<h3>
+									<BootstrapIcon
+										icon={selectedFeature.icon}
+										size={20}
+										style={{ marginRight: '0.5rem' }}
+									/>
+									{selectedFeature.title}
+								</h3>
+								<CloseButton onClick={() => setSelectedFeature(null)} aria-label="Close popup">
+									<BootstrapIcon icon="FiX" size={20} />
+								</CloseButton>
+							</PopupHeader>
+							<p style={{ color: 'var(--ping-color-text-secondary, #6b7280)', lineHeight: 1.6 }}>
+								{selectedFeature.details}
+							</p>
+						</PopupContent>
+					</PopupOverlay>
+				)}
+			</_Container>
+		</PingUIWrapper>
+	);
 };
 
 export default AIAgentOverview;

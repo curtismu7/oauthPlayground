@@ -17,7 +17,6 @@ import {
 	HybridFlowTokenProcessor,
 	HybridFlowVariant,
 	HybridTokens,
-	log,
 } from '../services/hybridFlowSharedService';
 import { StepCredentials } from '../types/flowTypes';
 import { credentialManager } from '../utils/credentialManager';

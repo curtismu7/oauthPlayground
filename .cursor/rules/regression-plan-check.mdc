@@ -1,12 +1,14 @@
 ---
-description: Before editing regression-sensitive areas, read docs/UPDATE_LOG_AND_REGRESSION_PLAN.md; after every fix, add an Update log entry and run the relevant regression checks.
-globs: ["**/src/components/Sidebar*.tsx", "**/src/components/Navbar.tsx", "**/src/components/EnhancedFloatingLogViewer.tsx", "**/src/components/DiscoveryPanel.tsx", "**/src/v8u/components/AppDiscoveryModalV8U.tsx", "**/src/services/flowUIService*", "**/src/services/discoveryService.ts", "**/src/services/workerToken*.ts", "**/src/hooks/useGlobalWorkerToken*", "**/src/pages/EnvironmentManagementPageV8*", "**/src/pages/flows/**/*.tsx", "**/src/config/sidebarMenuConfig*", "**/src/v8/services/workerTokenStatusService*", "**/src/v8u/services/workerTokenStatusService*", "**/src/v8/services/mfaFeatureFlags*", "**/src/v8/pages/MFAFeatureFlagsAdmin*"]
-alwaysApply: false
+description: Use docs/UPDATE_LOG_AND_REGRESSION_PLAN.md before and after changes; add Update log entries and run regression checks after every fix.
+globs: ["**/docs/UPDATE_LOG_AND_REGRESSION_PLAN.md", "**/src/components/Sidebar*.tsx", "**/src/components/Navbar.tsx", "**/src/components/EnhancedFloatingLogViewer.tsx", "**/src/components/DiscoveryPanel.tsx", "**/src/v8u/components/AppDiscoveryModalV8U.tsx", "**/src/services/flowUIService*", "**/src/services/discoveryService.ts", "**/src/services/workerToken*.ts", "**/src/hooks/useGlobalWorkerToken*", "**/src/pages/EnvironmentManagementPageV8*", "**/src/pages/flows/**/*.tsx", "**/src/config/sidebarMenuConfig*", "**/src/v8/services/workerTokenStatusService*", "**/src/v8u/services/workerTokenStatusService*", "**/src/v8/services/mfaFeatureFlags*", "**/src/v8/pages/MFAFeatureFlagsAdmin*", "**/src/pages/Configuration.tsx", "**/src/services/callbackUriService.ts", "**/src/utils/flowRedirectUriMapping.ts"]
+alwaysApply: true
 ---
 
 # Regression plan — check each update
 
-When editing any of these regression-sensitive areas, follow this workflow so we do not reintroduce known issues.
+**Source of truth:** `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md` (read Section 4 and 7 before changes; add to Section 3 after every fix.)
+
+When editing regression-sensitive areas (sidebar, worker token, discovery, flow UI, Configuration, redirect URIs, MFA, etc.), follow this workflow so we do not reintroduce known issues.
 
 ## Before making changes
 

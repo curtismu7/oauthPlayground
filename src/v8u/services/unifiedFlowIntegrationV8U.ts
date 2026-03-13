@@ -10,6 +10,7 @@
  */
 
 import type { ResponseMode } from '@/services/responseModeService';
+import { V9UnifiedRedirectUriService as UnifiedRedirectUriServiceV8U } from '@/services/v9/V9UnifiedRedirectUriService';
 import {
 	type ClientCredentialsCredentials,
 	ClientCredentialsIntegrationServiceV8,
@@ -27,7 +28,6 @@ import {
 	type OAuthCredentials,
 	OAuthIntegrationServiceV8,
 } from '@/v8/services/oauthIntegrationServiceV8';
-import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
 // ROPC flow removed - not supported by PingOne, use mock flows instead
 import {
 	type FlowType,
@@ -207,27 +207,18 @@ export class UnifiedFlowIntegrationV8U {
 				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'fragment'),
 		});
 
-		/**
-		 * CRITICAL FIX: Use user's configured redirect URI if set, otherwise use flow-specific default
-		 *
-		 * Problem: We were prioritizing the auto-generated redirect URI over the user's configured URI,
-		 * causing "invalid redirect URI" errors when the user's URI (which matches PingOne) was different.
-		 *
-		 * Solution: Prioritize credentials.redirectUri if set (user knows what's configured in PingOne),
-		 * only fall back to auto-generated URI if credentials.redirectUri is empty.
-		 */
-		const flowKey = `${flowType}-v8u`;
-		const defaultRedirectUri = RedirectUriServiceV8.getRedirectUriForFlow(flowKey);
-		// Prioritize user's configured redirect URI (matches PingOne config) over auto-generated default
-		const redirectUriToUse = credentials.redirectUri?.trim() || defaultRedirectUri || '';
+		// Single source: UnifiedRedirectUriServiceV8U (supports pi.flow → urn:pingidentity:redirectless)
+		const useRedirectless = credentials.responseMode === 'pi.flow' || !!credentials.useRedirectless;
+		const redirectUriToUse = UnifiedRedirectUriServiceV8U.getRedirectUriForAuthorize(flowType, {
+			useRedirectless,
+			configuredRedirectUri: credentials.redirectUri,
+		});
 
 		logger.debug(`Redirect URI validation`, {
 			flowType,
-			flowKey,
+			useRedirectless,
 			credentialsRedirectUri: credentials.redirectUri,
-			defaultRedirectUri,
 			redirectUriToUse,
-			usingConfigured: !!credentials.redirectUri?.trim(),
 		});
 
 		// Implicit flow

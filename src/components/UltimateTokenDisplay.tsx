@@ -5,6 +5,7 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FiClock, FiTag, FiUnlock } from '../icons';
 import TokenDisplayService from '../services/tokenDisplayService';
@@ -204,29 +205,30 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 		switch ($variant) {
 			case 'primary':
 				return `
-          background: V9_COLORS.PRIMARY.BLUE;
-          color: white;
-          &:hover { background: V9_COLORS.PRIMARY.BLUE_DARK; transform: translateY(-1px); }
-        `;
+					background: ${V9_COLORS.PRIMARY.BLUE};
+					color: ${V9_COLORS.TEXT.WHITE};
+					&:hover { background: ${V9_COLORS.PRIMARY.BLUE_DARK}; transform: translateY(-1px); }
+				`;
 			case 'success':
 				return `
-          background: V9_COLORS.PRIMARY.GREEN;
-          color: white;
-          &:hover { background: V9_COLORS.PRIMARY.GREEN_DARK; transform: translateY(-1px); }
-        `;
+					background: ${V9_COLORS.PRIMARY.GREEN};
+					color: ${V9_COLORS.TEXT.WHITE};
+					&:hover { background: ${V9_COLORS.PRIMARY.GREEN_DARK}; transform: translateY(-1px); }
+				`;
 			case 'warning':
 				return `
-          background: V9_COLORS.PRIMARY.YELLOW;
-          color: white;
-          &:hover { background: V9_COLORS.PRIMARY.YELLOW_DARK; transform: translateY(-1px); }
-        `;
+					background: ${V9_COLORS.PRIMARY.YELLOW};
+					color: ${V9_COLORS.TEXT.WHITE};
+					&:hover { background: ${V9_COLORS.PRIMARY.YELLOW_DARK}; transform: translateY(-1px); }
+				`;
 			default:
+				/* outline primary: never grey when enabled */
 				return `
-          background: #f3f4f6;
-          color: V9_COLORS.TEXT.GRAY_DARK;
-          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-          &:hover { background: V9_COLORS.TEXT.GRAY_LIGHTER; transform: translateY(-1px); }
-        `;
+					background: ${V9_COLORS.TEXT.WHITE};
+					color: ${V9_COLORS.PRIMARY.BLUE};
+					border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
+					&:hover { background: ${V9_COLORS.BG.GRAY_LIGHT}; border-color: ${V9_COLORS.PRIMARY.BLUE_DARK}; color: ${V9_COLORS.PRIMARY.BLUE_DARK}; transform: translateY(-1px); }
+				`;
 		}
 	}}
 
@@ -234,6 +236,9 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 		opacity: 0.5;
 		cursor: not-allowed;
 		transform: none !important;
+		background: ${V9_COLORS.TEXT.GRAY_LIGHT} !important;
+		border-color: ${V9_COLORS.TEXT.GRAY_LIGHT} !important;
+		color: ${V9_COLORS.TEXT.GRAY_MEDIUM} !important;
 	}
 `;
 
@@ -582,7 +587,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 							</ActionButton>
 						)}
 
-						{showTokenManagement && (
+						{_showTokenManagement && (
 							<ActionButton
 								onClick={() => handleSendToTokenManagement(tokenType, token)}
 								title="Send to Token Management"

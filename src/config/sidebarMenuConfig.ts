@@ -71,7 +71,6 @@ function applyVersionBadges(items: SidebarMenuItem[]): SidebarMenuItem[] {
 			'/jwks-troubleshooting',
 			'/flows/userinfo',
 			'/configuration',
-			'/credential-management',
 			'/postman-collection-generator-v9',
 		];
 
@@ -130,10 +129,8 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: 'Setup & Configuration',
 		items: items([
 			['/configuration', 'Configuration Management', true],
-			['/credential-management', 'Credential Management', true],
 			['/auto-discover', 'OIDC Discovery', true],
 			['/environments', 'Environment Management', true],
-			['/advanced-configuration', 'Advanced Configuration', true],
 		]),
 	},
 	{
@@ -146,9 +143,9 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 				label: 'OIDC',
 				items: items(
 					[
-						['/v7/oidc/authorization-code', 'Authorization Code', true, true],
-						['/v7/oidc/hybrid', 'Hybrid Flow', true, true],
-						['/v7/oidc/ciba', 'CIBA (Backchannel)', true, true],
+						['/flows/oidc-authorization-code-v9', 'Authorization Code', true, true],
+						['/flows/oidc-hybrid-v9', 'Hybrid Flow', true, true],
+						['/flows/ciba-v9', 'CIBA (Backchannel)', true, true],
 					],
 					'oidc-mock'
 				),
@@ -158,9 +155,9 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 				label: 'OAuth 2.0',
 				items: items(
 					[
-						['/v7/oauth/device-authorization', 'Device Authorization', true, true],
-						['/v7/oauth/client-credentials', 'Client Credentials', true, true],
-						['/v7/oauth/implicit', 'Implicit Flow', true, true],
+						['/flows/device-authorization-v9', 'Device Authorization', true, true],
+						['/flows/client-credentials-v9', 'Client Credentials', true, true],
+						['/flows/implicit-v9', 'Implicit Flow', true, true],
 						['/flows/jwt-bearer-token-v9', 'JWT Bearer Token', true, true],
 						['/flows/saml-bearer-assertion-v9', 'SAML Bearer Assertion', true, true],
 					],
@@ -172,12 +169,12 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 				label: 'Unsupported OAuth Flows',
 				items: items(
 					[
-						['/v7/oauth/ropc', 'Resource Owner Password (ROPC)', true, true],
+						['/flows/oauth-ropc-v9', 'Resource Owner Password (ROPC)', true, true],
 						['/flows/dpop', 'DPoP (Proof of Possession)', true, true],
 						['/flows/rar-v9', 'Rich Authorization Requests (RAR)', true, true],
 						['/flows/par-v9', 'Pushed Authorization Requests (PAR)', true, true],
 						['/flows/saml-sp-dynamic-acs-v1', 'SAML SP Dynamic ACS', true, true],
-						['/v8u/spiffe-spire/attest', 'SPIFFE/SPIRE', true, true],
+						['/flows/spiffe-spire-v9', 'SPIFFE/SPIRE', true, true],
 					],
 					'unsupported'
 				),
@@ -213,11 +210,10 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: 'Tokens & Session',
 		items: items([
 			['/flows/worker-token-v9', 'Worker Token (V9)', true],
-			['/token-management', 'Token Management', true],
-			['/flows/token-introspection', 'Token Introspection', true],
-			['/flows/token-revocation', 'Token Revocation', true],
+			['/token/operations', 'Token Operations', true],
 			['/flows/userinfo', 'UserInfo Flow', true],
 			['/flows/pingone-logout', 'PingOne Logout', true],
+			['/flows/redirectless-v9-real', 'Redirectless Login Modal (V9)', true],
 		]),
 	},
 	{
@@ -247,6 +243,8 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		id: 'artificial-intelligence',
 		label: 'AI & Identity',
 		items: items([
+			['/ai-assistant', 'OAuth Assistant', true],
+			['/mcp-server', 'MCP Server Config', true],
 			['/ai-agent-overview', 'AI Agent Overview', true],
 			['/ai-glossary', 'AI Glossary', true],
 			['/docs/prompts/prompt-all', '🚀 Complete Prompts Guide', true],

@@ -10,7 +10,6 @@ import { UnifiedWorkerTokenBackupServiceV8 } from '@/services/unifiedWorkerToken
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { UnifiedOAuthCredentialsServiceV8U } from '@/v8u/services/unifiedOAuthCredentialsServiceV8U';
-import { logger } from '../utils/logger';
 import { logger } from './logger';
 // App type mapping for Production apps
 export const PRODUCTION_APP_CONFIGS = {

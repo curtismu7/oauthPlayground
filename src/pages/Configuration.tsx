@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import packageJson from '../../package.json';
 import AdvancedSecuritySettingsMock from '../components/AdvancedSecuritySettingsMock';
+import { ApiKeyConfiguration } from '../components/ApiKeyConfiguration';
 import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
 import { Icon } from '../components/Icon/Icon';
 import PingOneApplicationConfig, {
@@ -10,8 +11,9 @@ import PingOneApplicationConfig, {
 import { RegionSelect } from '../components/RegionSelect';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { CredentialManagement } from '../pages/CredentialManagement';
 import { callbackUriService } from '../services/callbackUriService';
-import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { UnifiedFlowCollapsibleHeader } from '../services/collapsibleHeaderService';
 import { CopyButtonService } from '../services/copyButtonService';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { FlowHeader } from '../services/flowHeaderService';
@@ -726,7 +728,7 @@ const Configuration: React.FC = () => {
 			return '';
 		}
 	});
-	// Load existing credentials on mount
+	// Load existing credentials on mount and sync to MCP config (for PingOne MCP server)
 	useEffect(() => {
 		const loadCredentials = () => {
 			try {
@@ -741,6 +743,16 @@ const Configuration: React.FC = () => {
 							? configCredentials.scopes.join(' ')
 							: configCredentials.scopes || 'openid profile email',
 					});
+					// Sync to MCP config so PingOne MCP server can use credentials from storage
+					fetch('/api/credentials/save-mcp-config', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							environmentId: configCredentials.environmentId,
+							clientId: configCredentials.clientId,
+							clientSecret: configCredentials.clientSecret,
+						}),
+					}).catch(() => {});
 				}
 			} catch (error) {
 				logger.error('Configuration', 'Failed to load credentials:', undefined, error as Error);
@@ -989,7 +1001,7 @@ const Configuration: React.FC = () => {
 						</div>
 						<p style={{ marginTop: '0.5rem', marginBottom: 0, fontSize: '0.875rem' }}>
 							<a
-								href="https://developer.pingidentity.com/pingone-api/verify/working-with-pingone-apis.html"
+								href="https://developer.pingidentity.com/pingone-api/platform/working-with-pingone-apis.html"
 								target="_blank"
 								rel="noopener noreferrer"
 								style={{ color: '#2563eb' }}
@@ -1011,7 +1023,7 @@ const Configuration: React.FC = () => {
 							host (e.g. api.pingone.ca for Canada). Choose the region that matches your PingOne
 							subscription. See{' '}
 							<a
-								href="https://developer.pingidentity.com/pingone-api/verify/working-with-pingone-apis.html"
+								href="https://developer.pingidentity.com/pingone-api/platform/working-with-pingone-apis.html"
 								target="_blank"
 								rel="noopener noreferrer"
 								style={{ color: '#2563eb' }}
@@ -1025,37 +1037,61 @@ const Configuration: React.FC = () => {
 			</div>
 
 			{/* Worker Token Section - First Step */}
-			<CollapsibleHeader
+			<UnifiedFlowCollapsibleHeader
 				title="Worker Token Credentials"
 				subtitle="Obtain a PingOne Management API worker token to enable Config Checker functionality across all flows"
 				icon={<MDIIcon icon="FiKey" />}
 				defaultCollapsed={false}
 			>
 				<WorkerTokenSectionV8 compact onTokenUpdated={(token) => setWorkerToken(token || '')} />
-			</CollapsibleHeader>
+			</UnifiedFlowCollapsibleHeader>
+
+			{/* Flow Credentials & Token Tester (merged from Credential Management) */}
+			<UnifiedFlowCollapsibleHeader
+				title="Flow Credentials & Token Tester"
+				subtitle="View per-flow credentials, import/export, clear all, and validate worker tokens"
+				icon={<MDIIcon icon="FiKey" />}
+				defaultCollapsed={true}
+			>
+				<CredentialManagement embedded />
+			</UnifiedFlowCollapsibleHeader>
+
+			{/* API Keys Configuration */}
+			<UnifiedFlowCollapsibleHeader
+				title="API Keys Configuration"
+				subtitle="Manage API keys for external services like Brave Search and GitHub integration"
+				icon={<MDIIcon icon="FiKey" />}
+				defaultCollapsed={false}
+			>
+				<ApiKeyConfiguration />
+			</UnifiedFlowCollapsibleHeader>
 
 			{/* Advanced Security Settings */}
-			<CollapsibleHeader
+			<UnifiedFlowCollapsibleHeader
 				title="Advanced Security Settings"
 				subtitle="Manage OAuth/OIDC security configurations, assessment, and recommendations"
 				icon={<Icon name="shield-check" />}
 				defaultCollapsed={true}
-				theme="ping"
-				variant="compact"
 			>
 				<AdvancedSecuritySettingsMock />
-			</CollapsibleHeader>
+			</UnifiedFlowCollapsibleHeader>
 
-			{/* Configuration URI Reference Table */}
-			<CollapsibleHeader
+			{/* Configuration URI Reference Table - Unified MFA and Unified OAuth only */}
+			<UnifiedFlowCollapsibleHeader
 				title="PingOne Redirect & Logout URIs"
-				subtitle="Authoritative URIs to register in PingOne for each Playground flow"
+				subtitle="URIs to register in PingOne for Unified MFA and Unified OAuth apps"
 				icon={<MDIIcon icon="FiInfo" />}
 				defaultCollapsed={false}
-				theme="orange"
 				id="redirect-uri-catalog"
 			>
-				<Card>
+				<Card
+					style={{
+						position: 'relative',
+						zIndex: 10,
+						backgroundColor: '#ffffff',
+						isolation: 'isolate',
+					}}
+				>
 					<p
 						style={{
 							marginBottom: '1rem',
@@ -1063,11 +1099,10 @@ const Configuration: React.FC = () => {
 							lineHeight: 1.6,
 						}}
 					>
-						Use this catalogue to copy the exact redirect and logout callback URIs that the OAuth
-						Playground expects. Register these values in your PingOne application to avoid redirect
-						mismatches and RP-initiated logout failures. Redirect URIs marked
-						<strong> Not required</strong> may be omitted in PingOne. You can customise the URIs
-						below and the Playground will update instantly.
+						Copy the redirect and logout callback URIs below and register them in your PingOne
+						application for <strong>Unified MFA</strong> and <strong>Unified OAuth (V8U)</strong>{' '}
+						apps to avoid redirect mismatches and RP-initiated logout failures. You can customise
+						the URIs below and the Playground will update instantly.
 					</p>
 
 					<UriActionRow>
@@ -1198,7 +1233,7 @@ const Configuration: React.FC = () => {
 						</tbody>
 					</UriTable>
 				</Card>
-			</CollapsibleHeader>
+			</UnifiedFlowCollapsibleHeader>
 
 			{/* Configuration URI Status - Check redirect and logout URIs against PingOne */}
 			{!!workerToken && credentials.environmentId && credentials.clientId && (
@@ -1213,7 +1248,7 @@ const Configuration: React.FC = () => {
 				/>
 			)}
 
-			<CollapsibleHeader
+			<UnifiedFlowCollapsibleHeader
 				title="Application Information"
 				subtitle="Current version and system requirements for the OAuth Playground"
 				icon={<MDIIcon icon="FiPackage" />}
@@ -1296,9 +1331,9 @@ const Configuration: React.FC = () => {
 						</FeatureItem>
 					</FeatureGrid>
 				</Card>
-			</CollapsibleHeader>
+			</UnifiedFlowCollapsibleHeader>
 
-			<CollapsibleHeader
+			<UnifiedFlowCollapsibleHeader
 				title="Quick Start Setup"
 				subtitle="Get the OAuth Playground running in minutes with these simple steps"
 				icon={<MDIIcon icon="FiTerminal" />}
@@ -1433,9 +1468,9 @@ cd oauthPlayground`}
 						</InfoBox>
 					</StepCard>
 				</Card>
-			</CollapsibleHeader>
+			</UnifiedFlowCollapsibleHeader>
 
-			<CollapsibleHeader
+			<UnifiedFlowCollapsibleHeader
 				title="Alternative Startup Options"
 				subtitle="Different ways to start the application depending on your needs"
 				icon={<MDIIcon icon="FiPlay" />}
@@ -1556,9 +1591,9 @@ cd oauthPlayground`}
 						<CodeBlockWithCopy label="redirect-chmod">{`chmod +x redirect-servers.sh`}</CodeBlockWithCopy>
 					</div>
 				</Card>
-			</CollapsibleHeader>
+			</UnifiedFlowCollapsibleHeader>
 
-			<CollapsibleHeader
+			<UnifiedFlowCollapsibleHeader
 				title="Troubleshooting"
 				subtitle="Common issues and their solutions"
 				icon={<MDIIcon icon="FiAlertCircle" />}
@@ -1591,9 +1626,9 @@ cd oauthPlayground`}
 						</InfoBox>
 					</div>
 				</Card>
-			</CollapsibleHeader>
+			</UnifiedFlowCollapsibleHeader>
 
-			<CollapsibleHeader
+			<UnifiedFlowCollapsibleHeader
 				title="Additional Resources"
 				subtitle="Explore more resources to get the most out of the OAuth Playground"
 				icon={<MDIIcon icon="FiExternalLink" />}
@@ -1633,7 +1668,7 @@ cd oauthPlayground`}
 						</a>
 
 						<a
-							href="https://docs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2"
+							href="https://developer.pingidentity.com/pingone-api/auth/introduction.html"
 							target="_blank"
 							rel="noopener noreferrer"
 							style={{
@@ -1664,7 +1699,7 @@ cd oauthPlayground`}
 						</a>
 
 						<a
-							href="https://docs.pingidentity.com/sdks/latest/sdks/index.html"
+							href="https://docs.pingidentity.com/sdks/latest/index.html"
 							target="_blank"
 							rel="noopener noreferrer"
 							style={{
@@ -1695,7 +1730,7 @@ cd oauthPlayground`}
 						</a>
 					</div>
 				</Card>
-			</CollapsibleHeader>
+			</UnifiedFlowCollapsibleHeader>
 		</div>
 	);
 };
