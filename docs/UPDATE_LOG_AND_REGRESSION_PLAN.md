@@ -31,6 +31,64 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Unified MFA environment ID restoration from MCP server (2026-03-13)
+- **What:** Unified MFA flow at `/v8/unified-mfa` wasn't restoring environment ID from stored MCP credentials, showing empty field instead of the stored environment ID.
+- **Fixes:** (1) **MCP server as primary source**: Modified environment ID loading to first try `/api/mcp/server/credentials` before falling back to storage services. (2) **Sync to all storage**: When MCP credentials are loaded, sync environment ID to environmentIdPersistenceService, globalEnvironmentService, and localStorage. (3) **Maintain fallback chain**: Preserve existing fallback to storage services and localStorage if MCP server unavailable. (4) **Error handling**: Add proper try/catch with logging for MCP server failures.
+- **Files:** `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`
+- **Regression check:** Store credentials in Configuration page → navigate to `/v8/unified-mfa` → environment ID field should show the stored value. Refresh page → environment ID persists. MCP server unavailable → falls back to localStorage/stored services.
+
+### MCP "fetch failed": use PingOne API host, not api.pingdemo.com (2026-03)
+
+- **What:** Two Postman generator pages existed (`/postman-collection-generator` and `/postman-collection-generator-v9`) with near-identical UI but different services (postmanCollectionGeneratorV8 vs postmanCollectionGeneratorV9). Unified flows and MFA use V8.
+- **Fix:** Removed V9 page and service. Kept single Postman Collection Generator at `/postman-collection-generator` using `postmanCollectionGeneratorV8`. Deleted `PostmanCollectionGeneratorV9.tsx` and `postmanCollectionGeneratorV9.ts`. Removed V9 route, sidebar entry, flowHeaderService config, and recentlyUpdatedApps badge.
+- **Files:** `src/App.tsx`, `src/config/sidebarMenuConfig.ts`, `src/services/flowHeaderService.tsx`, `test-routes.js`; deleted `src/pages/v9/PostmanCollectionGeneratorV9.tsx`, `src/services/v9/postmanCollectionGeneratorV9.ts`
+- **Regression check:** Open `/postman-collection-generator` → page loads; generate Unified + MFA collections; download works. Sidebar shows single "Postman Collection Generator" under Developer & Tools.
+
+### Postman generators: consolidated to single V8 entry (2026-03)
+
+- **What:** Two Postman generator pages existed (`/postman-collection-generator` and `/postman-collection-generator-v9`) with near-identical UI but different services (postmanCollectionGeneratorV8 vs postmanCollectionGeneratorV9). Unified flows and MFA use V8.
+- **Fix:** Removed V9 page and service. Kept single Postman Collection Generator at `/postman-collection-generator` using `postmanCollectionGeneratorV8`. Deleted `PostmanCollectionGeneratorV9.tsx` and `postmanCollectionGeneratorV9.ts`. Removed V9 route, sidebar entry, flowHeaderService config, and recentlyUpdatedApps badge.
+- **Files:** `src/App.tsx`, `src/config/sidebarMenuConfig.ts`, `src/services/flowHeaderService.tsx`, `test-routes.js`; deleted `src/pages/v9/PostmanCollectionGeneratorV9.tsx`, `src/services/v9/postmanCollectionGeneratorV9.ts`
+- **Regression check:** Open `/postman-collection-generator` → page loads; generate Unified + MFA collections; download works. Sidebar shows single "Postman Collection Generator" under Developer & Tools.
+
+### MCP "fetch failed": use PingOne API host, not api.pingdemo.com (2026-03)
+
+- **What:** "List all users" returned `PingOne API call failed: fetch failed` because the server called `https://api.pingdemo.com/v1/environments/...`. `api.pingdemo.com` is the OAuth playground host, not the PingOne Management API.
+- **Fix:** (1) `getStoredCustomDomain()` returns null when no custom domain stored (was returning DEFAULT_CUSTOM_DOMAIN). (2) `mcpCallPingOne` uses `buildRegionUrl(region)` when no valid custom domain; never uses `api.pingdemo.com` for PingOne API calls. (3) Try/catch around fetch surfaces cause (e.g. DNS, TLS).
+- **Files:** `server.js` (getStoredCustomDomain, mcpCallPingOne)
+- **Regression check:** Live ON → "list all users" → succeeds (or shows real PingOne error like 403). Server must call `https://api.pingone.com/...` (or regional variant), not api.pingdemo.com. Restart server after code changes.
+
+### MCP "fetch failed": use PingOne API host, not api.pingdemo.com (2026-03)
+- **What:** "List all users" returned "PingOne API call failed: fetch failed" because MCP used `api.pingdemo.com` (OAuth playground host) as the PingOne Management API base. That host serves the app, not the PingOne API, so the connection failed.
+- **Fix:** `getStoredCustomDomain()` returns `null` when no custom domain stored (instead of DEFAULT_CUSTOM_DOMAIN). `mcpCallPingOne` uses `buildRegionUrl(region)` (api.pingone.com, api.pingone.eu, etc.) when no valid custom domain. Explicitly never use `api.pingdemo.com` for PingOne API calls.
+- **Files:** `server.js` (getStoredCustomDomain, mcpCallPingOne)
+- **Regression check:** Live ON → "Get worker token" → "List all users" → users list loads (or shows real PingOne error, e.g. 403). No "fetch failed". If custom domain is explicitly set in Configuration for a PingOne proxy, that domain is still used.
+
+### MCP list users: "fetch failed" — use region-based PingOne host (2026-03)
+- **What:** "List all users" returned `PingOne API call failed: fetch failed` because the server used `api.pingdemo.com` (OAuth playground host) instead of the PingOne Management API (`api.pingone.com` or regional variants).
+- **Fix:** `getStoredCustomDomain()` returns null when no custom domain stored (no fallback to api.pingdemo.com). `mcpCallPingOne` uses `buildRegionUrl(region)` (api.pingone.com, .eu, .ca, etc.) when custom domain is null or explicitly api.pingdemo.com; never uses api.pingdemo.com for PingOne API calls.
+- **Files:** `server.js`
+- **Regression check:** With Live MCP on, ask "list all users" → call reaches api.pingone.com (or regional host), not api.pingdemo.com. Restart server after pulling changes.
+
+### MCP list users: use api.pingone.com instead of api.pingdemo.com (2026-03)
+
+- **What:** "List all users" returned "PingOne API call failed: fetch failed" — the server was calling `https://api.pingdemo.com/v1/environments/...` which is the OAuth playground host, not the PingOne Management API.
+- **Fix:** `getStoredCustomDomain()` now returns null when no custom domain is stored (instead of DEFAULT_CUSTOM_DOMAIN). `mcpCallPingOne` uses `api.pingone.com` (or regional variant) when no valid custom domain; explicitly ignores `api.pingdemo.com` even if stored. Added try/catch around fetch to surface the underlying error cause.
+- **Files:** `server.js`
+- **Regression check:** Live ON → "Get worker token" → "List all users" → users returned (or real PingOne error like 403), not "fetch failed".
+
+### MCP list users: "fetch failed" — use PingOne API host not api.pingdemo.com (2026-03)
+- **What:** "List all users" returned "PingOne API call failed: fetch failed" because the server called `https://api.pingdemo.com/...` — the OAuth playground host, not the PingOne Management API.
+- **Fix:** `getStoredCustomDomain()` returns null when no custom domain stored (was defaulting to api.pingdemo.com). `mcpCallPingOne` uses region-based host (api.pingone.com, api.pingone.eu, etc.) when customDomain is null or api.pingdemo.com. Never use api.pingdemo.com for PingOne Management API calls.
+- **Files:** `server.js` (getStoredCustomDomain, mcpCallPingOne)
+- **Regression check:** With no custom domain stored → "list all users" uses api.pingone.com (or region). Restart server after pull. If stored domain is api.pingdemo.com, it is ignored for API calls.
+
+### MCP "fetch failed": use PingOne API host, not api.pingdemo.com (2026-03)
+- **What:** "List all users" returned "PingOne API call failed: fetch failed" because the server was calling `https://api.pingdemo.com/...` — the OAuth playground host, not the PingOne Management API.
+- **Fix:** `getStoredCustomDomain()` returns null when no custom domain is stored; `mcpCallPingOne` uses `buildRegionUrl(region)` (api.pingone.com, api.pingone.eu, etc.) when custom domain is null or `api.pingdemo.com`. Never use api.pingdemo.com for PingOne Management API calls.
+- **Files:** `server.js`
+- **Regression check:** "List all users" with worker token → succeeds or shows real PingOne error (401/403), not "fetch failed". Restart server after code changes.
+
 ### API key backup system implementation (2026-03-13)
 - **What:** API keys (MCP, Groq, Brave Search) were only stored in primary locations with no redundancy, risking loss if storage fails.
 - **Fixes:** (1) **ApiKeyBackupService**: Created comprehensive backup service with multi-location storage (localStorage, filesystem, primary). (2) **Backend endpoints**: Added `/api/api-key/backup` POST/GET endpoints for filesystem backup storage. (3) **Automatic backups**: Enhanced apiKeyService to automatically create backups after storing API keys. (4) **UI integration**: Added backup status display and manual backup/restore controls to ApiKeyConfiguration component. (5) **Health monitoring**: Added backup status checking and integrity verification with checksums.
