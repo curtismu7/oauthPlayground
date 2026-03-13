@@ -32,7 +32,6 @@ import { logger } from '../../../../../utils/logger';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService.ts';
 import { pingOneFetch } from '../../utils/pingOneFetch.ts';
 import type { DeviceAuthenticationPolicy } from '../flows/shared/MFATypes.ts';
-import { sendAnalyticsLog } from '../utils/analyticsLoggerV8.ts';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 

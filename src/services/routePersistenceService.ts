@@ -5,7 +5,7 @@ import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 import { logger } from '../utils/logger';
 
-const log = createModuleLogger('src/services/routePersistenceService.ts');
+const _log = createModuleLogger('src/services/routePersistenceService.ts');
 
 const LAST_ROUTE_KEY = 'oauth_playground_last_route';
 const LAST_ROUTE_TIMESTAMP_KEY = 'oauth_playground_last_route_timestamp';

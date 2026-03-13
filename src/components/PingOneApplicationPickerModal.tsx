@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { fetchApplications, type PingOneApplication } from '../services/pingOneApplicationService';
 import { DraggableModal } from './DraggableModal';
-import { WorkerTokenModal } from './WorkerTokenModal';
+import { WorkerTokenModalV9 } from './WorkerTokenModalV9';
 
 const Content = styled.div`
 	display: flex;
@@ -567,16 +567,13 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 					</TableWrapper>
 				)}
 
-				{/* Worker Token Modal */}
-				<WorkerTokenModal
+				{/* Worker Token Modal — uses Worker Token modal service (WorkerTokenModalV9) */}
+				<WorkerTokenModalV9
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
-					onContinue={() => {
-						setShowWorkerTokenModal(false);
-						// Check if token was stored in localStorage
-						const storedToken = localStorage.getItem('worker_token');
-						if (storedToken && onWorkerTokenChange) {
-							onWorkerTokenChange(storedToken);
+					onTokenGenerated={(token) => {
+						if (token && onWorkerTokenChange) {
+							onWorkerTokenChange(token);
 							modernMessaging.showFooterMessage({
 								type: 'status',
 								message: 'Worker token obtained. You can now fetch applications.',
@@ -584,8 +581,6 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 							});
 						}
 					}}
-					flowType="application-picker"
-					environmentId={environmentId || ''}
 				/>
 			</Content>
 		</DraggableModal>

@@ -15,7 +15,7 @@ import {
 	getDomainFromIndexedDB,
 	saveCustomDomain,
 } from '../services/customDomainService';
-import { getCurrentRegion, type PingOneRegion, saveRegion } from '../services/regionService';
+import { type PingOneRegion } from '../services/regionService';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import {
 	checkWorkerTokenStatusSync,
@@ -69,7 +69,7 @@ interface TestResult {
 
 export default function CustomDomainTestPage() {
 	const [customDomain, setCustomDomain] = useState('');
-	const [selectedRegion, setSelectedRegion] = useState<PingOneRegion>('na');
+	const [_selectedRegion, _setSelectedRegion] = useState<PingOneRegion>('na');
 	const [savingDomain, setSavingDomain] = useState(false);
 	const [domainError, setDomainError] = useState<string | null>(null);
 	const [testResults, setTestResults] = useState<Record<string, TestResult>>({});

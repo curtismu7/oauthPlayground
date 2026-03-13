@@ -1,9 +1,12 @@
 {
+	"security.workspace.trust.enabled": false,
+	"chat.agent.autoApprove": true,
 	"git.ignoreLimitWarning": true,
 	"git.autorefresh": true,
 	"git.autorefreshInterval": 1200,
 	"git.commandsToLog": [],
 	"kiroAgent.trustedCommands": [
+		
 		"npm*",
 		"curl -k -s https://localhost:3000/api/env-config | jq",
 		"grep *",
@@ -202,7 +205,12 @@
 		"netstat *",
 		"shasum *",
 		"diff *",
-		"timeout *"
+		"timeout *",
+		"node -e \"require('fs').writeFileSync*",
+		"tee *",
+		"cat > *",
+
+
 	],
 	"chat.tools.terminal.autoApprove": {
 		"curl*": true,

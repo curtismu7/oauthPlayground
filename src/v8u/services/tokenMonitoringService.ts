@@ -80,16 +80,15 @@ export class TokenMonitoringService {
 			...config,
 		};
 
-		this.loadTokensFromStorage();
+		// Build token list from real sources only (unified storage + worker token), not persisted mock data
 		this.loadApiCallsFromStorage();
 		this.initializeNotifications();
 		this.startPolling();
 		this.setupTokenSync();
 		this.setupApiCallTrackerSync();
 
-		// Log initial state for debugging
 		logger.debug(
-			`[TokenMonitoring] Service initialized with ${this.tokens.size} tokens`,
+			'[TokenMonitoring] Service initialized; token list will be built from real sources (unified storage + worker token)',
 			'Logger debug'
 		);
 	}
@@ -383,36 +382,32 @@ export class TokenMonitoringService {
 		logger.debug('[TokenMonitoring] Cleared API call history', 'Logger debug');
 	}
 
-	// Token sync with OAuth flows
+	// Token sync with OAuth flows — build list from real sources only (unified storage + worker token)
 	private setupTokenSync(): void {
-		// Listen for token changes from OAuth flows
 		if (typeof window !== 'undefined') {
 			window.addEventListener('storage', (e) => {
 				if (e.key === 'tokenManagementFlowContext') {
-					this.syncTokensFromFlowContext();
+					void this.syncTokensFromFlowContext();
 				}
 			});
 
-			// Listen for worker token updates
 			window.addEventListener('worker-token-refreshed', () => {
 				logger.debug('[TokenMonitoring] worker-token-refreshed event received', 'Logger debug');
-				this.syncWorkerToken();
+				void this.syncWorkerToken();
 			});
 
-			// Also listen for any other worker token events
 			window.addEventListener('workerTokenUpdated', () => {
 				logger.debug('[TokenMonitoring] workerTokenUpdated event received', 'Logger debug');
-				this.syncWorkerToken();
+				void this.syncWorkerToken();
 			});
 
-			// Initial sync
-			this.syncTokensFromFlowContext();
-			this.syncWorkerToken();
+			// Initial sync from real sources only (unified storage, then worker token)
+			void this.syncTokensFromFlowContext();
 
-			// Set up periodic sync for flow context changes
+			// Periodic refresh from real sources (unified storage + worker token)
 			setInterval(() => {
-				this.syncTokensFromFlowContext();
-			}, 2000); // Check every 2 seconds
+				void this.syncTokensFromFlowContext();
+			}, 2000);
 		}
 	}
 
@@ -492,26 +487,26 @@ export class TokenMonitoringService {
 		return 'oauth_revoke'; // Default type
 	}
 
-	private syncTokensFromFlowContext(): void {
+	/** Build token list from real sources: unified storage first, then flow context/localStorage/legacy, then worker token. */
+	private async syncTokensFromFlowContext(): Promise<void> {
 		try {
-			// First try unified storage
-			this.syncFromUnifiedStorage();
+			// 1) Real source: unified token storage (IndexedDB)
+			await this.syncFromUnifiedStorage();
 
-			// Then try the standard flow context
+			// 2) Flow context / localStorage / legacy (merge in any from opener or legacy keys)
 			const flowContext = this.getTokenManagementFlowContext();
 			if (flowContext) {
 				const context = JSON.parse(flowContext);
 				if (context.tokens) {
 					this.syncTokensFromOAuthFlow(context.tokens, context.flow || 'unknown');
 				}
-				return;
+			} else {
+				this.syncTokensFromLocalStorage();
+				this.syncTokenFromLegacyStorage();
 			}
 
-			// Fallback: Check localStorage for tokens stored by authorization flows
-			this.syncTokensFromLocalStorage();
-
-			// Final fallback: Check legacy storage
-			this.syncTokenFromLegacyStorage();
+			// 3) Real source: worker token (so it is always included and not overwritten by step 1)
+			await this.syncWorkerToken();
 		} catch (error) {
 			logger.warn('[TokenMonitoring] Failed to sync tokens from flow context:', {
 				error: error instanceof Error ? error.message : String(error),

@@ -9,7 +9,7 @@
  * across implicit, oauth-authz, and hybrid flows.
  */
 
-import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
+import { V9UnifiedRedirectUriService as UnifiedRedirectUriServiceV8U } from '@/services/v9/V9UnifiedRedirectUriService';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 import { unifiedFlowLoggerService as UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
@@ -43,24 +43,22 @@ export interface AuthorizationUrlResult {
  */
 export class AuthorizationUrlBuilderService {
 	/**
-	 * Get the correct redirect URI for the flow type
-	 *
-	 * Prioritizes user's configured redirect URI (matches PingOne config) over auto-generated default.
-	 * Only falls back to auto-generated URI if credentials.redirectUri is empty.
+	 * Get the correct redirect URI for the flow type (single source: UnifiedRedirectUriServiceV8U).
+	 * When response_mode=pi.flow (redirectless), returns urn:pingidentity:redirectless.
+	 * Otherwise uses configured URI or flow-specific default (authz-callback / oauth-implicit-callback).
 	 */
 	private static getRedirectUri(flowType: FlowType, credentials: UnifiedFlowCredentials): string {
-		const flowKey = `${flowType}-v8u`;
-		const defaultRedirectUri = RedirectUriServiceV8.getRedirectUriForFlow(flowKey);
-		// Prioritize user's configured redirect URI (matches PingOne config) over auto-generated default
-		const redirectUriToUse = credentials.redirectUri?.trim() || defaultRedirectUri || '';
+		const useRedirectless = credentials.responseMode === 'pi.flow' || !!credentials.useRedirectless;
+		const redirectUriToUse = UnifiedRedirectUriServiceV8U.getRedirectUriForAuthorize(flowType, {
+			useRedirectless,
+			configuredRedirectUri: credentials.redirectUri,
+		});
 
 		UnifiedFlowLoggerService.debug('Redirect URI validation', {
 			flowType,
-			flowKey,
+			useRedirectless,
 			credentialsRedirectUri: credentials.redirectUri,
-			defaultRedirectUri,
 			redirectUriToUse,
-			usingConfigured: !!credentials.redirectUri?.trim(),
 		});
 
 		return redirectUriToUse;

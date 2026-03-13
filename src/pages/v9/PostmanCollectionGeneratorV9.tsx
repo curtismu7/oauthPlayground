@@ -14,6 +14,7 @@ import React, { useRef, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { BootstrapIcon } from '../../components/v9/BootstrapIcon';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../services/v9/environmentIdServiceV9';
 import {
@@ -1445,48 +1446,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				minHeight: '100vh',
 			}}
 		>
-			{/* Header */}
-			<div
-				style={{
-					background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
-					color: 'white',
-					padding: '2rem',
-					borderRadius: '12px',
-					marginBottom: '2rem',
-					boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
-				}}
-			>
-				<h1
-					style={{
-						margin: 0,
-						fontSize: '2rem',
-						fontWeight: '700',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '12px',
-					}}
-				>
-					<span style={{ fontSize: '32px' }}>📦</span>
-					Postman Collection Generator
-					<span
-						style={{
-							fontSize: '1.2rem',
-							fontWeight: '900',
-							color: '#dc2626',
-							marginLeft: '8px',
-							backgroundColor: '#fef2f2',
-							padding: '4px 8px',
-							borderRadius: '6px',
-							border: '1px solid V9_COLORS.BG.ERROR_BORDER',
-						}}
-					>
-						v{COLLECTION_VERSION}
-					</span>
-				</h1>
-				<p style={{ margin: '0.5rem 0 0 0', fontSize: '1.1rem', opacity: 0.9 }}>
-					Generate custom Postman collections for PingOne OAuth/OIDC and MFA flows
-				</p>
-			</div>
+			<FlowHeader flowId="postman-collection-generator-v9" />
 
 			{/* Collection Type Selection */}
 			<div

@@ -278,7 +278,7 @@ export const FloatingDebugLogViewer: React.FC<FloatingDebugLogViewerProps> = ({
 	);
 
 	// Truncate file content to prevent browser crashes
-	const truncateFileContent = useCallback((content: string, filename: string) => {
+	const _truncateFileContent = useCallback((content: string, filename: string) => {
 		if (content.length > MAX_STRING_LENGTH) {
 			const truncated = content.slice(-MAX_STRING_LENGTH);
 			logger.warn(`FloatingDebugLogViewer: File truncated`, {
@@ -311,7 +311,7 @@ export const FloatingDebugLogViewer: React.FC<FloatingDebugLogViewerProps> = ({
 		if (selectedFile && isOpen) {
 			loadFileContent();
 		}
-	}, [selectedFile, logSource, lineCount, tailMode, isOpen, loadFileContent]);
+	}, [selectedFile, isOpen, loadFileContent]);
 
 	// Drag handlers
 	const handleMouseDown = useCallback(
@@ -434,7 +434,7 @@ export const FloatingDebugLogViewer: React.FC<FloatingDebugLogViewerProps> = ({
 					<Input
 						type="number"
 						value={lineCount}
-						onChange={(e) => setLineCount(Math.max(1, parseInt(e.target.value) || 100))}
+						onChange={(e) => setLineCount(Math.max(1, parseInt(e.target.value, 10) || 100))}
 						placeholder="Lines"
 						min="1"
 					/>

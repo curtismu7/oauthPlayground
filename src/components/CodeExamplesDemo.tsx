@@ -185,15 +185,7 @@ export const CodeExamplesDemo: React.FC = () => {
 
 	return (
 		<Container>
-			<FlowHeader
-				flowType="documentation"
-				customConfig={{
-					title: 'Code Examples',
-					subtitle:
-						'Comprehensive code examples for OAuth 2.0 and OpenID Connect flows in multiple programming languages. Copy, customize, and integrate into your applications.',
-					icon: '💻',
-				}}
-			/>
+			<FlowHeader flowId="code-examples" />
 			<Title>Code Examples Service Demo</Title>
 
 			<DemoSection>

@@ -13,6 +13,7 @@ import styled from 'styled-components';
 import LiveRFCExplorer from '../components/LiveRFCExplorer';
 import RealWorldScenarioBuilder from '../components/RealWorldScenarioBuilder';
 import SecurityThreatTheater from '../components/SecurityThreatTheater';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const PageContainer = styled.div`
 	min-height: 100vh;
@@ -26,7 +27,7 @@ const HeroSection = styled.div`
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 `;
 
-const HeroTitle = styled.h1`
+const _HeroTitle = styled.h1`
 	color: V9_COLORS.BG.GRAY_MEDIUM;
 	font-size: 3rem;
 	font-weight: 800;
@@ -46,7 +47,7 @@ const HeroTitle = styled.h1`
 	}
 `;
 
-const HeroSubtitle = styled.p`
+const _HeroSubtitle = styled.p`
 	color: #cbd5e1;
 	font-size: 1.3rem;
 	max-width: 800px;
@@ -157,13 +158,8 @@ const StatLabel = styled.div`
 const OAuthCodeGeneratorHub: React.FC = () => {
 	return (
 		<PageContainer>
+			<FlowHeader flowId="oauth-code-generator-hub" />
 			<HeroSection>
-				<HeroTitle>🚀 OAuth Code Generator Hub</HeroTitle>
-				<HeroSubtitle>
-					Production-ready OAuth code in your language, security attack simulations, RFC
-					specifications decoded — everything you need to master OAuth 2.0 & OIDC
-				</HeroSubtitle>
-
 				<FeatureGrid>
 					<FeatureCard color="V9_COLORS.PRIMARY.GREEN">
 						<FeatureIcon color="linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)">

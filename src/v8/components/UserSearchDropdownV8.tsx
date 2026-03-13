@@ -80,6 +80,13 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 			if (!environmentId) {
 				return;
 			}
+			// Don't call API when worker token is missing — avoid "Worker token not available" errors
+			const status = checkWorkerTokenStatusSync();
+			if (!status.isValid) {
+				setTokenMissing(true);
+				setError('Worker token required');
+				return;
+			}
 
 			setIsLoading(true);
 			setError(null);
@@ -130,16 +137,18 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 		[environmentId, offset]
 	);
 
-	// Load users when dropdown opens OR when environmentId becomes available (if autoLoad is true)
+	// Load users when dropdown opens OR when environmentId becomes available (if autoLoad is true). Skip when worker token is missing.
 	useEffect(() => {
-		if (autoLoad && environmentId && users.length === 0) {
+		const status = checkWorkerTokenStatusSync();
+		if (autoLoad && environmentId && users.length === 0 && status.isValid) {
 			loadUsers('', true);
 		}
 	}, [autoLoad, environmentId, loadUsers, users.length]);
 
-	// Load users when dropdown opens (if not already loaded)
+	// Load users when dropdown opens (if not already loaded). Skip when worker token is missing.
 	useEffect(() => {
-		if (isOpen && environmentId && users.length === 0) {
+		const status = checkWorkerTokenStatusSync();
+		if (isOpen && environmentId && users.length === 0 && status.isValid) {
 			loadUsers('', true);
 		}
 	}, [isOpen, environmentId, loadUsers, users.length]);

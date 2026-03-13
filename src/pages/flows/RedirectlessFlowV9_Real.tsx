@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { CompactAppPickerV9 } from '@/components/CompactAppPickerV9';
 import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
+// Import config
+import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
@@ -19,7 +21,7 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { AuthorizationCodeSharedService } from '../../services/authorizationCodeSharedService';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { UnifiedFlowCollapsibleHeader } from '../../services/collapsibleHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { EducationalContentService } from '../../services/educationalContentService.tsx';
 import {
@@ -34,7 +36,6 @@ import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplaySe
 import { logger } from '../../utils/logger';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
-// Import config
 import { STEP_METADATA } from './config/RedirectlessFlow.config';
 
 // Define type for password change error
@@ -149,30 +150,27 @@ const LoginFormButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	${(props) =>
 		props.$variant === 'primary'
 			? `
-		background: V9_COLORS.PRIMARY.BLUE;
+		background: ${V9_COLORS.PRIMARY.BLUE};
 		color: white;
-		
-		&:hover:not(:disabled) {
-			background: V9_COLORS.PRIMARY.BLUE_DARK;
-		}
+		&:hover:not(:disabled) { background: ${V9_COLORS.PRIMARY.BLUE_DARK}; }
 	`
 			: `
-		background: #f3f4f6;
-		color: V9_COLORS.TEXT.GRAY_DARK;
-		
-		&:hover:not(:disabled) {
-			background: V9_COLORS.TEXT.GRAY_LIGHTER;
-		}
+		background: ${V9_COLORS.TEXT.WHITE};
+		color: ${V9_COLORS.PRIMARY.BLUE};
+		border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
+		&:hover:not(:disabled) { background: ${V9_COLORS.BG.GRAY_LIGHT}; border-color: ${V9_COLORS.PRIMARY.BLUE_DARK}; color: ${V9_COLORS.PRIMARY.BLUE_DARK}; }
 	`}
-	
 	&:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
+		background: ${V9_COLORS.TEXT.GRAY_LIGHT} !important;
+		color: ${V9_COLORS.TEXT.GRAY_MEDIUM} !important;
+		border-color: ${V9_COLORS.TEXT.GRAY_LIGHT} !important;
 	}
 `;
 
 const SignInButton = styled.button`
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+	background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%);
 	color: white;
 	border: none;
 	padding: 1rem 2rem;
@@ -1391,7 +1389,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 			case 1:
 				return (
 					<>
-						<CollapsibleHeader
+						<UnifiedFlowCollapsibleHeader
 							title="PKCE Parameters (V9 Enhanced)"
 							icon={<span>✅</span>}
 							defaultCollapsed={shouldCollapseAll}
@@ -1474,9 +1472,9 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									</div>
 								</div>
 							)}
-						</CollapsibleHeader>
+						</UnifiedFlowCollapsibleHeader>
 
-						<CollapsibleHeader
+						<UnifiedFlowCollapsibleHeader
 							title="Authorization URL Generation (V9)"
 							icon={<span>✅</span>}
 							defaultCollapsed={shouldCollapseAll}
@@ -1560,13 +1558,13 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									</div>
 								</div>
 							)}
-						</CollapsibleHeader>
+						</UnifiedFlowCollapsibleHeader>
 					</>
 				);
 
 			case 2:
 				return (
-					<CollapsibleHeader
+					<UnifiedFlowCollapsibleHeader
 						title="Token Exchange (V9 Enhanced)"
 						icon={<span>🔄</span>}
 						defaultCollapsed={shouldCollapseAll}
@@ -1659,12 +1657,12 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								<p>Complete the token exchange step to receive tokens</p>
 							</div>
 						)}
-					</CollapsibleHeader>
+					</UnifiedFlowCollapsibleHeader>
 				);
 
 			case 3:
 				return (
-					<CollapsibleHeader
+					<UnifiedFlowCollapsibleHeader
 						title="Token Management (V9)"
 						icon={<i className="bi bi-eye" />}
 						defaultCollapsed={shouldCollapseAll}
@@ -1712,7 +1710,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								</p>
 							</div>
 						) : null}
-					</CollapsibleHeader>
+					</UnifiedFlowCollapsibleHeader>
 				);
 
 			default:
@@ -1736,7 +1734,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 	return (
 		<Container>
 			<ContentWrapper>
-				<FlowHeader flowId="redirectless-v9" />
+				<FlowHeader flowId="redirectless-v9-real" />
 
 				{/* V9 Educational Flow Info Card */}
 				<EnhancedFlowInfoCard

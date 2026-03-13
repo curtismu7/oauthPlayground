@@ -360,13 +360,7 @@ export const UnifiedOTPModal: React.FC<UnifiedOTPModalProps> = ({
 
 				{/* Modal Footer */}
 				<div className="modal-footer">
-					<button
-						type="button"
-						type="button"
-						onClick={onClose}
-						disabled={isLoading}
-						className="button-secondary"
-					>
+					<button type="button" onClick={onClose} disabled={isLoading} className="button-secondary">
 						Cancel
 					</button>
 

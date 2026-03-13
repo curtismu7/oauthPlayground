@@ -5,6 +5,11 @@ if (typeof globalThis !== 'undefined') {
 	(globalThis as unknown as { Buffer?: typeof Buffer }).Buffer = Buffer;
 }
 
+// Suppress known external errors (WebSocket/HMR, browser autofill) as early as possible
+import { suppressExternalErrors } from './utils/errorBoundaryUtils';
+
+suppressExternalErrors();
+
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './styles/vendor/end-user-nano.css';
 import './styles/icons.css';

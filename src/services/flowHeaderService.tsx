@@ -367,7 +367,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V7',
 	},
 	'jwt-bearer-token-v7': {
-		flowType: 'oidc',
+		flowType: 'pingone',
 		title: 'JWT Bearer Token',
 		subtitle:
 			'🛡️ JWT Bearer with PingFederate/PingOne AIS examples - Modern implementation of RFC 7523 JWT Bearer Token flow for secure application-to-application authentication.',
@@ -497,6 +497,22 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V7',
 		isExperimental: false,
 	},
+	'redirectless-v9': {
+		flowType: 'pingone',
+		title: 'Redirectless Login (V9) — response_mode=pi.flow',
+		subtitle:
+			'⚡ PingOne proprietary redirectless flow: no browser redirects. Auth via Flow API with fresh PKCE, enhanced error handling, and server-to-server token exchange. Embedded login UX.',
+		icon: '⚡',
+		version: 'V9',
+	},
+	'redirectless-v9-real': {
+		flowType: 'pingone',
+		title: 'Redirectless Login (V9) — response_mode=pi.flow',
+		subtitle:
+			'⚡ PingOne proprietary redirectless flow: no browser redirects. Auth via Flow API with fresh PKCE, enhanced error handling, and server-to-server token exchange. Embedded login UX.',
+		icon: '⚡',
+		version: 'V9',
+	},
 	'redirectless-v6': {
 		flowType: 'pingone',
 		title: 'Redirectless Flow V6 - PingOne Pi.Flow Authentication',
@@ -560,11 +576,32 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '📚',
 	},
 	'ai-glossary': {
-		flowType: 'documentation',
+		flowType: 'pingone',
 		title: 'AI Glossary',
 		subtitle:
 			'Comprehensive glossary of AI, machine learning, OAuth 2.0, and OpenID Connect terminology. Search and explore definitions for technical terms used throughout the playground.',
 		icon: '📚',
+	},
+	'ai-agent-overview': {
+		flowType: 'pingone',
+		title: 'AI Agent Overview',
+		subtitle:
+			'Why AI agents need advanced OAuth/OIDC features. Security requirements for AI agent authentication and authorization.',
+		icon: '🤖',
+	},
+	'ping-ai-resources': {
+		flowType: 'pingone',
+		title: 'Ping Identity AI Resources',
+		subtitle:
+			"Comprehensive collection of Ping Identity's AI-related documentation, guides, and resources.",
+		icon: '📚',
+	},
+	'ai-identity-architectures': {
+		flowType: 'pingone',
+		title: 'AI Identity Architectures',
+		subtitle:
+			'Architecture patterns and guidance for identity and access in AI and agent-based systems.',
+		icon: '🏗️',
 	},
 	'emerging-ai-standards': {
 		flowType: 'documentation',
@@ -679,12 +716,11 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '⚠️',
 	},
 	'url-decoder': {
-		flowType: 'oauth',
+		flowType: 'pingone',
 		title: 'URL Decoder',
 		subtitle:
 			'Decode and analyze URLs, especially useful for OAuth authorization URLs and callback parameters. Break down complex URLs into readable components and parameters.',
 		icon: '🌐',
-		version: 'V5',
 	},
 	'oauth2-security-best-practices': {
 		flowType: 'oauth',
@@ -694,11 +730,32 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🛡️',
 	},
 	'oidc-for-ai': {
-		flowType: 'oidc',
+		flowType: 'pingone',
 		title: 'OIDC for AI',
 		subtitle:
 			'Resources and guidance for implementing OpenID Connect in AI and machine learning applications. Learn authentication patterns for AI agents and autonomous systems.',
 		icon: '🤖',
+	},
+	'oauth-for-ai': {
+		flowType: 'pingone',
+		title: 'OAuth for AI',
+		subtitle:
+			'OAuth 2.0 patterns and best practices for AI agents and machine learning applications.',
+		icon: '🔐',
+	},
+	'ping-view-on-ai': {
+		flowType: 'pingone',
+		title: 'PingOne AI Perspective',
+		subtitle:
+			"Ping Identity's perspective on AI, identity, and secure authentication for intelligent systems.",
+		icon: '👁️',
+	},
+	'ai-agent-auth-draft': {
+		flowType: 'pingone',
+		title: 'AI Agent Auth (IETF Draft)',
+		subtitle:
+			'Emerging standards and draft specifications for AI agent authentication and authorization.',
+		icon: '📄',
 	},
 	'oidc-specs': {
 		flowType: 'oidc',
@@ -787,6 +844,51 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '📤',
 		version: 'V9',
 	},
+	'dpop-flow': {
+		flowType: 'pingone',
+		title: 'DPoP (Demonstration of Proof-of-Possession)',
+		subtitle: 'RFC 9449 - Educational/Mock Implementation',
+		icon: '🔐',
+		version: 'V9',
+	},
+	'saml-sp-dynamic-acs': {
+		flowType: 'pingone',
+		title: 'SAML Service Provider (Dynamic ACS)',
+		subtitle: 'SAML SP flow with dynamic Assertion Consumer Service URL configuration.',
+		icon: '🔐',
+		version: 'V1',
+	},
+	'flow-comparison-v8u': {
+		flowType: 'pingone',
+		title: 'Flow Comparison Tool',
+		subtitle: 'Compare OAuth flows: security, performance, and best use cases.',
+		icon: '📊',
+		version: 'V8U',
+	},
+	'token-monitoring-v8u': {
+		flowType: 'pingone',
+		title: 'Token Monitoring Dashboard',
+		subtitle:
+			'Track worker tokens and user tokens (Access, ID, Refresh) from OAuth flows in real time.',
+		icon: '📊',
+		version: 'V8U',
+	},
+	'spiffe-spire-v9': {
+		flowType: 'pingone',
+		title: 'SPIFFE/SPIRE Mock Flow',
+		subtitle:
+			'Demonstrate workload identity (SVID) generation and exchange for PingOne SSO tokens.',
+		icon: '🛡️',
+		version: 'V9',
+	},
+	'resources-api-v9': {
+		flowType: 'pingone',
+		title: 'Resources API Tutorial',
+		subtitle:
+			'Learn how to use the PingOne Resources API for OAuth 2.0 resource management. Register resources, manage scopes, and implement fine-grained access control.',
+		icon: '📚',
+		version: 'V9',
+	},
 	'jwt-bearer': {
 		flowType: 'oauth',
 		title: 'OAuth 2.0 JWT Bearer Flow',
@@ -830,6 +932,99 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		subtitle:
 			'Educational implementation of RFC 7522 SAML Bearer Assertion for OAuth token exchange. Mock implementation since PingOne does not support SAML Bearer assertions.',
 		icon: '🛡️',
+	},
+
+	// Developer & Tools (red header / PingOne style)
+	'postman-collection-generator': {
+		flowType: 'pingone',
+		title: 'Postman Collection Generator',
+		subtitle:
+			'Generate custom Postman collections for PingOne OAuth/OIDC and MFA flows. Download collections and environment files for API testing.',
+		icon: '📦',
+	},
+	'postman-collection-generator-v9': {
+		flowType: 'pingone',
+		title: 'Postman Generator',
+		subtitle:
+			'Generate Postman collections for PingOne flows. Select Unified and MFA use cases and download ready-to-import collections.',
+		icon: '📦',
+	},
+	'oauth-code-generator-hub': {
+		flowType: 'pingone',
+		title: 'OAuth Code Generator Hub',
+		subtitle:
+			'Real-World Scenario Builder, Live RFC Explorer, Security Threat Theater, and inline code examples for OAuth and OIDC.',
+		icon: '💻',
+	},
+	'application-generator': {
+		flowType: 'pingone',
+		title: 'Application Generator',
+		subtitle:
+			'Generate and configure OAuth/OIDC applications for your PingOne environment. Step-through setup for client credentials and redirect URIs.',
+		icon: '⚙️',
+	},
+	'client-generator': {
+		flowType: 'pingone',
+		title: 'Client Generator',
+		subtitle:
+			'Create and manage OAuth client configurations. Generate client IDs, secrets, and callback URIs for your applications.',
+		icon: '🔑',
+	},
+	'service-test-runner': {
+		flowType: 'pingone',
+		title: 'Service Test Runner',
+		subtitle:
+			'Run comprehensive tests on flow data services. Validate configuration and display results in a user-friendly format.',
+		icon: '🧪',
+	},
+	'sdk-sample-app': {
+		flowType: 'pingone',
+		title: 'SDK Sample App',
+		subtitle:
+			'Official PingOne SDK samples for Node.js and other platforms. OAuth 2.0 and OpenID Connect integration examples.',
+		icon: '📚',
+	},
+	'sdk-examples': {
+		flowType: 'pingone',
+		title: 'SDK Examples',
+		subtitle:
+			'Explore SDK examples and documentation. JWT authentication, OIDC centralized login, and sample applications.',
+		icon: '📖',
+	},
+	'code-examples': {
+		flowType: 'pingone',
+		title: 'Code Examples',
+		subtitle:
+			'Comprehensive code examples for OAuth 2.0 and OpenID Connect flows in multiple languages. Copy, customize, and integrate.',
+		icon: '💻',
+	},
+	'ultimate-token-display-demo': {
+		flowType: 'pingone',
+		title: 'Ultimate Token Display',
+		subtitle:
+			'Demo of token display and inspection. View decoded access tokens, ID tokens, and refresh tokens with formatting options.',
+		icon: '🔑',
+	},
+	'davinci-todo': {
+		flowType: 'pingone',
+		title: 'DaVinci Todo App',
+		subtitle:
+			'Sample application demonstrating OAuth and API integration. Sign in and manage tasks with PingOne authentication.',
+		icon: '✅',
+	},
+	'debug-logs-popout-v9': {
+		flowType: 'pingone',
+		title: 'Debug Log Viewer',
+		subtitle:
+			'View and filter debug logs for V9 flows. Inspect requests, responses, and flow state for troubleshooting.',
+		icon: '📋',
+	},
+	'v7-settings': {
+		flowType: 'pingone',
+		title: 'Educational Mock Settings',
+		subtitle:
+			'Toggle Educational Mock Mode for mock flows. When enabled, compatible flows can use simulators for authorization and token operations.',
+		icon: '📦',
 	},
 };
 
