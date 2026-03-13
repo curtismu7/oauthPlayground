@@ -28,7 +28,8 @@ export type FlowType =
 	| 'ropc'
 	| 'device-code'
 	| 'hybrid'
-	| 'mfa';
+	| 'mfa'
+	| 'unified-mfa-v8';
 
 export interface ComplianceRules {
 	requirePKCE: boolean;
