@@ -730,8 +730,46 @@ const Configuration: React.FC = () => {
 	});
 	// Load existing credentials on mount and sync to MCP config (for PingOne MCP server)
 	useEffect(() => {
-		const loadCredentials = () => {
+		const loadCredentials = async () => {
 			try {
+				// First try to load from MCP server credentials
+				try {
+					const mcpResponse = await fetch('/api/mcp/server/credentials');
+					if (mcpResponse.ok) {
+						const mcpData = await mcpResponse.json();
+						if (mcpData.success && mcpData.credentials) {
+							const mcpCreds = mcpData.credentials;
+							logger.info('Configuration', 'Loaded credentials from MCP server:', mcpCreds);
+							
+							// Sync MCP credentials to localStorage for Configuration page
+							const configCredentials = {
+								environmentId: mcpCreds.environmentId,
+								clientId: mcpCreds.clientId,
+								clientSecret: mcpCreds.clientSecret,
+								redirectUri: `https://localhost:3000/callback`,
+								scopes: mcpCreds.scope ? mcpCreds.scope.split(' ') : ['openid'],
+							};
+							
+							setCredentials({
+								environmentId: configCredentials.environmentId,
+								clientId: configCredentials.clientId,
+								clientSecret: configCredentials.clientSecret || '',
+								redirectUri: configCredentials.redirectUri,
+								scopes: Array.isArray(configCredentials.scopes)
+									? configCredentials.scopes.join(' ')
+									: configCredentials.scopes || 'openid profile email',
+							});
+							
+							// Save to localStorage for persistence
+							credentialManager.saveConfigCredentials(configCredentials);
+							return;
+						}
+					}
+				} catch (mcpError) {
+					logger.warn('Configuration', 'Failed to load from MCP server, trying localStorage:', mcpError);
+				}
+				
+				// Fallback to localStorage if MCP server doesn't have credentials
 				const configCredentials = credentialManager.loadConfigCredentials();
 				if (configCredentials.environmentId && configCredentials.clientId) {
 					setCredentials({
