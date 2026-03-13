@@ -148,72 +148,65 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 ];
 
 // ─── AUTO-GENERATED: live scan items — do not edit manually ───
-// Last updated: 2026-03-12T15:08:10.621Z
+// Last updated: 2026-03-13T03:15:23.246Z
 
 const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
-	{
-		id: 'bootstrap-icons-migration',
-		description: 'Bootstrap Icons replacing question-mark emoji placeholders',
-		status: 'warning',
-		countLabel: '1 placeholders remaining → 341 bi-* in use',
-		detail:
-			'1 question-mark spans remain outside src/locked/. 341 Bootstrap icon references already in place.',
-	},
-	{
-		id: 'active-sidebar-identified',
-		description: 'Active sidebar: SidebarMenuPing (USE_PING_MENU=true)',
-		status: 'fixed',
-		countLabel: '3 route items',
-		detail:
-			'Sidebar.tsx → SidebarMenuPing.tsx is the live path. DragDropSidebar.tsx is the locked legacy fallback. DragDropSidebar.V2.tsx and DragDropSidebar.tsx.V2.tsx are dead files (not imported anywhere).',
-	},
-	{
-		id: 'oauth-oidc-duplication',
-		description: 'OAuth/OIDC flow duplication reduced',
-		status: 'fixed',
-		countLabel: '~15,477 lines deleted',
-		detail:
-			'Dead V8 flows deleted, FlowCategories.tsx reorganized into 7 categories with correct V9 routes, App.tsx redirects added, 6 orphaned hooks/services removed.',
-	},
-	{
-		id: 'v9-flows-standardized',
-		description: 'V9 flows fully standardized',
-		status: 'clean',
-		countLabel: '18 / 18 flows',
-		detail:
-			'All V9 flows use V9CredentialStorageService, CompactAppPickerV9, 0 console.error/warn violations. V7 routes redirect to V9.',
-	},
-	{
-		id: 'v9-logger-migration',
-		description: 'console.* → logger.* migration',
-		status: 'warning',
-		countLabel: '53 console.error/warn remaining',
-		detail:
-			'Structured logger across 90+ service files, 16 hooks, 3 contexts, 43 utils, 79 components. Intentional exceptions: loggingService, code-gen templates, CLI tools.',
-	},
-	{
-		id: 'eslint-disable-count',
-		description: 'ESLint/Biome disable directives',
-		status: 'clean',
-		countLabel: '47 eslint-disable + 156 biome-ignore',
-		detail:
-			'Targeted suppression comments. Goal: eliminate no-explicit-any and exhaustive-deps groups.',
-	},
-	{
-		id: 'ts-any-usage',
-		description: 'TypeScript `any` usage',
-		status: 'pending',
-		countLabel: '~416 occurrences',
-		detail: 'Tracked across non-locked src/. Reduction goal: replace with proper generics.',
-	},
-	{
-		id: 'v9-dead-flows-archived',
-		description: 'Dead flow files archived / deleted',
-		status: 'fixed',
-		countLabel: '31+ files + 5 dirs removed',
-		detail:
-			'Cleaned active codebase. Scope rule: only sidebar menu items + direct services in scope (sidebarMenuConfig.ts).',
-	},
+  {
+    "id": "bootstrap-icons-migration",
+    "description": "Bootstrap Icons replacing question-mark emoji placeholders",
+    "status": "warning",
+    "countLabel": "1 placeholders remaining → 340 bi-* in use",
+    "detail": "1 question-mark spans remain outside src/locked/. 340 Bootstrap icon references already in place."
+  },
+  {
+    "id": "active-sidebar-identified",
+    "description": "Active sidebar: SidebarMenuPing (USE_PING_MENU=true)",
+    "status": "fixed",
+    "countLabel": "3 route items",
+    "detail": "Sidebar.tsx → SidebarMenuPing.tsx is the live path. DragDropSidebar.tsx is the locked legacy fallback. DragDropSidebar.V2.tsx and DragDropSidebar.tsx.V2.tsx are dead files (not imported anywhere)."
+  },
+  {
+    "id": "oauth-oidc-duplication",
+    "description": "OAuth/OIDC flow duplication reduced",
+    "status": "fixed",
+    "countLabel": "~15,477 lines deleted",
+    "detail": "Dead V8 flows deleted, FlowCategories.tsx reorganized into 7 categories with correct V9 routes, App.tsx redirects added, 6 orphaned hooks/services removed."
+  },
+  {
+    "id": "v9-flows-standardized",
+    "description": "V9 flows fully standardized",
+    "status": "clean",
+    "countLabel": "18 / 18 flows",
+    "detail": "All V9 flows use V9CredentialStorageService, CompactAppPickerV9, 0 console.error/warn violations. V7 routes redirect to V9."
+  },
+  {
+    "id": "v9-logger-migration",
+    "description": "console.* → logger.* migration",
+    "status": "warning",
+    "countLabel": "53 console.error/warn remaining",
+    "detail": "Structured logger across 90+ service files, 16 hooks, 3 contexts, 43 utils, 79 components. Intentional exceptions: loggingService, code-gen templates, CLI tools."
+  },
+  {
+    "id": "eslint-disable-count",
+    "description": "ESLint/Biome disable directives",
+    "status": "clean",
+    "countLabel": "47 eslint-disable + 156 biome-ignore",
+    "detail": "Targeted suppression comments. Goal: eliminate no-explicit-any and exhaustive-deps groups."
+  },
+  {
+    "id": "ts-any-usage",
+    "description": "TypeScript `any` usage",
+    "status": "pending",
+    "countLabel": "~416 occurrences",
+    "detail": "Tracked across non-locked src/. Reduction goal: replace with proper generics."
+  },
+  {
+    "id": "v9-dead-flows-archived",
+    "description": "Dead flow files archived / deleted",
+    "status": "fixed",
+    "countLabel": "31+ files + 5 dirs removed",
+    "detail": "Cleaned active codebase. Scope rule: only sidebar menu items + direct services in scope (sidebarMenuConfig.ts)."
+  }
 ];
 
 // ─── END AUTO-GENERATED v9 items ───
