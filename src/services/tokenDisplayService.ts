@@ -11,6 +11,8 @@
  * Security: Never logs token values, only type/length/flow information
  */
 
+import { logger } from '../utils/logger';
+
 interface DecodedJWT {
 	header: Record<string, unknown>;
 	payload: Record<string, unknown>;
