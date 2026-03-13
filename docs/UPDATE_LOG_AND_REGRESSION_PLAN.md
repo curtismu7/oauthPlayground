@@ -49,69 +49,11 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Files:** `src/v8/components/UserSearchDropdownV8.tsx`, `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`
 - **Regression check:** Navigate to `/v8/unified-mfa` with empty environment ID → username dropdown is enabled and functional. Click dropdown → opens user search modal → worker token modal handles environment context. Search works regardless of environment ID field state.
 
-### MCP PingOne API debug logging (2026-03)
-- **What:** Added logging to verify which host is used for PingOne API calls (api.pingone.com vs api.pingdemo.com).
-- **Fix:** In `mcpCallPingOne`, log `host`, `region`, `method`, and truncated `path` via `writeToMcpLog` before each fetch. Check MCP logs to confirm host is api.pingone.com (or regional variant), never api.pingdemo.com.
+### MCP PingOne API debug logging (2026-03-13)
+- **What:** Added logging to verify which host is used for PingOne API calls (api.pingone.com vs api.pingdemo.com) and improve error handling for fetch failures.
+- **Fixes:** (1) **Debug logging**: In `mcpCallPingOne`, log `host`, `region`, `method`, and truncated `path` via `writeToMcpLog` before each fetch. (2) **Fetch error handling**: Added try/catch around fetch to surface cause (DNS, TLS, network) instead of generic "fetch failed". (3) **Host verification**: Check MCP logs to confirm host is api.pingone.com (or regional variant), never api.pingdemo.com.
 - **Files:** `server.js`
-- **Regression check:** Live MCP ON → "list all users" → inspect MCP log; host should be api.pingone.com or api.pingone.{tld}, never api.pingdemo.com.
-
-### Unified MFA environment ID restoration from MCP server (2026-03-13)
-- **What:** Unified MFA flow at `/v8/unified-mfa` wasn't restoring environment ID from stored MCP credentials, showing empty field instead of the stored environment ID.
-- **Fixes:** (1) **MCP server as primary source**: Modified environment ID loading to first try `/api/mcp/server/credentials` before falling back to storage services. (2) **Sync to all storage**: When MCP credentials are loaded, sync environment ID to environmentIdPersistenceService, globalEnvironmentService, and localStorage. (3) **Maintain fallback chain**: Preserve existing fallback to storage services and localStorage if MCP server unavailable. (4) **Error handling**: Add proper try/catch with logging for MCP server failures.
-- **Files:** `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`
-- **Regression check:** Store credentials in Configuration page → navigate to `/v8/unified-mfa` → environment ID field should show the stored value. Refresh page → environment ID persists. MCP server unavailable → falls back to localStorage/stored services.
-
-### MCP "fetch failed": use PingOne API host, not api.pingdemo.com (2026-03)
-
-- **What:** Two Postman generator pages existed (`/postman-collection-generator` and `/postman-collection-generator-v9`) with near-identical UI but different services (postmanCollectionGeneratorV8 vs postmanCollectionGeneratorV9). Unified flows and MFA use V8.
-- **Fix:** Removed V9 page and service. Kept single Postman Collection Generator at `/postman-collection-generator` using `postmanCollectionGeneratorV8`. Deleted `PostmanCollectionGeneratorV9.tsx` and `postmanCollectionGeneratorV9.ts`. Removed V9 route, sidebar entry, flowHeaderService config, and recentlyUpdatedApps badge.
-- **Files:** `src/App.tsx`, `src/config/sidebarMenuConfig.ts`, `src/services/flowHeaderService.tsx`, `test-routes.js`; deleted `src/pages/v9/PostmanCollectionGeneratorV9.tsx`, `src/services/v9/postmanCollectionGeneratorV9.ts`
-- **Regression check:** Open `/postman-collection-generator` → page loads; generate Unified + MFA collections; download works. Sidebar shows single "Postman Collection Generator" under Developer & Tools.
-
-### Postman generators: consolidated to single V8 entry (2026-03)
-
-- **What:** Two Postman generator pages existed (`/postman-collection-generator` and `/postman-collection-generator-v9`) with near-identical UI but different services (postmanCollectionGeneratorV8 vs postmanCollectionGeneratorV9). Unified flows and MFA use V8.
-- **Fix:** Removed V9 page and service. Kept single Postman Collection Generator at `/postman-collection-generator` using `postmanCollectionGeneratorV8`. Deleted `PostmanCollectionGeneratorV9.tsx` and `postmanCollectionGeneratorV9.ts`. Removed V9 route, sidebar entry, flowHeaderService config, and recentlyUpdatedApps badge.
-- **Files:** `src/App.tsx`, `src/config/sidebarMenuConfig.ts`, `src/services/flowHeaderService.tsx`, `test-routes.js`; deleted `src/pages/v9/PostmanCollectionGeneratorV9.tsx`, `src/services/v9/postmanCollectionGeneratorV9.ts`
-- **Regression check:** Open `/postman-collection-generator` → page loads; generate Unified + MFA collections; download works. Sidebar shows single "Postman Collection Generator" under Developer & Tools.
-
-### MCP "fetch failed": use PingOne API host, not api.pingdemo.com (2026-03)
-
-- **What:** "List all users" returned `PingOne API call failed: fetch failed` because the server called `https://api.pingdemo.com/v1/environments/...`. `api.pingdemo.com` is the OAuth playground host, not the PingOne Management API.
-- **Fix:** (1) `getStoredCustomDomain()` returns null when no custom domain stored (was returning DEFAULT_CUSTOM_DOMAIN). (2) `mcpCallPingOne` uses `buildRegionUrl(region)` when no valid custom domain; never uses `api.pingdemo.com` for PingOne API calls. (3) Try/catch around fetch surfaces cause (e.g. DNS, TLS).
-- **Files:** `server.js` (getStoredCustomDomain, mcpCallPingOne)
-- **Regression check:** Live ON → "list all users" → succeeds (or shows real PingOne error like 403). Server must call `https://api.pingone.com/...` (or regional variant), not api.pingdemo.com. Restart server after code changes.
-
-### MCP "fetch failed": use PingOne API host, not api.pingdemo.com (2026-03)
-- **What:** "List all users" returned "PingOne API call failed: fetch failed" because MCP used `api.pingdemo.com` (OAuth playground host) as the PingOne Management API base. That host serves the app, not the PingOne API, so the connection failed.
-- **Fix:** `getStoredCustomDomain()` returns `null` when no custom domain stored (instead of DEFAULT_CUSTOM_DOMAIN). `mcpCallPingOne` uses `buildRegionUrl(region)` (api.pingone.com, api.pingone.eu, etc.) when no valid custom domain. Explicitly never use `api.pingdemo.com` for PingOne API calls.
-- **Files:** `server.js` (getStoredCustomDomain, mcpCallPingOne)
-- **Regression check:** Live ON → "Get worker token" → "List all users" → users list loads (or shows real PingOne error, e.g. 403). No "fetch failed". If custom domain is explicitly set in Configuration for a PingOne proxy, that domain is still used.
-
-### MCP list users: "fetch failed" — use region-based PingOne host (2026-03)
-- **What:** "List all users" returned `PingOne API call failed: fetch failed` because the server used `api.pingdemo.com` (OAuth playground host) instead of the PingOne Management API (`api.pingone.com` or regional variants).
-- **Fix:** `getStoredCustomDomain()` returns null when no custom domain stored (no fallback to api.pingdemo.com). `mcpCallPingOne` uses `buildRegionUrl(region)` (api.pingone.com, .eu, .ca, etc.) when custom domain is null or explicitly api.pingdemo.com; never uses api.pingdemo.com for PingOne API calls.
-- **Files:** `server.js`
-- **Regression check:** With Live MCP on, ask "list all users" → call reaches api.pingone.com (or regional host), not api.pingdemo.com. Restart server after pulling changes.
-
-### MCP list users: use api.pingone.com instead of api.pingdemo.com (2026-03)
-
-- **What:** "List all users" returned "PingOne API call failed: fetch failed" — the server was calling `https://api.pingdemo.com/v1/environments/...` which is the OAuth playground host, not the PingOne Management API.
-- **Fix:** `getStoredCustomDomain()` now returns null when no custom domain is stored (instead of DEFAULT_CUSTOM_DOMAIN). `mcpCallPingOne` uses `api.pingone.com` (or regional variant) when no valid custom domain; explicitly ignores `api.pingdemo.com` even if stored. Added try/catch around fetch to surface the underlying error cause.
-- **Files:** `server.js`
-- **Regression check:** Live ON → "Get worker token" → "List all users" → users returned (or real PingOne error like 403), not "fetch failed".
-
-### MCP list users: "fetch failed" — use PingOne API host not api.pingdemo.com (2026-03)
-- **What:** "List all users" returned "PingOne API call failed: fetch failed" because the server called `https://api.pingdemo.com/...` — the OAuth playground host, not the PingOne Management API.
-- **Fix:** `getStoredCustomDomain()` returns null when no custom domain stored (was defaulting to api.pingdemo.com). `mcpCallPingOne` uses region-based host (api.pingone.com, api.pingone.eu, etc.) when customDomain is null or api.pingdemo.com. Never use api.pingdemo.com for PingOne Management API calls.
-- **Files:** `server.js` (getStoredCustomDomain, mcpCallPingOne)
-- **Regression check:** With no custom domain stored → "list all users" uses api.pingone.com (or region). Restart server after pull. If stored domain is api.pingdemo.com, it is ignored for API calls.
-
-### MCP "fetch failed": use PingOne API host, not api.pingdemo.com (2026-03)
-- **What:** "List all users" returned "PingOne API call failed: fetch failed" because the server was calling `https://api.pingdemo.com/...` — the OAuth playground host, not the PingOne Management API.
-- **Fix:** `getStoredCustomDomain()` returns null when no custom domain is stored; `mcpCallPingOne` uses `buildRegionUrl(region)` (api.pingone.com, api.pingone.eu, etc.) when custom domain is null or `api.pingdemo.com`. Never use api.pingdemo.com for PingOne Management API calls.
-- **Files:** `server.js`
-- **Regression check:** "List all users" with worker token → succeeds or shows real PingOne error (401/403), not "fetch failed". Restart server after code changes.
+- **Regression check:** Live MCP ON → "list all users" → inspect MCP log; host should be api.pingone.com or api.pingone.{tld}, never api.pingdemo.com. Fetch errors show specific cause (DNS, TLS, etc.) not just "fetch failed".
 
 ### API key backup system implementation (2026-03-13)
 - **What:** API keys (MCP, Groq, Brave Search) were only stored in primary locations with no redundancy, risking loss if storage fails.
@@ -119,25 +61,17 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Files:** `src/services/apiKeyBackupService.ts`, `src/services/apiKeyService.ts`, `server.js`, `src/components/ApiKeyConfiguration.tsx`
 - **Regression check:** Store any API key → automatic backup created. Open Configuration page → backup status shows Primary/Local/File indicators. Click "Create Backup" → manual backup syncs to all locations. Click "Restore from Backup" → keys recovered from backup if primary storage lost. Check `~/.pingone-playground/credentials/api-keys-backup.json` exists after backup creation.
 
+### MCP "fetch failed": use PingOne API host, not api.pingdemo.com (2026-03-13)
+- **What:** "List all users" returned "PingOne API call failed: fetch failed" because MCP used `api.pingdemo.com` (OAuth playground host) as the PingOne Management API base. That host serves the app, not the PingOne API, so the connection failed.
+- **Fix:** `getStoredCustomDomain()` returns `null` when no custom domain stored (instead of DEFAULT_CUSTOM_DOMAIN). `mcpCallPingOne` uses `buildRegionUrl(region)` (api.pingone.com, api.pingone.eu, etc.) when no valid custom domain. Explicitly never use `api.pingdemo.com` for PingOne API calls.
+- **Files:** `server.js` (getStoredCustomDomain, mcpCallPingOne)
+- **Regression check:** Live ON → "Get worker token" → "List all users" → users list loads (or shows real PingOne error, e.g. 403). No "fetch failed". If custom domain is explicitly set in Configuration for a PingOne proxy, that domain is still used.
+
 ### Complete pages implementation & credential synchronization (2026-03-13)
-
 - **What:** "List all users" and similar MCP queries showed "MCP query failed (500): Internal Server Error" instead of the actual PingOne error (e.g. token expired, 403 Forbidden, wrong region).
 - **Fix:** (1) Client (`mcpQueryService`): read response body as text first, then JSON.parse; fallback chain for msg: answer, error, error_description, message, statusText. (2) Server (`mcpCallPingOne`): extract PingOne error from message, detail, error_description, error, code. (3) Server catch: safe `errMsg` extraction when error is not an Error instance.
 - **Files:** `src/services/mcpQueryService.ts`, `server.js`
 - **Regression check:** Trigger a 500 (e.g. invalid worker token, wrong env) → UI shows actual error (e.g. "Invalid token", "403 Forbidden") instead of generic "Internal Server Error". Check server logs for `[MCP Query] Error:` to debug root cause.
-
-### MCP Query: surface real errors instead of "Internal Server Error" (2026-03)
-
-- **What:** "List all users" and similar MCP queries showed "MCP query failed (500): Internal Server Error" instead of the actual PingOne error (e.g. token expired, 403 Forbidden, wrong region).
-- **Fix:** (1) Client (`mcpQueryService`): read response body as text first, then JSON.parse; fallback chain for msg: answer, error, error_description, message, statusText. (2) Server (`mcpCallPingOne`): extract PingOne error from message, detail, error_description, error, code. (3) Server catch: safe `errMsg` extraction when error is not an Error instance.
-- **Files:** `src/services/mcpQueryService.ts`, `server.js`
-- **Regression check:** Trigger a 500 (e.g. invalid worker token, wrong env) → UI shows actual error (e.g. "Invalid token", "403 Forbidden") instead of generic "Internal Server Error". Check server logs for `[MCP Query] Error:` to debug root cause.
-
-### MCP 500: surface actual PingOne error instead of "Internal Server Error" (2026-03)
-
-- **What:** "List all users" and similar MCP queries showed `MCP query failed (500): Internal Server Error` instead of the real PingOne/API error.
-- **Fix:** (1) Client: `mcpQueryService` reads response body as text first, then parses JSON; extracts msg from `answer`, `error`, `error_description`, `message`, or `response.statusText`. (2) Server: `mcpCallPingOne` extracts PingOne error from `message`, `detail`, `error_description`, `error`, `code`. Catch block uses safe `errMsg` for non-Error throws.
-- **Files:** `src/services/mcpQueryService.ts`, `server.js`
 - **Regression check:** Trigger a known error (e.g. invalid worker token, wrong env) → UI shows actual message (e.g. "401 Unauthorized" or PingOne detail), not generic "Internal Server Error". Check server logs for `[MCP Query] Error:` to debug root cause.
 
 ### MCP query: surface real server error instead of "Internal Server Error" (2026-03)
