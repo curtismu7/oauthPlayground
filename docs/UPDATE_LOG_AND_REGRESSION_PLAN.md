@@ -31,6 +31,54 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### API key backup system implementation (2026-03-13)
+- **What:** API keys (MCP, Groq, Brave Search) were only stored in primary locations with no redundancy, risking loss if storage fails.
+- **Fixes:** (1) **ApiKeyBackupService**: Created comprehensive backup service with multi-location storage (localStorage, filesystem, primary). (2) **Backend endpoints**: Added `/api/api-key/backup` POST/GET endpoints for filesystem backup storage. (3) **Automatic backups**: Enhanced apiKeyService to automatically create backups after storing API keys. (4) **UI integration**: Added backup status display and manual backup/restore controls to ApiKeyConfiguration component. (5) **Health monitoring**: Added backup status checking and integrity verification with checksums.
+- **Files:** `src/services/apiKeyBackupService.ts`, `src/services/apiKeyService.ts`, `server.js`, `src/components/ApiKeyConfiguration.tsx`
+- **Regression check:** Store any API key → automatic backup created. Open Configuration page → backup status shows Primary/Local/File indicators. Click "Create Backup" → manual backup syncs to all locations. Click "Restore from Backup" → keys recovered from backup if primary storage lost. Check `~/.pingone-playground/credentials/api-keys-backup.json` exists after backup creation.
+
+### Complete pages implementation & credential synchronization (2026-03-13)
+
+- **What:** "List all users" and similar MCP queries showed "MCP query failed (500): Internal Server Error" instead of the actual PingOne error (e.g. token expired, 403 Forbidden, wrong region).
+- **Fix:** (1) Client (`mcpQueryService`): read response body as text first, then JSON.parse; fallback chain for msg: answer, error, error_description, message, statusText. (2) Server (`mcpCallPingOne`): extract PingOne error from message, detail, error_description, error, code. (3) Server catch: safe `errMsg` extraction when error is not an Error instance.
+- **Files:** `src/services/mcpQueryService.ts`, `server.js`
+- **Regression check:** Trigger a 500 (e.g. invalid worker token, wrong env) → UI shows actual error (e.g. "Invalid token", "403 Forbidden") instead of generic "Internal Server Error". Check server logs for `[MCP Query] Error:` to debug root cause.
+
+### MCP Query: surface real errors instead of "Internal Server Error" (2026-03)
+
+- **What:** "List all users" and similar MCP queries showed "MCP query failed (500): Internal Server Error" instead of the actual PingOne error (e.g. token expired, 403 Forbidden, wrong region).
+- **Fix:** (1) Client (`mcpQueryService`): read response body as text first, then JSON.parse; fallback chain for msg: answer, error, error_description, message, statusText. (2) Server (`mcpCallPingOne`): extract PingOne error from message, detail, error_description, error, code. (3) Server catch: safe `errMsg` extraction when error is not an Error instance.
+- **Files:** `src/services/mcpQueryService.ts`, `server.js`
+- **Regression check:** Trigger a 500 (e.g. invalid worker token, wrong env) → UI shows actual error (e.g. "Invalid token", "403 Forbidden") instead of generic "Internal Server Error". Check server logs for `[MCP Query] Error:` to debug root cause.
+
+### MCP 500: surface actual PingOne error instead of "Internal Server Error" (2026-03)
+
+- **What:** "List all users" and similar MCP queries showed `MCP query failed (500): Internal Server Error` instead of the real PingOne/API error.
+- **Fix:** (1) Client: `mcpQueryService` reads response body as text first, then parses JSON; extracts msg from `answer`, `error`, `error_description`, `message`, or `response.statusText`. (2) Server: `mcpCallPingOne` extracts PingOne error from `message`, `detail`, `error_description`, `error`, `code`. Catch block uses safe `errMsg` for non-Error throws.
+- **Files:** `src/services/mcpQueryService.ts`, `server.js`
+- **Regression check:** Trigger a known error (e.g. invalid worker token, wrong env) → UI shows actual message (e.g. "401 Unauthorized" or PingOne detail), not generic "Internal Server Error". Check server logs for `[MCP Query] Error:` to debug root cause.
+
+### MCP query: surface real server error instead of "Internal Server Error" (2026-03)
+
+- **What:** When "list all users" (or other PingOne MCP calls) failed, the UI showed generic "MCP query failed (500): Internal Server Error" instead of the actual PingOne API error.
+- **Fix:** (1) **Client** (`mcpQueryService`): Read response body as text first, then JSON.parse; fallback chain: `answer` → `error` → `error_description` → `message` → `statusText`; when JSON fails, use plain text if short and non-HTML. (2) **Server**: `mcpCallPingOne` extracts error from PingOne fields (`message`, `detail`, `error_description`, `error`, `code`); MCP catch uses safe `errMsg` extraction for non-Error throws.
+- **Files:** `src/services/mcpQueryService.ts`, `server.js`
+- **Regression check:** Live ON → "list all users" with invalid/expired worker token → UI shows actual PingOne error (e.g. "Access denied") not "Internal Server Error". Check server console `[MCP Query] Error:` for root cause.
+
+### AI Assistant: MCP-primary when Live toggle is on (2026-03)
+
+- **What:** With Live toggle ON, queries like "list users" still showed Groq's explanatory text ("When the Live toggle is on, a separate request...") instead of actually calling MCP and returning real PingOne data.
+- **Fix:** Aligned main app AIAssistant with standalone: when `includeLive && isMcpQuery`, route directly to MCP (skip Groq). Use MCP result as primary content. When `isMcpQuery && !includeLive`, show "turn on Live" nudge. Removed redundant MCP call from Groq path.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Live ON → ask "list users" or "show all apps" → MCP runs, real data in card. Live OFF → same query → "turn on Live" nudge. Non-MCP queries (OAuth, PKCE) still use Groq.
+
+### AI Assistant: organize checkboxes, close button white background (2026-03)
+
+- **What:** OAuth Assistant header had scattered checkboxes and a semi-transparent close button that blended with the red header.
+- **Fix:** (1) Grouped checkboxes: Context (APIs, Specs, Workflows, Guide) and Connections (Web Brave, Live MCP) with `CheckboxGroup` and `CheckboxGroupDivider`. (2) Close button: solid white background (`#ffffff`), dark × icon (`#374151`), lighter gray hover.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Open OAuth Assistant → checkboxes grouped (Context | Connections); close button has white background with dark ×; collapse/expand/close buttons still work.
+
 ### UserServiceV8: avoid ERROR log for expected "no worker token" (2026-03)
 
 - **What:** Console showed `[UserServiceV8] List users error Error: Worker token not available` when opening MFA user search without a worker token. `checkWorkerTokenStatusSync()` and async `getToken()` can disagree (token expired, refresh failed), so the API is still called.
