@@ -31,6 +31,13 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Standalone AIAssistant sync with main app (worker token / MCP) (2026-03)
+
+- **What:** Standalone AIAssistant (port 3002) needed to stay in sync with main app for worker token and MCP credential handling. "Get worker token" 403 could occur when credentials were not synced to mcp-config.json before MCP calls.
+- **Fix:** Aligned `AIAssistant/src/services/unifiedWorkerTokenService.ts` with `src/services/unifiedWorkerTokenService.ts` (comments and formatting). Both AIAssistant components already call `unifiedWorkerTokenService.loadCredentials()` when opened with Live toggle on, priming SQLite load and mcp-config sync before the first MCP call. Standalone proxies `/api` to backend (3001), so save-mcp-config and sqlite endpoints behave identically.
+- **Files:** `AIAssistant/src/services/unifiedWorkerTokenService.ts`, `AIAssistant/src/components/AIAssistant.tsx` (verified existing loadCredentials useEffect)
+- **Regression check:** Save credentials via main app (Configuration or Worker Token modal) → open standalone AIAssistant (localhost:3002) with Live on → ask "Get worker token" or "Show all apps" → MCP returns real data. If 403 persists, verify Worker app has client_credentials grant and credentials are valid for the environment.
+
 ### Unified MFA: persist section collapse state (2026-03)
 
 - **What:** Section collapse/expand state on Unified MFA device selection screen was lost on flow restart or browser refresh.
