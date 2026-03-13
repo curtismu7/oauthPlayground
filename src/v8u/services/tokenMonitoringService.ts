@@ -271,33 +271,6 @@ export class TokenMonitoringService {
 		this.saveApiCallsToStorage();
 	}
 
-	// Token persistence methods
-	private loadTokensFromStorage(): void {
-		try {
-			const stored =
-				typeof window !== 'undefined' ? window.localStorage.getItem(this.STORAGE_KEY) : null;
-			if (stored) {
-				const tokenData = JSON.parse(stored) as TokenInfo[];
-				tokenData.forEach((token) => {
-					this.tokens.set(token.id, token);
-				});
-				logger.debug(
-					`[TokenMonitoring] Loaded ${tokenData.length} tokens from storage`,
-					'Logger debug'
-				);
-
-				// Notify listeners immediately after loading from storage
-				if (tokenData.length > 0) {
-					this.notifyListeners();
-				}
-			}
-		} catch (error) {
-			logger.warn('[TokenMonitoring] Failed to load tokens from storage:', {
-				error: error instanceof Error ? error.message : String(error),
-			});
-		}
-	}
-
 	private saveTokensToStorage(): void {
 		try {
 			if (typeof window !== 'undefined') {

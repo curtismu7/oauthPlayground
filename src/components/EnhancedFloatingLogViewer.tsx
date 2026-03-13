@@ -160,7 +160,13 @@ const FloatingContainer = styled.div<{
 	z-index: 10100;
 	display: flex;
 	flex-direction: column;
-	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-family:
+		'Inter',
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		Roboto,
+		sans-serif;
 	transition: all 0.15s ease-in-out;
 	overflow: hidden;
 `;
@@ -243,11 +249,12 @@ const ControlButton = styled.button<{
 		if (props.$variant === 'popout') return '#1e293b';
 		return 'white';
 	}};
-	border: 1px solid ${(props) => {
-		if (props.$variant === 'close') return 'rgba(255, 255, 255, 0.5)';
-		if (props.$variant === 'popout') return '#94a3b8';
-		return 'rgba(255, 255, 255, 0.3)';
-	}};
+	border: 1px solid
+		${(props) => {
+			if (props.$variant === 'close') return 'rgba(255, 255, 255, 0.5)';
+			if (props.$variant === 'popout') return '#94a3b8';
+			return 'rgba(255, 255, 255, 0.3)';
+		}};
 	border-radius: 4px;
 	padding: ${(props) => (props.$variant === 'popout' ? '4px 8px' : '4px 6px')};
 	cursor: pointer;
@@ -398,7 +405,8 @@ const LogLine = styled.div<{ $level: LogLevel; $standalone?: boolean }>`
 		}};
 	background: ${(props) => (props.$level === 'error' ? 'rgba(220, 38, 38, 0.08)' : 'transparent')};
 	&:hover {
-		background: ${(props) => (props.$standalone ? 'rgba(0, 0, 0, 0.04)' : 'rgba(248, 250, 252, 0.04)')};
+		background: ${(props) =>
+			props.$standalone ? 'rgba(0, 0, 0, 0.04)' : 'rgba(248, 250, 252, 0.04)'};
 	}
 `;
 
@@ -666,6 +674,7 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 		availableFiles,
 		parseAPICalls,
 		analyzeLogs,
+		COMBINED_LOG_ORDER.filter,
 	]);
 
 	// Initialize
@@ -809,7 +818,10 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 			>
 				<Header $isMinimized onMouseDown={standalone ? undefined : handleMouseDown}>
 					<Title $isMinimized>
-						<StatusIndicator $status={analysis?.errorCalls > 0 ? 'error' : 'active'} $standalone={standalone} />
+						<StatusIndicator
+							$status={analysis?.errorCalls > 0 ? 'error' : 'active'}
+							$standalone={standalone}
+						/>
 						<span>Log Viewer</span>
 						{analysis && (
 							<span style={{ fontSize: '10px', opacity: 0.8 }}>({analysis.totalCalls} calls)</span>
@@ -1051,8 +1063,8 @@ const FileOptions: React.FC<{ files: LogFile[] }> = ({ files }) => (
 	<>
 		{files.map((file) => (
 			<option key={file.name} value={file.name}>
-				{file.name.includes('api') ? '🔌' : file.name.includes('server') ? '🖥️' : '📄'} {file.name} (
-				{(file.size / 1024).toFixed(1)} KB)
+				{file.name.includes('api') ? '🔌' : file.name.includes('server') ? '🖥️' : '📄'} {file.name}{' '}
+				({(file.size / 1024).toFixed(1)} KB)
 			</option>
 		))}
 	</>

@@ -10,14 +10,11 @@
  */
 
 import React, { useState } from 'react';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
 import { colors, spacing } from '@/v8/styles/designTokens';
 import { FiX } from '../../../../icons';
 
-import { logger } from '../../../../utils/logger';
-
-const MODULE_TAG = '[🚨 UNIFIED-ERROR-DISPLAY-V8]';
+const _MODULE_TAG = '[🚨 UNIFIED-ERROR-DISPLAY-V8]';
 
 interface UnifiedErrorDisplayV8Props {
 	/** Error message to display */

@@ -564,7 +564,7 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 									url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/token`}
 									headers={{
 										'Content-Type': 'application/x-www-form-urlencoded',
-										Authorization: 'Basic ' + btoa(`${clientId}:***`),
+										Authorization: `Basic ${btoa(`${clientId}:***`)}`,
 									}}
 									body={`grant_type=authorization_code&code=${encodeURIComponent(hybridResult.type === 'hybrid' ? hybridResult.code : '')}&redirect_uri=${encodeURIComponent(redirectUri)}`}
 									response={
@@ -639,7 +639,7 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 								url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/introspect`}
 								headers={{
 									'Content-Type': 'application/x-www-form-urlencoded',
-									Authorization: 'Basic ' + btoa(`${clientId}:***`),
+									Authorization: `Basic ${btoa(`${clientId}:***`)}`,
 								}}
 								body={`token=${encodeURIComponent((backChannelAccessToken ?? frontChannelAccessToken ?? '').slice(0, 30))}...`}
 								response={

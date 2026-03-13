@@ -28,7 +28,6 @@ import { StandardModalSpinner } from './components/ui/StandardSpinner';
 import { V9ModernMessagingProvider } from './components/v9/V9ModernMessagingComponents';
 
 import CombinedTokenPage from './pages/CombinedTokenPage';
-import TokenMonitoringTab from './pages/TokenMonitoringTab';
 
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
