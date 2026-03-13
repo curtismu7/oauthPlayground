@@ -950,13 +950,6 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'Generate custom Postman collections for PingOne OAuth/OIDC and MFA flows. Download collections and environment files for API testing.',
 		icon: '📦',
 	},
-	'postman-collection-generator-v9': {
-		flowType: 'pingone',
-		title: 'Postman Generator',
-		subtitle:
-			'Generate Postman collections for PingOne flows. Select Unified and MFA use cases and download ready-to-import collections.',
-		icon: '📦',
-	},
 	'oauth-code-generator-hub': {
 		flowType: 'pingone',
 		title: 'OAuth Code Generator Hub',
@@ -1033,6 +1026,15 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		subtitle:
 			'Toggle Educational Mock Mode for mock flows. When enabled, compatible flows can use simulators for authorization and token operations.',
 		icon: '📦',
+	},
+
+	// AI & Identity Pages
+	'ai-assistant-page': {
+		flowType: 'pingone',
+		title: 'AI Assistant',
+		subtitle:
+			'🤖 Your intelligent guide to OAuth & OIDC - Get help with flows, configuration, troubleshooting, and navigate to relevant features with AI-powered assistance.',
+		icon: '🤖',
 	},
 };
 
