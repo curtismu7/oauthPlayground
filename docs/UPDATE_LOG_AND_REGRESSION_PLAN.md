@@ -31,6 +31,60 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Complete pages implementation & credential synchronization (2026-03-13)
+- **What:** Several pages showed "coming soon" or "under maintenance" messages, and credentials weren't syncing between Configuration page, unified flows, and MCP server storage.
+- **Fixes:** (1) **SettingsPage**: Replaced placeholder with functional settings management (theme switching, notifications, language preferences, save/reset). (2) **ReportsPage**: Replaced placeholder with comprehensive reporting (report type selection, date ranges, mock generation, recent reports). (3) **UserManagementPage**: Fixed syntax errors and added mock user data with search/filter functionality. (4) **TokenMonitoringPage**: Fixed logger import crash in TokenDisplayService. (5) **Step components**: Implemented PollingStep (interactive token polling) and TokenRequestStep (OAuth token request form). (6) **Configuration page**: Added MCP server credential loading as primary source with localStorage fallback. (7) **SharedCredentialsServiceV8**: Added MCP server loading/saving for unified flow credential synchronization.
+- **Files:** `src/v8u/pages/SettingsPage.tsx`, `src/v8u/pages/ReportsPage.tsx`, `src/v8u/pages/UserManagementPage.tsx`, `src/services/tokenDisplayService.ts`, `src/v8u/components/steps/PollingStep.tsx`, `src/v8u/components/steps/TokenRequestStep.tsx`, `src/pages/Configuration.tsx`, `src/v8/services/sharedCredentialsServiceV8.ts`
+- **Regression check:** Open `/v8u/settings` → functional theme/settings controls work. Open `/v8u/reports` → report generation interface works. Open `/v8u/user-management` → user list with search/filter works. Open `/token/operations` → no maintenance message, shows TokenMonitoringPage. Open `/configuration` → credentials load from MCP server. Save credentials in unified flow → appear in Configuration page and persist across restarts.
+
+### Callback step: CSRF/state_expired retry button (2026-03)
+- **What:** When CallbackHandler redirects with `?error=csrf_risk&reason=no_stored_state`, the callback step showed the error but the main Continue button stayed greyed; users had no clear retry path.
+- **Fix:** In `renderStep2Callback`, when `callbackError === 'csrf_risk'` or `callbackError === 'state_expired'`, show a "Go Back to Authorization URL" button that calls `navigateToStep(2)` and clears the URL params via `window.history.replaceState`. Error and description are read from sessionStorage or URL (`searchParams`).
+- **Files:** `src/v8u/components/UnifiedFlowSteps.tsx`
+- **Regression check:** Trigger no_stored_state (e.g. clear sessionStorage, then land on callback URL) → step 3 shows error card with "Go Back to Authorization URL" → click → navigates to step 2 (Auth URL), URL params cleared; user can retry.
+
+### Implicit Grant (V8U): redirect URI and Configuration catalog (2026-03)
+- **What:** Unified OAuth Implicit flow needed correct redirect URI (`/oauth-implicit-callback`) and visibility in Configuration redirect URI catalog.
+- **Fix:** (1) flowRedirectUriMapping: implicit-v8u callbackPath → `oauth-implicit-callback` (was `unified-callback`). (2) Added `implicit-v8u` to REDIRECT_URI_CATALOG_FLOW_TYPES so Configuration shows Implicit redirect URI. (3) callbackUriService: added `oauthImplicitCallback` for `/oauth-implicit-callback`; getCallbackTypesForFlow returns it for implicit-v8u before generic implicit check.
+- **Files:** `src/utils/flowRedirectUriMapping.ts`, `src/services/callbackUriService.ts`
+- **Regression check:** Open `/configuration` → "PingOne Redirect & Logout URIs" shows implicit-v8u row with `.../oauth-implicit-callback`. Open `/v8u/unified/implicit/0` → credentials redirect URI auto-fills `.../oauth-implicit-callback`. Add that URI in PingOne app; run Implicit flow → redirect succeeds.
+
+### Unified OAuth: persist section collapse state (2026-03)
+- **What:** Collapsed/expanded state of sections in Unified OAuth flow was lost on flow restart or browser refresh.
+- **Fix:** (1) Extended FlowSettingsServiceV8U with `credentialsCollapsed`, `workerTokenStatusCollapsed`, and `sectionCollapsed` (Record<string, boolean>) per flow type. (2) Added `usePersistedCollapse(flowType, sectionId, defaultCollapsed)` hook that reads/writes to localStorage. (3) UnifiedOAuthFlowV8U uses the hook for credentials and worker token status. (4) UnifiedFlowSteps uses the hook for all educational sections (quick-start, pkce-overview, pkce-details, auth-request-*, device-code-*, client-credentials-*, authz-code-*, hybrid-*, implicit-*, preflight-validation).
+- **Files:** `src/v8u/services/flowSettingsServiceV8U.ts`, `src/v8u/hooks/usePersistedCollapse.ts`, `src/v8u/flows/UnifiedOAuthFlowV8U.tsx`, `src/v8u/components/UnifiedFlowSteps.tsx`
+- **Regression check:** Collapse a section on `/v8u/unified/oauth-authz/0` or any step → refresh browser → section stays collapsed. Restart flow (navigate away and back) → section stays collapsed.
+
+### run.sh: MCP Inspector integrated (2026-03)
+- **What:** Users had to run `npm run mcp:inspector` separately to test the PingOne MCP server; no single-command startup.
+- **Fix:** (1) Added `start_mcp_inspector()` to run.sh — starts `npx @modelcontextprotocol/inspector` with mcp-inspector-config.json. (2) MCP Inspector starts automatically in `-assistant` and `-both` modes (after MCP server). (3) kill_all_servers stops Inspector by PID file and port 6274. (4) Status banners and show_url_banner include MCP Inspector URL (http://localhost:6274). (5) Inspector logs to mcp-inspector.log.
+- **Files:** `scripts/development/run.sh`
+- **Regression check:** Run `./run.sh -both` or `./run.sh -assistant` → MCP Inspector starts; open http://localhost:6274 to test PingOne MCP tools. Run again to restart — Inspector is killed and restarted cleanly.
+
+### run.sh: MCP Inspector auto-started with -assistant and -both (2026-03)
+- **What:** Users had to run `npm run mcp:inspector` separately to test PingOne MCP tools.
+- **Fix:** Integrated MCP Inspector into run.sh: (1) Added `start_mcp_inspector()` — starts `npx @modelcontextprotocol/inspector` in background, writes to mcp-inspector.log. (2) Calls it in `run_assistant_mode` and `run_both_mode` after MCP server. (3) kill_all_servers kills Inspector by PID file and port 6274. (4) Status banners and show_url_banner include MCP Inspector URL (http://localhost:6274).
+- **Files:** `scripts/development/run.sh`
+- **Regression check:** Run `./run.sh -both` or `./run.sh -assistant` → MCP Inspector starts with other services; open http://localhost:6274 to test PingOne MCP tools; re-run script → Inspector is killed and restarted cleanly.
+
+### run.sh: MCP Inspector integrated (2026-03)
+- **What:** Users had to run a separate command (`npm run mcp:inspector`) to launch the MCP Inspector for testing PingOne MCP tools.
+- **Fix:** (1) Added `start_mcp_inspector()` in run.sh — spawns `npx @modelcontextprotocol/inspector` with mcp-inspector-config.json. (2) MCP Inspector now starts automatically with `./run.sh -assistant` and `./run.sh -both`. (3) Added MCP_INSPECTOR_PORT (6274), MCP_INSPECTOR_PID_FILE; kill_all_servers stops Inspector. (4) Status banners and show_url_banner show MCP Inspector URL.
+- **Files:** `scripts/development/run.sh`
+- **Regression check:** Run `./run.sh -both` (or `./scripts/development/run.sh -both`) → MCP Inspector starts → open http://localhost:6274 → test PingOne MCP tools. Run `./run.sh` (main mode) → Inspector not started (only -assistant and -both include it).
+
+### MCP Inspector: PingOne MCP server writes to project logs (2026-03)
+- **What:** MCP Inspector sessions (`npm run mcp:inspector`) did not write to the project's logs; tool calls and errors went only to the terminal.
+- **Fix:** (1) Enhanced `pingone-mcp-server` Logger to append each info/warn/error to `logs/mcp-server.log` in addition to console. (2) Log path: `MCP_LOG_PATH` env (full path), or `MCP_LOG_DIR` (dir for mcp-server.log), or default `process.cwd()/logs/mcp-server.log`. (3) Added `MCP_LOG_DIR: "logs"` to `mcp-inspector-config.json` so Inspector sessions write to project logs. Format matches server.js (`[timestamp] [local] [MCP] [LEVEL] [scope] message`).
+- **Files:** `pingone-mcp-server/src/services/logger.ts`, `mcp-inspector-config.json`
+- **Regression check:** Run `npm run mcp:inspector` from project root → call a tool (e.g. tools/list) → check `logs/mcp-server.log` for entries. Log Viewer (mcp category) shows them when backend serves logs.
+
+### Unified OAuth flow: red header and V9FlowHeader migration (2026-03)
+- **What:** `/v8u/unified/oauth-authz/0` used blue PageHeaderV8 instead of the standard red PingOne header with white text.
+- **Fix:** (1) Added `oauth-authz-v8u` to `FLOW_CONFIGS` in flowHeaderService (flowType: 'pingone', title: "Unified OAuth/OIDC Flow", matching subtitle). (2) Replaced `PageHeaderV8` with `V9FlowHeader` in UnifiedOAuthFlowV8U. (3) Moved flow breadcrumbs and action buttons (Flow & Spec Comparison Guide, Postman downloads) into a separate card below the header.
+- **Files:** `src/services/flowHeaderService.tsx`, `src/v8u/flows/UnifiedOAuthFlowV8U.tsx`
+- **Regression check:** Open `/v8u/unified/oauth-authz/0` — red header with white text "Unified OAuth/OIDC Flow"; breadcrumbs and buttons in card below; Flow & Spec Comparison Guide and Postman buttons still work.
+
 ### MCP: sync worker credentials to mcp-config so Live MCP works (2026-03)
 - **What:** MCP "Get worker token" and PingOne API calls failed because the backend reads credentials from `mcp-config.json` (MCP Server Config page) while the Worker Token modal saves to SQLite via `unifiedWorkerTokenService`. The two stores were never synced.
 - **Cause:** `_mcpReadCredentials()` only reads `mcp-config.json` or env vars. Users who saved credentials via the Worker Token modal never had them written to mcp-config.
