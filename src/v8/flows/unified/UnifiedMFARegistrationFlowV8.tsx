@@ -31,8 +31,6 @@ import { MFADocumentationPageV8 } from '@/v8/components/MFADocumentationPageV8';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
 import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
-import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
-import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import { SQLiteStatsDisplayV8 } from '@/v8/components/SQLiteStatsDisplayV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
@@ -43,6 +41,7 @@ import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/devi
 import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
 import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
 import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
+import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
@@ -171,6 +170,9 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	const _workerToken = globalTokenStatus.token || '';
 
 	const _tokenStatus = globalTokenStatus;
+
+	// Worker token config (Silent API Retrieval, Show Token at End) — single source, checkboxes inside WorkerTokenSectionV8
+	const workerTokenConfig = useWorkerTokenConfigV8();
 
 	// Debug: Log environment and token status
 	useEffect(() => {
@@ -978,21 +980,15 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 									zIndex: 1,
 								}}
 							>
-								<div
-									style={{
-										display: 'flex',
-										flexDirection: 'column',
-										gap: '12px',
-										marginBottom: '12px',
-									}}
-								>
-									<SilentApiConfigCheckboxV8 />
-									<ShowTokenConfigCheckboxV8 />
-								</div>
-								{/* Worker Token Section */}
+								{/* Worker Token Section — checkboxes inside card, no duplicates above */}
 								<WorkerTokenSectionV8
 									environmentId={environmentId}
 									showStatusCard={false}
+									showSettings={true}
+									silentApiRetrieval={workerTokenConfig.silentApiRetrieval}
+									showTokenAtEnd={workerTokenConfig.showTokenAtEnd}
+									onSilentApiRetrievalChange={(v) => workerTokenConfig.updateSilentApiRetrieval(v)}
+									onShowTokenAtEndChange={(v) => workerTokenConfig.updateShowTokenAtEnd(v)}
 									onTokenUpdated={(_token) => {
 										// Token updated — global hook will auto-refresh
 									}}
@@ -1735,34 +1731,29 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 
 	// Handler for device type selection that captures environment ID and username
 	const handleDeviceTypeSelection = useCallback(
-		(deviceType: DeviceConfigKey, environmentId: string, username: string) => {
+		async (deviceType: DeviceConfigKey, environmentId: string, username: string) => {
 			logger.debug('UnifiedMFARegistrationFlowV8', 'Device type selected:', {
 				deviceType,
 				environmentId,
 				username,
 			});
 
-			// IMPORTANT: Save credentials to storage IMMEDIATELY before state update
-			// This prevents race condition where MFAFlowBaseV8 loads before credentials are saved
-			logger.debug('UnifiedMFARegistrationFlowV8', 'Saving credentials to storage IMMEDIATELY:', {
-				environmentId,
-				username,
-				deviceType,
-			});
-			CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+			// CRITICAL: Await save before state update so MFAFlowBaseV8 loads credentials with username
+			const currentCreds = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 				flowKey: FLOW_KEY,
-				flowType: 'registration',
-				environmentId,
-				username,
-				deviceType,
-				clientId: '',
+				flowType: 'oidc',
 				includeClientSecret: false,
 				includeRedirectUri: false,
 				includeLogoutUri: false,
 				includeScopes: false,
 			});
+			await CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+				...currentCreds,
+				environmentId,
+				username,
+				deviceType,
+			});
 
-			// Then update state
 			setSelectedDeviceType(deviceType);
 			setSelectedEnvironmentId(environmentId);
 			setSelectedUsername(username);
