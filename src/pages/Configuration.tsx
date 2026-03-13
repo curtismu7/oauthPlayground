@@ -740,7 +740,7 @@ const Configuration: React.FC = () => {
 						if (mcpData.success && mcpData.credentials) {
 							const mcpCreds = mcpData.credentials;
 							logger.info('Configuration', 'Loaded credentials from MCP server:', mcpCreds);
-							
+
 							// Sync MCP credentials to localStorage for Configuration page
 							const configCredentials = {
 								environmentId: mcpCreds.environmentId,
@@ -749,7 +749,7 @@ const Configuration: React.FC = () => {
 								redirectUri: `https://localhost:3000/callback`,
 								scopes: mcpCreds.scope ? mcpCreds.scope.split(' ') : ['openid'],
 							};
-							
+
 							setCredentials({
 								environmentId: configCredentials.environmentId,
 								clientId: configCredentials.clientId,
@@ -759,16 +759,20 @@ const Configuration: React.FC = () => {
 									? configCredentials.scopes.join(' ')
 									: configCredentials.scopes || 'openid profile email',
 							});
-							
+
 							// Save to localStorage for persistence
 							credentialManager.saveConfigCredentials(configCredentials);
 							return;
 						}
 					}
 				} catch (mcpError) {
-					logger.warn('Configuration', 'Failed to load from MCP server, trying localStorage:', mcpError);
+					logger.warn(
+						'Configuration',
+						'Failed to load from MCP server, trying localStorage:',
+						mcpError
+					);
 				}
-				
+
 				// Fallback to localStorage if MCP server doesn't have credentials
 				const configCredentials = credentialManager.loadConfigCredentials();
 				if (configCredentials.environmentId && configCredentials.clientId) {

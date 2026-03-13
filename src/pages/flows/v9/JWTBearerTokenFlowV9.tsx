@@ -6,7 +6,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 import { modernMessaging } from '../../../components/v9/V9ModernMessagingComponents';
 import UnifiedTokenDisplayService from '../../../services/unifiedTokenDisplayService';
-import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
 import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
@@ -38,7 +37,7 @@ const copyToClipboard = async (text: string): Promise<void> => {
  * Utility function to mask tokens for security
  * Shows first 8 characters, masks middle, shows last 4 characters
  */
-const maskToken = (token: string): string => {
+const _maskToken = (token: string): string => {
 	if (!token || token.length <= 12) {
 		return '••••••••';
 	}

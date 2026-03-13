@@ -18,9 +18,9 @@ import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
-import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
 import { credentialManager } from '../../../utils/credentialManager';
 import { logger } from '../../../utils/logger';
+import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
@@ -50,18 +50,19 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 				return '#f8fafc';
 		}
 	}};
-	border: 1px solid ${(props) => {
-		switch (props.$variant) {
-			case 'warning':
-				return '#fbbf24';
-			case 'success':
-				return '#93c5fd';
-			case 'error':
-				return '#fca5a5';
-			default:
-				return '#e5e7eb';
-		}
-	}};
+	border: 1px solid
+		${(props) => {
+			switch (props.$variant) {
+				case 'warning':
+					return '#fbbf24';
+				case 'success':
+					return '#93c5fd';
+				case 'error':
+					return '#fca5a5';
+				default:
+					return '#e5e7eb';
+			}
+		}};
 	border-radius: 0.75rem;
 	margin: 1.5rem 0;
 	font-size: 0.875rem;
@@ -89,7 +90,7 @@ const InfoTitle = styled.h3`
 
 const InfoText = styled.div`
 	margin-bottom: 0.75rem;
-	
+
 	&:last-child {
 		margin-bottom: 0;
 	}
@@ -116,7 +117,9 @@ const Input = styled.input<{ $preFilled?: boolean }>`
 	font-weight: ${(p) => (p.$preFilled ? 600 : 400)};
 	color: ${(p) => (p.$preFilled ? '#1e3a8a' : 'inherit')};
 	background: ${(p) => (p.$preFilled ? '#eff6ff' : 'white')};
-	transition: border-color 0.2s ease-in-out, background 0.2s ease;
+	transition:
+		border-color 0.2s ease-in-out,
+		background 0.2s ease;
 
 	&:focus {
 		outline: none;
@@ -144,7 +147,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 	align-items: center;
 	gap: 0.5rem;
 	border: none;
-	
+
 	${(props) => {
 		if (props.$variant === 'primary') {
 			return `
@@ -181,7 +184,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 			`;
 		}
 	}}
-	
+
 	&:disabled {
 		background: #9ca3af;
 		color: white;
@@ -1157,7 +1160,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							'Content-Type': 'application/x-www-form-urlencoded',
 							Accept: 'application/json',
 						}}
-						body={`grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer&assertion=${base64SAML ? encodeURIComponent(base64SAML.substring(0, 40)) + '...' : '<base64-SAML-assertion>'}`}
+						body={`grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer&assertion=${base64SAML ? `${encodeURIComponent(base64SAML.substring(0, 40))}...` : '<base64-SAML-assertion>'}`}
 						response={
 							tokenResponse
 								? {

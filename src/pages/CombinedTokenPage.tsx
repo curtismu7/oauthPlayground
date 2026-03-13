@@ -1,43 +1,45 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
-import TokenIntrospectionFlow from './flows/TokenIntrospectionFlow';
-import TokenMonitoringTab from './TokenMonitoringTab';
-import TokenRevocationFlow from './flows/TokenRevocationFlow';
 import { TokenMonitoringPage } from '../v8u/pages/TokenMonitoringPage';
+import TokenIntrospectionFlow from './flows/TokenIntrospectionFlow';
+import TokenRevocationFlow from './flows/TokenRevocationFlow';
+import TokenMonitoringTab from './TokenMonitoringTab';
 
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: ${V9_COLORS.BG.WHITE};
-  border-radius: 12px;
-  box-shadow: 0 2px 16px rgba(31, 41, 55, 0.08);
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
+	background: ${V9_COLORS.BG.WHITE};
+	border-radius: 12px;
+	box-shadow: 0 2px 16px rgba(31, 41, 55, 0.08);
 `;
 
 const Title = styled.h2`
-  font-size: 2rem;
-  font-weight: 700;
-  color: ${V9_COLORS.TEXT.GRAY_DARK};
-  margin-bottom: 24px;
+	font-size: 2rem;
+	font-weight: 700;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
+	margin-bottom: 24px;
 `;
 
 const TabBar = styled.div`
-  display: flex;
-  border-bottom: 2px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
-  margin-bottom: 24px;
+	display: flex;
+	border-bottom: 2px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
+	margin-bottom: 24px;
 `;
 
 const TabButton = styled.button<{ $active: boolean; $color: string }>`
-  padding: 12px 24px;
-  border: none;
-  background: ${({ $active, $color }) => ($active ? $color : 'transparent')};
-  color: ${({ $active }) => ($active ? V9_COLORS.TEXT.WHITE : V9_COLORS.TEXT.GRAY_DARK)};
-  font-weight: 600;
-  border-bottom: ${({ $active, $color }) => ($active ? `3px solid ${$color}` : 'none')};
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.2s, color 0.2s;
+	padding: 12px 24px;
+	border: none;
+	background: ${({ $active, $color }) => ($active ? $color : 'transparent')};
+	color: ${({ $active }) => ($active ? V9_COLORS.TEXT.WHITE : V9_COLORS.TEXT.GRAY_DARK)};
+	font-weight: 600;
+	border-bottom: ${({ $active, $color }) => ($active ? `3px solid ${$color}` : 'none')};
+	cursor: pointer;
+	font-size: 1rem;
+	transition:
+		background 0.2s,
+		color 0.2s;
 `;
 
 const CombinedTokenPage: React.FC = () => {
