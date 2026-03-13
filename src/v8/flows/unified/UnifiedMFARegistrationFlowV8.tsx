@@ -194,7 +194,11 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					const mcpData = await mcpResponse.json();
 					if (mcpData.success && mcpData.credentials?.environmentId) {
 						const mcpEnvId = mcpData.credentials.environmentId;
-						logger.info('UnifiedMFARegistrationFlowV8', 'Loaded Environment ID from MCP server:', mcpEnvId);
+						logger.info(
+							'UnifiedMFARegistrationFlowV8',
+							'Loaded Environment ID from MCP server:',
+							mcpEnvId
+						);
 						setEnvironmentId(mcpEnvId);
 						environmentIdPersistenceService.saveEnvironmentId(mcpEnvId, 'manual');
 						globalEnvironmentService.setEnvironmentId(mcpEnvId);
@@ -202,7 +206,11 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					}
 				}
 			} catch (mcpError) {
-				logger.warn('UnifiedMFARegistrationFlowV8', 'Failed to load from MCP server, trying storage services:', mcpError);
+				logger.warn(
+					'UnifiedMFARegistrationFlowV8',
+					'Failed to load from MCP server, trying storage services:',
+					mcpError
+				);
 			}
 
 			try {
@@ -772,7 +780,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 									value={username}
 									onChange={setUsername}
 									placeholder="Search for a user..."
-									disabled={!environmentId}
 								/>
 							</div>
 
