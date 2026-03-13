@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "pingone": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "pingone-mcp-server/src/index.ts"],
+      "env": {
+        "MCP_LOG_DIR": "logs"
+      }
+    }
+  }
+}
