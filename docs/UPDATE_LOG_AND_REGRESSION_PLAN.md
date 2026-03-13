@@ -31,6 +31,12 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Revert MCP server usage in Unified MFA and SharedCredentials (2026-03-13)
+- **What:** Unified MFA and SharedCredentialsServiceV8 were incorrectly using MCP server for credential loading, when only AIAssistant should use MCP server.
+- **Fixes:** (1) **Reverted UnifiedMFARegistrationFlowV8**: Removed MCP server credential loading and restored original localStorage/storage service loading chain. (2) **Reverted SharedCredentialsServiceV8**: Removed MCP server dependency and restored localStorage-only credential loading. (3) **Maintained separation**: Ensured Unified MFA and Unified OAuth use proxy/API infrastructure in server.js. (4) **AI-only MCP**: Confirmed only AIAssistant uses MCP server for credential management.
+- **Files:** `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`, `src/v8/services/sharedCredentialsServiceV8.ts`
+- **Regression check:** Unified MFA flow loads credentials from localStorage/storage services only. Configuration page (reverted) loads from localStorage. AIAssistant continues to use MCP server. All OAuth/MFA flows use server.js proxy endpoints, not MCP server.
+
 ### Username dropdown independence from environment ID (2026-03-13)
 - **What:** Username dropdown in unified MFA flow was disabled when environment ID field was empty, preventing user search even though worker token modal handles environment context internally.
 - **Fixes:** (1) **Made environmentId optional**: Updated UserSearchDropdownV8 props to make environmentId optional since worker token modal provides context. (2) **Removed disabled state**: Removed `disabled={!environmentId}` from username dropdown in unified MFA flow. (3) **Updated loading logic**: Modified loadUsers function and useEffect hooks to not require environment ID for API calls. (4) **Worker token context**: Let MFAServiceV8 handle environment ID internally when not provided.
