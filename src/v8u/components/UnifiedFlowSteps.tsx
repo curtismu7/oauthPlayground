@@ -17,7 +17,7 @@
  */
 
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from '@/components/ColoredUrlDisplay';
 import DeviceTypeSelector from '@/components/DeviceTypeSelector';
@@ -47,6 +47,7 @@ import { getRedirectUriForUnifiedFlow } from '@/services/v9/V9UnifiedRedirectUri
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { FiArrowRight } from '../../icons';
 import { logger } from '../../utils/logger';
+import { usePersistedCollapse } from '../hooks/usePersistedCollapse';
 // Enhanced state management for token synchronization
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 import { PKCEStorageServiceV8U } from '../services/pkceStorageServiceV8U';
@@ -404,6 +405,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const totalSteps = getTotalSteps();
 	const navigate = useNavigate();
 	const { step: urlStep } = useParams<{ step?: string }>();
+	const [searchParams] = useSearchParams();
 
 	// Get current step from URL
 	const currentStep = useMemo(() => {
@@ -473,24 +475,81 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		};
 	} | null>(null);
 
-	// Educational content collapsed state
-	const [isQuickStartCollapsed, setIsQuickStartCollapsed] = useState(false);
-	const [pkceOverviewCollapsed, setPkceOverviewCollapsed] = useState(false);
-	const [pkceDetailsCollapsed, setPkceDetailsCollapsed] = useState(false);
-	const [authRequestOverviewCollapsed, setAuthRequestOverviewCollapsed] = useState(false);
-	const [authRequestDetailsCollapsed, setAuthRequestDetailsCollapsed] = useState(false);
-	const [deviceCodeOverviewCollapsed, setDeviceCodeOverviewCollapsed] = useState(false);
-	const [deviceCodeDetailsCollapsed, setDeviceCodeDetailsCollapsed] = useState(false);
+	// Educational content collapsed state — persisted so survives refresh/restart
+	const [isQuickStartCollapsed, setIsQuickStartCollapsed] = usePersistedCollapse(
+		flowType,
+		'quick-start',
+		false
+	);
+	const [pkceOverviewCollapsed, setPkceOverviewCollapsed] = usePersistedCollapse(
+		flowType,
+		'pkce-overview',
+		false
+	);
+	const [pkceDetailsCollapsed, setPkceDetailsCollapsed] = usePersistedCollapse(
+		flowType,
+		'pkce-details',
+		false
+	);
+	const [authRequestOverviewCollapsed, setAuthRequestOverviewCollapsed] = usePersistedCollapse(
+		flowType,
+		'auth-request-overview',
+		false
+	);
+	const [authRequestDetailsCollapsed, setAuthRequestDetailsCollapsed] = usePersistedCollapse(
+		flowType,
+		'auth-request-details',
+		false
+	);
+	const [deviceCodeOverviewCollapsed, setDeviceCodeOverviewCollapsed] = usePersistedCollapse(
+		flowType,
+		'device-code-overview',
+		false
+	);
+	const [deviceCodeDetailsCollapsed, setDeviceCodeDetailsCollapsed] = usePersistedCollapse(
+		flowType,
+		'device-code-details',
+		false
+	);
 	const [clientCredentialsOverviewCollapsed, setClientCredentialsOverviewCollapsed] =
-		useState(false);
-	const [clientCredentialsDetailsCollapsed, setClientCredentialsDetailsCollapsed] = useState(false);
-	const [authzCodeOverviewCollapsed, setAuthzCodeOverviewCollapsed] = useState(false);
-	const [authzCodeDetailsCollapsed, setAuthzCodeDetailsCollapsed] = useState(false);
-	const [hybridOverviewCollapsed, setHybridOverviewCollapsed] = useState(false);
-	const [hybridDetailsCollapsed, setHybridDetailsCollapsed] = useState(false);
-	const [implicitOverviewCollapsed, setImplicitOverviewCollapsed] = useState(false);
-	const [implicitDetailsCollapsed, setImplicitDetailsCollapsed] = useState(false);
-	const [preflightValidationCollapsed, setPreflightValidationCollapsed] = useState(false);
+		usePersistedCollapse(flowType, 'client-credentials-overview', false);
+	const [clientCredentialsDetailsCollapsed, setClientCredentialsDetailsCollapsed] =
+		usePersistedCollapse(flowType, 'client-credentials-details', false);
+	const [authzCodeOverviewCollapsed, setAuthzCodeOverviewCollapsed] = usePersistedCollapse(
+		flowType,
+		'authz-code-overview',
+		false
+	);
+	const [authzCodeDetailsCollapsed, setAuthzCodeDetailsCollapsed] = usePersistedCollapse(
+		flowType,
+		'authz-code-details',
+		false
+	);
+	const [hybridOverviewCollapsed, setHybridOverviewCollapsed] = usePersistedCollapse(
+		flowType,
+		'hybrid-overview',
+		false
+	);
+	const [hybridDetailsCollapsed, setHybridDetailsCollapsed] = usePersistedCollapse(
+		flowType,
+		'hybrid-details',
+		false
+	);
+	const [implicitOverviewCollapsed, setImplicitOverviewCollapsed] = usePersistedCollapse(
+		flowType,
+		'implicit-overview',
+		false
+	);
+	const [implicitDetailsCollapsed, setImplicitDetailsCollapsed] = usePersistedCollapse(
+		flowType,
+		'implicit-details',
+		false
+	);
+	const [preflightValidationCollapsed, setPreflightValidationCollapsed] = usePersistedCollapse(
+		flowType,
+		'preflight-validation',
+		false
+	);
 
 	// Education mode state management for collapsible sections
 	const [educationMode, setEducationMode] = useState(() =>
@@ -3299,18 +3358,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																		setIsLoading(true);
 																		setLoadingMessage('🔧 Fixing errors...');
 
-																		const { uiNotificationServiceV8 } = await import(
-																			'@/v8/services/uiNotificationServiceV8'
-																		);
-																		const { PreFlightValidationServiceV8 } = await import(
-																			'@/v8/services/preFlightValidationServiceV8'
-																		);
-																		const { workerTokenServiceV8 } = await import(
-																			'@/v8/services/workerTokenServiceV8'
-																		);
-																		const { CredentialsServiceV8 } = await import(
-																			'@/v8/services/credentialsServiceV8'
-																		);
+																		const { uiNotificationServiceV8 } =
+																			await import('@/v8/services/uiNotificationServiceV8');
+																		const { PreFlightValidationServiceV8 } =
+																			await import('@/v8/services/preFlightValidationServiceV8');
+																		const { workerTokenServiceV8 } =
+																			await import('@/v8/services/workerTokenServiceV8');
+																		const { CredentialsServiceV8 } =
+																			await import('@/v8/services/credentialsServiceV8');
 
 																		const fixableErrors =
 																			preFlightValidationResult.fixableErrors || [];
@@ -3399,9 +3454,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 																			// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
 																			// This ensures fixes persist across all flows and browser restarts
-																			const { SharedCredentialsServiceV8 } = await import(
-																				'@/v8/services/sharedCredentialsServiceV8'
-																			);
+																			const { SharedCredentialsServiceV8 } =
+																				await import('@/v8/services/sharedCredentialsServiceV8');
 																			const sharedCreds =
 																				SharedCredentialsServiceV8.extractSharedCredentials(
 																					updatedCredentials
@@ -4256,9 +4310,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const flowApiUrl = `https://auth.pingone.com/${credentials.environmentId}/flows/${flowId}`;
 
 				// Track API call for display
-				const { apiCallTrackerService: apiCallTrackerService2 } = await import(
-					'@/services/apiCallTrackerService'
-				);
+				const { apiCallTrackerService: apiCallTrackerService2 } =
+					await import('@/services/apiCallTrackerService');
 				const startTime2 = Date.now();
 				const requestBody2 = {
 					environmentId: credentials.environmentId,
@@ -4846,9 +4899,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			// Track API call for display
-			const { apiCallTrackerService: apiCallTrackerService3 } = await import(
-				'@/services/apiCallTrackerService'
-			);
+			const { apiCallTrackerService: apiCallTrackerService3 } =
+				await import('@/services/apiCallTrackerService');
 			const startTime3 = Date.now();
 			const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 			const requestBody3 = {
@@ -5143,9 +5195,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				};
 			} | null = null;
 			try {
-				const { PreFlightValidationServiceV8 } = await import(
-					'@/v8/services/preFlightValidationServiceV8'
-				);
+				const { PreFlightValidationServiceV8 } =
+					await import('@/v8/services/preFlightValidationServiceV8');
 				const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 
 				setPreFlightStatus('🔑 Retrieving worker token...');
@@ -5154,9 +5205,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// If no worker token, respect Silent API Retrieval checkbox: if ON try silent first; if OFF don't
 				if (!workerToken) {
 					try {
-						const { handleShowWorkerTokenModal } = await import(
-							'@/v8/utils/workerTokenModalHelperV8'
-						);
+						const { handleShowWorkerTokenModal } =
+							await import('@/v8/utils/workerTokenModalHelperV8');
 						await handleShowWorkerTokenModal(
 							setShowWorkerTokenModal,
 							undefined, // setTokenStatus
@@ -5223,9 +5273,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						// If there are fixable errors, offer to fix them
 						if (fixableErrors.length > 0) {
-							const { uiNotificationServiceV8 } = await import(
-								'@/v8/services/uiNotificationServiceV8'
-							);
+							const { uiNotificationServiceV8 } =
+								await import('@/v8/services/uiNotificationServiceV8');
 
 							// Build fix description message
 							const fixDescriptions = fixableErrors
@@ -5305,9 +5354,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 								// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
 								// This ensures fixes persist across all flows and browser restarts
-								const { SharedCredentialsServiceV8 } = await import(
-									'@/v8/services/sharedCredentialsServiceV8'
-								);
+								const { SharedCredentialsServiceV8 } =
+									await import('@/v8/services/sharedCredentialsServiceV8');
 								const sharedCreds =
 									SharedCredentialsServiceV8.extractSharedCredentials(updatedCredentials);
 								if (
@@ -5920,12 +5968,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													setLoadingMessage('🔑 Retrieving Worker Token...');
 
 													// Import worker token modal helper
-													const { handleShowWorkerTokenModal } = await import(
-														'@/v8/utils/workerTokenModalHelperV8'
-													);
-													const { WorkerTokenStatusServiceV8 } = await import(
-														'@/v8/services/workerTokenStatusServiceV8'
-													);
+													const { handleShowWorkerTokenModal } =
+														await import('@/v8/utils/workerTokenModalHelperV8');
+													const { WorkerTokenStatusServiceV8 } =
+														await import('@/v8/services/workerTokenStatusServiceV8');
 
 													// User clicked "Get Worker Token" — show modal (respect Silent checkbox only for automatic fetches)
 													await handleShowWorkerTokenModal(
@@ -5949,12 +5995,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 														// Re-run pre-flight validation
 														setLoadingMessage('🔍 Re-validating Configuration...');
-														const { PreFlightValidationServiceV8 } = await import(
-															'@/v8/services/preFlightValidationServiceV8'
-														);
-														const { workerTokenServiceV8 } = await import(
-															'@/v8/services/workerTokenServiceV8'
-														);
+														const { PreFlightValidationServiceV8 } =
+															await import('@/v8/services/preFlightValidationServiceV8');
+														const { workerTokenServiceV8 } =
+															await import('@/v8/services/workerTokenServiceV8');
 
 														const newWorkerToken = await workerTokenServiceV8.getToken();
 														const newValidationResult =
@@ -6901,15 +6945,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													setIsLoading(true);
 													setLoadingMessage('🔧 Fixing errors...');
 
-													const { uiNotificationServiceV8 } = await import(
-														'@/v8/services/uiNotificationServiceV8'
-													);
-													const { CredentialsServiceV8 } = await import(
-														'@/v8/services/credentialsServiceV8'
-													);
-													const { SharedCredentialsServiceV8 } = await import(
-														'@/v8/services/sharedCredentialsServiceV8'
-													);
+													const { uiNotificationServiceV8 } =
+														await import('@/v8/services/uiNotificationServiceV8');
+													const { CredentialsServiceV8 } =
+														await import('@/v8/services/credentialsServiceV8');
+													const { SharedCredentialsServiceV8 } =
+														await import('@/v8/services/sharedCredentialsServiceV8');
 
 													const fixableErrors = preFlightValidationResult.fixableErrors || [];
 													const fixDescriptions = fixableErrors
@@ -8135,7 +8176,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			getRedirectUriForUnifiedFlow(flowType) ||
 			`${window.location.origin}/authz-callback`;
 
-		// Check for errors in callback data (from sessionStorage)
+		// Check for errors in callback data (from sessionStorage) or URL (when CallbackHandler redirects with csrf_risk, it does not store sessionStorage)
 		const callbackDataStr = sessionStorage.getItem('v8u_callback_data');
 		let callbackError: string | null = null;
 		let callbackErrorDescription: string | null = null;
@@ -8157,6 +8198,19 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} catch (err) {
 				logger.error('UnifiedFlowSteps', `Failed to parse callback data:`, undefined, err);
 			}
+		}
+
+		// When csrf_risk or state_expired, CallbackHandler redirects without storing — error is only in URL
+		const urlError = searchParams.get('error');
+		const urlReason = searchParams.get('reason');
+		if (urlError === 'csrf_risk' || urlError === 'state_expired') {
+			callbackError = callbackError || urlError;
+			callbackErrorDescription =
+				callbackErrorDescription ||
+				urlReason ||
+				(urlError === 'csrf_risk'
+					? 'CSRF validation failed. Go back and try again.'
+					: 'State expired. Go back and try again.');
 		}
 
 		// Check if data was already extracted (for hybrid flow, check both code and tokens)
@@ -8217,6 +8271,30 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									>
 										<strong>Description:</strong> {decodeURIComponent(callbackErrorDescription)}
 									</p>
+								)}
+								{(callbackError === 'csrf_risk' || callbackError === 'state_expired') && (
+									<div style={{ marginTop: '16px' }}>
+										<button
+											type="button"
+											className="btn btn-primary"
+											onClick={() => {
+												navigateToStep(2);
+												window.history.replaceState({}, '', window.location.pathname);
+											}}
+											style={{
+												padding: '10px 20px',
+												fontSize: '14px',
+												fontWeight: '600',
+												background: '#2563eb',
+												color: 'white',
+												border: 'none',
+												borderRadius: '6px',
+												cursor: 'pointer',
+											}}
+										>
+											Go Back to Authorization URL
+										</button>
+									</div>
 								)}
 								{callbackError === 'unsupported_response_type' && (
 									<div
@@ -9102,9 +9180,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		} | null = null;
 
 		try {
-			const { PreFlightValidationServiceV8 } = await import(
-				'@/v8/services/preFlightValidationServiceV8'
-			);
+			const { PreFlightValidationServiceV8 } =
+				await import('@/v8/services/preFlightValidationServiceV8');
 			const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 
 			setPreFlightStatus('🔑 Retrieving worker token...');
@@ -9809,9 +9886,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					let response: Response;
 					try {
 						// Track API call for display
-						const { apiCallTrackerService: apiCallTrackerService4 } = await import(
-							'@/services/apiCallTrackerService'
-						);
+						const { apiCallTrackerService: apiCallTrackerService4 } =
+							await import('@/services/apiCallTrackerService');
 						const startTime4 = Date.now();
 						const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 						const requestBodyForTracking = {
@@ -10885,9 +10961,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				} | null = null;
 
 				try {
-					const { PreFlightValidationServiceV8 } = await import(
-						'@/v8/services/preFlightValidationServiceV8'
-					);
+					const { PreFlightValidationServiceV8 } =
+						await import('@/v8/services/preFlightValidationServiceV8');
 					const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 
 					setPreFlightStatus('🔑 Retrieving worker token...');
@@ -10911,9 +10986,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						| undefined;
 					if (workerToken && credentials.environmentId && credentials.clientId) {
 						try {
-							const { ConfigCheckerServiceV8 } = await import(
-								'@/v8/services/configCheckerServiceV8'
-							);
+							const { ConfigCheckerServiceV8 } =
+								await import('@/v8/services/configCheckerServiceV8');
 							const fetchedConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 								credentials.environmentId,
 								credentials.clientId,
@@ -10970,9 +11044,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						const fixableErrors = validationResult.fixableErrors || [];
 
 						if (fixableErrors.length > 0) {
-							const { uiNotificationServiceV8 } = await import(
-								'@/v8/services/uiNotificationServiceV8'
-							);
+							const { uiNotificationServiceV8 } =
+								await import('@/v8/services/uiNotificationServiceV8');
 							const fixDescriptions = fixableErrors
 								.map((fe) => `  • ${fe.fixDescription}`)
 								.join('\n');
@@ -12489,9 +12562,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				});
 
 				// Track API call for display
-				const { apiCallTrackerService: apiCallTrackerService5 } = await import(
-					'@/services/apiCallTrackerService'
-				);
+				const { apiCallTrackerService: apiCallTrackerService5 } =
+					await import('@/services/apiCallTrackerService');
 				const startTime5 = Date.now();
 				const requestBody5 = {
 					token: '***REDACTED***',
@@ -13606,7 +13678,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											: selectedTokenType === 'access' && !operationRules.canIntrospectAccessToken
 												? operationRules.introspectionReason
 												: selectedTokenType === 'refresh' &&
-														!operationRules.canIntrospectRefreshToken
+													  !operationRules.canIntrospectRefreshToken
 													? 'Refresh token introspection not supported'
 													: selectedTokenType === 'id' && !operationRules.canIntrospectIdToken
 														? 'ID token introspection not recommended'
@@ -15485,18 +15557,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					onClose={async () => {
 						setShowWorkerTokenModal(false);
 						// After modal closes, check if token is available and re-run validation
-						const { WorkerTokenStatusServiceV8 } = await import(
-							'@/v8/services/workerTokenStatusServiceV8'
-						);
+						const { WorkerTokenStatusServiceV8 } =
+							await import('@/v8/services/workerTokenStatusServiceV8');
 						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 						if (tokenStatus.isValid) {
 							// Re-run pre-flight validation
 							setIsLoading(true);
 							setLoadingMessage('🔍 Re-validating Configuration...');
 							try {
-								const { PreFlightValidationServiceV8 } = await import(
-									'@/v8/services/preFlightValidationServiceV8'
-								);
+								const { PreFlightValidationServiceV8 } =
+									await import('@/v8/services/preFlightValidationServiceV8');
 								const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 
 								const newWorkerToken = await workerTokenServiceV8.getToken();

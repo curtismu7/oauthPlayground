@@ -3,6 +3,7 @@
  *
  * This service provides dynamic, environment-aware callback URI management
  * to eliminate hardcoded localhost URLs and ensure proper flow-specific routing.
+ * Origin follows custom domain (api.pingdemo.com or user-configured) when available.
  */
 
 import {
@@ -10,6 +11,7 @@ import {
 	REDIRECT_URI_CATALOG_FLOW_TYPES,
 } from '../utils/flowRedirectUriMapping';
 import { logger } from '../utils/logger';
+import { getCachedDomain } from './customDomainService';
 
 const OVERRIDE_STORAGE_KEY = 'callback_uri_overrides';
 
@@ -22,6 +24,8 @@ export interface CallbackUriConfig {
 export interface FlowCallbackUris {
 	authzCallback: string;
 	implicitCallback: string;
+	/** V8U Unified Implicit flow uses /oauth-implicit-callback (ImplicitCallback component) */
+	oauthImplicitCallback: string;
 	logoutCallback: string;
 	hybridCallback: string;
 	oauthV3Callback: string;
@@ -51,6 +55,7 @@ class CallbackUriService {
 	private readonly defaultPaths: Record<keyof FlowCallbackUris, string> = {
 		authzCallback: '/authz-callback',
 		implicitCallback: '/implicit-callback',
+		oauthImplicitCallback: '/oauth-implicit-callback',
 		logoutCallback: '/logout-callback',
 		hybridCallback: '/hybrid-callback',
 		oauthV3Callback: '/oauth-v3-callback',
@@ -88,6 +93,21 @@ class CallbackUriService {
 			return 'https://localhost:3000';
 		}
 
+		// Prefer custom domain (IndexedDB/API/env) so redirect URIs match PingOne registration
+		const cached = getCachedDomain();
+		if (cached) {
+			const port = window.location.port;
+			const portStr = port ? `:${port}` : '';
+			return `${window.location.protocol}//${cached}${portStr}`;
+		}
+		const appUrl = (import.meta.env.VITE_PUBLIC_APP_URL as string | undefined)?.trim();
+		if (appUrl) {
+			try {
+				return new URL(appUrl).origin;
+			} catch {
+				// fall through
+			}
+		}
 		// Ensure HTTPS is used for security, even in development
 		const origin = window.location.origin;
 		if (origin.startsWith('http://localhost')) {
@@ -211,6 +231,14 @@ class CallbackUriService {
 
 		if (normalized.includes('device')) {
 			return { redirect: 'deviceCodeCallback', logout: 'deviceLogoutCallback' };
+		}
+
+		// V8U Unified Implicit uses /oauth-implicit-callback (ImplicitCallback), not /implicit-callback
+		if (
+			normalized === 'implicit-v8u' ||
+			(normalized.includes('v8u') && normalized.includes('implicit'))
+		) {
+			return { redirect: 'oauthImplicitCallback', logout: 'implicitLogoutCallback' };
 		}
 
 		if (normalized.includes('implicit')) {
@@ -467,6 +495,7 @@ class CallbackUriService {
 		return {
 			authzCallback: this.getCallbackUri('authzCallback'),
 			implicitCallback: this.getCallbackUri('implicitCallback'),
+			oauthImplicitCallback: this.getCallbackUri('oauthImplicitCallback'),
 			logoutCallback: this.getCallbackUri('logoutCallback'),
 			hybridCallback: this.getCallbackUri('hybridCallback'),
 			oauthV3Callback: this.getCallbackUri('oauthV3Callback'),

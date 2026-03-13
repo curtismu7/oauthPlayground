@@ -44,12 +44,14 @@ SSL_CERT_PATH="${SSL_CERT_PATH:-}"
 SSL_KEY_PATH="${SSL_KEY_PATH:-}"
 
 ASSISTANT_PORT=3002  # Standalone AI Assistant (Vite)
+MCP_INSPECTOR_PORT=6274  # MCP Inspector UI (modelcontextprotocol/inspector)
 MCP_SERVER_DIR_REL="pingone-mcp-server"  # Relative to project root
 
 # PID files for process management
 FRONTEND_PID_FILE=".frontend.pid"
 BACKEND_PID_FILE=".backend.pid"
 ASSISTANT_PID_FILE=".assistant.pid"
+MCP_INSPECTOR_PID_FILE=".mcp-inspector.pid"
 MCP_PID_FILE_REL="pingone-mcp-server/mcp-server.pid"
 
 # Status tracking
@@ -289,11 +291,25 @@ kill_all_servers() {
         kill -9 "$backend_pid" 2>/dev/null || true
     fi
     
+    # Kill MCP Inspector by PID file or port
+    if [ -f "$MCP_INSPECTOR_PID_FILE" ]; then
+        local pid=$(cat "$MCP_INSPECTOR_PID_FILE" 2>/dev/null)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            print_info "Killing MCP Inspector (PID: $pid)"
+            kill "$pid" 2>/dev/null || true
+        fi
+        rm -f "$MCP_INSPECTOR_PID_FILE"
+    fi
+    if check_port $MCP_INSPECTOR_PORT 2>/dev/null; then
+        lsof -ti:$MCP_INSPECTOR_PORT | xargs kill -9 2>/dev/null || true
+    fi
+
     # Kill any node processes that might be related to our project
     print_info "Cleaning up any remaining Node.js processes..."
     pkill -f "vite" 2>/dev/null || true
     pkill -f "server.js" 2>/dev/null || true
     pkill -f "oauth-playground" 2>/dev/null || true
+    pkill -f "@modelcontextprotocol/inspector" 2>/dev/null || true
     
     # Clear Vite cache and node_modules to ensure clean restart
     print_info "Clearing Vite cache and dependencies..."
@@ -1313,6 +1329,38 @@ start_mcp_server() {
     fi
 }
 
+start_mcp_inspector() {
+    print_status "🔬 Starting MCP Inspector (visual testing for PingOne MCP server)..."
+    if [ ! -f "mcp-inspector-config.json" ]; then
+        print_warning "mcp-inspector-config.json not found — skipping MCP Inspector"
+        return 1
+    fi
+    if [ -f "$MCP_INSPECTOR_PID_FILE" ]; then
+        local old_pid=$(cat "$MCP_INSPECTOR_PID_FILE" 2>/dev/null)
+        if [ -n "$old_pid" ] && kill -0 "$old_pid" 2>/dev/null; then
+            print_info "MCP Inspector already running (PID: $old_pid)"
+            return 0
+        fi
+        rm -f "$MCP_INSPECTOR_PID_FILE"
+    fi
+    if check_port $MCP_INSPECTOR_PORT 2>/dev/null; then
+        print_info "Port $MCP_INSPECTOR_PORT in use — killing existing process"
+        lsof -ti:$MCP_INSPECTOR_PORT | xargs kill -9 2>/dev/null || true
+        sleep 2
+    fi
+    npx @modelcontextprotocol/inspector --config mcp-inspector-config.json --server pingone > mcp-inspector.log 2>&1 &
+    local inspector_pid=$!
+    echo $inspector_pid > "$MCP_INSPECTOR_PID_FILE"
+    sleep 2
+    if kill -0 "$inspector_pid" 2>/dev/null; then
+        print_success "MCP Inspector started (PID: $inspector_pid) — http://localhost:${MCP_INSPECTOR_PORT}"
+        return 0
+    else
+        print_warning "MCP Inspector may have exited. Check mcp-inspector.log (Node ^22.7.5 required)"
+        return 1
+    fi
+}
+
 start_assistant_frontend() {
     print_status "🚀 Starting standalone AI Assistant on port $ASSISTANT_PORT..."
 
@@ -1406,6 +1454,9 @@ run_assistant_mode() {
     # Start MCP server (non-fatal if it fails — backend still works without it)
     start_mcp_server || print_warning "MCP server failed to start — continuing without it"
 
+    # Start MCP Inspector (visual testing UI for PingOne MCP tools)
+    start_mcp_inspector || print_warning "MCP Inspector failed to start — continuing without it"
+
     # Start AI Assistant frontend
     start_assistant_frontend || {
         print_error "AI Assistant frontend failed to start."
@@ -1419,12 +1470,14 @@ run_assistant_mode() {
     echo -e "${GREEN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
     echo -e "${GREEN}║${NC} Backend API:      ${BLUE}https://localhost:3001${NC}"
     echo -e "${GREEN}║${NC} MCP Server:       ${BLUE}background process${NC} (mcp-server.log)"
+    echo -e "${GREEN}║${NC} MCP Inspector:    ${BLUE}http://localhost:${MCP_INSPECTOR_PORT}${NC} (test MCP tools)"
     echo -e "${GREEN}║${NC} AI Assistant:     ${BLUE}https://localhost:${ASSISTANT_PORT}${NC}"
     echo -e "${GREEN}║${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Log files:${NC}"
-    echo -e "${GREEN}║${NC}   backend.log    — Express API server"
-    echo -e "${GREEN}║${NC}   mcp-server.log — PingOne MCP server"
-    echo -e "${GREEN}║${NC}   assistant.log  — Vite dev server"
+    echo -e "${GREEN}║${NC}   backend.log       — Express API server"
+    echo -e "${GREEN}║${NC}   mcp-server.log   — PingOne MCP server"
+    echo -e "${GREEN}║${NC}   mcp-inspector.log— MCP Inspector"
+    echo -e "${GREEN}║${NC}   assistant.log    — Vite dev server"
     echo -e "${GREEN}║${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Stop all:  pkill -f 'server.js'; lsof -ti:3002 | xargs kill -9${NC}"
     echo -e "${GREEN}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
@@ -1496,6 +1549,9 @@ run_both_mode() {
     # Start MCP server (non-fatal)
     start_mcp_server || print_warning "MCP server failed to start — continuing without it"
 
+    # Start MCP Inspector (visual testing UI for PingOne MCP tools)
+    start_mcp_inspector || print_warning "MCP Inspector failed to start — continuing without it"
+
     # Start main OAuth Playground frontend
     start_frontend
 
@@ -1510,13 +1566,15 @@ run_both_mode() {
     echo -e "${GREEN}║${NC} Backend API:      ${BLUE}https://localhost:3001${NC}"
     echo -e "${GREEN}║${NC} OAuth Playground: ${BLUE}https://localhost:${FRONTEND_PORT}${NC}"
     echo -e "${GREEN}║${NC} MCP Server:       ${BLUE}background process${NC} (mcp-server.log)"
+    echo -e "${GREEN}║${NC} MCP Inspector:    ${BLUE}http://localhost:${MCP_INSPECTOR_PORT}${NC} (test MCP tools)"
     echo -e "${GREEN}║${NC} AI Assistant:     ${BLUE}https://localhost:${ASSISTANT_PORT}${NC}"
     echo -e "${GREEN}║${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Log files:${NC}"
-    echo -e "${GREEN}║${NC}   backend.log    — Express API server"
-    echo -e "${GREEN}║${NC}   frontend.log   — OAuth Playground (Vite)"
-    echo -e "${GREEN}║${NC}   mcp-server.log — PingOne MCP server"
-    echo -e "${GREEN}║${NC}   assistant.log  — AI Assistant (Vite)"
+    echo -e "${GREEN}║${NC}   backend.log        — Express API server"
+    echo -e "${GREEN}║${NC}   frontend.log       — OAuth Playground (Vite)"
+    echo -e "${GREEN}║${NC}   mcp-server.log     — PingOne MCP server"
+    echo -e "${GREEN}║${NC}   mcp-inspector.log  — MCP Inspector"
+    echo -e "${GREEN}║${NC}   assistant.log      — AI Assistant (Vite)"
     echo -e "${GREEN}║${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Stop all:${NC} pkill -f 'server.js'; lsof -ti:3000,3002 | xargs kill -9"
     echo -e "${GREEN}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
@@ -1890,6 +1948,9 @@ show_url_banner() {
     echo -e "${PURPLE}║${NC}"
     echo -e "${PURPLE}║${NC}  ${CYAN}Standalone AI Assistant${NC}"
     echo -e "${PURPLE}║${NC}    UI         →  ${GREEN}https://localhost:${ASSISTANT_PORT}${NC}"
+    echo -e "${PURPLE}║${NC}"
+    echo -e "${PURPLE}║${NC}  ${CYAN}MCP Inspector${NC} (test PingOne MCP tools)"
+    echo -e "${PURPLE}║${NC}    UI         →  ${GREEN}http://localhost:${MCP_INSPECTOR_PORT}${NC}"
     echo -e "${PURPLE}║${NC}"
     echo -e "${PURPLE}║${NC}  ${CYAN}How to run${NC}"
     echo -e "${PURPLE}║${NC}    Masterflow only         →  ${YELLOW}./run.sh${NC}"
