@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { DavinciTodoProvider, useDavinciTodo } from './contexts/DavinciTodoContext';
 
 const Container = styled.div`
@@ -9,7 +10,7 @@ const Container = styled.div`
 	padding: 2rem;
 `;
 
-const Header = styled.h1`
+const _Header = styled.h1`
 	color: #333;
 	margin-bottom: 1rem;
 	font-size: 2.5rem;
@@ -438,8 +439,8 @@ const DavinciTodoApp: React.FC = () => {
 	if (!isAuthenticated) {
 		return (
 			<Container>
+				<FlowHeader flowId="davinci-todo" />
 				<BackButton to="/sdk-examples">← Back to SDK Examples</BackButton>
-				<Header>DaVinci Todo App</Header>
 				<Description>
 					Complete todo application demonstrating PingOne DaVinci workflow integration with dynamic
 					form rendering and real-time updates.
@@ -454,8 +455,8 @@ const DavinciTodoApp: React.FC = () => {
 
 	return (
 		<Container>
+			<FlowHeader flowId="davinci-todo" />
 			<BackButton to="/sdk-examples">← Back to SDK Examples</BackButton>
-			<Header>DaVinci Todo App</Header>
 			<Description>
 				Complete todo application demonstrating PingOne DaVinci workflow integration with dynamic
 				form rendering and real-time updates.

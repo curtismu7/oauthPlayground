@@ -2499,7 +2499,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				/>
 			);
 		},
-		// biome-ignore lint/correctness/useExhaustiveDependencies: modernFieldErrors/setModernFieldErrors intentional
 		[
 			deviceType,
 			performRegistration,

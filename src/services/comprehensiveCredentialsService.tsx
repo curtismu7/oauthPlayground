@@ -1533,6 +1533,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						defaultCollapsed={true}
 						icon={<MDIIcon icon="FiSettings" />}
 						theme="orange"
+						useUnifiedIcon={flowType === 'worker-token-v9'}
 					>
 						{!effectiveWorkerToken && (
 							<div
@@ -1618,6 +1619,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					icon={<MDIIcon icon="FiSettings" />}
 					defaultCollapsed={defaultCollapsed}
 					theme="orange"
+					useUnifiedIcon={flowType === 'worker-token-v9'}
 				>
 					{/* OIDC Discovery */}
 					<ComprehensiveDiscoveryInput
@@ -1669,6 +1671,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					icon={<MDIIcon icon="FiSettings" />}
 					defaultCollapsed={true}
 					theme="orange"
+					useUnifiedIcon={flowType === 'worker-token-v9'}
 				>
 					<div
 						style={{
@@ -1865,6 +1868,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						icon={<MDIIcon icon="FiKey" />}
 						defaultCollapsed={true}
 						variant="compact"
+						useUnifiedIcon={flowType === 'worker-token-v9'}
 					>
 						<div
 							style={{
@@ -2689,6 +2693,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						subtitle="Configure JWKS endpoint or provide a private key for JWT-based client authentication"
 						icon={<MDIIcon icon="FiKey" />}
 						defaultCollapsed={false}
+						useUnifiedIcon={flowType === 'worker-token-v9'}
 					>
 						<JwksKeySourceSelector
 							value={jwksKeySource}

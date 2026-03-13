@@ -18,9 +18,6 @@ import {
 } from '../../services/educationPreferenceService';
 
 const ToggleContainer = styled.div`
-	position: sticky;
-	top: 0;
-	z-index: 100;
 	background: V9_COLORS.TEXT.WHITE;
 	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	padding: 12px 0;
@@ -69,7 +66,7 @@ const ToggleButton = styled.button<{ $active: boolean }>`
 	box-shadow: ${(props) => (props.$active ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none')};
 
 	&:hover {
-		background: ${(props) => (props.$active ? '#ffffff' : '#e5e7eb')};
+		background: ${(props) => (props.$active ? '#ffffff' : '#eff6ff')};
 	}
 
 	&:focus {
@@ -150,11 +147,11 @@ const DropdownItem = styled.button`
 	transition: background-color 0.2s ease;
 
 	&:hover {
-		background: #f3f4f6;
+		background: #eff6ff;
 	}
 
 	&:focus {
-		background: #f3f4f6;
+		background: #eff6ff;
 		outline: 2px solid V9_COLORS.PRIMARY.BLUE;
 		outline-offset: -2px;
 	}

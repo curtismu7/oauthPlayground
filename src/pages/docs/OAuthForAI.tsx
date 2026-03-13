@@ -163,16 +163,7 @@ const OAuthForAI = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>
-				<FlowHeader
-					flowId="oauth-for-ai"
-					customConfig={{
-						flowType: 'ai',
-						title: 'OAuth for AI',
-						subtitle:
-							'OAuth specifications and PingOne compatibility matrix for AI and agentic systems. Comprehensive guide to secure AI authentication and authorization.',
-						icon: '🤖',
-					}}
-				/>
+				<FlowHeader flowId="oauth-for-ai" />
 
 				<CollapsibleHeader
 					title="Key OAuth Specs for AI"

@@ -11,7 +11,6 @@
  * - Cryptographically secure random strings
  */
 
-import { logger } from '../utils/logger';
 import { logger } from './logger';
 
 const MODULE_TAG = '[🔐 KEY-GENERATION]';

@@ -364,6 +364,7 @@ export class FlowUIService {
 				font-size: 2.5rem;
 				font-weight: 700;
 				line-height: 1;
+				color: #ffffff;
 			`;
 		}
 		return FlowUIService._stepNumberCache;
@@ -503,6 +504,8 @@ export class FlowUIService {
 					color: white;
 					box-shadow: 0 6px 16px ${background}33;
 					transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+					/* Same as collapsibleHeaderService: expanded=down (0deg), collapsed=right (-90deg) */
+					transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 
 					svg {
 						width: 16px;
@@ -510,7 +513,8 @@ export class FlowUIService {
 					}
 
 					&:hover {
-						transform: translateY(-1px);
+						transform: ${({ $collapsed }) =>
+							$collapsed ? 'rotate(-90deg) translateY(-1px)' : 'rotate(0deg) translateY(-1px)'};
 						box-shadow: 0 8px 20px ${background}4d;
 					}
 				`

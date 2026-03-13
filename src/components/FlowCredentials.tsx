@@ -413,7 +413,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 			try {
 				// Mark as loading to prevent concurrent loads
 				hasLoadedCredentialsRef.current = true;
-				logger.config('FlowCredentials', `Loading credentials for flow: ${flowType}`);
+				logger.info('FlowCredentials', `Loading credentials for flow: ${flowType}`);
 
 				// Load credentials from appropriate storage based on flow type
 				let flowCredentials: Record<string, unknown> = {};
@@ -445,7 +445,8 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 
 				// Call the callback using the ref to avoid dependency issues
 				onCredentialsChangeRef.current?.(finalCredentials);
-				logger.success('FlowCredentials', `Credentials loaded for ${flowType}`, finalCredentials);
+				if (typeof logger.info === 'function')
+					logger.info('FlowCredentials', `Credentials loaded for ${flowType}`, finalCredentials);
 			} catch (error) {
 				// Reset flag on error so we can retry
 				hasLoadedCredentialsRef.current = false;
@@ -502,7 +503,11 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 	}, [credentials]);
 
 	const handleFieldChange = (field: keyof FlowCredentialsData, value: string) => {
-		logger.ui('FlowCredentials', `Field changed: ${field}`, { field, valueLength: value.length });
+		if (typeof logger.info === 'function')
+			logger.info('FlowCredentials', `Field changed: ${field}`, {
+				field,
+				valueLength: value.length,
+			});
 		setCredentials((prev) => ({ ...prev, [field]: value }));
 		setErrors((prev) => ({ ...prev, [field]: undefined }));
 	};
@@ -511,14 +516,16 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 		if (!text) return;
 
 		try {
-			logger.ui('FlowCredentials', `Copying ${fieldName} to clipboard`, {
-				fieldName,
-				textLength: text.length,
-			});
+			if (typeof logger.info === 'function')
+				logger.info('FlowCredentials', `Copying ${fieldName} to clipboard`, {
+					fieldName,
+					textLength: text.length,
+				});
 			await navigator.clipboard.writeText(text);
 			setCopiedField(fieldName);
 			setTimeout(() => setCopiedField(null), 2000);
-			logger.success('FlowCredentials', `Successfully copied ${fieldName}`);
+			if (typeof logger.info === 'function')
+				logger.info('FlowCredentials', `Successfully copied ${fieldName}`);
 		} catch (error) {
 			logger.error(
 				'FlowCredentials',
@@ -529,16 +536,9 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 		}
 	};
 
+	// Always use local credentials state so inputs remain editable when user types.
+	// useGlobalDefaults affects load/save source only, not the controlled input value.
 	const getFieldValue = (field: keyof FlowCredentialsData): string => {
-		if (useGlobalDefaults) {
-			// When using global defaults, always return global value
-			const globalConfig = localStorage.getItem('pingone_config');
-			if (globalConfig) {
-				const parsed = JSON.parse(globalConfig);
-				return parsed[field] || '';
-			}
-		}
-		// Otherwise return the current credentials (which already have global as base + flow overrides)
 		return credentials[field] || '';
 	};
 
@@ -558,7 +558,8 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 
 	const handleSaveCredentials = () => {
 		try {
-			logger.ui('FlowCredentials', `Saving credentials for ${flowType}`, credentials);
+			if (typeof logger.info === 'function')
+				logger.info('FlowCredentials', `Saving credentials for ${flowType}`, credentials);
 
 			// Convert to PermanentCredentials format
 			const permanentCredentials = {
@@ -600,7 +601,8 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 			// Notify parent component
 			onCredentialsChange?.(credentials);
 
-			logger.success('FlowCredentials', `Credentials saved for ${flowType}`, credentials);
+			if (typeof logger.info === 'function')
+				logger.info('FlowCredentials', `Credentials saved for ${flowType}`, credentials);
 
 			// Clear save message after 3 seconds
 			setTimeout(() => {
@@ -621,7 +623,8 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 
 	const handleResetCredentials = () => {
 		try {
-			logger.ui('FlowCredentials', `Resetting credentials for ${flowType}`);
+			if (typeof logger.info === 'function')
+				logger.info('FlowCredentials', `Resetting credentials for ${flowType}`);
 
 			// Reset to original credentials
 			setCredentials({ ...originalCredentials });
@@ -631,7 +634,8 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 			setIsSaved(false);
 			setSaveMessage(null);
 
-			logger.success('FlowCredentials', `Credentials reset for ${flowType}`);
+			if (typeof logger.info === 'function')
+				logger.info('FlowCredentials', `Credentials reset for ${flowType}`);
 		} catch (error) {
 			logger.error(
 				'FlowCredentials',

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
+import { DemoWorkerTokenUI } from './DemoWorkerTokenUI';
 
 /**
  * Quick Actions Component
@@ -43,6 +44,9 @@ export const QuickActions: React.FC = () => {
 						<div className="text-sm font-medium">{action.label}</div>
 					</button>
 				))}
+			</div>
+			<div style={{ marginTop: 24 }}>
+				<DemoWorkerTokenUI />
 			</div>
 		</div>
 	);

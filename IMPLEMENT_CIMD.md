@@ -107,13 +107,11 @@ Generate Docs: "Create a React-based documentation page using the 'Educational D
 ### Next Steps for Cursor
 Once saved, you can use **`@IMPLEMENT_CIMD.md`** as context in any chat to tell Cursor exactly what to do.
 
-Would you like me to create a separate **Cleanup Script** for pruning old applications to include in this document?
 
 
 
 
 
 
-1 site
-Cursor.AI - How to Create Project Docs from File Listings FAST!
-Dec 12, 2024 — i've opened up the commandlet. project within cursor AI. and what we'll do is we'll start by just creating some documentation. are...
+
+

@@ -22,10 +22,11 @@ const IconWrapper = styled.div<{ $isExpanded: boolean }>`
 	}
 `;
 
+/** Single down-pointing icon; parent should use rotate(-90deg) when collapsed so expanded=down, collapsed=right (matches collapsibleHeaderService). */
 export const CollapsibleIcon: React.FC<CollapsibleIconProps> = ({ isExpanded, className }) => {
 	return (
 		<IconWrapper $isExpanded={isExpanded} className={className}>
-			{isExpanded ? <span>⬇️</span> : <span>⬆️</span>}
+			<span>⬇️</span>
 		</IconWrapper>
 	);
 };

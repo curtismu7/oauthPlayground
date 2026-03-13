@@ -18,7 +18,7 @@ const _Container = styled.div`
 	padding: 1.5rem;
 `;
 
-const Header = styled.div`
+const _Header = styled.div`
 	text-align: center;
 	margin-bottom: 3rem;
 

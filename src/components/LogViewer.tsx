@@ -19,6 +19,9 @@ const Container = styled.div`
 	font-size: 12px;
 	max-height: 600px;
 	overflow-y: auto;
+	/* Ensure log viewer appears above sidebar (10050) and other UI elements */
+	z-index: 12010;
+	position: relative;
 `;
 
 const Header = styled.div`
