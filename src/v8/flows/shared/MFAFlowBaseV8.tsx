@@ -57,6 +57,10 @@ export interface MFAFlowBaseProps {
 	shouldHideNextButton?: (props: MFAFlowBaseRenderProps) => boolean;
 	/** Flow type: 'device-auth' for device authentication, 'registration' for device registration */
 	flowType?: 'device-auth' | 'registration';
+	/** Optional title override (e.g. "SMS OTP Registration") */
+	titleOverride?: string;
+	/** Optional description override */
+	descriptionOverride?: string;
 }
 
 export interface MFAFlowBaseRenderProps {
@@ -105,7 +109,11 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	],
 	shouldHideNextButton,
 	flowType = 'device-auth',
+	titleOverride,
+	descriptionOverride,
 }) => {
+	const headerTitle = titleOverride ?? 'PingOne MFA Device Management';
+	const headerDescription = descriptionOverride ?? 'Register and manage MFA devices for users';
 	const location = useLocation();
 	const [searchParams] = useSearchParams();
 	// Track API display visibility for padding
@@ -780,9 +788,8 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			// Check MFA configuration for silent API retrieval setting
 			void (async () => {
 				try {
-					const { MFAConfigurationServiceV8 } = await import(
-						'@/v8/services/mfaConfigurationServiceV8'
-					);
+					const { MFAConfigurationServiceV8 } =
+						await import('@/v8/services/mfaConfigurationServiceV8');
 					const config = MFAConfigurationServiceV8.loadConfiguration();
 					const silentApiRetrieval = config.workerToken.silentApiRetrieval;
 					const showTokenAtEnd = config.workerToken.showTokenAtEnd;
@@ -794,9 +801,8 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					});
 
 					// Use helper function to attempt silent retrieval (respects silentApiRetrieval setting)
-					const { handleShowWorkerTokenModal } = await import(
-						'@/v8/utils/workerTokenModalHelperV8'
-					);
+					const { handleShowWorkerTokenModal } =
+						await import('@/v8/utils/workerTokenModalHelperV8');
 					// #region agent log
 					// #endregion
 					await handleShowWorkerTokenModal(
@@ -1003,8 +1009,8 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					<div className="header-left">
 						<div>
 							<div className="version-tag">MFA Flow V8</div>
-							<h1>PingOne MFA Device Management</h1>
-							<p>Register and manage MFA devices for users</p>
+							<h1>{headerTitle}</h1>
+							<p>{headerDescription}</p>
 							<MFAUserDisplayV8
 								username={credentials?.username || ''}
 								onUsernameChange={() => {
@@ -1044,16 +1050,6 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							})()}
 						</div>
 					</div>
-				</div>
-				<div className="restart-flow-container">
-					<button
-						type="button"
-						onClick={handleRestartFlow}
-						className="restart-flow-button"
-						title="Restart the flow from the beginning"
-					>
-						🔄 Restart Flow
-					</button>
 				</div>
 			</div>
 
@@ -1385,7 +1381,16 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							verificationResult: null,
 						});
 					}}
-				></StepActionButtonsV8>
+				>
+					<button
+						type="button"
+						className="restart-flow-button-bottom"
+						onClick={handleRestartFlow}
+						title="Restart the flow from the beginning"
+					>
+						🔄 Restart Flow
+					</button>
+				</StepActionButtonsV8>
 			</div>
 
 			{/* Modals */}
@@ -1398,13 +1403,11 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				}}
 				onGetToken={async () => {
 					// Use helper to show worker token modal (respects silent API retrieval setting)
-					const { handleShowWorkerTokenModal } = await import(
-						'@/v8/utils/workerTokenModalHelperV8'
-					);
+					const { handleShowWorkerTokenModal } =
+						await import('@/v8/utils/workerTokenModalHelperV8');
 					// Load config to get silentApiRetrieval and showTokenAtEnd
-					const { MFAConfigurationServiceV8 } = await import(
-						'@/v8/services/mfaConfigurationServiceV8'
-					);
+					const { MFAConfigurationServiceV8 } =
+						await import('@/v8/services/mfaConfigurationServiceV8');
 					const config = MFAConfigurationServiceV8.loadConfiguration();
 					const silentApiRetrieval = config.workerToken.silentApiRetrieval || false;
 					const showTokenAtEnd = config.workerToken.showTokenAtEnd !== false;
@@ -1656,10 +1659,11 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				}
 
 				.flow-header {
-					background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+					background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 					padding: 12px 20px;
 					margin-bottom: 0;
 					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+					color: white;
 				}
 
 				.restart-flow-container {
@@ -1697,6 +1701,27 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 				}
 
+				.restart-flow-button-bottom {
+					background: #f5f5f5;
+					color: #333;
+					border: 1px solid #ddd;
+					padding: 10px 20px;
+					border-radius: 6px;
+					font-size: 14px;
+					font-weight: 500;
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					gap: 6px;
+					transition: all 0.2s ease;
+				}
+
+				.restart-flow-button-bottom:hover {
+					background: #e8e8e8;
+					border-color: #bbb;
+					transform: translateY(-1px);
+				}
+
 				.header-content {
 					display: flex;
 					align-items: center;
@@ -1713,7 +1738,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				.version-tag {
 					font-size: 11px;
 					font-weight: 700;
-					color: rgba(26, 26, 26, 0.7);
+					color: rgba(255, 255, 255, 0.9);
 					letter-spacing: 1.5px;
 					text-transform: uppercase;
 					padding-top: 2px;
@@ -1723,12 +1748,12 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					font-size: 20px;
 					font-weight: 700;
 					margin: 0 0 2px 0;
-					color: #1a1a1a;
+					color: #ffffff;
 				}
 
 				.flow-header p {
 					font-size: 13px;
-					color: rgba(26, 26, 26, 0.75);
+					color: rgba(255, 255, 255, 0.95);
 					margin: 0;
 				}
 
