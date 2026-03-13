@@ -13,13 +13,14 @@ import {
 	getAllFlowRedirectUriConfigs,
 	getFlowRedirectUriConfig,
 } from '@/utils/flowRedirectUriMapping';
+import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
 import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[🔗 MFA-REDIRECT-URI-SERVICE-V8]';
 
 // Debug configuration
 const DEBUG_MODE = true; // Set to false in production
-const DEBUG_PREFIX = '[MFA-REDIRECT-DEBUG]';
+const _DEBUG_PREFIX = '[MFA-REDIRECT-DEBUG]';
 const PERSISTENT_LOG_KEY = 'mfa_redirect_debug_log';
 const MAX_LOG_ENTRIES = 50;
 
@@ -332,7 +333,9 @@ export const MFARedirectUriServiceV8 = {
 	 * @returns The redirect URI for the specified flow
 	 */
 	getRedirectUri(flowType: string): string {
-		const redirectUri = generateRedirectUriForFlow(flowType);
+		// Prefer RedirectUriServiceV8 (single source for V8/V8U and MFA paths and base URL)
+		const fromV8 = RedirectUriServiceV8.getRedirectUriForFlow(flowType);
+		const redirectUri = fromV8 || generateRedirectUriForFlow(flowType);
 		const config = getFlowRedirectUriConfig(flowType);
 
 		if (!redirectUri) {

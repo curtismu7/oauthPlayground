@@ -53,12 +53,14 @@ const MethodBadge = styled.span<{ $method: 'GET' | 'POST' | 'PUT' | 'DELETE' | '
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
+	color: #ffffff;
 `;
 
 const Title = styled.h4`
 	margin: 0;
 	font-size: 1rem;
 	font-weight: 600;
+	color: #ffffff;
 `;
 
 const ChevronIcon = styled.span<{ $isExpanded: boolean }>`

@@ -105,6 +105,19 @@ class CredentialManager {
 				hasRedirectUri: !!updated.redirectUri,
 			});
 
+			// Sync to MCP config so PingOne MCP server can use these credentials from storage
+			if (updated.environmentId || updated.clientId) {
+				fetch('/api/credentials/save-mcp-config', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						environmentId: updated.environmentId,
+						clientId: updated.clientId,
+						clientSecret: updated.clientSecret,
+					}),
+				}).catch(() => {});
+			}
+
 			// Dispatch event to notify other components
 			window.dispatchEvent(
 				new CustomEvent('config-credentials-changed', {

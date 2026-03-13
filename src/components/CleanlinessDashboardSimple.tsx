@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { logger } from '../utils/logger';
 
 // Type declaration for window.componentTracker
 declare global {
@@ -86,7 +87,7 @@ export const CleanlinessDashboardFixed: React.FC = () => {
 				setComponents([]);
 			}
 		} catch (error) {
-			console.error('CleanlinessDashboard: Error updating metrics', error);
+			logger.error('CleanlinessDashboard', 'Error updating metrics', { error: String(error) });
 			// Set safe defaults on error
 			setMetrics({
 				totalComponents: 0,

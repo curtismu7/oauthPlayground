@@ -22,7 +22,6 @@ import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { logger } from '../../../../../../utils/logger';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';

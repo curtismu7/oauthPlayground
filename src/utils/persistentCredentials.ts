@@ -1,6 +1,5 @@
 // src/utils/persistentCredentials.ts
 
-import { logger } from '../utils/logger';
 import { logger } from './logger';
 export interface FlowCredentials {
 	environmentId?: string;

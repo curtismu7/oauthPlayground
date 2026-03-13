@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowUIService } from '../../services/flowUIService';
 import { PageLayoutService } from '../../services/pageLayoutService';
 
@@ -162,11 +163,11 @@ const MetaRow = styled.div`
 
 // Create layout components at module level — styled-components v6 calls useContext
 // internally, so createPageLayout must never run inside a component function body.
-const { PageContainer, ContentWrapper, PageHeader } = PageLayoutService.createPageLayout({
-	flowType: 'documentation' as const,
-	theme: 'blue' as const,
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout({
+	flowType: 'pingone' as const,
+	theme: 'red' as const,
 	maxWidth: '1200px',
-	showHeader: true,
+	showHeader: false,
 	showFooter: false,
 	responsive: true,
 });
@@ -177,7 +178,7 @@ const AIAgentAuthDraft: React.FC = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>
-				{PageHeader && <PageHeader />}
+				<FlowHeader flowId="ai-agent-auth-draft" />
 
 				<Header>
 					<h1>

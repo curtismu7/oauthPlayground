@@ -23,7 +23,6 @@ import { apiDisplayServiceV8 } from '../../services/apiDisplayServiceV8.ts';
 import { CredentialsServiceV8 } from '../../services/credentialsServiceV8.ts';
 import { MFAServiceV8 } from '../../services/mfaServiceV8.ts';
 import { WorkerTokenStatusServiceV8 } from '../../services/workerTokenStatusServiceV8.ts';
-import { sendAnalyticsLog } from '../../utils/analyticsLoggerV8.ts';
 import { toastV8 } from '../../utils/toastNotificationsV8.ts';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 

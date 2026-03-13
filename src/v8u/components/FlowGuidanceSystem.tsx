@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import {
+	UnifiedFlowCollapsibleContent,
+	UnifiedFlowCollapsibleHeaderButton,
+	UnifiedFlowCollapsibleTitle,
+	UnifiedFlowCollapsibleToggleIcon,
+} from '@/services/collapsibleHeaderService';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { FiBook, FiCheck } from '../../icons';
 
@@ -8,89 +14,6 @@ const GuidanceContainer = styled.div`
 	border: 1px solid #cbd5e1;
 	border-radius: 12px;
 	margin: 1rem 0;
-`;
-
-const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-	padding: 1.5rem 1.75rem;
-	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%);
-	border: 3px solid transparent;
-	border-radius: 1rem;
-	cursor: pointer;
-	font-size: 1.2rem;
-	font-weight: 700;
-	color: #14532d;
-	transition: all 0.3s ease;
-	position: relative;
-	box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
-
-	&:hover {
-		background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
-		border-color: #86efac;
-		transform: translateY(-2px);
-		box-shadow: 0 8px 24px rgba(34, 197, 94, 0.2);
-	}
-
-	&:active {
-		transform: translateY(0);
-		box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
-	}
-`;
-
-const CollapsibleTitle = styled.span`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-`;
-
-const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 48px;
-	height: 48px;
-	border-radius: 12px;
-	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-	border: 3px solid #3b82f6;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	transition: all 0.3s ease;
-	cursor: pointer;
-	color: #3b82f6;
-	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-
-	&:hover {
-		background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-		border-color: #2563eb;
-		color: #2563eb;
-		transform: ${({ $collapsed }) =>
-			$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
-		box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
-	}
-
-	svg {
-		width: 24px;
-		height: 24px;
-		stroke-width: 3px;
-		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-	}
-`;
-
-const CollapsibleContent = styled.div`
-	padding: 1.5rem;
-	padding-top: 0;
-	animation: fadeIn 0.2s ease;
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
 `;
 
 const _GuidanceHeader = styled.div`
@@ -343,21 +266,21 @@ export const FlowGuidanceSystem: React.FC<FlowGuidanceSystemProps> = ({
 
 	return (
 		<GuidanceContainer>
-			<CollapsibleHeaderButton
+			<UnifiedFlowCollapsibleHeaderButton
 				onClick={() => setIsCollapsed(!isCollapsed)}
 				aria-expanded={!isCollapsed}
 			>
-				<CollapsibleTitle>
+				<UnifiedFlowCollapsibleTitle>
 					<FiBook style={{ color: '#3b82f6', fontSize: '1.25rem' }} />
 					Choose the Right OAuth Flow
-				</CollapsibleTitle>
-				<CollapsibleToggleIcon $collapsed={isCollapsed}>
+				</UnifiedFlowCollapsibleTitle>
+				<UnifiedFlowCollapsibleToggleIcon $collapsed={isCollapsed}>
 					<span>⬇️</span>
-				</CollapsibleToggleIcon>
-			</CollapsibleHeaderButton>
+				</UnifiedFlowCollapsibleToggleIcon>
+			</UnifiedFlowCollapsibleHeaderButton>
 
 			{!isCollapsed && (
-				<CollapsibleContent>
+				<UnifiedFlowCollapsibleContent>
 					<GuidanceSubtitle>
 						Select your use case below to get personalized recommendations for the best OAuth flow
 						and specification version.
@@ -425,7 +348,7 @@ export const FlowGuidanceSystem: React.FC<FlowGuidanceSystemProps> = ({
 							</small>
 						</div>
 					)}
-				</CollapsibleContent>
+				</UnifiedFlowCollapsibleContent>
 			)}
 		</GuidanceContainer>
 	);

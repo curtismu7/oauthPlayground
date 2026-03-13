@@ -1,6 +1,7 @@
 // src/v7/pages/V7MSettingsV9.tsx
 
 import React, { useEffect, useState } from 'react';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { isV7MEnabled, setV7MMode } from '../mode';
 
 const V7MSettingsV9: React.FC = () => {
@@ -17,9 +18,7 @@ const V7MSettingsV9: React.FC = () => {
 
 	return (
 		<div style={{ padding: 24 }}>
-			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-				<span>📦</span> Educational Mock Settings
-			</h1>
+			<FlowHeader flowId="v7-settings" />
 			<p>Toggle Educational Mock Mode for mock flows.</p>
 			<div
 				style={{

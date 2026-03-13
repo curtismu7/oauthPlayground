@@ -307,12 +307,7 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 				<div className="error-card" role="alert">
 					<h3>Failed to Load Devices</h3>
 					<p>{loadError}</p>
-					<button
-						type="button"
-						type="button"
-						onClick={loadExistingDevices}
-						className="button-secondary"
-					>
+					<button type="button" onClick={loadExistingDevices} className="button-secondary">
 						Retry
 					</button>
 				</div>

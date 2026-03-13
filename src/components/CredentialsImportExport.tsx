@@ -11,7 +11,6 @@ import {
 	credentialsImportExportService,
 	type ImportExportOptions,
 } from '@/services/credentialsImportExportService';
-import { logger } from '../utils/logger';
 
 export interface CredentialsImportExportProps {
 	credentials: Record<string, unknown>;

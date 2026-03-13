@@ -81,9 +81,9 @@ const StatValue = styled.span`
 	font-size: 0.875rem;
 `;
 
-const StatusBadge = styled.span<{ status: 'online' | 'offline' | 'warning' | 'checking' }>`
+const StatusBadge = styled.span<{ $status: 'online' | 'offline' | 'warning' | 'checking' }>`
 	background: ${(props) => {
-		switch (props.status) {
+		switch (props.$status) {
 			case 'online':
 				return '#10b981';
 			case 'offline':
@@ -190,7 +190,7 @@ const ApiStatusPage: React.FC = () => {
 								<span>🖥️</span>
 							</CardIcon>
 							<CardTitle>{server.name}</CardTitle>
-							<StatusBadge status={server.status}>
+							<StatusBadge $status={server.status}>
 								{server.status === 'online'
 									? 'Online'
 									: server.status === 'offline'
@@ -257,31 +257,39 @@ const ApiStatusPage: React.FC = () => {
 								{/* Show additional details for backend servers */}
 								{server.port !== 3000 && (
 									<>
-										<StatRow>
-											<StatLabel>Node Version</StatLabel>
-											<StatValue>{server.healthData.node.version}</StatValue>
-										</StatRow>
-										<StatRow>
-											<StatLabel>Memory Usage</StatLabel>
-											<StatValue>
-												{formatBytes(server.healthData.memory.heapUsed)} /{' '}
-												{formatBytes(server.healthData.memory.heapTotal)}
-											</StatValue>
-										</StatRow>
-										<StatRow>
-											<StatLabel>CPU Usage</StatLabel>
-											<StatValue>{server.healthData.cpuUsage.avg1mPercent.toFixed(1)}%</StatValue>
-										</StatRow>
-										<StatRow>
-											<StatLabel>Requests</StatLabel>
-											<StatValue>
-												{server.healthData.requestStats.totalRequests} (
-												{server.healthData.requestStats.errorRate > 0
-													? `${server.healthData.requestStats.errorRate.toFixed(1)}% errors`
-													: 'no errors'}
-												)
-											</StatValue>
-										</StatRow>
+										{server.healthData?.node && (
+											<StatRow>
+												<StatLabel>Node Version</StatLabel>
+												<StatValue>{server.healthData.node.version ?? '—'}</StatValue>
+											</StatRow>
+										)}
+										{server.healthData?.memory && (
+											<StatRow>
+												<StatLabel>Memory Usage</StatLabel>
+												<StatValue>
+													{formatBytes(server.healthData.memory.heapUsed ?? 0)} /{' '}
+													{formatBytes(server.healthData.memory.heapTotal ?? 0)}
+												</StatValue>
+											</StatRow>
+										)}
+										{server.healthData?.cpuUsage?.avg1mPercent != null && (
+											<StatRow>
+												<StatLabel>CPU Usage</StatLabel>
+												<StatValue>{server.healthData.cpuUsage.avg1mPercent.toFixed(1)}%</StatValue>
+											</StatRow>
+										)}
+										{server.healthData?.requestStats && (
+											<StatRow>
+												<StatLabel>Requests</StatLabel>
+												<StatValue>
+													{server.healthData.requestStats.totalRequests ?? 0} (
+													{(server.healthData.requestStats.errorRate ?? 0) > 0
+														? `${(server.healthData.requestStats.errorRate ?? 0).toFixed(1)}% errors`
+														: 'no errors'}
+													)
+												</StatValue>
+											</StatRow>
+										)}
 									</>
 								)}
 							</>

@@ -196,11 +196,13 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 	${(props) => {
 		if (props.$variant === 'secondary') {
 			return `
-				background: #F3F4F6;
-				color: #1f2937;
-				border: 1px solid #D1D5DB;
+				background: #ffffff;
+				color: #2563eb;
+				border: 1px solid #2563eb;
 				&:hover {
-					background: #E5E7EB;
+					background: #f8fafc;
+					border-color: #1d4ed8;
+					color: #1d4ed8;
 				}
 			`;
 		}
@@ -403,11 +405,11 @@ const CodeCollapseButton = styled.button`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem 1rem;
-	background: #f3f4f6;
-	border: 1px solid #d1d5db;
+	background: #ffffff;
+	border: 1px solid #3b82f6;
 	border-top: none;
 	border-radius: 0 0 0.5rem 0.5rem;
-	color: #1f2937;
+	color: #2563eb;
 	cursor: pointer;
 	font-size: 0.875rem;
 	width: 100%;
@@ -415,7 +417,9 @@ const CodeCollapseButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: #e5e7eb;
+		background: #f8fafc;
+		border-color: #2563eb;
+		color: #1d4ed8;
 	}
 `;
 
@@ -471,10 +475,10 @@ const CodeButton = styled.button`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem 1rem;
-	background: #f3f4f6;
-	border: 1px solid #d1d5db;
+	background: #ffffff;
+	border: 1px solid #3b82f6;
 	border-radius: 0.5rem;
-	color: #1f2937;
+	color: #2563eb;
 	cursor: pointer;
 	font-size: 0.875rem;
 	transition: all 0.2s;
@@ -530,9 +534,8 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
 	const { environmentId, setEnvironmentId } = useAutoEnvironmentId();
-	// autoFetch: false — do not silently call the token API on load.
-	// The user must click "Get Worker Token" to fetch a new token.
-	const globalTokenStatus = useGlobalWorkerToken({ autoFetch: false });
+	// autoFetch: true — credentials are seeded in the storage system; auto-load the token on mount.
+	const globalTokenStatus = useGlobalWorkerToken({ autoFetch: true });
 	const workerRegion =
 		unifiedWorkerTokenService.getTokenDataSync()?.credentials?.region ?? undefined;
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
@@ -1780,13 +1783,7 @@ const HelioMartPasswordReset: React.FC = () => {
 				dismissible: true,
 			});
 		}
-	}, [
-		persistedIdentifier,
-		globalTokenStatus,
-		environmentId,
-		getEffectiveEnvironmentId,
-		workerRegion,
-	]);
+	}, [persistedIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Read password state
 	const handleReadPasswordState = useCallback(async () => {

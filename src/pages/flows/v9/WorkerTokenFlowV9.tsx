@@ -24,8 +24,6 @@ import { unifiedWorkerTokenService } from '../../../services/unifiedWorkerTokenS
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { workerTokenDiscoveryService } from '../../../services/workerTokenDiscoveryService';
-import { logger } from '../../../utils/logger';
-import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
 
 const Container = styled.div`
@@ -140,18 +138,21 @@ const WorkerTokenFlowV9: React.FC = () => {
 	}, []);
 
 	const [currentStep] = useState(0);
-	const [workerToken, setWorkerToken] = useState(() => getAnyWorkerToken() ?? '');
+	// Use unified worker token service (modal/service) as single source of truth — not getAnyWorkerToken (legacy/multi-key detection)
+	const [workerToken, setWorkerToken] = useState(
+		() => unifiedWorkerTokenService.getTokenDataSync()?.token ?? ''
+	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
-	// Keep workerToken display in sync with storage
+	// Keep workerToken display in sync with unified worker token service (real flow, not mock)
 	useEffect(() => {
-		const onStorage = () => setWorkerToken(getAnyWorkerToken() ?? '');
-		const onTokenUpdated = () => setWorkerToken(getAnyWorkerToken() ?? '');
-		window.addEventListener('storage', onStorage);
-		window.addEventListener('workerTokenUpdated', onTokenUpdated);
+		const syncFromService = () =>
+			setWorkerToken(unifiedWorkerTokenService.getTokenDataSync()?.token ?? '');
+		window.addEventListener('storage', syncFromService);
+		window.addEventListener('workerTokenUpdated', syncFromService);
 		return () => {
-			window.removeEventListener('storage', onStorage);
-			window.removeEventListener('workerTokenUpdated', onTokenUpdated);
+			window.removeEventListener('storage', syncFromService);
+			window.removeEventListener('workerTokenUpdated', syncFromService);
 		};
 	}, []);
 
@@ -693,7 +694,7 @@ curl -X GET \\
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 				onTokenGenerated={() => {
-					setWorkerToken(getAnyWorkerToken() ?? '');
+					setWorkerToken(unifiedWorkerTokenService.getTokenDataSync()?.token ?? '');
 					window.dispatchEvent(new Event('workerTokenUpdated'));
 				}}
 			/>

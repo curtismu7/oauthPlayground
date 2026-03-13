@@ -63,8 +63,8 @@ const createEmptyCredentials = (): StepCredentials => ({
 	clientId: '',
 	clientSecret: '',
 	redirectUri: `${getSafeOrigin()}/callback`,
-	scope: 'openid pingone p1:read:user p1:update:user p1:read:device p1:update:device',
-	scopes: 'openid pingone p1:read:user p1:update:user p1:read:device p1:update:device',
+	scope: 'openid profile',
+	scopes: 'openid profile',
 	responseType: 'code',
 	grantType: 'client_credentials',
 	issuerUrl: '',
@@ -241,12 +241,7 @@ export const useWorkerTokenFlowController = (
 				// 1) Pull from unified storage (IndexedDB + SQLite) — canonical source for worker token credentials
 				try {
 					const unifiedCreds = await unifiedTokenStorage.getWorkerTokenCredentials();
-					if (
-						unifiedCreds &&
-						unifiedCreds.environmentId &&
-						unifiedCreds.clientId &&
-						unifiedCreds.clientSecret
-					) {
+					if (unifiedCreds?.environmentId && unifiedCreds.clientId && unifiedCreds.clientSecret) {
 						const merged: StepCredentials = {
 							...defaults,
 							environmentId: String(unifiedCreds.environmentId),

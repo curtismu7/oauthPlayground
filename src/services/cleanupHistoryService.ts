@@ -107,10 +107,53 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-10T23:21:13.697Z
-// Source: git log (2 days → 2 sessions)
+// Last updated: 2026-03-12T15:08:10.621Z
+// Source: git log (4 days → 4 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
+	{
+		id: 'git-2026-03-12-code-cleanup',
+		date: '2026-03-12',
+		duration: 12,
+		category: {
+			id: 'code-cleanup',
+			name: 'Code Cleanup',
+			color: '#FFC107',
+			icon: '🧹',
+			description: 'Code Cleanup',
+		},
+		description: 'popout window, persistence, streaming, copy/export, MCP routing fixes',
+		filesModified: 6,
+		linesOfCode: 5141,
+		issuesResolved: 64,
+		documentation: [],
+		achievements: ['popout window, persistence, streaming, copy/export, MCP routing fixes'],
+		version: '9.16.0',
+	},
+	{
+		id: 'git-2026-03-11-security',
+		date: '2026-03-11',
+		duration: 12,
+		category: {
+			id: 'security',
+			name: 'Security',
+			color: '#E83E8C',
+			icon: '🔒',
+			description: 'Security',
+		},
+		description:
+			'3 commits: 🔒 Security: Remove .env from Git tracking, keep API keys secure; Update CleanlinessDashboardWorking.tsx with new audit items and status changes …',
+		filesModified: 717,
+		linesOfCode: 11487,
+		issuesResolved: 144,
+		documentation: [],
+		achievements: [
+			'🔒 Security: Remove .env from Git tracking, keep API keys secure',
+			'Update CleanlinessDashboardWorking.tsx with new audit items and status changes',
+			'UI: remove V7M/V8 from user-facing text; dashboard update messages; PARFlowV9 fix; Git log quiet',
+		],
+		version: '9.16.0',
+	},
 	{
 		id: 'git-2026-03-10-code-cleanup',
 		date: '2026-03-10',
@@ -123,19 +166,19 @@ const CLEANUP_SESSIONS: CleanupSession[] = [
 			description: 'Code Cleanup',
 		},
 		description:
-			'15 commits: no grey buttons, DPoP route/UI, PAR/RAR stepper, V9 logging, docs; Refactor SidebarMenuPing and enhance flow configurations …',
-		filesModified: 742,
-		linesOfCode: 102034,
-		issuesResolved: 1275,
+			'19 commits: Add dynamic sidebar resize support - v9.14.4; Fix discovery loading state and add validation - v9.14.3 …',
+		filesModified: 1031,
+		linesOfCode: 114145,
+		issuesResolved: 1427,
 		documentation: [],
 		achievements: [
+			'Add dynamic sidebar resize support - v9.14.4',
+			'Fix discovery loading state and add validation - v9.14.3',
+			'Fix content layout spacing - v9.14.2',
+			'Fix menu scrolling issue - v9.14.1',
 			'no grey buttons, DPoP route/UI, PAR/RAR stepper, V9 logging, docs',
-			'Refactor SidebarMenuPing and enhance flow configurations',
-			'Update Sidebar z-index comment for clarity; archive CIBAFlowV9 and related flows, redirecting to unified endpoint; add new AI course resource to PingAIResources; modify server response for non-existent files to avoid 404 noise.',
-			'Token Exchange: real PingOne API + token-from-storage; Protect Portal fixes; dropdown fix',
-			'add PingOne Platform Dashboard configuration',
 		],
-		version: '9.14.0',
+		version: '9.16.0',
 	},
 	{
 		id: 'git-2026-03-09-code-cleanup',
@@ -150,9 +193,9 @@ const CLEANUP_SESSIONS: CleanupSession[] = [
 		},
 		description:
 			'41 commits: migrate credentialDebugger and mfaRedirectUriServiceV8 console.group/log/warn/error to structured logger — zero console.* calls in non-test production source; replace console.group/groupEnd with logger calls in CompleteMFAFlow, Dashboard, credentialLoader/Manager, fieldEditingDiagnostic, useDeviceAuthFlow; remove duplicate logger imports …',
-		filesModified: 3329,
-		linesOfCode: 58889,
-		issuesResolved: 736,
+		filesModified: 1269,
+		linesOfCode: 35183,
+		issuesResolved: 440,
 		documentation: [],
 		achievements: [
 			'migrate credentialDebugger and mfaRedirectUriServiceV8 console.group/log/warn/error to structured logger — zero console.* calls in non-test production source',
@@ -161,7 +204,7 @@ const CLEANUP_SESSIONS: CleanupSession[] = [
 			'remove console.group/groupEnd from credential services, fix V9_COLORS interpolation, drop unused _log in DeviceAuthFlowV9',
 			'session cleanup — env ID read-only display, remove floating stepper, logger.success→info, linter warnings (0/0), duplicate import, v8 quote normalization, misc service fixes',
 		],
-		version: '9.14.0',
+		version: '9.16.0',
 	},
 ];
 
