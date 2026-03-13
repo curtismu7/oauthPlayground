@@ -133,11 +133,29 @@ export const getBaseUrl = (): string => {
 		}
 		const envDomain = (import.meta.env.VITE_APP_DOMAIN as string | undefined)?.trim();
 		if (envDomain) return envDomain.replace(/\/$/, '');
+		const appUrl = (import.meta.env.VITE_PUBLIC_APP_URL as string | undefined)?.trim();
+		if (appUrl) {
+			try {
+				const parsed = new URL(appUrl);
+				return parsed.origin;
+			} catch {
+				// fall through
+			}
+		}
 		return `${window.location.protocol}//${window.location.host}`;
 	}
 	// SSR / test context
 	const envDomain = (import.meta.env.VITE_APP_DOMAIN as string | undefined)?.trim();
-	return envDomain ? envDomain.replace(/\/$/, '') : 'https://api.pingone.com:3000';
+	if (envDomain) return envDomain.replace(/\/$/, '');
+	const appUrl = (import.meta.env.VITE_PUBLIC_APP_URL as string | undefined)?.trim();
+	if (appUrl) {
+		try {
+			return new URL(appUrl).origin;
+		} catch {
+			// fall through
+		}
+	}
+	return 'https://api.pingdemo.com:3000';
 };
 
 /** Look up flow config by flow key. Returns null if not in this service's scope. */

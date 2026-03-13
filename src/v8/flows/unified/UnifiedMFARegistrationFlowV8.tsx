@@ -49,8 +49,8 @@ import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServi
 import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAServiceV8, type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
-import { usePageStepper } from '../../../contexts/FloatingStepperContext';
 import { usePersistedCollapse } from '@/v8u/hooks/usePersistedCollapse';
+import { usePageStepper } from '../../../contexts/FloatingStepperContext';
 import { logger } from '../../../utils/logger';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
@@ -249,7 +249,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		'credentials',
 		false
 	);
-	const [isWorkerTokenCollapsed, setIsWorkerTokenCollapsed] = usePersistedCollapse(
+	const [_isWorkerTokenCollapsed, _setIsWorkerTokenCollapsed] = usePersistedCollapse(
 		UNIFIED_MFA_FLOW_TYPE,
 		'worker-token-status',
 		true
@@ -1791,7 +1791,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 					versionTag="V8"
 					currentPage="registration"
 					showBackToMain={true}
-					headerColor="blue"
+					headerColor="pingRed"
 				/>
 				<GlobalMFAProvider>
 					<MFACredentialProvider>
@@ -2699,14 +2699,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 	return (
 		<>
-			<MFAHeaderV8
-				title={`${config.displayName} Registration`}
-				description={`Register a ${config.displayName} device for multi-factor authentication`}
-				versionTag="V8"
-				currentPage="registration"
-				showBackToMain={true}
-				headerColor="blue"
-			/>
 			<MFAFlowBaseV8
 				deviceType={deviceType}
 				renderStep0={renderStep0}
@@ -2719,6 +2711,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				validateStep0={validateStep0}
 				stepLabels={stepLabels}
 				shouldHideNextButton={shouldHideNextButton}
+				titleOverride={`${config.displayName} Registration`}
+				descriptionOverride={`Register a ${config.displayName} device for multi-factor authentication`}
 			/>
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 

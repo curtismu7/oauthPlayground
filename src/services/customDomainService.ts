@@ -7,11 +7,11 @@
  *   2. IndexedDB
  *   3. Backend API (SQLite)
  *   4. VITE_APP_DOMAIN env variable
- *   5. Built-in default (api.pingone.com)
+ *   5. Built-in default (api.pingdemo.com, matches run.sh)
  */
 
 const STORAGE_KEY = 'custom_domain';
-const DEFAULT_DOMAIN = 'api.pingone.com';
+const DEFAULT_DOMAIN = 'api.pingdemo.com';
 const IDB_NAME = 'oauth_playground_app_config';
 const IDB_STORE = 'settings';
 const API_GET = '/api/settings/custom-domain';

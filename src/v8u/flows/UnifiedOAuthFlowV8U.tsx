@@ -24,14 +24,10 @@ import {
 	generateComprehensiveUnifiedPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import V9FlowHeader from '@/services/v9/v9FlowHeaderService';
 import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import {
-	PageHeaderGradients,
-	PageHeaderTextColors,
-	PageHeaderV8,
-} from '@/v8/components/shared/PageHeaderV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
@@ -65,6 +61,7 @@ const UnifiedFlowSteps = lazy(() => import('../components/UnifiedFlowSteps'));
 
 import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
+import { usePersistedCollapse } from '../hooks/usePersistedCollapse';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
 import {
 	type UnifiedFlowCredentials,
@@ -538,14 +535,17 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// Intentionally omitting specVersion from dependencies to prevent loops
 	}, [flowType, specVersion]);
 
-	// Credentials section collapsed state - collapsed by default after step 0
-	const [isCredentialsCollapsed, setIsCredentialsCollapsed] = useState(() => {
-		// Initialize based on current step: expanded on step 0, collapsed on other steps
-		return currentStep > 0;
-	});
-
-	// Worker token status section collapsed state - collapsed by default
-	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = useState(true);
+	// Credentials and worker token section collapsed state — persisted so survives refresh/restart
+	const [isCredentialsCollapsed, setIsCredentialsCollapsed] = usePersistedCollapse(
+		effectiveFlowType,
+		'credentials',
+		currentStep > 0
+	);
+	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = usePersistedCollapse(
+		effectiveFlowType,
+		'worker-token-status',
+		true
+	);
 
 	// Worker token warning — shown when token is invalid/expired before an API call
 	const [workerTokenWarning, setWorkerTokenWarning] = useState<TokenStatusInfo | null>(null);
@@ -562,21 +562,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Flow not available modal state - REMOVED: Dropdown already filters flows, so modal is not needed
 	// All modal-related state and logic has been removed since FlowTypeSelector filters flows by spec version
 
-	// Auto-collapse credentials after step 0, but always expand on step 0
+	// On step 0 always expand credentials; when leaving step 0 restore persisted state (or collapse)
 	useEffect(() => {
 		const prevStep = prevStepRef.current;
 		prevStepRef.current = currentStep;
 
 		if (currentStep === 0) {
-			// Always expanded on step 0 (configuration step)
 			setIsCredentialsCollapsed(false);
 		} else if (prevStep === 0 && currentStep > 0) {
-			// Auto-collapse only when transitioning FROM step 0 TO step > 0
-			// This allows manual expansion on other steps
-			setIsCredentialsCollapsed(true);
+			const settings = FlowSettingsServiceV8U.loadSettings(effectiveFlowType);
+			setIsCredentialsCollapsed(settings?.credentialsCollapsed ?? true);
 		}
-		// Don't auto-collapse on other step changes - let user control it
-	}, [currentStep]);
+	}, [currentStep, effectiveFlowType, setIsCredentialsCollapsed]);
 
 	// Navigate to step
 	const navigateToStep = useCallback(
@@ -1872,9 +1869,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									message: 'Opening worker token settings…',
 									duration: 3000,
 								});
-								const { handleShowWorkerTokenModal } = await import(
-									'@/v8/utils/workerTokenModalHelperV8'
-								);
+								const { handleShowWorkerTokenModal } =
+									await import('@/v8/utils/workerTokenModalHelperV8');
 								await handleShowWorkerTokenModal(
 									setShowWorkerTokenModal,
 									setWorkerTokenWarning,
@@ -1921,14 +1917,19 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				</div>
 			)}
 
-			{/* Header with Flow Step Breadcrumbs at Top */}
-			<PageHeaderV8
-				title="🎯 Unified OAuth/OIDC Flow"
-				subtitle="Single UI for all OAuth 2.0, OAuth 2.1 / OIDC 2.1, and OIDC Core 1.0 flows using real PingOne APIs"
-				gradient={PageHeaderGradients.unifiedOAuth}
-				textColor={PageHeaderTextColors.white}
+			{/* Header: standard red PingOne style via V9FlowHeader */}
+			<V9FlowHeader flowId="oauth-authz-v8u" customConfig={{ flowType: 'pingone' }} />
+
+			{/* Flow Step Breadcrumbs and Action Buttons */}
+			<div
+				style={{
+					padding: '16px 24px',
+					marginBottom: '24px',
+					background: '#ffffff',
+					borderRadius: '12px',
+					border: '1px solid #e2e8f0',
+				}}
 			>
-				{/* Flow Step Breadcrumbs */}
 				<div
 					id="v8u-flow-breadcrumbs"
 					style={{
@@ -1938,7 +1939,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					{/* Breadcrumbs will be injected here */}
 				</div>
 
-				{/* Helper Page Button */}
 				<div
 					style={{
 						display: 'flex',
@@ -1977,18 +1977,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					>
 						<span style={{ fontSize: '16px' }}>📖</span>📚 Flow & Spec Comparison Guide
 					</button>
-				</div>
-
-				{/* Postman Collection Download Buttons - Compact in Header */}
-				<div
-					style={{
-						display: 'flex',
-						gap: '12px',
-						flexWrap: 'wrap',
-						position: 'relative',
-						zIndex: 1,
-					}}
-				>
 					<button
 						type="button"
 						onClick={() => {
@@ -2042,7 +2030,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							// Get MFA credentials
 							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
 								flowKey: 'mfa-v8',
 								flowType: 'oauth' as const,
@@ -2101,7 +2088,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						Postman Complete (Unified + MFA)
 					</button>
 				</div>
-			</PageHeaderV8>
+			</div>
 
 			{/* Education Mode Toggle */}
 			<EducationModeToggle variant="buttons" />
@@ -2780,9 +2767,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							<button
 								type="button"
 								onClick={async () => {
-									const { handleShowWorkerTokenModal } = await import(
-										'@/v8/utils/workerTokenModalHelperV8'
-									);
+									const { handleShowWorkerTokenModal } =
+										await import('@/v8/utils/workerTokenModalHelperV8');
 									await handleShowWorkerTokenModal(
 										() => {}, // setShowModal - not needed here
 										undefined, // setTokenStatus - not needed here
@@ -2835,9 +2821,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
 											try {
-												const { handleShowWorkerTokenModal } = await import(
-													'@/v8/utils/workerTokenModalHelperV8'
-												);
+												const { handleShowWorkerTokenModal } =
+													await import('@/v8/utils/workerTokenModalHelperV8');
 												// Attempt silent retrieval (will show modal if credentials are missing)
 												await handleShowWorkerTokenModal(
 													() => {}, // setShowModal - not needed here
