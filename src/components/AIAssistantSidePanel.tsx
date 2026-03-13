@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+// Import the application's logging service
+import { logger } from '../utils/logger';
+
 interface AIAssistantSidePanelProps {
 	isVisible: boolean;
 	onClose: () => void;
@@ -71,7 +74,9 @@ const PingOneLoginContent: React.FC = () => (
 			<CardDescription>
 				Generate a worker token for API access and testing purposes.
 			</CardDescription>
-			<LoginButton onClick={() => console.log('Worker token functionality coming soon!')}>
+			<LoginButton
+				onClick={() => logger.info('Side Panel', 'Worker token functionality requested')}
+			>
 				Get Worker Token
 			</LoginButton>
 		</LoginCard>
@@ -113,7 +118,7 @@ const ToolsContent: React.FC = () => (
 		<ToolCard>
 			<ToolTitle>Token Debugger</ToolTitle>
 			<ToolDescription>Analyze and debug JWT tokens and OAuth flows</ToolDescription>
-			<ToolButton onClick={() => console.log('Token debugger coming soon!')}>
+			<ToolButton onClick={() => logger.info('Side Panel', 'Token debugger tool requested')}>
 				Launch Debugger
 			</ToolButton>
 		</ToolCard>
@@ -121,7 +126,7 @@ const ToolsContent: React.FC = () => (
 		<ToolCard>
 			<ToolTitle>Flow Generator</ToolTitle>
 			<ToolDescription>Generate custom OAuth flows and configurations</ToolDescription>
-			<ToolButton onClick={() => console.log('Flow generator coming soon!')}>
+			<ToolButton onClick={() => logger.info('Side Panel', 'Flow generator tool requested')}>
 				Create Flow
 			</ToolButton>
 		</ToolCard>
@@ -129,7 +134,9 @@ const ToolsContent: React.FC = () => (
 		<ToolCard>
 			<ToolTitle>API Explorer</ToolTitle>
 			<ToolDescription>Interactive API testing and exploration tool</ToolDescription>
-			<ToolButton onClick={() => console.log('API explorer coming soon!')}>Explore APIs</ToolButton>
+			<ToolButton onClick={() => logger.info('Side Panel', 'API explorer tool requested')}>
+				Explore APIs
+			</ToolButton>
 		</ToolCard>
 	</ContentSection>
 );
