@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { aiAgentService } from '../services/aiAgentService';
+import AIAssistantSidePanel from './AIAssistantSidePanel';
 import {
 	getTokenStatus,
 	refreshAndStoreToken,
@@ -171,6 +172,7 @@ const AIAssistant: React.FC = () => {
 	const [isRefreshingToken, setIsRefreshingToken] = useState(false);
 	const [_workerTokenStatus, setWorkerTokenStatus] = useState<WorkerTokenStatus | null>(null);
 	const [showPromptsGuide, setShowPromptsGuide] = useState(false);
+	const [showSidePanel, setShowSidePanel] = useState(false);
 	/**
 	 * null = not yet checked, true = Groq is ready, false = no API key configured
 	 */
@@ -645,13 +647,24 @@ const AIAssistant: React.FC = () => {
 								</HeaderText>
 							</HeaderContent>
 							<HeaderActions>
+								<ToggleContainer title="Show side panel for additional tools and content">
+									<ToggleLabel>
+										<ToggleCheckbox
+											type="checkbox"
+											checked={showSidePanel}
+											onChange={(e) => setShowSidePanel(e.target.checked)}
+											aria-label="Show side panel for additional tools"
+										/>
+										<ToggleText>Panel</ToggleText>
+									</ToggleLabel>
+								</ToggleContainer>
 								<ToggleContainer title="Include PingOne API reference docs in context">
 									<ToggleLabel>
 										<ToggleCheckbox
 											type="checkbox"
-											checked={includeApiDocs}
-											onChange={(e) => setIncludeApiDocs(e.target.checked)}
-											aria-label="Include PingOne API docs"
+											checked={includeApis}
+											onChange={(e) => setIncludeApis(e.target.checked)}
+											aria-label="Include PingOne API reference docs"
 										/>
 										<ToggleText>APIs</ToggleText>
 									</ToggleLabel>
@@ -995,6 +1008,9 @@ const AIAssistant: React.FC = () => {
 					</ChatWindow>
 				</>
 			)}
+
+			{/* Side Panel */}
+			<AIAssistantSidePanel isVisible={showSidePanel} onClose={() => setShowSidePanel(false)} />
 
 			{/* Confirm dialog: get new worker token (user must confirm for security) */}
 			{showRefreshTokenConfirm && (
