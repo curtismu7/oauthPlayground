@@ -16,13 +16,7 @@ import {
 	isWebSearchQuery,
 	type McpQueryResult,
 } from '../services/mcpQueryService';
-import {
-	callGroq,
-	callGroqStream,
-	isGroqAvailable,
-	type GroqMessage,
-} from '../services/groqService';
-import { apiKeyService } from '../services/apiKeyService';
+import { callGroqStream, isGroqAvailable, type GroqMessage } from '../services/groqService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 
 /** When true the assistant renders as a full-page app (no floating button, always open). */
@@ -31,28 +25,6 @@ export interface AIAssistantProps {
 	fullPage?: boolean;
 	/** Optional callback; standalone page uses this to open the OAuth login panel */
 	onStartOAuthFlow?: (params: { authUrl: string; redirectUri: string }) => void;
-	/** Called when the user presses the close button (used by popout window) */
-	onClose?: () => void;
-}
-
-// ─── Popout window helper ─────────────────────────────────────────────────────
-
-let _popoutWindow: Window | null = null;
-
-function openInPopout(): void {
-	if (_popoutWindow && !_popoutWindow.closed) {
-		_popoutWindow.focus();
-		return;
-	}
-	const w = 960,
-		h = 820;
-	const left = Math.max(0, window.screenX + window.outerWidth / 2 - w / 2);
-	const top = Math.max(0, window.screenY + window.outerHeight / 2 - h / 2);
-	_popoutWindow = window.open(
-		'/popout',
-		'aiAssistantPopout',
-		`width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no`
-	);
 }
 
 // ─── localStorage persistence helpers ────────────────────────────────────────
@@ -197,11 +169,7 @@ const WELCOME_MESSAGE: Message = {
 	timestamp: new Date(),
 };
 
-const AIAssistant: React.FC<AIAssistantProps> = ({
-	fullPage = false,
-	onStartOAuthFlow,
-	onClose,
-}) => {
+const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAuthFlow }) => {
 	// In fullPage mode the window is always open and cannot be closed
 	const [isOpen, setIsOpen] = useState(fullPage ? true : false);
 	const [isExpanded, setIsExpanded] = useState(false);
@@ -1004,16 +972,6 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
 								</HeaderIconButton>
 								{/* Popout — only in embedded (non-fullPage) mode */}
 								{!fullPage && (
-									<HeaderIconButton
-										type="button"
-										onClick={openInPopout}
-										aria-label="Open in popout window"
-										title="Open in separate window"
-									>
-										<span style={{ fontSize: '14px' }}>⊞</span>
-									</HeaderIconButton>
-								)}
-								{!fullPage && (
 									<>
 										<CollapseButton
 											type="button"
@@ -1046,12 +1004,6 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
 											<span style={{ fontSize: '20px' }}>❌</span>
 										</CloseButton>
 									</>
-								)}
-								{/* Close button for popout window */}
-								{fullPage && onClose && (
-									<CloseButton onClick={onClose} aria-label="Close popout" title="Close window">
-										<span style={{ fontSize: '20px' }}>❌</span>
-									</CloseButton>
 								)}
 							</HeaderActions>
 						</ChatHeader>
