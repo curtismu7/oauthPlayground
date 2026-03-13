@@ -51,6 +51,7 @@ import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAServiceV8, type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
 import { usePageStepper } from '../../../contexts/FloatingStepperContext';
+import { usePersistedCollapse } from '@/v8u/hooks/usePersistedCollapse';
 import { logger } from '../../../utils/logger';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
@@ -238,6 +239,24 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		autoLoad: true,
 		autoSelectSingle: true,
 	});
+
+	// Persisted collapse state — survives flow restart and browser refresh (same as Unified OAuth)
+	const UNIFIED_MFA_FLOW_TYPE = 'unified-mfa-v8' as const;
+	const [isConfigCollapsed, setIsConfigCollapsed] = usePersistedCollapse(
+		UNIFIED_MFA_FLOW_TYPE,
+		'credentials',
+		false
+	);
+	const [isWorkerTokenCollapsed, setIsWorkerTokenCollapsed] = usePersistedCollapse(
+		UNIFIED_MFA_FLOW_TYPE,
+		'worker-token-status',
+		true
+	);
+	const [isPolicyDetailsCollapsed, setIsPolicyDetailsCollapsed] = usePersistedCollapse(
+		UNIFIED_MFA_FLOW_TYPE,
+		'policy-details',
+		true
+	);
 
 	// Auto-select default policy when policies load
 	useEffect(() => {
@@ -563,397 +582,456 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					</p>
 				</div>
 
-				{/* Configuration Section */}
+				{/* Configuration Section - Collapsible, persisted */}
 				<div
 					style={{
 						background: '#ffffff',
 						borderRadius: '12px',
-						padding: '24px',
 						marginBottom: '28px',
 						border: '1px solid #e5e7eb',
 						overflow: 'hidden',
 					}}
 				>
-					<h2
-						style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#111827' }}
-					>
-						Configuration
-					</h2>
-
-					{/* Environment ID */}
-					<div style={{ marginBottom: '20px' }}>
-						<label
-							htmlFor="env-id"
-							style={{
-								display: 'block',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-								marginBottom: '8px',
-							}}
-						>
-							Environment ID
-						</label>
-						{environmentId ? (
-							<div
-								style={{
-									padding: '10px 12px',
-									border: '1px solid #d1d5db',
-									borderRadius: '6px',
-									fontSize: '14px',
-									backgroundColor: '#f9fafb',
-									color: '#374151',
-									boxSizing: 'border-box',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'space-between',
-								}}
-							>
-								<span
-									style={{
-										flex: 1,
-										overflow: 'hidden',
-										textOverflow: 'ellipsis',
-										whiteSpace: 'nowrap',
-									}}
-								>
-									{environmentId}
-								</span>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-									<span
-										style={{
-											fontSize: '12px',
-											color: '#6b7280',
-											fontWeight: 'normal',
-										}}
-									>
-										✓ Auto-loaded
-									</span>
-									<button
-										type="button"
-										onClick={() => {
-											setEnvironmentId('');
-											globalEnvironmentService.setEnvironmentId('');
-											localStorage.removeItem('mfa_environmentId');
-										}}
-										style={{
-											padding: '4px 8px',
-											border: '1px solid #d1d5db',
-											borderRadius: '4px',
-											background: '#ffffff',
-											color: '#6b7280',
-											fontSize: '12px',
-											cursor: 'pointer',
-											transition: 'all 0.2s',
-										}}
-										onFocus={(e) => {
-											e.currentTarget.style.background = '#f3f4f6';
-											e.currentTarget.style.borderColor = '#9ca3af';
-										}}
-										onBlur={(e) => {
-											e.currentTarget.style.background = '#ffffff';
-											e.currentTarget.style.borderColor = '#d1d5db';
-										}}
-										onMouseOver={(e) => {
-											e.currentTarget.style.background = '#f3f4f6';
-											e.currentTarget.style.borderColor = '#9ca3af';
-										}}
-										onMouseOut={(e) => {
-											e.currentTarget.style.background = '#ffffff';
-											e.currentTarget.style.borderColor = '#d1d5db';
-										}}
-										title="Clear environment ID"
-									>
-										Clear
-									</button>
-								</div>
-							</div>
-						) : (
-							<input
-								id="env-id"
-								type="text"
-								value={environmentId}
-								onChange={(e) => setEnvironmentId(e.target.value)}
-								placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-								style={{
-									width: '100%',
-									padding: '10px 12px',
-									border: '1px solid #d1d5db',
-									borderRadius: '6px',
-									fontSize: '14px',
-									boxSizing: 'border-box',
-								}}
-							/>
-						)}
-					</div>
-
-					{/* Username Dropdown */}
-					<div style={{ marginBottom: '20px' }}>
-						<label
-							htmlFor="username-dropdown"
-							style={{
-								display: 'block',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-								marginBottom: '8px',
-							}}
-						>
-							Username
-						</label>
-						<UserSearchDropdownV8
-							id="username-dropdown"
-							environmentId={environmentId}
-							value={username}
-							onChange={setUsername}
-							placeholder="Search for a user..."
-							disabled={!environmentId}
-						/>
-					</div>
-
-					{/* SQLite Database Stats */}
-					{environmentId && (
-						<div style={{ marginBottom: '20px' }}>
-							<SQLiteStatsDisplayV8
-								environmentId={environmentId}
-								compact={false}
-								refreshInterval={30}
-								showRefreshButton={true}
-							/>
-						</div>
-					)}
-
-					{/* MFA Policy Dropdown */}
-					<div style={{ marginBottom: '20px' }}>
-						<label
-							htmlFor="mfa-policy"
-							style={{
-								display: 'block',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-								marginBottom: '8px',
-							}}
-						>
-							MFA Policy
-						</label>
-						{isPoliciesLoading ? (
-							<div style={{ padding: '10px', color: '#6b7280', fontSize: '14px' }}>
-								Loading policies...
-							</div>
-						) : policiesError ? (
-							<div style={{ padding: '10px', color: '#ef4444', fontSize: '14px' }}>
-								Error loading policies: {policiesError}
-							</div>
-						) : policies.length === 0 ? (
-							<div style={{ padding: '10px', color: '#6b7280', fontSize: '14px' }}>
-								No MFA policies found. Please check your environment ID and worker token.
-							</div>
-						) : (
-							<SearchableDropdownV8
-								id="mfa-policy"
-								value={selectedPolicy?.id || ''}
-								options={policies.map((policy) => {
-									const policyOption: SearchableDropdownOption = {
-										value: policy.id,
-										label: policy.name,
-									};
-									if (policy.default) {
-										policyOption.secondaryLabel = '(Default)';
-									}
-									return policyOption;
-								})}
-								onChange={selectPolicy}
-								placeholder="Select an MFA policy..."
-								isLoading={isPoliciesLoading}
-							/>
-						)}
-						<span
-							style={{
-								display: 'block',
-								marginTop: '6px',
-								fontSize: '12px',
-								color: '#6b7280',
-							}}
-						>
-							Select the MFA policy to use for device registration
-						</span>
-
-						{/* Policy Summary - Collapsible */}
-						{selectedPolicy && (
-							<details
-								style={{
-									marginTop: '12px',
-									padding: '12px',
-									background: '#f9fafb',
-									border: '1px solid #e5e7eb',
-									borderRadius: '6px',
-								}}
-							>
-								<summary
-									style={{
-										cursor: 'pointer',
-										fontWeight: '600',
-										fontSize: '13px',
-										color: '#374151',
-										userSelect: 'none',
-									}}
-								>
-									📋 Policy Details
-								</summary>
-								<div style={{ marginTop: '12px', fontSize: '13px', color: '#4b5563' }}>
-									<div style={{ marginBottom: '8px' }}>
-										<strong>Policy Name:</strong> {selectedPolicy.name}
-									</div>
-									{selectedPolicy.default && (
-										<div style={{ marginBottom: '8px', color: '#059669' }}>
-											<strong>✓ Default Policy</strong>
-										</div>
-									)}
-									<div style={{ marginBottom: '8px' }}>
-										<strong>Enabled Devices:</strong>
-									</div>
-									<div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
-										{selectedPolicy.sms?.enabled && (
-											<span
-												style={{
-													padding: '4px 8px',
-													background: '#dbeafe',
-													color: '#1e40af',
-													borderRadius: '4px',
-													fontSize: '12px',
-												}}
-											>
-												📱 SMS
-											</span>
-										)}
-										{selectedPolicy.email?.enabled && (
-											<span
-												style={{
-													padding: '4px 8px',
-													background: '#dbeafe',
-													color: '#1e40af',
-													borderRadius: '4px',
-													fontSize: '12px',
-												}}
-											>
-												✉️ Email
-											</span>
-										)}
-										{selectedPolicy.totp?.enabled && (
-											<span
-												style={{
-													padding: '4px 8px',
-													background: '#dbeafe',
-													color: '#1e40af',
-													borderRadius: '4px',
-													fontSize: '12px',
-												}}
-											>
-												🔐 TOTP
-											</span>
-										)}
-										{selectedPolicy.fido2?.enabled && (
-											<span
-												style={{
-													padding: '4px 8px',
-													background: '#dbeafe',
-													color: '#1e40af',
-													borderRadius: '4px',
-													fontSize: '12px',
-												}}
-											>
-												🔑 FIDO2
-											</span>
-										)}
-										{selectedPolicy.mobile?.enabled && (
-											<span
-												style={{
-													padding: '4px 8px',
-													background: '#dbeafe',
-													color: '#1e40af',
-													borderRadius: '4px',
-													fontSize: '12px',
-												}}
-											>
-												📲 Mobile
-											</span>
-										)}
-										{selectedPolicy.voice?.enabled && (
-											<span
-												style={{
-													padding: '4px 8px',
-													background: '#dbeafe',
-													color: '#1e40af',
-													borderRadius: '4px',
-													fontSize: '12px',
-												}}
-											>
-												📞 Voice
-											</span>
-										)}
-									</div>
-								</div>
-							</details>
-						)}
-					</div>
-
-					{/* Worker Token Status */}
-					<div
+					<button
+						type="button"
+						onClick={() => setIsConfigCollapsed(!isConfigCollapsed)}
 						style={{
-							marginTop: '24px',
-							marginBottom: '60px',
-							paddingRight: '24px',
-							overflow: 'hidden',
-							position: 'relative',
-							zIndex: 1,
+							width: '100%',
+							padding: '1rem 1.5rem',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'space-between',
+							background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%)',
+							border: 'none',
+							borderRadius: '12px',
+							cursor: 'pointer',
+							fontSize: '18px',
+							fontWeight: '600',
+							color: '#111827',
+							textAlign: 'left',
 						}}
 					>
-						<div
+						<span>🔧 Configuration</span>
+						<span
 							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								gap: '12px',
-								marginBottom: '12px',
+								transform: isConfigCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+								transition: 'transform 0.2s',
 							}}
 						>
-							<SilentApiConfigCheckboxV8 />
-							<ShowTokenConfigCheckboxV8 />
-						</div>
-						{/* Worker Token Section */}
-						<WorkerTokenSectionV8
-							environmentId={environmentId}
-							showStatusCard={false}
-							onTokenUpdated={(_token) => {
-								// Token updated — global hook will auto-refresh
-							}}
-						/>
+							▼
+						</span>
+					</button>
+					{!isConfigCollapsed && (
+						<div style={{ padding: '24px' }}>
+							{/* Environment ID */}
+							<div style={{ marginBottom: '20px' }}>
+								<label
+									htmlFor="env-id"
+									style={{
+										display: 'block',
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#374151',
+										marginBottom: '8px',
+									}}
+								>
+									Environment ID
+								</label>
+								{environmentId ? (
+									<div
+										style={{
+											padding: '10px 12px',
+											border: '1px solid #d1d5db',
+											borderRadius: '6px',
+											fontSize: '14px',
+											backgroundColor: '#f9fafb',
+											color: '#374151',
+											boxSizing: 'border-box',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'space-between',
+										}}
+									>
+										<span
+											style={{
+												flex: 1,
+												overflow: 'hidden',
+												textOverflow: 'ellipsis',
+												whiteSpace: 'nowrap',
+											}}
+										>
+											{environmentId}
+										</span>
+										<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+											<span
+												style={{
+													fontSize: '12px',
+													color: '#6b7280',
+													fontWeight: 'normal',
+												}}
+											>
+												✓ Auto-loaded
+											</span>
+											<button
+												type="button"
+												onClick={() => {
+													setEnvironmentId('');
+													globalEnvironmentService.setEnvironmentId('');
+													localStorage.removeItem('mfa_environmentId');
+												}}
+												style={{
+													padding: '4px 8px',
+													border: '1px solid #d1d5db',
+													borderRadius: '4px',
+													background: '#ffffff',
+													color: '#6b7280',
+													fontSize: '12px',
+													cursor: 'pointer',
+													transition: 'all 0.2s',
+												}}
+												onFocus={(e) => {
+													e.currentTarget.style.background = '#f3f4f6';
+													e.currentTarget.style.borderColor = '#9ca3af';
+												}}
+												onBlur={(e) => {
+													e.currentTarget.style.background = '#ffffff';
+													e.currentTarget.style.borderColor = '#d1d5db';
+												}}
+												onMouseOver={(e) => {
+													e.currentTarget.style.background = '#f3f4f6';
+													e.currentTarget.style.borderColor = '#9ca3af';
+												}}
+												onMouseOut={(e) => {
+													e.currentTarget.style.background = '#ffffff';
+													e.currentTarget.style.borderColor = '#d1d5db';
+												}}
+												title="Clear environment ID"
+											>
+												Clear
+											</button>
+										</div>
+									</div>
+								) : (
+									<input
+										id="env-id"
+										type="text"
+										value={environmentId}
+										onChange={(e) => setEnvironmentId(e.target.value)}
+										placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+										style={{
+											width: '100%',
+											padding: '10px 12px',
+											border: '1px solid #d1d5db',
+											borderRadius: '6px',
+											fontSize: '14px',
+											boxSizing: 'border-box',
+										}}
+									/>
+								)}
+							</div>
 
-						{/* User Token Status */}
-						{userToken && (
+							{/* Username Dropdown */}
+							<div style={{ marginBottom: '20px' }}>
+								<label
+									htmlFor="username-dropdown"
+									style={{
+										display: 'block',
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#374151',
+										marginBottom: '8px',
+									}}
+								>
+									Username
+								</label>
+								<UserSearchDropdownV8
+									id="username-dropdown"
+									environmentId={environmentId}
+									value={username}
+									onChange={setUsername}
+									placeholder="Search for a user..."
+									disabled={!environmentId}
+								/>
+							</div>
+
+							{/* SQLite Database Stats */}
+							{environmentId && (
+								<div style={{ marginBottom: '20px' }}>
+									<SQLiteStatsDisplayV8
+										environmentId={environmentId}
+										compact={false}
+										refreshInterval={30}
+										showRefreshButton={true}
+									/>
+								</div>
+							)}
+
+							{/* MFA Policy Dropdown */}
+							<div style={{ marginBottom: '20px' }}>
+								<label
+									htmlFor="mfa-policy"
+									style={{
+										display: 'block',
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#374151',
+										marginBottom: '8px',
+									}}
+								>
+									MFA Policy
+								</label>
+								{isPoliciesLoading ? (
+									<div style={{ padding: '10px', color: '#6b7280', fontSize: '14px' }}>
+										Loading policies...
+									</div>
+								) : policiesError ? (
+									<div style={{ padding: '10px', color: '#ef4444', fontSize: '14px' }}>
+										Error loading policies: {policiesError}
+									</div>
+								) : policies.length === 0 ? (
+									<div style={{ padding: '10px', color: '#6b7280', fontSize: '14px' }}>
+										No MFA policies found. Please check your environment ID and worker token.
+									</div>
+								) : (
+									<SearchableDropdownV8
+										id="mfa-policy"
+										value={selectedPolicy?.id || ''}
+										options={policies.map((policy) => {
+											const policyOption: SearchableDropdownOption = {
+												value: policy.id,
+												label: policy.name,
+											};
+											if (policy.default) {
+												policyOption.secondaryLabel = '(Default)';
+											}
+											return policyOption;
+										})}
+										onChange={selectPolicy}
+										placeholder="Select an MFA policy..."
+										isLoading={isPoliciesLoading}
+									/>
+								)}
+								<span
+									style={{
+										display: 'block',
+										marginTop: '6px',
+										fontSize: '12px',
+										color: '#6b7280',
+									}}
+								>
+									Select the MFA policy to use for device registration
+								</span>
+
+								{/* Policy Summary - Collapsible (persisted like Unified OAuth) */}
+								{selectedPolicy && (
+									<div
+										style={{
+											marginTop: '12px',
+											padding: '12px',
+											background: '#f9fafb',
+											border: '1px solid #e5e7eb',
+											borderRadius: '6px',
+										}}
+									>
+										<button
+											type="button"
+											onClick={() => setIsPolicyDetailsCollapsed(!isPolicyDetailsCollapsed)}
+											style={{
+												width: '100%',
+												textAlign: 'left',
+												cursor: 'pointer',
+												fontWeight: '600',
+												fontSize: '13px',
+												color: '#374151',
+												userSelect: 'none',
+												background: 'none',
+												border: 'none',
+												padding: 0,
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'space-between',
+											}}
+										>
+											<span>📋 Policy Details</span>
+											<span
+												style={{
+													transform: isPolicyDetailsCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+												}}
+											>
+												▼
+											</span>
+										</button>
+										{!isPolicyDetailsCollapsed && (
+											<div style={{ marginTop: '12px', fontSize: '13px', color: '#4b5563' }}>
+												<div style={{ marginBottom: '8px' }}>
+													<strong>Policy Name:</strong> {selectedPolicy.name}
+												</div>
+												{selectedPolicy.default && (
+													<div style={{ marginBottom: '8px', color: '#059669' }}>
+														<strong>✓ Default Policy</strong>
+													</div>
+												)}
+												<div style={{ marginBottom: '8px' }}>
+													<strong>Enabled Devices:</strong>
+												</div>
+												<div
+													style={{
+														display: 'flex',
+														flexWrap: 'wrap',
+														gap: '6px',
+														marginTop: '6px',
+													}}
+												>
+													{selectedPolicy.sms?.enabled && (
+														<span
+															style={{
+																padding: '4px 8px',
+																background: '#dbeafe',
+																color: '#1e40af',
+																borderRadius: '4px',
+																fontSize: '12px',
+															}}
+														>
+															📱 SMS
+														</span>
+													)}
+													{selectedPolicy.email?.enabled && (
+														<span
+															style={{
+																padding: '4px 8px',
+																background: '#dbeafe',
+																color: '#1e40af',
+																borderRadius: '4px',
+																fontSize: '12px',
+															}}
+														>
+															✉️ Email
+														</span>
+													)}
+													{selectedPolicy.totp?.enabled && (
+														<span
+															style={{
+																padding: '4px 8px',
+																background: '#dbeafe',
+																color: '#1e40af',
+																borderRadius: '4px',
+																fontSize: '12px',
+															}}
+														>
+															🔐 TOTP
+														</span>
+													)}
+													{selectedPolicy.fido2?.enabled && (
+														<span
+															style={{
+																padding: '4px 8px',
+																background: '#dbeafe',
+																color: '#1e40af',
+																borderRadius: '4px',
+																fontSize: '12px',
+															}}
+														>
+															🔑 FIDO2
+														</span>
+													)}
+													{selectedPolicy.mobile?.enabled && (
+														<span
+															style={{
+																padding: '4px 8px',
+																background: '#dbeafe',
+																color: '#1e40af',
+																borderRadius: '4px',
+																fontSize: '12px',
+															}}
+														>
+															📲 Mobile
+														</span>
+													)}
+													{selectedPolicy.voice?.enabled && (
+														<span
+															style={{
+																padding: '4px 8px',
+																background: '#dbeafe',
+																color: '#1e40af',
+																borderRadius: '4px',
+																fontSize: '12px',
+															}}
+														>
+															📞 Voice
+														</span>
+													)}
+												</div>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
+
+							{/* Worker Token Status */}
 							<div
 								style={{
-									marginTop: '16px',
-									padding: '16px',
-									background:
-										'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05))',
-									border: '2px solid #10b981',
-									borderRadius: '8px',
+									marginTop: '24px',
+									marginBottom: '60px',
+									paddingRight: '24px',
+									overflow: 'hidden',
+									position: 'relative',
+									zIndex: 1,
 								}}
 							>
 								<div
-									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
+									style={{
+										display: 'flex',
+										flexDirection: 'column',
+										gap: '12px',
+										marginBottom: '12px',
+									}}
 								>
-									<span style={{ fontSize: '20px' }}>👤</span>
-									<strong style={{ color: '#047857', fontSize: '16px' }}>User Token Active</strong>
+									<SilentApiConfigCheckboxV8 />
+									<ShowTokenConfigCheckboxV8 />
 								</div>
-								<div style={{ fontSize: '14px', color: '#059669', lineHeight: '1.5' }}>
-									✓ User authentication token available
-									<br />✓ Ready for User Flow device registration
-								</div>
+								{/* Worker Token Section */}
+								<WorkerTokenSectionV8
+									environmentId={environmentId}
+									showStatusCard={false}
+									onTokenUpdated={(_token) => {
+										// Token updated — global hook will auto-refresh
+									}}
+								/>
+
+								{/* User Token Status */}
+								{userToken && (
+									<div
+										style={{
+											marginTop: '16px',
+											padding: '16px',
+											background:
+												'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05))',
+											border: '2px solid #10b981',
+											borderRadius: '8px',
+										}}
+									>
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												marginBottom: '8px',
+											}}
+										>
+											<span style={{ fontSize: '20px' }}>👤</span>
+											<strong style={{ color: '#047857', fontSize: '16px' }}>
+												User Token Active
+											</strong>
+										</div>
+										<div style={{ fontSize: '14px', color: '#059669', lineHeight: '1.5' }}>
+											✓ User authentication token available
+											<br />✓ Ready for User Flow device registration
+										</div>
+									</div>
+								)}
 							</div>
-						)}
-					</div>
+						</div>
+					)}
 				</div>
 
 				{/* Flow Mode Selection */}
