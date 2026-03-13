@@ -6,7 +6,7 @@
  * @since 2025-01-27
  */
 
-import { LogLevel, logger } from '@/services/loggingService';
+import { LogLevel } from '@/services/loggingService';
 
 import { logger } from '../utils/logger';
 

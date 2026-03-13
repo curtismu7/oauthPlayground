@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web-to-MCP Tool Example - Fetched Website Component</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .tool-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+        }
+
+        .tool-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reference-badge {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .result-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        .result-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .code-preview {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+
+        .website-preview {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fafafa;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .status-loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #856404;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🌐 Web-to-MCP Tool Example</h1>
+            <p>Implement Fetched Website Components with Reference ID</p>
+        </header>
+
+        <main class="content">
+            <!-- Tool Configuration Section -->
+            <section class="tool-section">
+                <h2>
+                    🛠️ Web-to-MCP Configuration
+                    <span class="reference-badge">6d8e53a0-7022-46e3-97cb-0e2d5c75d5ef</span>
+                </h2>
+
+                <div class="input-group">
+                    <label for="website-url">Website URL to Fetch:</label>
+                    <input 
+                        type="url" 
+                        id="website-url" 
+                        placeholder="https://example.com or https://api.example.com/data"
+                        value="https://jsonplaceholder.typicode.com/posts/1"
+                    />
+                </div>
+
+                <div class="input-group">
+                    <label for="component-name">Component Name:</label>
+                    <input 
+                        type="text" 
+                        id="component-name" 
+                        placeholder="MyFetchedComponent"
+                        value="FetchedPostComponent"
+                    />
+                </div>
+
+                <div class="input-group">
+                    <label for="mcp-config">MCP Configuration (JSON):</label>
+                    <textarea id="mcp-config" placeholder='{"tool": "web-to-mcp", "reference": "6d8e53a0-7022-46e3-97cb-0e2d5c75d5ef"}'>{
+  "tool": "web-to-mcp",
+  "reference": "6d8e53a0-7022-46e3-97cb-0e2d5c75d5ef",
+  "options": {
+    "fetchStrategy": "cors",
+    "dataType": "json",
+    "componentType": "react"
+  }
+}</textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="fetchWebsite()">
+                        🌐 Fetch Website
+                    </button>
+                    <button class="btn btn-secondary" onclick="generateComponent()">
+                        ⚙️ Generate Component
+                    </button>
+                    <button class="btn btn-success" onclick="implementComponent()">
+                        🚀 Implement Component
+                    </button>
+                </div>
+
+                <div id="status" class="status-indicator" style="display: none;"></div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="result-section" class="result-section">
+                <h3>📊 Implementation Results</h3>
+                
+                <div id="fetched-data" style="display: none;">
+                    <h4>🌐 Fetched Website Data:</h4>
+                    <div class="website-preview" id="data-preview"></div>
+                </div>
+
+                <div id="generated-code" style="display: none;">
+                    <h4>⚙️ Generated Component Code:</h4>
+                    <div class="code-preview" id="code-preview"></div>
+                </div>
+
+                <div id="implemented-component" style="display: none;">
+                    <h4>🚀 Implemented Component Preview:</h4>
+                    <div id="component-preview"></div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="tool-section">
+                <h2>✨ Web-to-MCP Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="icon">🌐</div>
+                        <h4>Website Fetching</h4>
+                        <p>Fetch content from any website or API endpoint using the web-to-mcp tool with proper CORS handling.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">⚙️</div>
+                        <h4>Component Generation</h4>
+                        <p>Automatically generate React components based on the fetched data structure and content.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🚀</div>
+                        <h4>Implementation</h4>
+                        <p>Seamlessly implement the generated components into your application with proper integration.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🔄</div>
+                        <h4>Real-time Updates</h4>
+                        <p>Components can automatically refresh and update with the latest data from the source.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🛡️</div>
+                        <h4>Security First</h4>
+                        <p>Built-in security measures and sanitization for safe website content integration.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">📱</div>
+                        <h4>Responsive Design</h4>
+                        <p>Generated components are fully responsive and work across all device sizes.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Web-to-MCP Tool Implementation
+        class WebToMCPTool {
+            constructor(referenceId) {
+                this.referenceId = referenceId;
+                this.baseUrl = 'https://api.web-to-mcp.com'; // Hypothetical API endpoint
+            }
+
+            async fetchWebsite(url, options = {}) {
+                const config = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Reference-ID': this.referenceId
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        options: {
+                            fetchStrategy: 'cors',
+                            dataType: 'auto',
+                            ...options
+                        }
+                    })
+                };
+
+                try {
+                    const response = await fetch(`${this.baseUrl}/fetch`, config);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching website:', error);
+                    throw error;
+                }
+            }
+
+            async generateComponent(data, componentName, options = {}) {
+                const config = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Reference-ID': this.referenceId
+                    },
+                    body: JSON.stringify({
+                        data: data,
+                        componentName: componentName,
+                        options: {
+                            framework: 'react',
+                            styling: 'styled-components',
+                            ...options
+                        }
+                    })
+                };
+
+                try {
+                    const response = await fetch(`${this.baseUrl}/generate`, config);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error generating component:', error);
+                    throw error;
+                }
+            }
+
+            async implementComponent(componentCode, targetElement) {
+                try {
+                    // In a real implementation, this would compile and render the component
+                    // For this example, we'll simulate the implementation
+                    const implementation = {
+                        success: true,
+                        renderedComponent: componentCode,
+                        targetElement: targetElement
+                    };
+                    return implementation;
+                } catch (error) {
+                    console.error('Error implementing component:', error);
+                    throw error;
+                }
+            }
+        }
+
+        // Initialize the tool
+        const webToMCP = new WebToMCPTool('6d8e53a0-7022-46e3-97cb-0e2d5c75d5ef');
+
+        // UI Functions
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.style.display = 'inline-flex';
+            statusEl.className = `status-indicator status-${type}`;
+            
+            if (type === 'loading') {
+                statusEl.innerHTML = `<div class="spinner"></div> ${message}`;
+            } else {
+                statusEl.innerHTML = message;
+            }
+
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function showResult(sectionId) {
+            document.getElementById('result-section').classList.add('active');
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        async function fetchWebsite() {
+            const url = document.getElementById('website-url').value;
+            const config = JSON.parse(document.getElementById('mcp-config').value);
+
+            if (!url) {
+                showStatus('Please enter a website URL', 'error');
+                return;
+            }
+
+            showStatus('Fetching website content...', 'loading');
+
+            try {
+                // Simulate fetching (in real implementation, use webToMCP.fetchWebsite)
+                const mockResponse = await simulateFetch(url, config);
+                
+                // Display fetched data
+                document.getElementById('data-preview').innerHTML = `
+                    <strong>URL:</strong> ${mockResponse.url}<br>
+                    <strong>Status:</strong> ${mockResponse.status}<br>
+                    <strong>Content Type:</strong> ${mockResponse.contentType}<br>
+                    <strong>Data:</strong><br>
+                    <pre>${JSON.stringify(mockResponse.data, null, 2)}</pre>
+                `;
+                
+                showResult('fetched-data');
+                showStatus('Website fetched successfully!', 'success');
+                
+                // Store data for next steps
+                window.fetchedData = mockResponse.data;
+                
+            } catch (error) {
+                showStatus(`Error fetching website: ${error.message}`, 'error');
+            }
+        }
+
+        async function generateComponent() {
+            const componentName = document.getElementById('component-name').value;
+            const config = JSON.parse(document.getElementById('mcp-config').value);
+
+            if (!componentName) {
+                showStatus('Please enter a component name', 'error');
+                return;
+            }
+
+            if (!window.fetchedData) {
+                showStatus('Please fetch website data first', 'error');
+                return;
+            }
+
+            showStatus('Generating component...', 'loading');
+
+            try {
+                // Simulate component generation
+                const mockComponent = await simulateComponentGeneration(window.fetchedData, componentName, config);
+                
+                // Display generated code
+                document.getElementById('code-preview').textContent = mockComponent.code;
+                showResult('generated-code');
+                showStatus('Component generated successfully!', 'success');
+                
+                // Store component for next step
+                window.generatedComponent = mockComponent;
+                
+            } catch (error) {
+                showStatus(`Error generating component: ${error.message}`, 'error');
+            }
+        }
+
+        async function implementComponent() {
+            if (!window.generatedComponent) {
+                showStatus('Please generate component first', 'error');
+                return;
+            }
+
+            showStatus('Implementing component...', 'loading');
+
+            try {
+                // Simulate implementation
+                const implementation = await webToMCP.implementComponent(
+                    window.generatedComponent.code,
+                    'component-preview'
+                );
+                
+                // Display implemented component
+                document.getElementById('component-preview').innerHTML = implementation.renderedComponent;
+                showResult('implemented-component');
+                showStatus('Component implemented successfully!', 'success');
+                
+            } catch (error) {
+                showStatus(`Error implementing component: ${error.message}`, 'error');
+            }
+        }
+
+        // Simulation functions (for demo purposes)
+        async function simulateFetch(url, config) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Mock response based on URL
+            if (url.includes('jsonplaceholder')) {
+                return {
+                    url: url,
+                    status: 200,
+                    contentType: 'application/json',
+                    data: {
+                        userId: 1,
+                        id: 1,
+                        title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+                        body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+                    }
+                };
+            }
+            
+            return {
+                url: url,
+                status: 200,
+                contentType: 'text/html',
+                data: { html: '<h1>Sample Website Content</h1><p>This is mock content from the fetched website.</p>' }
+            };
+        }
+
+        async function simulateComponentGeneration(data, componentName, config) {
+            // Simulate processing delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const code = `
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+
+const Container = styled.div\`
+  padding: 20px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  margin: 10px 0;
+\`;
+
+const Title = styled.h2\`
+  color: #333;
+  margin-bottom: 10px;
+\`;
+
+const Body = styled.p\`
+  color: #666;
+  line-height: 1.6;
+\`;
+
+const ${componentName} = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate data fetching
+    const fetchData = async () => {
+      try {
+        const response = await fetch('${document.getElementById('website-url').value}');
+        const result = await response.json();
+        setData(result);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <Container>Loading...</Container>;
+  }
+
+  if (!data) {
+    return <Container>Error loading data</Container>;
+  }
+
+  return (
+    <Container>
+      <Title>{data.title || 'No Title'}</Title>
+      <Body>{data.body || 'No Content'}</Body>
+    </Container>
+  );
+};
+
+export default ${componentName};
+            `.trim();
+
+            return { code, componentName };
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Web-to-MCP Tool Example loaded with reference: 6d8e53a0-7022-46e3-97cb-0e2d5c75d5ef');
+        });
+    </script>
+</body>
+</html>

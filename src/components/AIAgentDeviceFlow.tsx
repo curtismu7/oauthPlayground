@@ -334,7 +334,7 @@ interface AIAgentDeviceFlowProps {
 	onError: (error: string) => void;
 }
 
-const log = createModuleLogger('src/components/AIAgentDeviceFlow.tsx');
+const _log = createModuleLogger('src/components/AIAgentDeviceFlow.tsx');
 
 const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 	state,

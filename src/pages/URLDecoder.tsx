@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { FiRefreshCw } from '../icons';
 import { FlowHeader } from '../services/flowHeaderService';
@@ -152,29 +153,30 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 
 		switch ($variant) {
 			case 'primary':
 				return `
-          background: V9_COLORS.PRIMARY.BLUE;
+          background: ${V9_COLORS.PRIMARY.BLUE};
           color: white;
-          &:hover { background: V9_COLORS.PRIMARY.BLUE_DARK; }
-          &:disabled { background: V9_COLORS.TEXT.GRAY_LIGHT; cursor: not-allowed; }
+          &:hover { background: ${V9_COLORS.PRIMARY.BLUE_DARK}; }
+          &:disabled { background: ${V9_COLORS.TEXT.GRAY_LIGHT}; cursor: not-allowed; }
         `;
 			case 'secondary':
 				return `
-          background: #f3f4f6;
-          color: V9_COLORS.TEXT.GRAY_DARK;
-          border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-          &:hover { background: V9_COLORS.TEXT.GRAY_LIGHTER; }
+          background: ${V9_COLORS.TEXT.WHITE};
+          color: ${V9_COLORS.PRIMARY.BLUE};
+          border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
+          &:hover { background: ${V9_COLORS.BG.GRAY_LIGHT}; border-color: ${V9_COLORS.PRIMARY.BLUE_DARK}; color: ${V9_COLORS.PRIMARY.BLUE_DARK}; }
+          &:disabled { background: ${V9_COLORS.TEXT.GRAY_LIGHT}; color: ${V9_COLORS.TEXT.GRAY_MEDIUM}; cursor: not-allowed; }
         `;
 			case 'success':
 				return `
-          background: V9_COLORS.PRIMARY.GREEN;
+          background: ${V9_COLORS.PRIMARY.GREEN};
           color: white;
-          &:hover { background: V9_COLORS.PRIMARY.GREEN_DARK; }
+          &:hover { background: ${V9_COLORS.PRIMARY.GREEN_DARK}; }
         `;
 			case 'danger':
 				return `
-          background: V9_COLORS.PRIMARY.RED;
+          background: ${V9_COLORS.PRIMARY.RED};
           color: white;
-          &:hover { background: V9_COLORS.PRIMARY.RED_DARK; }
+          &:hover { background: ${V9_COLORS.PRIMARY.RED_DARK}; }
         `;
 		}
 	}}
@@ -382,7 +384,7 @@ const URLDecoder: React.FC = () => {
 
 	return (
 		<Container $sidebarWidth={sidebarWidth}>
-			<FlowHeader flowType="url-decoder" />
+			<FlowHeader flowId="url-decoder" />
 
 			<ContentCard>
 				<CardHeader>

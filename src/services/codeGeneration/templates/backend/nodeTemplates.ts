@@ -3,7 +3,6 @@
  * Express.js server implementations
  */
 
-import { logger } from '../../../../utils/logger';
 export class NodeJsTemplates {
 	static authorization(config: any): string {
 		return `// Node.js Backend - Authorization Endpoint

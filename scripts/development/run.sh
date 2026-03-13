@@ -43,9 +43,14 @@ BACKEND_URL="https://${BACKEND_HOST}:${BACKEND_PORT}"
 SSL_CERT_PATH="${SSL_CERT_PATH:-}"
 SSL_KEY_PATH="${SSL_KEY_PATH:-}"
 
+ASSISTANT_PORT=3002  # Standalone AI Assistant (Vite)
+MCP_SERVER_DIR_REL="pingone-mcp-server"  # Relative to project root
+
 # PID files for process management
 FRONTEND_PID_FILE=".frontend.pid"
 BACKEND_PID_FILE=".backend.pid"
+ASSISTANT_PID_FILE=".assistant.pid"
+MCP_PID_FILE_REL="pingone-mcp-server/mcp-server.pid"
 
 # Status tracking
 FRONTEND_STATUS="unknown"
@@ -663,10 +668,24 @@ verify_whatsapp_lockdown() {
         "src/v8/lockdown/whatsapp/snapshot"
 }
 
+# Ensure sqlite3 native bindings exist (pnpm often skips build scripts)
+ensure_sqlite3_bindings() {
+    local binding_path="node_modules/sqlite3/build/Release/node_sqlite3.node"
+    if [ ! -f "$binding_path" ]; then
+        print_warning "sqlite3 native bindings not found; building..."
+        if pnpm run rebuild:sqlite3 2>/dev/null; then
+            print_success "sqlite3 bindings built successfully"
+        else
+            print_warning "sqlite3 rebuild failed - backend may fall back to defaults (see backend.log)"
+        fi
+    fi
+}
+
 # Function to start backend server
 start_backend() {
     print_status "🚀 Starting backend server..."
-    
+    ensure_sqlite3_bindings
+
     # Verify port is free
     if check_port $BACKEND_PORT; then
         print_error "Port $BACKEND_PORT is still in use after cleanup"
@@ -1171,11 +1190,16 @@ while [ $# -gt 0 ]; do
             echo "     12) No tail             - Exit without following a log"
             echo ""
             echo "🎯 USE CASE EXAMPLES:"
-            echo "  • Development:           ./run.sh"
-            echo "  • Help information:      ./run.sh --help, -h, or -help"
-            echo "  • Automated scripts:     ./run.sh -quick"
-            echo "  • CI/CD pipelines:       ./run.sh -default"
-            echo "  • Background monitoring: ./run.sh -default &"
+            echo "  • Full stack (frontend + backend):  ./run.sh"
+            echo "  • AI Assistant only:                ./run.sh -assistant"
+            echo "  • AI Assistant (no prompts):        ./run.sh -assistant -quick"
+            echo "  • Full stack + AI Assistant:        ./run.sh -both"
+            echo "  • Full stack + AI Assistant (quick):./run.sh -both -quick"
+            echo "  • Help information:                 ./run.sh --help, -h, or -help"
+            echo "  • Automated scripts:                ./run.sh -quick"
+            echo "  • CI/CD pipelines:                  ./run.sh -default"
+            echo "  • Background monitoring:            ./run.sh -default &"
+            echo "  • Change custom domain:             ./run.sh --change-domain"
             echo ""
             echo "🚨 EXIT CODES:"
             echo "  0   ✅ Success (all servers running and healthy)"
@@ -1197,12 +1221,23 @@ while [ $# -gt 0 ]; do
             echo "  • OAuth Playground: $FRONTEND_URL"
             echo ""
             echo "🎮 QUICK START:"
-            echo "  1. Ensure you're in the OAuth Playground directory"
-            echo "  2. For help: ./run.sh -help"
-            echo "  3. Run: ./run.sh"
-            echo "  4. Wait for servers to start (watch the status report)"
-            echo "  5. Open your browser to the provided URLs"
-            echo "  6. Start developing!"
+            echo "  Full OAuth Playground:"
+            echo "    1. cd to the OAuth Playground directory"
+            echo "    2. Run: ./run.sh"
+            echo "    3. Wait for servers to start, then open: $FRONTEND_URL"
+            echo ""
+            echo "  AI Assistant only (backend + MCP + standalone UI):"
+            echo "    1. cd to the OAuth Playground directory"
+            echo "    2. Run: ./run.sh -assistant"
+            echo "    3. Open: https://localhost:3002"
+            echo "    4. Logs: backend.log | mcp-server.log | assistant.log"
+            echo ""
+            echo "  Full stack + AI Assistant (all services at once):"
+            echo "    1. cd to the OAuth Playground directory"
+            echo "    2. Run: ./run.sh -both"
+            echo "    3. OAuth Playground: https://localhost:3000"
+            echo "    4. AI Assistant:     https://localhost:3002"
+            echo "    5. Logs: backend.log | frontend.log | mcp-server.log | assistant.log"
             echo ""
             echo "╔══════════════════════════════════════════════════════════════════════════════╗"
             echo "║                    Happy coding with OAuth Playground! 🚀                    ║"
@@ -1214,6 +1249,14 @@ while [ $# -gt 0 ]; do
             # Pass through to main function
             shift
             ;;
+        -assistant|--assistant)
+            export ASSISTANT_MODE=true
+            shift
+            ;;
+        -both|--both)
+            export BOTH_MODE=true
+            shift
+            ;;
 
         *)
             print_warning "Unknown option: $1 (use --help for usage)"
@@ -1221,6 +1264,281 @@ while [ $# -gt 0 ]; do
             ;;
     esac
 done
+
+###############################################################################
+# ASSISTANT MODE — backend + MCP server + standalone AI Assistant only
+###############################################################################
+
+start_mcp_server() {
+    print_status "🤖 Starting PingOne MCP server..."
+    local dist_index="${MCP_SERVER_DIR_REL}/dist/index.js"
+
+    # Build if dist/index.js doesn't exist
+    if [ ! -f "$dist_index" ]; then
+        print_info "MCP server not built — running npm run build in ${MCP_SERVER_DIR_REL}/..."
+        if (cd "$MCP_SERVER_DIR_REL" && npm run build 2>&1); then
+            print_success "MCP server built successfully"
+        else
+            print_error "MCP server build failed. Check ${MCP_SERVER_DIR_REL} for errors."
+            return 1
+        fi
+    fi
+
+    # Kill any existing MCP server process
+    if [ -f "$MCP_PID_FILE_REL" ]; then
+        local old_pid
+        old_pid=$(cat "$MCP_PID_FILE_REL" 2>/dev/null)
+        if [ -n "$old_pid" ] && kill -0 "$old_pid" 2>/dev/null; then
+            print_info "Killing existing MCP server (PID: $old_pid)"
+            kill "$old_pid" 2>/dev/null || true
+            sleep 1
+        fi
+        rm -f "$MCP_PID_FILE_REL"
+    fi
+
+    # Ensure logs/ directory exists (backend may not be started yet)
+    mkdir -p logs
+    node "$dist_index" > logs/mcp-server.log 2>&1 &
+    local mcp_pid=$!
+    echo $mcp_pid > "$MCP_PID_FILE_REL"
+    sleep 1
+
+    if kill -0 "$mcp_pid" 2>/dev/null; then
+        print_success "PingOne MCP server started (PID: $mcp_pid) — logs: mcp-server.log"
+        return 0
+    else
+        print_error "MCP server process died immediately. Check mcp-server.log for details."
+        tail -5 mcp-server.log 2>/dev/null || true
+        return 1
+    fi
+}
+
+start_assistant_frontend() {
+    print_status "🚀 Starting standalone AI Assistant on port $ASSISTANT_PORT..."
+
+    # Kill any existing process on port 3002
+    local existing_pid
+    existing_pid=$(lsof -ti:"$ASSISTANT_PORT" 2>/dev/null || true)
+    if [ -n "$existing_pid" ]; then
+        print_info "Killing existing process on port $ASSISTANT_PORT (PID: $existing_pid)"
+        kill -9 "$existing_pid" 2>/dev/null || true
+        sleep 1
+    fi
+    if [ -f "$ASSISTANT_PID_FILE" ]; then rm -f "$ASSISTANT_PID_FILE"; fi
+
+    # Check AIAssistant directory exists
+    if [ ! -d "AIAssistant" ]; then
+        print_error "AIAssistant/ directory not found. Has it been created?"
+        return 1
+    fi
+
+    npx vite AIAssistant --port "$ASSISTANT_PORT" > assistant.log 2>&1 &
+    local assistant_pid=$!
+    echo $assistant_pid > "$ASSISTANT_PID_FILE"
+
+    # Wait for Vite to be ready (up to 20s)
+    local attempt=0
+    print_info "Waiting for AI Assistant to be ready..."
+    while [ $attempt -lt 20 ]; do
+        if curl -s -k "https://localhost:${ASSISTANT_PORT}" >/dev/null 2>&1; then
+            print_success "AI Assistant ready at https://localhost:${ASSISTANT_PORT}"
+            return 0
+        fi
+        if ! kill -0 "$assistant_pid" 2>/dev/null; then
+            print_error "AI Assistant process died during startup. Check assistant.log:"
+            tail -10 assistant.log 2>/dev/null || true
+            return 1
+        fi
+        sleep 1
+        attempt=$((attempt + 1))
+        printf "."
+    done
+    echo ""
+    # Vite might not respond to curl on HTTPS without certs — check process is alive
+    if kill -0 "$assistant_pid" 2>/dev/null; then
+        print_success "AI Assistant started (PID: $assistant_pid) — https://localhost:${ASSISTANT_PORT}"
+        return 0
+    fi
+    print_error "AI Assistant failed to start. Check assistant.log."
+    return 1
+}
+
+run_assistant_mode() {
+    echo -e "${PURPLE}"
+    echo "╔══════════════════════════════════════════════════════════════════════════════╗"
+    echo "║                                                                              ║"
+    echo "║              🤖 AI Assistant Mode — Standalone Startup 🤖                   ║"
+    echo "║                                                                              ║"
+    echo "║  Backend:        https://localhost:3001  (Express API)                       ║"
+    echo "║  MCP Server:     pingone-mcp-server/dist/index.js (stdio, background)        ║"
+    echo "║  AI Assistant:   https://localhost:3002  (Vite standalone)                   ║"
+    echo "║                                                                              ║"
+    echo "╚══════════════════════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+
+    # Locate project directory (quick — assume cwd is correct if files exist)
+    if [ ! -f "package.json" ] || [ ! -f "server.js" ]; then
+        find_project_directory
+    else
+        print_success "Using current directory: $(pwd)"
+    fi
+
+    check_requirements
+    load_ssl_config
+
+    # Kill existing backend
+    print_status "🛑 Cleaning up existing processes..."
+    if check_port $BACKEND_PORT; then
+        print_info "Killing process on port $BACKEND_PORT"
+        lsof -ti:$BACKEND_PORT | xargs kill -9 2>/dev/null || true
+        sleep 1
+    fi
+    pkill -f "server.js" 2>/dev/null || true
+    sleep 1
+
+    # Start backend
+    start_backend
+    if [ "$BACKEND_STATUS" != "running" ]; then
+        print_error "Backend failed to start. Aborting assistant mode."
+        exit 1
+    fi
+
+    # Start MCP server (non-fatal if it fails — backend still works without it)
+    start_mcp_server || print_warning "MCP server failed to start — continuing without it"
+
+    # Start AI Assistant frontend
+    start_assistant_frontend || {
+        print_error "AI Assistant frontend failed to start."
+        exit 1
+    }
+
+    # Status summary
+    echo ""
+    echo -e "${GREEN}╔══════════════════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║                    ✅ AI ASSISTANT MODE RUNNING                              ║${NC}"
+    echo -e "${GREEN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
+    echo -e "${GREEN}║${NC} Backend API:      ${BLUE}https://localhost:3001${NC}"
+    echo -e "${GREEN}║${NC} MCP Server:       ${BLUE}background process${NC} (mcp-server.log)"
+    echo -e "${GREEN}║${NC} AI Assistant:     ${BLUE}https://localhost:${ASSISTANT_PORT}${NC}"
+    echo -e "${GREEN}║${NC}"
+    echo -e "${GREEN}║${NC} ${CYAN}Log files:${NC}"
+    echo -e "${GREEN}║${NC}   backend.log    — Express API server"
+    echo -e "${GREEN}║${NC}   mcp-server.log — PingOne MCP server"
+    echo -e "${GREEN}║${NC}   assistant.log  — Vite dev server"
+    echo -e "${GREEN}║${NC}"
+    echo -e "${GREEN}║${NC} ${CYAN}Stop all:  pkill -f 'server.js'; lsof -ti:3002 | xargs kill -9${NC}"
+    echo -e "${GREEN}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+
+    # Offer to tail a log
+    if [ "${QUICK_MODE:-false}" = true ] || [ "${DEFAULT_MODE:-false}" = true ]; then
+        print_info "Quick/default mode: tailing backend.log (Ctrl+C to stop)"
+        tail -f backend.log
+        return
+    fi
+
+    echo -n "Tail a log? [1=backend, 2=mcp-server, 3=assistant, 4=all, Enter=skip]: "
+    read -r log_choice
+    case "${log_choice:-skip}" in
+        1) tail -f backend.log ;;
+        2) tail -f mcp-server.log ;;
+        3) tail -f assistant.log ;;
+        4) tail -f backend.log mcp-server.log assistant.log ;;
+        *) print_info "Exiting. Servers continue running in background." ;;
+    esac
+}
+
+###############################################################################
+# BOTH MODE — backend + MCP server + main OAuth Playground + AI Assistant
+###############################################################################
+
+run_both_mode() {
+    echo -e "${PURPLE}"
+    echo "╔═════════════════════════════════════════════════════════════════════════════╗"
+    echo "║                                                                             ║"
+    echo "║          🚀 Full Stack + AI Assistant — Combined Mode 🤖                   ║"
+    echo "║                                                                             ║"
+    echo "║  Backend:        https://localhost:3001  (Express API)                      ║"
+    echo "║  MCP Server:     pingone-mcp-server/dist/index.js (stdio, background)       ║"
+    echo "║  OAuth Frontend: https://localhost:3000  (Vite main app)                    ║"
+    echo "║  AI Assistant:   https://localhost:3002  (Vite standalone)                  ║"
+    echo "║                                                                             ║"
+    echo "╚═════════════════════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+
+    if [ ! -f "package.json" ] || [ ! -f "server.js" ]; then
+        find_project_directory
+    else
+        print_success "Using current directory: $(pwd)"
+    fi
+
+    check_requirements
+    load_ssl_config
+
+    # Kill all existing processes including assistant port
+    print_status "🛑 Cleaning up existing processes..."
+    kill_all_servers
+    if check_port $ASSISTANT_PORT; then
+        print_info "Killing process on port $ASSISTANT_PORT"
+        lsof -ti:$ASSISTANT_PORT | xargs kill -9 2>/dev/null || true
+        sleep 1
+    fi
+    pkill -f "vite.*AIAssistant" 2>/dev/null || true
+    sleep 1
+
+    # Start backend
+    start_backend
+    if [ "$BACKEND_STATUS" != "running" ]; then
+        print_error "Backend failed to start. Aborting."
+        exit 1
+    fi
+
+    # Start MCP server (non-fatal)
+    start_mcp_server || print_warning "MCP server failed to start — continuing without it"
+
+    # Start main OAuth Playground frontend
+    start_frontend
+
+    # Start AI Assistant frontend (non-fatal)
+    start_assistant_frontend || print_warning "AI Assistant frontend failed to start"
+
+    # Status summary
+    echo ""
+    echo -e "${GREEN}╔══════════════════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║            ✅ FULL STACK + AI ASSISTANT RUNNING                              ║${NC}"
+    echo -e "${GREEN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
+    echo -e "${GREEN}║${NC} Backend API:      ${BLUE}https://localhost:3001${NC}"
+    echo -e "${GREEN}║${NC} OAuth Playground: ${BLUE}https://localhost:${FRONTEND_PORT}${NC}"
+    echo -e "${GREEN}║${NC} MCP Server:       ${BLUE}background process${NC} (mcp-server.log)"
+    echo -e "${GREEN}║${NC} AI Assistant:     ${BLUE}https://localhost:${ASSISTANT_PORT}${NC}"
+    echo -e "${GREEN}║${NC}"
+    echo -e "${GREEN}║${NC} ${CYAN}Log files:${NC}"
+    echo -e "${GREEN}║${NC}   backend.log    — Express API server"
+    echo -e "${GREEN}║${NC}   frontend.log   — OAuth Playground (Vite)"
+    echo -e "${GREEN}║${NC}   mcp-server.log — PingOne MCP server"
+    echo -e "${GREEN}║${NC}   assistant.log  — AI Assistant (Vite)"
+    echo -e "${GREEN}║${NC}"
+    echo -e "${GREEN}║${NC} ${CYAN}Stop all:${NC} pkill -f 'server.js'; lsof -ti:3000,3002 | xargs kill -9"
+    echo -e "${GREEN}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+
+    if [ "${QUICK_MODE:-false}" = true ] || [ "${DEFAULT_MODE:-false}" = true ]; then
+        print_info "Quick/default mode: tailing backend.log (Ctrl+C to stop)"
+        tail -f backend.log
+        return
+    fi
+
+    echo -n "Tail a log? [1=backend, 2=frontend, 3=mcp-server, 4=assistant, 5=all, Enter=skip]: "
+    read -r log_choice
+    case "${log_choice:-skip}" in
+        1) tail -f backend.log ;;
+        2) tail -f frontend.log ;;
+        3) tail -f mcp-server.log ;;
+        4) tail -f assistant.log ;;
+        5) tail -f backend.log frontend.log mcp-server.log assistant.log ;;
+        *) print_info "Exiting. Servers continue running in background." ;;
+    esac
+}
 
 # Main execution
 main() {
@@ -1247,6 +1565,16 @@ main() {
                 print_info "🔐 Will prompt to change custom domain and regenerate certificate"
                 shift
                 ;;
+            -assistant|--assistant)
+                ASSISTANT_MODE=true
+                export ASSISTANT_MODE
+                shift
+                ;;
+            -both|--both)
+                BOTH_MODE=true
+                export BOTH_MODE
+                shift
+                ;;
             *)
                 break
                 ;;
@@ -1254,7 +1582,13 @@ main() {
     done
 
     show_banner
-    
+
+    # If assistant mode was re-enabled inside main(), delegate immediately
+    if [ "${ASSISTANT_MODE:-false}" = true ]; then
+        run_assistant_mode
+        return
+    fi
+
     # Step 0: Find and change to project directory
     find_project_directory
     
@@ -1539,5 +1873,41 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
+###############################################################################
+# QUICK REFERENCE BANNER — all service URLs
+###############################################################################
+
+show_url_banner() {
+    echo ""
+    echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${PURPLE}║                     📋  SERVICE URL QUICK REFERENCE                         ║${NC}"
+    echo -e "${PURPLE}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
+    echo -e "${PURPLE}║${NC}"
+    echo -e "${PURPLE}║${NC}  ${CYAN}Masterflow (OAuth Playground)${NC}"
+    echo -e "${PURPLE}║${NC}    Frontend   →  ${GREEN}${FRONTEND_URL}${NC}"
+    echo -e "${PURPLE}║${NC}    Backend    →  ${GREEN}${BACKEND_URL}${NC}"
+    echo -e "${PURPLE}║${NC}    API Docs   →  ${GREEN}${BACKEND_URL}/docs${NC}"
+    echo -e "${PURPLE}║${NC}"
+    echo -e "${PURPLE}║${NC}  ${CYAN}Standalone AI Assistant${NC}"
+    echo -e "${PURPLE}║${NC}    UI         →  ${GREEN}https://localhost:${ASSISTANT_PORT}${NC}"
+    echo -e "${PURPLE}║${NC}"
+    echo -e "${PURPLE}║${NC}  ${CYAN}How to run${NC}"
+    echo -e "${PURPLE}║${NC}    Masterflow only         →  ${YELLOW}./run.sh${NC}"
+    echo -e "${PURPLE}║${NC}    AI Assistant only       →  ${YELLOW}./run.sh -assistant${NC}"
+    echo -e "${PURPLE}║${NC}    Both together           →  ${YELLOW}./run.sh -both${NC}"
+    echo -e "${PURPLE}║${NC}"
+    echo -e "${PURPLE}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+}
+
 # Run main function
-main "$@"
+if [ "${ASSISTANT_MODE:-false}" = true ]; then
+    show_url_banner
+    run_assistant_mode
+elif [ "${BOTH_MODE:-false}" = true ]; then
+    show_url_banner
+    run_both_mode
+else
+    show_url_banner
+    main "$@"
+fi

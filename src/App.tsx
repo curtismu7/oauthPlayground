@@ -7,23 +7,28 @@ import { type UISettings, UISettingsProvider, useUISettings } from './contexts/U
 import { useComponentTracker } from './hooks/useComponentTracker';
 import { theme as baseTheme, GlobalStyle } from './styles/global';
 import { useComponentTracker as useCleanlinessTracker } from './utils/componentTracker';
+import { ExternalScriptErrorBoundary, useExternalErrorHandling } from './utils/errorBoundaryUtils';
+import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
+import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
+import { PromptModalV8 } from './v8/components/PromptModalV8';
 import { FlowStateProvider } from './v8/contexts/FlowStateContext';
 import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
 import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all buttons have white text
 import { lazy, Suspense } from 'react';
+import AIAssistant from './components/AIAssistant';
 import { CleanlinessDashboardWorking } from './components/CleanlinessDashboardWorking';
 import { CleanupHistoryDashboard } from './components/CleanupHistoryDashboard';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import { EnhancedFloatingLogViewer } from './components/EnhancedFloatingLogViewer';
 import LoadingFallback from './components/LoadingFallback';
+import { StandardModalSpinner } from './components/ui/StandardSpinner';
 import { V9ModernMessagingProvider } from './components/v9/V9ModernMessagingComponents';
-import { WorkerTokenModal } from './components/WorkerTokenModal';
-import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
-import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
-import { PromptModalV8 } from './v8/components/PromptModalV8';
+
+import CombinedTokenPage from './pages/CombinedTokenPage';
+import TokenMonitoringTab from './pages/TokenMonitoringTab';
 
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
@@ -52,7 +57,9 @@ const InteractiveFlowDiagram = lazy(() => import('./components/InteractiveFlowDi
 const AutoDiscover = lazy(() => import('./pages/AutoDiscover'));
 
 // Lazy load AI and advanced pages
+const AIAssistantDemo = lazy(() => import('./pages/AIAssistantDemo'));
 const AIIdentityArchitectures = lazy(() => import('./pages/AIIdentityArchitectures'));
+const McpServerConfig = lazy(() => import('./pages/McpServerConfig'));
 const OAuthCodeGeneratorHub = lazy(() => import('./pages/OAuthCodeGeneratorHub'));
 const OAuthFlowsNew = lazy(() => import('./pages/OAuthFlowsNew'));
 
@@ -121,7 +128,6 @@ import { StartupWrapper } from './components/StartupWrapper';
 import About from './pages/About';
 import AdvancedConfiguration from './pages/AdvancedConfiguration';
 import CIBAvsDeviceAuthz from './pages/CIBAvsDeviceAuthz';
-import { CredentialManagement } from './pages/CredentialManagement';
 import CustomDomainTestPage from './pages/CustomDomainTestPage';
 import Dashboard from './pages/Dashboard';
 import AIAgentAuthDraft from './pages/docs/AIAgentAuthDraft';
@@ -184,12 +190,10 @@ import OrganizationLicensing from './pages/OrganizationLicensing';
 import { P1MFASamples } from './pages/P1MFASamples';
 import PARvsRAR from './pages/PARvsRAR';
 import PingAIResources from './pages/PingAIResources';
-import PingOneAuditActivities from './pages/PingOneAuditActivities';
 import PingOneAuthentication from './pages/PingOneAuthentication';
 import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback';
 import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
 import PingOneDashboard from './pages/PingOneDashboard';
-import PingOneIdentityMetrics from './pages/PingOneIdentityMetrics';
 import PingOneMockFeatures from './pages/PingOneMockFeatures';
 import PingOneScopesReference from './pages/PingOneScopesReference';
 import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
@@ -276,15 +280,18 @@ const TestCallback = lazy(() => import('./pages/test/TestCallback'));
 const TokenStatusPageV8U = lazy(() => import('./v8u/pages/TokenStatusPageV8U'));
 const ApiStatusPage = lazy(() => import('./pages/ApiStatusPage'));
 
-// Import V7M pages (V9-compliant mock flows)
-const V7MOAuthAuthCodeV9 = lazy(() => import('./v7/pages/V7MOAuthAuthCodeV9'));
-const V7MDeviceAuthorizationV9 = lazy(() => import('./v7/pages/V7MDeviceAuthorizationV9'));
-const V7MClientCredentialsV9 = lazy(() => import('./v7/pages/V7MClientCredentialsV9'));
-const V7MImplicitFlowV9 = lazy(() => import('./v7/pages/V7MImplicitFlowV9'));
-const V7MROPCV9 = lazy(() => import('./v7/pages/V7MROPCV9'));
+// Import V7M mock flows (V9-compliant) from pages/flows/v9
+const V7MOAuthAuthCodeV9 = lazy(() => import('./pages/flows/v9/V7MOAuthAuthCodeV9'));
+const V7MDeviceAuthorizationV9 = lazy(() => import('./pages/flows/v9/V7MDeviceAuthorizationV9'));
+const DeviceAuthorizationVerifyPage = lazy(
+	() => import('./pages/flows/v9/DeviceAuthorizationVerifyPage')
+);
+const V7MClientCredentialsV9 = lazy(() => import('./pages/flows/v9/V7MClientCredentialsV9'));
+const V7MImplicitFlowV9 = lazy(() => import('./pages/flows/v9/V7MImplicitFlowV9'));
+const V7MROPCV9 = lazy(() => import('./pages/flows/v9/V7MROPCV9'));
 const V7MSettingsV9 = lazy(() => import('./v7/pages/V7MSettingsV9'));
-const V7MOIDCHybridFlowV9 = lazy(() => import('./v7/pages/V7MOIDCHybridFlowV9'));
-const V7MCIBAFlowV9 = lazy(() => import('./v7/pages/V7MCIBAFlowV9'));
+const V7MOIDCHybridFlowV9 = lazy(() => import('./pages/flows/v9/V7MOIDCHybridFlowV9'));
+const V7MCIBAFlowV9 = lazy(() => import('./pages/flows/v9/V7MCIBAFlowV9'));
 
 const AppContainer = styled.div`
 	display: flex;
@@ -843,53 +850,31 @@ const AppRoutes: React.FC = () => {
 									path="/flows/mock-oidc-ropc"
 									element={<Navigate to="/flows/oauth-ropc-v9" replace />}
 								/>
+								{/* Legacy paths: redirect to canonical flow paths */}
 								<Route
 									path="/v7/oauth/authorization-code"
-									element={
-										<Suspense fallback={<div>Loading...</div>}>
-											<V7MOAuthAuthCodeV9 oidc={false} title="OAuth Authorization Code" />
-										</Suspense>
-									}
+									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
 								/>
 								<Route
 									path="/v7/oidc/authorization-code"
-									element={
-										<Suspense fallback={<div>Loading...</div>}>
-											<V7MOAuthAuthCodeV9 oidc={true} title="OIDC Authorization Code" />
-										</Suspense>
-									}
+									element={<Navigate to="/flows/oidc-authorization-code-v9" replace />}
 								/>
+								{/* Legacy path: redirect to canonical flow path */}
 								<Route
 									path="/v7/oauth/device-authorization"
-									element={
-										<Suspense fallback={<div>Loading...</div>}>
-											<V7MDeviceAuthorizationV9 />
-										</Suspense>
-									}
+									element={<Navigate to="/flows/device-authorization-v9" replace />}
 								/>
 								<Route
 									path="/v7/oauth/client-credentials"
-									element={
-										<Suspense fallback={<div>Loading...</div>}>
-											<V7MClientCredentialsV9 />
-										</Suspense>
-									}
+									element={<Navigate to="/flows/client-credentials-v9" replace />}
 								/>
 								<Route
 									path="/v7/oauth/implicit"
-									element={
-										<Suspense fallback={<div>Loading...</div>}>
-											<V7MImplicitFlowV9 oidc={false} title="OAuth Implicit Flow" />
-										</Suspense>
-									}
+									element={<Navigate to="/flows/implicit-v9" replace />}
 								/>
 								<Route
 									path="/v7/oidc/implicit"
-									element={
-										<Suspense fallback={<div>Loading...</div>}>
-											<V7MImplicitFlowV9 oidc={true} title="OIDC Implicit Flow" />
-										</Suspense>
-									}
+									element={<Navigate to="/flows/oidc-implicit-v9" replace />}
 								/>
 								<Route
 									path="/v7/oauth/ropc"
@@ -917,20 +902,9 @@ const AppRoutes: React.FC = () => {
 								/>
 								<Route
 									path="/v7/oidc/hybrid"
-									element={
-										<Suspense fallback={<div>Loading...</div>}>
-											<V7MOIDCHybridFlowV9 />
-										</Suspense>
-									}
+									element={<Navigate to="/flows/oidc-hybrid-v9" replace />}
 								/>
-								<Route
-									path="/v7/oidc/ciba"
-									element={
-										<Suspense fallback={<div>Loading...</div>}>
-											<V7MCIBAFlowV9 />
-										</Suspense>
-									}
-								/>
+								<Route path="/v7/oidc/ciba" element={<Navigate to="/flows/ciba-v9" replace />} />
 								<Route path="/flows/userinfo" element={<UserInfoPostFlow />} />
 								<Route path="/flows/token-revocation" element={<TokenRevocationFlow />} />
 								<Route path="/flows/pingone-logout" element={<PingOneLogoutFlow />} />
@@ -957,7 +931,19 @@ const AppRoutes: React.FC = () => {
 								<Route path="/flows/implicit-v8" element={<Navigate to="/v8u/unified" replace />} />
 								<Route
 									path="/flows/implicit-v9"
-									element={<Navigate to="/v7/oauth/implicit" replace />}
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MImplicitFlowV9 oidc={false} title="OAuth Implicit Flow" />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/flows/oidc-implicit-v9"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MImplicitFlowV9 oidc={true} title="OIDC Implicit Flow" />
+										</Suspense>
+									}
 								/>
 								{/* V8 Unified UI Mockup */}
 								<Route
@@ -1094,13 +1080,9 @@ const AppRoutes: React.FC = () => {
 								<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
 								{/* V9 Utilities */}
 								<Route path="/v9/debug-logs-popout" element={<DebugLogViewerPopoutV9 />} />
-								{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
+								{/* SPIFFE/SPIRE Mock Flow V9 - canonical routes */}
 								<Route
-									path="/v8u/spiffe-spire"
-									element={<Navigate to="/v8u/spiffe-spire/attest" replace />}
-								/>
-								<Route
-									path="/v8u/spiffe-spire/attest"
+									path="/flows/spiffe-spire-v9"
 									element={
 										<Suspense
 											fallback={
@@ -1115,37 +1097,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								<Route
-									path="/v8u/spiffe-spire/svid"
-									element={
-										<Suspense
-											fallback={
-												<ComponentLoader
-													message="Loading SPIFFE/SPIRE Flow..."
-													subtext="Preparing SVID workflow"
-												/>
-											}
-										>
-											<SpiffeSpireFlowV8U />
-										</Suspense>
-									}
-								/>
-								<Route
-									path="/v8u/spiffe-spire/validate"
-									element={
-										<Suspense
-											fallback={
-												<ComponentLoader
-													message="Loading SPIFFE/SPIRE Flow..."
-													subtext="Preparing validation workflow"
-												/>
-											}
-										>
-											<SpiffeSpireFlowV8U />
-										</Suspense>
-									}
-								/>
-								<Route
-									path="/v8u/spiffe-spire/tokens"
+									path="/flows/spiffe-spire-v9/tokens"
 									element={
 										<Suspense
 											fallback={
@@ -1159,6 +1111,27 @@ const AppRoutes: React.FC = () => {
 										</Suspense>
 									}
 								/>
+								{/* Legacy redirects: v8u SPIFFE/SPIRE → V9 canonical */}
+								<Route
+									path="/v8u/spiffe-spire"
+									element={<Navigate to="/flows/spiffe-spire-v9" replace />}
+								/>
+								<Route
+									path="/v8u/spiffe-spire/attest"
+									element={<Navigate to="/flows/spiffe-spire-v9" replace />}
+								/>
+								<Route
+									path="/v8u/spiffe-spire/svid"
+									element={<Navigate to="/flows/spiffe-spire-v9" replace />}
+								/>
+								<Route
+									path="/v8u/spiffe-spire/validate"
+									element={<Navigate to="/flows/spiffe-spire-v9" replace />}
+								/>
+								<Route
+									path="/v8u/spiffe-spire/tokens"
+									element={<Navigate to="/flows/spiffe-spire-v9/tokens" replace />}
+								/>
 								<Route
 									path="/flows/oidc-implicit-v6"
 									element={<Navigate to="/v8u/unified" replace />}
@@ -1167,14 +1140,26 @@ const AppRoutes: React.FC = () => {
 									path="/flows/oauth-implicit-completion"
 									element={<OAuthImplicitFlowCompletion />}
 								/>
-								{/* Device Authorization — redirect to unified */}
+								{/* Device Authorization — v9 mock flow (canonical); v7 → unified */}
 								<Route
 									path="/flows/device-authorization-v7"
 									element={<Navigate to="/v8u/unified" replace />}
 								/>
 								<Route
 									path="/flows/device-authorization-v9"
-									element={<Navigate to="/v7/oauth/device-authorization" replace />}
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MDeviceAuthorizationV9 />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/flows/device-authorization-v9/verify"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<DeviceAuthorizationVerifyPage />
+										</Suspense>
+									}
 								/>
 								<Route
 									path="/flows/device-authorization-v6"
@@ -1241,7 +1226,11 @@ const AppRoutes: React.FC = () => {
 								/>
 								<Route
 									path="/flows/client-credentials-v9"
-									element={<Navigate to="/v7/oauth/client-credentials" replace />}
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MClientCredentialsV9 />
+										</Suspense>
+									}
 								/>
 								<Route
 									path="/flows/client-credentials-v6"
@@ -1254,16 +1243,32 @@ const AppRoutes: React.FC = () => {
 								/>
 								<Route
 									path="/flows/oidc-hybrid-v9"
-									element={<Navigate to="/v7/oidc/hybrid" replace />}
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MOIDCHybridFlowV9 />
+										</Suspense>
+									}
 								/>
 								{/* Authorization Code — redirect to unified */}
 								<Route
 									path="/flows/oauth-authorization-code-v9"
-									element={<Navigate to="/v7/oidc/authorization-code" replace />}
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MOAuthAuthCodeV9 oidc={false} title="OAuth Authorization Code" />
+										</Suspense>
+									}
 								/>
 								<Route
 									path="/flows/oauth-authorization-code-v9-condensed"
-									element={<Navigate to="/v7/oidc/authorization-code" replace />}
+									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
+								/>
+								<Route
+									path="/flows/oidc-authorization-code-v9"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MOAuthAuthCodeV9 oidc={true} title="OIDC Authorization Code" />
+										</Suspense>
+									}
 								/>
 								<Route path="/flows/hybrid-v8" element={<Navigate to="/v8u/unified" replace />} />
 								<Route
@@ -1271,10 +1276,17 @@ const AppRoutes: React.FC = () => {
 									element={<Navigate to="/v8u/unified" replace />}
 								/>
 								{/* CIBA — redirect to unified */}
-								<Route path="/flows/ciba-v8" element={<Navigate to="/v7/oidc/ciba" replace />} />
-								<Route path="/flows/ciba-v9" element={<Navigate to="/v7/oidc/ciba" replace />} />
-								<Route path="/flows/ciba-v6" element={<Navigate to="/v7/oidc/ciba" replace />} />
-								<Route path="/flows/ciba-v7" element={<Navigate to="/v7/oidc/ciba" replace />} />
+								<Route path="/flows/ciba-v8" element={<Navigate to="/flows/ciba-v9" replace />} />
+								<Route
+									path="/flows/ciba-v9"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MCIBAFlowV9 />
+										</Suspense>
+									}
+								/>
+								<Route path="/flows/ciba-v6" element={<Navigate to="/flows/ciba-v9" replace />} />
+								<Route path="/flows/ciba-v7" element={<Navigate to="/flows/ciba-v9" replace />} />
 								{/* Legacy Advanced Parameters V6 route - redirect to dashboard */}
 								<Route
 									path="/flows/advanced-parameters-v6/:flowType"
@@ -1421,7 +1433,10 @@ const AppRoutes: React.FC = () => {
 									path="/worker-token-tester"
 									element={<Navigate to="/flows/worker-token-v9" replace />}
 								/>
-								<Route path="/credential-management" element={<CredentialManagement />} />
+								<Route
+									path="/credential-management"
+									element={<Navigate to="/configuration" replace />}
+								/>
 								<Route path="/ai-identity-architectures" element={<AIIdentityArchitectures />} />
 								<Route path="/about" element={<About />} />
 								<Route path="/flow-header-demo" element={<FlowHeaderDemo />} />
@@ -1442,6 +1457,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/docs/prompts/prompt-all" element={<PromptAll />} />
 								<Route path="/auto-discover" element={<AutoDiscover />} />
 								<Route path="/token-management" element={<TokenMonitoringPage />} />
+								<Route path="/token/operations" element={<CombinedTokenPage />} />
 								<Route path="/flows/token-introspection" element={<TokenIntrospectionFlow />} />
 								<Route
 									path="/postman-collection-generator"
@@ -1488,6 +1504,22 @@ const AppRoutes: React.FC = () => {
 									element={
 										<Suspense fallback={<LoadingFallback message="Loading AI Agent Overview..." />}>
 											<AIAgentOverview />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/ai-assistant"
+									element={
+										<Suspense fallback={<LoadingFallback message="Loading OAuth Assistant..." />}>
+											<AIAssistantDemo />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/mcp-server"
+									element={
+										<Suspense fallback={<LoadingFallback message="Loading MCP Server Config..." />}>
+											<McpServerConfig />
 										</Suspense>
 									}
 								/>
@@ -1725,6 +1757,10 @@ function AppContent() {
 	const theme = useMemo(() => buildTheme(settings), [settings]);
 	const location = useLocation();
 	const isStandaloneLogViewerRoute = location.pathname === '/standalone/log-viewer';
+
+	// Initialize external error handling
+	useExternalErrorHandling();
+
 	const [urlValidationModalState, setUrlValidationModalState] = useState<{
 		isOpen: boolean;
 		validationResult:
@@ -1810,25 +1846,32 @@ function AppContent() {
 
 	// Global Worker Token Modal State
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	// Wait screen: show for minimum time when "Get worker token" is clicked so user sees feedback
+	const [workerTokenModalOpening, setWorkerTokenModalOpening] = useState(false);
+	const WORKER_TOKEN_WAIT_MS = 500;
 
-	// Handle global worker token modal events
+	// Handle global worker token modal events — show wait screen for at least WORKER_TOKEN_WAIT_MS then open modal
 	useEffect(() => {
 		logger.info('[App] Setting up worker token modal event listener...', 'Logger info');
+		let openTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
 		const handleWorkerTokenModalEvent = (event: CustomEvent) => {
 			logger.info('[App] Opening worker token modal from:', event.detail?.source || 'unknown');
-			logger.info('[App] Setting showWorkerTokenModal to true', 'Logger info');
-			setShowWorkerTokenModal(true);
+			setWorkerTokenModalOpening(true);
+			openTimeoutId = setTimeout(() => {
+				openTimeoutId = null;
+				setWorkerTokenModalOpening(false);
+				setShowWorkerTokenModal(true);
+			}, WORKER_TOKEN_WAIT_MS);
 		};
 
-		logger.info('[App] Adding event listener for open-worker-token-modal', 'Logger info');
 		window.addEventListener(
 			'open-worker-token-modal',
 			handleWorkerTokenModalEvent as EventListener
 		);
 
 		return () => {
-			logger.info('[App] Cleaning up worker token modal event listener', 'Logger info');
+			if (openTimeoutId) clearTimeout(openTimeoutId);
 			window.removeEventListener(
 				'open-worker-token-modal',
 				handleWorkerTokenModalEvent as EventListener
@@ -1846,105 +1889,105 @@ function AppContent() {
 
 	return (
 		<ThemeProvider theme={theme}>
-			<ErrorBoundary>
-				<ServerStatusProvider showHealthCheck={false}>
-					<AuthErrorBoundary>
-						<NotificationProvider>
-							<AuthProvider>
-								<FlowStateProvider>
-									<UnifiedFlowProvider>
-										<StartupWrapper>
-											<PageStyleProvider>
-												<GlobalStyle />
-												<NotificationContainer />
-												<ApiRequestModalProvider />
-												<FloatingStepperProvider>
-													<V9ModernMessagingProvider>
-														<AppRoutes />
-													</V9ModernMessagingProvider>
-												</FloatingStepperProvider>
-											</PageStyleProvider>
-										</StartupWrapper>
-									</UnifiedFlowProvider>
-								</FlowStateProvider>
-							</AuthProvider>
-						</NotificationProvider>
-					</AuthErrorBoundary>
-				</ServerStatusProvider>
-			</ErrorBoundary>
+			<ExternalScriptErrorBoundary>
+				<ErrorBoundary>
+					<ServerStatusProvider showHealthCheck={false}>
+						<AuthErrorBoundary>
+							<NotificationProvider>
+								<AuthProvider>
+									<FlowStateProvider>
+										<UnifiedFlowProvider>
+											<StartupWrapper>
+												<PageStyleProvider>
+													<GlobalStyle />
+													<NotificationContainer />
+													<ApiRequestModalProvider />
+													<FloatingStepperProvider>
+														<V9ModernMessagingProvider>
+															<AppRoutes />
+														</V9ModernMessagingProvider>
+													</FloatingStepperProvider>
+												</PageStyleProvider>
+											</StartupWrapper>
+										</UnifiedFlowProvider>
+									</FlowStateProvider>
+								</AuthProvider>
+							</NotificationProvider>
+						</AuthErrorBoundary>
+					</ServerStatusProvider>
+				</ErrorBoundary>
 
-			{/* Global URL Validation Modal */}
-			{urlValidationModalState.validationResult && (
-				<AuthorizationUrlValidationModal
-					isOpen={urlValidationModalState.isOpen}
-					onClose={() => authorizationUrlValidationModalService.hideModal()}
-					validationResult={urlValidationModalState.validationResult}
-					url={urlValidationModalState.url}
-					{...(urlValidationModalState.onProceed && {
-						onProceed: urlValidationModalState.onProceed,
-					})}
-					{...(urlValidationModalState.onFix && { onFix: urlValidationModalState.onFix })}
-				/>
-			)}
-
-			{/* Global Worker Token Modal */}
-			{showWorkerTokenModal && (
-				<>
-					{logger.info('[App] Rendering WorkerTokenModal with isOpen:', showWorkerTokenModal)}
-					<WorkerTokenModal
-						isOpen={showWorkerTokenModal}
-						onClose={() => {
-							logger.info('[App] WorkerTokenModal onClose called', 'Logger info');
-							setShowWorkerTokenModal(false);
-						}}
-						onContinue={() => {
-							logger.info('[App] Worker token modal closed', 'Logger info');
-							setShowWorkerTokenModal(false);
-						}}
-						flowType="global"
-						environmentId=""
+				{/* Global URL Validation Modal */}
+				{urlValidationModalState.validationResult && (
+					<AuthorizationUrlValidationModal
+						isOpen={urlValidationModalState.isOpen}
+						onClose={() => authorizationUrlValidationModalService.hideModal()}
+						validationResult={urlValidationModalState.validationResult}
+						url={urlValidationModalState.url}
+						{...(urlValidationModalState.onProceed && {
+							onProceed: urlValidationModalState.onProceed,
+						})}
+						{...(urlValidationModalState.onFix && { onFix: urlValidationModalState.onFix })}
 					/>
-				</>
-			)}
+				)}
 
-			{/* Global Backend Connectivity Modal */}
-			<BackendDownModalV8 />
+				{/* Wait screen when "Get worker token" is clicked — guaranteed minimum display time */}
+				<StandardModalSpinner
+					show={workerTokenModalOpening}
+					message="Opening worker token..."
+					theme="green"
+				/>
 
-			{/* Debug Log Viewer Button */}
-			{!isStandaloneLogViewerRoute && (
-				<button
-					type="button"
-					onClick={() => setIsFloatingDebugLogViewerOpen(true)}
-					style={{
-						position: 'fixed',
-						bottom: '20px',
-						right: '20px',
-						width: '50px',
-						height: '50px',
-						background: 'var(--ping-bg-primary, #2563eb)',
-						color: 'var(--ping-text-inverse, #ffffff)',
-						border: '1px solid var(--ping-border-primary, #d1d5db)',
-						borderRadius: '50%',
-						cursor: 'pointer',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-						zIndex: 9998,
-						transition: 'all 0.15s ease-in-out',
-						fontSize: '18px',
-					}}
-					title="Open Debug Log Viewer"
-				>
-					📋
-				</button>
-			)}
+				{/* Global Worker Token Modal — uses Worker Token modal service (WorkerTokenModalV9) */}
+				{showWorkerTokenModal && (
+					<WorkerTokenModalV9
+						isOpen={showWorkerTokenModal}
+						onClose={() => setShowWorkerTokenModal(false)}
+					/>
+				)}
 
-			{/* Floating Debug Log Viewer */}
-			<EnhancedFloatingLogViewer
-				isOpen={isFloatingDebugLogViewerOpen}
-				onClose={() => setIsFloatingDebugLogViewerOpen(false)}
-			/>
+				{/* Global Backend Connectivity Modal */}
+				<BackendDownModalV8 />
+
+				{/* Debug Log Viewer Button */}
+				{!isStandaloneLogViewerRoute && (
+					<button
+						type="button"
+						onClick={() => setIsFloatingDebugLogViewerOpen(true)}
+						style={{
+							position: 'fixed',
+							bottom: '20px',
+							right: '20px',
+							width: '50px',
+							height: '50px',
+							background: 'var(--ping-bg-primary, #2563eb)',
+							color: 'var(--ping-text-inverse, #ffffff)',
+							border: '1px solid var(--ping-border-primary, #d1d5db)',
+							borderRadius: '50%',
+							cursor: 'pointer',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+							zIndex: 9998,
+							transition: 'all 0.15s ease-in-out',
+							fontSize: '18px',
+						}}
+						title="Open Debug Log Viewer"
+					>
+						📋
+					</button>
+				)}
+
+				{/* Floating Debug Log Viewer */}
+				<EnhancedFloatingLogViewer
+					isOpen={isFloatingDebugLogViewerOpen}
+					onClose={() => setIsFloatingDebugLogViewerOpen(false)}
+				/>
+
+				{/* OAuth Assistant - floating chat on all pages */}
+				<AIAssistant />
+			</ExternalScriptErrorBoundary>
 		</ThemeProvider>
 	);
 }

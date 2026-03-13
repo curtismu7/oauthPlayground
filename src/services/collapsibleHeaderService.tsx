@@ -12,6 +12,8 @@ export interface CollapsibleHeaderConfig {
 	showArrow?: boolean;
 	variant?: 'default' | 'compact' | 'large';
 	theme?: 'blue' | 'green' | 'orange' | 'purple' | 'yellow' | 'highlight' | 'ping';
+	/** When true, use standard icon (⬇️ in white box with blue border, -90° when collapsed) per COLLAPSIBLE_HEADER_UNIFICATION_PLAN. */
+	useUnifiedIcon?: boolean;
 }
 
 export interface CollapsibleHeaderProps extends CollapsibleHeaderConfig {
@@ -37,7 +39,8 @@ const ArrowIcon = styled.div<{ $collapsed: boolean; $theme: string }>`
   transition: transform 0.2s ease, background-color 0.2s ease;
   cursor: pointer;
 
-  transform: ${(props) => (props.$collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+  /* Same convention as UnifiedFlow: expanded = down (0deg), collapsed = right (-90deg) */
+  transform: ${(props) => (props.$collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 
   &:hover {
     background: ${(props) => (props.$theme === 'ping' ? '#f1f5f9' : '#2563eb')};
@@ -285,7 +288,7 @@ const IconContainer = styled.div`
   flex-shrink: 0;
 `;
 
-// Default arrow SVG
+// Default arrow SVG: single down-pointing chevron; rotation (0deg / -90deg) shows expanded=down, collapsed=right (matches UnifiedFlow).
 const DefaultArrowIcon: React.FC<{ collapsed: boolean }> = ({ collapsed }) => (
 	<svg
 		width="14"
@@ -297,7 +300,7 @@ const DefaultArrowIcon: React.FC<{ collapsed: boolean }> = ({ collapsed }) => (
 	>
 		<title>{collapsed ? 'Expand' : 'Collapse'}</title>
 		<path
-			d={collapsed ? 'M6 9L12 15L18 9' : 'M18 15L12 9L6 15'}
+			d="M6 9L12 15L18 9"
 			stroke="currentColor"
 			strokeWidth="2"
 			strokeLinecap="round"
@@ -306,20 +309,160 @@ const DefaultArrowIcon: React.FC<{ collapsed: boolean }> = ({ collapsed }) => (
 	</svg>
 );
 
-// Helper function to extract string representation from React.ReactNode for aria attributes
-const extractStringFromReactNode = (node: string | React.ReactNode): string => {
-	if (typeof node === 'string') {
-		return node;
+// --- Unified Flow style (⬇️ + -90° rotation, white box with blue border) ---
+// Matches /v8u/unified/oauth-authz/0; use for flow/section collapse consistency.
+
+export const UnifiedFlowCollapsibleSection = styled.section`
+	border: 1px solid #e2e8f0;
+	border-radius: 0.75rem;
+	margin-bottom: 1.5rem;
+	background-color: #ffffff;
+	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+`;
+
+export const UnifiedFlowCollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 1.25rem 1.5rem;
+	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%);
+	border: none;
+	border-radius: 0.75rem;
+	cursor: pointer;
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #14532d;
+	transition: background 0.2s ease;
+
+	&:hover {
+		background: linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%);
 	}
+`;
+
+export const UnifiedFlowCollapsibleTitle = styled.span`
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+`;
+
+export const UnifiedFlowCollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	background-color: #ffffff;
+	border-radius: 6px;
+	border: 2px solid #3b82f6;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transition: all 0.2s ease;
+
+	svg {
+		width: 16px;
+		height: 16px;
+		color: #3b82f6;
+	}
+
+	&:hover {
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')} scale(1.05);
+		border-color: #2563eb;
+	}
+`;
+
+export const UnifiedFlowCollapsibleContent = styled.div`
+	padding: 1.5rem;
+	padding-top: 0;
+	animation: fadeIn 0.2s ease;
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+`;
+
+// Subtitle for unified-flow header (used by UnifiedFlowCollapsibleHeader)
+const UnifiedFlowHeaderSubtitle = styled.span`
+	display: block;
+	margin-top: 0.25rem;
+	font-size: 0.9rem;
+	font-weight: 400;
+	opacity: 0.9;
+	line-height: 1.4;
+	color: #14532d;
+`;
+
+// Helper function to extract string representation from React.ReactNode for aria attributes (used by UnifiedFlowCollapsibleHeader)
+const extractStringFromReactNode = (node: string | React.ReactNode): string => {
+	if (typeof node === 'string') return node;
 	if (React.isValidElement(node)) {
-		// For React elements, try to get text content from children
 		const children = React.Children.toArray(node.props.children);
 		return children.map((child) => extractStringFromReactNode(child)).join('');
 	}
-	if (Array.isArray(node)) {
-		return node.map((child) => extractStringFromReactNode(child)).join('');
-	}
-	return String(node || '');
+	if (Array.isArray(node)) return node.map((child) => extractStringFromReactNode(child)).join('');
+	return String(node ?? '');
+};
+
+export interface UnifiedFlowCollapsibleHeaderProps {
+	title: string | React.ReactNode;
+	subtitle?: string;
+	icon?: React.ReactNode;
+	defaultCollapsed?: boolean;
+	children: React.ReactNode;
+	className?: string;
+	id?: string;
+}
+
+/** Composite collapsible section using unified-flow style (green header, ⬇️ icon). Use for consistency with /v8u/unified flows. */
+export const UnifiedFlowCollapsibleHeader: React.FC<UnifiedFlowCollapsibleHeaderProps> = ({
+	title,
+	subtitle,
+	icon,
+	defaultCollapsed = false,
+	children,
+	className,
+	id,
+}) => {
+	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+	const titleString = extractStringFromReactNode(title);
+	const ariaId = titleString.replace(/\s+/g, '-').toLowerCase();
+
+	return (
+		<UnifiedFlowCollapsibleSection id={id} className={className}>
+			<UnifiedFlowCollapsibleHeaderButton
+				$collapsed={isCollapsed}
+				onClick={() => setIsCollapsed(!isCollapsed)}
+				aria-expanded={!isCollapsed}
+				aria-controls={`content-${ariaId}`}
+				id={`header-${ariaId}`}
+			>
+				<UnifiedFlowCollapsibleTitle>
+					{icon && <span style={{ display: 'flex' }}>{icon}</span>}
+					<span>
+						{title}
+						{subtitle != null && subtitle !== '' && (
+							<UnifiedFlowHeaderSubtitle>{subtitle}</UnifiedFlowHeaderSubtitle>
+						)}
+					</span>
+				</UnifiedFlowCollapsibleTitle>
+				<UnifiedFlowCollapsibleToggleIcon $collapsed={isCollapsed} aria-hidden>
+					<span>⬇️</span>
+				</UnifiedFlowCollapsibleToggleIcon>
+			</UnifiedFlowCollapsibleHeaderButton>
+			{!isCollapsed && (
+				<UnifiedFlowCollapsibleContent
+					id={`content-${ariaId}`}
+					aria-labelledby={`header-${ariaId}`}
+				>
+					{children}
+				</UnifiedFlowCollapsibleContent>
+			)}
+		</UnifiedFlowCollapsibleSection>
+	);
 };
 
 // Main collapsible header component
@@ -331,6 +474,7 @@ export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
 	showArrow = true,
 	variant = 'default',
 	theme = 'blue',
+	useUnifiedIcon = false,
 	children,
 	className,
 	collapsed,
@@ -376,11 +520,16 @@ export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
 						{subtitle && <HeaderSubtitle>{subtitle}</HeaderSubtitle>}
 					</HeaderText>
 				</HeaderContent>
-				{showArrow && (
-					<ArrowIcon $collapsed={resolvedCollapsed} $theme={theme}>
-						<DefaultArrowIcon collapsed={resolvedCollapsed} />
-					</ArrowIcon>
-				)}
+				{showArrow &&
+					(useUnifiedIcon ? (
+						<UnifiedFlowCollapsibleToggleIcon $collapsed={resolvedCollapsed} aria-hidden>
+							<span>⬇️</span>
+						</UnifiedFlowCollapsibleToggleIcon>
+					) : (
+						<ArrowIcon $collapsed={resolvedCollapsed} $theme={theme}>
+							<DefaultArrowIcon collapsed={resolvedCollapsed} />
+						</ArrowIcon>
+					))}
 			</HeaderButton>
 			<ContentArea
 				$collapsed={resolvedCollapsed}
@@ -427,6 +576,7 @@ export const useCollapsibleState = (defaultCollapsed = false) => {
 
 export default {
 	CollapsibleHeader,
+	UnifiedFlowCollapsibleHeader,
 	BlueCollapsibleHeader,
 	GreenCollapsibleHeader,
 	OrangeCollapsibleHeader,
@@ -434,4 +584,9 @@ export default {
 	HighlightCollapsibleHeader,
 	PingCollapsibleHeader,
 	useCollapsibleState,
+	UnifiedFlowCollapsibleSection,
+	UnifiedFlowCollapsibleHeaderButton,
+	UnifiedFlowCollapsibleTitle,
+	UnifiedFlowCollapsibleToggleIcon,
+	UnifiedFlowCollapsibleContent,
 };

@@ -4,18 +4,18 @@
 import {
 	authorizeAccessDenied,
 	authorizeIssueCode,
-	V7MAuthorizeRequest,
-} from '../services/v7m/V7MAuthorizeService';
-import { introspectToken } from '../services/v7m/V7MIntrospectionService';
+	V9MockAuthorizeRequest,
+} from '../services/v9/mock/V9MockAuthorizeService';
+import { introspectToken } from '../services/v9/mock/V9MockIntrospectionService';
 import {
 	tokenExchangeAuthorizationCode,
 	tokenExchangePassword,
 	tokenExchangeRefreshToken,
-	V7MAuthorizationCodeGrantRequest,
-	V7MPasswordGrantRequest,
-	V7MRefreshTokenGrantRequest,
-} from '../services/v7m/V7MTokenService';
-import { getUserInfoFromAccessToken } from '../services/v7m/V7MUserInfoService';
+	V9MockAuthorizationCodeGrantRequest,
+	V9MockPasswordGrantRequest,
+	V9MockRefreshTokenGrantRequest,
+} from '../services/v9/mock/V9MockTokenService';
+import { getUserInfoFromAccessToken } from '../services/v9/mock/V9MockUserInfoService';
 
 export const V7MFacade = {
 	authorizeIssueCode,
@@ -28,8 +28,8 @@ export const V7MFacade = {
 };
 
 export type {
-	V7MAuthorizeRequest,
-	V7MAuthorizationCodeGrantRequest,
-	V7MRefreshTokenGrantRequest,
-	V7MPasswordGrantRequest,
+	V9MockAuthorizeRequest,
+	V9MockAuthorizationCodeGrantRequest,
+	V9MockRefreshTokenGrantRequest,
+	V9MockPasswordGrantRequest,
 };

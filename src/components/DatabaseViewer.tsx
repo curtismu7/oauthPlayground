@@ -330,14 +330,14 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 	// Load available databases on mount
 	useEffect(() => {
 		loadDatabases();
-	}, []);
+	}, [loadDatabases]);
 
 	// Load data when database or table selection changes
 	useEffect(() => {
 		if (selectedDatabase && selectedTable) {
 			loadTableData();
 		}
-	}, [selectedDatabase, selectedTable, currentPage, searchTerm]);
+	}, [selectedDatabase, selectedTable, loadTableData]);
 
 	const loadDatabases = async () => {
 		try {

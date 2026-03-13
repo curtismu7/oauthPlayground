@@ -1,7 +1,6 @@
 // src/components/pingone/AuditActivityCharts.tsx
 // Dashboard charts for PingOne Audit Activities
 
-import React from 'react';
 import {
 	Bar,
 	BarChart,

@@ -56,7 +56,7 @@ export class PingOneLoginService {
 				codeChallengeMethod: 'S256',
 				state: state,
 			};
-			if (region && region.trim()) {
+			if (region?.trim()) {
 				requestBody.region = region.trim().toLowerCase();
 			}
 

@@ -13,7 +13,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { logger } from '../../../../../utils/logger';
-import { sendAnalyticsLog } from '../../../dependencies/v8/utils/analyticsLoggerV8.ts';
 
 const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
 

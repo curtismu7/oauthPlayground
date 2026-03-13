@@ -14,6 +14,11 @@ export interface GroqResponse {
 	error?: string;
 }
 
+export interface CallGroqOptions {
+	/** When true, server uses the Live-on prompt (no "Live toggle is off" nudge) */
+	includeLive?: boolean;
+}
+
 /**
  * Send a chat message (with optional conversation history) to the Groq LLM via the backend.
  * The backend injects the system prompt and API key — no secrets are exposed to the browser.
@@ -21,6 +26,7 @@ export interface GroqResponse {
 export async function callGroq(
 	userMessage: string,
 	history: GroqMessage[] = [],
+	opts?: CallGroqOptions,
 ): Promise<GroqResponse> {
 	const messages: GroqMessage[] = [
 		...history,
@@ -30,7 +36,7 @@ export async function callGroq(
 	const response = await fetch('/api/groq/chat', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ messages }),
+		body: JSON.stringify({ messages, includeLive: opts?.includeLive }),
 	});
 
 	if (response.status === 503) {
@@ -75,6 +81,7 @@ export async function isGroqAvailable(): Promise<boolean> {
  * @param onToken - called for every streamed token
  * @param onDone  - called once when the stream ends, receives the full content
  * @param onError - called if the stream fails (caller can fall back to local KB)
+ * @param opts    - optional; includeLive=true uses the Live-on prompt (no nudge)
  */
 export async function callGroqStream(
 	userMessage: string,
@@ -82,6 +89,7 @@ export async function callGroqStream(
 	onToken: (token: string) => void,
 	onDone: (fullContent: string) => void,
 	onError: (err: Error) => void,
+	opts?: CallGroqOptions,
 ): Promise<void> {
 	const messages: GroqMessage[] = [...history, { role: 'user', content: userMessage }];
 
@@ -89,7 +97,7 @@ export async function callGroqStream(
 		const response = await fetch('/api/groq/chat/stream', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ messages }),
+			body: JSON.stringify({ messages, includeLive: opts?.includeLive }),
 		});
 
 		if (response.status === 503) {
@@ -100,7 +108,7 @@ export async function callGroqStream(
 
 		if (!response.ok || !response.body) {
 			// Server doesn't support streaming — fall back to regular endpoint
-			const result = await callGroq(userMessage, history);
+			const result = await callGroq(userMessage, history, opts);
 			if (result.notConfigured) { onError(new Error('groq_not_configured')); return; }
 			if (result.content) {
 				onToken(result.content);

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useComponentTracker } from '../hooks/useComponentTracker';
+import { logger } from '../utils/logger';
 
 // Type declaration for window.componentTracker
 declare global {
@@ -184,7 +185,7 @@ export const CleanlinessDashboard: React.FC = () => {
 				setComponents([]);
 			}
 		} catch (error) {
-			console.error('CleanlinessDashboard: Error updating metrics', error);
+			logger.error('CleanlinessDashboard', 'Error updating metrics', { error: String(error) });
 			// Set safe defaults on error
 			setMetrics({
 				totalComponents: 0,
@@ -245,7 +246,11 @@ export const CleanlinessDashboard: React.FC = () => {
 				<Button onClick={updateMetrics}>🔄 Refresh</Button>
 				<Button onClick={() => window.componentTracker?.reset()}>🗑️ Reset</Button>
 				<Button
-					onClick={() => console.log('Full Report:', window.componentTracker?.generateReport())}
+					onClick={() =>
+						logger.info('CleanlinessDashboard', 'Full Report', {
+							report: window.componentTracker?.generateReport(),
+						})
+					}
 				>
 					📋 Log Report
 				</Button>

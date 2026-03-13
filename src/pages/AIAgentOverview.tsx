@@ -1,41 +1,10 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
-
-// Bootstrap Icon Component for Ping UI compliance
-const BootstrapIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; style?: React.CSSProperties }> = ({ 
-  icon, 
-  size = 20, 
-  ariaLabel,
-  style = {} 
-}) => {
-  const getBootstrapIconClass = (iconName: string): string => {
-    const iconMap: Record<string, string> = {
-      'FiCpu': 'bi-cpu',
-      'FiKey': 'bi-key',
-      'FiLock': 'bi-lock',
-      'FiServer': 'bi-server',
-      'FiShield': 'bi-shield',
-      'FiZap': 'bi-lightning',
-      'FiCheck': 'bi-check',
-      'FiX': 'bi-x',
-      'FiInfo': 'bi-info',
-    };
-    return iconMap[iconName] || 'bi-question';
-  };
-
-  return (
-    <i 
-      className={`bi ${getBootstrapIconClass(icon)}`}
-      style={{ 
-        fontSize: `${size}px`, 
-        ...style 
-      }}
-      aria-label={ariaLabel}
-      {...(!ariaLabel && { 'aria-hidden': true })}
-    />
-  );
-};
+import { PingIcon } from '../components/PingIcon';
+import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { FlowHeader } from '../services/flowHeaderService';
+import { PageLayoutService } from '../services/pageLayoutService';
 
 // Ping UI namespace wrapper
 const PingUIWrapper = styled.div`
@@ -437,19 +406,15 @@ const CollapsibleContent = styled.div<{ $isOpen: boolean }>`
 `;
 
 const pageConfig = {
-	flowType: 'documentation' as const,
-	theme: 'blue' as const,
+	flowType: 'pingone' as const,
+	theme: 'red' as const,
 	maxWidth: '1400px',
-	showHeader: true,
+	showHeader: false,
 	showFooter: false,
 	responsive: true,
 	flowId: 'ai-agent-overview',
 };
-const {
-	PageContainer,
-	ContentWrapper,
-	FlowHeader: LayoutFlowHeader,
-} = PageLayoutService.createPageLayout(pageConfig);
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
 const AIAgentOverview = () => {
 	// State for collapsible sections (only for inner comparison table)
@@ -812,940 +777,949 @@ const AIAgentOverview = () => {
 	return (
 		<PingUIWrapper className="end-user-nano">
 			<PageContainer>
-			<ContentWrapper>
-				{LayoutFlowHeader && <LayoutFlowHeader />}
+				<ContentWrapper>
+					<FlowHeader flowId="ai-agent-overview" />
 
-				{/* Overview Section */}
-				<V6CollapsibleHeader
-					title="Why AI Agents Need Advanced OAuth/OIDC Features"
-					subtitle="Understanding the security requirements for AI agent authentication and authorization"
-					icon={<span>ℹ️</span>}
-					defaultCollapsed={false}
-				>
-					<Card>
-						<CardBody>
-							<p style={{ lineHeight: '1.6', marginBottom: '1rem' }}>
-								AI agents present unique challenges for identity and access management that require
-								advanced OAuth/OIDC features:
-							</p>
-							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
-								<li>
-									<strong>Autonomous Operation:</strong> AI agents often operate without direct user
-									supervision, requiring robust machine-to-machine authentication and long-lived
-									tokens
-								</li>
-								<li>
-									<strong>Fine-Grained Permissions:</strong> Agents need specific, granular
-									permissions to access resources and perform actions, often requiring complex
-									authorization logic
-								</li>
-								<li>
-									<strong>Token Security:</strong> Long-running agents require sender-constrained
-									tokens (DPoP, mTLS) to prevent theft and misuse in production environments
-								</li>
-								<li>
-									<strong>Complex Authorization:</strong> Agents may need to express complex
-									authorization requirements using Rich Authorization Requests (RAR) beyond simple
-									scopes
-								</li>
-								<li>
-									<strong>Delegation:</strong> Agents acting on behalf of users need secure
-									delegation mechanisms and token exchange capabilities
-								</li>
-								<li>
-									<strong>Resource Protection:</strong> AI agents accessing sensitive APIs require
-									advanced security features like certificate-bound tokens and proof-of-possession
-								</li>
-								<li>
-									<strong>Compliance:</strong> Financial and healthcare AI agents need FAPI
-									compliance and advanced security policies for regulatory requirements
-								</li>
-							</ul>
+					{/* Overview Section */}
+					<V6CollapsibleHeader
+						title="Why AI Agents Need Advanced OAuth/OIDC Features"
+						subtitle="Understanding the security requirements for AI agent authentication and authorization"
+						icon={<span>ℹ️</span>}
+						defaultCollapsed={false}
+					>
+						<Card>
+							<CardBody>
+								<p style={{ lineHeight: '1.6', marginBottom: '1rem' }}>
+									AI agents present unique challenges for identity and access management that
+									require advanced OAuth/OIDC features:
+								</p>
+								<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
+									<li>
+										<strong>Autonomous Operation:</strong> AI agents often operate without direct
+										user supervision, requiring robust machine-to-machine authentication and
+										long-lived tokens
+									</li>
+									<li>
+										<strong>Fine-Grained Permissions:</strong> Agents need specific, granular
+										permissions to access resources and perform actions, often requiring complex
+										authorization logic
+									</li>
+									<li>
+										<strong>Token Security:</strong> Long-running agents require sender-constrained
+										tokens (DPoP, mTLS) to prevent theft and misuse in production environments
+									</li>
+									<li>
+										<strong>Complex Authorization:</strong> Agents may need to express complex
+										authorization requirements using Rich Authorization Requests (RAR) beyond simple
+										scopes
+									</li>
+									<li>
+										<strong>Delegation:</strong> Agents acting on behalf of users need secure
+										delegation mechanisms and token exchange capabilities
+									</li>
+									<li>
+										<strong>Resource Protection:</strong> AI agents accessing sensitive APIs require
+										advanced security features like certificate-bound tokens and proof-of-possession
+									</li>
+									<li>
+										<strong>Compliance:</strong> Financial and healthcare AI agents need FAPI
+										compliance and advanced security policies for regulatory requirements
+									</li>
+								</ul>
 
-							<h3
-								style={{
-									fontSize: '1.1rem',
-									fontWeight: '600',
-									marginBottom: '0.75rem',
-									color: '#1f2937',
-								}}
-							>
-								Critical Security Considerations for AI Agents:
-							</h3>
-							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
-								<li>
-									<strong>Token Theft Prevention:</strong> AI agents with long-lived tokens are
-									prime targets for token theft attacks
-								</li>
-								<li>
-									<strong>Authorization Bypass:</strong> Complex AI workflows require granular
-									permissions that simple scopes cannot provide
-								</li>
-								<li>
-									<strong>Session Management:</strong> Stateless AI agents need secure session
-									management and token refresh mechanisms
-								</li>
-								<li>
-									<strong>Audit & Compliance:</strong> AI agent actions must be auditable and comply
-									with security standards
-								</li>
-								<li>
-									<strong>Cross-Domain Access:</strong> AI agents often need to access multiple APIs
-									across different domains securely
-								</li>
-							</ul>
-						</CardBody>
-					</Card>
-				</V6CollapsibleHeader>
-
-				{/* Features Grid */}
-				<V6CollapsibleHeader
-					title="Key OAuth/OIDC Features for AI Agents"
-					subtitle="Advanced features required for secure AI agent authentication and authorization"
-					icon={<span>🛡️</span>}
-					defaultCollapsed={false}
-				>
-					<FeatureGrid>
-						{features.map((feature) => (
-							<FeatureCard
-								key={feature.id}
-								$supported={
-									feature.status === 'supported'
-										? true
-										: feature.status === 'not-supported'
-											? false
-											: null
-								}
-							>
-								<CardBody>
-									<FeatureHeader>
-										<FeatureTitle>
-											<BootstrapIcon icon={feature.icon} size={24} ariaLabel={`${feature.title} icon`} />
-											<h3>{feature.title}</h3>
-										</FeatureTitle>
-										<StatusBadge $status={feature.status}>
-											{feature.status === 'supported' && <span>✅</span>}
-											{feature.status === 'not-supported' && <span>❌</span>}
-											{feature.status === 'partial' && <span>⚠️</span>}
-											{feature.status === 'supported'
-												? 'Supported'
-												: feature.status === 'not-supported'
-													? 'Not Supported'
-													: 'Partial'}
-										</StatusBadge>
-									</FeatureHeader>
-
-									<FeatureDescription>{feature.description}</FeatureDescription>
-
-									<TechnicalDetails>
-										<h4>Technical Details:</h4>
-										<ul>
-											{feature.technicalDetails.map((detail, idx) => (
-												<li key={idx}>{detail}</li>
-											))}
-										</ul>
-									</TechnicalDetails>
-
-									<PingOneNote $type={feature.pingoneSupport.type}>
-										<span>ℹ️</span>
-										<div>
-											<h4>{feature.pingoneSupport.title}</h4>
-											<p>{feature.pingoneSupport.message}</p>
-										</div>
-									</PingOneNote>
-								</CardBody>
-							</FeatureCard>
-						))}
-					</FeatureGrid>
-				</V6CollapsibleHeader>
-
-				{/* Comparison Table */}
-				<V6CollapsibleHeader
-					title="Identity Provider Comparison for AI Agents"
-					subtitle="Comparing PingOne, PingFederate, and PingOne Advanced Services for AI agent authentication"
-					icon={<span>🖥️</span>}
-					defaultCollapsed={false}
-				>
-					<ComparisonSection>
-						<CardBody>
-							{/* Collapsible header for the comparison table */}
-							<div style={{ marginBottom: '1.5rem' }}>
-								<CollapsibleHeader
-									onClick={() => toggleSection('comparisonTable')}
+								<h3
 									style={{
-										padding: '1rem',
-										background:
-											'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
-										borderRadius: '0.5rem',
-										border: '1px solid #cbd5e1',
-										marginBottom: expandedSections.comparisonTable ? '1rem' : '0',
+										fontSize: '1.1rem',
+										fontWeight: '600',
+										marginBottom: '0.75rem',
+										color: '#1f2937',
 									}}
 								>
-									<h3
+									Critical Security Considerations for AI Agents:
+								</h3>
+								<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
+									<li>
+										<strong>Token Theft Prevention:</strong> AI agents with long-lived tokens are
+										prime targets for token theft attacks
+									</li>
+									<li>
+										<strong>Authorization Bypass:</strong> Complex AI workflows require granular
+										permissions that simple scopes cannot provide
+									</li>
+									<li>
+										<strong>Session Management:</strong> Stateless AI agents need secure session
+										management and token refresh mechanisms
+									</li>
+									<li>
+										<strong>Audit & Compliance:</strong> AI agent actions must be auditable and
+										comply with security standards
+									</li>
+									<li>
+										<strong>Cross-Domain Access:</strong> AI agents often need to access multiple
+										APIs across different domains securely
+									</li>
+								</ul>
+							</CardBody>
+						</Card>
+					</V6CollapsibleHeader>
+
+					{/* Features Grid */}
+					<V6CollapsibleHeader
+						title="Key OAuth/OIDC Features for AI Agents"
+						subtitle="Advanced features required for secure AI agent authentication and authorization"
+						icon={<span>🛡️</span>}
+						defaultCollapsed={false}
+					>
+						<FeatureGrid>
+							{features.map((feature) => (
+								<FeatureCard
+									key={feature.id}
+									$supported={
+										feature.status === 'supported'
+											? true
+											: feature.status === 'not-supported'
+												? false
+												: null
+									}
+								>
+									<CardBody>
+										<FeatureHeader>
+											<FeatureTitle>
+												<PingIcon
+													icon={feature.icon}
+													size={24}
+													ariaLabel={`${feature.title} icon`}
+												/>
+												<h3>{feature.title}</h3>
+											</FeatureTitle>
+											<StatusBadge $status={feature.status}>
+												{feature.status === 'supported' && <PingIcon icon="FiCheck" size={16} />}
+												{feature.status === 'not-supported' && <PingIcon icon="FiX" size={16} />}
+												{feature.status === 'partial' && <PingIcon icon="FiInfo" size={16} />}
+												{feature.status === 'supported'
+													? 'Supported'
+													: feature.status === 'not-supported'
+														? 'Not Supported'
+														: 'Partial'}
+											</StatusBadge>
+										</FeatureHeader>
+
+										<FeatureDescription>{feature.description}</FeatureDescription>
+
+										<TechnicalDetails>
+											<h4>Technical Details:</h4>
+											<ul>
+												{feature.technicalDetails.map((detail, idx) => (
+													<li key={idx}>{detail}</li>
+												))}
+											</ul>
+										</TechnicalDetails>
+
+										<PingOneNote $type={feature.pingoneSupport.type}>
+											<span>ℹ️</span>
+											<div>
+												<h4>{feature.pingoneSupport.title}</h4>
+												<p>{feature.pingoneSupport.message}</p>
+											</div>
+										</PingOneNote>
+									</CardBody>
+								</FeatureCard>
+							))}
+						</FeatureGrid>
+					</V6CollapsibleHeader>
+
+					{/* Comparison Table */}
+					<V6CollapsibleHeader
+						title="Identity Provider Comparison for AI Agents"
+						subtitle="Comparing PingOne, PingFederate, and PingOne Advanced Services for AI agent authentication"
+						icon={<span>🖥️</span>}
+						defaultCollapsed={false}
+					>
+						<ComparisonSection>
+							<CardBody>
+								{/* Collapsible header for the comparison table */}
+								<div style={{ marginBottom: '1.5rem' }}>
+									<CollapsibleHeader
+										onClick={() => toggleSection('comparisonTable')}
 										style={{
-											fontSize: '1.25rem',
-											fontWeight: '600',
-											color: '#1e293b',
-											margin: '0',
-											display: 'flex',
-											alignItems: 'center',
-											gap: '0.75rem',
+											padding: '1rem',
+											background:
+												'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
+											borderRadius: '0.5rem',
+											border: '1px solid #cbd5e1',
+											marginBottom: expandedSections.comparisonTable ? '1rem' : '0',
 										}}
 									>
-										<span>🖥️</span>
-										Ping Identity Product Comparison
-									</h3>
-								</CollapsibleHeader>
+										<h3
+											style={{
+												fontSize: '1.25rem',
+												fontWeight: '600',
+												color: '#1e293b',
+												margin: '0',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '0.75rem',
+											}}
+										>
+											<span>🖥️</span>
+											Ping Identity Product Comparison
+										</h3>
+									</CollapsibleHeader>
 
-								{/* Description - always visible */}
-								<p style={{ color: '#6b7280', margin: '0.5rem 0 0 0', fontSize: '0.9rem' }}>
-									Compare OAuth 2.0 and OpenID Connect feature support across Ping Identity
-									products, Okta, and Microsoft for AI agent authentication and authorization.
+									{/* Description - always visible */}
+									<p style={{ color: '#6b7280', margin: '0.5rem 0 0 0', fontSize: '0.9rem' }}>
+										Compare OAuth 2.0 and OpenID Connect feature support across Ping Identity
+										products, Okta, and Microsoft for AI agent authentication and authorization.
+									</p>
+								</div>
+
+								{/* Collapsible content for the table */}
+								<CollapsibleContent $isOpen={expandedSections.comparisonTable}>
+									<ComparisonTable>
+										<thead>
+											<tr>
+												<th style={{ minWidth: '200px' }}>Feature</th>
+												<th>RFC/Spec</th>
+												<th style={{ minWidth: '120px' }}>PingOne</th>
+												<th style={{ minWidth: '120px' }}>PingFederate</th>
+												<th style={{ minWidth: '120px' }}>PingOne Advanced</th>
+												<th style={{ minWidth: '120px' }}>PingAM</th>
+												<th style={{ minWidth: '120px' }}>Okta</th>
+												<th style={{ minWidth: '120px' }}>Microsoft</th>
+												<th style={{ minWidth: '150px' }}>Alternative</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>
+													<strong>PAR</strong>
+													<br />
+													<small style={{ color: '#6b7280' }}>Pushed Authorization Requests</small>
+												</td>
+												<td>RFC 9126</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>-</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>RAR</strong>
+													<br />
+													<small style={{ color: '#6b7280' }}>Rich Authorization Requests</small>
+												</td>
+												<td>RFC 9396</td>
+												<td>
+													<StatusBadge
+														$status="not-supported"
+														onClick={() => showExplanation('rar-pingone')}
+													>
+														<span>❌</span>
+														Not Available
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge
+														$status="partial"
+														onClick={() => showExplanation('rar-pingfederate')}
+													>
+														<span>⚠️</span>
+														Limited
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge
+														$status="partial"
+														onClick={() => showExplanation('rar-pingone-advanced')}
+													>
+														<span>⚠️</span>
+														Partial
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="not-supported">
+														<span>❌</span>
+														Not Available
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="not-supported">
+														<span>❌</span>
+														Not Available
+													</StatusBadge>
+												</td>
+												<td>Use scopes or custom claims</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>DPoP</strong>
+													<br />
+													<small style={{ color: '#6b7280' }}>
+														Demonstrating Proof of Possession
+													</small>
+												</td>
+												<td>RFC 9449</td>
+												<td>
+													<StatusBadge
+														$status="not-supported"
+														onClick={() => showExplanation('dpop-pingone')}
+													>
+														<span>❌</span>
+														Not Available
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge
+														$status="partial"
+														onClick={() => showExplanation('dpop-pingfederate')}
+													>
+														<span>⚠️</span>
+														Client Auth Only
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge
+														$status="partial"
+														onClick={() => showExplanation('dpop-pingone-advanced')}
+													>
+														<span>⚠️</span>
+														Client Auth Only
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="not-supported">
+														<span>❌</span>
+														Not Available
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="not-supported">
+														<span>❌</span>
+														Not Available
+													</StatusBadge>
+												</td>
+												<td>Use mTLS or one-time refresh tokens</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>mTLS</strong>
+													<br />
+													<small style={{ color: '#6b7280' }}>Mutual TLS Authentication</small>
+												</td>
+												<td>RFC 8705</td>
+												<td>
+													<StatusBadge
+														$status="partial"
+														onClick={() => showExplanation('mtls-pingone')}
+													>
+														<span>⚠️</span>
+														Client Auth Only
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>Certificate-bound tokens not available</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>JAR</strong>
+													<br />
+													<small style={{ color: '#6b7280' }}>
+														JWT-Secured Authorization Request
+													</small>
+												</td>
+												<td>RFC 9101</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>-</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>Client Credentials</strong>
+													<br />
+													<small style={{ color: '#6b7280' }}>Machine-to-Machine Grant</small>
+												</td>
+												<td>RFC 6749</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>-</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>Token Exchange</strong>
+													<br />
+													<small style={{ color: '#6b7280' }}>RFC 8693 Token Exchange</small>
+												</td>
+												<td>RFC 8693</td>
+												<td>
+													<StatusBadge
+														$status="not-supported"
+														onClick={() => showExplanation('token-exchange-pingone')}
+													>
+														<span>❌</span>
+														Not Available
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge
+														$status="partial"
+														onClick={() => showExplanation('token-exchange-pingfederate')}
+													>
+														<span>⚠️</span>
+														Limited
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge
+														$status="partial"
+														onClick={() => showExplanation('token-exchange-pingone-advanced')}
+													>
+														<span>⚠️</span>
+														Limited
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="not-supported">
+														<span>❌</span>
+														Not Available
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="not-supported">
+														<span>❌</span>
+														Not Available
+													</StatusBadge>
+												</td>
+												<td>Use refresh tokens or re-auth</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>Device Code</strong>
+													<br />
+													<small style={{ color: '#6b7280' }}>Device Authorization Grant</small>
+												</td>
+												<td>RFC 8628</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>-</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>OpenID Connect</strong>
+													<br />
+													<small style={{ color: '#6b7280' }}>Full OIDC Support</small>
+												</td>
+												<td>OpenID Core</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>-</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>FAPI Compliance</strong>
+													<br />
+													<small style={{ color: '#6b7280' }}>Financial-grade API</small>
+												</td>
+												<td>FAPI 1.0/2.0</td>
+												<td>
+													<StatusBadge
+														$status="partial"
+														onClick={() => showExplanation('fapi-pingone')}
+													>
+														<span>⚠️</span>
+														Read-Only
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>Advanced security policies</td>
+											</tr>
+											<tr>
+												<td>
+													<strong>Custom Token Types</strong>
+													<br />
+													<small style={{ color: '#6b7280' }}>Extensible Token Support</small>
+												</td>
+												<td>Various</td>
+												<td>
+													<StatusBadge
+														$status="partial"
+														onClick={() => showExplanation('custom-tokens-pingone')}
+													>
+														<span>⚠️</span>
+														Limited
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Extensible
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Extensible
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Full Support
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>
+													<StatusBadge $status="supported">
+														<span>✅</span>
+														Supported
+													</StatusBadge>
+												</td>
+												<td>Standard JWT/JWS/JWE tokens</td>
+											</tr>
+										</tbody>
+									</ComparisonTable>
+								</CollapsibleContent>
+							</CardBody>
+						</ComparisonSection>
+					</V6CollapsibleHeader>
+
+					{/* Recommendations */}
+					<V6CollapsibleHeader
+						title="Product Selection & Best Practices for AI Agents"
+						subtitle="Recommendations for choosing the right identity provider for your AI agent deployment"
+						icon={<span>✅</span>}
+						defaultCollapsed={false}
+					>
+						<Card>
+							<CardBody>
+								<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
+									Product Selection Recommendations for AI Agent Deployments:
+								</h3>
+								<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '2rem' }}>
+									<li>
+										<strong>PingOne:</strong> Best for cloud-native AI agents with standard
+										OAuth/OIDC needs. Excellent for most AI agent scenarios with good security
+										features.
+									</li>
+									<li>
+										<strong>PingFederate:</strong> Enterprise-grade choice for complex federation
+										requirements. Ideal when you need advanced security policies and extensive
+										customization.
+									</li>
+									<li>
+										<strong>PingOne Advanced Services:</strong> When you need the full PingOne
+										feature set with advanced security capabilities for high-risk AI agent
+										deployments.
+									</li>
+									<li>
+										<strong>PingAM (ForgeRock):</strong> Choose when you need the most comprehensive
+										OAuth/OIDC support, especially for RAR, DPoP, and advanced token management
+										features.
+									</li>
+								</ul>
+
+								<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
+									Future Considerations:
+								</h3>
+								<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
+									<li>Monitor PingOne roadmap for RAR, DPoP, and Token Exchange support</li>
+									<li>Plan migration strategy when sender-constrained tokens become available</li>
+									<li>
+										Evaluate custom solutions for fine-grained authorization if RAR is critical
+									</li>
+									<li>
+										Consider hybrid approaches combining PingOne with policy engines (e.g., OPA) for
+										complex authorization
+									</li>
+								</ul>
+							</CardBody>
+						</Card>
+					</V6CollapsibleHeader>
+
+					{/* MCP Servers Section */}
+					<V6CollapsibleHeader
+						title="MCP Servers: The Future of AI Agent Integration"
+						subtitle="Understanding Model Context Protocol and its integration with OAuth 2.0 for AI agents"
+						icon={<span>🖥️</span>}
+						defaultCollapsed={false}
+					>
+						<Card>
+							<CardBody>
+								<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
+									Model Context Protocol (MCP) and OAuth Integration
+								</h3>
+
+								<p style={{ lineHeight: '1.6', marginBottom: '1.5rem' }}>
+									The Model Context Protocol (MCP) represents a paradigm shift in how AI agents
+									interact with external systems. MCP servers act as standardized interfaces that
+									allow AI models to securely access tools, data sources, and APIs through a unified
+									protocol.
 								</p>
-							</div>
 
-							{/* Collapsible content for the table */}
-							<CollapsibleContent $isOpen={expandedSections.comparisonTable}>
-								<ComparisonTable>
-									<thead>
-										<tr>
-											<th style={{ minWidth: '200px' }}>Feature</th>
-											<th>RFC/Spec</th>
-											<th style={{ minWidth: '120px' }}>PingOne</th>
-											<th style={{ minWidth: '120px' }}>PingFederate</th>
-											<th style={{ minWidth: '120px' }}>PingOne Advanced</th>
-											<th style={{ minWidth: '120px' }}>PingAM</th>
-											<th style={{ minWidth: '120px' }}>Okta</th>
-											<th style={{ minWidth: '120px' }}>Microsoft</th>
-											<th style={{ minWidth: '150px' }}>Alternative</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td>
-												<strong>PAR</strong>
-												<br />
-												<small style={{ color: '#6b7280' }}>Pushed Authorization Requests</small>
-											</td>
-											<td>RFC 9126</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>-</td>
-										</tr>
-										<tr>
-											<td>
-												<strong>RAR</strong>
-												<br />
-												<small style={{ color: '#6b7280' }}>Rich Authorization Requests</small>
-											</td>
-											<td>RFC 9396</td>
-											<td>
-												<StatusBadge
-													$status="not-supported"
-													onClick={() => showExplanation('rar-pingone')}
-												>
-													<span>❌</span>
-													Not Available
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge
-													$status="partial"
-													onClick={() => showExplanation('rar-pingfederate')}
-												>
-													<span>⚠️</span>
-													Limited
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge
-													$status="partial"
-													onClick={() => showExplanation('rar-pingone-advanced')}
-												>
-													<span>⚠️</span>
-													Partial
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="not-supported">
-													<span>❌</span>
-													Not Available
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="not-supported">
-													<span>❌</span>
-													Not Available
-												</StatusBadge>
-											</td>
-											<td>Use scopes or custom claims</td>
-										</tr>
-										<tr>
-											<td>
-												<strong>DPoP</strong>
-												<br />
-												<small style={{ color: '#6b7280' }}>
-													Demonstrating Proof of Possession
-												</small>
-											</td>
-											<td>RFC 9449</td>
-											<td>
-												<StatusBadge
-													$status="not-supported"
-													onClick={() => showExplanation('dpop-pingone')}
-												>
-													<span>❌</span>
-													Not Available
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge
-													$status="partial"
-													onClick={() => showExplanation('dpop-pingfederate')}
-												>
-													<span>⚠️</span>
-													Client Auth Only
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge
-													$status="partial"
-													onClick={() => showExplanation('dpop-pingone-advanced')}
-												>
-													<span>⚠️</span>
-													Client Auth Only
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="not-supported">
-													<span>❌</span>
-													Not Available
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="not-supported">
-													<span>❌</span>
-													Not Available
-												</StatusBadge>
-											</td>
-											<td>Use mTLS or one-time refresh tokens</td>
-										</tr>
-										<tr>
-											<td>
-												<strong>mTLS</strong>
-												<br />
-												<small style={{ color: '#6b7280' }}>Mutual TLS Authentication</small>
-											</td>
-											<td>RFC 8705</td>
-											<td>
-												<StatusBadge
-													$status="partial"
-													onClick={() => showExplanation('mtls-pingone')}
-												>
-													<span>⚠️</span>
-													Client Auth Only
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>Certificate-bound tokens not available</td>
-										</tr>
-										<tr>
-											<td>
-												<strong>JAR</strong>
-												<br />
-												<small style={{ color: '#6b7280' }}>
-													JWT-Secured Authorization Request
-												</small>
-											</td>
-											<td>RFC 9101</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>-</td>
-										</tr>
-										<tr>
-											<td>
-												<strong>Client Credentials</strong>
-												<br />
-												<small style={{ color: '#6b7280' }}>Machine-to-Machine Grant</small>
-											</td>
-											<td>RFC 6749</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>-</td>
-										</tr>
-										<tr>
-											<td>
-												<strong>Token Exchange</strong>
-												<br />
-												<small style={{ color: '#6b7280' }}>RFC 8693 Token Exchange</small>
-											</td>
-											<td>RFC 8693</td>
-											<td>
-												<StatusBadge
-													$status="not-supported"
-													onClick={() => showExplanation('token-exchange-pingone')}
-												>
-													<span>❌</span>
-													Not Available
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge
-													$status="partial"
-													onClick={() => showExplanation('token-exchange-pingfederate')}
-												>
-													<span>⚠️</span>
-													Limited
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge
-													$status="partial"
-													onClick={() => showExplanation('token-exchange-pingone-advanced')}
-												>
-													<span>⚠️</span>
-													Limited
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="not-supported">
-													<span>❌</span>
-													Not Available
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="not-supported">
-													<span>❌</span>
-													Not Available
-												</StatusBadge>
-											</td>
-											<td>Use refresh tokens or re-auth</td>
-										</tr>
-										<tr>
-											<td>
-												<strong>Device Code</strong>
-												<br />
-												<small style={{ color: '#6b7280' }}>Device Authorization Grant</small>
-											</td>
-											<td>RFC 8628</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>-</td>
-										</tr>
-										<tr>
-											<td>
-												<strong>OpenID Connect</strong>
-												<br />
-												<small style={{ color: '#6b7280' }}>Full OIDC Support</small>
-											</td>
-											<td>OpenID Core</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>-</td>
-										</tr>
-										<tr>
-											<td>
-												<strong>FAPI Compliance</strong>
-												<br />
-												<small style={{ color: '#6b7280' }}>Financial-grade API</small>
-											</td>
-											<td>FAPI 1.0/2.0</td>
-											<td>
-												<StatusBadge
-													$status="partial"
-													onClick={() => showExplanation('fapi-pingone')}
-												>
-													<span>⚠️</span>
-													Read-Only
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>Advanced security policies</td>
-										</tr>
-										<tr>
-											<td>
-												<strong>Custom Token Types</strong>
-												<br />
-												<small style={{ color: '#6b7280' }}>Extensible Token Support</small>
-											</td>
-											<td>Various</td>
-											<td>
-												<StatusBadge
-													$status="partial"
-													onClick={() => showExplanation('custom-tokens-pingone')}
-												>
-													<span>⚠️</span>
-													Limited
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Extensible
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Extensible
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Full Support
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>
-												<StatusBadge $status="supported">
-													<span>✅</span>
-													Supported
-												</StatusBadge>
-											</td>
-											<td>Standard JWT/JWS/JWE tokens</td>
-										</tr>
-									</tbody>
-								</ComparisonTable>
-							</CollapsibleContent>
-						</CardBody>
-					</ComparisonSection>
-				</V6CollapsibleHeader>
+								<h3
+									style={{
+										fontSize: '1.1rem',
+										fontWeight: '600',
+										marginBottom: '0.75rem',
+										color: '#1f2937',
+									}}
+								>
+									MCP Server Architecture:
+								</h3>
+								<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
+									<li>
+										<strong>Standardized Interface:</strong> MCP provides a common protocol for AI
+										agents to discover and invoke capabilities across different systems
+									</li>
+									<li>
+										<strong>Capability Discovery:</strong> Servers expose their available tools and
+										resources through standardized metadata
+									</li>
+									<li>
+										<strong>Secure Communication:</strong> All interactions happen through
+										authenticated and authorized channels
+									</li>
+									<li>
+										<strong>Resource Management:</strong> MCP handles connection pooling, session
+										management, and resource cleanup
+									</li>
+									<li>
+										<strong>Error Handling:</strong> Standardized error responses and retry
+										mechanisms
+									</li>
+								</ul>
 
-				{/* Recommendations */}
-				<V6CollapsibleHeader
-					title="Product Selection & Best Practices for AI Agents"
-					subtitle="Recommendations for choosing the right identity provider for your AI agent deployment"
-					icon={<span>✅</span>}
-					defaultCollapsed={false}
-				>
-					<Card>
-						<CardBody>
-							<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
-								Product Selection Recommendations for AI Agent Deployments:
-							</h3>
-							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '2rem' }}>
-								<li>
-									<strong>PingOne:</strong> Best for cloud-native AI agents with standard OAuth/OIDC
-									needs. Excellent for most AI agent scenarios with good security features.
-								</li>
-								<li>
-									<strong>PingFederate:</strong> Enterprise-grade choice for complex federation
-									requirements. Ideal when you need advanced security policies and extensive
-									customization.
-								</li>
-								<li>
-									<strong>PingOne Advanced Services:</strong> When you need the full PingOne feature
-									set with advanced security capabilities for high-risk AI agent deployments.
-								</li>
-								<li>
-									<strong>PingAM (ForgeRock):</strong> Choose when you need the most comprehensive
-									OAuth/OIDC support, especially for RAR, DPoP, and advanced token management
-									features.
-								</li>
-							</ul>
+								<h3
+									style={{
+										fontSize: '1.1rem',
+										fontWeight: '600',
+										marginBottom: '0.75rem',
+										color: '#1f2937',
+									}}
+								>
+									OAuth/OIDC Integration with MCP Servers:
+								</h3>
+								<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
+									<li>
+										<strong>Server Authentication:</strong> MCP servers authenticate using OAuth 2.0
+										client credentials or other methods
+									</li>
+									<li>
+										<strong>Resource Authorization:</strong> Fine-grained permissions for MCP server
+										capabilities using RAR
+									</li>
+									<li>
+										<strong>Token Management:</strong> Automatic token refresh and
+										sender-constrained tokens for MCP sessions
+									</li>
+									<li>
+										<strong>Dynamic Registration:</strong> MCP servers can register their
+										capabilities dynamically with authorization servers
+									</li>
+									<li>
+										<strong>Audit Logging:</strong> All MCP server interactions are logged for
+										compliance and debugging
+									</li>
+								</ul>
 
-							<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
-								Future Considerations:
-							</h3>
-							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
-								<li>Monitor PingOne roadmap for RAR, DPoP, and Token Exchange support</li>
-								<li>Plan migration strategy when sender-constrained tokens become available</li>
-								<li>Evaluate custom solutions for fine-grained authorization if RAR is critical</li>
-								<li>
-									Consider hybrid approaches combining PingOne with policy engines (e.g., OPA) for
-									complex authorization
-								</li>
-							</ul>
-						</CardBody>
-					</Card>
-				</V6CollapsibleHeader>
+								<h3
+									style={{
+										fontSize: '1.1rem',
+										fontWeight: '600',
+										marginBottom: '0.75rem',
+										color: '#1f2937',
+									}}
+								>
+									Security Benefits for AI Agents:
+								</h3>
+								<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
+									<li>
+										<strong>Isolated Execution:</strong> MCP servers run in isolated environments,
+										preventing AI agents from directly accessing sensitive systems
+									</li>
+									<li>
+										<strong>Controlled Access:</strong> All tool invocations go through
+										authenticated and authorized channels
+									</li>
+									<li>
+										<strong>Standardized Security:</strong> Consistent security patterns across all
+										AI agent integrations
+									</li>
+									<li>
+										<strong>Compliance Ready:</strong> Built-in audit trails and compliance
+										reporting capabilities
+									</li>
+									<li>
+										<strong>Scalable Architecture:</strong> MCP servers can be deployed and managed
+										independently of AI models
+									</li>
+								</ul>
+							</CardBody>
+						</Card>
+					</V6CollapsibleHeader>
 
-				{/* MCP Servers Section */}
-				<V6CollapsibleHeader
-					title="MCP Servers: The Future of AI Agent Integration"
-					subtitle="Understanding Model Context Protocol and its integration with OAuth 2.0 for AI agents"
-					icon={<span>🖥️</span>}
-					defaultCollapsed={false}
-				>
-					<Card>
-						<CardBody>
-							<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
-								Model Context Protocol (MCP) and OAuth Integration
-							</h3>
-
-							<p style={{ lineHeight: '1.6', marginBottom: '1.5rem' }}>
-								The Model Context Protocol (MCP) represents a paradigm shift in how AI agents
-								interact with external systems. MCP servers act as standardized interfaces that
-								allow AI models to securely access tools, data sources, and APIs through a unified
-								protocol.
-							</p>
-
-							<h3
-								style={{
-									fontSize: '1.1rem',
-									fontWeight: '600',
-									marginBottom: '0.75rem',
-									color: '#1f2937',
-								}}
-							>
-								MCP Server Architecture:
-							</h3>
-							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
-								<li>
-									<strong>Standardized Interface:</strong> MCP provides a common protocol for AI
-									agents to discover and invoke capabilities across different systems
-								</li>
-								<li>
-									<strong>Capability Discovery:</strong> Servers expose their available tools and
-									resources through standardized metadata
-								</li>
-								<li>
-									<strong>Secure Communication:</strong> All interactions happen through
-									authenticated and authorized channels
-								</li>
-								<li>
-									<strong>Resource Management:</strong> MCP handles connection pooling, session
-									management, and resource cleanup
-								</li>
-								<li>
-									<strong>Error Handling:</strong> Standardized error responses and retry mechanisms
-								</li>
-							</ul>
-
-							<h3
-								style={{
-									fontSize: '1.1rem',
-									fontWeight: '600',
-									marginBottom: '0.75rem',
-									color: '#1f2937',
-								}}
-							>
-								OAuth/OIDC Integration with MCP Servers:
-							</h3>
-							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
-								<li>
-									<strong>Server Authentication:</strong> MCP servers authenticate using OAuth 2.0
-									client credentials or other methods
-								</li>
-								<li>
-									<strong>Resource Authorization:</strong> Fine-grained permissions for MCP server
-									capabilities using RAR
-								</li>
-								<li>
-									<strong>Token Management:</strong> Automatic token refresh and sender-constrained
-									tokens for MCP sessions
-								</li>
-								<li>
-									<strong>Dynamic Registration:</strong> MCP servers can register their capabilities
-									dynamically with authorization servers
-								</li>
-								<li>
-									<strong>Audit Logging:</strong> All MCP server interactions are logged for
-									compliance and debugging
-								</li>
-							</ul>
-
-							<h3
-								style={{
-									fontSize: '1.1rem',
-									fontWeight: '600',
-									marginBottom: '0.75rem',
-									color: '#1f2937',
-								}}
-							>
-								Security Benefits for AI Agents:
-							</h3>
-							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
-								<li>
-									<strong>Isolated Execution:</strong> MCP servers run in isolated environments,
-									preventing AI agents from directly accessing sensitive systems
-								</li>
-								<li>
-									<strong>Controlled Access:</strong> All tool invocations go through authenticated
-									and authorized channels
-								</li>
-								<li>
-									<strong>Standardized Security:</strong> Consistent security patterns across all AI
-									agent integrations
-								</li>
-								<li>
-									<strong>Compliance Ready:</strong> Built-in audit trails and compliance reporting
-									capabilities
-								</li>
-								<li>
-									<strong>Scalable Architecture:</strong> MCP servers can be deployed and managed
-									independently of AI models
-								</li>
-							</ul>
-						</CardBody>
-					</Card>
-				</V6CollapsibleHeader>
-
-				{/* Popup for feature explanations */}
-				{popupData && (
-					<PopupOverlay onClick={closePopup}>
-						<PopupContent onClick={(e) => e.stopPropagation()}>
-							<CloseButton onClick={closePopup}>&times;</CloseButton>
-							<h3>{popupData.title}</h3>
-							{/* biome-ignore lint/security/noDangerouslySetInnerHtml: popup content is authored in-app, not user-supplied */}
-							<div dangerouslySetInnerHTML={{ __html: popupData.content }} />
-						</PopupContent>
-					</PopupOverlay>
-				)}
-			</ContentWrapper>
-		</PageContainer>
+					{/* Popup for feature explanations */}
+					{popupData && (
+						<PopupOverlay onClick={closePopup}>
+							<PopupContent onClick={(e) => e.stopPropagation()}>
+								<CloseButton onClick={closePopup}>&times;</CloseButton>
+								<h3>{popupData.title}</h3>
+								{/* biome-ignore lint/security/noDangerouslySetInnerHtml: popup content is authored in-app, not user-supplied */}
+								<div dangerouslySetInnerHTML={{ __html: popupData.content }} />
+							</PopupContent>
+						</PopupOverlay>
+					)}
+				</ContentWrapper>
+			</PageContainer>
 		</PingUIWrapper>
 	);
 };

@@ -16,7 +16,6 @@ class EnvironmentIdPersistenceService {
 		try {
 			// @ts-expect-error - import.meta is a Vite construct; guarded access
 			const meta: any = import.meta as any;
-			import { logger } from '../../../../utils/logger';
 			const env = meta?.env ? meta.env : undefined;
 			if (env) {
 				// Try exact name first

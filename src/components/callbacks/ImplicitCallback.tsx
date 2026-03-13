@@ -108,7 +108,7 @@ const ImplicitCallback: React.FC = () => {
 	useEffect(() => {
 		const processCallback = async () => {
 			try {
-				logger.auth('ImplicitCallback', 'Processing implicit grant callback', {
+				logger.info('ImplicitCallback', 'Processing implicit grant callback', {
 					url: window.location.href,
 				});
 
@@ -163,7 +163,7 @@ const ImplicitCallback: React.FC = () => {
 					const stateParam = hashParams.get('state');
 					if (stateParam?.startsWith('v8u-implicit-')) {
 						// V8U Unified Flow - redirect to CallbackHandlerV8U with fragment preserved
-						logger.auth(
+						logger.info(
 							'ImplicitCallback',
 							'V8U unified flow detected - redirecting to unified callback handler',
 							{
@@ -200,7 +200,7 @@ const ImplicitCallback: React.FC = () => {
 						try {
 							const parsedContext = JSON.parse(v8Context);
 
-							logger.auth('ImplicitCallback', 'V8 implicit grant received, returning to flow', {
+							logger.info('ImplicitCallback', 'V8 implicit grant received, returning to flow', {
 								hasAccessToken: !!accessToken,
 								hasIdToken: !!idToken,
 								responseType: parsedContext.responseType,
@@ -233,7 +233,7 @@ const ImplicitCallback: React.FC = () => {
 
 						const isOIDCFlow = v7Context === 'implicit-flow-v7-oidc-active';
 
-						logger.auth(
+						logger.info(
 							'ImplicitCallback',
 							'V7 implicit grant received, returning to unified flow',
 							{
@@ -256,7 +256,7 @@ const ImplicitCallback: React.FC = () => {
 						// Determine which flow this is from
 						const isOIDCFlow = v6OIDCContext;
 
-						logger.auth('ImplicitCallback', 'V6 implicit grant received, returning to flow', {
+						logger.info('ImplicitCallback', 'V6 implicit grant received, returning to flow', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
 							flow: isOIDCFlow ? 'oidc-v6' : 'oauth-v6',
@@ -278,7 +278,7 @@ const ImplicitCallback: React.FC = () => {
 						// Determine which flow this is from
 						const isOIDCFlow = v5OIDCContext && !v5OAuthContext;
 
-						logger.auth('ImplicitCallback', 'V5 implicit grant received, returning to flow', {
+						logger.info('ImplicitCallback', 'V5 implicit grant received, returning to flow', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
 							flow: isOIDCFlow ? 'oidc-v5' : 'oauth-v5',
@@ -299,7 +299,7 @@ const ImplicitCallback: React.FC = () => {
 						// This is a V3 flow - return to the flow page
 						setStatus('success');
 						setMessage('Implicit grant received - returning to flow');
-						logger.auth('ImplicitCallback', 'V3 implicit grant received, returning to flow', {
+						logger.info('ImplicitCallback', 'V3 implicit grant received, returning to flow', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
 						});
@@ -321,7 +321,7 @@ const ImplicitCallback: React.FC = () => {
 						// Legacy flow - show success and redirect to dashboard
 						setStatus('success');
 						setMessage('Implicit grant received successfully');
-						logger.auth('ImplicitCallback', 'Legacy implicit grant received', {
+						logger.info('ImplicitCallback', 'Legacy implicit grant received', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
 						});

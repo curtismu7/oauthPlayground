@@ -31,6 +31,99 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### MCP: sync worker credentials to mcp-config so Live MCP works (2026-03)
+- **What:** MCP "Get worker token" and PingOne API calls failed because the backend reads credentials from `mcp-config.json` (MCP Server Config page) while the Worker Token modal saves to SQLite via `unifiedWorkerTokenService`. The two stores were never synced.
+- **Cause:** `_mcpReadCredentials()` only reads `mcp-config.json` or env vars. Users who saved credentials via the Worker Token modal never had them written to mcp-config.
+- **Fix:** (1) Added `_syncCredentialsToMcpConfig()` in unifiedWorkerTokenService — maps region to apiUrl and POSTs to `/api/credentials/save-mcp-config`. (2) Call it after `_saveCredentialsToSQLite` succeeds. (3) Call it when loading credentials from SQLite so existing creds get synced on app load. (4) Both AI Assistant components call `unifiedWorkerTokenService.loadCredentials()` when opened with Live toggle on, priming the sync before the first MCP call. (5) Applied changes to both `src/services/unifiedWorkerTokenService.ts` and `AIAssistant/src/services/unifiedWorkerTokenService.ts`.
+- **Files:** `src/services/unifiedWorkerTokenService.ts`, `AIAssistant/src/services/unifiedWorkerTokenService.ts`, `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`
+- **Regression check:** Save worker credentials via Worker Token modal (Get Worker Token) → open AI Assistant with Live toggle on → ask "Get worker token" or "Show all apps" → MCP card shows real data (not "unknown" or credentials required). Check `~/.pingone-playground/credentials/mcp-config.json` has environmentId, clientId, clientSecret after saving via modal.
+
+### Log viewer popout: white background, black text; reduce blinking (2026-03)
+- **What:** Log viewer popout had dark theme (dark background, light text), status indicator was pulsing (blinking), and frequent realtime refresh could cause visual flicker.
+- **Fix:** (1) When `standalone` (popout) is true: LogContent uses white background (`#ffffff`) and black text (`#111827`); LogLine hover uses light overlay; LineNum uses gray (`#6b7280`). (2) StatusIndicator pulse animation disabled in standalone mode. (3) Realtime poll interval: 5s in standalone (was 2s) to reduce refresh-induced blinking.
+- **Files:** `src/components/EnhancedFloatingLogViewer.tsx`
+- **Regression check:** Open Log Viewer popout (`/v9/debug-logs-popout`) — main log area has white background and black text; status dot does not pulse; realtime updates every 5s. In-browser floating log viewer keeps dark theme.
+
+### Worker Token V9: standard collapse icon (2026-03)
+- **What:** Section collapse icons on `/flows/worker-token-v9` used the circular theme icon (CollapsibleHeader default) instead of the standard icon from COLLAPSIBLE_HEADER_UNIFICATION_PLAN (⬇️ in white box with blue border, -90° when collapsed).
+- **Fix:** (1) Added `useUnifiedIcon?: boolean` to `CollapsibleHeaderProps` in collapsibleHeaderService; when true, renders `UnifiedFlowCollapsibleToggleIcon` (white box, blue border, ⬇️ emoji) instead of circular ArrowIcon. (2) ComprehensiveCredentialsService passes `useUnifiedIcon={flowType === 'worker-token-v9'}` to all CollapsibleHeader instances.
+- **Files:** `src/services/collapsibleHeaderService.tsx`, `src/services/comprehensiveCredentialsService.tsx`
+- **Regression check:** Open `/flows/worker-token-v9` — collapsible sections (App lookup, Worker Token credentials, Advanced Configuration, JWKS) show white box with blue border and ⬇️ icon; collapsed state points right (-90°). Other flows using ComprehensiveCredentialsService (non-worker-token) keep circular icon.
+
+### Mock Flows: yellow Educational Mock banner at top (2026-03)
+- **What:** The yellow "📚 Educational Mock Mode" banner at the top of `/flows/device-authorization-v9` was not present on all Mock flows.
+- **Fix:** Added `V7MMockBanner` at the top (before flow header) to all Mock flows that lacked it: JWT Bearer Token, SAML Bearer Assertion, RAR, PAR, DPoP, SPIFFE/SPIRE, SAML SP Dynamic ACS. Replaced inline mock banners with shared `V7MMockBanner` for consistency.
+- **Files:** `src/pages/flows/v9/JWTBearerTokenFlowV9.tsx`, `src/pages/flows/v9/SAMLBearerAssertionFlowV9.tsx`, `src/pages/flows/v9/RARFlowV9.tsx`, `src/pages/flows/v9/PARFlowV9.tsx`, `src/pages/flows/DPoPFlow.tsx`, `src/v8u/flows/SpiffeSpireFlowV8U.tsx`, `src/pages/flows/SAMLServiceProviderFlowV1.tsx`
+- **Regression check:** Open each Mock flow from sidebar (OIDC mock, OAuth 2.0 mock, Unsupported) — yellow "Educational Mock Mode" banner appears at top before the flow header. Device Authorization, Client Credentials, Implicit, etc. already had it; verify they still do.
+
+### Token Monitoring: red header and migration (2026-03)
+- **What:** `/v8u/token-monitoring` lacked the standard red PingOne header with white text and had not been fully migrated to the V8U flow page pattern.
+- **Fix:** (1) Added `token-monitoring-v8u` to `FLOW_CONFIGS` in flowHeaderService (flowType: 'pingone', title: "Token Monitoring Dashboard", subtitle for real-time token tracking). (2) Added `V9FlowHeader` to TokenStatusPageV8U at top of page. (3) Removed redundant PageHeader/PageTitle/PageDescription (header content now comes from FlowHeader).
+- **Files:** `src/services/flowHeaderService.tsx`, `src/v8u/pages/TokenStatusPageV8U.tsx`
+- **Regression check:** Open `/v8u/token-monitoring` — red header with white text "Token Monitoring Dashboard", subtitle visible. Worker/User token sections unchanged below.
+
+### AI Assistant: Live toggle nudge when Live is ON (2026-03)
+- **What:** When the Live toggle was ON, Groq still output "🔌 Live toggle is off..." and ##LIVE_NUDGE## because the server always used the same system prompt and never received `includeLive` from the client.
+- **Cause:** `includeLive` was never sent to `/api/groq/chat` or `/api/groq/chat/stream`; the server always told the LLM to respond with the Live nudge for PingOne data requests.
+- **Fix:** (1) Added `GROQ_SYSTEM_PROMPT_LIVE_ON` — when Live is ON, the prompt instructs the LLM to not say "Live toggle is off" or output ##LIVE_NUDGE##. (2) `/api/groq/chat` and `/api/groq/chat/stream` accept `includeLive` from the request body; when `includeLive === true`, use the Live-on prompt. (3) `groqService.callGroq` and `callGroqStream` accept optional `{ includeLive }`; both AIAssistant components pass it. (4) Added logging: `includeLive`, `liveOn` in Groq request logs.
+- **Files:** `server.js`, `src/services/groqService.ts`, `AIAssistant/src/services/groqService.ts`, `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`
+- **Regression check:** Live toggle ON → ask "list users" or similar PingOne query → Groq reply does not contain "Live toggle is off" or ##LIVE_NUDGE##. Live toggle OFF → same query → nudge appears. Check AI logs for `includeLive`, `liveOn` in Groq request lines.
+
+### Components and services: fix grey buttons (2026-03)
+- **What:** Shared components and services had enabled buttons or hover states using grey (#f3f4f6, #f1f5f9, #e5e7eb), or used V9_COLORS as literal strings (no interpolation) so styles didn’t apply.
+- **Fix:** (1) **DiscoveryPanel.tsx:** CloseButton and CopyButton hover changed from #f3f4f6 to #eff6ff (light blue). (2) **EnhancedFloatingLogViewer.tsx:** FilterChip inactive hover #f1f5f9 → #eff6ff; ToolbarBtn hover → #eff6ff and blue border/text; ControlButton popout hover #f1f5f9 → #e0f2fe. (3) **PingOneApplicationPicker.tsx:** CopyButton changed from ghost/grey to outline blue (white bg, #3b82f6 border, #2563eb text, hover #eff6ff). (4) **WorkerTokenModalV9.tsx:** Added V9_COLORS import; Button primary/danger use \${V9_COLORS...} interpolation; secondary variant changed to outline blue (white, blue border/text). (5) **ApiKeyConfiguration.tsx:** Button secondary variant changed to outline blue (blue border and text, hover blue-dark). (6) **EducationModeToggle.tsx:** ToggleButton inactive hover #e5e7eb → #eff6ff; DropdownItem hover/focus #f3f4f6 → #eff6ff. (7) **ClaimsRequestBuilder.tsx:** EssentialToggle when !essential: background #f3f4f6 → white with #e5e7eb border; hover → #eff6ff and blue border.
+- **Files:** `src/components/DiscoveryPanel.tsx`, `src/components/EnhancedFloatingLogViewer.tsx`, `src/components/PingOneApplicationPicker.tsx`, `src/components/WorkerTokenModalV9.tsx`, `src/components/ApiKeyConfiguration.tsx`, `src/components/education/EducationModeToggle.tsx`, `src/components/ClaimsRequestBuilder.tsx`
+- **Regression check:** Discovery/OIDC modal: close and copy buttons show light blue on hover. Log Viewer: toolbar and filter chips show blue hover. Worker Token modal: primary blue, secondary outline blue. Configuration API key section: secondary outline blue. Education toggle: blue-tinted hover. Claims builder: essential toggle off state white with blue hover.
+
+### Sidebar menu pages: fix grey buttons (enabled state) (2026-03)
+- **What:** Several pages linked from the side menu had action buttons (primary, secondary, copy, or default) styled with grey background when enabled, violating the rule "buttons never grey when enabled; grey only when disabled."
+- **Fix:** (1) **RedirectlessFlowV9_Real.tsx:** Added `V9_COLORS` import; `LoginFormButton` primary uses interpolated `${V9_COLORS...}`; secondary changed to outline (white bg, blue border/text); `SignInButton` gradient uses interpolation. (2) **URLDecoder.tsx:** Added `V9_COLORS` import; `Button` secondary variant changed to outline primary; all variants use interpolation. (3) **HelioMartPasswordReset.tsx:** `Button` secondary, `CodeCollapseButton`, and `CodeButton` changed from grey fill to outline blue (white + blue border). (4) **PARvsRAR.tsx** and **CIBAvsDeviceAuthz.tsx:** `CopyButton` changed from grey to outline blue. (5) **OrganizationLicensing.tsx:** Non-primary button style changed from grey (`#6b7280`) to outline (white bg, blue border, blue text). (6) **McpServerConfig.tsx:** `Btn` default variant changed from grey to outline blue. (7) **ApplicationGenerator.tsx:** Button default (secondary) variant changed from grey-tinted white to outline blue.
+- **Files:** `src/pages/flows/RedirectlessFlowV9_Real.tsx`, `src/pages/URLDecoder.tsx`, `src/pages/security/HelioMartPasswordReset.tsx`, `src/pages/PARvsRAR.tsx`, `src/pages/CIBAvsDeviceAuthz.tsx`, `src/pages/OrganizationLicensing.tsx`, `src/pages/McpServerConfig.tsx`, `src/pages/ApplicationGenerator.tsx`
+- **Regression check:** Open each updated page from the side menu; primary/main actions show blue or theme color; secondary and copy-style buttons show outline blue (white + blue border). Grey only when a button is disabled.
+
+### Ultimate Token Display Demo: fix grey buttons (2026-03)
+- **What:** Buttons on `/ultimate-token-display-demo` appeared grey because `V9_COLORS` was not imported and was used as a literal string in styled-component CSS (invalid values). Secondary/default action buttons also used grey fill when enabled.
+- **Fix:** (1) **UltimateTokenDisplay.tsx:** Import `V9_COLORS` from `@/services/v9/V9ColorStandards`; in `ActionButton` use template interpolation (`${V9_COLORS.PRIMARY.BLUE}` etc.) for all variants; change default (secondary) variant to outline primary (white bg, blue border/text) so enabled buttons are never grey; add explicit disabled styles using grey. (2) **UltimateTokenDisplayDemo.tsx:** Import `V9_COLORS`; interpolate in all styled components (Button, _Title, _Subtitle, ControlPanel, ControlLabel, Select, Checkbox, SectionTitle) and in inline style objects for feature cards.
+- **Files:** `src/components/UltimateTokenDisplay.tsx`, `src/pages/UltimateTokenDisplayDemo.tsx`
+- **Regression check:** Open `/ultimate-token-display-demo` — primary actions (Copy, Decode JWT, Analyze) show blue/green/amber; secondary-style actions show outline blue. Demo page control buttons show blue gradient. Grey only when a button is disabled.
+
+### SecurityScorecard: unified collapsible header (2026-03)
+- **What:** Security Scorecard section now uses the same collapsible header style as Advanced OAuth Features, Flow Guidance, and Configuration (green gradient, white box with blue border, ⬇️ icon, -90° when collapsed).
+- **Changes:** Replaced local `CollapsibleHeaderButton`, `CollapsibleTitle`, `CollapsibleToggleIcon`, and `CollapsibleContent` in `SecurityScorecard.tsx` with `UnifiedFlowCollapsibleSection`, `UnifiedFlowCollapsibleHeaderButton`, `UnifiedFlowCollapsibleTitle`, `UnifiedFlowCollapsibleToggleIcon`, and `UnifiedFlowCollapsibleContent` from `collapsibleHeaderService`. Outer `ScorecardContainer` retained for card styling.
+- **Files:** `src/v8u/components/SecurityScorecard.tsx`
+- **Regression check:** Open a page that shows Security Scorecard (e.g. `/v8u/unified/oauth-authz` step 0 if present, or any flow that renders SecurityScorecard). Collapse/expand the "Security Scorecard" section — icon should match other unified sections (⬇️ in white box, points right when collapsed, down when expanded). Score, categories, and recommendations unchanged.
+
+### PingOneApplicationPicker: stop auto-fetch loop on 401 (2026-03)
+- **What:** On `/flows/worker-token-v9`, when the applications API returns 401, the picker was re-running the auto-fetch effect on every render, causing an infinite loop of GET requests and console errors.
+- **Cause:** The effect condition (credentials present, `applications.length === 0`, `!loading`) stayed true after a failed fetch, so each `setLoading(false)` re-render triggered the effect again.
+- **Fix:** Introduced `autoFetchAttemptedRef`: auto-fetch runs only once per credential set; when it fails we do not retry automatically. Ref is reset when `environmentId` / `clientId` / `clientSecret` / `workerToken` change. Manual "Refresh" still calls `fetchApplications()` and is unchanged.
+- **Files:** `src/components/PingOneApplicationPicker.tsx`
+- **Regression check:** Open `/flows/worker-token-v9` with credentials that produce 401 from `/api/pingone/applications` — one request and one error in console; no repeated GETs. Click Refresh to retry; changing credentials and re-entering the page allows one new auto-fetch.
+
+### Redirectless V9 Real: red PingOne header and FlowHeader config (2026-03)
+- **What:** `/flows/redirectless-v9-real` now shows the standard PingOne UI: red header with white text via FlowHeader, and the "No configuration found for flow ID/type: redirectless-v9" warning is resolved.
+- **Changes:** (1) **flowHeaderService.tsx:** Added `redirectless-v9` and `redirectless-v9-real` to `FLOW_CONFIGS` with `flowType: 'pingone'` (red gradient, white text), title "Redirectless Login (V9) — response_mode=pi.flow", and V9 subtitle. (2) **RedirectlessFlowV9_Real.tsx:** `FlowHeader` now uses `flowId="redirectless-v9-real"` to match the route and config. (3) **Sections:** All four step sections (PKCE Parameters, Authorization URL Generation, Token Exchange, Token Management) now use `UnifiedFlowCollapsibleHeader` (green gradient, ⬇️ icon) instead of `CollapsibleHeader`.
+- **Files:** `src/services/flowHeaderService.tsx`, `src/pages/flows/RedirectlessFlowV9_Real.tsx`
+- **Regression check:** Open `https://api.pingdemo.com:3000/flows/redirectless-v9-real` — single red header with white title/subtitle; four step sections use unified green collapsible headers with ⬇️ toggle; no FlowHeaderService config warning in console.
+
+### Collapsible section icons: same direction everywhere (2026-03)
+- **What:** All collapsible section toggles now use the same convention: **expanded = icon points down (↓), collapsed = icon points right (→)**.
+- **Changes:** (1) **collapsibleHeaderService.tsx:** Legacy `ArrowIcon` now uses `rotate(-90deg)` when collapsed and `rotate(0deg)` when expanded (was 0°/180°). `DefaultArrowIcon` always draws a single down-pointing chevron; rotation handles state. (2) **CollapsibleIcon.tsx:** Always renders ⬇️ (removed ⬆️); parent applies rotation. (3) **flowUIService.tsx:** Toggle icon wrapper adds `transform: collapsed ? rotate(-90deg) : rotate(0deg)` and preserves hover translate.
+- **Files:** `src/services/collapsibleHeaderService.tsx`, `src/components/CollapsibleIcon.tsx`, `src/services/flowUIService.tsx`
+- **Regression check:** Configuration, PAR/RAR, Unified OAuth, and any page using `CollapsibleHeader` or flowUIService collapsible: expanded section → icon down; collapsed → icon right.
+
+### Configuration page: unified collapsible headers (2026-03)
+- **What:** `/configuration` now uses the unified-flow collapsible style (green gradient header, white box with blue border, ⬇️ + -90° rotation) instead of the previous themed `CollapsibleHeader` (circle + 180°).
+- **Changes:** (1) **collapsibleHeaderService.tsx:** Added composite `UnifiedFlowCollapsibleHeader` (title, subtitle, icon, defaultCollapsed, children, id) and `UnifiedFlowCollapsibleHeaderProps`; moved `extractStringFromReactNode` above it for aria ids. (2) **Configuration.tsx:** Replaced all 10 `CollapsibleHeader` usages with `UnifiedFlowCollapsibleHeader`; removed `theme` and `variant` props (unified style is fixed). Kept `id="redirect-uri-catalog"` for anchor links.
+- **Files:** `src/services/collapsibleHeaderService.tsx`, `src/pages/Configuration.tsx`
+- **Regression check:** Open `https://api.pingdemo.com:3000/configuration` (or `/configuration`). All section headers show green gradient and ⬇️ toggle; expand/collapse works; "PingOne Redirect & Logout URIs" section still has id for deep links.
+
+### Collapsible header unification: service exports + AdvancedOAuthFeatures, FlowGuidanceSystem (2026-03)
+- **What:** Started implementing collapsible header unification per `docs/COLLAPSIBLE_HEADER_UNIFICATION_PLAN.md`. Unified-flow style (green gradient header, white box with blue border, ⬇️ + -90° rotation) is now provided by the service; two v8u components were migrated to use it.
+- **Changes:** (1) **collapsibleHeaderService.tsx:** Added and exported `UnifiedFlowCollapsibleSection`, `UnifiedFlowCollapsibleHeaderButton`, `UnifiedFlowCollapsibleTitle`, `UnifiedFlowCollapsibleToggleIcon`, `UnifiedFlowCollapsibleContent` (matching UnifiedFlowSteps reference). (2) **AdvancedOAuthFeatures.tsx:** Removed local collapsible styled components; imports and uses the five unified-flow components from the service. (3) **FlowGuidanceSystem.tsx:** Same; keeps `GuidanceContainer` as outer wrapper, uses service for header/toggle/content.
+- **Files:** `src/services/collapsibleHeaderService.tsx`, `src/v8u/components/AdvancedOAuthFeatures.tsx`, `src/v8u/components/FlowGuidanceSystem.tsx`
+- **Regression check:** Open a page that shows Advanced OAuth Features or "Choose the Right OAuth Flow" (e.g. `/v8u/unified/oauth-authz` step 0). Collapse/expand the section; icon should be white box with blue border, ⬇️ rotating -90° when collapsed. No visual regressions.
+
 ### Silent API Retrieval: respect checkbox; Get Worker Token always shows modal (2026-03)
 - **What:** "Get Worker Token" was always doing silent retrieval and ignoring the "Silent API Token Retrieval" checkbox. When the checkbox was unchecked, users still got silent fetch instead of the modal.
 - **Cause:** Several call sites passed `forceShowModal: !silentApiRetrieval` (or `false`) when the user clicked "Get Worker Token", so with Silent checked the modal never showed. The helper is designed so: **button click** → always show modal (`forceShowModal: true`); **automatic/background** fetch → respect checkbox (`forceShowModal: false`, use config `silentApiRetrieval`).
@@ -645,6 +738,11 @@ When changing the listed areas, run the corresponding checks to avoid regression
 - [ ] **StandardizedCredentialExportImport:** Export/Import buttons use `V9_COLORS` from `@/services/v9/V9ColorStandards` with interpolation; disabled state uses grey (`#9ca3af`). Changing this file: verify Export is green and Import is blue on e.g. `/flows/rar-v9`.
 - [ ] **WorkerTokenRequestModalV8:** Close, Cancel, Copy, and preflight Close use outline primary (white bg, blue border/text); Copy/visibility icons use blue text. Do not reintroduce grey fill for enabled buttons; grey only for disabled state (e.g. Execute while loading). Verify in "Generated Worker Token" modal after generating a token.
 - [ ] **ApiStatusPage:** RefreshButton and other styled components use `${V9_COLORS...}` interpolation; Refresh is blue when enabled, grey when disabled. Verify on `/api-status`.
+- [ ] **UltimateTokenDisplay / UltimateTokenDisplayDemo:** `V9_COLORS` must be imported and used with template interpolation in styled components; ActionButton primary/success/warning use blue/green/amber, default (secondary) uses outline blue (not grey). Demo page Button uses blue gradient. Grey only for `:disabled`. Verify on `/ultimate-token-display-demo`.
+
+### Collapsible section headers (unified flow)
+
+- [ ] **SecurityScorecard, AdvancedOAuthFeatures, FlowGuidanceSystem:** When changing these components, do not re-add local `CollapsibleHeaderButton` / `CollapsibleTitle` / `CollapsibleToggleIcon` / `CollapsibleContent`; they use `UnifiedFlowCollapsibleSection`, `UnifiedFlowCollapsibleHeaderButton`, `UnifiedFlowCollapsibleTitle`, `UnifiedFlowCollapsibleToggleIcon`, and `UnifiedFlowCollapsibleContent` from `@/services/collapsibleHeaderService`. Verify Security Scorecard and Advanced OAuth Features sections expand/collapse with ⬇️ icon (right when collapsed, down when expanded).
 
 ### Step headers and UI components
 

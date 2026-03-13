@@ -39,10 +39,11 @@ import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 
 // Create module-specific logger
-const log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
+const _log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
 
 import { ButtonSpinner } from '@/components/ui';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { getRedirectUriForUnifiedFlow } from '@/v8u/services/unifiedRedirectUriServiceV8U';
 import { FiArrowRight } from '../../../../../icons';
 import { logger } from '../../../../../utils/logger';
 // Enhanced state management for token synchronization
@@ -5054,10 +5055,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						await handleShowWorkerTokenModal(
 							setShowWorkerTokenModal,
 							undefined, // setTokenStatus
-							true, // silentApiRetrieval - enable silent retrieval
-							false, // showTokenAtEnd - don't show modal, just get token
-							false, // forceShowModal - not forced, automatic call
-							setSilentLoading // setSilentLoading - for spinner during silent retrieval
+							undefined, // use config silentApiRetrieval
+							undefined, // use config showTokenAtEnd
+							false, // forceShowModal: automatic call
+							setSilentLoading
 						);
 						// Try again after silent retrieval attempt
 						await new Promise((resolve) => setTimeout(resolve, 500));
@@ -5822,10 +5823,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
 														undefined, // setTokenStatus
-														true, // overrideSilentApiRetrieval - enable silent retrieval
-														false, // overrideShowTokenAtEnd - don't show modal, just get token
-														false, // forceShowModal - not forced, automatic call
-														setIsSilentLoading // loading state for spinner
+														undefined, // use config silentApiRetrieval
+														undefined, // use config showTokenAtEnd
+														true, // forceShowModal: user clicked button
+														setIsSilentLoading
 													);
 
 													// Wait a moment for token to be saved, then check if token is now available
@@ -6141,7 +6142,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 															borderRadius: '3px',
 														}}
 													>
-														{credentials.redirectUri || `${window.location.origin}/authz-callback`}
+														{credentials.redirectUri ||
+															getRedirectUriForUnifiedFlow(flowType) ||
+															`${window.location.origin}/authz-callback`}
 													</code>
 												</li>
 												<li>Save changes</li>
@@ -7982,7 +7985,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		};
 
 		// Get the redirect URI that was configured (this is where PingOne will redirect to)
-		const redirectUri = credentials.redirectUri || `${window.location.origin}/authz-callback`;
+		const redirectUri =
+			credentials.redirectUri ||
+			getRedirectUriForUnifiedFlow(flowType) ||
+			`${window.location.origin}/authz-callback`;
 
 		// Check for errors in callback data (from sessionStorage)
 		const callbackDataStr = sessionStorage.getItem('v8u_callback_data');

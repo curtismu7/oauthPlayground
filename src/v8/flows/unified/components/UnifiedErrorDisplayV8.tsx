@@ -12,9 +12,6 @@
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { colors, spacing } from '@/v8/styles/designTokens';
 import { FiX } from '../../../../icons';
 
@@ -45,8 +42,11 @@ export const UnifiedErrorDisplayV8: React.FC<UnifiedErrorDisplayV8Props> = ({
 	className = '',
 	type = 'error',
 }) => {
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
+
+	function openGlobalWorkerTokenModal(source: string): void {
+		window.dispatchEvent(new CustomEvent('open-worker-token-modal', { detail: { source } }));
+	}
 
 	// Determine if this is a worker token related error
 	const isWorkerTokenError = React.useMemo(() => {
@@ -68,47 +68,11 @@ export const UnifiedErrorDisplayV8: React.FC<UnifiedErrorDisplayV8Props> = ({
 	// Auto-show worker token button for token-related errors
 	const shouldShowWorkerTokenButton = showWorkerTokenButton || isWorkerTokenError;
 
-	const handleGetWorkerToken = async () => {
+	const handleGetWorkerToken = () => {
 		setIsGettingWorkerToken(true);
-		try {
-			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-
-			await handleShowWorkerTokenModal(
-				setShowWorkerTokenModal,
-				() => {}, // Token status will be checked after modal closes
-				false, // Show modal (not silent)
-				false, // Don't show token at end
-				false, // setIsGettingWorkerToken parameter
-				setIsGettingWorkerToken
-			);
-		} catch (error) {
-			logger.error(`${MODULE_TAG} Error opening worker token modal:`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to open worker token modal',
-				dismissible: true,
-			});
-		} finally {
-			setIsGettingWorkerToken(false);
-		}
-	};
-
-	const handleWorkerTokenModalClose = async () => {
-		setShowWorkerTokenModal(false);
-		// Check token status after modal closes
-		const tokenStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-		if (tokenStatus.isValid) {
-			modernMessaging.showFooterMessage({
-				type: 'info',
-				message: 'Worker token configured successfully!',
-				duration: 3000,
-			});
-			// Auto-dismiss error if token is now valid
-			if (onDismiss) {
-				onDismiss();
-			}
-		}
+		openGlobalWorkerTokenModal('UnifiedErrorDisplayV8');
+		// Reset loading after a short delay; global modal opens with its own wait screen
+		setTimeout(() => setIsGettingWorkerToken(false), 600);
 	};
 
 	const getErrorStyles = () => {
@@ -252,15 +216,6 @@ export const UnifiedErrorDisplayV8: React.FC<UnifiedErrorDisplayV8Props> = ({
 					</div>
 				</div>
 			</div>
-
-			{/* Worker Token Modal */}
-			{globalEnvironmentService.getEnvironmentId() && (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={handleWorkerTokenModalClose}
-					environmentId={globalEnvironmentService.getEnvironmentId()}
-				/>
-			)}
 
 			<style>{`
 				@keyframes spin {
