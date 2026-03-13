@@ -38,43 +38,10 @@ export interface SharedCredentials {
 
 export class SharedCredentialsServiceV8 {
 	/**
-	 * Load shared credentials from storage (MCP server first, then browser)
+	 * Load shared credentials from storage (localStorage only)
 	 * @returns Shared credentials object
 	 */
 	static async loadSharedCredentials(): Promise<SharedCredentials> {
-		logger.info(`${MODULE_TAG} Loading shared credentials from MCP server`, 'Logger info');
-
-		try {
-			// First try to load from MCP server
-			const mcpResponse = await fetch('/api/mcp/server/credentials');
-			if (mcpResponse.ok) {
-				const mcpData = await mcpResponse.json();
-				if (mcpData.success && mcpData.credentials) {
-					const mcpCreds = mcpData.credentials;
-					logger.info(`${MODULE_TAG} Loaded shared credentials from MCP server`, {
-						hasEnvId: !!mcpCreds.environmentId,
-						hasClientId: !!mcpCreds.clientId,
-					});
-
-					const credentials: SharedCredentials = {
-						environmentId: mcpCreds.environmentId,
-						clientId: mcpCreds.clientId,
-						clientSecret: mcpCreds.clientSecret,
-						issuerUrl: mcpCreds.apiUrl,
-						clientAuthMethod: 'client_secret_post',
-					};
-
-					// Also save to localStorage for persistence
-					await SharedCredentialsServiceV8.saveSharedCredentials(credentials);
-
-					return credentials;
-				}
-			}
-		} catch (mcpError) {
-			logger.warn(`${MODULE_TAG} Failed to load from MCP server, trying localStorage`, mcpError);
-		}
-
-		// Fallback to localStorage
 		logger.info(`${MODULE_TAG} Loading shared credentials from localStorage`, 'Logger info');
 
 		try {
