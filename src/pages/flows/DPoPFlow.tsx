@@ -11,9 +11,9 @@ import DPoPService, { type DPoPKeyPair, type DPoPProof } from '../../services/dp
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { V9FlowRestartButton } from '../../services/v9/V9FlowRestartButton';
 import V9FlowHeader from '../../services/v9/v9FlowHeaderService';
-import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
 import { copyToClipboard } from '../../utils/clipboard';
 import { generateMockAccessToken } from '../../utils/mockOAuth';
+import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
 
 const Container = styled.div`
 	max-width: 1400px;

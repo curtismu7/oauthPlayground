@@ -604,7 +604,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 												'Content-Type': 'application/x-www-form-urlencoded',
 												Authorization: `Basic ${btoa(`${clientId}:***`)}`,
 											}}
-											body={`token=${accessToken ? encodeURIComponent(accessToken.substring(0, 20)) + '...' : '***'}`}
+											body={`token=${accessToken ? `${encodeURIComponent(accessToken.substring(0, 20))}...` : '***'}`}
 											response={{
 												status: 200,
 												statusText: 'OK',

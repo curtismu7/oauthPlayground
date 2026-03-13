@@ -503,9 +503,10 @@ export class FlowUIService {
 					background: ${background};
 					color: white;
 					box-shadow: 0 6px 16px ${background}33;
-					transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-					/* Same as collapsibleHeaderService: expanded=down (0deg), collapsed=right (-90deg) */
-					transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+					transition:
+						background 0.2s ease,
+						color 0.2s ease,
+						transform 0.2s ease;
 
 					svg {
 						width: 16px;
@@ -513,8 +514,7 @@ export class FlowUIService {
 					}
 
 					&:hover {
-						transform: ${({ $collapsed }) =>
-							$collapsed ? 'rotate(-90deg) translateY(-1px)' : 'rotate(0deg) translateY(-1px)'};
+						transform: translateY(-1px);
 						box-shadow: 0 8px 20px ${background}4d;
 					}
 				`
@@ -571,19 +571,18 @@ export class FlowUIService {
 								return '#3b82f6';
 						}
 					}};
-				background-color:
-					${({ $variant }) => {
-						switch ($variant) {
-							case 'warning':
-								return '#fef3c7';
-							case 'success':
-								return '#dcfce7';
-							case 'danger':
-								return '#fee2e2';
-							default:
-								return '#dbeafe';
-						}
-					}};
+				background-color: ${({ $variant }) => {
+					switch ($variant) {
+						case 'warning':
+							return '#fef3c7';
+						case 'success':
+							return '#dcfce7';
+						case 'danger':
+							return '#fee2e2';
+						default:
+							return '#dbeafe';
+					}
+				}};
 			`;
 		}
 		return FlowUIService._infoBoxCache;
@@ -633,7 +632,10 @@ export class FlowUIService {
 	static getParameterGrid() {
 		return styled.div<{ $columns?: number; $gap?: string }>`
 			display: grid;
-			grid-template-columns: repeat(${({ $columns }) => $columns || 'auto-fit'}, minmax(300px, 1fr));
+			grid-template-columns: repeat(
+				${({ $columns }) => $columns || 'auto-fit'},
+				minmax(300px, 1fr)
+			);
 			gap: ${({ $gap }) => $gap || '1rem'};
 			margin-bottom: 1rem;
 		`;
@@ -889,7 +891,9 @@ export class FlowUIService {
 			border: 1px solid #d1d5db;
 			border-radius: 0.5rem;
 			font-size: 0.875rem;
-			transition: border-color 0.2s, box-shadow 0.2s;
+			transition:
+				border-color 0.2s,
+				box-shadow 0.2s;
 
 			&:focus {
 				outline: none;
@@ -915,7 +919,9 @@ export class FlowUIService {
 			font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 			min-height: 100px;
 			resize: vertical;
-			transition: border-color 0.2s, box-shadow 0.2s;
+			transition:
+				border-color 0.2s,
+				box-shadow 0.2s;
 
 			&:focus {
 				outline: none;

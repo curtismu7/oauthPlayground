@@ -458,7 +458,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 								url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/token`}
 								headers={{
 									'Content-Type': 'application/x-www-form-urlencoded',
-									Authorization: 'Basic ' + btoa(`${clientId}:***`),
+									Authorization: `Basic ${btoa(`${clientId}:***`)}`,
 								}}
 								body={`grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=${encodeURIComponent(deviceCode ?? '')}`}
 								response={
@@ -531,9 +531,9 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 											url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/introspect`}
 											headers={{
 												'Content-Type': 'application/x-www-form-urlencoded',
-												Authorization: 'Basic ' + btoa(`${clientId}:***`),
+												Authorization: `Basic ${btoa(`${clientId}:***`)}`,
 											}}
-											body={`token=${accessToken ? encodeURIComponent(accessToken.substring(0, 20)) + '...' : '***'}`}
+											body={`token=${accessToken ? `${encodeURIComponent(accessToken.substring(0, 20))}...` : '***'}`}
 											response={{ status: 200, statusText: 'OK', data: introspectionResponse }}
 											defaultExpanded={true}
 										/>

@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { showGlobalError, showGlobalSuccess } from '../../../contexts/NotificationSystem';
+import { showGlobalSuccess } from '../../../contexts/NotificationSystem';
 import { V9MockStateStore } from '../../../services/v9/mock/V9MockStateStore';
 import {
 	getSectionBodyStyle,

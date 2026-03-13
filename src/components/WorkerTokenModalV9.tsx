@@ -415,7 +415,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 		} catch (error) {
 			logger.error('Failed to load existing credentials:', error);
 		}
-	}, []);
+	}, [normalizeScopes]);
 
 	// Load existing credentials on mount
 	useEffect(() => {
@@ -556,7 +556,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 		} finally {
 			setIsGenerating(false);
 		}
-	}, [credentials, onTokenGenerated]);
+	}, [credentials, onTokenGenerated, normalizeScopes]);
 
 	const handleClearToken = useCallback(async () => {
 		try {
@@ -599,7 +599,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 				message: 'Failed to export credentials',
 			});
 		}
-	}, [credentials]);
+	}, [credentials, normalizeScopes]);
 
 	const handleImportCredentials = useCallback(() => {
 		triggerFileImport(async (file) => {
@@ -635,7 +635,7 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 				});
 			}
 		});
-	}, []);
+	}, [normalizeScopes]);
 
 	const isFormValid = credentials.environmentId && credentials.clientId && credentials.clientSecret;
 

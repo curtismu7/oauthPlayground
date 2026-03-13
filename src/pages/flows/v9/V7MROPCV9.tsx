@@ -516,8 +516,8 @@ export const V7MROPCV9: React.FC<Props> = ({
 									color: '#92400e',
 								}}
 							>
-								<strong>⚠️ Security Note:</strong> In production, passwords and client secrets should
-								never be displayed or logged. This is shown for educational purposes only.
+								<strong>⚠️ Security Note:</strong> In production, passwords and client secrets
+								should never be displayed or logged. This is shown for educational purposes only.
 							</div>
 						</div>
 					)}
@@ -532,7 +532,7 @@ export const V7MROPCV9: React.FC<Props> = ({
 							url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/token`}
 							headers={{
 								'Content-Type': 'application/x-www-form-urlencoded',
-								Authorization: 'Basic ' + btoa(`${clientId}:***`),
+								Authorization: `Basic ${btoa(`${clientId}:***`)}`,
 							}}
 							body={`grant_type=password&username=${encodeURIComponent(username)}&password=***&scope=${encodeURIComponent(scope)}`}
 							response={
@@ -619,9 +619,9 @@ export const V7MROPCV9: React.FC<Props> = ({
 										url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/introspect`}
 										headers={{
 											'Content-Type': 'application/x-www-form-urlencoded',
-											Authorization: 'Basic ' + btoa(`${clientId}:***`),
+											Authorization: `Basic ${btoa(`${clientId}:***`)}`,
 										}}
-										body={`token=${accessToken ? encodeURIComponent(String(accessToken).substring(0, 20)) + '...' : '***'}`}
+										body={`token=${accessToken ? `${encodeURIComponent(String(accessToken).substring(0, 20))}...` : '***'}`}
 										response={{ status: 200, statusText: 'OK', data: introspectionResponse }}
 										defaultExpanded={true}
 									/>

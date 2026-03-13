@@ -47,7 +47,7 @@ const UserManagementPage: React.FC = () => {
 	const loadUsers = useCallback(async () => {
 		try {
 			setLoading(true);
-			
+
 			// Mock data for now - in real implementation, this would call an API
 			const mockUsers: User[] = [
 				{
@@ -75,7 +75,7 @@ const UserManagementPage: React.FC = () => {
 					lastLogin: '2026-03-10T16:45:00Z',
 				},
 			];
-			
+
 			setUsers(mockUsers);
 			logger.info('UserManagementPage', `Loaded ${mockUsers.length} users`);
 		} catch (error) {

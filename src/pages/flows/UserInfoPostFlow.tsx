@@ -12,104 +12,104 @@ import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDis
 import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 
 const FlowContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
 `;
 
 const FlowTitle = styled.h1`
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 2rem;
+	font-weight: 700;
+	margin-bottom: 0.5rem;
 `;
 
 const FlowDescription = styled.p`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 1.125rem;
-  margin-bottom: 2rem;
-  line-height: 1.6;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 1.125rem;
+	margin-bottom: 2rem;
+	line-height: 1.6;
 `;
 
 const FormContainer = styled.div`
-  background: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin: 1rem 0;
+	background: #f9fafb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	margin: 1rem 0;
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	display: block;
+	margin-bottom: 0.5rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const TextArea = styled.textarea`
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  min-height: 100px;
-  resize: vertical;
-  
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	min-height: 100px;
+	resize: vertical;
+
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const _Select = styled.select`
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  background: white;
-  
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	padding: 0.5rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	background: white;
+
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const Button = styled.button<{
 	$variant: 'primary' | 'secondary' | 'success' | 'danger';
 }>`
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
-  
-  ${({ $variant }) => {
+	padding: 0.75rem 1.5rem;
+	border: none;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	margin-right: 0.5rem;
+	margin-bottom: 0.5rem;
+
+	${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
 				return `
@@ -140,81 +140,81 @@ const Button = styled.button<{
 `;
 
 const CodeBlock = styled.pre`
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  color: #f9fafb;
-  padding: 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  overflow-x: auto;
-  margin: 1rem 0;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: #f9fafb;
+	padding: 1rem;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	overflow-x: auto;
+	margin: 1rem 0;
 `;
 
 const ResponseContainer = styled.div`
-  background: #f0fdf4;
-  border: 1px solid #86efac;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
+	background: #f0fdf4;
+	border: 1px solid #86efac;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	margin: 1rem 0;
 `;
 
 const ErrorContainer = styled.div`
-  background: V9_COLORS.BG.ERROR;
-  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: V9_COLORS.PRIMARY.RED_DARK;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	margin: 1rem 0;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 `;
 
 const InfoContainer = styled.div`
-  background: #dbeafe;
-  border: 1px solid #93c5fd;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: V9_COLORS.PRIMARY.BLUE_DARK;
+	background: #dbeafe;
+	border: 1px solid #93c5fd;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	margin: 1rem 0;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const UserInfoContainer = styled.div`
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin: 1rem 0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	margin: 1rem 0;
 `;
 
 const UserInfoTitle = styled.h4`
-  margin: 0 0 1rem 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 1.125rem;
-  font-weight: 600;
+	margin: 0 0 1rem 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1.125rem;
+	font-weight: 600;
 `;
 
 const UserInfoDetails = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const UserInfoDetail = styled.div`
-  display: flex;
-  flex-direction: column;
+	display: flex;
+	flex-direction: column;
 `;
 
 const UserInfoLabel = styled.span`
-  font-size: 0.75rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-weight: 500;
-  text-transform: uppercase;
-  margin-bottom: 0.25rem;
+	font-size: 0.75rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-weight: 500;
+	text-transform: uppercase;
+	margin-bottom: 0.25rem;
 `;
 
 const UserInfoValue = styled.span`
-  font-size: 0.875rem;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-weight: 500;
-  word-break: break-all;
+	font-size: 0.875rem;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-weight: 500;
+	word-break: break-all;
 `;
 
 interface UserInfoPostFlowProps {
@@ -258,7 +258,7 @@ const UserInfoPostFlow: React.FC<UserInfoPostFlowProps> = ({ credentials }) => {
 				}));
 			}
 		});
-	}, []);
+	}, [formData.clientId, formData.environmentId]);
 
 	const handleAppSelected = useCallback((app: DiscoveredApp) => {
 		setFormData((prev) => ({
