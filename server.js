@@ -2908,6 +2908,75 @@ app.post('/api/api-key/:service', express.json(), async (req, res) => {
 	}
 });
 
+// API Key backup endpoints
+const API_KEY_BACKUP_FILE = path.join(os.homedir(), '.pingone-playground', 'credentials', 'api-keys-backup.json');
+
+// Store API key backup to filesystem
+app.post('/api/api-key/backup', express.json(), async (req, res) => {
+	try {
+		const { manifest } = req.body;
+		
+		if (!manifest || typeof manifest !== 'object') {
+			res.status(400).json({ 
+				success: false, 
+				message: 'Invalid backup manifest' 
+			});
+			return;
+		}
+
+		// Ensure backup directory exists
+		fs.mkdirSync(path.dirname(API_KEY_BACKUP_FILE), { recursive: true });
+		
+		// Write backup to filesystem
+		fs.writeFileSync(API_KEY_BACKUP_FILE, JSON.stringify(manifest, null, 2), 'utf8');
+		
+		console.log(`[API-KEY-BACKUP] Backup stored to ${API_KEY_BACKUP_FILE}`);
+		
+		res.json({ 
+			success: true, 
+			message: 'API key backup stored successfully' 
+		});
+	} catch (error) {
+		console.error('[API-KEY-BACKUP] Error storing backup:', error?.message);
+		res.status(500).json({ 
+			success: false, 
+			message: `Error storing backup: ${error?.message}` 
+		});
+	}
+});
+
+// Load API key backup from filesystem
+app.get('/api/api-key/backup', async (req, res) => {
+	try {
+		// Check if backup file exists
+		if (!fs.existsSync(API_KEY_BACKUP_FILE)) {
+			res.json({ 
+				success: false, 
+				message: 'No backup found' 
+			});
+			return;
+		}
+
+		// Read backup from filesystem
+		const backupData = fs.readFileSync(API_KEY_BACKUP_FILE, 'utf8');
+		const manifest = JSON.parse(backupData);
+		
+		console.log(`[API-KEY-BACKUP] Backup loaded from ${API_KEY_BACKUP_FILE}`);
+		
+		res.json({ 
+			success: true, 
+			manifest,
+			message: 'API key backup loaded successfully' 
+		});
+	} catch (error) {
+		console.error('[API-KEY-BACKUP] Error loading backup:', error?.message);
+		res.status(500).json({ 
+			success: false, 
+			message: `Error loading backup: ${error?.message}` 
+		});
+	}
+});
+
 // Web search (Brave Search API) for AI Assistant "Include web" results
 app.get('/api/search-web', async (req, res) => {
 	const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
