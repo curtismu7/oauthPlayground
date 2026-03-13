@@ -119,12 +119,12 @@ export class SharedCredentialsServiceV8 {
 
 	/**
 	 * Save shared credentials to storage
-	 * - Client secret is ONLY saved to browser localStorage (not disk) for security
-	 * - All credentials are saved to browser storage only (disk storage is disabled)
+	 * - Saves to browser localStorage and MCP server
+	 * - Client secret is saved to both locations for MCP server functionality
 	 * @param credentials - Shared credentials to save
 	 */
 	static async saveSharedCredentials(credentials: SharedCredentials): Promise<void> {
-		logger.info(`${MODULE_TAG} Saving shared credentials to browser storage`, {
+		logger.info(`${MODULE_TAG} Saving shared credentials to browser storage and MCP server`, {
 			hasEnvId: !!credentials.environmentId,
 			hasClientId: !!credentials.clientId,
 			hasClientSecret: !!credentials.clientSecret,
@@ -144,12 +144,35 @@ export class SharedCredentialsServiceV8 {
 				...(credentials.clientAuthMethod && { clientAuthMethod: credentials.clientAuthMethod }),
 			};
 
-			// Save to browser storage only (includes client secret)
-			// Note: Disk storage is disabled for security - client secrets should never be on disk
+			// Save to browser storage (includes client secret)
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(merged));
 			logger.info(
 				`${MODULE_TAG} Shared credentials saved to browser storage (client secret included)`
 			);
+
+			// Also save to MCP server for PingOne MCP server functionality
+			if (merged.environmentId && merged.clientId) {
+				try {
+					const mcpResponse = await fetch('/api/credentials/save-mcp-config', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							environmentId: merged.environmentId,
+							clientId: merged.clientId,
+							clientSecret: merged.clientSecret,
+							apiUrl: merged.issuerUrl || 'https://auth.pingone.com',
+						}),
+					});
+					
+					if (mcpResponse.ok) {
+						logger.info(`${MODULE_TAG} Shared credentials saved to MCP server`);
+					} else {
+						logger.warn(`${MODULE_TAG} Failed to save to MCP server`, { status: mcpResponse.status });
+					}
+				} catch (mcpError) {
+					logger.warn(`${MODULE_TAG} Error saving to MCP server`, mcpError);
+				}
+			}
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Error saving shared credentials`, { error });
 		}
