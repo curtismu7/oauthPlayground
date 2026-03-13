@@ -107,7 +107,7 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-13T14:58:52.144Z
+// Last updated: 2026-03-13T15:53:41.124Z
 // Source: git log (5 days → 5 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
@@ -123,17 +123,17 @@ const CLEANUP_SESSIONS: CleanupSession[] = [
 			description: 'Code Cleanup',
 		},
 		description:
-			'23 commits: Replace console.log with proper logging in AI Assistant side panel; Add AI Assistant side panel with PingOne login and tools …',
-		filesModified: 87,
-		linesOfCode: 5556,
-		issuesResolved: 69,
+			'24 commits: Add dedicated AI Assistant page with full-page support; Replace console.log with proper logging in AI Assistant side panel …',
+		filesModified: 114,
+		linesOfCode: 17941,
+		issuesResolved: 224,
 		documentation: [],
 		achievements: [
+			'Add dedicated AI Assistant page with full-page support',
 			'Replace console.log with proper logging in AI Assistant side panel',
 			'Add AI Assistant side panel with PingOne login and tools',
 			'Clean up regression plan - remove duplicates and organize entries',
 			'Update regression plan with navigation method fix',
-			'Fix navigation method calls in UnifiedRegistrationStep.modern',
 		],
 		version: '9.16.2',
 	},
@@ -200,9 +200,9 @@ const CLEANUP_SESSIONS: CleanupSession[] = [
 		},
 		description:
 			'19 commits: Add dynamic sidebar resize support - v9.14.4; Fix discovery loading state and add validation - v9.14.3 …',
-		filesModified: 1031,
-		linesOfCode: 114145,
-		issuesResolved: 1427,
+		filesModified: 1024,
+		linesOfCode: 112814,
+		issuesResolved: 1410,
 		documentation: [],
 		achievements: [
 			'Add dynamic sidebar resize support - v9.14.4',
