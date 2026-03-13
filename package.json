@@ -86,7 +86,7 @@
 		"test:e2e:headed": "playwright test --headed",
 		"test:e2e:report": "playwright show-report",
 		"db:seed-users": "node scripts/db-seed-users.js",
-		"mcp:inspector": "npx @modelcontextprotocol/inspector --config mcp-inspector-config.json --server pingone",
+		"mcp:inspector": "npx @modelcontextprotocol/inspector --config mcp-inspector-config.json --server pingone --no-open",
 		"service-discovery": "node src/services/serviceDiscoveryCLI.js",
 		"lock:mfa": "node scripts/lockdown/lock-mfa.mjs",
 		"lock:mfa:dry-run": "node scripts/lockdown/lock-mfa.mjs --dry-run",

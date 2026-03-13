@@ -146,14 +146,20 @@ function renderMcpDataItems(data: unknown[]): React.ReactNode {
 	);
 }
 
-const AIAssistant: React.FC = () => {
-	const [isOpen, setIsOpen] = useState(false);
-	const [isExpanded, setIsExpanded] = useState(false);
+interface AIAssistantProps {
+	/** Render as full-page layout instead of floating panel */
+	fullPage?: boolean;
+}
+
+const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
+	const [isOpen, setIsOpen] = useState(fullPage);
+	const [isExpanded, setIsExpanded] = useState(fullPage);
 	const [isCollapsed, setIsCollapsed] = useState(false);
-	const [includeApiDocs, setIncludeApiDocs] = useState(false);
-	const [includeSpecs, setIncludeSpecs] = useState(false);
-	const [includeWorkflows, setIncludeWorkflows] = useState(false);
-	const [includeUserGuide, setIncludeUserGuide] = useState(false);
+	// Context checkboxes - keeping for future use
+	// const [includeApiDocs, setIncludeApiDocs] = useState(false);
+	// const [includeSpecs, setIncludeSpecs] = useState(false);
+	// const [includeWorkflows, setIncludeWorkflows] = useState(false);
+	// const [includeUserGuide, setIncludeUserGuide] = useState(false);
 	const [includeWeb, setIncludeWeb] = useState(true);
 	/** When true, PingOne-actionable queries are sent to /api/mcp/query for live results */
 	const [includeLive, setIncludeLive] = useState(true);
@@ -540,8 +546,8 @@ const AIAssistant: React.FC = () => {
 
 	return (
 		<>
-			{/* Floating Button */}
-			{!isOpen && (
+			{/* Floating Button - only show when not in fullPage mode */}
+			{!fullPage && !isOpen && (
 				<FloatingButton onClick={() => setIsOpen(true)} aria-label="Open AI Assistant">
 					<span style={{ fontSize: '24px' }}>💬</span>
 					<Pulse />
@@ -551,8 +557,8 @@ const AIAssistant: React.FC = () => {
 			{/* Chat Window */}
 			{isOpen && (
 				<>
-					{isExpanded && <ExpandOverlay onClick={() => setIsExpanded(false)} />}
-					<ChatWindow $expanded={isExpanded} $collapsed={isCollapsed}>
+					{isExpanded && !fullPage && <ExpandOverlay onClick={() => setIsExpanded(false)} />}
+					<ChatWindow $expanded={isExpanded} $collapsed={isCollapsed} $fullPage={fullPage}>
 						<ChatHeader>
 							<HeaderContent>
 								<AssistantIcon>🤖</AssistantIcon>
@@ -755,12 +761,16 @@ const AIAssistant: React.FC = () => {
 								</ExpandButton>
 								<CloseButton
 									onClick={() => {
-										setIsOpen(false);
-										setIsExpanded(false);
-										setIsCollapsed(false);
+										if (fullPage) {
+											// In fullPage mode, navigate back or let the parent handle closing
+											navigate('/');
+										} else {
+											setIsOpen(false);
+											setIsExpanded(false);
+											setIsCollapsed(false);
+										}
 									}}
-									aria-label="Close assistant"
-									title="Close assistant (Esc)"
+									title={fullPage ? 'Go back to home' : 'Close assistant (Esc)'}
 								>
 									<span style={{ fontSize: '20px' }}>❌</span>
 								</CloseButton>
@@ -1110,18 +1120,29 @@ const ExpandOverlay = styled.div`
 	backdrop-filter: blur(2px);
 `;
 
-const ChatWindow = styled.div<{ $expanded?: boolean; $collapsed?: boolean }>`
-	position: fixed;
-	${({ $expanded, $collapsed }) =>
-		$collapsed
+const ChatWindow = styled.div<{ $expanded?: boolean; $collapsed?: boolean; $fullPage?: boolean }>`
+	position: ${({ $fullPage }) => ($fullPage ? 'relative' : 'fixed')};
+	${({ $expanded, $collapsed, $fullPage }) =>
+		$fullPage
 			? `
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    bottom: auto;
+    right: auto;
+    transform: none;
+    border-radius: 0;
+    `
+			: $collapsed
+				? `
     bottom: 24px;
     right: 90px;
     width: 520px;
     height: auto;
     `
-			: $expanded
-				? `
+				: $expanded
+					? `
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -1130,18 +1151,18 @@ const ChatWindow = styled.div<{ $expanded?: boolean; $collapsed?: boolean }>`
     bottom: auto;
     right: auto;
     `
-				: `
+					: `
     bottom: 24px;
     right: 90px;
     width: 520px;
     height: 680px;
     `}
 	background: white;
-	border-radius: 16px;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+	border-radius: ${({ $fullPage }) => ($fullPage ? '0' : '16px')};
+	box-shadow: ${({ $fullPage }) => ($fullPage ? 'none' : '0 8px 32px rgba(0, 0, 0, 0.12)')};
 	display: flex;
 	flex-direction: column;
-	z-index: 1001;
+	z-index: ${({ $fullPage }) => ($fullPage ? 'auto' : '1001')};
 	overflow: hidden;
 	isolation: isolate;
 	transition:
@@ -1149,13 +1170,27 @@ const ChatWindow = styled.div<{ $expanded?: boolean; $collapsed?: boolean }>`
 		height 0.25s ease;
 
 	@media (max-width: 768px) {
-		width: calc(100vw - 32px);
-		height: ${({ $collapsed }) => ($collapsed ? 'auto' : 'calc(100vh - 100px)')};
-		bottom: 16px;
-		right: 16px;
-		top: auto;
-		left: auto;
-		transform: none;
+		${({ $fullPage, $collapsed }) =>
+			$fullPage
+				? `
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      bottom: auto;
+      right: auto;
+      transform: none;
+      border-radius: 0;
+      `
+				: `
+      width: calc(100vw - 32px);
+      height: ${$collapsed ? 'auto' : 'calc(100vh - 100px)'};
+      bottom: 16px;
+      right: 16px;
+      top: auto;
+      left: auto;
+      transform: none;
+      `}
 	}
 `;
 

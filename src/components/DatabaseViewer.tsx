@@ -5,7 +5,7 @@
  * @since 2026-03-10
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
 	type DatabaseQueryResult,
@@ -328,18 +328,7 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 	const [pageSize] = useState(50);
 
 	// Load available databases on mount
-	useEffect(() => {
-		loadDatabases();
-	}, [loadDatabases]);
-
-	// Load data when database or table selection changes
-	useEffect(() => {
-		if (selectedDatabase && selectedTable) {
-			loadTableData();
-		}
-	}, [selectedDatabase, selectedTable, loadTableData]);
-
-	const loadDatabases = async () => {
+	const loadDatabases = useCallback(async () => {
 		try {
 			setLoading(true);
 			setError(null);
@@ -356,9 +345,9 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [selectedDatabase]);
 
-	const loadTableData = async () => {
+	const loadTableData = useCallback(async () => {
 		if (!selectedDatabase || !selectedTable) return;
 
 		try {
@@ -384,7 +373,18 @@ export const DatabaseViewer: React.FC<DatabaseViewerProps> = ({ className = '' }
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [selectedDatabase, selectedTable, pageSize, currentPage, searchTerm]);
+
+	useEffect(() => {
+		loadDatabases();
+	}, [loadDatabases]);
+
+	// Load data when database or table selection changes
+	useEffect(() => {
+		if (selectedDatabase && selectedTable) {
+			loadTableData();
+		}
+	}, [selectedDatabase, selectedTable, loadTableData]);
 
 	const handleDatabaseChange = (dbName: string) => {
 		const db = databases.find((d) => d.name === dbName);

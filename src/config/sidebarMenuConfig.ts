@@ -71,7 +71,6 @@ function applyVersionBadges(items: SidebarMenuItem[]): SidebarMenuItem[] {
 			'/jwks-troubleshooting',
 			'/flows/userinfo',
 			'/configuration',
-			'/postman-collection-generator-v9',
 		];
 
 		if (recentlyUpdatedApps.includes(item.path)) {
@@ -273,7 +272,6 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: 'Developer & Tools',
 		items: items([
 			['/postman-collection-generator', 'Postman Collection Generator', true],
-			['/postman-collection-generator-v9', 'Postman Generator V9', true],
 			['/oauth-code-generator-hub', 'OAuth Code Generator Hub', true],
 			['/application-generator', 'Application Generator', true],
 			['/client-generator', 'Client Generator', true],

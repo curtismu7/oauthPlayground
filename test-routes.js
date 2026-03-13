@@ -78,7 +78,6 @@ const commonMissingRoutes = [
 	'/flows/pingone-logout',
 	'/v9/debug-logs-popout',
 	'/postman-collection-generator',
-	'/postman-collection-generator-v9',
 	'/oauth-code-generator-hub',
 	'/application-generator',
 	'/client-generator',

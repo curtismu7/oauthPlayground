@@ -594,8 +594,15 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 		[parseAPICalls]
 	);
 
-	// Default combined log order: server, frontend/client, API, authz
-	const COMBINED_LOG_ORDER = ['server.log', 'client.log', 'pingone-api.log', 'authz-redirects.log'];
+	// Default combined log order: server, frontend/client, API, MCP, AI, authz
+	const COMBINED_LOG_ORDER = [
+		'server.log',
+		'client.log',
+		'pingone-api.log',
+		'mcp-server.log',
+		'ai-assistant.log',
+		'authz-redirects.log',
+	];
 
 	// Load available files
 	const loadAvailableFiles = useCallback(async () => {
@@ -632,10 +639,10 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 				for (const file of toFetch) {
 					try {
 						const logContent = await LogFileService.readLogFile(file, lineCount, tailMode);
-						parts.push(`\n========== ${file} ==========\n${logContent.content}`);
+						parts.push(`\n--- ${file} ---\n${logContent.content}`);
 					} catch (e) {
 						parts.push(
-							`\n========== ${file} ==========\n[Failed to load: ${e instanceof Error ? e.message : 'Unknown error'}]\n`
+							`\n--- ${file} ---\n[Failed to load: ${e instanceof Error ? e.message : 'Unknown error'}]\n`
 						);
 					}
 				}
@@ -691,24 +698,20 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 		}
 	}, [selectedFile, combineLogs, isOpen, loadFileContent]);
 
-	// Standalone (popout) window: retry load after a short delay so requests run after window is ready
+	// Standalone (popout) window: retry file list only (content loads via Load content effect).
+	// Avoids duplicate loadFileContent which causes flashing.
 	useEffect(() => {
 		if (!standalone || !isOpen) return;
-		const t = setTimeout(() => {
-			loadAvailableFiles();
-			loadFileContent();
-		}, 250);
+		const t = setTimeout(() => loadAvailableFiles(), 250);
 		return () => clearTimeout(t);
-	}, [standalone, isOpen, loadAvailableFiles, loadFileContent]);
+	}, [standalone, isOpen, loadAvailableFiles]);
 
-	// Realtime updates (longer interval in standalone to reduce blinking)
+	// Realtime updates (longer intervals to reduce flashing)
 	useEffect(() => {
 		let interval: NodeJS.Timeout;
 		if (isRealtime && isOpen) {
-			const ms = standalone ? 5000 : 2000;
-			interval = setInterval(() => {
-				loadFileContent();
-			}, ms);
+			const ms = standalone ? 10000 : 5000;
+			interval = setInterval(() => loadFileContent(), ms);
 		}
 		return () => clearInterval(interval);
 	}, [isRealtime, isOpen, loadFileContent, standalone]);

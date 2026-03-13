@@ -18,6 +18,7 @@ import './styles/ui-settings.css';
 import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all buttons have white text
 import { lazy, Suspense } from 'react';
 import AIAssistant from './components/AIAssistant';
+import AIAssistantPage from './pages/AIAssistantPage';
 import { CleanlinessDashboardWorking } from './components/CleanlinessDashboardWorking';
 import { CleanupHistoryDashboard } from './components/CleanupHistoryDashboard';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
@@ -56,7 +57,6 @@ const InteractiveFlowDiagram = lazy(() => import('./components/InteractiveFlowDi
 const AutoDiscover = lazy(() => import('./pages/AutoDiscover'));
 
 // Lazy load AI and advanced pages
-const AIAssistantDemo = lazy(() => import('./pages/AIAssistantDemo'));
 const AIIdentityArchitectures = lazy(() => import('./pages/AIIdentityArchitectures'));
 const McpServerConfig = lazy(() => import('./pages/McpServerConfig'));
 const OAuthCodeGeneratorHub = lazy(() => import('./pages/OAuthCodeGeneratorHub'));
@@ -209,7 +209,6 @@ import HelioMartPasswordReset from './pages/security/HelioMartPasswordReset';
 import TestDemo from './pages/TestDemo';
 import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
 import URLDecoder from './pages/URLDecoder';
-import { PostmanCollectionGenerator as PostmanCollectionGeneratorV9 } from './pages/v9/PostmanCollectionGeneratorV9';
 import { FIDO2SampleApp } from './samples/p1mfa/fido2/FIDO2SampleApp';
 import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
 import { SMSSampleApp } from './samples/p1mfa/sms/SMSSampleApp';
@@ -1462,10 +1461,6 @@ const AppRoutes: React.FC = () => {
 									path="/postman-collection-generator"
 									element={<PostmanCollectionGenerator />}
 								/>
-								<Route
-									path="/postman-collection-generator-v9"
-									element={<PostmanCollectionGeneratorV9 />}
-								/>
 								<Route path="/samples/p1mfa" element={<P1MFASamples />} />
 								<Route path="/samples/p1mfa/integrated" element={<IntegratedMFASample />} />
 								<Route path="/samples/p1mfa/fido2" element={<FIDO2SampleApp />} />
@@ -1506,14 +1501,7 @@ const AppRoutes: React.FC = () => {
 										</Suspense>
 									}
 								/>
-								<Route
-									path="/ai-assistant"
-									element={
-										<Suspense fallback={<LoadingFallback message="Loading OAuth Assistant..." />}>
-											<AIAssistantDemo />
-										</Suspense>
-									}
-								/>
+								<Route path="/ai-assistant" element={<AIAssistantPage />} />
 								<Route
 									path="/mcp-server"
 									element={
