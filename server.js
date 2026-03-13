@@ -33,8 +33,18 @@ const logFile = path.join(logsDir, 'server.log');
 const clientLogFile = path.join(logsDir, 'client.log');
 
 // Credential file paths — declared early so api-key routes can use them
-const GROQ_KEY_FILE  = path.join(os.homedir(), '.pingone-playground', 'credentials', 'groq-config.json');
-const BRAVE_KEY_FILE = path.join(os.homedir(), '.pingone-playground', 'credentials', 'brave-config.json');
+const GROQ_KEY_FILE = path.join(
+	os.homedir(),
+	'.pingone-playground',
+	'credentials',
+	'groq-config.json'
+);
+const BRAVE_KEY_FILE = path.join(
+	os.homedir(),
+	'.pingone-playground',
+	'credentials',
+	'brave-config.json'
+);
 
 // Create logs directory if it doesn't exist
 if (!fs.existsSync(logsDir)) {
@@ -170,18 +180,45 @@ function writeBootstrapLogLine(targetFile, message) {
 		if (err) originalError(`[Startup] Failed to bootstrap ${targetFile}:`, err.message);
 	});
 }
-writeBootstrapLogLine('server.log', 'Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).');
-writeBootstrapLogLine('pingone-api.log', 'Log stream started; PingOne API calls will appear here (format: [timestamp] [localTime]).');
-writeBootstrapLogLine('client.log', 'Log stream started; frontend logs will appear here (format: [timestamp] [localTime]).');
-writeBootstrapLogLine('authz-redirects.log', 'Log stream started; OAuth/authz redirects will appear here (format: [timestamp] [localTime]).');
-writeBootstrapLogLine('mcp-server.log', 'Log stream started; PingOne MCP server logs will appear here (format: [timestamp] [localTime]).');
-writeBootstrapLogLine('ai-assistant.log', 'Log stream started; AI Assistant activity (Groq LLM, MCP queries, NL commands) will appear here (format: [timestamp] [localTime]).');
+writeBootstrapLogLine(
+	'server.log',
+	'Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).'
+);
+writeBootstrapLogLine(
+	'pingone-api.log',
+	'Log stream started; PingOne API calls will appear here (format: [timestamp] [localTime]).'
+);
+writeBootstrapLogLine(
+	'client.log',
+	'Log stream started; frontend logs will appear here (format: [timestamp] [localTime]).'
+);
+writeBootstrapLogLine(
+	'authz-redirects.log',
+	'Log stream started; OAuth/authz redirects will appear here (format: [timestamp] [localTime]).'
+);
+writeBootstrapLogLine(
+	'mcp-server.log',
+	'Log stream started; PingOne MCP server logs will appear here (format: [timestamp] [localTime]).'
+);
+writeBootstrapLogLine(
+	'ai-assistant.log',
+	'Log stream started; AI Assistant activity (Groq LLM, MCP queries, NL commands) will appear here (format: [timestamp] [localTime]).'
+);
 
 // Helper: write a structured line to mcp-server.log
 function writeToMcpLog(level, message, extra) {
 	const now = new Date();
 	const ts = now.toISOString();
-	const local = now.toLocaleString('en-US', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+	const local = now.toLocaleString('en-US', {
+		timeZone: 'America/Chicago',
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		hour12: false,
+	});
 	const extraStr = extra ? ' ' + JSON.stringify(extra) : '';
 	const line = `[${ts}] [${local}] [MCP] [${level.toUpperCase()}] ${message}${extraStr}\n`;
 	fs.appendFile(path.join(logsDir, 'mcp-server.log'), line, 'utf8', () => {});
@@ -191,7 +228,16 @@ function writeToMcpLog(level, message, extra) {
 function writeToAiLog(level, message, extra) {
 	const now = new Date();
 	const ts = now.toISOString();
-	const local = now.toLocaleString('en-US', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+	const local = now.toLocaleString('en-US', {
+		timeZone: 'America/Chicago',
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		hour12: false,
+	});
 	const extraStr = extra ? ' ' + JSON.stringify(extra) : '';
 	const line = `[${ts}] [${local}] [AI] [${level.toUpperCase()}] ${message}${extraStr}\n`;
 	fs.appendFile(path.join(logsDir, 'ai-assistant.log'), line, 'utf8', () => {});
@@ -270,9 +316,8 @@ const recordPingOneCall = (res, call) => {
 	res.locals.__pingOneCalls.push(call);
 };
 
-const originalGlobalFetch = process.env.NODE_ENV !== 'test'
-	? globalThis.fetch.bind(globalThis)
-	: null;
+const originalGlobalFetch =
+	process.env.NODE_ENV !== 'test' ? globalThis.fetch.bind(globalThis) : null;
 const _normalizeHeaderObject = (inputHeaders) => {
 	if (!inputHeaders) {
 		return undefined;
@@ -329,122 +374,124 @@ const encodeBodyToBase64 = (body) => {
 	return undefined;
 };
 
-if (process.env.NODE_ENV !== 'test') globalThis.fetch = async (input, init = {}) => {
-	const startTime = Date.now();
-	const requestHeaders = (() => {
-		const headers = new Headers();
-		if (input instanceof Request) {
-			input.headers.forEach((value, key) => headers.set(key, value));
-		}
-		if (init?.headers) {
-			if (init.headers instanceof Headers) {
-				init.headers.forEach((value, key) => headers.set(key, value));
-			} else if (Array.isArray(init.headers)) {
-				init.headers.forEach(([key, value]) => headers.set(key, value));
-			} else if (typeof init.headers === 'object') {
-				for (const [key, value] of Object.entries(init.headers)) {
-					if (typeof value === 'string') {
-						headers.set(key, value);
-					} else if (Array.isArray(value)) {
-						headers.set(key, value.join(', '));
-					} else if (value !== undefined && value !== null) {
-						headers.set(key, String(value));
+if (process.env.NODE_ENV !== 'test')
+	globalThis.fetch = async (input, init = {}) => {
+		const startTime = Date.now();
+		const requestHeaders = (() => {
+			const headers = new Headers();
+			if (input instanceof Request) {
+				input.headers.forEach((value, key) => headers.set(key, value));
+			}
+			if (init?.headers) {
+				if (init.headers instanceof Headers) {
+					init.headers.forEach((value, key) => headers.set(key, value));
+				} else if (Array.isArray(init.headers)) {
+					init.headers.forEach(([key, value]) => headers.set(key, value));
+				} else if (typeof init.headers === 'object') {
+					for (const [key, value] of Object.entries(init.headers)) {
+						if (typeof value === 'string') {
+							headers.set(key, value);
+						} else if (Array.isArray(value)) {
+							headers.set(key, value.join(', '));
+						} else if (value !== undefined && value !== null) {
+							headers.set(key, String(value));
+						}
 					}
 				}
 			}
-		}
-		if (headers.size === 0) {
-			return undefined;
-		}
-		const normalized = {};
-		headers.forEach((value, key) => {
-			normalized[key] = value;
-		});
-		return normalized;
-	})();
-	const requestBodyBase64 = encodeBodyToBase64(init?.body);
-
-	// CRITICAL: Log headers being sent to PingOne for FIDO2 activation
-	const url = getRequestUrl(input);
-	if (isPingOneUrl(url) && url.includes('/activate/fido2')) {
-		console.log(
-			'[FETCH WRAPPER] 🔍 FIDO2 Activation - Headers being sent to originalGlobalFetch:',
-			{
-				url,
-				headersType: typeof init?.headers,
-				headersIsObject:
-					init?.headers && typeof init?.headers === 'object' && !Array.isArray(init?.headers),
-				headersKeys: init?.headers ? Object.keys(init.headers) : [],
-				authorizationHeader:
-					init?.headers?.Authorization || init?.headers?.authorization || 'NOT FOUND',
-				authorizationLength: (init?.headers?.Authorization || init?.headers?.authorization || '')
-					.length,
-				authorizationPreview: (
-					init?.headers?.Authorization ||
-					init?.headers?.authorization ||
-					''
-				).substring(0, 50),
-				authorizationStartsWithBearer: (
-					init?.headers?.Authorization ||
-					init?.headers?.authorization ||
-					''
-				).startsWith('Bearer '),
-				// Check if it's already a hash
-				authorizationIsHash: (() => {
-					const auth = (init?.headers?.Authorization || init?.headers?.authorization || '').replace(
-						/^Bearer\s+/i,
-						''
-					);
-					return auth.length === 44 && /^[A-Za-z0-9+/=]+$/.test(auth);
-				})(),
-				// Full headers object
-				allHeaders: JSON.stringify(init?.headers || {}).substring(0, 500),
+			if (headers.size === 0) {
+				return undefined;
 			}
-		);
-	}
+			const normalized = {};
+			headers.forEach((value, key) => {
+				normalized[key] = value;
+			});
+			return normalized;
+		})();
+		const requestBodyBase64 = encodeBodyToBase64(init?.body);
 
-	const response = await originalGlobalFetch(input, init);
-	try {
-		const store = pingOneRequestContext.getStore();
-		const res = store?.res;
-		if (!res) {
-			return response;
-		}
+		// CRITICAL: Log headers being sent to PingOne for FIDO2 activation
 		const url = getRequestUrl(input);
-		if (!isPingOneUrl(url)) {
-			return response;
+		if (isPingOneUrl(url) && url.includes('/activate/fido2')) {
+			console.log(
+				'[FETCH WRAPPER] 🔍 FIDO2 Activation - Headers being sent to originalGlobalFetch:',
+				{
+					url,
+					headersType: typeof init?.headers,
+					headersIsObject:
+						init?.headers && typeof init?.headers === 'object' && !Array.isArray(init?.headers),
+					headersKeys: init?.headers ? Object.keys(init.headers) : [],
+					authorizationHeader:
+						init?.headers?.Authorization || init?.headers?.authorization || 'NOT FOUND',
+					authorizationLength: (init?.headers?.Authorization || init?.headers?.authorization || '')
+						.length,
+					authorizationPreview: (
+						init?.headers?.Authorization ||
+						init?.headers?.authorization ||
+						''
+					).substring(0, 50),
+					authorizationStartsWithBearer: (
+						init?.headers?.Authorization ||
+						init?.headers?.authorization ||
+						''
+					).startsWith('Bearer '),
+					// Check if it's already a hash
+					authorizationIsHash: (() => {
+						const auth = (
+							init?.headers?.Authorization ||
+							init?.headers?.authorization ||
+							''
+						).replace(/^Bearer\s+/i, '');
+						return auth.length === 44 && /^[A-Za-z0-9+/=]+$/.test(auth);
+					})(),
+					// Full headers object
+					allHeaders: JSON.stringify(init?.headers || {}).substring(0, 500),
+				}
+			);
 		}
-		const method = getRequestMethod(input, init).toUpperCase();
-		let responseBodyBase64;
+
+		const response = await originalGlobalFetch(input, init);
 		try {
-			const responseClone = response.clone();
-			const raw = await responseClone.text();
-			if (raw) {
-				responseBodyBase64 = Buffer.from(raw).toString('base64');
+			const store = pingOneRequestContext.getStore();
+			const res = store?.res;
+			if (!res) {
+				return response;
 			}
+			const url = getRequestUrl(input);
+			if (!isPingOneUrl(url)) {
+				return response;
+			}
+			const method = getRequestMethod(input, init).toUpperCase();
+			let responseBodyBase64;
+			try {
+				const responseClone = response.clone();
+				const raw = await responseClone.text();
+				if (raw) {
+					responseBodyBase64 = Buffer.from(raw).toString('base64');
+				}
+			} catch (error) {
+				console.warn('[PingOne Call Tracker] Failed to read PingOne response body', error);
+			}
+			recordPingOneCall(res, {
+				url,
+				method,
+				status: response.status,
+				statusText: response.statusText,
+				requestId:
+					response.headers.get('pingone-request-id') ||
+					response.headers.get('x-request-id') ||
+					undefined,
+				duration: Date.now() - startTime,
+				timestamp: Date.now(),
+				requestHeaders,
+				requestBodyBase64,
+				responseBodyBase64,
+			});
 		} catch (error) {
-			console.warn('[PingOne Call Tracker] Failed to read PingOne response body', error);
+			console.warn('[PingOne Call Tracker] Unable to record PingOne call metadata', error);
 		}
-		recordPingOneCall(res, {
-			url,
-			method,
-			status: response.status,
-			statusText: response.statusText,
-			requestId:
-				response.headers.get('pingone-request-id') ||
-				response.headers.get('x-request-id') ||
-				undefined,
-			duration: Date.now() - startTime,
-			timestamp: Date.now(),
-			requestHeaders,
-			requestBodyBase64,
-			responseBodyBase64,
-		});
-	} catch (error) {
-		console.warn('[PingOne Call Tracker] Unable to record PingOne call metadata', error);
-	}
-	return response;
-};
+		return response;
+	};
 
 // __filename and __dirname already defined above for logging setup
 
@@ -958,19 +1005,19 @@ app.get('/api/logs/list', (req, res) => {
 		const frontendLogFiles = new Set(['client.log']);
 		const mfaLogFiles = new Set(['fido.log', 'sms.log', 'email.log', 'whatsapp.log', 'voice.log']);
 		const oauthLogFiles = new Set(['authz-redirects.log', 'oauth.log', 'oidc.log']);
-                const mcpLogFiles = new Set(['mcp-server.log']);
-                const logFiles = files
-                        .filter((f) => f.endsWith('.log'))
-                        .map((f) => {
-                                const filePath = path.join(logsDir, f);
-                                const stats = fs.statSync(filePath);
+		const mcpLogFiles = new Set(['mcp-server.log']);
+		const logFiles = files
+			.filter((f) => f.endsWith('.log'))
+			.map((f) => {
+				const filePath = path.join(logsDir, f);
+				const stats = fs.statSync(filePath);
 
-                                // Categorize log files
-                                let category = 'other';
-                                if (serverLogFiles.has(f) || /^server(-|_).+\.log$/i.test(f)) {
-                                        category = 'server';
-                                } else if (mcpLogFiles.has(f) || /^mcp.+\.log$/i.test(f)) {
-                                        category = 'mcp';
+				// Categorize log files
+				let category = 'other';
+				if (serverLogFiles.has(f) || /^server(-|_).+\.log$/i.test(f)) {
+					category = 'server';
+				} else if (mcpLogFiles.has(f) || /^mcp.+\.log$/i.test(f)) {
+					category = 'mcp';
 					category = 'mfa';
 				} else if (oauthLogFiles.has(f) || /(authz|oauth|oidc|redirect).+\.log$/i.test(f)) {
 					category = 'oauth';
@@ -985,7 +1032,13 @@ app.get('/api/logs/list', (req, res) => {
 			});
 
 		// Prefer order for main log streams so Log Viewer shows them first
-		const streamOrder = ['server.log', 'pingone-api.log', 'mcp-server.log', 'client.log', 'authz-redirects.log'];
+		const streamOrder = [
+			'server.log',
+			'pingone-api.log',
+			'mcp-server.log',
+			'client.log',
+			'authz-redirects.log',
+		];
 		logFiles.sort((a, b) => {
 			const ai = streamOrder.indexOf(a.name);
 			const bi = streamOrder.indexOf(b.name);
@@ -2776,12 +2829,18 @@ function _readApiKeyStore() {
 	try {
 		const store = JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8'));
 		return store.__api_keys__?.credentials ?? {};
-	} catch { return {}; }
+	} catch {
+		return {};
+	}
 }
 function _writeApiKeyStore(service, apiKey) {
 	try {
 		let store = {};
-		try { store = JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8')); } catch { /* new file */ }
+		try {
+			store = JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8'));
+		} catch {
+			/* new file */
+		}
 		const creds = store.__api_keys__?.credentials ?? {};
 		creds[service] = apiKey;
 		store.__api_keys__ = { credentials: creds, savedAt: new Date().toISOString() };
@@ -2795,7 +2854,11 @@ function _writeApiKeyStore(service, apiKey) {
 function _deleteApiKeyStore(service) {
 	try {
 		let store = {};
-		try { store = JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8')); } catch { return; }
+		try {
+			store = JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8'));
+		} catch {
+			return;
+		}
 		if (store.__api_keys__?.credentials) {
 			delete store.__api_keys__.credentials[service];
 			store.__api_keys__.savedAt = new Date().toISOString();
@@ -2809,21 +2872,33 @@ function _deleteApiKeyStore(service) {
 // API Key bridge endpoint - get stored API key from frontend
 app.get('/api/api-key/:service', async (req, res) => {
 	const { service } = req.params;
-	
+
 	try {
 		let apiKey = null;
-		
+
 		if (service === 'brave-search') {
 			apiKey = process.env.BRAVE_API_KEY;
 			if (!apiKey) {
-				try { const s = JSON.parse(fs.readFileSync(BRAVE_KEY_FILE, 'utf8')); apiKey = s.apiKey; if (apiKey) process.env.BRAVE_API_KEY = apiKey; } catch { /* ok */ }
+				try {
+					const s = JSON.parse(fs.readFileSync(BRAVE_KEY_FILE, 'utf8'));
+					apiKey = s.apiKey;
+					if (apiKey) process.env.BRAVE_API_KEY = apiKey;
+				} catch {
+					/* ok */
+				}
 			}
 		} else if (service === 'github') {
 			apiKey = process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
 		} else if (service === 'groq') {
 			apiKey = process.env.GROQ_API_KEY;
 			if (!apiKey) {
-				try { const s = JSON.parse(fs.readFileSync(GROQ_KEY_FILE, 'utf8')); apiKey = s.apiKey; if (apiKey) process.env.GROQ_API_KEY = apiKey; } catch { /* ok */ }
+				try {
+					const s = JSON.parse(fs.readFileSync(GROQ_KEY_FILE, 'utf8'));
+					apiKey = s.apiKey;
+					if (apiKey) process.env.GROQ_API_KEY = apiKey;
+				} catch {
+					/* ok */
+				}
 			}
 		}
 
@@ -2839,12 +2914,12 @@ app.get('/api/api-key/:service', async (req, res) => {
 				else if (service === 'github') process.env.GITHUB_PERSONAL_ACCESS_TOKEN = apiKey;
 			}
 		}
-		
+
 		if (!apiKey || apiKey.includes('your_') || apiKey.includes('placeholder')) {
 			res.json({ success: false, message: `API key for ${service} not configured` });
 			return;
 		}
-		
+
 		res.json({ success: true, apiKey });
 	} catch (error) {
 		res.status(500).json({ success: false, message: 'Error retrieving API key' });
@@ -2855,19 +2930,19 @@ app.get('/api/api-key/:service', async (req, res) => {
 app.post('/api/api-key/:service', express.json(), async (req, res) => {
 	const { service } = req.params;
 	const { apiKey } = req.body;
-	
+
 	if (!apiKey || typeof apiKey !== 'string') {
-		res.status(400).json({ 
-			success: false, 
-			message: 'Invalid API key' 
+		res.status(400).json({
+			success: false,
+			message: 'Invalid API key',
 		});
 		return;
 	}
-	
+
 	try {
 		// For now, just log the API key (in production, this would store securely)
 		console.log(`[API-KEY-STORAGE] Storing API key for ${service}: ${apiKey.substring(0, 8)}...`);
-		
+
 		// In a production deployment, this would store in secure storage
 		// For now, we'll set environment variable for this session
 		if (service === 'brave-search') {
@@ -2894,53 +2969,58 @@ app.post('/api/api-key/:service', express.json(), async (req, res) => {
 
 		// Always also write to sqlite-store.json — the universal fallback
 		_writeApiKeyStore(service, apiKey);
-		
-		res.json({ 
-			success: true, 
-			message: `API key for ${service} stored successfully` 
+
+		res.json({
+			success: true,
+			message: `API key for ${service} stored successfully`,
 		});
 	} catch (error) {
 		console.error('[API-KEY-STORAGE] Error:', error?.message, error?.stack?.split('\n')[1]);
-		res.status(500).json({ 
-			success: false, 
-			message: `Error storing API key: ${error?.message}` 
+		res.status(500).json({
+			success: false,
+			message: `Error storing API key: ${error?.message}`,
 		});
 	}
 });
 
 // API Key backup endpoints
-const API_KEY_BACKUP_FILE = path.join(os.homedir(), '.pingone-playground', 'credentials', 'api-keys-backup.json');
+const API_KEY_BACKUP_FILE = path.join(
+	os.homedir(),
+	'.pingone-playground',
+	'credentials',
+	'api-keys-backup.json'
+);
 
 // Store API key backup to filesystem
 app.post('/api/api-key/backup', express.json(), async (req, res) => {
 	try {
 		const { manifest } = req.body;
-		
+
 		if (!manifest || typeof manifest !== 'object') {
-			res.status(400).json({ 
-				success: false, 
-				message: 'Invalid backup manifest' 
+			res.status(400).json({
+				success: false,
+				message: 'Invalid backup manifest',
 			});
 			return;
 		}
 
 		// Ensure backup directory exists
 		fs.mkdirSync(path.dirname(API_KEY_BACKUP_FILE), { recursive: true });
-		
+
 		// Write backup to filesystem
 		fs.writeFileSync(API_KEY_BACKUP_FILE, JSON.stringify(manifest, null, 2), 'utf8');
-		
+
 		console.log(`[API-KEY-BACKUP] Backup stored to ${API_KEY_BACKUP_FILE}`);
-		
-		res.json({ 
-			success: true, 
-			message: 'API key backup stored successfully' 
+
+		res.json({
+			success: true,
+			message: 'API key backup stored successfully',
 		});
 	} catch (error) {
 		console.error('[API-KEY-BACKUP] Error storing backup:', error?.message);
-		res.status(500).json({ 
-			success: false, 
-			message: `Error storing backup: ${error?.message}` 
+		res.status(500).json({
+			success: false,
+			message: `Error storing backup: ${error?.message}`,
 		});
 	}
 });
@@ -2950,9 +3030,9 @@ app.get('/api/api-key/backup', async (req, res) => {
 	try {
 		// Check if backup file exists
 		if (!fs.existsSync(API_KEY_BACKUP_FILE)) {
-			res.json({ 
-				success: false, 
-				message: 'No backup found' 
+			res.json({
+				success: false,
+				message: 'No backup found',
 			});
 			return;
 		}
@@ -2960,19 +3040,19 @@ app.get('/api/api-key/backup', async (req, res) => {
 		// Read backup from filesystem
 		const backupData = fs.readFileSync(API_KEY_BACKUP_FILE, 'utf8');
 		const manifest = JSON.parse(backupData);
-		
+
 		console.log(`[API-KEY-BACKUP] Backup loaded from ${API_KEY_BACKUP_FILE}`);
-		
-		res.json({ 
-			success: true, 
+
+		res.json({
+			success: true,
 			manifest,
-			message: 'API key backup loaded successfully' 
+			message: 'API key backup loaded successfully',
 		});
 	} catch (error) {
 		console.error('[API-KEY-BACKUP] Error loading backup:', error?.message);
-		res.status(500).json({ 
-			success: false, 
-			message: `Error loading backup: ${error?.message}` 
+		res.status(500).json({
+			success: false,
+			message: `Error loading backup: ${error?.message}`,
 		});
 	}
 });
@@ -2980,7 +3060,7 @@ app.get('/api/api-key/backup', async (req, res) => {
 // Web search (Brave Search API) for AI Assistant "Include web" results
 app.get('/api/search-web', async (req, res) => {
 	const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
-	
+
 	if (!q) {
 		res.json({ results: [] });
 		return;
@@ -2988,17 +3068,20 @@ app.get('/api/search-web', async (req, res) => {
 
 	try {
 		// Get API key from bridge endpoint (which will use secure storage in production)
-		const keyResponse = await fetch(`${req.protocol}://${req.get('host')}/api/api-key/brave-search`);
+		const keyResponse = await fetch(
+			`${req.protocol}://${req.get('host')}/api/api-key/brave-search`
+		);
 		const keyData = await keyResponse.json();
-		
+
 		if (!keyData.success) {
-			res.json({ 
-				results: [], 
-				message: 'Web search not configured. Please add your Brave Search API key in the Configuration page.' 
+			res.json({
+				results: [],
+				message:
+					'Web search not configured. Please add your Brave Search API key in the Configuration page.',
 			});
 			return;
 		}
-		
+
 		const apiKey = keyData.apiKey;
 
 		const url = new URL('https://api.search.brave.com/res/v1/web/search');
@@ -3051,7 +3134,9 @@ app.post('/api/mcp/web-search', async (req, res) => {
 		'great for finding documentation, community answers, and recent announcements.';
 
 	try {
-		const keyResponse = await fetch(`${req.protocol}://${req.get('host')}/api/api-key/brave-search`);
+		const keyResponse = await fetch(
+			`${req.protocol}://${req.get('host')}/api/api-key/brave-search`
+		);
 		const keyData = await keyResponse.json();
 
 		if (!keyData.success) {
@@ -3416,7 +3501,11 @@ app.delete('/api/credentials/delete', (req, res) => {
 const SQLITE_STORE_FILE = path.join(CREDENTIALS_DIR, 'sqlite-store.json');
 
 function _readSqliteStore() {
-	try { return JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8')); } catch { return {}; }
+	try {
+		return JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8'));
+	} catch {
+		return {};
+	}
 }
 function _writeSqliteStore(data) {
 	fs.mkdirSync(CREDENTIALS_DIR, { recursive: true });
@@ -21234,8 +21323,13 @@ async function initializeDatabases() {
 //   POST /api/mcp/server/add-tool       — generate + write a new action file
 
 const MCP_SERVER_DIR = path.join(__dirname, 'pingone-mcp-server');
-const MCP_PID_FILE  = path.join(MCP_SERVER_DIR, 'mcp-server.pid');
-const MCP_CRED_FILE = path.join(os.homedir(), '.pingone-playground', 'credentials', 'mcp-config.json');
+const MCP_PID_FILE = path.join(MCP_SERVER_DIR, 'mcp-server.pid');
+const MCP_CRED_FILE = path.join(
+	os.homedir(),
+	'.pingone-playground',
+	'credentials',
+	'mcp-config.json'
+);
 // GROQ_KEY_FILE / BRAVE_KEY_FILE declared at top of file
 
 // Load persisted Groq key from disk on startup
@@ -21245,7 +21339,9 @@ try {
 		process.env.GROQ_API_KEY = saved.apiKey;
 		console.log('[Groq] Loaded API key from', GROQ_KEY_FILE);
 	}
-} catch { /* file does not exist yet - that is fine */ }
+} catch {
+	/* file does not exist yet - that is fine */
+}
 
 // Load persisted Brave Search key from disk on startup
 try {
@@ -21254,7 +21350,9 @@ try {
 		process.env.BRAVE_API_KEY = saved.apiKey;
 		console.log('[BraveSearch] Loaded API key from', BRAVE_KEY_FILE);
 	}
-} catch { /* file does not exist yet - that is fine */ }
+} catch {
+	/* file does not exist yet - that is fine */
+}
 
 // Load any API keys from sqlite-store.json on startup (ultimate fallback layer)
 try {
@@ -21272,14 +21370,25 @@ try {
 		process.env.GITHUB_PERSONAL_ACCESS_TOKEN = sqliteCreds['github'];
 		console.log('[API-KEY-STARTUP] GitHub key loaded from sqlite-store.json');
 	}
-} catch { /* sqlite-store.json not yet created - that is fine */ }
+} catch {
+	/* sqlite-store.json not yet created - that is fine */
+}
 
 function _mcpGetPid() {
-	try { return parseInt(fs.readFileSync(MCP_PID_FILE, 'utf8').trim(), 10); } catch { return null; }
+	try {
+		return parseInt(fs.readFileSync(MCP_PID_FILE, 'utf8').trim(), 10);
+	} catch {
+		return null;
+	}
 }
 function _mcpIsRunning(pid) {
 	if (!pid || isNaN(pid)) return false;
-	try { process.kill(pid, 0); return true; } catch { return false; }
+	try {
+		process.kill(pid, 0);
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 // ─── Groq LLM Chat Endpoint ───────────────────────────────────────────────────
@@ -21335,22 +21444,25 @@ app.post('/api/groq/chat', express.json(), async (req, res) => {
 		writeToAiLog('warn', 'Groq API key not configured');
 		return res.status(503).json({
 			error: 'groq_not_configured',
-			message: 'GROQ_API_KEY is not set. Add it to your .env file or set it via the API key configuration.',
+			message:
+				'GROQ_API_KEY is not set. Add it to your .env file or set it via the API key configuration.',
 		});
 	}
 
 	const userMsg = messages[messages.length - 1]?.content?.slice(0, 200) || '';
 	const liveOn = includeLive === true;
 	const prompt = systemPrompt || (liveOn ? GROQ_SYSTEM_PROMPT_LIVE_ON : GROQ_SYSTEM_PROMPT);
-	writeToAiLog('info', 'Groq request', { query: userMsg, historyLen: messages.length - 1, includeLive: !!includeLive, liveOn });
+	writeToAiLog('info', 'Groq request', {
+		query: userMsg,
+		historyLen: messages.length - 1,
+		includeLive: !!includeLive,
+		liveOn,
+	});
 
 	try {
 		const payload = {
 			model: 'llama-3.3-70b-versatile',
-			messages: [
-				{ role: 'system', content: prompt },
-				...messages,
-			],
+			messages: [{ role: 'system', content: prompt }, ...messages],
 			max_tokens: 1024,
 			temperature: 0.6,
 		};
@@ -21358,7 +21470,7 @@ app.post('/api/groq/chat', express.json(), async (req, res) => {
 		const response = await global.fetch('https://api.groq.com/openai/v1/chat/completions', {
 			method: 'POST',
 			headers: {
-				'Authorization': `Bearer ${apiKey}`,
+				Authorization: `Bearer ${apiKey}`,
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify(payload),
@@ -21372,7 +21484,10 @@ app.post('/api/groq/chat', express.json(), async (req, res) => {
 
 		const data = await response.json();
 		const content = data.choices?.[0]?.message?.content ?? '';
-		writeToAiLog('info', 'Groq response OK', { model: data.model, tokens: data.usage?.total_tokens });
+		writeToAiLog('info', 'Groq response OK', {
+			model: data.model,
+			tokens: data.usage?.total_tokens,
+		});
 		return res.json({
 			content,
 			model: data.model,
@@ -21411,15 +21526,17 @@ app.post('/api/groq/chat/stream', express.json(), async (req, res) => {
 	const userMsg = messages[messages.length - 1]?.content?.slice(0, 200) || '';
 	const liveOn = includeLive === true;
 	const prompt = systemPrompt || (liveOn ? GROQ_SYSTEM_PROMPT_LIVE_ON : GROQ_SYSTEM_PROMPT);
-	writeToAiLog('info', 'Groq stream request', { query: userMsg, historyLen: messages.length - 1, includeLive: !!includeLive, liveOn });
+	writeToAiLog('info', 'Groq stream request', {
+		query: userMsg,
+		historyLen: messages.length - 1,
+		includeLive: !!includeLive,
+		liveOn,
+	});
 
 	try {
 		const payload = {
 			model: 'llama-3.3-70b-versatile',
-			messages: [
-				{ role: 'system', content: prompt },
-				...messages,
-			],
+			messages: [{ role: 'system', content: prompt }, ...messages],
 			max_tokens: 2048,
 			temperature: 0.6,
 			stream: true,
@@ -21428,7 +21545,7 @@ app.post('/api/groq/chat/stream', express.json(), async (req, res) => {
 		const groqRes = await global.fetch('https://api.groq.com/openai/v1/chat/completions', {
 			method: 'POST',
 			headers: {
-				'Authorization': `Bearer ${apiKey}`,
+				Authorization: `Bearer ${apiKey}`,
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify(payload),
@@ -21466,7 +21583,9 @@ app.post('/api/groq/chat/stream', express.json(), async (req, res) => {
 						totalTokens++;
 						res.write(`data: ${JSON.stringify({ token })}\n\n`);
 					}
-				} catch { /* malformed chunk — skip */ }
+				} catch {
+					/* malformed chunk — skip */
+				}
 			}
 		}
 
@@ -21475,7 +21594,12 @@ app.post('/api/groq/chat/stream', express.json(), async (req, res) => {
 		res.end();
 	} catch (err) {
 		writeToAiLog('error', `Groq stream error: ${err.message}`);
-		try { res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`); res.end(); } catch { /* already closed */ }
+		try {
+			res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+			res.end();
+		} catch {
+			/* already closed */
+		}
 	}
 });
 
@@ -21483,7 +21607,10 @@ app.post('/api/groq/chat/stream', express.json(), async (req, res) => {
 
 // In-memory worker token cache (lives for the duration of the server process)
 const _mcpTokenCache = { token: null, expiry: 0 };
-export const _testResetTokenCache = () => { _mcpTokenCache.token = null; _mcpTokenCache.expiry = 0; };
+export const _testResetTokenCache = () => {
+	_mcpTokenCache.token = null;
+	_mcpTokenCache.expiry = 0;
+};
 
 /**
  * Read MCP credentials from mcp-config.json, falling back to environment variables.
@@ -21491,7 +21618,8 @@ export const _testResetTokenCache = () => { _mcpTokenCache.token = null; _mcpTok
  */
 function _mcpReadCredentials() {
 	const fromEnv = {
-		environmentId: process.env.PINGONE_ENVIRONMENT_ID || process.env.VITE_PINGONE_ENVIRONMENT_ID || '',
+		environmentId:
+			process.env.PINGONE_ENVIRONMENT_ID || process.env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		clientId: process.env.PINGONE_CLIENT_ID || process.env.VITE_PINGONE_CLIENT_ID || '',
 		clientSecret: process.env.PINGONE_CLIENT_SECRET || '',
 		apiUrl: process.env.PINGONE_AUTH_URL || 'https://auth.pingone.com',
@@ -21519,13 +21647,17 @@ function _mcpReadCredentials() {
  */
 async function _mcpFetchWorkerToken(creds) {
 	const {
-		environmentId, clientId, clientSecret,
+		environmentId,
+		clientId,
+		clientSecret,
 		apiUrl = 'https://auth.pingone.com',
 		tokenAuthMethod = 'CLIENT_SECRET_POST',
 		scope = 'openid',
 	} = creds;
 	if (!environmentId || !clientId || !clientSecret) {
-		throw new Error('Missing credentials: environmentId, clientId, and clientSecret are required. Save them in MCP Server Config.');
+		throw new Error(
+			'Missing credentials: environmentId, clientId, and clientSecret are required. Save them in MCP Server Config.'
+		);
 	}
 	const baseUrl = apiUrl.replace(/\/$/, '');
 	const tokenUrl = `${baseUrl}/${environmentId}/as/token`;
@@ -21549,7 +21681,9 @@ async function _mcpFetchWorkerToken(creds) {
 	});
 	if (!resp.ok) {
 		const err = await resp.json().catch(() => ({ error: resp.statusText }));
-		throw new Error(`Token request failed (${resp.status}): ${err.error_description || err.error || resp.statusText}`);
+		throw new Error(
+			`Token request failed (${resp.status}): ${err.error_description || err.error || resp.statusText}`
+		);
 	}
 	return resp.json();
 }
@@ -21558,7 +21692,11 @@ app.get('/api/mcp/server/status', (req, res) => {
 	const pid = _mcpGetPid();
 	const running = _mcpIsRunning(pid);
 	let config = null;
-	try { config = JSON.parse(fs.readFileSync(MCP_CRED_FILE, 'utf8')); } catch { /* not configured yet */ }
+	try {
+		config = JSON.parse(fs.readFileSync(MCP_CRED_FILE, 'utf8'));
+	} catch {
+		/* not configured yet */
+	}
 	const distExists = fs.existsSync(path.join(MCP_SERVER_DIR, 'dist', 'index.js'));
 	res.json({
 		running,
@@ -21582,7 +21720,9 @@ app.post('/api/mcp/server/build', (req, res) => {
 		});
 		res.json({ success: true, output: output || '(build completed with no output)' });
 	} catch (err) {
-		res.status(500).json({ success: false, error: err.message, output: err.stderr ?? err.stdout ?? '' });
+		res
+			.status(500)
+			.json({ success: false, error: err.message, output: err.stderr ?? err.stdout ?? '' });
 	}
 });
 
@@ -21593,7 +21733,9 @@ app.post('/api/mcp/server/start', (req, res) => {
 	}
 	const distIndex = path.join(MCP_SERVER_DIR, 'dist', 'index.js');
 	if (!fs.existsSync(distIndex)) {
-		return res.status(400).json({ success: false, error: 'dist/index.js not found. Run Build first.' });
+		return res
+			.status(400)
+			.json({ success: false, error: 'dist/index.js not found. Run Build first.' });
 	}
 	try {
 		const child = spawn('node', [distIndex], {
@@ -21612,12 +21754,20 @@ app.post('/api/mcp/server/start', (req, res) => {
 app.post('/api/mcp/server/stop', (req, res) => {
 	const pid = _mcpGetPid();
 	if (!_mcpIsRunning(pid)) {
-		try { fs.unlinkSync(MCP_PID_FILE); } catch { /* already gone */ }
+		try {
+			fs.unlinkSync(MCP_PID_FILE);
+		} catch {
+			/* already gone */
+		}
 		return res.json({ success: true, was_already_stopped: true });
 	}
 	try {
 		process.kill(pid);
-		try { fs.unlinkSync(MCP_PID_FILE); } catch { /* ignore */ }
+		try {
+			fs.unlinkSync(MCP_PID_FILE);
+		} catch {
+			/* ignore */
+		}
 		res.json({ success: true });
 	} catch (err) {
 		res.status(500).json({ success: false, error: err.message });
@@ -21659,10 +21809,10 @@ app.post('/api/mcp/server/add-tool', express.json(), (req, res) => {
 		return res.status(409).json({ success: false, error: `${fileName} already exists` });
 	}
 	// Generate the tool params schema
-	const paramLines = params.map(p =>
-		`\t\t${p.name}: { type: '${p.type ?? 'string'}' as const${p.optional ? '' : ''} },`
-	).join('\n');
-	const paramArgs = params.map(p => `\t\tconst ${p.name} = args.${p.name};`).join('\n');
+	const paramLines = params
+		.map((p) => `\t\t${p.name}: { type: '${p.type ?? 'string'}' as const${p.optional ? '' : ''} },`)
+		.join('\n');
+	const paramArgs = params.map((p) => `\t\tconst ${p.name} = args.${p.name};`).join('\n');
 	const code = [
 		`import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';`,
 		`import type { Logger } from '../services/logger.js';`,
@@ -21674,12 +21824,12 @@ app.post('/api/mcp/server/add-tool', express.json(), (req, res) => {
 		`\t\t{`,
 		`\t\t\tdescription: ${JSON.stringify(description ?? toolId)},`,
 		`\t\t\tinputSchema: {`,
-		 paramLines || `\t\t\t\t// No parameters defined`,
+		paramLines || `\t\t\t\t// No parameters defined`,
 		`\t\t\t},`,
 		`\t\t},`,
 		`\t\tasync (args) => {`,
-		 paramArgs || `\t\t\t// TODO: implement`,
-		`\t\t\tlogger.log('[${toolId}] called', { ${params.map(p => p.name).join(', ')} });`,
+		paramArgs || `\t\t\t// TODO: implement`,
+		`\t\t\tlogger.log('[${toolId}] called', { ${params.map((p) => p.name).join(', ')} });`,
 		`\t\t\t// TODO: call PingOne API — ${method} ${apiPath}`,
 		`\t\t\treturn { content: [{ type: 'text', text: 'Not yet implemented' }] };`,
 		`\t\t}`,
@@ -21732,7 +21882,8 @@ const MCP_INTENTS = [
 		patterns: [/worker.?token|client.?credentials|access.?token|get.?token|issue.?token/i],
 		mcpTool: 'pingone_get_worker_token',
 		apiCall: { method: 'POST', path: '/environments/{envId}/as/token' },
-		howItWorks: 'Calls the PingOne token endpoint using the client_credentials grant. Exchanges clientId + clientSecret for a short-lived access token used by all other MCP tools.',
+		howItWorks:
+			'Calls the PingOne token endpoint using the client_credentials grant. Exchanges clientId + clientSecret for a short-lived access token used by all other MCP tools.',
 	},
 	// ── Applications ────────────────────────────────────────────────────────
 	{
@@ -21740,42 +21891,52 @@ const MCP_INTENTS = [
 		patterns: [/list.*app|show.*app|get.*app|all.*app|what.*app|fetch.*app/i],
 		mcpTool: 'pingone.applications.list',
 		apiCall: { method: 'GET', path: '/environments/{envId}/applications' },
-		howItWorks: 'Calls GET /environments/{envId}/applications to retrieve all OAuth/OIDC application registrations. Each entry has a clientId, grant types, redirect URIs, and OIDC settings.',
+		howItWorks:
+			'Calls GET /environments/{envId}/applications to retrieve all OAuth/OIDC application registrations. Each entry has a clientId, grant types, redirect URIs, and OIDC settings.',
 	},
 	{
 		id: 'get_application',
-		patterns: [/app(?:lication)?\s+(?:details|info|secret|named?|called?)|find\s+app(?:lication)?|which\s+app/i],
+		patterns: [
+			/app(?:lication)?\s+(?:details|info|secret|named?|called?)|find\s+app(?:lication)?|which\s+app/i,
+		],
 		mcpTool: 'pingone_get_application',
 		apiCall: { method: 'GET', path: '/environments/{envId}/applications/{appId}' },
-		howItWorks: 'Calls GET /environments/{envId}/applications to search by name, or GET …/applications/{id} for a direct lookup. Returns full application config including clientId, grantTypes, and redirectUris.',
+		howItWorks:
+			'Calls GET /environments/{envId}/applications to search by name, or GET …/applications/{id} for a direct lookup. Returns full application config including clientId, grantTypes, and redirectUris.',
 	},
 	{
 		id: 'get_application_secret',
 		patterns: [/client\s+secret|app.*secret|secret.*app|show.*secret/i],
 		mcpTool: 'pingone_get_application_secret',
 		apiCall: { method: 'GET', path: '/environments/{envId}/applications/{appId}/secret' },
-		howItWorks: 'Calls GET /environments/{envId}/applications/{id}/secret. Returns the current clientSecret for the application. Keep this value secure — it is the credential used in client_credentials and authorization_code flows.',
+		howItWorks:
+			'Calls GET /environments/{envId}/applications/{id}/secret. Returns the current clientSecret for the application. Keep this value secure — it is the credential used in client_credentials and authorization_code flows.',
 	},
 	{
 		id: 'rotate_application_secret',
 		patterns: [/rotate.*secret|regenerate.*secret|new.*secret.*app|refresh.*client.*secret/i],
 		mcpTool: 'pingone_rotate_application_secret',
 		apiCall: { method: 'POST', path: '/environments/{envId}/applications/{appId}/secret' },
-		howItWorks: 'Calls POST /environments/{envId}/applications/{id}/secret to issue a new clientSecret, invalidating the previous one. Any client using the old secret must be updated.',
+		howItWorks:
+			'Calls POST /environments/{envId}/applications/{id}/secret to issue a new clientSecret, invalidating the previous one. Any client using the old secret must be updated.',
 	},
 	{
 		id: 'create_application',
-		patterns: [/creat.*app(?:lication)?|add.*app(?:lication)?|new.*app(?:lication)?|register.*app/i],
+		patterns: [
+			/creat.*app(?:lication)?|add.*app(?:lication)?|new.*app(?:lication)?|register.*app/i,
+		],
 		mcpTool: 'pingone_create_application',
 		apiCall: { method: 'POST', path: '/environments/{envId}/applications' },
-		howItWorks: 'Calls POST /environments/{envId}/applications to create a new OAuth/OIDC client registration. Requires a name, protocol (OPENID_CONNECT), and grantTypes. Returns the new clientId.',
+		howItWorks:
+			'Calls POST /environments/{envId}/applications to create a new OAuth/OIDC client registration. Requires a name, protocol (OPENID_CONNECT), and grantTypes. Returns the new clientId.',
 	},
 	{
 		id: 'delete_application',
 		patterns: [/delet.*app(?:lication)?|remov.*app(?:lication)?/i],
 		mcpTool: 'pingone_delete_application',
 		apiCall: { method: 'DELETE', path: '/environments/{envId}/applications/{appId}' },
-		howItWorks: 'Calls DELETE /environments/{envId}/applications/{id}. This permanently removes the application and invalidates its clientId. This action is irreversible.',
+		howItWorks:
+			'Calls DELETE /environments/{envId}/applications/{id}. This permanently removes the application and invalidates its clientId. This action is irreversible.',
 	},
 	// ── Users ────────────────────────────────────────────────────────────────
 	{
@@ -21783,49 +21944,59 @@ const MCP_INTENTS = [
 		patterns: [/list.*user|show.*user|all.*user|get.*users|fetch.*user/i],
 		mcpTool: 'pingone_list_users',
 		apiCall: { method: 'GET', path: '/environments/{envId}/users' },
-		howItWorks: 'Calls GET /environments/{envId}/users. Supports SCIM filter syntax (e.g. username eq "alice") to narrow results. Returns user id, username, email, name, population, and account status.',
+		howItWorks:
+			'Calls GET /environments/{envId}/users. Supports SCIM filter syntax (e.g. username eq "alice") to narrow results. Returns user id, username, email, name, population, and account status.',
 	},
 	{
 		id: 'get_user',
 		patterns: [/get\s+user|find\s+user|look\s*up\s+user|show\s+user|user\s+info|who\s+is\s+user/i],
 		mcpTool: 'pingone_get_user',
 		apiCall: { method: 'GET', path: '/environments/{envId}/users?filter=username eq "{value}"' },
-		howItWorks: 'Looks up a user by email or username using SCIM filter: GET /environments/{envId}/users?filter=username eq "value". Returns the full user object including status, population, and MFA settings.',
+		howItWorks:
+			'Looks up a user by email or username using SCIM filter: GET /environments/{envId}/users?filter=username eq "value". Returns the full user object including status, population, and MFA settings.',
 	},
 	{
 		id: 'create_user',
 		patterns: [/creat.*user|add.*user|new.*user|register.*user|onboard.*user/i],
 		mcpTool: 'pingone_create_user',
 		apiCall: { method: 'POST', path: '/environments/{envId}/users' },
-		howItWorks: 'Calls POST /environments/{envId}/users with a body containing username (email), name.given, name.family, and population.id. Returns the newly created user with its permanent userId.',
+		howItWorks:
+			'Calls POST /environments/{envId}/users with a body containing username (email), name.given, name.family, and population.id. Returns the newly created user with its permanent userId.',
 	},
 	{
 		id: 'delete_user',
 		patterns: [/delet.*user|remov.*user|deactivat.*user/i],
 		mcpTool: 'pingone_delete_user',
 		apiCall: { method: 'DELETE', path: '/environments/{envId}/users/{userId}' },
-		howItWorks: 'Calls DELETE /environments/{envId}/users/{id}. Permanently removes the user account and all associated data. This action is irreversible — consider disabling the account (PATCH status=DISABLED) first.',
+		howItWorks:
+			'Calls DELETE /environments/{envId}/users/{id}. Permanently removes the user account and all associated data. This action is irreversible — consider disabling the account (PATCH status=DISABLED) first.',
 	},
 	{
 		id: 'get_user_groups',
 		patterns: [/user.*groups?|groups?.*for.*user|what.*groups?.*user|user.*member/i],
 		mcpTool: 'pingone_get_user_groups',
 		apiCall: { method: 'GET', path: '/environments/{envId}/users/{userId}/memberOfGroups' },
-		howItWorks: 'Calls GET /environments/{envId}/users/{userId}/memberOfGroups. Returns all groups the user belongs to, including the group id, name, and description.',
+		howItWorks:
+			'Calls GET /environments/{envId}/users/{userId}/memberOfGroups. Returns all groups the user belongs to, including the group id, name, and description.',
 	},
 	{
 		id: 'add_user_to_group',
 		patterns: [/add.*user.*group|put.*user.*group|assign.*user.*group|user.*join.*group/i],
 		mcpTool: 'pingone_add_user_to_group',
 		apiCall: { method: 'POST', path: '/environments/{envId}/users/{userId}/memberOfGroups' },
-		howItWorks: 'Calls POST /environments/{envId}/users/{userId}/memberOfGroups with body { id: groupId }. Adds the user to the specified group. Requires both a userId and a groupId.',
+		howItWorks:
+			'Calls POST /environments/{envId}/users/{userId}/memberOfGroups with body { id: groupId }. Adds the user to the specified group. Requires both a userId and a groupId.',
 	},
 	{
 		id: 'remove_user_from_group',
 		patterns: [/remov.*user.*group|tak.*user.*out.*group|unassign.*user.*group|user.*leav.*group/i],
 		mcpTool: 'pingone_remove_user_from_group',
-		apiCall: { method: 'DELETE', path: '/environments/{envId}/users/{userId}/memberOfGroups/{groupId}' },
-		howItWorks: 'Calls DELETE /environments/{envId}/users/{userId}/memberOfGroups/{groupId}. Removes the user from the group without deleting the user or the group.',
+		apiCall: {
+			method: 'DELETE',
+			path: '/environments/{envId}/users/{userId}/memberOfGroups/{groupId}',
+		},
+		howItWorks:
+			'Calls DELETE /environments/{envId}/users/{userId}/memberOfGroups/{groupId}. Removes the user from the group without deleting the user or the group.',
 	},
 	// ── Groups ───────────────────────────────────────────────────────────────
 	{
@@ -21833,28 +22004,32 @@ const MCP_INTENTS = [
 		patterns: [/list.*group|show.*group|all.*group|get.*groups/i],
 		mcpTool: 'pingone_list_groups',
 		apiCall: { method: 'GET', path: '/environments/{envId}/groups' },
-		howItWorks: 'Calls GET /environments/{envId}/groups. Returns all groups with id, name, description, and population. Supports SCIM filter (e.g. name eq "Admins").',
+		howItWorks:
+			'Calls GET /environments/{envId}/groups. Returns all groups with id, name, description, and population. Supports SCIM filter (e.g. name eq "Admins").',
 	},
 	{
 		id: 'get_group',
 		patterns: [/get\s+group|find\s+group|show\s+group\s+named?|group\s+details|group\s+info/i],
 		mcpTool: 'pingone_get_group',
 		apiCall: { method: 'GET', path: '/environments/{envId}/groups?filter=name eq "{value}"' },
-		howItWorks: 'Looks up a group by name using SCIM filter: GET /environments/{envId}/groups?filter=name eq "value". Returns the group id, name, description, and population.',
+		howItWorks:
+			'Looks up a group by name using SCIM filter: GET /environments/{envId}/groups?filter=name eq "value". Returns the group id, name, description, and population.',
 	},
 	{
 		id: 'create_group',
 		patterns: [/creat.*group|add.*group|new.*group/i],
 		mcpTool: 'pingone_create_group',
 		apiCall: { method: 'POST', path: '/environments/{envId}/groups' },
-		howItWorks: 'Calls POST /environments/{envId}/groups with { name, description }. Creates a new group that users can be added to. Returns the new group id.',
+		howItWorks:
+			'Calls POST /environments/{envId}/groups with { name, description }. Creates a new group that users can be added to. Returns the new group id.',
 	},
 	{
 		id: 'delete_group',
 		patterns: [/delet.*group|remov.*group/i],
 		mcpTool: 'pingone_delete_group',
 		apiCall: { method: 'DELETE', path: '/environments/{envId}/groups/{groupId}' },
-		howItWorks: 'Calls DELETE /environments/{envId}/groups/{id}. Permanently removes the group. Members are not deleted but lose the group membership.',
+		howItWorks:
+			'Calls DELETE /environments/{envId}/groups/{id}. Permanently removes the group. Members are not deleted but lose the group membership.',
 	},
 	// ── Populations ──────────────────────────────────────────────────────────
 	{
@@ -21862,7 +22037,8 @@ const MCP_INTENTS = [
 		patterns: [/list.*pop|show.*pop|all.*pop|get.*pop/i],
 		mcpTool: 'pingone_list_populations',
 		apiCall: { method: 'GET', path: '/environments/{envId}/populations' },
-		howItWorks: 'Calls GET /environments/{envId}/populations. Returns all user populations with id, name, description, and passwordPolicy. Each user belongs to exactly one population.',
+		howItWorks:
+			'Calls GET /environments/{envId}/populations. Returns all user populations with id, name, description, and passwordPolicy. Each user belongs to exactly one population.',
 	},
 	// ── MFA ──────────────────────────────────────────────────────────────────
 	{
@@ -21870,14 +22046,16 @@ const MCP_INTENTS = [
 		patterns: [/mfa.*device|device.*mfa|list.*device|show.*device|authenticat.*device/i],
 		mcpTool: 'pingone.mfa.devices.list',
 		apiCall: { method: 'GET', path: '/environments/{envId}/users/{userId}/devices' },
-		howItWorks: 'Calls GET /environments/{envId}/users/{userId}/devices. Returns all registered MFA devices — TOTP authenticator apps, SMS numbers, email addresses, FIDO2 keys — with device id, type, nickname, and activation status.',
+		howItWorks:
+			'Calls GET /environments/{envId}/users/{userId}/devices. Returns all registered MFA devices — TOTP authenticator apps, SMS numbers, email addresses, FIDO2 keys — with device id, type, nickname, and activation status.',
 	},
 	{
 		id: 'list_mfa_policies',
 		patterns: [/mfa.*polic|polic.*mfa|list.*mfa|show.*mfa.*polic/i],
 		mcpTool: 'pingone.mfa.policy.list',
 		apiCall: { method: 'GET', path: '/environments/{envId}/deviceAuthenticationPolicies' },
-		howItWorks: 'Calls GET /environments/{envId}/deviceAuthenticationPolicies. Returns all MFA policies including their method requirements (SMS, TOTP, FIDO2), enforcement, and default settings.',
+		howItWorks:
+			'Calls GET /environments/{envId}/deviceAuthenticationPolicies. Returns all MFA policies including their method requirements (SMS, TOTP, FIDO2), enforcement, and default settings.',
 	},
 	// ── Subscriptions / Webhooks ─────────────────────────────────────────────
 	{
@@ -21885,21 +22063,24 @@ const MCP_INTENTS = [
 		patterns: [/list.*subscri|show.*subscri|all.*subscri|webhooks?/i],
 		mcpTool: 'pingone_list_subscriptions',
 		apiCall: { method: 'GET', path: '/environments/{envId}/subscriptions' },
-		howItWorks: 'Calls GET /environments/{envId}/subscriptions. Returns all webhook subscriptions — the endpoint URL, enabled status, signing key, and which event types (user.created, session.started, etc.) they subscribe to.',
+		howItWorks:
+			'Calls GET /environments/{envId}/subscriptions. Returns all webhook subscriptions — the endpoint URL, enabled status, signing key, and which event types (user.created, session.started, etc.) they subscribe to.',
 	},
 	{
 		id: 'create_subscription',
 		patterns: [/creat.*subscri|add.*subscri|new.*subscri|register.*webhook/i],
 		mcpTool: 'pingone_create_subscription',
 		apiCall: { method: 'POST', path: '/environments/{envId}/subscriptions' },
-		howItWorks: 'Calls POST /environments/{envId}/subscriptions with { name, httpEndpointUrl, format, filterOptions }. Creates a webhook that POSTs PingOne events to your endpoint.',
+		howItWorks:
+			'Calls POST /environments/{envId}/subscriptions with { name, httpEndpointUrl, format, filterOptions }. Creates a webhook that POSTs PingOne events to your endpoint.',
 	},
 	{
 		id: 'delete_subscription',
 		patterns: [/delet.*subscri|remov.*subscri|delete.*webhook/i],
 		mcpTool: 'pingone_delete_subscription',
 		apiCall: { method: 'DELETE', path: '/environments/{envId}/subscriptions/{id}' },
-		howItWorks: 'Calls DELETE /environments/{envId}/subscriptions/{id}. Permanently removes the webhook subscription. No more events will be delivered to that endpoint.',
+		howItWorks:
+			'Calls DELETE /environments/{envId}/subscriptions/{id}. Permanently removes the webhook subscription. No more events will be delivered to that endpoint.',
 	},
 	// ── Risk ─────────────────────────────────────────────────────────────────
 	{
@@ -21907,7 +22088,8 @@ const MCP_INTENTS = [
 		patterns: [/risk.*eval|eval.*risk|risk.*score|assess.*risk|risk.*user/i],
 		mcpTool: 'pingone_risk_evaluation',
 		apiCall: { method: 'POST', path: '/environments/{envId}/riskEvaluations' },
-		howItWorks: 'Calls POST /environments/{envId}/riskEvaluations with a user + event context. PingOne Protect returns a risk level (LOW/MEDIUM/HIGH) and contributing risk factors (IP reputation, anomalous behavior, impossible travel, etc.).',
+		howItWorks:
+			'Calls POST /environments/{envId}/riskEvaluations with a user + event context. PingOne Protect returns a risk level (LOW/MEDIUM/HIGH) and contributing risk factors (IP reputation, anomalous behavior, impossible travel, etc.).',
 	},
 	// ── Org Licenses ─────────────────────────────────────────────────────────
 	{
@@ -21915,7 +22097,8 @@ const MCP_INTENTS = [
 		patterns: [/licens|org.*licens|subscri.*licens|what.*licens|capacity/i],
 		mcpTool: 'pingone_get_organization_licenses',
 		apiCall: { method: 'GET', path: '/environments/{envId}/licenses' },
-		howItWorks: 'Calls the PingOne Licensing API to return your organization\'s active licenses — product names, seat counts, expiry dates, and included feature flags.',
+		howItWorks:
+			"Calls the PingOne Licensing API to return your organization's active licenses — product names, seat counts, expiry dates, and included feature flags.",
 	},
 	// ── OIDC ─────────────────────────────────────────────────────────────────
 	{
@@ -21923,7 +22106,8 @@ const MCP_INTENTS = [
 		patterns: [/oidc|openid|discovery|\.well-known|issuer/i],
 		mcpTool: 'pingone_oidc_config',
 		apiCall: { method: 'GET', path: '/environments/{envId}/as/.well-known/openid-configuration' },
-		howItWorks: 'Fetches the OIDC Discovery document — a standard RFC 8414 endpoint that advertises supported grant types, scopes, algorithms, and endpoint URLs. No credentials needed.',
+		howItWorks:
+			'Fetches the OIDC Discovery document — a standard RFC 8414 endpoint that advertises supported grant types, scopes, algorithms, and endpoint URLs. No credentials needed.',
 	},
 	// ── Token introspect ─────────────────────────────────────────────────────
 	{
@@ -21931,7 +22115,8 @@ const MCP_INTENTS = [
 		patterns: [/introspect|inspect.*token|token.*info|validate.*token/i],
 		mcpTool: 'pingone_introspect_token',
 		apiCall: { method: 'POST', path: '/environments/{envId}/as/introspect' },
-		howItWorks: 'Calls the PingOne token introspection endpoint (RFC 7662). Returns whether the token is active, plus its claims — expiry, scope, subject, client_id, and more.',
+		howItWorks:
+			'Calls the PingOne token introspection endpoint (RFC 7662). Returns whether the token is active, plus its claims — expiry, scope, subject, client_id, and more.',
 	},
 	// ── Auth / UserInfo ───────────────────────────────────────────────────────
 	{
@@ -21939,7 +22124,8 @@ const MCP_INTENTS = [
 		patterns: [/userinfo|user\s+profile\s+claim|id.?token.*claim|current.*user.*claim/i],
 		mcpTool: 'pingone_userinfo',
 		apiCall: { method: 'GET', path: '/environments/{envId}/as/userinfo' },
-		howItWorks: 'Calls GET /environments/{envId}/as/userinfo with a Bearer token. Returns OIDC standard claims (sub, name, email, phone_number) for the authenticated user. Useful for testing what claims an issued token carries.',
+		howItWorks:
+			'Calls GET /environments/{envId}/as/userinfo with a Bearer token. Returns OIDC standard claims (sub, name, email, phone_number) for the authenticated user. Useful for testing what claims an issued token carries.',
 	},
 	// ── Help ─────────────────────────────────────────────────────────────────
 	{
@@ -21982,18 +22168,39 @@ function buildRegionUrl(region) {
 	return 'api.pingone.com';
 }
 
+/** Returns stored custom PingOne API host, or null when none set. */
 async function getStoredCustomDomain() {
 	try {
 		const raw = await settingsDB.get(CUSTOM_DOMAIN_KEY);
-		return typeof raw === 'string' && raw.trim() ? raw.trim() : DEFAULT_CUSTOM_DOMAIN;
+		return typeof raw === 'string' && raw.trim() ? raw.trim() : null;
 	} catch {
-		return DEFAULT_CUSTOM_DOMAIN;
+		return null;
 	}
 }
 
-async function mcpCallPingOne({ environmentId, workerToken, region, path, method = 'GET', body = null }) {
+async function mcpCallPingOne({
+	environmentId,
+	workerToken,
+	region,
+	path,
+	method = 'GET',
+	body = null,
+}) {
+	// Use region-based PingOne host (api.pingone.com etc.). api.pingdemo.com is the OAuth playground
+	// host, not the PingOne Management API — never use it for API calls.
 	const customDomain = await getStoredCustomDomain();
-	const host = customDomain || buildRegionUrl(region);
+	const isAppHost = customDomain && String(customDomain).toLowerCase().includes('pingdemo.com');
+	let host = customDomain && !isAppHost ? customDomain : buildRegionUrl(region);
+	// Final safeguard: never use pingdemo.com (handles any edge case)
+	if (String(host).toLowerCase().includes('pingdemo.com')) {
+		host = buildRegionUrl(region);
+	}
+	writeToMcpLog('info', `MCP PingOne API call`, {
+		host,
+		region: region ?? 'na',
+		method,
+		path: path.slice(0, 80),
+	});
 	const url = `https://${host}/v1/environments/${environmentId}${path}`;
 	const opts = {
 		method,
@@ -22003,11 +22210,28 @@ async function mcpCallPingOne({ environmentId, workerToken, region, path, method
 		opts.headers['Content-Type'] = 'application/json';
 		opts.body = JSON.stringify(body);
 	}
-	const response = await global.fetch(url, opts);
+	let response;
+	try {
+		response = await global.fetch(url, opts);
+	} catch (fetchErr) {
+		const cause = fetchErr?.cause?.message || fetchErr?.cause?.code || fetchErr?.message;
+		throw new Error(`PingOne ${method} ${host} failed: ${cause || 'fetch failed'}`);
+	}
 	if (method === 'DELETE' && response.status === 204) return { success: true };
 	if (!response.ok) {
-		const err = await response.json().catch(() => ({ message: response.statusText }));
-		throw Object.assign(new Error(err.message || response.statusText), { status: response.status, details: err });
+		const err = await response.json().catch(() => ({}));
+		// PingOne uses message, detail, error_description, error, or code
+		const msg =
+			err?.message ||
+			err?.detail ||
+			err?.error_description ||
+			err?.error ||
+			err?.code ||
+			response.statusText;
+		throw Object.assign(new Error(msg || response.statusText), {
+			status: response.status,
+			details: err,
+		});
 	}
 	return response.json();
 }
@@ -22031,12 +22255,16 @@ function _extractUuid(query) {
 }
 /** Pull a username prefix from phrases like "start with X", "starting with X", "begin with X", "users named X" */
 function _extractUsernamePrefix(query) {
-	const m = query.match(/(?:start(?:ing)?\s+with|begin(?:ning)?\s+with|named?\s+|called?\s+|whose\s+(?:name|username)\s+(?:is|starts?\s+with)\s+)["']?([\w.@+-]+)["']?/i);
+	const m = query.match(
+		/(?:start(?:ing)?\s+with|begin(?:ning)?\s+with|named?\s+|called?\s+|whose\s+(?:name|username)\s+(?:is|starts?\s+with)\s+)["']?([\w.@+-]+)["']?/i
+	);
 	return m ? m[1] : null;
 }
 /** Pull an explicit count/limit from phrases like "show me 5", "get 2 users", "first 10", "top 3" */
 function _extractLimit(query) {
-	const m = query.match(/\b(?:show\s+(?:me\s+)?|get\s+(?:me\s+)?|list\s+(?:me\s+)?|fetch\s+(?:me\s+)?|first\s+|top\s+|only\s+)?(\d{1,4})\s*(?:users?|results?|records?)?\b/i);
+	const m = query.match(
+		/\b(?:show\s+(?:me\s+)?|get\s+(?:me\s+)?|list\s+(?:me\s+)?|fetch\s+(?:me\s+)?|first\s+|top\s+|only\s+)?(\d{1,4})\s*(?:users?|results?|records?)?\b/i
+	);
 	if (m) {
 		const n = parseInt(m[1], 10);
 		// Ignore stray numbers that are clearly not a count (e.g. port numbers, UUIDs picked up)
@@ -22051,7 +22279,9 @@ function _extractScimFilter(query) {
 }
 /** Returns true if the query is asking for raw/JSON output */
 function _wantsJson(query) {
-	return /\b(?:json|raw|as json|in json|raw json|json format|raw format|raw output|raw data)\b/i.test(query);
+	return /\b(?:json|raw|as json|in json|raw json|json format|raw format|raw output|raw data)\b/i.test(
+		query
+	);
 }
 /**
  * Extract application-specific filters from natural language.
@@ -22107,19 +22337,28 @@ app.post('/api/mcp/query', async (req, res) => {
 		const { query, workerToken, environmentId: reqEnvId, region } = req.body || {};
 
 		if (!query || typeof query !== 'string' || !query.trim()) {
-			return res.status(400).json({ error: 'invalid_request', error_description: 'query is required' });
+			return res
+				.status(400)
+				.json({ error: 'invalid_request', error_description: 'query is required' });
 		}
 
 		const intent = classifyMcpIntent(query.trim());
 		_intent = intent;
 
-		writeToMcpLog('info', `MCP query received`, { query: query.trim().slice(0, 150), intent: intent?.id ?? 'unrecognized' });
-		writeToAiLog('info', `NL→MCP dispatch`, { query: query.trim().slice(0, 150), intent: intent?.id ?? 'unrecognized' });
+		writeToMcpLog('info', `MCP query received`, {
+			query: query.trim().slice(0, 150),
+			intent: intent?.id ?? 'unrecognized',
+		});
+		writeToAiLog('info', `NL→MCP dispatch`, {
+			query: query.trim().slice(0, 150),
+			intent: intent?.id ?? 'unrecognized',
+		});
 
 		if (!intent) {
 			return res.json({
 				success: false,
-				answer: "I couldn't identify a specific PingOne operation in that query. Try asking to list applications, list users, list groups, fetch OIDC discovery, or get a worker token. Ask \"What can I do?\" for a full guide.",
+				answer:
+					'I couldn\'t identify a specific PingOne operation in that query. Try asking to list applications, list users, list groups, fetch OIDC discovery, or get a worker token. Ask "What can I do?" for a full guide.',
 				mcpTool: null,
 				apiCall: null,
 				howItWorks: null,
@@ -22132,7 +22371,7 @@ app.post('/api/mcp/query', async (req, res) => {
 			return res.json({
 				success: true,
 				answer:
-					'🤖 Here\'s what you can do via chat:\n\n' +
+					"🤖 Here's what you can do via chat:\n\n" +
 					'🔵 PingOne (always active — no toggles needed):\n' +
 					'• "Get worker token" — authenticate once, all other calls use the cached token\n\n' +
 					'📋 List & search:\n' +
@@ -22177,25 +22416,70 @@ app.post('/api/mcp/query', async (req, res) => {
 				const creds = _mcpReadCredentials();
 				const now = Date.now();
 				if (_mcpTokenCache.token && _mcpTokenCache.expiry > now + 60_000) {
+					const expiresIn = Math.round((_mcpTokenCache.expiry - now) / 1000);
+					writeToMcpLog('info', 'Worker token (cached)', { envId: creds.environmentId, expiresIn });
+					writeToAiLog('info', 'Worker token (cached)', { expiresIn });
+					const baseUrl = (creds.apiUrl || 'https://auth.pingone.com').replace(/\/$/, '');
+					const tokenUrl = `${baseUrl}/${creds.environmentId}/as/token`;
+					logPingOneApiCall(
+						'Worker Token (cached, MCP/AI Assistant)',
+						tokenUrl,
+						'POST',
+						{ 'Content-Type': 'application/x-www-form-urlencoded' },
+						'grant_type=client_credentials (cached, no API call)',
+						{ status: 200, statusText: 'OK', headers: { forEach: () => {} } },
+						{ cached: true, expiresIn },
+						0,
+						{ environmentId: creds.environmentId, source: 'mcp_query' }
+					);
 					return res.json({
 						success: true,
-						answer: `✅ Worker token is active (cached). Expires in ${Math.round((_mcpTokenCache.expiry - now) / 1000)}s. Ready for PingOne API calls.`,
+						answer: `✅ Worker token is active (cached). Expires in ${expiresIn}s. Ready for PingOne API calls.`,
 						mcpTool: intent.mcpTool,
 						apiCall: intent.apiCall,
 						howItWorks: intent.howItWorks,
-						data: { cached: true, expiresIn: Math.round((_mcpTokenCache.expiry - now) / 1000) },
+						data: { cached: true, expiresIn },
 					});
 				}
+				const t0 = Date.now();
 				const tokenData = await _mcpFetchWorkerToken(creds);
+				const duration = Date.now() - t0;
 				_mcpTokenCache.token = tokenData.access_token;
 				_mcpTokenCache.expiry = Date.now() + (tokenData.expires_in ?? 3600) * 1000;
+				writeToMcpLog('info', 'Worker token obtained', {
+					envId: creds.environmentId,
+					expiresIn: tokenData.expires_in ?? 3600,
+					scope: tokenData.scope,
+				});
+				writeToAiLog('info', 'Worker token obtained', {
+					envId: creds.environmentId,
+					expiresIn: tokenData.expires_in ?? 3600,
+				});
+				const baseUrl = (creds.apiUrl || 'https://auth.pingone.com').replace(/\/$/, '');
+				const tokenUrl = `${baseUrl}/${creds.environmentId}/as/token`;
+				const safeResponseData = { ...tokenData, access_token: '[REDACTED]' };
+				logPingOneApiCall(
+					'Worker Token (MCP/AI Assistant)',
+					tokenUrl,
+					'POST',
+					{ 'Content-Type': 'application/x-www-form-urlencoded' },
+					'grant_type=client_credentials&...',
+					{ status: 200, statusText: 'OK', headers: { forEach: () => {} } },
+					safeResponseData,
+					duration,
+					{ environmentId: creds.environmentId, source: 'mcp_query' }
+				);
 				return res.json({
 					success: true,
 					answer: `✅ Worker token obtained for environment ${creds.environmentId}. Expires in ${tokenData.expires_in ?? 3600}s. Scope: ${tokenData.scope || '(default)'}. All subsequent MCP calls will use this token automatically.`,
 					mcpTool: intent.mcpTool,
 					apiCall: intent.apiCall,
 					howItWorks: intent.howItWorks,
-					data: { tokenType: tokenData.token_type, expiresIn: tokenData.expires_in, scope: tokenData.scope },
+					data: {
+						tokenType: tokenData.token_type,
+						expiresIn: tokenData.expires_in,
+						scope: tokenData.scope,
+					},
 				});
 			} catch (tokenErr) {
 				return res.json({
@@ -22211,13 +22495,15 @@ app.post('/api/mcp/query', async (req, res) => {
 		}
 
 		// Resolve credentials — request body > env vars > in-memory token cache
-		const envId = reqEnvId
-			|| process.env.PINGONE_ENVIRONMENT_ID
-			|| process.env.VITE_PINGONE_ENVIRONMENT_ID
-			|| _mcpReadCredentials().environmentId;
-		const token = workerToken
-			|| process.env.PINGONE_WORKER_TOKEN
-			|| (_mcpTokenCache.expiry > Date.now() ? _mcpTokenCache.token : null);
+		const envId =
+			reqEnvId ||
+			process.env.PINGONE_ENVIRONMENT_ID ||
+			process.env.VITE_PINGONE_ENVIRONMENT_ID ||
+			_mcpReadCredentials().environmentId;
+		const token =
+			workerToken ||
+			process.env.PINGONE_WORKER_TOKEN ||
+			(_mcpTokenCache.expiry > Date.now() ? _mcpTokenCache.token : null);
 		const ctx = { environmentId: envId, workerToken: token, region };
 
 		// OIDC discovery — no token needed, try live then fall back to educational
@@ -22229,7 +22515,9 @@ app.post('/api/mcp/query', async (req, res) => {
 					const url = `https://auth.pingone.${tld}/${envId}/as/.well-known/openid-configuration`;
 					const resp = await global.fetch(url, { headers: { Accept: 'application/json' } });
 					if (resp.ok) data = await resp.json();
-				} catch (_) { /* best-effort */ }
+				} catch (_) {
+					/* best-effort */
+				}
 			}
 			return res.json({
 				success: true,
@@ -22261,7 +22549,7 @@ app.post('/api/mcp/query', async (req, res) => {
 		let data = null;
 		let summary = '';
 
-		const q = query.trim();  // shorthand
+		const q = query.trim(); // shorthand
 
 		// ── LIST / GET (read-only) ─────────────────────────────────────────
 		if (intent.id === 'list_applications') {
@@ -22273,28 +22561,29 @@ app.post('/api/mcp/query', async (req, res) => {
 			let apps = raw?._embedded?.applications || [];
 			const filterDesc = [];
 			if (nameFilter) {
-				apps = apps.filter(a => a.name && a.name.toLowerCase().includes(nameFilter.toLowerCase()));
+				apps = apps.filter(
+					(a) => a.name && a.name.toLowerCase().includes(nameFilter.toLowerCase())
+				);
 				filterDesc.push(`name contains "${nameFilter}"`);
 			}
 			if (typeFilter) {
-				apps = apps.filter(a => a.type === typeFilter);
+				apps = apps.filter((a) => a.type === typeFilter);
 				filterDesc.push(`type=${typeFilter}`);
 			}
 			if (protocolFilter) {
-				apps = apps.filter(a => a.protocol === protocolFilter);
+				apps = apps.filter((a) => a.protocol === protocolFilter);
 				filterDesc.push(`protocol=${protocolFilter}`);
 			}
 			if (enabledFilter !== null) {
-				apps = apps.filter(a => a.enabled === enabledFilter);
+				apps = apps.filter((a) => a.enabled === enabledFilter);
 				filterDesc.push(enabledFilter ? 'enabled only' : 'disabled only');
 			}
 			if (requestedLimit) apps = apps.slice(0, requestedLimit);
 			data = apps;
 			const filterSuffix = filterDesc.length ? ` (${filterDesc.join(', ')})` : '';
 			summary = `Found ${data.length} application(s)${filterSuffix} in environment ${envId}.`;
-
 		} else if (intent.id === 'list_users') {
-			const emailFilter    = _extractEmail(q);
+			const emailFilter = _extractEmail(q);
 			const usernamePrefix = !emailFilter ? _extractUsernamePrefix(q) : null;
 			const explicitFilter = _extractScimFilter(q);
 			const requestedLimit = _extractLimit(q);
@@ -22302,26 +22591,25 @@ app.post('/api/mcp/query', async (req, res) => {
 			const limit = Math.min(requestedLimit || 10, 100);
 
 			let filterParam = '';
-			let filterDesc  = '';
+			let filterDesc = '';
 			if (explicitFilter) {
 				// Caller passed their own SCIM filter — use it verbatim
 				filterParam = `&filter=${encodeURIComponent(explicitFilter)}`;
-				filterDesc  = ` matching filter "${explicitFilter}"`;
+				filterDesc = ` matching filter "${explicitFilter}"`;
 			} else if (emailFilter) {
 				// SCIM: emails[primary eq true].value eq "addr" — PingOne SCIM syntax
 				filterParam = `&filter=${encodeURIComponent(`emails[primary eq true].value eq "${emailFilter}"`)}`;
-				filterDesc  = ` matching email ${emailFilter}`;
+				filterDesc = ` matching email ${emailFilter}`;
 			} else if (usernamePrefix) {
 				// SCIM: username sw "prefix"
 				filterParam = `&filter=${encodeURIComponent(`username sw "${usernamePrefix}"`)}`;
-				filterDesc  = ` whose username starts with "${usernamePrefix}"`;
+				filterDesc = ` whose username starts with "${usernamePrefix}"`;
 			}
 
 			const path = `/users?limit=${limit}${filterParam}`;
 			const raw = await mcpCallPingOne({ ...ctx, path });
 			data = raw?._embedded?.users || [];
 			summary = `Found ${data.length} user(s)${filterDesc} in environment ${envId}. (limit=${limit})`;
-
 		} else if (intent.id === 'get_user') {
 			const email = _extractEmail(q);
 			const uuid = _extractUuid(q);
@@ -22329,30 +22617,37 @@ app.post('/api/mcp/query', async (req, res) => {
 				data = await mcpCallPingOne({ ...ctx, path: `/users/${uuid}` });
 				summary = `Found user ${data.username || uuid}.`;
 			} else if (email) {
-				const raw = await mcpCallPingOne({ ...ctx, path: `/users?filter=email eq "${email}"&limit=5` });
+				const raw = await mcpCallPingOne({
+					...ctx,
+					path: `/users?filter=email eq "${email}"&limit=5`,
+				});
 				data = raw?._embedded?.users || [];
 				summary = `Found ${data.length} user(s) matching ${email}.`;
 			} else {
 				return res.json({
 					success: false,
 					answer: 'Please include an email address or user ID. Example: "Find user john@acme.com"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
-
 		} else if (intent.id === 'get_user_groups') {
 			const uuid = _extractUuid(q);
 			if (!uuid) {
 				return res.json({
 					success: false,
 					answer: 'Please provide a user UUID. Example: "What groups is user 3fa...uuid...abc in?"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
 			const raw = await mcpCallPingOne({ ...ctx, path: `/users/${uuid}/memberOfGroups` });
 			data = raw?._embedded?.groupMemberships || [];
 			summary = `User ${uuid} is a member of ${data.length} group(s).`;
-
 		} else if (intent.id === 'list_groups') {
 			const requestedLimit = _extractLimit(q) || 50;
 			const nameFilter = _extractGroupNameFilter(q);
@@ -22360,13 +22655,12 @@ app.post('/api/mcp/query', async (req, res) => {
 			let groupFilterDesc = '';
 			if (nameFilter) {
 				// Groups support server-side SCIM filter
-				groupPath += `&filter=${encodeURIComponent(`name sw "${nameFilter}"`)}` ;
+				groupPath += `&filter=${encodeURIComponent(`name sw "${nameFilter}"`)}`;
 				groupFilterDesc = ` starting with "${nameFilter}"`;
 			}
 			const raw = await mcpCallPingOne({ ...ctx, path: groupPath });
 			data = raw?._embedded?.groups || [];
 			summary = `Found ${data.length} group(s)${groupFilterDesc} in environment ${envId}.`;
-
 		} else if (intent.id === 'get_group') {
 			const name = _extractName(q);
 			const uuid = _extractUuid(q);
@@ -22381,16 +22675,20 @@ app.post('/api/mcp/query', async (req, res) => {
 				return res.json({
 					success: false,
 					answer: 'Please include a group name or UUID. Example: "Find group named Admins"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
-
 		} else if (intent.id === 'list_populations') {
 			const requestedLimit = _extractLimit(q) || 50;
-			const raw = await mcpCallPingOne({ ...ctx, path: `/populations?limit=${Math.min(requestedLimit, 100)}` });
+			const raw = await mcpCallPingOne({
+				...ctx,
+				path: `/populations?limit=${Math.min(requestedLimit, 100)}`,
+			});
 			data = raw?._embedded?.populations || [];
 			summary = `Found ${data.length} population(s) in environment ${envId}.`;
-
 		} else if (intent.id === 'get_application') {
 			const name = _extractName(q);
 			const uuid = _extractUuid(q);
@@ -22400,68 +22698,76 @@ app.post('/api/mcp/query', async (req, res) => {
 			} else if (name) {
 				const raw = await mcpCallPingOne({ ...ctx, path: `/applications?limit=50` });
 				const apps = raw?._embedded?.applications || [];
-				data = apps.filter(a => a.name?.toLowerCase().includes(name.toLowerCase()));
+				data = apps.filter((a) => a.name?.toLowerCase().includes(name.toLowerCase()));
 				summary = `Found ${data.length} application(s) matching "${name}".`;
 			} else {
 				return res.json({
 					success: false,
 					answer: 'Please include an app name or UUID. Example: "Find app named MyApp"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
-
 		} else if (intent.id === 'get_application_secret') {
 			const uuid = _extractUuid(q);
 			if (!uuid) {
 				return res.json({
 					success: false,
-					answer: 'Please include the application UUID. Example: "Get app secret for 3fa...uuid...abc"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					answer:
+						'Please include the application UUID. Example: "Get app secret for 3fa...uuid...abc"',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
 			data = await mcpCallPingOne({ ...ctx, path: `/applications/${uuid}/secret` });
 			summary = `Retrieved client secret for application ${uuid}. ⚠️ Treat this value as a password.`;
-
 		} else if (intent.id === 'list_mfa_policies') {
 			const raw = await mcpCallPingOne({ ...ctx, path: '/deviceAuthenticationPolicies' });
 			data = raw?._embedded?.deviceAuthenticationPolicies || raw?._embedded?.mfaPolicies || [];
 			summary = `Found ${data.length} MFA policy/policies.`;
-
 		} else if (intent.id === 'list_mfa_devices') {
 			const uuid = _extractUuid(q);
 			if (!uuid) {
 				return res.json({
 					success: false,
-					answer: 'Please provide a user UUID. Example: "List MFA devices for user 3fa...uuid...abc"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					answer:
+						'Please provide a user UUID. Example: "List MFA devices for user 3fa...uuid...abc"',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
 			const raw = await mcpCallPingOne({ ...ctx, path: `/users/${uuid}/devices` });
 			data = raw?._embedded?.devices || [];
 			summary = `Found ${data.length} MFA device(s) for user ${uuid}.`;
-
 		} else if (intent.id === 'list_subscriptions') {
 			const raw = await mcpCallPingOne({ ...ctx, path: '/subscriptions' });
 			data = raw?._embedded?.subscriptions || [];
 			summary = `Found ${data.length} webhook subscription(s).`;
-
 		} else if (intent.id === 'org_licenses') {
 			const raw = await mcpCallPingOne({ ...ctx, path: '/licenses' });
 			data = raw?._embedded?.licenses || [];
 			summary = `Found ${data.length} license(s) for this organization.`;
-
 		} else if (intent.id === 'userinfo') {
 			data = await mcpCallPingOne({ ...ctx, path: '/as/userinfo' });
 			summary = `Retrieved userinfo claims: sub=${data?.sub || '(unknown)'}.`;
 
-		// ── WRITE operations ────────────────────────────────────────────────
+			// ── WRITE operations ────────────────────────────────────────────────
 		} else if (intent.id === 'create_user') {
 			const email = _extractEmail(q);
 			if (!email) {
 				return res.json({
 					success: false,
 					answer: 'Please include an email address. Example: "Create user john@acme.com"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
 			// Get default population
@@ -22476,158 +22782,218 @@ app.post('/api/mcp/query', async (req, res) => {
 			};
 			data = await mcpCallPingOne({ ...ctx, path: '/users', method: 'POST', body });
 			summary = `✅ Created user ${email} with ID ${data.id}. Population: ${defaultPop?.name || '(default)'}.`;
-
 		} else if (intent.id === 'delete_user') {
 			const email = _extractEmail(q);
 			const uuid = _extractUuid(q);
 			let userId = uuid;
 			if (!userId && email) {
-				const raw = await mcpCallPingOne({ ...ctx, path: `/users?filter=email eq "${email}"&limit=1` });
+				const raw = await mcpCallPingOne({
+					...ctx,
+					path: `/users?filter=email eq "${email}"&limit=1`,
+				});
 				userId = raw?._embedded?.users?.[0]?.id;
 			}
 			if (!userId) {
 				return res.json({
 					success: false,
 					answer: 'Please include a user email or UUID. Example: "Delete user john@acme.com"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
 			await mcpCallPingOne({ ...ctx, path: `/users/${userId}`, method: 'DELETE' });
 			data = { deleted: true, userId };
 			summary = `✅ Deleted user ${email || userId}.`;
-
 		} else if (intent.id === 'create_group') {
 			const name = _extractName(q);
 			if (!name) {
 				return res.json({
 					success: false,
 					answer: 'Please include a group name. Example: "Create group named DevTeam"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
 			data = await mcpCallPingOne({ ...ctx, path: '/groups', method: 'POST', body: { name } });
 			summary = `✅ Created group "${name}" with ID ${data.id}.`;
-
 		} else if (intent.id === 'delete_group') {
 			const uuid = _extractUuid(q);
 			const name = _extractName(q);
 			let groupId = uuid;
 			if (!groupId && name) {
-				const raw = await mcpCallPingOne({ ...ctx, path: `/groups?filter=name eq "${name}"&limit=1` });
+				const raw = await mcpCallPingOne({
+					...ctx,
+					path: `/groups?filter=name eq "${name}"&limit=1`,
+				});
 				groupId = raw?._embedded?.groups?.[0]?.id;
 			}
 			if (!groupId) {
 				return res.json({
 					success: false,
 					answer: 'Please include a group UUID or name. Example: "Delete group named DevTeam"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
 			await mcpCallPingOne({ ...ctx, path: `/groups/${groupId}`, method: 'DELETE' });
 			data = { deleted: true, groupId };
 			summary = `✅ Deleted group ${name || groupId}.`;
-
 		} else if (intent.id === 'add_user_to_group') {
-			const uuids = [...q.matchAll(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi)].map(m => m[0]);
+			const uuids = [
+				...q.matchAll(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi),
+			].map((m) => m[0]);
 			const [userId, groupId] = uuids;
 			if (!userId || !groupId) {
 				return res.json({
 					success: false,
-					answer: 'Please include both a user UUID and a group UUID. Example: "Add user <userId> to group <groupId>"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					answer:
+						'Please include both a user UUID and a group UUID. Example: "Add user <userId> to group <groupId>"',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
-			data = await mcpCallPingOne({ ...ctx, path: `/users/${userId}/memberOfGroups`, method: 'POST', body: { id: groupId } });
+			data = await mcpCallPingOne({
+				...ctx,
+				path: `/users/${userId}/memberOfGroups`,
+				method: 'POST',
+				body: { id: groupId },
+			});
 			summary = `✅ Added user ${userId} to group ${groupId}.`;
-
 		} else if (intent.id === 'remove_user_from_group') {
-			const uuids = [...q.matchAll(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi)].map(m => m[0]);
+			const uuids = [
+				...q.matchAll(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi),
+			].map((m) => m[0]);
 			const [userId, groupId] = uuids;
 			if (!userId || !groupId) {
 				return res.json({
 					success: false,
-					answer: 'Please include both a user UUID and a group UUID. Example: "Remove user <userId> from group <groupId>"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					answer:
+						'Please include both a user UUID and a group UUID. Example: "Remove user <userId> from group <groupId>"',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
-			await mcpCallPingOne({ ...ctx, path: `/users/${userId}/memberOfGroups/${groupId}`, method: 'DELETE' });
+			await mcpCallPingOne({
+				...ctx,
+				path: `/users/${userId}/memberOfGroups/${groupId}`,
+				method: 'DELETE',
+			});
 			data = { removed: true, userId, groupId };
 			summary = `✅ Removed user ${userId} from group ${groupId}.`;
-
 		} else if (intent.id === 'create_application') {
 			const name = _extractName(q);
 			if (!name) {
 				return res.json({
 					success: false,
 					answer: 'Please include an app name. Example: "Create application named MyApp"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
 			data = await mcpCallPingOne({
-				...ctx, path: '/applications', method: 'POST',
-				body: { name, enabled: true, protocol: 'OPENID_CONNECT', type: 'WEB_APP', grantTypes: ['AUTHORIZATION_CODE'], redirectUris: [] },
+				...ctx,
+				path: '/applications',
+				method: 'POST',
+				body: {
+					name,
+					enabled: true,
+					protocol: 'OPENID_CONNECT',
+					type: 'WEB_APP',
+					grantTypes: ['AUTHORIZATION_CODE'],
+					redirectUris: [],
+				},
 			});
 			summary = `✅ Created application "${name}" with clientId ${data.oidcOptions?.clientId || data.id}.`;
-
 		} else if (intent.id === 'delete_application') {
 			const uuid = _extractUuid(q);
 			const name = _extractName(q);
 			let appId = uuid;
 			if (!appId && name) {
 				const raw = await mcpCallPingOne({ ...ctx, path: '/applications?limit=50' });
-				const found = raw?._embedded?.applications?.find(a => a.name?.toLowerCase() === name.toLowerCase());
+				const found = raw?._embedded?.applications?.find(
+					(a) => a.name?.toLowerCase() === name.toLowerCase()
+				);
 				appId = found?.id;
 			}
 			if (!appId) {
 				return res.json({
 					success: false,
-					answer: 'Please include an application UUID or name. Example: "Delete application named MyApp"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					answer:
+						'Please include an application UUID or name. Example: "Delete application named MyApp"',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
 			await mcpCallPingOne({ ...ctx, path: `/applications/${appId}`, method: 'DELETE' });
 			data = { deleted: true, appId };
 			summary = `✅ Deleted application ${name || appId}.`;
-
 		} else if (intent.id === 'rotate_application_secret') {
 			const uuid = _extractUuid(q);
 			if (!uuid) {
 				return res.json({
 					success: false,
-					answer: 'Please include the application UUID. Example: "Rotate secret for 3fa...uuid...abc"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					answer:
+						'Please include the application UUID. Example: "Rotate secret for 3fa...uuid...abc"',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
 			data = await mcpCallPingOne({ ...ctx, path: `/applications/${uuid}/secret`, method: 'POST' });
 			summary = `✅ Rotated client secret for application ${uuid}. Old secret is now invalid.`;
-
 		} else if (intent.id === 'delete_subscription') {
 			const uuid = _extractUuid(q);
 			if (!uuid) {
 				return res.json({
 					success: false,
-					answer: 'Please include the subscription UUID. Example: "Delete subscription 3fa...uuid...abc"',
-					mcpTool: intent.mcpTool, apiCall: intent.apiCall, howItWorks: intent.howItWorks, data: null,
+					answer:
+						'Please include the subscription UUID. Example: "Delete subscription 3fa...uuid...abc"',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
 				});
 			}
 			await mcpCallPingOne({ ...ctx, path: `/subscriptions/${uuid}`, method: 'DELETE' });
 			data = { deleted: true, subscriptionId: uuid };
 			summary = `✅ Deleted subscription ${uuid}.`;
-
 		} else if (intent.id === 'introspect_token') {
-			summary = 'Token introspection requires a token value. Use the Token Tools page to introspect a specific token, or provide it in the request body.';
+			summary =
+				'Token introspection requires a token value. Use the Token Tools page to introspect a specific token, or provide it in the request body.';
 			data = null;
-
 		} else if (intent.id === 'risk_evaluation') {
-			summary = 'Risk evaluation requires a userId and event context. This is an educational description: PingOne Protect evaluates IP reputation, device fingerprint, behavioral analytics, and past activity to produce a LOW/MEDIUM/HIGH risk score.';
+			summary =
+				'Risk evaluation requires a userId and event context. This is an educational description: PingOne Protect evaluates IP reputation, device fingerprint, behavioral analytics, and past activity to produce a LOW/MEDIUM/HIGH risk score.';
 			data = null;
-
 		} else {
 			summary = `Intent "${intent.id}" recognised but no live handler is wired yet.`;
 		}
 
-		writeToMcpLog('info', `MCP query success`, { intent: intent.id, tool: intent.mcpTool, durationMs: Date.now() - _start, records: Array.isArray(data) ? data.length : (data ? 1 : 0) });
-		writeToAiLog('info', `MCP result ready`, { intent: intent.id, durationMs: Date.now() - _start });
+		writeToMcpLog('info', `MCP query success`, {
+			intent: intent.id,
+			tool: intent.mcpTool,
+			durationMs: Date.now() - _start,
+			records: Array.isArray(data) ? data.length : data ? 1 : 0,
+		});
+		writeToAiLog('info', `MCP result ready`, {
+			intent: intent.id,
+			durationMs: Date.now() - _start,
+		});
 		return res.json({
 			success: true,
 			answer: summary || 'Done.',
@@ -22638,17 +23004,23 @@ app.post('/api/mcp/query', async (req, res) => {
 			rawJson: _wantsJson(q) || undefined,
 		});
 	} catch (error) {
+		const errMsg =
+			error instanceof Error ? error.message : typeof error === 'string' ? error : String(error);
 		console.error('[MCP Query] Error:', error);
-		writeToMcpLog('error', `MCP query failed: ${error.message}`, { intent: _intent?.id, tool: _intent?.mcpTool, durationMs: Date.now() - _start });
-		writeToAiLog('error', `MCP query error: ${error.message}`, { intent: _intent?.id });
+		writeToMcpLog('error', `MCP query failed: ${errMsg}`, {
+			intent: _intent?.id,
+			tool: _intent?.mcpTool,
+			durationMs: Date.now() - _start,
+		});
+		writeToAiLog('error', `MCP query error: ${errMsg}`, { intent: _intent?.id });
 		return res.status(500).json({
 			success: false,
-			answer: `PingOne API call failed: ${error.message}`,
+			answer: `PingOne API call failed: ${errMsg}`,
 			mcpTool: _intent?.mcpTool ?? null,
 			apiCall: _intent?.apiCall ?? null,
 			howItWorks: _intent?.howItWorks ?? null,
 			data: null,
-			error: error.message,
+			error: errMsg,
 		});
 	}
 });
