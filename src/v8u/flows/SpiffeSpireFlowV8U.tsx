@@ -23,9 +23,8 @@ import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { V9FlowRestartButton } from '../../services/v9/V9FlowRestartButton';
 import { V9FlowHeader } from '../../services/v9/v9FlowHeaderService';
-import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
-
 import { logger } from '../../utils/logger';
+import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
 
 const MODULE_TAG = '[🔐 SPIFFE-SPIRE-FLOW-V8U]';
 
@@ -224,7 +223,7 @@ const HelperText = styled.div`
 	color: #6b7280; // Muted text
 	margin-top: 0.25rem;
 	font-weight: 600;
-	
+
 	strong {
 		color: #1f2937; // Dark text for emphasis
 	}
@@ -308,7 +307,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	}
 `;
 
-const StepIndicator = styled.div`
+const _StepIndicator = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 1rem;
@@ -319,7 +318,7 @@ const StepIndicator = styled.div`
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
-const Step = styled.div<{ $active: boolean; $completed: boolean }>`
+const _Step = styled.div<{ $active: boolean; $completed: boolean }>`
 	flex: 1;
 	padding: 1rem;
 	border-radius: 0.5rem;
@@ -329,7 +328,7 @@ const Step = styled.div<{ $active: boolean; $completed: boolean }>`
 	transition: all 0.3s ease-in-out;
 	position: relative;
 	cursor: default;
-	
+
 	${(props) => {
 		if (props.$completed) {
 			return `
@@ -653,7 +652,8 @@ const ConceptText = styled.div`
 		font-size: 0.8em;
 	}
 
-	ul, ol {
+	ul,
+	ol {
 		margin: 0.5rem 0;
 		padding-left: 1.5rem;
 	}
@@ -753,7 +753,7 @@ const generatePingOneToken = (svid: SVID, environmentId: string): PingOneToken =
 	};
 };
 
-const SPIFFE_STEP_METADATA = [
+const _SPIFFE_STEP_METADATA = [
 	{
 		title: 'Workload Attestation',
 		subtitle: 'Configure and attest',

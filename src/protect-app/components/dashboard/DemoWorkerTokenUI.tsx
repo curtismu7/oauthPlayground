@@ -10,7 +10,7 @@ export const DemoWorkerTokenUI: React.FC = () => {
 
 	useEffect(() => {
 		checkWorkerTokenStatus().then(setTokenStatus);
-	}, [showTokenModal]);
+	}, []);
 
 	return (
 		<div style={{ padding: 24 }}>

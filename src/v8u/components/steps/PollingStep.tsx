@@ -6,19 +6,15 @@
  * @since 2026-01-25
  */
 
-import React, { useState, useEffect } from 'react';
-import { BaseUnifiedStep } from './BaseUnifiedStep';
+import React, { useEffect, useState } from 'react';
 import { logger } from '../../../utils/logger';
+import { BaseUnifiedStep } from './BaseUnifiedStep';
 
-export const PollingStep: React.FC<{ 
-	isCompleted?: boolean; 
+export const PollingStep: React.FC<{
+	isCompleted?: boolean;
 	isActive?: boolean;
 	onComplete?: () => void;
-}> = ({
-	isCompleted = false,
-	isActive = false,
-	onComplete,
-}) => {
+}> = ({ isCompleted = false, isActive = false, onComplete }) => {
 	const [isPolling, setIsPolling] = useState(false);
 	const [pollCount, setPollCount] = useState(0);
 	const [lastResult, setLastResult] = useState<string>('');
@@ -27,12 +23,12 @@ export const PollingStep: React.FC<{
 		setIsPolling(true);
 		setPollCount(0);
 		logger.info('PollingStep', 'Starting token polling');
-		
+
 		// Simulate polling process
 		const pollInterval = setInterval(() => {
-			setPollCount(prev => {
+			setPollCount((prev) => {
 				const newCount = prev + 1;
-				
+
 				// Simulate finding a token after 5 polls
 				if (newCount >= 5) {
 					clearInterval(pollInterval);
@@ -43,7 +39,7 @@ export const PollingStep: React.FC<{
 				} else {
 					logger.info('PollingStep', `Poll attempt ${newCount}/5`);
 				}
-				
+
 				return newCount;
 			});
 		}, 1000);
@@ -60,7 +56,12 @@ export const PollingStep: React.FC<{
 			// Auto-start when step becomes active
 			startPolling();
 		}
-	}, [isActive, isCompleted, isPolling]);
+	}, [
+		isActive,
+		isCompleted,
+		isPolling, // Auto-start when step becomes active
+		startPolling,
+	]);
 
 	return (
 		<BaseUnifiedStep
@@ -72,43 +73,59 @@ export const PollingStep: React.FC<{
 		>
 			<div>
 				<h4>Token Polling</h4>
-				<p>This step continuously polls the token endpoint to check for authorization completion.</p>
-				
-				<div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+				<p>
+					This step continuously polls the token endpoint to check for authorization completion.
+				</p>
+
+				<div
+					style={{
+						padding: '1rem',
+						background: '#f8fafc',
+						borderRadius: '0.5rem',
+						marginBottom: '1rem',
+					}}
+				>
 					<div style={{ marginBottom: '1rem' }}>
-						<strong>Status:</strong> {isPolling ? 'Polling...' : isCompleted ? 'Completed' : 'Ready'}
+						<strong>Status:</strong>{' '}
+						{isPolling ? 'Polling...' : isCompleted ? 'Completed' : 'Ready'}
 					</div>
-					
+
 					{isPolling && (
 						<div>
 							<div style={{ marginBottom: '0.5rem' }}>
 								<strong>Poll Attempts:</strong> {pollCount}/5
 							</div>
-							<div style={{ 
-								width: '100%', 
-								height: '8px', 
-								background: '#e2e8f0', 
-								borderRadius: '4px',
-								overflow: 'hidden'
-							}}>
-								<div style={{
-									width: `${(pollCount / 5) * 100}%`,
-									height: '100%',
-									background: '#3b82f6',
-									transition: 'width 0.3s ease'
-								}} />
+							<div
+								style={{
+									width: '100%',
+									height: '8px',
+									background: '#e2e8f0',
+									borderRadius: '4px',
+									overflow: 'hidden',
+								}}
+							>
+								<div
+									style={{
+										width: `${(pollCount / 5) * 100}%`,
+										height: '100%',
+										background: '#3b82f6',
+										transition: 'width 0.3s ease',
+									}}
+								/>
 							</div>
 						</div>
 					)}
-					
+
 					{lastResult && (
-						<div style={{ 
-							marginTop: '0.5rem',
-							padding: '0.5rem',
-							background: isCompleted ? '#10b98120' : '#ef444420',
-							borderRadius: '4px',
-							color: isCompleted ? '#059669' : '#dc2626'
-						}}>
+						<div
+							style={{
+								marginTop: '0.5rem',
+								padding: '0.5rem',
+								background: isCompleted ? '#10b98120' : '#ef444420',
+								borderRadius: '4px',
+								color: isCompleted ? '#059669' : '#dc2626',
+							}}
+						>
 							{lastResult}
 						</div>
 					)}
@@ -124,13 +141,13 @@ export const PollingStep: React.FC<{
 								color: 'white',
 								border: 'none',
 								borderRadius: '4px',
-								cursor: 'pointer'
+								cursor: 'pointer',
 							}}
 						>
 							Start Polling
 						</button>
 					)}
-					
+
 					{isPolling && (
 						<button
 							onClick={stopPolling}
@@ -140,7 +157,7 @@ export const PollingStep: React.FC<{
 								color: 'white',
 								border: 'none',
 								borderRadius: '4px',
-								cursor: 'pointer'
+								cursor: 'pointer',
 							}}
 						>
 							Stop Polling
