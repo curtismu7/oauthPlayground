@@ -311,6 +311,295 @@ export async function deleteDevice({ credentials, deviceId }: DeleteDeviceReques
 	}
 }
 
+// ─── Region-aware URL builder (for new admin operations) ─────────────────────
+
+const REGION_MAP: Record<string, string> = {
+	us: 'com',
+	na: 'com',
+	eu: 'eu',
+	ca: 'ca',
+	ap: 'asia',
+	asia: 'asia',
+	au: 'com.au',
+	sg: 'sg',
+};
+
+function buildRegionBaseUrl(environmentId: string, region?: string): string {
+	const tld =
+		(region ? REGION_MAP[region.toLowerCase()] : undefined) ?? determineRegion(environmentId);
+	return `https://api.pingone.${tld}/v1/environments/${environmentId}`;
+}
+
+// ─── New interfaces ───────────────────────────────────────────────────────────
+
+export interface MfaPolicyRequest {
+	/** PingOne environment ID — falls back to PINGONE_ENVIRONMENT_ID env var */
+	environmentId?: string;
+	workerToken: string;
+	/** PingOne region code: us/na, eu, ca, ap/asia, au, sg (default: na) */
+	region?: string;
+}
+
+export interface MfaDeviceStatusRequest {
+	environmentId?: string;
+	workerToken: string;
+	userId: string;
+	deviceId: string;
+	region?: string;
+}
+
+export interface MfaDeviceNicknameRequest {
+	environmentId?: string;
+	workerToken: string;
+	userId: string;
+	deviceId: string;
+	nickname: string;
+	region?: string;
+}
+
+export interface MfaBypassRequest {
+	environmentId?: string;
+	workerToken: string;
+	userId: string;
+	region?: string;
+}
+
+export interface MfaDeviceOrderRequest {
+	environmentId?: string;
+	workerToken: string;
+	userId: string;
+	deviceIds: string[];
+	region?: string;
+}
+
+export interface MfaOtpRequest {
+	environmentId?: string;
+	workerToken: string;
+	userId: string;
+	deviceId: string;
+	region?: string;
+}
+
+// ─── Device Authentication Policy operations ─────────────────────────────────
+
+export async function listDeviceAuthPolicies(request: MfaPolicyRequest): Promise<unknown[]> {
+	const environmentId = resolveEnvironmentId(request.environmentId);
+	const baseUrl = buildRegionBaseUrl(environmentId, request.region);
+	try {
+		const response = await axios.get(`${baseUrl}/deviceAuthenticationPolicies`, {
+			headers: buildHeaders({ workerToken: request.workerToken, userId: '', environmentId }),
+		});
+		const data = response.data as Record<string, unknown>;
+		return (data._embedded as Record<string, unknown[]> | undefined)?.deviceAuthenticationPolicies ?? [];
+	} catch (error) {
+		throw createApiError(error, 'Failed to list device authentication policies.');
+	}
+}
+
+export async function getDeviceAuthPolicy(
+	request: MfaPolicyRequest,
+	policyId: string
+): Promise<unknown> {
+	const environmentId = resolveEnvironmentId(request.environmentId);
+	const baseUrl = buildRegionBaseUrl(environmentId, request.region);
+	try {
+		const response = await axios.get(
+			`${baseUrl}/deviceAuthenticationPolicies/${policyId}`,
+			{ headers: buildHeaders({ workerToken: request.workerToken, userId: '', environmentId }) }
+		);
+		return response.data as unknown;
+	} catch (error) {
+		throw createApiError(error, 'Failed to get device authentication policy.');
+	}
+}
+
+export async function createDeviceAuthPolicy(
+	request: MfaPolicyRequest,
+	policy: Record<string, unknown>
+): Promise<unknown> {
+	const environmentId = resolveEnvironmentId(request.environmentId);
+	const baseUrl = buildRegionBaseUrl(environmentId, request.region);
+	try {
+		const response = await axios.post(
+			`${baseUrl}/deviceAuthenticationPolicies`,
+			{ ...policy, type: policy.type ?? 'DEFAULT' },
+			{ headers: buildHeaders({ workerToken: request.workerToken, userId: '', environmentId }) }
+		);
+		return response.data as unknown;
+	} catch (error) {
+		throw createApiError(error, 'Failed to create device authentication policy.');
+	}
+}
+
+export async function updateDeviceAuthPolicy(
+	request: MfaPolicyRequest,
+	policyId: string,
+	policy: Record<string, unknown>
+): Promise<unknown> {
+	const environmentId = resolveEnvironmentId(request.environmentId);
+	const baseUrl = buildRegionBaseUrl(environmentId, request.region);
+	try {
+		const response = await axios.put(
+			`${baseUrl}/deviceAuthenticationPolicies/${policyId}`,
+			policy,
+			{ headers: buildHeaders({ workerToken: request.workerToken, userId: '', environmentId }) }
+		);
+		return response.data as unknown;
+	} catch (error) {
+		throw createApiError(error, 'Failed to update device authentication policy.');
+	}
+}
+
+// ─── Device status operations (block / unlock / unblock) ─────────────────────
+
+async function postDeviceAction(
+	request: MfaDeviceStatusRequest,
+	contentType: string,
+	action: string
+): Promise<void> {
+	const environmentId = resolveEnvironmentId(request.environmentId);
+	const baseUrl = buildRegionBaseUrl(environmentId, request.region);
+	try {
+		await axios.post(
+			`${baseUrl}/users/${request.userId}/devices/${request.deviceId}`,
+			null,
+			{
+				headers: {
+					Authorization: `Bearer ${request.workerToken}`,
+					'Content-Type': contentType,
+				},
+				// 204 is a success; axios raises on non-2xx by default
+				validateStatus: (s) => (s >= 200 && s < 300) || s === 204,
+			}
+		);
+	} catch (error) {
+		throw createApiError(error, `Failed to ${action} MFA device.`);
+	}
+}
+
+export async function blockDevice(request: MfaDeviceStatusRequest): Promise<void> {
+	return postDeviceAction(request, 'application/vnd.pingidentity.device.block+json', 'block');
+}
+
+export async function unlockDevice(request: MfaDeviceStatusRequest): Promise<void> {
+	return postDeviceAction(request, 'application/vnd.pingidentity.device.unlock+json', 'unlock');
+}
+
+export async function unblockDevice(request: MfaDeviceStatusRequest): Promise<void> {
+	return postDeviceAction(request, 'application/vnd.pingidentity.device.unblock+json', 'unblock');
+}
+
+// ─── Device nickname ──────────────────────────────────────────────────────────
+
+export async function updateDeviceNickname(request: MfaDeviceNicknameRequest): Promise<unknown> {
+	const environmentId = resolveEnvironmentId(request.environmentId);
+	const baseUrl = buildRegionBaseUrl(environmentId, request.region);
+	try {
+		const response = await axios.put(
+			`${baseUrl}/users/${request.userId}/devices/${request.deviceId}/nickname`,
+			{ nickname: request.nickname.trim() },
+			{ headers: buildHeaders({ workerToken: request.workerToken, userId: request.userId, environmentId }) }
+		);
+		return response.data as unknown;
+	} catch (error) {
+		throw createApiError(error, 'Failed to update device nickname.');
+	}
+}
+
+// ─── MFA Bypass ───────────────────────────────────────────────────────────────
+
+export async function allowMfaBypass(request: MfaBypassRequest): Promise<unknown> {
+	const environmentId = resolveEnvironmentId(request.environmentId);
+	const baseUrl = buildRegionBaseUrl(environmentId, request.region);
+	try {
+		const response = await axios.put(
+			`${baseUrl}/users/${request.userId}/mfaBypass`,
+			{ enabled: true },
+			{ headers: buildHeaders({ workerToken: request.workerToken, userId: request.userId, environmentId }) }
+		);
+		return response.data as unknown;
+	} catch (error) {
+		throw createApiError(error, 'Failed to allow MFA bypass.');
+	}
+}
+
+export async function checkMfaBypass(request: MfaBypassRequest): Promise<unknown> {
+	const environmentId = resolveEnvironmentId(request.environmentId);
+	const baseUrl = buildRegionBaseUrl(environmentId, request.region);
+	try {
+		const response = await axios.get(
+			`${baseUrl}/users/${request.userId}/mfaBypass`,
+			{ headers: buildHeaders({ workerToken: request.workerToken, userId: request.userId, environmentId }) }
+		);
+		return response.data as unknown;
+	} catch (error) {
+		throw createApiError(error, 'Failed to check MFA bypass status.');
+	}
+}
+
+// ─── Device order ─────────────────────────────────────────────────────────────
+
+export async function setDeviceOrder(request: MfaDeviceOrderRequest): Promise<void> {
+	const environmentId = resolveEnvironmentId(request.environmentId);
+	const baseUrl = buildRegionBaseUrl(environmentId, request.region);
+	try {
+		await axios.post(
+			`${baseUrl}/users/${request.userId}/devices/order`,
+			{ order: request.deviceIds.map((id) => ({ id })) },
+			{
+				headers: {
+					Authorization: `Bearer ${request.workerToken}`,
+					'Content-Type': 'application/vnd.pingidentity.devices.reorder+json',
+				},
+				validateStatus: (s) => (s >= 200 && s < 300) || s === 204,
+			}
+		);
+	} catch (error) {
+		throw createApiError(error, 'Failed to set device order.');
+	}
+}
+
+export async function removeDeviceOrder(
+	request: Omit<MfaDeviceOrderRequest, 'deviceIds'>
+): Promise<void> {
+	const environmentId = resolveEnvironmentId(request.environmentId);
+	const baseUrl = buildRegionBaseUrl(environmentId, request.region);
+	try {
+		await axios.post(
+			`${baseUrl}/users/${request.userId}/devices/order`,
+			null,
+			{
+				headers: {
+					Authorization: `Bearer ${request.workerToken}`,
+					'Content-Type': 'application/vnd.pingidentity.devices.order.remove+json',
+				},
+				validateStatus: (s) => (s >= 200 && s < 300) || s === 204,
+			}
+		);
+	} catch (error) {
+		throw createApiError(error, 'Failed to remove device order.');
+	}
+}
+
+// ─── OTP ─────────────────────────────────────────────────────────────────────
+
+export async function sendOtp(request: MfaOtpRequest): Promise<unknown> {
+	const environmentId = resolveEnvironmentId(request.environmentId);
+	const baseUrl = buildRegionBaseUrl(environmentId, request.region);
+	try {
+		const response = await axios.post(
+			`${baseUrl}/users/${request.userId}/devices/${request.deviceId}/otp`,
+			{},
+			{ headers: buildHeaders({ workerToken: request.workerToken, userId: request.userId, environmentId }) }
+		);
+		return response.data as unknown;
+	} catch (error) {
+		throw createApiError(error, 'Failed to send OTP.');
+	}
+}
+
+// ─── Error serialization ──────────────────────────────────────────────────────
+
 export function toMfaErrorPayload(error: unknown): MfaErrorPayload {
 	if (error instanceof MfaApiError) {
 		return {

@@ -33,6 +33,7 @@ export interface UnifiedStorageItem {
 		| 'ui_preferences'
 		| 'pkce_state'
 		| 'flow_state'
+		| 'api_key'
 		// Legacy compat types used by V8/V8U storages:
 		| 'v8_storage'
 		| 'v8_credentials'

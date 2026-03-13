@@ -55,8 +55,39 @@ const Subtitle = styled.p`
 	margin: 0 auto;
 `;
 
+const DocLinksSection = styled.section`
+	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 0.75rem;
+	padding: 1.25rem 1.5rem;
+	margin-bottom: 2rem;
+	color: white;
+`;
+
+const DocLinksTitle = styled.h3`
+	margin: 0 0 0.75rem 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+`;
+
+const DocLinksList = styled.ul`
+	margin: 0;
+	padding-left: 1.25rem;
+	line-height: 1.7;
+	font-size: 0.9375rem;
+	opacity: 0.95;
+	li { margin-bottom: 0.5rem; }
+`;
+
+const DocLink = styled.a`
+	color: #93c5fd;
+	text-decoration: none;
+	&:hover { text-decoration: underline; }
+`;
+
 const ResourcesAPIFlowV9: React.FC = () => {
-	const [_currentStep, _setCurrentStep] = useState(0);
+	const [currentStep, setCurrentStep] = useState(0);
+	const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [_executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
 
 	const steps: FlowStep[] = [
@@ -288,12 +319,7 @@ logger.info('Access control check completed:', accessResult);`,
 	return (
 		<Container>
 			<ContentWrapper>
-				<FlowHeader
-					flowType="resources-api-v9"
-					title="Resources API Tutorial"
-					description="Learn how to use the PingOne Resources API for OAuth 2.0 resource management"
-					configurationButton={<ConfigurationButton flowType="resources-api" />}
-				/>
+				<FlowHeader flowType="resources-api-v9" />
 
 				<Header>
 					<Title>📚 PingOne Resources API</Title>
@@ -303,9 +329,55 @@ logger.info('Access control check completed:', accessResult);`,
 					</Subtitle>
 				</Header>
 
+				<DocLinksSection>
+					<DocLinksTitle>📖 PingOne Resources – Find documentation</DocLinksTitle>
+					<DocLinksList>
+						<li>
+							<DocLink
+								href="https://docs.pingidentity.com/pingone/applications/p1_resources.html"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								Resources – PingOne Applications (docs.pingidentity.com)
+							</DocLink>{' '}
+							— Web application endpoints (APIs) protected by OAuth 2.0; scopes and application
+							permissions.
+						</li>
+						<li>
+							<DocLink
+								href="https://developer.pingidentity.com/pingone-api/platform/reference.html"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								PingOne Platform API Reference (developer.pingidentity.com)
+							</DocLink>{' '}
+							— Authorization, resource management, and application features.
+						</li>
+						<li>
+							<DocLink
+								href="https://apidocs.pingidentity.com/pingone/main/v1/api/"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								PingOne for Developers – Foundations API (apidocs.pingidentity.com)
+							</DocLink>{' '}
+							— API reference for environments, applications, and resources.
+						</li>
+					</DocLinksList>
+				</DocLinksSection>
+
 				<StepByStepFlow
 					steps={steps}
-					flowType="resources-api-v9"
+					currentStep={currentStep}
+					onStepChange={setCurrentStep}
+					onStart={() => setStatus('loading')}
+					onReset={() => {
+						setCurrentStep(0);
+						setStatus('idle');
+						setExecutedSteps(new Set());
+					}}
+					status={status}
+					disabled={status === 'loading'}
 					title="Resources API Tutorial"
 					configurationButton={<ConfigurationButton flowType="resources-api" />}
 				/>

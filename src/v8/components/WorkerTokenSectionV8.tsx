@@ -340,7 +340,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 				setTokenStatus,
 				silentApiRetrieval,
 				showTokenAtEnd,
-				!silentApiRetrieval,
+				true, // User clicked "Get Worker Token" — always show modal; checkbox only affects automatic fetches
 				undefined
 			);
 		} finally {

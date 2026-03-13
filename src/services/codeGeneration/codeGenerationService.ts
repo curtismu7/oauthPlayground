@@ -4,7 +4,6 @@ import {
 	FlowStep,
 	LanguageOption,
 } from '../../components/InteractiveCodeEditor';
-import { logger } from '../../utils/logger';
 import { NodeJsTemplates, PythonTemplates } from './templates/backend/nodeTemplates';
 import { AngularTemplates } from './templates/frontend/angularTemplates';
 import { NextJsTemplates } from './templates/frontend/nextjsTemplates';

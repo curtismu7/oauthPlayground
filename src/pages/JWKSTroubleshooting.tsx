@@ -242,7 +242,7 @@ const OutputContent = styled.pre<{ $isExpanded: boolean }>`
 `;
 
 const StatusIndicator = styled.div<{
-	status: 'idle' | 'running' | 'success' | 'error';
+	$status: 'idle' | 'running' | 'success' | 'error';
 }>`
 	display: flex;
 	align-items: center;
@@ -250,7 +250,7 @@ const StatusIndicator = styled.div<{
 	font-size: 0.875rem;
 	font-weight: 500;
 	color: ${(props) => {
-		switch (props.status) {
+		switch (props.$status) {
 			case 'running':
 				return '#4299e1';
 			case 'success':
@@ -507,7 +507,7 @@ const JWKSTroubleshooting: React.FC = () => {
 
 	return (
 		<Container>
-			<FlowHeader flowType="jwks-troubleshooting" />
+			<FlowHeader flowId="jwks-troubleshooting" />
 
 			<Section>
 				<SectionTitle>
@@ -651,7 +651,7 @@ const JWKSTroubleshooting: React.FC = () => {
 									<OutputHeader onClick={() => toggleOutput(key)}>
 										<OutputTitle>
 											{expandedOutputs.has(key) ? <FiChevronDown /> : <FiChevronRight />}
-											<StatusIndicator status={result.status}>
+											<StatusIndicator $status={result.status}>
 												{result.status === 'success' ? <FiCheckCircle /> : <FiAlertCircle />}
 												{result.status === 'success' ? 'Success' : 'Error'}
 											</StatusIndicator>

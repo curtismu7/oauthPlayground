@@ -28,7 +28,7 @@ const Overlay = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 1000;
+	z-index: 10051;
 	padding: 1rem;
 `;
 
@@ -70,8 +70,8 @@ const CloseButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: #f3f4f6;
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		background: #eff6ff;
+		color: ${V9_COLORS.PRIMARY.BLUE_DARK};
 	}
 `;
 
@@ -266,8 +266,8 @@ const CopyButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: #f3f4f6;
-		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		background: #eff6ff;
+		color: ${V9_COLORS.PRIMARY.BLUE_DARK};
 	}
 `;
 
@@ -650,8 +650,13 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 
 					<div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
 						<Button
+							type="button"
 							variant="primary"
-							onClick={handleDiscover}
+							onClick={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								handleDiscover();
+							}}
 							disabled={isLoading || !environmentId.trim()}
 						>
 							{isLoading ? <FiRefreshCw className="animate-spin" /> : <span>🔍</span>}

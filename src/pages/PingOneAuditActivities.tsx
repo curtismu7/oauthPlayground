@@ -8,6 +8,7 @@ import ApiCallList from '../components/ApiCallList';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { AuditActivityCharts } from '../components/pingone/AuditActivityCharts';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
+import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { apiRequestModalService } from '../services/apiRequestModalService';
 import { FlowHeader } from '../services/flowHeaderService';
@@ -442,12 +443,10 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 	const [error, setError] = useState<string | null>(null);
 	const [auditResponse, setAuditResponse] = useState<AuditResponse | null>(null);
 
-	// Read worker token via unifiedWorkerTokenService (dual storage: IndexedDB + SQLite)
-	const [workerToken, setWorkerToken] = useState<string>(() => {
-		const data = unifiedWorkerTokenService.getTokenDataSync();
-		return data?.token ?? '';
-	});
-	const hasWorkerToken = workerToken.length > 0;
+	// Use global worker token so we see token from unified storage or workerTokenManager
+	const globalTokenStatus = useGlobalWorkerToken({ autoFetch: true });
+	const workerToken = globalTokenStatus.token ?? '';
+	const hasWorkerToken = globalTokenStatus.isValid && workerToken.length > 0;
 
 	const [environmentId, setEnvironmentId] = useState<string>(() => readBestEnvironmentId());
 
@@ -468,7 +467,6 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 
 	const handleClearWorkerToken = () => {
 		unifiedWorkerTokenService.clearToken();
-		setWorkerToken('');
 		modernMessaging.showFooterMessage({
 			type: 'info',
 			message: 'Worker token cleared successfully.',
@@ -478,23 +476,14 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 		window.location.reload();
 	};
 
-	// Update environment ID and workerToken when worker token is updated
+	// Sync environment ID from worker token credentials when token becomes available
 	useEffect(() => {
-		const handleTokenUpdate = () => {
-			const data = unifiedWorkerTokenService.getTokenDataSync();
-			if (data) {
-				if (data.credentials?.environmentId && !environmentId) {
-					setEnvironmentId(data.credentials.environmentId);
-				}
-				if (data.token) {
-					setWorkerToken(data.token);
-				}
-			}
-		};
-
-		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
-		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
-	}, [environmentId]);
+		if (!hasWorkerToken || environmentId) return;
+		const data = unifiedWorkerTokenService.getTokenDataSync();
+		if (data?.credentials?.environmentId) {
+			setEnvironmentId(data.credentials.environmentId);
+		}
+	}, [hasWorkerToken, environmentId]);
 
 	// Execute the actual API call (called after user confirms in modal)
 	const executeApiCall = useCallback(async () => {
@@ -998,16 +987,16 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 									width: '100%',
 									padding: '0.75rem 0.85rem',
 									borderRadius: '0.75rem',
-									border: `1px solid ${!environmentId.trim() ? '#f59e0b' : '#e5e7eb'}`,
-									background: !environmentId.trim() ? '#fef3c7' : '#f8fafc',
+									border: !environmentId.trim() ? '2px solid #dc2626' : '1px solid #e5e7eb',
+									background: !environmentId.trim() ? '#fef2f2' : '#f8fafc',
 									fontSize: '0.92rem',
 									fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
 								}}
 							/>
 							{!environmentId.trim() ? (
-								<p style={{ ...styles.hint, color: '#d97706', fontWeight: 600 }}>
-									⚠️ Environment ID is required. Enter it manually or use the Worker Token section
-									below to auto-fill.
+								<p style={{ ...styles.hint, color: '#dc2626', fontWeight: 600 }}>
+									Environment ID is required. Enter it above or use Get Worker Token below to
+									auto-fill.
 								</p>
 							) : (
 								<p style={styles.hint}>
@@ -1090,13 +1079,21 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 										width: '100%',
 										padding: '0.75rem 0.85rem',
 										borderRadius: '0.75rem',
-										border: '1px solid #e5e7eb',
-										background: '#f8fafc',
+										border: !singleActivityId.trim() ? '2px solid #dc2626' : '1px solid #e5e7eb',
+										background: !singleActivityId.trim() ? '#fef2f2' : '#f8fafc',
 										fontSize: '0.92rem',
 										fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
 									}}
 								/>
-								<p style={styles.hint}>Enter the unique ID of the activity you want to retrieve</p>
+								{!singleActivityId.trim() ? (
+									<p style={{ ...styles.hint, color: '#dc2626', fontWeight: 600 }}>
+										Activity ID is required when using Get Single Activity.
+									</p>
+								) : (
+									<p style={styles.hint}>
+										Enter the unique ID of the activity you want to retrieve
+									</p>
+								)}
 							</div>
 						) : (
 							<>
@@ -1254,6 +1251,41 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 								</div>
 							</>
 						)}
+
+						{/* Required-fields message when button is disabled */}
+						{!loading &&
+							(!hasWorkerToken ||
+								!environmentId.trim() ||
+								(viewMode === 'single' && !singleActivityId.trim())) && (
+								<div
+									style={{
+										padding: '0.75rem 1rem',
+										borderRadius: '0.75rem',
+										border: '2px solid #dc2626',
+										background: '#fef2f2',
+										color: '#991b1b',
+										fontSize: '0.9rem',
+										fontWeight: 500,
+									}}
+									role="alert"
+								>
+									{!environmentId.trim() && (
+										<div>
+											• Environment ID is required. Enter it in Authentication & Configuration or
+											use Get Worker Token to auto-fill.
+										</div>
+									)}
+									{!hasWorkerToken && environmentId.trim() && (
+										<div>
+											• Worker token is required. Use the Get Worker Token button in Authentication
+											& Configuration above.
+										</div>
+									)}
+									{viewMode === 'single' && !singleActivityId.trim() && (
+										<div>• Activity ID is required when retrieving a single activity.</div>
+									)}
+								</div>
+							)}
 
 						<div style={styles.buttonRow}>
 							<button
