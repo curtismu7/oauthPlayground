@@ -31,43 +31,57 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### AI Assistant: Dedicated full-page implementation and standalone sync (2026-03-13)
+
+- **What:** Users wanted both a dedicated AI Assistant page accessible from side menu AND a standalone app, with both versions staying in sync. Standalone should be a full application with login capabilities, no popout functionality.
+- **Fixes:** (1) **Dedicated page**: Created `AIAssistantPage.tsx` with FlowHeader integration, accessible via `/ai-assistant` from side menu. (2) **Enhanced AIAssistant component**: Added `fullPage` prop support for conditional rendering (floating button vs full-page). (3) **Standalone enhancement**: Removed all popout functionality from standalone app, added welcome section with feature cards, improved navigation with MasterFlow branding. (4) **Shared configuration**: Created `aiAssistantConfig.ts` in both apps to ensure perfect sync of branding, messages, and settings. (5) **Route updates**: Updated App.tsx to use new dedicated page, removed unused AIAssistantDemo import.
+- **Files:** `src/pages/AIAssistantPage.tsx`, `src/components/AIAssistant.tsx`, `src/services/flowHeaderService.tsx`, `src/App.tsx`, `AIAssistant/src/App.tsx`, `AIAssistant/src/components/AIAssistant.tsx`, `src/config/aiAssistantConfig.ts`, `AIAssistant/src/config/aiAssistantConfig.ts`
+- **Regression check:** Side menu → "AI & Identity" → "OAuth Assistant" → opens dedicated full-page with red header. Floating button 💬 still works as popout modal. Standalone app (port 3002) shows welcome section, no popout options, full-page layout only. Both apps have identical AI behavior, branding, and configuration. Close button in dedicated page navigates to home; close button in popout collapses assistant.
+
 ### Fix navigation method calls in UnifiedRegistrationStep.modern (2026-03-13)
+
 - **What:** UnifiedRegistrationStep.modern.tsx was calling non-existent navigation methods (nav.previous(), nav.next()) causing TypeError.
 - **Fixes:** (1) **Updated navigation calls**: Replaced nav.previous() with nav.goToPrevious() and nav.next() with nav.goToNext(). (2) **Used correct hook methods**: Fixed calls to match useStepNavigationV8 hook interface. (3) **Resolved TypeError**: Fixed "nav.previous is not a function" error that was breaking navigation.
 - **Files:** `src/v8/flows/unified/components/UnifiedRegistrationStep.modern.tsx`
 - **Regression check:** Navigate through MFA registration steps → Previous/Next buttons work correctly. No more TypeError in console. Navigation between steps functions properly.
 
 ### Revert MCP server usage in Unified MFA and SharedCredentials (2026-03-13)
+
 - **What:** Unified MFA and SharedCredentialsServiceV8 were incorrectly using MCP server for credential loading, when only AIAssistant should use MCP server.
 - **Fixes:** (1) **Reverted UnifiedMFARegistrationFlowV8**: Removed MCP server credential loading and restored original localStorage/storage service loading chain. (2) **Reverted SharedCredentialsServiceV8**: Removed MCP server dependency and restored localStorage-only credential loading. (3) **Maintained separation**: Ensured Unified MFA and Unified OAuth use proxy/API infrastructure in server.js. (4) **AI-only MCP**: Confirmed only AIAssistant uses MCP server for credential management.
 - **Files:** `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`, `src/v8/services/sharedCredentialsServiceV8.ts`
 - **Regression check:** Unified MFA flow loads credentials from localStorage/storage services only. Configuration page (reverted) loads from localStorage. AIAssistant continues to use MCP server. All OAuth/MFA flows use server.js proxy endpoints, not MCP server.
 
 ### Username dropdown independence from environment ID (2026-03-13)
+
 - **What:** Username dropdown in unified MFA flow was disabled when environment ID field was empty, preventing user search even though worker token modal handles environment context internally.
 - **Fixes:** (1) **Made environmentId optional**: Updated UserSearchDropdownV8 props to make environmentId optional since worker token modal provides context. (2) **Removed disabled state**: Removed `disabled={!environmentId}` from username dropdown in unified MFA flow. (3) **Updated loading logic**: Modified loadUsers function and useEffect hooks to not require environment ID for API calls. (4) **Worker token context**: Let MFAServiceV8 handle environment ID internally when not provided.
 - **Files:** `src/v8/components/UserSearchDropdownV8.tsx`, `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`
 - **Regression check:** Navigate to `/v8/unified-mfa` with empty environment ID → username dropdown is enabled and functional. Click dropdown → opens user search modal → worker token modal handles environment context. Search works regardless of environment ID field state.
 
 ### MCP PingOne API debug logging (2026-03-13)
+
 - **What:** Added logging to verify which host is used for PingOne API calls (api.pingone.com vs api.pingdemo.com) and improve error handling for fetch failures.
 - **Fixes:** (1) **Debug logging**: In `mcpCallPingOne`, log `host`, `region`, `method`, and truncated `path` via `writeToMcpLog` before each fetch. (2) **Fetch error handling**: Added try/catch around fetch to surface cause (DNS, TLS, network) instead of generic "fetch failed". (3) **Host verification**: Check MCP logs to confirm host is api.pingone.com (or regional variant), never api.pingdemo.com.
 - **Files:** `server.js`
 - **Regression check:** Live MCP ON → "list all users" → inspect MCP log; host should be api.pingone.com or api.pingone.{tld}, never api.pingdemo.com. Fetch errors show specific cause (DNS, TLS, etc.) not just "fetch failed".
 
 ### API key backup system implementation (2026-03-13)
+
 - **What:** API keys (MCP, Groq, Brave Search) were only stored in primary locations with no redundancy, risking loss if storage fails.
 - **Fixes:** (1) **ApiKeyBackupService**: Created comprehensive backup service with multi-location storage (localStorage, filesystem, primary). (2) **Backend endpoints**: Added `/api/api-key/backup` POST/GET endpoints for filesystem backup storage. (3) **Automatic backups**: Enhanced apiKeyService to automatically create backups after storing API keys. (4) **UI integration**: Added backup status display and manual backup/restore controls to ApiKeyConfiguration component. (5) **Health monitoring**: Added backup status checking and integrity verification with checksums.
 - **Files:** `src/services/apiKeyBackupService.ts`, `src/services/apiKeyService.ts`, `server.js`, `src/components/ApiKeyConfiguration.tsx`
 - **Regression check:** Store any API key → automatic backup created. Open Configuration page → backup status shows Primary/Local/File indicators. Click "Create Backup" → manual backup syncs to all locations. Click "Restore from Backup" → keys recovered from backup if primary storage lost. Check `~/.pingone-playground/credentials/api-keys-backup.json` exists after backup creation.
 
 ### MCP "fetch failed": use PingOne API host, not api.pingdemo.com (2026-03-13)
+
 - **What:** "List all users" returned "PingOne API call failed: fetch failed" because MCP used `api.pingdemo.com` (OAuth playground host) as the PingOne Management API base. That host serves the app, not the PingOne API, so the connection failed.
 - **Fix:** `getStoredCustomDomain()` returns `null` when no custom domain stored (instead of DEFAULT_CUSTOM_DOMAIN). `mcpCallPingOne` uses `buildRegionUrl(region)` (api.pingone.com, api.pingone.eu, etc.) when no valid custom domain. Explicitly never use `api.pingdemo.com` for PingOne API calls.
 - **Files:** `server.js` (getStoredCustomDomain, mcpCallPingOne)
 - **Regression check:** Live ON → "Get worker token" → "List all users" → users list loads (or shows real PingOne error, e.g. 403). No "fetch failed". If custom domain is explicitly set in Configuration for a PingOne proxy, that domain is still used.
 
 ### Complete pages implementation & credential synchronization (2026-03-13)
+
 - **What:** "List all users" and similar MCP queries showed "MCP query failed (500): Internal Server Error" instead of the actual PingOne error (e.g. token expired, 403 Forbidden, wrong region).
 - **Fix:** (1) Client (`mcpQueryService`): read response body as text first, then JSON.parse; fallback chain for msg: answer, error, error_description, message, statusText. (2) Server (`mcpCallPingOne`): extract PingOne error from message, detail, error_description, error, code. (3) Server catch: safe `errMsg` extraction when error is not an Error instance.
 - **Files:** `src/services/mcpQueryService.ts`, `server.js`
