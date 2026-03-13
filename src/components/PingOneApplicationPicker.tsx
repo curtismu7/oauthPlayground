@@ -47,13 +47,13 @@ const Select = styled.select<{ $hasError?: boolean }>`
 	background: white;
 	appearance: none;
 	cursor: pointer;
-	
+
 	&:focus {
 		outline: none;
 		border-color: #007bff;
 		box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 	}
-	
+
 	&:disabled {
 		background: #f8f9fa;
 		cursor: not-allowed;
@@ -78,10 +78,14 @@ const LoadingSpinner = styled.span`
 	pointer-events: none;
 	color: #007bff;
 	animation: spin 1s linear infinite;
-	
+
 	@keyframes spin {
-		from { transform: translateY(-50%) rotate(0deg); }
-		to { transform: translateY(-50%) rotate(360deg); }
+		from {
+			transform: translateY(-50%) rotate(0deg);
+		}
+		to {
+			transform: translateY(-50%) rotate(360deg);
+		}
 	}
 `;
 
@@ -129,11 +133,11 @@ const TableHeaderCell = styled.th`
 	font-size: 0.875rem;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
-	
+
 	&:first-child {
 		width: 30%;
 	}
-	
+
 	&:last-child {
 		width: 50px;
 		text-align: center;
@@ -144,15 +148,15 @@ const TableBody = styled.tbody``;
 
 const TableRow = styled.tr`
 	border-bottom: 1px solid #e9ecef;
-	
+
 	&:last-child {
 		border-bottom: none;
 	}
-	
+
 	&:nth-child(even) {
 		background: #f8f9fa;
 	}
-	
+
 	&:hover {
 		background: #e9ecef;
 	}
@@ -216,11 +220,11 @@ const RefreshButton = styled.button`
 	justify-content: center;
 	gap: 0.375rem;
 	flex: 1;
-	
+
 	&:hover:not(:disabled) {
 		background: #0056b3;
 	}
-	
+
 	&:disabled {
 		background: #6c757d;
 		cursor: not-allowed;
@@ -241,11 +245,11 @@ const ApplyButton = styled.button`
 	justify-content: center;
 	gap: 0.375rem;
 	flex: 1;
-	
+
 	&:hover:not(:disabled) {
 		background: #218838;
 	}
-	
+
 	&:disabled {
 		background: #6c757d;
 		cursor: not-allowed;
@@ -324,7 +328,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 	// Reset auto-fetch attempt when credentials change so new credentials get one attempt
 	useEffect(() => {
 		autoFetchAttemptedRef.current = false;
-	}, [environmentId, clientId, clientSecret, workerToken]);
+	}, []);
 
 	const handleApplicationChange = useCallback(
 		(appId: string) => {

@@ -65,8 +65,8 @@ export class SharedCredentialsServiceV8 {
 					};
 
 					// Also save to localStorage for persistence
-					await this.saveSharedCredentials(credentials);
-					
+					await SharedCredentialsServiceV8.saveSharedCredentials(credentials);
+
 					return credentials;
 				}
 			}
@@ -163,11 +163,13 @@ export class SharedCredentialsServiceV8 {
 							apiUrl: merged.issuerUrl || 'https://auth.pingone.com',
 						}),
 					});
-					
+
 					if (mcpResponse.ok) {
 						logger.info(`${MODULE_TAG} Shared credentials saved to MCP server`);
 					} else {
-						logger.warn(`${MODULE_TAG} Failed to save to MCP server`, { status: mcpResponse.status });
+						logger.warn(`${MODULE_TAG} Failed to save to MCP server`, {
+							status: mcpResponse.status,
+						});
 					}
 				} catch (mcpError) {
 					logger.warn(`${MODULE_TAG} Error saving to MCP server`, mcpError);
