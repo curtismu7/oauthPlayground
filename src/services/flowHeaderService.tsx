@@ -285,6 +285,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🎯',
 		version: undefined,
 	},
+	'oauth-authz-v8u': {
+		flowType: 'pingone',
+		title: 'Unified OAuth/OIDC Flow',
+		subtitle:
+			'Single UI for all OAuth 2.0, OAuth 2.1 / OIDC 2.1, and OIDC Core 1.0 flows using real PingOne APIs',
+		icon: '🎯',
+		version: undefined,
+	},
 	'client-credentials-v5': {
 		flowType: 'oauth',
 		title: 'Client Credentials Flow - Server-to-Server Authentication',

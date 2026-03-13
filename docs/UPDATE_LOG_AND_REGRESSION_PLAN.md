@@ -31,6 +31,20 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Unified MFA: Restart Flow button moved to bottom (2026-03)
+
+- **What:** Restart Flow button was in the flow header; user wanted it at the bottom with Previous/Next.
+- **Fix:** Removed `restart-flow-container` from MFAFlowBaseV8 flow-header; passed Restart Flow button as `children` to StepActionButtonsV8 so it renders with Previous/Next. Added `.restart-flow-button-bottom` styling for the bottom context.
+- **Files:** `src/v8/flows/shared/MFAFlowBaseV8.tsx`
+- **Regression check:** Open `/v8/unified-mfa` → select device → verify Restart Flow appears at bottom with Previous/Next; click Restart → confirm dialog → flow resets.
+
+### Unified MFA: remove duplicate headers, migrate to red header (2026-03)
+
+- **What:** Unified MFA at `/v8/unified-mfa` showed duplicate headers (blue "V8 SMS OTP Registration" + green "PingOne MFA Device Management") and duplicate rows of navigation buttons. Neither used the standard PingOne red header with white text.
+- **Fix:** (1) Removed duplicate `MFAHeaderV8` from `UnifiedMFARegistrationFlowContent` when a device is selected; only `MFAFlowBaseV8`'s header is shown. (2) Passed `titleOverride` and `descriptionOverride` to `MFAFlowBaseV8` so device-specific titles appear. (3) `MFAFlowBaseV8` header already uses red gradient and white text. (4) Device selection screen `MFAHeaderV8` changed from `headerColor="blue"` to `headerColor="pingRed"`.
+- **Files:** `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`, `src/v8/flows/shared/MFAFlowBaseV8.tsx`
+- **Regression check:** Open `/v8/unified-mfa` → select "SMS OTP Registration" → one header ("SMS OTP Registration"), one row of nav buttons, red header with white text. Device selection screen shows red header with white text.
+
 ### Standalone AIAssistant sync with main app (worker token / MCP) (2026-03)
 
 - **What:** Standalone AIAssistant (port 3002) needed to stay in sync with main app for worker token and MCP credential handling. "Get worker token" 403 could occur when credentials were not synced to mcp-config.json before MCP calls.
