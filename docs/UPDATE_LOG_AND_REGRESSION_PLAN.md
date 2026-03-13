@@ -31,6 +31,12 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Fix navigation method calls in UnifiedRegistrationStep.modern (2026-03-13)
+- **What:** UnifiedRegistrationStep.modern.tsx was calling non-existent navigation methods (nav.previous(), nav.next()) causing TypeError.
+- **Fixes:** (1) **Updated navigation calls**: Replaced nav.previous() with nav.goToPrevious() and nav.next() with nav.goToNext(). (2) **Used correct hook methods**: Fixed calls to match useStepNavigationV8 hook interface. (3) **Resolved TypeError**: Fixed "nav.previous is not a function" error that was breaking navigation.
+- **Files:** `src/v8/flows/unified/components/UnifiedRegistrationStep.modern.tsx`
+- **Regression check:** Navigate through MFA registration steps → Previous/Next buttons work correctly. No more TypeError in console. Navigation between steps functions properly.
+
 ### Revert MCP server usage in Unified MFA and SharedCredentials (2026-03-13)
 - **What:** Unified MFA and SharedCredentialsServiceV8 were incorrectly using MCP server for credential loading, when only AIAssistant should use MCP server.
 - **Fixes:** (1) **Reverted UnifiedMFARegistrationFlowV8**: Removed MCP server credential loading and restored original localStorage/storage service loading chain. (2) **Reverted SharedCredentialsServiceV8**: Removed MCP server dependency and restored localStorage-only credential loading. (3) **Maintained separation**: Ensured Unified MFA and Unified OAuth use proxy/API infrastructure in server.js. (4) **AI-only MCP**: Confirmed only AIAssistant uses MCP server for credential management.
