@@ -31,61 +31,85 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Unified MFA: persist section collapse state (2026-03)
+
+- **What:** Section collapse/expand state on Unified MFA device selection screen was lost on flow restart or browser refresh.
+- **Fix:** (1) Added `unified-mfa-v8` to FlowType (specVersionServiceV8) and flowSettingsServiceV8U getAllSettings/clearAllSettings. (2) DeviceTypeSelectionScreen uses `usePersistedCollapse('unified-mfa-v8', sectionId, default)` for credentials (Configuration block), worker-token-status, and policy-details. (3) Configuration section has collapsible header; Policy Details uses persisted collapse instead of native `<details>`.
+- **Files:** `src/v8/services/specVersionServiceV8.ts`, `src/v8u/services/flowSettingsServiceV8U.ts`, `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`
+- **Regression check:** Open `/v8/unified-mfa` → collapse Configuration or Policy Details → refresh browser → sections stay collapsed. Restart flow (select device, go back) → collapse state persists.
+
 ### Complete pages implementation & credential synchronization (2026-03-13)
+
 - **What:** Several pages showed "coming soon" or "under maintenance" messages, and credentials weren't syncing between Configuration page, unified flows, and MCP server storage.
 - **Fixes:** (1) **SettingsPage**: Replaced placeholder with functional settings management (theme switching, notifications, language preferences, save/reset). (2) **ReportsPage**: Replaced placeholder with comprehensive reporting (report type selection, date ranges, mock generation, recent reports). (3) **UserManagementPage**: Fixed syntax errors and added mock user data with search/filter functionality. (4) **TokenMonitoringPage**: Fixed logger import crash in TokenDisplayService. (5) **Step components**: Implemented PollingStep (interactive token polling) and TokenRequestStep (OAuth token request form). (6) **Configuration page**: Added MCP server credential loading as primary source with localStorage fallback. (7) **SharedCredentialsServiceV8**: Added MCP server loading/saving for unified flow credential synchronization.
 - **Files:** `src/v8u/pages/SettingsPage.tsx`, `src/v8u/pages/ReportsPage.tsx`, `src/v8u/pages/UserManagementPage.tsx`, `src/services/tokenDisplayService.ts`, `src/v8u/components/steps/PollingStep.tsx`, `src/v8u/components/steps/TokenRequestStep.tsx`, `src/pages/Configuration.tsx`, `src/v8/services/sharedCredentialsServiceV8.ts`
 - **Regression check:** Open `/v8u/settings` → functional theme/settings controls work. Open `/v8u/reports` → report generation interface works. Open `/v8u/user-management` → user list with search/filter works. Open `/token/operations` → no maintenance message, shows TokenMonitoringPage. Open `/configuration` → credentials load from MCP server. Save credentials in unified flow → appear in Configuration page and persist across restarts.
 
+### Unified MFA: persist section collapse state (2026-03)
+
+- **What:** Collapsed/expanded state of sections in Unified MFA device selection screen was lost on flow restart or browser refresh.
+- **Fix:** (1) Added `unified-mfa-v8` to FlowType and flowSettingsServiceV8U (getAllSettings, clearAllSettings). (2) DeviceTypeSelectionScreen uses `usePersistedCollapse('unified-mfa-v8', ...)` for `credentials` (Configuration block), `worker-token-status`, and `policy-details`. (3) Configuration section has collapsible header with persisted state. (4) Policy Details (policy-details) replaced native `<details>` with persisted collapse.
+- **Files:** `src/v8/services/specVersionServiceV8.ts`, `src/v8u/services/flowSettingsServiceV8U.ts`, `src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx`
+- **Regression check:** Open `/v8/unified-mfa` → collapse Configuration → refresh → Configuration stays collapsed. Collapse Policy Details → refresh → stays collapsed.
+
 ### Callback step: CSRF/state_expired retry button (2026-03)
+
 - **What:** When CallbackHandler redirects with `?error=csrf_risk&reason=no_stored_state`, the callback step showed the error but the main Continue button stayed greyed; users had no clear retry path.
 - **Fix:** In `renderStep2Callback`, when `callbackError === 'csrf_risk'` or `callbackError === 'state_expired'`, show a "Go Back to Authorization URL" button that calls `navigateToStep(2)` and clears the URL params via `window.history.replaceState`. Error and description are read from sessionStorage or URL (`searchParams`).
 - **Files:** `src/v8u/components/UnifiedFlowSteps.tsx`
 - **Regression check:** Trigger no_stored_state (e.g. clear sessionStorage, then land on callback URL) → step 3 shows error card with "Go Back to Authorization URL" → click → navigates to step 2 (Auth URL), URL params cleared; user can retry.
 
 ### Implicit Grant (V8U): redirect URI and Configuration catalog (2026-03)
+
 - **What:** Unified OAuth Implicit flow needed correct redirect URI (`/oauth-implicit-callback`) and visibility in Configuration redirect URI catalog.
 - **Fix:** (1) flowRedirectUriMapping: implicit-v8u callbackPath → `oauth-implicit-callback` (was `unified-callback`). (2) Added `implicit-v8u` to REDIRECT_URI_CATALOG_FLOW_TYPES so Configuration shows Implicit redirect URI. (3) callbackUriService: added `oauthImplicitCallback` for `/oauth-implicit-callback`; getCallbackTypesForFlow returns it for implicit-v8u before generic implicit check.
 - **Files:** `src/utils/flowRedirectUriMapping.ts`, `src/services/callbackUriService.ts`
 - **Regression check:** Open `/configuration` → "PingOne Redirect & Logout URIs" shows implicit-v8u row with `.../oauth-implicit-callback`. Open `/v8u/unified/implicit/0` → credentials redirect URI auto-fills `.../oauth-implicit-callback`. Add that URI in PingOne app; run Implicit flow → redirect succeeds.
 
 ### Unified OAuth: persist section collapse state (2026-03)
+
 - **What:** Collapsed/expanded state of sections in Unified OAuth flow was lost on flow restart or browser refresh.
-- **Fix:** (1) Extended FlowSettingsServiceV8U with `credentialsCollapsed`, `workerTokenStatusCollapsed`, and `sectionCollapsed` (Record<string, boolean>) per flow type. (2) Added `usePersistedCollapse(flowType, sectionId, defaultCollapsed)` hook that reads/writes to localStorage. (3) UnifiedOAuthFlowV8U uses the hook for credentials and worker token status. (4) UnifiedFlowSteps uses the hook for all educational sections (quick-start, pkce-overview, pkce-details, auth-request-*, device-code-*, client-credentials-*, authz-code-*, hybrid-*, implicit-*, preflight-validation).
+- **Fix:** (1) Extended FlowSettingsServiceV8U with `credentialsCollapsed`, `workerTokenStatusCollapsed`, and `sectionCollapsed` (Record<string, boolean>) per flow type. (2) Added `usePersistedCollapse(flowType, sectionId, defaultCollapsed)` hook that reads/writes to localStorage. (3) UnifiedOAuthFlowV8U uses the hook for credentials and worker token status. (4) UnifiedFlowSteps uses the hook for all educational sections (quick-start, pkce-overview, pkce-details, auth-request-_, device-code-_, client-credentials-_, authz-code-_, hybrid-_, implicit-_, preflight-validation).
 - **Files:** `src/v8u/services/flowSettingsServiceV8U.ts`, `src/v8u/hooks/usePersistedCollapse.ts`, `src/v8u/flows/UnifiedOAuthFlowV8U.tsx`, `src/v8u/components/UnifiedFlowSteps.tsx`
 - **Regression check:** Collapse a section on `/v8u/unified/oauth-authz/0` or any step → refresh browser → section stays collapsed. Restart flow (navigate away and back) → section stays collapsed.
 
 ### run.sh: MCP Inspector integrated (2026-03)
+
 - **What:** Users had to run `npm run mcp:inspector` separately to test the PingOne MCP server; no single-command startup.
 - **Fix:** (1) Added `start_mcp_inspector()` to run.sh — starts `npx @modelcontextprotocol/inspector` with mcp-inspector-config.json. (2) MCP Inspector starts automatically in `-assistant` and `-both` modes (after MCP server). (3) kill_all_servers stops Inspector by PID file and port 6274. (4) Status banners and show_url_banner include MCP Inspector URL (http://localhost:6274). (5) Inspector logs to mcp-inspector.log.
 - **Files:** `scripts/development/run.sh`
 - **Regression check:** Run `./run.sh -both` or `./run.sh -assistant` → MCP Inspector starts; open http://localhost:6274 to test PingOne MCP tools. Run again to restart — Inspector is killed and restarted cleanly.
 
 ### run.sh: MCP Inspector auto-started with -assistant and -both (2026-03)
+
 - **What:** Users had to run `npm run mcp:inspector` separately to test PingOne MCP tools.
 - **Fix:** Integrated MCP Inspector into run.sh: (1) Added `start_mcp_inspector()` — starts `npx @modelcontextprotocol/inspector` in background, writes to mcp-inspector.log. (2) Calls it in `run_assistant_mode` and `run_both_mode` after MCP server. (3) kill_all_servers kills Inspector by PID file and port 6274. (4) Status banners and show_url_banner include MCP Inspector URL (http://localhost:6274).
 - **Files:** `scripts/development/run.sh`
 - **Regression check:** Run `./run.sh -both` or `./run.sh -assistant` → MCP Inspector starts with other services; open http://localhost:6274 to test PingOne MCP tools; re-run script → Inspector is killed and restarted cleanly.
 
 ### run.sh: MCP Inspector integrated (2026-03)
+
 - **What:** Users had to run a separate command (`npm run mcp:inspector`) to launch the MCP Inspector for testing PingOne MCP tools.
 - **Fix:** (1) Added `start_mcp_inspector()` in run.sh — spawns `npx @modelcontextprotocol/inspector` with mcp-inspector-config.json. (2) MCP Inspector now starts automatically with `./run.sh -assistant` and `./run.sh -both`. (3) Added MCP_INSPECTOR_PORT (6274), MCP_INSPECTOR_PID_FILE; kill_all_servers stops Inspector. (4) Status banners and show_url_banner show MCP Inspector URL.
 - **Files:** `scripts/development/run.sh`
 - **Regression check:** Run `./run.sh -both` (or `./scripts/development/run.sh -both`) → MCP Inspector starts → open http://localhost:6274 → test PingOne MCP tools. Run `./run.sh` (main mode) → Inspector not started (only -assistant and -both include it).
 
 ### MCP Inspector: PingOne MCP server writes to project logs (2026-03)
+
 - **What:** MCP Inspector sessions (`npm run mcp:inspector`) did not write to the project's logs; tool calls and errors went only to the terminal.
 - **Fix:** (1) Enhanced `pingone-mcp-server` Logger to append each info/warn/error to `logs/mcp-server.log` in addition to console. (2) Log path: `MCP_LOG_PATH` env (full path), or `MCP_LOG_DIR` (dir for mcp-server.log), or default `process.cwd()/logs/mcp-server.log`. (3) Added `MCP_LOG_DIR: "logs"` to `mcp-inspector-config.json` so Inspector sessions write to project logs. Format matches server.js (`[timestamp] [local] [MCP] [LEVEL] [scope] message`).
 - **Files:** `pingone-mcp-server/src/services/logger.ts`, `mcp-inspector-config.json`
 - **Regression check:** Run `npm run mcp:inspector` from project root → call a tool (e.g. tools/list) → check `logs/mcp-server.log` for entries. Log Viewer (mcp category) shows them when backend serves logs.
 
 ### Unified OAuth flow: red header and V9FlowHeader migration (2026-03)
+
 - **What:** `/v8u/unified/oauth-authz/0` used blue PageHeaderV8 instead of the standard red PingOne header with white text.
 - **Fix:** (1) Added `oauth-authz-v8u` to `FLOW_CONFIGS` in flowHeaderService (flowType: 'pingone', title: "Unified OAuth/OIDC Flow", matching subtitle). (2) Replaced `PageHeaderV8` with `V9FlowHeader` in UnifiedOAuthFlowV8U. (3) Moved flow breadcrumbs and action buttons (Flow & Spec Comparison Guide, Postman downloads) into a separate card below the header.
 - **Files:** `src/services/flowHeaderService.tsx`, `src/v8u/flows/UnifiedOAuthFlowV8U.tsx`
 - **Regression check:** Open `/v8u/unified/oauth-authz/0` — red header with white text "Unified OAuth/OIDC Flow"; breadcrumbs and buttons in card below; Flow & Spec Comparison Guide and Postman buttons still work.
 
 ### MCP: sync worker credentials to mcp-config so Live MCP works (2026-03)
+
 - **What:** MCP "Get worker token" and PingOne API calls failed because the backend reads credentials from `mcp-config.json` (MCP Server Config page) while the Worker Token modal saves to SQLite via `unifiedWorkerTokenService`. The two stores were never synced.
 - **Cause:** `_mcpReadCredentials()` only reads `mcp-config.json` or env vars. Users who saved credentials via the Worker Token modal never had them written to mcp-config.
 - **Fix:** (1) Added `_syncCredentialsToMcpConfig()` in unifiedWorkerTokenService — maps region to apiUrl and POSTs to `/api/credentials/save-mcp-config`. (2) Call it after `_saveCredentialsToSQLite` succeeds. (3) Call it when loading credentials from SQLite so existing creds get synced on app load. (4) Both AI Assistant components call `unifiedWorkerTokenService.loadCredentials()` when opened with Live toggle on, priming the sync before the first MCP call. (5) Applied changes to both `src/services/unifiedWorkerTokenService.ts` and `AIAssistant/src/services/unifiedWorkerTokenService.ts`.
@@ -93,30 +117,35 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Regression check:** Save worker credentials via Worker Token modal (Get Worker Token) → open AI Assistant with Live toggle on → ask "Get worker token" or "Show all apps" → MCP card shows real data (not "unknown" or credentials required). Check `~/.pingone-playground/credentials/mcp-config.json` has environmentId, clientId, clientSecret after saving via modal.
 
 ### Log viewer popout: white background, black text; reduce blinking (2026-03)
+
 - **What:** Log viewer popout had dark theme (dark background, light text), status indicator was pulsing (blinking), and frequent realtime refresh could cause visual flicker.
 - **Fix:** (1) When `standalone` (popout) is true: LogContent uses white background (`#ffffff`) and black text (`#111827`); LogLine hover uses light overlay; LineNum uses gray (`#6b7280`). (2) StatusIndicator pulse animation disabled in standalone mode. (3) Realtime poll interval: 5s in standalone (was 2s) to reduce refresh-induced blinking.
 - **Files:** `src/components/EnhancedFloatingLogViewer.tsx`
 - **Regression check:** Open Log Viewer popout (`/v9/debug-logs-popout`) — main log area has white background and black text; status dot does not pulse; realtime updates every 5s. In-browser floating log viewer keeps dark theme.
 
 ### Worker Token V9: standard collapse icon (2026-03)
+
 - **What:** Section collapse icons on `/flows/worker-token-v9` used the circular theme icon (CollapsibleHeader default) instead of the standard icon from COLLAPSIBLE_HEADER_UNIFICATION_PLAN (⬇️ in white box with blue border, -90° when collapsed).
 - **Fix:** (1) Added `useUnifiedIcon?: boolean` to `CollapsibleHeaderProps` in collapsibleHeaderService; when true, renders `UnifiedFlowCollapsibleToggleIcon` (white box, blue border, ⬇️ emoji) instead of circular ArrowIcon. (2) ComprehensiveCredentialsService passes `useUnifiedIcon={flowType === 'worker-token-v9'}` to all CollapsibleHeader instances.
 - **Files:** `src/services/collapsibleHeaderService.tsx`, `src/services/comprehensiveCredentialsService.tsx`
 - **Regression check:** Open `/flows/worker-token-v9` — collapsible sections (App lookup, Worker Token credentials, Advanced Configuration, JWKS) show white box with blue border and ⬇️ icon; collapsed state points right (-90°). Other flows using ComprehensiveCredentialsService (non-worker-token) keep circular icon.
 
 ### Mock Flows: yellow Educational Mock banner at top (2026-03)
+
 - **What:** The yellow "📚 Educational Mock Mode" banner at the top of `/flows/device-authorization-v9` was not present on all Mock flows.
 - **Fix:** Added `V7MMockBanner` at the top (before flow header) to all Mock flows that lacked it: JWT Bearer Token, SAML Bearer Assertion, RAR, PAR, DPoP, SPIFFE/SPIRE, SAML SP Dynamic ACS. Replaced inline mock banners with shared `V7MMockBanner` for consistency.
 - **Files:** `src/pages/flows/v9/JWTBearerTokenFlowV9.tsx`, `src/pages/flows/v9/SAMLBearerAssertionFlowV9.tsx`, `src/pages/flows/v9/RARFlowV9.tsx`, `src/pages/flows/v9/PARFlowV9.tsx`, `src/pages/flows/DPoPFlow.tsx`, `src/v8u/flows/SpiffeSpireFlowV8U.tsx`, `src/pages/flows/SAMLServiceProviderFlowV1.tsx`
 - **Regression check:** Open each Mock flow from sidebar (OIDC mock, OAuth 2.0 mock, Unsupported) — yellow "Educational Mock Mode" banner appears at top before the flow header. Device Authorization, Client Credentials, Implicit, etc. already had it; verify they still do.
 
 ### Token Monitoring: red header and migration (2026-03)
+
 - **What:** `/v8u/token-monitoring` lacked the standard red PingOne header with white text and had not been fully migrated to the V8U flow page pattern.
 - **Fix:** (1) Added `token-monitoring-v8u` to `FLOW_CONFIGS` in flowHeaderService (flowType: 'pingone', title: "Token Monitoring Dashboard", subtitle for real-time token tracking). (2) Added `V9FlowHeader` to TokenStatusPageV8U at top of page. (3) Removed redundant PageHeader/PageTitle/PageDescription (header content now comes from FlowHeader).
 - **Files:** `src/services/flowHeaderService.tsx`, `src/v8u/pages/TokenStatusPageV8U.tsx`
 - **Regression check:** Open `/v8u/token-monitoring` — red header with white text "Token Monitoring Dashboard", subtitle visible. Worker/User token sections unchanged below.
 
 ### AI Assistant: Live toggle nudge when Live is ON (2026-03)
+
 - **What:** When the Live toggle was ON, Groq still output "🔌 Live toggle is off..." and ##LIVE_NUDGE## because the server always used the same system prompt and never received `includeLive` from the client.
 - **Cause:** `includeLive` was never sent to `/api/groq/chat` or `/api/groq/chat/stream`; the server always told the LLM to respond with the Live nudge for PingOne data requests.
 - **Fix:** (1) Added `GROQ_SYSTEM_PROMPT_LIVE_ON` — when Live is ON, the prompt instructs the LLM to not say "Live toggle is off" or output ##LIVE_NUDGE##. (2) `/api/groq/chat` and `/api/groq/chat/stream` accept `includeLive` from the request body; when `includeLive === true`, use the Live-on prompt. (3) `groqService.callGroq` and `callGroqStream` accept optional `{ includeLive }`; both AIAssistant components pass it. (4) Added logging: `includeLive`, `liveOn` in Groq request logs.
@@ -124,30 +153,35 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Regression check:** Live toggle ON → ask "list users" or similar PingOne query → Groq reply does not contain "Live toggle is off" or ##LIVE_NUDGE##. Live toggle OFF → same query → nudge appears. Check AI logs for `includeLive`, `liveOn` in Groq request lines.
 
 ### Components and services: fix grey buttons (2026-03)
+
 - **What:** Shared components and services had enabled buttons or hover states using grey (#f3f4f6, #f1f5f9, #e5e7eb), or used V9_COLORS as literal strings (no interpolation) so styles didn’t apply.
 - **Fix:** (1) **DiscoveryPanel.tsx:** CloseButton and CopyButton hover changed from #f3f4f6 to #eff6ff (light blue). (2) **EnhancedFloatingLogViewer.tsx:** FilterChip inactive hover #f1f5f9 → #eff6ff; ToolbarBtn hover → #eff6ff and blue border/text; ControlButton popout hover #f1f5f9 → #e0f2fe. (3) **PingOneApplicationPicker.tsx:** CopyButton changed from ghost/grey to outline blue (white bg, #3b82f6 border, #2563eb text, hover #eff6ff). (4) **WorkerTokenModalV9.tsx:** Added V9_COLORS import; Button primary/danger use \${V9_COLORS...} interpolation; secondary variant changed to outline blue (white, blue border/text). (5) **ApiKeyConfiguration.tsx:** Button secondary variant changed to outline blue (blue border and text, hover blue-dark). (6) **EducationModeToggle.tsx:** ToggleButton inactive hover #e5e7eb → #eff6ff; DropdownItem hover/focus #f3f4f6 → #eff6ff. (7) **ClaimsRequestBuilder.tsx:** EssentialToggle when !essential: background #f3f4f6 → white with #e5e7eb border; hover → #eff6ff and blue border.
 - **Files:** `src/components/DiscoveryPanel.tsx`, `src/components/EnhancedFloatingLogViewer.tsx`, `src/components/PingOneApplicationPicker.tsx`, `src/components/WorkerTokenModalV9.tsx`, `src/components/ApiKeyConfiguration.tsx`, `src/components/education/EducationModeToggle.tsx`, `src/components/ClaimsRequestBuilder.tsx`
 - **Regression check:** Discovery/OIDC modal: close and copy buttons show light blue on hover. Log Viewer: toolbar and filter chips show blue hover. Worker Token modal: primary blue, secondary outline blue. Configuration API key section: secondary outline blue. Education toggle: blue-tinted hover. Claims builder: essential toggle off state white with blue hover.
 
 ### Sidebar menu pages: fix grey buttons (enabled state) (2026-03)
+
 - **What:** Several pages linked from the side menu had action buttons (primary, secondary, copy, or default) styled with grey background when enabled, violating the rule "buttons never grey when enabled; grey only when disabled."
 - **Fix:** (1) **RedirectlessFlowV9_Real.tsx:** Added `V9_COLORS` import; `LoginFormButton` primary uses interpolated `${V9_COLORS...}`; secondary changed to outline (white bg, blue border/text); `SignInButton` gradient uses interpolation. (2) **URLDecoder.tsx:** Added `V9_COLORS` import; `Button` secondary variant changed to outline primary; all variants use interpolation. (3) **HelioMartPasswordReset.tsx:** `Button` secondary, `CodeCollapseButton`, and `CodeButton` changed from grey fill to outline blue (white + blue border). (4) **PARvsRAR.tsx** and **CIBAvsDeviceAuthz.tsx:** `CopyButton` changed from grey to outline blue. (5) **OrganizationLicensing.tsx:** Non-primary button style changed from grey (`#6b7280`) to outline (white bg, blue border, blue text). (6) **McpServerConfig.tsx:** `Btn` default variant changed from grey to outline blue. (7) **ApplicationGenerator.tsx:** Button default (secondary) variant changed from grey-tinted white to outline blue.
 - **Files:** `src/pages/flows/RedirectlessFlowV9_Real.tsx`, `src/pages/URLDecoder.tsx`, `src/pages/security/HelioMartPasswordReset.tsx`, `src/pages/PARvsRAR.tsx`, `src/pages/CIBAvsDeviceAuthz.tsx`, `src/pages/OrganizationLicensing.tsx`, `src/pages/McpServerConfig.tsx`, `src/pages/ApplicationGenerator.tsx`
 - **Regression check:** Open each updated page from the side menu; primary/main actions show blue or theme color; secondary and copy-style buttons show outline blue (white + blue border). Grey only when a button is disabled.
 
 ### Ultimate Token Display Demo: fix grey buttons (2026-03)
+
 - **What:** Buttons on `/ultimate-token-display-demo` appeared grey because `V9_COLORS` was not imported and was used as a literal string in styled-component CSS (invalid values). Secondary/default action buttons also used grey fill when enabled.
-- **Fix:** (1) **UltimateTokenDisplay.tsx:** Import `V9_COLORS` from `@/services/v9/V9ColorStandards`; in `ActionButton` use template interpolation (`${V9_COLORS.PRIMARY.BLUE}` etc.) for all variants; change default (secondary) variant to outline primary (white bg, blue border/text) so enabled buttons are never grey; add explicit disabled styles using grey. (2) **UltimateTokenDisplayDemo.tsx:** Import `V9_COLORS`; interpolate in all styled components (Button, _Title, _Subtitle, ControlPanel, ControlLabel, Select, Checkbox, SectionTitle) and in inline style objects for feature cards.
+- **Fix:** (1) **UltimateTokenDisplay.tsx:** Import `V9_COLORS` from `@/services/v9/V9ColorStandards`; in `ActionButton` use template interpolation (`${V9_COLORS.PRIMARY.BLUE}` etc.) for all variants; change default (secondary) variant to outline primary (white bg, blue border/text) so enabled buttons are never grey; add explicit disabled styles using grey. (2) **UltimateTokenDisplayDemo.tsx:** Import `V9_COLORS`; interpolate in all styled components (Button, \_Title, \_Subtitle, ControlPanel, ControlLabel, Select, Checkbox, SectionTitle) and in inline style objects for feature cards.
 - **Files:** `src/components/UltimateTokenDisplay.tsx`, `src/pages/UltimateTokenDisplayDemo.tsx`
 - **Regression check:** Open `/ultimate-token-display-demo` — primary actions (Copy, Decode JWT, Analyze) show blue/green/amber; secondary-style actions show outline blue. Demo page control buttons show blue gradient. Grey only when a button is disabled.
 
 ### SecurityScorecard: unified collapsible header (2026-03)
+
 - **What:** Security Scorecard section now uses the same collapsible header style as Advanced OAuth Features, Flow Guidance, and Configuration (green gradient, white box with blue border, ⬇️ icon, -90° when collapsed).
 - **Changes:** Replaced local `CollapsibleHeaderButton`, `CollapsibleTitle`, `CollapsibleToggleIcon`, and `CollapsibleContent` in `SecurityScorecard.tsx` with `UnifiedFlowCollapsibleSection`, `UnifiedFlowCollapsibleHeaderButton`, `UnifiedFlowCollapsibleTitle`, `UnifiedFlowCollapsibleToggleIcon`, and `UnifiedFlowCollapsibleContent` from `collapsibleHeaderService`. Outer `ScorecardContainer` retained for card styling.
 - **Files:** `src/v8u/components/SecurityScorecard.tsx`
 - **Regression check:** Open a page that shows Security Scorecard (e.g. `/v8u/unified/oauth-authz` step 0 if present, or any flow that renders SecurityScorecard). Collapse/expand the "Security Scorecard" section — icon should match other unified sections (⬇️ in white box, points right when collapsed, down when expanded). Score, categories, and recommendations unchanged.
 
 ### PingOneApplicationPicker: stop auto-fetch loop on 401 (2026-03)
+
 - **What:** On `/flows/worker-token-v9`, when the applications API returns 401, the picker was re-running the auto-fetch effect on every render, causing an infinite loop of GET requests and console errors.
 - **Cause:** The effect condition (credentials present, `applications.length === 0`, `!loading`) stayed true after a failed fetch, so each `setLoading(false)` re-render triggered the effect again.
 - **Fix:** Introduced `autoFetchAttemptedRef`: auto-fetch runs only once per credential set; when it fails we do not retry automatically. Ref is reset when `environmentId` / `clientId` / `clientSecret` / `workerToken` change. Manual "Refresh" still calls `fetchApplications()` and is unchanged.
@@ -155,30 +189,35 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Regression check:** Open `/flows/worker-token-v9` with credentials that produce 401 from `/api/pingone/applications` — one request and one error in console; no repeated GETs. Click Refresh to retry; changing credentials and re-entering the page allows one new auto-fetch.
 
 ### Redirectless V9 Real: red PingOne header and FlowHeader config (2026-03)
+
 - **What:** `/flows/redirectless-v9-real` now shows the standard PingOne UI: red header with white text via FlowHeader, and the "No configuration found for flow ID/type: redirectless-v9" warning is resolved.
 - **Changes:** (1) **flowHeaderService.tsx:** Added `redirectless-v9` and `redirectless-v9-real` to `FLOW_CONFIGS` with `flowType: 'pingone'` (red gradient, white text), title "Redirectless Login (V9) — response_mode=pi.flow", and V9 subtitle. (2) **RedirectlessFlowV9_Real.tsx:** `FlowHeader` now uses `flowId="redirectless-v9-real"` to match the route and config. (3) **Sections:** All four step sections (PKCE Parameters, Authorization URL Generation, Token Exchange, Token Management) now use `UnifiedFlowCollapsibleHeader` (green gradient, ⬇️ icon) instead of `CollapsibleHeader`.
 - **Files:** `src/services/flowHeaderService.tsx`, `src/pages/flows/RedirectlessFlowV9_Real.tsx`
 - **Regression check:** Open `https://api.pingdemo.com:3000/flows/redirectless-v9-real` — single red header with white title/subtitle; four step sections use unified green collapsible headers with ⬇️ toggle; no FlowHeaderService config warning in console.
 
 ### Collapsible section icons: same direction everywhere (2026-03)
+
 - **What:** All collapsible section toggles now use the same convention: **expanded = icon points down (↓), collapsed = icon points right (→)**.
 - **Changes:** (1) **collapsibleHeaderService.tsx:** Legacy `ArrowIcon` now uses `rotate(-90deg)` when collapsed and `rotate(0deg)` when expanded (was 0°/180°). `DefaultArrowIcon` always draws a single down-pointing chevron; rotation handles state. (2) **CollapsibleIcon.tsx:** Always renders ⬇️ (removed ⬆️); parent applies rotation. (3) **flowUIService.tsx:** Toggle icon wrapper adds `transform: collapsed ? rotate(-90deg) : rotate(0deg)` and preserves hover translate.
 - **Files:** `src/services/collapsibleHeaderService.tsx`, `src/components/CollapsibleIcon.tsx`, `src/services/flowUIService.tsx`
 - **Regression check:** Configuration, PAR/RAR, Unified OAuth, and any page using `CollapsibleHeader` or flowUIService collapsible: expanded section → icon down; collapsed → icon right.
 
 ### Configuration page: unified collapsible headers (2026-03)
+
 - **What:** `/configuration` now uses the unified-flow collapsible style (green gradient header, white box with blue border, ⬇️ + -90° rotation) instead of the previous themed `CollapsibleHeader` (circle + 180°).
 - **Changes:** (1) **collapsibleHeaderService.tsx:** Added composite `UnifiedFlowCollapsibleHeader` (title, subtitle, icon, defaultCollapsed, children, id) and `UnifiedFlowCollapsibleHeaderProps`; moved `extractStringFromReactNode` above it for aria ids. (2) **Configuration.tsx:** Replaced all 10 `CollapsibleHeader` usages with `UnifiedFlowCollapsibleHeader`; removed `theme` and `variant` props (unified style is fixed). Kept `id="redirect-uri-catalog"` for anchor links.
 - **Files:** `src/services/collapsibleHeaderService.tsx`, `src/pages/Configuration.tsx`
 - **Regression check:** Open `https://api.pingdemo.com:3000/configuration` (or `/configuration`). All section headers show green gradient and ⬇️ toggle; expand/collapse works; "PingOne Redirect & Logout URIs" section still has id for deep links.
 
 ### Collapsible header unification: service exports + AdvancedOAuthFeatures, FlowGuidanceSystem (2026-03)
+
 - **What:** Started implementing collapsible header unification per `docs/COLLAPSIBLE_HEADER_UNIFICATION_PLAN.md`. Unified-flow style (green gradient header, white box with blue border, ⬇️ + -90° rotation) is now provided by the service; two v8u components were migrated to use it.
 - **Changes:** (1) **collapsibleHeaderService.tsx:** Added and exported `UnifiedFlowCollapsibleSection`, `UnifiedFlowCollapsibleHeaderButton`, `UnifiedFlowCollapsibleTitle`, `UnifiedFlowCollapsibleToggleIcon`, `UnifiedFlowCollapsibleContent` (matching UnifiedFlowSteps reference). (2) **AdvancedOAuthFeatures.tsx:** Removed local collapsible styled components; imports and uses the five unified-flow components from the service. (3) **FlowGuidanceSystem.tsx:** Same; keeps `GuidanceContainer` as outer wrapper, uses service for header/toggle/content.
 - **Files:** `src/services/collapsibleHeaderService.tsx`, `src/v8u/components/AdvancedOAuthFeatures.tsx`, `src/v8u/components/FlowGuidanceSystem.tsx`
 - **Regression check:** Open a page that shows Advanced OAuth Features or "Choose the Right OAuth Flow" (e.g. `/v8u/unified/oauth-authz` step 0). Collapse/expand the section; icon should be white box with blue border, ⬇️ rotating -90° when collapsed. No visual regressions.
 
 ### Silent API Retrieval: respect checkbox; Get Worker Token always shows modal (2026-03)
+
 - **What:** "Get Worker Token" was always doing silent retrieval and ignoring the "Silent API Token Retrieval" checkbox. When the checkbox was unchecked, users still got silent fetch instead of the modal.
 - **Cause:** Several call sites passed `forceShowModal: !silentApiRetrieval` (or `false`) when the user clicked "Get Worker Token", so with Silent checked the modal never showed. The helper is designed so: **button click** → always show modal (`forceShowModal: true`); **automatic/background** fetch → respect checkbox (`forceShowModal: false`, use config `silentApiRetrieval`).
 - **Fix:** (1) **WorkerTokenSectionV8**: pass `true` for forceShowModal on "Get Worker Token" click. (2) **workerTokenUIServiceV8**: same. (3) **UnifiedFlowSteps**: pre-flight "Get Worker Token" button and automatic token attempt — button click now passes `forceShowModal: true` and uses config for overrides; automatic attempt uses `undefined` overrides so config (checkbox) is respected. (4) **UnifiedErrorDisplayV8**: button click now passes `forceShowModal: true`. (5) Lockdown snapshot UnifiedFlowSteps updated to match.
@@ -186,12 +225,14 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Regression check:** Uncheck "Silent API Token Retrieval" on a page that has it (e.g. Token Status, Credentials form). Click "Get Worker Token" → modal opens. Check the box, click again → modal still opens (button always shows modal). Automatic fetches (e.g. pre-flight validation when token missing) use checkbox: silent ON → try silent first; silent OFF → no silent attempt.
 
 ### PingOne Dashboard: remove duplicate header (2026-03)
+
 - **What:** `/pingone-dashboard` showed two headers: the FlowHeader (red bar with title/subtitle) and a second inline red gradient block with the same "PingOne Platform Dashboard" title and description.
 - **Fix:** Removed the duplicate inline header block. The page now uses only FlowHeader; the "Dashboard updated" status message is shown as a single line above the tabs.
 - **Files:** `src/pages/PingOneDashboard.tsx`
 - **Regression check:** Open `/pingone-dashboard` — one header (red FlowHeader); tabs and content unchanged.
 
 ### Log Viewer: in-browser and popout unified (2026-03)
+
 - **What:** The in-browser "Log Viewer" (floating panel) and the "Debug Log Viewer - V9 Popout" were different components with different defaults (file, line count, tail mode, category filters), so they showed different content. They are now the same: the popout route renders `EnhancedFloatingLogViewer` in standalone mode so both use identical data, API calls, and UI (file list, 50/100/200/500 lines, All/API/Errors/Auth/Debug filters, stats, search, refresh, copy).
 - **Cause:** Popout was a separate implementation (`DebugLogViewerPopoutV9`) with its own state and logic; floating viewer used `EnhancedFloatingLogViewer` with different defaults.
 - **Fix:** Added `standalone` prop to `EnhancedFloatingLogViewer` (full viewport, no drag, no "Open in new window" button). Replaced `DebugLogViewerPopoutV9` body with a single `<EnhancedFloatingLogViewer isOpen standalone onClose={window.close} />`.
@@ -199,6 +240,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Regression check:** Open Log Viewer in-browser → select file, set 50 lines, pick "Errors". Click 🔗 to open in new window → popout shows same file, same line limit, same filters and stats. Category filters must filter displayed content in both.
 
 ### AIAssistant: keyboard shortcuts (2026-03-12)
+
 - **What:** Added global keyboard shortcuts to open/close the AI Assistant without clicking the floating button.
   - `Ctrl+/` / `⌘+/` — toggle open/closed
   - `Ctrl+Shift+A` / `⌘+Shift+A` — toggle open/closed (alternate)
@@ -208,6 +250,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Regression check:** Press `Ctrl+/` from any page — assistant opens. Press again — closes. Press `Escape` while open — closes. Typing in an input field does not accidentally open/close the assistant.
 
 ### ApiKeyConfiguration.tsx: 500 compile error fixed (2026-03-12)
+
 - **What:** The configuration page threw a 500 Internal Server Error because `ApiKeyConfiguration.tsx` had a malformed JSX structure. The `{apiKeyInfo && (` conditional for the `KeyValueRow` block was opened but never closed — the `)}` was missing, so the parser emitted `TS1005: ')' expected` and Vite could not compile the file.
 - **Cause:** A prior multi-replace edit that added the key-masking row inserted the content at the wrong indentation level and omitted the closing `)}` after `</KeyValueRow>`.
 - **Fix:** Corrected indentation and added the missing closing `)}` so the conditional renders correctly.
@@ -215,36 +258,42 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Regression check:** Open `/configuration` — page loads without 500; API key cards render; configured services show the masked key with eye toggle.
 
 ### ApiKeyConfiguration: eye icon to show/hide stored keys (2026-03-12)
+
 - **What:** On `/configuration`, API keys were displayed as plain text. They are now masked by default (first 6 chars + bullet dots) with a per-service 👁️ / 🙈 toggle to reveal/hide. The Add/Update input field also uses `type="password"` with an eye button overlaid on the right edge; clicking it toggles the input between password and text. Resetting to hidden on Cancel.
 - **Files:** `src/components/ApiKeyConfiguration.tsx` (new styled components: `InputWrapper`, `EyeButton`, `KeyValueRow`; new state: `showKeys` record, `showInputKey`, `toggleShowKey` helper)
 - **Regression check:** Open `/configuration` → API key cards show masked value. Click 👁️ → full key visible. Click 🙈 → masked again. Click "Update" → input is type=password; click eye button → reveals key. Click Cancel → returns to hidden. Saving a key still works (Enter or Save button).
 
 ### AIAssistant: collapse button (2026-03-12)
+
 - **What:** Added a ▼ collapse button to the AI Assistant header that shrinks the window to header-only (title bar strip) without closing it. Clicking ▲ (or the button again) restores the full window. Collapsing also exits expanded mode.
 - **Files:** `src/components/AIAssistant.tsx` (new `isCollapsed` state; `CollapseButton` styled component; `ChatWindow` now accepts `$collapsed` prop for header-only height; body/input hidden when collapsed; close resets all three states)
 - **Regression check:** Open assistant → click ▼ → shrinks to header bar only. Click ▲ → full window restored. Click ⛶ to expand → collapse button still works, exits expanded first. Close (❌) resets collapsed, expanded, and open states.
 
 ### AIAssistant: expand to full-screen modal (2026-03-12)
+
 - **What:** Added a ⛶ expand button to the AI Assistant header that switches from the compact 520×680px corner widget to a large centred modal (`min(1100px, 92vw)` × `min(88vh, 900px)`). A dimmed backdrop overlay appears behind the expanded window; clicking it collapses back to compact view. All messages and state are preserved when toggling.
 - **Files:** `src/components/AIAssistant.tsx` (new `isExpanded` state; `ExpandOverlay` backdrop; `ExpandButton`; `ChatWindow` `$expanded` prop with conditional CSS; smooth `transition`)
 - **Regression check:** Open assistant → click ⛶ → window expands to large modal centred on screen with overlay. Click overlay or ⊡ → returns to corner widget. Messages, toggles, and input are identical in both views. Mobile: still fills screen width/height.
 
 ### AIAssistant: Live and Brave (web) default ON (2026-03-12)
+
 - **What:** `includeLive` (MCP live data) and `includeWeb` (Brave Search) toggles now default to `true` so users get the richest results immediately without needing to manually enable toggles.
 - **Files:** `src/components/AIAssistant.tsx` (`useState(true)` for both)
 - **Regression check:** Open assistant fresh — both Web and Live checkboxes are pre-checked. Sending a query triggers both MCP and Brave enrichment by default.
 
 ### Brave Search API key: full persistence (2026-03-12)
+
 - **What:** Stored the Brave Search API key (`BSACMZBQtCyVK64WF136Pupvz8OIqkX`) in all four persistence layers so it survives server restarts:
   1. **Live** — `POST /api/api-key/brave-search` sets `process.env.BRAVE_API_KEY` immediately.
   2. **Disk file** — `~/.pingone-playground/credentials/brave-config.json` (same pattern as `groq-config.json`).
   3. **`.env`** — `BRAVE_API_KEY=BSACMZBQtCyVK64WF136Pupvz8OIqkX`.
   4. **`server.js` startup loader** — reads `brave-config.json` on boot and sets `process.env.BRAVE_API_KEY` (mirrors the Groq startup loader).
-  Also added `BRAVE_KEY_FILE` constant at the top of `server.js`, disk-persist logic in `POST /api/api-key/brave-search`, and disk-fallback in `GET /api/api-key/brave-search` (same pattern as Groq).
+     Also added `BRAVE_KEY_FILE` constant at the top of `server.js`, disk-persist logic in `POST /api/api-key/brave-search`, and disk-fallback in `GET /api/api-key/brave-search` (same pattern as Groq).
 - **Files:** `server.js` (`BRAVE_KEY_FILE` constant, GET fallback, POST persist, startup loader), `.env` (`BRAVE_API_KEY`), `~/.pingone-playground/credentials/brave-config.json`
 - **Regression check:** `GET /api/api-key/brave-search` → `{"success":true,"apiKey":"BSACMZB..."}`. Restart server → key still available from `brave-config.json`. AI Assistant 🌐 Brave status dot shows green.
 
 ### AIAssistant: header truncation fixes (2026-03-12)
+
 - **What:** "OAuth Assistant" title was wrapping to two lines and status pills were truncating because `HeaderActions` (6 toggles + 2 buttons) consumed all available space. Fixes applied:
   - `ChatHeader` padding `16px` → `10px 14px`, added `gap: 8px`
   - `HeaderContent` gap `12px` → `8px`, `flex-shrink: 0` (prevents collapse)
@@ -255,51 +304,61 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Regression check:** Open assistant → "OAuth Assistant" title is on one line; ⚡ Groq and 🌐 Brave status pills are fully visible; all 6 toggles visible (possibly wrapped to second row on narrow window).
 
 ### SPIFFE/SPIRE V9: red header, remove floating stepper (2026-03)
+
 - **What:** `/flows/spiffe-spire-v9` had no red (PingOne-style) header and still used the floating stepper. **Fix:** (1) Added `spiffe-spire-v9` to FLOW_CONFIGS in flowHeaderService (pingone style, title, subtitle, icon). (2) In SpiffeSpireFlowV8U: removed usePageStepper and floating stepper (registerSteps, clearSteps, completeStep, resetSteps); use local state `stepIndex`/`setStepIndex` for step 0–3; replaced custom purple Header with V9FlowHeader and V9FlowRestartButton; wrapped content in OuterWrapper with padding-top 96px so content clears the fixed header.
 - **Files:** `src/services/flowHeaderService.tsx`, `src/v8u/flows/SpiffeSpireFlowV8U.tsx`
 - **Regression check:** Open /flows/spiffe-spire-v9 — red PingOne-style header and Reset button below it; no floating stepper; step progression (Attest → SVID → Validate → Token Exchange) still works via in-page flow.
 
 ### Worker token: full analysis and single-modal plan (2026-03)
+
 - **What:** Documented worker token retrieval, storage, and modal usage across the app. **Deliverable:** `docs/WORKER_TOKEN_ANALYSIS_AND_PLAN.md` — services inventory (unifiedWorkerTokenService, workerTokenManager, workerTokenRepository, workerTokenServiceV8), modal inventory (V9 vs V8 vs Request modals), storage flow (credentials: SQLite + cache; token: unified path → IndexedDB + SQLite vs manager path → localStorage only), hardcoded-endpoint check, and recommendations (single modal = WorkerTokenModalV9 via `open-worker-token-modal`; all token writes via unifiedWorkerTokenService so IndexedDB + SQLite; no direct PingOne token URL from client). Includes plan to check all files in `/src` with file list and verification commands.
 - **Files:** `docs/WORKER_TOKEN_ANALYSIS_AND_PLAN.md`
 - **Regression check:** When changing worker token behavior, follow the doc: single modal, single read/write path, storage service for IndexedDB + SQLite.
 
 ### PingOne Discovery: Discover Configuration button did nothing (2026-03)
+
 - **What:** In the PingOne Discovery modal, clicking "Discover Configuration" appeared to do nothing. **Cause:** The discovery overlay used `z-index: 1000` while the sidebar/navbar use `z-index: 10050`, so the sidebar sat on top of the modal and intercepted clicks. **Fix:** Raised the DiscoveryPanel Overlay to `z-index: 10051` so the modal is above the chrome when open. Also set the button to `type="button"` and used `preventDefault`/`stopPropagation` in the click handler so the click is never lost to the overlay or a parent form.
 - **Files:** `src/components/DiscoveryPanel.tsx`
 - **Regression check:** Open any page that shows the PingOne Discovery modal (e.g. OIDC Discovery from credentials), enter Environment ID, click "Discover Configuration" — discovery runs, "Discovering..." then success/error appears; modal stays on top of sidebar.
 
 ### Token monitoring (v8u): use global worker token modal (2026-03)
+
 - **What:** On `/v8u/token-monitoring`, "Get Worker Token" used the V8 helper with `forceShowModal: false`, so the modal often did not open (silent retrieval path). "Fix token" (banner) opened a local WorkerTokenModalV9 instance instead of the global one (no wait screen, inconsistent UX). **Fix:** Both actions now dispatch `open-worker-token-modal` so the App-level WorkerTokenModalV9 opens (with wait screen). Removed local WorkerTokenModalV9, `showWorkerTokenModal` state, and the V8 helper call from the page; added `openGlobalWorkerTokenModal(source)` helper. Silent-retrieval checkbox when token invalid now opens the global modal instead of calling the helper.
 - **Files:** `src/v8u/pages/TokenStatusPageV8U.tsx`
 - **Regression check:** Open /v8u/token-monitoring — click "Get Worker Token": wait screen then global WorkerTokenModalV9. Click "Fix" on the expiry banner: same modal. No local duplicate modal.
 
 ### Get Worker Token: wait screen when opening modal (2026-03)
+
 - **What:** Clicking "Get worker token" (which dispatches `open-worker-token-modal`) opened the modal immediately with no loading feedback, so the wait screen never appeared. **Fix:** In App, when the event fires we set `workerTokenModalOpening` to true and render `StandardModalSpinner` with message "Opening worker token...". After a minimum delay of 500ms we set `workerTokenModalOpening` to false and `showWorkerTokenModal` to true so the modal opens. The wait screen is always visible for at least 500ms so the user sees feedback even if the modal would open instantly.
 - **Files:** `src/App.tsx`
 - **Regression check:** Click "Get Worker Token" from any page (e.g. Token Status, WorkerTokenStatusDisplayV8) — "Opening worker token..." spinner appears for at least ~500ms, then WorkerTokenModalV9 opens.
 
 ### Delete All Devices V8: restore username dropdown (2026-03)
+
 - **What:** On `/v8/delete-all-devices` the username SearchableDropdown was only shown when both environmentId and a valid worker token were present; otherwise a disabled plain input was shown, so the dropdown appeared "lost" when token was invalid. **Fix:** Always show the SearchableDropdown when environmentId is set; pass `disabled={!tokenStatus.isValid}` and a placeholder indicating that a valid worker token is required to search. When environmentId is missing, keep the plain disabled input with updated placeholder.
 - **Files:** `src/v8/pages/DeleteAllDevicesUtilityV8.tsx`
 - **Regression check:** Open /v8/delete-all-devices with environment ID set — username control is the dropdown (enabled if token valid, disabled with hint if invalid). Without environment ID, plain input with "Enter environment ID first, then get worker token".
 
 ### Worker token V8: credentials.scopes.join is not a function (2026-03)
+
 - **What:** WorkerTokenManager and WorkerTokenModalV8 could receive credentials where `scopes` is a string (e.g. from SQLite or unified storage). Calling `.join()` on a string threw. **Fix:** (1) In `workerTokenManager.ts`, added `normalizeScopesToScopeString(scopes)` and use it when building the token request body; only add `scope` param when non-empty. (2) In `WorkerTokenModalV8.tsx`, when loading credentials set scope input from string or array so the field is populated and "Please provide at least one scope" validation does not wrongly fire.
 - **Files:** `src/services/workerTokenManager.ts`, `src/v8/components/WorkerTokenModalV8.tsx`
 - **Regression check:** Load a page that uses WorkerTokenSectionV8 or WorkerTokenModalV8 with credentials that have scopes stored as a string (e.g. from SQLite); refresh token or open modal — no "scopes.join is not a function". Generate worker token with scopes loaded as string — no "at least one scope" error when scope input is populated.
 
 ### Flow Comparison (v8u): red PingOne header (2026-03)
+
 - **What:** `/v8u/flow-comparison` now uses the same red PingOne-style header as other Mock Flows. Added `flow-comparison-v8u` to `FLOW_CONFIGS` (flowType: pingone, title, subtitle, icon). FlowComparisonPage renders `V9FlowHeader` at the top and wraps content in `OuterWrapper` with padding-top so content clears the fixed header.
 - **Files:** `src/services/flowHeaderService.tsx`, `src/v8u/pages/FlowComparisonPage.tsx`
 - **Regression check:** Open https://localhost:3000/v8u/flow-comparison — red header with "PINGONE" badge and "Flow Comparison Tool" visible; page content below header.
 
 ### Worker token modal: single modal restored (2026-03)
+
 - **What:** WorkerTokenModalV9 was restored to the single-modal flow used for months. The educational sub-modal (WorkerTokenRequestModal) was removed from V9: "Generate Worker Token" now calls the backend proxy `POST /api/pingone/token` directly and shows the token in the same modal. No second modal. WorkerTokenRequestModal remains for legacy WorkerTokenModal and locked copies; only WorkerTokenModalV9 no longer uses it.
 - **Files:** `src/components/WorkerTokenModalV9.tsx`
 - **Regression check:** Open Worker Token modal, enter credentials, click "Generate Worker Token" — token appears in the same modal; no second modal.
 
 ### Worker token modal: CORS fix, flow header configs, variant prop (2026-03)
+
 - **What:** (1) **CORS:** Worker token requests from the browser to the PingOne token endpoint (e.g. `https://auth.pingone.com/.../as/token`) were blocked by CORS. WorkerTokenModalV9 and WorkerTokenRequestModal now use the backend proxy `POST /api/pingone/token` for token requests. WorkerTokenModalV9 `executeTokenRequest` and the new `fetchTokenViaProxy` both call the proxy; WorkerTokenRequestModal accepts optional `onSendRequest` so the modal’s “Send Request” uses the proxy when provided. (2) **Flow headers:** Added `saml-sp-dynamic-acs` to `FLOW_CONFIGS` so `/flows/saml-sp-dynamic-acs-v1` no longer logs “No configuration found for flow ID/type: saml-sp-dynamic-acs”. (3) **styled-components:** WorkerTokenModalV9 Export/Import buttons used `variant="outline"`, which was forwarded to the DOM; changed to `$variant="secondary"` to remove the unknown-prop warning.
 - **Files:** `src/components/WorkerTokenModalV9.tsx`, `src/components/WorkerTokenRequestModal.tsx`, `src/services/flowHeaderService.tsx`
 - **Regression check:** On Token Status Monitoring (or any page that opens WorkerTokenModalV9), enter credentials and click “Send Request” in the educational modal — token request succeeds (no CORS). Open `/flows/saml-sp-dynamic-acs-v1` — header shows; no FlowHeaderService warn. Open worker token modal — no “unknown prop variant” in console.
@@ -374,13 +433,13 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 ### Mock flow services: rename V7M → V9Mock (files and symbols) (2026-03)
 
-- **What:** All mock OAuth/OIDC services under `src/services/v9/mock/` were renamed from **V7M*** to **V9Mock*** for clarity and consistency with the V9 flow location. **Files renamed:** V7MAuthorizeService.ts → V9MockAuthorizeService.ts, V7MTokenService.ts → V9MockTokenService.ts, V7MUserInfoService.ts → V9MockUserInfoService.ts, V7MIntrospectionService.ts → V9MockIntrospectionService.ts, V7MDeviceAuthorizationService.ts → V9MockDeviceAuthorizationService.ts, V7MCIBAService.ts → V9MockCIBAService.ts, V7MStateStore.ts → V9MockStateStore.ts, V7MTokenGenerator.ts → V9MockTokenGenerator.ts, V7MMockApiLogger.ts → V9MockApiLogger.ts; core and ui files similarly (e.g. V7MPKCEGenerationService.ts → V9MockPKCEGenerationService.ts). **Types/functions renamed:** e.g. V7MAuthorizeRequest → V9MockAuthorizeRequest, V7MTokenSuccess → V9MockTokenSuccess, generateV7MTokens → generateV9MockTokens, V7MStateStore → V9MockStateStore, V9MockApiCalls (from V7MMockApiCalls), V9MockApiLogger (from V7MMockApiLogger). Session key updated to `v9mock:state`. All flow pages in `pages/flows/v9`, `v7/facade.ts`, `v7/index.ts`, and `services/v9/mock/index.ts` updated to use new paths and symbol names. Unit tests in `services/v9/mock/__tests__/` updated and pass.
+- **What:** All mock OAuth/OIDC services under `src/services/v9/mock/` were renamed from **V7M\*** to **V9Mock\*** for clarity and consistency with the V9 flow location. **Files renamed:** V7MAuthorizeService.ts → V9MockAuthorizeService.ts, V7MTokenService.ts → V9MockTokenService.ts, V7MUserInfoService.ts → V9MockUserInfoService.ts, V7MIntrospectionService.ts → V9MockIntrospectionService.ts, V7MDeviceAuthorizationService.ts → V9MockDeviceAuthorizationService.ts, V7MCIBAService.ts → V9MockCIBAService.ts, V7MStateStore.ts → V9MockStateStore.ts, V7MTokenGenerator.ts → V9MockTokenGenerator.ts, V7MMockApiLogger.ts → V9MockApiLogger.ts; core and ui files similarly (e.g. V7MPKCEGenerationService.ts → V9MockPKCEGenerationService.ts). **Types/functions renamed:** e.g. V7MAuthorizeRequest → V9MockAuthorizeRequest, V7MTokenSuccess → V9MockTokenSuccess, generateV7MTokens → generateV9MockTokens, V7MStateStore → V9MockStateStore, V9MockApiCalls (from V7MMockApiCalls), V9MockApiLogger (from V7MMockApiLogger). Session key updated to `v9mock:state`. All flow pages in `pages/flows/v9`, `v7/facade.ts`, `v7/index.ts`, and `services/v9/mock/index.ts` updated to use new paths and symbol names. Unit tests in `services/v9/mock/__tests__/` updated and pass.
 - **Files:** `src/services/v9/mock/*.ts`, `src/services/v9/mock/core/*.ts`, `src/services/v9/mock/ui/*.tsx`, `src/services/v9/mock/__tests__/*.ts`, `src/services/v9/mock/index.ts`, `src/pages/flows/v9/V7M*.tsx` (7 flow pages), `src/v7/facade.ts`, `src/v7/index.ts`
-- **Regression check:** Run `pnpm exec vitest run src/services/v9/mock/__tests__` — all tests pass. Open each Mock flow (Auth Code, Client Credentials, Device Auth, Implicit, ROPC, Hybrid, CIBA) and run through the flow — tokens and API simulation work. No imports from `V7MAuthorizeService`, `V7MTokenService`, etc. (only V9Mock* from `services/v9/mock`).
+- **Regression check:** Run `pnpm exec vitest run src/services/v9/mock/__tests__` — all tests pass. Open each Mock flow (Auth Code, Client Credentials, Device Auth, Implicit, ROPC, Hybrid, CIBA) and run through the flow — tokens and API simulation work. No imports from `V7MAuthorizeService`, `V7MTokenService`, etc. (only V9Mock\* from `services/v9/mock`).
 
 ### Mock flow services: migrate V7M to services/v9/mock (2026-03)
 
-- **What:** V7M mock OAuth/OIDC backend services (previously under `src/services/v7m/`) are now under **`src/services/v9/mock/`** for consistency with V9 flows. Files and symbols were later renamed to V9Mock* (see entry above). Added `services/v9/mock/index.ts` barrel. All flow pages in `pages/flows/v9` now import from `../../../services/v9/mock/...`. Updated `v7/index.ts` and `v7/facade.ts` to re-export from `../services/v9/mock/...`. Updated `v7m/routes.tsx` to import flow components from `../pages/flows/v9/` (named exports) and ROPC paths to `/flows/oauth-ropc-v9` and `/flows/oidc-ropc-v9`. Removed legacy `src/services/v7m/` folder.
+- **What:** V7M mock OAuth/OIDC backend services (previously under `src/services/v7m/`) are now under **`src/services/v9/mock/`** for consistency with V9 flows. Files and symbols were later renamed to V9Mock\* (see entry above). Added `services/v9/mock/index.ts` barrel. All flow pages in `pages/flows/v9` now import from `../../../services/v9/mock/...`. Updated `v7/index.ts` and `v7/facade.ts` to re-export from `../services/v9/mock/...`. Updated `v7m/routes.tsx` to import flow components from `../pages/flows/v9/` (named exports) and ROPC paths to `/flows/oauth-ropc-v9` and `/flows/oidc-ropc-v9`. Removed legacy `src/services/v7m/` folder.
 - **Files:** `src/services/v9/mock/` (new), `src/v7/index.ts`, `src/v7/facade.ts`, `src/v7m/routes.tsx`, `src/pages/flows/v9/V7M*.tsx` (7 files), `docs/MOCK_FLOWS_STANDARDIZATION_PLAN.md`
 - **Regression check:** Open each Mock flow (Auth Code, Client Credentials, Device Auth, Implicit, ROPC, Hybrid, CIBA) — each loads and token/auth steps work. No imports from `services/v7m` remain.
 
@@ -425,7 +484,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### Mock Flows: standardization implementation (Phases 1 & 3)
 
 - **Mock Flows standardization — shared styles, banner, credentials (2026-03)**
-  - **What:** Implemented Phase 1 and Phase 3 of `docs/MOCK_FLOWS_STANDARDIZATION_PLAN.md`. **Phase 1:** Added `src/v7/styles/mockFlowStyles.ts` (MOCK_FLOW_CONTAINER_STYLE, MOCK_FLOW_BANNER_*, MOCK_SECTION_STYLE, getSectionHeaderStyle(variant), getSectionBodyStyle, MOCK_INPUT_STYLE, MOCK_PRIMARY_BTN, MOCK_SECONDARY_BTN, MOCK_PRIMARY_BTN_DISABLED, MOCK_COPY_BTN). Added `src/v7/components/V7MMockBanner.tsx` (description + optional deprecation with learnMoreUrl or onLearnMoreClick). All V7M pages (Client Credentials, Device Authorization, OAuth Auth Code, OIDC Hybrid, CIBA, Implicit, ROPC) now use shared container, V7MMockBanner, shared section/header/body styles, and shared button/input styles; removed duplicate local style constants. Deprecation flows (Hybrid, Implicit, ROPC) use V7MMockBanner deprecation prop with onLearnMoreClick for modal. Added `src/v7/components/V7MStepSection.tsx` for optional future use. **Phase 3:** UnifiedCredentialManagerV9 added to OIDC Hybrid and CIBA so credentials UX matches other Mock Flows (flowKey v7m-oidc-hybrid / v7m-ciba, app picker + import/export).
+  - **What:** Implemented Phase 1 and Phase 3 of `docs/MOCK_FLOWS_STANDARDIZATION_PLAN.md`. **Phase 1:** Added `src/v7/styles/mockFlowStyles.ts` (MOCK*FLOW_CONTAINER_STYLE, MOCK_FLOW_BANNER*\*, MOCK_SECTION_STYLE, getSectionHeaderStyle(variant), getSectionBodyStyle, MOCK_INPUT_STYLE, MOCK_PRIMARY_BTN, MOCK_SECONDARY_BTN, MOCK_PRIMARY_BTN_DISABLED, MOCK_COPY_BTN). Added `src/v7/components/V7MMockBanner.tsx` (description + optional deprecation with learnMoreUrl or onLearnMoreClick). All V7M pages (Client Credentials, Device Authorization, OAuth Auth Code, OIDC Hybrid, CIBA, Implicit, ROPC) now use shared container, V7MMockBanner, shared section/header/body styles, and shared button/input styles; removed duplicate local style constants. Deprecation flows (Hybrid, Implicit, ROPC) use V7MMockBanner deprecation prop with onLearnMoreClick for modal. Added `src/v7/components/V7MStepSection.tsx` for optional future use. **Phase 3:** UnifiedCredentialManagerV9 added to OIDC Hybrid and CIBA so credentials UX matches other Mock Flows (flowKey v7m-oidc-hybrid / v7m-ciba, app picker + import/export).
   - **Files:** `src/v7/styles/mockFlowStyles.ts`, `src/v7/components/V7MMockBanner.tsx`, `src/v7/components/V7MStepSection.tsx`, all `src/v7/pages/V7M*.tsx` (ClientCredentials, DeviceAuthorization, OAuthAuthCode, OIDCHybridFlow, CIBAFlow, ImplicitFlow, ROPC)
   - **Regression check:** Open each Mock Flow (Client Credentials, Device Authorization, OAuth Auth Code, OIDC Hybrid, CIBA, Implicit, ROPC); confirm same yellow Educational Mock banner, same section card look (border, header colors), same primary/secondary button styles; Hybrid and CIBA show credential manager (app picker) below header; complete one full flow per page; deprecated flows show “Learn more” in banner and open help modal.
 
@@ -473,7 +532,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 ### Mock Flows route migration (A-Migration standard)
 
-- **Mock Flows: canonical /flows/*-v9 paths (2026-03)**
+- **Mock Flows: canonical /flows/\*-v9 paths (2026-03)**
   - **What:** Migrated all Mock Flows (per A-Migration guides) so canonical URLs are under `/flows/...-v9`. Components render at flow paths; legacy `/v7/oauth/...` and `/v7/oidc/...` paths redirect for backward compatibility. Covers: OAuth/OIDC Authorization Code, Device Authorization, Client Credentials, OAuth/OIDC Implicit, OIDC Hybrid, CIBA. Added `/flows/oidc-authorization-code-v9` and `/flows/oidc-implicit-v9`. ROPC mock remains at `/v7/oauth/ropc` and `/v7/oidc/ropc` (no conflicting flow path).
   - **Files:** `src/App.tsx`, `src/config/sidebarMenuConfig.ts`, `src/components/DragDropSidebar.tsx`, `src/components/FlowCategories.tsx`, `src/v7m/routes.tsx`
   - **Regression check:** Sidebar Mock Flows (OIDC: Authorization Code, Hybrid, CIBA; OAuth 2.0: Device Authorization, Client Credentials, Implicit) open `/flows/...-v9`; visiting any `/v7/oauth/...` or `/v7/oidc/...` path for those flows redirects to the canonical flow path; mock flow steps work unchanged.
@@ -579,7 +638,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Ping Icons from assets.pingone.com/ux/astro-nano used across AI & Identity pages**
   - **What:** All AI & Identity (and Ping UI) pages now use the official Ping Icons from `https://assets.pingone.com/ux/astro-nano/0.1.0-alpha.11/icons.css`. A shared `PingIcon` component renders `.mdi` and `.mdi-*` classes so icons match the Astro Nano set.
   - **Files:** `index.html` (link to Ping icons.css), `src/components/PingIcon.tsx` (new shared component), `src/pages/AIAgentOverview.tsx`, `src/pages/AIGlossary.tsx`, `src/pages/docs/OAuthAndOIDCForAI.PingUI.tsx` (use shared PingIcon), `src/pages/PingAIResources.tsx`, `src/pages/docs/OIDCForAI.tsx`, `src/pages/docs/PingViewOnAI.tsx` (PingIcon for section/collapsible headers).
-  - **Regression check:** Open `/ai-agent-overview`, `/ai-glossary`, `/ping-ai-resources`, `/docs/oidc-for-ai`, `/docs/oauth-for-ai`, `/docs/ping-view-on-ai`. Section headers and icon areas should show Ping/MDI-style icons (from icons.css), not bootstrap-icons (bi-*) or emoji-only.
+  - **Regression check:** Open `/ai-agent-overview`, `/ai-glossary`, `/ping-ai-resources`, `/docs/oidc-for-ai`, `/docs/oauth-for-ai`, `/docs/ping-view-on-ai`. Section headers and icon areas should show Ping/MDI-style icons (from icons.css), not bootstrap-icons (bi-\*) or emoji-only.
 
 ### Developer & Tools – consistent red headers (2026-03)
 
@@ -786,6 +845,7 @@ When changing the listed areas, run the corresponding checks to avoid regression
 ### Icons
 
 - [ ] **Feather icons (Fi\*):** Any use of `FiRefreshCw`, `FiCheck`, etc. must have a corresponding import from `src/icons` (e.g. `import { FiRefreshCw } from '../../../icons';`). Never use an icon component without importing it; otherwise "X is not defined" at runtime.
+
 ### Button styling (no grey unless disabled)
 
 - [ ] **Global rule:** Buttons must never be grey when enabled; grey only when disabled. When changing shared components (e.g. `StandardizedCredentialExportImport`, `FlowUIService.getButton`, `ConfigCheckerButtons`, `DiscoveryPanel`), use `V9_COLORS` with template interpolation (e.g. `${V9_COLORS.PRIMARY.BLUE}`) and reserve grey for `&:disabled` only.
@@ -802,7 +862,7 @@ When changing the listed areas, run the corresponding checks to avoid regression
 
 - [ ] **FlowUIService step headers:** When changing step header styling, ensure getStepNumber() has `color: #ffffff` for proper visibility on blue backgrounds. Step numbers must be white text on blue step headers.
 - [ ] **JWT Bearer / flow pages:** Text on blue (step circles, buttons, MockApiCallDisplay header) must use `color: #ffffff`. JWT Bearer uses red header (flowType `pingone` in flowHeaderService). Do not revert to blue header or `color: 'white'` (use `#ffffff`).
-- [ ] **Mock Flows (V7M) shared styles:** When changing `src/v7/styles/mockFlowStyles.ts` or `V7MMockBanner`/`V7MStepSection`: all V7M pages (Client Credentials, Device Authorization, OAuth Auth Code, OIDC Hybrid, CIBA, Implicit, ROPC) must keep using shared container, banner, section/header/body styles and MOCK_* button/input constants. Do not reintroduce per-page duplicate style objects; disabled primary buttons must use MOCK_PRIMARY_BTN_DISABLED. Hybrid and CIBA must keep UnifiedCredentialManagerV9 below FlowHeader.
+- [ ] **Mock Flows (V7M) shared styles:** When changing `src/v7/styles/mockFlowStyles.ts` or `V7MMockBanner`/`V7MStepSection`: all V7M pages (Client Credentials, Device Authorization, OAuth Auth Code, OIDC Hybrid, CIBA, Implicit, ROPC) must keep using shared container, banner, section/header/body styles and MOCK\_\* button/input constants. Do not reintroduce per-page duplicate style objects; disabled primary buttons must use MOCK_PRIMARY_BTN_DISABLED. Hybrid and CIBA must keep UnifiedCredentialManagerV9 below FlowHeader.
 - [ ] **Flow stepper / section sync (PAR, RAR):** Any `useEffect` that syncs section expansion (or similar) with `currentStep` must not depend on an array/object defined inside the component (e.g. `SECTION_KEYS`), or the dependency changes every render and causes "Maximum update depth exceeded". Use a module-level constant for step/section keys, or depend only on `[currentStep]`. See Update log "PAR/RAR flows: fix Maximum update depth exceeded".
 
 ### Logging (V9 vs V8U)
@@ -870,22 +930,22 @@ Run these when doing a broader change or before release:
 
 ## 7. Do-Not-Break Areas (summary)
 
-| Area                        | Key files                                                                                                                                               | What not to break                                                                                                      |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Worker token → Environments | `useGlobalWorkerToken.ts`, `EnvironmentManagementPageV8.tsx`, `workerTokenRepository.ts`                                                                | Token from modal must be used on `/environments`; fetch only when token is valid and present.                          |
-| Worker token storage        | `workerTokenRepository.ts`, `unifiedWorkerTokenService.ts`                                                                                              | Credentials in `unified_worker_token` must be found by repository; token in same key used by modal.                    |
-| Worker token expiration     | `workerTokenRepository.ts`, `workerTokenStatusServiceV8.ts`                                                                                             | Invalid or missing `expiresAt` must not cause RangeError; validate before calling `.toISOString()` or comparing dates. |
-| Sidebar drag-and-drop       | `SidebarMenuPing.tsx`                                                                                                                                   | Cross-group move and drop on group header must work; order persisted.                                                  |
-| MFA flags at 100%           | `mfaFeatureFlagsV8.ts`, `MFAFeatureFlagsAdminV8.tsx`                                                                                                    | When `MFA_FLAGS_ALWAYS_100` is true, all flags behave as 100%; admin UI shows message only.                            |
-| Discovery / logger          | `discoveryService.ts`                                                                                                                                   | No use of `logger.discovery`; use `logger.info` (or existing methods).                                                 |
-| Log viewer filters          | `EnhancedFloatingLogViewer.tsx`                                                                                                                         | Category filters must filter displayed log content.                                                                    |
-| Modal DOM                   | `AppDiscoveryModalV8U.tsx`, `DraggableModal.tsx`                                                                                              | No button wrapping another button (backdrop is div); DraggableModal z-index (12002/12003) must stay above all other UI elements. |
-| Icons (Fi\*)                | Any component using Feather icons                                                                                                                       | Import from `src/icons`; never use `FiRefreshCw` or other Fi\* without import.                                         |
-| Configuration redirect URI catalogue | `flowRedirectUriMapping.ts`, `callbackUriService.ts`, `Configuration.tsx`                                                                        | Catalogue shows only Unified MFA and Unified OAuth (V8U); URIs match app routes; card z-index keeps it above other content. |
-| Developer & Tools headers   | `flowHeaderService.tsx`, PostmanCollectionGenerator, OAuthCodeGeneratorHub, ServiceTestRunner, SDKSampleApp, SDKExamplesHome, CodeExamplesDemo, UltimateTokenDisplayDemo, DavinciTodoApp, ApplicationGenerator, ClientGenerator, JWKSTroubleshooting, URLDecoder, V7MSettingsV9 | Developer & Tools sidebar pages must show red header (PingOne style) via FlowHeader with dedicated flowId; do not remove or revert to custom/blue headers. |
-| Button styling              | `StandardizedCredentialExportImport.tsx`, FlowUIService, ConfigCheckerButtons, DiscoveryPanel, **WorkerTokenRequestModalV8.tsx**, **ApiStatusPage.tsx** | Buttons never grey when enabled; use V9_COLORS with `${}` interpolation or outline primary; grey only for `:disabled`. |
-| Step headers & UI components | `flowUIService.tsx`, `flowComponentService.tsx`, `v7StepperService.tsx`                                                                                              | Step numbers must have white text on blue backgrounds; getStepNumber() must include `color: #ffffff`. |
-| Logging (V9)                | `V9LoggingService.ts`, `UnifiedFlowErrorBoundary.tsx`, `FlowNotAvailableModal.tsx`                                                                      | Migrated callers use V9LoggingService; do not revert to unifiedFlowLoggerServiceV8U for these components.              |
+| Area                                 | Key files                                                                                                                                                                                                                                                                       | What not to break                                                                                                                                          |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Worker token → Environments          | `useGlobalWorkerToken.ts`, `EnvironmentManagementPageV8.tsx`, `workerTokenRepository.ts`                                                                                                                                                                                        | Token from modal must be used on `/environments`; fetch only when token is valid and present.                                                              |
+| Worker token storage                 | `workerTokenRepository.ts`, `unifiedWorkerTokenService.ts`                                                                                                                                                                                                                      | Credentials in `unified_worker_token` must be found by repository; token in same key used by modal.                                                        |
+| Worker token expiration              | `workerTokenRepository.ts`, `workerTokenStatusServiceV8.ts`                                                                                                                                                                                                                     | Invalid or missing `expiresAt` must not cause RangeError; validate before calling `.toISOString()` or comparing dates.                                     |
+| Sidebar drag-and-drop                | `SidebarMenuPing.tsx`                                                                                                                                                                                                                                                           | Cross-group move and drop on group header must work; order persisted.                                                                                      |
+| MFA flags at 100%                    | `mfaFeatureFlagsV8.ts`, `MFAFeatureFlagsAdminV8.tsx`                                                                                                                                                                                                                            | When `MFA_FLAGS_ALWAYS_100` is true, all flags behave as 100%; admin UI shows message only.                                                                |
+| Discovery / logger                   | `discoveryService.ts`                                                                                                                                                                                                                                                           | No use of `logger.discovery`; use `logger.info` (or existing methods).                                                                                     |
+| Log viewer filters                   | `EnhancedFloatingLogViewer.tsx`                                                                                                                                                                                                                                                 | Category filters must filter displayed log content.                                                                                                        |
+| Modal DOM                            | `AppDiscoveryModalV8U.tsx`, `DraggableModal.tsx`                                                                                                                                                                                                                                | No button wrapping another button (backdrop is div); DraggableModal z-index (12002/12003) must stay above all other UI elements.                           |
+| Icons (Fi\*)                         | Any component using Feather icons                                                                                                                                                                                                                                               | Import from `src/icons`; never use `FiRefreshCw` or other Fi\* without import.                                                                             |
+| Configuration redirect URI catalogue | `flowRedirectUriMapping.ts`, `callbackUriService.ts`, `Configuration.tsx`                                                                                                                                                                                                       | Catalogue shows only Unified MFA and Unified OAuth (V8U); URIs match app routes; card z-index keeps it above other content.                                |
+| Developer & Tools headers            | `flowHeaderService.tsx`, PostmanCollectionGenerator, OAuthCodeGeneratorHub, ServiceTestRunner, SDKSampleApp, SDKExamplesHome, CodeExamplesDemo, UltimateTokenDisplayDemo, DavinciTodoApp, ApplicationGenerator, ClientGenerator, JWKSTroubleshooting, URLDecoder, V7MSettingsV9 | Developer & Tools sidebar pages must show red header (PingOne style) via FlowHeader with dedicated flowId; do not remove or revert to custom/blue headers. |
+| Button styling                       | `StandardizedCredentialExportImport.tsx`, FlowUIService, ConfigCheckerButtons, DiscoveryPanel, **WorkerTokenRequestModalV8.tsx**, **ApiStatusPage.tsx**                                                                                                                         | Buttons never grey when enabled; use V9_COLORS with `${}` interpolation or outline primary; grey only for `:disabled`.                                     |
+| Step headers & UI components         | `flowUIService.tsx`, `flowComponentService.tsx`, `v7StepperService.tsx`                                                                                                                                                                                                         | Step numbers must have white text on blue backgrounds; getStepNumber() must include `color: #ffffff`.                                                      |
+| Logging (V9)                         | `V9LoggingService.ts`, `UnifiedFlowErrorBoundary.tsx`, `FlowNotAvailableModal.tsx`                                                                                                                                                                                              | Migrated callers use V9LoggingService; do not revert to unifiedFlowLoggerServiceV8U for these components.                                                  |
 
 ---
 
