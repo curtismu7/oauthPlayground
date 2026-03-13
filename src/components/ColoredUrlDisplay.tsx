@@ -353,9 +353,23 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 
 	// Get the current URL (encoded or decoded) - use editedUrl if editing
 	const displayUrl = isEditing ? editedUrl : url;
-	const currentUrl = isDecoded ? decodeURIComponent(displayUrl) : displayUrl;
+	const currentUrl = isDecoded
+		? (() => {
+				try {
+					return decodeURIComponent(displayUrl);
+				} catch {
+					return displayUrl;
+				}
+			})()
+		: displayUrl;
 	const coloredParts = parseUrlWithColors(currentUrl);
-	const parameters = getUrlParameters(currentUrl);
+	const parameters = (() => {
+		try {
+			return getUrlParameters(currentUrl);
+		} catch {
+			return [];
+		}
+	})();
 
 	const handleOpen = () => {
 		window.open(currentUrl, '_blank');
@@ -458,10 +472,10 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 						{showCopyButton && (
 							<CopyButtonService
 								text={currentUrl}
-								label="Authorization URL"
+								label="Copy"
 								size="sm"
 								variant="primary"
-								showLabel={false}
+								showLabel={true}
 							/>
 						)}
 						<ActionButton onClick={toggleEncoding} $variant="secondary">

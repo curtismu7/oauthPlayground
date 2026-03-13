@@ -9,4 +9,5 @@ export const logger = {
 	warn: (msg, ...args) => console.warn(`[${timestamp()}] WARN  ${msg}`, ...args),
 	error: (msg, ...args) => console.error(`[${timestamp()}] ERROR ${msg}`, ...args),
 	debug: (msg, ...args) => console.debug(`[${timestamp()}] DEBUG ${msg}`, ...args),
+	auth: (msg, ...args) => console.log(`[${timestamp()}] AUTH  ${msg}`, ...args),
 };

@@ -1,6 +1,5 @@
 // src/utils/advancedOIDC.ts - Advanced OIDC features beyond Core 1.0
 
-import { logger } from '../utils/logger';
 import { logger } from './logger';
 import { generateCodeVerifier } from './oauth';
 /**

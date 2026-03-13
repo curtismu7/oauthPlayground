@@ -6,15 +6,18 @@ import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import ColoredUrlDisplay from '../../../components/ColoredUrlDisplay';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
 import { usePageStepper } from '../../../contexts/FloatingStepperContext';
 import { usePageScroll } from '../../../hooks/usePageScroll';
-import { FlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
 import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
+import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
+import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
@@ -185,6 +188,14 @@ const STEP_METADATA = [
 	},
 ];
 
+const RAR_SECTION_KEYS = [
+	'overview',
+	'configuration',
+	'authorization',
+	'tokenExchange',
+	'completion',
+] as const;
+
 // Types
 interface RARAuthorizationDetails {
 	resource: string;
@@ -198,17 +209,10 @@ interface RARAuthorizationDetails {
 // Main Component
 const RARFlowV9: React.FC = () => {
 	// Scroll management
-	usePageScroll({ pageName: 'RAR Flow V9', force: true });
+	usePageScroll({ pageName: 'RAR Flow V9', force: false });
 
 	// Floating stepper — register steps and use context currentStep so Next/Previous move through steps
-	const { registerSteps, clearSteps, currentStep, setCurrentStep } = usePageStepper();
-	const RAR_SECTION_KEYS = [
-		'overview',
-		'configuration',
-		'authorization',
-		'tokenExchange',
-		'completion',
-	] as const;
+	const { registerSteps, clearSteps, resetSteps, currentStep, setCurrentStep } = usePageStepper();
 	useEffect(() => {
 		const steps = STEP_METADATA.map((step) => ({
 			id: step.title.toLowerCase().replace(/\s+/g, '-'),
@@ -220,13 +224,6 @@ const RARFlowV9: React.FC = () => {
 	}, [registerSteps, clearSteps]);
 
 	const stepContentRef = useRef<HTMLDivElement>(null);
-	// Sync section expansion with stepper: when user clicks Next/Previous, expand the active step's section and scroll into view
-	useEffect(() => {
-		const key = RAR_SECTION_KEYS[currentStep];
-		if (key) setCollapsedSections((prev) => ({ ...prev, [key]: false }));
-		stepContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-	}, [currentStep]);
-
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
 		overview: true,
 		configuration: false,
@@ -234,6 +231,15 @@ const RARFlowV9: React.FC = () => {
 		tokenExchange: true,
 		completion: true,
 	});
+
+	// Sync section expansion with stepper: when user clicks Next/Previous, expand the active step's section and scroll into view.
+	// Only update when the section is currently collapsed to avoid unnecessary re-renders and update loops.
+	useEffect(() => {
+		const key = RAR_SECTION_KEYS[currentStep];
+		if (!key) return;
+		setCollapsedSections((prev) => (prev[key] === false ? prev : { ...prev, [key]: false }));
+		stepContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}, [currentStep]);
 
 	// V9 Credential management
 	const [credentials, _setCredentials] = useState(() => V9FlowCredentialService.load());
@@ -625,7 +631,13 @@ const RARFlowV9: React.FC = () => {
 								{authorizationUrl && (
 									<GeneratedContentBox>
 										<InfoTitle>Authorization URL</InfoTitle>
-										<CodeBlock>{authorizationUrl}</CodeBlock>
+										<ColoredUrlDisplay
+											url={authorizationUrl}
+											label="Authorization URL"
+											showCopyButton={true}
+											showInfoButton={true}
+											showOpenButton={false}
+										/>
 										<HelperText>
 											This URL contains RAR authorization details that specify exactly what
 											permissions are being requested.
@@ -825,10 +837,42 @@ const RARFlowV9: React.FC = () => {
 		}
 	};
 
+	const handleReset = useCallback(() => {
+		resetSteps();
+		setCurrentStep(0);
+		setAuthorizationUrl('');
+		setAuthorizationCode('');
+		setTokens(null);
+		setErrors([]);
+		setCollapsedSections({
+			overview: true,
+			configuration: false,
+			authorization: true,
+			tokenExchange: true,
+			completion: true,
+		});
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+		modernMessaging.showBanner({
+			type: 'info',
+			title: 'Flow reset',
+			message: 'All progress has been reset. Start again from step 1.',
+			dismissible: true,
+		});
+	}, [resetSteps, setCurrentStep]);
+
 	return (
 		<ResponsiveContainer>
 			<ResponsiveContentWrapper>
-				<FlowHeader flowId="rar-v9" />
+				<V7MMockBanner description="This is a mock/educational implementation demonstrating RAR concepts. In a real implementation, the authorization server would process the RAR parameters and return tokens with the approved authorization details." />
+				<V9FlowHeader flowId="rar-v9" customConfig={{ flowType: 'pingone' }} />
+				<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+					<V9FlowRestartButton
+						onRestart={handleReset}
+						currentStep={currentStep}
+						totalSteps={STEP_METADATA.length}
+						position="header"
+					/>
+				</div>
 
 				<ResponsiveMainCard>
 					<StepContentWrapper>

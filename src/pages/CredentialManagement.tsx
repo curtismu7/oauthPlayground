@@ -7,6 +7,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { FiAlertCircle, FiCheckCircle, FiXCircle } from '../icons';
 import { credentialStorageManager } from '../services/credentialStorageManager';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
@@ -248,7 +249,12 @@ const KNOWN_FLOWS = [
 	{ key: 'postman-collection-generator', name: 'Postman Collection Generator' },
 ];
 
-export const CredentialManagement: React.FC = () => {
+export interface CredentialManagementProps {
+	/** When true, render only tabs + content (no page header or Worker Token section); for embedding in Configuration. */
+	embedded?: boolean;
+}
+
+export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embedded = false }) => {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const [flows, setFlows] = useState<FlowCredentialInfo[]>([]);
@@ -273,17 +279,35 @@ export const CredentialManagement: React.FC = () => {
 		setLoading(true);
 		try {
 			const flowInfos: FlowCredentialInfo[] = [];
+			const unifiedTokenData = unifiedWorkerTokenService.getTokenDataSync();
 
 			for (const flow of KNOWN_FLOWS) {
-				const credentials = await credentialStorageManager.loadFlowCredentials(flow.key);
+				const result = await credentialStorageManager.loadFlowCredentials(flow.key);
+				const creds = result?.success ? result.data : null;
+				const fromStorage = !!creds;
+				const isWorkerTokenFlow = flow.key === 'worker-token-v9';
+				const fromUnified =
+					isWorkerTokenFlow &&
+					(unifiedWorkerTokenService.hasValidTokenSync() || !!unifiedTokenData?.credentials);
+				const hasCredentials = fromStorage || fromUnified;
+				const envId =
+					creds?.environmentId ??
+					(isWorkerTokenFlow ? unifiedTokenData?.credentials?.environmentId : undefined);
+				const clientId = creds?.clientId;
 
 				flowInfos.push({
 					flowKey: flow.key,
 					flowName: flow.name,
-					hasCredentials: !!credentials,
-					environmentId: credentials?.environmentId,
-					clientId: credentials?.clientId,
-					source: credentials ? 'browser' : undefined,
+					hasCredentials,
+					environmentId: envId,
+					clientId,
+					source: fromStorage
+						? result?.source && result.source !== 'none'
+							? result.source
+							: 'browser'
+						: fromUnified
+							? 'browser'
+							: undefined,
 				});
 			}
 
@@ -320,16 +344,25 @@ export const CredentialManagement: React.FC = () => {
 
 			// Export all flow credentials
 			for (const flow of KNOWN_FLOWS) {
-				const credentials = await credentialStorageManager.loadFlowCredentials(flow.key);
-				if (credentials) {
-					(exportData.credentials as Record<string, unknown>)[flow.key] = credentials;
+				const result = await credentialStorageManager.loadFlowCredentials(flow.key);
+				if (result?.success && result.data) {
+					(exportData.credentials as Record<string, unknown>)[flow.key] = result.data;
 				}
 			}
 
-			// Export worker token credentials
-			const workerToken = await credentialStorageManager.loadWorkerToken();
-			if (workerToken) {
-				(exportData as Record<string, unknown>).workerToken = workerToken;
+			// Export worker token: prefer unified storage (canonical), then credentialStorageManager
+			const unifiedData = unifiedWorkerTokenService.getTokenDataSync();
+			if (unifiedData?.token != null) {
+				(exportData as Record<string, unknown>).workerToken = {
+					accessToken: unifiedData.token,
+					expiresAt: unifiedData.expiresAt ?? 0,
+					environmentId: unifiedData.credentials?.environmentId ?? '',
+				};
+			} else {
+				const workerToken = await credentialStorageManager.loadWorkerToken();
+				if (workerToken) {
+					(exportData as Record<string, unknown>).workerToken = workerToken;
+				}
 			}
 
 			// Create and download JSON file
@@ -611,14 +644,16 @@ export const CredentialManagement: React.FC = () => {
 	};
 
 	return (
-		<div style={styles.container}>
-			<div style={styles.pageHeader}>
-				<h1 style={styles.pageTitle}>
-					<span>🔑</span> Credential Management
-				</h1>
-				<p style={styles.pageSubtitle}>Manage PingOne credentials and validate worker tokens</p>
-				<WorkerTokenSectionV8 compact />
-			</div>
+		<div style={embedded ? { marginBottom: '1rem' } : styles.container}>
+			{!embedded && (
+				<div style={styles.pageHeader}>
+					<h1 style={styles.pageTitle}>
+						<span>🔑</span> Credential Management
+					</h1>
+					<p style={styles.pageSubtitle}>Manage PingOne credentials and validate worker tokens</p>
+					<WorkerTokenSectionV8 compact />
+				</div>
+			)}
 
 			<div style={styles.tabBar}>
 				<button

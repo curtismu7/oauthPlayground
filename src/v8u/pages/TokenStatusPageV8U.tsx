@@ -29,9 +29,14 @@ import {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8U';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
-import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 
+import V9FlowHeader from '../../services/v9/v9FlowHeaderService';
 import { logger } from '../../utils/logger';
+
+/** Open the global worker token modal (WorkerTokenModalV9 in App) with wait screen. */
+function openGlobalWorkerTokenModal(source: string): void {
+	window.dispatchEvent(new CustomEvent('open-worker-token-modal', { detail: { source } }));
+}
 
 // Token monitoring interfaces
 
@@ -41,24 +46,6 @@ const PageContainer = styled.div`
 	margin: 0 auto;
 	padding: 20px;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-`;
-
-const PageHeader = styled.div`
-	margin-bottom: 32px;
-`;
-
-const PageTitle = styled.h1`
-	font-size: 32px;
-	font-weight: 700;
-	color: #1f2937;
-	margin: 0 0 8px 0;
-`;
-
-const PageDescription = styled.p`
-	font-size: 16px;
-	color: #6b7280;
-	margin: 0;
-	line-height: 1.6;
 `;
 
 const TokenStatusCard = styled.div`
@@ -136,8 +123,6 @@ const TokenStatusPageV8U: React.FC = () => {
 		return config.workerToken?.showTokenAtEnd || false;
 	});
 
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-
 	// Standardized spinner hooks for token status operations
 	const statusSpinner = useStandardSpinner(2000); // Token status check - 2 seconds
 	const modalSpinner = useStandardSpinner(4000); // Worker token modal - 4 seconds
@@ -188,46 +173,15 @@ const TokenStatusPageV8U: React.FC = () => {
 		};
 	}, []);
 
-	const handleShowWorkerTokenModal = async () => {
-		try {
-			logger.info('[TOKEN-STATUS-V8U] Starting worker token modal with params:', {
-				silentApiRetrieval,
-				showTokenAtEnd,
-				hasSetShowWorkerTokenModal: typeof setShowWorkerTokenModal,
-				hasSetTokenStatus: typeof setTokenStatus,
-			});
-
-			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-			logger.info(
-				'[TOKEN-STATUS-V8U] Successfully imported handleShowWorkerTokenModal',
-				'Logger info'
-			);
-
-			await handleShowWorkerTokenModal(
-				setShowWorkerTokenModal,
-				setTokenStatus,
-				silentApiRetrieval,
-				showTokenAtEnd,
-				false
-			);
-
-			logger.info('[TOKEN-STATUS-V8U] Worker token modal completed successfully', 'Logger info');
-		} catch (error) {
-			logger.error('TokenStatusPageV8U', ' Detailed error:', {
-				error,
-				message: error instanceof Error ? error.message : String(error),
-				stack: error instanceof Error ? error.stack : undefined,
-				name: error instanceof Error ? error.name : 'Unknown',
-			});
-			logger.error('[TOKEN-STATUS-V8U] Error showing worker token modal:', error);
-		}
-	};
+	/** Opens the global worker token modal (same as navbar "Get worker token") with wait screen. */
+	const handleGetWorkerToken = () => openGlobalWorkerTokenModal('TokenStatusPageV8U');
 
 	return (
 		<>
 			<PageContainer>
+				<V9FlowHeader flowId="token-monitoring-v8u" customConfig={{ flowType: 'pingone' }} />
 				<WorkerTokenExpiryBannerV8
-					onFixToken={() => setShowWorkerTokenModal(true)}
+					onFixToken={() => openGlobalWorkerTokenModal('TokenStatusPageV8U-Fix')}
 					marginBottom="24px"
 				/>
 				{/* Modal Spinners for Token Status Operations */}
@@ -246,14 +200,6 @@ const TokenStatusPageV8U: React.FC = () => {
 					message="Updating configuration..."
 					theme="orange"
 				/>
-
-				<PageHeader>
-					<PageTitle>Token Status Monitoring</PageTitle>
-					<PageDescription>
-						Comprehensive token status monitoring for OAuth flows and API authentication. Track
-						worker tokens, user tokens, and manage OAuth configuration settings in real-time.
-					</PageDescription>
-				</PageHeader>
 
 				{/* API Display Toggle */}
 				<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
@@ -275,7 +221,7 @@ const TokenStatusPageV8U: React.FC = () => {
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 						<div style={{ display: 'flex', gap: '8px' }}>
-							<ActionButton onClick={handleShowWorkerTokenModal}>
+							<ActionButton onClick={handleGetWorkerToken}>
 								<span>🛡️</span>
 								Get Worker Token
 							</ActionButton>
@@ -327,18 +273,9 @@ const TokenStatusPageV8U: React.FC = () => {
 													await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 												if (!currentStatus.isValid) {
 													logger.debug(
-														'[TOKEN-STATUS-V8U] Silent API retrieval enabled, attempting to fetch token now...'
+														'[TOKEN-STATUS-V8U] Silent API retrieval enabled, opening worker token modal...'
 													);
-													const { handleShowWorkerTokenModal } = await import(
-														'@/v8/utils/workerTokenModalHelperV8'
-													);
-													await handleShowWorkerTokenModal(
-														setShowWorkerTokenModal,
-														setTokenStatus,
-														newValue, // Use new value
-														showTokenAtEnd,
-														false // Not forced - respect silent setting
-													);
+													openGlobalWorkerTokenModal('TokenStatusPageV8U-Silent');
 												}
 											} catch (error) {
 												logger.error('[TOKEN-STATUS-V8U] Error in silent retrieval:', error);
@@ -437,17 +374,6 @@ const TokenStatusPageV8U: React.FC = () => {
 
 					<UserTokenStatusDisplayV8U showRefresh={true} refreshInterval={10} />
 				</TokenStatusCard>
-
-				{/* Worker Token Modal */}
-				{showWorkerTokenModal && (
-					<WorkerTokenModalV9
-						isOpen={showWorkerTokenModal}
-						onClose={() => setShowWorkerTokenModal(false)}
-						onTokenGenerated={(token) => {
-							logger.info('Worker token generated for token status page:', token);
-						}}
-					/>
-				)}
 			</PageContainer>
 
 			{/* API Display - Full Width at Bottom */}

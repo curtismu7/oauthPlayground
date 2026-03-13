@@ -81,14 +81,14 @@ const styles = {
 	button: (isPrimary: boolean, isDisabled?: boolean): React.CSSProperties => ({
 		padding: '0.75rem 1.5rem',
 		borderRadius: '0.5rem',
-		border: 'none',
 		fontWeight: 600,
 		cursor: isDisabled ? 'not-allowed' : 'pointer',
 		display: 'flex',
 		alignItems: 'center',
 		gap: '0.5rem',
-		background: isDisabled ? '#9ca3af' : isPrimary ? '#3b82f6' : '#6b7280',
-		color: isDisabled ? '#f8fafc' : 'white',
+		background: isDisabled ? '#9ca3af' : isPrimary ? '#3b82f6' : '#ffffff',
+		border: isDisabled ? 'none' : isPrimary ? 'none' : '1px solid #3b82f6',
+		color: isDisabled ? '#f8fafc' : isPrimary ? 'white' : '#2563eb',
 	}),
 	errorMessage: {
 		background: '#fef2f2',

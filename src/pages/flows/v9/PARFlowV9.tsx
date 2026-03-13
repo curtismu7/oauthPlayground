@@ -6,15 +6,18 @@ import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import ColoredUrlDisplay from '../../../components/ColoredUrlDisplay';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
 import { usePageStepper } from '../../../contexts/FloatingStepperContext';
 import { usePageScroll } from '../../../hooks/usePageScroll';
-import { FlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
 import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
+import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
+import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
@@ -163,19 +166,20 @@ const STEP_METADATA = [
 	},
 ];
 
+const PAR_SECTION_KEYS = [
+	'overview',
+	'configuration',
+	'pushPar',
+	'authorization',
+	'tokenExchange',
+	'completion',
+] as const;
+
 const PARFlowV9: React.FC = () => {
-	usePageScroll({ pageName: 'PAR Flow V9', force: true });
+	usePageScroll({ pageName: 'PAR Flow V9', force: false });
 	const stepContentRef = useRef<HTMLDivElement>(null);
 
-	const { registerSteps, clearSteps, currentStep, setCurrentStep } = usePageStepper();
-	const PAR_SECTION_KEYS = [
-		'overview',
-		'configuration',
-		'pushPar',
-		'authorization',
-		'tokenExchange',
-		'completion',
-	] as const;
+	const { registerSteps, clearSteps, resetSteps, currentStep, setCurrentStep } = usePageStepper();
 	useEffect(() => {
 		const steps = STEP_METADATA.map((step) => ({
 			id: step.title.toLowerCase().replace(/\s+/g, '-'),
@@ -186,12 +190,6 @@ const PARFlowV9: React.FC = () => {
 		return () => clearSteps();
 	}, [registerSteps, clearSteps]);
 
-	// Sync section expansion with stepper: when user clicks Next/Previous, expand the active step's section
-	useEffect(() => {
-		const key = PAR_SECTION_KEYS[currentStep];
-		if (key) setCollapsedSections((prev) => ({ ...prev, [key]: false }));
-	}, [currentStep]);
-
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
 		overview: true,
 		configuration: false,
@@ -200,6 +198,14 @@ const PARFlowV9: React.FC = () => {
 		tokenExchange: true,
 		completion: true,
 	});
+
+	// Sync section expansion with stepper: when user clicks Next/Previous, expand the active step's section.
+	// Only update when the section is currently collapsed to avoid unnecessary re-renders and update loops.
+	useEffect(() => {
+		const key = PAR_SECTION_KEYS[currentStep];
+		if (!key) return;
+		setCollapsedSections((prev) => (prev[key] === false ? prev : { ...prev, [key]: false }));
+	}, [currentStep]);
 
 	const [credentials] = useState(() => V9FlowCredentialService.load());
 	const [environmentId, setEnvironmentId] = useState(() =>
@@ -490,7 +496,13 @@ const PARFlowV9: React.FC = () => {
 								{requestUri && (
 									<GeneratedContentBox>
 										<InfoTitle>Request URI (mock)</InfoTitle>
-										<CodeBlock>{requestUri}</CodeBlock>
+										<ColoredUrlDisplay
+											url={requestUri}
+											label="Request URI (mock)"
+											showCopyButton={true}
+											showInfoButton={false}
+											showOpenButton={false}
+										/>
 									</GeneratedContentBox>
 								)}
 							</CollapsibleContent>
@@ -527,7 +539,13 @@ const PARFlowV9: React.FC = () => {
 									<>
 										<GeneratedContentBox>
 											<InfoTitle>Authorization URL (with request_uri)</InfoTitle>
-											<CodeBlock>{authorizationUrl}</CodeBlock>
+											<ColoredUrlDisplay
+												url={authorizationUrl}
+												label="Authorization URL (with request_uri)"
+												showCopyButton={true}
+												showInfoButton={true}
+												showOpenButton={false}
+											/>
 											<HelperText>
 												User is redirected to this URL; the AS resolves the request_uri to the
 												pushed parameters.
@@ -668,10 +686,44 @@ const PARFlowV9: React.FC = () => {
 		}
 	};
 
+	const handleReset = useCallback(() => {
+		resetSteps();
+		setCurrentStep(0);
+		setRequestUri('');
+		setAuthorizationUrl('');
+		setAuthorizationCode('');
+		setTokens(null);
+		setErrors([]);
+		setCollapsedSections({
+			overview: true,
+			configuration: false,
+			pushPar: true,
+			authorization: true,
+			tokenExchange: true,
+			completion: true,
+		});
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+		modernMessaging.showBanner({
+			type: 'info',
+			title: 'Flow reset',
+			message: 'All progress has been reset. Start again from step 1.',
+			dismissible: true,
+		});
+	}, [resetSteps, setCurrentStep]);
+
 	return (
 		<ResponsiveContainer>
 			<ResponsiveContentWrapper>
-				<FlowHeader flowId="par-v9" />
+				<V7MMockBanner description="This flow demonstrates Pushed Authorization Requests (RFC 9126). PAR parameters are simulated in-browser. No real API calls to an authorization server are made; responses are generated for learning." />
+				<V9FlowHeader flowId="par-v9" customConfig={{ flowType: 'pingone' }} />
+				<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+					<V9FlowRestartButton
+						onRestart={handleReset}
+						currentStep={currentStep}
+						totalSteps={STEP_METADATA.length}
+						position="header"
+					/>
+				</div>
 
 				<ResponsiveMainCard>
 					<StepContentWrapper>

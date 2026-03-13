@@ -8,8 +8,6 @@ import { showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
 
-import { logger } from '../utils/logger';
-
 const Container = styled.div`
 	max-width: 1400px;
 	margin: 0 auto;
@@ -83,20 +81,22 @@ const CodeBlockHeader = styled.div`
 `;
 
 const CopyButton = styled.button`
-	background: #f3f4f6;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: #ffffff;
+	border: 1px solid #3b82f6;
 	border-radius: 0.25rem;
 	padding: 0.25rem 0.5rem;
 	font-size: 0.75rem;
 	cursor: pointer;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: #2563eb;
 	display: flex;
 	align-items: center;
 	gap: 0.25rem;
 	transition: all 0.2s;
 
 	&:hover {
-		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+		background: #f8fafc;
+		border-color: #2563eb;
+		color: #1d4ed8;
 	}
 `;
 

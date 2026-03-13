@@ -336,16 +336,15 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 		try {
 			const { handleShowWorkerTokenModal } = await import('../utils/workerTokenModalHelperV8');
 
-			// User explicitly clicked the button - respect silent mode setting
-			// Pass current checkbox values to override config (page checkboxes take precedence)
-			// forceShowModal=!silentApiRetrieval so modal only shows when silent mode is OFF
+			// User explicitly clicked the button — always show modal so they can configure/view token
+			// Silent API Retrieval checkbox only affects automatic/background fetches, not this button click
 			await handleShowWorkerTokenModal(
-				setShowWorkerTokenModal, // Use actual state setter to show modal
+				setShowWorkerTokenModal,
 				setTokenStatus,
-				silentApiRetrieval, // Page checkbox value takes precedence
-				showTokenAtEnd, // Page checkbox value takes precedence
-				!silentApiRetrieval, // Only show modal if silent mode is OFF
-				setIsGettingWorkerToken // Pass loading state setter
+				silentApiRetrieval,
+				showTokenAtEnd,
+				true, // forceShowModal: user clicked "Get Worker Token"
+				setIsGettingWorkerToken
 			);
 		} catch (error) {
 			logger.error('[WorkerTokenUIServiceV8] Error opening worker token modal:', error);

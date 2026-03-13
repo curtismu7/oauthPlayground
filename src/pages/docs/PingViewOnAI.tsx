@@ -1,7 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
+import { PingIcon } from '../../components/PingIcon';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowUIService } from '../../services/flowUIService';
 import { PageLayoutService } from '../../services/pageLayoutService';
 
@@ -86,17 +88,16 @@ const ExternalLink = styled.a`
 `;
 
 const pageConfig = {
-	flowType: 'documentation' as const,
-	theme: 'blue' as const,
+	flowType: 'pingone' as const,
+	theme: 'red' as const,
 	maxWidth: '1200px',
-	showHeader: true,
+	showHeader: false,
 	showFooter: false,
 	responsive: true,
 	flowId: 'ping-view-on-ai',
 };
 
-const { PageContainer, ContentWrapper, PageHeader } =
-	PageLayoutService.createPageLayout(pageConfig);
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
 const PingViewOnAI: React.FC = () => {
 	usePageScroll({ pageName: 'Ping View on AI', force: true });
@@ -104,7 +105,7 @@ const PingViewOnAI: React.FC = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>
-				{PageHeader && <PageHeader />}
+				<FlowHeader flowId="ping-view-on-ai" />
 				<Header>
 					<h1>
 						<span>🖥️</span>
@@ -119,7 +120,7 @@ const PingViewOnAI: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Resources & Documentation"
 					subtitle="Comprehensive resources for implementing AI-powered identity solutions"
-					icon={<i className="bi bi-question-circle"></i>}
+					icon={<PingIcon icon="FiInfo" size={24} />}
 					theme="highlight"
 					defaultCollapsed={false}
 				>
@@ -262,7 +263,7 @@ const PingViewOnAI: React.FC = () => {
 				<CollapsibleHeader
 					title="AI in Identity & Access Management"
 					subtitle="How AI is transforming the identity landscape and Ping's strategic approach"
-					icon={<span>🛡️</span>}
+					icon={<PingIcon icon="FiShield" size={24} />}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -321,7 +322,7 @@ const PingViewOnAI: React.FC = () => {
 				<CollapsibleHeader
 					title="AI-Powered Identity Solutions"
 					subtitle="Ping's comprehensive AI-driven identity management capabilities"
-					icon={<span>⚡</span>}
+					icon={<PingIcon icon="FiZap" size={24} />}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -387,7 +388,7 @@ const PingViewOnAI: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Security & Privacy Considerations"
 					subtitle="Ensuring AI implementations maintain security and privacy standards"
-					icon={<span>🛡️</span>}
+					icon={<PingIcon icon="FiShield" size={24} />}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -453,7 +454,7 @@ const PingViewOnAI: React.FC = () => {
 				<CollapsibleHeader
 					title="AI Implementation Strategy"
 					subtitle="How to successfully implement AI-powered identity solutions"
-					icon={<i className="bi bi-question-circle"></i>}
+					icon={<PingIcon icon="FiInfo" size={24} />}
 					defaultCollapsed={false}
 				>
 					<Card>

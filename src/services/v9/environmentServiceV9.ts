@@ -22,8 +22,6 @@
  * const validation = EnvironmentServiceV9.validateEnvironmentConfig(config);
  */
 
-import type { ApiCall } from '@/services/apiCallTrackerService';
-import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '../../utils/logger';
 
@@ -149,7 +147,6 @@ export interface EnhancedPingOneEnvironment extends PingOneEnvironment {
 
 class EnvironmentServiceV9 {
 	private readonly MODULE_TAG = '[🌍 ENVIRONMENT-SERVICE-V9]';
-	private readonly BASE_PATH = '/environments';
 	private readonly CACHE_KEY = 'environments_cache';
 	private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
@@ -277,7 +274,7 @@ class EnvironmentServiceV9 {
 					filteredEnvironments = filteredEnvironments.filter(
 						(env) =>
 							env.name.toLowerCase().includes(searchLower) ||
-							(env.description && env.description.toLowerCase().includes(searchLower))
+							env.description?.toLowerCase().includes(searchLower)
 					);
 				}
 			}
@@ -483,7 +480,7 @@ class EnvironmentServiceV9 {
 	static validateEnvironmentConfig(
 		config: CreateEnvironmentRequest | UpdateEnvironmentRequest
 	): EnvironmentConfigValidation {
-		const service = new EnvironmentServiceV9();
+		const _service = new EnvironmentServiceV9();
 		const errors: string[] = [];
 		const warnings: string[] = [];
 		const suggestions: string[] = [];

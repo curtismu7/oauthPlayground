@@ -33,7 +33,7 @@ const SidebarContainer = styled.div<{
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
-	/* Above EnhancedFloatingLogViewer (9999) so menu is never covered by floating panels */
+	/* App chrome; EnhancedFloatingLogViewer (10100) opens above when open */
 	z-index: 10050;
 `;
 

@@ -174,9 +174,13 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						setEnvironmentId(creds.environmentId || propEnvironmentId);
 						setClientId(creds.clientId || '');
 						setClientSecret(creds.clientSecret || '');
-						setScopeInput(
-							Array.isArray(creds.scopes) && creds.scopes.length ? creds.scopes.join(' ') : ''
-						);
+						const scopeDisplay =
+							typeof creds.scopes === 'string'
+								? creds.scopes.trim()
+								: Array.isArray(creds.scopes) && creds.scopes.length
+									? creds.scopes.join(' ')
+									: '';
+						setScopeInput(scopeDisplay);
 						setRegion(creds.region || 'us');
 						setCustomDomain(creds.customDomain || '');
 						setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');

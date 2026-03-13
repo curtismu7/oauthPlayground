@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { FlowHeader } from '../services/flowHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 
 const _Container = styled.div`
@@ -201,20 +202,16 @@ const FeatureList = styled.ul`
 `;
 
 const pageConfig = {
-	flowType: 'documentation' as const,
-	theme: 'blue' as const,
+	flowType: 'pingone' as const,
+	theme: 'red' as const,
 	maxWidth: '72rem',
-	showHeader: true,
+	showHeader: false,
 	showFooter: false,
 	responsive: true,
 	flowId: 'sdk-sample-app',
 };
 
-const {
-	PageContainer,
-	ContentWrapper,
-	FlowHeader: LayoutFlowHeader,
-} = PageLayoutService.createPageLayout(pageConfig);
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
 const SdkSampleApp: React.FC = () => {
 	usePageScroll({ pageName: 'SDK Sample App', force: true });
@@ -296,7 +293,7 @@ const SdkSampleApp: React.FC = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>
-				{LayoutFlowHeader && <LayoutFlowHeader />}
+				<FlowHeader flowId="sdk-sample-app" />
 
 				<CollapsibleHeader
 					title="Quick Start Guide"

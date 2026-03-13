@@ -290,7 +290,7 @@ const styles = {
 	}),
 };
 
-const log = createModuleLogger('src/pages/WorkerTokenTester.tsx');
+const _log = createModuleLogger('src/pages/WorkerTokenTester.tsx');
 
 const _WorkerTokenTester: React.FC = () => {
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);

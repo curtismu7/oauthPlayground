@@ -68,7 +68,7 @@ const cloneAuthorizationDetail = (detail: AuthorizationDetail): AuthorizationDet
 	// educational-ok: deep clone of authorization detail for UI mutation safety
 	JSON.parse(JSON.stringify(detail));
 
-const log = createModuleLogger('src/pages/flows/v9/PingOnePARFlowV9.tsx');
+const _log = createModuleLogger('src/pages/flows/v9/PingOnePARFlowV9.tsx');
 
 const PingOnePARFlowV9: React.FC = () => {
 	const location = useLocation();
