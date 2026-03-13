@@ -163,9 +163,6 @@ const SPEC_INFO: Record<SpecVersion, SpecVersionInfo> = {
 };
 
 class SpecVersionServiceV9 {
-	private readonly CACHE_KEY = 'spec_version_cache';
-	private readonly CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
-
 	// V8 Compatibility Layer - All V8 methods preserved exactly
 
 	/**
@@ -480,7 +477,7 @@ class SpecVersionServiceV9 {
 		reasoning: string;
 	} {
 		const useCaseLower = useCase.toLowerCase();
-		const allSpecs = SpecVersionServiceV9.getAllSpecVersions();
+		const _allSpecs = SpecVersionServiceV9.getAllSpecVersions();
 
 		let recommended: SpecVersion[] = [];
 		let alternatives: SpecVersion[] = [];

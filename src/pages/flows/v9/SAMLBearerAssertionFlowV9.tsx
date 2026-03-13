@@ -4,17 +4,21 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
+import { DEMO_API_BASE, DEMO_ENVIRONMENT_ID } from '../../../components/PingOneApiCallDisplay';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { FiRefreshCw } from '../../../icons';
 import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
 import { FlowCompletionService } from '../../../services/flowCompletionService';
-import { FlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import SAMLAssertionService from '../../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
+import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
+import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
 import { credentialManager } from '../../../utils/credentialManager';
 import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
@@ -1144,6 +1148,35 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 					</div>
 				</InfoBox>
 
+				<div style={{ marginBottom: '1rem' }}>
+					<MockApiCallDisplay
+						title="SAML Bearer Token Request (RFC 7522)"
+						method="POST"
+						url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/token`}
+						headers={{
+							'Content-Type': 'application/x-www-form-urlencoded',
+							Accept: 'application/json',
+						}}
+						body={`grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer&assertion=${base64SAML ? encodeURIComponent(base64SAML.substring(0, 40)) + '...' : '<base64-SAML-assertion>'}`}
+						response={
+							tokenResponse
+								? {
+										status: 200,
+										statusText: 'OK',
+										data: tokenResponse,
+									}
+								: {
+										status: 200,
+										statusText: 'OK',
+										data: {
+											note: 'Generate a SAML assertion and click "Make Token Request" to see the response.',
+										},
+									}
+						}
+						defaultExpanded={true}
+					/>
+				</div>
+
 				<GeneratedContentBox>
 					<ParameterGrid>
 						<ParameterLabel>Request URL</ParameterLabel>
@@ -1228,7 +1261,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						</div>
 					</InfoBox>
 
-					{/* Use UnifiedTokenDisplayService for token display with decode capability */}
+					{/* Use UnifiedTokenDisplayService for token display (standardization: full token, decode, copy) */}
 					{UnifiedTokenDisplayService.showTokens(
 						{
 							access_token: tokenResponse.access_token,
@@ -1241,6 +1274,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						{
 							showCopyButtons: true,
 							showDecodeButtons: true,
+							showFullToken: true,
 						}
 					)}
 				</CollapsibleHeader>
@@ -1268,10 +1302,40 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		/>
 	);
 
+	const handleReset = useCallback(() => {
+		setTokenResponse(null);
+		setGeneratedSAML('');
+		setShowDecodedSAML(false);
+		setIsLoading(false);
+		setCollapsedSections({
+			credentials: false,
+			samlBuilder: false,
+			tokenRequest: false,
+			tokenResponse: false,
+			completion: false,
+		});
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+		modernMessaging.showBanner({
+			type: 'info',
+			title: 'Flow reset',
+			message: 'All progress has been reset. Start again from step 1.',
+			dismissible: true,
+		});
+	}, []);
+
 	// Main render
 	return (
 		<Container>
-			<FlowHeader flowId="saml-bearer-assertion-v7" />
+			<V7MMockBanner description="This flow simulates the OAuth 2.0 SAML Bearer Assertion flow (RFC 7522) in-browser. No external APIs are called. SAML assertions and token responses are generated for learning." />
+			<V9FlowHeader flowId="saml-bearer-assertion-v7" customConfig={{ flowType: 'pingone' }} />
+			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+				<V9FlowRestartButton
+					onRestart={handleReset}
+					currentStep={0}
+					totalSteps={1}
+					position="header"
+				/>
+			</div>
 			<ContentWrapper>
 				{renderCredentials()}
 				<SectionDivider />

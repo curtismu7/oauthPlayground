@@ -124,10 +124,10 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 	return (
 		<PageContainer>
 			<div style={{ display: 'flex', alignItems: 'center' }}>
-				<BackButton type="button" onClick={() => navigate('/v8u/spiffe-spire')}>
+				<BackButton type="button" onClick={() => navigate('/flows/spiffe-spire-v9')}>
 					<span style={{ fontSize: '16px' }}>⬅️</span> Back to SPIFFE/SPIRE Flow
 				</BackButton>
-				<ResetButton type="button" onClick={() => navigate('/v8u/spiffe-spire')}>
+				<ResetButton type="button" onClick={() => navigate('/flows/spiffe-spire-v9')}>
 					Reset SPIFFE/SPIRE Flow
 				</ResetButton>
 			</div>
@@ -184,7 +184,7 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 						</p>
 						<button
 							type="button"
-							onClick={() => navigate('/v8u/spiffe-spire')}
+							onClick={() => navigate('/flows/spiffe-spire-v9')}
 							style={{
 								padding: '0.5rem 1.25rem',
 								borderRadius: '999px',
@@ -215,7 +215,7 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 			>
 				<button
 					type="button"
-					onClick={() => navigate('/v8u/spiffe-spire')}
+					onClick={() => navigate('/flows/spiffe-spire-v9')}
 					style={{
 						display: 'inline-flex',
 						alignItems: 'center',

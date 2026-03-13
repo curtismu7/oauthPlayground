@@ -7,9 +7,10 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FiInfo } from '../icons';
 import { callbackUriService } from '../services/callbackUriService';
 import { fetchApplications } from '../services/pingOneApplicationService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { logger } from '../utils/logger';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
-import { WorkerTokenModal } from './WorkerTokenModal';
+import { WorkerTokenModalV9 } from './WorkerTokenModalV9';
 export interface ConfigurationURICheckerProps {
 	flowType?: string;
 	environmentId?: string;
@@ -650,16 +651,17 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			</ActionBar>
 
 			{showWorkerTokenModal && (
-				<WorkerTokenModal
+				<WorkerTokenModalV9
 					isOpen={showWorkerTokenModal}
-					onClose={() => setShowWorkerTokenModal(false)}
-					onContinue={() => {
+					onClose={() => {
 						setShowWorkerTokenModal(false);
-						// Re-check worker token
-						const stored = localStorage.getItem('worker_token');
-						if (stored) {
-							setRetrievedWorkerToken(stored);
-							// Auto-trigger check after getting token
+						// Sync displayed token from unified service when modal closes
+						const data = unifiedWorkerTokenService.getTokenDataSync();
+						if (data?.token) setRetrievedWorkerToken(data.token);
+					}}
+					onTokenGenerated={(token) => {
+						if (token) {
+							setRetrievedWorkerToken(token);
 							setTimeout(() => {
 								if (environmentId && clientId && (redirectUri || postLogoutRedirectUri)) {
 									checkURIs();
@@ -667,8 +669,6 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 							}, 500);
 						}
 					}}
-					flowType={flowType || 'flow'}
-					environmentId={environmentId || ''}
 				/>
 			)}
 		</Container>

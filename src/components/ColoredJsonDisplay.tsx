@@ -113,7 +113,7 @@ export const ColoredJsonDisplay: React.FC<ColoredJsonDisplayProps> = ({
 	label = 'JSON Response',
 	collapsible = true,
 	defaultCollapsed = false,
-	maxHeight = '300px',
+	maxHeight = '150px',
 	showCopyButton = true,
 }) => {
 	const [isExpanded, setIsExpanded] = useState(!defaultCollapsed);
@@ -130,10 +130,10 @@ export const ColoredJsonDisplay: React.FC<ColoredJsonDisplayProps> = ({
 					{showCopyButton && (
 						<CopyButtonService
 							text={jsonString}
-							label={label}
+							label="Copy"
 							size="sm"
 							variant="secondary"
-							showLabel={false}
+							showLabel={true}
 						/>
 					)}
 					{collapsible && (

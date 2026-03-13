@@ -1099,14 +1099,6 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 
 					// Flow-specific filtering
 					if (flowFilter === 'unified') {
-						// Debug: Log all calls being considered for unified flow
-						debugLog('🔍 UNIFIED FILTER: Checking call', {
-							url,
-							actualPingOneUrl,
-							step,
-							isPingOne: url.includes('auth.pingone') || actualPingOneUrl.includes('auth.pingone'),
-						});
-
 						// Unified flow: exclude MFA calls, include redirectless, token, authorize, etc.
 						// Explicitly exclude MFA-specific endpoints
 						if (url.includes('/api/pingone/mfa/')) {
@@ -1131,13 +1123,6 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 							url.includes('/as/device') || // Direct device authorization endpoint
 							url.includes('/as/par') || // Direct PAR endpoint
 							step?.startsWith('unified-');
-
-						logger.info('🔍 UNIFIED FILTER: Result', {
-							isUnifiedFlow,
-							matchesAuthorize: url.includes('/as/authorize'),
-							matchesToken: url.includes('/as/token'),
-							matchesStep: step?.startsWith('unified-'),
-						});
 
 						return isUnifiedFlow;
 					} else if (flowFilter === 'mfa') {

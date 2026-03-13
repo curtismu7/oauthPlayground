@@ -380,9 +380,14 @@ if (userActionTime > expectedTime * 2) {
 - **Assess team performance**
 - **Strategic planning** for improvements
 
+## Completed Work (Changelog)
+
+### 2026-03-11
+- **Mock flow services rename (V7M → V9Mock):** All mock OAuth/OIDC services in `src/services/v9/mock/` renamed from V7M* to V9Mock* (files, types, classes, and exports). Flow pages, v7 facade/index, barrel, and tests updated. See UPDATE_LOG_AND_REGRESSION_PLAN.md §3 and MOCK_FLOWS_STANDARDIZATION_PLAN.md for details.
+
 ---
 
 **Created**: 2025-03-11  
-**Last Updated**: 2025-03-11  
+**Last Updated**: 2026-03-11  
 **Maintained by**: Development Team  
 **Review Frequency**: Weekly/Monthly/Quarterly

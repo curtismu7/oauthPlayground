@@ -5,6 +5,7 @@ import {
 	initializeMockData,
 	useComponentTracker,
 } from '../utils/componentTracker';
+import { logger } from '../utils/logger';
 
 interface ComponentMetrics {
 	name: string;
@@ -147,65 +148,72 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 ];
 
 // ─── AUTO-GENERATED: live scan items — do not edit manually ───
-// Last updated: 2026-03-11T09:46:19.126Z
+// Last updated: 2026-03-12T15:08:10.621Z
 
 const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
-  {
-    "id": "bootstrap-icons-migration",
-    "description": "Bootstrap Icons replacing question-mark emoji placeholders",
-    "status": "clean",
-    "countLabel": "348 bi-* icons in use",
-    "detail": "All user-visible question-mark placeholders replaced with Bootstrap Icons CSS classes (<i className=\"bi bi-*\">). 348 icon references across active components."
-  },
-  {
-    "id": "active-sidebar-identified",
-    "description": "Active sidebar: SidebarMenuPing (USE_PING_MENU=true)",
-    "status": "fixed",
-    "countLabel": "3 route items",
-    "detail": "Sidebar.tsx → SidebarMenuPing.tsx is the live path. DragDropSidebar.tsx is the locked legacy fallback. DragDropSidebar.V2.tsx and DragDropSidebar.tsx.V2.tsx are dead files (not imported anywhere)."
-  },
-  {
-    "id": "oauth-oidc-duplication",
-    "description": "OAuth/OIDC flow duplication reduced",
-    "status": "fixed",
-    "countLabel": "~15,477 lines deleted",
-    "detail": "Dead V8 flows deleted, FlowCategories.tsx reorganized into 7 categories with correct V9 routes, App.tsx redirects added, 6 orphaned hooks/services removed."
-  },
-  {
-    "id": "v9-flows-standardized",
-    "description": "V9 flows fully standardized",
-    "status": "clean",
-    "countLabel": "18 / 18 flows",
-    "detail": "All V9 flows use V9CredentialStorageService, CompactAppPickerV9, 0 console.error/warn violations. V7 routes redirect to V9."
-  },
-  {
-    "id": "v9-logger-migration",
-    "description": "console.* → logger.* migration",
-    "status": "warning",
-    "countLabel": "46 console.error/warn remaining",
-    "detail": "Structured logger across 90+ service files, 16 hooks, 3 contexts, 43 utils, 79 components. Intentional exceptions: loggingService, code-gen templates, CLI tools."
-  },
-  {
-    "id": "eslint-disable-count",
-    "description": "ESLint/Biome disable directives",
-    "status": "clean",
-    "countLabel": "49 eslint-disable + 155 biome-ignore",
-    "detail": "Targeted suppression comments. Goal: eliminate no-explicit-any and exhaustive-deps groups."
-  },
-  {
-    "id": "ts-any-usage",
-    "description": "TypeScript `any` usage",
-    "status": "pending",
-    "countLabel": "~412 occurrences",
-    "detail": "Tracked across non-locked src/. Reduction goal: replace with proper generics."
-  },
-  {
-    "id": "v9-dead-flows-archived",
-    "description": "Dead flow files archived / deleted",
-    "status": "fixed",
-    "countLabel": "31+ files + 5 dirs removed",
-    "detail": "Cleaned active codebase. Scope rule: only sidebar menu items + direct services in scope (sidebarMenuConfig.ts)."
-  }
+	{
+		id: 'bootstrap-icons-migration',
+		description: 'Bootstrap Icons replacing question-mark emoji placeholders',
+		status: 'warning',
+		countLabel: '1 placeholders remaining → 341 bi-* in use',
+		detail:
+			'1 question-mark spans remain outside src/locked/. 341 Bootstrap icon references already in place.',
+	},
+	{
+		id: 'active-sidebar-identified',
+		description: 'Active sidebar: SidebarMenuPing (USE_PING_MENU=true)',
+		status: 'fixed',
+		countLabel: '3 route items',
+		detail:
+			'Sidebar.tsx → SidebarMenuPing.tsx is the live path. DragDropSidebar.tsx is the locked legacy fallback. DragDropSidebar.V2.tsx and DragDropSidebar.tsx.V2.tsx are dead files (not imported anywhere).',
+	},
+	{
+		id: 'oauth-oidc-duplication',
+		description: 'OAuth/OIDC flow duplication reduced',
+		status: 'fixed',
+		countLabel: '~15,477 lines deleted',
+		detail:
+			'Dead V8 flows deleted, FlowCategories.tsx reorganized into 7 categories with correct V9 routes, App.tsx redirects added, 6 orphaned hooks/services removed.',
+	},
+	{
+		id: 'v9-flows-standardized',
+		description: 'V9 flows fully standardized',
+		status: 'clean',
+		countLabel: '18 / 18 flows',
+		detail:
+			'All V9 flows use V9CredentialStorageService, CompactAppPickerV9, 0 console.error/warn violations. V7 routes redirect to V9.',
+	},
+	{
+		id: 'v9-logger-migration',
+		description: 'console.* → logger.* migration',
+		status: 'warning',
+		countLabel: '53 console.error/warn remaining',
+		detail:
+			'Structured logger across 90+ service files, 16 hooks, 3 contexts, 43 utils, 79 components. Intentional exceptions: loggingService, code-gen templates, CLI tools.',
+	},
+	{
+		id: 'eslint-disable-count',
+		description: 'ESLint/Biome disable directives',
+		status: 'clean',
+		countLabel: '47 eslint-disable + 156 biome-ignore',
+		detail:
+			'Targeted suppression comments. Goal: eliminate no-explicit-any and exhaustive-deps groups.',
+	},
+	{
+		id: 'ts-any-usage',
+		description: 'TypeScript `any` usage',
+		status: 'pending',
+		countLabel: '~416 occurrences',
+		detail: 'Tracked across non-locked src/. Reduction goal: replace with proper generics.',
+	},
+	{
+		id: 'v9-dead-flows-archived',
+		description: 'Dead flow files archived / deleted',
+		status: 'fixed',
+		countLabel: '31+ files + 5 dirs removed',
+		detail:
+			'Cleaned active codebase. Scope rule: only sidebar menu items + direct services in scope (sidebarMenuConfig.ts).',
+	},
 ];
 
 // ─── END AUTO-GENERATED v9 items ───
@@ -236,13 +244,28 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 
 	const updateMetrics = useCallback(() => {
 		try {
-			let tracker = (window as any).componentTracker;
+			interface WindowWithComponentTracker extends Window {
+				componentTracker?: {
+					generateReport: () => { totalComponents: number; totalRenders: number; history?: never };
+					getMetrics: () => ComponentMetrics[];
+					getHistory: () => {
+						timestamp: number;
+						componentCount: number;
+						totalRenders: number;
+						memoryUsage?: number;
+					}[];
+					reset: () => void;
+				};
+				__CLEANLINESS_DEMO__?: boolean;
+			}
+			const windowWithTracker = window as WindowWithComponentTracker;
+			let tracker = windowWithTracker.componentTracker;
 			if (!tracker) {
 				tracker = getComponentTracker();
 				// Only seed mock data in demo mode (?demo=1 or __CLEANLINESS_DEMO__) so real sessions show actual tracked components
 				const isDemo =
 					typeof window !== 'undefined' &&
-					((window as any).__CLEANLINESS_DEMO__ === true ||
+					(windowWithTracker.__CLEANLINESS_DEMO__ === true ||
 						(typeof window.location !== 'undefined' &&
 							new URLSearchParams(window.location.search).get('demo') === '1'));
 				if (isDemo) {
@@ -270,12 +293,21 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 
 				if (componentMetrics && Array.isArray(componentMetrics)) {
 					setComponents(
-						componentMetrics.slice(0, 10).map((comp: any) => ({
-							name: comp.name || 'Unknown',
-							renderCount: comp.renderCount || 0,
-							propCount: comp.propCount || 0,
-							lastRender: comp.lastRender || Date.now(),
-						}))
+						componentMetrics
+							.slice(0, 10)
+							.map(
+								(comp: {
+									name?: string;
+									renderCount?: number;
+									propCount?: number;
+									lastRender?: number;
+								}) => ({
+									name: comp.name || 'Unknown',
+									renderCount: comp.renderCount || 0,
+									propCount: comp.propCount || 0,
+									lastRender: comp.lastRender || Date.now(),
+								})
+							)
 					);
 				}
 			} else {
@@ -290,7 +322,7 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 				setComponents([]);
 			}
 		} catch (error) {
-			console.error('CleanlinessDashboard: Error updating metrics', error);
+			logger.error('CleanlinessDashboard', 'Error updating metrics', { error: String(error) });
 			// Set safe defaults on error
 			setMetrics({
 				totalComponents: 0,
@@ -343,9 +375,8 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 		>
 			<FlowHeader flowId="cleanliness-dashboard" />
 			{updateMessage && (
-				<div
+				<output
 					style={{
-						maxWidth: '720px',
 						margin: '0 auto 1rem',
 						padding: '0.5rem 1rem',
 						background: '#d4edda',
@@ -357,11 +388,10 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 						alignItems: 'center',
 						gap: '0.5rem',
 					}}
-					role="status"
 				>
 					<span aria-hidden>✓</span>
 					{updateMessage}
-				</div>
+				</output>
 			)}
 			<div
 				style={{
@@ -572,37 +602,37 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 					{(
 						[
 							{
-								label: 'Fixed',
+								status: 'Fixed',
 								count: [...V7_AUDIT_ITEMS, ...V8_AUDIT_ITEMS, ...V9_STANDARDIZATION_ITEMS].filter(
 									(i) => i.status === 'fixed'
 								).length,
 								...STATUS_CONFIG.fixed,
 							},
 							{
-								label: 'Clean',
+								status: 'Clean',
 								count: [...V7_AUDIT_ITEMS, ...V8_AUDIT_ITEMS, ...V9_STANDARDIZATION_ITEMS].filter(
 									(i) => i.status === 'clean'
 								).length,
 								...STATUS_CONFIG.clean,
 							},
 							{
-								label: 'Warning',
+								status: 'Warning',
 								count: [...V7_AUDIT_ITEMS, ...V8_AUDIT_ITEMS, ...V9_STANDARDIZATION_ITEMS].filter(
 									(i) => i.status === 'warning'
 								).length,
 								...STATUS_CONFIG.warning,
 							},
 							{
-								label: 'Pending',
+								status: 'Pending',
 								count: [...V7_AUDIT_ITEMS, ...V8_AUDIT_ITEMS, ...V9_STANDARDIZATION_ITEMS].filter(
 									(i) => i.status === 'pending'
 								).length,
 								...STATUS_CONFIG.pending,
 							},
-						] as Array<{ label: string; count: number; color: string; bg: string; border: string }>
+						] as Array<{ status: string; count: number; color: string; bg: string; border: string }>
 					).map((b) => (
 						<div
-							key={b.label}
+							key={b.status}
 							style={{
 								display: 'flex',
 								alignItems: 'center',
@@ -616,7 +646,7 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 								color: b.color,
 							}}
 						>
-							{b.count} {b.label}
+							{b.count} {b.status}
 						</div>
 					))}
 				</div>

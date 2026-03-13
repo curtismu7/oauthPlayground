@@ -440,7 +440,7 @@ const ClientGenerator: React.FC = () => {
 
 	return (
 		<Container>
-			<FlowHeader flowId="configuration" />
+			<FlowHeader flowId="client-generator" />
 
 			<Header>
 				<Title>PingOne Client Generator - Worker Token Setup</Title>

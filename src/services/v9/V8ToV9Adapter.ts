@@ -516,7 +516,7 @@ class V8ToV9Adapter {
 
 			for (const env of v8Environments) {
 				try {
-					const v9Env = V8ToV9Adapter.adaptEnvironment(env);
+					const _v9Env = V8ToV9Adapter.adaptEnvironment(env);
 
 					if (!options.dryRun) {
 						// Store V9 environment (implementation depends on your storage strategy)
@@ -562,7 +562,7 @@ class V8ToV9Adapter {
 
 			for (const flowState of v8FlowStates) {
 				try {
-					const v9FlowState = V8ToV9Adapter.adaptFlowState(flowState);
+					const _v9FlowState = V8ToV9Adapter.adaptFlowState(flowState);
 
 					if (!options.dryRun) {
 						// Store V9 flow state (implementation depends on your storage strategy)

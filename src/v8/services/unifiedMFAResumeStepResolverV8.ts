@@ -17,7 +17,7 @@
  * - FOOL-PROOF: Step 0 fallback is forbidden for redirect resumes
  */
 
-import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
+import { V9MFARedirectUriService as MFARedirectUriServiceV8 } from '@/services/v9/V9MFARedirectUriService';
 
 import { logger } from '../../utils/logger';
 
@@ -73,6 +73,7 @@ export interface StepResolverContext {
  * Implements fool-proof step resolution with strict precedence and invariant:
  * "redirect-resume path must not route to Step 0"
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: resolver API used as namespace across call sites
 export class UnifiedMFAResumeStepResolverV8 {
 	/**
 	 * Generate correlation ID for tracking

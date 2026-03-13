@@ -11,7 +11,6 @@ import {
 	type EnhancedApiCallData,
 	EnhancedApiCallDisplayService,
 } from '../services/enhancedApiCallDisplayService';
-import { logger } from '../utils/logger';
 
 // Styled Components
 const Container = styled.div<{ $theme?: 'light' | 'dark' }>`

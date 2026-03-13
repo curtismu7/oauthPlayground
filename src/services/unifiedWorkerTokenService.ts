@@ -10,7 +10,8 @@
  * Features:
  * - Single unified service for all worker token operations
  * - Flexible credential interface to support different app requirements
- * - Multiple storage layers (localStorage, IndexedDB, database backup)
+ * - Credentials source of truth: backend SQLite (/api/credentials/sqlite); survives restarts
+ * - Cache layers: memory, IndexedDB, localStorage (not used as source of truth)
  * - Automatic token lifecycle management
  * - Support for different authentication methods
  * - Cross-app token sharing
@@ -31,8 +32,11 @@ declare global {
 
 const MODULE_TAG = '[🔑 UNIFIED-WORKER-TOKEN]';
 
-// Storage key for fast sync access (unifiedTokenStorage is canonical)
+// Storage key for fast sync access (cache only; SQLite is source of truth for credentials)
 const BROWSER_STORAGE_KEY = 'unified_worker_token';
+
+/** Backend SQLite key for default worker token credentials (persists across restarts; not browser storage). */
+const WORKER_TOKEN_SQLITE_KEY = '__worker_token__';
 
 // Unified interfaces that support all app requirements
 export interface UnifiedWorkerTokenCredentials {
@@ -262,7 +266,7 @@ class UnifiedWorkerTokenService {
 			// Continue — localStorage/IndexedDB below provide fallback
 		}
 
-		// Sync to localStorage for fast sync access (canonical is unifiedTokenStorage)
+		// Sync to localStorage for fast sync access (cache only)
 		try {
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 		} catch (error) {
@@ -273,6 +277,9 @@ class UnifiedWorkerTokenService {
 				error as Error
 			);
 		}
+
+		// Persist to backend SQLite so credentials survive restarts (source of truth)
+		await this._saveCredentialsToSQLite(credentials);
 
 		// Sync environmentId so all pages pick it up
 		if (credentials.environmentId) {
@@ -312,7 +319,120 @@ class UnifiedWorkerTokenService {
 	}
 
 	/**
-	 * Load worker token credentials (internal implementation)
+	 * Load worker token credentials from backend SQLite (source of truth across restarts).
+	 * Returns null if backend unavailable or no row for WORKER_TOKEN_SQLITE_KEY.
+	 */
+	private async _loadCredentialsFromSQLite(): Promise<UnifiedWorkerTokenCredentials | null> {
+		try {
+			const res = await fetch(
+				`/api/credentials/sqlite/load?environmentId=${encodeURIComponent(WORKER_TOKEN_SQLITE_KEY)}`
+			);
+			if (!res.ok) return null;
+			const json = (await res.json()) as { credentials: Record<string, unknown> | null };
+			if (!json?.credentials) return null;
+			const c = json.credentials;
+			const environmentId = (c.loginHint as string) || (c.environmentId as string) || '';
+			const clientId = (c.clientId as string) || '';
+			const clientSecret = (c.clientSecret as string) ?? '';
+			if (!environmentId || !clientId || !clientSecret) return null;
+			const scopesRaw = c.scopes;
+			const scopes: string[] = Array.isArray(scopesRaw)
+				? scopesRaw
+				: typeof scopesRaw === 'string'
+					? scopesRaw.split(/\s+/).filter(Boolean)
+					: [];
+			const credentials: UnifiedWorkerTokenCredentials = {
+				environmentId,
+				clientId,
+				clientSecret,
+				scopes: scopes.length ? scopes : undefined,
+				region: (c.region as UnifiedWorkerTokenCredentials['region']) || 'us',
+				// _saveCredentialsToSQLite stores the field as `clientAuthMethod`; check both
+				tokenEndpointAuthMethod: (c.tokenEndpointAuthMethod || c.clientAuthMethod) as
+					| UnifiedWorkerTokenCredentials['tokenEndpointAuthMethod']
+					| undefined,
+			};
+			return credentials;
+		} catch (error) {
+			logger.warn('UnifiedWorkerTokenService', `${MODULE_TAG} SQLite load failed`, {
+				error: error as Error,
+			});
+			return null;
+		}
+	}
+
+	/**
+	 * Sync worker credentials to mcp-config.json so the MCP backend can use them for
+	 * "Get worker token" and PingOne API calls. Fire-and-forget; does not throw.
+	 */
+	private _syncCredentialsToMcpConfig(credentials: UnifiedWorkerTokenCredentials): void {
+		const regionUrls: Record<string, string> = {
+			us: 'https://auth.pingone.com',
+			eu: 'https://auth.pingone.eu',
+			ap: 'https://auth.pingone.asia',
+			ca: 'https://auth.pingone.ca',
+		};
+		const apiUrl = regionUrls[credentials.region || 'us'] ?? 'https://auth.pingone.com';
+		fetch('/api/credentials/save-mcp-config', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				apiUrl,
+			}),
+		}).catch(() => {});
+	}
+
+	/**
+	 * Save worker token credentials to backend SQLite so they persist across restarts.
+	 * Does not throw; logs on failure. Also syncs to mcp-config.json for MCP backend.
+	 */
+	private async _saveCredentialsToSQLite(
+		credentials: UnifiedWorkerTokenCredentials
+	): Promise<void> {
+		try {
+			const scopesStr = Array.isArray(credentials.scopes)
+				? credentials.scopes.join(' ')
+				: typeof credentials.scopes === 'string'
+					? credentials.scopes
+					: null;
+			const body = {
+				environmentId: WORKER_TOKEN_SQLITE_KEY,
+				credentials: {
+					clientId: credentials.clientId,
+					clientSecret: credentials.clientSecret,
+					environmentId: credentials.environmentId,
+					loginHint: credentials.environmentId,
+					scopes: scopesStr,
+					issuerUrl: null,
+					redirectUri: null,
+					clientAuthMethod: credentials.tokenEndpointAuthMethod ?? null,
+				},
+				timestamp: new Date().toISOString(),
+			};
+			const res = await fetch('/api/credentials/sqlite/save', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body),
+			});
+			if (!res.ok) {
+				const err = await res.text();
+				throw new Error(err || res.statusText);
+			}
+			logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} Credentials persisted to SQLite`);
+			this._syncCredentialsToMcpConfig(credentials);
+		} catch (error) {
+			logger.warn('UnifiedWorkerTokenService', `${MODULE_TAG} SQLite save failed`, {
+				error: error as Error,
+			});
+		}
+	}
+
+	/**
+	 * Load worker token credentials (internal implementation).
+	 * Order: SQLite (source of truth) → memory → IndexedDB → localStorage → legacy.
 	 */
 	private async _loadCredentials(): Promise<UnifiedWorkerTokenCredentials | null> {
 		// Check if we have cached credentials that haven't expired
@@ -337,19 +457,40 @@ class UnifiedWorkerTokenService {
 		}
 
 		this.lastLoadAttempt = now;
-		// Only log when actually loading, not on cache hits
 
-		// Try memory cache first
+		// 1) Try memory cache (fast)
 		if (this.memoryCache) {
 			this.credentialsCache = this.memoryCache.credentials;
 			this.credentialsCacheTime = now;
 			return this.memoryCache.credentials;
 		}
 
-		// Try unified storage (IndexedDB + SQLite) — canonical source, credentials never lost
+		// 2) Source of truth: backend SQLite (persists across restarts; not browser storage)
+		const sqliteCreds = await this._loadCredentialsFromSQLite();
+		if (sqliteCreds) {
+			this.memoryCache = {
+				token: '',
+				credentials: sqliteCreds,
+				savedAt: Date.now(),
+			};
+			this.credentialsCache = sqliteCreds;
+			this.credentialsCacheTime = now;
+			try {
+				localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(this.memoryCache));
+			} catch {}
+			// Sync to IndexedDB for offline/local use
+			unifiedTokenStorage
+				.storeWorkerTokenCredentials(sqliteCreds as unknown as Record<string, unknown>)
+				.catch(() => {});
+			// Sync to mcp-config so MCP backend can use these credentials
+			this._syncCredentialsToMcpConfig(sqliteCreds);
+			return sqliteCreds;
+		}
+
+		// 3) IndexedDB (unified storage)
 		try {
 			const creds = await unifiedTokenStorage.getWorkerTokenCredentials();
-			if (creds && creds.environmentId && creds.clientId && creds.clientSecret) {
+			if (creds?.environmentId && creds.clientId && creds.clientSecret) {
 				const credentials = creds as unknown as UnifiedWorkerTokenCredentials;
 				this.memoryCache = {
 					token: '',
@@ -361,6 +502,8 @@ class UnifiedWorkerTokenService {
 				try {
 					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(this.memoryCache));
 				} catch {}
+				// Backfill SQLite so next load uses SQLite
+				this._saveCredentialsToSQLite(credentials).catch(() => {});
 				return credentials;
 			}
 		} catch (error) {
@@ -369,7 +512,7 @@ class UnifiedWorkerTokenService {
 			});
 		}
 
-		// Try localStorage (legacy — migrate to unified storage so credentials are never lost)
+		// 4) localStorage (legacy cache only)
 		try {
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
 			if (stored) {
@@ -385,6 +528,7 @@ class UnifiedWorkerTokenService {
 					unifiedTokenStorage
 						.storeWorkerTokenCredentials(data.credentials as unknown as Record<string, unknown>)
 						.catch(() => {});
+					this._saveCredentialsToSQLite(data.credentials).catch(() => {});
 					return data.credentials;
 				}
 			}
@@ -397,7 +541,7 @@ class UnifiedWorkerTokenService {
 			);
 		}
 
-		// Try legacy storage keys for migration
+		// 5) Legacy storage keys for migration
 		return await this.migrateLegacyCredentials();
 	}
 
@@ -678,7 +822,29 @@ class UnifiedWorkerTokenService {
 	}
 
 	/**
-	 * Clear worker token credentials
+	 * Clear worker token credentials from backend SQLite (so they are not reloaded after restart).
+	 */
+	private async _clearCredentialsFromSQLite(): Promise<void> {
+		try {
+			const res = await fetch('/api/credentials/sqlite/clear', {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ environmentId: WORKER_TOKEN_SQLITE_KEY }),
+			});
+			if (!res.ok) {
+				logger.warn('UnifiedWorkerTokenService', `${MODULE_TAG} SQLite clear failed`, {
+					status: res.status,
+				});
+			}
+		} catch (error) {
+			logger.warn('UnifiedWorkerTokenService', `${MODULE_TAG} SQLite clear failed`, {
+				error: error as Error,
+			});
+		}
+	}
+
+	/**
+	 * Clear worker token credentials (browser storage and backend SQLite).
 	 */
 	async clearCredentials(): Promise<void> {
 		this.memoryCache = null;
@@ -691,6 +857,7 @@ class UnifiedWorkerTokenService {
 				id: 'unified_worker_token_credentials',
 			});
 			await unifiedTokenStorage.clearWorkerToken();
+			await this._clearCredentialsFromSQLite();
 		} catch (error) {
 			logger.error(
 				'UnifiedWorkerTokenService',
@@ -704,7 +871,8 @@ class UnifiedWorkerTokenService {
 	}
 
 	/**
-	 * Clear only the access token (keep credentials)
+	 * Clear only the access token (keep credentials).
+	 * Credentials remain in SQLite and will be reloaded on next load.
 	 */
 	async clearToken(): Promise<void> {
 		const credResult = await this.loadCredentials();

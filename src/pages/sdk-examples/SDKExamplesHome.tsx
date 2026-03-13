@@ -13,6 +13,7 @@ import {
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
+import { FlowHeader } from '../../services/flowHeaderService';
 
 import { logger } from '../../utils/logger';
 
@@ -22,7 +23,7 @@ const Container = styled.div`
   margin: 0 auto;
 `;
 
-const Header = styled.h1`
+const _Header = styled.h1`
   color: #333;
   margin-bottom: 2rem;
   font-size: 2.5rem;
@@ -155,7 +156,7 @@ const SDKExamplesHome: React.FC = () => {
 
 	return (
 		<Container>
-			<Header>SDK Examples</Header>
+			<FlowHeader flowId="sdk-examples" />
 			<Description>
 				Explore comprehensive SDK examples demonstrating PingOne integration patterns, including
 				DaVinci flows, OIDC centralized login, and JWT authentication. Each example follows best

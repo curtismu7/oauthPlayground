@@ -30,7 +30,7 @@ import {
 // Unified logging format: [🔧 V7-SHARED]
 const LOG_PREFIX = '[🔧 V7-SHARED]';
 
-const log = {
+const _log = {
 	info: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 		logger.info(

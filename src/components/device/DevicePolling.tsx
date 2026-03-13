@@ -34,7 +34,7 @@ const Header = styled.div`
 	gap: 1rem;
 `;
 
-const StatusIcon = styled.div<{ status: 'polling' | 'success' | 'error' | 'expired' }>`
+const StatusIcon = styled.div<{ $status: 'polling' | 'success' | 'error' | 'expired' }>`
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -42,7 +42,7 @@ const StatusIcon = styled.div<{ status: 'polling' | 'success' | 'error' | 'expir
 	height: 48px;
 	border-radius: 50%;
 	background: ${(props) => {
-		switch (props.status) {
+		switch (props.$status) {
 			case 'success':
 				return '#ecfdf5';
 			case 'error':
@@ -54,7 +54,7 @@ const StatusIcon = styled.div<{ status: 'polling' | 'success' | 'error' | 'expir
 		}
 	}};
 	color: ${(props) => {
-		switch (props.status) {
+		switch (props.$status) {
 			case 'success':
 				return '#059669';
 			case 'error':
@@ -319,7 +319,7 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 	return (
 		<PollingContainer>
 			<Header>
-				<StatusIcon status={pollingStatus}>{getStatusIcon()}</StatusIcon>
+				<StatusIcon $status={pollingStatus}>{getStatusIcon()}</StatusIcon>
 				<StatusContent>
 					<StatusTitle>{formatPollingStatus(currentStatus, currentAttempt)}</StatusTitle>
 					<StatusDescription>

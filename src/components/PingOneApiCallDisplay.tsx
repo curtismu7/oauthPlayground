@@ -46,7 +46,7 @@ const Header = styled.div<{ $method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
 				return '#6b7280';
 		}
 	}};
-	color: white;
+	color: #ffffff;
 	padding: 1rem 1.5rem;
 	display: flex;
 	align-items: center;
@@ -67,12 +67,14 @@ const MethodBadge = styled.span<{ $method: 'GET' | 'POST' | 'PUT' | 'DELETE' | '
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
+	color: #ffffff;
 `;
 
 const Title = styled.h4`
 	margin: 0;
 	font-size: 1rem;
 	font-weight: 600;
+	color: #ffffff;
 `;
 
 const ChevronIcon = styled.span<{ $isExpanded: boolean }>`
@@ -138,7 +140,7 @@ const EducationalNote = styled.div`
 	color: #92400e;
 `;
 
-const ParameterHighlight = styled.span`
+const _ParameterHighlight = styled.span`
 	background: #dbeafe;
 	color: #1e40af;
 	padding: 0.125rem 0.25rem;
@@ -352,21 +354,24 @@ export const PingOneApiCallDisplay: React.FC<PingOneApiCallProps> = ({
 };
 
 // ============================================================================
-// PREDEFINED API CALL EXAMPLES
+// PREDEFINED API CALL EXAMPLES (api.pingdemo.com + real environment ID)
 // ============================================================================
+
+export const DEMO_API_BASE = 'https://api.pingdemo.com';
+export const DEMO_ENVIRONMENT_ID = 'b9817c16-9910-4415-b67e-4ac687da74d9';
 
 export const PingOneApiExamples = {
 	// Authorization Code Flow Examples
 	authorizationEndpoint: {
 		method: 'GET' as const,
-		url: 'https://auth.pingone.com/{environmentId}/as/authorization',
+		url: `${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/authorization`,
 		title: 'OAuth Authorization Endpoint',
 		description:
 			"Initiates the OAuth 2.0 Authorization Code flow. The user is redirected to PingOne's login page.",
 		queryParams: {
 			response_type: 'code',
 			client_id: 'your-client-id',
-			redirect_uri: 'https://your-app.com/callback',
+			redirect_uri: `${DEMO_API_BASE}/callback`,
 			scope: 'openid profile email',
 			state: 'random-state-string',
 			code_challenge: 'base64url-encoded-challenge',
@@ -374,7 +379,7 @@ export const PingOneApiExamples = {
 		},
 		responseStatus: 302,
 		responseData: {
-			redirect_uri: 'https://your-app.com/callback?code=auth-code-12345&state=random-state-string',
+			redirect_uri: `${DEMO_API_BASE}/callback?code=auth-code-12345&state=random-state-string`,
 		},
 		educationalNotes: [
 			'The <ParameterHighlight>response_type=code</ParameterHighlight> parameter specifies Authorization Code flow',
@@ -387,7 +392,7 @@ export const PingOneApiExamples = {
 
 	tokenEndpoint: {
 		method: 'POST' as const,
-		url: 'https://auth.pingone.com/{environmentId}/as/token',
+		url: `${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/token`,
 		title: 'OAuth Token Endpoint',
 		description: 'Exchanges the authorization code for access, ID, and refresh tokens.',
 		headers: {
@@ -397,7 +402,7 @@ export const PingOneApiExamples = {
 		body: {
 			grant_type: 'authorization_code',
 			code: 'auth-code-12345',
-			redirect_uri: 'https://your-app.com/callback',
+			redirect_uri: `${DEMO_API_BASE}/callback`,
 			code_verifier: 'original-code-verifier',
 		},
 		responseStatus: 200,
@@ -426,7 +431,7 @@ export const PingOneApiExamples = {
 
 	userInfoEndpoint: {
 		method: 'GET' as const,
-		url: 'https://auth.pingone.com/{environmentId}/as/userinfo',
+		url: `${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/userinfo`,
 		title: 'OIDC UserInfo Endpoint',
 		description: 'Returns user profile information using the access token.',
 		headers: {
@@ -455,7 +460,7 @@ export const PingOneApiExamples = {
 	// MFA Examples
 	mfaChallenge: {
 		method: 'POST' as const,
-		url: 'https://auth.pingone.com/{environmentId}/as/mfa/challenge',
+		url: `${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/mfa/challenge`,
 		title: 'MFA Challenge Initiation',
 		description: 'Initiates a multi-factor authentication challenge for the user.',
 		headers: {
@@ -487,7 +492,7 @@ export const PingOneApiExamples = {
 
 	mfaVerify: {
 		method: 'POST' as const,
-		url: 'https://auth.pingone.com/{environmentId}/as/mfa/verify',
+		url: `${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/mfa/verify`,
 		title: 'MFA Challenge Verification',
 		description: "Verifies the user's response to an MFA challenge.",
 		headers: {
@@ -518,7 +523,7 @@ export const PingOneApiExamples = {
 	// Application Management Examples
 	createApplication: {
 		method: 'POST' as const,
-		url: 'https://api.pingone.com/v1/environments/{environmentId}/applications',
+		url: `https://api.pingone.com/v1/environments/${DEMO_ENVIRONMENT_ID}/applications`,
 		title: 'Create Application',
 		description: 'Creates a new OAuth/OIDC application in PingOne.',
 		headers: {
@@ -561,7 +566,7 @@ export const PingOneApiExamples = {
 	// Device Authorization Flow Examples
 	deviceAuthorization: {
 		method: 'POST' as const,
-		url: 'https://auth.pingone.com/{environmentId}/as/device_authorization',
+		url: `${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/device_authorization`,
 		title: 'Device Authorization Endpoint',
 		description: 'Initiates the OAuth Device Authorization flow for devices without browsers.',
 		headers: {
@@ -594,7 +599,7 @@ export const PingOneApiExamples = {
 
 	deviceToken: {
 		method: 'POST' as const,
-		url: 'https://auth.pingone.com/{environmentId}/as/token',
+		url: `${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/token`,
 		title: 'Device Token Endpoint',
 		description: 'Polls for tokens after user completes device authorization.',
 		headers: {

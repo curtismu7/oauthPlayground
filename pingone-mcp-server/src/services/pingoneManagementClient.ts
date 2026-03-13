@@ -310,6 +310,178 @@ export async function listApplications(
 	}
 }
 
+export interface GetApplicationRequest {
+	environmentId?: string;
+	appId: string;
+	workerToken?: string;
+	clientId?: string;
+	clientSecret?: string;
+	region?: string;
+}
+
+export interface GetApplicationResult {
+	success: boolean;
+	application?: PingOneApplication;
+	raw?: unknown;
+}
+
+export interface GetApplicationErrorResult extends GetApplicationResult {
+	success: false;
+	error: PingOneErrorPayload;
+}
+
+export async function getApplication(
+	request: GetApplicationRequest
+): Promise<GetApplicationResult | GetApplicationErrorResult> {
+	try {
+		const environmentId = resolveEnvironmentId(request.environmentId);
+		const region = determineRegion(environmentId, request.region);
+
+		let token = request.workerToken?.trim();
+		if (!token) {
+			if (!request.clientId || !request.clientSecret) {
+				throw new PingOneApiError(
+					'Worker token or client credentials are required to fetch an application.',
+					{
+						code: 'missing_credentials',
+						message: 'workerToken or clientId/clientSecret must be provided.',
+					}
+				);
+			}
+			const workerTokenResult = await issueWorkerToken({
+				environmentId,
+				clientId: request.clientId,
+				clientSecret: request.clientSecret,
+				scope: DEFAULT_WORKER_SCOPE,
+			});
+			if (!workerTokenResult.success || !workerTokenResult.accessToken) {
+				throw new PingOneApiError('Failed to obtain worker token for get application.');
+			}
+			token = workerTokenResult.accessToken;
+		}
+
+		const baseUrl = buildApiBaseUrl(environmentId, region);
+		const url = `${baseUrl}/applications/${request.appId}`;
+
+		const response = await axios.get(url, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+				Accept: 'application/json',
+			},
+		});
+
+		const app = response.data as Record<string, any>;
+		const application: PingOneApplication = {
+			id: app.id,
+			name: app.name,
+			description: app.description,
+			clientId: app.clientId,
+			type: app.type,
+			status: app.status,
+			redirectUris: app.redirectUris ?? [],
+			postLogoutRedirectUris: app.postLogoutRedirectUris ?? [],
+			scopes: app.scopes ?? [],
+			grantTypes: app.grantTypes ?? [],
+			tokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
+			createdAt: app.createdAt,
+			updatedAt: app.updatedAt,
+		};
+
+		return {
+			success: true,
+			application,
+			raw: app,
+		};
+	} catch (error) {
+		throw createApiError(error, 'Failed to get PingOne application.');
+	}
+}
+
+export interface GetApplicationResourcesRequest {
+	environmentId?: string;
+	appId: string;
+	workerToken?: string;
+	clientId?: string;
+	clientSecret?: string;
+	region?: string;
+}
+
+export interface GetApplicationResourcesResult {
+	success: boolean;
+	resources?: Record<string, unknown>[];
+	raw?: unknown;
+}
+
+export interface GetApplicationResourcesErrorResult extends GetApplicationResourcesResult {
+	success: false;
+	error: PingOneErrorPayload;
+}
+
+/** Get resource (scopes) configuration for an application. Uses worker token or client credentials. */
+export async function getApplicationResources(
+	request: GetApplicationResourcesRequest
+): Promise<GetApplicationResourcesResult | GetApplicationResourcesErrorResult> {
+	try {
+		const environmentId = resolveEnvironmentId(request.environmentId);
+		const region = determineRegion(environmentId, request.region);
+
+		let token = request.workerToken?.trim();
+		if (!token) {
+			if (!request.clientId || !request.clientSecret) {
+				throw new PingOneApiError(
+					'Worker token or client credentials are required to fetch application resources.',
+					{
+						code: 'missing_credentials',
+						message: 'workerToken or clientId/clientSecret must be provided.',
+					}
+				);
+			}
+			const workerTokenResult = await issueWorkerToken({
+				environmentId,
+				clientId: request.clientId,
+				clientSecret: request.clientSecret,
+				scope: DEFAULT_WORKER_SCOPE,
+			});
+			if (!workerTokenResult.success || !workerTokenResult.accessToken) {
+				throw new PingOneApiError('Failed to obtain worker token for get application resources.');
+			}
+			token = workerTokenResult.accessToken;
+		}
+
+		const baseUrl = buildApiBaseUrl(environmentId, region);
+		const url = `${baseUrl}/applications/${request.appId}/resources`;
+
+		const response = await axios.get(url, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+				Accept: 'application/json',
+			},
+		});
+
+		const data = response.data as Record<string, unknown>;
+		const embedded = data._embedded as Record<string, unknown> | undefined;
+		const rawResources = embedded?.resources;
+		const resources = Array.isArray(rawResources)
+			? rawResources as Record<string, unknown>[]
+			: rawResources != null
+				? [rawResources as Record<string, unknown>]
+				: [];
+		return {
+			success: true,
+			resources,
+			raw: data,
+		};
+	} catch (error) {
+		const payload = toPingOneErrorPayload(error);
+		return {
+			success: false,
+			resources: undefined,
+			raw: undefined,
+			error: payload,
+		};
+	}
+}
+
 export function toPingOneErrorPayload(error: unknown): PingOneErrorPayload {
 	if (error instanceof PingOneApiError) {
 		return {
@@ -347,4 +519,187 @@ export function toPingOneErrorPayload(error: unknown): PingOneErrorPayload {
 	return {
 		message: 'Unknown PingOne error',
 	};
+}
+
+// ─── Application CRUD ─────────────────────────────────────────────────────────
+
+async function getWorkerTokenForApp(request: {
+	environmentId?: string;
+	workerToken?: string;
+	clientId?: string;
+	clientSecret?: string;
+	scope?: string;
+}): Promise<string> {
+	const token = request.workerToken?.trim();
+	if (token) return token;
+	const environmentId = resolveEnvironmentId(request.environmentId);
+	const result = await issueWorkerToken({
+		environmentId,
+		clientId: request.clientId,
+		clientSecret: request.clientSecret,
+		scope: request.scope ?? DEFAULT_WORKER_SCOPE,
+	});
+	if (!result.success || !result.accessToken) {
+		throw new PingOneApiError('Failed to obtain worker token for application management.');
+	}
+	return result.accessToken;
+}
+
+export interface CreateApplicationRequest {
+	environmentId?: string;
+	workerToken?: string;
+	clientId?: string;
+	clientSecret?: string;
+	region?: string;
+	/** Full application object. Must include `name` and `type` (e.g. "WEB_APP", "NATIVE_APP", "WORKER"). */
+	application: Record<string, unknown>;
+}
+
+export interface CreateApplicationResult {
+	success: boolean;
+	application?: Record<string, unknown>;
+	raw?: unknown;
+	error?: PingOneErrorPayload;
+}
+
+/** Create a new application. Worker token requires p1:create:application scope. */
+export async function createApplication(
+	request: CreateApplicationRequest
+): Promise<CreateApplicationResult> {
+	try {
+		const environmentId = resolveEnvironmentId(request.environmentId);
+		const token = await getWorkerTokenForApp(request);
+		const baseUrl = buildApiBaseUrl(environmentId, request.region);
+		const response = await axios.post<Record<string, unknown>>(
+			`${baseUrl}/applications`,
+			request.application,
+			{ headers: { Authorization: `Bearer ${token}`, Accept: 'application/json', 'Content-Type': 'application/json' } }
+		);
+		return { success: true, application: response.data, raw: response.data };
+	} catch (error) {
+		return { success: false, error: toPingOneErrorPayload(error) };
+	}
+}
+
+export interface UpdateApplicationRequest {
+	environmentId?: string;
+	workerToken?: string;
+	clientId?: string;
+	clientSecret?: string;
+	region?: string;
+	appId: string;
+	/** Partial update fields (PATCH semantics). */
+	updates: Record<string, unknown>;
+}
+
+export interface UpdateApplicationResult {
+	success: boolean;
+	application?: Record<string, unknown>;
+	raw?: unknown;
+	error?: PingOneErrorPayload;
+}
+
+/** Update an application (PATCH). Worker token requires p1:update:application scope. */
+export async function updateApplication(
+	request: UpdateApplicationRequest
+): Promise<UpdateApplicationResult> {
+	try {
+		const environmentId = resolveEnvironmentId(request.environmentId);
+		const token = await getWorkerTokenForApp(request);
+		const baseUrl = buildApiBaseUrl(environmentId, request.region);
+		const response = await axios.patch<Record<string, unknown>>(
+			`${baseUrl}/applications/${request.appId}`,
+			request.updates,
+			{ headers: { Authorization: `Bearer ${token}`, Accept: 'application/json', 'Content-Type': 'application/json' } }
+		);
+		return { success: true, application: response.data, raw: response.data };
+	} catch (error) {
+		return { success: false, error: toPingOneErrorPayload(error) };
+	}
+}
+
+export interface DeleteApplicationRequest {
+	environmentId?: string;
+	workerToken?: string;
+	clientId?: string;
+	clientSecret?: string;
+	region?: string;
+	appId: string;
+}
+
+export interface DeleteApplicationResult {
+	success: boolean;
+	error?: PingOneErrorPayload;
+}
+
+/** Delete an application. Worker token requires p1:delete:application scope. */
+export async function deleteApplication(
+	request: DeleteApplicationRequest
+): Promise<DeleteApplicationResult> {
+	try {
+		const environmentId = resolveEnvironmentId(request.environmentId);
+		const token = await getWorkerTokenForApp(request);
+		const baseUrl = buildApiBaseUrl(environmentId, request.region);
+		await axios.delete(`${baseUrl}/applications/${request.appId}`, {
+			headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+		});
+		return { success: true };
+	} catch (error) {
+		return { success: false, error: toPingOneErrorPayload(error) };
+	}
+}
+
+// ─── Application secret ───────────────────────────────────────────────────────
+
+export interface AppSecretRequest {
+	environmentId?: string;
+	workerToken?: string;
+	clientId?: string;
+	clientSecret?: string;
+	region?: string;
+	appId: string;
+}
+
+export interface AppSecretResult {
+	success: boolean;
+	secret?: Record<string, unknown>;
+	raw?: unknown;
+	error?: PingOneErrorPayload;
+}
+
+/** Get the current application secret. Worker token requires p1:read:application scope. */
+export async function getApplicationSecret(
+	request: AppSecretRequest
+): Promise<AppSecretResult> {
+	try {
+		const environmentId = resolveEnvironmentId(request.environmentId);
+		const token = await getWorkerTokenForApp(request);
+		const baseUrl = buildApiBaseUrl(environmentId, request.region);
+		const response = await axios.get<Record<string, unknown>>(
+			`${baseUrl}/applications/${request.appId}/secret`,
+			{ headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } }
+		);
+		return { success: true, secret: response.data, raw: response.data };
+	} catch (error) {
+		return { success: false, error: toPingOneErrorPayload(error) };
+	}
+}
+
+/** Rotate (regenerate) the application secret. Worker token requires p1:update:application scope. */
+export async function rotateApplicationSecret(
+	request: AppSecretRequest
+): Promise<AppSecretResult> {
+	try {
+		const environmentId = resolveEnvironmentId(request.environmentId);
+		const token = await getWorkerTokenForApp(request);
+		const baseUrl = buildApiBaseUrl(environmentId, request.region);
+		const response = await axios.post<Record<string, unknown>>(
+			`${baseUrl}/applications/${request.appId}/secret`,
+			null,
+			{ headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } }
+		);
+		return { success: true, secret: response.data, raw: response.data };
+	} catch (error) {
+		return { success: false, error: toPingOneErrorPayload(error) };
+	}
 }

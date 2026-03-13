@@ -52,13 +52,16 @@ export interface DetailedServerStatus {
 }
 
 /**
- * Backend health URL. Prefers relative /api/health so the Vite dev proxy is used (avoids
- * ERR_CERT_AUTHORITY_INVALID when the backend uses a self-signed cert). Use VITE_BACKEND_URL
- * only when set and not localhost (e.g. production backend on a different host with valid cert).
+ * Backend health URL. In dev (Vite) we always use relative /api/health so the dev proxy
+ * is used and the browser never hits the backend directly (avoids ERR_CERT_AUTHORITY_INVALID
+ * when the backend uses a self-signed cert). In production, use VITE_BACKEND_URL if set.
  */
 export function getBackendHealthUrl(): string {
+	if (import.meta.env.DEV) {
+		return '/api/health';
+	}
 	const base = import.meta.env.VITE_BACKEND_URL as string | undefined;
-	if (base && !base.includes('localhost')) {
+	if (base) {
 		const normalized = base.replace(/\/$/, '');
 		return `${normalized}/api/health`;
 	}
