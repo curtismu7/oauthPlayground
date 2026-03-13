@@ -20,7 +20,7 @@ interface User {
 }
 
 interface UserSearchDropdownV8Props {
-	environmentId: string;
+	environmentId?: string; // Make optional since worker token modal handles it
 	value: string;
 	onChange: (username: string) => void;
 	placeholder?: string;
@@ -77,14 +77,9 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 
 	const loadUsers = useCallback(
 		async (search: string = '', reset: boolean = true) => {
-			if (!environmentId) {
-				return;
-			}
 			// Don't call API when worker token is missing — avoid "Worker token not available" errors
 			const status = checkWorkerTokenStatusSync();
 			if (!status.isValid) {
-				setTokenMissing(true);
-				setError('Worker token required');
 				return;
 			}
 
@@ -93,8 +88,9 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 
 			try {
 				const currentOffset = reset ? 0 : offset;
+				// Use environmentId if available, otherwise let MFAServiceV8 handle it internally
 				const result = await MFAServiceV8.listUsers(
-					environmentId,
+					environmentId || undefined,
 					search || undefined,
 					10,
 					currentOffset
@@ -140,18 +136,18 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 	// Load users when dropdown opens OR when environmentId becomes available (if autoLoad is true). Skip when worker token is missing.
 	useEffect(() => {
 		const status = checkWorkerTokenStatusSync();
-		if (autoLoad && environmentId && users.length === 0 && status.isValid) {
+		if (autoLoad && users.length === 0 && status.isValid) {
 			loadUsers('', true);
 		}
-	}, [autoLoad, environmentId, loadUsers, users.length]);
+	}, [autoLoad, loadUsers, users.length]);
 
 	// Load users when dropdown opens (if not already loaded). Skip when worker token is missing.
 	useEffect(() => {
 		const status = checkWorkerTokenStatusSync();
-		if (isOpen && environmentId && users.length === 0 && status.isValid) {
+		if (isOpen && users.length === 0 && status.isValid) {
 			loadUsers('', true);
 		}
-	}, [isOpen, environmentId, loadUsers, users.length]);
+	}, [isOpen, loadUsers, users.length]);
 
 	// Search with debounce
 	useEffect(() => {
@@ -160,13 +156,11 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 		}
 
 		const timeoutId = setTimeout(() => {
-			if (environmentId) {
-				loadUsers(searchTerm, true);
-			}
+			loadUsers(searchTerm, true);
 		}, 300);
 
 		return () => clearTimeout(timeoutId);
-	}, [searchTerm, isOpen, environmentId, loadUsers]);
+	}, [searchTerm, isOpen, loadUsers]);
 
 	// Load selected user info if value is set
 	useEffect(() => {
