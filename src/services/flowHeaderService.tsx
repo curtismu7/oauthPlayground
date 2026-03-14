@@ -235,6 +235,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🔑',
 		version: 'V9',
 	},
+	'mock-mcp-agent-flow': {
+		flowType: 'pingone',
+		title: 'Mock MCP Agent Flow',
+		subtitle:
+			'🤖 Educational: Simulated Agent, MCP server, and Token Exchange. Learn token storage, exchange, and secure AI agent authentication.',
+		icon: '🤖',
+		version: undefined,
+	},
 	'ciba-v9': {
 		flowType: 'oidc',
 		title: 'CIBA Flow (V9) — Client Initiated Backchannel Authentication',
@@ -803,6 +811,12 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V7',
 		icon: '🔑',
 		isExperimental: false,
+	},
+	'oauth-ropc-v9': {
+		flowType: 'pingone',
+		title: 'OAuth ROPC Flow',
+		subtitle: 'Resource Owner Password Credentials Flow',
+		icon: '🔑',
 	},
 	'pingone-mfa-v5': {
 		flowType: 'oidc',
