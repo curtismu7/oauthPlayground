@@ -662,6 +662,28 @@ class UnifiedWorkerTokenService {
 			);
 		}
 
+		// Dual-write to backend (enables pull-from-backend; future secure backend-only mode)
+		try {
+			const res = await fetch('/api/tokens/worker', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					environmentId: credentials.environmentId,
+					accessToken: token,
+					expiresAt: data.expiresAt ?? Date.now() + 3600 * 1000,
+				}),
+			});
+			if (res.ok) {
+				logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} Token also saved to backend`);
+			}
+		} catch (error) {
+			logger.warn(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to save token to backend (client storage still used)`,
+				{ error: error as Error }
+			);
+		}
+
 		// Broadcast token update event
 		this.broadcastTokenUpdate(data);
 
@@ -913,6 +935,17 @@ class UnifiedWorkerTokenService {
 				}
 			);
 		}
+
+		// Clear backend token so storage stays in sync
+		try {
+			await fetch('/api/tokens/worker', {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ environmentId: credentials.environmentId }),
+			});
+		} catch {
+			// Non-fatal; backend may be unavailable
+		}
 	}
 
 	// ============================================
@@ -920,17 +953,57 @@ class UnifiedWorkerTokenService {
 	// ============================================
 
 	/**
-	 * Load data from storage — tries localStorage then unified storage (IndexedDB + SQLite)
+	 * Load data from storage. Order: GET backend (backend checks SQLite → worker-tokens.json) first, then localStorage, then IndexedDB.
 	 */
 	private async loadDataFromStorage(): Promise<UnifiedWorkerTokenData | null> {
 		try {
+			// 1) Try backend first (enables pull-from-backend; future secure backend-only mode)
+			const credResult = await this.loadCredentials();
+			if (credResult.success && credResult.data) {
+				const envId = credResult.data.environmentId;
+				try {
+					const res = await fetch(
+						`/api/tokens/worker?environmentId=${encodeURIComponent(envId)}`
+					);
+					if (res.ok) {
+						const json = (await res.json()) as {
+							token?: { accessToken?: string; expiresAt?: number; environmentId?: string };
+						};
+						if (json?.token?.accessToken) {
+							const data: UnifiedWorkerTokenData = {
+								token: json.token.accessToken,
+								credentials: credResult.data,
+								expiresAt: json.token.expiresAt,
+								savedAt: Date.now(),
+							};
+							if (this.isTokenValid(data)) {
+								this.memoryCache = data;
+								try {
+									localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
+								} catch {}
+								unifiedTokenStorage
+									.saveWorkerToken({
+										accessToken: data.token,
+										expiresAt: data.expiresAt ?? Date.now() + 3600 * 1000,
+										environmentId: envId,
+									})
+									.catch(() => {});
+								return data;
+							}
+						}
+					}
+				} catch {
+					// Backend unavailable; fall through to local storage
+				}
+			}
+
+			// 2) Try localStorage
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
 			if (stored) {
 				return JSON.parse(stored) as UnifiedWorkerTokenData;
 			}
-			// Fallback to unified storage (IndexedDB + SQLite)
+			// 3) Fallback to unified storage (IndexedDB)
 			const tokenData = await unifiedTokenStorage.loadWorkerToken();
-			const credResult = await this.loadCredentials();
 			if (tokenData && credResult.success && credResult.data) {
 				const data: UnifiedWorkerTokenData = {
 					token: tokenData.accessToken,
