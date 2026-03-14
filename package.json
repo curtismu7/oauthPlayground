@@ -91,6 +91,7 @@
 		"mcp:tools:generate": "node scripts/generate-mcp-tool-names.mjs",
 		"mcp:validate": "pnpm vitest run tests/backend/mcp-spec-validation.test.js",
 		"test:unified-oauth": "pnpm vitest run src/v8u/ src/v8/services/specVersionServiceV8 --reporter=verbose",
+		"test:unified-mfa": "pnpm vitest run src/v8/services/__tests__/mfaTokenManagerV8.test.ts src/v8/services/__tests__/mfaFeatureFlagsV8.test.ts src/v8/services/__tests__/mfaCredentialManagerV8.test.ts src/v8/services/__tests__/unifiedMFASuccessPageServiceV8.test.tsx src/v8/hooks/__tests__/useMFAPolicies.test.ts src/v8/hooks/__tests__/useMFADevices.test.ts src/v8/hooks/__tests__/useMFAAuthentication.test.ts src/v8/utils/mfaNextStepNormalizer.test.ts --reporter=verbose",
 		"service-discovery": "node src/services/serviceDiscoveryCLI.js",
 		"lock:mfa": "node scripts/lockdown/lock-mfa.mjs",
 		"lock:mfa:dry-run": "node scripts/lockdown/lock-mfa.mjs --dry-run",

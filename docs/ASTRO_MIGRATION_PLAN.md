@@ -25,7 +25,18 @@ This document outlines the plan to migrate the OAuth Playground to **Astro** (`@
 2. **Internal artifact / mirror**  
    If your org mirrors or re-publishes `@pingux/astro` and `@pingux/onyx-tokens` elsewhere, point the resolver there and install as above.
 
-Until these packages are available in your environment, the app continues to run without Astro (current stack: styled-components, react-icons/fi, Bootstrap, etc.).
+Until these packages are available in your environment, the app continues to run without the **Astro component library** (no AstroProvider, Button, Modal, etc.). Icons are **not** blocked — see [Icons (unblocked)](#icons-unblocked) below.
+
+---
+
+## Icons (unblocked)
+
+**Ping Icons** are available without the private registry:
+
+- **CDN:** `https://assets.pingone.com/ux/astro-nano/0.1.0-alpha.11/icons.css` — already linked in `index.html`. The app uses the shared **`PingIcon`** component (`src/components/PingIcon.tsx`) to render `.mdi` / `.mdi-*` classes from this stylesheet on AI & Identity and Ping UI pages.
+- **Local copy (optional):** To avoid CDN dependency (e.g. offline or air-gapped), download the same URL and add a file under `src/styles/vendor/` (e.g. `astro-nano-icons.css`), then link that in `index.html` instead of the CDN. Keep a comment at the top with the source URL and version.
+
+So **Phase 3 (icons)** does not require `@pingux/astro` or registry access. The full Astro migration (Phases 1, 2, 4, 5) remains blocked only by the need to install `@pingux/astro` and `@pingux/onyx-tokens`.
 
 ---
 
@@ -61,17 +72,15 @@ Until then, the app runs without Astro (no dependency, no provider in `main.tsx`
 
 ## Phase 3: Icons migration
 
-**Current:** Feather Icons via `react-icons/fi`, centralized in `src/icons/index.ts` (barrel + `icons:check` / `icons:fix` scripts).  
-**Astro:** Uses `@pingux/mdi-react` and Font Awesome (per Astro’s dependencies). Icons are often used inside Astro components (e.g. IconButton).
+**Already in place (no registry needed):** The app uses **Ping Icons** from `https://assets.pingone.com/ux/astro-nano/0.1.0-alpha.11/icons.css` and the **`PingIcon`** component for AI & Identity and Ping UI pages. This matches the Astro Nano icon set (`.mdi` / `.mdi-*` classes) without requiring `@pingux/astro`.
 
-**Strategy:**
+**Optional — local icons file:** To avoid the CDN, add a local copy (e.g. `src/styles/vendor/astro-nano-icons.css`) and link it in `index.html` instead of the CDN URL.
 
-1. **New components:** Prefer Astro icon usage (e.g. IconButton with Astro’s icon prop, or `@pingux/mdi-react` where documented).
-2. **Existing components:** Migrate when touching a file:
-   - Replace `Fi*` imports from `../icons` with the Astro-equivalent (or `@pingux/mdi-react` if used standalone).
-   - Update `src/icons/index.ts` and `scripts/icons-check.mjs` to allow or exclude Astro icon usage so the barrel stays valid.
-3. **High-traffic surfaces:** Plan a pass for shared components (e.g. Navbar, Sidebar, flow headers, modals) so icon usage is consistent with Astro.
-4. **End state:** Either (a) all icons via Astro / MDI and deprecate `react-icons/fi`, or (b) keep a small Fi set for legacy screens and use Astro icons everywhere new.
+**Remaining (when/if full Astro is installed):**
+
+- **Current elsewhere:** Feather Icons via `react-icons/fi` in `src/icons/index.ts` and other pages.
+- **Strategy:** When touching a file, prefer `PingIcon` with the astro-nano icon name (or the CDN/local icons.css class). For new components after Astro is installed, use Astro’s IconButton or `@pingux/mdi-react` per Astro docs.
+- **End state:** Broader use of PingIcon / astro-nano icons across the app; deprecate or narrow `react-icons/fi` where possible.
 
 ---
 
@@ -127,13 +136,14 @@ Run the relevant checklist in Section 4 of the regression plan after each phase 
 
 ## Summary
 
-| Phase | Focus                         | Blocker / note                          |
-|-------|-------------------------------|-----------------------------------------|
-| 0     | Registry access               | Resolve `@pingux/onyx-tokens` (private) |
-| 1     | Add Astro, AstroProvider      | Install + wrap in main.tsx              |
-| 2     | Theming coexistence           | Optional token alignment                 |
-| 3     | Icons (Fi → Astro/MDI)        | Incremental; update barrel/scripts      |
-| 4     | Components (buttons, forms…)  | Per-component; follow Storybook         |
-| 5     | Cleanup (icons, styles, deps) | After migration is stable                |
+| Phase | Focus                         | Blocker / note                                                                 |
+|-------|-------------------------------|--------------------------------------------------------------------------------|
+| 0     | Registry access               | Only for full Astro component library (`@pingux/onyx-tokens` private).       |
+| —     | **Icons**                     | **Unblocked.** Ping Icons via CDN (astro-nano/icons.css) + `PingIcon`; optional local copy. |
+| 1     | Add Astro, AstroProvider      | Requires registry; install + wrap in main.tsx.                                |
+| 2     | Theming coexistence           | Optional token alignment.                                                    |
+| 3     | Icons (Fi → PingIcon / MDI)   | Partially done (PingIcon on AI/Identity pages); expand incrementally.        |
+| 4     | Components (buttons, forms…)  | Per-component; requires Astro install; follow Storybook.                     |
+| 5     | Cleanup (icons, styles, deps) | After migration is stable.                                                    |
 
 Last updated: 2026-03.
