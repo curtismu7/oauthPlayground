@@ -1218,3 +1218,5 @@
 [2026-03-13T14:53:27.321Z] [03/13/2026, 09:53:27] [ℹ️ LOG] [2026-03-13T14:53:27.320Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Database initialized: /Users/cmuir/P1Import-apps/oauth-playground/data/enhanced_credentials.db
 [2026-03-13T14:53:27.322Z] [03/13/2026, 09:53:27] [ℹ️ LOG] [2026-03-13T14:53:27.322Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
 [2026-03-13T14:53:27.366Z] [03/13/2026, 09:53:27] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-13T16:47:49.357Z] [03/13/2026, 11:47:49] [ℹ️ LOG] [2026-03-13T16:47:49.356Z] INFO  [💾 BACKUP-DB] Saved backup: unified_oauth_oauth2.0-oauth-authz-v8u (type: credentials)
+[2026-03-13T16:47:51.348Z] [03/13/2026, 11:47:51] [ℹ️ LOG] [2026-03-13T16:47:51.348Z] INFO  [💾 BACKUP-DB] Saved backup: unified_oauth_shared_ (type: shared-credentials)

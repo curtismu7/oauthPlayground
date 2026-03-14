@@ -31,6 +31,587 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Unified OAuth: automated test suite (2026-03-13)
+
+- **What:** User requested complete automated tests for Unified OAuth (/v8u/unified) — UI, APIs, logging, build/syntax.
+- **Fix:** (1) Created `docs/oauth_needs.md` — placeholder for API calls, credentials, and other needs for live E2E tests. (2) Created `docs/UNIFIED_OAUTH_TEST_PLAN.md` — test plan covering UI, APIs, logging, build. (3) Added FlowTypeSelector unit tests (6 tests). (4) Added unifiedFlowLoggerServiceV8U tests (8 tests). (5) Added Playwright E2E `tests/e2e/unified-oauth.spec.ts` — page load, flow type switching, spec version, step 0 presence. (6) Added `test:unified-oauth` script: type-check + build + unit tests + E2E (unified-oauth spec).
+- **Files:** `docs/oauth_needs.md`, `docs/UNIFIED_OAUTH_TEST_PLAN.md`, `src/v8u/components/__tests__/FlowTypeSelector.test.tsx`, `src/v8u/services/__tests__/unifiedFlowLoggerServiceV8U.test.ts`, `tests/e2e/unified-oauth.spec.ts`, `package.json`
+- **Regression check:** Run `pnpm run test:unified-oauth` — type-check and build pass; FlowTypeSelector + logger tests pass; E2E unified-oauth specs pass (requires app running; Playwright webServer starts it when CI=true or no existing server).
+
+### MCP Documentation: consolidate flow sections (2026-03-13)
+
+- **What:** MCPDocumentation.tsx had four overlapping AI Assistant Flow sections; desired order was Official MCP Spec → What is MCP? → AI Assistant Flow → PingOne MCP Tools → MasterFlow API.
+- **Fix:** Removed duplicate flow sections; kept single flow “AI Assistant Flow: How MCP, Host, and Agent Interact” with Components + Flow (with Live MCP ON). Reordered so flow appears before PingOne MCP Tools. Fixed orphaned div left by prior edits.
+- **Files:** `src/pages/docs/MCPDocumentation.tsx`
+- **Regression check:** MCP Documentation page loads; one flow section only; order: Spec → What is MCP? → Flow → Tools → MasterFlow Implementation → Related Resources.
+
+### MCP spec validation: automated test + versioned spec links (2026-03-14)
+
+- **What:** pingone-mcp-server needed automated validation against MCP spec 2025-11-25; app MCP references used unversioned spec URLs. Spawning the server for tests failed due to tsx/tsc path and module resolution issues.
+- **Fix:** (1) Updated `AIAgentAuthDraft.tsx` MCP link to versioned spec `https://modelcontextprotocol.io/specification/2025-11-25`. (2) Added `tsx` to root devDependencies for `pnpm exec tsx`. (3) Test spawns `pnpm exec tsx src/index.ts` with `cwd: pingone-mcp-server` so @modelcontextprotocol/sdk resolves. (4) Test resolves on tools/list response (id:2) then kills process; server may not exit on stdin EOF. (5) `pnpm install` in pingone-mcp-server ensures deps (incl. SDK) are available. (6) Script `mcp:validate` runs `pnpm vitest run tests/backend/mcp-spec-validation.test.js`. (7) MCP_SERVER_DEVELOPMENT_PLAN.md and mcp-spec.md document automated validation.
+- **Files:** `src/pages/docs/AIAgentAuthDraft.tsx`, `package.json`, `tests/backend/mcp-spec-validation.test.js`, `MCP_SERVER_DEVELOPMENT_PLAN.md`, `mcp-spec.md`, `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md`
+- **Regression check:** Run `pnpm run mcp:validate` — all 3 tests pass (initialize + tools/list, required fields, expected PingOne tools). If deps missing, run `pnpm install` from root and optionally `pnpm install` in pingone-mcp-server. Verify AIAgentAuthDraft MCP link points to `/specification/2025-11-25`.
+
+### MCP Documentation page (2026-03-13)
+
+- **What:** User requested a new Documentation page covering MCP, with links to the latest real spec and compliance verification.
+- **Fix:** (1) Created `src/pages/docs/MCPDocumentation.tsx` — explains MCP, links to official spec (modelcontextprotocol.io, 2025-11-25, GitHub repo), shows pingone-mcp-server compliance table, links to MCP Server Config and MasterFlow Agent. (2) Added route `/documentation/mcp` and sidebar entry under Documentation & Reference. (3) Updated `mcp-spec.md` to reference 2025-11-25 as latest spec.
+- **Files:** `src/pages/docs/MCPDocumentation.tsx`, `src/App.tsx`, `src/config/sidebarMenuConfig.ts`, `src/contexts/PageStyleContext.tsx`, `mcp-spec.md`
+- **Regression check:** Sidebar → Documentation & Reference → MCP Documentation → page loads, spec links work, compliance table visible.
+
+### McpResultCard: display object data (OIDC discovery) (2026-03-13)
+
+- **What:** OIDC discovery MCP tool returned "✓ Success" but showed no content because McpResultCard only rendered data when `data` was an array with `length > 0`; OIDC discovery returns a plain object (issuer, endpoints, etc.).
+- **Fix:** McpResultCard now treats object-shaped data as displayable: condition includes `(typeof data === 'object' && Object.keys(data).length > 0)`. Arrays show "Data (N items)" and toggle between tabular/JSON; objects show "Data" and formatted JSON.
+- **Files:** `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`
+- **Regression check:** Run OIDC discovery MCP tool (e.g. pingone_oidc_config) → McpResultCard shows the discovery document JSON (issuer, authorization_endpoint, token_endpoint, etc.).
+
+### Worker token: add SQLite to backend load order (2026-03-13)
+
+- **What:** Token load order said "GET backend first, then localStorage, then IndexedDB" but backend did not check SQLite; user wanted SQLite included.
+- **Fix:** Backend GET `/api/tokens/worker` now checks **SQLite** (sqlite-store.json, key `worker_token:${envId}`) first, then worker-tokens.json. POST writes to both; DELETE clears both. Client unchanged (still calls GET); backend unifies sources.
+- **Files:** `server.js`, `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md`, `docs/SESSION_AND_TOKEN_VERIFICATION.md`
+- **Regression check:** Save worker token → token in both sqlite-store.json and worker-tokens.json. Clear worker-tokens.json only → GET still returns token from SQLite. Clear client storage → reload → token from backend (SQLite or worker-tokens).
+
+### Mock Flows: add to Quick Regression Checklist (2026-03-13)
+
+- **What:** Quick Regression Checklist (Section 5) lacked an explicit Mock Flows check; MOCK_FLOWS_STANDARDIZATION_PLAN §8 requires running Mock Flows regression after each phase.
+- **Fix:** Added item 10 to Quick Regression Checklist: open 2–3 Mock flows (e.g. Implicit, Auth Code, ROPC), complete main path, confirm tokens and UserInfo/Introspect where applicable.
+- **Files:** `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md`
+- **Regression check:** Run Quick Regression Checklist (Section 5) before PR/release; item 10 verifies Mock flows still work.
+
+### Worker token: SQLite in backend load order (2026-03-13)
+
+- **What:** Backend GET `/api/tokens/worker` only checked worker-tokens.json; token load should also look in SQLite (sqlite-store.json).
+- **Fix:** Backend now checks SQLite first (key `worker_token:${envId}`), then worker-tokens.json. POST writes to both; DELETE clears both. Client unchanged — still calls GET; backend consolidates sources.
+- **Files:** `server.js`, `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md`, `docs/SESSION_AND_TOKEN_VERIFICATION.md`
+- **Regression check:** Save worker token → verify entry in sqlite-store.json (`worker_token:${envId}`). Clear worker-tokens.json only → GET still returns token from SQLite. Clear client storage → reload → token restored from backend.
+
+### Worker token: dual-write and pull-from-backend (2026-03-13)
+
+- **What:** Tokens were only in client storage; user wanted ability to pull from backend and future option for backend-only secure mode.
+- **Fix:** (1) Backend API: POST/GET/DELETE `/api/tokens/worker`. Backend stores tokens in both SQLite (`sqlite-store.json`, key `worker_token:${envId}`) and `worker-tokens.json`. (2) GET checks SQLite first, then worker-tokens.json. (3) `saveToken()` dual-writes to backend; `loadDataFromStorage()` tries GET backend first (backend checks SQLite → worker-tokens.json), then localStorage, then IndexedDB. (4) `clearToken()` calls DELETE to keep backend in sync. (5) Credentials: SQLite (source of truth) → memory → IndexedDB → localStorage.
+- **Files:** `server.js`, `src/services/unifiedWorkerTokenService.ts`, `AIAssistant/src/services/unifiedWorkerTokenService.ts`, `docs/SESSION_AND_TOKEN_VERIFICATION.md`
+- **Regression check:** Save worker token → token in localStorage and backend file. Clear client storage → reload → token still available from backend. Backend failures are non-fatal (client continues using local).
+
+### Checkbox tooltips on hover (2026-03-14)
+
+- **What:** Users needed hover tooltips on checkboxes to understand what each one does.
+- **Fix:** Added `title` attribute to all main checkboxes: AI Assistant (Page, Configure, APIs, Specs, Workflows, Guide, Web, Live MCP), WorkerTokenSectionV8 (Silent API Retrieval, Show Token at End), workerTokenUIServiceV8, EnhancedFloatingLogViewer (Combine logs), OAuthLoginPanel (PKCE).
+- **Files:** `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`, `src/v8/components/WorkerTokenSectionV8.tsx`, `src/v8/services/workerTokenUIServiceV8.tsx`, `src/components/EnhancedFloatingLogViewer.tsx`, `AIAssistant/src/components/OAuthLoginPanel.tsx`
+- **Regression check:** Hover over any checkbox → tooltip appears describing its purpose.
+
+### MCP list tools: cursor-based pagination (2026-03-14)
+
+- **What:** Long lists (users, groups, populations, applications) could not be paged; users wanted pagination for large result sets.
+- **Fix:** (1) All list APIs now support `nextPageUrl` (PingOne `_links.next.href`). Pass it for the next page; omit for first page. (2) Results include `count`, `size`, `nextPageUrl`. (3) Updated: pingone_list_users, pingone_list_groups, pingone_list_populations, pingone.applications.list (and pingone_list_applications).
+- **Files:** `pingone-mcp-server/src/services/pingoneUserClient.ts`, `pingone-mcp-server/src/services/pingoneGroupClient.ts`, `pingone-mcp-server/src/services/pingoneManagementClient.ts`, `pingone-mcp-server/src/actions/users.ts`, `pingone-mcp-server/src/actions/groups.ts`, `pingone-mcp-server/src/actions/worker.ts`
+- **Regression check:** List users/groups/populations/applications with limit; when more pages exist, nextPageUrl is returned. Pass nextPageUrl to fetch next page.
+
+### MCP: listChanged, pagination, cancellation (2026-03-14)
+
+- **What:** Add optional MCP spec features: listChanged notifications, pagination awareness, and cancellation (AbortSignal) for tool handlers.
+- **Fix:** (1) McpServer options: explicit `capabilities: { tools: { listChanged: true }, resources: { listChanged: true } }` and `debouncedNotificationMethods` for list_changed. (2) Cancellation: pingoneUserClient adds optional `signal` to GetUserRequest/ListUsersRequest; getUser/listUsers pass signal to axios; pingone_get_user and pingone_list_users handlers use `(args, extra)` and forward extra.signal. (3) Pagination: documented in mcp-spec.md; SDK returns all tools; cursor optional.
+- **Files:** `pingone-mcp-server/src/index.ts`, `pingone-mcp-server/src/services/pingoneUserClient.ts`, `pingone-mcp-server/src/actions/users.ts`, `mcp-spec.md`
+- **Regression check:** MCP server starts; "Get user X" and "List users" work. Cancellation works when SDK passes signal (client abort).
+
+### run.sh -both: restore tail for masterflow API + MCP (2026-03-14)
+
+- **What:** With `./run.sh -both`, only MCP logs were available; masterflow API logs (pingone-api.log) were missing. User wanted both when using -both.
+- **Fix:** (1) Added pingone-api.log to run_both_mode log list. (2) Added option 5 = pingone-api (masterflow API), option 6 = both (API+MCP) = pingone-api.log + mcp-server.log, option 7 = all. (3) In -quick/-default for -both, tail both pingone-api.log and mcp-server.log (fallback to backend.log if pingone-api not yet created).
+- **Files:** `scripts/development/run.sh`
+- **Regression check:** ./run.sh -both → prompt shows 1–7; choose 5 → pingone-api; 6 → both API+MCP. ./run.sh -both -quick → tails pingone-api + mcp-server (or backend + mcp-server if pingone-api missing).
+
+### Add/remove user to group: name-based lookup (2026-03-14)
+
+- **What:** "Add user curtis to group DevTeam" required UUIDs; users wanted to use names (username/email for user, group name for group).
+- **Fix:** (1) Added `_extractAddUserToGroupIdentifiers(q)` to parse "user X ... group Y" from add/remove phrases. (2) When UUIDs are missing, look up user by `username eq` or `username sw` and group by `name eq`. (3) If multiple users match, return error suggesting email or UUID. (4) Applied to both add_user_to_group and remove_user_from_group handlers.
+- **Files:** `server.js`
+- **Regression check:** AI Assistant → "Add user curtis to group DevTeam" (with user curtis and group DevTeam existing) → succeeds. "Remove user curtis from group DevTeam" → succeeds. UUIDs still work.
+
+### Add user to group: route "Add user X to group Y" correctly (2026-03-14)
+
+- **What:** "Add user curtis to group DevTeam" incorrectly routed to `pingone_create_user` and returned "Please include an email address". The phrase clearly means add an existing user to a group, not create a new user.
+- **Fix:** (1) Moved add_user_to_group intent before create_user in server.js MCP_INTENTS. (2) Removed `add.*user` from create_user pattern in server.js, src/services/mcpQueryService.ts, and AIAssistant/src/services/mcpQueryService.ts. "Add user X to group Y" now matches add_user_to_group (add.*user.*group).
+- **Files:** `server.js`, `src/services/mcpQueryService.ts`, `AIAssistant/src/services/mcpQueryService.ts`
+- **Regression check:** AI Assistant → "Add user curtis to group DevTeam" → routes to pingone_add_user_to_group (correct tool, card shows memberOfGroups API). "Create user john@acme.com" still routes to pingone_create_user.
+
+### Success green button on all MCP successes (2026-03-14)
+
+- **What:** McpResultCard green success styling and badge only appeared for worker token; other successful MCP results (userinfo, org licenses, list apps, etc.) did not show success.
+- **Fix:** (1) Renamed `$isTokenSuccess` to `$isSuccess`; McpResultCard applies green background, border, and box-shadow when `!!mcpResult.success`. (2) McpSuccessBadge shows for any success: "✓ Token ready" for worker token, "✓ Success" for other tools.
+- **Files:** `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`
+- **Regression check:** AI Assistant → "Get worker token" → green card + "✓ Token ready". "Get userinfo", "List applications", "Show org licenses" (with valid token) → green card + "✓ Success".
+
+### AI Assistant prompt chips: fix wrong command executed (2026-03-14)
+
+- **What:** Clicking a prompt from the prompt popup did not execute that prompt; often the last one ran instead (stale-closure bug).
+- **Fix:** `handleSend` now accepts an optional `overrideQuery` param. Prompt chips and quick questions call `handleSend(p)` or `handleSend(question)` directly instead of `setInput(p)` + `setTimeout(() => handleSend(), 100)`. No reliance on state for the query — avoids closure capturing wrong/empty input.
+- **Files:** `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`
+- **Regression check:** Open AI Assistant → click 📋 → click any prompt chip (e.g. "List MCP tools", "Get userinfo") → that exact command executes. Same for quick questions when messages.length === 1.
+
+### Show org licenses: use org-level API, fix 500 (2026-03-14)
+
+- **What:** "Show org licenses" returned 500 "Invalid key=value pair in Authorization header". Licenses API is organization-scoped, not environment-scoped — `/v1/environments/{envId}/licenses` does not exist.
+- **Fix:** (1) Added `mcpCallOrgLicenses` that calls GET `/v1/organizations?limit=1` then GET `/v1/organizations/{orgId}/licenses`. (2) org_licenses handler now uses mcpCallOrgLicenses instead of mcpCallPingOne. (3) Removed duplicate mcpCallOrgLicenses. (4) Strips "Bearer " prefix from token to avoid malformed Authorization header.
+- **Files:** `server.js`
+- **Regression check:** AI Assistant → "Show org licenses" (with valid worker token) → returns license list, no 500.
+
+### Show org licenses: match org licensing, not find user (2026-03-13)
+
+- **What:** "Show org licenses" was routing to find user instead of org licensing.
+- **Fix:** (1) Moved org_licenses intent before Users in server.js MCP_INTENTS so "Show org licenses" matches org licenses first. (2) Added explicit patterns: `show\s+org\s+licenses?`, `org\s+licenses?`, `organization\s+licenses?`. (3) Moved org licenses pattern before user patterns in both src/services/mcpQueryService.ts and AIAssistant/src/services/mcpQueryService.ts.
+- **Files:** `server.js`, `src/services/mcpQueryService.ts`, `AIAssistant/src/services/mcpQueryService.ts`
+- **Regression check:** AI Assistant → "Show org licenses" → returns org licensing data (pingone_get_organization_licenses), not user lookup.
+
+### Tools & Resources pi.flow: omit redirect_uri, fix error hint (2026-03-14)
+
+- **What:** Environment login in Tools & Resources showed wrong 400 hint: "redirect URI urn:pingidentity:redirectless" — but pi.flow is a response mode, not a redirect URI. Per [PingOne docs](https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html), redirect_uri is not required for response_mode=pi.flow.
+- **Fix:** (1) `redirectUri` is now optional in `PingOneLoginService.initializeEmbeddedLogin`; omit from request body when not provided. (2) AIAssistantSidePanel passes `undefined` so no redirect_uri is sent. (3) Error hint updated to reference `response_mode=pi.flow` and Authorization Code flow instead of redirect URI.
+- **Files:** `src/pages/protect-portal/services/pingOneLoginService.ts`, `src/components/AIAssistantSidePanel.tsx`
+- **Regression check:** Tools & Resources → PingOne Login → Environment Login with valid OAuth app (not Worker) and creds → login succeeds. 400 error shows hint about response_mode=pi.flow, not redirect URI.
+
+### AI Assistant: open log viewer to see MCP calls (2026-03-14)
+
+- **What:** User needed a way to open the log viewer while using the AI Assistant to see MCP calls.
+- **Fix:** (1) Show the floating log viewer button (📋) on all pages including /ai-assistant — previously hidden there. (2) Added `open-log-viewer` custom event; App listens and opens the log viewer. (3) Added 📋 "View logs" button in the AI Assistant header (both full and compact layouts) that dispatches the event. User can open logs via the header button or the floating 📋 in the bottom-right.
+- **Files:** `src/App.tsx`, `src/components/AIAssistant.tsx`
+- **Regression check:** Go to /ai-assistant → click 📋 in header or floating button → log viewer opens. Select "mcp-server.log" or use MCP category filter to see MCP calls.
+
+### List MCP tools: bulletproof intent matching (2026-03-14)
+
+- **What:** "List MCP tools" sometimes returned "I couldn't identify a specific PingOne operation" instead of the tool list.
+- **Fix:** (1) Added explicit patterns in server.js MCP_INTENTS list_tools: `/\blist\s+mcp\s+tools\b/i`, `/\blist\s+tools\b/i` plus existing patterns. (2) Moved list_tools to top of frontend LOCAL_PATTERNS (after worker token) in both src/services/mcpQueryService.ts and AIAssistant/src/services/mcpQueryService.ts so "List MCP tools" matches before list.*app.
+- **Files:** `server.js`, `src/services/mcpQueryService.ts`, `AIAssistant/src/services/mcpQueryService.ts`
+- **Regression check:** MasterFlow Agent → "List MCP tools" (or "list tools", "mcp tools") → returns formatted tool list.
+
+### AI Assistant prompts: integration tests (2026-03-14)
+
+- **What:** Tests to verify all AI Assistant prompts return real data when worker token is provided.
+- **Fix:** (1) Added `tests/backend/ai-assistant-prompts.test.js` — mocks fetch for PingOne API, covers no-token (list tools, help), token-required (worker token, apps, users, groups, populations, MFA, subscriptions, licenses, OIDC discovery, get app/group by name, user groups, MFA devices), and credentialsRequired when token missing. (2) Fixed: get_application/get_group by name return arrays, so tests assert `data[0].name`; get_user_groups requires valid UUID, so test uses `550e8400-e29b-41d4-a716-446655440001` instead of `user-1-uuid-here`.
+- **Files:** `tests/backend/ai-assistant-prompts.test.js`
+- **Regression check:** Run `pnpm vitest run tests/backend/ai-assistant-prompts.test.js` → all 16 tests pass.
+
+### MCP: List tools from server source (2026-03-14)
+
+- **What:** "List MCP tools" used MCP_INTENTS (subset); user wanted the canonical list from the MCP server code.
+- **Fix:** (1) Added scripts/generate-mcp-tool-names.mjs — extracts tool names from pingone-mcp-server via regex on server.registerTool('name', ...). Writes pingone-mcp-server/mcp-tool-names.json. (2) server.js list_tools handler loads from mcp-tool-names.json, falls back to MCP_INTENTS if file missing. (3) npm run mcp:tools:generate to regenerate after adding tools.
+- **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
+- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json exists. "List MCP tools" in MasterFlow Agent returns 70+ tools (from MCP server source). Without file, falls back to MCP_INTENTS.
+
+### MCP tools list: derive from pingone-mcp-server source (2026-03-14)
+
+- **What:** "List MCP tools" should show the canonical list from the MCP server code, not a separate hardcoded list that could drift.
+- **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — extracts tool names from `server.registerTool('...')` in pingone-mcp-server/src. (2) Writes `pingone-mcp-server/mcp-tool-names.json`. (3) server.js list_tools handler reads that file; falls back to MCP_INTENTS if missing. (4) npm run mcp:tools:generate to regenerate.
+- **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
+- **Regression check:** Run `npm run mcp:tools:generate` → `List MCP tools` in MasterFlow Agent returns ~70 tools from MCP server source.
+
+### MCP tools list: access canonical list from MCP server code (2026-03-14)
+
+- **What:** "List MCP tools" used MCP_INTENTS only (~40 tools); actual MCP server has 70+ tools. User: "We know tools, we have admin for MCP server — access the list in the code."
+- **Fix:** (1) Script `scripts/generate-mcp-tool-names.mjs` extracts tool names from `pingone-mcp-server/src` via regex on `server.registerTool('name',`. (2) Writes `pingone-mcp-server/mcp-tool-names.json`. (3) `server.js` list_tools handler loads from that file; falls back to MCP_INTENTS if missing. (4) `npm run mcp:tools:generate` added.
+- **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
+- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json has 70+ tools. Open MasterFlow Agent → "List MCP tools" → returns full list. If file missing → falls back to MCP_INTENTS.
+
+### MCP List tools: read from MCP server source (2026-03-14)
+
+- **What:** "List MCP tools" should use the canonical tool list from the MCP server code, not a separate MCP_INTENTS subset.
+- **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — extracts tool names from `server.registerTool('name',` in pingone-mcp-server sources, writes `pingone-mcp-server/mcp-tool-names.json`. (2) server.js list_tools handler loads from mcp-tool-names.json; falls back to MCP_INTENTS if file missing. (3) npm run mcp:tools:generate to regenerate.
+- **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
+- **Regression check:** Run `npm run mcp:tools:generate` → List MCP tools in MasterFlow Agent returns ~70 tools from MCP server. If JSON missing, falls back to MCP_INTENTS.
+
+### MCP tools list: derive from server source (2026-03-14)
+
+- **What:** "List MCP tools" should return the canonical list from the MCP server code, not a separate hardcoded list in server.js.
+- **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — extracts tool names from `pingone-mcp-server/src` via regex on `server.registerTool('...')`. (2) Writes `pingone-mcp-server/mcp-tool-names.json`. (3) server.js `list_tools` handler loads from that file; falls back to MCP_INTENTS if file missing. (4) Added `npm run mcp:tools:generate`.
+- **Files:** `scripts/generate-mcp-tool-names.mjs`, `server.js`, `package.json`, `pingone-mcp-server/mcp-tool-names.json`
+- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json has 70+ tools. "List MCP tools" in MasterFlow Agent returns that list.
+
+### MCP tools list: access from MCP server source (2026-03-14)
+
+- **What:** User wanted the tool list to come from the MCP server code (admin controls it) instead of a duplicated list.
+- **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — extracts tool names from `pingone-mcp-server/src` via regex on `server.registerTool('name',` and writes `pingone-mcp-server/mcp-tool-names.json`. (2) server.js list_tools handler loads from that file; falls back to MCP_INTENTS if missing. (3) `npm run mcp:tools:generate` to regenerate.
+- **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
+- **Regression check:** Run `npm run mcp:tools:generate` → 70 tools in mcp-tool-names.json. Open MasterFlow Agent → "List MCP tools" → returns full list from MCP server source.
+
+### MCP: List tools from server source (2026-03-14)
+
+- **What:** "List MCP tools" should use the canonical tool list from the MCP server code, not a duplicate in server.js.
+- **Fix:** Added `scripts/generate-mcp-tool-names.mjs` to extract tool names from `server.registerTool('...')` in pingone-mcp-server; outputs `pingone-mcp-server/mcp-tool-names.json`. Server.js list_tools handler loads from that file (fallback to MCP_INTENTS if missing). Run `npm run mcp:tools:generate` when adding tools to the MCP server.
+- **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
+- **Regression check:** Run `npm run mcp:tools:generate` → "List MCP tools" in MasterFlow Agent returns 70+ tools from the JSON. Add a tool to MCP server → regenerate → list includes it.
+
+### MCP tools list: source from MCP server code (2026-03-14)
+
+- **What:** User wanted "List MCP tools" to use the canonical tool list from the MCP server code (single source of truth).
+- **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — scans `pingone-mcp-server/src` for `server.registerTool('name', ...)` and writes `pingone-mcp-server/mcp-tool-names.json`. (2) server.js list_tools handler reads that JSON; falls back to MCP_INTENTS if file missing. (3) npm script `mcp:tools:generate` runs the extractor.
+- **Files:** `scripts/generate-mcp-tool-names.mjs`, `server.js`, `package.json`, `pingone-mcp-server/mcp-tool-names.json`
+- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json has ~70 tools. Open MasterFlow Agent → "List MCP tools" → returns full list from MCP server. Add a new tool in pingone-mcp-server → regenerate → list_tools shows it.
+
+### MCP tools list: access from MCP server code (2026-03-14)
+
+- **What:** "List MCP tools" should return the canonical list from the MCP server source, not a separate hardcoded list.
+- **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — scans `pingone-mcp-server/src` for `server.registerTool('name', ...)` and writes `pingone-mcp-server/mcp-tool-names.json`. (2) server.js list_tools handler reads that JSON; falls back to MCP_INTENTS if file missing. (3) Added `npm run mcp:tools:generate`.
+- **Files:** `scripts/generate-mcp-tool-names.mjs`, `server.js`, `package.json`, `pingone-mcp-server/mcp-tool-names.json`
+- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json has 70+ tools. "List MCP tools" in MasterFlow Agent returns full list. Add new tool in MCP server → regenerate → list updates.
+
+### MCP tools list: access from MCP server code (2026-03-14)
+
+- **What:** "List MCP tools" should use the canonical tool list from the MCP server codebase, not a separate hardcoded list.
+- **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — scans `pingone-mcp-server/src` for `server.registerTool('name', ...)` and extracts tool names. (2) Writes `pingone-mcp-server/mcp-tool-names.json`. (3) server.js list_tools handler loads from that file (fallback to MCP_INTENTS if missing). (4) `npm run mcp:tools:generate` regenerates the list. Run after adding tools to the MCP server.
+- **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
+- **Regression check:** Run `npm run mcp:tools:generate` → List MCP tools in MasterFlow Agent returns ~70 tools. Add a tool to MCP server → regenerate → list includes new tool.
+
+### MCP: List tools from server source (2026-03-14)
+
+- **What:** "List MCP tools" should reflect the actual tools in the MCP server code, not a separate MCP_INTENTS subset.
+- **Fix:** Added `scripts/generate-mcp-tool-names.mjs` to extract tool names from `server.registerTool('...')` in pingone-mcp-server source. Outputs `pingone-mcp-server/mcp-tool-names.json`. Server.js list_tools handler reads this file (fallback to MCP_INTENTS if missing). Run `npm run mcp:tools:generate` after adding tools.
+- **Files:** `scripts/generate-mcp-tool-names.mjs`, `server.js`, `package.json`, `pingone-mcp-server/mcp-tool-names.json`
+- **Regression check:** Add a tool to MCP server → run `npm run mcp:tools:generate` → "List MCP tools" includes the new tool. With no JSON file, falls back to MCP_INTENTS.
+
+### AI Assistant: worker token success highlight (2026-03-14)
+
+- **What:** User found it hard to see when a worker token was obtained successfully.
+- **Fix:** McpResultCard accepts `$isTokenSuccess`; when `pingone_get_worker_token` && success, card uses green background, green border, and box-shadow. Added McpSuccessBadge "✓ Token ready" in the header (margin-left: auto for prominence). Applied in main and standalone AIAssistant.
+- **Files:** `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`
+- **Regression check:** MasterFlow Agent → Live on + credentials → "Get worker token" → MCP result card shows green styling and "✓ Token ready" badge.
+
+### AI Assistant: rename to MasterFlow Agent (2026-03)
+
+- **What:** User requested the assistant be renamed from "OAuth Assistant" to "MasterFlow Agent".
+- **Fix:** Updated all user-facing labels: HeaderTitle in main and standalone AIAssistant, sidebar menu (AI & Identity), Navbar link title, floating button aria-label, App comment.
+- **Files:** `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`, `src/config/sidebarMenuConfig.ts`, `src/components/Navbar.tsx`, `src/App.tsx`
+- **Regression check:** Sidebar → AI & Identity → "MasterFlow Agent" goes to /ai-assistant. Navbar link shows "MasterFlow Agent" on hover. Chat header shows "MasterFlow Agent". Standalone app header shows "MasterFlow Agent".
+
+### AI Assistant: side panel visible on full page, floating button hides when tab hidden (2026-03-13)
+
+- **What:** User could not see the Tools & Resources side panel on /ai-assistant; floating button stayed visible when switching tabs or leaving the browser.
+- **Fix:** (1) Default `showSidePanel` to `true` when `fullPage` so the side panel is visible on /ai-assistant. (2) On fullPage, embed the side panel in `PageBackdrop` as a sidebar (with `PageToolsSlot` 400px) instead of overlay; overlay only when !fullPage. (3) Add Page Visibility API: `visibilitychange` listener sets `isPageVisible`; floating button renders only when `isPageVisible`, so it hides when user switches tab, minimizes, or leaves the browser.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Open /ai-assistant → Tools & Resources sidebar visible on right (PingOne Login, Documentation, Tools tabs). On other pages, click 💬 to open assistant; switch to another tab or minimize → floating button hides; return to tab → button reappears.
+
+### AI Assistant: side panel visible, floating button hides when tab hidden (2026-03-13)
+
+- **What:** User could not see the Tools & Resources side panel on /ai-assistant; floating button stayed visible when switching tabs or leaving the browser.
+- **Fix:** (1) Default `showSidePanel` to true when fullPage so Tools & Resources is visible on /ai-assistant. (2) Embed side panel in PageBackdrop as a sidebar (PageToolsSlot) when fullPage instead of overlay. (3) Add visibilitychange listener; hide floating button when document.visibilityState is hidden (tab minimized, another app focused).
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Open /ai-assistant → Tools & Resources sidebar visible by default on the right. On other pages, click floating button to open assistant; switch to another tab → button hides; switch back → button reappears.
+
+### AI Assistant: side panel visible on /ai-assistant, floating button hides when tab hidden (2026-03-13)
+
+- **What:** User could not see the side panel (Tools & Resources) on /ai-assistant; floating button stayed visible when switching away from browser.
+- **Fix:** (1) On fullPage, `showSidePanel` defaults to true so the side panel is visible when landing on /ai-assistant. (2) Side panel embedded in PageBackdrop as a sidebar (row layout) instead of overlay when fullPage. (3) `visibilitychange` listener hides the floating button when `document.visibilityState === 'hidden'` (tab switch, minimize, etc.); shows again when visible.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Open /ai-assistant → Tools & Resources panel visible on the right. On any other page → floating button appears; switch tab or minimize → button hides; return to tab → button reappears.
+
+### AI Assistant: side panel visible on fullPage, floating button hides when tab hidden (2026-03-13)
+
+- **What:** (1) User could not see the Tools & Resources side panel on /ai-assistant. (2) Floating AI button stayed visible when switching to another app/tab — should hide.
+- **Fix:** (1) On fullPage, showSidePanel defaults to true; side panel is embedded in PageBackdrop as a 400px sidebar (PageToolsSlot) when showSidePanel. (2) Added visibilitychange listener; floating button only renders when document.visibilityState !== 'hidden'.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Open /ai-assistant → Tools & Resources panel visible on right by default; uncheck Configure to hide. On other pages, floating button visible; switch to another tab or minimize → button hides; return → button reappears.
+
+### AI Assistant: side panel visible on /ai-assistant, floating button hides when tab hidden (2026-03-13)
+
+- **What:** User could not see the Tools & Resources side panel on /ai-assistant; floating AI button stayed visible when switching tabs or leaving the browser.
+- **Fix:** (1) Default `showSidePanel` to `true` when `fullPage` so Tools panel is visible on /ai-assistant. (2) Embed side panel in PageBackdrop as a sidebar (row layout) when fullPage, using `PageToolsSlot` for 400px width. (3) Add Page Visibility API: `visibilitychange` listener sets `isPageVisible`; floating button only renders when `isPageVisible` so it hides when user switches tab, minimizes, or leaves browser.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Open /ai-assistant → Tools & Resources sidebar visible on right. Open any other page → floating 💬 button appears; switch to another tab or minimize → button hides; return to tab → button reappears.
+
+### AI Assistant: side panel visible on full page, floating button hides when tab hidden (2026-03-13)
+
+- **What:** (1) User could not see the Tools & Resources side panel on /ai-assistant. (2) Floating AI button remained visible when switching to another app/tab.
+- **Fix:** (1) Side panel defaults to visible on fullPage (`showSidePanel` initial value = `fullPage`). Embedded side panel in PageBackdrop as sidebar (row layout) when fullPage; uses PageToolsSlot for 400px width. Overlay only used when !fullPage. (2) Page Visibility API: `visibilitychange` listener updates `isPageVisible`; floating button renders only when `isPageVisible` so it hides when tab/window is hidden.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Open /ai-assistant → Tools & Resources sidebar visible on right. Open any other page → floating button visible → switch to another tab or minimize → button disappears → return to tab → button reappears.
+
+### List MCP tools: ensure intent matches before other list patterns (2026-03-14)
+
+- **What:** "List MCP tools" sometimes returned "I couldn't identify a specific PingOne operation" instead of the tool list.
+- **Fix:** (1) Moved `list_tools` and `help` to the top of MCP_INTENTS in server.js so they match before list_applications, list_groups, etc. (2) Added more permissive patterns: `\b(?:list|show|what|which)\s+(?:all\s+)?(?:mcp\s+)?tools?\b`, `mcp\s+tools?\b`. (3) Frontend mcpQueryService (main + standalone) uses same patterns so isListToolsQuery correctly routes to MCP. Works without Live toggle or credentials.
+- **Files:** `server.js`, `src/services/mcpQueryService.ts`, `AIAssistant/src/services/mcpQueryService.ts`
+- **Regression check:** Open AI Assistant → type or click "List MCP tools" → returns formatted list of MCP tool names. Works with Live off.
+
+### V7MJwtInspectorModal: browser-safe base64 decode (2026-03-13)
+
+- **What:** JWT Inspector modal used `Buffer.from(padded, 'base64')` which is Node.js-only; client bundle runs in browser where Buffer is undefined, causing runtime crash when inspecting tokens.
+- **Fix:** Replaced with browser-native `atob()` + `decodeURIComponent(escape(...))` for UTF-8, with fallback for binary content. `b64UrlDecode` now works in all flow pages (Auth Code, ROPC, Implicit, etc.) that use V7MJwtInspectorModal.
+- **Files:** `src/v7/components/V7MJwtInspectorModal.tsx`
+- **Regression check:** Open any V7M flow (e.g. /flows/oauth-ropc-v9) → complete flow to get token → click Inspect on token → modal shows decoded header/payload without crash.
+
+### AI Assistant: PromptsList in Quick Prompts panel (2026-03-13)
+
+- **What:** Second PromptsGuidePanel ("Quick Prompts") lacked PromptsList wrapper, causing layout inconsistency with first panel.
+- **Fix:** Wrapped prompt chips in PromptsList for consistent flex layout.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Open AI Assistant → click 📋 → both "Prompt Reference" and "Quick Prompts" panels show chips with same layout.
+
+### OAuth ROPC V9: red header with white text (2026-03-13)
+
+- **What:** `/flows/oauth-ropc-v9` header should use red gradient with white text per A-Migration criteria (PingOne-style flows).
+- **Fix:** (1) Added `oauth-ropc-v9` to flowHeaderService FLOW_CONFIGS with `flowType: 'pingone'`. (2) OAuthROPCFlowV9 uses flowId `oauth-ropc-v9` and customConfig with `flowType: 'pingone'` — yields red gradient (`#ef4444`→`#dc2626`) and white text.
+- **Files:** `src/services/flowHeaderService.tsx`, `src/pages/flows/v9/OAuthROPCFlowV9.tsx`
+- **Regression check:** Open https://api.pingdemo.com:3000/flows/oauth-ropc-v9 → header is red with white text; step content and buttons unchanged.
+
+### AI Assistant: MCP commands execute (create/list/delete work) (2026-03-13)
+
+- **What:** "Create application" and other MCP commands gave info only, did not execute. Main app routed MCP queries to Groq first, showing Groq's answer instead of MCP result.
+- **Fix:** (1) Main app: route all MCP queries (when Live on) straight to MCP, use result as primary response; add Live-off nudge when Live off. (2) Reorder MCP_INTENTS: create_application and delete_application before get_application so "Create application named X" matches create not get. (3) Tests: List MCP tools, Create application; fix Vitest mock (vi.fn, mockFetch).
+- **Files:** `src/components/AIAssistant.tsx`, `server.js`, `tests/backend/mcp-worker-token.test.js`
+- **Regression check:** Turn on Live → "Create application named TestApp" creates app; "Show all apps" lists apps; "List MCP tools" returns tools. Live off → nudge to turn on Live.
+
+### AI Assistant: List MCP tools command (2026-03-13)
+
+- **What:** User wanted a command in the AI Assistant to list all MCP tools.
+- **Fix:** (1) Added `list_tools` intent in server.js matching "list tools", "list MCP tools", "what tools", etc. (2) Handler returns formatted list of all MCP tool names from MCP_INTENTS. (3) Added `mcp_list_tools` pattern and `isListToolsQuery` in mcpQueryService (main + standalone). (4) Added "List MCP tools" to quick questions and Help prompt category in both AIAssistant components. Works without Live toggle or credentials.
+- **Files:** `server.js`, `src/services/mcpQueryService.ts`, `AIAssistant/src/services/mcpQueryService.ts`, `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`
+- **Regression check:** Open AI Assistant → click "List MCP tools" or type "list MCP tools" → assistant returns full list of tool names. Works with Live off.
+
+### Standalone AI Assistant: red header, shorter, agent visible (2026-03-13)
+
+- **What:** Standalone at https://api.pingdemo.com:3002/ had agent hidden off-screen or under header; header was purple and too tall.
+- **Fix:** (1) TopBar: red (#dc2626), white text, height 52px→36px, smaller logo. (2) WelcomeSection: compact padding, smaller fonts, smaller feature cards; red background to match header. (3) OAuthPane mobile top: 52px→36px.
+- **Files:** `AIAssistant/src/App.tsx`
+- **Regression check:** Open https://api.pingdemo.com:3002/ → header is red with white text and short; agent is visible below welcome section; welcome section is compact.
+
+### AI Assistant: compact header, red/white, draggable (2026-03-13)
+
+- **What:** Agent overlay covered content; header was too tall; user wanted red header with white text and movable window.
+- **Fix:** (1) Compact header: padding 10px→6px, smaller icons/buttons (32→28px), smaller toggles/status dots, flex-wrap for toggles. (2) Solid red (#dc2626) with white text. (3) Draggable: header mousedown starts drag; position state; ChatWindow accepts $dragLeft/$dragTop; cursor grab/grabbing on header. Position resets when assistant closes.
+- **Files:** `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`
+- **Regression check:** Open /ai-assistant → header is compact and red with white text; drag by header to move window; close and reopen → window returns to default bottom-right. Buttons never grey when enabled (do-not-break).
+
+### AIAssistant: SPA fallback to fix 404 on root (2026-03-13)
+
+- **What:** https://api.pingdemo.com:3002/ returned 404 when running run.sh -both.
+- **Fix:** Added spaFallbackPlugin to AIAssistant vite.config.ts — rewrites GET requests (except /api, /@, static files) to /index.html. Added appType: 'spa' and server.host: true.
+- **Files:** `AIAssistant/vite.config.ts`
+- **Regression check:** Run `./run.sh -both` → open https://api.pingdemo.com:3002/ → page loads (no 404).
+
+### run.sh: MCP server build heap limit to avoid OOM (2026-03-13)
+
+- **What:** MCP server `npm run build` (tsc) failed with "JavaScript heap out of memory" / "Ineffective mark-compacts near heap limit".
+- **Fix:** Run MCP build with `NODE_OPTIONS="--max-old-space-size=4096"` to increase Node heap from default (~2GB) to 4GB.
+- **Files:** `scripts/development/run.sh`
+- **Regression check:** Delete `pingone-mcp-server/dist/` → run `./run.sh -both` → MCP server builds successfully; no OOM.
+
+### run.sh: standalone AI Assistant always on api.pingdemo.com (2026-03-13)
+
+- **What:** Standalone AI Assistant should run on api.pingdemo.com (same domain as main app), not localhost.
+- **Fix:** (1) Added ASSISTANT_URL="https://${FRONTEND_HOST}:${ASSISTANT_PORT}" — uses same domain as main app. (2) Export BACKEND_URL before starting assistant so Vite proxy targets correct backend. (3) Added --host to vite so assistant binds to all interfaces. (4) Health check and all status messages use ASSISTANT_URL (https://api.pingdemo.com:3002).
+- **Files:** `scripts/development/run.sh`
+- **Regression check:** Run `./run.sh -assistant` or `./run.sh -both` → status shows AI Assistant at https://api.pingdemo.com:3002; open that URL (ensure api.pingdemo.com in /etc/hosts) → assistant loads.
+
+### run.sh: fix mcp-server.log tail path (2026-03-13)
+
+- **What:** Choosing option 2 (mcp-server) in the log tail prompt failed with "mcp-server.log: No such file or directory" — the MCP server writes to `logs/mcp-server.log`, not the project root.
+- **Fix:** Updated tail commands to use `logs/mcp-server.log` in assistant and both modes. Updated success/error messages to reference the correct path.
+- **Files:** `scripts/development/run.sh`
+- **Regression check:** Run `./run.sh -assistant` → choose 2 for mcp-server → tail follows `logs/mcp-server.log` without error.
+
+### run.sh: ensure project root before standalone AI Assistant (2026-03-13)
+
+- **What:** When run from a subdirectory (e.g. `cd scripts/development && ./run.sh -assistant`), npx vite and MCP Inspector could fail because package.json, mcp-inspector-config.json, and AIAssistant/ are in the project root.
+- **Fix:** Added `ensure_project_root()` — resolves script location (handles symlink), derives project root as `scripts/development/../..`, and `cd`s there before starting services. Called at start of `run_assistant_mode` and `run_both_mode`.
+- **Files:** `scripts/development/run.sh`
+- **Regression check:** Run `cd scripts/development && ./run.sh -assistant` → prints "Using project root: <path>"; AI Assistant and MCP Inspector start. Run from project root `./run.sh -assistant` → same behavior.
+
+### Standalone AI Assistant: add environmentIdService + pingone (2026-03-13)
+
+- **What:** Vite build failed with "Failed to resolve import ../services/environmentIdService" and "../api/pingone" — the standalone AIAssistant app has its own src/ and cannot import from the main app.
+- **Fix:** Added standalone copies: (1) `AIAssistant/src/services/environmentIdService.ts` for saveEnvironmentId (IndexedDB + API + localStorage); (2) `AIAssistant/src/api/pingone.ts` for PingOneAPI (authenticate, request, isTokenExpired).
+- **Files:** `AIAssistant/src/services/environmentIdService.ts`, `AIAssistant/src/api/pingone.ts`
+- **Regression check:** Run `npx vite build AIAssistant --outDir dist-assistant` or `npm run assistant` → build succeeds; standalone app runs at https://localhost:3002.
+
+### Documentation & Reference: red header migration (2026-03-13)
+
+- **What:** All pages in the Documentation & Reference sidebar section migrated to use red header (flowType: 'pingone', theme: 'red') and Ping-styled CollapsibleHeaders per A-Migration/01-MIGRATION-GUIDE.md.
+- **Fixes:** (1) **PageLayoutService/FlowHeader**: Set flowType: 'pingone', theme: 'red' for Documentation Hub, OIDC Overview, OAuth 2.0 Security Best Practices, OAuth Education, Resources API, Advanced OAuth Params Demo, PAR vs RAR, CIBA vs Device Authz, OAuth Scopes Reference, OIDC Specs, SPIFFE/SPIRE, Mock Features, Sessions API, OIDC Info, OIDC Session Management, About. (2) **CollapsibleHeader**: Added theme="ping" to all section headers. (3) **PageStyleContext**: Added/updated red colors (#dc2626, #b91c1c) for all Documentation & Reference paths.
+- **Files:** `src/pages/Documentation.tsx`, `src/pages/docs/OIDCOverviewV7.tsx`, `src/pages/docs/OAuth2SecurityBestPractices.tsx`, `src/pages/ComprehensiveOAuthEducation.tsx`, `src/pages/flows/v9/ResourcesAPIFlowV9.tsx`, `src/pages/flows/AdvancedOAuthParametersDemoFlow.tsx`, `src/pages/PARvsRAR.tsx`, `src/pages/CIBAvsDeviceAuthz.tsx`, `src/pages/PingOneScopesReference.tsx`, `src/pages/docs/OIDCSpecs.tsx`, `src/pages/docs/SpiffeSpirePingOne.tsx`, `src/pages/PingOneMockFeatures.tsx`, `src/pages/PingOneSessionsAPI.tsx`, `src/pages/OIDC.tsx`, `src/pages/OIDCSessionManagement.tsx`, `src/pages/About.tsx`, `src/contexts/PageStyleContext.tsx`
+- **Regression check:** Open each Documentation & Reference route → red header with white text; CollapsibleHeader sections use Ping (red) style. Skip /oauth-2-1 (already migrated).
+
+### OAuth 2.1 page: red header, Ping-styled section headers (2026-03-13)
+
+- **What:** `/oauth-2-1` was not migrated — had blue header and needed red header with white text and non-grey buttons (PingOne style).
+- **Fixes:** (1) **OAuth21.tsx**: pageConfig theme 'blue' → 'red', flowType 'documentation' → 'pingone'. (2) All CollapsibleHeader components: added theme="ping" for red section headers. (3) **PageStyleContext**: /oauth-2-1 colors updated to red (#dc2626, #b91c1c).
+- **Files:** `src/pages/OAuth21.tsx`, `src/contexts/PageStyleContext.tsx`
+- **Regression check:** Open /oauth-2-1 → red header with white text; section headers (CollapsibleHeader) are red (Ping style), not grey.
+
+### AI Assistant: Clear button on chat header and page results (2026-03-13)
+
+- **What:** Added Clear button to reset chat and start fresh. Visible in both host page (floating) and AI Assistant page (/ai-assistant, popout). Also in page results header when Page checkbox shows results in backdrop.
+- **Fixes:** (1) **handleClear**: Resets messages to welcome, clears input, groqHistoryRef, commandHistoryRef. (2) **ClearButton** (🗑) in ChatHeader (both compact and expanded). (3) **PageResultClearBtn** in PageResultHeader when results shown.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Open AI Assistant (floating or /ai-assistant) → click 🗑 Clear → chat resets to welcome. With Page checked and results → Clear in page header also resets.
+
+### Get userinfo: correct OIDC endpoint, direct MCP path (2026-03-13)
+
+- **What:** "Get userinfo" was calling the Management API (api.pingone.com/v1/environments/.../as/userinfo) instead of the OIDC UserInfo endpoint (auth.pingone.com/{envId}/as/userinfo). It also only ran when Live toggle was on, so users often got only a Groq explanation.
+- **Fixes:** (1) **server.js**: Added buildAuthDomain(region) and mcpCallUserInfo() to call auth.pingone.com/{envId}/as/userinfo. Worker token will return 401 (expected); returns clear message that OAuth access token from user login is required. (2) **mcpQueryService**: Added isUserInfoQuery(). (3) **AIAssistant**: "Get userinfo" now goes straight to MCP (like worker token and help), so it always hits the endpoint regardless of Live toggle.
+- **Files:** `server.js`, `src/services/mcpQueryService.ts`, `src/components/AIAssistant.tsx`
+- **Regression check:** Say "Get userinfo" in AI Assistant → MCP card appears. With worker token only: clear error about needing OAuth access token. With valid OAuth access token (future): would return claims.
+
+### Popout: status-dot buttons (Groq/Brave/MCP) now focus host when clicked (2026-03-13)
+
+- **What:** In the AI Assistant popout, clicking the ⚡ Groq, 🌐 Brave, or 🔌 MCP status dots (when not configured) navigates the host to /configuration but the host stayed in the background. Now the host is focused so the user sees the Configuration page.
+- **Fixes:** (1) **notifyHostNavigate**: call `window.opener.focus()` after postMessage. (2) **App.tsx** message handler: call `window.focus()` after navigate.
+- **Files:** `src/utils/aiAssistantPopoutHelper.ts`, `src/App.tsx`
+- **Regression check:** Open AI Assistant popout → click ⚡/🌐/🔌 when not configured → host navigates to /configuration and comes to front.
+
+### AI Assistant: Page + Configure on floating; rename Popout to Configure (2026-03-13)
+
+- **What:** Floating AI Assistant now has Page checkbox and blank page panel next to agent (like fullPage). Popout renamed to Configure. Both checkboxes available in floating and fullPage.
+- **Fixes:** (1) Page checkbox always visible (not just fullPage). (2) When floating + showResultsInPage: FloatingLayout with FloatingPagePanel (400×680) + ChatWindow side by side. (3) Popout → Configure (label + tooltip). (4) pageResultsContent extracted for reuse; ChatWindow $inFloatingLayout prop.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Open floating AI Assistant → check Page → blank panel appears left of chat. Check Configure → Tools panel overlay. fullPage /ai-assistant unchanged.
+
+### AI Assistant: paging for MCP results (e.g. all users) (2026-03-13)
+
+- **What:** MCP data (e.g. List all users, Show all apps) now supports paging. 10 items per page with Prev/Next controls; "Showing X–Y of Z" indicator.
+- **Fixes:** (1) **McpDataPagedDisplay** component replaces renderMcpDataItems; manages page state. (2) Works for object arrays and primitive arrays. (3) McpPagination, McpPageBtn styled components.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Ask "List all users" or "Show all apps" → results show with paging when >10 items. Prev/Next work. JSON toggle still works.
+
+### AI Assistant: accumulate page results, scroll to new (2026-03-13)
+
+- **What:** When "Page" checkbox is on, all assistant results are kept and appended; view scrolls down when new content arrives (instead of replacing the previous result).
+- **Fixes:** (1) Map over all assistant messages instead of only latest. (2) PageResultSeparator between blocks. (3) pageResultsEndRef + useEffect scrolls to bottom when messages change.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** /ai-assistant → check Page → ask multiple questions → each result appends; view scrolls to newest. MCP JSON toggle still works per block.
+
+### AI Assistant: command recall with up/down arrows (2026-03-13)
+
+- **What:** Up arrow recalls previous commands; down arrow recalls next. History keeps last 50 unique commands; typing or pasting exits browse mode.
+- **Fixes:** (1) **commandHistoryRef**, **historyIndexRef**, **draftRef** for history state. (2) **handleKeyDown** replaces handleKeyPress; ArrowUp/ArrowDown navigate history. (3) On send: add to history (dedupe consecutive). (4) onChange resets historyIndex when user edits.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Send a few messages → press ↑ to recall previous → press ↓ to go forward → type to exit history. Enter still sends.
+
+### Tools & Resources popout: above AI Assistant, draggable (2026-03-13)
+
+- **What:** Tools & Resources panel (Popout checkbox) now renders as an overlay above the AI Assistant (z-index 10052/10053) and is draggable by its header.
+- **Fixes:** (1) **AIAssistant.tsx**: Always render AIAssistantSidePanel as overlay when showSidePanel (removed embedded variant from PageBackdrop). (2) **AIAssistantSidePanel**: Overlay mode uses DraggablePanel with position state; header is drag handle; click backdrop to close.
+- **Files:** `src/components/AIAssistant.tsx`, `src/components/AIAssistantSidePanel.tsx`
+- **Regression check:** Open AI Assistant (floating or /ai-assistant) → check Popout → Tools panel appears above chat. Drag by header to move. Click backdrop or × to close. Sidebar z-index ≥ 10050 unchanged.
+
+### Autofill extension: console.error override to hide extension noise (2026-03-13)
+
+- **What:** Extension errors (autofill, WebSocket failed) can still appear in console because the browser logs them before event handlers run. Added early console.error override in index.html inline script to filter messages containing bootstrap-autofill-overlay, AutofillOverlayContentService, "Cannot read properties of null" + "includes", or "WebSocket" + "failed".
+- **Files:** `index.html`
+- **Regression check:** With password manager/autofill extension enabled → extension errors should be hidden from console. App behavior unchanged.
+
+### Autofill extension: stronger stack-based suppression (2026-03-13)
+
+- **What:** bootstrap-autofill-overlay.js / AutofillOverlayContentService errors still appeared despite existing suppression. Added stack-based checks for extension-specific frames: setQualifiedLoginFillType, isIgnoredField, autofill_overlay_content_service_awaiter. Also added e.sourceURL fallback for filename.
+- **Files:** `index.html`
+- **Regression check:** With password manager/autofill extension enabled → extension errors should be suppressed. App behavior unchanged.
+
+### PingOne redirectless 400: clearer error message and app config guidance (2026-03-13)
+
+- **What:** When `/api/pingone/redirectless/authorize` returns 400 with validation errors, the error message now includes a hint about OAuth app configuration. The login form description explains that redirectless flow requires an OAuth app (not Worker) with redirect URI `urn:pingidentity:redirectless` and Authorization Code grant.
+- **Fixes:** (1) **PingOneLoginService**: On 400 with validation-related text, append hint about OAuth app and redirect URI. (2) **AIAssistantSidePanel**: CardDescription updated with redirectless requirements; styled `code` for URI.
+- **Files:** `src/pages/protect-portal/services/pingOneLoginService.ts`, `src/components/AIAssistantSidePanel.tsx`
+- **Regression check:** Trigger 400 (e.g. Worker app credentials) → error shows validation hint. Form description shows redirectless requirements. Successful login flow unchanged.
+
+### AI Assistant: Page checkbox to render results in hosting page (2026-03-13)
+
+- **What:** Added "Page" checkbox (visible only on /ai-assistant) that, when checked, renders the latest agent result in the hosting page backdrop instead of only in the chat.
+- **Fixes:** (1) **showResultsInPage** state and Page checkbox. (2) **PageBackdrop** shows PageResultContainer with latest assistant message (text, MCP data, Brave results, links). (3) When both Page and Popout checked: results left, tools right (flex row). (4) JSON/Formatted toggle for MCP data in page view.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Open /ai-assistant → check Page → ask a question → result appears in backdrop. Check Popout too → results left, tools right. Uncheck Page → blank backdrop.
+
+### AI Assistant page: hide floating buttons to avoid overlap (2026-03-13)
+
+- **What:** On `/ai-assistant`, the Debug Log Viewer button (📋) and global AI Assistant floating button (💬) are hidden so they don't overlap the agent UI.
+- **Fix:** App.tsx checks `isAIAssistantPageRoute`; when true, neither the log viewer button nor the global AIAssistant is rendered (the page has its own AIAssistant).
+- **Files:** `src/App.tsx`
+- **Regression check:** On /ai-assistant → no 📋 or 💬 floating buttons. On other pages → both visible.
+
+### AI Assistant page: compact floating agent + blank backdrop (2026-03-13)
+
+- **What:** `/ai-assistant` now shows the agent as a compact floating widget (520×680, same as floating button) with a blank page (header + backdrop) behind it. When Popout checkbox is checked, the backdrop displays the tools/login panel inline.
+- **Fixes:** (1) **AIAssistant**: When fullPage, ChatWindow uses compact fixed positioning; PageBackdrop renders blank area with embedded AIAssistantSidePanel when showSidePanel. (2) **AIAssistantSidePanel**: Added `embedded` prop — when true, renders inline (no overlay). (3) Side panel overlay only when !fullPage.
+- **Files:** `src/components/AIAssistant.tsx`, `src/components/AIAssistantSidePanel.tsx`
+- **Regression check:** Open `/ai-assistant` → agent appears as compact floating widget; blank backdrop behind. Check Popout → tools/login panel appears in backdrop. Floating button 💬 on other pages unchanged.
+
+### Log Viewer: 12-hour Central time, asterisk separators, level colors (2026-03-13)
+
+- **What:** Log viewer now shows timestamps in readable 12-hour Central time (America/Chicago), asterisk separator lines between entries, and color-coded text by log level (error=red, warn=amber, info=blue, debug=gray).
+- **Fixes:** (1) **formatTimestampToCentral12h**: Parses ISO timestamps or JSON timestamp ms, converts to 12-hour CT. (2) **LogSeparator**: `* * * * * * * * * *` between entries. (3) **LineText**: Level-based text color; LogLine background tint for error/warn.
+- **Files:** `src/components/EnhancedFloatingLogViewer.tsx`
+- **Regression check:** Open Log Viewer in-browser or popout → timestamps show as "3:30:00 PM CT"; asterisk lines between entries; errors red, warnings amber, info blue. Category filters still filter displayed content.
+
+### AI Assistant: Popout checkbox + embedded PingOne pi.flow login (2026-03-13)
+
+- **What:** AI Assistant has a "Popout" checkbox that opens the side panel with tools, PingOne login, and documentation. The PingOne Login tab now includes an embedded login form for Authz code flow with response_mode=pi.flow.
+- **Fixes:** (1) **AIAssistant.tsx**: Panel checkbox label changed to "Popout" with clearer tooltip. (2) **PingOneLoginService**: Fixed to use flowUrl, sessionId, environmentId for server API; store flow params by flowId; use /api/pingone/resume for resume step. (3) **AIAssistantSidePanel**: Replaced placeholder PingOne Login content with real username/password form; pre-fills environmentId/clientId from unifiedWorkerTokenService; full flow: init → submit credentials → resume → success.
+- **Files:** `src/components/AIAssistant.tsx`, `src/pages/protect-portal/services/pingOneLoginService.ts`, `src/components/AIAssistantSidePanel.tsx`
+- **Regression check:** Open AI Assistant → check Popout → side panel opens. PingOne Login tab shows form with env/client pre-filled when worker token configured. Sign in flow: init, submit, resume. Protect portal BaseLoginForm still works (init + submit).
+
+### AI Assistant popout: moveable outside host, writes via postMessage (2026-03-13)
+
+- **What:** AI Assistant can be opened in a popout window that is moveable outside the host page, while still communicating with it (e.g. navigating the host when user clicks links).
+- **Fixes:** (1) **aiAssistantPopoutHelper.ts**: openAIAssistantPopout(), isAIAssistantPopout(), notifyHostNavigate(). (2) **AIAssistantPopoutPage**: Renders AIAssistant with fullPage + popout. (3) **AIAssistant**: popout prop; handleLinkClick and status-dot clicks use notifyHostNavigate when popout; Popout button (🔗) in header; Close in popout calls window.close(). (4) **App.tsx**: Route /ai-assistant-popout; message listener for AI_ASSISTANT_NAVIGATE.
+- **Files:** `src/utils/aiAssistantPopoutHelper.ts`, `src/pages/AIAssistantPopoutPage.tsx`, `src/components/AIAssistant.tsx`, `src/App.tsx`
+- **Regression check:** Open AI Assistant (floating) → click 🔗 Popout → new window opens, can be moved. In popout, click a link (e.g. Configuration) → host page navigates. Close popout via ❌. Floating assistant still works when not popped out.
+
+### Quick Wins 1–3 completed (2026-03-13)
+
+- **Quick Win #1 (UnifiedFlowErrorHandler):** MFAConfigurationPageV8 (9 catch blocks), FIDO2ConfigurationPageV8 (2), MobileFlowV8 (4: load devices, init auth, activate device, resend OTP).
+- **Quick Win #2 (Logger):** Verified complete; SuperSimpleApiDisplayV8 popout intentionally keeps console.log.
+- **Quick Win #3 (Duplicate utilities):** Created `src/utils/errorMessageUtils.ts` with `getErrorMessage()`. Consolidated errorHandlingUtilsV8.extractErrorMessage, unifiedErrorHandlerV8 local extractErrorMessage, ErrorHandlerV8.getErrorMessage.
+- **Files:** `MFAConfigurationPageV8.tsx`, `FIDO2ConfigurationPageV8.tsx`, `MobileFlowV8.tsx`, `errorMessageUtils.ts`, `errorHandlingUtilsV8.ts`, `unifiedErrorHandlerV8.ts`, `errorHandlerV8.ts`
+- **Regression check:** MFA Configuration page → load/save settings, create policy, reset. FIDO2 Config → load policies. Mobile flow → load devices, authenticate, activate, resend OTP. Error messages display correctly.
+
+### AIAssistant: includeApis ReferenceError (2026-03-13)
+
+- **What:** AIAssistant crashed with `ReferenceError: includeApis is not defined` at line 671 because the context checkbox state variables were commented out but the JSX still referenced them.
+- **Fix:** Uncommented and added state for `includeApis`, `includeSpecs`, `includeWorkflows`, `includeUserGuide`. Mapped `includeApis` to `includeApiDocs` when calling aiAgentService.getAnswer().
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Open AI Assistant (floating or full-page) → Settings/Options panel → APIs, Specs, Workflows, Guide checkboxes toggle without error. Chat with context options works.
+
+### Browser extension autofill: stronger inline suppression (2026-03-13)
+
+- **What:** `bootstrap-autofill-overlay.js` TypeError still appeared in console despite existing inline script. Detection was message-only; extension errors can have message "Cannot read properties of null (reading 'includes')" without script name in message.
+- **Fix:** Enhanced isExternalError to also check filename and stack trace. Added stopPropagation. Fixed filename extraction for error event.
+- **Files:** `index.html`
+- **Regression check:** Open app with password manager/autofill extension enabled → extension errors should be suppressed. App behavior unchanged.
+
+### Browser extension autofill error: inline suppression before module load (2026-03-13)
+
+- **What:** `bootstrap-autofill-overlay.js` TypeError ("Cannot read properties of null (reading 'includes')") still appeared in console because main.tsx loads as a module (async); extension errors could fire before suppressExternalErrors() ran.
+- **Fix:** Added inline script in index.html that runs synchronously before any other scripts. Registers unhandledrejection and error listeners with capture phase to suppress known extension errors (bootstrap-autofill-overlay, AutofillOverlayContentService, etc.) as early as possible.
+- **Files:** `index.html`
+- **Regression check:** Open app with password manager/autofill extension enabled → extension errors should no longer appear in console. App behavior unchanged.
+
+### UnifiedFlowErrorHandler Phase 1D rollout (2026-03-13)
+
+- **What:** Completed Phase 1D of UnifiedFlowErrorHandler adoption: Unified MFA flow, registration/device selection/config steps, MFA reporting, TOTP flow, device ordering flow.
+- **Fixes:** (1) **UnifiedMFARegistrationFlowV8**: init auth, OTP verify, resend code, register device. (2) **UnifiedRegistrationStep.modern**: register device. (3) **UnifiedDeviceSelectionStep** (non-modern): load devices (replaced unifiedErrorHandlerV8). (4) **UnifiedConfigurationStep.modern**: save config. (5) **MFAReportingFlowV8**: load reports. (6) **TOTPFlowV8**: activate device, delete device, delete expired device. (7) **MFADeviceOrderingFlowV8**: load devices, set default, save order, remove order.
+- **Files:** `UnifiedMFARegistrationFlowV8.tsx`, `UnifiedRegistrationStep.modern.tsx`, `UnifiedDeviceSelectionStep.tsx`, `UnifiedConfigurationStep.modern.tsx`, `MFAReportingFlowV8.tsx`, `TOTPFlowV8.tsx`, `MFADeviceOrderingFlowV8.tsx`
+- **Regression check:** MFA registration flow → init auth, OTP verify, resend, register errors handled. TOTP flow → activation, delete device errors handled. Device ordering → load, set default, save/remove order errors handled. MFA reporting → load reports errors handled.
+
+### UnifiedFlowErrorHandler rollout (2026-03-13)
+
+- **What:** Extended UnifiedFlowErrorHandler adoption to replace inline logger+modernMessaging.showBanner catch blocks with centralized error handling across 14 additional files.
+- **Fixes:** (1) **Unified MFA steps**: UnifiedActivationStep.modern.tsx (activate, resend OTP), UnifiedDeviceSelectionStep.modern.tsx (load devices). (2) **Worker token**: WorkerTokenStatusDisplayV8, WorkerTokenSectionV8, workerTokenUIServiceV8. (3) **User/Config**: UserLoginSectionV8, RedirectUriValidatorV8. (4) **Pages/Hooks**: MFADeviceCreateDemoV8, useCibaFlowV8Enhanced, useHybridFlowV8, usePasskeyAuth.
+- **Files:** `src/v8/flows/unified/components/UnifiedActivationStep.modern.tsx`, `src/v8/flows/unified/components/UnifiedDeviceSelectionStep.modern.tsx`, `src/v8/components/WorkerTokenStatusDisplayV8.tsx`, `src/v8/components/WorkerTokenSectionV8.tsx`, `src/v8/services/workerTokenUIServiceV8.tsx`, `src/v8/components/UserLoginSectionV8.tsx`, `src/v8/components/RedirectUriValidatorV8.tsx`, `src/v8/pages/MFADeviceCreateDemoV8.tsx`, `src/v8/hooks/useCibaFlowV8Enhanced.ts`, `src/v8/hooks/useHybridFlowV8.ts`, `src/v8/hooks/usePasskeyAuth.ts`
+- **Regression check:** MFA activation/resend OTP → errors show via UnifiedFlowErrorHandler. Device selection load → errors handled. Worker token refresh/clear → errors handled. User login refresh/logout → errors handled. Redirect URI copy → errors handled. Create Device playground → lookup, JSON parse, create device errors handled. CIBA flow → discovery, initiate, poll errors handled. Hybrid flow → load/save credentials, PKCE, auth URL, exchange, fragment errors handled. Passkey auth/register → errors handled.
+
+### Logger adoption: replace console with centralized logger (2026-03-13)
+
+- **What:** Application code had direct console.log/warn/error calls that bypassed the centralized logger. Mobile templates had invalid Alert.console.warn (React Native Alert has no console property).
+- **Fixes:** (1) **ApiKeyConfiguration**: Replaced console.error with logger.error for backup status load failure. (2) **ReportsPage**: Replaced console.log with logger.info for generated report. (3) **errorBoundaryUtils**: Replaced console.warn/error in ExternalScriptErrorBoundary with logger.warn/error (suppressExternalErrors keeps console overrides for filtering). (4) **brave-search-server**: Replaced console.error with server logger (src/server/utils/logger.js). (5) **mobileTemplates**: Fixed invalid Alert.console.warn → Alert.alert for React Native generated code.
+- **Files:** `src/components/ApiKeyConfiguration.tsx`, `src/v8u/pages/ReportsPage.tsx`, `src/utils/errorBoundaryUtils.tsx`, `src/server/mcp/brave-search-server.ts`, `src/services/codeGeneration/templates/mobile/mobileTemplates.ts`
+- **Regression check:** Configuration → API Keys → backup status loads; errors log via logger. Reports page → generate report → logs via logger. Error boundary catches errors; logs via logger. Brave Search MCP server starts; logs via server logger. Mobile templates generate valid React Native Alert.alert calls.
+- **Note:** SuperSimpleApiDisplayV8 popout window keeps console.log intentionally (popout runs in separate context without app bundle; logger is not available).
+
+### Browser Extension Error Prevention (2026-03-13)
+
+- **What:** Browser extensions (password managers, autofill) were causing JavaScript errors: "Cannot read properties of null (reading 'includes')" in bootstrap-autofill-overlay.js, which doesn't affect app functionality but clutters console.
+- **Fixes:** (1) **Form protection utilities**: Created `formProtection.ts` with functions to add attributes that discourage extension interference (`autocomplete="off"`, `autofill="off"`, `data-extension-protected`). (2) **React hooks**: Created `useFormProtection` and `useInputProtection` hooks for easy integration with React components. (3) **CSS protection**: Added CSS rules to hide elements from extensions and prevent overlays (`hide-from-extensions` class, `[data-extension-protected]` styling). (4) **Global CSS**: Added protection styles to `button-text-white-enforcement.css` which is loaded globally.
+- **Files:** `src/utils/formProtection.ts`, `src/hooks/useFormProtection.ts`, `src/styles/button-text-white-enforcement.css`
+- **Regression check:** Console errors from browser extensions are reduced/eliminated. Forms still function normally. Extension overlays are prevented. Autocomplete/autofill behavior is controlled by our attributes, not extensions.
+
 ### AI Assistant: Dedicated full-page implementation and standalone sync (2026-03-13)
 
 - **What:** Users wanted both a dedicated AI Assistant page accessible from side menu AND a standalone app, with both versions staying in sync. Standalone should be a full application with login capabilities, no popout functionality.
@@ -922,6 +1503,7 @@ When changing the listed areas, run the corresponding checks to avoid regression
 - [ ] **Token button / global modal:** Any "Get Worker Token" (or equivalent) button that opens a worker token modal must use the Worker Token modal service: either open `WorkerTokenModalV9` (which uses `unifiedWorkerTokenService`) or dispatch `open-worker-token-modal` so App shows `WorkerTokenModalV9`. Do not use the legacy `WorkerTokenModal` for new code. See Update log "Token button at top of pages: use Worker Token modal service".
 - [ ] **WorkerTokenModalV9 scopes:** `credentials.scopes` may be a string (from storage) or an array. Any use of scopes (e.g. `.join(' ')`) must go through `normalizeScopes(scopes)` so it never calls `.join` on a non-array. See Update log "Worker Token Modal, FlowCredentials, ClaimsRequestBuilder: runtime errors".
 - [ ] **Worker token credentials — SQLite source of truth:** Worker token credentials are stored in and loaded from backend SQLite (`/api/credentials/sqlite`, key `__worker_token__`) so they persist across restarts. Do not rely on localStorage as source of truth. Load order in `unifiedWorkerTokenService`: memory → SQLite → IndexedDB → localStorage → legacy. Saving must call `unifiedWorkerTokenService.saveCredentials()` which persists to SQLite. See Update log "Worker token credentials: SQLite as source of truth".
+- [ ] **Worker token (access token) load order:** Access token load order must be: GET backend (backend checks SQLite first, then worker-tokens.json) → localStorage → IndexedDB. Do not omit SQLite from backend GET; do not reorder client fallbacks. See Update log "Worker token: add SQLite to backend load order".
 - [ ] **Token source:** Any change to `unifiedWorkerTokenService`, `workerTokenManager`, or `workerTokenRepository` storage keys: verify `/environments` and “Discover Apps” still see a valid token after saving via Worker Token modal.
 - [ ] **useGlobalWorkerToken:** If you change how the hook gets the token, ensure it still prefers `unifiedWorkerTokenService` when that has a valid token (so it matches the modal).
 - [ ] **Environments page:** Changing `EnvironmentManagementPageV8.tsx` or `environmentServiceV8.ts`: with valid worker token, `/environments` must load the list; effect must depend on `isValid` and `token` so fetch runs when token becomes available.
@@ -941,6 +1523,10 @@ When changing the listed areas, run the corresponding checks to avoid regression
 
 - [ ] **discoveryService / DiscoveryPanel:** Do not use `logger.discovery` or `logger.success` in discovery paths; use `logger.info` so OIDC Discovery works in all contexts.
 - [ ] **EnhancedFloatingLogViewer:** Category filters must filter displayed content by category (API Calls, Errors, Auth Flow, Debug, All).
+
+### MCP server & spec validation
+
+- [ ] **MCP spec validation:** When changing `pingone-mcp-server` (tool registration, SDK usage, index.ts), run `pnpm run mcp:validate` — all 3 tests must pass (initialize + tools/list, required fields, expected PingOne tools). If deps missing, run `pnpm install` from root and optionally `pnpm install` in `pingone-mcp-server`.
 
 ### Modals & DOM
 
@@ -969,6 +1555,7 @@ When changing the listed areas, run the corresponding checks to avoid regression
 - [ ] **FlowUIService step headers:** When changing step header styling, ensure getStepNumber() has `color: #ffffff` for proper visibility on blue backgrounds. Step numbers must be white text on blue step headers.
 - [ ] **JWT Bearer / flow pages:** Text on blue (step circles, buttons, MockApiCallDisplay header) must use `color: #ffffff`. JWT Bearer uses red header (flowType `pingone` in flowHeaderService). Do not revert to blue header or `color: 'white'` (use `#ffffff`).
 - [ ] **Mock Flows (V7M) shared styles:** When changing `src/v7/styles/mockFlowStyles.ts` or `V7MMockBanner`/`V7MStepSection`: all V7M pages (Client Credentials, Device Authorization, OAuth Auth Code, OIDC Hybrid, CIBA, Implicit, ROPC) must keep using shared container, banner, section/header/body styles and MOCK\_\* button/input constants. Do not reintroduce per-page duplicate style objects; disabled primary buttons must use MOCK_PRIMARY_BTN_DISABLED. Hybrid and CIBA must keep UnifiedCredentialManagerV9 below FlowHeader.
+- [ ] **Mock Flows (full regression):** When changing mock flow components, services, or `docs/MOCK_FLOWS_STANDARDIZATION_PLAN.md`: open each Mock flow from the sidebar (OIDC: Auth Code, Hybrid, CIBA; OAuth 2.0: Device Auth, Client Credentials, Implicit, ROPC; JWT Bearer, SAML Bearer, RAR, PAR, SPIFFE/SPIRE); complete the main path on at least 2–3 flows (e.g. Implicit, Auth Code); confirm tokens, UserInfo, and Introspect where applicable. See `docs/MOCK_FLOWS_STANDARDIZATION_PLAN.md` §8.
 - [ ] **Flow stepper / section sync (PAR, RAR):** Any `useEffect` that syncs section expansion (or similar) with `currentStep` must not depend on an array/object defined inside the component (e.g. `SECTION_KEYS`), or the dependency changes every render and causes "Maximum update depth exceeded". Use a module-level constant for step/section keys, or depend only on `[currentStep]`. See Update log "PAR/RAR flows: fix Maximum update depth exceeded".
 
 ### Logging (V9 vs V8U)
@@ -998,6 +1585,8 @@ Run these when doing a broader change or before release:
 7. **Button styling:** On `/flows/rar-v9` (or any page with Credential Management), Export and Import buttons are green and blue when enabled, grey only when disabled.
 8. **Redirect URI catalogue:** Open `/configuration` → “PingOne Redirect & Logout URIs”: only two rows (Unified OAuth/V8U, Unified MFA); catalogue card not covered by sidebar/panels.
 9. **Developer & Tools headers:** Open at least two routes under Developer & Tools (e.g. `/postman-collection-generator`, `/url-decoder`) → each shows a red header bar with white text at the top.
+10. **Mock Flows:** Open 2–3 flows from sidebar (e.g. `/flows/implicit-v9`, `/flows/oidc-authorization-code-v9`) → complete main path → confirm tokens, UserInfo, and Introspect where applicable. Yellow "Educational Mock Mode" banner at top; Reset button works.
+11. **MCP spec validation:** Run `pnpm run mcp:validate` — all 3 tests pass (pingone-mcp-server responds to initialize/tools/list, required fields, expected PingOne tools). Required before PR when touching `pingone-mcp-server` or MCP docs.
 
 ---
 
@@ -1045,6 +1634,7 @@ Run these when doing a broader change or before release:
 | MFA flags at 100%                    | `mfaFeatureFlagsV8.ts`, `MFAFeatureFlagsAdminV8.tsx`                                                                                                                                                                                                                            | When `MFA_FLAGS_ALWAYS_100` is true, all flags behave as 100%; admin UI shows message only.                                                                |
 | Discovery / logger                   | `discoveryService.ts`                                                                                                                                                                                                                                                           | No use of `logger.discovery`; use `logger.info` (or existing methods).                                                                                     |
 | Log viewer filters                   | `EnhancedFloatingLogViewer.tsx`                                                                                                                                                                                                                                                 | Category filters must filter displayed log content.                                                                                                        |
+| MCP server spec compliance           | `pingone-mcp-server/src/index.ts`, `tests/backend/mcp-spec-validation.test.js`                                                                                                                                                                                                  | `pnpm run mcp:validate` must pass; tools have name, description, inputSchema; expected tools present.                                                      |
 | Modal DOM                            | `AppDiscoveryModalV8U.tsx`, `DraggableModal.tsx`                                                                                                                                                                                                                                | No button wrapping another button (backdrop is div); DraggableModal z-index (12002/12003) must stay above all other UI elements.                           |
 | Icons (Fi\*)                         | Any component using Feather icons                                                                                                                                                                                                                                               | Import from `src/icons`; never use `FiRefreshCw` or other Fi\* without import.                                                                             |
 | Configuration redirect URI catalogue | `flowRedirectUriMapping.ts`, `callbackUriService.ts`, `Configuration.tsx`                                                                                                                                                                                                       | Catalogue shows only Unified MFA and Unified OAuth (V8U); URIs match app routes; card z-index keeps it above other content.                                |
