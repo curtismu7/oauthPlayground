@@ -178,6 +178,14 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 					'unsupported'
 				),
 			},
+			{
+				id: 'mcp-agent',
+				label: 'MCP & Agent',
+				items: items(
+					[['/flows/mock-mcp-agent-flow', 'Mock MCP Agent Flow', true, true]],
+					'mcp-agent'
+				),
+			},
 		],
 	},
 	{
@@ -242,8 +250,9 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		id: 'artificial-intelligence',
 		label: 'AI & Identity',
 		items: items([
-			['/ai-assistant', 'OAuth Assistant', true],
+			['/ai-assistant', 'MasterFlow Agent', true],
 			['/mcp-server', 'MCP Server Config', true],
+			['/documentation/mcp', 'MCP Documentation', true],
 			['/ai-agent-overview', 'AI Agent Overview', true],
 			['/ai-glossary', 'AI Glossary', true],
 			['/docs/prompts/prompt-all', '🚀 Complete Prompts Guide', true],
