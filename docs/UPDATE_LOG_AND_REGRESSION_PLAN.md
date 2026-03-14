@@ -31,6 +31,83 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Unified MFA Test Plan + test:unified-mfa script (2026-03-13)
+
+- **What:** Documented automated test plan for Unified MFA (like UNIFIED_OAUTH_TEST_PLAN) and added a single-command script to run MFA-focused tests.
+- **Fix:** (1) Created `docs/UNIFIED_MFA_TEST_PLAN.md` — overview, test categories (build, service/hook/utils, component, backend, E2E), MFA test file table, key routes, run commands, regression checklist, future additions. (2) Added `test:unified-mfa` script in package.json (Vitest run on 8 MFA test files). (3) Updated `docs/plans.md` — Plan Index row for Unified MFA Test Plan; Quick Links testing. (4) Note in plan: some MFA tests (useMFAPolicies, unifiedMFASuccessPageServiceV8, one mfaCredentialManagerV8 assertion) have pre-existing failures/Jest compatibility; fix or migrate as needed.
+- **Files:** `docs/UNIFIED_MFA_TEST_PLAN.md`, `package.json`, `docs/plans.md`
+- **Regression check:** `pnpm run test:unified-mfa` runs MFA tests; see plan for full regression checklist and UNIFIED_MFA_INVENTORY prevention commands.
+
+### Unified OAuth integration tests: async auth URL, compliance API (2026-03-13)
+
+- **What:** `pnpm run test:unified-oauth` had 5 failing tests in unifiedFlowIntegrationV8U.integration.test.ts.
+- **Fix:** (1) generateAuthorizationUrl is async and returns `{ authorizationUrl, state, ... }` — tests now await it and assert on `result.authorizationUrl`. (2) PKCE test passes `pkceCodes` as 4th argument (not inside credentials). (3) getComplianceErrors(specVersion, flowType) takes only 2 args and does not validate credentials; compliance tests updated to match API: OAuth 2.1+implicit returns errors; OIDC oauth-authz asserts array shape. (4) Fixed UNIFIED_OAUTH_TEST_PLAN.md line 1 typo.
+- **Files:** `src/v8u/services/__tests__/unifiedFlowIntegrationV8U.integration.test.ts`, `docs/UNIFIED_OAUTH_TEST_PLAN.md`
+- **Regression check:** `pnpm run test:unified-oauth` — all 27 tests pass.
+
+### Mock MCP Agent Flow: unit and component tests (2026-03-13)
+
+- **What:** Added tests for the Mock MCP Agent Flow so the flow is covered by automated tests.
+- **Fix:** (1) `src/services/__tests__/mockMcpAgentService.test.ts` — unit tests for `listTools()` and `callTool()` (mock_get_token, mock_token_exchange, mock_list_users, unknown tool, error cases). (2) `src/pages/flows/__tests__/MockMcpAgentFlowPage.test.tsx` — component tests: render (steps, Secure AI section, buttons, MCP doc link), Step 1 result, Step 2/3 disabled until Step 1, full flow 1→2→3, Reset clears result, `window.scrollTo` mocked for jsdom.
+- **Files:** `src/services/__tests__/mockMcpAgentService.test.ts`, `src/pages/flows/__tests__/MockMcpAgentFlowPage.test.tsx`
+- **Regression check:** `pnpm exec vitest run src/services/__tests__/mockMcpAgentService.test.ts src/pages/flows/__tests__/MockMcpAgentFlowPage.test.tsx` — all 17 tests pass.
+
+### Astro Migration plan: icons unblocked (2026-03-13)
+
+- **What:** Clarified that the Astro Migration is blocked only for the **full component library** (`@pingux/astro`); **icons are not blocked**. The app already uses Ping Icons from `https://assets.pingone.com/ux/astro-nano/0.1.0-alpha.11/icons.css` and the `PingIcon` component.
+- **Fix:** Updated `docs/ASTRO_MIGRATION_PLAN.md` with an "Icons (unblocked)" section (CDN + optional local copy in `src/styles/vendor/`), rewrote Phase 3 to reflect current state, and updated the summary table. Updated `docs/plans.md` so the Astro row says "Blocked (components only)" and notes that icons use the CDN (optional local file).
+- **Files:** `docs/ASTRO_MIGRATION_PLAN.md`, `docs/plans.md`
+- **Regression check:** None (doc-only). Icons continue to load from CDN; optional local copy is a future step if desired.
+
+### Userinfo via MCP server (2026-03-13)
+
+- **What:** Userinfo should go through the MCP server (pingone-mcp-server) so a single implementation is used.
+- **Fix:** (1) pingone-mcp-server: Fixed getUserInfo to call OIDC userinfo at auth.pingone.com (auth host) not api.pingone.com; added getAuthHost(region) and optional region param. (2) server.js: Added userInfoViaMcpServer() which lazy-loads pingone-mcp-server/dist/services/pingoneAuthClient.js and calls getUserInfo when available, else falls back to mcpCallUserInfo. (3) All userinfo call sites (userinfo intent with userAccessToken, userinfo-via-login endpoint) now use userInfoViaMcpServer so the actual GET userinfo runs through the MCP server when built.
+- **Files:** `pingone-mcp-server/src/services/pingoneAuthClient.ts`, `pingone-mcp-server/src/actions/phase7.ts`, `server.js`
+- **Regression check:** Build pingone-mcp-server (`cd pingone-mcp-server && npm run build`). Then AI Assistant Get userinfo (with login or with userAccessToken) returns claims; if dist is missing, fallback to local mcpCallUserInfo still works.
+
+### Get userinfo: login panel (pi.flow) and userinfo-via-login endpoint (2026-03-13)
+
+- **What:** When the user asks "Get userinfo" in the AI Assistant, show a side-panel login (username/password). On Submit, run Authorization Code flow with response_mode=pi.flow; we use the **user access token** returned from the auth call to call the OIDC UserInfo (end-user info) endpoint and return the result to the agent/chat.
+- **Fix:** (1) Backend: added POST /api/mcp/userinfo-via-login — accepts environmentId, clientId, clientSecret, username, password, region; runs redirectless authorize → check-username-password → resume → token exchange → then calls userinfo with the **user access token** (not worker token); returns { success, data, answer }. (2) AI Assistant: added isUserInfoQuery and callUserInfoViaLogin in mcpQueryService. (3) When user sends "Get userinfo" with Live ON, show assistant message and open UserInfo Login panel (side window) with username/password form. (4) On Submit, call userinfo-via-login; on success add assistant message with mcpResult (userinfo data) and close panel.
+- **Files:** `server.js`, `AIAssistant/src/services/mcpQueryService.ts`, `AIAssistant/src/components/AIAssistant.tsx`
+- **Regression check:** AI Assistant → Live ON → "Get userinfo" → side panel shows login form; enter PingOne username/password → Submit → userinfo result appears in chat; panel closes.
+
+### Get userinfo: use OIDC UserInfo endpoint, not Management API (2026-03-13)
+
+- **What:** "Get userinfo" in AI Assistant was calling the backend with the worker token; the OIDC UserInfo endpoint (https://auth.pingone.com/{envId}/as/userinfo) requires a **user's** OAuth access token from a login (e.g. Authorization Code flow), not the worker token.
+- **Fix:** (1) Handle userinfo intent before the worker-token gate. (2) If request includes `userAccessToken`, call `mcpCallUserInfo` with it and return claims. (3) If no `userAccessToken`, return a clear message that Get userinfo calls the OIDC UserInfo endpoint and requires a user token, with link to [UserInfo Endpoint](https://docs.pingidentity.com/developer-resources/openid_connect_developer_guide/userinfo-endpoint.html). (4) Removed userinfo from the worker-token dispatch block. (5) Frontend: added `userAccessToken` to `McpQueryOptions` and request body so the app can pass a user token when available.
+- **Files:** `server.js`, `AIAssistant/src/services/mcpQueryService.ts`
+- **Regression check:** AI Assistant → "Get userinfo" (no user token) → response explains OIDC UserInfo endpoint and that a user access token is required; with `userAccessToken` in request, backend calls https://auth.pingone.com/{envId}/as/userinfo and returns claims.
+
+### Get user by username: support "Get userinfo use X for username" and username lookup (2026-03-15)
+
+- **What:** Prompt "Get userinfo use curtis for username" failed with "Please include an email address or user ID". User wanted lookup by username (e.g. curtis), not only email or UUID.
+- **Fix:** (1) Backend: added `_extractUsernameForLookup(query)` to parse "use X for username", "username X", "username: X", and "get/find user X" (when X is not email/UUID). (2) get_user branch now uses username when present and calls `GET /users?filter=username eq "value"`. (3) get_user intent patterns extended to match "get userinfo use X for username". (4) Frontend mcpQueryService: same pattern so "Get userinfo use curtis for username" is classified as pingone_get_user. Error message updated to mention username and example "Get userinfo use curtis for username".
+- **Files:** `server.js`, `AIAssistant/src/services/mcpQueryService.ts`
+- **Regression check:** AI Assistant (Live ON) → "Get userinfo use curtis for username" (or "Find user curtis") → returns PingOne user when username exists; error message suggests username when none provided.
+
+### AI Assistant: ask for placeholder values when prompt needs more info (2026-03-15)
+
+- **What:** User picks a prompt that requires more info (e.g. app ID); assistant should ask for it and then put the updated command in the prompt box.
+- **Fix:** When user clicks a prompt with placeholders (e.g. `<app-uuid>`), open a modal "This command needs more info" with one field per placeholder (friendly labels: Application ID, User ID, Group ID, Subscription ID). Buttons: Cancel, "Fill in prompt", "Fill & send". On submit, replace placeholders in the template and set the result in the input; "Fill & send" also sends the command.
+- **Files:** `AIAssistant/src/components/AIAssistant.tsx`
+- **Regression check:** Open AI Assistant → Prompt Reference → click "Get app secret for &lt;app-uuid&gt;" → modal opens with "Application ID" field → enter an ID → "Fill in prompt" → prompt box shows "Get app secret for &lt;id&gt;". Same flow with "Fill & send" runs the command.
+
+### PingOne create application: responseTypes must include CODE when grantTypes has AUTHORIZATION_CODE (2026-03-15)
+
+- **What:** MCP create application failed with validation: "responseTypes grantTypes contain AUTHORIZATION_CODE, so responseTypes must contain CODE".
+- **Fix:** In `createApplication`, normalize the payload before POST: when `grantTypes` includes `AUTHORIZATION_CODE`, ensure `responseTypes` includes `CODE` (add it if missing).
+- **Files:** `pingone-mcp-server/src/services/pingoneManagementClient.ts`
+- **Regression check:** AI Assistant or MCP → "Create application named MyApp" (or any create with AUTHORIZATION_CODE grant) → request succeeds; new app has CODE in responseTypes when grantTypes includes AUTHORIZATION_CODE.
+
+### AI Assistant: write markdown to disk (2026-03-15)
+
+- **What:** User requested ability to write AI Assistant results to disk as .md files (natural language, checkboxes).
+- **Fix:** (1) Backend: `POST /api/file-storage/save-markdown` — saves raw content to `~/.pingone-playground/ai-assistant-output/`. (2) AIAssistant: `saveMarkdownService` + "Save .md" button on assistant messages; prompts for filename, preserves `- [ ]` / `- [x]` checkboxes.
+- **Files:** `server.js`, `AIAssistant/src/services/saveMarkdownService.ts`, `AIAssistant/src/components/AIAssistant.tsx`
+- **Regression check:** AI Assistant → get a response → hover → "Save .md" → enter filename → file appears in `~/.pingone-playground/ai-assistant-output/`.
+
 ### Mock MCP Agent Flow: page, route, sidebar (2026-03-15)
 
 - **What:** Implement Mock MCP Agent Flow per MCP_TOKEN_EXCHANGE_AND_MOCK_FLOW_PLAN.md Phase 3 — educational flow simulating Agent → MCP → Token Exchange.
