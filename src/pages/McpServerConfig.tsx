@@ -1321,18 +1321,22 @@ const McpServerConfig: React.FC = () => {
 					<Card>
 						<CardTitle>MCP Inspector (test in browser)</CardTitle>
 						<p style={{ fontSize: 13, color: '#64748b', marginBottom: 12 }}>
-							Run the MCP client inspector to test your server interactively:
+							From project root, run the inspector. Uses <code>mcp-inspector-config.json</code> (tsx, no build;
+							logs to <code>logs/mcp-server.log</code>).
 						</p>
-						<div style={{ position: 'relative' }}>
-							<CodeBlock>{`npx @modelcontextprotocol/inspector node ${mcpServerPath}/dist/index.js`}</CodeBlock>
-							<CopyBtn
-								onClick={() =>
-									copy(`npx @modelcontextprotocol/inspector node ${mcpServerPath}/dist/index.js`)
-								}
-							>
-								Copy
-							</CopyBtn>
+						<div style={{ position: 'relative', marginBottom: 12 }}>
+							<CodeBlock>npm run mcp:inspector</CodeBlock>
+							<CopyBtn onClick={() => copy('npm run mcp:inspector')}>Copy</CopyBtn>
 						</div>
+						<p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>
+							Or with config explicitly:{' '}
+							<code style={{ fontSize: 11 }}>
+								npx @modelcontextprotocol/inspector --config mcp-inspector-config.json --server pingone
+							</code>
+						</p>
+						<p style={{ fontSize: 12, color: '#94a3b8' }}>
+							With built server: Use a config with <code>command: &quot;node&quot;</code>, <code>args: [&quot;pingone-mcp-server/dist/index.js&quot;]</code>, <code>{`env: { MCP_LOG_DIR: "logs" }`}</code>.
+						</p>
 					</Card>
 
 					<Card>
@@ -1341,15 +1345,18 @@ const McpServerConfig: React.FC = () => {
 							Add to your editor's MCP settings (e.g.{' '}
 							<code style={{ fontSize: 12 }}>.vscode/mcp.json</code> or editor settings):
 						</p>
+						<p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>
+							Uses <code>mcpServers</code> (Cursor/Claude). Credentials from <code>~/.pingone-playground/credentials/mcp-config.json</code>. Add <code>MCP_LOG_DIR: "logs"</code> for project logs.
+						</p>
 						<div style={{ position: 'relative' }}>
 							<CodeBlock>
 								{JSON.stringify(
 									{
-										servers: {
-											'pingone-mcp-server': {
-												type: 'stdio',
-												command: 'node',
-												args: [`${mcpServerPath}/dist/index.js`],
+										mcpServers: {
+											pingone: {
+												command: 'npx',
+												args: ['tsx', 'pingone-mcp-server/src/index.ts'],
+												env: { MCP_LOG_DIR: 'logs' },
 											},
 										},
 									},
@@ -1362,11 +1369,11 @@ const McpServerConfig: React.FC = () => {
 									copy(
 										JSON.stringify(
 											{
-												servers: {
-													'pingone-mcp-server': {
-														type: 'stdio',
-														command: 'node',
-														args: [`${mcpServerPath}/dist/index.js`],
+												mcpServers: {
+													pingone: {
+														command: 'npx',
+														args: ['tsx', 'pingone-mcp-server/src/index.ts'],
+														env: { MCP_LOG_DIR: 'logs' },
 													},
 												},
 											},
