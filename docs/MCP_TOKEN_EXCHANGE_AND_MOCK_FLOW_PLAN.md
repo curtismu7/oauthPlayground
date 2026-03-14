@@ -164,6 +164,28 @@ Educational flow demonstrating:
 | `docs/MOCK_MCP_AGENT_FLOW.md` | User-facing doc explaining the flow |
 | Route + sidebar | Add to App.tsx and sidebar config |
 
+### 4.7 User education: Secure AI Agent Authentication (required)
+
+The Mock MCP Agent Flow page **must** include a prominent section (e.g. collapsible sidebar, info panel, or intro card) that teaches users about proper token storage, exchange, and secure AI agent authentication. Include:
+
+**Token storage**
+- **Never** store tokens in plain text in client code, logs, or URLs.
+- **Worker tokens**: Use short-lived tokens; store client credentials in secure storage only (e.g. `mcp-config.json` in a protected path, or env vars). Obtain the worker token on demand when possible; avoid long-lived storage in localStorage for sensitive deployments.
+- **User tokens**: After Authorization Code or Token Exchange, store in `sessionStorage` (cleared on tab close) for session-scoped use; avoid `localStorage` for long-lived access tokens when possible. Clear tokens on logout.
+- **Most secure**: Backend-only token storage; client receives only authenticated status or short-lived session tokens.
+
+**Token Exchange (RFC 8693)**
+- Exchange a **subject token** (e.g. from Auth Code) for a new token with different scope or audience.
+- Do **not** pass raw tokens in URLs, query params, or logs.
+- Use Token Exchange when the Agent needs broader scope (e.g. Management API) than the initial user token provides.
+
+**MCP spec: User consent**
+- Hosts **must** obtain explicit user consent before invoking tools (MCP spec Security and Trust).
+- The Agent should not call tools without the user initiating the query or approving the action.
+- Display what the tool will do before execution when possible.
+
+**Implementation requirement**: The Mock flow UI shall display this guidance (or a link to `docs/MOCK_MCP_AGENT_FLOW.md`) so users understand how to build secure AI agent authentication in their own apps.
+
 ---
 
 ## 5. Documentation Updates
@@ -194,5 +216,5 @@ Educational flow demonstrating:
 
 1. **Phase 1 (immediate):** MCP doc update — ✅ Done.
 2. **Phase 2:** Implement Token Exchange command in AI Assistant (TokenExchangePanel, mcpQueryService changes).
-3. **Phase 3:** Implement Mock MCP Agent Flow page (MockMcpAgentFlowPage, mockMcpAgentService).
+3. **Phase 3:** Implement Mock MCP Agent Flow page (MockMcpAgentFlowPage, mockMcpAgentService). — ✅ Done.
 4. **Phase 4:** Update SESSION_AND_TOKEN_VERIFICATION, regression plan, and run full regression.
