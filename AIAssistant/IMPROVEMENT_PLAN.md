@@ -6,6 +6,25 @@
 
 ---
 
+## Status (2026-03)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Streaming Groq responses | ✅ Done | `groqService.ts` + `/api/groq/chat/stream`; tokens stream into message. |
+| Conversation persistence | ✅ Done | `localStorage` key `ai-assistant-messages`; load on mount, save on update. |
+| New chat | ✅ Done | Header 🗑️ button; clears `messages` and `groqHistoryRef`. |
+| Persist toggle state | ✅ Done | `ai-assistant-toggles` in localStorage; all context toggles. |
+| Message copy | ✅ Done | Per-message Copy button (clipboard). |
+| Export conversation as Markdown | ✅ Done | Header 📤 button; downloads full conversation as .md. |
+| Save .md (write-to-disk) | ✅ Done | Per-message "Save .md" via `saveMarkdownService` + backend API. |
+| Popout window | ⬜ Not done | Section 3 plan ready; no `openAIAssistantPopout` or `/popout` route yet. |
+| Retry button on error messages | ⬜ Not done | No retry control on failed Groq/MCP messages. |
+| Multi-line textarea input | ⬜ Not done | Still single-line input. |
+| Dynamic knowledge base | ⬜ Not done | Still static in `aiAgentService.ts`. |
+| Topic-aware context / other Phase 3 | ⬜ Not done | Future. |
+
+---
+
 ## 1. What's Already Good
 
 Before digging into improvements, the current architecture has several strong qualities worth preserving:
@@ -438,14 +457,14 @@ export default defineConfig({
 ## 5. Recommended Phased Rollout
 
 ### Phase 1 — This sprint (Quick wins, ~4 hours total)
+- [x] ~~Persist toggle state (2.10)~~ ✅
+- [x] ~~Conversation persistence to localStorage (2.3)~~ ✅
 - [ ] Popout window (Section 3)
-- [ ] Persist toggle state (2.10)
-- [ ] Conversation persistence to localStorage (2.3)
 - [ ] Retry button on error messages (2.7)
 
 ### Phase 2 — Next sprint (Richer UX, ~6 hours total)
-- [ ] Message copy + export conversation (2.4)
-- [ ] Streaming Groq responses (2.2)
+- [x] ~~Message copy + export conversation (2.4)~~ ✅
+- [x] ~~Streaming Groq responses (2.2)~~ ✅
 - [ ] Multi-line textarea input (2.8)
 
 ### Phase 3 — Future (Architecture, ~8 hours total)
