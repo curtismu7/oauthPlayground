@@ -19,6 +19,8 @@ import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all bu
 import { lazy, Suspense } from 'react';
 import AIAssistant from './components/AIAssistant';
 import AIAssistantPage from './pages/AIAssistantPage';
+import { AIAssistantPopoutPage } from './pages/AIAssistantPopoutPage';
+import { AI_ASSISTANT_NAVIGATE, isAIAssistantPopout } from './utils/aiAssistantPopoutHelper';
 import { CleanlinessDashboardWorking } from './components/CleanlinessDashboardWorking';
 import { CleanupHistoryDashboard } from './components/CleanupHistoryDashboard';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
@@ -135,6 +137,7 @@ import MigrateVscode from './pages/docs/migration/MigrateVscode';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices.tsx';
 import OAuthForAI from './pages/docs/OAuthForAI.tsx';
 import OIDCForAI from './pages/docs/OIDCForAI.tsx';
+import MCPDocumentation from './pages/docs/MCPDocumentation';
 import OIDCOverview from './pages/docs/OIDCOverviewV7.tsx';
 // Removed unused OIDC overview imports
 // import OIDCOverviewSimple from './pages/docs/OIDCOverview_Simple';
@@ -290,6 +293,7 @@ const V7MROPCV9 = lazy(() => import('./pages/flows/v9/V7MROPCV9'));
 const V7MSettingsV9 = lazy(() => import('./v7/pages/V7MSettingsV9'));
 const V7MOIDCHybridFlowV9 = lazy(() => import('./pages/flows/v9/V7MOIDCHybridFlowV9'));
 const V7MCIBAFlowV9 = lazy(() => import('./pages/flows/v9/V7MCIBAFlowV9'));
+const MockMcpAgentFlowPage = lazy(() => import('./pages/flows/MockMcpAgentFlowPage'));
 
 const AppContainer = styled.div`
 	display: flex;
@@ -429,6 +433,7 @@ const AppRoutes: React.FC = () => {
 	const isDebugPopout =
 		pathname === '/v8/debug-logs-popout' || pathname === '/v9/debug-logs-popout';
 	const isWebhookPopout = pathname === '/pingone-webhook-viewer-popout';
+	const isAIAssistantPopoutRoute = isAIAssistantPopout();
 	const [sidebarOpen, setSidebarOpen] = useState(true);
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
 		try {
@@ -641,6 +646,12 @@ const AppRoutes: React.FC = () => {
 				<Routes>
 					<Route path="/pingone-webhook-viewer-popout" element={<PingOneWebhookViewer />} />
 					<Route path="*" element={<Navigate to="/pingone-webhook-viewer-popout" replace />} />
+				</Routes>
+			) : isAIAssistantPopoutRoute ? (
+				// AI Assistant popout - moveable outside host, communicates via postMessage
+				<Routes>
+					<Route path="/ai-assistant-popout" element={<AIAssistantPopoutPage />} />
+					<Route path="*" element={<Navigate to="/ai-assistant-popout" replace />} />
 				</Routes>
 			) : (
 				// Main app - render with full layout
@@ -1387,6 +1398,8 @@ const AppRoutes: React.FC = () => {
 								<Route path="/flows/par-v9" element={<PARFlowV9 />} />
 								{/* DPoP Flow (Educational/Mock) */}
 								<Route path="/flows/dpop" element={<DPoPFlow />} />
+								{/* Mock MCP Agent Flow (educational) */}
+								<Route path="/flows/mock-mcp-agent-flow" element={<MockMcpAgentFlowPage />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 								<Route path="/flows/rar-v6" element={<Navigate to="/flows/rar-v9" replace />} />
 								<Route
@@ -1484,6 +1497,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								<Route path="/device-mock-flow" element={<DeviceMockFlow />} />
+								<Route path="/documentation/mcp" element={<MCPDocumentation />} />
 								<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
 								<Route
 									path="/ai-glossary"
@@ -1743,7 +1757,23 @@ function AppContent() {
 	const { settings } = useUISettings();
 	const theme = useMemo(() => buildTheme(settings), [settings]);
 	const location = useLocation();
+	const navigate = useNavigate();
 	const isStandaloneLogViewerRoute = location.pathname === '/standalone/log-viewer';
+	const isAIAssistantPageRoute = location.pathname === '/ai-assistant';
+
+	// Listen for AI Assistant popout → host navigation (when user clicks links in popout)
+	useEffect(() => {
+		if (isAIAssistantPopout()) return;
+		const handler = (e: MessageEvent) => {
+			if (e.origin !== window.location.origin) return;
+			if (e.data?.type === AI_ASSISTANT_NAVIGATE && typeof e.data?.path === 'string') {
+				navigate(e.data.path);
+				window.focus();
+			}
+		};
+		window.addEventListener('message', handler);
+		return () => window.removeEventListener('message', handler);
+	}, [navigate]);
 
 	// Initialize external error handling
 	useExternalErrorHandling();
@@ -1866,6 +1896,13 @@ function AppContent() {
 		};
 	}, []);
 
+	// Open log viewer when AI Assistant (or any component) requests it — for viewing MCP calls
+	useEffect(() => {
+		const handleOpenLogViewer = () => setIsFloatingDebugLogViewerOpen(true);
+		window.addEventListener('open-log-viewer', handleOpenLogViewer);
+		return () => window.removeEventListener('open-log-viewer', handleOpenLogViewer);
+	}, []);
+
 	if (isStandaloneLogViewerRoute) {
 		return (
 			<ThemeProvider theme={theme}>
@@ -1936,7 +1973,7 @@ function AppContent() {
 				{/* Global Backend Connectivity Modal */}
 				<BackendDownModalV8 />
 
-				{/* Debug Log Viewer Button */}
+				{/* Debug Log Viewer Button — visible on all pages (including AI Assistant) to view MCP calls */}
 				{!isStandaloneLogViewerRoute && (
 					<button
 						type="button"
@@ -1972,8 +2009,8 @@ function AppContent() {
 					onClose={() => setIsFloatingDebugLogViewerOpen(false)}
 				/>
 
-				{/* OAuth Assistant - floating chat on all pages */}
-				<AIAssistant />
+				{/* MasterFlow Agent - floating chat on all pages; not on /ai-assistant (page has its own) */}
+				{!isAIAssistantPageRoute && <AIAssistant />}
 			</ExternalScriptErrorBoundary>
 		</ThemeProvider>
 	);
