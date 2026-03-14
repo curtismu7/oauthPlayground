@@ -12,6 +12,7 @@ import {
 	callMcpWebSearch,
 	isMcpQuery,
 	isHelpQuery,
+	isListToolsQuery,
 	isWorkerTokenQuery,
 	isWebSearchQuery,
 	type McpQueryResult,
@@ -265,7 +266,18 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 	/** Rolling window of the last 10 conversational turns for Groq context */
 	const groqHistoryRef = useRef<GroqMessage[]>([]);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
+	const messagesContainerRef = useRef<HTMLDivElement>(null);
 	const navigate = useNavigate();
+
+	// ── Scroll agent results to bottom when new content arrives ──────────────
+	const scrollMessagesToBottom = useCallback(() => {
+		const el = messagesContainerRef.current;
+		if (el) {
+			el.scrollTop = el.scrollHeight;
+		} else {
+			messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+	}, []);
 
 	// ── Persist messages to localStorage whenever they change ────────────────
 	useEffect(() => {
@@ -298,12 +310,11 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 	}, [includeApiDocs, includeSpecs, includeWorkflows, includeUserGuide, includeWeb, includeLive]);
 
 	useEffect(() => {
-		if (messages.length === 0) {
-			return;
-		}
-
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	}, [messages]);
+		if (messages.length === 0) return;
+		scrollMessagesToBottom();
+		const t = setTimeout(scrollMessagesToBottom, 150);
+		return () => clearTimeout(t);
+	}, [messages, isTyping, scrollMessagesToBottom]);
 
 	// Handle escape key to close AI assistant
 	useEffect(() => {
@@ -438,10 +449,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 		URL.revokeObjectURL(url);
 	}, [messages]);
 
-	const handleSend = async () => {
-		if (!input.trim()) return;
-
-		const query = input;
+	/** Send a message. Pass overrideQuery when triggered by prompt chip/quick question to avoid stale closure. */
+	const handleSend = async (overrideQuery?: string) => {
+		const query = (overrideQuery ?? input).trim();
+		if (!query) return;
 		const userMessage: Message = {
 			id: Date.now().toString(),
 			type: 'user',
@@ -457,7 +468,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 		// Any PingOne-actionable query (isMcpQuery) with Live ON → MCP for real data.
 		// Any PingOne-actionable query with Live OFF → show a helpful "turn on Live" nudge
 		// rather than letting Groq fake the response with invented data.
-		if (isMcpQuery(query) && !includeLive && !isWorkerTokenQuery(query) && !isHelpQuery(query)) {
+		if (isMcpQuery(query) && !includeLive && !isWorkerTokenQuery(query) && !isHelpQuery(query) && !isListToolsQuery(query)) {
 			setMessages((prev) => [
 				...prev,
 				{
@@ -472,7 +483,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 			return;
 		}
 
-		if (isWorkerTokenQuery(query) || isHelpQuery(query) || (includeLive && isMcpQuery(query))) {
+		if (isWorkerTokenQuery(query) || isHelpQuery(query) || isListToolsQuery(query) || (includeLive && isMcpQuery(query))) {
 			try {
 				// Pull stored credentials from our storage service (IndexedDB + SQLite)
 				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
@@ -626,7 +637,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 	const promptCategories = [
 		{
 			label: '🔑 Auth',
-			prompts: ['Get worker token'],
+			prompts: ['Get worker token', 'List MCP tools'],
 		},
 		{
 			label: '📱 Applications',
@@ -692,6 +703,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 	];
 
 	const quickQuestions = [
+		'List MCP tools',
 		'Get worker token',
 		'Show all apps',
 		'List all users',
@@ -750,6 +762,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 														onClick={() => {
 															setInput(p);
 															setShowPromptsGuide(false);
+															handleSend(p);
 														}}
 													>
 														{p}
@@ -786,7 +799,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 							<HeaderContent>
 								<AssistantIcon>🤖</AssistantIcon>
 								<HeaderText>
-									<HeaderTitle>OAuth Assistant</HeaderTitle>
+									<HeaderTitle>MasterFlow Agent</HeaderTitle>
 									<StatusRow>
 										<StatusDot
 											$state={groqAvailable === null ? 'checking' : groqAvailable ? 'ok' : 'off'}
@@ -880,6 +893,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 									<ToggleLabel>
 										<ToggleCheckbox
 											type="checkbox"
+											title="Include PingOne API reference docs in context"
 											checked={includeApiDocs}
 											onChange={(e) => setIncludeApiDocs(e.target.checked)}
 											aria-label="Include PingOne API docs"
@@ -891,6 +905,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 									<ToggleLabel>
 										<ToggleCheckbox
 											type="checkbox"
+											title="Include OAuth 2.0 and OIDC specifications in context"
 											checked={includeSpecs}
 											onChange={(e) => setIncludeSpecs(e.target.checked)}
 											aria-label="Include OAuth/OIDC specifications"
@@ -902,6 +917,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 									<ToggleLabel>
 										<ToggleCheckbox
 											type="checkbox"
+											title="Include PingOne workflow guides in context"
 											checked={includeWorkflows}
 											onChange={(e) => setIncludeWorkflows(e.target.checked)}
 											aria-label="Include PingOne workflows"
@@ -913,6 +929,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 									<ToggleLabel>
 										<ToggleCheckbox
 											type="checkbox"
+											title="Include the OAuth Playground user guide in context"
 											checked={includeUserGuide}
 											onChange={(e) => setIncludeUserGuide(e.target.checked)}
 											aria-label="Include User Guide"
@@ -924,6 +941,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 									<ToggleLabel>
 										<ToggleCheckbox
 											type="checkbox"
+											title="Include live web results via Brave Search. Requires BRAVE_API_KEY on the server."
 											checked={includeWeb}
 											onChange={(e) => setIncludeWeb(e.target.checked)}
 											aria-label="Include web search results (Brave Search; needs BRAVE_API_KEY on server)"
@@ -936,6 +954,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 									<ToggleLabel>
 										<ToggleCheckbox
 											type="checkbox"
+											title="Call PingOne live via MCP tools. Requires credentials on server."
 											checked={includeLive}
 											onChange={(e) => setIncludeLive(e.target.checked)}
 											aria-label="Call PingOne live via MCP tools (requires credentials on server)"
@@ -1010,7 +1029,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 
 						{!isCollapsed && (
 							<>
-								<MessagesContainer>
+								<MessagesContainer ref={messagesContainerRef}>
 									{messages.map((message) => (
 										<MessageWrapper key={message.id} $isUser={message.type === 'user'}>
 											<MessageBubble $isUser={message.type === 'user'}>
@@ -1050,12 +1069,19 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 												)}
 												{/* MCP Live result card */}
 												{message.mcpResult && (
-													<McpResultCard>
+													<McpResultCard $isSuccess={!!message.mcpResult.success}>
 														<McpResultHeader>
 															<McpBadge>🔌 MCP</McpBadge>
 															<McpToolName>
 																{message.mcpResult.mcpTool ?? 'PingOne MCP'}
 															</McpToolName>
+															{!!message.mcpResult.success && (
+																<McpSuccessBadge>
+																	{message.mcpResult.mcpTool === 'pingone_get_worker_token'
+																		? '✓ Token ready'
+																		: '✓ Success'}
+																</McpSuccessBadge>
+															)}
 														</McpResultHeader>
 														{message.mcpResult.apiCall && (
 															<McpApiRow>
@@ -1073,11 +1099,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 															</McpCredentialHint>
 														)}
 														{message.mcpResult.data != null &&
-															Array.isArray(message.mcpResult.data) &&
-															(message.mcpResult.data as unknown[]).length > 0 && (
+															((Array.isArray(message.mcpResult.data) &&
+																(message.mcpResult.data as unknown[]).length > 0) ||
+																(typeof message.mcpResult.data === 'object' &&
+																	Object.keys(message.mcpResult.data as object).length > 0)) && (
 																<McpDataSection>
 																	<McpDataLabel>
-																		Data ({(message.mcpResult.data as unknown[]).length} items)
+																		{Array.isArray(message.mcpResult.data)
+																			? `Data (${(message.mcpResult.data as unknown[]).length} items)`
+																			: 'Data'}
 																		<McpJsonToggle
 																			onClick={() =>
 																				setMessages((prev) =>
@@ -1098,7 +1128,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 																			{message.mcpResult.rawJson ? '📋 Formatted' : '{ } JSON'}
 																		</McpJsonToggle>
 																	</McpDataLabel>
-																	{message.mcpResult.rawJson ? (
+																	{message.mcpResult.rawJson || !Array.isArray(message.mcpResult.data) ? (
 																		<McpDataPre>
 																			{JSON.stringify(message.mcpResult.data, null, 2)}
 																		</McpDataPre>
@@ -1192,7 +1222,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 													key={idx}
 													onClick={() => {
 														setInput(question);
-														setTimeout(() => handleSend(), 100);
+														handleSend(question);
 													}}
 												>
 													{question}
@@ -1218,7 +1248,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 										value={input}
 										onChange={(e) => setInput(e.target.value)}
 										onKeyPress={handleKeyPress}
-										placeholder="Ask about OAuth flows, features, or configuration..."
+										placeholder="Get worker token"
 										aria-label="Message input"
 									/>
 									<SendButton
@@ -1398,14 +1428,14 @@ const ChatWindow = styled.div<{ $expanded?: boolean; $collapsed?: boolean; $full
 `;
 
 const ChatHeader = styled.div`
-	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+	background: #dc2626;
 	color: white;
-	padding: 10px 14px;
+	padding: 6px 10px;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	gap: 8px;
-	flex-wrap: nowrap;
+	gap: 6px;
+	flex-wrap: wrap;
 	min-height: 0;
 `;
 
@@ -1417,41 +1447,41 @@ const HeaderContent = styled.div`
 `;
 
 const AssistantIcon = styled.div`
-	font-size: 24px;
+	font-size: 18px;
 	flex-shrink: 0;
 `;
 
 const HeaderText = styled.div`
 	display: flex;
 	flex-direction: column;
+	gap: 2px;
 `;
 
 const HeaderTitle = styled.div`
 	font-weight: 600;
-	font-size: 14px;
+	font-size: 13px;
 	white-space: nowrap;
 `;
 
 const HeaderSubtitle = styled.div`
-	font-size: 12px;
+	font-size: 11px;
 	opacity: 0.9;
 `;
 
 const StatusRow = styled.div`
 	display: flex;
 	align-items: center;
-	gap: 6px;
-	margin-top: 4px;
+	gap: 4px;
 `;
 
 const StatusDot = styled.span<{ $state: 'ok' | 'off' | 'checking' }>`
 	display: inline-flex;
 	align-items: center;
-	gap: 3px;
-	font-size: 10px;
+	gap: 2px;
+	font-size: 9px;
 	font-weight: 600;
-	padding: 2px 7px;
-	border-radius: 20px;
+	padding: 1px 5px;
+	border-radius: 12px;
 	letter-spacing: 0.03em;
 	white-space: nowrap;
 	transition: opacity 0.3s;
@@ -2086,16 +2116,24 @@ const PromptsToggleButton = styled.button<{ $active: boolean }>`
 
 // ─── MCP Live result card ────────────────────────────────────────────────────
 
-const McpResultCard = styled.div`
+const McpResultCard = styled.div<{ $isSuccess?: boolean }>`
 	margin-top: 12px;
 	padding: 10px 12px;
-	background: rgba(102, 126, 234, 0.07);
-	border: 1px solid rgba(102, 126, 234, 0.25);
+	background: ${({ $isSuccess }) =>
+		$isSuccess ? 'rgba(34, 197, 94, 0.12)' : 'rgba(102, 126, 234, 0.07)'};
+	border: 1px solid
+		${({ $isSuccess }) =>
+			$isSuccess ? 'rgba(34, 197, 94, 0.5)' : 'rgba(102, 126, 234, 0.25)'};
 	border-radius: 10px;
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
 	font-size: 12px;
+	${({ $isSuccess }) =>
+		$isSuccess &&
+		`
+		box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
+	`}
 `;
 
 const McpResultHeader = styled.div`
@@ -2113,6 +2151,19 @@ const McpBadge = styled.span`
 	border-radius: 20px;
 	letter-spacing: 0.05em;
 	white-space: nowrap;
+`;
+
+const McpSuccessBadge = styled.span`
+	background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+	color: white;
+	font-size: 10px;
+	font-weight: 700;
+	padding: 2px 8px;
+	border-radius: 20px;
+	letter-spacing: 0.05em;
+	white-space: nowrap;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+	margin-left: auto;
 `;
 
 const McpToolName = styled.code`

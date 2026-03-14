@@ -46,6 +46,16 @@ export interface McpQueryResult {
 const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 	// worker token (must be first — broad pattern)
 	{ pattern: /worker.?token|client.?credentials|access.?token|get.?token|issue.?token/i, tool: 'pingone_get_worker_token' },
+	// list tools — high priority; matches "List MCP tools", "list tools", "mcp tools"
+	{
+		pattern: /\blist\s+mcp\s+tools\b|\b(?:list|show|what|which)\s+(?:all\s+)?(?:mcp\s+)?tools?\b|\bavailable\s+(?:mcp\s+)?tools?\b|\bmcp\s+tools\b|\blist\s+tools\b/i,
+		tool: 'mcp_list_tools',
+	},
+	// help (high priority)
+	{
+		pattern: /^help$|what can (you|i|we) do|what can.*look.?up|what.*commands|how do i (use|start|get start)|how can.*help|what.*can.*do.*chat|what.*user.*chat|chat.*user|what.*ping.*do|what.*look.*up.*ping/i,
+		tool: 'ai_assistant_help',
+	},
 	// applications
 	{ pattern: /list.*app|show.*app|get.*apps|all.*app|what.*app|fetch.*app/i, tool: 'pingone.applications.list' },
 	{ pattern: /app.*secret|client\s+secret|show.*secret|secret.*app/i, tool: 'pingone_get_application_secret' },
@@ -53,11 +63,13 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 	{ pattern: /creat.*app(?:lication)?|add.*app(?:lication)?|new.*app(?:lication)?|register.*app/i, tool: 'pingone_create_application' },
 	{ pattern: /delet.*app(?:lication)?|remov.*app(?:lication)?/i, tool: 'pingone_delete_application' },
 	{ pattern: /get\s+app|find\s+app|app\s+details|app\s+info|which\s+app/i, tool: 'pingone_get_application' },
-	// users
+	// org licenses (before users so "Show org licenses" doesn't match show.*user)
+	{ pattern: /\bshow\s+org\s+licenses\b|\borg\s+licenses\b|licens|org.*licens|capacity/i, tool: 'pingone_get_organization_licenses' },
+	// users — create/delete before get so "Delete user <uuid>" matches delete
 	{ pattern: /list.*user|show.*users|all.*user|get.*users|fetch.*user/i, tool: 'pingone_list_users' },
-	{ pattern: /get\s+user|find\s+user|look\s*up\s+user|show\s+user|user\s+info|who\s+is/i, tool: 'pingone_get_user' },
-	{ pattern: /creat.*user|add.*user|new.*user|register.*user|onboard.*user/i, tool: 'pingone_create_user' },
+	{ pattern: /creat.*user|new.*user|register.*user|onboard.*user/i, tool: 'pingone_create_user' },
 	{ pattern: /delet.*user|remov.*user|deactivat.*user/i, tool: 'pingone_delete_user' },
+	{ pattern: /get\s+user|find\s+user|look\s*up\s+user|show\s+user|user\s+info|who\s+is/i, tool: 'pingone_get_user' },
 	{ pattern: /user.*groups?|groups?.*for.*user|what.*groups?.*user|user.*member/i, tool: 'pingone_get_user_groups' },
 	{ pattern: /add.*user.*group|put.*user.*group|assign.*user.*group/i, tool: 'pingone_add_user_to_group' },
 	{ pattern: /remov.*user.*group|tak.*user.*out.*group|unassign.*user.*group/i, tool: 'pingone_remove_user_from_group' },
@@ -77,10 +89,15 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 	{ pattern: /delet.*subscri|remov.*subscri|delete.*webhook/i, tool: 'pingone_delete_subscription' },
 	// risk / org / OIDC / auth
 	{ pattern: /risk.*eval|eval.*risk|risk.*score|assess.*risk/i, tool: 'pingone_risk_evaluation' },
-	{ pattern: /licens|org.*licens|capacity/i, tool: 'pingone_get_organization_licenses' },
 	{ pattern: /oidc|openid|discovery|\.well-known|issuer/i, tool: 'pingone_oidc_config' },
 	{ pattern: /introspect|inspect.*token|token.*info|validate.*token/i, tool: 'pingone_introspect_token' },
 	{ pattern: /userinfo|user\s+profile\s+claim|current.*user.*claim/i, tool: 'pingone_userinfo' },
+	// list tools (high priority patterns; also match "mcp tools", "MCP tools")
+	{
+		pattern:
+			/\b(?:list|show|what|which)\s+(?:all\s+)?(?:mcp\s+)?tools?\b|\bavailable\s+(?:mcp\s+)?tools?\b|mcp\s+tools?\b/i,
+		tool: 'mcp_list_tools',
+	},
 	// help
 	{ pattern: /^help$|what can (you|i|we) do|what can.*look.?up|what commands|how do i (use|start|get start)|how can.*help|what.*can.*do.*chat|what.*user.*chat|chat.*user|what.*ping.*do|what.*look.*up.*ping/i, tool: 'ai_assistant_help' },
 ];
@@ -101,6 +118,11 @@ export function isMcpQuery(query: string): boolean {
 /** Returns true if the query is a help/capabilities request (works without credentials). */
 export function isHelpQuery(query: string): boolean {
 	return predictMcpTool(query) === 'ai_assistant_help';
+}
+
+/** Returns true if the query is asking to list all MCP tools (works without credentials). */
+export function isListToolsQuery(query: string): boolean {
+	return predictMcpTool(query) === 'mcp_list_tools';
 }
 
 /** Returns true if the query is a worker token request (works without the Live toggle). */

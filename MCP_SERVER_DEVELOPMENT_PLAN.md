@@ -63,7 +63,21 @@ The live MCP server lives in **`pingone-mcp-server/`** (not a separate `mcp-ping
 
 - **Standardized errors**: `services/mcpErrors.ts` — `ERROR_CODES`, `toMcpErrorPayload()`, `buildToolErrorResult()`.
 - **Credentials**: `services/credentialLoader.ts` — load from `mcp-config.json` or env.
+- **mcp-config.json format** (at `~/.pingone-playground/credentials/mcp-config.json`): `{ environmentId, clientId, clientSecret, apiUrl? }`. App writes via `POST /api/credentials/save-mcp-config` (Worker Token modal, Configuration page, `unifiedWorkerTokenService._syncCredentialsToMcpConfig`). `apiUrl` is the PingOne auth base; `unifiedWorkerTokenService` maps `region` (us/eu/ap/ca) to the correct URL. Matches `credentialLoader.McpConfig`.
 - **Resources**: Training resources (static); optional `pingone://applications` resource (dynamic list when read).
+
+### Recent features added (see docs/UPDATE_LOG_AND_REGRESSION_PLAN.md)
+
+| Feature | Description |
+| ------- | ----------- |
+| **Cursor-based pagination** | `pingone_list_users`, `pingone_list_groups`, `pingone_list_populations`, `pingone.applications.list` support `nextPageUrl` (PingOne `_links.next.href`). Results include `count`, `size`, `nextPageUrl`. |
+| **listChanged & cancellation** | McpServer options: `capabilities: { tools: { listChanged: true }, resources: { listChanged: true } }`. `pingone_get_user` and `pingone_list_users` accept `AbortSignal` for cancellation. |
+| **Name-based add/remove user to group** | `pingone_add_user_to_group` and `pingone_remove_user_from_group` accept names: look up user by `username eq` / `username sw` and group by `name eq` when UUIDs are missing. |
+| **Intent routing** | "Add user X to group Y" routes to `add_user_to_group` (not create_user). "Show org licenses" routes to org licensing. "List MCP tools" has bulletproof intent matching. |
+| **Tool list from MCP server source** | `scripts/generate-mcp-tool-names.mjs` extracts tool names from `pingone-mcp-server/src`; writes `pingone-mcp-server/mcp-tool-names.json`. `list_tools` handler loads from that file (~70 tools). Run `npm run mcp:tools:generate` after adding tools. |
+| **Org-level licenses** | "Show org licenses" uses `mcpCallOrgLicenses` (GET `/v1/organizations/{orgId}/licenses`); licenses API is org-scoped, not environment-scoped. |
+| **Worker token backend storage** | Tokens dual-write to backend (`POST/GET/DELETE /api/tokens/worker`); `loadDataFromStorage()` pulls from backend first. Enables future backend-only secure mode. |
+| **AI Assistant + MCP UI** | Success styling for all MCP results (green card + "✓ Success"); prompt chips execute correct command; log viewer button on /ai-assistant; integration tests (`tests/backend/ai-assistant-prompts.test.js`). |
 
 ### MCP Inspector (visual testing)
 
@@ -79,18 +93,36 @@ This runs `npx @modelcontextprotocol/inspector --config mcp-inspector-config.jso
 
 **Credentials:** The server reads from `~/.pingone-playground/credentials/mcp-config.json` (or env vars `PINGONE_ENVIRONMENT_ID`, `PINGONE_CLIENT_ID`, `PINGONE_CLIENT_SECRET`). Save credentials via the Worker Token modal in the app first, or copy `mcp-config.json` into that path.
 
+**mcp-config.json format** (matches `credentialLoader.ts`): `{ "environmentId", "clientId", "clientSecret", "apiUrl" }`. The app writes this when you save worker credentials (Worker Token modal, Configuration, McpServerConfig). `apiUrl` is derived from region (us→auth.pingone.com, eu→auth.pingone.eu, etc.).
+
 **CLI mode** (for scripting):
 
 ```bash
 npx @modelcontextprotocol/inspector --cli --config mcp-inspector-config.json --server pingone --method tools/list
 ```
 
+### MCP spec validation (automated)
+
+The project validates pingone-mcp-server against the [MCP spec 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25):
+
+```bash
+npm run mcp:validate
+# or: pnpm run mcp:validate
+```
+
+This runs `tests/backend/mcp-spec-validation.test.js`, which spawns the server over stdio, sends `initialize` → `notifications/initialized` → `tools/list`, and asserts:
+- Server responds to JSON-RPC
+- `tools/list` returns ≥50 tools with `name`, `description`, `inputSchema`
+- Expected tools (e.g. `pingone_get_user`, `pingone_list_users`, `pingone_oidc_config`, `pingone_introspect_token`) are present
+
+**Prerequisite:** `pnpm install` from repo root (ensures pingone-mcp-server deps resolve).
+
 ### Planned (not yet implemented)
 
-- **AI Assistant + MCP**: Wire chatbot so answers include results and education (tool name, API, how it works).
+- **AI Assistant + MCP deeper education**: McpResultCard already shows tool name, API call (method + path), and howItWorks per result. Optional: have the LLM’s prose mention these in its reply.
 - **MFA expansion (incremental)**: device-authentication-policies, OATH tokens, FIDO2 policies, bypass, OTP validate.
-- Streaming / audit logs (deferred).
-- Further resource providers (e.g. user list, environment info).
+- **Streaming / audit logs** (deferred).
+- **Further resource providers**: e.g. user list, environment info.
 
 ---
 
@@ -845,7 +877,8 @@ This MCP server will transform our existing PingOne API implementation into a po
 
 ### **Documentation**
 
-- [MCP Specification](https://modelcontextprotocol.io/)
+- [MCP Specification 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25) (latest; used for validation)
+- [MCP Spec Source Repo](https://github.com/modelcontextprotocol/modelcontextprotocol) — specification, schema, and official docs
 - [PingOne API Documentation](https://apidocs.pingidentity.com/)
 - [OAuth 2.0 RFC](https://tools.ietf.org/html/rfc6749)
 
