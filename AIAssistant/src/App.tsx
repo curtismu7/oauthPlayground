@@ -211,9 +211,9 @@ const TopBar = styled.header`
 	display: flex;
 	align-items: center;
 	gap: 12px;
-	padding: 0 20px;
-	height: 52px;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	padding: 0 16px;
+	height: 36px;
+	background: #dc2626;
 	color: white;
 	flex-shrink: 0;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -222,7 +222,7 @@ const TopBar = styled.header`
 
 const Logo = styled.div`
 	font-weight: 700;
-	font-size: 16px;
+	font-size: 14px;
 	letter-spacing: -0.01em;
 `;
 
@@ -254,12 +254,13 @@ const MainRow = styled.div`
 	gap: 0;
 `;
 
-// Welcome Section
+// Welcome Section — compact so agent gets maximum space
 const WelcomeSection = styled.div`
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background: #dc2626;
 	color: white;
-	padding: 40px 24px;
+	padding: 8px 20px;
 	text-align: center;
+	flex-shrink: 0;
 `;
 
 const WelcomeContent = styled.div`
@@ -268,62 +269,63 @@ const WelcomeContent = styled.div`
 `;
 
 const WelcomeTitle = styled.h1`
-	font-size: 32px;
-	font-weight: 700;
-	margin: 0 0 16px;
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0 0 4px;
 	letter-spacing: -0.02em;
 `;
 
 const WelcomeDescription = styled.p`
-	font-size: 18px;
-	line-height: 1.6;
-	margin: 0 0 32px;
-	opacity: 0.9;
-	max-width: 800px;
+	font-size: 12px;
+	line-height: 1.4;
+	margin: 0 0 12px;
+	opacity: 0.95;
+	max-width: 700px;
 	margin-left: auto;
 	margin-right: auto;
 `;
 
 const FeatureGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 24px;
-	margin-top: 32px;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 8px;
+	margin-top: 8px;
 `;
 
 const FeatureCard = styled.div`
-	background: rgba(255, 255, 255, 0.1);
-	border-radius: 12px;
-	padding: 24px;
+	background: rgba(255, 255, 255, 0.12);
+	border-radius: 8px;
+	padding: 8px 12px;
 	text-align: left;
-	backdrop-filter: blur(10px);
+	backdrop-filter: blur(6px);
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	transition:
 		transform 0.2s ease,
 		background 0.2s ease;
 
 	&:hover {
-		transform: translateY(-2px);
-		background: rgba(255, 255, 255, 0.15);
+		transform: translateY(-1px);
+		background: rgba(255, 255, 255, 0.18);
 	}
 `;
 
 const FeatureIcon = styled.div`
-	font-size: 32px;
-	margin-bottom: 12px;
+	font-size: 16px;
+	margin-bottom: 4px;
 `;
 
 const FeatureTitle = styled.h3`
-	font-size: 18px;
+	font-size: 12px;
 	font-weight: 600;
-	margin: 0 0 8px;
+	margin: 0 0 2px;
 `;
 
 const FeatureDesc = styled.p`
-	font-size: 14px;
-	line-height: 1.5;
+	font-size: 11px;
+	line-height: 1.3;
 	margin: 0;
-	opacity: 0.8;
+	opacity: 0.85;
 `;
 
 const AssistantPane = styled.div`
@@ -345,7 +347,7 @@ const OAuthPane = styled.div`
 	@media (max-width: 900px) {
 		position: fixed;
 		right: 0;
-		top: 52px;
+		top: 36px;
 		bottom: 0;
 		z-index: 50;
 		box-shadow: -4px 0 16px rgba(0, 0, 0, 0.1);

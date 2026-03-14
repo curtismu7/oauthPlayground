@@ -319,7 +319,7 @@ export const OAuthLoginPanel: React.FC<PanelProps> = ({ prefill, onClose }) => {
 							<TextInput value={params.loginHint} onChange={update('loginHint')} placeholder="user@example.com" />
 						</FieldRow>
 						<CheckRow>
-							<input type="checkbox" id="pkce" checked={params.usePKCE} onChange={(e) => setParams((p) => ({ ...p, usePKCE: e.target.checked }))} />
+							<input type="checkbox" id="pkce" checked={params.usePKCE} onChange={(e) => setParams((p) => ({ ...p, usePKCE: e.target.checked }))} title="Use PKCE (Proof Key for Code Exchange) with S256 — recommended for OAuth security" />
 							<label htmlFor="pkce">Use PKCE (S256) — recommended</label>
 						</CheckRow>
 					</FieldGroup>

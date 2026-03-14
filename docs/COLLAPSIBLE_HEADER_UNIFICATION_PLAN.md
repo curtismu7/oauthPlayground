@@ -2,6 +2,12 @@
 
 **Goal:** Use the same collapse/expand icon, color, size, and behavior. Prefer a single service so icons, colors, and behavior stay consistent.
 
+**Executive summary:** Unify all flow/section collapsible headers on one pattern (⬇️ emoji, white box, blue border, -90° when collapsed). The service (`collapsibleHeaderService`) already exports `UnifiedFlowCollapsibleHeader`, `UnifiedFlowCollapsibleHeaderButton`, and `UnifiedFlowCollapsibleToggleIcon`. ~60% done (Configuration, AdvancedOAuthFeatures, FlowGuidanceSystem, SecurityScorecard, worker-token-v9). Remaining: UnifiedFlowSteps, CollapsibleSection, flowUIService, PAR/RAR, UnifiedOAuthFlowV8U credentials block.
+
+**Table of contents:** [Progress](#progress-last-updated-2026-03) · [0. Safest icon](#0-safest-icon-to-migrate-to-most-common-already) · [1. Current state](#1-current-state-who-uses-what) · [2–7. Differences, phases, risks](#2-differences-to-reconcile) · [8. Implementation steps](#8-implementation-steps) · [9. Migration recipes](#9-migration-recipes-for-implementers) · [10. Plan status](#10-plan-status) · [11. Verification](#11-verification-after-each-migration)
+
+---
+
 **Reference UI:** The Unified OAuth flow step 0 uses:
 - **Header:** Light green gradient (`#f0fdf4` → `#ecfdf3`), dark green text (`#14532d`), 1.25rem padding, rounded corners.
 - **Toggle icon:** White box, 32×32px, 6px border-radius, 2px solid blue (`#3b82f6`), chevron rotates **-90°** when collapsed (points right when collapsed, down when expanded). Uses emoji ⬇️ in current code; can be replaced with SVG for consistency.
@@ -195,6 +201,143 @@ To unify, we need one of:
 6. **UnifiedOAuthFlowV8U.tsx** — Replace inline credentials block button with `UnifiedFlowCollapsibleSection` or `UnifiedFlowCollapsibleHeader`.
 
 **Completion criteria:** All flow pages (oauth-authz, worker-token, PAR, RAR) and credential blocks use the same white-box icon and -90° rotation; no local copies of the toggle styles.
+
+---
+
+## 9. Migration Recipes (for implementers)
+
+### 9.1 UnifiedFlowSteps.tsx
+
+**Remove** local styled components `CollapsibleHeaderButton`, `CollapsibleToggleIcon` (and optionally `CollapsibleSection`, `CollapsibleTitle`, `CollapsibleContent` if migrating to service equivalents).
+
+**Add:**
+```tsx
+import {
+  UnifiedFlowCollapsibleHeaderButton,
+  UnifiedFlowCollapsibleToggleIcon,
+  UnifiedFlowCollapsibleSection,
+  UnifiedFlowCollapsibleTitle,
+  UnifiedFlowCollapsibleContent,
+} from '@/services/collapsibleHeaderService';
+```
+
+**Replace** each block (e.g. Quick Start):
+```tsx
+<UnifiedFlowCollapsibleSection>
+  <UnifiedFlowCollapsibleHeaderButton
+    onClick={() => setIsQuickStartCollapsed(!isQuickStartCollapsed)}
+    aria-expanded={!isQuickStartCollapsed}
+    $collapsed={isQuickStartCollapsed}
+  >
+    <UnifiedFlowCollapsibleTitle>
+      <span>📖</span>
+      <span>Quick Start & Overview - ...</span>
+    </UnifiedFlowCollapsibleTitle>
+    <UnifiedFlowCollapsibleToggleIcon $collapsed={isQuickStartCollapsed}>
+      <span>⬇️</span>
+    </UnifiedFlowCollapsibleToggleIcon>
+  </UnifiedFlowCollapsibleHeaderButton>
+  {!isQuickStartCollapsed && (
+    <UnifiedFlowCollapsibleContent>
+      {/* existing content */}
+    </UnifiedFlowCollapsibleContent>
+  )}
+</UnifiedFlowCollapsibleSection>
+```
+
+**Note:** Service uses `$collapsed` (styled-components transient prop); UnifiedFlowSteps currently uses `$collapsed` for the icon. Keep `CollapsibleTitle` → `UnifiedFlowCollapsibleTitle`, `CollapsibleContent` → `UnifiedFlowCollapsibleContent` if service exports match; otherwise retain local names and only swap HeaderButton + ToggleIcon.
+
+### 9.2 CollapsibleSection.tsx
+
+Use the full composite when the section is self-contained:
+
+```tsx
+import {
+  UnifiedFlowCollapsibleHeader,
+  type UnifiedFlowCollapsibleHeaderProps,
+} from '@/services/collapsibleHeaderService';
+
+<UnifiedFlowCollapsibleHeader
+  title="Section Title"
+  defaultCollapsed={false}
+  icon={<span>🔧</span>}
+>
+  {children}
+</UnifiedFlowCollapsibleHeader>
+```
+
+The composite manages collapse state internally. For variant styles (info/warning/success), the service may need an optional `variant` prop; check `collapsibleHeaderService` exports.
+
+### 9.3 flowUIService (PAR/RAR)
+
+**Option A (preferred):** Switch PAR/RAR to import from `collapsibleHeaderService`:
+
+```tsx
+// In PARFlowV9.tsx, RARFlowV9.tsx:
+import {
+  UnifiedFlowCollapsibleHeaderButton,
+  UnifiedFlowCollapsibleToggleIcon,
+} from '@/services/collapsibleHeaderService';
+
+// $collapsed = true when section is collapsed:
+<UnifiedFlowCollapsibleHeaderButton onClick={() => toggleSection('overview')} $collapsed={collapsedSections.overview}>
+  ...
+  <UnifiedFlowCollapsibleToggleIcon $collapsed={collapsedSections.overview}>
+    <span>⬇️</span>
+  </UnifiedFlowCollapsibleToggleIcon>
+</UnifiedFlowCollapsibleHeaderButton>
+```
+
+**Option B:** Add a "unified" theme to flowUIService that returns components styled like the service (white box, -90°). More duplication; prefer Option A.
+
+### 9.4 UnifiedOAuthFlowV8U credentials block
+
+Replace the inline `<button>` with gradient and 🔧 emoji:
+
+```tsx
+import { UnifiedFlowCollapsibleHeader } from '@/services/collapsibleHeaderService';
+
+<UnifiedFlowCollapsibleHeader
+  title="Credentials"
+  defaultCollapsed={!credentialsOpen}
+  icon={<span>🔧</span>}
+>
+  {/* existing credentials form content */}
+</UnifiedFlowCollapsibleHeader>
+```
+
+If state must be controlled by parent, the composite accepts `defaultCollapsed` only. For fully controlled state, use the primitives (HeaderButton + ToggleIcon + Content) and manage `credentialsOpen` in the parent.
+
+---
+
+## 10. Plan Status
+
+| Metric | Value |
+|--------|-------|
+| **Overall completion** | ~60% |
+| **Phases done** | Phase 1 (partial), Phase 2, Phase 2b |
+| **Phases pending** | Phase 1 (UnifiedFlowSteps + CollapsibleSection), Phase 3, Phase 4 |
+| **Files migrated** | 7 (service, comprehensiveCredentialsService, AdvancedOAuthFeatures, FlowGuidanceSystem, SecurityScorecard, Configuration, worker-token-v9) |
+| **Files pending** | 6 (UnifiedFlowSteps x2, CollapsibleSection x2, flowUIService, PAR/RAR, UnifiedOAuthFlowV8U) |
+
+**Next implementer:** Start with item 1 in Section 8 (UnifiedFlowSteps.tsx). Run the app, open `/oauth-authz` or equivalent unified flow, verify step 0 headers look identical before/after. Then proceed to snapshot and CollapsibleSection.
+
+---
+
+## 11. Verification (after each migration)
+
+After migrating a file, run these checks to avoid regressions:
+
+| Step | Command / Action |
+|------|------------------|
+| Typecheck | `pnpm tsc --noEmit` |
+| Lint | `pnpm lint` (if available) |
+| Build | `pnpm build` |
+| Manual | Open the affected page; expand/collapse each section; verify icon rotates -90° when collapsed; verify no layout shift or console errors |
+
+**Visual regression:** Compare migrated header to the reference (`/oauth-authz` Unified OAuth flow, step 0). Toggle icon should be: white box, 32×32px, 6px radius, 2px solid blue (`#3b82f6`), ⬇️ emoji, points right when collapsed and down when expanded.
+
+**Regression plan:** Before migrating flow UI or Configuration areas, read `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md` Section 4 (checklist) and Section 7 (do-not-break). After each fix, add an entry to Section 3.
 
 ---
 
