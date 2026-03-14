@@ -137,6 +137,43 @@ So we rely on **PingOne SSO session** for redirectless (pi.flow) and on **client
 
 ---
 
+## 4a) Worker token — dual-write and pull-from-backend
+
+**Worker tokens** (used for MCP, API calls, environments page, etc.) are stored in both the client and the backend. This enables:
+
+- **Current behavior**: Tokens stay in client storage (localStorage, IndexedDB) for fast sync access and offline use.
+- **Pull-from-backend**: On load, `UnifiedWorkerTokenService` tries `GET /api/tokens/worker?environmentId=xxx` first; backend checks **SQLite** (sqlite-store.json, key `worker_token:${envId}`) then worker-tokens.json. If a valid token is returned, it is used and synced back to client storage.
+- **Full token load order**: (1) GET backend — backend checks **SQLite** first, then worker-tokens.json; (2) localStorage; (3) IndexedDB.
+- **Future secure mode**: If we later decide to move to backend-only tokens, the client can stop storing tokens in the browser and rely solely on the backend.
+
+### API endpoints
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| POST | `/api/tokens/worker` | Store token (body: `{ environmentId, accessToken, expiresAt }`). Called by `saveToken()` in addition to client storage. |
+| GET | `/api/tokens/worker?environmentId=xxx` | Retrieve token. Returns `{ token: { accessToken, expiresAt } }` or `{ token: null }` if missing/expired. |
+| DELETE | `/api/tokens/worker` | Clear token (body: `{ environmentId }`). |
+
+### Storage locations
+
+- **Backend**: (1) **SQLite** (`~/.pingone-playground/credentials/sqlite-store.json`, key `worker_token:${environmentId}`) — checked first on GET. (2) `worker-tokens.json` (file-based JSON, keyed by `environmentId`) — fallback. POST writes to both; DELETE clears both.
+- **Client**: `localStorage` (`unified_worker_token`), `unifiedTokenStorage` (IndexedDB), memory cache.
+
+Tokens are **dual-write** on save and **pull-from-backend-first** on load. Backend save/load failures are non-fatal; the client continues to use local storage.
+
+---
+
+## 4b) AI Assistant Token Exchange (planned)
+
+A dedicated **"Token exchange"** command in the AI Assistant will allow users to obtain a token with broader scope via:
+
+1. Username/password popup → Authorization Code flow with PingOne (`response_mode=pi.flow`)
+2. Token Exchange (RFC 8693) with `POST /api/token-exchange` (`grant_type=urn:ietf:params:oauth:grant-type:token-exchange`) to obtain a new token with additional scopes (e.g. Management API)
+
+Tokens will be stored client-side (unifiedWorkerTokenService or dedicated user-token storage). See `docs/MCP_TOKEN_EXCHANGE_AND_MOCK_FLOW_PLAN.md` for the full design.
+
+---
+
 ## 5) Minimal change set to support the desired model
 
 Desired behavior:
