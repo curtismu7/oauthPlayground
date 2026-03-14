@@ -9,6 +9,40 @@
  * - Token buttons: Red when no token, Green when token exists
  */
 
+/* Browser Extension Protection */
+/* Hide from browser extensions that might cause JavaScript errors */
+.hide-from-extensions {
+	visibility: hidden;
+	position: absolute;
+	left: -9999px;
+	top: -9999px;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+}
+
+/* Prevent extension overlays */
+[data-extension-protected] {
+	position: relative;
+}
+
+/* Some extensions look for these classes - make them ineffective */
+.password-field,
+.username-field,
+.email-field,
+.login-form {
+	/* Reset any extension-specific styling */
+	all: initial;
+}
+
+/* Prevent extension interference with forms */
+form[data-extension-protected] input,
+form[data-extension-protected] select,
+form[data-extension-protected] textarea {
+	/* Ensure our styles take precedence */
+	all: revert;
+}
+
 /* Default button - Blue background with white text */
 .btn,
 .btn-primary,
