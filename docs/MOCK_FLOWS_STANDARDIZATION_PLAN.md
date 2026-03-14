@@ -1,4 +1,4 @@
-# Mock Flows Standardization Plan
+make sure this # Mock Flows Standardization Plan
 
 ## 1. Purpose
 
@@ -43,6 +43,19 @@ Make all flows in the **Mock Flows** group behave and look very similar so users
 | SPIFFE/SPIRE | `/flows/spiffe-spire-v9` | v8u/flows (canonical route) | ✅ Route + redirect; sidebar `/flows/spiffe-spire-v9` |
 
 **Fixes:** (1) Sidebar: ROPC link to `/flows/oauth-ropc-v9`; SPIFFE to `/flows/spiffe-spire-v9`. (2) App routes: add `/flows/spiffe-spire-v9` and redirect `/v8u/spiffe-spire*`. (3) Move V7M flow components from `src/v7/pages/` to `src/pages/flows/v9/` and update their imports (`../../` → `../../../`, `../` → `../../../v7/`). (4) App.tsx: import moved components from `./pages/flows/v9/...`.
+
+### 2.1c AIAssistant / MasterFlow Agent integration
+
+**AIAssistant** (MasterFlow Agent) provides flow discovery and guidance. It does **not** render Mock flows; it links users to them and runs MCP tools for PingOne operations.
+
+| Component | Role | Mock Flows relationship |
+|-----------|------|-------------------------|
+| **aiAgentService** | `src/services/aiAgentService.ts`, `AIAssistant/src/services/aiAgentService.ts` — capability index for search and "related links" | Flow links in `flows` array. **Current:** paths use v7 (e.g. `/flows/oauth-authorization-code-v7`). App redirects v7→v9, so links work. **Plan alignment:** update to canonical v9 paths (e.g. `/flows/oidc-authorization-code-v9`) for consistency with §2.1b. |
+| **OAuthLoginPanel** | `AIAssistant/src/components/OAuthLoginPanel.tsx` — real Authorization Code flow (Tools & Resources, PingOne) | **Out of scope** — real flow, not Mock. No change needed for Mock Flows plan. |
+| **MCP integration** | AIAssistant calls MCP tools (worker token, users, apps, etc.); responses can include flow links | When MCP or AI responses include links to Mock flows, use canonical v9 paths. |
+| **Flow links in chat** | `link.type === 'flow'` in AIAssistant renders links | Same path alignment as aiAgentService. |
+
+**Recommendation:** Update `aiAgentService.buildCapabilityIndex().flows` in both `src/services/aiAgentService.ts` and `AIAssistant/src/services/aiAgentService.ts` to use v9 canonical paths from §2.1b. Map: `oauth-authorization-code-v7` → `oidc-authorization-code-v9`, `client-credentials-v7` → `client-credentials-v9`, `device-authorization-v7` → `device-authorization-v9`, `implicit-v7` → `implicit-v9`, `jwt-bearer-token-v7` → `jwt-bearer-token-v9`, `ciba-v7` → `ciba-v9`, `oidc-hybrid-v7` → `oidc-hybrid-v9`, `oauth-ropc-v7` → `oauth-ropc-v9`, `saml-bearer-assertion-v7` → `saml-bearer-assertion-v9`, `pingone-par-v7` → `par-v9` (or `pingone-par-v9`), `worker-token-v7` → `worker-token-v9`, `token-exchange-v7` → `token-exchange-v9`.
 
 ### 2.2 What is already consistent
 
@@ -297,14 +310,14 @@ Use the same visual structure as JWT Bearer: green success-style card for “Wha
 - **Decode on POST request body:** `ColoredUrlDisplay` now wraps `decodeURIComponent` and `getUrlParameters` in try/catch so Decode/Encode toggle does not throw on malformed or invalid URLs (e.g. when used for form query string).
 - **PAR scroll:** `/flows/par-v9` used `usePageScroll({ force: true })`, which triggered multiple scroll-to-top attempts (0, 50, 100, 200 ms) and caused the page to jump. Changed to `force: false` so only one scroll runs on mount.
 
-**Files:** `src/v7/styles/mockFlowStyles.ts`, `src/v7/pages/V7MImplicitFlowV9.tsx`, `src/components/ColoredUrlDisplay.tsx`, `src/pages/flows/v9/PARFlowV9.tsx`, `docs/MOCK_FLOWS_STANDARDIZATION_PLAN.md`.
+**Files:** `src/v7/styles/mockFlowStyles.ts`, `src/pages/flows/v9/V7MImplicitFlowV9.tsx`, `src/components/ColoredUrlDisplay.tsx`, `src/pages/flows/v9/PARFlowV9.tsx`, `docs/MOCK_FLOWS_STANDARDIZATION_PLAN.md`.
 
 ### Phase 7 – RAR/PAR same fixes; overview detail on all Mock flows ✅ Implemented
 
 - **RAR and PAR same issues as other flows:** RAR now uses `usePageScroll({ force: false })` to prevent scroll jump. PAR and RAR now use `ColoredUrlDisplay` for authorization URL (and PAR for request_uri) instead of `CodeBlock`, so URL display and Decode/Explain are consistent.
 - **More detail on other pages like RAR/PAR:** All V7M Mock flows (Implicit, Client Credentials, Device Authorization, OAuth Auth Code, OIDC Hybrid, CIBA, ROPC) now include an **About this flow** section via `V7MFlowOverview` with description, key point, standard (RFC), benefits list, and educational note — matching the level of detail on RAR and PAR overview sections.
 
-**Files:** `src/pages/flows/v9/RARFlowV9.tsx`, `src/pages/flows/v9/PARFlowV9.tsx`, `src/v7/components/V7MFlowOverview.tsx`, all `src/v7/pages/V7M*.tsx`, `docs/MOCK_FLOWS_STANDARDIZATION_PLAN.md`.
+**Files:** `src/pages/flows/v9/RARFlowV9.tsx`, `src/pages/flows/v9/PARFlowV9.tsx`, `src/v7/components/V7MFlowOverview.tsx`, all `src/pages/flows/v9/V7M*.tsx`, `docs/MOCK_FLOWS_STANDARDIZATION_PLAN.md`.
 
 ### Phase 8 – New stepper for multi-step flows; secondary button blue ✅ Implemented
 
@@ -345,5 +358,6 @@ Use the same visual structure as JWT Bearer: green success-style card for “Wha
 ## 8. Regression and Do-Not-Break
 
 - After each phase, run the **Mock Flows** regression from `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md` (Section 4): open each flow, complete the main path, confirm tokens and UserInfo/Introspect where applicable.
+- **AIAssistant flow links:** When adding or changing Mock flow routes, update `aiAgentService.buildCapabilityIndex().flows` in both `src/services/aiAgentService.ts` and `AIAssistant/src/services/aiAgentService.ts` so flow links use canonical v9 paths (§2.1b, §2.1c). Links from MasterFlow Agent (related links, pattern answers) should point to v9 routes.
 - Preserve **Do-not-break** (sidebar z-index, worker token, discovery logger, button styling, etc.); shared styles must not override flow-specific needs (e.g. disabled button grey only when disabled).
 - Document any new shared component in the regression plan so future edits don’t break the standard layout.
