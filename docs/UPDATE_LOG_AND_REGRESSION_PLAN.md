@@ -31,6 +31,34 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Mock MCP Agent Flow: page, route, sidebar (2026-03-15)
+
+- **What:** Implement Mock MCP Agent Flow per MCP_TOKEN_EXCHANGE_AND_MOCK_FLOW_PLAN.md Phase 3 — educational flow simulating Agent → MCP → Token Exchange.
+- **Fix:** (1) mockMcpAgentService — in-memory mock tools (mock_get_token, mock_token_exchange, mock_list_users). (2) MockMcpAgentFlowPage — steps 1–3, secure auth guidance (CollapsibleHeader), Link to MCP doc. (3) Route `/flows/mock-mcp-agent-flow`, flow header config, sidebar under Mock Flows → MCP & Agent.
+- **Files:** `src/services/mockMcpAgentService.ts`, `src/pages/flows/MockMcpAgentFlowPage.tsx`, `src/App.tsx`, `src/config/sidebarMenuConfig.ts`, `src/services/flowHeaderService.tsx`
+- **Regression check:** Sidebar → Mock Flows → MCP & Agent → Mock MCP Agent Flow → page loads; steps 1–3 complete; MCP Documentation link works; Reset clears state.
+
+### Mock MCP flow: Secure AI agent auth education (2026-03-15)
+
+- **What:** User requested Mock MCP app tell users about proper token storage, exchange, and secure AI agent authentication.
+- **Fix:** (1) Plan (MCP_TOKEN_EXCHANGE_AND_MOCK_FLOW_PLAN.md) already had §4.7 "User education: Secure AI Agent Authentication (required)" with token storage, Token Exchange, MCP consent. (2) Created docs/MOCK_MCP_AGENT_FLOW.md — user-facing doc with same guidance; Mock flow page will link to it.
+- **Files:** `docs/MOCK_MCP_AGENT_FLOW.md`
+- **Regression check:** When Mock MCP flow page is implemented, it must display or link to this guidance.
+
+### MCP doc: Tokens in Host, Client, Agent, and MCP Apps (2026-03-15)
+
+- **What:** User requested MCP doc to show proper use of tokens in Agent/MCP/Client/Host apps.
+- **Fix:** Added "Tokens in Host, Client, Agent, and MCP Apps" section to MCPDocumentation.tsx: token types (worker token, user token, credentials), table for who stores/passes what (Host, Client, Agent, MCP Server), flow summary, MCP spec consent note.
+- **Files:** `src/pages/docs/MCPDocumentation.tsx`
+- **Regression check:** MCP Documentation page loads; Tokens section visible after Protocol Communication; table and flow summary render correctly.
+
+### MCP Inspector & mcp-config verification (2026-03-15)
+
+- **What:** User requested MCP Inspector configured correctly and app writing mcp-config entries correctly.
+- **Fix:** (1) Verified mcp-inspector-config.json: `npm run mcp:tools:list` succeeds; config uses npx/tsx, MCP_LOG_DIR for logs. (2) McpServerConfig page shows correct Inspector command (`npm run mcp:inspector`) and Cursor config (mcpServers, MCP_LOG_DIR). (3) mcp-config.json format documented in MCP_SERVER_DEVELOPMENT_PLAN: `{ environmentId, clientId, clientSecret, apiUrl }`; credentialLoader matches; unifiedWorkerTokenService syncs region→apiUrl.
+- **Files:** `MCP_SERVER_DEVELOPMENT_PLAN.md`, `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md`
+- **Regression check:** Run `npm run mcp:tools:list` — tools list returned. Save credentials via Worker Token modal → `~/.pingone-playground/credentials/mcp-config.json` has correct keys. Open MCP Inspector → call tools → check `logs/mcp-server.log`.
+
 ### MCP: Protocol Communication, Token Exchange & Mock Flow docs (2026-03-15)
 
 - **What:** User requested MCP doc updates (JSON-RPC 2.0, Hosts/Clients/Servers from spec), Token Exchange command in AI Assistant (username/password → pi.flow → PingOne Token Exchange), and a mock flow (simulated Agent + MCP + Token Exchange).
