@@ -31,6 +31,13 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### MCP: Protocol Communication, Token Exchange & Mock Flow docs (2026-03-15)
+
+- **What:** User requested MCP doc updates (JSON-RPC 2.0, Hosts/Clients/Servers from spec), Token Exchange command in AI Assistant (username/password → pi.flow → PingOne Token Exchange), and a mock flow (simulated Agent + MCP + Token Exchange).
+- **Fix:** (1) MCPDocumentation.tsx: "Protocol Communication" section explains JSON-RPC 2.0 between Hosts, Clients, Servers. (2) Added "Token Exchange & Mock Flow" section linking to plan. (3) Created docs/MCP_TOKEN_EXCHANGE_AND_MOCK_FLOW_PLAN.md — Token Exchange command flow, Mock Agent+MCP+Token Exchange design. (4) SESSION_AND_TOKEN_VERIFICATION.md: added AI Assistant Token Exchange (planned) section. (5) mcp-spec.md: added reference to Token Exchange and Mock Flow plan.
+- **Files:** `src/pages/docs/MCPDocumentation.tsx`, `docs/MCP_TOKEN_EXCHANGE_AND_MOCK_FLOW_PLAN.md`, `docs/SESSION_AND_TOKEN_VERIFICATION.md`, `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md`, `mcp-spec.md`
+- **Regression check:** MCP Documentation page loads; Protocol Communication and Token Exchange & Mock Flow sections visible. Verify spec link and plan doc paths.
+
 ### Unified OAuth: automated test suite (2026-03-13)
 
 - **What:** User requested complete automated tests for Unified OAuth (/v8u/unified) — UI, APIs, logging, build/syntax.
