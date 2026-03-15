@@ -98,6 +98,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 		setVerificationUri(res.verification_uri);
 		setDeviceResponse(res);
 		setIsApproved(false);
+		showGlobalSuccess('Device code issued', { description: `User should visit the verification URL and enter the code: ${res.user_code}` });
 	}
 
 	function handleApproveDevice() {
@@ -145,6 +146,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 			return;
 		}
 		setTokenResponse(res);
+		showGlobalSuccess('Tokens received', { description: 'Device authorization grant complete. Access token ready to use.' });
 	}
 
 	const accessToken = tokenResponse?.access_token;
@@ -156,6 +158,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 		}
 		const res = getUserInfoFromAccessToken(accessToken);
 		setUserinfoResponse(res);
+		showGlobalSuccess('UserInfo retrieved', { description: 'Identity claims returned from the UserInfo endpoint.' });
 	}
 
 	function handleIntrospect() {
@@ -165,6 +168,7 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 		}
 		const res = introspectToken(accessToken);
 		setIntrospectionResponse(res);
+		showGlobalSuccess('Token introspected', { description: 'Server-side token validation complete.' });
 	}
 
 	function copyToClipboard(text: string) {
