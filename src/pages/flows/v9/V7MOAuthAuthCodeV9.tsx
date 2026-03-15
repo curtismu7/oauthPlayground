@@ -11,7 +11,6 @@ import {
 } from '../../../components/PingOneApiCallDisplay';
 import { UnifiedCredentialManagerV9 } from '../../../components/UnifiedCredentialManagerV9';
 import { showGlobalError, showGlobalSuccess } from '../../../contexts/NotificationSystem';
-import { FiBook } from '../../../icons';
 import { V9MockPKCEGenerationService } from '../../../services/v9/mock/core/V9MockPKCEGenerationService';
 import { V9MockApiCalls } from '../../../services/v9/mock/V9MockApiLogger';
 import {
@@ -34,34 +33,130 @@ import {
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
-import { V7MFlowOverview } from '../../../v7/components/V7MFlowOverview';
-import { V7MHelpModal } from '../../../v7/components/V7MHelpModal';
-import { V7MInfoIcon } from '../../../v7/components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../../../v7/components/V7MJwtInspectorModal';
 import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
 import {
-	getSectionBodyStyle,
-	getSectionHeaderStyle,
 	MOCK_INPUT_STYLE,
 	MOCK_PRIMARY_BTN,
 	MOCK_SECONDARY_BTN,
-	MOCK_SECTION_STYLE,
 } from '../../../v7/styles/mockFlowStyles';
 import { PKCEStorageServiceV8U } from '../../../v8u/services/pkceStorageServiceV8U';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Props = {
 	oidc?: boolean;
 	title?: string;
 };
 
+// ─── Layout helpers ───────────────────────────────────────────────────────────
+
+const STEP_COLORS = {
+	1: { accent: '#3b82f6', light: '#eff6ff', border: '#bfdbfe', badge: '#1d4ed8' },
+	2: { accent: '#8b5cf6', light: '#f5f3ff', border: '#ddd6fe', badge: '#6d28d9' },
+	3: { accent: '#10b981', light: '#f0fdf4', border: '#a7f3d0', badge: '#047857' },
+};
+
+const stepContainer = (step: 1 | 2 | 3, active: boolean): React.CSSProperties => ({
+	border: `2px solid ${active ? STEP_COLORS[step].accent : '#e5e7eb'}`,
+	borderRadius: 12,
+	marginTop: 20,
+	overflow: 'hidden',
+	opacity: active ? 1 : 0.7,
+	transition: 'border-color 0.2s, opacity 0.2s',
+});
+
+const stepHeader = (step: 1 | 2 | 3): React.CSSProperties => ({
+	display: 'flex',
+	alignItems: 'center',
+	gap: 12,
+	padding: '14px 20px',
+	background: STEP_COLORS[step].light,
+	borderBottom: `1px solid ${STEP_COLORS[step].border}`,
+});
+
+const stepBadge = (step: 1 | 2 | 3): React.CSSProperties => ({
+	width: 32,
+	height: 32,
+	borderRadius: '50%',
+	background: STEP_COLORS[step].badge,
+	color: '#fff',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	fontWeight: 700,
+	fontSize: 15,
+	flexShrink: 0,
+});
+
+const stepBody: React.CSSProperties = { padding: '20px 24px' };
+
+const fieldRow: React.CSSProperties = {
+	marginBottom: 18,
+};
+
+const fieldLabel: React.CSSProperties = {
+	display: 'block',
+	fontSize: 13,
+	fontWeight: 600,
+	color: '#374151',
+	marginBottom: 4,
+};
+
+const fieldHint: React.CSSProperties = {
+	fontSize: 12,
+	color: '#6b7280',
+	marginTop: 3,
+	lineHeight: 1.45,
+};
+
+const twoCol: React.CSSProperties = {
+	display: 'grid',
+	gridTemplateColumns: '1fr 1fr',
+	gap: '0 20px',
+};
+
+const threeCol: React.CSSProperties = {
+	display: 'grid',
+	gridTemplateColumns: '1fr 1fr 1fr',
+	gap: '0 20px',
+};
+
+const explainBox = (step: 1 | 2 | 3): React.CSSProperties => ({
+	background: STEP_COLORS[step].light,
+	border: `1px solid ${STEP_COLORS[step].border}`,
+	borderRadius: 8,
+	padding: '14px 16px',
+	marginTop: 16,
+	fontSize: 13,
+	color: '#374151',
+	lineHeight: 1.6,
+});
+
+const DIVIDER: React.CSSProperties = {
+	borderTop: '1px dashed #e5e7eb',
+	margin: '18px 0',
+};
+
+const pillTag = (color: string): React.CSSProperties => ({
+	display: 'inline-block',
+	background: color,
+	color: '#fff',
+	borderRadius: 999,
+	fontSize: 11,
+	fontWeight: 700,
+	padding: '2px 8px',
+	marginLeft: 6,
+	verticalAlign: 'middle',
+});
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 	oidc = false,
-	title = 'OAuth Authorization Code',
 }) => {
-	// Generate flowKey for bulletproof PKCE storage
 	const flowKey = useMemo(() => `v7m-${oidc ? 'oidc' : 'oauth'}-auth-code`, [oidc]);
 
-	// Restore PKCE codes from bulletproof storage on mount
 	const storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
 	const [codeVerifier, setCodeVerifier] = useState(
 		storedPKCE?.codeVerifier || 'sample-code-verifier-1234567890'
@@ -84,14 +179,6 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 	);
 	const [showIdModal, setShowIdModal] = useState(false);
 	const [showAccessModal, setShowAccessModal] = useState(false);
-	const [showPkceHelp, setShowPkceHelp] = useState(false);
-	const [showScopesHelp, setShowScopesHelp] = useState(false);
-	const [showClientAuthHelp, setShowClientAuthHelp] = useState(false);
-	const [showConsentHelp, setShowConsentHelp] = useState(false);
-	const [showUserInfoHelp, setShowUserInfoHelp] = useState(false);
-	const [showIntrospectionHelp, setShowIntrospectionHelp] = useState(false);
-	const [showStateHelp, setShowStateHelp] = useState(false);
-	const [showNonceHelp, setShowNonceHelp] = useState(false);
 	const [userinfoResponse, setUserinfoResponse] = useState<V9MockUserInfo | null>(null);
 	const [introspectionResponse, setIntrospectionResponse] =
 		useState<V9MockIntrospectionResponse | null>(null);
@@ -108,47 +195,32 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 		V9CredentialStorageService.save('v7m-auth-code', { clientId: app.clientId });
 	}, []);
 
-	// Persist PKCE codes to bulletproof storage whenever they change
 	useEffect(() => {
 		if (codeVerifier) {
-			// For V7M, we need to compute codeChallenge if using S256
-			// For now, save what we have (the verifier)
-			// The challenge will be computed when building the authorization URL
 			PKCEStorageServiceV8U.savePKCECodes(flowKey, {
 				codeVerifier,
-				codeChallenge: codeVerifier, // Placeholder - will be computed in handleBuildAuthorize
+				codeChallenge: codeVerifier,
 				codeChallengeMethod,
 			});
 		}
 	}, [codeVerifier, codeChallengeMethod, flowKey]);
 
+	// ── Handlers (logic unchanged) ────────────────────────────────────────────
+
 	async function handleBuildAuthorize() {
-		// Compute codeChallenge if using S256
 		let codeChallenge: string | undefined;
 		if (codeChallengeMethod === 'S256') {
 			codeChallenge = await V9MockPKCEGenerationService.generateCodeChallenge(codeVerifier, 'S256');
 		} else if (codeChallengeMethod === 'plain') {
 			codeChallenge = codeVerifier;
 		}
-
-		// Save computed challenge to bulletproof storage
 		if (codeChallenge) {
-			PKCEStorageServiceV8U.savePKCECodes(flowKey, {
-				codeVerifier,
-				codeChallenge,
-				codeChallengeMethod,
-			});
+			PKCEStorageServiceV8U.savePKCECodes(flowKey, { codeVerifier, codeChallenge, codeChallengeMethod });
 		}
 
-		// Log mock authorization endpoint call
-		const authOptions: any = {
+		const authOptions: Record<string, string | undefined> = {
 			environmentId: 'v7m-mock-env',
-			clientId,
-			redirectUri,
-			scope,
-			state,
-			codeChallengeMethod,
-			responseType: 'code',
+			clientId, redirectUri, scope, state, codeChallengeMethod, responseType: 'code',
 		};
 		if (codeChallenge) authOptions.codeChallenge = codeChallenge;
 		V9MockApiCalls.logAuthorizationEndpoint(authOptions);
@@ -157,8 +229,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 			response_type: responseType as 'code',
 			client_id: clientId,
 			redirect_uri: redirectUri,
-			scope,
-			state,
+			scope, state,
 			nonce: oidc ? nonce : undefined,
 			code_challenge: codeChallenge,
 			code_challenge_method: codeChallengeMethod,
@@ -175,34 +246,17 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 	}
 
 	async function handleExchangeToken() {
-		if (!code) {
-			showGlobalError('No authorization code available');
-			return;
-		}
+		if (!code) { showGlobalError('No authorization code available'); return; }
 
-		// Log mock token endpoint call
 		V9MockApiCalls.logTokenEndpoint({
-			environmentId: 'v7m-mock-env',
-			clientId,
-			code,
-			codeVerifier,
-			grantType: 'authorization_code',
-			redirectUri,
-			scope,
+			environmentId: 'v7m-mock-env', clientId, code, codeVerifier,
+			grantType: 'authorization_code', redirectUri, scope,
 		});
 
 		const res = tokenExchangeAuthorizationCode({
-			grant_type: 'authorization_code',
-			code,
-			redirect_uri: redirectUri,
-			client_id: clientId,
-			code_verifier: codeVerifier,
-			client_secret: expectedSecret,
-			expectedClientSecret: expectedSecret,
-			issuer: 'https://mock.issuer/v7m',
-			environmentId: 'mock-env',
-			scope,
-			userEmail,
+			grant_type: 'authorization_code', code, redirect_uri: redirectUri, client_id: clientId,
+			code_verifier: codeVerifier, client_secret: expectedSecret, expectedClientSecret: expectedSecret,
+			issuer: 'https://mock.issuer/v7m', environmentId: 'mock-env', scope, userEmail,
 			includeIdToken: oidc,
 			ttls: { accessTokenSeconds: 900, idTokenSeconds: 900, refreshTokenSeconds: 86400 },
 		});
@@ -214,38 +268,21 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 		tokenResponse && 'access_token' in tokenResponse ? tokenResponse.access_token : undefined;
 
 	function handleUserInfo() {
-		if (!accessToken) {
-			showGlobalError('No access token available');
-			return;
-		}
-
-		// Log mock userinfo endpoint call
-		V9MockApiCalls.logUserInfoEndpoint({
-			environmentId: 'v7m-mock-env',
-			accessToken,
-		});
-
-		const res = getUserInfoFromAccessToken(accessToken);
-		setUserinfoResponse(res);
+		if (!accessToken) { showGlobalError('No access token available'); return; }
+		V9MockApiCalls.logUserInfoEndpoint({ environmentId: 'v7m-mock-env', accessToken });
+		setUserinfoResponse(getUserInfoFromAccessToken(accessToken));
 	}
 
 	function handleIntrospect() {
-		if (!accessToken) {
-			showGlobalError('No access token available');
-			return;
-		}
-
-		// Log mock token introspection endpoint call
+		if (!accessToken) { showGlobalError('No access token available'); return; }
 		V9MockApiCalls.logIntrospectionEndpoint({
-			environmentId: 'v7m-mock-env',
-			token: accessToken,
-			clientId,
-			clientSecret: expectedSecret,
+			environmentId: 'v7m-mock-env', token: accessToken, clientId, clientSecret: expectedSecret,
 		});
-
-		const res = introspectToken(accessToken);
-		setIntrospectionResponse(res);
+		setIntrospectionResponse(introspectToken(accessToken));
 	}
+
+	const hasResults = tokenResponse || userinfoResponse || introspectionResponse;
+	const currentStep = hasResults ? 1 : 0;
 
 	function handleReset() {
 		setAuthorizationUrl('');
@@ -254,207 +291,164 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 		setUserinfoResponse(null);
 		setIntrospectionResponse(null);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-		showGlobalSuccess('Flow reset. Start again from step 1.');
+		showGlobalSuccess('Flow reset. Start again from Step 1.');
 	}
 
+	const step2Active = !!code;
+	const step3Active = !!accessToken;
+
+	// ── Render ────────────────────────────────────────────────────────────────
+
 	return (
-		<div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-			<V7MMockBanner description="This flow simulates OAuth/OIDC endpoints for learning. No external APIs are called. Tokens are generated deterministically based on your settings." />
+		<div style={{ padding: '2rem', maxWidth: 900, margin: '0 auto' }}>
+
+			{/* Banner */}
+			<V7MMockBanner description="This flow is a simulated sandbox — no real network calls, no PingOne account needed. All tokens are generated locally so you can learn the full OAuth Authorization Code flow safely." />
+
+			{/* Page header */}
 			<V9FlowHeader flowId="oauth-authorization-code-v9" customConfig={{ flowType: 'pingone' }} />
-			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-				<V9FlowRestartButton
-					onRestart={handleReset}
-					currentStep={0}
-					totalSteps={1}
-					position="header"
-				/>
+			<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+				<V9FlowRestartButton onRestart={handleReset} currentStep={currentStep} totalSteps={1} position="header" />
 			</div>
+
+			{/* Credentials */}
 			<UnifiedCredentialManagerV9
 				environmentId="v7m-mock"
 				flowKey="v7m-auth-code"
 				credentials={{ clientId }}
-				importExportOptions={{
-					flowType: 'v7m-auth-code',
-					appName: 'Authorization Code',
-					description: 'Mock OAuth Authorization Code Flow',
-				}}
+				importExportOptions={{ flowType: 'v7m-auth-code', appName: 'Authorization Code', description: 'Mock OAuth Authorization Code Flow' }}
 				onAppSelected={handleAppSelected}
 				grantType="authorization_code"
-				showAppPicker={true}
-				showImportExport={true}
+				showAppPicker showImportExport
 			/>
 
-			<V7MFlowOverview
-				title="About this flow"
-				description="Authorization code flow is the recommended way for web and native apps to get tokens. The client redirects the user to the authorization server; the user signs in and authorizes; the AS redirects back with a short-lived code. The client then exchanges the code for tokens at the token endpoint (with client authentication)."
-				keyPoint="The authorization code is a one-time credential exchanged for tokens server-side. With PKCE, public clients can use this flow without a client secret."
-				standard="OAuth 2.0 Authorization Code Grant (RFC 6749 §4.1). PKCE: RFC 7636. OpenID Connect: OIDC Core §3.1."
-				benefits={[
-					'Tokens never appear in the browser URL (unlike implicit).',
-					'Client can be authenticated at the token endpoint (confidential clients).',
-					'PKCE protects against code interception for public clients.',
-				]}
-				educationalNote="This is a mock implementation. Build authorization URL, simulate redirect with code, then exchange code for tokens to see the full sequence and request/response shapes."
-			/>
+			{/* ── Flow Overview ──────────────────────────────────────────────────── */}
+			<div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: '20px 24px', marginTop: 16 }}>
+				<h2 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 700, color: '#1e293b' }}>
+					How Authorization Code Flow Works
+				</h2>
+				<p style={{ margin: '0 0 14px', fontSize: 13, color: '#475569', lineHeight: 1.6 }}>
+					The Authorization Code flow is the recommended OAuth 2.0 grant for most apps. The key idea: your app never handles the user's password. Instead the user logs in at the <strong>authorization server</strong>, which redirects back with a short-lived <strong>code</strong>. Your app exchanges the code for tokens in a server-side call.
+				</p>
+				<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+					{[
+						{ n: '1', color: '#3b82f6', title: 'Build the Authorization URL', body: 'Your app redirects the user to PingOne with parameters describing what access it needs (client_id, scope, PKCE challenge…).' },
+						{ n: '2', color: '#8b5cf6', title: 'Exchange the Code', body: 'PingOne redirects back with a one-time code. Your app POSTs that code to the token endpoint and receives an access token (and optionally an ID token).' },
+						{ n: '3', color: '#10b981', title: 'Use the Token', body: 'Present the access token as a Bearer header to call protected APIs. Optionally call UserInfo for identity claims, or Introspect to validate the token server-side.' },
+					].map(({ n, color, title, body }) => (
+						<div key={n} style={{ background: '#fff', border: `1px solid ${color}40`, borderRadius: 8, padding: '12px 14px' }}>
+							<div style={{ fontWeight: 700, color, fontSize: 13, marginBottom: 4 }}>Step {n} — {title}</div>
+							<div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{body}</div>
+						</div>
+					))}
+				</div>
+				<p style={{ margin: '12px 0 0', fontSize: 12, color: '#64748b' }}>
+					<strong>PKCE</strong> (RFC 7636) is required for public clients (SPAs, mobile). A random <em>code_verifier</em> is hashed to a <em>code_challenge</em> sent in Step 1; you send the verifier in Step 2 so PingOne can verify they match — preventing stolen code attacks.
+					{oidc && <> | <strong>OpenID Connect</strong> adds the <em>openid</em> scope so you also receive a signed <strong>ID token</strong> with identity claims (sub, name, email).</>}
+				</p>
+			</div>
 
-			<section style={MOCK_SECTION_STYLE}>
-				<header style={getSectionHeaderStyle('info')}>
-					<span>📤</span> Build Authorization Request
-				</header>
-				<div style={getSectionBodyStyle(720)}>
-					<div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-						<label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-							Client ID
-							<V7MInfoIcon
-								label=""
-								title="Your application's unique identifier registered with the authorization server"
-								onClick={() => {}}
-							/>
-							<input
-								value={clientId}
-								onChange={(e) => setClientId(e.target.value)}
-								style={MOCK_INPUT_STYLE}
-							/>
-						</label>
-						<label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-							Redirect URI
-							<V7MInfoIcon
-								label=""
-								title="The callback URI where the authorization server redirects after consent"
-								onClick={() => {}}
-							/>
-							<input
-								value={redirectUri}
-								onChange={(e) => setRedirectUri(e.target.value)}
-								style={MOCK_INPUT_STYLE}
-							/>
-						</label>
-						<label>
-							Scope
-							<input
-								value={scope}
-								onChange={(e) => setScope(e.target.value)}
-								style={MOCK_INPUT_STYLE}
-							/>
-							<V7MInfoIcon
-								label="About scopes"
-								title="How scopes map to tokens and claims"
-								onClick={() => setShowScopesHelp(true)}
-							/>
-						</label>
-						<label>
-							<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-								State
-								<V7MInfoIcon
-									label=""
-									title="CSRF protection - echoed back in the redirect to prevent cross-site request forgery"
-									onClick={() => setShowStateHelp(true)}
-								/>
+			{/* ══════════════════════════════════════════════════════════════════
+			    STEP 1 — Authorization request
+			════════════════════════════════════════════════════════════════════ */}
+			<div style={stepContainer(1, true)}>
+				<div style={stepHeader(1)}>
+					<div style={stepBadge(1)}>1</div>
+					<div>
+						<div style={{ fontWeight: 700, fontSize: 15, color: '#1e293b' }}>
+							Build & Send the Authorization Request
+							<span style={pillTag('#3b82f6')}>GET /as/authorize</span>
+						</div>
+						<div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+							Your app builds a URL, redirects the user to PingOne, and PingOne redirects back with a one-time authorization code.
+						</div>
+					</div>
+				</div>
+
+				<div style={stepBody}>
+					<div style={threeCol}>
+						<div style={fieldRow}>
+							<label style={fieldLabel} htmlFor="ac-client-id">Client ID</label>
+							<input id="ac-client-id" value={clientId} onChange={(e) => setClientId(e.target.value)} style={MOCK_INPUT_STYLE} />
+							<div style={fieldHint}>Identifies your application. Registered in PingOne under Applications.</div>
+						</div>
+						<div style={fieldRow}>
+							<label style={fieldLabel} htmlFor="ac-redirect-uri">Redirect URI</label>
+							<input id="ac-redirect-uri" value={redirectUri} onChange={(e) => setRedirectUri(e.target.value)} style={MOCK_INPUT_STYLE} />
+							<div style={fieldHint}>Where PingOne sends the user after login. Must match what's registered on the app.</div>
+						</div>
+						<div style={fieldRow}>
+							<label style={fieldLabel} htmlFor="ac-scope">Scope</label>
+							<input id="ac-scope" value={scope} onChange={(e) => setScope(e.target.value)} style={MOCK_INPUT_STYLE} />
+							<div style={fieldHint}>
+								What access you're requesting. {oidc ? <><code>openid</code> enables OIDC + ID token. <code>profile</code> / <code>email</code> add identity claims.</> : <>Space-separated permissions, e.g. <code>read write</code>.</>}
 							</div>
-							<input
-								value={state}
-								onChange={(e) => setState(e.target.value)}
-								style={MOCK_INPUT_STYLE}
-							/>
-						</label>
+						</div>
+						<div style={fieldRow}>
+							<label style={fieldLabel} htmlFor="ac-state">State <span style={{ fontWeight: 400, color: '#9ca3af' }}>(CSRF token)</span></label>
+							<input id="ac-state" value={state} onChange={(e) => setState(e.target.value)} style={MOCK_INPUT_STYLE} />
+							<div style={fieldHint}>A random value your app generates. PingOne echoes it back in the redirect so you can detect tampering (CSRF protection).</div>
+						</div>
 						{oidc && (
-							<label>
-								<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-									Nonce
-									<V7MInfoIcon
-										label=""
-										title="Replay protection for ID token - must match nonce in ID token claim"
-										onClick={() => setShowNonceHelp(true)}
-									/>
-								</div>
-								<input
-									value={nonce}
-									onChange={(e) => setNonce(e.target.value)}
-									style={MOCK_INPUT_STYLE}
-								/>
-							</label>
+							<div style={fieldRow}>
+								<label style={fieldLabel} htmlFor="ac-nonce">Nonce <span style={{ fontWeight: 400, color: '#9ca3af' }}>(replay protection)</span></label>
+								<input id="ac-nonce" value={nonce} onChange={(e) => setNonce(e.target.value)} style={MOCK_INPUT_STYLE} />
+								<div style={fieldHint}>Embedded in the ID token. Your app verifies it matches to prevent token replay attacks.</div>
+							</div>
 						)}
-						<label>
-							Code Challenge Method
-							<select
-								value={codeChallengeMethod}
+						<div style={fieldRow}>
+							<label style={fieldLabel} htmlFor="ac-user">Simulated User Email</label>
+							<input id="ac-user" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} style={MOCK_INPUT_STYLE} />
+							<div style={fieldHint}>Sandbox only — sets the identity claims in the generated tokens.</div>
+						</div>
+					</div>
+
+					<div style={DIVIDER} />
+
+					<div style={{ ...twoCol, alignItems: 'start' }}>
+						<div style={fieldRow}>
+							<label style={fieldLabel} htmlFor="ac-method">PKCE Challenge Method</label>
+							<select id="ac-method" value={codeChallengeMethod}
 								onChange={(e) => setCodeChallengeMethod(e.target.value as 'S256' | 'plain')}
-								style={MOCK_INPUT_STYLE}
-							>
-								<option value="S256">S256</option>
-								<option value="plain">plain</option>
+								style={MOCK_INPUT_STYLE}>
+								<option value="S256">S256 (recommended)</option>
+								<option value="plain">plain (not recommended)</option>
 							</select>
-							<V7MInfoIcon
-								label="What is PKCE?"
-								title="Proof Key for Code Exchange (PKCE)"
-								onClick={() => setShowPkceHelp(true)}
-							/>
-						</label>
-						<label>
-							Code Verifier
-							<input
-								value={codeVerifier}
-								onChange={(e) => setCodeVerifier(e.target.value)}
-								style={MOCK_INPUT_STYLE}
-							/>
-						</label>
-						<label>
-							<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-								User Email
-								<V7MInfoIcon
-									label=""
-									title="Email used for user info and ID token claims (educational mock only)"
-									onClick={() => {}}
-								/>
-							</div>
-							<input
-								value={userEmail}
-								onChange={(e) => setUserEmail(e.target.value)}
-								style={MOCK_INPUT_STYLE}
-							/>
-						</label>
-						<label>
-							Client Secret (for token step)
-							<input
-								value={expectedSecret}
-								onChange={(e) => setExpectedSecret(e.target.value)}
-								style={MOCK_INPUT_STYLE}
-							/>
-							<V7MInfoIcon
-								label="Client authentication"
-								title="Basic vs POST client auth"
-								onClick={() => setShowClientAuthHelp(true)}
-							/>
-						</label>
+							<div style={fieldHint}><strong>S256</strong>: code_challenge = BASE64URL(SHA-256(code_verifier)). <strong>plain</strong>: challenge = verifier (weaker).</div>
+						</div>
+						<div style={fieldRow}>
+							<label style={fieldLabel} htmlFor="ac-verifier">Code Verifier <span style={{ fontWeight: 400, color: '#9ca3af' }}>(PKCE)</span></label>
+							<input id="ac-verifier" value={codeVerifier} onChange={(e) => setCodeVerifier(e.target.value)} style={MOCK_INPUT_STYLE} />
+							<div style={fieldHint}>A 43–128 character random string generated by your app. Keep it secret — you'll send it in Step 2 to prove it was you in Step 1.</div>
+						</div>
 					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-						<button type="button" onClick={handleBuildAuthorize} style={MOCK_PRIMARY_BTN}>
-							Build & Issue Code
-						</button>
-						<V7MInfoIcon
-							label="About Consent"
-							title="Learn about the authorization consent step"
-							onClick={() => setShowConsentHelp(true)}
-						/>
-					</div>
-					{authorizationUrl && (
+
+					<button type="button" onClick={handleBuildAuthorize} style={{ ...MOCK_PRIMARY_BTN, marginTop: 4 }}>
+						▶ Build URL &amp; Issue Code
+					</button>
+
+					{authorizationUrl && code && (
 						<>
-							<div style={{ marginTop: 10 }}>
-								<div>
-									<strong>Authorization URL:</strong>
-								</div>
-								<code>{authorizationUrl}</code>
+							<div style={explainBox(1)}>
+								<strong>✅ What just happened:</strong> The authorization server validated the request and issued a one-time <strong>authorization code</strong> bound to your PKCE challenge, client, redirect URI, and user. In a real flow, the user would see a login page first. The browser is redirected back to your <code>redirect_uri</code> with <code>?code=…&state=…</code> in the URL.
 							</div>
-							{code && (
-								<div style={{ marginTop: 10 }}>
-									<div>
-										<strong>Authorization Code:</strong> <code>{code}</code>
-									</div>
-								</div>
-							)}
+
+							<div style={{ marginTop: 14 }}>
+								<div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: '#374151' }}>Authorization URL sent:</div>
+								<code style={{ display: 'block', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: 6, padding: '10px 12px', fontSize: 12, wordBreak: 'break-all', lineHeight: 1.6 }}>
+									{authorizationUrl}
+								</code>
+							</div>
+
+							<div style={{ marginTop: 10, background: '#f0fdf4', border: '1px solid #a7f3d0', borderRadius: 6, padding: '10px 14px' }}>
+								<span style={{ fontSize: 13, fontWeight: 600, color: '#047857' }}>Authorization Code: </span>
+								<code style={{ fontSize: 13, color: '#065f46', wordBreak: 'break-all' }}>{code}</code>
+								<div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>⏱ Short-lived (typically 60–300 seconds). Use it immediately in Step 2 — it's one-time-use.</div>
+							</div>
+
 							<div style={{ marginTop: 12 }}>
 								<MockApiCallDisplay
-									title="Authorization request (GET)"
+									title="Authorization request → redirect response"
 									method="GET"
 									url={authorizationUrl}
 									response={{
@@ -463,29 +457,70 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 										headers: {
 											Location: `${redirectUri}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`,
 										},
-										data: {
-											redirect: `${redirectUri}?code=...&state=${state}`,
-											note: 'Browser follows redirect; app reads code from query.',
-										},
+										data: { redirect: `${redirectUri}?code=...&state=${state}`, note: 'Browser follows redirect; app reads code from query string.' },
 									}}
-									defaultExpanded={true}
+									defaultExpanded={false}
 								/>
 							</div>
 						</>
 					)}
 				</div>
-			</section>
+			</div>
 
-			<section style={MOCK_SECTION_STYLE}>
-				<header style={getSectionHeaderStyle('success')}>
-					<span>📤</span> Exchange Token
-				</header>
-				<div style={getSectionBodyStyle()}>
-					<button type="button" onClick={handleExchangeToken} style={MOCK_PRIMARY_BTN}>
-						Exchange Code for Tokens
+			{/* ══════════════════════════════════════════════════════════════════
+			    STEP 2 — Token exchange
+			════════════════════════════════════════════════════════════════════ */}
+			<div style={stepContainer(2, step2Active)}>
+				<div style={stepHeader(2)}>
+					<div style={stepBadge(2)}>2</div>
+					<div>
+						<div style={{ fontWeight: 700, fontSize: 15, color: '#1e293b' }}>
+							Exchange the Code for Tokens
+							<span style={pillTag('#8b5cf6')}>POST /as/token</span>
+						</div>
+						<div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+							Your app's <em>backend</em> POSTs the code + PKCE verifier + client credentials to the token endpoint. The code is consumed and tokens are returned.
+						</div>
+					</div>
+				</div>
+
+				<div style={stepBody}>
+					<div style={fieldRow}>
+						<label style={fieldLabel} htmlFor="ac-secret">Client Secret <span style={{ fontWeight: 400, color: '#9ca3af' }}>(confidential clients)</span></label>
+						<input id="ac-secret" value={expectedSecret} onChange={(e) => setExpectedSecret(e.target.value)} style={{ ...MOCK_INPUT_STYLE, maxWidth: 300 }} />
+						<div style={fieldHint}>
+							Proves your app's identity at the token endpoint. Sent as <code>Authorization: Basic base64(client_id:client_secret)</code> or in the POST body. Public clients (SPAs) use PKCE alone — no secret.
+						</div>
+					</div>
+
+					{!step2Active && (
+						<div style={{ color: '#9ca3af', fontSize: 13, fontStyle: 'italic', marginBottom: 12 }}>
+							Complete Step 1 first to get an authorization code.
+						</div>
+					)}
+
+					<button type="button" onClick={handleExchangeToken} disabled={!step2Active}
+						style={{ ...MOCK_PRIMARY_BTN, ...(step2Active ? {} : { background: '#d1d5db', cursor: 'not-allowed' }) }}>
+						▶ Exchange Code for Tokens
 					</button>
+
 					{tokenResponse && (
 						<>
+							{'error' in tokenResponse ? (
+								<div style={{ ...explainBox(2), borderColor: '#fca5a5', background: '#fef2f2' }}>
+									<strong>❌ Token exchange failed:</strong> {tokenResponse.error} — {('error_description' in tokenResponse) ? String(tokenResponse.error_description) : 'Check the code verifier and client secret.'}
+								</div>
+							) : (
+								<div style={explainBox(2)}>
+									<strong>✅ What just happened:</strong> PingOne verified your authorization code, the PKCE verifier (hashes to the challenge you sent in Step 1), and your client credentials. The code is now consumed — using it again will fail. You received:
+									<ul style={{ margin: '6px 0 0', paddingLeft: 18, lineHeight: 1.7 }}>
+										<li><strong>access_token</strong> — present the Bearer token to call protected APIs.</li>
+										{oidc && <li><strong>id_token</strong> — a signed JWT asserting who the user is (sub, name, email…).</li>}
+										{'refresh_token' in tokenResponse && tokenResponse.refresh_token && <li><strong>refresh_token</strong> — exchange for a new access token when it expires (no re-login required).</li>}
+									</ul>
+								</div>
+							)}
+
 							<div style={{ marginTop: 12 }}>
 								<MockApiCallDisplay
 									title="Token request (POST)"
@@ -498,321 +533,130 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 									body={`grant_type=authorization_code&code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(redirectUri)}&code_verifier=${encodeURIComponent(codeVerifier)}`}
 									response={
 										'error' in tokenResponse
-											? {
-													status: 400,
-													statusText: 'Bad Request',
-													data: tokenResponse,
-												}
-											: {
-													status: 200,
-													statusText: 'OK',
-													data: tokenResponse,
-												}
+											? { status: 400, statusText: 'Bad Request', data: tokenResponse }
+											: { status: 200, statusText: 'OK', data: tokenResponse }
 									}
-									defaultExpanded={true}
+									defaultExpanded
 								/>
 							</div>
+
 							<div style={{ marginTop: 12 }}>
-								<ColoredJsonDisplay
-									data={tokenResponse}
-									label="Token Response"
-									collapsible={true}
-									defaultCollapsed={false}
-									showCopyButton={true}
-								/>
-								<div
-									style={{
-										display: 'flex',
-										gap: 8,
-										flexWrap: 'wrap',
-										alignItems: 'center',
-										marginTop: 12,
-									}}
-								>
+								<ColoredJsonDisplay data={tokenResponse} label="Token Response" collapsible defaultCollapsed={false} showCopyButton />
+							</div>
+
+							{('access_token' in tokenResponse) && (
+								<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
 									{idToken && (
-										<button
-											type="button"
-											onClick={() => setShowIdModal(true)}
-											style={MOCK_SECONDARY_BTN}
-										>
-											Inspect ID Token
+										<button type="button" onClick={() => setShowIdModal(true)} style={MOCK_SECONDARY_BTN}>
+											🔍 Inspect ID Token
 										</button>
 									)}
 									{accessToken && (
-										<button
-											type="button"
-											onClick={() => setShowAccessModal(true)}
-											style={MOCK_SECONDARY_BTN}
-										>
-											Inspect Access Token
+										<button type="button" onClick={() => setShowAccessModal(true)} style={MOCK_SECONDARY_BTN}>
+											🔍 Inspect Access Token
 										</button>
 									)}
-									{accessToken && (
-										<button type="button" onClick={handleUserInfo} style={MOCK_SECONDARY_BTN}>
-											Call UserInfo
-										</button>
-									)}
-									{accessToken && (
-										<button type="button" onClick={handleIntrospect} style={MOCK_SECONDARY_BTN}>
-											Introspect Token
-										</button>
-									)}
-									<V7MInfoIcon
-										label="UserInfo vs ID Token"
-										title="Learn when to use UserInfo vs ID Token"
-										onClick={() => setShowUserInfoHelp(true)}
-									/>
-									<V7MInfoIcon
-										label="Introspection"
-										title="Learn about token introspection"
-										onClick={() => setShowIntrospectionHelp(true)}
-									/>
 								</div>
-								{userinfoResponse && (
-									<div style={{ marginTop: 12 }}>
-										<MockApiCallDisplay
-											title="UserInfo request (GET)"
-											method="GET"
-											url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/userinfo`}
-											headers={{
-												Authorization: `Bearer ${accessToken ? `${accessToken.substring(0, 24)}...` : '***'}`,
-												Accept: 'application/json',
-											}}
-											response={{
-												status: 200,
-												statusText: 'OK',
-												data: userinfoResponse,
-											}}
-											defaultExpanded={true}
-										/>
-										<ColoredJsonDisplay
-											data={userinfoResponse}
-											label="UserInfo"
-											collapsible={true}
-											defaultCollapsed={false}
-											showCopyButton={true}
-										/>
-									</div>
-								)}
-								{introspectionResponse && (
-									<div style={{ marginTop: 12 }}>
-										<MockApiCallDisplay
-											title="Introspect request (POST)"
-											method="POST"
-											url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/introspect`}
-											headers={{
-												'Content-Type': 'application/x-www-form-urlencoded',
-												Authorization: `Basic ${btoa(`${clientId}:***`)}`,
-											}}
-											body={`token=${accessToken ? `${encodeURIComponent(accessToken.substring(0, 20))}...` : '***'}`}
-											response={{
-												status: 200,
-												statusText: 'OK',
-												data: introspectionResponse,
-											}}
-											defaultExpanded={true}
-										/>
-										<ColoredJsonDisplay
-											data={introspectionResponse}
-											label="Introspection"
-											collapsible={true}
-											defaultCollapsed={false}
-											showCopyButton={true}
-										/>
-									</div>
-								)}
+							)}
+						</>
+					)}
+				</div>
+			</div>
+
+			{/* ══════════════════════════════════════════════════════════════════
+			    STEP 3 — Use the token
+			════════════════════════════════════════════════════════════════════ */}
+			<div style={stepContainer(3, step3Active)}>
+				<div style={stepHeader(3)}>
+					<div style={stepBadge(3)}>3</div>
+					<div>
+						<div style={{ fontWeight: 700, fontSize: 15, color: '#1e293b' }}>
+							Use the Tokens
+							<span style={pillTag('#10b981')}>Optional API calls</span>
+						</div>
+						<div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+							With your access token you can call protected APIs. Call UserInfo to get identity claims or Introspect to validate the token from a resource server.
+						</div>
+					</div>
+				</div>
+
+				<div style={stepBody}>
+					{!step3Active && (
+						<div style={{ color: '#9ca3af', fontSize: 13, fontStyle: 'italic', marginBottom: 12 }}>
+							Complete Step 2 first to receive an access token.
+						</div>
+					)}
+
+					<div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+						<button type="button" onClick={handleUserInfo} disabled={!step3Active}
+							style={{ ...MOCK_PRIMARY_BTN, ...(step3Active ? {} : { background: '#d1d5db', cursor: 'not-allowed' }) }}>
+							👤 Call UserInfo endpoint
+						</button>
+						<button type="button" onClick={handleIntrospect} disabled={!step3Active}
+							style={{ ...MOCK_SECONDARY_BTN, ...(step3Active ? {} : { background: '#d1d5db', cursor: 'not-allowed', color: '#fff', border: 'none' }) }}>
+							🔎 Introspect Token
+						</button>
+					</div>
+
+					{userinfoResponse && (
+						<>
+							<div style={explainBox(3)}>
+								<strong>👤 UserInfo</strong> (<code>GET /as/userinfo</code>): Send your Bearer access token to retrieve the authenticated user's profile. Returns claims based on the scopes you requested.{' '}
+								{oidc ? 'For OIDC flows, prefer the ID token for authentication — call UserInfo for fresh or additional claims.' : 'In an OAuth-only flow this is how you learn who the user is.'}
+							</div>
+							<div style={{ marginTop: 10 }}>
+								<MockApiCallDisplay
+									title="UserInfo request (GET)"
+									method="GET"
+									url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/userinfo`}
+									headers={{ Authorization: `Bearer ${accessToken ? `${accessToken.substring(0, 24)}...` : '***'}`, Accept: 'application/json' }}
+									response={{ status: 200, statusText: 'OK', data: userinfoResponse }}
+									defaultExpanded
+								/>
+								<ColoredJsonDisplay data={userinfoResponse} label="UserInfo Response" collapsible defaultCollapsed={false} showCopyButton />
+							</div>
+						</>
+					)}
+
+					{introspectionResponse && (
+						<>
+							<div style={{ ...explainBox(3), marginTop: userinfoResponse ? 16 : 0 }}>
+								<strong>🔎 Token Introspection</strong> (<code>POST /as/introspect</code>, RFC 7662): Resource servers call this to check whether a token is still <code>active</code> and to read its metadata (scope, exp, sub, client_id). It's more reliable than JWT validation alone for sensitive operations because the AS controls the answer.
+							</div>
+							<div style={{ marginTop: 10 }}>
+								<MockApiCallDisplay
+									title="Introspect request (POST)"
+									method="POST"
+									url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/introspect`}
+									headers={{ 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${btoa(`${clientId}:***`)}` }}
+									body={`token=${accessToken ? `${encodeURIComponent(accessToken.substring(0, 20))}...` : '***'}`}
+									response={{ status: 200, statusText: 'OK', data: introspectionResponse }}
+									defaultExpanded
+								/>
+								<ColoredJsonDisplay data={introspectionResponse} label="Introspection Response" collapsible defaultCollapsed={false} showCopyButton />
 							</div>
 						</>
 					)}
 				</div>
-			</section>
+			</div>
 
-			<V7MJwtInspectorModal
-				open={showIdModal}
-				token={idToken || ''}
-				onClose={() => setShowIdModal(false)}
-			/>
-			<V7MJwtInspectorModal
-				open={showAccessModal}
-				token={accessToken || ''}
-				onClose={() => setShowAccessModal(false)}
-			/>
+			{/* ── JWT Inspect Modals ─────────────────────────────────────────────── */}
+			<V7MJwtInspectorModal open={showIdModal} token={idToken || ''} onClose={() => setShowIdModal(false)} />
+			<V7MJwtInspectorModal open={showAccessModal} token={accessToken || ''} onClose={() => setShowAccessModal(false)} />
 
-			<V7MHelpModal
-				open={showPkceHelp}
-				onClose={() => setShowPkceHelp(false)}
-				title="What is PKCE?"
-				icon={<FiBook color="#fff" />}
-				themeColor="#fde047"
-			>
-				<p>
-					PKCE (Proof Key for Code Exchange) protects authorization code flow by binding the code to
-					a one-time verifier.
-				</p>
-				<ul>
-					<li>Method S256: code_challenge = BASE64URL(SHA256(code_verifier))</li>
-					<li>Method plain: code_challenge = code_verifier (not recommended)</li>
-				</ul>
-			</V7MHelpModal>
-			<V7MHelpModal
-				open={showScopesHelp}
-				onClose={() => setShowScopesHelp(false)}
-				title="Scopes and Claims"
-				icon={<FiBook color="#fff" />}
-				themeColor="#fde68a"
-			>
-				<p>Scopes request permissions and drive which claims appear in tokens and UserInfo.</p>
-				<ul>
-					<li>
-						<code>openid</code>: enables OIDC and ID token
-					</li>
-					<li>
-						<code>profile</code>: name-related claims
-					</li>
-					<li>
-						<code>email</code>: email and email_verified
-					</li>
-					<li>
-						<code>offline_access</code>: refresh token
-					</li>
-				</ul>
-			</V7MHelpModal>
-			<V7MHelpModal
-				open={showClientAuthHelp}
-				onClose={() => setShowClientAuthHelp(false)}
-				title="Client Authentication"
-				icon={<FiBook color="#fff" />}
-				themeColor="#93c5fd"
-			>
-				<p>Clients authenticate at the token endpoint using Basic auth or client_secret_post.</p>
-				<ul>
-					<li>
-						<strong>Basic</strong>: Authorization: Basic base64(client_id:client_secret)
-					</li>
-					<li>
-						<strong>Post</strong>: send <code>client_id</code> and <code>client_secret</code> in
-						body
-					</li>
-				</ul>
-			</V7MHelpModal>
-			<V7MHelpModal
-				open={showConsentHelp}
-				onClose={() => setShowConsentHelp(false)}
-				title="Authorization Consent"
-				icon={<FiBook color="#fff" />}
-				themeColor="#86efac"
-			>
-				<p>
-					The authorization consent step allows users to review and approve the requested
-					permissions (scopes).
-				</p>
-				<ul>
-					<li>Users see which scopes are requested and can approve or deny</li>
-					<li>Approval generates an authorization code</li>
-					<li>
-						Denial returns an <code>access_denied</code> error
-					</li>
-					<li>Consent can be remembered (implicit approval) for trusted clients</li>
-				</ul>
-			</V7MHelpModal>
-			<V7MHelpModal
-				open={showUserInfoHelp}
-				onClose={() => setShowUserInfoHelp(false)}
-				title="UserInfo vs ID Token"
-				icon={<FiBook color="#fff" />}
-				themeColor="#c4b5fd"
-			>
-				<p>Both provide user information, but serve different purposes:</p>
-				<ul>
-					<li>
-						<strong>ID Token</strong>: Signed JWT containing authentication information (sub, iss,
-						aud, exp, etc.) plus user claims based on requested scopes. Received during token
-						exchange.
-					</li>
-					<li>
-						<strong>UserInfo</strong>: Additional endpoint called with access token to fetch user
-						profile data. Can be used to get updated information or additional claims not in the ID
-						token.
-					</li>
-					<li>
-						<strong>When to use</strong>: Use ID Token for authentication claims. Call UserInfo if
-						you need fresh data or additional profile information.
-					</li>
-				</ul>
-			</V7MHelpModal>
-			<V7MHelpModal
-				open={showIntrospectionHelp}
-				onClose={() => setShowIntrospectionHelp(false)}
-				title="Token Introspection"
-				icon={<FiBook color="#fff" />}
-				themeColor="#a78bfa"
-			>
-				<p>
-					Token introspection (RFC 7662) allows resource servers to check token validity and
-					metadata.
-				</p>
-				<ul>
-					<li>
-						Returns whether token is <code>active</code> and additional metadata (scope, client_id,
-						exp, etc.)
-					</li>
-					<li>Used by resource servers to validate tokens before granting access</li>
-					<li>Requires client authentication</li>
-					<li>More secure than JWT validation alone for sensitive resources</li>
-				</ul>
-			</V7MHelpModal>
-			<V7MHelpModal
-				open={showStateHelp}
-				onClose={() => setShowStateHelp(false)}
-				title="State Parameter"
-				icon={<FiBook color="#fff" />}
-				themeColor="#fb923c"
-			>
-				<p>
-					The <code>state</code> parameter provides CSRF protection for authorization requests.
-				</p>
-				<ul>
-					<li>Include a unique, unpredictable value in the authorization request</li>
-					<li>The authorization server echoes it back in the redirect</li>
-					<li>Your application verifies the returned value matches what you sent</li>
-					<li>Prevents cross-site request forgery attacks</li>
-				</ul>
-			</V7MHelpModal>
-			<V7MHelpModal
-				open={showNonceHelp}
-				onClose={() => setShowNonceHelp(false)}
-				title="Nonce Parameter"
-				icon={<FiBook color="#fff" />}
-				themeColor="#f472b6"
-			>
-				<p>
-					The <code>nonce</code> parameter provides replay protection for ID tokens (OIDC only).
-				</p>
-				<ul>
-					<li>Include a unique, unpredictable value in the authorization request</li>
-					<li>
-						The ID token includes this nonce in the <code>nonce</code> claim
-					</li>
-					<li>Your application must verify the nonce in the ID token matches what you sent</li>
-					<li>Prevents ID token replay attacks</li>
-				</ul>
-			</V7MHelpModal>
-
-			{/* Educational API Call Examples */}
-			<div style={{ marginTop: 24 }}>
-				<h3 style={{ marginBottom: 16, color: '#1f2937', fontSize: 18, fontWeight: 600 }}>
-					📚 Real PingOne API Call Examples
+			{/* ── Real PingOne API Reference ────────────────────────────────────── */}
+			<div style={{ marginTop: 28, padding: '20px 24px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12 }}>
+				<h3 style={{ margin: '0 0 6px', fontSize: 15, fontWeight: 700, color: '#1e293b' }}>
+					📚 Real PingOne API Reference
 				</h3>
-				<p style={{ marginBottom: 20, color: '#6b7280', fontSize: 14 }}>
-					These examples show exactly what real PingOne API calls look like. Use these as references
-					when implementing OAuth/OIDC with PingOne.
+				<p style={{ margin: '0 0 16px', fontSize: 13, color: '#64748b' }}>
+					The examples above are simulated. Below are the exact PingOne endpoint shapes used in production.
 				</p>
-
 				<PingOneApiCallDisplay {...PingOneApiExamples.authorizationEndpoint} />
 				<PingOneApiCallDisplay {...PingOneApiExamples.tokenEndpoint} />
-
 				{oidc && <PingOneApiCallDisplay {...PingOneApiExamples.userInfoEndpoint} />}
 			</div>
+
 		</div>
 	);
 };
