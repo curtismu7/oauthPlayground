@@ -107,66 +107,31 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-15T14:26:39.142Z
+// Last updated: 2026-03-15T16:11:31.949Z
 // Source: git log (1 days → 1 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
-	{
-		id: 'git-2026-03-15-reset-flows',
-		date: '2026-03-15',
-		duration: 8,
-		category: {
-			id: 'bug-fixes',
-			name: 'Bug Fixes',
-			color: '#DC3545',
-			icon: '🐛',
-			description: 'Bug Fixes',
-		},
-		description:
-			'Fixed reset flow functionality across all mock flows - buttons now properly clear results and show confirmation dialogs',
-		filesModified: 8,
-		linesOfCode: 156,
-		issuesResolved: 24,
-		documentation: [
-			'Updated reset logic in 8 mock flow components',
-			'Added intelligent step tracking based on actual results',
-		],
-		achievements: [
-			'Fixed reset flow buttons in V7MClientCredentialsV9, V7MOAuthAuthCodeV9, V7MROPCV9',
-			'Fixed reset flow buttons in V7MOIDCHybridFlowV9, V7MCIBAFlowV9, V7MImplicitFlowV9',
-			'Fixed reset flow buttons in V7MDeviceAuthorizationV9, SAMLBearerAssertionFlowV9',
-			'Added dynamic currentStep tracking: const currentStep = hasResults ? 1 : 0',
-			'Reset buttons now show confirmation dialog when results exist',
-			'All mock flows properly clear last requests and results',
-		],
-		version: '9.16.3',
-	},
-	{
-		id: 'git-2026-03-15-security',
-		date: '2026-03-15',
-		duration: 12,
-		category: {
-			id: 'security',
-			name: 'Security',
-			color: '#E83E8C',
-			icon: '🔒',
-			description: 'Security',
-		},
-		description:
-			'9 commits: log mock flow success toast additions (2026-03-15); add success toasts to all button handlers across ClientCredentials, ROPC, Implicit, DeviceAuth flows …',
-		filesModified: 2132,
-		linesOfCode: 228886,
-		issuesResolved: 2861,
-		documentation: [],
-		achievements: [
-			'log mock flow success toast additions (2026-03-15)',
-			'add success toasts to all button handlers across ClientCredentials, ROPC, Implicit, DeviceAuth flows',
-			'spec-compliant user denial, slow_down, access_denied, client_notification_token; update education content',
-			'add button feedback toasts, fix silent token exchange error in auth-code + hybrid flows',
-			'add pingone_decode_jwt to tool list, update count to 71',
-		],
-		version: '9.16.2',
-	},
+  {
+    "id": "git-2026-03-15-bug-fixes",
+    "date": "2026-03-15",
+    "duration": 0.5,
+    "category": {
+      "id": "bug-fixes",
+      "name": "Bug Fixes",
+      "color": "#DC3545",
+      "icon": "🐛",
+      "description": "Bug Fixes"
+    },
+    "description": "SendButton onClick passed SyntheticEvent as overrideQuery causing trim() crash",
+    "filesModified": 1,
+    "linesOfCode": 4,
+    "issuesResolved": 1,
+    "documentation": [],
+    "achievements": [
+      "SendButton onClick passed SyntheticEvent as overrideQuery causing trim() crash"
+    ],
+    "version": "9.16.3"
+  }
 ];
 
 // ─── END AUTO-GENERATED sessions ───

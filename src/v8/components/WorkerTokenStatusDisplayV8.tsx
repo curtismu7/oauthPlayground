@@ -555,7 +555,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	const [isLoading, setIsLoading] = useState(true); // Initial loading state
 	const [fullTokenData, setFullTokenData] = useState<UnifiedWorkerTokenData | null>(null);
 	const [tokenStatusInfo, setTokenStatusInfo] = useState<UnifiedWorkerTokenStatus | null>(null);
-	const [lastTokenUpdate, setLastTokenUpdate] = useState<number>(Date.now());
+	const [_lastTokenUpdate, setLastTokenUpdate] = useState<number>(Date.now());
 
 	// Configuration modal state
 	const [showConfigModal, setShowConfigModal] = useState(false);
