@@ -19,6 +19,7 @@
 MasterFlow API is a comprehensive PingOne integration platform that allows you to test, develop, and debug OAuth 2.0, OpenID Connect, and MFA flows. It provides a complete testing environment for PingOne services with real-time monitoring and debugging capabilities.
 
 ### Key Features
+
 - **OAuth 2.0 & OIDC Flow Testing**: Complete implementation of all standard flows
 - **MFA Testing**: Full Multi-Factor Authentication flow testing
 - **Worker Token Management**: Advanced worker token handling and monitoring
@@ -31,11 +32,13 @@ MasterFlow API is a comprehensive PingOne integration platform that allows you t
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ installed
 - PingOne account with appropriate permissions
 - Git for cloning (if needed)
 
 ### Installation
+
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -52,9 +55,10 @@ npm start
 ```
 
 ### Access the Application
-- **Main Application**: https://localhost:3000
-- **API Documentation**: https://localhost:3000/docs
-- **Health Check**: https://localhost:3000/api/health
+
+- **Main Application**: https://api.pingdemo.com
+- **API Documentation**: https://api.pingdemo.com/docs
+- **Health Check**: https://api.pingdemo.com/api/health
 
 ---
 
@@ -63,16 +67,19 @@ npm start
 ### Required PingOne Resources
 
 #### 1. PingOne Application
+
 Create a PingOne application with the following settings:
 
 **Application Type**: Web Application
-**Grant Types**: 
+**Grant Types**:
+
 - Authorization Code
 - Client Credentials
 - Resource Owner Password Credentials
 - Device Authorization
 
 **Required Scopes**:
+
 - `openid` - For OpenID Connect
 - `profile` - User profile information
 - `email` - User email access
@@ -81,17 +88,21 @@ Create a PingOne application with the following settings:
 - `pingone:api:write` - API write access
 
 #### 2. Worker Token Application
+
 Create a separate application for worker tokens:
 
 **Application Type**: Service/Machine-to-Machine
 **Grant Types**: Client Credentials
 **Required Scopes**:
+
 - `pingone:api:read`
 - `pingone:api:write`
 - `pingone:protect:admin`
 
 #### 3. Environment Configuration
+
 From your PingOne admin console, collect:
+
 - **Environment ID**: Your PingOne environment identifier
 - **API URL**: Usually `https://api.pingone.com`
 - **Issuer URL**: Usually `https://auth.pingone.com`
@@ -105,7 +116,7 @@ Create a `.env` file with the following variables:
 PINGONE_ENVIRONMENT_ID=your-environment-id
 PINGONE_CLIENT_ID=your-client-id
 PINGONE_CLIENT_SECRET=your-client-secret
-PINGONE_REDIRECT_URI=http://localhost:3000/callback
+PINGONE_REDIRECT_URI=https://api.pingdemo.com/callback
 PINGONE_API_URL=https://api.pingone.com
 PINGONE_ISSUER=https://auth.pingone.com/your-environment-id
 
@@ -125,6 +136,7 @@ PINGONE_DEBUG=false
 ### 1. Initial Configuration
 
 1. **Start the Application**
+
    ```bash
    npm start
    ```
@@ -160,16 +172,19 @@ PINGONE_DEBUG=false
 ### 🔄 OAuth 2.0 & OIDC Flows
 
 #### 1. Authorization Code Flow
+
 **Location**: Sidebar → OAuth Flows → Authorization Code
 
 **Purpose**: Standard web application authentication with user consent
 
 **Setup Required**:
+
 - PingOne application with Authorization Code grant
 - Proper redirect URI configuration
 - User credentials for testing
 
 **Usage**:
+
 1. Configure client credentials
 2. Set redirect URI
 3. Choose scopes (openid, profile, email)
@@ -178,40 +193,48 @@ PINGONE_DEBUG=false
 6. Receive authorization code and exchange for tokens
 
 **Common Use Cases**:
+
 - Web application login
 - Single Sign-On (SSO)
 - User profile access
 
 #### 2. Client Credentials Flow
+
 **Location**: Sidebar → OAuth Flows → Client Credentials
 
 **Purpose**: Application-to-application authentication
 
 **Setup Required**:
+
 - Service/M2M application in PingOne
 - Client credentials only (no user interaction)
 
 **Usage**:
+
 1. Configure client ID and secret
 2. Set required scopes
 3. Click "Request Token"
 4. Receive access token directly
 
 **Common Use Cases**:
+
 - API access between services
 - Backend service authentication
 - System-to-system communication
 
 #### 3. Resource Owner Password Credentials (ROPC)
+
 **Location**: Sidebar → OAuth Flows → ROPC
 
 **Purpose**: Direct user authentication with credentials
 
 **Setup Required**:
+
 - User account in PingOne
 - Application with ROPC grant enabled
 
 **Usage**:
+
 1. Enter user credentials
 2. Configure client credentials
 3. Set scopes
@@ -219,20 +242,24 @@ PINGONE_DEBUG=false
 5. Receive tokens directly
 
 **Common Use Cases**:
+
 - Legacy system integration
 - Trusted applications
 - Mobile app authentication
 
 #### 4. Device Authorization Flow
+
 **Location**: Sidebar → OAuth Flows → Device Authorization
 
 **Purpose**: Device-based authentication on limited input devices
 
 **Setup Required**:
+
 - Application with Device Authorization grant
 - Device capable of displaying user codes
 
 **Usage**:
+
 1. Click "Request Device Authorization"
 2. Note the user code (e.g., "ABCD-EFGH")
 3. Visit verification URL on separate device
@@ -240,11 +267,13 @@ PINGONE_DEBUG=false
 5. Return to original device and poll for token
 
 **Common Use Cases**:
+
 - Smart TV authentication
 - IoT device access
 - Command-line tools
 
 #### 5. Implicit Flow (Legacy)
+
 **Location**: Sidebar → OAuth Flows → Implicit
 
 **Purpose**: Frontend-only authentication (deprecated for security)
@@ -252,6 +281,7 @@ PINGONE_DEBUG=false
 **⚠️ Security Note**: This flow is deprecated and not recommended for production use.
 
 **Usage**:
+
 1. Configure client credentials
 2. Build authorization URL
 3. Complete authentication
@@ -260,16 +290,19 @@ PINGONE_DEBUG=false
 ### 🔐 Multi-Factor Authentication (MFA)
 
 #### 1. Unified MFA Registration
+
 **Location**: Sidebar → MFA Flows → Unified MFA Registration
 
 **Purpose**: Complete MFA device registration and testing
 
 **Setup Required**:
+
 - PingOne Protect enabled
 - User account with MFA enabled
 - Worker token with MFA scopes
 
 **Usage**:
+
 1. Configure worker token
 2. Enter user identifier
 3. Choose MFA methods (SMS, Email, TOTP, FIDO2)
@@ -277,11 +310,13 @@ PINGONE_DEBUG=false
 5. Test authentication with registered devices
 
 #### 2. MFA Device Management
+
 **Location**: Sidebar → MFA Flows → Device Management
 
 **Purpose**: Manage and test MFA devices
 
 **Features**:
+
 - View registered devices
 - Test device authentication
 - Remove devices
@@ -290,60 +325,72 @@ PINGONE_DEBUG=false
 ### 📱 Communication Flows
 
 #### 1. SMS Flow Testing
+
 **Location**: Sidebar → Communication Flows → SMS
 
 **Purpose**: Test SMS-based MFA and notifications
 
 **Setup Required**:
+
 - SMS provider configured in PingOne
 - User phone number registered
 
 #### 2. Email Flow Testing
+
 **Location**: Sidebar → Communication Flows → Email
 
 **Purpose**: Test email-based MFA and notifications
 
 **Setup Required**:
+
 - Email provider configured in PingOne
 - User email address registered
 
 #### 3. WhatsApp Flow Testing
+
 **Location**: Sidebar → Communication Flows → WhatsApp
 
 **Purpose**: Test WhatsApp-based authentication
 
 **Setup Required**:
+
 - WhatsApp Business API configured
 - User WhatsApp number registered
 
 ### 🔍 Advanced Features
 
 #### 1. Token Introspection
+
 **Location**: Available in all flow pages
 
 **Purpose**: Validate and inspect token contents
 
 **Usage**:
+
 - Click "Introspect Token" on any flow page
 - View token claims and metadata
 - Check token validity and expiration
 
 #### 2. UserInfo Endpoint
+
 **Location**: Available in all flow pages
 
 **Purpose**: Retrieve user profile information
 
 **Usage**:
+
 - Click "Get UserInfo" after authentication
 - View user profile data
 - Test different scopes
 
 #### 3. Token Monitoring
+
 **Location**: Sidebar → Monitoring → Token Status
 
 **Purpose**: Real-time token monitoring and management
 
 **Features**:
+
 - Monitor token expiration
 - Track token usage
 - Automatic refresh capabilities
@@ -356,11 +403,13 @@ PINGONE_DEBUG=false
 ### Supported API Keys
 
 #### 1. PingOne API Keys
+
 - **Purpose**: Enhanced API access and management
 - **Required For**: Advanced features and monitoring
 - **Setup**: Configure in Configuration → API Keys
 
 #### 2. Third-Party API Keys
+
 - **Purpose**: Integration with external services
 - **Examples**: Analytics, logging, monitoring services
 
@@ -389,14 +438,17 @@ PINGONE_DEBUG=false
 ### Worker Token Requirements
 
 #### 1. Worker Application
+
 Create a dedicated application in PingOne for worker tokens:
 
 **Application Settings**:
+
 - **Type**: Service/Machine-to-Machine
 - **Grant Types**: Client Credentials
 - **Token Auth Method**: Client Secret Post or Basic Auth
 
 #### 2. Required Scopes
+
 ```bash
 pingone:api:read          # Read API access
 pingone:api:write         # Write API access
@@ -411,12 +463,13 @@ pingone:environments:read # Environment information
    - Sidebar → Worker Token
 
 2. **Configure Credentials**
+
    ```json
    {
-     "client_id": "your-worker-client-id",
-     "client_secret": "your-worker-client-secret",
-     "token_endpoint": "https://auth.pingone.com/{env-id}/as/token",
-     "scopes": ["pingone:api:read", "pingone:api:write"]
+   	"client_id": "your-worker-client-id",
+   	"client_secret": "your-worker-client-secret",
+   	"token_endpoint": "https://auth.pingone.com/{env-id}/as/token",
+   	"scopes": ["pingone:api:read", "pingone:api:write"]
    }
    ```
 
@@ -437,58 +490,72 @@ pingone:environments:read # Environment information
 ### Common Issues
 
 #### 1. "Invalid or expired user code" (Device Authorization)
+
 **Cause**: User code expired or was never generated
 **Solution**:
+
 - Request a new device authorization
 - Use the code immediately (expires in 30 minutes)
 - Ensure correct format (XXXX-XXXX)
 
 #### 2. "API Key Not Set" Status
+
 **Cause**: API key not properly stored or `isActive` flag missing
 **Solution**:
+
 - Reconfigure API key in Configuration → API Keys
 - Ensure key is saved with `isActive: true`
 - Test connectivity after configuration
 
 #### 3. Worker Token Not Refreshing
+
 **Cause**: Token expired or refresh mechanism disabled
 **Solution**:
+
 - Click "Get Token" to obtain new token
 - Check worker application credentials
 - Verify required scopes are configured
 
 #### 4. CORS Errors
+
 **Cause**: Frontend trying to access PingOne APIs directly
 **Solution**:
+
 - Use backend proxy for API calls
 - Configure proper CORS in PingOne
 - Use worker token for server-side calls
 
 #### 5. Redirect URI Mismatch
+
 **Cause**: Redirect URI in PingOne doesn't match application
 **Solution**:
+
 - Update PingOne application with correct redirect URI
 - Ensure exact match including protocol and port
-- Test with `http://localhost:3000/callback`
+- **Redirect URI**: `https://api.pingdemo.com/callback`
 
 ### Debug Tools
 
 #### 1. Browser Console
+
 - Check for JavaScript errors
 - Monitor network requests
 - Verify token storage
 
 #### 2. Network Tab
+
 - Inspect API calls
 - Check response status codes
 - Verify request headers
 
 #### 3. Application Logs
+
 - View server logs in terminal
 - Check error messages
 - Monitor authentication flow
 
 #### 4. Token Inspector
+
 - Use built-in token introspection
 - Verify token claims
 - Check expiration times
@@ -498,41 +565,49 @@ pingone:environments:read # Environment information
 ## 🚀 Advanced Features
 
 ### 1. Flow Comparison
+
 **Location**: Sidebar → Tools → Flow Comparison
 
 **Purpose**: Compare different OAuth flows side-by-side
 
 **Features**:
+
 - Visual flow diagrams
 - Security comparisons
 - Use case recommendations
 
 ### 2. Token Analytics
+
 **Location**: Sidebar → Monitoring → Analytics
 
 **Purpose**: Analyze token usage patterns
 
 **Metrics**:
+
 - Token issuance rates
 - Expiration patterns
 - Error rates
 - Performance metrics
 
 ### 3. Mock Services
+
 **Location**: Sidebar → Mock Services
 
 **Purpose**: Test flows without real PingOne connection
 
 **Features**:
+
 - Complete OAuth 2.0 mock server
 - Configurable responses
 - Error simulation
 - Performance testing
 
 ### 4. Export/Import Configuration
+
 **Purpose**: Backup and restore application settings
 
 **Features**:
+
 - Export configuration to JSON
 - Import settings across environments
 - Share configurations with team
@@ -542,17 +617,20 @@ pingone:environments:read # Environment information
 ## 📞 Support & Resources
 
 ### Documentation
+
 - **API Documentation**: https://localhost:3000/docs
 - **PingOne Docs**: https://docs.pingidentity.com/pingone/
 - **OAuth 2.0 RFC**: https://tools.ietf.org/html/rfc6749
 - **OIDC Specification**: https://openid.net/specs/openid-connect-core-1_0.html
 
 ### Community
+
 - **GitHub Issues**: Report bugs and feature requests
 - **Discord/Slack**: Community support (if available)
 - **Stack Overflow**: Tag questions with `pingone` and `oauth`
 
 ### Getting Help
+
 1. Check this documentation first
 2. Review PingOne documentation
 3. Check browser console for errors
@@ -564,6 +642,7 @@ pingone:environments:read # Environment information
 ## 🎉 Best Practices
 
 ### Security
+
 - Never expose client secrets in frontend code
 - Use HTTPS in production environments
 - Implement proper token storage
@@ -571,18 +650,21 @@ pingone:environments:read # Environment information
 - Monitor for unusual activity
 
 ### Performance
+
 - Use appropriate token lifetimes
 - Implement token caching where appropriate
 - Monitor API rate limits
 - Optimize token refresh strategies
 
 ### Development
+
 - Use mock services for development
 - Test all flows thoroughly
 - Implement proper error handling
 - Document custom configurations
 
 ### Production
+
 - Use environment-specific configurations
 - Implement proper logging and monitoring
 - Set up alerts for critical errors
@@ -590,6 +672,6 @@ pingone:environments:read # Environment information
 
 ---
 
-**🎯 You're now ready to use MasterFlow API!** 
+**🎯 You're now ready to use MasterFlow API!**
 
 Start with the Authorization Code flow for web applications, or explore the MFA flows for advanced authentication testing. Happy coding! 🚀

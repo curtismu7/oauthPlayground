@@ -38,6 +38,16 @@ interface AIAssistantSidePanelProps {
 	onUserTokenSet?: (token: string, expiresInSeconds: number, idToken?: string) => void;
 	/** Called when user clears the user token */
 	onUserTokenClear?: () => void;
+	/** MCP / API call history to display in the MCP Query tab */
+	apiCallHistory?: Array<{
+		id: string;
+		query: string;
+		mcpTool: string | null;
+		apiCall: { method: string; path: string } | null;
+		howItWorks: string | null;
+		data: unknown;
+		timestamp: Date;
+	}>;
 }
 
 const PANEL_WIDTH = 400;
@@ -62,6 +72,7 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 	userAccessToken = null,
 	onUserTokenSet,
 	onUserTokenClear,
+	apiCallHistory = [],
 }) => {
 	const [activeTab, setActiveTab] = useState<
 		'pingone-login' | 'admin' | 'user-login' | 'documentation' | 'tools'
@@ -168,7 +179,7 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 					Docs
 				</TabButton>
 				<TabButton $active={activeTab === 'tools'} onClick={() => setActiveTab('tools')}>
-					Tools
+					MCP Query
 				</TabButton>
 			</TabsContainer>
 
@@ -192,7 +203,7 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 					/>
 				)}
 				{activeTab === 'documentation' && <DocumentationContent />}
-				{activeTab === 'tools' && <ToolsContent />}
+				{activeTab === 'tools' && <McpQueryContent history={apiCallHistory} />}
 			</SidePanelContent>
 		</SidePanelContainer>
 	);
@@ -919,6 +930,64 @@ const DocumentationContent: React.FC = () => (
 	</ContentSection>
 );
 
+// ── MCP Query history tab ────────────────────────────────────────────────────
+
+interface McpQueryRecord {
+	id: string;
+	query: string;
+	mcpTool: string | null;
+	apiCall: { method: string; path: string } | null;
+	howItWorks: string | null;
+	data: unknown;
+	timestamp: Date;
+}
+
+const McpQueryContent: React.FC<{ history: McpQueryRecord[] }> = ({ history }) => {
+	if (history.length === 0) {
+		return (
+			<ContentSection>
+				<SectionTitle>MCP Query Log</SectionTitle>
+				<EmptyState>
+					<EmptyIcon>🔌</EmptyIcon>
+					<EmptyText>No MCP queries yet.</EmptyText>
+					<EmptyHint>
+						Ask the assistant something like "List all users" or "Get worker token" to see live API
+						calls here.
+					</EmptyHint>
+				</EmptyState>
+			</ContentSection>
+		);
+	}
+
+	const recent = [...history].reverse().slice(0, 20);
+
+	return (
+		<ContentSection>
+			<SectionTitle>MCP Query Log</SectionTitle>
+			<McpList>
+				{recent.map((rec) => (
+					<McpEntry key={rec.id}>
+						<McpEntryTime>
+							{rec.timestamp instanceof Date
+								? rec.timestamp.toLocaleTimeString()
+								: new Date(rec.timestamp).toLocaleTimeString()}
+						</McpEntryTime>
+						<McpEntryQuery>{rec.query}</McpEntryQuery>
+						{rec.mcpTool && <McpToolBadge>{rec.mcpTool}</McpToolBadge>}
+						{rec.apiCall && (
+							<McpApiCall>
+								<McpApiMethod $method={rec.apiCall.method}>{rec.apiCall.method}</McpApiMethod>
+								<McpApiPath>{rec.apiCall.path}</McpApiPath>
+							</McpApiCall>
+						)}
+						{rec.howItWorks && <McpHowItWorks>{rec.howItWorks}</McpHowItWorks>}
+					</McpEntry>
+				))}
+			</McpList>
+		</ContentSection>
+	);
+};
+
 const ToolsContent: React.FC = () => (
 	<ContentSection>
 		<SectionTitle>Developer Tools</SectionTitle>
@@ -1272,6 +1341,119 @@ const ToolButton = styled.button`
 		cursor: not-allowed;
 		transform: none;
 	}
+`;
+
+// ── MCP Query Log styled components ─────────────────────────────────────────
+
+const EmptyState = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 40px 20px;
+	gap: 10px;
+	text-align: center;
+`;
+
+const EmptyIcon = styled.div`
+	font-size: 32px;
+`;
+
+const EmptyText = styled.p`
+	font-size: 15px;
+	font-weight: 600;
+	color: #444;
+	margin: 0;
+`;
+
+const EmptyHint = styled.p`
+	font-size: 12px;
+	color: #888;
+	margin: 0;
+	line-height: 1.5;
+`;
+
+const McpList = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+`;
+
+const McpEntry = styled.div`
+	background: #f8f9fa;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	padding: 12px 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+`;
+
+const McpEntryTime = styled.span`
+	font-size: 10px;
+	color: #9ca3af;
+	font-variant-numeric: tabular-nums;
+`;
+
+const McpEntryQuery = styled.p`
+	font-size: 13px;
+	font-weight: 500;
+	color: #1f2937;
+	margin: 0;
+	word-break: break-word;
+`;
+
+const McpToolBadge = styled.span`
+	display: inline-block;
+	background: #ede9fe;
+	color: #6d28d9;
+	font-size: 11px;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 12px;
+	align-self: flex-start;
+	font-family: 'SF Mono', 'Fira Code', monospace;
+`;
+
+const McpApiCall = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+`;
+
+const METHOD_COLORS: Record<string, string> = {
+	GET: '#16a34a',
+	POST: '#2563eb',
+	PUT: '#d97706',
+	PATCH: '#d97706',
+	DELETE: '#dc2626',
+};
+
+const McpApiMethod = styled.span<{ $method: string }>`
+	font-size: 10px;
+	font-weight: 700;
+	padding: 1px 5px;
+	border-radius: 3px;
+	font-family: monospace;
+	background: ${({ $method }) => METHOD_COLORS[$method] ?? '#6b7280'}22;
+	color: ${({ $method }) => METHOD_COLORS[$method] ?? '#6b7280'};
+	border: 1px solid ${({ $method }) => METHOD_COLORS[$method] ?? '#6b7280'}44;
+`;
+
+const McpApiPath = styled.code`
+	font-size: 11px;
+	color: #374151;
+	word-break: break-all;
+	font-family: 'SF Mono', 'Fira Code', monospace;
+`;
+
+const McpHowItWorks = styled.p`
+	font-size: 11px;
+	color: #6b7280;
+	margin: 2px 0 0;
+	line-height: 1.4;
+	border-top: 1px solid #e5e7eb;
+	padding-top: 6px;
 `;
 
 export default AIAssistantSidePanel;
