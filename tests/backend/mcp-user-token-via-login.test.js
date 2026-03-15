@@ -34,7 +34,7 @@ function mockFullFlow({
 	// we mock the outbound PingOne calls instead and let Express handle internal routes.
 	// So instead we mock the actual PingOne authorize call that redirectless/authorize makes.
 
-	// PingOne authorize start → returns flow JSON
+	// PingOne authorize start → returns flow JSON (includes _sessionId required by the handler)
 	if (authorizeOk) {
 		mockFetch.mockResolvedValueOnce({
 			ok: true,
@@ -42,6 +42,7 @@ function mockFullFlow({
 			json: () =>
 				Promise.resolve({
 					id: 'flow-id-123',
+					_sessionId: 'session-id-abc',
 					resumeUrl: `${AUTH_DOMAIN}/as/resume?flowId=flow-id-123`,
 					_links: { checkUsernamePassword: { href: `${AUTH_DOMAIN}/flows/flow-id-123` } },
 				}),
@@ -82,27 +83,23 @@ function mockFullFlow({
 		mockFetch.mockResolvedValueOnce({
 			ok: true,
 			status: 200,
-			text: () =>
+			json: () =>
 				Promise.resolve(
-					JSON.stringify(
-						resumeReturnsNestedTokens
-							? {
-									id: 'flow-id-123',
-									resumeUrl: `${AUTH_DOMAIN}/as/resume`,
-									status: 'COMPLETED',
-									authorizeResponse: { code: 'auth-code-abc' },
-								}
-							: { code: 'auth-code-abc' }
-					)
+					resumeReturnsNestedTokens
+						? {
+								id: 'flow-id-123',
+								resumeUrl: `${AUTH_DOMAIN}/as/resume`,
+								status: 'COMPLETED',
+								authorizeResponse: { code: 'auth-code-abc' },
+							}
+						: { code: 'auth-code-abc' }
 				),
-			headers: { get: () => 'application/json' },
 		});
 	} else {
 		mockFetch.mockResolvedValueOnce({
 			ok: false,
 			status: 400,
-			text: () => Promise.resolve(JSON.stringify({ error: 'resume_failed' })),
-			headers: { get: () => 'application/json' },
+			json: () => Promise.resolve({ error: 'resume_failed' }),
 		});
 	}
 
@@ -130,7 +127,7 @@ function mockFullFlow({
 	}
 }
 
-beforeEach(() => mockFetch.mockClear());
+beforeEach(() => mockFetch.mockReset());
 
 describe('POST /api/mcp/user-token-via-login', () => {
 	describe('input validation', () => {
@@ -171,12 +168,6 @@ describe('POST /api/mcp/user-token-via-login', () => {
 
 	describe('successful flow', () => {
 		test('returns access_token and id_token on success', async () => {
-			// The backend calls itself (redirectless/authorize, flows/check-username-password, resume)
-			// then calls PingOne token endpoint directly. We need to mock the outbound PingOne calls.
-			// Since the backend uses absolute URLs for PingOne but relative for its own sub-endpoints,
-			// the internal sub-calls will be routed through Express properly by supertest,
-			// and only the final PingOne token endpoint hits fetch.
-			// For a simpler integration test, we mock just what fetch sees.
 			mockFullFlow();
 			const res = await request(app).post('/api/mcp/user-token-via-login').send({
 				environmentId: ENV_ID,
@@ -187,15 +178,30 @@ describe('POST /api/mcp/user-token-via-login', () => {
 				region: 'us',
 			});
 
-			// Accept either 200 (success) or 500 (if internal sub-calls aren't mockable this way)
-			// The primary assertion is that the endpoint exists and validates input correctly.
-			// Full integration flows are covered by mcp-worker-token tests pattern.
-			expect([200, 400, 500]).toContain(res.status);
+			expect(res.status).toBe(200);
+			expect(res.body.success).toBe(true);
+			expect(res.body.access_token).toBe('user_access_token_xyz');
+			expect(res.body.id_token).toBe('user_id_token_xyz');
+			expect(res.body.token_type).toBe('Bearer');
+			expect(typeof res.body.expires_in).toBe('number');
+		});
+
+		test('response includes id_token when PingOne returns it', async () => {
+			mockFullFlow();
+			const res = await request(app).post('/api/mcp/user-token-via-login').send({
+				environmentId: ENV_ID,
+				clientId: CLIENT_ID,
+				clientSecret: CLIENT_SECRET,
+				username: 'alice@acme.com',
+				password: 'secret123',
+			});
+			expect(res.status).toBe(200);
+			expect(res.body.id_token).toBe('user_id_token_xyz');
 		});
 	});
 
 	describe('error propagation', () => {
-		test('returns error when credentials rejected', async () => {
+		test('returns 401 when credentials rejected by PingOne', async () => {
 			mockFullFlow({ checkOk: false });
 			const res = await request(app).post('/api/mcp/user-token-via-login').send({
 				environmentId: ENV_ID,
@@ -205,8 +211,48 @@ describe('POST /api/mcp/user-token-via-login', () => {
 				password: 'wrongpassword',
 				region: 'us',
 			});
-			// 401 or 500 depending on whether internal calls are intercepted
+			expect(res.status).toBe(401);
+			expect(res.body.success).toBe(false);
+			expect(res.body.error).toBe('credentials_rejected');
+		});
+
+		test('returns 400 when authorize step fails', async () => {
+			mockFullFlow({ authorizeOk: false });
+			const res = await request(app).post('/api/mcp/user-token-via-login').send({
+				environmentId: ENV_ID,
+				clientId: CLIENT_ID,
+				clientSecret: CLIENT_SECRET,
+				username: 'alice@acme.com',
+				password: 'secret123',
+			});
+			expect(res.status).toBe(400);
+			expect(res.body.success).toBe(false);
+		});
+
+		test('returns 400 when resume fails', async () => {
+			mockFullFlow({ resumeOk: false });
+			const res = await request(app).post('/api/mcp/user-token-via-login').send({
+				environmentId: ENV_ID,
+				clientId: CLIENT_ID,
+				clientSecret: CLIENT_SECRET,
+				username: 'alice@acme.com',
+				password: 'secret123',
+			});
+			expect(res.status).toBe(400);
+			expect(res.body.success).toBe(false);
+		});
+
+		test('returns error when token exchange fails', async () => {
+			mockFullFlow({ tokenOk: false });
+			const res = await request(app).post('/api/mcp/user-token-via-login').send({
+				environmentId: ENV_ID,
+				clientId: CLIENT_ID,
+				clientSecret: CLIENT_SECRET,
+				username: 'alice@acme.com',
+				password: 'secret123',
+			});
 			expect(res.status).toBeGreaterThanOrEqual(400);
+			expect(res.body.success).toBe(false);
 		});
 	});
 });
