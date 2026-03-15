@@ -31,6 +31,13 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Mock flows: success toasts on every button handler (2026-03-15)
+
+- **What:** Four mock flow pages (`V7MClientCredentialsV9`, `V7MROPCV9`, `V7MImplicitFlowV9`, `V7MDeviceAuthorizationV9`) had no user-visible feedback on successful button actions — token requests, UserInfo calls, and Introspect calls all completed silently. The other three mock flows (`V7MCIBAFlowV9`, `V7MOAuthAuthCodeV9`, `V7MOIDCHybridFlowV9`) already had full coverage. This left users uncertain whether an action had succeeded.
+- **Fix:** Added `showGlobalSuccess(title, { description })` calls after every successful handler in each of the four files: (1) token request success, (2) UserInfo endpoint success, (3) Introspect endpoint success. Device Authorization also shows the `user_code` in the success toast. Also removed stale unused `title` destructure params from ROPC and Implicit flow components. Renamed sibling `res` variables in Implicit flow to `userInfoRes` / `introspectRes` to satisfy Biome's scope checks.
+- **Files:** `src/pages/flows/v9/V7MClientCredentialsV9.tsx`, `src/pages/flows/v9/V7MROPCV9.tsx`, `src/pages/flows/v9/V7MImplicitFlowV9.tsx`, `src/pages/flows/v9/V7MDeviceAuthorizationV9.tsx`
+- **Regression check:** Open Client Credentials → "Request token" → green success toast appears. Open Device Authorization → "Request device code" → toast shows the user code. Open ROPC → complete flow → Tokens received toast. Open Implicit → Build authorize URL → Implicit grant complete toast. All flows: UserInfo and Introspect also show success toasts.
+
 ### Introspect all three token types from agent (2026-03-14)
 
 - **What:** Test introspection from the agent for (1) worker token, (2) admin token, (3) user token. Side panel must provide a login form for user credentials so the user can get a user access token and then say "Introspect user token".
