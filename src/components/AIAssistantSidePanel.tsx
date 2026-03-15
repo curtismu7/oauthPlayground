@@ -26,8 +26,8 @@ interface AIAssistantSidePanelProps {
 	onAdminTokenSet?: (token: string, expiresInSeconds: number, environmentId: string) => void;
 	/** Called when user signs out from Admin */
 	onAdminTokenClear?: () => void;
-	/** When 'admin', switch to Admin tab (e.g. when user checks Admin in header) */
-	requestedTab?: 'admin' | undefined;
+	/** When 'admin', switch to Admin tab (e.g. when user checks Admin in header); when 'user-login', switch to User login tab */
+	requestedTab?: 'admin' | 'user-login' | undefined;
 	/** When true, Admin tab auto-loads credentials from Configuration and shows a simplified one-click client_credentials login */
 	adminLoginUsernamePasswordOnly?: boolean;
 	/** User access token from User login tab (for introspection: "Introspect user token") */
@@ -64,10 +64,12 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 		'pingone-login' | 'admin' | 'user-login' | 'documentation' | 'tools'
 	>('pingone-login');
 
-	// When parent requests Admin tab (e.g. user checked Admin checkbox), switch to it immediately
+	// When parent requests Admin or User-login tab, switch to it immediately
 	useEffect(() => {
 		if (isVisible && requestedTab === 'admin') {
 			setActiveTab('admin');
+		} else if (isVisible && requestedTab === 'user-login') {
+			setActiveTab('user-login');
 		}
 	}, [isVisible, requestedTab]);
 	const [position, setPosition] = useState({
@@ -532,7 +534,9 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 						{error && <FormError>{error}</FormError>}
 						<LoginButton
 							type="button"
-							onClick={() => { void handleQuickLogin(); }}
+							onClick={() => {
+								void handleQuickLogin();
+							}}
 							disabled={isLoading || !onAdminTokenSet}
 						>
 							{isLoading ? 'Signing in…' : 'Get admin token'}
