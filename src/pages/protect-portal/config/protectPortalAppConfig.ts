@@ -19,7 +19,7 @@ export const PINGONE_CONFIG = {
 	clientId: import.meta.env.VITE_PINGONE_CLIENT_ID || 'your-client-id',
 	clientSecret: import.meta.env.VITE_PINGONE_CLIENT_SECRET || 'your-client-secret',
 	redirectUri:
-		import.meta.env.VITE_PINGONE_REDIRECT_URI || 'http://localhost:3000/protect-portal-callback',
+		import.meta.env.VITE_PINGONE_REDIRECT_URI || 'https://api.pingdemo.com/protect-portal-callback',
 	region: (import.meta.env.VITE_PINGONE_REGION || 'us') as 'us' | 'eu' | 'ap' | 'ca',
 
 	// Development fallbacks (for testing)
@@ -27,7 +27,7 @@ export const PINGONE_CONFIG = {
 		environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9', // Sample environment ID
 		clientId: 'sample-client-id-1234',
 		clientSecret: 'sample-client-secret-shhh',
-		redirectUri: 'http://localhost:3000/protect-portal-callback',
+		redirectUri: 'https://api.pingdemo.com/protect-portal-callback',
 		region: 'us' as const,
 	},
 };

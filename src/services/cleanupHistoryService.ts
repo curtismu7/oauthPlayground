@@ -107,34 +107,36 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-15T16:34:34.265Z
+// Last updated: 2026-03-15T21:01:54.398Z
 // Source: git log (1 days → 1 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
-  {
-    "id": "git-2026-03-15-documentation",
-    "date": "2026-03-15",
-    "duration": 5.2,
-    "category": {
-      "id": "documentation",
-      "name": "Documentation",
-      "color": "#6F42C1",
-      "icon": "📚",
-      "description": "Documentation"
-    },
-    "description": "4 commits: overlay messages area so all 11 categories are reachable; use authz code + PKCE + pi.flow in UserLoginContent …",
-    "filesModified": 13,
-    "linesOfCode": 1559,
-    "issuesResolved": 19,
-    "documentation": [],
-    "achievements": [
-      "overlay messages area so all 11 categories are reachable",
-      "use authz code + PKCE + pi.flow in UserLoginContent",
-      "add user login command handler - opens User login side panel tab",
-      "v9.16.4 - Comprehensive user documentation for MasterFlow API"
-    ],
-    "version": "9.16.4"
-  }
+	{
+		id: 'git-2026-03-15-code-cleanup',
+		date: '2026-03-15',
+		duration: 12,
+		category: {
+			id: 'code-cleanup',
+			name: 'Code Cleanup',
+			color: '#FFC107',
+			icon: '🧹',
+			description: 'Code Cleanup',
+		},
+		description:
+			'15 commits: fix stale pingOneLoginService tests (code+PKCE); improve mcp-user-token-via-login tests; shorten tab labels, add dividers between tabs, prevent clipping …',
+		filesModified: 46,
+		linesOfCode: 4450,
+		issuesResolved: 56,
+		documentation: [],
+		achievements: [
+			'fix stale pingOneLoginService tests (code+PKCE); improve mcp-user-token-via-login tests',
+			'shorten tab labels, add dividers between tabs, prevent clipping',
+			"show worker token for 'show my token' when no user token; improve 400 error detail",
+			'use response_type=code+PKCE instead of token id_token (fixes 400 on Authz Code-only apps)',
+			'reset useAdminLogin on sign-out so agent exits admin mode',
+		],
+		version: '9.16.4',
+	},
 ];
 
 // ─── END AUTO-GENERATED sessions ───
