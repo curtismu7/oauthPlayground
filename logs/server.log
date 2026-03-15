@@ -2276,3 +2276,191 @@
 [2026-03-15T15:07:18.133Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
 [2026-03-15T15:07:18.110Z] [03/15/2026, 10:07:18] [ℹ️ LOG] [2026-03-15T15:07:18.110Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
 [2026-03-15T15:07:18.133Z] [03/15/2026, 10:07:18] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-15T15:34:41.698Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T15:34:41.715Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T15:34:41.715Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T15:34:41.715Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T15:34:41.715Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T15:34:41.716Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T15:34:41.716Z] [03/15/2026, 10:34:41] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T15:34:41.715Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T15:34:41.719Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T15:34:41.720Z] [03/15/2026, 10:34:41] [ℹ️ LOG] [2026-03-15T15:34:41.720Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T15:34:41.727Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T15:34:41.730Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 🔧 Initializing databases...
+[2026-03-15T15:34:41.733Z] [03/15/2026, 10:34:41] [ℹ️ LOG] [2026-03-15T15:34:41.733Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-15T15:34:41.734Z] [03/15/2026, 10:34:41] [ℹ️ LOG] [2026-03-15T15:34:41.734Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-15T15:34:41.734Z] [03/15/2026, 10:34:41] [ℹ️ LOG] ✅ Settings database initialized
+[2026-03-15T15:34:41.737Z] [03/15/2026, 10:34:41] [ℹ️ LOG] [2026-03-15T15:34:41.737Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T15:34:41.737Z] [03/15/2026, 10:34:41] [ℹ️ LOG] [2026-03-15T15:34:41.737Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T15:34:41.737Z] [03/15/2026, 10:34:41] [ℹ️ LOG] [2026-03-15T15:34:41.737Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T15:34:41.738Z] [03/15/2026, 10:34:41] [ℹ️ LOG] [2026-03-15T15:34:41.738Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T15:34:41.738Z] [03/15/2026, 10:34:41] [ℹ️ LOG] [2026-03-15T15:34:41.738Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T15:34:41.738Z] [03/15/2026, 10:34:41] [ℹ️ LOG] [2026-03-15T15:34:41.738Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T15:34:41.738Z] [03/15/2026, 10:34:41] [ℹ️ LOG] ✅ User database initialized
+[2026-03-15T15:34:41.738Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 🎉 All databases initialized successfully
+[2026-03-15T15:34:41.760Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-15T15:34:41.760Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-15T15:34:41.760Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-15T15:34:41.760Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-15T15:34:41.760Z] [03/15/2026, 10:34:41] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-15T15:34:41.760Z] [03/15/2026, 10:34:41] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-15T15:37:10.097Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T15:37:10.111Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T15:37:10.112Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T15:37:10.111Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T15:37:10.112Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T15:37:10.112Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T15:37:10.112Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T15:37:10.112Z] [03/15/2026, 10:37:10] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T15:37:10.115Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T15:37:10.117Z] [03/15/2026, 10:37:10] [ℹ️ LOG] [2026-03-15T15:37:10.116Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T15:37:10.126Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 🔧 Initializing databases...
+[2026-03-15T15:37:10.125Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T15:37:10.132Z] [03/15/2026, 10:37:10] [ℹ️ LOG] [2026-03-15T15:37:10.132Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-15T15:37:10.132Z] [03/15/2026, 10:37:10] [ℹ️ LOG] [2026-03-15T15:37:10.132Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-15T15:37:10.132Z] [03/15/2026, 10:37:10] [ℹ️ LOG] ✅ Settings database initialized
+[2026-03-15T15:37:10.134Z] [03/15/2026, 10:37:10] [ℹ️ LOG] [2026-03-15T15:37:10.133Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T15:37:10.134Z] [03/15/2026, 10:37:10] [ℹ️ LOG] [2026-03-15T15:37:10.134Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T15:37:10.134Z] [03/15/2026, 10:37:10] [ℹ️ LOG] [2026-03-15T15:37:10.134Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T15:37:10.135Z] [03/15/2026, 10:37:10] [ℹ️ LOG] [2026-03-15T15:37:10.135Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T15:37:10.135Z] [03/15/2026, 10:37:10] [ℹ️ LOG] [2026-03-15T15:37:10.135Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T15:37:10.135Z] [03/15/2026, 10:37:10] [ℹ️ LOG] ✅ User database initialized
+[2026-03-15T15:37:10.135Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 🎉 All databases initialized successfully
+[2026-03-15T15:37:10.161Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-15T15:37:10.161Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-15T15:37:10.161Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-15T15:37:10.161Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-15T15:37:10.135Z] [03/15/2026, 10:37:10] [ℹ️ LOG] [2026-03-15T15:37:10.135Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T15:37:10.161Z] [03/15/2026, 10:37:10] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-15T15:37:10.161Z] [03/15/2026, 10:37:10] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-15T16:08:13.315Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T16:08:13.327Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T16:08:13.328Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T16:08:13.328Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T16:08:13.328Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T16:08:13.328Z] [03/15/2026, 11:08:13] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T16:08:13.328Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T16:08:13.328Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T16:08:13.331Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T16:08:13.332Z] [03/15/2026, 11:08:13] [ℹ️ LOG] [2026-03-15T16:08:13.332Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T16:08:13.338Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 🔐 Using custom domain certificates from env: /Users/cmuir/P1Import-apps/oauth-playground/certs/api.pingdemo.com.crt
+[2026-03-15T16:08:13.339Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 🔧 Initializing databases...
+[2026-03-15T16:08:13.342Z] [03/15/2026, 11:08:13] [ℹ️ LOG] [2026-03-15T16:08:13.341Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-15T16:08:13.342Z] [03/15/2026, 11:08:13] [ℹ️ LOG] [2026-03-15T16:08:13.342Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-15T16:08:13.342Z] [03/15/2026, 11:08:13] [ℹ️ LOG] ✅ Settings database initialized
+[2026-03-15T16:08:13.344Z] [03/15/2026, 11:08:13] [ℹ️ LOG] [2026-03-15T16:08:13.344Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T16:08:13.344Z] [03/15/2026, 11:08:13] [ℹ️ LOG] [2026-03-15T16:08:13.344Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T16:08:13.344Z] [03/15/2026, 11:08:13] [ℹ️ LOG] [2026-03-15T16:08:13.344Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T16:08:13.345Z] [03/15/2026, 11:08:13] [ℹ️ LOG] [2026-03-15T16:08:13.345Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T16:08:13.345Z] [03/15/2026, 11:08:13] [ℹ️ LOG] [2026-03-15T16:08:13.345Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T16:08:13.345Z] [03/15/2026, 11:08:13] [ℹ️ LOG] ✅ User database initialized
+[2026-03-15T16:08:13.367Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-15T16:08:13.345Z] [03/15/2026, 11:08:13] [ℹ️ LOG] [2026-03-15T16:08:13.345Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T16:08:13.367Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-15T16:08:13.345Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 🎉 All databases initialized successfully
+[2026-03-15T16:08:13.367Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-15T16:08:13.367Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-15T16:08:13.367Z] [03/15/2026, 11:08:13] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-15T16:08:13.367Z] [03/15/2026, 11:08:13] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-15T16:08:29.211Z] [03/15/2026, 11:08:29] [ℹ️ LOG] [2026-03-15T16:08:29.211Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Database initialized: /Users/cmuir/P1Import-apps/oauth-playground/data/enhanced_credentials.db
+[2026-03-15T16:08:29.212Z] [03/15/2026, 11:08:29] [ℹ️ LOG] [2026-03-15T16:08:29.212Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-15T16:08:29.248Z] [03/15/2026, 11:08:29] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-15T16:08:39.433Z] [03/15/2026, 11:08:39] [ℹ️ LOG] [2026-03-15T16:08:39.433Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-15T16:08:39.461Z] [03/15/2026, 11:08:39] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-15T16:11:52.725Z] [03/15/2026, 11:11:52] [ℹ️ LOG] 📥 [Server] Request body: {
+  "grant_type": "password",
+  "client_id": "66a4686b-9222-4ad2-91b6-03113711c9aa",
+  "hasCode": false,
+  "hasCodeVerifier": false,
+  "hasClientSecret": true,
+  "hasEnvironmentId": true,
+  "code": "undefined...",
+  "codeVerifier": "undefined...",
+  "clientId": "66a4686b...",
+  "fullBody": {
+    "grant_type": "password",
+    "username": "cmuir@pingidentity.com",
+    "password": "$qx#rzI31cO$",
+    "client_id": "66a4686b-9222-4ad2-91b6-03113711c9aa",
+    "client_secret": "3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC",
+    "environment_id": "b9817c16-9910-4415-b67e-4ac687da74d9",
+    "scope": "p1:read:environment p1:read:application p1:read:resource p1:read:user",
+    "client_auth_method": "client_secret_post"
+  }
+}
+[2026-03-15T16:11:52.725Z] [03/15/2026, 11:11:52] [ℹ️ LOG] 🔑 [Server] Validating password (ROPC) grant type
+[2026-03-15T16:11:52.725Z] [03/15/2026, 11:11:52] [ℹ️ LOG] 🔧 [Server] Token exchange configuration: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "tokenEndpoint": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/token",
+  "grantType": "password",
+  "clientId": "66a4686b...",
+  "hasClientSecret": true,
+  "hasCode": false,
+  "hasCodeVerifier": false,
+  "clientAuthMethod": "client_secret_post",
+  "scope": "p1:read:environment p1:read:application p1:read:resource p1:read:user",
+  "allParams": {
+    "grant_type": "password",
+    "username": "cmuir@pingidentity.com",
+    "password": "$qx#rzI31cO$",
+    "client_id": "66a4686b-9222-4ad2-91b6-03113711c9aa",
+    "client_secret": "3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC",
+    "environment_id": "b9817c16-9910-4415-b67e-4ac687da74d9",
+    "scope": "p1:read:environment p1:read:application p1:read:resource p1:read:user",
+    "client_auth_method": "client_secret_post"
+  }
+}
+[2026-03-15T16:11:52.725Z] [03/15/2026, 11:11:52] [ℹ️ LOG] 🔑 [Server] Building password (ROPC) request body
+[2026-03-15T16:11:52.726Z] [03/15/2026, 11:11:52] [ℹ️ LOG] 🔐 [Server] Using client_secret_post for confidential client: {
+  "clientId": "66a4686b...",
+  "clientSecretLength": 64,
+  "hasClientSecret": true,
+  "authMethod": "client_secret_post"
+}
+[2026-03-15T16:11:52.726Z] [03/15/2026, 11:11:52] [ℹ️ LOG] 🌐 [Server] Making request to PingOne token endpoint: {
+  "url": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/token",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Accept": "application/json",
+    "Authorization": "None"
+  },
+  "body": "grant_type=password&client_id=66a4686b-9222-4ad2-91b6-03113711c9aa&username=cmuir%40pingidentity.com&password=%24qx%23rzI31cO%24&scope=p1%3Aread%3Aenvironment+p1%3Aread%3Aapplication+p1%3Aread%3Aresource+p1%3Aread%3Auser&client_secret=3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC"
+}
+[2026-03-15T16:11:52.720Z] [03/15/2026, 11:11:52] [ℹ️ LOG] 🚀 [Server] Token exchange request received
+[2026-03-15T16:11:52.831Z] [03/15/2026, 11:11:52] [ℹ️ LOG] 📥 [Server] PingOne token response: {
+  "status": 400,
+  "statusText": "Bad Request",
+  "ok": false,
+  "headers": {
+    "access-control-allow-credentials": "true",
+    "access-control-allow-origin": "*",
+    "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+    "connection": "keep-alive",
+    "content-length": "167",
+    "content-type": "application/json;charset=UTF-8",
+    "correlation-id": "637e16d6-9af0-4a30-9411-3ea79a9cebd4",
+    "date": "Sun, 15 Mar 2026 16:11:52 GMT",
+    "expires": "0",
+    "pragma": "no-cache",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "via": "1.1 30ca91fd1605c93fd151c3d8162d0af8.cloudfront.net (CloudFront)",
+    "x-amz-apigw-id": "aRcLbHjfCYcEnug=",
+    "x-amz-cf-id": "MzoPK8huh7rv6cycdK24sNQbfhAK9dAKALdmsO3fN6nK8nLS6Lfo3Q==",
+    "x-amz-cf-pop": "DFW59-P6",
+    "x-amzn-requestid": "637e16d6-9af0-4a30-9411-3ea79a9cebd4",
+    "x-amzn-trace-id": "Root=1-69b6da48-3538658054a95d4128f786c3;Parent=2be8b6f223f535ef;Sampled=0;Lineage=1:4e17ef71:0",
+    "x-cache": "Error from cloudfront",
+    "x-content-type-options": "nosniff"
+  }
+}
+[2026-03-15T16:11:52.831Z] [03/15/2026, 11:11:52] [❌ ERROR] ❌ [Server] PingOne token exchange error: {
+  "status": 400,
+  "statusText": "Bad Request",
+  "responseData": {
+    "error": "unsupported_grant_type",
+    "error_description": "Request failed: Invalid grant type: password (Correlation ID: 637e16d6-9af0-4a30-9411-3ea79a9cebd4)"
+  },
+  "requestBody": "grant_type=password&client_id=66a4686b-9222-4ad2-91b6-03113711c9aa&username=cmuir%40pingidentity.com&password=%24qx%23rzI31cO%24&scope=p1%3Aread%3Aenvironment+p1%3Aread%3Aapplication+p1%3Aread%3Aresource+p1%3Aread%3Auser&client_secret=3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC"
+}

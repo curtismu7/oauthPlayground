@@ -28,7 +28,7 @@ interface AIAssistantSidePanelProps {
 	onAdminTokenClear?: () => void;
 	/** When 'admin', switch to Admin tab (e.g. when user checks Admin in header) */
 	requestedTab?: 'admin' | undefined;
-	/** When true, Admin tab shows only username/password (credentials from Configuration); use ROPC to get token */
+	/** When true, Admin tab auto-loads credentials from Configuration and shows a simplified one-click client_credentials login */
 	adminLoginUsernamePasswordOnly?: boolean;
 	/** User access token from User login tab (for introspection: "Introspect user token") */
 	userAccessToken?: string | null;
@@ -362,7 +362,7 @@ const PingOneLoginContent: React.FC = () => {
 	);
 };
 
-/** Admin login: client credentials or ROPC (username/password) to get token for MCP/PingOne API calls. */
+/** Admin login: client credentials to get token for MCP/PingOne API calls. */
 interface AdminLoginContentProps {
 	adminToken: string | null;
 	adminTokenExpiry: number | null;
@@ -371,7 +371,7 @@ interface AdminLoginContentProps {
 		| ((token: string, expiresInSeconds: number, environmentId: string) => void)
 		| undefined;
 	onAdminTokenClear?: (() => void) | undefined;
-	/** When true, show only username/password (credentials from Configuration); submit uses ROPC */
+	/** When true, auto-load credentials from Configuration and show a simplified one-click login */
 	usernamePasswordOnly?: boolean;
 }
 
@@ -386,8 +386,6 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 	const [environmentId, setEnvironmentId] = useState('');
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
-	const [username, setUsername] = useState('');
-	const [password, setPassword] = useState('');
 	const [useFromConfig, setUseFromConfig] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -451,58 +449,6 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 		}
 	}, [environmentId, clientId, clientSecret, onAdminTokenSet]);
 
-	const handleUsernamePasswordLogin = useCallback(async () => {
-		if (!onAdminTokenSet) return;
-		const data = unifiedWorkerTokenService.getTokenDataSync();
-		const envId = data?.credentials?.environmentId?.trim();
-		const cid = data?.credentials?.clientId?.trim();
-		const secret = data?.credentials?.clientSecret?.trim();
-		const user = username.trim();
-		const pwd = password;
-		if (!envId || !cid || !secret) {
-			setError('Configure PingOne OIDC client credentials (worker token) in Configuration first.');
-			return;
-		}
-		if (!user || !pwd) {
-			setError('Username and password are required.');
-			return;
-		}
-		setError(null);
-		setIsLoading(true);
-		try {
-			const res = await fetch('/api/token-exchange', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					grant_type: 'password',
-					username: user,
-					password: pwd,
-					client_id: cid,
-					client_secret: secret,
-					environment_id: envId,
-					scope: DEFAULT_ADMIN_SCOPE,
-					client_auth_method: 'client_secret_post',
-				}),
-			});
-			const respData = await res.json().catch(() => ({}));
-			if (!res.ok) {
-				throw new Error(
-					respData.error_description || respData.error || `Login failed (${res.status})`
-				);
-			}
-			const token = respData.access_token;
-			const expiresIn = typeof respData.expires_in === 'number' ? respData.expires_in : 3600;
-			if (!token) throw new Error('No access_token in response');
-			onAdminTokenSet(token, expiresIn, envId);
-		} catch (err) {
-			const msg = err instanceof Error ? err.message : 'Login failed';
-			setError(msg);
-			logger.error('AIAssistantSidePanel', 'Admin ROPC login error', undefined, err as Error);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [username, password, onAdminTokenSet]);
-
 	const handleSignOut = useCallback(() => {
 		onAdminTokenClear?.();
 		setError(null);
@@ -515,12 +461,56 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 			: 0;
 
 	if (usernamePasswordOnly) {
+		const handleQuickLogin = async () => {
+			if (!onAdminTokenSet) return;
+			const data = unifiedWorkerTokenService.getTokenDataSync();
+			const envId = data?.credentials?.environmentId?.trim();
+			const cid = data?.credentials?.clientId?.trim();
+			const secret = data?.credentials?.clientSecret?.trim();
+			if (!envId || !cid || !secret) {
+				setError('Configure PingOne OIDC client credentials in Configuration first.');
+				return;
+			}
+			setError(null);
+			setIsLoading(true);
+			try {
+				const res = await fetch('/api/token-exchange', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						grant_type: 'client_credentials',
+						client_id: cid,
+						client_secret: secret,
+						environment_id: envId,
+						scope: DEFAULT_ADMIN_SCOPE,
+						client_auth_method: 'client_secret_post',
+					}),
+				});
+				const respData = await res.json().catch(() => ({}));
+				if (!res.ok) {
+					throw new Error(
+						respData.error_description || respData.error || `Login failed (${res.status})`
+					);
+				}
+				const token = respData.access_token;
+				const expiresIn = typeof respData.expires_in === 'number' ? respData.expires_in : 3600;
+				if (!token) throw new Error('No access_token in response');
+				onAdminTokenSet(token, expiresIn, envId);
+			} catch (err) {
+				const msg = err instanceof Error ? err.message : 'Login failed';
+				setError(msg);
+				logger.error('AIAssistantSidePanel', 'Admin login error', undefined, err as Error);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
 		return (
 			<ContentSection>
 				<SectionTitle>Admin login</SectionTitle>
 				<SectionDescription>
-					Log in as admin. Credentials (environment, client ID, secret) come from Configuration.
-					After sign-in, the agent uses your token for commands like &quot;list all users&quot;.
+					Uses client credentials from Configuration to get an admin access token. After sign-in,
+					the agent uses it for commands like &quot;list all users&quot;.
 				</SectionDescription>
 				{isLoggedIn ? (
 					<LoginCard>
@@ -534,40 +524,18 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 					</LoginCard>
 				) : (
 					<LoginCard>
-						<CardTitle>Username and password</CardTitle>
+						<CardTitle>Get admin token</CardTitle>
 						<CardDescription>
-							Enter your PingOne admin username and password. The app credentials are read from
-							Configuration (worker token).
+							Credentials are loaded from Configuration (worker token app). Uses client_credentials
+							grant — no username or password needed.
 						</CardDescription>
-						<FormRow>
-							<FormLabel>Username</FormLabel>
-							<FormInput
-								type="text"
-								value={username}
-								onChange={(e) => setUsername(e.target.value)}
-								placeholder="Admin username or email"
-								disabled={isLoading}
-								autoComplete="username"
-							/>
-						</FormRow>
-						<FormRow>
-							<FormLabel>Password</FormLabel>
-							<FormInput
-								type="password"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-								placeholder="Password"
-								disabled={isLoading}
-								autoComplete="current-password"
-							/>
-						</FormRow>
 						{error && <FormError>{error}</FormError>}
 						<LoginButton
 							type="button"
-							onClick={handleUsernamePasswordLogin}
+							onClick={() => { void handleQuickLogin(); }}
 							disabled={isLoading || !onAdminTokenSet}
 						>
-							{isLoading ? 'Signing in…' : 'Sign in'}
+							{isLoading ? 'Signing in…' : 'Get admin token'}
 						</LoginButton>
 					</LoginCard>
 				)}
