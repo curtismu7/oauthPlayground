@@ -774,7 +774,8 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 				effectiveClientId,
 				undefined, // redirect_uri not needed for pi.flow
 				scopes,
-				region
+				region,
+				'token id_token' // tokens returned directly at resume — no code exchange or PKCE needed
 			);
 			if (!initRes.success || !initRes.data?.flowId) {
 				throw new Error(initRes.error?.message || 'Failed to start authorization flow');
