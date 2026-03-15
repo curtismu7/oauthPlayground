@@ -16,6 +16,8 @@ interface AIAssistantSidePanelProps {
 	onClose: () => void;
 	/** When true, render inline in page flow instead of fixed overlay */
 	embedded?: boolean;
+	/** When true, render as draggable floating panel with no dark backdrop (for full-page mode) */
+	noBackdrop?: boolean;
 	/** Optional: clear chat/conversation in the agent (shows Clear button when provided) */
 	onClear?: () => void;
 	/** Admin token (client credentials) — when set, agent uses it for MCP calls */
@@ -48,6 +50,7 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 	isVisible,
 	onClose,
 	embedded = false,
+	noBackdrop = false,
 	onClear,
 	adminToken = null,
 	adminTokenExpiry = null,
@@ -198,7 +201,10 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 	if (embedded) return content;
 
 	return (
-		<SidePanelOverlay onClick={(e) => e.target === e.currentTarget && onClose()}>
+		<SidePanelOverlay
+			$noBackdrop={noBackdrop}
+			onClick={noBackdrop ? undefined : (e) => e.target === e.currentTarget && onClose()}
+		>
 			<DraggablePanel
 				$x={position.x}
 				$y={position.y}
@@ -676,7 +682,7 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 		const effectiveClientId = authzClientId.trim() || data?.credentials?.clientId?.trim();
 		const effectiveClientSecret = authzClientId.trim()
 			? authzClientSecret.trim()
-			: data?.credentials?.clientSecret?.trim() ?? '';
+			: (data?.credentials?.clientSecret?.trim() ?? '');
 		const scopes = scopesValue
 			.split(/[\s,]+/)
 			.map((s) => s.trim())
@@ -756,8 +762,8 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 		<ContentSection>
 			<SectionTitle>User login</SectionTitle>
 			<SectionDescription>
-				Authorization Code + PKCE with <code>response_mode=pi.flow</code> (redirectless). Requires
-				a PingOne OIDC/Web app with <strong>Authorization Code</strong> grant — not the Worker
+				Authorization Code + PKCE with <code>response_mode=pi.flow</code> (redirectless). Requires a
+				PingOne OIDC/Web app with <strong>Authorization Code</strong> grant — not the Worker
 				(client_credentials) app. Set the <strong>Authz Client</strong> in Configuration or below.
 			</SectionDescription>
 
@@ -935,11 +941,12 @@ const ToolsContent: React.FC = () => (
 );
 
 // Styled Components
-const SidePanelOverlay = styled.div`
+const SidePanelOverlay = styled.div<{ $noBackdrop?: boolean }>`
 	position: fixed;
 	inset: 0;
-	background: rgba(0, 0, 0, 0.4);
+	background: ${({ $noBackdrop }) => ($noBackdrop ? 'transparent' : 'rgba(0, 0, 0, 0.4)')};
 	z-index: 10052;
+	pointer-events: ${({ $noBackdrop }) => ($noBackdrop ? 'none' : 'auto')};
 `;
 
 const DraggablePanel = styled.div<{ $x: number; $y: number; $width: number }>`
@@ -1031,18 +1038,24 @@ const TabsContainer = styled.div`
 	display: flex;
 	background: #f8f9fa;
 	border-bottom: 1px solid #e0e0e0;
+	overflow: hidden;
 `;
 
 const TabButton = styled.button<{ $active?: boolean }>`
+	flex: 1;
+	min-width: 0;
 	background: ${({ $active }) => ($active ? 'white' : 'transparent')};
 	border: none;
 	color: ${({ $active }) => ($active ? '#2563eb' : '#666')};
-	padding: 12px 20px;
-	font-size: 14px;
+	padding: 10px 4px;
+	font-size: 12px;
 	font-weight: ${({ $active }) => ($active ? '600' : '400')};
 	cursor: pointer;
 	transition: all 0.2s;
 	border-bottom: ${({ $active }) => ($active ? '2px solid #2563eb' : '2px solid transparent')};
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 
 	&:hover {
 		background: rgba(37, 99, 235, 0.05);

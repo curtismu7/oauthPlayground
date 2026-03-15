@@ -278,7 +278,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 	const [isRefreshingToken, setIsRefreshingToken] = useState(false);
 	const [_workerTokenStatus, setWorkerTokenStatus] = useState<WorkerTokenStatus | null>(null);
 	const [showPromptsGuide, setShowPromptsGuide] = useState(false);
-	const [showSidePanel, setShowSidePanel] = useState(fullPage); // visible by default on full page
+	const [showSidePanel, setShowSidePanel] = useState(false); // always start closed; user opens manually
 	/** Admin token (client credentials) — when set and valid, MCP calls use it instead of worker token */
 	const [adminToken, setAdminToken] = useState<string | null>(null);
 	const [adminTokenExpiry, setAdminTokenExpiry] = useState<number | null>(null);
@@ -1889,37 +1889,35 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 				</FloatingButton>
 			)}
 
-			{/* Page backdrop (blank area) when fullPage - agent talks to this; side panel embedded when showSidePanel */}
+			{/* Page backdrop (blank area) when fullPage - agent talks to this */}
 			{fullPage && (
-				<PageBackdrop $hasResults={showResultsInPage} $hasTools={showSidePanel}>
-					{(showResultsInPage || showSidePanel) && (
-						<PageBackdropMain>{showResultsInPage && pageResultsContent}</PageBackdropMain>
-					)}
-					{showSidePanel && (
-						<PageToolsSlot $alongsideResults>
-							<AIAssistantSidePanel
-								isVisible
-								onClose={() => {
-									setShowSidePanel(false);
-									setAdminLoginUsernamePasswordOnly(false);
-									setShowUserLogin(false);
-								}}
-								embedded
-								onClear={handleClear}
-								requestedTab={useAdminLogin ? 'admin' : showUserLogin ? 'user-login' : undefined}
-								adminLoginUsernamePasswordOnly={adminLoginUsernamePasswordOnly}
-								adminToken={adminToken}
-								adminTokenExpiry={adminTokenExpiry}
-								adminEnvironmentId={adminEnvironmentId}
-								onAdminTokenSet={handleAdminTokenSet}
-								onAdminTokenClear={handleAdminTokenClear}
-								userAccessToken={userAccessToken}
-								onUserTokenSet={handleUserTokenSet}
-								onUserTokenClear={handleUserTokenClear}
-							/>
-						</PageToolsSlot>
-					)}
+				<PageBackdrop $hasResults={showResultsInPage}>
+					{showResultsInPage && <PageBackdropMain>{pageResultsContent}</PageBackdropMain>}
 				</PageBackdrop>
+			)}
+
+			{/* Tools & Resources — floating draggable panel (full-page mode only) */}
+			{fullPage && showSidePanel && (
+				<AIAssistantSidePanel
+					isVisible
+					noBackdrop
+					onClose={() => {
+						setShowSidePanel(false);
+						setAdminLoginUsernamePasswordOnly(false);
+						setShowUserLogin(false);
+					}}
+					onClear={handleClear}
+					requestedTab={useAdminLogin ? 'admin' : showUserLogin ? 'user-login' : undefined}
+					adminLoginUsernamePasswordOnly={adminLoginUsernamePasswordOnly}
+					adminToken={adminToken}
+					adminTokenExpiry={adminTokenExpiry}
+					adminEnvironmentId={adminEnvironmentId}
+					onAdminTokenSet={handleAdminTokenSet}
+					onAdminTokenClear={handleAdminTokenClear}
+					userAccessToken={userAccessToken}
+					onUserTokenSet={handleUserTokenSet}
+					onUserTokenClear={handleUserTokenClear}
+				/>
 			)}
 
 			{/* Chat Window - compact floating when fullPage, else normal */}
@@ -3125,11 +3123,11 @@ const FloatingPagePanel = styled.div`
 	flex-direction: column;
 `;
 
-const PageBackdrop = styled.div<{ $hasResults?: boolean; $hasTools?: boolean }>`
+const PageBackdrop = styled.div<{ $hasResults?: boolean }>`
 	flex: 1;
 	min-height: 0;
 	display: flex;
-	flex-direction: ${({ $hasResults, $hasTools }) => ($hasResults && $hasTools ? 'row' : 'column')};
+	flex-direction: column;
 	background: #f8fafc;
 `;
 
@@ -3202,14 +3200,6 @@ const PageResultEmpty = styled.div`
 	justify-content: center;
 	color: #94a3b8;
 	font-size: 14px;
-`;
-
-const PageToolsSlot = styled.div<{ $alongsideResults?: boolean }>`
-	width: ${({ $alongsideResults }) => ($alongsideResults ? '400px' : '100%')};
-	flex: ${({ $alongsideResults }) => ($alongsideResults ? '0 0 400px' : '1')};
-	min-height: 0;
-	display: flex;
-	flex-direction: column;
 `;
 
 const ChatWindow = styled.div<{
