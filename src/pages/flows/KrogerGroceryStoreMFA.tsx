@@ -52,15 +52,17 @@ const ProductCard = styled.div`
 	background: white;
 	border-radius: 8px;
 	padding: 1.5rem;
-	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	cursor: pointer;
-	transition: transform 0.2s, box-shadow 0.2s;
-	
+	transition:
+		transform 0.2s,
+		box-shadow 0.2s;
+
 	&:hover {
 		transform: translateY(-4px);
-		box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	}
-	
+
 	img {
 		width: 100%;
 		height: 200px;
@@ -69,20 +71,20 @@ const ProductCard = styled.div`
 		margin-bottom: 1rem;
 		background: ${KROGER_LIGHT};
 	}
-	
+
 	h3 {
 		font-size: 1.125rem;
 		margin-bottom: 0.5rem;
 		color: ${KROGER_DARK};
 	}
-	
+
 	.price {
 		font-size: 1.5rem;
 		font-weight: bold;
 		color: ${KROGER_BLUE};
 		margin: 0.5rem 0;
 	}
-	
+
 	button {
 		width: 100%;
 		padding: 0.75rem;
@@ -94,7 +96,7 @@ const ProductCard = styled.div`
 		cursor: pointer;
 		margin-top: 1rem;
 		transition: background 0.2s;
-		
+
 		&:hover {
 			background: #c40024;
 		}
@@ -108,7 +110,7 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(0,0,0,0.7);
+	background: rgba(0, 0, 0, 0.7);
 	display: ${(props) => (props.$isOpen ? 'flex' : 'none')};
 	align-items: center;
 	justify-content: center;
@@ -124,7 +126,7 @@ const LoginModal = styled.div`
 	width: 100%;
 	max-height: 90vh;
 	overflow-y: auto;
-	box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 `;
 
 const ModalHeader = styled.div`
@@ -132,20 +134,20 @@ const ModalHeader = styled.div`
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 2rem;
-	
+
 	h2 {
 		font-size: 1.75rem;
 		color: ${KROGER_DARK};
 		margin: 0;
 	}
-	
+
 	button {
 		background: none;
 		border: none;
 		font-size: 1.5rem;
 		cursor: pointer;
 		color: #999;
-		
+
 		&:hover {
 			color: ${KROGER_DARK};
 		}
@@ -164,11 +166,11 @@ const LoginButton = styled.button`
 	cursor: pointer;
 	margin-top: 1rem;
 	transition: background 0.2s;
-	
+
 	&:hover {
 		background: #c40024;
 	}
-	
+
 	&:disabled {
 		background: #ccc;
 		cursor: not-allowed;
@@ -181,25 +183,25 @@ const MFAChallengeModal = styled(LoginModal)`
 
 const MFAChallengeContent = styled.div`
 	text-align: center;
-	
+
 	.icon {
 		font-size: 4rem;
 		color: ${KROGER_GREEN};
 		margin-bottom: 1rem;
 	}
-	
+
 	h3 {
 		font-size: 1.5rem;
 		margin-bottom: 1rem;
 		color: ${KROGER_DARK};
 	}
-	
+
 	p {
 		color: #666;
 		margin-bottom: 2rem;
 		line-height: 1.6;
 	}
-	
+
 	input {
 		width: 100%;
 		padding: 1rem;
@@ -209,7 +211,7 @@ const MFAChallengeContent = styled.div`
 		text-align: center;
 		letter-spacing: 0.5rem;
 		margin-bottom: 1rem;
-		
+
 		&:focus {
 			outline: none;
 			border-color: ${KROGER_BLUE};
@@ -221,7 +223,7 @@ const PortalDashboard = styled.div`
 	background: white;
 	border-radius: 12px;
 	padding: 2rem;
-	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const DashboardHeader = styled.div`
@@ -231,7 +233,7 @@ const DashboardHeader = styled.div`
 	margin-bottom: 2rem;
 	padding-bottom: 1rem;
 	border-bottom: 2px solid ${KROGER_LIGHT};
-	
+
 	h2 {
 		font-size: 2rem;
 		color: ${KROGER_DARK};
@@ -243,7 +245,7 @@ const ConfigSection = styled.div`
 	margin-top: 2rem;
 	padding-top: 2rem;
 	border-top: 2px solid ${KROGER_LIGHT};
-	
+
 	summary {
 		cursor: pointer;
 		font-weight: 600;
@@ -252,7 +254,7 @@ const ConfigSection = styled.div`
 		background: ${KROGER_LIGHT};
 		border-radius: 4px;
 		margin-bottom: 1rem;
-		
+
 		&:hover {
 			background: #e8e8e8;
 		}
@@ -298,7 +300,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 		environmentId: '',
 		clientId: '',
 		clientSecret: '',
-		redirectUri: 'https://localhost:3000/callback',
+		redirectUri: 'https://api.pingdemo.com/callback',
 		scopes: 'openid profile email consents',
 	});
 	const [mfaDevices, setMfaDevices] = useState<MfaDevice[]>([]);
