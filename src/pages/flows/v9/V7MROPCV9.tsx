@@ -42,9 +42,7 @@ type Props = {
 	title?: string;
 };
 
-export const V7MROPCV9: React.FC<Props> = ({
-	oidc = false,
-}) => {
+export const V7MROPCV9: React.FC<Props> = ({ oidc = false }) => {
 	const [variant, setVariant] = useState<'oauth' | 'oidc'>(oidc ? 'oidc' : 'oauth');
 	const [clientId, setClientId] = useState('v7m-client');
 	const [clientSecret, setClientSecret] = useState('topsecret');
@@ -173,7 +171,9 @@ export const V7MROPCV9: React.FC<Props> = ({
 			return;
 		}
 		setTokenResponse(res);
-		showGlobalSuccess('Tokens received', { description: 'Resource Owner Password credentials exchanged successfully.' });
+		showGlobalSuccess('Tokens received', {
+			description: 'Resource Owner Password credentials exchanged successfully.',
+		});
 	}
 
 	const accessToken = tokenResponse?.access_token;
@@ -186,7 +186,9 @@ export const V7MROPCV9: React.FC<Props> = ({
 		}
 		const res = getUserInfoFromAccessToken(accessToken);
 		setUserinfoResponse(res);
-		showGlobalSuccess('UserInfo retrieved', { description: 'Identity claims returned from the UserInfo endpoint.' });
+		showGlobalSuccess('UserInfo retrieved', {
+			description: 'Identity claims returned from the UserInfo endpoint.',
+		});
 	}
 
 	function handleIntrospect() {
@@ -196,7 +198,9 @@ export const V7MROPCV9: React.FC<Props> = ({
 		}
 		const res = introspectToken(accessToken);
 		setIntrospectionResponse(res);
-		showGlobalSuccess('Token introspected', { description: 'Server-side token validation complete.' });
+		showGlobalSuccess('Token introspected', {
+			description: 'Server-side token validation complete.',
+		});
 	}
 
 	// Track if flow has been executed (for reset button behavior)
@@ -522,8 +526,8 @@ export const V7MROPCV9: React.FC<Props> = ({
 									color: '#92400e',
 								}}
 							>
-								<strong>⚠️ Security Note:</strong> In production, passwords and client secrets should
-								never be displayed or logged. This is shown for educational purposes only.
+								<strong>⚠️ Security Note:</strong> In production, passwords and client secrets
+								should never be displayed or logged. This is shown for educational purposes only.
 							</div>
 						</div>
 					)}

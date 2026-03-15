@@ -75,9 +75,9 @@ export const V7MCIBAFlowV9: React.FC = () => {
 	const [deliveryMode, setDeliveryMode] = useState<V9MockCIBADeliveryMode>('poll');
 	const [authReqId, setAuthReqId] = useState('');
 	const [expiresIn, setExpiresIn] = useState<number | null>(null);
-	const [status, setStatus] = useState<'idle' | 'pending' | 'approved' | 'expired' | 'denied' | 'done'>(
-		'idle'
-	);
+	const [status, setStatus] = useState<
+		'idle' | 'pending' | 'approved' | 'expired' | 'denied' | 'done'
+	>('idle');
 	const [tokenResult, setTokenResult] = useState<TokenResult | null>(null);
 	const [introspectionResponse, setIntrospectionResponse] =
 		useState<V9MockIntrospectionResponse | null>(null);
@@ -151,7 +151,9 @@ export const V7MCIBAFlowV9: React.FC = () => {
 		const ok = V9MockCIBAService.approveRequest(authReqId);
 		if (ok) {
 			setStatus('approved');
-			showGlobalSuccess('User approved on their authentication device', { description: 'Poll the token endpoint to retrieve the tokens.' });
+			showGlobalSuccess('User approved on their authentication device', {
+				description: 'Poll the token endpoint to retrieve the tokens.',
+			});
 		} else {
 			showGlobalError('Approval failed — the auth_req_id may have expired.');
 			setStatus('expired');
@@ -166,7 +168,9 @@ export const V7MCIBAFlowV9: React.FC = () => {
 			clearInterval(pollInterval.current);
 			pollInterval.current = null;
 		}
-		showGlobalWarning('User denied. Poll will return access_denied — the correct CIBA spec behaviour (Core 1.0 §10.3.2).');
+		showGlobalWarning(
+			'User denied. Poll will return access_denied — the correct CIBA spec behaviour (Core 1.0 §10.3.2).'
+		);
 	}
 
 	function handlePollToken() {
@@ -179,7 +183,9 @@ export const V7MCIBAFlowV9: React.FC = () => {
 			if (res.error === 'authorization_pending') {
 				showGlobalWarning('authorization_pending — user has not yet approved on their device.');
 			} else if (res.error === 'slow_down') {
-				showGlobalWarning('slow_down — polling too frequently. Per spec, increase your interval by at least 5s.');
+				showGlobalWarning(
+					'slow_down — polling too frequently. Per spec, increase your interval by at least 5s.'
+				);
 			} else if (res.error === 'access_denied') {
 				showGlobalError('access_denied — user denied the request on their authentication device.');
 				setStatus('denied');
@@ -404,16 +410,18 @@ export const V7MCIBAFlowV9: React.FC = () => {
 							url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/backchannel/authentication`}
 							headers={{
 								'Content-Type': 'application/x-www-form-urlencoded',
-									Authorization: `Basic ${btoa(`${clientId}:***`)}`,
-									Accept: 'application/json',
-								}}
-								body={[
-									`client_id=${encodeURIComponent(clientId)}`,
-									`scope=${encodeURIComponent(scope)}`,
-									`login_hint=${encodeURIComponent(loginHint)}`,
-									`binding_message=${encodeURIComponent(bindingMessage)}`,
-									...(deliveryMode !== 'poll' ? [`client_notification_token=${encodeURIComponent(clientNotificationToken)}`] : []),
-								].join('&')}
+								Authorization: `Basic ${btoa(`${clientId}:***`)}`,
+								Accept: 'application/json',
+							}}
+							body={[
+								`client_id=${encodeURIComponent(clientId)}`,
+								`scope=${encodeURIComponent(scope)}`,
+								`login_hint=${encodeURIComponent(loginHint)}`,
+								`binding_message=${encodeURIComponent(bindingMessage)}`,
+								...(deliveryMode !== 'poll'
+									? [`client_notification_token=${encodeURIComponent(clientNotificationToken)}`]
+									: []),
+							].join('&')}
 							response={
 								authReqId
 									? {
@@ -470,11 +478,17 @@ export const V7MCIBAFlowV9: React.FC = () => {
 							{status === 'approved' && (
 								<span>✅ User approved! Poll the token endpoint to retrieve tokens.</span>
 							)}
-								{status === 'denied' && (
-									<span>🚫 User denied. Next poll returns <code>access_denied</code> (CIBA Core 1.0 §10.3.2). Start a new request.</span>
-								)}
-								{status === 'expired' && (
-									<span>❌ Request expired (<code>expired_token</code>). Start a new backchannel auth request.</span>
+							{status === 'denied' && (
+								<span>
+									🚫 User denied. Next poll returns <code>access_denied</code> (CIBA Core 1.0
+									§10.3.2). Start a new request.
+								</span>
+							)}
+							{status === 'expired' && (
+								<span>
+									❌ Request expired (<code>expired_token</code>). Start a new backchannel auth
+									request.
+								</span>
 							)}
 							{status === 'done' && <span>🎉 Tokens issued successfully.</span>}
 						</div>
@@ -622,8 +636,8 @@ export const V7MCIBAFlowV9: React.FC = () => {
 				<ul>
 					<li>
 						<strong>Step 1:</strong> Client authenticates and sends a BC-Authorize POST with{' '}
-						<code>login_hint</code>, <code>scope</code>, <code>binding_message</code>, and
-						(for ping/push) <code>client_notification_token</code>.
+						<code>login_hint</code>, <code>scope</code>, <code>binding_message</code>, and (for
+						ping/push) <code>client_notification_token</code>.
 					</li>
 					<li>
 						<strong>Step 2:</strong> Server pushes an auth request to the user’s authentication
@@ -635,9 +649,8 @@ export const V7MCIBAFlowV9: React.FC = () => {
 					</li>
 					<li>
 						<strong>Step 4:</strong> Client retrieves tokens via poll/ping/push. Token endpoint
-						returns: <code>authorization_pending</code> (still waiting),{' '}
-						<code>slow_down</code> (poll interval too short),{' '}
-						<code>access_denied</code> (user said no),{' '}
+						returns: <code>authorization_pending</code> (still waiting), <code>slow_down</code>{' '}
+						(poll interval too short), <code>access_denied</code> (user said no),{' '}
 						<code>expired_token</code> (timed out).
 					</li>
 				</ul>

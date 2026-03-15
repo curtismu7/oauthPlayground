@@ -116,9 +116,13 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 			300
 		);
 		if (res.type === 'error') {
-			showGlobalError(`${res.error}: ${(res as { error_description?: string }).error_description ?? ''}`);
+			showGlobalError(
+				`${res.error}: ${(res as { error_description?: string }).error_description ?? ''}`
+			);
 		} else {
-			showGlobalSuccess('Hybrid authorization issued', { description: `Front-channel tokens ready — code + ${responseType.replace('code', '').trim() || 'tokens'} in redirect fragment.` });
+			showGlobalSuccess('Hybrid authorization issued', {
+				description: `Front-channel tokens ready — code + ${responseType.replace('code', '').trim() || 'tokens'} in redirect fragment.`,
+			});
 		}
 		setHybridResult(res);
 		setTokenCodeResponse(null);
@@ -154,7 +158,9 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 			return;
 		}
 		setTokenCodeResponse(res as V9MockTokenSuccess);
-		showGlobalSuccess('Tokens received', { description: 'Back-channel token exchange complete. Step 3 is now active.' });
+		showGlobalSuccess('Tokens received', {
+			description: 'Back-channel token exchange complete. Step 3 is now active.',
+		});
 	}
 
 	function handleIntrospect() {
@@ -166,7 +172,9 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 			return;
 		}
 		setIntrospectionResponse(introspectToken(token));
-		showGlobalSuccess('Token introspected', { description: 'Server-side token validation complete.' });
+		showGlobalSuccess('Token introspected', {
+			description: 'Server-side token validation complete.',
+		});
 	}
 
 	const frontChannelIdToken =

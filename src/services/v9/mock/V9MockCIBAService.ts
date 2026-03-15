@@ -161,10 +161,13 @@ export const V9MockCIBAService = {
 		}
 		if (rec.denied) {
 			store.delete(auth_req_id);
-			return { error: 'access_denied', error_description: 'The end-user denied the authentication request' };
+			return {
+				error: 'access_denied',
+				error_description: 'The end-user denied the authentication request',
+			};
 		}
 		// slow_down: if client polls before interval has elapsed (CIBA Core 1.0 §10.3.2)
-		if (rec.lastPollAt !== undefined && (now - rec.lastPollAt) < rec.interval) {
+		if (rec.lastPollAt !== undefined && now - rec.lastPollAt < rec.interval) {
 			return {
 				error: 'slow_down',
 				error_description: `Polling too frequently. Wait at least ${rec.interval}s between polls.`,
