@@ -23135,6 +23135,9 @@ function _extractUsernameForLookup(query) {
 	const notEmailOrUuid = (val) =>
 		!/[^\s@]+@[^\s@]+\.[a-z]{2,}/i.test(val) &&
 		!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+	// "userid for alice", "user id for alice", "get userid for alice"
+	const useridFor = query.match(/user(?:\s*id|id)\s+for\s+["']?([\w.@+-]+)["']?/i);
+	if (useridFor && notEmailOrUuid(useridFor[1])) return useridFor[1];
 	// "use curtis for username", "with curtis for username", "by username curtis"
 	const useFor = query.match(/(?:use|with|by)\s+["']?([\w.@+-]+)["']?\s+for\s+username/i);
 	if (useFor && notEmailOrUuid(useFor[1])) return useFor[1];
@@ -23623,7 +23626,7 @@ app.post('/api/mcp/query', async (req, res) => {
 				return res.json({
 					success: false,
 					answer:
-						'Please include an email address, username, or user ID. Example: "Find user john@acme.com" or "Get user alice"',
+						'Please include an email address, username, or user ID. Examples: "Get userid for alice", "Find user john@acme.com", "Get user alice"',
 					mcpTool: intent.mcpTool,
 					apiCall: intent.apiCall,
 					howItWorks: intent.howItWorks,
