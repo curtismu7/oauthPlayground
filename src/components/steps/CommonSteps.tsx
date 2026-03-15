@@ -320,7 +320,7 @@ export const createCredentialsStep = (
 					type="url"
 					value={credentials.redirectUri}
 					onChange={(e) => setCredentials({ ...credentials, redirectUri: e.target.value })}
-					placeholder="https://localhost:3000/callback"
+					placeholder="https://api.pingdemo.com/callback"
 				/>
 			</FormField>
 
@@ -454,9 +454,9 @@ export const createCredentialsStep = (
 	canExecute: (() => {
 		const canExec = Boolean(
 			credentials.environmentId &&
-				credentials.clientId &&
-				credentials.clientSecret &&
-				credentials.redirectUri
+			credentials.clientId &&
+			credentials.clientSecret &&
+			credentials.redirectUri
 		);
 		logger.info(' [CommonSteps] Credentials canExecute check:', {
 			environmentId: !!credentials.environmentId,
@@ -782,10 +782,10 @@ export const createAuthUrlStep = (
 		},
 		canExecute: Boolean(
 			credentials &&
-				(credentials.environmentId || credentials.issuerUrl) &&
-				credentials.clientId &&
-				credentials.redirectUri &&
-				(!pkceCodes || (pkceCodes.codeVerifier && pkceCodes.codeChallenge))
+			(credentials.environmentId || credentials.issuerUrl) &&
+			credentials.clientId &&
+			credentials.redirectUri &&
+			(!pkceCodes || (pkceCodes.codeVerifier && pkceCodes.codeChallenge))
 		),
 	};
 };

@@ -21,106 +21,106 @@ interface DiscoveryBasedConfigurationProps {
 }
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 1.5rem;
 `;
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 1rem;
+	text-align: center;
+	margin-bottom: 1rem;
 `;
 
 const Title = styled.h2`
-  margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1e293b;
+	margin: 0 0 0.5rem 0;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #1e293b;
 `;
 
 const Subtitle = styled.p`
-  margin: 0;
-  font-size: 1rem;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  line-height: 1.5;
+	margin: 0;
+	font-size: 1rem;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	line-height: 1.5;
 `;
 
 const ConfigurationForm = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
 `;
 
 const ClientCredentialsSection = styled.div`
-  padding: 1.5rem;
-  background: V9_COLORS.BG.GRAY_LIGHT;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 8px;
+	padding: 1.5rem;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 8px;
 `;
 
 const SectionTitle = styled.h3`
-  margin: 0 0 1rem 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1e293b;
+	margin: 0 0 1rem 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #1e293b;
 `;
 
 const InputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
 `;
 
 const Label = styled.label`
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
-  padding: 0.75rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  background: white;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  transition: all 0.2s ease;
+	padding: 0.75rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
+	font-size: 0.875rem;
+	background: white;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	transition: all 0.2s ease;
 
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 
-  &::placeholder {
-    color: V9_COLORS.TEXT.GRAY_LIGHT;
-  }
+	&::placeholder {
+		color: V9_COLORS.TEXT.GRAY_LIGHT;
+	}
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 1rem;
+	display: flex;
+	gap: 1rem;
+	justify-content: flex-end;
+	margin-top: 1rem;
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	border: none;
+	border-radius: 6px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
 
-  ${(props) => {
+	${(props) => {
 		switch (props.variant) {
 			case 'primary':
 				return `
@@ -150,19 +150,19 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
 		}
 	}}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  border-radius: 6px;
-  background: ${(props) => {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 1rem;
+	border-radius: 6px;
+	background: ${(props) => {
 		switch (props.type) {
 			case 'success':
 				return '#f0fdf4';
@@ -174,19 +174,20 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' }>`
 				return '#f8fafc';
 		}
 	}};
-  border: 1px solid ${(props) => {
-		switch (props.type) {
-			case 'success':
-				return '#10b981';
-			case 'error':
-				return '#ef4444';
-			case 'info':
-				return '#e5e7eb';
-			default:
-				return '#e5e7eb';
-		}
-	}};
-  color: ${(props) => {
+	border: 1px solid
+		${(props) => {
+			switch (props.type) {
+				case 'success':
+					return '#10b981';
+				case 'error':
+					return '#ef4444';
+				case 'info':
+					return '#e5e7eb';
+				default:
+					return '#e5e7eb';
+			}
+		}};
+	color: ${(props) => {
 		switch (props.type) {
 			case 'success':
 				return '#10b981';
@@ -201,49 +202,50 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' }>`
 `;
 
 const EndpointsPreview = styled.div`
-  padding: 1rem;
-  background: white;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 6px;
-  font-size: 0.75rem;
+	padding: 1rem;
+	background: white;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 6px;
+	font-size: 0.75rem;
 `;
 
 const EndpointItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.25rem 0;
-  border-bottom: 1px solid V9_COLORS.BG.GRAY_MEDIUM;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.25rem 0;
+	border-bottom: 1px solid V9_COLORS.BG.GRAY_MEDIUM;
 
-  &:last-child {
-    border-bottom: none;
-  }
+	&:last-child {
+		border-bottom: none;
+	}
 `;
 
 const EndpointLabel = styled.span`
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  min-width: 120px;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	min-width: 120px;
 `;
 
 const EndpointUrl = styled.span`
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-family:
+		'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 `;
 
 const CopyButton = styled.button`
-  padding: 0.25rem;
-  background: #f3f4f6;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 4px;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  cursor: pointer;
-  transition: all 0.2s ease;
+	padding: 0.25rem;
+	background: #f3f4f6;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 4px;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	cursor: pointer;
+	transition: all 0.2s ease;
 
-  &:hover {
-    background: V9_COLORS.TEXT.GRAY_LIGHTER;
-    color: V9_COLORS.TEXT.GRAY_DARK;
-  }
+	&:hover {
+		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+		color: V9_COLORS.TEXT.GRAY_DARK;
+	}
 `;
 
 const DiscoveryBasedConfiguration: React.FC<DiscoveryBasedConfigurationProps> = ({
@@ -283,7 +285,7 @@ const DiscoveryBasedConfiguration: React.FC<DiscoveryBasedConfigurationProps> = 
 					// Extract environment ID and create callback URL
 					const envId = credentialManager.loadPermanentCredentials()?.environmentId;
 					if (envId) {
-						setRedirectUri(`http://localhost:3000/callback`);
+						setRedirectUri(`https://api.pingdemo.com/callback`);
 					}
 				}
 			}
@@ -424,7 +426,7 @@ const DiscoveryBasedConfiguration: React.FC<DiscoveryBasedConfigurationProps> = 
 									type="url"
 									value={redirectUri}
 									onChange={(e) => setRedirectUri(e.target.value)}
-									placeholder="http://localhost:3000/callback"
+									placeholder="https://api.pingdemo.com/callback"
 								/>
 							</InputGroup>
 						</ClientCredentialsSection>
