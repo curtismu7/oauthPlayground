@@ -22,6 +22,7 @@ import {
 	isIntrospectUserTokenQuery,
 	isListToolsQuery,
 	isShowApiCallsQuery,
+	isLastToolQuery,
 	isShowIdTokenQuery,
 	isShowMyTokenQuery,
 	isShowWorkerTokenQuery,
@@ -92,12 +93,13 @@ interface Message {
 	timestamp: Date;
 }
 
-/** A single recorded MCP API call (stored for "show api calls" command). */
+/** A single recorded MCP API call (stored for "show api calls" and "last tool" commands). */
 interface ApiCallRecord {
 	id: string;
 	query: string;
 	mcpTool: string | null;
 	apiCall: { method: string; path: string } | null;
+	howItWorks: string | null;
 	data: unknown;
 	timestamp: Date;
 }
@@ -813,6 +815,70 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 			return;
 		}
 
+		if (isLastToolQuery(query)) {
+			const msg = (() => {
+				const last = [...apiCallHistory].reverse()[0];
+				if (!last) {
+					return 'No MCP tool calls recorded yet. Execute a live command (e.g. **List all users**) first, then ask me again.';
+				}
+				const toolName = last.mcpTool ?? 'Unknown tool';
+				const parts = toolName.replace(/^pingone[._]?/, '').split(/[._]/);
+				const verb = parts[0] ?? '';
+				const resource = parts.slice(1).join(' ');
+				const niceVerb: Record<string, string> = {
+					list: 'lists all', get: 'fetches a single', create: 'creates a new',
+					delete: 'deletes a', update: 'updates a', rotate: 'rotates the',
+					introspect: 'introspects a', userinfo: 'retrieves claims from the OIDC UserInfo endpoint for',
+				};
+				const verbDesc = niceVerb[verb.toLowerCase()] ?? verb;
+				const methodDesc: Record<string, string> = {
+					GET: 'Read-only — retrieves data, no side effects, safe to retry.',
+					POST: 'Creates or triggers an action — not idempotent.',
+					PUT: 'Replaces a resource in full.',
+					PATCH: 'Partially updates a resource.',
+					DELETE: 'Removes a resource permanently.',
+				};
+				const lines: string[] = [
+					`## 🔌 Last MCP Tool: \`${toolName}\``,
+					'',
+					`**Your query:** "${last.query}"`,
+					`**When:** ${last.timestamp.toLocaleTimeString()}`,
+					'',
+					'### Tool name breakdown',
+					`\`${toolName}\``,
+					'- **Prefix** `pingone_` — all PingOne Management / Auth API tools share this prefix',
+					...(verb ? [`- **Action** \`${verb}\` — ${verbDesc} ${resource || 'resource(s)'}`] : []),
+					...(resource ? [`- **Resource** \`${resource.replace(/\s+/g, '_')}\` — the PingOne resource type being operated on`] : []),
+				];
+				if (last.apiCall) {
+					const { method, path } = last.apiCall;
+					lines.push('', '### API Call');
+					lines.push(`\`\`\`\n${method} ${path}\n\`\`\``);
+					if (methodDesc[method.toUpperCase()]) lines.push(`> **HTTP ${method}** — ${methodDesc[method.toUpperCase()]}`);
+					const pathNote: string[] = [];
+					if (path.includes('{envId}') || path.includes('/environments/')) pathNote.push('`{envId}` — your PingOne environment UUID');
+					if (path.includes('{userId}')) pathNote.push('`{userId}` — the specific user\'s UUID');
+					if (path.includes('{appId}') || path.includes('/applications/')) pathNote.push('`{appId}` — the application UUID');
+					if (path.includes('/as/')) pathNote.push('`/as/` — Authorization Server (OIDC/OAuth2 endpoints, not Management API)');
+					if (pathNote.length) lines.push('', '**Path segments:**', ...pathNote.map((n) => `- ${n}`));
+				}
+				if (last.howItWorks) lines.push('', '### How it works', last.howItWorks);
+				if (last.data != null) {
+					if (Array.isArray(last.data)) lines.push('', '### Response', `Returned **${(last.data as unknown[]).length} item(s)**. Run **"show api calls"** to see the full JSON.`);
+					else if (typeof last.data === 'object') {
+						const keys = Object.keys(last.data as object);
+						lines.push('', '### Response', `Returned an object with ${keys.length} field(s): \`${keys.slice(0, 6).join('`, `')}${keys.length > 6 ? '`, …' : '`'}`);
+					}
+				}
+				lines.push('', '---', '> 💡 **Related commands:** `show api calls` (last 5 with full data) · `decode jwt` (paste a token to inspect claims) · `what is mcp` (learn the protocol)');
+				return lines.join('\n');
+			})();
+			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+			setIsTyping(false);
+			setInput(query);
+			return;
+		}
+
 		if (isClearTokensQuery(query)) {
 			setUserAccessToken(null);
 			setIdToken(null);
@@ -1314,7 +1380,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 				if (mcpResult.apiCall) {
 					setApiCallHistory((prev) => [
 						...prev.slice(-19),
-						{ id: crypto.randomUUID(), query, mcpTool: mcpResult.mcpTool, apiCall: mcpResult.apiCall, data: mcpResult.data, timestamp: new Date() },
+						{ id: crypto.randomUUID(), query, mcpTool: mcpResult.mcpTool, apiCall: mcpResult.apiCall, howItWorks: mcpResult.howItWorks ?? null, data: mcpResult.data, timestamp: new Date() },
 					]);
 				}
 				setMessages((prev) => [...prev, assistantMessage]);
