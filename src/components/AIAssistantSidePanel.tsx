@@ -664,30 +664,52 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 		setError(null);
 		setIsLoading(true);
 		try {
-			const res = await fetch('/api/mcp/user-token-via-login', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					environmentId: envId,
-					clientId,
-					clientSecret,
-					username: user,
-					password: pwd,
-					region,
-				}),
-			});
-			const respData = await res.json().catch(() => ({}));
-			if (!res.ok) {
-				throw new Error(
-					respData.error_description || respData.error || `Login failed (${res.status})`
-				);
+			// Step 1: Initialize Authz Code + PKCE flow with response_mode=pi.flow
+			const initRes = await PingOneLoginService.initializeEmbeddedLogin(
+				envId,
+				clientId,
+				undefined, // omit redirect_uri for pi.flow
+				['openid', 'profile', 'email'],
+				region
+			);
+			if (!initRes.success || !initRes.data?.flowId) {
+				throw new Error(initRes.error?.message || 'Failed to start login flow');
 			}
-			const token = respData.access_token;
-			const expiresIn = typeof respData.expires_in === 'number' ? respData.expires_in : 3600;
-			const idTok: string | undefined =
-				typeof respData.id_token === 'string' ? respData.id_token : undefined;
-			if (!token) throw new Error('No access_token in response');
-			onUserTokenSet(token, expiresIn, idTok);
+			const { flowId, codeVerifier } = initRes.data;
+
+			// Step 2: Submit credentials
+			const credsRes = await PingOneLoginService.submitCredentials(
+				flowId,
+				user,
+				pwd,
+				clientId,
+				clientSecret
+			);
+			if (!credsRes.success) {
+				throw new Error(credsRes.error?.message || 'Invalid credentials');
+			}
+
+			// Step 3: Resume flow to get authorization code
+			const resumeRes = await PingOneLoginService.resumeFlow(flowId);
+			if (!resumeRes.success || !resumeRes.data?.authorizationCode) {
+				throw new Error(resumeRes.error?.message || 'Failed to complete authorization flow');
+			}
+			const { authorizationCode } = resumeRes.data;
+
+			// Step 4: Exchange authorization code + code_verifier for tokens
+			const tokenRes = await PingOneLoginService.exchangeCodeForTokens(
+				envId,
+				clientId,
+				clientSecret,
+				'', // redirect_uri not required for pi.flow
+				authorizationCode,
+				codeVerifier
+			);
+			if (!tokenRes.success || !tokenRes.data?.access_token) {
+				throw new Error(tokenRes.error?.message || 'Failed to exchange code for tokens');
+			}
+			const { access_token, id_token, expires_in } = tokenRes.data;
+			onUserTokenSet(access_token, expires_in ?? 3600, id_token);
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : 'Login failed';
 			setError(msg);
@@ -708,9 +730,9 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 		<ContentSection>
 			<SectionTitle>User login</SectionTitle>
 			<SectionDescription>
-				Sign in with a PingOne user (Authz OIDC app). The access token is stored so you can run
-				&quot;Introspect user token&quot; in the agent. Uses env/client from Configuration (worker
-				or Authz client).
+				Sign in with a PingOne user via Authorization Code + PKCE (response_mode=pi.flow). The
+				access token is stored so you can run &quot;Introspect user token&quot; in the agent.
+				Requires an OAuth app (not Worker) with Authorization Code grant enabled.
 			</SectionDescription>
 			{hasToken ? (
 				<LoginCard>
@@ -726,8 +748,8 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 				<LoginCard>
 					<CardTitle>Username and password</CardTitle>
 					<CardDescription>
-						Enter a PingOne end-user username and password. The app uses the same OIDC client as
-						configured in Configuration (must support Authorization Code / pi.flow).
+						Credentials are submitted via Authorization Code + PKCE with response_mode=pi.flow. The
+						OIDC client (from Configuration) must have Authorization Code grant enabled.
 					</CardDescription>
 					<FormRow>
 						<FormLabel>Username</FormLabel>
