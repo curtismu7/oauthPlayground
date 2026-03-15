@@ -98,6 +98,11 @@ describe('predictMcpTool', () => {
 			expect(predictMcpTool('Delete user john@acme.com')).toBe('pingone_delete_user'));
 		it('get user', () =>
 			expect(predictMcpTool('Find user john@acme.com')).toBe('pingone_get_user'));
+		it('get userid for username', () =>
+			expect(predictMcpTool('Get userid for alice')).toBe('pingone_get_user'));
+		it('user id for username', () =>
+			expect(predictMcpTool('user id for bob')).toBe('pingone_get_user'));
+		it('get userid', () => expect(predictMcpTool('get userid')).toBe('pingone_get_user'));
 		it('userinfo beats get_user', () =>
 			expect(predictMcpTool('Get userinfo')).toBe('pingone_userinfo'));
 		it('user groups', () =>

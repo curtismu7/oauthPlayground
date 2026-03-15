@@ -129,7 +129,7 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 	},
 	{
 		pattern:
-			/get\s+user(?!info)|find\s+user|look\s*up\s+user|show\s+user(?!info)|who\s+is\s+user|get\s+userinfo\s+use\s+\w+|userinfo\s+use\s+\w+\s+for\s+username/i,
+			/get\s+user(?!info)|find\s+user|look\s*up\s+user|show\s+user(?!info)|who\s+is\s+user|get\s+userinfo\s+use\s+\w+|userinfo\s+use\s+\w+\s+for\s+username|get\s+userid|userid\s+for\s+\w+|user\s+id\s+for\s+\w+/i,
 		tool: 'pingone_get_user',
 	},
 	{
