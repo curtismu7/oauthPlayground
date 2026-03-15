@@ -6,7 +6,11 @@ import ApiCallList from '../components/ApiCallList';
 import { WaitScreen } from '../components/v9/V9ModernMessagingComponents';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
-import EnvironmentServiceV8, { PingOneEnvironment, UpdateEnvironmentRequest, CreateEnvironmentRequest } from '../services/environmentServiceV8';
+import EnvironmentServiceV8, {
+	CreateEnvironmentRequest,
+	PingOneEnvironment,
+	UpdateEnvironmentRequest,
+} from '../services/environmentServiceV8';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { modernMessaging } from '../services/v9/V9ModernMessagingService';
@@ -784,7 +788,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 		try {
 			setEnvError(null);
-			
+
 			// Create environment using real API call
 			const createData: CreateEnvironmentRequest = {
 				name,
@@ -809,14 +813,12 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				type: 'success',
 				title: 'Environment Created',
 				message: `Environment "${name}" has been created successfully.`,
-				actions: [
-					{ label: 'Dismiss', action: () => modernMessaging.hideBanner() },
-				],
+				actions: [{ label: 'Dismiss', action: () => modernMessaging.hideBanner() }],
 			});
 
 			setShowCreateModal(false);
 			setCreateNameInput('');
-			
+
 			// Refresh the environments list
 			fetchEnvironments();
 		} catch (err) {
@@ -887,7 +889,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				const updateData: UpdateEnvironmentRequest = {
 					name: editName.trim(),
 				};
-				
+
 				// Only include description if it exists
 				if (editingEnvironment.description) {
 					updateData.description = editingEnvironment.description;
@@ -911,16 +913,14 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					type: 'success',
 					title: 'Environment Updated',
 					message: `Environment name has been updated to "${editName.trim()}".`,
-					actions: [
-						{ label: 'Dismiss', action: () => modernMessaging.hideBanner() },
-					],
+					actions: [{ label: 'Dismiss', action: () => modernMessaging.hideBanner() }],
 				});
 
 				// Close modal
 				setShowEditModal(false);
 				setEditingEnvironment(null);
 				setEditName('');
-				
+
 				// Refresh the environments list
 				fetchEnvironments();
 			} catch (err) {

@@ -712,7 +712,8 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 			}
 			const token = respData.access_token;
 			const expiresIn = typeof respData.expires_in === 'number' ? respData.expires_in : 3600;
-			const idTok: string | undefined = typeof respData.id_token === 'string' ? respData.id_token : undefined;
+			const idTok: string | undefined =
+				typeof respData.id_token === 'string' ? respData.id_token : undefined;
 			if (!token) throw new Error('No access_token in response');
 			onUserTokenSet(token, expiresIn, idTok);
 		} catch (err) {
