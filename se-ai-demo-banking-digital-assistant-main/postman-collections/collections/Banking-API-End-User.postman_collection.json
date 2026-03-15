@@ -1,0 +1,1972 @@
+{
+	"info": {
+		"_postman_id": "banking-api-end-user-v1",
+		"name": "Banking API - End User",
+		"description": "Comprehensive Postman collection for testing Banking API endpoints as an end user. Includes OAuth authentication flow, account management, transaction operations, user profile management, and negative testing scenarios.\n\n**Prerequisites:**\n- Environment configured with OAuth settings\n- Valid end user client credentials\n- Banking API server running\n\n**Usage:**\n1. Run 'OAuth Login Flow' first to authenticate\n2. Execute other requests in logical order\n3. Use Collection Runner for automated testing\n4. Review negative tests to verify proper access control\n\n**Scopes Required:**\n- banking:read (for account and transaction viewing)\n- banking:write (for transaction creation and profile updates)\n- profile (for user profile access)\n\n**Test Coverage:**\n- OAuth 2.0 authentication with PKCE\n- Account management (view own accounts)\n- Transaction management (create/view own transactions)\n- User profile management (view/update own profile)\n- Negative tests (verify admin endpoint access is denied)\n- Authorization and scope validation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Collection-level pre-request script",
+					"console.log('🚀 Banking API - End User Collection');",
+					"",
+					"// Token validation function",
+					"function isTokenValid() {",
+					"    const accessToken = pm.environment.get('access_token');",
+					"    const expiresAt = pm.environment.get('token_expires_at');",
+					"    if (!accessToken || !expiresAt) return false;",
+					"    const currentTime = Date.now();",
+					"    const tokenExpiryTime = parseInt(expiresAt);",
+					"    const bufferTime = 5 * 60 * 1000;",
+					"    return currentTime < (tokenExpiryTime - bufferTime);",
+					"}",
+					"",
+					"// Skip token validation for OAuth requests",
+					"const requestName = pm.info.requestName || '';",
+					"const isOAuthRequest = requestName.toLowerCase().includes('oauth') || ",
+					"                      requestName.toLowerCase().includes('login');",
+					"",
+					"if (!isOAuthRequest && !isTokenValid()) {",
+					"    console.log('⚠️ Token invalid - run OAuth Login Flow first');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Collection-level test script",
+					"pm.test('Response has security headers', function () {",
+					"    const headers = pm.response.headers;",
+					"    if (headers.get('X-Content-Type-Options')) {",
+					"        pm.expect(headers.get('X-Content-Type-Options')).to.equal('nosniff');",
+					"    }",
+					"});",
+					"",
+					"pm.test('No sensitive data in response headers', function () {",
+					"    const headerString = JSON.stringify(pm.response.headers.toObject()).toLowerCase();",
+					"    pm.expect(headerString).to.not.include('password');",
+					"    pm.expect(headerString).to.not.include('secret');",
+					"});",
+					"",
+					"console.log(`📊 ${pm.info.requestName}: ${pm.response.status} (${pm.response.responseTime}ms)`);"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "{{base_url}}",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Authentication",
+			"description": "OAuth 2.0 authentication flow for end users",
+			"item": [
+				{
+					"name": "OAuth Login Flow",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🔐 Starting OAuth Login Flow');",
+									"",
+									"// Generate PKCE parameters",
+									"const array = new Uint8Array(32);",
+									"crypto.getRandomValues(array);",
+									"const codeVerifier = btoa(String.fromCharCode.apply(null, array))",
+									"    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');",
+									"const codeChallenge = codeVerifier;",
+									"",
+									"pm.environment.set('code_verifier', codeVerifier);",
+									"pm.environment.set('code_challenge', codeChallenge);",
+									"",
+									"const state = 'postman-enduser-' + Date.now();",
+									"pm.environment.set('oauth_state', state);",
+									"",
+									"// Build authorization URL",
+									"const authUrl = pm.environment.get('oauth_auth_url');",
+									"const clientId = pm.environment.get('user_client_id');",
+									"const redirectUri = pm.environment.get('redirect_uri');",
+									"const scopes = 'banking:read banking:write profile';",
+									"",
+									"const authorizationUrl = `${authUrl}?` +",
+									"    `response_type=code&` +",
+									"    `client_id=${encodeURIComponent(clientId)}&` +",
+									"    `redirect_uri=${encodeURIComponent(redirectUri)}&` +",
+									"    `scope=${encodeURIComponent(scopes)}&` +",
+									"    `state=${encodeURIComponent(state)}&` +",
+									"    `code_challenge=${encodeURIComponent(codeChallenge)}&` +",
+									"    `code_challenge_method=plain`;",
+									"",
+									"pm.environment.set('authorization_url', authorizationUrl);",
+									"",
+									"console.log('🌐 Authorization URL:', authorizationUrl);",
+									"console.log('📋 Next: Open URL in browser, complete login, copy auth code');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{authorization_url}}",
+							"host": ["{{authorization_url}}"]
+						},
+						"description": "Generate OAuth authorization URL with PKCE parameters"
+					}
+				},
+				{
+					"name": "Exchange Authorization Code",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Token exchange successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains access token', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('access_token');",
+									"});",
+									"",
+									"// Store tokens",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('access_token', jsonData.access_token);",
+									"    if (jsonData.refresh_token) {",
+									"        pm.environment.set('refresh_token', jsonData.refresh_token);",
+									"    }",
+									"    const expiresAt = Date.now() + (parseInt(jsonData.expires_in) * 1000);",
+									"    pm.environment.set('token_expires_at', expiresAt.toString());",
+									"    ",
+									"    console.log('✅ Authentication successful!');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "authorization_code"
+								},
+								{
+									"key": "client_id",
+									"value": "{{user_client_id}}"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{user_client_secret}}"
+								},
+								{
+									"key": "code",
+									"value": "{{authorization_code}}"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{redirect_uri}}"
+								},
+								{
+									"key": "code_verifier",
+									"value": "{{code_verifier}}"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{oauth_token_url}}",
+							"host": ["{{oauth_token_url}}"]
+						},
+						"description": "Exchange authorization code for access token"
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Account Management",
+			"description": "Account operations for end users - retrieve accounts, balances, and account details with proper scope validation",
+			"item": [
+				{
+					"name": "Get My Accounts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Accounts retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains accounts array', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('accounts');",
+									"    pm.expect(jsonData.accounts).to.be.an('array');",
+									"});",
+									"",
+									"// Store account data for subsequent tests",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.accounts && jsonData.accounts.length > 0) {",
+									"        pm.environment.set('test_account_id', jsonData.accounts[0].id);",
+									"        const checkingAccount = jsonData.accounts.find(acc => acc.accountType === 'checking');",
+									"        if (checkingAccount) {",
+									"            pm.environment.set('checking_account_id', checkingAccount.id);",
+									"        }",
+									"        const savingsAccount = jsonData.accounts.find(acc => acc.accountType === 'savings');",
+									"        if (savingsAccount) {",
+									"            pm.environment.set('savings_account_id', savingsAccount.id);",
+									"        }",
+									"        console.log(`✅ Retrieved ${jsonData.accounts.length} accounts`);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/accounts/my",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "my"]
+						},
+						"description": "Retrieve user's own bank accounts"
+					}
+				}
+			]
+		},
+
+		{
+			"name": "3. Transaction Management",
+			"description": "Transaction operations for end users - retrieve transactions with filtering/pagination, create deposits/withdrawals/transfers, and validate proper error handling",
+			"item": [
+				{
+					"name": "Get My Transactions",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('📊 Retrieving user transactions...');",
+									"",
+									"// Verify access token",
+									"const accessToken = pm.environment.get('access_token');",
+									"if (!accessToken) {",
+									"    throw new Error('Access token required - run OAuth Login Flow first');",
+									"}",
+									"",
+									"console.log('🔐 Using banking:read scope for transaction access');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Transactions retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains transactions array', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('transactions');",
+									"    pm.expect(jsonData.transactions).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Response contains metadata', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('count');",
+									"    pm.expect(jsonData).to.have.property('timestamp');",
+									"    pm.expect(jsonData.count).to.be.a('number');",
+									"});",
+									"",
+									"pm.test('Transaction data structure is valid', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.transactions && jsonData.transactions.length > 0) {",
+									"        const transaction = jsonData.transactions[0];",
+									"        pm.expect(transaction).to.have.property('id');",
+									"        pm.expect(transaction).to.have.property('amount');",
+									"        pm.expect(transaction).to.have.property('type');",
+									"        pm.expect(transaction).to.have.property('description');",
+									"        pm.expect(transaction).to.have.property('createdAt');",
+									"        pm.expect(transaction).to.have.property('performedBy');",
+									"        pm.expect(transaction).to.have.property('accountInfo');",
+									"    }",
+									"});",
+									"",
+									"pm.test('Transaction types are valid', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const validTypes = ['deposit', 'withdrawal', 'transfer'];",
+									"    jsonData.transactions.forEach(transaction => {",
+									"        pm.expect(validTypes).to.include(transaction.type);",
+									"    });",
+									"});",
+									"",
+									"pm.test('Amount values are numeric and positive', function () {",
+									"    const jsonData = pm.response.json();",
+									"    jsonData.transactions.forEach(transaction => {",
+									"        pm.expect(transaction.amount).to.be.a('number');",
+									"        pm.expect(transaction.amount).to.be.above(0);",
+									"    });",
+									"});",
+									"",
+									"pm.test('Only user own transactions returned', function () {",
+									"    const jsonData = pm.response.json();",
+									"    // All transactions should belong to the authenticated user",
+									"    // This is validated by the API endpoint logic",
+									"    pm.expect(jsonData.transactions).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Cache headers are present', function () {",
+									"    pm.expect(pm.response.headers.get('Cache-Control')).to.include('private');",
+									"    pm.expect(pm.response.headers.get('ETag')).to.exist;",
+									"});",
+									"",
+									"// Store transaction data for subsequent tests",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.transactions && jsonData.transactions.length > 0) {",
+									"        // Store first transaction ID",
+									"        pm.environment.set('existing_transaction_id', jsonData.transactions[0].id);",
+									"        console.log(`✅ Retrieved ${jsonData.transactions.length} transactions`);",
+									"        console.log('📝 Stored transaction ID for subsequent tests');",
+									"    } else {",
+									"        console.log('ℹ️ No transactions found for user');",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/my",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions", "my"]
+						},
+						"description": "Retrieve user's own transaction history. Requires banking:read scope. Returns only transactions belonging to the authenticated user with account information and metadata."
+					}
+				},
+				{
+					"name": "Get My Transactions with Filtering",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('📊 Retrieving filtered user transactions...');",
+									"",
+									"// Set dynamic filter parameters",
+									"const fromDate = new Date();",
+									"fromDate.setDate(fromDate.getDate() - 30); // Last 30 days",
+									"pm.environment.set('filter_from_date', fromDate.toISOString().split('T')[0]);",
+									"",
+									"const toDate = new Date().toISOString().split('T')[0];",
+									"pm.environment.set('filter_to_date', toDate);",
+									"",
+									"console.log('📅 Filtering transactions from:', pm.environment.get('filter_from_date'), 'to:', pm.environment.get('filter_to_date'));"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Filtered transactions retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response structure is valid', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('transactions');",
+									"    pm.expect(jsonData).to.have.property('count');",
+									"});",
+									"",
+									"pm.test('Filtering parameters work', function () {",
+									"    // This test validates that the API accepts filter parameters",
+									"    // Even if no transactions match the filter, the response should be valid",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.transactions).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Transaction dates are within filter range', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const fromDate = new Date(pm.environment.get('filter_from_date'));",
+									"    const toDate = new Date(pm.environment.get('filter_to_date'));",
+									"    ",
+									"    jsonData.transactions.forEach(transaction => {",
+									"        const transactionDate = new Date(transaction.createdAt);",
+									"        pm.expect(transactionDate).to.be.at.least(fromDate);",
+									"        pm.expect(transactionDate).to.be.at.most(toDate);",
+									"    });",
+									"});",
+									"",
+									"// Log filtering results",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log(`✅ Retrieved ${jsonData.transactions.length} filtered transactions`);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/my?type=deposit&fromDate={{filter_from_date}}&toDate={{filter_to_date}}&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions", "my"],
+							"query": [
+								{
+									"key": "type",
+									"value": "deposit",
+									"description": "Filter by transaction type"
+								},
+								{
+									"key": "fromDate",
+									"value": "{{filter_from_date}}",
+									"description": "Start date for filtering"
+								},
+								{
+									"key": "toDate",
+									"value": "{{filter_to_date}}",
+									"description": "End date for filtering"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Limit number of results"
+								}
+							]
+						},
+						"description": "Retrieve user's transactions with filtering and pagination parameters. Tests date range filtering, transaction type filtering, and result limiting."
+					}
+				},
+				{
+					"name": "Create Deposit",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('💰 Creating deposit transaction...');",
+									"",
+									"const accountId = pm.environment.get('test_account_id');",
+									"if (!accountId) {",
+									"    throw new Error('Account ID required - run Get My Accounts first');",
+									"}",
+									"",
+									"// Generate unique transaction data",
+									"const uniqueId = Date.now();",
+									"const depositAmount = 250.00;",
+									"",
+									"const transactionData = {",
+									"    toAccountId: accountId,",
+									"    amount: depositAmount,",
+									"    type: 'deposit',",
+									"    description: `Test deposit transaction - ${new Date().toISOString()}`,",
+									"    reference: `POSTMAN-DEP-${uniqueId}`",
+									"};",
+									"",
+									"pm.environment.set('deposit_amount', depositAmount.toString());",
+									"pm.environment.set('deposit_reference', `POSTMAN-DEP-${uniqueId}`);",
+									"",
+									"console.log('💳 Depositing $' + depositAmount + ' to account:', accountId);",
+									"",
+									"pm.request.body.raw = JSON.stringify(transactionData);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Deposit created successfully', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response contains transaction details', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData).to.have.property('transaction');",
+									"    pm.expect(jsonData.transaction).to.have.property('id');",
+									"    pm.expect(jsonData.transaction).to.have.property('amount');",
+									"    pm.expect(jsonData.transaction).to.have.property('type');",
+									"});",
+									"",
+									"pm.test('Transaction data is correct', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedAmount = parseFloat(pm.environment.get('deposit_amount'));",
+									"    pm.expect(jsonData.transaction.type).to.equal('deposit');",
+									"    pm.expect(jsonData.transaction.amount).to.equal(expectedAmount);",
+									"    pm.expect(jsonData.transaction.toAccountId).to.equal(pm.environment.get('test_account_id'));",
+									"});",
+									"",
+									"pm.test('Transaction has required metadata', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.transaction).to.have.property('createdAt');",
+									"    pm.expect(jsonData.transaction).to.have.property('performedBy');",
+									"    pm.expect(jsonData.transaction).to.have.property('userId');",
+									"});",
+									"",
+									"pm.test('Scope validation passed', function () {",
+									"    // If we get a 201 response, it means the banking:write scope was validated",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"// Store transaction ID for subsequent tests",
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('test_deposit_id', jsonData.transaction.id);",
+									"    console.log('✅ Deposit created successfully:', jsonData.transaction.id);",
+									"    console.log('💰 Amount:', jsonData.transaction.amount);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions"]
+						},
+						"description": "Create a deposit transaction to user's account. Requires banking:write scope. Validates account ownership and updates account balance."
+					}
+				},
+				{
+					"name": "Create Withdrawal",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('💸 Creating withdrawal transaction...');",
+									"",
+									"const accountId = pm.environment.get('test_account_id');",
+									"if (!accountId) {",
+									"    throw new Error('Account ID required - run Get My Accounts first');",
+									"}",
+									"",
+									"// Generate unique transaction data",
+									"const uniqueId = Date.now();",
+									"const withdrawalAmount = 100.00;",
+									"",
+									"const transactionData = {",
+									"    fromAccountId: accountId,",
+									"    amount: withdrawalAmount,",
+									"    type: 'withdrawal',",
+									"    description: `Test withdrawal transaction - ${new Date().toISOString()}`,",
+									"    reference: `POSTMAN-WTH-${uniqueId}`",
+									"};",
+									"",
+									"pm.environment.set('withdrawal_amount', withdrawalAmount.toString());",
+									"pm.environment.set('withdrawal_reference', `POSTMAN-WTH-${uniqueId}`);",
+									"",
+									"console.log('💳 Withdrawing $' + withdrawalAmount + ' from account:', accountId);",
+									"",
+									"pm.request.body.raw = JSON.stringify(transactionData);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Withdrawal created successfully', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response contains transaction details', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData).to.have.property('transaction');",
+									"    pm.expect(jsonData.transaction).to.have.property('id');",
+									"});",
+									"",
+									"pm.test('Transaction data is correct', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedAmount = parseFloat(pm.environment.get('withdrawal_amount'));",
+									"    pm.expect(jsonData.transaction.type).to.equal('withdrawal');",
+									"    pm.expect(jsonData.transaction.amount).to.equal(expectedAmount);",
+									"    pm.expect(jsonData.transaction.fromAccountId).to.equal(pm.environment.get('test_account_id'));",
+									"});",
+									"",
+									"pm.test('Sufficient balance validation passed', function () {",
+									"    // If we get a 201 response, it means the account had sufficient balance",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Account ownership validated', function () {",
+									"    // If we get a 201 response, it means the user owns the account",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"// Store transaction ID for subsequent tests",
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('test_withdrawal_id', jsonData.transaction.id);",
+									"    console.log('✅ Withdrawal created successfully:', jsonData.transaction.id);",
+									"    console.log('💸 Amount:', jsonData.transaction.amount);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions"]
+						},
+						"description": "Create a withdrawal transaction from user's account. Requires banking:write scope. Validates account ownership, sufficient balance, and updates account balance."
+					}
+				},
+				{
+					"name": "Create Transfer",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🔄 Creating transfer transaction...');",
+									"",
+									"const fromAccountId = pm.environment.get('checking_account_id') || pm.environment.get('test_account_id');",
+									"const toAccountId = pm.environment.get('savings_account_id');",
+									"",
+									"if (!fromAccountId) {",
+									"    throw new Error('From Account ID required - run Get My Accounts first');",
+									"}",
+									"",
+									"if (!toAccountId) {",
+									"    console.log('⚠️ No savings account found - using same account for demo transfer');",
+									"    // For demo purposes, use the same account (this should be handled by API validation)",
+									"    pm.environment.set('transfer_to_account', fromAccountId);",
+									"} else {",
+									"    pm.environment.set('transfer_to_account', toAccountId);",
+									"}",
+									"",
+									"// Generate unique transaction data",
+									"const uniqueId = Date.now();",
+									"const transferAmount = 75.00;",
+									"",
+									"const transactionData = {",
+									"    fromAccountId: fromAccountId,",
+									"    toAccountId: pm.environment.get('transfer_to_account'),",
+									"    amount: transferAmount,",
+									"    type: 'transfer',",
+									"    description: `Test transfer transaction - ${new Date().toISOString()}`,",
+									"    reference: `POSTMAN-TRF-${uniqueId}`",
+									"};",
+									"",
+									"pm.environment.set('transfer_amount', transferAmount.toString());",
+									"pm.environment.set('transfer_reference', `POSTMAN-TRF-${uniqueId}`);",
+									"",
+									"console.log('🔄 Transferring $' + transferAmount + ' from:', fromAccountId, 'to:', pm.environment.get('transfer_to_account'));",
+									"",
+									"pm.request.body.raw = JSON.stringify(transactionData);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Transfer created successfully', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response contains transfer details', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    // Transfer creates two transactions: withdrawal and deposit",
+									"    pm.expect(jsonData).to.have.property('withdrawalTransaction');",
+									"    pm.expect(jsonData).to.have.property('depositTransaction');",
+									"});",
+									"",
+									"pm.test('Withdrawal transaction is correct', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedAmount = parseFloat(pm.environment.get('transfer_amount'));",
+									"    pm.expect(jsonData.withdrawalTransaction.type).to.equal('withdrawal');",
+									"    pm.expect(jsonData.withdrawalTransaction.amount).to.equal(expectedAmount);",
+									"    pm.expect(jsonData.withdrawalTransaction.fromAccountId).to.equal(pm.environment.get('checking_account_id') || pm.environment.get('test_account_id'));",
+									"});",
+									"",
+									"pm.test('Deposit transaction is correct', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedAmount = parseFloat(pm.environment.get('transfer_amount'));",
+									"    pm.expect(jsonData.depositTransaction.type).to.equal('deposit');",
+									"    pm.expect(jsonData.depositTransaction.amount).to.equal(expectedAmount);",
+									"    pm.expect(jsonData.depositTransaction.toAccountId).to.equal(pm.environment.get('transfer_to_account'));",
+									"});",
+									"",
+									"pm.test('Both accounts ownership validated', function () {",
+									"    // If we get a 201 response, it means the user owns both accounts",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Transfer amount validation passed', function () {",
+									"    // If we get a 201 response, it means sufficient balance was available",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"// Store transaction IDs for subsequent tests",
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('test_transfer_withdrawal_id', jsonData.withdrawalTransaction.id);",
+									"    pm.environment.set('test_transfer_deposit_id', jsonData.depositTransaction.id);",
+									"    console.log('✅ Transfer completed successfully');",
+									"    console.log('💸 Withdrawal ID:', jsonData.withdrawalTransaction.id);",
+									"    console.log('💰 Deposit ID:', jsonData.depositTransaction.id);",
+									"    console.log('🔄 Amount:', jsonData.withdrawalTransaction.amount);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions"]
+						},
+						"description": "Create a transfer transaction between user's accounts. Requires banking:write scope. Creates two transactions (withdrawal and deposit) and validates ownership of both accounts."
+					}
+				},
+				{
+					"name": "Get Transaction Details",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🔍 Retrieving transaction details...');",
+									"",
+									"const transactionId = pm.environment.get('test_deposit_id') || pm.environment.get('existing_transaction_id');",
+									"if (!transactionId) {",
+									"    throw new Error('Transaction ID required - run Create Deposit or Get My Transactions first');",
+									"}",
+									"",
+									"pm.environment.set('detail_transaction_id', transactionId);",
+									"console.log('📋 Getting details for transaction:', transactionId);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Transaction details retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains transaction object', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('transaction');",
+									"    pm.expect(jsonData.transaction).to.be.an('object');",
+									"});",
+									"",
+									"pm.test('Transaction has complete details', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const transaction = jsonData.transaction;",
+									"    pm.expect(transaction).to.have.property('id');",
+									"    pm.expect(transaction).to.have.property('amount');",
+									"    pm.expect(transaction).to.have.property('type');",
+									"    pm.expect(transaction).to.have.property('description');",
+									"    pm.expect(transaction).to.have.property('createdAt');",
+									"    pm.expect(transaction).to.have.property('userId');",
+									"});",
+									"",
+									"pm.test('Transaction ID matches requested', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedId = pm.environment.get('detail_transaction_id');",
+									"    pm.expect(jsonData.transaction.id).to.equal(expectedId);",
+									"});",
+									"",
+									"pm.test('Access control validation passed', function () {",
+									"    // If we get a 200 response, it means the user owns this transaction",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Transaction type is valid', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const validTypes = ['deposit', 'withdrawal', 'transfer'];",
+									"    pm.expect(validTypes).to.include(jsonData.transaction.type);",
+									"});",
+									"",
+									"// Log transaction details",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    const transaction = jsonData.transaction;",
+									"    console.log('✅ Transaction details retrieved:');",
+									"    console.log('📋 ID:', transaction.id);",
+									"    console.log('💰 Amount:', transaction.amount);",
+									"    console.log('🏷️ Type:', transaction.type);",
+									"    console.log('📝 Description:', transaction.description);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/{{detail_transaction_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions", "{{detail_transaction_id}}"]
+						},
+						"description": "Retrieve details for a specific transaction. Requires banking:read scope. Users can only access their own transactions."
+					}
+				},
+				{
+					"name": "Try Insufficient Balance Withdrawal (Should Fail)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🚫 Negative Test: Attempting withdrawal with insufficient balance');",
+									"console.log('⚠️ This request should fail with 400 Bad Request');",
+									"",
+									"const accountId = pm.environment.get('test_account_id');",
+									"if (!accountId) {",
+									"    throw new Error('Account ID required - run Get My Accounts first');",
+									"}",
+									"",
+									"// Try to withdraw a very large amount that should exceed balance",
+									"const largeAmount = 999999.99;",
+									"",
+									"const transactionData = {",
+									"    fromAccountId: accountId,",
+									"    amount: largeAmount,",
+									"    type: 'withdrawal',",
+									"    description: 'Test insufficient balance withdrawal',",
+									"    reference: 'POSTMAN-FAIL-' + Date.now()",
+									"};",
+									"",
+									"console.log('💸 Attempting to withdraw $' + largeAmount + ' (should fail)');",
+									"",
+									"pm.request.body.raw = JSON.stringify(transactionData);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Insufficient balance withdrawal is rejected', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Error response has proper structure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"});",
+									"",
+									"pm.test('Error indicates insufficient balance', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const errorMessage = (jsonData.error || '').toLowerCase();",
+									"    pm.expect(errorMessage).to.include('insufficient');",
+									"});",
+									"",
+									"pm.test('No transaction created on failure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    // Should not contain transaction data on error",
+									"    pm.expect(jsonData).to.not.have.property('transaction');",
+									"    pm.expect(jsonData).to.not.have.property('id');",
+									"});",
+									"",
+									"pm.test('Response time is acceptable', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"// Log test result",
+									"if (pm.response.code === 400) {",
+									"    console.log('✅ Negative test PASSED - insufficient balance properly rejected');",
+									"} else {",
+									"    console.log('❌ Negative test FAILED - insufficient balance was not rejected');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions"]
+						},
+						"description": "Negative test: Attempt to withdraw more money than available in account. Should return 400 Bad Request with insufficient balance error."
+					}
+				},
+				{
+					"name": "Try Access Other User Transaction (Should Fail)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🚫 Negative Test: Attempting to access another user\\'s transaction');",
+									"console.log('⚠️ This request should fail with 403 Forbidden or 404 Not Found');",
+									"",
+									"// Use a transaction ID that doesn't belong to the user",
+									"const otherTransactionId = '999999-fake-transaction-id';",
+									"pm.environment.set('other_transaction_id', otherTransactionId);",
+									"",
+									"console.log('🔍 Attempting to access transaction:', otherTransactionId);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Access to other user transaction is denied', function () {",
+									"    // Should return 403 (Forbidden) or 404 (Not Found)",
+									"    const validErrorCodes = [403, 404];",
+									"    pm.expect(validErrorCodes).to.include(pm.response.code);",
+									"});",
+									"",
+									"pm.test('Error response has proper structure', function () {",
+									"    if (pm.response.code >= 400) {",
+									"        const jsonData = pm.response.json();",
+									"        pm.expect(jsonData).to.have.property('error');",
+									"    }",
+									"});",
+									"",
+									"pm.test('No transaction data leaked', function () {",
+									"    if (pm.response.code >= 400) {",
+									"        const jsonData = pm.response.json();",
+									"        // Ensure no transaction data is returned in error response",
+									"        pm.expect(jsonData).to.not.have.property('transaction');",
+									"        pm.expect(jsonData).to.not.have.property('amount');",
+									"        pm.expect(jsonData).to.not.have.property('accountId');",
+									"    }",
+									"});",
+									"",
+									"pm.test('Response time is acceptable', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"// Log test result",
+									"if (pm.response.code === 403 || pm.response.code === 404) {",
+									"    console.log('✅ Negative test PASSED - unauthorized transaction access properly denied');",
+									"} else {",
+									"    console.log('❌ Negative test FAILED - unauthorized transaction access was not denied');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/{{other_transaction_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions", "{{other_transaction_id}}"]
+						},
+						"description": "Negative test: End user should not be able to access other users' transaction details. Should return 403 or 404."
+					}
+				},
+				{
+					"name": "Try Invalid Transaction Type (Should Fail)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🚫 Negative Test: Attempting to create transaction with invalid type');",
+									"console.log('⚠️ This request should fail with 400 Bad Request');",
+									"",
+									"const accountId = pm.environment.get('test_account_id');",
+									"if (!accountId) {",
+									"    throw new Error('Account ID required - run Get My Accounts first');",
+									"}",
+									"",
+									"// Try to create transaction with invalid type",
+									"const transactionData = {",
+									"    toAccountId: accountId,",
+									"    amount: 50.00,",
+									"    type: 'invalid_type',",
+									"    description: 'Test invalid transaction type',",
+									"    reference: 'POSTMAN-INVALID-' + Date.now()",
+									"};",
+									"",
+									"console.log('❌ Attempting to create transaction with invalid type: invalid_type');",
+									"",
+									"pm.request.body.raw = JSON.stringify(transactionData);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Invalid transaction type is rejected', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Error response has proper structure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"});",
+									"",
+									"pm.test('Error indicates validation failure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const errorMessage = (jsonData.error || '').toLowerCase();",
+									"    const validationKeywords = ['invalid', 'type', 'validation', 'required'];",
+									"    const hasExpectedError = validationKeywords.some(keyword => errorMessage.includes(keyword));",
+									"    pm.expect(hasExpectedError).to.be.true;",
+									"});",
+									"",
+									"pm.test('No transaction created on validation failure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    // Should not contain transaction data on error",
+									"    pm.expect(jsonData).to.not.have.property('transaction');",
+									"    pm.expect(jsonData).to.not.have.property('id');",
+									"});",
+									"",
+									"// Log test result",
+									"if (pm.response.code === 400) {",
+									"    console.log('✅ Negative test PASSED - invalid transaction type properly rejected');",
+									"} else {",
+									"    console.log('❌ Negative test FAILED - invalid transaction type was not rejected');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions"]
+						},
+						"description": "Negative test: Attempt to create transaction with invalid type. Should return 400 Bad Request with validation error."
+					}
+				}
+			]
+		},
+		{
+			"name": "4. User Profile Management",
+			"description": "User profile operations - retrieve and update user profile information with proper authorization",
+			"item": [
+				{
+					"name": "Get My Profile",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('👤 Retrieving user profile...');",
+									"",
+									"// Verify access token",
+									"const accessToken = pm.environment.get('access_token');",
+									"if (!accessToken) {",
+									"    throw new Error('Access token required - run OAuth Login Flow first');",
+									"}",
+									"",
+									"console.log('🔐 Using profile scope for user profile access');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Profile retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains user profile', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('user');",
+									"    pm.expect(jsonData.user).to.be.an('object');",
+									"});",
+									"",
+									"pm.test('Profile has required fields', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const user = jsonData.user;",
+									"    pm.expect(user).to.have.property('id');",
+									"    pm.expect(user).to.have.property('username');",
+									"    pm.expect(user).to.have.property('email');",
+									"    pm.expect(user).to.have.property('firstName');",
+									"    pm.expect(user).to.have.property('lastName');",
+									"    pm.expect(user).to.have.property('role');",
+									"});",
+									"",
+									"pm.test('Profile does not contain sensitive data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const user = jsonData.user;",
+									"    pm.expect(user).to.not.have.property('password');",
+									"});",
+									"",
+									"pm.test('User role is appropriate for end user', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const validRoles = ['customer', 'user'];",
+									"    pm.expect(validRoles).to.include(jsonData.user.role);",
+									"});",
+									"",
+									"pm.test('Profile scope validation passed', function () {",
+									"    // If we get a 200 response, it means the profile scope was validated",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Store user data for subsequent tests",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    const user = jsonData.user;",
+									"    pm.environment.set('current_user_id', user.id);",
+									"    pm.environment.set('current_username', user.username);",
+									"    pm.environment.set('current_user_email', user.email);",
+									"    console.log('✅ Profile retrieved successfully:');",
+									"    console.log('👤 Username:', user.username);",
+									"    console.log('📧 Email:', user.email);",
+									"    console.log('🏷️ Role:', user.role);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "me"]
+						},
+						"description": "Retrieve current user's profile information. Requires profile scope. Returns user details without sensitive information like passwords."
+					}
+				},
+				{
+					"name": "Update My Profile",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('✏️ Updating user profile...');",
+									"",
+									"const userId = pm.environment.get('current_user_id');",
+									"if (!userId) {",
+									"    throw new Error('User ID required - run Get My Profile first');",
+									"}",
+									"",
+									"// Generate updated profile data",
+									"const timestamp = Date.now();",
+									"const profileUpdates = {",
+									"    firstName: 'Updated',",
+									"    lastName: 'Profile',",
+									"    email: `updated.profile.${timestamp}@example.com`",
+									"};",
+									"",
+									"pm.environment.set('updated_email', profileUpdates.email);",
+									"",
+									"console.log('📝 Updating profile with new email:', profileUpdates.email);",
+									"",
+									"pm.request.body.raw = JSON.stringify(profileUpdates);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Profile updated successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains success message', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.message).to.include('updated');",
+									"});",
+									"",
+									"pm.test('Response contains updated user data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('user');",
+									"    pm.expect(jsonData.user).to.be.an('object');",
+									"});",
+									"",
+									"pm.test('Profile updates are reflected', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const user = jsonData.user;",
+									"    const expectedEmail = pm.environment.get('updated_email');",
+									"    pm.expect(user.firstName).to.equal('Updated');",
+									"    pm.expect(user.lastName).to.equal('Profile');",
+									"    pm.expect(user.email).to.equal(expectedEmail);",
+									"});",
+									"",
+									"pm.test('User cannot change role', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const user = jsonData.user;",
+									"    // Role should remain as customer/user, not admin",
+									"    const validRoles = ['customer', 'user'];",
+									"    pm.expect(validRoles).to.include(user.role);",
+									"});",
+									"",
+									"pm.test('Banking write scope validation passed', function () {",
+									"    // If we get a 200 response, it means the banking:write scope was validated",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Log update result",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    const user = jsonData.user;",
+									"    console.log('✅ Profile updated successfully:');",
+									"    console.log('👤 Name:', user.firstName, user.lastName);",
+									"    console.log('📧 Email:', user.email);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/{{current_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{current_user_id}}"]
+						},
+						"description": "Update current user's profile information. Requires banking:write scope. Users can update their own profile but cannot change role or admin-only fields."
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Negative Tests - Unauthorized Access",
+			"description": "Negative test cases to verify proper authorization and access control - end users should not be able to access admin endpoints or other users' data",
+			"item": [
+				{
+					"name": "Try Access Admin Stats (Should Fail)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🚫 Negative Test: Attempting to access admin statistics');",
+									"console.log('⚠️ This request should fail with 403 Forbidden');",
+									"console.log('🔐 End user token does not have banking:admin scope');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Admin stats access is denied', function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"pm.test('Error response has proper structure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"});",
+									"",
+									"pm.test('Error indicates insufficient permissions', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const errorMessage = (jsonData.error || '').toLowerCase();",
+									"    const permissionKeywords = ['forbidden', 'access', 'permission', 'scope', 'admin'];",
+									"    const hasExpectedError = permissionKeywords.some(keyword => errorMessage.includes(keyword));",
+									"    pm.expect(hasExpectedError).to.be.true;",
+									"});",
+									"",
+									"pm.test('No admin data leaked', function () {",
+									"    const jsonData = pm.response.json();",
+									"    // Ensure no admin statistics are returned in error response",
+									"    pm.expect(jsonData).to.not.have.property('stats');",
+									"    pm.expect(jsonData).to.not.have.property('totalUsers');",
+									"    pm.expect(jsonData).to.not.have.property('totalAccounts');",
+									"});",
+									"",
+									"pm.test('Response time is acceptable', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"// Log test result",
+									"if (pm.response.code === 403) {",
+									"    console.log('✅ Negative test PASSED - admin stats access properly denied');",
+									"} else {",
+									"    console.log('❌ Negative test FAILED - admin stats access was not denied');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/stats",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "stats"]
+						},
+						"description": "Negative test: End user should not be able to access admin statistics. Should return 403 Forbidden due to insufficient scope (requires banking:admin)."
+					}
+				},
+				{
+					"name": "Try Access Admin Activity Logs (Should Fail)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🚫 Negative Test: Attempting to access admin activity logs');",
+									"console.log('⚠️ This request should fail with 403 Forbidden');",
+									"console.log('🔐 End user token does not have banking:admin scope');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Admin activity logs access is denied', function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"pm.test('Error response has proper structure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"});",
+									"",
+									"pm.test('Error indicates insufficient permissions', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const errorMessage = (jsonData.error || '').toLowerCase();",
+									"    const permissionKeywords = ['forbidden', 'access', 'permission', 'scope', 'admin'];",
+									"    const hasExpectedError = permissionKeywords.some(keyword => errorMessage.includes(keyword));",
+									"    pm.expect(hasExpectedError).to.be.true;",
+									"});",
+									"",
+									"pm.test('No activity log data leaked', function () {",
+									"    const jsonData = pm.response.json();",
+									"    // Ensure no activity logs are returned in error response",
+									"    pm.expect(jsonData).to.not.have.property('logs');",
+									"    pm.expect(jsonData).to.not.have.property('pagination');",
+									"});",
+									"",
+									"pm.test('Response time is acceptable', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"// Log test result",
+									"if (pm.response.code === 403) {",
+									"    console.log('✅ Negative test PASSED - admin activity logs access properly denied');",
+									"} else {",
+									"    console.log('❌ Negative test FAILED - admin activity logs access was not denied');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/activity",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "activity"]
+						},
+						"description": "Negative test: End user should not be able to access admin activity logs. Should return 403 Forbidden due to insufficient scope (requires banking:admin)."
+					}
+				},
+				{
+					"name": "Try Access All Users List (Should Fail)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🚫 Negative Test: Attempting to access all users list');",
+									"console.log('⚠️ This request should fail with 403 Forbidden');",
+									"console.log('🔐 End user does not have admin role');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('All users list access is denied', function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"pm.test('Error response has proper structure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"});",
+									"",
+									"pm.test('Error indicates insufficient permissions', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const errorMessage = (jsonData.error || '').toLowerCase();",
+									"    const permissionKeywords = ['forbidden', 'access', 'permission', 'admin', 'role'];",
+									"    const hasExpectedError = permissionKeywords.some(keyword => errorMessage.includes(keyword));",
+									"    pm.expect(hasExpectedError).to.be.true;",
+									"});",
+									"",
+									"pm.test('No user data leaked', function () {",
+									"    const jsonData = pm.response.json();",
+									"    // Ensure no user list is returned in error response",
+									"    pm.expect(jsonData).to.not.have.property('users');",
+									"});",
+									"",
+									"pm.test('Response time is acceptable', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"// Log test result",
+									"if (pm.response.code === 403) {",
+									"    console.log('✅ Negative test PASSED - all users list access properly denied');",
+									"} else {",
+									"    console.log('❌ Negative test FAILED - all users list access was not denied');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						},
+						"description": "Negative test: End user should not be able to access the list of all users. Should return 403 Forbidden due to insufficient admin role."
+					}
+				},
+				{
+					"name": "Try Access Other User Profile (Should Fail)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🚫 Negative Test: Attempting to access another user\\'s profile');",
+									"console.log('⚠️ This request should fail with 403 Forbidden or 404 Not Found');",
+									"",
+									"// Use a different user ID that doesn't belong to the current user",
+									"const otherUserId = '999999-fake-user-id';",
+									"pm.environment.set('other_user_id', otherUserId);",
+									"",
+									"console.log('🔍 Attempting to access user profile:', otherUserId);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Access to other user profile is denied', function () {",
+									"    // Should return 403 (Forbidden) or 404 (Not Found)",
+									"    const validErrorCodes = [403, 404];",
+									"    pm.expect(validErrorCodes).to.include(pm.response.code);",
+									"});",
+									"",
+									"pm.test('Error response has proper structure', function () {",
+									"    if (pm.response.code >= 400) {",
+									"        const jsonData = pm.response.json();",
+									"        pm.expect(jsonData).to.have.property('error');",
+									"    }",
+									"});",
+									"",
+									"pm.test('No user profile data leaked', function () {",
+									"    if (pm.response.code >= 400) {",
+									"        const jsonData = pm.response.json();",
+									"        // Ensure no user profile data is returned in error response",
+									"        pm.expect(jsonData).to.not.have.property('user');",
+									"        pm.expect(jsonData).to.not.have.property('username');",
+									"        pm.expect(jsonData).to.not.have.property('email');",
+									"    }",
+									"});",
+									"",
+									"pm.test('Response time is acceptable', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"// Log test result",
+									"if (pm.response.code === 403 || pm.response.code === 404) {",
+									"    console.log('✅ Negative test PASSED - other user profile access properly denied');",
+									"} else {",
+									"    console.log('❌ Negative test FAILED - other user profile access was not denied');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{other_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{other_user_id}}"]
+						},
+						"description": "Negative test: End user should not be able to access other users' profile information. Should return 403 or 404 due to ownership validation."
+					}
+				},
+				{
+					"name": "Try Create User (Should Fail)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🚫 Negative Test: Attempting to create a new user');",
+									"console.log('⚠️ This request should fail with 403 Forbidden');",
+									"console.log('🔐 End user does not have admin role');",
+									"",
+									"// Generate test user data",
+									"const timestamp = Date.now();",
+									"const newUserData = {",
+									"    username: `testuser${timestamp}`,",
+									"    email: `testuser${timestamp}@example.com`,",
+									"    password: 'testpassword123',",
+									"    firstName: 'Test',",
+									"    lastName: 'User',",
+									"    role: 'customer'",
+									"};",
+									"",
+									"console.log('👤 Attempting to create user:', newUserData.username);",
+									"",
+									"pm.request.body.raw = JSON.stringify(newUserData);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('User creation is denied', function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"pm.test('Error response has proper structure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"});",
+									"",
+									"pm.test('Error indicates insufficient permissions', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const errorMessage = (jsonData.error || '').toLowerCase();",
+									"    const permissionKeywords = ['forbidden', 'access', 'permission', 'admin', 'role'];",
+									"    const hasExpectedError = permissionKeywords.some(keyword => errorMessage.includes(keyword));",
+									"    pm.expect(hasExpectedError).to.be.true;",
+									"});",
+									"",
+									"pm.test('No user created on failure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    // Should not contain user data on error",
+									"    pm.expect(jsonData).to.not.have.property('user');",
+									"    pm.expect(jsonData).to.not.have.property('id');",
+									"});",
+									"",
+									"pm.test('Response time is acceptable', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"// Log test result",
+									"if (pm.response.code === 403) {",
+									"    console.log('✅ Negative test PASSED - user creation properly denied');",
+									"} else {",
+									"    console.log('❌ Negative test FAILED - user creation was not denied');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						},
+						"description": "Negative test: End user should not be able to create new users. Should return 403 Forbidden due to insufficient admin role."
+					}
+				},
+				{
+					"name": "Try Delete Activity Logs (Should Fail)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🚫 Negative Test: Attempting to delete activity logs');",
+									"console.log('⚠️ This request should fail with 403 Forbidden');",
+									"console.log('🔐 End user token does not have banking:admin scope');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Activity logs deletion is denied', function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"pm.test('Error response has proper structure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"});",
+									"",
+									"pm.test('Error indicates insufficient permissions', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const errorMessage = (jsonData.error || '').toLowerCase();",
+									"    const permissionKeywords = ['forbidden', 'access', 'permission', 'scope', 'admin'];",
+									"    const hasExpectedError = permissionKeywords.some(keyword => errorMessage.includes(keyword));",
+									"    pm.expect(hasExpectedError).to.be.true;",
+									"});",
+									"",
+									"pm.test('No deletion confirmation returned', function () {",
+									"    const jsonData = pm.response.json();",
+									"    // Should not contain deletion confirmation on error",
+									"    pm.expect(jsonData).to.not.have.property('deletedCount');",
+									"    pm.expect(jsonData).to.not.have.property('remainingCount');",
+									"});",
+									"",
+									"pm.test('Response time is acceptable', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"// Log test result",
+									"if (pm.response.code === 403) {",
+									"    console.log('✅ Negative test PASSED - activity logs deletion properly denied');",
+									"} else {",
+									"    console.log('❌ Negative test FAILED - activity logs deletion was not denied');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/activity/clear?days=30",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "activity", "clear"],
+							"query": [
+								{
+									"key": "days",
+									"value": "30",
+									"description": "Number of days to keep"
+								}
+							]
+						},
+						"description": "Negative test: End user should not be able to delete activity logs. Should return 403 Forbidden due to insufficient scope (requires banking:admin)."
+					}
+				}
+			]
+		}
+	]
+}

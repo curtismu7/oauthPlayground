@@ -13,8 +13,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiRefreshCw } from '../../icons';
-import { logger } from '../../utils/logger';
 import { UserLoginModalV8 } from './UserLoginModalV8';
 
 const MODULE_TAG = '[👤 USER-LOGIN-SECTION-V8]';
@@ -53,12 +53,9 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(MODULE_TAG, 'Error refreshing user token:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to refresh user token',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'refresh-user-token',
+				component: MODULE_TAG,
 			});
 		} finally {
 			setIsRefreshing(false);
@@ -81,12 +78,9 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(MODULE_TAG, 'Error logging out user:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to log out user',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'logout-user',
+				component: MODULE_TAG,
 			});
 		}
 	};

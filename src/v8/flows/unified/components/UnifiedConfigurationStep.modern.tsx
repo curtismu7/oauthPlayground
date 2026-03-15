@@ -24,6 +24,7 @@ import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { useFormValidation } from '@/v8/hooks/useFormValidation';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiAlertCircle, FiCheck } from '../../../../icons';
 
 import { logger } from '../../../../utils/logger';
@@ -260,15 +261,11 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 				});
 			}
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Error:`, error);
-			const errorMessage = error instanceof Error ? error.message : 'Failed to process request';
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: errorMessage,
-				dismissible: true,
-			});
-			nav.setValidationErrors([errorMessage]);
+			UnifiedFlowErrorHandler.handleError(
+				error,
+				{ operation: 'save-configuration', component: MODULE_TAG },
+				{ setValidationErrors: nav.setValidationErrors }
+			);
 		} finally {
 			setIsSubmitting(false);
 		}

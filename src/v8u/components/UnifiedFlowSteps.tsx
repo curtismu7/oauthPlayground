@@ -3358,14 +3358,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																		setIsLoading(true);
 																		setLoadingMessage('🔧 Fixing errors...');
 
-																		const { uiNotificationServiceV8 } =
-																			await import('@/v8/services/uiNotificationServiceV8');
-																		const { PreFlightValidationServiceV8 } =
-																			await import('@/v8/services/preFlightValidationServiceV8');
-																		const { workerTokenServiceV8 } =
-																			await import('@/v8/services/workerTokenServiceV8');
-																		const { CredentialsServiceV8 } =
-																			await import('@/v8/services/credentialsServiceV8');
+																		const { uiNotificationServiceV8 } = await import(
+																			'@/v8/services/uiNotificationServiceV8'
+																		);
+																		const { PreFlightValidationServiceV8 } = await import(
+																			'@/v8/services/preFlightValidationServiceV8'
+																		);
+																		const { workerTokenServiceV8 } = await import(
+																			'@/v8/services/workerTokenServiceV8'
+																		);
+																		const { CredentialsServiceV8 } = await import(
+																			'@/v8/services/credentialsServiceV8'
+																		);
 
 																		const fixableErrors =
 																			preFlightValidationResult.fixableErrors || [];
@@ -3454,8 +3458,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 																			// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
 																			// This ensures fixes persist across all flows and browser restarts
-																			const { SharedCredentialsServiceV8 } =
-																				await import('@/v8/services/sharedCredentialsServiceV8');
+																			const { SharedCredentialsServiceV8 } = await import(
+																				'@/v8/services/sharedCredentialsServiceV8'
+																			);
 																			const sharedCreds =
 																				SharedCredentialsServiceV8.extractSharedCredentials(
 																					updatedCredentials
@@ -4310,8 +4315,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const flowApiUrl = `https://auth.pingone.com/${credentials.environmentId}/flows/${flowId}`;
 
 				// Track API call for display
-				const { apiCallTrackerService: apiCallTrackerService2 } =
-					await import('@/services/apiCallTrackerService');
+				const { apiCallTrackerService: apiCallTrackerService2 } = await import(
+					'@/services/apiCallTrackerService'
+				);
 				const startTime2 = Date.now();
 				const requestBody2 = {
 					environmentId: credentials.environmentId,
@@ -4899,8 +4905,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			// Track API call for display
-			const { apiCallTrackerService: apiCallTrackerService3 } =
-				await import('@/services/apiCallTrackerService');
+			const { apiCallTrackerService: apiCallTrackerService3 } = await import(
+				'@/services/apiCallTrackerService'
+			);
 			const startTime3 = Date.now();
 			const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 			const requestBody3 = {
@@ -5195,8 +5202,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				};
 			} | null = null;
 			try {
-				const { PreFlightValidationServiceV8 } =
-					await import('@/v8/services/preFlightValidationServiceV8');
+				const { PreFlightValidationServiceV8 } = await import(
+					'@/v8/services/preFlightValidationServiceV8'
+				);
 				const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 
 				setPreFlightStatus('🔑 Retrieving worker token...');
@@ -5205,8 +5213,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// If no worker token, respect Silent API Retrieval checkbox: if ON try silent first; if OFF don't
 				if (!workerToken) {
 					try {
-						const { handleShowWorkerTokenModal } =
-							await import('@/v8/utils/workerTokenModalHelperV8');
+						const { handleShowWorkerTokenModal } = await import(
+							'@/v8/utils/workerTokenModalHelperV8'
+						);
 						await handleShowWorkerTokenModal(
 							setShowWorkerTokenModal,
 							undefined, // setTokenStatus
@@ -5273,8 +5282,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						// If there are fixable errors, offer to fix them
 						if (fixableErrors.length > 0) {
-							const { uiNotificationServiceV8 } =
-								await import('@/v8/services/uiNotificationServiceV8');
+							const { uiNotificationServiceV8 } = await import(
+								'@/v8/services/uiNotificationServiceV8'
+							);
 
 							// Build fix description message
 							const fixDescriptions = fixableErrors
@@ -5354,8 +5364,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 								// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
 								// This ensures fixes persist across all flows and browser restarts
-								const { SharedCredentialsServiceV8 } =
-									await import('@/v8/services/sharedCredentialsServiceV8');
+								const { SharedCredentialsServiceV8 } = await import(
+									'@/v8/services/sharedCredentialsServiceV8'
+								);
 								const sharedCreds =
 									SharedCredentialsServiceV8.extractSharedCredentials(updatedCredentials);
 								if (
@@ -5968,10 +5979,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													setLoadingMessage('🔑 Retrieving Worker Token...');
 
 													// Import worker token modal helper
-													const { handleShowWorkerTokenModal } =
-														await import('@/v8/utils/workerTokenModalHelperV8');
-													const { WorkerTokenStatusServiceV8 } =
-														await import('@/v8/services/workerTokenStatusServiceV8');
+													const { handleShowWorkerTokenModal } = await import(
+														'@/v8/utils/workerTokenModalHelperV8'
+													);
+													const { WorkerTokenStatusServiceV8 } = await import(
+														'@/v8/services/workerTokenStatusServiceV8'
+													);
 
 													// User clicked "Get Worker Token" — show modal (respect Silent checkbox only for automatic fetches)
 													await handleShowWorkerTokenModal(
@@ -5995,10 +6008,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 														// Re-run pre-flight validation
 														setLoadingMessage('🔍 Re-validating Configuration...');
-														const { PreFlightValidationServiceV8 } =
-															await import('@/v8/services/preFlightValidationServiceV8');
-														const { workerTokenServiceV8 } =
-															await import('@/v8/services/workerTokenServiceV8');
+														const { PreFlightValidationServiceV8 } = await import(
+															'@/v8/services/preFlightValidationServiceV8'
+														);
+														const { workerTokenServiceV8 } = await import(
+															'@/v8/services/workerTokenServiceV8'
+														);
 
 														const newWorkerToken = await workerTokenServiceV8.getToken();
 														const newValidationResult =
@@ -6945,12 +6960,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													setIsLoading(true);
 													setLoadingMessage('🔧 Fixing errors...');
 
-													const { uiNotificationServiceV8 } =
-														await import('@/v8/services/uiNotificationServiceV8');
-													const { CredentialsServiceV8 } =
-														await import('@/v8/services/credentialsServiceV8');
-													const { SharedCredentialsServiceV8 } =
-														await import('@/v8/services/sharedCredentialsServiceV8');
+													const { uiNotificationServiceV8 } = await import(
+														'@/v8/services/uiNotificationServiceV8'
+													);
+													const { CredentialsServiceV8 } = await import(
+														'@/v8/services/credentialsServiceV8'
+													);
+													const { SharedCredentialsServiceV8 } = await import(
+														'@/v8/services/sharedCredentialsServiceV8'
+													);
 
 													const fixableErrors = preFlightValidationResult.fixableErrors || [];
 													const fixDescriptions = fixableErrors
@@ -9180,8 +9198,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		} | null = null;
 
 		try {
-			const { PreFlightValidationServiceV8 } =
-				await import('@/v8/services/preFlightValidationServiceV8');
+			const { PreFlightValidationServiceV8 } = await import(
+				'@/v8/services/preFlightValidationServiceV8'
+			);
 			const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 
 			setPreFlightStatus('🔑 Retrieving worker token...');
@@ -9886,8 +9905,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					let response: Response;
 					try {
 						// Track API call for display
-						const { apiCallTrackerService: apiCallTrackerService4 } =
-							await import('@/services/apiCallTrackerService');
+						const { apiCallTrackerService: apiCallTrackerService4 } = await import(
+							'@/services/apiCallTrackerService'
+						);
 						const startTime4 = Date.now();
 						const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 						const requestBodyForTracking = {
@@ -10961,8 +10981,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				} | null = null;
 
 				try {
-					const { PreFlightValidationServiceV8 } =
-						await import('@/v8/services/preFlightValidationServiceV8');
+					const { PreFlightValidationServiceV8 } = await import(
+						'@/v8/services/preFlightValidationServiceV8'
+					);
 					const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 
 					setPreFlightStatus('🔑 Retrieving worker token...');
@@ -10986,8 +11007,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						| undefined;
 					if (workerToken && credentials.environmentId && credentials.clientId) {
 						try {
-							const { ConfigCheckerServiceV8 } =
-								await import('@/v8/services/configCheckerServiceV8');
+							const { ConfigCheckerServiceV8 } = await import(
+								'@/v8/services/configCheckerServiceV8'
+							);
 							const fetchedConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 								credentials.environmentId,
 								credentials.clientId,
@@ -11044,8 +11066,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						const fixableErrors = validationResult.fixableErrors || [];
 
 						if (fixableErrors.length > 0) {
-							const { uiNotificationServiceV8 } =
-								await import('@/v8/services/uiNotificationServiceV8');
+							const { uiNotificationServiceV8 } = await import(
+								'@/v8/services/uiNotificationServiceV8'
+							);
 							const fixDescriptions = fixableErrors
 								.map((fe) => `  • ${fe.fixDescription}`)
 								.join('\n');
@@ -12562,8 +12585,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				});
 
 				// Track API call for display
-				const { apiCallTrackerService: apiCallTrackerService5 } =
-					await import('@/services/apiCallTrackerService');
+				const { apiCallTrackerService: apiCallTrackerService5 } = await import(
+					'@/services/apiCallTrackerService'
+				);
 				const startTime5 = Date.now();
 				const requestBody5 = {
 					token: '***REDACTED***',
@@ -13678,7 +13702,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											: selectedTokenType === 'access' && !operationRules.canIntrospectAccessToken
 												? operationRules.introspectionReason
 												: selectedTokenType === 'refresh' &&
-													  !operationRules.canIntrospectRefreshToken
+														!operationRules.canIntrospectRefreshToken
 													? 'Refresh token introspection not supported'
 													: selectedTokenType === 'id' && !operationRules.canIntrospectIdToken
 														? 'ID token introspection not recommended'
@@ -15557,16 +15581,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					onClose={async () => {
 						setShowWorkerTokenModal(false);
 						// After modal closes, check if token is available and re-run validation
-						const { WorkerTokenStatusServiceV8 } =
-							await import('@/v8/services/workerTokenStatusServiceV8');
+						const { WorkerTokenStatusServiceV8 } = await import(
+							'@/v8/services/workerTokenStatusServiceV8'
+						);
 						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 						if (tokenStatus.isValid) {
 							// Re-run pre-flight validation
 							setIsLoading(true);
 							setLoadingMessage('🔍 Re-validating Configuration...');
 							try {
-								const { PreFlightValidationServiceV8 } =
-									await import('@/v8/services/preFlightValidationServiceV8');
+								const { PreFlightValidationServiceV8 } = await import(
+									'@/v8/services/preFlightValidationServiceV8'
+								);
 								const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 
 								const newWorkerToken = await workerTokenServiceV8.getToken();

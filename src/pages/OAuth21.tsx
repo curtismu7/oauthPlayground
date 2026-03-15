@@ -131,15 +131,15 @@ const PingOneNote = styled.div`
 	}
 `;
 
-// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+// Use V6 pageLayoutService for consistent dimensions; red header (PingOne migrated style)
 const pageConfig = {
-	flowType: 'documentation' as const,
-	theme: 'blue' as const,
+	flowType: 'pingone' as const,
+	theme: 'red' as const,
 	maxWidth: '72rem', // Wider for OAuth 2.1 content (1152px)
 	showHeader: true,
 	showFooter: false,
 	responsive: true,
-	flowId: 'oauth-2-1', // Enables FlowHeader integration
+	flowId: 'oauth-2-1',
 };
 
 const { PageContainer, ContentWrapper, PageHeader } =
@@ -172,6 +172,7 @@ const OAuth21 = () => {
 					subtitle="Evolution of OAuth 2.0 with built-in security improvements and best practices"
 					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
+					theme="ping"
 				>
 					<OverviewCard>
 						<CardBody>
@@ -181,14 +182,23 @@ const OAuth21 = () => {
 								and best practices built-in.
 							</p>
 							<p>
-								<strong>Status:</strong> Currently in draft (draft-ietf-oauth-v2-1-13) -
+								<strong>Status:</strong> Currently in draft (draft-ietf-oauth-v2-1-13) —{' '}
 								<a
 									href="https://oauth.net/2.1/"
 									target="_blank"
 									rel="noopener noreferrer"
-									style={{ color: V9_COLORS.PRIMARY.BLUE, marginLeft: '0.5rem' }}
+									style={{ color: V9_COLORS.PRIMARY.BLUE }}
 								>
 									View on oauth.net
+								</a>
+								{' · '}
+								<a
+									href="https://oauth.net/specs/"
+									target="_blank"
+									rel="noopener noreferrer"
+									style={{ color: V9_COLORS.PRIMARY.BLUE }}
+								>
+									Browse all OAuth specs
 								</a>
 							</p>
 						</CardBody>
@@ -200,6 +210,7 @@ const OAuth21 = () => {
 					subtitle="Deprecated patterns that no longer appear in the consolidated specification"
 					icon={<span>⚠️</span>}
 					defaultCollapsed={false}
+					theme="ping"
 				>
 					<Card>
 						<CardBody>
@@ -295,6 +306,7 @@ const OAuth21 = () => {
 					subtitle="Major security improvements and deprecations in OAuth 2.1"
 					icon={<span>🔑</span>}
 					defaultCollapsed={false}
+					theme="ping"
 				>
 					<Card>
 						<CardBody>
@@ -653,6 +665,7 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 					subtitle="Step-by-step guide for migrating from OAuth 2.0 to OAuth 2.1"
 					icon={<span>🔄</span>}
 					defaultCollapsed={false}
+					theme="ping"
 				>
 					<Card>
 						<CardBody>
@@ -703,6 +716,7 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 					subtitle="PingOne's support for OAuth 2.1 features and recommendations"
 					icon={<span>👥</span>}
 					defaultCollapsed={false}
+					theme="ping"
 				>
 					<Card>
 						<CardBody>

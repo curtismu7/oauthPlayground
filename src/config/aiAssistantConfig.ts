@@ -62,6 +62,7 @@ export const AI_ASSISTANT_CONFIG: AIAssistantConfig = {
 
 	featurePrompts: [
 		'Get worker token',
+		'List MCP tools',
 		'List applications',
 		'Create application',
 		'Get user info',

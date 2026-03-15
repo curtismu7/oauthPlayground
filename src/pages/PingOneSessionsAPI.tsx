@@ -258,8 +258,8 @@ interface ApiResponse {
 }
 
 const pageConfig = {
-	flowType: 'documentation' as const,
-	theme: 'blue' as const,
+	flowType: 'pingone' as const,
+	theme: 'red' as const,
 	maxWidth: '72rem',
 	showHeader: true,
 	showFooter: false,
@@ -449,6 +449,7 @@ const PingOneSessionsAPI: React.FC = () => {
 						subtitle="The Sessions API provides programmatic access to manage user authentication sessions in PingOne"
 						icon={<span>👥</span>}
 						defaultCollapsed={false}
+						theme="ping"
 					>
 						<div style={{ padding: '1.5rem' }}>
 							<OverviewCard>

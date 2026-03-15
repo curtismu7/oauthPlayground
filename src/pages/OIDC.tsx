@@ -81,7 +81,15 @@ const OIDC: React.FC = () => {
 	if (isIndexRoute) {
 		return (
 			<OIDCContainer>
-				<FlowHeader flowType="oidc" />
+				<FlowHeader
+					customConfig={{
+						flowType: 'pingone',
+						title: 'OIDC Information',
+						subtitle:
+							'OpenID Connect flows and resources. Learn authorization code, hybrid flow, and OIDC integration patterns.',
+						icon: '🔑',
+					}}
+				/>
 
 				<Grid>
 					<FeatureCard to="/oidc/authorization-code">

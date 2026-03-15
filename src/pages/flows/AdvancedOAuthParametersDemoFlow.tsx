@@ -254,7 +254,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 			<FlowHeader
 				flowId="advanced-oauth-params-demo"
 				customConfig={{
-					flowType: 'oauth',
+					flowType: 'pingone',
 					title: 'Advanced OAuth Parameters Demo',
 					subtitle: 'Explore ALL OAuth 2.0 and OIDC parameters with mock responses',
 				}}
@@ -286,7 +286,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 			<CollapsibleHeader
 				title="Step 1: Configure Advanced Parameters"
 				icon={<span>⚙️</span>}
-				theme="orange"
+				theme="ping"
 				defaultCollapsed={false}
 			>
 				<InfoBox>
@@ -434,7 +434,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 				<CollapsibleHeader
 					title="Step 2: Generated Authorization URL"
 					icon={<span>🔗</span>}
-					theme="blue"
+					theme="ping"
 					defaultCollapsed={false}
 				>
 					<InfoBox $variant="success">
@@ -465,7 +465,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 				<CollapsibleHeader
 					title="Step 3: Mock Token Response"
 					icon={<span>📦</span>}
-					theme="highlight"
+					theme="ping"
 					defaultCollapsed={false}
 				>
 					<InfoBox $variant="success">
@@ -508,7 +508,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 			<CollapsibleHeader
 				title="Why These Parameters May Not Work with PingOne"
 				icon={<span>📚</span>}
-				theme="yellow"
+				theme="ping"
 				defaultCollapsed={true}
 			>
 				<InfoBox $variant="warning">

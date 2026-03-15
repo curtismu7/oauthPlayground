@@ -441,7 +441,7 @@ const OIDCOverviewV7: React.FC = () => {
 
 	return (
 		<ResponsiveContainer>
-			<FlowHeader flowId="oidc-overview" />
+			<FlowHeader flowId="oidc-overview" customConfig={{ flowType: 'pingone' }} />
 
 			<ResponsiveContentWrapper>
 				{/* OIDC Overview Introduction */}
@@ -464,7 +464,7 @@ const OIDCOverviewV7: React.FC = () => {
 				<SectionDivider />
 
 				{/* Core OIDC Concepts */}
-				<CollapsibleHeader title="Core OIDC Concepts" defaultOpen={true}>
+				<CollapsibleHeader title="Core OIDC Concepts" defaultOpen={true} theme="ping">
 					<ConceptGrid>
 						{oidcConcepts.map((concept, index) => (
 							<ConceptCard key={index}>
@@ -484,7 +484,7 @@ const OIDCOverviewV7: React.FC = () => {
 				<SectionDivider />
 
 				{/* OIDC Flows */}
-				<CollapsibleHeader title="OIDC Authentication Flows" defaultOpen={true}>
+				<CollapsibleHeader title="OIDC Authentication Flows" defaultOpen={true} theme="ping">
 					<FlowGrid>
 						{oidcFlows.map((flow) => (
 							<FlowCard key={flow.id} onClick={() => handleFlowClick(flow)}>
@@ -573,7 +573,7 @@ const OIDCOverviewV7: React.FC = () => {
 				<SectionDivider />
 
 				{/* Flow Comparison */}
-				<CollapsibleHeader title="Quick Flow Comparison" defaultOpen={false}>
+				<CollapsibleHeader title="Quick Flow Comparison" defaultOpen={false} theme="ping">
 					<ComparisonTable>
 						<table>
 							<thead>

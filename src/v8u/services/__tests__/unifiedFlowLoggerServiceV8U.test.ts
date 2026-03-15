@@ -6,9 +6,9 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-	unifiedFlowLoggerService,
 	type LogContext,
 	type LogLevel,
+	unifiedFlowLoggerService,
 } from '../unifiedFlowLoggerServiceV8U';
 
 describe('unifiedFlowLoggerServiceV8U', () => {
