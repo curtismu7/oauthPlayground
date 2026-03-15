@@ -558,10 +558,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		if (currentStep === 0) {
 			setIsCredentialsCollapsed(false);
 		} else if (prevStep === 0 && currentStep > 0) {
-			const settings = FlowSettingsServiceV8U.loadSettings(effectiveFlowType);
-			setIsCredentialsCollapsed(settings?.credentialsCollapsed ?? true);
+			// This will be handled after effectiveFlowType is declared
 		}
-	}, [currentStep, effectiveFlowType, setIsCredentialsCollapsed]);
+	}, [currentStep]);
 
 	// Navigate to step
 	const navigateToStep = useCallback(
@@ -943,6 +942,19 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		'worker-token-status',
 		true
 	);
+
+	// Handle step transitions and credential collapse state
+	useEffect(() => {
+		const prevStep = prevStepRef.current;
+		prevStepRef.current = currentStep;
+
+		if (currentStep === 0) {
+			setIsCredentialsCollapsed(false);
+		} else if (prevStep === 0 && currentStep > 0) {
+			const settings = FlowSettingsServiceV8U.loadSettings(effectiveFlowType);
+			setIsCredentialsCollapsed(settings?.credentialsCollapsed ?? true);
+		}
+	}, [currentStep, effectiveFlowType, setIsCredentialsCollapsed]);
 
 	// Calculate current flow key (specVersion + flowType) - MUST be after effectiveFlowType is defined
 	const flowKey = useMemo(() => {
