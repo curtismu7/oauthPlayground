@@ -230,7 +230,7 @@ const PingOneLogoutFlow: React.FC<PingOneLogoutFlowProps> = ({ credentials }) =>
 		environmentId: credentials?.environmentId || '',
 		clientId: credentials?.clientId || '',
 		idToken: '',
-		postLogoutRedirectUri: 'https://localhost:3000/logout-callback',
+		postLogoutRedirectUri: 'https://api.pingdemo.com/logout-callback',
 		state: generateState(),
 	});
 	const [logoutUrl, setLogoutUrl] = useState<string | null>(null);
@@ -756,7 +756,7 @@ if (idToken) {
 						onChange={(e) =>
 							setFormData((prev) => ({ ...prev, postLogoutRedirectUri: e.target.value }))
 						}
-						placeholder="https://localhost:3000/logout-callback"
+						placeholder="https://api.pingdemo.com/logout-callback"
 					/>
 					<small style={{ color: '#6b7280', display: 'block', marginTop: '0.5rem' }}>
 						⚠️ Must be registered in PingOne application's "Sign Off URLs"
