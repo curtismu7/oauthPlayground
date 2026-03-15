@@ -728,6 +728,55 @@ const Configuration: React.FC = () => {
 			return '';
 		}
 	});
+
+	// Authorization Code (OIDC) client state — separate from the Worker (client_credentials) app.
+	// Required for user login via Authz Code + PKCE + pi.flow.
+	// Future banking demo: add transfer:funds account:read to authzScopesStr.
+	const [authzClientId, setAuthzClientId] = useState<string>(() => {
+		try {
+			return unifiedWorkerTokenService.getTokenDataSync()?.credentials?.authzClientId ?? '';
+		} catch {
+			return '';
+		}
+	});
+	const [authzClientSecret, setAuthzClientSecret] = useState<string>(() => {
+		try {
+			return unifiedWorkerTokenService.getTokenDataSync()?.credentials?.authzClientSecret ?? '';
+		} catch {
+			return '';
+		}
+	});
+	const [authzScopesStr, setAuthzScopesStr] = useState<string>(() => {
+		try {
+			const scopes = unifiedWorkerTokenService.getTokenDataSync()?.credentials?.authzScopes;
+			return scopes?.join(' ') ?? 'openid profile email';
+		} catch {
+			return 'openid profile email';
+		}
+	});
+	const [authzSaveStatus, setAuthzSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+	const handleSaveAuthzClient = useCallback(async () => {
+		setAuthzSaveStatus('saving');
+		try {
+			const existing = unifiedWorkerTokenService.getTokenDataSync()?.credentials;
+			if (!existing?.environmentId || !existing?.clientId || !existing?.clientSecret) {
+				setAuthzSaveStatus('error');
+				return;
+			}
+			const scopes = authzScopesStr.split(/\s+/).filter(Boolean);
+			await unifiedWorkerTokenService.saveCredentials({
+				...existing,
+				authzClientId: authzClientId.trim() || undefined,
+				authzClientSecret: authzClientSecret.trim() || undefined,
+				authzScopes: scopes.length > 0 ? scopes : undefined,
+			});
+			setAuthzSaveStatus('saved');
+			setTimeout(() => setAuthzSaveStatus('idle'), 2500);
+		} catch {
+			setAuthzSaveStatus('error');
+		}
+	}, [authzClientId, authzClientSecret, authzScopesStr]);
 	// Load existing credentials on mount and sync to MCP config (for PingOne MCP server)
 	useEffect(() => {
 		const loadCredentials = async () => {
@@ -1086,6 +1135,121 @@ const Configuration: React.FC = () => {
 				defaultCollapsed={false}
 			>
 				<WorkerTokenSectionV8 compact onTokenUpdated={(token) => setWorkerToken(token || '')} />
+			</UnifiedFlowCollapsibleHeader>
+
+			{/* Authorization Code (OIDC) Client — for user login via Authz Code + PKCE + pi.flow */}
+			<UnifiedFlowCollapsibleHeader
+				title="Authorization Client (OIDC)"
+				subtitle="Configure a dedicated PingOne OIDC/Web app for user login. Required for Authz Code + PKCE + pi.flow — separate from the Worker (client_credentials) app."
+				icon={<MDIIcon icon="FiKey" />}
+				defaultCollapsed={true}
+			>
+				<div style={{ padding: '0.75rem 0 0.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+					<p style={{ margin: 0, fontSize: '0.8125rem', color: '#6b7280', lineHeight: 1.5 }}>
+						Worker apps only support <code>client_credentials</code> — they cannot perform user login.
+						Create a separate PingOne OIDC app (Web Application or Native) with{' '}
+						<strong>Authorization Code</strong> grant + PKCE, then enter its Client ID below.
+						Used by the AI Assistant &ldquo;User login&rdquo; tab and future banking demo flows.
+					</p>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+						<label htmlFor="authz-client-id" style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#374151' }}>
+							Authz Client ID
+						</label>
+						<input
+							id="authz-client-id"
+							type="text"
+							value={authzClientId}
+							onChange={(e) => setAuthzClientId(e.target.value)}
+							placeholder="Client ID of your OIDC Authorization Code app"
+							style={{
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								padding: '0.5rem 0.75rem',
+								fontSize: '0.875rem',
+								outline: 'none',
+								width: '100%',
+								boxSizing: 'border-box',
+							}}
+						/>
+					</div>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+						<label htmlFor="authz-client-secret" style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#374151' }}>
+							Authz Client Secret{' '}
+							<span style={{ fontWeight: 400, color: '#9ca3af' }}>(leave empty for public PKCE clients)</span>
+						</label>
+						<input
+							id="authz-client-secret"
+							type="password"
+							value={authzClientSecret}
+							onChange={(e) => setAuthzClientSecret(e.target.value)}
+							placeholder="Client secret — omit for public clients"
+							style={{
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								padding: '0.5rem 0.75rem',
+								fontSize: '0.875rem',
+								outline: 'none',
+								width: '100%',
+								boxSizing: 'border-box',
+							}}
+						/>
+					</div>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+						<label htmlFor="authz-scopes" style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#374151' }}>
+							Requested Scopes{' '}
+							<span style={{ fontWeight: 400, color: '#9ca3af' }}>(space-separated)</span>
+						</label>
+						<input
+							id="authz-scopes"
+							type="text"
+							value={authzScopesStr}
+							onChange={(e) => setAuthzScopesStr(e.target.value)}
+							placeholder="openid profile email"
+							title="Banking demo: add transfer:funds account:read"
+							style={{
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								padding: '0.5rem 0.75rem',
+								fontSize: '0.875rem',
+								outline: 'none',
+								width: '100%',
+								boxSizing: 'border-box',
+							}}
+						/>
+						<p style={{ margin: 0, fontSize: '0.75rem', color: '#9ca3af' }}>
+							Banking demo example: <code>openid profile email transfer:funds account:read</code>
+						</p>
+					</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingTop: '0.25rem' }}>
+						<button
+							type="button"
+							onClick={handleSaveAuthzClient}
+							disabled={authzSaveStatus === 'saving'}
+							style={{
+								background: authzSaveStatus === 'saved' ? '#059669' : '#667eea',
+								color: '#fff',
+								border: 'none',
+								borderRadius: '6px',
+								padding: '0.5rem 1.25rem',
+								fontSize: '0.875rem',
+								fontWeight: 500,
+								cursor: authzSaveStatus === 'saving' ? 'not-allowed' : 'pointer',
+								opacity: authzSaveStatus === 'saving' ? 0.7 : 1,
+							}}
+						>
+							{authzSaveStatus === 'saving'
+								? 'Saving…'
+								: authzSaveStatus === 'saved'
+									? '✓ Saved'
+									: 'Save Authorization Client'}
+						</button>
+						{authzSaveStatus === 'error' && (
+							<span style={{ fontSize: '0.8125rem', color: '#dc2626' }}>
+								Save failed — configure Worker Token credentials first.
+							</span>
+						)}
+					</div>
+				</div>
 			</UnifiedFlowCollapsibleHeader>
 
 			{/* Flow Credentials & Token Tester (merged from Credential Management) */}
