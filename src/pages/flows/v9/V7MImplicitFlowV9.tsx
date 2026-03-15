@@ -181,6 +181,10 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 		}
 	}
 
+	// Track if flow has been executed (for reset button behavior)
+	const hasResults = tokens || userinfoResponse || introspectionResponse;
+	const currentStep = hasResults ? 1 : 0;
+
 	function handleReset() {
 		setAuthorizationUrl('');
 		setCallbackUrl('');
@@ -205,7 +209,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
 				<V9FlowRestartButton
 					onRestart={handleReset}
-					currentStep={0}
+					currentStep={currentStep}
 					totalSteps={1}
 					position="header"
 				/>

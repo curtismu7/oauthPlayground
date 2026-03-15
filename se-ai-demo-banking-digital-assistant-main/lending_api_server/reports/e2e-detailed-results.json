@@ -1,0 +1,65 @@
+{
+  "summary": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 95,
+    "success": true
+  },
+  "testSuites": [
+    {
+      "name": "setup-validation.test.js",
+      "path": "/Users/ripe909/Documents/work/ai_demos/digital_assistant/lending_api_server/src/__tests__/e2e/setup-validation.test.js",
+      "duration": 95,
+      "tests": [
+        {
+          "title": "should generate valid test tokens",
+          "fullName": "E2E Setup Validation should generate valid test tokens",
+          "status": "passed",
+          "duration": 2,
+          "failureMessages": [],
+          "ancestorTitles": [
+            "E2E Setup Validation"
+          ]
+        },
+        {
+          "title": "should have test data manager available",
+          "fullName": "E2E Setup Validation should have test data manager available",
+          "status": "passed",
+          "duration": 1,
+          "failureMessages": [],
+          "ancestorTitles": [
+            "E2E Setup Validation"
+          ]
+        },
+        {
+          "title": "should have test environment variables set",
+          "fullName": "E2E Setup Validation should have test environment variables set",
+          "status": "passed",
+          "duration": 0,
+          "failureMessages": [],
+          "ancestorTitles": [
+            "E2E Setup Validation"
+          ]
+        },
+        {
+          "title": "should validate test utilities",
+          "fullName": "E2E Setup Validation should validate test utilities",
+          "status": "passed",
+          "duration": 1,
+          "failureMessages": [],
+          "ancestorTitles": [
+            "E2E Setup Validation"
+          ]
+        }
+      ]
+    }
+  ],
+  "timestamp": "2025-10-02T15:15:28.457Z",
+  "environment": {
+    "nodeVersion": "v23.9.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  }
+}

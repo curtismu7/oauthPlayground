@@ -35,6 +35,7 @@ import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { logger } from '../../../utils/logger';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
@@ -743,29 +744,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			// The render logic at line 2097-2130 will show the success page
 		} catch (error) {
 			// On error: Stay on activation modal and show error message
-			// Don't close modal, don't navigate away
-			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			logger.error(`${MODULE_TAG} Failed to activate TOTP device:`, error);
-
-			// Normalize error message for better UX
-			const normalizedError =
-				errorMessage.toLowerCase().includes('invalid') ||
-				errorMessage.toLowerCase().includes('incorrect') ||
-				errorMessage.toLowerCase().includes('wrong') ||
-				errorMessage.toLowerCase().includes('400') ||
-				errorMessage.toLowerCase().includes('bad request')
-					? 'Invalid OTP code. Please try again.'
-					: errorMessage;
-
-			setActivationError(normalizedError);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: `Activation failed: ${normalizedError}`,
-				dismissible: true,
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'activate-totp-device',
+				component: MODULE_TAG,
 			});
-
-			// Clear OTP input so user can try again
+			setActivationError(parsed.userFriendlyMessage);
 			setActivationOtp('');
 		} finally {
 			props.setIsLoading(false);
@@ -2874,12 +2857,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 															setShowQrModal(false);
 															nav.goToStep(2);
 														} catch (error) {
-															logger.error(`${MODULE_TAG} Failed to delete device:`, error);
-															modernMessaging.showBanner({
-																type: 'error',
-																title: 'Error',
-																message: `Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`,
-																dismissible: true,
+															UnifiedFlowErrorHandler.handleError(error, {
+																operation: 'delete-device',
+																component: MODULE_TAG,
 															});
 														} finally {
 															setIsLoading(false);
@@ -4050,12 +4030,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							// For now, just navigate to hub
 							navigateToMfaHubWithCleanup(navigate);
 						} catch (error) {
-							logger.error(`${MODULE_TAG} Failed to delete expired device:`, error);
-							modernMessaging.showBanner({
-								type: 'error',
-								title: 'Error',
-								message: 'Failed to delete expired device. Please try again.',
-								dismissible: true,
+							UnifiedFlowErrorHandler.handleError(error, {
+								operation: 'delete-expired-device',
+								component: MODULE_TAG,
 							});
 						}
 					}

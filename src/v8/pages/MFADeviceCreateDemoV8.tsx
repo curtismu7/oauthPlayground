@@ -14,6 +14,7 @@ import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import deviceCreateDemoServiceV8 from '@/v8/services/deviceCreateDemoServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiAlertTriangle, FiRefreshCw } from '../../icons';
 
 import { logger } from '../../utils/logger';
@@ -165,14 +166,11 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Failed to lookup user';
-			setLookupError(message);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: message,
-				dismissible: true,
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'lookup-user',
+				component: 'MFADeviceCreateDemoV8',
 			});
+			setLookupError(parsed.userFriendlyMessage);
 		} finally {
 			setIsLookingUpUser(false);
 		}
@@ -211,14 +209,11 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 					throw new Error('Email payload must include an "email" value.');
 				}
 			} catch (error) {
-				const message = error instanceof Error ? error.message : 'Invalid JSON payload.';
-				setRequestError(message);
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: message,
-					dismissible: true,
+				const parsed = UnifiedFlowErrorHandler.handleError(error, {
+					operation: 'parse-json-payload',
+					component: 'MFADeviceCreateDemoV8',
 				});
+				setRequestError(parsed.userFriendlyMessage);
 				return;
 			}
 
@@ -239,14 +234,11 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 					duration: 3000,
 				});
 			} catch (error) {
-				const message = error instanceof Error ? error.message : 'Create Device failed.';
-				setRequestError(message);
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: message,
-					dismissible: true,
+				const parsed = UnifiedFlowErrorHandler.handleError(error, {
+					operation: 'create-device',
+					component: 'MFADeviceCreateDemoV8',
 				});
+				setRequestError(parsed.userFriendlyMessage);
 			} finally {
 				setLoading(false);
 			}

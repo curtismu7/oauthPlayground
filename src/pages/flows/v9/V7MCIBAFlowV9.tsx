@@ -75,7 +75,7 @@ export const V7MCIBAFlowV9: React.FC = () => {
 	const [deliveryMode, setDeliveryMode] = useState<V9MockCIBADeliveryMode>('poll');
 	const [authReqId, setAuthReqId] = useState('');
 	const [expiresIn, setExpiresIn] = useState<number | null>(null);
-	const [status, setStatus] = useState<'idle' | 'pending' | 'approved' | 'expired' | 'done'>(
+	const [status, setStatus] = useState<'idle' | 'pending' | 'approved' | 'expired' | 'denied' | 'done'>(
 		'idle'
 	);
 	const [tokenResult, setTokenResult] = useState<TokenResult | null>(null);
@@ -88,6 +88,7 @@ export const V7MCIBAFlowV9: React.FC = () => {
 	const [showLoginHintHelp, setShowLoginHintHelp] = useState(false);
 	const [showBindingMsgHelp, setShowBindingMsgHelp] = useState(false);
 	const [showApprovalModal, setShowApprovalModal] = useState(false);
+	const [clientNotificationToken, setClientNotificationToken] = useState('v7m-cntoken-abc123');
 	const [pollCount, setPollCount] = useState(0);
 	const pollInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -150,7 +151,7 @@ export const V7MCIBAFlowV9: React.FC = () => {
 		const ok = V9MockCIBAService.approveRequest(authReqId);
 		if (ok) {
 			setStatus('approved');
-			showGlobalSuccess('✅ User approved on their device! Now poll for the token.');
+			showGlobalSuccess('User approved on their authentication device', { description: 'Poll the token endpoint to retrieve the tokens.' });
 		} else {
 			showGlobalError('Approval failed — the auth_req_id may have expired.');
 			setStatus('expired');
@@ -159,11 +160,13 @@ export const V7MCIBAFlowV9: React.FC = () => {
 
 	function handleModalDeny() {
 		if (!authReqId) return;
-
-		// Since V7MCIBAService doesn't have denyRequest, we'll just set status to expired
-		// In a real implementation, this would deny the request
-		setStatus('expired');
-		showGlobalWarning('❌ User denied the authentication request.');
+		V9MockCIBAService.denyRequest(authReqId);
+		setStatus('denied');
+		if (pollInterval.current) {
+			clearInterval(pollInterval.current);
+			pollInterval.current = null;
+		}
+		showGlobalWarning('User denied. Poll will return access_denied — the correct CIBA spec behaviour (Core 1.0 §10.3.2).');
 	}
 
 	function handlePollToken() {
@@ -174,9 +177,15 @@ export const V7MCIBAFlowV9: React.FC = () => {
 		const res = V9MockCIBAService.pollForToken(authReqId);
 		if ('error' in res) {
 			if (res.error === 'authorization_pending') {
-				showGlobalWarning('Still waiting for user approval on their device.');
+				showGlobalWarning('authorization_pending — user has not yet approved on their device.');
+			} else if (res.error === 'slow_down') {
+				showGlobalWarning('slow_down — polling too frequently. Per spec, increase your interval by at least 5s.');
+			} else if (res.error === 'access_denied') {
+				showGlobalError('access_denied — user denied the request on their authentication device.');
+				setStatus('denied');
+				if (pollInterval.current) clearInterval(pollInterval.current);
 			} else if (res.error === 'expired_token') {
-				showGlobalError('The auth_req_id has expired. Start a new request.');
+				showGlobalError('expired_token — the auth_req_id has expired. Start a new request.');
 				setStatus('expired');
 				if (pollInterval.current) clearInterval(pollInterval.current);
 			} else {
@@ -206,6 +215,7 @@ export const V7MCIBAFlowV9: React.FC = () => {
 			return;
 		}
 		setIntrospectionResponse(introspectToken(tokenResult.access_token));
+		showGlobalSuccess('Token introspected', { description: 'Server-side validation complete.' });
 	}
 
 	const statusColor: Record<typeof status, string> = {
@@ -213,8 +223,13 @@ export const V7MCIBAFlowV9: React.FC = () => {
 		pending: '#fef3c7',
 		approved: '#d1fae5',
 		expired: '#fee2e2',
+		denied: '#fee2e2',
 		done: '#d1fae5',
 	};
+
+	// Track if flow has been executed (for reset button behavior)
+	const hasResults = tokenResult || introspectionResponse || status !== 'idle';
+	const currentStep = hasResults ? 1 : 0;
 
 	function handleReset() {
 		if (pollInterval.current) {
@@ -238,7 +253,7 @@ export const V7MCIBAFlowV9: React.FC = () => {
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
 				<V9FlowRestartButton
 					onRestart={handleReset}
-					currentStep={0}
+					currentStep={currentStep}
 					totalSteps={1}
 					position="header"
 				/>
@@ -264,14 +279,15 @@ export const V7MCIBAFlowV9: React.FC = () => {
 			<V7MFlowOverview
 				title="About this flow"
 				description="CIBA (Client-Initiated Backchannel Authentication) lets a client start an authentication that the user completes on another device (e.g. phone push, biometric). The client sends an authentication request to the backchannel endpoint; the user approves on the authentication device; the client polls (or is pinged) for tokens."
-				keyPoint="No redirect to the auth server in the consuming app. The user authenticates out-of-band (second device or same device in a decoupled flow); the client receives tokens via polling or push."
-				standard="OpenID Connect CIBA (Core 1.0 — Client-Initiated Backchannel Authentication Flow)."
+				keyPoint="No browser redirect in the requesting app. The user approves or denies on their authentication device; the client receives tokens (or access_denied) via poll, ping, or push."
+				standard="OpenID Connect CIBA Core 1.0 (Client-Initiated Backchannel Authentication). Grant type: urn:openid:params:oauth:grant-type:ciba."
 				benefits={[
-					'No browser redirect in the requesting app (e.g. kiosk, IoT).',
-					'User can authenticate on a phone or trusted device.',
+					'No browser redirect in the requesting app (kiosk, IoT, call-centre step-up).',
+					'User authenticates on a trusted phone or biometric device.',
 					'Supports poll, ping, and push delivery modes.',
+					'binding_message protects against MITM attacks by showing the same message on both devices.',
 				]}
-				educationalNote="This is a mock implementation. Backchannel auth request, user approval, and token polling are simulated so you can see the request/response sequence."
+				educationalNote="This mock simulates the full CIBA flow including spec-compliant error codes (authorization_pending, slow_down, access_denied, expired_token). Ping and push modes require client_notification_token in the BC-Authorize request."
 			/>
 
 			<div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
@@ -362,6 +378,21 @@ export const V7MCIBAFlowV9: React.FC = () => {
 								style={MOCK_INPUT_STYLE}
 							/>
 						</label>
+						{deliveryMode !== 'poll' && (
+							<label style={{ gridColumn: '1 / -1' }}>
+								Client Notification Token
+								<div style={{ fontSize: 12, color: '#6b7280', margin: '2px 0 4px' }}>
+									Required for <strong>{deliveryMode}</strong> mode (CIBA Core 1.0 §10.1). Server
+									authenticates ping/push notifications to your{' '}
+									<code>client_notification_endpoint</code> using this token.
+								</div>
+								<input
+									value={clientNotificationToken}
+									onChange={(e) => setClientNotificationToken(e.target.value)}
+									style={MOCK_INPUT_STYLE}
+								/>
+							</label>
+						)}
 					</div>
 					<button type="button" onClick={handleRequestBackchannelAuth} style={MOCK_PRIMARY_BTN}>
 						Request Backchannel Authentication
@@ -373,9 +404,16 @@ export const V7MCIBAFlowV9: React.FC = () => {
 							url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/backchannel/authentication`}
 							headers={{
 								'Content-Type': 'application/x-www-form-urlencoded',
-								Accept: 'application/json',
-							}}
-							body={`client_id=${encodeURIComponent(clientId)}&scope=${encodeURIComponent(scope)}&login_hint=${encodeURIComponent(loginHint)}&binding_message=${encodeURIComponent(bindingMessage)}`}
+									Authorization: `Basic ${btoa(`${clientId}:***`)}`,
+									Accept: 'application/json',
+								}}
+								body={[
+									`client_id=${encodeURIComponent(clientId)}`,
+									`scope=${encodeURIComponent(scope)}`,
+									`login_hint=${encodeURIComponent(loginHint)}`,
+									`binding_message=${encodeURIComponent(bindingMessage)}`,
+									...(deliveryMode !== 'poll' ? [`client_notification_token=${encodeURIComponent(clientNotificationToken)}`] : []),
+								].join('&')}
 							response={
 								authReqId
 									? {
@@ -432,13 +470,16 @@ export const V7MCIBAFlowV9: React.FC = () => {
 							{status === 'approved' && (
 								<span>✅ User approved! Poll the token endpoint to retrieve tokens.</span>
 							)}
-							{status === 'expired' && (
-								<span>❌ Request expired. Start a new backchannel auth request.</span>
+								{status === 'denied' && (
+									<span>🚫 User denied. Next poll returns <code>access_denied</code> (CIBA Core 1.0 §10.3.2). Start a new request.</span>
+								)}
+								{status === 'expired' && (
+									<span>❌ Request expired (<code>expired_token</code>). Start a new backchannel auth request.</span>
 							)}
 							{status === 'done' && <span>🎉 Tokens issued successfully.</span>}
 						</div>
 
-						{status !== 'expired' && status !== 'done' && (
+						{status !== 'expired' && status !== 'done' && status !== 'denied' && (
 							<div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
 								<button
 									type="button"
@@ -574,27 +615,36 @@ export const V7MCIBAFlowV9: React.FC = () => {
 				themeColor="#6366f1"
 			>
 				<p>
-					CIBA (OIDC Core 1.0) allows a <strong>consumption device</strong> (e.g., a bank's website)
+					CIBA (OIDC Core 1.0) allows a <strong>consumption device</strong> (e.g., a bank’s website)
 					to initiate authentication on a <strong>separate authentication device</strong> (e.g., a
 					mobile banking app), without any browser redirect.
 				</p>
 				<ul>
 					<li>
-						<strong>Step 1:</strong> Client sends BC-Authorize request with a login_hint identifying
-						the user.
+						<strong>Step 1:</strong> Client authenticates and sends a BC-Authorize POST with{' '}
+						<code>login_hint</code>, <code>scope</code>, <code>binding_message</code>, and
+						(for ping/push) <code>client_notification_token</code>.
 					</li>
 					<li>
-						<strong>Step 2:</strong> Server pushes an auth request to the user's authentication
-						device.
+						<strong>Step 2:</strong> Server pushes an auth request to the user’s authentication
+						device (phone push notification, biometric prompt, etc.).
 					</li>
 					<li>
-						<strong>Step 3:</strong> User approves on their device (out-of-band).
+						<strong>Step 3:</strong> User <em>approves</em> or <em>denies</em> on their device
+						(out-of-band).
 					</li>
 					<li>
-						<strong>Step 4:</strong> Client retrieves tokens via poll, ping, or push.
+						<strong>Step 4:</strong> Client retrieves tokens via poll/ping/push. Token endpoint
+						returns: <code>authorization_pending</code> (still waiting),{' '}
+						<code>slow_down</code> (poll interval too short),{' '}
+						<code>access_denied</code> (user said no),{' '}
+						<code>expired_token</code> (timed out).
 					</li>
 				</ul>
-				<p>Common use cases: bank login on TV or kiosk, strong authentication with mobile app.</p>
+				<p>
+					Common use cases: bank login on TV/kiosk, call-centre step-up authentication, mobile push
+					approval for high-value transactions.
+				</p>
 			</V7MHelpModal>
 
 			<V7MHelpModal
@@ -606,17 +656,21 @@ export const V7MCIBAFlowV9: React.FC = () => {
 			>
 				<ul>
 					<li>
-						<strong>Poll:</strong> Client repeatedly calls the token endpoint until the user
-						approves. Simple but wastes requests. Server returns <code>authorization_pending</code>{' '}
-						until ready.
+						<strong>Poll:</strong> Client repeatedly calls the token endpoint. Server returns{' '}
+						<code>authorization_pending</code> until ready, or <code>slow_down</code> if the client
+						polls before the specified interval elapses (per spec, client must increase interval by
+						≥5s each time). No <code>client_notification_token</code> required.
 					</li>
 					<li>
-						<strong>Ping:</strong> Server notifies the client at a registered callback URI when
-						ready. Client then makes a single token request. More efficient than poll.
+						<strong>Ping:</strong> Client registers a <code>client_notification_endpoint</code> and
+						includes a <code>client_notification_token</code> in the BC-Authorize request. When the
+						user approves, the server POSTs a ping to that endpoint (authenticated with the token).
+						The client then makes a single token request. More efficient than poll.
 					</li>
 					<li>
-						<strong>Push:</strong> Server delivers the tokens directly to the client's registered
-						endpoint. Most efficient — no client polling required.
+						<strong>Push:</strong> Like ping, but the server pushes the full token response to the{' '}
+						<code>client_notification_endpoint</code> directly. Most efficient — no client polling
+						required. Requires <code>client_notification_token</code> and a registered endpoint.
 					</li>
 				</ul>
 			</V7MHelpModal>
