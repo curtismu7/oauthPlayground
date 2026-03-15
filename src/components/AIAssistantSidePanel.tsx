@@ -199,11 +199,18 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 
 	if (embedded) return content;
 
+	// noBackdrop: render the panel directly with no overlay wrapper — avoids pointer-events
+	// inheritance issues that make panel contents unclickable through a fixed inset:0 parent.
+	if (noBackdrop) {
+		return (
+			<DraggablePanel $x={position.x} $y={position.y} $width={PANEL_WIDTH}>
+				{content}
+			</DraggablePanel>
+		);
+	}
+
 	return (
-		<SidePanelOverlay
-			$noBackdrop={noBackdrop}
-			onClick={noBackdrop ? undefined : (e) => e.target === e.currentTarget && onClose()}
-		>
+		<SidePanelOverlay onClick={(e) => e.target === e.currentTarget && onClose()}>
 			<DraggablePanel
 				$x={position.x}
 				$y={position.y}
@@ -939,12 +946,11 @@ const ToolsContent: React.FC = () => (
 );
 
 // Styled Components
-const SidePanelOverlay = styled.div<{ $noBackdrop?: boolean }>`
+const SidePanelOverlay = styled.div`
 	position: fixed;
 	inset: 0;
-	background: ${({ $noBackdrop }) => ($noBackdrop ? 'transparent' : 'rgba(0, 0, 0, 0.4)')};
+	background: rgba(0, 0, 0, 0.4);
 	z-index: 10052;
-	pointer-events: ${({ $noBackdrop }) => ($noBackdrop ? 'none' : 'auto')};
 `;
 
 const DraggablePanel = styled.div<{ $x: number; $y: number; $width: number }>`
@@ -960,8 +966,6 @@ const DraggablePanel = styled.div<{ $x: number; $y: number; $width: number }>`
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-	/* Override parent overlay pointer-events:none so the panel stays interactive */
-	pointer-events: auto;
 `;
 
 const SidePanelContainer = styled.div<{ $embedded?: boolean }>`
