@@ -271,9 +271,7 @@ export class PingOneLoginService {
 	 * "When authentication is complete, the app receives the access token or ID token
 	 *  in a JSON response instead of a redirect."
 	 */
-	static async resumeFlow(
-		flowId: string
-	): Promise<
+	static async resumeFlow(flowId: string): Promise<
 		ServiceResponse<{
 			access_token: string;
 			id_token?: string;
@@ -314,8 +312,10 @@ export class PingOneLoginService {
 
 			const result = await response.json();
 
-			// pi.flow resume returns tokens directly
-			const accessToken: string = result.access_token;
+			// pi.flow with response_type=token id_token: tokens may be at the top
+			// level OR nested inside authorizeResponse depending on PingOne version.
+			const tokenSource = result.access_token ? result : (result.authorizeResponse ?? result);
+			const accessToken: string = tokenSource.access_token;
 			if (!accessToken) {
 				throw new Error(
 					`Token not found in resume response. Got keys: ${Object.keys(result).join(', ')}`
@@ -327,18 +327,18 @@ export class PingOneLoginService {
 			logger.info(`${MODULE_TAG} pi.flow resumed — tokens received`, {
 				flowId,
 				hasAccessToken: true,
-				hasIdToken: !!result.id_token,
-				scope: result.scope,
+				hasIdToken: !!tokenSource.id_token,
+				scope: tokenSource.scope,
 			});
 
 			return {
 				success: true,
 				data: {
 					access_token: accessToken,
-					id_token: result.id_token,
-					token_type: result.token_type || 'Bearer',
-					expires_in: result.expires_in ?? 3600,
-					scope: result.scope || '',
+					id_token: tokenSource.id_token,
+					token_type: tokenSource.token_type || 'Bearer',
+					expires_in: tokenSource.expires_in ?? 3600,
+					scope: tokenSource.scope || '',
 				},
 				metadata: {
 					timestamp: new Date().toISOString(),
