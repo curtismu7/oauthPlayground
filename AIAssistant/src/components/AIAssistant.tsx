@@ -15,6 +15,7 @@ import {
 	decodeJwtHeader,
 	decodeJwtPayload,
 	isAdminLoginQuery,
+	isUserLoginQuery,
 	isClearTokensQuery,
 	isDecodeTokenQuery,
 	isMcpQuery,
@@ -179,9 +180,7 @@ const McpDataPagedDisplay: React.FC<{ data: unknown[] }> = ({ data }) => {
 		const chunk = data.slice(start, start + PAGE_SIZE);
 		return (
 			<>
-				<McpDataPre>
-					{JSON.stringify(chunk, null, 2)}
-				</McpDataPre>
+				<McpDataPre>{JSON.stringify(chunk, null, 2)}</McpDataPre>
 				{data.length > PAGE_SIZE && (
 					<McpPagination>
 						<span>
@@ -367,7 +366,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 	const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
 	/** When set, show modal to collect placeholder values; then fill prompt box with updated command. */
-	const [placeholderFill, setPlaceholderFill] = useState<{ template: string; placeholders: string[] } | null>(null);
+	const [placeholderFill, setPlaceholderFill] = useState<{
+		template: string;
+		placeholders: string[];
+	} | null>(null);
 	/** Current values for each placeholder in the fill modal. */
 	const [placeholderValues, setPlaceholderValues] = useState<Record<string, string>>({});
 	/** When true, show the Get userinfo login panel (username/password, pi.flow). */
@@ -390,7 +392,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 		try {
 			const stored = sessionStorage.getItem('ai-assistant-api-history');
 			if (!stored) return [];
-			const parsed = JSON.parse(stored) as Array<Omit<ApiCallRecord, 'timestamp'> & { timestamp: string }>;
+			const parsed = JSON.parse(stored) as Array<
+				Omit<ApiCallRecord, 'timestamp'> & { timestamp: string }
+			>;
 			return parsed.map((r) => ({ ...r, timestamp: new Date(r.timestamp) }));
 		} catch {
 			return [];
@@ -590,11 +594,14 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 	}, []);
 
 	/** Store admin token; MCP calls use it until expiry or clear. */
-	const handleAdminTokenSet = useCallback((token: string, expiresInSeconds: number, environmentId: string) => {
-		setAdminToken(token);
-		setAdminTokenExpiry(Date.now() + expiresInSeconds * 1000);
-		setAdminEnvironmentId(environmentId);
-	}, []);
+	const handleAdminTokenSet = useCallback(
+		(token: string, expiresInSeconds: number, environmentId: string) => {
+			setAdminToken(token);
+			setAdminTokenExpiry(Date.now() + expiresInSeconds * 1000);
+			setAdminEnvironmentId(environmentId);
+		},
+		[]
+	);
 
 	const handleAdminTokenClear = useCallback(() => {
 		setAdminToken(null);
@@ -604,26 +611,35 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 	}, []);
 
 	/** Store user access token from User login flow; used for "Introspect user token". */
-	const handleUserTokenSet = useCallback((token: string, expiresInSeconds: number, environmentId?: string, receivedIdToken?: string) => {
-		setUserAccessToken(token);
-		if (receivedIdToken !== undefined) setIdToken(receivedIdToken);
-		// Persist to localStorage for educational inspection
-		try {
-			const record: { access_token: string; stored_at: number; id_token?: string } = {
-				access_token: token,
-				stored_at: Date.now(),
-				...(receivedIdToken !== undefined ? { id_token: receivedIdToken } : {}),
-			};
-			localStorage.setItem(LS_USER_TOKEN_KEY, JSON.stringify(record));
-		} catch { /* storage quota — ignore */ }
-		// When in admin-login mode, also set the admin token so MCP calls use it
-		if (environmentId) handleAdminTokenSet(token, expiresInSeconds, environmentId);
-	}, [handleAdminTokenSet]);
+	const handleUserTokenSet = useCallback(
+		(token: string, expiresInSeconds: number, environmentId?: string, receivedIdToken?: string) => {
+			setUserAccessToken(token);
+			if (receivedIdToken !== undefined) setIdToken(receivedIdToken);
+			// Persist to localStorage for educational inspection
+			try {
+				const record: { access_token: string; stored_at: number; id_token?: string } = {
+					access_token: token,
+					stored_at: Date.now(),
+					...(receivedIdToken !== undefined ? { id_token: receivedIdToken } : {}),
+				};
+				localStorage.setItem(LS_USER_TOKEN_KEY, JSON.stringify(record));
+			} catch {
+				/* storage quota — ignore */
+			}
+			// When in admin-login mode, also set the admin token so MCP calls use it
+			if (environmentId) handleAdminTokenSet(token, expiresInSeconds, environmentId);
+		},
+		[handleAdminTokenSet]
+	);
 
 	const handleUserTokenClear = useCallback(() => {
 		setUserAccessToken(null);
 		setIdToken(null);
-		try { localStorage.removeItem(LS_USER_TOKEN_KEY); } catch { /* ignore */ }
+		try {
+			localStorage.removeItem(LS_USER_TOKEN_KEY);
+		} catch {
+			/* ignore */
+		}
 		handleAdminTokenClear();
 	}, [handleAdminTokenClear]);
 
@@ -681,860 +697,1018 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 	}, [messages]);
 
 	/** Send a message. Pass overrideQuery when triggered by prompt chip/quick question to avoid stale closure. keepInInput: leave the sent text in the prompt box (e.g. when executing from an available-command button). */
-	const handleSend = useCallback(async (overrideQuery?: string, options?: { keepInInput?: boolean }) => {
-		const query = (overrideQuery ?? input).trim();
-		if (!query) return;
-		const userMessage: Message = {
-			id: Date.now().toString(),
-			type: 'user',
-			content: query,
-			timestamp: new Date(),
-		};
+	const handleSend = useCallback(
+		async (overrideQuery?: string, options?: { keepInInput?: boolean }) => {
+			const query = (overrideQuery ?? input).trim();
+			if (!query) return;
+			const userMessage: Message = {
+				id: Date.now().toString(),
+				type: 'user',
+				content: query,
+				timestamp: new Date(),
+			};
 
-		setMessages((prev) => [...prev, userMessage]);
-		setInput(options?.keepInInput ? query : '');
-		setIsTyping(true);
+			setMessages((prev) => [...prev, userMessage]);
+			setInput(options?.keepInInput ? query : '');
+			setIsTyping(true);
 
-		// "Admin login" command
-		if (isAdminLoginQuery(query)) {
-			const tokenData = unifiedWorkerTokenService.getTokenDataSync();
-			const hasConfig =
-				tokenData?.credentials?.environmentId &&
-				tokenData?.credentials?.clientId &&
-				tokenData?.credentials?.clientSecret;
-			setMessages((prev) => [
-				...prev,
-				{
-					id: crypto.randomUUID(),
-					type: 'assistant',
-					content: hasConfig
-						? '**Admin login** — opening the User login panel. Enter your admin username and password to get an admin access token for MCP commands like "list all users".'
-						: 'To use **Admin login**, configure the PingOne OIDC client credentials (worker token) in **Configuration** first. You need an app with **Resource Owner Password** grant and Management API scopes.',
-					timestamp: new Date(),
-				},
-			]);
-			if (hasConfig) {
-				setShowUserTokenLogin(true);
-				setUserTokenLoginError(null);
-				setUseAdminLogin(true);
-			}
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		// ── Client-side token inspection commands ────────────────────────────────────
-		// These operate on locally-stored tokens — no backend call, no Live toggle needed.
-
-		if (isShowMyTokenQuery(query)) {
-			const msg = (() => {
-				if (!userAccessToken) {
-					return 'No user access token stored yet. Log in using **Admin login** or say **"Introspect user token"** to open the User login panel.';
-				}
-				const header = decodeJwtHeader(userAccessToken);
-				const payload = decodeJwtPayload(userAccessToken);
-				const parts: string[] = [`## 🔑 User Access Token\n\n\`\`\`\n${userAccessToken}\n\`\`\``];
-				if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
-				if (payload) parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
-				parts.push('\n> ⚠️ **Educational only** — never store tokens in browser storage in production.');
-				return parts.join('\n\n');
-			})();
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (isShowIdTokenQuery(query)) {
-			const msg = (() => {
-				if (!idToken) {
-					return 'No ID token stored. Log in as a user (say **"User login"** or **"Introspect user token"**) to receive an ID token alongside the access token.';
-				}
-				const header = decodeJwtHeader(idToken);
-				const payload = decodeJwtPayload(idToken);
-				const parts: string[] = [`## 🪪 ID Token\n\n\`\`\`\n${idToken}\n\`\`\``];
-				if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
-				if (payload) parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
-				parts.push('\n> ℹ️ The ID Token asserts who the user is. It contains identity claims (sub, name, email) and is meant only for the client that requested it — never forward it to APIs.\n> ⚠️ **Educational only** — never store ID tokens in browser storage in production.');
-				return parts.join('\n\n');
-			})();
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (isShowWorkerTokenQuery(query)) {
-			const useAdminTok = useAdminLogin && !!adminToken && adminTokenExpiry != null && Date.now() < adminTokenExpiry - ADMIN_TOKEN_BUFFER_MS;
-			const tokenData = unifiedWorkerTokenService.getTokenDataSync();
-			const token = useAdminTok ? adminToken : (tokenData?.token ?? null);
-			const label = useAdminTok ? 'Admin Token' : 'Worker Token';
-			const msg = (() => {
-				if (!token) {
-					return `No ${label.toLowerCase()} available. Say **"Get worker token"** to request one, or **"Admin login"** to sign in as admin.`;
-				}
-				const header = decodeJwtHeader(token);
-				const payload = decodeJwtPayload(token);
-				const parts: string[] = [`## 🔐 ${label}\n\n\`\`\`\n${token}\n\`\`\``];
-				if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
-				if (payload) parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
-				parts.push('\n> ⚠️ **Educational only** — worker tokens are high-privilege. Never reveal them in production UIs.');
-				return parts.join('\n\n');
-			})();
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (isDecodeTokenQuery(query)) {
-			const jwtMatch = query.match(/\bey[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\b/);
-			const tokenToDecode = jwtMatch?.[0] ?? null;
-			const msg = (() => {
-				if (!tokenToDecode) {
-					return 'Paste a JWT in your message to decode it. Example:\n\n```\ndecode eyJhbGci...\n```';
-				}
-				const header = decodeJwtHeader(tokenToDecode);
-				const payload = decodeJwtPayload(tokenToDecode);
-				const truncated = tokenToDecode.length > 80 ? `${tokenToDecode.slice(0, 80)}…` : tokenToDecode;
-				const parts: string[] = [`## 🔬 Decoded Token\n\n\`\`\`\n${truncated}\n\`\`\``];
-				if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
-				if (payload) parts.push(`### Payload Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
-				if (!header && !payload) parts.push('⚠️ Could not decode — this may not be a standard JWT.');
-				parts.push('\n> ℹ️ JWT decode is client-side base64 only — no signature verification. For **educational inspection** only.');
-				return parts.join('\n\n');
-			})();
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (isShowApiCallsQuery(query)) {
-			const msg = (() => {
-				if (apiCallHistory.length === 0) {
-					return 'No API calls recorded yet. Execute a live MCP command (e.g. **List all users**) first.';
-				}
-				const records = [...apiCallHistory].reverse().slice(0, 5);
-				const parts: string[] = ['## 📡 Recent API Calls'];
-				records.forEach((rec, i) => {
-					parts.push(`### ${i + 1}. ${rec.mcpTool ?? 'Unknown tool'}\n**Query:** ${rec.query}`);
-					if (rec.apiCall) parts.push(`**API Call:** \`${rec.apiCall.method} ${rec.apiCall.path}\``);
-					if (rec.data !== null && rec.data !== undefined) {
-						const json = JSON.stringify(rec.data, null, 2);
-						parts.push(`**Response:**\n\`\`\`json\n${json.length > 2000 ? `${json.slice(0, 2000)}\n…(truncated)` : json}\n\`\`\``);
-					}
-				});
-				return parts.join('\n\n');
-			})();
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (isLastToolQuery(query)) {
-			const msg = (() => {
-				const last = [...apiCallHistory].reverse()[0];
-				if (!last) {
-					return 'No MCP tool calls recorded yet. Execute a live command (e.g. **List all users**) first, then ask me again.';
-				}
-				const toolName = last.mcpTool ?? 'Unknown tool';
-				const parts = toolName.replace(/^pingone[._]?/, '').split(/[._]/);
-				const verb = parts[0] ?? '';
-				const resource = parts.slice(1).join(' ');
-				const niceVerb: Record<string, string> = {
-					list: 'lists all', get: 'fetches a single', create: 'creates a new',
-					delete: 'deletes a', update: 'updates a', rotate: 'rotates the',
-					introspect: 'introspects a', userinfo: 'retrieves claims from the OIDC UserInfo endpoint for',
-				};
-				const verbDesc = niceVerb[verb.toLowerCase()] ?? verb;
-				const methodDesc: Record<string, string> = {
-					GET: 'Read-only — retrieves data, no side effects, safe to retry.',
-					POST: 'Creates or triggers an action — not idempotent.',
-					PUT: 'Replaces a resource in full.',
-					PATCH: 'Partially updates a resource.',
-					DELETE: 'Removes a resource permanently.',
-				};
-				const lines: string[] = [
-					`## 🔌 Last MCP Tool: \`${toolName}\``,
-					'',
-					`**Your query:** "${last.query}"`,
-					`**When:** ${last.timestamp.toLocaleTimeString()}`,
-					'',
-					'### Tool name breakdown',
-					`\`${toolName}\``,
-					'- **Prefix** `pingone_` — all PingOne Management / Auth API tools share this prefix',
-					...(verb ? [`- **Action** \`${verb}\` — ${verbDesc} ${resource || 'resource(s)'}`] : []),
-					...(resource ? [`- **Resource** \`${resource.replace(/\s+/g, '_')}\` — the PingOne resource type being operated on`] : []),
-				];
-				if (last.apiCall) {
-					const { method, path } = last.apiCall;
-					lines.push('', '### API Call');
-					lines.push(`\`\`\`\n${method} ${path}\n\`\`\``);
-					if (methodDesc[method.toUpperCase()]) lines.push(`> **HTTP ${method}** — ${methodDesc[method.toUpperCase()]}`);
-					const pathNote: string[] = [];
-					if (path.includes('{envId}') || path.includes('/environments/')) pathNote.push('`{envId}` — your PingOne environment UUID');
-					if (path.includes('{userId}')) pathNote.push('`{userId}` — the specific user\'s UUID');
-					if (path.includes('{appId}') || path.includes('/applications/')) pathNote.push('`{appId}` — the application UUID');
-					if (path.includes('/as/')) pathNote.push('`/as/` — Authorization Server (OIDC/OAuth2 endpoints, not Management API)');
-					if (pathNote.length) lines.push('', '**Path segments:**', ...pathNote.map((n) => `- ${n}`));
-				}
-				if (last.howItWorks) lines.push('', '### How it works', last.howItWorks);
-				if (last.data != null) {
-					if (Array.isArray(last.data)) lines.push('', '### Response', `Returned **${(last.data as unknown[]).length} item(s)**. Run **"show api calls"** to see the full JSON.`);
-					else if (typeof last.data === 'object') {
-						const keys = Object.keys(last.data as object);
-						lines.push('', '### Response', `Returned an object with ${keys.length} field(s): \`${keys.slice(0, 6).join('`, `')}${keys.length > 6 ? '`, …' : '`'}`);
-					}
-				}
-				lines.push('', '---', '> 💡 **Related commands:** `show api calls` (last 5 with full data) · `decode jwt` (paste a token to inspect claims) · `what is mcp` (learn the protocol)');
-				return lines.join('\n');
-			})();
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (isClearTokensQuery(query)) {
-			setUserAccessToken(null);
-			setIdToken(null);
-			setAdminToken(null);
-			setAdminTokenExpiry(null);
-			setAdminEnvironmentId(null);
-			try { localStorage.removeItem(LS_USER_TOKEN_KEY); } catch { /* ignore */ }
-			setMessages((prev) => [
-				...prev,
-				{
-					id: crypto.randomUUID(),
-					type: 'assistant',
-					content: '🗑️ **Tokens cleared.** User access token, ID token, and admin token have been removed from memory and localStorage.\n\n> Note: The worker token (managed in Configuration) is not affected.',
-					timestamp: new Date(),
-				},
-			]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		// ── AI / MCP education commands (client-side, always work, no Live needed) ───
-
-		if (isAgentEducationQuery(query)) {
-			const msg = [
-				'## What is an AI Agent? 🤖',
-				'',
-				'An **AI agent** is a system that can *perceive*, *reason*, and *act* — going beyond simple question-answering.',
-				'',
-				'### Three properties of an agent',
-				'| Property | What it means | In this app |',
-				'|----------|---------------|-------------|',
-				'| **Perception** | Reads input, history, tool results | Your message → `handleSend()` → intent classifier |',
-				'| **Reasoning** | Decides what to do next | `mcpQueryService.ts` predicates + Groq (Llama 3.3 70B) |',
-				'| **Action** | Calls tools, APIs, or responds | `POST /api/mcp/query` → PingOne REST API |',
-				'',
-				'### This app is a working agent',
-				'When you type **"List all users"**, the agent:',
-				'1. Classifies it as an MCP query (`isMcpQuery()` → `true`)',
-				'2. Checks the Live toggle (won\'t simulate data)',
-				'3. POSTs to `/api/mcp/query` → calls PingOne → real user list returned',
-				'4. Displays the 🔌 MCP card with method, path, and raw data',
-				'',
-				'### Why agents matter',
-				'Agents can chain tool calls autonomously. This agent handles 71 MCP tools: users, groups, MFA, tokens, OIDC, decode JWT, and more.',
-				'',
-				'💡 Try: **"What is MCP?"** — the standard that connects agents to tools.',
-				'💡 Try: **"How does this agent work?"** — see the full implementation.',
-				'💡 Try: **"List all users"** — watch the agent make a real API call.',
-			].join('\n');
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (isMcpExplainQuery(query)) {
-			const msg = [
-				'## Model Context Protocol (MCP) 🔌',
-				'',
-				'MCP is an **open standard** (Anthropic, Nov 2024) that lets AI applications connect to external tools and data sources in a standardized way.',
-				'',
-				'### The problem it solves',
-				'Before MCP, every AI app needed custom integrations per tool. MCP is "USB-C for AI" — one standard protocol, any tool or AI can plug in.',
-				'',
-				'### Our implementation',
-				'```',
-				'pingone-mcp-server/',
-				'├── src/index.ts          ← registers 71 tools with @modelcontextprotocol/sdk',
-				'├── src/actions/',
-				'│   ├── users.ts          ← pingone_list_users, pingone_get_user, ...',
-				'│   ├── tokenUtils.ts     ← pingone_decode_jwt (educational, no network)',
-				'│   ├── introspect.ts     ← pingone_introspect_token (RFC 7662)',
-				'│   └── oidc.ts           ← pingone_oidc_config, pingone_oidc_discovery',
-				'└── src/services/         ← PingOne REST API clients',
-				'```',
-				'',
-				'### How the connection works',
-				'1. `pingone-mcp-server` runs as a **stdio process** (TypeScript → Node.js)',
-				'2. Communicates via **JSON-RPC 2.0** over stdin/stdout',
-				'3. Backend (`server.js`) connects to it, proxies calls via `/api/mcp/query`',
-				'4. You ask "List users" → backend sends `tools/call` → server calls PingOne → result returned',
-				'',
-				'### The spec',
-				'- Transport: `stdio` (our server) or HTTP/SSE (web servers)',
-				'- Protocol: JSON-RPC 2.0',
-				'- Features: tools, resources, prompts, sampling',
-				'- SDK: `@modelcontextprotocol/sdk` (npm)',
-				'',
-				'💡 Try: **"List MCP tools"** — calls the actual MCP server right now.',
-				'💡 Try: **"Explain MCP host, client, server"** — the three roles.',
-				'💡 Try: **"What is a tool call?"** — see the JSON-RPC message format.',
-			].join('\n');
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (isMcpRolesQuery(query)) {
-			const msg = [
-				'## MCP: Host, Client, Server 🏗️',
-				'',
-				'The Model Context Protocol defines three distinct roles in every AI integration.',
-				'',
-				'### 🖥️ Host',
-				'The **host** is the application that runs the AI and manages MCP server connections.',
-				'',
-				'Examples: Claude Desktop, VS Code (with Copilot + MCP extensions)',
-				'**Our host**: This MasterFlow app (React frontend + Express backend in `server.js`)',
-				'',
-				'The host decides: which servers to spawn, when to invoke tools, what to show the user.',
-				'',
-				'### 🔗 Client',
-				'The **client** is the MCP connection embedded in the host — one connection per server.',
-				'',
-				'In our code:',
-				'- `server.js` acts as the MCP client',
-				'- It spawns `pingone-mcp-server` as a child stdio process',
-				'- It sends `tools/list` and `tools/call` JSON-RPC messages via stdin',
-				'',
-				'### 🔧 Server',
-				'The **server** exposes tools, resources, and prompts to the client.',
-				'',
-				'Ours: `pingone-mcp-server/` (TypeScript, stdio transport)',
-				'- Responds to `tools/list` → returns 71 tool definitions',
-				'- Handles `tools/call { name: "pingone_list_users", arguments: {...} }`',
-				'- Each tool: validates with Zod → calls PingOne REST API → returns structured content',
-				'',
-				'### Visual overview',
-				'```',
-				'Host (MasterFlow app)',
-				'  └── Client (server.js MCP client)',
-				'           └── [stdio / JSON-RPC 2.0] Server (pingone-mcp-server)',
-				'                                               └── [HTTPS] PingOne REST API',
-				'',
-				'User → React UI → POST /api/mcp/query → client → server → PingOne',
-				'```',
-				'',
-				'💡 MCP spec: https://modelcontextprotocol.io',
-				'💡 Try: **"What is JSON-RPC?"** — the protocol that connects client and server.',
-			].join('\n');
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (isThisAgentExplainQuery(query)) {
-			const msg = [
-				'## How This Agent Works 🤖➡️🔌➡️🌐',
-				'',
-				'Here is the exact flow when you send a message:',
-				'',
-				'### 1. Intent Classification (browser, `mcpQueryService.ts`)',
-				'Your query is tested against a series of predicates:',
-				'- `isShowMyTokenQuery()` / `isDecodeTokenQuery()` → **client-side** (no network)',
-				'- `isMcpExplainQuery()` / `isAgentEducationQuery()` → **built-in answer** (like this one)',
-				'- `isMcpQuery()` → **MCP backend call**',
-				'- `isWorkerTokenQuery()` / `isHelpQuery()` → **special handlers**',
-				'- Everything else → **Groq LLM**',
-				'',
-				'### 2. MCP Bridge (Express `server.js` → `pingone-mcp-server`)',
-				'```',
-				'POST /api/mcp/query { query, workerToken, environmentId }',
-				'  ↓ classifyMcpIntent() matches your query against MCP_INTENTS patterns',
-				'  ↓ fetches worker token (client_credentials grant to /as/token)',
-				'  ↓ calls the right PingOne REST API endpoint',
-				'  ↓ returns { answer, mcpTool, apiCall, howItWorks, data }',
-				'```',
-				'The 🔌 MCP card in responses shows: tool name, HTTP method+path, and raw data.',
-				'',
-				'### 3. Groq LLM (for AI / knowledge questions)',
-				'- Provider: `api.groq.com`',
-				'- Model: `llama-3.3-70b-versatile` (Meta Llama 3.3 70B)',
-				'- System prompt: "You are MasterFlow Agent, expert on OAuth, OIDC, PingOne, and MCP"',
-				'- Used for: open questions, explanations, OAuth/OIDC concepts',
-				'',
-				'### 4. Token Inspector (fully in-browser)',
-				'Decode/view commands never leave the browser:',
-				'- `isShowMyTokenQuery` → display `localStorage["ai-assistant-user-token"]`',
-				'- `isDecodeTokenQuery` → `atob()` decode the JWT segments inline',
-				'',
-				'### Key files',
-				'| File | Role |',
-				'|------|------|',
-				'| `src/services/mcpQueryService.ts` | Intent predicates |',
-				'| `src/components/AIAssistant.tsx` | `handleSend()` orchestrator |',
-				'| `server.js` `/api/mcp/query` | MCP intent dispatch |',
-				'| `pingone-mcp-server/src/index.ts` | MCP tool registration |',
-				'| `pingone-mcp-server/src/actions/` | PingOne API implementations |',
-				'',
-				'💡 Try: **"Show agent architecture"** — see the full stack diagram.',
-				'💡 Try: **"List all users"** — watch a real API call happen.',
-			].join('\n');
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (/\bshow\s+agent\s+architecture\b/i.test(query.trim())) {
-			const msg = [
-				'## Agent Architecture 🏗️',
-				'',
-				'```',
-				'┌──────────────────────────────────────────────────────┐',
-				'│  Browser (React 18 + TypeScript + styled-components)  │',
-				'│                                                       │',
-				'│  AIAssistant.tsx  handleSend(query)                  │',
-				'│   ├─ mcpQueryService.ts  classify intent             │',
-				'│   │                                                   │',
-				'│   ├─ TOKEN queries ──────────────── client-side      │',
-				'│   │   atob() decode, localStorage, no network        │',
-				'│   │                                                   │',
-				'│   ├─ EDUCATION queries ─────────── built-in answers  │',
-				'│   │   (this response — no API needed)                │',
-				'│   │                                                   │',
-				'│   ├─ AI KNOWLEDGE queries ───────── Groq API         │',
-				'│   │   POST api.groq.com  ←  Llama 3.3 70B           │',
-				'│   │                                                   │',
-				'│   └─ MCP queries ────────────────── backend bridge   │',
-				'│       POST /api/mcp/query                            │',
-				'└────────────────────┬─────────────────────────────────┘',
-				'                     │ HTTP / JSON',
-				'┌────────────────────▼─────────────────────────────────┐',
-				'│  server.js (Node.js / Express)                       │',
-				'│                                                       │',
-				'│  /api/mcp/query                                       │',
-				'│   classifyMcpIntent()  ← MCP_INTENTS regex array    │',
-				'│   ├─ list_tools   → read tool-names.json             │',
-				'│   ├─ worker_token → POST /as/token (CC grant)        │',
-				'│   ├─ list_users   → MCP tools/call                  │',
-				'│   ├─ introspect   → POST /as/introspect (RFC 7662)  │',
-				'│   └─ decode_token → base64url decode (no network)    │',
-				'│                │                                     │',
-				'│                │ stdin/stdout  JSON-RPC 2.0          │',
-				'│  ┌─────────────▼──────────────────────────────────┐ │',
-				'│  │  pingone-mcp-server (TypeScript stdio process)  │ │',
-				'│  │  71 tools  ·  Zod validation  ·  PingOne SDK   │ │',
-				'│  └──────────────────────┬─────────────────────────┘ │',
-				'└─────────────────────────┼────────────────────────────┘',
-				'                          │ HTTPS',
-				'                          ▼',
-				'          api.pingone.com  (PingOne REST API)',
-				'```',
-				'',
-				'### Tech stack',
-				'- **Frontend**: React 18 · TypeScript · styled-components · Vite',
-				'- **Backend**: Node.js 20 · Express · native fetch',
-				'- **MCP**: `@modelcontextprotocol/sdk` · stdio transport · JSON-RPC 2.0',
-				'- **LLM**: Groq API · `llama-3.3-70b-versatile`',
-				'- **Identity**: PingOne (users · groups · MFA · apps · tokens · OIDC)',
-			].join('\n');
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (isMcpToolExplainQuery(query)) {
-			const msg = [
-				'## What is an MCP Tool Call? 🔧',
-				'',
-				'A **tool call** is how an AI agent executes a specific action — like calling a REST API.',
-				'',
-				'### The JSON-RPC request',
-				'When you ask "List all users", the backend sends this to our MCP server:',
-				'```json',
-				'{',
-				'  "jsonrpc": "2.0",',
-				'  "id": 1,',
-				'  "method": "tools/call",',
-				'  "params": {',
-				'    "name": "pingone_list_users",',
-				'    "arguments": { "environmentId": "your-env-id", "limit": 20 }',
-				'  }',
-				'}',
-				'```',
-				'',
-				'### What the MCP server does',
-				'1. Validates arguments with **Zod** schema (rejects early if invalid)',
-				'2. Fetches or reuses a cached **worker token** (client_credentials grant)',
-				'3. Calls `GET https://api.pingone.com/v1/environments/{envId}/users`',
-				'4. Returns structured content:',
-				'```json',
-				'{',
-				'  "content": [{ "type": "text", "text": "Found 42 users..." }],',
-				'  "structuredContent": { "success": true, "count": 42, "users": [...] }',
-				'}',
-				'```',
-				'',
-				'### Where our tools live',
-				'```',
-				'pingone-mcp-server/src/actions/',
-				'├── users.ts        ← pingone_list_users, pingone_get_user, pingone_create_user',
-				'├── groups.ts       ← pingone_list_groups, pingone_create_group',
-				'├── mfa.ts          ← pingone_list_mfa_policies',
-				'├── tokenUtils.ts   ← pingone_decode_jwt  (no network, pure base64url)',
-				'├── introspect.ts   ← pingone_introspect_token (RFC 7662)',
-				'└── oidc.ts         ← pingone_oidc_config, pingone_oidc_discovery',
-				'```',
-				'',
-				'💡 Try: **"List MCP tools"** — retrieves all 71 available tools from the server.',
-				'💡 Try: **"List all users"** — executes a real `tools/call` right now.',
-			].join('\n');
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (isJsonRpcExplainQuery(query)) {
-			const msg = [
-				'## What is JSON-RPC 2.0? 📡',
-				'',
-				'**JSON-RPC 2.0** is the wire protocol MCP uses between the host/client and the server.',
-				'',
-				'### Why JSON-RPC?',
-				'- Simple request/response over any transport (stdio, HTTP, WebSocket)',
-				'- Client assigns `id`; server echoes it back — easy to match async responses',
-				'- Standard error codes (-32600 parse error, -32602 invalid params, etc.)',
-				'',
-				'### Request',
-				'```json',
-				'{',
-				'  "jsonrpc": "2.0",',
-				'  "id": 42,',
-				'  "method": "tools/list",',
-				'  "params": {}',
-				'}',
-				'```',
-				'',
-				'### Successful response',
-				'```json',
-				'{',
-				'  "jsonrpc": "2.0",',
-				'  "id": 42,',
-				'  "result": {',
-				'    "tools": [',
-				'      { "name": "pingone_list_users", "description": "...", "inputSchema": {} },',
-				'      { "name": "pingone_decode_jwt",  "description": "...", "inputSchema": {} }',
-				'    ]',
-				'  }',
-				'}',
-				'```',
-				'',
-				'### Error response',
-				'```json',
-				'{',
-				'  "jsonrpc": "2.0",',
-				'  "id": 42,',
-				'  "error": { "code": -32602, "message": "Invalid params", "data": "environmentId required" }',
-				'}',
-				'```',
-				'',
-				'### Our transport',
-				'`pingone-mcp-server` uses **stdio** — the simplest MCP transport:',
-				'- Client writes JSON-RPC to server **stdin**',
-				'- Server writes responses to **stdout**',
-				'- Errors go to **stderr** (never mixed with RPC output)',
-				'',
-				'In `pingone-mcp-server/src/index.ts`:',
-				'```typescript',
-				'const transport = new StdioServerTransport();',
-				'await server.connect(transport);',
-				'```',
-			].join('\n');
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		if (isGroqExplainQuery(query)) {
-			const msg = [
-				'## How Does Groq Fit In? ⚡',
-				'',
-				'**Groq** is the LLM inference provider powering this agent\'s natural language understanding.',
-				'',
-				'### What Groq provides',
-				'- **API**: `api.groq.com/openai/v1/chat/completions`',
-				'- **Model**: `llama-3.3-70b-versatile` (Meta Llama 3.3, 70 billion parameters)',
-				'- **Speed**: ~300+ tokens/sec — significantly faster than OpenAI for comparable capability',
-				'- **Compatibility**: OpenAI-compatible request/response format',
-				'',
-				'### When we use Groq vs MCP',
-				'| Query | Path |',
-				'|-------|------|',
-				'| "What is PKCE?" | → Groq (open knowledge question) |',
-				'| "Explain OAuth 2.0 flows" | → Groq (educational) |',
-				'| "List all users" | → MCP (PingOne API call — no Groq needed) |',
-				'| "Show my token" | → Client-side (no Groq, no network) |',
-				'| "What is an agent?" | → Built-in answer (this response type) |',
-				'',
-				'### System prompt we send to Groq',
-				'```',
-				'You are MasterFlow Agent — an expert on OAuth 2.0, OIDC, PingOne Identity,',
-				'and Model Context Protocol (MCP). Help developers understand identity and AI integration.',
-				'```',
-				'',
-				'### Without Groq',
-				'If Groq is not configured, the agent still handles 100% of MCP/PingOne operations. Groq is only needed for open-ended AI/knowledge questions.',
-				'',
-				'💡 The **⚡ Groq** status dot in the header shows connection state.',
-				'💡 Add your key in **Configuration → AI Keys**.',
-			].join('\n');
-			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		// Worker-token and help queries always go to MCP.
-		// Any PingOne-actionable query (isMcpQuery) with Live ON → MCP for real data.
-		// Any PingOne-actionable query with Live OFF → show a helpful "turn on Live" nudge
-		// rather than letting Groq fake the response with invented data.
-		if (isMcpQuery(query) && !includeLive && !isWorkerTokenQuery(query) && !isHelpQuery(query) && !isListToolsQuery(query)) {
-			setMessages((prev) => [
-				...prev,
-				{
-					id: crypto.randomUUID(),
-					type: 'assistant',
-					content:
-						"🔌 **Live MCP is off.**\n\nTurn on the **Live** toggle in the header to execute this command against your real PingOne environment.\n\nI won't guess or simulate PingOne data — only the MCP tool can return real results.",
-					timestamp: new Date(),
-				},
-			]);
-			setIsTyping(false);
-			setInput(query); // Restore executed command so user can modify and re-run
-			return;
-		}
-
-		// "Introspect user token": open user login panel if no user token yet
-		if (isIntrospectUserTokenQuery(query) && includeLive && !userAccessToken) {
-			setMessages((prev) => [
-				...prev,
-				{
-					id: crypto.randomUUID(),
-					type: 'assistant',
-					content:
-						'**Introspect user token** — sign in first to get a user access token. Use the login panel that just opened.',
-					timestamp: new Date(),
-				},
-			]);
-			setShowUserTokenLogin(true);
-			setUserTokenLoginError(null);
-			setIsTyping(false);
-			setInput(query);
-			return;
-		}
-
-		// Get userinfo: show login panel (Authorization Code flow, response_mode=pi.flow) then call userinfo
-		if (isUserInfoQuery(query) && includeLive) {
-			setMessages((prev) => [
-				...prev,
-				{
-					id: crypto.randomUUID(),
-					type: 'assistant',
-					content:
-						'**Get userinfo** uses the OIDC UserInfo (end-user info) endpoint. Sign in in the side panel; we use the **user access token** from the auth call to call that endpoint and show your claims here.',
-					timestamp: new Date(),
-				},
-			]);
-			setShowUserInfoLogin(true);
-			setUserinfoLoginError(null);
-			setIsTyping(false);
-			return;
-		}
-
-		if (isWorkerTokenQuery(query) || isHelpQuery(query) || isListToolsQuery(query) || (includeLive && isMcpQuery(query))) {
-			try {
-				// Pull stored credentials from our storage service (IndexedDB + SQLite)
+			// "Admin login" command
+			if (isAdminLoginQuery(query)) {
 				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
-				const useAdminToken =
-					useAdminLogin &&
-					!!adminToken &&
-					adminTokenExpiry != null &&
-					Date.now() < adminTokenExpiry - ADMIN_TOKEN_BUFFER_MS;
-				const useUserTokenForIntrospect = isIntrospectUserTokenQuery(query) && !!userAccessToken;
-				const mcpResult = await callMcpQuery(query, {
-					workerToken: useAdminToken ? adminToken! : (tokenData?.token || undefined),
-					environmentId: useAdminToken
-						? (adminEnvironmentId || undefined)
-						: (tokenData?.credentials?.environmentId || undefined),
-					region: (tokenData?.credentials?.region as string) || undefined,
-					...(useUserTokenForIntrospect && userAccessToken
-						? { tokenToIntrospect: userAccessToken }
-						: {}),
-				});
-				const assistantMessage: Message = {
-					id: crypto.randomUUID(),
-					type: 'assistant',
-					content: mcpResult.answer,
-					mcpResult,
-					timestamp: new Date(),
-				};
-				// Track in API call history (for "show api calls" command)
-				if (mcpResult.apiCall) {
-					setApiCallHistory((prev) => [
-						...prev.slice(-19),
-						{ id: crypto.randomUUID(), query, mcpTool: mcpResult.mcpTool, apiCall: mcpResult.apiCall, howItWorks: mcpResult.howItWorks ?? null, data: mcpResult.data, timestamp: new Date() },
-					]);
-				}
-				setMessages((prev) => [...prev, assistantMessage]);
-			} catch (err) {
-				const message = err instanceof Error ? err.message : String(err);
+				const hasConfig =
+					tokenData?.credentials?.environmentId &&
+					tokenData?.credentials?.clientId &&
+					tokenData?.credentials?.clientSecret;
 				setMessages((prev) => [
 					...prev,
 					{
 						id: crypto.randomUUID(),
 						type: 'assistant',
-						content: `MCP query failed: ${message}`,
+						content: hasConfig
+							? '**Admin login** — opening the User login panel. Enter your admin username and password to get an admin access token for MCP commands like "list all users".'
+							: 'To use **Admin login**, configure the PingOne OIDC client credentials (worker token) in **Configuration** first. You need an app with **Resource Owner Password** grant and Management API scopes.',
 						timestamp: new Date(),
 					},
 				]);
-			} finally {
+				if (hasConfig) {
+					setShowUserTokenLogin(true);
+					setUserTokenLoginError(null);
+					setUseAdminLogin(true);
+				}
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			// "User login" command — open User login panel to get a user access token
+			if (isUserLoginQuery(query)) {
+				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+				const hasConfig =
+					tokenData?.credentials?.environmentId &&
+					tokenData?.credentials?.clientId &&
+					tokenData?.credentials?.clientSecret;
+				setMessages((prev) => [
+					...prev,
+					{
+						id: crypto.randomUUID(),
+						type: 'assistant',
+						content: hasConfig
+							? '**User login** — The User login panel is open. Enter your **username** and **password** to get a user access token. Once logged in, say **"Introspect user token"** or **"Show my token"** to inspect it.'
+							: 'To use **User login**, configure the PingOne OIDC client in **Configuration** first (Environment ID, Client ID, and Client Secret). Then say **"User login"** again.',
+						timestamp: new Date(),
+					},
+				]);
+				if (hasConfig) {
+					setShowUserTokenLogin(true);
+					setUserTokenLoginError(null);
+				}
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			// ── Client-side token inspection commands ────────────────────────────────────
+			// These operate on locally-stored tokens — no backend call, no Live toggle needed.
+
+			if (isShowMyTokenQuery(query)) {
+				const msg = (() => {
+					if (!userAccessToken) {
+						return 'No user access token stored yet. Log in using **Admin login** or say **"Introspect user token"** to open the User login panel.';
+					}
+					const header = decodeJwtHeader(userAccessToken);
+					const payload = decodeJwtPayload(userAccessToken);
+					const parts: string[] = [`## 🔑 User Access Token\n\n\`\`\`\n${userAccessToken}\n\`\`\``];
+					if (header)
+						parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+					if (payload)
+						parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+					parts.push(
+						'\n> ⚠️ **Educational only** — never store tokens in browser storage in production.'
+					);
+					return parts.join('\n\n');
+				})();
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isShowIdTokenQuery(query)) {
+				const msg = (() => {
+					if (!idToken) {
+						return 'No ID token stored. Log in as a user (say **"User login"** or **"Introspect user token"**) to receive an ID token alongside the access token.';
+					}
+					const header = decodeJwtHeader(idToken);
+					const payload = decodeJwtPayload(idToken);
+					const parts: string[] = [`## 🪪 ID Token\n\n\`\`\`\n${idToken}\n\`\`\``];
+					if (header)
+						parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+					if (payload)
+						parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+					parts.push(
+						'\n> ℹ️ The ID Token asserts who the user is. It contains identity claims (sub, name, email) and is meant only for the client that requested it — never forward it to APIs.\n> ⚠️ **Educational only** — never store ID tokens in browser storage in production.'
+					);
+					return parts.join('\n\n');
+				})();
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isShowWorkerTokenQuery(query)) {
+				const useAdminTok =
+					useAdminLogin &&
+					!!adminToken &&
+					adminTokenExpiry != null &&
+					Date.now() < adminTokenExpiry - ADMIN_TOKEN_BUFFER_MS;
+				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+				const token = useAdminTok ? adminToken : (tokenData?.token ?? null);
+				const label = useAdminTok ? 'Admin Token' : 'Worker Token';
+				const msg = (() => {
+					if (!token) {
+						return `No ${label.toLowerCase()} available. Say **"Get worker token"** to request one, or **"Admin login"** to sign in as admin.`;
+					}
+					const header = decodeJwtHeader(token);
+					const payload = decodeJwtPayload(token);
+					const parts: string[] = [`## 🔐 ${label}\n\n\`\`\`\n${token}\n\`\`\``];
+					if (header)
+						parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+					if (payload)
+						parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+					parts.push(
+						'\n> ⚠️ **Educational only** — worker tokens are high-privilege. Never reveal them in production UIs.'
+					);
+					return parts.join('\n\n');
+				})();
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isDecodeTokenQuery(query)) {
+				const jwtMatch = query.match(
+					/\bey[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\b/
+				);
+				const tokenToDecode = jwtMatch?.[0] ?? null;
+				const msg = (() => {
+					if (!tokenToDecode) {
+						return 'Paste a JWT in your message to decode it. Example:\n\n```\ndecode eyJhbGci...\n```';
+					}
+					const header = decodeJwtHeader(tokenToDecode);
+					const payload = decodeJwtPayload(tokenToDecode);
+					const truncated =
+						tokenToDecode.length > 80 ? `${tokenToDecode.slice(0, 80)}…` : tokenToDecode;
+					const parts: string[] = [`## 🔬 Decoded Token\n\n\`\`\`\n${truncated}\n\`\`\``];
+					if (header)
+						parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+					if (payload)
+						parts.push(
+							`### Payload Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``
+						);
+					if (!header && !payload)
+						parts.push('⚠️ Could not decode — this may not be a standard JWT.');
+					parts.push(
+						'\n> ℹ️ JWT decode is client-side base64 only — no signature verification. For **educational inspection** only.'
+					);
+					return parts.join('\n\n');
+				})();
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isShowApiCallsQuery(query)) {
+				const msg = (() => {
+					if (apiCallHistory.length === 0) {
+						return 'No API calls recorded yet. Execute a live MCP command (e.g. **List all users**) first.';
+					}
+					const records = [...apiCallHistory].reverse().slice(0, 5);
+					const parts: string[] = ['## 📡 Recent API Calls'];
+					records.forEach((rec, i) => {
+						parts.push(`### ${i + 1}. ${rec.mcpTool ?? 'Unknown tool'}\n**Query:** ${rec.query}`);
+						if (rec.apiCall)
+							parts.push(`**API Call:** \`${rec.apiCall.method} ${rec.apiCall.path}\``);
+						if (rec.data !== null && rec.data !== undefined) {
+							const json = JSON.stringify(rec.data, null, 2);
+							parts.push(
+								`**Response:**\n\`\`\`json\n${json.length > 2000 ? `${json.slice(0, 2000)}\n…(truncated)` : json}\n\`\`\``
+							);
+						}
+					});
+					return parts.join('\n\n');
+				})();
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isLastToolQuery(query)) {
+				const msg = (() => {
+					const last = [...apiCallHistory].reverse()[0];
+					if (!last) {
+						return 'No MCP tool calls recorded yet. Execute a live command (e.g. **List all users**) first, then ask me again.';
+					}
+					const toolName = last.mcpTool ?? 'Unknown tool';
+					const parts = toolName.replace(/^pingone[._]?/, '').split(/[._]/);
+					const verb = parts[0] ?? '';
+					const resource = parts.slice(1).join(' ');
+					const niceVerb: Record<string, string> = {
+						list: 'lists all',
+						get: 'fetches a single',
+						create: 'creates a new',
+						delete: 'deletes a',
+						update: 'updates a',
+						rotate: 'rotates the',
+						introspect: 'introspects a',
+						userinfo: 'retrieves claims from the OIDC UserInfo endpoint for',
+					};
+					const verbDesc = niceVerb[verb.toLowerCase()] ?? verb;
+					const methodDesc: Record<string, string> = {
+						GET: 'Read-only — retrieves data, no side effects, safe to retry.',
+						POST: 'Creates or triggers an action — not idempotent.',
+						PUT: 'Replaces a resource in full.',
+						PATCH: 'Partially updates a resource.',
+						DELETE: 'Removes a resource permanently.',
+					};
+					const lines: string[] = [
+						`## 🔌 Last MCP Tool: \`${toolName}\``,
+						'',
+						`**Your query:** "${last.query}"`,
+						`**When:** ${last.timestamp.toLocaleTimeString()}`,
+						'',
+						'### Tool name breakdown',
+						`\`${toolName}\``,
+						'- **Prefix** `pingone_` — all PingOne Management / Auth API tools share this prefix',
+						...(verb
+							? [`- **Action** \`${verb}\` — ${verbDesc} ${resource || 'resource(s)'}`]
+							: []),
+						...(resource
+							? [
+									`- **Resource** \`${resource.replace(/\s+/g, '_')}\` — the PingOne resource type being operated on`,
+								]
+							: []),
+					];
+					if (last.apiCall) {
+						const { method, path } = last.apiCall;
+						lines.push('', '### API Call');
+						lines.push(`\`\`\`\n${method} ${path}\n\`\`\``);
+						if (methodDesc[method.toUpperCase()])
+							lines.push(`> **HTTP ${method}** — ${methodDesc[method.toUpperCase()]}`);
+						const pathNote: string[] = [];
+						if (path.includes('{envId}') || path.includes('/environments/'))
+							pathNote.push('`{envId}` — your PingOne environment UUID');
+						if (path.includes('{userId}')) pathNote.push("`{userId}` — the specific user's UUID");
+						if (path.includes('{appId}') || path.includes('/applications/'))
+							pathNote.push('`{appId}` — the application UUID');
+						if (path.includes('/as/'))
+							pathNote.push(
+								'`/as/` — Authorization Server (OIDC/OAuth2 endpoints, not Management API)'
+							);
+						if (pathNote.length)
+							lines.push('', '**Path segments:**', ...pathNote.map((n) => `- ${n}`));
+					}
+					if (last.howItWorks) lines.push('', '### How it works', last.howItWorks);
+					if (last.data != null) {
+						if (Array.isArray(last.data))
+							lines.push(
+								'',
+								'### Response',
+								`Returned **${(last.data as unknown[]).length} item(s)**. Run **"show api calls"** to see the full JSON.`
+							);
+						else if (typeof last.data === 'object') {
+							const keys = Object.keys(last.data as object);
+							lines.push(
+								'',
+								'### Response',
+								`Returned an object with ${keys.length} field(s): \`${keys.slice(0, 6).join('`, `')}${keys.length > 6 ? '`, …' : '`'}`
+							);
+						}
+					}
+					lines.push(
+						'',
+						'---',
+						'> 💡 **Related commands:** `show api calls` (last 5 with full data) · `decode jwt` (paste a token to inspect claims) · `what is mcp` (learn the protocol)'
+					);
+					return lines.join('\n');
+				})();
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isClearTokensQuery(query)) {
+				setUserAccessToken(null);
+				setIdToken(null);
+				setAdminToken(null);
+				setAdminTokenExpiry(null);
+				setAdminEnvironmentId(null);
+				try {
+					localStorage.removeItem(LS_USER_TOKEN_KEY);
+				} catch {
+					/* ignore */
+				}
+				setMessages((prev) => [
+					...prev,
+					{
+						id: crypto.randomUUID(),
+						type: 'assistant',
+						content:
+							'🗑️ **Tokens cleared.** User access token, ID token, and admin token have been removed from memory and localStorage.\n\n> Note: The worker token (managed in Configuration) is not affected.',
+						timestamp: new Date(),
+					},
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			// ── AI / MCP education commands (client-side, always work, no Live needed) ───
+
+			if (isAgentEducationQuery(query)) {
+				const msg = [
+					'## What is an AI Agent? 🤖',
+					'',
+					'An **AI agent** is a system that can *perceive*, *reason*, and *act* — going beyond simple question-answering.',
+					'',
+					'### Three properties of an agent',
+					'| Property | What it means | In this app |',
+					'|----------|---------------|-------------|',
+					'| **Perception** | Reads input, history, tool results | Your message → `handleSend()` → intent classifier |',
+					'| **Reasoning** | Decides what to do next | `mcpQueryService.ts` predicates + Groq (Llama 3.3 70B) |',
+					'| **Action** | Calls tools, APIs, or responds | `POST /api/mcp/query` → PingOne REST API |',
+					'',
+					'### This app is a working agent',
+					'When you type **"List all users"**, the agent:',
+					'1. Classifies it as an MCP query (`isMcpQuery()` → `true`)',
+					"2. Checks the Live toggle (won't simulate data)",
+					'3. POSTs to `/api/mcp/query` → calls PingOne → real user list returned',
+					'4. Displays the 🔌 MCP card with method, path, and raw data',
+					'',
+					'### Why agents matter',
+					'Agents can chain tool calls autonomously. This agent handles 71 MCP tools: users, groups, MFA, tokens, OIDC, decode JWT, and more.',
+					'',
+					'💡 Try: **"What is MCP?"** — the standard that connects agents to tools.',
+					'💡 Try: **"How does this agent work?"** — see the full implementation.',
+					'💡 Try: **"List all users"** — watch the agent make a real API call.',
+				].join('\n');
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isMcpExplainQuery(query)) {
+				const msg = [
+					'## Model Context Protocol (MCP) 🔌',
+					'',
+					'MCP is an **open standard** (Anthropic, Nov 2024) that lets AI applications connect to external tools and data sources in a standardized way.',
+					'',
+					'### The problem it solves',
+					'Before MCP, every AI app needed custom integrations per tool. MCP is "USB-C for AI" — one standard protocol, any tool or AI can plug in.',
+					'',
+					'### Our implementation',
+					'```',
+					'pingone-mcp-server/',
+					'├── src/index.ts          ← registers 71 tools with @modelcontextprotocol/sdk',
+					'├── src/actions/',
+					'│   ├── users.ts          ← pingone_list_users, pingone_get_user, ...',
+					'│   ├── tokenUtils.ts     ← pingone_decode_jwt (educational, no network)',
+					'│   ├── introspect.ts     ← pingone_introspect_token (RFC 7662)',
+					'│   └── oidc.ts           ← pingone_oidc_config, pingone_oidc_discovery',
+					'└── src/services/         ← PingOne REST API clients',
+					'```',
+					'',
+					'### How the connection works',
+					'1. `pingone-mcp-server` runs as a **stdio process** (TypeScript → Node.js)',
+					'2. Communicates via **JSON-RPC 2.0** over stdin/stdout',
+					'3. Backend (`server.js`) connects to it, proxies calls via `/api/mcp/query`',
+					'4. You ask "List users" → backend sends `tools/call` → server calls PingOne → result returned',
+					'',
+					'### The spec',
+					'- Transport: `stdio` (our server) or HTTP/SSE (web servers)',
+					'- Protocol: JSON-RPC 2.0',
+					'- Features: tools, resources, prompts, sampling',
+					'- SDK: `@modelcontextprotocol/sdk` (npm)',
+					'',
+					'💡 Try: **"List MCP tools"** — calls the actual MCP server right now.',
+					'💡 Try: **"Explain MCP host, client, server"** — the three roles.',
+					'💡 Try: **"What is a tool call?"** — see the JSON-RPC message format.',
+				].join('\n');
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isMcpRolesQuery(query)) {
+				const msg = [
+					'## MCP: Host, Client, Server 🏗️',
+					'',
+					'The Model Context Protocol defines three distinct roles in every AI integration.',
+					'',
+					'### 🖥️ Host',
+					'The **host** is the application that runs the AI and manages MCP server connections.',
+					'',
+					'Examples: Claude Desktop, VS Code (with Copilot + MCP extensions)',
+					'**Our host**: This MasterFlow app (React frontend + Express backend in `server.js`)',
+					'',
+					'The host decides: which servers to spawn, when to invoke tools, what to show the user.',
+					'',
+					'### 🔗 Client',
+					'The **client** is the MCP connection embedded in the host — one connection per server.',
+					'',
+					'In our code:',
+					'- `server.js` acts as the MCP client',
+					'- It spawns `pingone-mcp-server` as a child stdio process',
+					'- It sends `tools/list` and `tools/call` JSON-RPC messages via stdin',
+					'',
+					'### 🔧 Server',
+					'The **server** exposes tools, resources, and prompts to the client.',
+					'',
+					'Ours: `pingone-mcp-server/` (TypeScript, stdio transport)',
+					'- Responds to `tools/list` → returns 71 tool definitions',
+					'- Handles `tools/call { name: "pingone_list_users", arguments: {...} }`',
+					'- Each tool: validates with Zod → calls PingOne REST API → returns structured content',
+					'',
+					'### Visual overview',
+					'```',
+					'Host (MasterFlow app)',
+					'  └── Client (server.js MCP client)',
+					'           └── [stdio / JSON-RPC 2.0] Server (pingone-mcp-server)',
+					'                                               └── [HTTPS] PingOne REST API',
+					'',
+					'User → React UI → POST /api/mcp/query → client → server → PingOne',
+					'```',
+					'',
+					'💡 MCP spec: https://modelcontextprotocol.io',
+					'💡 Try: **"What is JSON-RPC?"** — the protocol that connects client and server.',
+				].join('\n');
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isThisAgentExplainQuery(query)) {
+				const msg = [
+					'## How This Agent Works 🤖➡️🔌➡️🌐',
+					'',
+					'Here is the exact flow when you send a message:',
+					'',
+					'### 1. Intent Classification (browser, `mcpQueryService.ts`)',
+					'Your query is tested against a series of predicates:',
+					'- `isShowMyTokenQuery()` / `isDecodeTokenQuery()` → **client-side** (no network)',
+					'- `isMcpExplainQuery()` / `isAgentEducationQuery()` → **built-in answer** (like this one)',
+					'- `isMcpQuery()` → **MCP backend call**',
+					'- `isWorkerTokenQuery()` / `isHelpQuery()` → **special handlers**',
+					'- Everything else → **Groq LLM**',
+					'',
+					'### 2. MCP Bridge (Express `server.js` → `pingone-mcp-server`)',
+					'```',
+					'POST /api/mcp/query { query, workerToken, environmentId }',
+					'  ↓ classifyMcpIntent() matches your query against MCP_INTENTS patterns',
+					'  ↓ fetches worker token (client_credentials grant to /as/token)',
+					'  ↓ calls the right PingOne REST API endpoint',
+					'  ↓ returns { answer, mcpTool, apiCall, howItWorks, data }',
+					'```',
+					'The 🔌 MCP card in responses shows: tool name, HTTP method+path, and raw data.',
+					'',
+					'### 3. Groq LLM (for AI / knowledge questions)',
+					'- Provider: `api.groq.com`',
+					'- Model: `llama-3.3-70b-versatile` (Meta Llama 3.3 70B)',
+					'- System prompt: "You are MasterFlow Agent, expert on OAuth, OIDC, PingOne, and MCP"',
+					'- Used for: open questions, explanations, OAuth/OIDC concepts',
+					'',
+					'### 4. Token Inspector (fully in-browser)',
+					'Decode/view commands never leave the browser:',
+					'- `isShowMyTokenQuery` → display `localStorage["ai-assistant-user-token"]`',
+					'- `isDecodeTokenQuery` → `atob()` decode the JWT segments inline',
+					'',
+					'### Key files',
+					'| File | Role |',
+					'|------|------|',
+					'| `src/services/mcpQueryService.ts` | Intent predicates |',
+					'| `src/components/AIAssistant.tsx` | `handleSend()` orchestrator |',
+					'| `server.js` `/api/mcp/query` | MCP intent dispatch |',
+					'| `pingone-mcp-server/src/index.ts` | MCP tool registration |',
+					'| `pingone-mcp-server/src/actions/` | PingOne API implementations |',
+					'',
+					'💡 Try: **"Show agent architecture"** — see the full stack diagram.',
+					'💡 Try: **"List all users"** — watch a real API call happen.',
+				].join('\n');
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (/\bshow\s+agent\s+architecture\b/i.test(query.trim())) {
+				const msg = [
+					'## Agent Architecture 🏗️',
+					'',
+					'```',
+					'┌──────────────────────────────────────────────────────┐',
+					'│  Browser (React 18 + TypeScript + styled-components)  │',
+					'│                                                       │',
+					'│  AIAssistant.tsx  handleSend(query)                  │',
+					'│   ├─ mcpQueryService.ts  classify intent             │',
+					'│   │                                                   │',
+					'│   ├─ TOKEN queries ──────────────── client-side      │',
+					'│   │   atob() decode, localStorage, no network        │',
+					'│   │                                                   │',
+					'│   ├─ EDUCATION queries ─────────── built-in answers  │',
+					'│   │   (this response — no API needed)                │',
+					'│   │                                                   │',
+					'│   ├─ AI KNOWLEDGE queries ───────── Groq API         │',
+					'│   │   POST api.groq.com  ←  Llama 3.3 70B           │',
+					'│   │                                                   │',
+					'│   └─ MCP queries ────────────────── backend bridge   │',
+					'│       POST /api/mcp/query                            │',
+					'└────────────────────┬─────────────────────────────────┘',
+					'                     │ HTTP / JSON',
+					'┌────────────────────▼─────────────────────────────────┐',
+					'│  server.js (Node.js / Express)                       │',
+					'│                                                       │',
+					'│  /api/mcp/query                                       │',
+					'│   classifyMcpIntent()  ← MCP_INTENTS regex array    │',
+					'│   ├─ list_tools   → read tool-names.json             │',
+					'│   ├─ worker_token → POST /as/token (CC grant)        │',
+					'│   ├─ list_users   → MCP tools/call                  │',
+					'│   ├─ introspect   → POST /as/introspect (RFC 7662)  │',
+					'│   └─ decode_token → base64url decode (no network)    │',
+					'│                │                                     │',
+					'│                │ stdin/stdout  JSON-RPC 2.0          │',
+					'│  ┌─────────────▼──────────────────────────────────┐ │',
+					'│  │  pingone-mcp-server (TypeScript stdio process)  │ │',
+					'│  │  71 tools  ·  Zod validation  ·  PingOne SDK   │ │',
+					'│  └──────────────────────┬─────────────────────────┘ │',
+					'└─────────────────────────┼────────────────────────────┘',
+					'                          │ HTTPS',
+					'                          ▼',
+					'          api.pingone.com  (PingOne REST API)',
+					'```',
+					'',
+					'### Tech stack',
+					'- **Frontend**: React 18 · TypeScript · styled-components · Vite',
+					'- **Backend**: Node.js 20 · Express · native fetch',
+					'- **MCP**: `@modelcontextprotocol/sdk` · stdio transport · JSON-RPC 2.0',
+					'- **LLM**: Groq API · `llama-3.3-70b-versatile`',
+					'- **Identity**: PingOne (users · groups · MFA · apps · tokens · OIDC)',
+				].join('\n');
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isMcpToolExplainQuery(query)) {
+				const msg = [
+					'## What is an MCP Tool Call? 🔧',
+					'',
+					'A **tool call** is how an AI agent executes a specific action — like calling a REST API.',
+					'',
+					'### The JSON-RPC request',
+					'When you ask "List all users", the backend sends this to our MCP server:',
+					'```json',
+					'{',
+					'  "jsonrpc": "2.0",',
+					'  "id": 1,',
+					'  "method": "tools/call",',
+					'  "params": {',
+					'    "name": "pingone_list_users",',
+					'    "arguments": { "environmentId": "your-env-id", "limit": 20 }',
+					'  }',
+					'}',
+					'```',
+					'',
+					'### What the MCP server does',
+					'1. Validates arguments with **Zod** schema (rejects early if invalid)',
+					'2. Fetches or reuses a cached **worker token** (client_credentials grant)',
+					'3. Calls `GET https://api.pingone.com/v1/environments/{envId}/users`',
+					'4. Returns structured content:',
+					'```json',
+					'{',
+					'  "content": [{ "type": "text", "text": "Found 42 users..." }],',
+					'  "structuredContent": { "success": true, "count": 42, "users": [...] }',
+					'}',
+					'```',
+					'',
+					'### Where our tools live',
+					'```',
+					'pingone-mcp-server/src/actions/',
+					'├── users.ts        ← pingone_list_users, pingone_get_user, pingone_create_user',
+					'├── groups.ts       ← pingone_list_groups, pingone_create_group',
+					'├── mfa.ts          ← pingone_list_mfa_policies',
+					'├── tokenUtils.ts   ← pingone_decode_jwt  (no network, pure base64url)',
+					'├── introspect.ts   ← pingone_introspect_token (RFC 7662)',
+					'└── oidc.ts         ← pingone_oidc_config, pingone_oidc_discovery',
+					'```',
+					'',
+					'💡 Try: **"List MCP tools"** — retrieves all 71 available tools from the server.',
+					'💡 Try: **"List all users"** — executes a real `tools/call` right now.',
+				].join('\n');
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isJsonRpcExplainQuery(query)) {
+				const msg = [
+					'## What is JSON-RPC 2.0? 📡',
+					'',
+					'**JSON-RPC 2.0** is the wire protocol MCP uses between the host/client and the server.',
+					'',
+					'### Why JSON-RPC?',
+					'- Simple request/response over any transport (stdio, HTTP, WebSocket)',
+					'- Client assigns `id`; server echoes it back — easy to match async responses',
+					'- Standard error codes (-32600 parse error, -32602 invalid params, etc.)',
+					'',
+					'### Request',
+					'```json',
+					'{',
+					'  "jsonrpc": "2.0",',
+					'  "id": 42,',
+					'  "method": "tools/list",',
+					'  "params": {}',
+					'}',
+					'```',
+					'',
+					'### Successful response',
+					'```json',
+					'{',
+					'  "jsonrpc": "2.0",',
+					'  "id": 42,',
+					'  "result": {',
+					'    "tools": [',
+					'      { "name": "pingone_list_users", "description": "...", "inputSchema": {} },',
+					'      { "name": "pingone_decode_jwt",  "description": "...", "inputSchema": {} }',
+					'    ]',
+					'  }',
+					'}',
+					'```',
+					'',
+					'### Error response',
+					'```json',
+					'{',
+					'  "jsonrpc": "2.0",',
+					'  "id": 42,',
+					'  "error": { "code": -32602, "message": "Invalid params", "data": "environmentId required" }',
+					'}',
+					'```',
+					'',
+					'### Our transport',
+					'`pingone-mcp-server` uses **stdio** — the simplest MCP transport:',
+					'- Client writes JSON-RPC to server **stdin**',
+					'- Server writes responses to **stdout**',
+					'- Errors go to **stderr** (never mixed with RPC output)',
+					'',
+					'In `pingone-mcp-server/src/index.ts`:',
+					'```typescript',
+					'const transport = new StdioServerTransport();',
+					'await server.connect(transport);',
+					'```',
+				].join('\n');
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isGroqExplainQuery(query)) {
+				const msg = [
+					'## How Does Groq Fit In? ⚡',
+					'',
+					"**Groq** is the LLM inference provider powering this agent's natural language understanding.",
+					'',
+					'### What Groq provides',
+					'- **API**: `api.groq.com/openai/v1/chat/completions`',
+					'- **Model**: `llama-3.3-70b-versatile` (Meta Llama 3.3, 70 billion parameters)',
+					'- **Speed**: ~300+ tokens/sec — significantly faster than OpenAI for comparable capability',
+					'- **Compatibility**: OpenAI-compatible request/response format',
+					'',
+					'### When we use Groq vs MCP',
+					'| Query | Path |',
+					'|-------|------|',
+					'| "What is PKCE?" | → Groq (open knowledge question) |',
+					'| "Explain OAuth 2.0 flows" | → Groq (educational) |',
+					'| "List all users" | → MCP (PingOne API call — no Groq needed) |',
+					'| "Show my token" | → Client-side (no Groq, no network) |',
+					'| "What is an agent?" | → Built-in answer (this response type) |',
+					'',
+					'### System prompt we send to Groq',
+					'```',
+					'You are MasterFlow Agent — an expert on OAuth 2.0, OIDC, PingOne Identity,',
+					'and Model Context Protocol (MCP). Help developers understand identity and AI integration.',
+					'```',
+					'',
+					'### Without Groq',
+					'If Groq is not configured, the agent still handles 100% of MCP/PingOne operations. Groq is only needed for open-ended AI/knowledge questions.',
+					'',
+					'💡 The **⚡ Groq** status dot in the header shows connection state.',
+					'💡 Add your key in **Configuration → AI Keys**.',
+				].join('\n');
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			// Worker-token and help queries always go to MCP.
+			// Any PingOne-actionable query (isMcpQuery) with Live ON → MCP for real data.
+			// Any PingOne-actionable query with Live OFF → show a helpful "turn on Live" nudge
+			// rather than letting Groq fake the response with invented data.
+			if (
+				isMcpQuery(query) &&
+				!includeLive &&
+				!isWorkerTokenQuery(query) &&
+				!isHelpQuery(query) &&
+				!isListToolsQuery(query)
+			) {
+				setMessages((prev) => [
+					...prev,
+					{
+						id: crypto.randomUUID(),
+						type: 'assistant',
+						content:
+							"🔌 **Live MCP is off.**\n\nTurn on the **Live** toggle in the header to execute this command against your real PingOne environment.\n\nI won't guess or simulate PingOne data — only the MCP tool can return real results.",
+						timestamp: new Date(),
+					},
+				]);
 				setIsTyping(false);
 				setInput(query); // Restore executed command so user can modify and re-run
+				return;
 			}
-			return;
-		}
 
-		// All other queries: Groq streams the answer token-by-token, then we optionally
-		// attach a live MCP data card (Live toggle) and/or Brave web results.
-		const streamingId = crypto.randomUUID();
+			// "Introspect user token": open user login panel if no user token yet
+			if (isIntrospectUserTokenQuery(query) && includeLive && !userAccessToken) {
+				setMessages((prev) => [
+					...prev,
+					{
+						id: crypto.randomUUID(),
+						type: 'assistant',
+						content:
+							'**Introspect user token** — sign in first to get a user access token. Use the login panel that just opened.',
+						timestamp: new Date(),
+					},
+				]);
+				setShowUserTokenLogin(true);
+				setUserTokenLoginError(null);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
 
-		// Add an empty placeholder that will be filled by streaming tokens
-		setMessages((prev) => [
-			...prev,
-			{ id: streamingId, type: 'assistant', content: '', streaming: true, timestamp: new Date() },
-		]);
-		setIsTyping(false); // The animated dots yield to the streaming cursor
+			// Get userinfo: show login panel (Authorization Code flow, response_mode=pi.flow) then call userinfo
+			if (isUserInfoQuery(query) && includeLive) {
+				setMessages((prev) => [
+					...prev,
+					{
+						id: crypto.randomUUID(),
+						type: 'assistant',
+						content:
+							'**Get userinfo** uses the OIDC UserInfo (end-user info) endpoint. Sign in in the side panel; we use the **user access token** from the auth call to call that endpoint and show your claims here.',
+						timestamp: new Date(),
+					},
+				]);
+				setShowUserInfoLogin(true);
+				setUserinfoLoginError(null);
+				setIsTyping(false);
+				return;
+			}
 
-		let streamedContent = '';
-		let groqUsed = false;
-		let usedFallback = false;
-
-		try {
-			await callGroqStream(
-				query,
-				groqHistoryRef.current,
-				(token) => {
-					streamedContent += token;
-					setMessages((prev) =>
-						prev.map((m) => (m.id === streamingId ? { ...m, content: streamedContent } : m))
-					);
-				},
-				(finalContent) => {
-					streamedContent = finalContent;
-					groqUsed = true;
-					groqHistoryRef.current = [
-						...groqHistoryRef.current,
-						{ role: 'user', content: query },
-						{ role: 'assistant', content: finalContent },
-					].slice(-20) as GroqMessage[];
-				},
-				(err) => {
-					// Groq stream failed — fall back to local KB answer
-					usedFallback = true;
-					const { answer } = aiAgentService.getAnswer(query, {
-						includeApiDocs,
-						includeSpecs,
-						includeWorkflows,
-						includeUserGuide,
+			if (
+				isWorkerTokenQuery(query) ||
+				isHelpQuery(query) ||
+				isListToolsQuery(query) ||
+				(includeLive && isMcpQuery(query))
+			) {
+				try {
+					// Pull stored credentials from our storage service (IndexedDB + SQLite)
+					const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+					const useAdminToken =
+						useAdminLogin &&
+						!!adminToken &&
+						adminTokenExpiry != null &&
+						Date.now() < adminTokenExpiry - ADMIN_TOKEN_BUFFER_MS;
+					const useUserTokenForIntrospect = isIntrospectUserTokenQuery(query) && !!userAccessToken;
+					const mcpResult = await callMcpQuery(query, {
+						workerToken: useAdminToken ? adminToken! : tokenData?.token || undefined,
+						environmentId: useAdminToken
+							? adminEnvironmentId || undefined
+							: tokenData?.credentials?.environmentId || undefined,
+						region: (tokenData?.credentials?.region as string) || undefined,
+						...(useUserTokenForIntrospect && userAccessToken
+							? { tokenToIntrospect: userAccessToken }
+							: {}),
 					});
-					streamedContent = answer;
-					console.warn('[AIAssistant] Groq stream error, using local fallback:', err.message);
-				},
-				{ includeLive }
-			);
-		} catch {
-			usedFallback = true;
-			const { answer } = aiAgentService.getAnswer(query, {
-				includeApiDocs,
-				includeSpecs,
-				includeWorkflows,
-				includeUserGuide,
-			});
-			streamedContent = answer;
-		}
-
-		// Finalise the streaming message content so it renders cleanly
-		setMessages((prev) =>
-			prev.map((m) =>
-				m.id === streamingId ? { ...m, content: streamedContent, streaming: false, groqUsed } : m
-			)
-		);
-
-		const localResult =
-			!groqUsed || usedFallback
-				? aiAgentService.getAnswer(query, {
-						includeApiDocs,
-						includeSpecs,
-						includeWorkflows,
-						includeUserGuide,
-					})
-				: null;
-		const links: Array<{ title: string; path: string; type: string; external?: boolean }> = (
-			localResult?.relatedLinks ?? []
-		).map((link) => ({
-			title: link.title,
-			path: link.path,
-			type: link.type,
-			external: link.external,
-		}));
-
-		// NOTE: isMcpQuery() requests never reach this code path — they're routed
-		// to the MCP-only branch above. The Groq path only handles conceptual/
-		// conversational questions, so no secondary MCP call is needed here.
-
-		let webResult: McpQueryResult | undefined;
-		if (includeWeb || isWebSearchQuery(query)) {
-			try {
-				webResult = await callMcpWebSearch(query);
-			} catch {
-				// Web search failed; keep local results only
+					const assistantMessage: Message = {
+						id: crypto.randomUUID(),
+						type: 'assistant',
+						content: mcpResult.answer,
+						mcpResult,
+						timestamp: new Date(),
+					};
+					// Track in API call history (for "show api calls" command)
+					if (mcpResult.apiCall) {
+						setApiCallHistory((prev) => [
+							...prev.slice(-19),
+							{
+								id: crypto.randomUUID(),
+								query,
+								mcpTool: mcpResult.mcpTool,
+								apiCall: mcpResult.apiCall,
+								howItWorks: mcpResult.howItWorks ?? null,
+								data: mcpResult.data,
+								timestamp: new Date(),
+							},
+						]);
+					}
+					setMessages((prev) => [...prev, assistantMessage]);
+				} catch (err) {
+					const message = err instanceof Error ? err.message : String(err);
+					setMessages((prev) => [
+						...prev,
+						{
+							id: crypto.randomUUID(),
+							type: 'assistant',
+							content: `MCP query failed: ${message}`,
+							timestamp: new Date(),
+						},
+					]);
+				} finally {
+					setIsTyping(false);
+					setInput(query); // Restore executed command so user can modify and re-run
+				}
+				return;
 			}
-		}
 
-		// Attach web / links to the finalised message
-		setMessages((prev) => prev.map((m) => (m.id === streamingId ? { ...m, links, webResult } : m)));
-	}, [
-		input,
-		includeApiDocs,
-		includeSpecs,
-		includeWorkflows,
-		includeUserGuide,
-		includeWeb,
-		includeLive,
-		useAdminLogin,
-		adminToken,
-		adminTokenExpiry,
-		adminEnvironmentId,
-		userAccessToken,
-		idToken,
-		apiCallHistory,
-	]);
+			// All other queries: Groq streams the answer token-by-token, then we optionally
+			// attach a live MCP data card (Live toggle) and/or Brave web results.
+			const streamingId = crypto.randomUUID();
+
+			// Add an empty placeholder that will be filled by streaming tokens
+			setMessages((prev) => [
+				...prev,
+				{ id: streamingId, type: 'assistant', content: '', streaming: true, timestamp: new Date() },
+			]);
+			setIsTyping(false); // The animated dots yield to the streaming cursor
+
+			let streamedContent = '';
+			let groqUsed = false;
+			let usedFallback = false;
+
+			try {
+				await callGroqStream(
+					query,
+					groqHistoryRef.current,
+					(token) => {
+						streamedContent += token;
+						setMessages((prev) =>
+							prev.map((m) => (m.id === streamingId ? { ...m, content: streamedContent } : m))
+						);
+					},
+					(finalContent) => {
+						streamedContent = finalContent;
+						groqUsed = true;
+						groqHistoryRef.current = [
+							...groqHistoryRef.current,
+							{ role: 'user', content: query },
+							{ role: 'assistant', content: finalContent },
+						].slice(-20) as GroqMessage[];
+					},
+					(err) => {
+						// Groq stream failed — fall back to local KB answer
+						usedFallback = true;
+						const { answer } = aiAgentService.getAnswer(query, {
+							includeApiDocs,
+							includeSpecs,
+							includeWorkflows,
+							includeUserGuide,
+						});
+						streamedContent = answer;
+						console.warn('[AIAssistant] Groq stream error, using local fallback:', err.message);
+					},
+					{ includeLive }
+				);
+			} catch {
+				usedFallback = true;
+				const { answer } = aiAgentService.getAnswer(query, {
+					includeApiDocs,
+					includeSpecs,
+					includeWorkflows,
+					includeUserGuide,
+				});
+				streamedContent = answer;
+			}
+
+			// Finalise the streaming message content so it renders cleanly
+			setMessages((prev) =>
+				prev.map((m) =>
+					m.id === streamingId ? { ...m, content: streamedContent, streaming: false, groqUsed } : m
+				)
+			);
+
+			const localResult =
+				!groqUsed || usedFallback
+					? aiAgentService.getAnswer(query, {
+							includeApiDocs,
+							includeSpecs,
+							includeWorkflows,
+							includeUserGuide,
+						})
+					: null;
+			const links: Array<{ title: string; path: string; type: string; external?: boolean }> = (
+				localResult?.relatedLinks ?? []
+			).map((link) => ({
+				title: link.title,
+				path: link.path,
+				type: link.type,
+				external: link.external,
+			}));
+
+			// NOTE: isMcpQuery() requests never reach this code path — they're routed
+			// to the MCP-only branch above. The Groq path only handles conceptual/
+			// conversational questions, so no secondary MCP call is needed here.
+
+			let webResult: McpQueryResult | undefined;
+			if (includeWeb || isWebSearchQuery(query)) {
+				try {
+					webResult = await callMcpWebSearch(query);
+				} catch {
+					// Web search failed; keep local results only
+				}
+			}
+
+			// Attach web / links to the finalised message
+			setMessages((prev) =>
+				prev.map((m) => (m.id === streamingId ? { ...m, links, webResult } : m))
+			);
+		},
+		[
+			input,
+			includeApiDocs,
+			includeSpecs,
+			includeWorkflows,
+			includeUserGuide,
+			includeWeb,
+			includeLive,
+			useAdminLogin,
+			adminToken,
+			adminTokenExpiry,
+			adminEnvironmentId,
+			userAccessToken,
+			idToken,
+			apiCallHistory,
+		]
+	);
 
 	const handleKeyPress = (e: React.KeyboardEvent) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
@@ -1566,7 +1740,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 			let filled = placeholderFill.template;
 			placeholderFill.placeholders.forEach((key) => {
 				const value = placeholderValues[key]?.trim() ?? '';
-				filled = filled.replace(new RegExp(`<${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}>`, 'g'), value);
+				filled = filled.replace(
+					new RegExp(`<${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}>`, 'g'),
+					value
+				);
 			});
 			setInput(filled);
 			setPlaceholderFill(null);
@@ -1596,7 +1773,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 		const tokenData = unifiedWorkerTokenService.getTokenDataSync();
 		const creds = tokenData?.credentials;
 		if (!creds?.environmentId || !creds?.clientId || !creds?.clientSecret) {
-			setUserinfoLoginError('Save worker token credentials first (Configuration → MCP Server Config).');
+			setUserinfoLoginError(
+				'Save worker token credentials first (Configuration → MCP Server Config).'
+			);
 			return;
 		}
 		setUserinfoLoginError(null);
@@ -1613,9 +1792,14 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 			if (result.success && result.data != null) {
 				const mcpResult: McpQueryResult = {
 					success: true,
-					answer: result.answer ?? `Retrieved OIDC userinfo: sub=${(result.data as { sub?: string })?.sub ?? '(unknown)'}.`,
+					answer:
+						result.answer ??
+						`Retrieved OIDC userinfo: sub=${(result.data as { sub?: string })?.sub ?? '(unknown)'}.`,
 					mcpTool: 'pingone_userinfo',
-					apiCall: { method: 'GET', path: `https://auth.pingone.com/${creds.environmentId}/as/userinfo` },
+					apiCall: {
+						method: 'GET',
+						path: `https://auth.pingone.com/${creds.environmentId}/as/userinfo`,
+					},
 					howItWorks:
 						'Uses the user access token from the auth (authorize) call to call the OIDC UserInfo (end-user info) endpoint. Returns OIDC standard claims (sub, name, email, etc.).',
 					data: result.data,
@@ -1654,7 +1838,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 		const tokenData = unifiedWorkerTokenService.getTokenDataSync();
 		const creds = tokenData?.credentials;
 		if (!creds?.environmentId || !creds?.clientId || !creds?.clientSecret) {
-			setUserTokenLoginError('Save worker token credentials first (Configuration → MCP Server Config).');
+			setUserTokenLoginError(
+				'Save worker token credentials first (Configuration → MCP Server Config).'
+			);
 			return;
 		}
 		setUserTokenLoginError(null);
@@ -1673,9 +1859,11 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 					result.access_token,
 					result.expires_in ?? 3600,
 					useAdminLogin ? creds.environmentId : undefined,
-					result.id_token,
+					result.id_token
 				);
-				const idNote = result.id_token ? ' ID token also stored — say **"Show id token"** to inspect it.' : '';
+				const idNote = result.id_token
+					? ' ID token also stored — say **"Show id token"** to inspect it.'
+					: '';
 				setMessages((prev) => [
 					...prev,
 					{
@@ -1904,7 +2092,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 								</UserInfoLoginClose>
 							</UserInfoLoginHeader>
 							<UserInfoLoginSubtitle>
-								Sign in via Authorization Code flow (response_mode=pi.flow). We use the <strong>user access token</strong> returned from the auth call to call the end-user UserInfo endpoint and show your claims here.
+								Sign in via Authorization Code flow (response_mode=pi.flow). We use the{' '}
+								<strong>user access token</strong> returned from the auth call to call the end-user
+								UserInfo endpoint and show your claims here.
 							</UserInfoLoginSubtitle>
 							<UserInfoLoginForm
 								onSubmit={(e) => {
@@ -1913,7 +2103,16 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 								}}
 							>
 								<div style={{ marginBottom: 12 }}>
-									<label htmlFor="userinfo-username" style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#333' }}>
+									<label
+										htmlFor="userinfo-username"
+										style={{
+											display: 'block',
+											fontSize: 12,
+											fontWeight: 600,
+											marginBottom: 4,
+											color: '#333',
+										}}
+									>
 										Username
 									</label>
 									<input
@@ -1935,7 +2134,16 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 									/>
 								</div>
 								<div style={{ marginBottom: 16 }}>
-									<label htmlFor="userinfo-password" style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#333' }}>
+									<label
+										htmlFor="userinfo-password"
+										style={{
+											display: 'block',
+											fontSize: 12,
+											fontWeight: 600,
+											marginBottom: 4,
+											color: '#333',
+										}}
+									>
 										Password
 									</label>
 									<input
@@ -1957,7 +2165,16 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 									/>
 								</div>
 								{userinfoLoginError && (
-									<div style={{ marginBottom: 12, padding: 8, background: '#fee', color: '#c00', borderRadius: 8, fontSize: 13 }}>
+									<div
+										style={{
+											marginBottom: 12,
+											padding: 8,
+											background: '#fee',
+											color: '#c00',
+											borderRadius: 8,
+											fontSize: 13,
+										}}
+									>
 										{userinfoLoginError}
 									</div>
 								)}
@@ -2023,14 +2240,32 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 								</UserInfoLoginClose>
 							</UserInfoLoginHeader>
 							<UserInfoLoginSubtitle>
-								Sign in via Authorization Code flow (response_mode=pi.flow). The <strong>user access token</strong> is stored so you can say <strong>"Introspect user token"</strong> to inspect it.
+								Sign in via Authorization Code flow (response_mode=pi.flow). The{' '}
+								<strong>user access token</strong> is stored so you can say{' '}
+								<strong>"Introspect user token"</strong> to inspect it.
 								{userAccessToken && (
-									<div style={{ marginTop: 8, padding: '6px 10px', background: '#e8f5e9', color: '#2e7d32', borderRadius: 8, fontSize: 12 }}>
+									<div
+										style={{
+											marginTop: 8,
+											padding: '6px 10px',
+											background: '#e8f5e9',
+											color: '#2e7d32',
+											borderRadius: 8,
+											fontSize: 12,
+										}}
+									>
 										✅ User token active — say "Introspect user token"
 										<button
 											type="button"
 											onClick={handleUserTokenClear}
-											style={{ marginLeft: 8, cursor: 'pointer', color: '#c62828', background: 'none', border: 'none', fontSize: 12 }}
+											style={{
+												marginLeft: 8,
+												cursor: 'pointer',
+												color: '#c62828',
+												background: 'none',
+												border: 'none',
+												fontSize: 12,
+											}}
 										>
 											Clear
 										</button>
@@ -2044,7 +2279,16 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 								}}
 							>
 								<div style={{ marginBottom: 12 }}>
-									<label htmlFor="usertoken-username" style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#333' }}>
+									<label
+										htmlFor="usertoken-username"
+										style={{
+											display: 'block',
+											fontSize: 12,
+											fontWeight: 600,
+											marginBottom: 4,
+											color: '#333',
+										}}
+									>
 										Username
 									</label>
 									<input
@@ -2054,12 +2298,28 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 										value={userTokenUsername}
 										onChange={(e) => setUserTokenUsername(e.target.value)}
 										disabled={userTokenLoginLoading}
-										style={{ width: '100%', padding: '8px 10px', border: '1px solid #ccc', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+										style={{
+											width: '100%',
+											padding: '8px 10px',
+											border: '1px solid #ccc',
+											borderRadius: 8,
+											fontSize: 14,
+											boxSizing: 'border-box',
+										}}
 										placeholder="PingOne username"
 									/>
 								</div>
 								<div style={{ marginBottom: 16 }}>
-									<label htmlFor="usertoken-password" style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#333' }}>
+									<label
+										htmlFor="usertoken-password"
+										style={{
+											display: 'block',
+											fontSize: 12,
+											fontWeight: 600,
+											marginBottom: 4,
+											color: '#333',
+										}}
+									>
 										Password
 									</label>
 									<input
@@ -2069,12 +2329,28 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 										value={userTokenPassword}
 										onChange={(e) => setUserTokenPassword(e.target.value)}
 										disabled={userTokenLoginLoading}
-										style={{ width: '100%', padding: '8px 10px', border: '1px solid #ccc', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+										style={{
+											width: '100%',
+											padding: '8px 10px',
+											border: '1px solid #ccc',
+											borderRadius: 8,
+											fontSize: 14,
+											boxSizing: 'border-box',
+										}}
 										placeholder="Password"
 									/>
 								</div>
 								{userTokenLoginError && (
-									<div style={{ marginBottom: 12, padding: 8, background: '#fee', color: '#c00', borderRadius: 8, fontSize: 13 }}>
+									<div
+										style={{
+											marginBottom: 12,
+											padding: 8,
+											background: '#fee',
+											color: '#c00',
+											borderRadius: 8,
+											fontSize: 13,
+										}}
+									>
 										{userTokenLoginError}
 									</div>
 								)}
@@ -2089,14 +2365,30 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 											setUseAdminLogin(false);
 										}}
 										disabled={userTokenLoginLoading}
-										style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #ccc', background: '#fff', fontSize: 14, cursor: userTokenLoginLoading ? 'not-allowed' : 'pointer' }}
+										style={{
+											padding: '8px 14px',
+											borderRadius: 8,
+											border: '1px solid #ccc',
+											background: '#fff',
+											fontSize: 14,
+											cursor: userTokenLoginLoading ? 'not-allowed' : 'pointer',
+										}}
 									>
 										Cancel
 									</button>
 									<button
 										type="submit"
 										disabled={userTokenLoginLoading}
-										style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', fontSize: 14, fontWeight: 600, cursor: userTokenLoginLoading ? 'not-allowed' : 'pointer' }}
+										style={{
+											padding: '8px 14px',
+											borderRadius: 8,
+											border: 'none',
+											background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+											color: '#fff',
+											fontSize: 14,
+											fontWeight: 600,
+											cursor: userTokenLoginLoading ? 'not-allowed' : 'pointer',
+										}}
 									>
 										{userTokenLoginLoading ? 'Signing in…' : 'Sign in'}
 									</button>
@@ -2454,12 +2746,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 																			{message.mcpResult.rawJson ? '📋 Formatted' : '{ } JSON'}
 																		</McpJsonToggle>
 																	</McpDataLabel>
-																	{message.mcpResult.rawJson || !Array.isArray(message.mcpResult.data) ? (
+																	{message.mcpResult.rawJson ||
+																	!Array.isArray(message.mcpResult.data) ? (
 																		<McpDataPre>
 																			{JSON.stringify(message.mcpResult.data, null, 2)}
 																		</McpDataPre>
 																	) : (
-																		<McpDataPagedDisplay data={message.mcpResult.data as unknown[]} />
+																		<McpDataPagedDisplay
+																			data={message.mcpResult.data as unknown[]}
+																		/>
 																	)}
 																</McpDataSection>
 															)}
@@ -2544,10 +2839,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 										<QuickQuestionsContainer>
 											<QuickQuestionsTitle>Quick questions:</QuickQuestionsTitle>
 											{quickQuestions.map((question, idx) => (
-												<QuickQuestionButton
-													key={idx}
-													onClick={() => handlePromptClick(question)}
-												>
+												<QuickQuestionButton key={idx} onClick={() => handlePromptClick(question)}>
 													{question}
 												</QuickQuestionButton>
 											))}
@@ -2643,12 +2935,16 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 					<ConfirmDialog onClick={(e) => e.stopPropagation()} style={{ maxWidth: '420px' }}>
 						<ConfirmTitle id="placeholder-fill-title">This command needs more info</ConfirmTitle>
 						<ConfirmText style={{ marginBottom: 16 }}>
-							Enter the values below. The command will be filled in the prompt box; you can edit and send.
+							Enter the values below. The command will be filled in the prompt box; you can edit and
+							send.
 						</ConfirmText>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
 							{placeholderFill.placeholders.map((key) => (
 								<div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-									<label htmlFor={`placeholder-${key}`} style={{ fontSize: 13, fontWeight: 500, color: '#333' }}>
+									<label
+										htmlFor={`placeholder-${key}`}
+										style={{ fontSize: 13, fontWeight: 500, color: '#333' }}
+									>
 										{PLACEHOLDER_LABELS[key] ?? key}
 									</label>
 									<input
@@ -2681,10 +2977,18 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 							>
 								Cancel
 							</ConfirmButton>
-							<ConfirmButton type="button" $primary={false} onClick={() => handlePlaceholderFillSubmit(false)}>
+							<ConfirmButton
+								type="button"
+								$primary={false}
+								onClick={() => handlePlaceholderFillSubmit(false)}
+							>
 								Fill in prompt
 							</ConfirmButton>
-							<ConfirmButton type="button" $primary onClick={() => handlePlaceholderFillSubmit(true)}>
+							<ConfirmButton
+								type="button"
+								$primary
+								onClick={() => handlePlaceholderFillSubmit(true)}
+							>
 								Fill & send
 							</ConfirmButton>
 						</ConfirmActions>
@@ -3608,8 +3912,7 @@ const McpResultCard = styled.div<{ $isSuccess?: boolean }>`
 	background: ${({ $isSuccess }) =>
 		$isSuccess ? 'rgba(34, 197, 94, 0.12)' : 'rgba(102, 126, 234, 0.07)'};
 	border: 1px solid
-		${({ $isSuccess }) =>
-			$isSuccess ? 'rgba(34, 197, 94, 0.5)' : 'rgba(102, 126, 234, 0.25)'};
+		${({ $isSuccess }) => ($isSuccess ? 'rgba(34, 197, 94, 0.5)' : 'rgba(102, 126, 234, 0.25)')};
 	border-radius: 10px;
 	display: flex;
 	flex-direction: column;
@@ -3950,6 +4253,5 @@ const LiveNudgeButton = styled.button`
 		transform: translateY(0);
 	}
 `;
-
 
 export default AIAssistant;

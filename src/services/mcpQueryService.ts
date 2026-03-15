@@ -208,6 +208,13 @@ export function isAdminLoginQuery(query: string): boolean {
 	return predictMcpTool(query) === 'admin_login';
 }
 
+/** Returns true when the user is asking to open the User login panel (username/password for user access token). */
+export function isUserLoginQuery(query: string): boolean {
+	return /\buser\s+login\b|\blogin\s+as\s+(?:a\s+)?user\b|\buser\s+sign[\s-]in\b|\bsign[\s-]in\s+as\s+(?:a\s+)?user\b|\bget\s+(?:a\s+)?user\s+(?:access\s+)?token\b/i.test(
+		query.trim()
+	);
+}
+
 /** Returns true when the query is asking to introspect the user's access token (from User login). */
 export function isIntrospectUserTokenQuery(query: string): boolean {
 	return /\bintrospect\s+user\s+token\b|\bintrospect\s+user'?s?\s+token\b|user\s+token\s+introspect/i.test(

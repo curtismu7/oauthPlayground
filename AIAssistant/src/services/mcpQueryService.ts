@@ -54,28 +54,57 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 		pattern: /\badmin\s+login\b|\blogin\s+as\s+admin\b|\blogin\s+admin\b/i,
 		tool: 'admin_login',
 	},
-	{ pattern: /worker.?token|client.?credentials|access.?token|get.?token|issue.?token/i, tool: 'pingone_get_worker_token' },
+	{
+		pattern: /worker.?token|client.?credentials|access.?token|get.?token|issue.?token/i,
+		tool: 'pingone_get_worker_token',
+	},
 	// list tools — high priority; matches "List MCP tools", "list tools", "mcp tools"
 	{
-		pattern: /\blist\s+mcp\s+tools\b|\b(?:list|show|what|which)\s+(?:all\s+)?(?:mcp\s+)?tools?\b|\bavailable\s+(?:mcp\s+)?tools?\b|\bmcp\s+tools\b|\blist\s+tools\b/i,
+		pattern:
+			/\blist\s+mcp\s+tools\b|\b(?:list|show|what|which)\s+(?:all\s+)?(?:mcp\s+)?tools?\b|\bavailable\s+(?:mcp\s+)?tools?\b|\bmcp\s+tools\b|\blist\s+tools\b/i,
 		tool: 'mcp_list_tools',
 	},
 	// help (high priority)
 	{
-		pattern: /^help$|what can (you|i|we) do|what can.*look.?up|what.*commands|how do i (use|start|get start)|how can.*help|what.*can.*do.*chat|what.*user.*chat|chat.*user|what.*ping.*do|what.*look.*up.*ping/i,
+		pattern:
+			/^help$|what can (you|i|we) do|what can.*look.?up|what.*commands|how do i (use|start|get start)|how can.*help|what.*can.*do.*chat|what.*user.*chat|chat.*user|what.*ping.*do|what.*look.*up.*ping/i,
 		tool: 'ai_assistant_help',
 	},
 	// applications
-	{ pattern: /list.*app|show.*app|get.*apps|all.*app|what.*app|fetch.*app/i, tool: 'pingone.applications.list' },
-	{ pattern: /app.*secret|client\s+secret|show.*secret|secret.*app/i, tool: 'pingone_get_application_secret' },
-	{ pattern: /rotate.*secret|regenerate.*secret|refresh.*client.*secret/i, tool: 'pingone_rotate_application_secret' },
-	{ pattern: /creat.*app(?:lication)?|add.*app(?:lication)?|new.*app(?:lication)?|register.*app/i, tool: 'pingone_create_application' },
-	{ pattern: /delet.*app(?:lication)?|remov.*app(?:lication)?/i, tool: 'pingone_delete_application' },
-	{ pattern: /get\s+app|find\s+app|app\s+details|app\s+info|which\s+app/i, tool: 'pingone_get_application' },
+	{
+		pattern: /list.*app|show.*app|get.*apps|all.*app|what.*app|fetch.*app/i,
+		tool: 'pingone.applications.list',
+	},
+	{
+		pattern: /app.*secret|client\s+secret|show.*secret|secret.*app/i,
+		tool: 'pingone_get_application_secret',
+	},
+	{
+		pattern: /rotate.*secret|regenerate.*secret|refresh.*client.*secret/i,
+		tool: 'pingone_rotate_application_secret',
+	},
+	{
+		pattern: /creat.*app(?:lication)?|add.*app(?:lication)?|new.*app(?:lication)?|register.*app/i,
+		tool: 'pingone_create_application',
+	},
+	{
+		pattern: /delet.*app(?:lication)?|remov.*app(?:lication)?/i,
+		tool: 'pingone_delete_application',
+	},
+	{
+		pattern: /get\s+app|find\s+app|app\s+details|app\s+info|which\s+app/i,
+		tool: 'pingone_get_application',
+	},
 	// org licenses (before users so "Show org licenses" doesn't match show.*user)
-	{ pattern: /\bshow\s+org\s+licenses\b|\borg\s+licenses\b|licens|org.*licens|capacity/i, tool: 'pingone_get_organization_licenses' },
+	{
+		pattern: /\bshow\s+org\s+licenses\b|\borg\s+licenses\b|licens|org.*licens|capacity/i,
+		tool: 'pingone_get_organization_licenses',
+	},
 	// users — create/delete before get so "Delete user <uuid>" matches delete
-	{ pattern: /list.*user|show.*users|all.*user|get.*users|fetch.*user/i, tool: 'pingone_list_users' },
+	{
+		pattern: /list.*user|show.*users|all.*user|get.*users|fetch.*user/i,
+		tool: 'pingone_list_users',
+	},
 	{ pattern: /creat.*user|new.*user|register.*user|onboard.*user/i, tool: 'pingone_create_user' },
 	{ pattern: /delet.*user|remov.*user|deactivat.*user/i, tool: 'pingone_delete_user' },
 	// OIDC UserInfo (before get_user so "Get userinfo" hits this, not Management API user lookup)
@@ -84,30 +113,58 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 		tool: 'pingone_userinfo',
 	},
 	{
-		pattern: /get\s+user(?!info)|find\s+user|look\s*up\s+user|show\s+user(?!info)|who\s+is\s+user|get\s+userinfo\s+use\s+\w+|userinfo\s+use\s+\w+\s+for\s+username/i,
+		pattern:
+			/get\s+user(?!info)|find\s+user|look\s*up\s+user|show\s+user(?!info)|who\s+is\s+user|get\s+userinfo\s+use\s+\w+|userinfo\s+use\s+\w+\s+for\s+username/i,
 		tool: 'pingone_get_user',
 	},
-	{ pattern: /user.*groups?|groups?.*for.*user|what.*groups?.*user|user.*member/i, tool: 'pingone_get_user_groups' },
-	{ pattern: /add.*user.*group|put.*user.*group|assign.*user.*group/i, tool: 'pingone_add_user_to_group' },
-	{ pattern: /remov.*user.*group|tak.*user.*out.*group|unassign.*user.*group/i, tool: 'pingone_remove_user_from_group' },
+	{
+		pattern: /user.*groups?|groups?.*for.*user|what.*groups?.*user|user.*member/i,
+		tool: 'pingone_get_user_groups',
+	},
+	{
+		pattern: /add.*user.*group|put.*user.*group|assign.*user.*group/i,
+		tool: 'pingone_add_user_to_group',
+	},
+	{
+		pattern: /remov.*user.*group|tak.*user.*out.*group|unassign.*user.*group/i,
+		tool: 'pingone_remove_user_from_group',
+	},
 	// groups
 	{ pattern: /list.*group|show.*groups|all.*group|get.*groups/i, tool: 'pingone_list_groups' },
-	{ pattern: /get\s+group|find\s+group|show\s+group\s+named?|group\s+details|group\s+info/i, tool: 'pingone_get_group' },
+	{
+		pattern: /get\s+group|find\s+group|show\s+group\s+named?|group\s+details|group\s+info/i,
+		tool: 'pingone_get_group',
+	},
 	{ pattern: /creat.*group|add.*group|new.*group/i, tool: 'pingone_create_group' },
 	{ pattern: /delet.*group|remov.*group/i, tool: 'pingone_delete_group' },
 	// populations
 	{ pattern: /list.*pop|show.*pop|all.*pop|get.*pop/i, tool: 'pingone_list_populations' },
 	// MFA
-	{ pattern: /mfa.*device|device.*mfa|list.*device|show.*device|authenticat.*device/i, tool: 'pingone.mfa.devices.list' },
+	{
+		pattern: /mfa.*device|device.*mfa|list.*device|show.*device|authenticat.*device/i,
+		tool: 'pingone.mfa.devices.list',
+	},
 	{ pattern: /mfa.*polic|polic.*mfa|list.*mfa|show.*mfa.*polic/i, tool: 'pingone.mfa.policy.list' },
 	// Subscriptions / webhooks
-	{ pattern: /list.*subscri|show.*subscri|all.*subscri|webhooks?/i, tool: 'pingone_list_subscriptions' },
-	{ pattern: /creat.*subscri|add.*subscri|new.*subscri|register.*webhook/i, tool: 'pingone_create_subscription' },
-	{ pattern: /delet.*subscri|remov.*subscri|delete.*webhook/i, tool: 'pingone_delete_subscription' },
+	{
+		pattern: /list.*subscri|show.*subscri|all.*subscri|webhooks?/i,
+		tool: 'pingone_list_subscriptions',
+	},
+	{
+		pattern: /creat.*subscri|add.*subscri|new.*subscri|register.*webhook/i,
+		tool: 'pingone_create_subscription',
+	},
+	{
+		pattern: /delet.*subscri|remov.*subscri|delete.*webhook/i,
+		tool: 'pingone_delete_subscription',
+	},
 	// risk / org / OIDC / auth
 	{ pattern: /risk.*eval|eval.*risk|risk.*score|assess.*risk/i, tool: 'pingone_risk_evaluation' },
 	{ pattern: /oidc|openid|discovery|\.well-known|issuer/i, tool: 'pingone_oidc_config' },
-	{ pattern: /introspect|inspect.*token|token.*info|validate.*token/i, tool: 'pingone_introspect_token' },
+	{
+		pattern: /introspect|inspect.*token|token.*info|validate.*token/i,
+		tool: 'pingone_introspect_token',
+	},
 	// list tools (high priority patterns; also match "mcp tools", "MCP tools")
 	{
 		pattern:
@@ -115,7 +172,11 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 		tool: 'mcp_list_tools',
 	},
 	// help
-	{ pattern: /^help$|what can (you|i|we) do|what can.*look.?up|what commands|how do i (use|start|get start)|how can.*help|what.*can.*do.*chat|what.*user.*chat|chat.*user|what.*ping.*do|what.*look.*up.*ping/i, tool: 'ai_assistant_help' },
+	{
+		pattern:
+			/^help$|what can (you|i|we) do|what can.*look.?up|what commands|how do i (use|start|get start)|how can.*help|what.*can.*do.*chat|what.*user.*chat|chat.*user|what.*ping.*do|what.*look.*up.*ping/i,
+		tool: 'ai_assistant_help',
+	},
 ];
 
 /** Returns the predicted MCP tool for a query, or null if no match. */
@@ -228,7 +289,9 @@ export function isShowWorkerTokenQuery(query: string): boolean {
 /** Returns true when the query contains a pasted JWT to decode, or explicitly asks to decode a token. */
 export function isDecodeTokenQuery(query: string): boolean {
 	return (
-		/\bdecode\s+(?:this\s+)?(?:jwt|token)\b|\bparse\s+(?:this\s+)?(?:jwt|token)\b|\bwhat\s+claims\s+(?:are\s+)?in\b/i.test(query.trim()) ||
+		/\bdecode\s+(?:this\s+)?(?:jwt|token)\b|\bparse\s+(?:this\s+)?(?:jwt|token)\b|\bwhat\s+claims\s+(?:are\s+)?in\b/i.test(
+			query.trim()
+		) ||
 		// freestanding JWT in the message text
 		/\bey[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\b/.test(query.trim())
 	);
@@ -366,6 +429,13 @@ export function isAdminLoginQuery(query: string): boolean {
 	return predictMcpTool(query) === 'admin_login';
 }
 
+/** Returns true when the user is asking to open the User login panel (username/password for user access token). */
+export function isUserLoginQuery(query: string): boolean {
+	return /\buser\s+login\b|\blogin\s+as\s+(?:a\s+)?user\b|\buser\s+sign[\s-]in\b|\bsign[\s-]in\s+as\s+(?:a\s+)?user\b|\bget\s+(?:a\s+)?user\s+(?:access\s+)?token\b/i.test(
+		query.trim()
+	);
+}
+
 /** Returns true when the query is asking to introspect the user's access token (not worker/admin). */
 export function isIntrospectUserTokenQuery(query: string): boolean {
 	return /\bintrospect\s+user\s+token\b|\bintrospect\s+user'?s?\s+token\b|user\s+token\s+introspect/i.test(
@@ -386,7 +456,13 @@ export async function callUserTokenViaLogin(params: {
 	username: string;
 	password: string;
 	region?: string;
-}): Promise<{ success: boolean; access_token?: string; id_token?: string; expires_in?: number; error_description?: string }> {
+}): Promise<{
+	success: boolean;
+	access_token?: string;
+	id_token?: string;
+	expires_in?: number;
+	error_description?: string;
+}> {
 	const res = await fetch('/api/mcp/user-token-via-login', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
