@@ -3806,10 +3806,16 @@ app.post('/api/token-exchange', async (req, res) => {
 			console.log('🔑 [Server] Validating client_credentials grant type');
 		} else if (grant_type === 'password') {
 			// Resource Owner Password Credentials (ROPC) — Admin login in AI Assistant
-			if (!username || !password || String(username).trim() === '' || String(password).trim() === '') {
+			if (
+				!username ||
+				!password ||
+				String(username).trim() === '' ||
+				String(password).trim() === ''
+			) {
 				return res.status(400).json({
 					error: 'invalid_request',
-					error_description: 'Missing required parameters: username and password for password grant',
+					error_description:
+						'Missing required parameters: username and password for password grant',
 				});
 			}
 			console.log('🔑 [Server] Validating password (ROPC) grant type');
@@ -4871,7 +4877,10 @@ app.post('/api/pingone/token-exchange', async (req, res) => {
 		if (requestedScopes) params.set('scope', requestedScopes);
 		if (audience) params.set('audience', audience);
 
-		const headers = { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' };
+		const headers = {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			Accept: 'application/json',
+		};
 
 		console.log('[Token Exchange] Request to PingOne:', {
 			environmentId,
@@ -7865,12 +7874,16 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			if (codeChallenge && typeof codeChallenge === 'string' && codeChallenge.trim().length > 0) {
 				authParams.set('code_challenge', codeChallenge.trim());
 				authParams.set('code_challenge_method', codeChallengeMethod || 'S256');
-				console.log(`[PingOne Redirectless] Added PKCE code_challenge (length: ${codeChallenge.length})`);
+				console.log(
+					`[PingOne Redirectless] Added PKCE code_challenge (length: ${codeChallenge.length})`
+				);
 			}
 		} else {
 			// token/id_token response types require nonce
 			if (req.body.nonce) authParams.set('nonce', req.body.nonce);
-			console.log(`[PingOne Redirectless] Using response_type='${responseType}' — tokens delivered at resume, no PKCE needed`);
+			console.log(
+				`[PingOne Redirectless] Using response_type='${responseType}' — tokens delivered at resume, no PKCE needed`
+			);
 		}
 
 		// CORRECT pi.flow PATTERN (per documentation):
@@ -8706,6 +8719,22 @@ app.post('/api/pingone/resume', async (req, res) => {
 			);
 		}
 
+		// Flatten authorizeResponse to top level so callers get a consistent shape.
+		// pi.flow with response_type=token id_token returns tokens nested inside
+		// authorizeResponse rather than at the root of the JSON object.
+		if (
+			responseData.authorizeResponse &&
+			typeof responseData.authorizeResponse === 'object' &&
+			!responseData.access_token &&
+			!responseData.code
+		) {
+			console.log(
+				`[PingOne Resume] Flattening authorizeResponse to top level — keys:`,
+				Object.keys(responseData.authorizeResponse).join(', ')
+			);
+			responseData = { ...responseData, ...responseData.authorizeResponse };
+		}
+
 		res.json(responseData);
 	} catch (error) {
 		console.error(`[PingOne Resume] Error:`, error);
@@ -8863,7 +8892,14 @@ function generatePkce() {
 
 app.post('/api/mcp/userinfo-via-login', async (req, res) => {
 	try {
-		const { environmentId, clientId, clientSecret, username, password, region = 'us' } = req.body || {};
+		const {
+			environmentId,
+			clientId,
+			clientSecret,
+			username,
+			password,
+			region = 'us',
+		} = req.body || {};
 		if (!environmentId || !clientId || !clientSecret || !username || !password) {
 			return res.status(400).json({
 				success: false,
@@ -8895,7 +8931,8 @@ app.post('/api/mcp/userinfo-via-login', async (req, res) => {
 			return res.status(authRes.status).json({
 				success: false,
 				error: authData.error || 'authorization_failed',
-				error_description: authData.error_description || authData.message || 'Failed to start login flow',
+				error_description:
+					authData.error_description || authData.message || 'Failed to start login flow',
 			});
 		}
 		const sessionId = authData._sessionId || authData.sessionId;
@@ -8959,7 +8996,8 @@ app.post('/api/mcp/userinfo-via-login', async (req, res) => {
 			return res.status(resumeRes.status).json({
 				success: false,
 				error: resumeData.error || 'resume_failed',
-				error_description: resumeData.error_description || resumeData.message || 'Failed to complete login',
+				error_description:
+					resumeData.error_description || resumeData.message || 'Failed to complete login',
 			});
 		}
 		const code =
@@ -9024,7 +9062,14 @@ app.post('/api/mcp/userinfo-via-login', async (req, res) => {
 // Use this to obtain a user token for introspection or other agent use (e.g. "Introspect user token").
 app.post('/api/mcp/user-token-via-login', async (req, res) => {
 	try {
-		const { environmentId, clientId, clientSecret, username, password, region = 'us' } = req.body || {};
+		const {
+			environmentId,
+			clientId,
+			clientSecret,
+			username,
+			password,
+			region = 'us',
+		} = req.body || {};
 		if (!environmentId || !clientId || !clientSecret || !username || !password) {
 			return res.status(400).json({
 				success: false,
@@ -9055,7 +9100,8 @@ app.post('/api/mcp/user-token-via-login', async (req, res) => {
 			return res.status(authRes.status).json({
 				success: false,
 				error: authData.error || 'authorization_failed',
-				error_description: authData.error_description || authData.message || 'Failed to start login flow',
+				error_description:
+					authData.error_description || authData.message || 'Failed to start login flow',
 			});
 		}
 		const sessionId = authData._sessionId || authData.sessionId;
@@ -9117,7 +9163,8 @@ app.post('/api/mcp/user-token-via-login', async (req, res) => {
 			return res.status(resumeRes.status).json({
 				success: false,
 				error: resumeData.error || 'resume_failed',
-				error_description: resumeData.error_description || resumeData.message || 'Failed to complete login',
+				error_description:
+					resumeData.error_description || resumeData.message || 'Failed to complete login',
 			});
 		}
 		const code =
@@ -22546,8 +22593,7 @@ const MCP_INTENTS = [
 		],
 		mcpTool: 'ai_assistant_help',
 		apiCall: null,
-		howItWorks:
-			'Returns a full guide to all available chat capabilities. No credentials needed.',
+		howItWorks: 'Returns a full guide to all available chat capabilities. No credentials needed.',
 	},
 	// ── Worker token ────────────────────────────────────────────────────────
 	{
@@ -22673,7 +22719,9 @@ const MCP_INTENTS = [
 	// OIDC UserInfo (must be before get_user so "Get userinfo" hits this, not Management API user lookup)
 	{
 		id: 'userinfo',
-		patterns: [/userinfo|get\s+userinfo|\buser\s+info\b|user\s+profile\s+claim|id.?token.*claim|current.*user.*claim/i],
+		patterns: [
+			/userinfo|get\s+userinfo|\buser\s+info\b|user\s+profile\s+claim|id.?token.*claim|current.*user.*claim/i,
+		],
 		mcpTool: 'pingone_userinfo',
 		apiCall: { method: 'GET', path: 'auth.pingone.com/{envId}/as/userinfo' },
 		howItWorks:
@@ -22681,7 +22729,9 @@ const MCP_INTENTS = [
 	},
 	{
 		id: 'get_user',
-		patterns: [/get\s+user(?!info)|find\s+user|look\s*up\s+user|show\s+user(?!info)|who\s+is\s+user|get\s+userinfo\s+use\s+\w+|userinfo\s+use\s+\w+\s+for\s+username/i],
+		patterns: [
+			/get\s+user(?!info)|find\s+user|look\s*up\s+user|show\s+user(?!info)|who\s+is\s+user|get\s+userinfo\s+use\s+\w+|userinfo\s+use\s+\w+\s+for\s+username/i,
+		],
 		mcpTool: 'pingone_get_user',
 		apiCall: { method: 'GET', path: '/environments/{envId}/users?filter=username eq "{value}"' },
 		howItWorks:
@@ -22918,7 +22968,13 @@ async function mcpCallPingOne({
 		let fullMsg = msg || response.statusText;
 		if (err?.details && Array.isArray(err.details) && err.details.length > 0) {
 			const detailStr = err.details
-				.map((d) => (typeof d === 'string' ? d : d?.message || d?.reason || d?.field ? `${d.field || 'field'}: ${d.message || d.reason || ''}` : JSON.stringify(d)))
+				.map((d) =>
+					typeof d === 'string'
+						? d
+						: d?.message || d?.reason || d?.field
+							? `${d.field || 'field'}: ${d.message || d.reason || ''}`
+							: JSON.stringify(d)
+				)
 				.join('; ');
 			fullMsg = `${fullMsg} (${detailStr})`;
 		} else if (err?.details && typeof err.details === 'object' && !Array.isArray(err.details)) {
@@ -22941,7 +22997,9 @@ async function mcpCallOrgLicenses({ workerToken, region }) {
 	const isAppHost = customDomain && String(customDomain).toLowerCase().includes('pingdemo.com');
 	let host = customDomain && !isAppHost ? customDomain : buildRegionUrl(region);
 	if (String(host).toLowerCase().includes('pingdemo.com')) host = buildRegionUrl(region);
-	const cleanToken = String(workerToken || '').replace(/^Bearer\s+/i, '').trim();
+	const cleanToken = String(workerToken || '')
+		.replace(/^Bearer\s+/i, '')
+		.trim();
 	const auth = `Bearer ${cleanToken}`;
 	writeToMcpLog('info', 'MCP org licenses', { host, region: region ?? 'na' });
 	// Get first organization, then fetch its licenses
@@ -22952,7 +23010,10 @@ async function mcpCallOrgLicenses({ workerToken, region }) {
 	if (!orgRes.ok) {
 		const err = await orgRes.json().catch(() => ({}));
 		const msg = err?.message || err?.detail || err?.error_description || orgRes.statusText;
-		throw Object.assign(new Error(msg || orgRes.statusText), { status: orgRes.status, details: err });
+		throw Object.assign(new Error(msg || orgRes.statusText), {
+			status: orgRes.status,
+			details: err,
+		});
 	}
 	const orgsData = await orgRes.json();
 	const orgs = orgsData._embedded?.organizations || [];
@@ -22960,14 +23021,20 @@ async function mcpCallOrgLicenses({ workerToken, region }) {
 		throw new Error('No organizations found. Worker token may lack organization scope.');
 	}
 	const orgId = orgs[0].id;
-	const licRes = await global.fetch(`https://${host}/v1/organizations/${orgId}/licenses?limit=200`, {
-		method: 'GET',
-		headers: { Authorization: auth, Accept: 'application/json' },
-	});
+	const licRes = await global.fetch(
+		`https://${host}/v1/organizations/${orgId}/licenses?limit=200`,
+		{
+			method: 'GET',
+			headers: { Authorization: auth, Accept: 'application/json' },
+		}
+	);
 	if (!licRes.ok) {
 		const err = await licRes.json().catch(() => ({}));
 		const msg = err?.message || err?.detail || err?.error_description || licRes.statusText;
-		throw Object.assign(new Error(msg || licRes.statusText), { status: licRes.status, details: err });
+		throw Object.assign(new Error(msg || licRes.statusText), {
+			status: licRes.status,
+			details: err,
+		});
 	}
 	return licRes.json();
 }
@@ -22995,7 +23062,10 @@ async function mcpCallUserInfo({ environmentId, accessToken, region }) {
 					'Complete an OAuth flow in the app to get an access token, then use that token with the UserInfo endpoint.'
 			);
 		}
-		throw Object.assign(new Error(msg || response.statusText), { status: response.status, details: err });
+		throw Object.assign(new Error(msg || response.statusText), {
+			status: response.status,
+			details: err,
+		});
 	}
 	return response.json();
 }
@@ -23010,14 +23080,22 @@ let _mcpUserInfoModule = null;
 async function userInfoViaMcpServer({ environmentId, accessToken, region }) {
 	try {
 		if (!_mcpUserInfoModule) {
-			const modPath = path.join(__dirname, 'pingone-mcp-server', 'dist', 'services', 'pingoneAuthClient.js');
+			const modPath = path.join(
+				__dirname,
+				'pingone-mcp-server',
+				'dist',
+				'services',
+				'pingoneAuthClient.js'
+			);
 			if (fs.existsSync(modPath)) {
 				const url = pathToFileURL(modPath).href;
 				_mcpUserInfoModule = await import(url);
 			}
 		}
 		if (_mcpUserInfoModule?.getUserInfo) {
-			writeToMcpLog('info', 'MCP UserInfo (via pingone-mcp-server)', { envId: environmentId?.slice(0, 8) });
+			writeToMcpLog('info', 'MCP UserInfo (via pingone-mcp-server)', {
+				envId: environmentId?.slice(0, 8),
+			});
 			return await _mcpUserInfoModule.getUserInfo(environmentId, accessToken, region || 'us');
 		}
 	} catch (e) {
@@ -23063,7 +23141,9 @@ function _extractUsernameForLookup(query) {
 	const usernameAfter = query.match(/\busername\s+["']?([\w.@+-]+)["']?/i);
 	if (usernameAfter && notEmailOrUuid(usernameAfter[1])) return usernameAfter[1];
 	// "show user curtis", "get user curtis", "find user X", "look up user X"
-	const afterUser = query.match(/(?:get|find|look\s*up|show)\s+user(?:info)?\s+["']?([\w.@+-]+)["']?/i);
+	const afterUser = query.match(
+		/(?:get|find|look\s*up|show)\s+user(?:info)?\s+["']?([\w.@+-]+)["']?/i
+	);
 	if (afterUser && notEmailOrUuid(afterUser[1])) return afterUser[1];
 	// Fallback: any "user <token>" (e.g. "show user curtis", "user curtis")
 	const userThenToken = query.match(/\buser\s+["']?([\w.@+-]+)["']?(?:\s|$)/i);
@@ -23391,7 +23471,7 @@ app.post('/api/mcp/query', async (req, res) => {
 			return res.json({
 				success: false,
 				answer:
-					'**Get userinfo** calls the OIDC UserInfo endpoint (not the Management API). It requires a **user\'s** OAuth access token from a login (e.g. Authorization Code flow). The worker token cannot be used. Complete an OAuth flow in the app to get an access token, then pass it as `userAccessToken` when asking for userinfo—or use the app\'s UserInfo / OAuth flow page to call the endpoint directly. Endpoint: ' +
+					"**Get userinfo** calls the OIDC UserInfo endpoint (not the Management API). It requires a **user's** OAuth access token from a login (e.g. Authorization Code flow). The worker token cannot be used. Complete an OAuth flow in the app to get an access token, then pass it as `userAccessToken` when asking for userinfo—or use the app's UserInfo / OAuth flow page to call the endpoint directly. Endpoint: " +
 					(userinfoUrl || 'https://auth.pingone.com/{envId}/as/userinfo') +
 					'. See [UserInfo Endpoint](https://docs.pingidentity.com/developer-resources/openid_connect_developer_guide/userinfo-endpoint.html).',
 				mcpTool: intent.mcpTool,
@@ -23583,7 +23663,10 @@ app.post('/api/mcp/query', async (req, res) => {
 				data = await mcpCallPingOne({ ...ctx, path: `/groups/${uuid}` });
 				summary = `Found group "${data.name}".`;
 			} else if (name) {
-				const raw = await mcpCallPingOne({ ...ctx, path: `/groups?filter=name eq "${_scimEscape(name)}"` });
+				const raw = await mcpCallPingOne({
+					...ctx,
+					path: `/groups?filter=name eq "${_scimEscape(name)}"`,
+				});
 				data = raw?._embedded?.groups || [];
 				summary = `Found ${data.length} group(s) named "${name}".`;
 			} else {
@@ -23981,7 +24064,7 @@ app.post('/api/mcp/query', async (req, res) => {
 				return res.json({
 					success: false,
 					answer:
-						'No token available to introspect. Say **Get worker token** first, or sign in with **Admin login** and try again—I\'ll use the worker token or admin token we have.',
+						"No token available to introspect. Say **Get worker token** first, or sign in with **Admin login** and try again—I'll use the worker token or admin token we have.",
 					mcpTool: intent.mcpTool,
 					apiCall: intent.apiCall,
 					howItWorks: intent.howItWorks,
@@ -24017,7 +24100,8 @@ app.post('/api/mcp/query', async (req, res) => {
 				});
 				data = await introResp.json().catch(() => ({}));
 				if (!introResp.ok) {
-					const errMsg = data.error_description || data.error || data.message || introResp.statusText;
+					const errMsg =
+						data.error_description || data.error || data.message || introResp.statusText;
 					return res.json({
 						success: false,
 						answer: `Introspection failed (${introResp.status}): ${errMsg}`,
@@ -24048,11 +24132,12 @@ app.post('/api/mcp/query', async (req, res) => {
 		} else if (intent.id === 'decode_token') {
 			// Extract a JWT from the query string (raw token pasted in) or from tokenToIntrospect
 			const jwtMatch = query.match(/eyJ[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+(?:\.[A-Za-z0-9\-_]*)?/);
-			const tokenToDecode = jwtMatch ? jwtMatch[0] : (req.body.tokenToIntrospect || token || '');
+			const tokenToDecode = jwtMatch ? jwtMatch[0] : req.body.tokenToIntrospect || token || '';
 			if (!tokenToDecode) {
 				return res.json({
 					success: false,
-					answer: 'Paste a JWT (starts with `eyJ`) directly into your message, or say **Get worker token** first and I\'ll decode that.',
+					answer:
+						"Paste a JWT (starts with `eyJ`) directly into your message, or say **Get worker token** first and I'll decode that.",
 					mcpTool: intent.mcpTool,
 					apiCall: intent.apiCall,
 					howItWorks: intent.howItWorks,
@@ -24063,7 +24148,8 @@ app.post('/api/mcp/query', async (req, res) => {
 			if (jwtParts.length < 2) {
 				return res.json({
 					success: false,
-					answer: 'That does not look like a valid JWT — expected three dot-separated base64url segments.',
+					answer:
+						'That does not look like a valid JWT — expected three dot-separated base64url segments.',
 					mcpTool: intent.mcpTool,
 					apiCall: intent.apiCall,
 					howItWorks: intent.howItWorks,
@@ -24098,9 +24184,15 @@ app.post('/api/mcp/query', async (req, res) => {
 				jwtHeader.kid ? `Key ID (kid): ${jwtHeader.kid}` : null,
 				jwtPayload.sub ? `Subject (sub): ${jwtPayload.sub}` : null,
 				jwtPayload.iss ? `Issuer (iss): ${jwtPayload.iss}` : null,
-				jwtPayload.aud ? `Audience (aud): ${Array.isArray(jwtPayload.aud) ? jwtPayload.aud.join(', ') : jwtPayload.aud}` : null,
-				expDate ? `Expires (exp): ${expDate.toISOString()} ${expired ? '⚠️ EXPIRED' : '✅ valid'}` : null,
-				typeof jwtPayload.iat === 'number' ? `Issued at (iat): ${new Date(jwtPayload.iat * 1000).toISOString()}` : null,
+				jwtPayload.aud
+					? `Audience (aud): ${Array.isArray(jwtPayload.aud) ? jwtPayload.aud.join(', ') : jwtPayload.aud}`
+					: null,
+				expDate
+					? `Expires (exp): ${expDate.toISOString()} ${expired ? '⚠️ EXPIRED' : '✅ valid'}`
+					: null,
+				typeof jwtPayload.iat === 'number'
+					? `Issued at (iat): ${new Date(jwtPayload.iat * 1000).toISOString()}`
+					: null,
 				jwtPayload.scope ? `Scope: ${jwtPayload.scope}` : null,
 				jwtPayload.client_id ? `Client ID: ${jwtPayload.client_id}` : null,
 			].filter(Boolean);
