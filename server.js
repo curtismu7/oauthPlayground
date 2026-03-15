@@ -23112,9 +23112,11 @@ function _extractEmail(query) {
 /** Pull text after "named?|called?" or in quotes. */
 function _extractName(query) {
 	const inQuotes = query.match(/["']([^"']+)["']/);
-	if (inQuotes) return inQuotes[1];
-	const after = query.match(/(?:name[ds]?|called?|for)\s+(\S+)/i);
-	return after ? after[1] : null;
+	if (inQuotes) return inQuotes[1].trim();
+	// Capture everything after named/called/for to end-of-string (handles multi-word names like
+	// "PingOne OIDC Playground - DCR")
+	const after = query.match(/(?:name[ds]?|called?|for)\s+(.+)$/i);
+	return after ? after[1].trim() : null;
 }
 /** Pull a UUID from the query. */
 function _extractUuid(query) {
@@ -23694,7 +23696,7 @@ app.post('/api/mcp/query', async (req, res) => {
 				data = await mcpCallPingOne({ ...ctx, path: `/applications/${uuid}` });
 				summary = `Found application "${data.name}".`;
 			} else if (name) {
-				const raw = await mcpCallPingOne({ ...ctx, path: `/applications?limit=50` });
+				const raw = await mcpCallPingOne({ ...ctx, path: `/applications?limit=200` });
 				const apps = raw?._embedded?.applications || [];
 				data = apps.filter((a) => a.name?.toLowerCase().includes(name.toLowerCase()));
 				summary = `Found ${data.length} application(s) matching "${name}".`;
@@ -24005,7 +24007,7 @@ app.post('/api/mcp/query', async (req, res) => {
 			const name = _extractName(q);
 			let appId = uuid;
 			if (!appId && name) {
-				const raw = await mcpCallPingOne({ ...ctx, path: '/applications?limit=50' });
+				const raw = await mcpCallPingOne({ ...ctx, path: '/applications?limit=200' });
 				const found = raw?._embedded?.applications?.find(
 					(a) => a.name?.toLowerCase() === name.toLowerCase()
 				);
