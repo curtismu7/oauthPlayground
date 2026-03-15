@@ -23224,13 +23224,112 @@ function _extractGroupNameFilter(query) {
 	return m ? m[1].trim() : null;
 }
 /** Extract user and group identifiers from "Add user X to group Y" / "Assign user X to group Y". */
+/**
+ * Extract user + group identifiers from natural-language add/remove phrases.
+ * Handles:
+ *   "Add alice to group DevTeam"          → {userIdent:"alice", groupIdent:"DevTeam"}
+ *   "Add user alice to group DevTeam"     → same
+ *   "Add alice to DevTeam"                → same (group keyword optional)
+ *   "Add user <uuid> to group DevTeam"    → {userIdent:uuid, groupIdent:"DevTeam"}
+ *   Legacy: "user alice ... group DevTeam"
+ */
 function _extractAddUserToGroupIdentifiers(query) {
-	const m = query.match(/user\s+([^\s]+)\s+.*?group\s+([^\s]+)/i);
-	return m ? { userIdent: m[1], groupIdent: m[2] } : null;
+	// "add [user] <X> to [group] <Y>"  / "remove [user] <X> from [group] <Y>"
+	const addPattern = query.match(
+		/(?:add|remove)\s+(?:user\s+)?([\w.@+\-]+(?:\s+\S+)?)\s+(?:to|from)\s+(?:group\s+)?([\w.@+\-][\w.@+\-\s]*?)(?:\s*$|\s+(?:in|within|at)\b)/i
+	);
+	if (addPattern) {
+		return {
+			userIdent: addPattern[1].trim(),
+			groupIdent: addPattern[2].trim(),
+		};
+	}
+	// Simpler fallback: "add X to Y"
+	const simple = query.match(
+		/(?:add|remove)\s+(?:user\s+)?([\w.@+\-]+)\s+(?:to|from)\s+([\w.@+\-]+)/i
+	);
+	if (simple) return { userIdent: simple[1].trim(), groupIdent: simple[2].trim() };
+	// Legacy: explicit "user X ... group Y" keywords
+	const legacy = query.match(/user\s+([^\s]+)\s+.*?group\s+([^\s]+)/i);
+	return legacy ? { userIdent: legacy[1], groupIdent: legacy[2] } : null;
 }
 /** Escape value for SCIM filter (backslash and double-quote). */
 function _scimEscape(val) {
 	return String(val).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+/**
+ * Resolve a user identifier (email, username, or UUID) to a PingOne user ID.
+ * Returns the UUID string or null.
+ */
+async function _resolveUserId(ctx, ident) {
+	if (!ident) return null;
+	// Already a UUID → return as-is
+	if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ident)) return ident;
+	const esc = _scimEscape(ident);
+	// Email address
+	if (ident.includes('@')) {
+		const r = await mcpCallPingOne({ ...ctx, path: `/users?filter=email eq "${esc}"&limit=2` });
+		const users = r?._embedded?.users ?? [];
+		if (users.length === 1) return users[0].id;
+		// Also try username eq for emails used as usernames
+		const r2 = await mcpCallPingOne({ ...ctx, path: `/users?filter=username eq "${esc}"&limit=2` });
+		const users2 = r2?._embedded?.users ?? [];
+		if (users2.length === 1) return users2[0].id;
+		return users[0]?.id || users2[0]?.id || null;
+	}
+	// Username exact match
+	const r = await mcpCallPingOne({ ...ctx, path: `/users?filter=username eq "${esc}"&limit=2` });
+	const users = r?._embedded?.users ?? [];
+	if (users.length === 1) return users[0].id;
+	if (users.length > 1)
+		throw new Error(`Multiple users match "${ident}". Use email or UUID to be specific.`);
+	// Username starts-with fallback
+	const r2 = await mcpCallPingOne({ ...ctx, path: `/users?filter=username sw "${esc}"&limit=2` });
+	const users2 = r2?._embedded?.users ?? [];
+	if (users2.length === 1) return users2[0].id;
+	if (users2.length > 1)
+		throw new Error(`Multiple users match "${ident}". Use a more specific username or email.`);
+	return null;
+}
+
+/**
+ * Resolve a group identifier (name or UUID) to a PingOne group ID.
+ * Returns the UUID string or null.
+ */
+async function _resolveGroupId(ctx, ident) {
+	if (!ident) return null;
+	if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ident)) return ident;
+	const esc = _scimEscape(ident);
+	const r = await mcpCallPingOne({ ...ctx, path: `/groups?filter=name eq "${esc}"&limit=2` });
+	const groups = r?._embedded?.groups ?? [];
+	if (groups.length === 1) return groups[0].id;
+	if (groups.length > 1)
+		throw new Error(`Multiple groups match "${ident}". Use a UUID to be specific.`);
+	// Starts-with fallback
+	const r2 = await mcpCallPingOne({ ...ctx, path: `/groups?filter=name sw "${esc}"&limit=2` });
+	const groups2 = r2?._embedded?.groups ?? [];
+	if (groups2.length === 1) return groups2[0].id;
+	if (groups2.length > 1) throw new Error(`Multiple groups match "${ident}". Be more specific.`);
+	return null;
+}
+
+/**
+ * Resolve an application identifier (name or UUID) to a PingOne application ID.
+ * Returns the UUID string or null.
+ */
+async function _resolveAppId(ctx, ident) {
+	if (!ident) return null;
+	if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ident)) return ident;
+	const raw = await mcpCallPingOne({ ...ctx, path: `/applications?limit=200` });
+	const apps = raw?._embedded?.applications ?? [];
+	const exact = apps.filter((a) => a.name?.toLowerCase() === ident.toLowerCase());
+	if (exact.length === 1) return exact[0].id;
+	const partial = apps.filter((a) => a.name?.toLowerCase().includes(ident.toLowerCase()));
+	if (partial.length === 1) return partial[0].id;
+	if (partial.length > 1)
+		throw new Error(`Multiple applications match "${ident}". Use a UUID or a more specific name.`);
+	return null;
 }
 
 app.post('/api/mcp/query', async (req, res) => {
@@ -23635,19 +23734,37 @@ app.post('/api/mcp/query', async (req, res) => {
 			}
 		} else if (intent.id === 'get_user_groups') {
 			const uuid = _extractUuid(q);
-			if (!uuid) {
-				return res.json({
-					success: false,
-					answer: 'Please provide a user UUID. Example: "What groups is user 3fa...uuid...abc in?"',
-					mcpTool: intent.mcpTool,
-					apiCall: intent.apiCall,
-					howItWorks: intent.howItWorks,
-					data: null,
-				});
+			const email = _extractEmail(q);
+			const username = _extractUsernameForLookup(q);
+			let userId = uuid;
+			if (!userId) {
+				const ident = email || username;
+				if (!ident) {
+					return res.json({
+						success: false,
+						answer:
+							'Please provide a username, email, or UUID. Example: "What groups is alice in?" or "Groups for john@acme.com"',
+						mcpTool: intent.mcpTool,
+						apiCall: intent.apiCall,
+						howItWorks: intent.howItWorks,
+						data: null,
+					});
+				}
+				userId = await _resolveUserId(ctx, ident);
+				if (!userId) {
+					return res.json({
+						success: false,
+						answer: `No user found matching "${ident}". Check the username or email and try again.`,
+						mcpTool: intent.mcpTool,
+						apiCall: intent.apiCall,
+						howItWorks: intent.howItWorks,
+						data: null,
+					});
+				}
 			}
-			const raw = await mcpCallPingOne({ ...ctx, path: `/users/${uuid}/memberOfGroups` });
+			const raw = await mcpCallPingOne({ ...ctx, path: `/users/${userId}/memberOfGroups` });
 			data = raw?._embedded?.groupMemberships || [];
-			summary = `User ${uuid} is a member of ${data.length} group(s).`;
+			summary = `User ${userId} is a member of ${data.length} group(s).`;
 		} else if (intent.id === 'list_groups') {
 			const requestedLimit = _extractLimit(q) || 50;
 			const nameFilter = _extractGroupNameFilter(q);
@@ -23715,39 +23832,57 @@ app.post('/api/mcp/query', async (req, res) => {
 			}
 		} else if (intent.id === 'get_application_secret') {
 			const uuid = _extractUuid(q);
-			if (!uuid) {
+			const appName = _extractName(q);
+			let appId = uuid || (appName ? await _resolveAppId(ctx, appName) : null);
+			if (!appId) {
 				return res.json({
 					success: false,
-					answer:
-						'Please include the application UUID. Example: "Get app secret for 3fa...uuid...abc"',
+					answer: 'Please include an application name or UUID. Example: "Get app secret for MyApp"',
 					mcpTool: intent.mcpTool,
 					apiCall: intent.apiCall,
 					howItWorks: intent.howItWorks,
 					data: null,
 				});
 			}
-			data = await mcpCallPingOne({ ...ctx, path: `/applications/${uuid}/secret` });
-			summary = `Retrieved client secret for application ${uuid}. ⚠️ Treat this value as a password.`;
+			data = await mcpCallPingOne({ ...ctx, path: `/applications/${appId}/secret` });
+			summary = `Retrieved client secret for application ${appName || appId}. ⚠️ Treat this value as a password.`;
 		} else if (intent.id === 'list_mfa_policies') {
 			const raw = await mcpCallPingOne({ ...ctx, path: '/deviceAuthenticationPolicies' });
 			data = raw?._embedded?.deviceAuthenticationPolicies || raw?._embedded?.mfaPolicies || [];
 			summary = `Found ${data.length} MFA policy/policies.`;
 		} else if (intent.id === 'list_mfa_devices') {
 			const uuid = _extractUuid(q);
-			if (!uuid) {
-				return res.json({
-					success: false,
-					answer:
-						'Please provide a user UUID. Example: "List MFA devices for user 3fa...uuid...abc"',
-					mcpTool: intent.mcpTool,
-					apiCall: intent.apiCall,
-					howItWorks: intent.howItWorks,
-					data: null,
-				});
+			const email = _extractEmail(q);
+			const username = _extractUsernameForLookup(q);
+			let userId = uuid;
+			if (!userId) {
+				const ident = email || username;
+				if (!ident) {
+					return res.json({
+						success: false,
+						answer:
+							'Please provide a username, email, or UUID. Example: "List MFA devices for alice" or "MFA devices for john@acme.com"',
+						mcpTool: intent.mcpTool,
+						apiCall: intent.apiCall,
+						howItWorks: intent.howItWorks,
+						data: null,
+					});
+				}
+				userId = await _resolveUserId(ctx, ident);
+				if (!userId) {
+					return res.json({
+						success: false,
+						answer: `No user found matching "${ident}". Check the username or email and try again.`,
+						mcpTool: intent.mcpTool,
+						apiCall: intent.apiCall,
+						howItWorks: intent.howItWorks,
+						data: null,
+					});
+				}
 			}
-			const raw = await mcpCallPingOne({ ...ctx, path: `/users/${uuid}/devices` });
+			const raw = await mcpCallPingOne({ ...ctx, path: `/users/${userId}/devices` });
 			data = raw?._embedded?.devices || [];
-			summary = `Found ${data.length} MFA device(s) for user ${uuid}.`;
+			summary = `Found ${data.length} MFA device(s) for user ${userId}.`;
 		} else if (intent.id === 'list_subscriptions') {
 			const raw = await mcpCallPingOne({ ...ctx, path: '/subscriptions' });
 			data = raw?._embedded?.subscriptions || [];
@@ -23857,62 +23992,51 @@ app.post('/api/mcp/query', async (req, res) => {
 			data = { deleted: true, groupId };
 			summary = `✅ Deleted group ${name || groupId}.`;
 		} else if (intent.id === 'add_user_to_group') {
+			const ids = _extractAddUserToGroupIdentifiers(q);
 			const uuids = [
 				...q.matchAll(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi),
 			].map((m) => m[0]);
+			// Try UUID extraction first (exact), then name-based resolution
 			let userId = uuids[0];
 			let groupId = uuids[1];
-			// Name-based lookup when UUIDs not provided (e.g. "Add user curtis to group DevTeam")
-			if ((!userId || !groupId) && _extractAddUserToGroupIdentifiers(q)) {
-				const { userIdent, groupIdent } = _extractAddUserToGroupIdentifiers(q);
-				const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-				if (!userId && userIdent) {
-					const userRaw = await mcpCallPingOne({
-						...ctx,
-						path: `/users?filter=username eq "${esc(userIdent)}"&limit=2`,
+			if (!userId && ids?.userIdent) {
+				try {
+					userId = await _resolveUserId(ctx, ids.userIdent);
+				} catch (e) {
+					return res.json({
+						success: false,
+						answer: e.message,
+						mcpTool: intent.mcpTool,
+						apiCall: intent.apiCall,
+						howItWorks: intent.howItWorks,
+						data: null,
 					});
-					const users = userRaw?._embedded?.users ?? [];
-					if (users.length === 1) userId = users[0].id;
-					else if (users.length > 1)
-						return res.json({
-							success: false,
-							answer: `Multiple users match "${userIdent}". Use email or UUID. Example: "Add user john@acme.com to group DevTeam"`,
-							mcpTool: intent.mcpTool,
-							apiCall: intent.apiCall,
-							howItWorks: intent.howItWorks,
-							data: null,
-						});
-					else {
-						const swRaw = await mcpCallPingOne({
-							...ctx,
-							path: `/users?filter=username sw "${esc(userIdent)}"&limit=2`,
-						});
-						const swUsers = swRaw?._embedded?.users ?? [];
-						if (swUsers.length === 1) userId = swUsers[0].id;
-						else if (swUsers.length > 1)
-							return res.json({
-								success: false,
-								answer: `Multiple users match "${userIdent}". Use email or UUID.`,
-								mcpTool: intent.mcpTool,
-								apiCall: intent.apiCall,
-								howItWorks: intent.howItWorks,
-								data: null,
-							});
-					}
 				}
-				if (!groupId && groupIdent) {
-					const groupRaw = await mcpCallPingOne({
-						...ctx,
-						path: `/groups?filter=name eq "${esc(groupIdent)}"&limit=1`,
+			}
+			if (!groupId && ids?.groupIdent) {
+				try {
+					groupId = await _resolveGroupId(ctx, ids.groupIdent);
+				} catch (e) {
+					return res.json({
+						success: false,
+						answer: e.message,
+						mcpTool: intent.mcpTool,
+						apiCall: intent.apiCall,
+						howItWorks: intent.howItWorks,
+						data: null,
 					});
-					groupId = groupRaw?._embedded?.groups?.[0]?.id;
 				}
 			}
 			if (!userId || !groupId) {
+				const missing = !userId ? 'user' : 'group';
+				const hint = !userId
+					? `No user found for "${ids?.userIdent || 'unknown'}". Use email, username, or UUID.`
+					: `No group found for "${ids?.groupIdent || 'unknown'}". Check the group name or use a UUID.`;
 				return res.json({
 					success: false,
-					answer:
-						'Include a user (email or username) and group (name). Example: "Add user curtis@acme.com to group DevTeam"',
+					answer: ids
+						? hint
+						: 'Include a user and group. Example: "Add alice to group DevTeam" or "Add john@acme.com to Admins"',
 					mcpTool: intent.mcpTool,
 					apiCall: intent.apiCall,
 					howItWorks: intent.howItWorks,
@@ -23925,46 +24049,51 @@ app.post('/api/mcp/query', async (req, res) => {
 				method: 'POST',
 				body: { group: { id: groupId } },
 			});
-			summary = `✅ Added user ${userId} to group ${groupId}.`;
+			summary = `✅ Added user ${ids?.userIdent || userId} to group ${ids?.groupIdent || groupId}.`;
 		} else if (intent.id === 'remove_user_from_group') {
+			const ids = _extractAddUserToGroupIdentifiers(q);
 			const uuids = [
 				...q.matchAll(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi),
 			].map((m) => m[0]);
 			let userId = uuids[0];
 			let groupId = uuids[1];
-			// Name-based lookup when UUIDs not provided (e.g. "Remove user curtis from group DevTeam")
-			if ((!userId || !groupId) && _extractAddUserToGroupIdentifiers(q)) {
-				const { userIdent, groupIdent } = _extractAddUserToGroupIdentifiers(q);
-				const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-				if (!userId && userIdent) {
-					const userRaw = await mcpCallPingOne({
-						...ctx,
-						path: `/users?filter=username eq "${esc(userIdent)}"&limit=2`,
+			if (!userId && ids?.userIdent) {
+				try {
+					userId = await _resolveUserId(ctx, ids.userIdent);
+				} catch (e) {
+					return res.json({
+						success: false,
+						answer: e.message,
+						mcpTool: intent.mcpTool,
+						apiCall: intent.apiCall,
+						howItWorks: intent.howItWorks,
+						data: null,
 					});
-					const users = userRaw?._embedded?.users ?? [];
-					if (users.length === 1) userId = users[0].id;
-					else if (users.length === 0) {
-						const swRaw = await mcpCallPingOne({
-							...ctx,
-							path: `/users?filter=username sw "${esc(userIdent)}"&limit=2`,
-						});
-						const swUsers = swRaw?._embedded?.users ?? [];
-						if (swUsers.length === 1) userId = swUsers[0].id;
-					}
 				}
-				if (!groupId && groupIdent) {
-					const groupRaw = await mcpCallPingOne({
-						...ctx,
-						path: `/groups?filter=name eq "${esc(groupIdent)}"&limit=1`,
+			}
+			if (!groupId && ids?.groupIdent) {
+				try {
+					groupId = await _resolveGroupId(ctx, ids.groupIdent);
+				} catch (e) {
+					return res.json({
+						success: false,
+						answer: e.message,
+						mcpTool: intent.mcpTool,
+						apiCall: intent.apiCall,
+						howItWorks: intent.howItWorks,
+						data: null,
 					});
-					groupId = groupRaw?._embedded?.groups?.[0]?.id;
 				}
 			}
 			if (!userId || !groupId) {
+				const hint = !userId
+					? `No user found for "${ids?.userIdent || 'unknown'}". Use email, username, or UUID.`
+					: `No group found for "${ids?.groupIdent || 'unknown'}". Check the group name or use a UUID.`;
 				return res.json({
 					success: false,
-					answer:
-						'Include a user (email or username) and group (name). Example: "Remove user curtis@acme.com from group DevTeam"',
+					answer: ids
+						? hint
+						: 'Include a user and group. Example: "Remove alice from group DevTeam" or "Remove john@acme.com from Admins"',
 					mcpTool: intent.mcpTool,
 					apiCall: intent.apiCall,
 					howItWorks: intent.howItWorks,
@@ -23977,7 +24106,7 @@ app.post('/api/mcp/query', async (req, res) => {
 				method: 'DELETE',
 			});
 			data = { removed: true, userId, groupId };
-			summary = `✅ Removed user ${userId} from group ${groupId}.`;
+			summary = `✅ Removed user ${ids?.userIdent || userId} from group ${ids?.groupIdent || groupId}.`;
 		} else if (intent.id === 'create_application') {
 			const name = _extractName(q);
 			if (!name) {
@@ -24032,19 +24161,24 @@ app.post('/api/mcp/query', async (req, res) => {
 			summary = `✅ Deleted application ${name || appId}.`;
 		} else if (intent.id === 'rotate_application_secret') {
 			const uuid = _extractUuid(q);
-			if (!uuid) {
+			const appName = _extractName(q);
+			let appId = uuid || (appName ? await _resolveAppId(ctx, appName) : null);
+			if (!appId) {
 				return res.json({
 					success: false,
-					answer:
-						'Please include the application UUID. Example: "Rotate secret for 3fa...uuid...abc"',
+					answer: 'Please include an application name or UUID. Example: "Rotate secret for MyApp"',
 					mcpTool: intent.mcpTool,
 					apiCall: intent.apiCall,
 					howItWorks: intent.howItWorks,
 					data: null,
 				});
 			}
-			data = await mcpCallPingOne({ ...ctx, path: `/applications/${uuid}/secret`, method: 'POST' });
-			summary = `✅ Rotated client secret for application ${uuid}. Old secret is now invalid.`;
+			data = await mcpCallPingOne({
+				...ctx,
+				path: `/applications/${appId}/secret`,
+				method: 'POST',
+			});
+			summary = `✅ Rotated client secret for application ${appName || appId}. Old secret is now invalid.`;
 		} else if (intent.id === 'delete_subscription') {
 			const uuid = _extractUuid(q);
 			if (!uuid) {
