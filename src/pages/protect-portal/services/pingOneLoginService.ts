@@ -24,13 +24,15 @@ export class PingOneLoginService {
 	/**
 	 * Initialize PingOne embedded login using pi.flow.
 	 * redirect_uri is optional per PingOne docs — omit for pi.flow to avoid validation errors.
+	 * responseType: 'code' (default, uses PKCE) or 'token id_token' (tokens at resume, no PKCE).
 	 */
 	static async initializeEmbeddedLogin(
 		environmentId: string,
 		clientId: string,
 		redirectUri?: string,
 		scopes: string[] = ['openid', 'profile', 'email'],
-		region?: string
+		region?: string,
+		responseType: string = 'code'
 	): Promise<
 		ServiceResponse<{ flowId: string; sessionId: string; resumeUrl?: string; codeVerifier: string }>
 	> {
@@ -40,22 +42,25 @@ export class PingOneLoginService {
 				clientId,
 				redirectUri: redirectUri ?? '(omitted for pi.flow)',
 				scopes,
+				responseType,
 			});
 
-			// Use response_type=code + PKCE — works with any Authorization Code app.
-			// (response_type=token id_token requires Implicit grant which many apps don't have)
-			const codeVerifier = PingOneLoginService.generateCodeVerifier();
-			const codeChallenge = await PingOneLoginService.generateCodeChallenge(codeVerifier);
-
+			// For response_type=code: generate PKCE verifier/challenge.
+			// For response_type=token id_token: tokens are returned directly at resume — no PKCE needed.
+			let codeVerifier = '';
 			const requestBody: Record<string, unknown> = {
 				environmentId: environmentId,
 				clientId: clientId,
-				response_type: 'code',
+				response_type: responseType,
 				response_mode: 'pi.flow',
 				scopes: scopes.join(' '),
-				codeChallenge,
-				codeChallengeMethod: 'S256',
 			};
+			if (responseType === 'code') {
+				codeVerifier = PingOneLoginService.generateCodeVerifier();
+				const codeChallenge = await PingOneLoginService.generateCodeChallenge(codeVerifier);
+				requestBody.codeChallenge = codeChallenge;
+				requestBody.codeChallengeMethod = 'S256';
+			}
 			if (region?.trim()) {
 				requestBody.region = region.trim().toLowerCase();
 			}
@@ -100,7 +105,9 @@ export class PingOneLoginService {
 					logger.error(MODULE_TAG, 'PingOne error response:', errorData);
 					if (response.status === 400) {
 						validationHint =
-							' — Ensure the OAuth app (not Worker) has Authorization Code grant enabled. For pi.flow, no redirect_uri is required. See https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html';
+							responseType === 'code'
+								? ' — Ensure the OAuth app (not Worker) has Authorization Code grant enabled. For pi.flow, no redirect_uri is required. See https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html'
+								: ' — Ensure the OAuth app has Implicit/OIDC grant (or Authorization Code grant) enabled and is not a Worker app.';
 					}
 				} catch (_e) {
 					try {
