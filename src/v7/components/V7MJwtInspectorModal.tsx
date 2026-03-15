@@ -66,10 +66,17 @@ function decode(
 	}
 }
 
+/** Browser-safe base64url decode (avoids Node Buffer in client bundle). */
 function b64UrlDecode(input: string): string {
 	const b64 = input.replace(/-/g, '+').replace(/_/g, '/');
 	const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
-	return Buffer.from(padded, 'base64').toString('utf8');
+	try {
+		return decodeURIComponent(escape(atob(padded)));
+	} catch {
+		// Fallback for binary/surrogate content
+		const binary = atob(padded);
+		return Array.from(binary, (c) => String.fromCharCode(c.charCodeAt(0))).join('');
+	}
 }
 
 const jsonContainerStyle: React.CSSProperties = {

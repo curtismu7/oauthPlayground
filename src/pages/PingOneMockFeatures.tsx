@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { FlowHeader } from '../services/flowHeaderService';
 
 // Simple container for testing
 const PageContainer = styled.div`
@@ -326,34 +327,16 @@ const _InfoBox = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
 const PingOneMockFeatures: React.FC = () => {
 	return (
 		<PageContainer>
+			<FlowHeader
+				customConfig={{
+					flowType: 'pingone',
+					title: 'PingOne Mock & Educational Features',
+					subtitle:
+						'Features implemented as mock demonstrations because they are not supported by PingOne. Click the links below to try existing mock flows.',
+					icon: '🎓',
+				}}
+			/>
 			<MainCard>
-				<div style={{ marginBottom: '2rem' }}>
-					<h1
-						style={{
-							fontSize: '2.5rem',
-							fontWeight: '800',
-							color: '#1f2937',
-							marginBottom: '1rem',
-						}}
-					>
-						PingOne Mock & Educational Features
-					</h1>
-					<p
-						style={{
-							fontSize: '1.25rem',
-							color: '#6b7280',
-							lineHeight: '1.6',
-							maxWidth: '800px',
-						}}
-					>
-						<strong>
-							Features implemented as mock demonstrations because they are{' '}
-							<span style={{ color: '#dc2626' }}>not supported by PingOne</span>. Click the links
-							below to try existing mock flows.
-						</strong>
-					</p>
-				</div>
-
 				<WarningBanner>
 					<span
 						style={{ color: '#d97706', fontSize: '1.5rem', marginTop: '0.25rem', flexShrink: 0 }}

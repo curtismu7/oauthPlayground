@@ -922,8 +922,9 @@ const OAuthROPCFlowV9: React.FC = () => {
 	return (
 		<div>
 			<V9FlowHeader
-				flowId="oauth-ropc"
+				flowId="oauth-ropc-v9"
 				customConfig={{
+					flowType: 'pingone',
 					title: 'OAuth ROPC Flow',
 					subtitle: 'Resource Owner Password Credentials Flow',
 				}}

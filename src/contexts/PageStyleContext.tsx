@@ -61,14 +61,14 @@ const pageStyles: Record<string, PageStyle> = {
 		accentColor: '#047857',
 	},
 	'/oauth-2-1': {
-		titleBackgroundColor: '#1e40af',
+		titleBackgroundColor: '#dc2626',
 		titleTextColor: '#ffffff',
-		accentColor: '#1e3a8a',
+		accentColor: '#b91c1c',
 	},
 	'/oidc-session-management': {
-		titleBackgroundColor: '#0f766e',
+		titleBackgroundColor: '#dc2626',
 		titleTextColor: '#ffffff',
-		accentColor: '#0d5a5a',
+		accentColor: '#b91c1c',
 	},
 	'/token-management': {
 		titleBackgroundColor: '#0891b2',
@@ -81,9 +81,84 @@ const pageStyles: Record<string, PageStyle> = {
 		accentColor: '#334155',
 	},
 	'/documentation': {
-		titleBackgroundColor: '#0369a1',
+		titleBackgroundColor: '#dc2626',
 		titleTextColor: '#ffffff',
-		accentColor: '#075985',
+		accentColor: '#b91c1c',
+	},
+	'/documentation/mcp': {
+		titleBackgroundColor: '#6366f1',
+		titleTextColor: '#ffffff',
+		accentColor: '#4f46e5',
+	},
+	'/documentation/oidc-overview': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/docs/oauth2-security-best-practices': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/comprehensive-oauth-education': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/v9/resources-api': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/flows/advanced-oauth-params-demo': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/par-vs-rar': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/ciba-vs-device-authz': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/pingone-scopes-reference': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/docs/oidc-specs': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/docs/spiffe-spire-pingone': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/pingone-mock-features': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/pingone-sessions-api': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/oidc': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
+	},
+	'/about': {
+		titleBackgroundColor: '#dc2626',
+		titleTextColor: '#ffffff',
+		accentColor: '#b91c1c',
 	},
 	'/ai-overview': {
 		titleBackgroundColor: '#7c2d12',

@@ -17,6 +17,8 @@ export type V9MockCIBABackchannelRequest = {
 	id_token_hint?: string;
 	user_email?: string;
 	binding_message?: string;
+	/** Required for ping/push modes — server uses this token to authenticate notifications (CIBA Core 1.0 §10.1). */
+	client_notification_token?: string;
 	delivery_mode?: V9MockCIBADeliveryMode;
 };
 
@@ -33,6 +35,8 @@ export type V9MockCIBATokenResult =
 			scope?: string;
 	  }
 	| { error: 'authorization_pending'; error_description: string }
+	| { error: 'slow_down'; error_description: string }
+	| { error: 'access_denied'; error_description: string }
 	| { error: 'expired_token'; error_description: string }
 	| { error: string; error_description?: string };
 
@@ -45,8 +49,10 @@ type CIBARecord = {
 	binding_message?: string;
 	delivery_mode: V9MockCIBADeliveryMode;
 	approved: boolean;
+	denied: boolean;
 	expiresAt: number; // epoch seconds
 	interval: number; // polling interval seconds
+	lastPollAt?: number; // epoch seconds — for slow_down detection (CIBA Core 1.0 §10.3.2)
 };
 
 // In-memory store (lives as long as the page session)
@@ -100,6 +106,7 @@ export const V9MockCIBAService = {
 			binding_message: req.binding_message,
 			delivery_mode: req.delivery_mode ?? 'poll',
 			approved: false,
+			denied: false,
 			expiresAt: now + expiresInSeconds,
 			interval: intervalSeconds,
 		};
@@ -124,6 +131,17 @@ export const V9MockCIBAService = {
 	},
 
 	/**
+	 * Simulate the user denying the authentication request on their device.
+	 * The next pollForToken call will return access_denied (CIBA Core 1.0 §10.3.2).
+	 */
+	denyRequest(auth_req_id: string): boolean {
+		const rec = store.get(auth_req_id);
+		if (!rec) return false;
+		rec.denied = true;
+		return true;
+	},
+
+	/**
 	 * Simulate the token endpoint poll (grant_type = urn:openid:params:grant-type:ciba).
 	 * Returns tokens if approved, or authorization_pending / expired_token errors.
 	 */
@@ -141,6 +159,18 @@ export const V9MockCIBAService = {
 			store.delete(auth_req_id);
 			return { error: 'expired_token', error_description: 'The auth_req_id has expired' };
 		}
+		if (rec.denied) {
+			store.delete(auth_req_id);
+			return { error: 'access_denied', error_description: 'The end-user denied the authentication request' };
+		}
+		// slow_down: if client polls before interval has elapsed (CIBA Core 1.0 §10.3.2)
+		if (rec.lastPollAt !== undefined && (now - rec.lastPollAt) < rec.interval) {
+			return {
+				error: 'slow_down',
+				error_description: `Polling too frequently. Wait at least ${rec.interval}s between polls.`,
+			};
+		}
+		rec.lastPollAt = now;
 		if (!rec.approved) {
 			return {
 				error: 'authorization_pending',

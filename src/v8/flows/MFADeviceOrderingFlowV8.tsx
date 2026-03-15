@@ -18,6 +18,7 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[📋 DEVICE-ORDER-FLOW-V8]';
@@ -258,14 +259,11 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Failed to load devices`, error);
-			setLoadError(error instanceof Error ? error.message : 'Failed to load devices from PingOne');
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: `Failed to load devices: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				dismissible: true,
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'load-devices',
+				component: MODULE_TAG,
 			});
+			setLoadError(parsed.userFriendlyMessage);
 		} finally {
 			setIsLoadingDevices(false);
 		}
@@ -400,12 +398,9 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Failed to set default device:`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: error instanceof Error ? error.message : 'Failed to set default device',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'set-default-device',
+				component: MODULE_TAG,
 			});
 			// Revert on error
 			setDevices(devices);
@@ -469,12 +464,9 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Failed to save device order`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: `Failed to save device order: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'save-device-order',
+				component: MODULE_TAG,
 			});
 		} finally {
 			setIsSavingOrder(false);
@@ -504,12 +496,9 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Failed to remove device order`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: `Failed to remove device order: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'remove-device-order',
+				component: MODULE_TAG,
 			});
 		} finally {
 			setIsRemovingOrder(false);
