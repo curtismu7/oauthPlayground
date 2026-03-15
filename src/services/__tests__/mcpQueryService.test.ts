@@ -141,8 +141,12 @@ describe('predictMcpTool', () => {
 	describe('MFA', () => {
 		it('mfa policies', () =>
 			expect(predictMcpTool('List MFA policies')).toBe('pingone.mfa.policy.list'));
-		it('mfa devices', () =>
+		it('mfa devices by username', () =>
 			expect(predictMcpTool('List MFA devices for user abc')).toBe('pingone.mfa.devices.list'));
+		it('mfa devices by UUID does not route to list_users', () =>
+			expect(predictMcpTool('List MFA devices for user b9817c16-9910-4415-b67e-4ac687da74d9')).toBe(
+				'pingone.mfa.devices.list'
+			));
 	});
 
 	describe('subscriptions', () => {
