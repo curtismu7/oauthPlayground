@@ -1775,3 +1775,504 @@
 [2026-03-15T12:55:00.159Z] [03/15/2026, 07:55:00] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
 [2026-03-15T13:15:08.512Z] [03/15/2026, 08:15:08] [ℹ️ LOG] [2026-03-15T13:15:08.510Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
 [2026-03-15T13:15:08.553Z] [03/15/2026, 08:15:08] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-15T14:04:55.347Z] [03/15/2026, 09:04:55] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:04:55.359Z] [03/15/2026, 09:04:55] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:04:55.359Z] [03/15/2026, 09:04:55] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:04:55.359Z] [03/15/2026, 09:04:55] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:04:55.359Z] [03/15/2026, 09:04:55] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:04:55.360Z] [03/15/2026, 09:04:55] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:04:55.359Z] [03/15/2026, 09:04:55] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:04:55.359Z] [03/15/2026, 09:04:55] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:04:55.362Z] [03/15/2026, 09:04:55] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:04:55.363Z] [03/15/2026, 09:04:55] [ℹ️ LOG] [2026-03-15T14:04:55.363Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:04:55.368Z] [03/15/2026, 09:04:55] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:04:55.373Z] [03/15/2026, 09:04:55] [ℹ️ LOG] [2026-03-15T14:04:55.373Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:04:55.373Z] [03/15/2026, 09:04:55] [ℹ️ LOG] [2026-03-15T14:04:55.373Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:04:55.374Z] [03/15/2026, 09:04:55] [ℹ️ LOG] [2026-03-15T14:04:55.374Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:04:57.420Z] [03/15/2026, 09:04:57] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:04:57.432Z] [03/15/2026, 09:04:57] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:04:57.432Z] [03/15/2026, 09:04:57] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:04:57.432Z] [03/15/2026, 09:04:57] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:04:57.432Z] [03/15/2026, 09:04:57] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:04:57.432Z] [03/15/2026, 09:04:57] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:04:57.432Z] [03/15/2026, 09:04:57] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:04:57.432Z] [03/15/2026, 09:04:57] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:04:57.436Z] [03/15/2026, 09:04:57] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:04:57.437Z] [03/15/2026, 09:04:57] [ℹ️ LOG] [2026-03-15T14:04:57.437Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:04:57.441Z] [03/15/2026, 09:04:57] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:04:57.488Z] [03/15/2026, 09:04:57] [ℹ️ LOG] [2026-03-15T14:04:57.488Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:04:57.488Z] [03/15/2026, 09:04:57] [ℹ️ LOG] [2026-03-15T14:04:57.488Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:04:57.488Z] [03/15/2026, 09:04:57] [ℹ️ LOG] [2026-03-15T14:04:57.488Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:04:57.535Z] [03/15/2026, 09:04:57] [❌ ERROR] [MCP Query] Error: {
+  "status": 404,
+  "details": {
+    "error": "Not mocked"
+  }
+}
+[2026-03-15T14:05:07.601Z] [03/15/2026, 09:05:07] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:05:07.614Z] [03/15/2026, 09:05:07] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:05:07.613Z] [03/15/2026, 09:05:07] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:05:07.614Z] [03/15/2026, 09:05:07] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:05:07.614Z] [03/15/2026, 09:05:07] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:05:07.614Z] [03/15/2026, 09:05:07] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:05:07.614Z] [03/15/2026, 09:05:07] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:05:07.614Z] [03/15/2026, 09:05:07] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:05:07.616Z] [03/15/2026, 09:05:07] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:05:07.617Z] [03/15/2026, 09:05:07] [ℹ️ LOG] [2026-03-15T14:05:07.617Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:05:07.621Z] [03/15/2026, 09:05:07] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:05:07.636Z] [03/15/2026, 09:05:07] [ℹ️ LOG] [2026-03-15T14:05:07.636Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:05:07.635Z] [03/15/2026, 09:05:07] [ℹ️ LOG] [2026-03-15T14:05:07.635Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:05:07.636Z] [03/15/2026, 09:05:07] [ℹ️ LOG] [2026-03-15T14:05:07.636Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:05:18.099Z] [03/15/2026, 09:05:18] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:05:18.112Z] [03/15/2026, 09:05:18] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:05:18.112Z] [03/15/2026, 09:05:18] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:05:18.112Z] [03/15/2026, 09:05:18] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:05:18.112Z] [03/15/2026, 09:05:18] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:05:18.113Z] [03/15/2026, 09:05:18] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:05:18.112Z] [03/15/2026, 09:05:18] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:05:18.112Z] [03/15/2026, 09:05:18] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:05:18.115Z] [03/15/2026, 09:05:18] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:05:18.116Z] [03/15/2026, 09:05:18] [ℹ️ LOG] [2026-03-15T14:05:18.116Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:05:18.121Z] [03/15/2026, 09:05:18] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:05:18.171Z] [03/15/2026, 09:05:18] [ℹ️ LOG] [2026-03-15T14:05:18.171Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:05:18.172Z] [03/15/2026, 09:05:18] [ℹ️ LOG] [2026-03-15T14:05:18.172Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:05:18.172Z] [03/15/2026, 09:05:18] [ℹ️ LOG] [2026-03-15T14:05:18.172Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:05:25.063Z] [03/15/2026, 09:05:25] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:05:25.079Z] [03/15/2026, 09:05:25] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:05:25.079Z] [03/15/2026, 09:05:25] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:05:25.079Z] [03/15/2026, 09:05:25] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:05:25.079Z] [03/15/2026, 09:05:25] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:05:25.079Z] [03/15/2026, 09:05:25] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:05:25.080Z] [03/15/2026, 09:05:25] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:05:25.079Z] [03/15/2026, 09:05:25] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:05:25.082Z] [03/15/2026, 09:05:25] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:05:25.083Z] [03/15/2026, 09:05:25] [ℹ️ LOG] [2026-03-15T14:05:25.083Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:05:25.086Z] [03/15/2026, 09:05:25] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:05:25.096Z] [03/15/2026, 09:05:25] [ℹ️ LOG] [2026-03-15T14:05:25.096Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-15T14:05:25.096Z] [03/15/2026, 09:05:25] [ℹ️ LOG] [2026-03-15T14:05:25.096Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-15T14:05:25.098Z] [03/15/2026, 09:05:25] [ℹ️ LOG] [2026-03-15T14:05:25.098Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:05:25.098Z] [03/15/2026, 09:05:25] [ℹ️ LOG] [2026-03-15T14:05:25.098Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:05:25.098Z] [03/15/2026, 09:05:25] [ℹ️ LOG] [2026-03-15T14:05:25.098Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:05:28.517Z] [03/15/2026, 09:05:28] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:05:28.529Z] [03/15/2026, 09:05:28] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:05:28.529Z] [03/15/2026, 09:05:28] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:05:28.529Z] [03/15/2026, 09:05:28] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:05:28.529Z] [03/15/2026, 09:05:28] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:05:28.529Z] [03/15/2026, 09:05:28] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:05:28.529Z] [03/15/2026, 09:05:28] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:05:28.529Z] [03/15/2026, 09:05:28] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:05:28.531Z] [03/15/2026, 09:05:28] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:05:28.532Z] [03/15/2026, 09:05:28] [ℹ️ LOG] [2026-03-15T14:05:28.532Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:05:28.536Z] [03/15/2026, 09:05:28] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:05:28.545Z] [03/15/2026, 09:05:28] [ℹ️ LOG] [2026-03-15T14:05:28.545Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:05:28.546Z] [03/15/2026, 09:05:28] [ℹ️ LOG] [2026-03-15T14:05:28.546Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:05:28.546Z] [03/15/2026, 09:05:28] [ℹ️ LOG] [2026-03-15T14:05:28.546Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:05:29.289Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:05:29.301Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:05:29.301Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:05:29.301Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:05:29.301Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:05:29.301Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:05:29.302Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:05:29.302Z] [03/15/2026, 09:05:29] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:05:29.304Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:05:29.305Z] [03/15/2026, 09:05:29] [ℹ️ LOG] [2026-03-15T14:05:29.305Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:05:29.309Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:05:29.324Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 🔧 [Server] Environment config requested
+[2026-03-15T14:05:29.325Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 📤 [Server] Sending environment config: {
+  "hasEnvironmentId": false,
+  "hasClientId": false,
+  "redirectUri": "https://localhost:3000/authz-callback"
+}
+[2026-03-15T14:05:29.330Z] [03/15/2026, 09:05:29] [ℹ️ LOG] [2026-03-15T14:05:29.330Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:05:29.330Z] [03/15/2026, 09:05:29] [ℹ️ LOG] [2026-03-15T14:05:29.330Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:05:29.330Z] [03/15/2026, 09:05:29] [ℹ️ LOG] [2026-03-15T14:05:29.330Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:05:29.332Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 🔧 [Server] Environment config requested
+[2026-03-15T14:05:29.332Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 📤 [Server] Sending environment config: {
+  "hasEnvironmentId": true,
+  "hasClientId": true,
+  "redirectUri": "https://example.com/callback"
+}
+[2026-03-15T14:05:29.335Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 🔧 [Server] Environment config requested
+[2026-03-15T14:05:29.336Z] [03/15/2026, 09:05:29] [ℹ️ LOG] 📤 [Server] Sending environment config: {
+  "hasEnvironmentId": true,
+  "hasClientId": true,
+  "redirectUri": "https://localhost:3000/authz-callback"
+}
+[2026-03-15T14:05:30.866Z] [03/15/2026, 09:05:30] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:05:30.880Z] [03/15/2026, 09:05:30] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:05:30.880Z] [03/15/2026, 09:05:30] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:05:30.880Z] [03/15/2026, 09:05:30] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:05:30.880Z] [03/15/2026, 09:05:30] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:05:30.880Z] [03/15/2026, 09:05:30] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:05:30.880Z] [03/15/2026, 09:05:30] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:05:30.880Z] [03/15/2026, 09:05:30] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:05:30.883Z] [03/15/2026, 09:05:30] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:05:30.885Z] [03/15/2026, 09:05:30] [ℹ️ LOG] [2026-03-15T14:05:30.885Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:05:30.888Z] [03/15/2026, 09:05:30] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:05:30.975Z] [03/15/2026, 09:05:30] [ℹ️ LOG] [2026-03-15T14:05:30.975Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:05:30.984Z] [03/15/2026, 09:05:30] [ℹ️ LOG] [2026-03-15T14:05:30.984Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:05:30.977Z] [03/15/2026, 09:05:30] [ℹ️ LOG] [2026-03-15T14:05:30.977Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:07:13.953Z] [03/15/2026, 09:07:13] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:07:13.965Z] [03/15/2026, 09:07:13] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:07:13.965Z] [03/15/2026, 09:07:13] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:07:13.965Z] [03/15/2026, 09:07:13] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:07:13.965Z] [03/15/2026, 09:07:13] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:07:13.965Z] [03/15/2026, 09:07:13] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:07:13.965Z] [03/15/2026, 09:07:13] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:07:13.965Z] [03/15/2026, 09:07:13] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:07:13.968Z] [03/15/2026, 09:07:13] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:07:13.969Z] [03/15/2026, 09:07:13] [ℹ️ LOG] [2026-03-15T14:07:13.969Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:07:13.972Z] [03/15/2026, 09:07:13] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:07:14.009Z] [03/15/2026, 09:07:14] [ℹ️ LOG] [2026-03-15T14:07:14.009Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:07:14.009Z] [03/15/2026, 09:07:14] [ℹ️ LOG] [2026-03-15T14:07:14.009Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:07:14.009Z] [03/15/2026, 09:07:14] [ℹ️ LOG] [2026-03-15T14:07:14.009Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:07:15.767Z] [03/15/2026, 09:07:15] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:07:15.780Z] [03/15/2026, 09:07:15] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:07:15.780Z] [03/15/2026, 09:07:15] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:07:15.780Z] [03/15/2026, 09:07:15] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:07:15.780Z] [03/15/2026, 09:07:15] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:07:15.780Z] [03/15/2026, 09:07:15] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:07:15.781Z] [03/15/2026, 09:07:15] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:07:15.781Z] [03/15/2026, 09:07:15] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:07:15.783Z] [03/15/2026, 09:07:15] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:07:15.785Z] [03/15/2026, 09:07:15] [ℹ️ LOG] [2026-03-15T14:07:15.785Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:07:15.790Z] [03/15/2026, 09:07:15] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:07:15.831Z] [03/15/2026, 09:07:15] [ℹ️ LOG] [2026-03-15T14:07:15.831Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:07:15.831Z] [03/15/2026, 09:07:15] [ℹ️ LOG] [2026-03-15T14:07:15.831Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:07:15.831Z] [03/15/2026, 09:07:15] [ℹ️ LOG] [2026-03-15T14:07:15.831Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:07:15.917Z] [03/15/2026, 09:07:15] [❌ ERROR] [MCP Query] Error: {
+  "status": 404,
+  "details": {
+    "error": "Not mocked"
+  }
+}
+[2026-03-15T14:07:26.517Z] [03/15/2026, 09:07:26] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:07:26.530Z] [03/15/2026, 09:07:26] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:07:26.530Z] [03/15/2026, 09:07:26] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:07:26.530Z] [03/15/2026, 09:07:26] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:07:26.530Z] [03/15/2026, 09:07:26] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:07:26.530Z] [03/15/2026, 09:07:26] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:07:26.529Z] [03/15/2026, 09:07:26] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:07:26.530Z] [03/15/2026, 09:07:26] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:07:26.532Z] [03/15/2026, 09:07:26] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:07:26.534Z] [03/15/2026, 09:07:26] [ℹ️ LOG] [2026-03-15T14:07:26.534Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:07:26.538Z] [03/15/2026, 09:07:26] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:07:26.552Z] [03/15/2026, 09:07:26] [ℹ️ LOG] [2026-03-15T14:07:26.552Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:07:26.552Z] [03/15/2026, 09:07:26] [ℹ️ LOG] [2026-03-15T14:07:26.552Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:07:26.552Z] [03/15/2026, 09:07:26] [ℹ️ LOG] [2026-03-15T14:07:26.552Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:07:37.364Z] [03/15/2026, 09:07:37] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:07:37.377Z] [03/15/2026, 09:07:37] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:07:37.377Z] [03/15/2026, 09:07:37] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:07:37.377Z] [03/15/2026, 09:07:37] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:07:37.377Z] [03/15/2026, 09:07:37] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:07:37.377Z] [03/15/2026, 09:07:37] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:07:37.377Z] [03/15/2026, 09:07:37] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:07:37.377Z] [03/15/2026, 09:07:37] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:07:37.380Z] [03/15/2026, 09:07:37] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:07:37.381Z] [03/15/2026, 09:07:37] [ℹ️ LOG] [2026-03-15T14:07:37.381Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:07:37.385Z] [03/15/2026, 09:07:37] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:07:37.425Z] [03/15/2026, 09:07:37] [ℹ️ LOG] [2026-03-15T14:07:37.425Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:07:37.426Z] [03/15/2026, 09:07:37] [ℹ️ LOG] [2026-03-15T14:07:37.426Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:07:37.426Z] [03/15/2026, 09:07:37] [ℹ️ LOG] [2026-03-15T14:07:37.426Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:07:44.872Z] [03/15/2026, 09:07:44] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:07:44.884Z] [03/15/2026, 09:07:44] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:07:44.885Z] [03/15/2026, 09:07:44] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:07:44.885Z] [03/15/2026, 09:07:44] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:07:44.885Z] [03/15/2026, 09:07:44] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:07:44.885Z] [03/15/2026, 09:07:44] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:07:44.885Z] [03/15/2026, 09:07:44] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:07:44.885Z] [03/15/2026, 09:07:44] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:07:44.888Z] [03/15/2026, 09:07:44] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:07:44.889Z] [03/15/2026, 09:07:44] [ℹ️ LOG] [2026-03-15T14:07:44.889Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:07:44.894Z] [03/15/2026, 09:07:44] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:07:44.904Z] [03/15/2026, 09:07:44] [ℹ️ LOG] [2026-03-15T14:07:44.904Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-15T14:07:44.904Z] [03/15/2026, 09:07:44] [ℹ️ LOG] [2026-03-15T14:07:44.904Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-15T14:07:44.905Z] [03/15/2026, 09:07:44] [ℹ️ LOG] [2026-03-15T14:07:44.905Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:07:44.905Z] [03/15/2026, 09:07:44] [ℹ️ LOG] [2026-03-15T14:07:44.905Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:07:44.905Z] [03/15/2026, 09:07:44] [ℹ️ LOG] [2026-03-15T14:07:44.905Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:07:48.418Z] [03/15/2026, 09:07:48] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:07:48.431Z] [03/15/2026, 09:07:48] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:07:48.431Z] [03/15/2026, 09:07:48] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:07:48.430Z] [03/15/2026, 09:07:48] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:07:48.430Z] [03/15/2026, 09:07:48] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:07:48.431Z] [03/15/2026, 09:07:48] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:07:48.431Z] [03/15/2026, 09:07:48] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:07:48.433Z] [03/15/2026, 09:07:48] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:07:48.431Z] [03/15/2026, 09:07:48] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:07:48.436Z] [03/15/2026, 09:07:48] [ℹ️ LOG] [2026-03-15T14:07:48.436Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:07:48.446Z] [03/15/2026, 09:07:48] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:07:48.459Z] [03/15/2026, 09:07:48] [ℹ️ LOG] [2026-03-15T14:07:48.459Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:07:48.460Z] [03/15/2026, 09:07:48] [ℹ️ LOG] [2026-03-15T14:07:48.460Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:07:48.460Z] [03/15/2026, 09:07:48] [ℹ️ LOG] [2026-03-15T14:07:48.460Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:07:49.317Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:07:49.330Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:07:49.330Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:07:49.330Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:07:49.330Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:07:49.330Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:07:49.330Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:07:49.330Z] [03/15/2026, 09:07:49] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:07:49.333Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:07:49.334Z] [03/15/2026, 09:07:49] [ℹ️ LOG] [2026-03-15T14:07:49.334Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:07:49.339Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:07:49.361Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 🔧 [Server] Environment config requested
+[2026-03-15T14:07:49.361Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 📤 [Server] Sending environment config: {
+  "hasEnvironmentId": false,
+  "hasClientId": false,
+  "redirectUri": "https://localhost:3000/authz-callback"
+}
+[2026-03-15T14:07:49.367Z] [03/15/2026, 09:07:49] [ℹ️ LOG] [2026-03-15T14:07:49.367Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:07:49.367Z] [03/15/2026, 09:07:49] [ℹ️ LOG] [2026-03-15T14:07:49.367Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:07:49.367Z] [03/15/2026, 09:07:49] [ℹ️ LOG] [2026-03-15T14:07:49.367Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:07:49.369Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 🔧 [Server] Environment config requested
+[2026-03-15T14:07:49.369Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 📤 [Server] Sending environment config: {
+  "hasEnvironmentId": true,
+  "hasClientId": true,
+  "redirectUri": "https://example.com/callback"
+}
+[2026-03-15T14:07:49.372Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 📤 [Server] Sending environment config: {
+  "hasEnvironmentId": true,
+  "hasClientId": true,
+  "redirectUri": "https://localhost:3000/authz-callback"
+}
+[2026-03-15T14:07:49.372Z] [03/15/2026, 09:07:49] [ℹ️ LOG] 🔧 [Server] Environment config requested
+[2026-03-15T14:07:51.037Z] [03/15/2026, 09:07:51] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:07:51.049Z] [03/15/2026, 09:07:51] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:07:51.049Z] [03/15/2026, 09:07:51] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:07:51.049Z] [03/15/2026, 09:07:51] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:07:51.050Z] [03/15/2026, 09:07:51] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:07:51.049Z] [03/15/2026, 09:07:51] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:07:51.050Z] [03/15/2026, 09:07:51] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:07:51.050Z] [03/15/2026, 09:07:51] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:07:51.052Z] [03/15/2026, 09:07:51] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:07:51.053Z] [03/15/2026, 09:07:51] [ℹ️ LOG] [2026-03-15T14:07:51.053Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:07:51.058Z] [03/15/2026, 09:07:51] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:07:51.082Z] [03/15/2026, 09:07:51] [ℹ️ LOG] [2026-03-15T14:07:51.082Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:07:51.082Z] [03/15/2026, 09:07:51] [ℹ️ LOG] [2026-03-15T14:07:51.082Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:07:51.082Z] [03/15/2026, 09:07:51] [ℹ️ LOG] [2026-03-15T14:07:51.082Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:19:56.127Z] [03/15/2026, 09:19:56] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:19:56.148Z] [03/15/2026, 09:19:56] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:19:56.148Z] [03/15/2026, 09:19:56] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:19:56.148Z] [03/15/2026, 09:19:56] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:19:56.148Z] [03/15/2026, 09:19:56] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:19:56.148Z] [03/15/2026, 09:19:56] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:19:56.148Z] [03/15/2026, 09:19:56] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:19:56.148Z] [03/15/2026, 09:19:56] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:19:56.152Z] [03/15/2026, 09:19:56] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:19:56.154Z] [03/15/2026, 09:19:56] [ℹ️ LOG] [2026-03-15T14:19:56.154Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:19:56.162Z] [03/15/2026, 09:19:56] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:19:56.264Z] [03/15/2026, 09:19:56] [ℹ️ LOG] [2026-03-15T14:19:56.264Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:19:56.265Z] [03/15/2026, 09:19:56] [ℹ️ LOG] [2026-03-15T14:19:56.265Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:19:56.265Z] [03/15/2026, 09:19:56] [ℹ️ LOG] [2026-03-15T14:19:56.265Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:19:59.538Z] [03/15/2026, 09:19:59] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:19:59.557Z] [03/15/2026, 09:19:59] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:19:59.558Z] [03/15/2026, 09:19:59] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:19:59.558Z] [03/15/2026, 09:19:59] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:19:59.558Z] [03/15/2026, 09:19:59] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:19:59.557Z] [03/15/2026, 09:19:59] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:19:59.558Z] [03/15/2026, 09:19:59] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:19:59.557Z] [03/15/2026, 09:19:59] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:19:59.560Z] [03/15/2026, 09:19:59] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:19:59.562Z] [03/15/2026, 09:19:59] [ℹ️ LOG] [2026-03-15T14:19:59.562Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:19:59.567Z] [03/15/2026, 09:19:59] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:19:59.623Z] [03/15/2026, 09:19:59] [ℹ️ LOG] [2026-03-15T14:19:59.623Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:19:59.623Z] [03/15/2026, 09:19:59] [ℹ️ LOG] [2026-03-15T14:19:59.623Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:19:59.623Z] [03/15/2026, 09:19:59] [ℹ️ LOG] [2026-03-15T14:19:59.623Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:19:59.742Z] [03/15/2026, 09:19:59] [❌ ERROR] [MCP Query] Error: {
+  "status": 404,
+  "details": {
+    "error": "Not mocked"
+  }
+}
+[2026-03-15T14:20:19.540Z] [03/15/2026, 09:20:19] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:20:19.555Z] [03/15/2026, 09:20:19] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:20:19.555Z] [03/15/2026, 09:20:19] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:20:19.555Z] [03/15/2026, 09:20:19] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:20:19.555Z] [03/15/2026, 09:20:19] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:20:19.555Z] [03/15/2026, 09:20:19] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:20:19.555Z] [03/15/2026, 09:20:19] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:20:19.558Z] [03/15/2026, 09:20:19] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:20:19.560Z] [03/15/2026, 09:20:19] [ℹ️ LOG] [2026-03-15T14:20:19.560Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:20:19.555Z] [03/15/2026, 09:20:19] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:20:19.568Z] [03/15/2026, 09:20:19] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:20:19.589Z] [03/15/2026, 09:20:19] [ℹ️ LOG] [2026-03-15T14:20:19.589Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:20:19.590Z] [03/15/2026, 09:20:19] [ℹ️ LOG] [2026-03-15T14:20:19.590Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:20:19.590Z] [03/15/2026, 09:20:19] [ℹ️ LOG] [2026-03-15T14:20:19.590Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:20:45.526Z] [03/15/2026, 09:20:45] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:20:45.552Z] [03/15/2026, 09:20:45] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:20:45.559Z] [03/15/2026, 09:20:45] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:20:45.558Z] [03/15/2026, 09:20:45] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:20:45.561Z] [03/15/2026, 09:20:45] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:20:45.561Z] [03/15/2026, 09:20:45] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:20:45.561Z] [03/15/2026, 09:20:45] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:20:45.561Z] [03/15/2026, 09:20:45] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:20:45.595Z] [03/15/2026, 09:20:45] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:20:45.602Z] [03/15/2026, 09:20:45] [ℹ️ LOG] [2026-03-15T14:20:45.602Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:20:45.613Z] [03/15/2026, 09:20:45] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:20:45.710Z] [03/15/2026, 09:20:45] [ℹ️ LOG] [2026-03-15T14:20:45.710Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:20:45.710Z] [03/15/2026, 09:20:45] [ℹ️ LOG] [2026-03-15T14:20:45.710Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:20:45.710Z] [03/15/2026, 09:20:45] [ℹ️ LOG] [2026-03-15T14:20:45.710Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:21:02.974Z] [03/15/2026, 09:21:02] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:21:02.975Z] [03/15/2026, 09:21:02] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:21:02.974Z] [03/15/2026, 09:21:02] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:21:02.951Z] [03/15/2026, 09:21:02] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:21:02.974Z] [03/15/2026, 09:21:02] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:21:02.974Z] [03/15/2026, 09:21:02] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:21:02.974Z] [03/15/2026, 09:21:02] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:21:02.974Z] [03/15/2026, 09:21:02] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:21:02.981Z] [03/15/2026, 09:21:02] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:21:02.983Z] [03/15/2026, 09:21:02] [ℹ️ LOG] [2026-03-15T14:21:02.983Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:21:02.994Z] [03/15/2026, 09:21:02] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:21:03.014Z] [03/15/2026, 09:21:03] [ℹ️ LOG] [2026-03-15T14:21:03.014Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-15T14:21:03.014Z] [03/15/2026, 09:21:03] [ℹ️ LOG] [2026-03-15T14:21:03.014Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-15T14:21:03.030Z] [03/15/2026, 09:21:03] [ℹ️ LOG] [2026-03-15T14:21:03.030Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:21:03.030Z] [03/15/2026, 09:21:03] [ℹ️ LOG] [2026-03-15T14:21:03.030Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:21:03.030Z] [03/15/2026, 09:21:03] [ℹ️ LOG] [2026-03-15T14:21:03.030Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:21:12.352Z] [03/15/2026, 09:21:12] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:21:12.369Z] [03/15/2026, 09:21:12] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:21:12.369Z] [03/15/2026, 09:21:12] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:21:12.369Z] [03/15/2026, 09:21:12] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:21:12.370Z] [03/15/2026, 09:21:12] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:21:12.369Z] [03/15/2026, 09:21:12] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:21:12.369Z] [03/15/2026, 09:21:12] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:21:12.372Z] [03/15/2026, 09:21:12] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:21:12.370Z] [03/15/2026, 09:21:12] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:21:12.373Z] [03/15/2026, 09:21:12] [ℹ️ LOG] [2026-03-15T14:21:12.373Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:21:12.378Z] [03/15/2026, 09:21:12] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:21:12.392Z] [03/15/2026, 09:21:12] [ℹ️ LOG] [2026-03-15T14:21:12.392Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:21:12.392Z] [03/15/2026, 09:21:12] [ℹ️ LOG] [2026-03-15T14:21:12.392Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:21:12.392Z] [03/15/2026, 09:21:12] [ℹ️ LOG] [2026-03-15T14:21:12.392Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:21:14.451Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:21:14.465Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:21:14.465Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:21:14.466Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:21:14.466Z] [03/15/2026, 09:21:14] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:21:14.465Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:21:14.465Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:21:14.468Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:21:14.470Z] [03/15/2026, 09:21:14] [ℹ️ LOG] [2026-03-15T14:21:14.470Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:21:14.465Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:21:14.479Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:21:14.483Z] [03/15/2026, 09:21:14] [ℹ️ LOG] [2026-03-15T14:21:14.483Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:21:14.484Z] [03/15/2026, 09:21:14] [ℹ️ LOG] [2026-03-15T14:21:14.484Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:21:14.484Z] [03/15/2026, 09:21:14] [ℹ️ LOG] [2026-03-15T14:21:14.484Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:21:14.506Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 🔧 [Server] Environment config requested
+[2026-03-15T14:21:14.506Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 📤 [Server] Sending environment config: {
+  "hasEnvironmentId": false,
+  "hasClientId": false,
+  "redirectUri": "https://localhost:3000/authz-callback"
+}
+[2026-03-15T14:21:14.522Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 🔧 [Server] Environment config requested
+[2026-03-15T14:21:14.522Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 📤 [Server] Sending environment config: {
+  "hasEnvironmentId": true,
+  "hasClientId": true,
+  "redirectUri": "https://example.com/callback"
+}
+[2026-03-15T14:21:14.528Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 🔧 [Server] Environment config requested
+[2026-03-15T14:21:14.529Z] [03/15/2026, 09:21:14] [ℹ️ LOG] 📤 [Server] Sending environment config: {
+  "hasEnvironmentId": true,
+  "hasClientId": true,
+  "redirectUri": "https://localhost:3000/authz-callback"
+}
+[2026-03-15T14:21:18.044Z] [03/15/2026, 09:21:18] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:21:18.079Z] [03/15/2026, 09:21:18] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:21:18.079Z] [03/15/2026, 09:21:18] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:21:18.079Z] [03/15/2026, 09:21:18] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:21:18.080Z] [03/15/2026, 09:21:18] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:21:18.079Z] [03/15/2026, 09:21:18] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:21:18.079Z] [03/15/2026, 09:21:18] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:21:18.090Z] [03/15/2026, 09:21:18] [ℹ️ LOG] [2026-03-15T14:21:18.090Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:21:18.079Z] [03/15/2026, 09:21:18] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:21:18.100Z] [03/15/2026, 09:21:18] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:21:18.089Z] [03/15/2026, 09:21:18] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:21:18.138Z] [03/15/2026, 09:21:18] [ℹ️ LOG] [2026-03-15T14:21:18.138Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:21:18.139Z] [03/15/2026, 09:21:18] [ℹ️ LOG] [2026-03-15T14:21:18.139Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:21:18.139Z] [03/15/2026, 09:21:18] [ℹ️ LOG] [2026-03-15T14:21:18.139Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:28:36.718Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:28:36.736Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:28:36.737Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:28:36.737Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:28:36.738Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:28:36.738Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:28:36.738Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:28:36.739Z] [03/15/2026, 09:28:36] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:28:36.743Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:28:36.746Z] [03/15/2026, 09:28:36] [ℹ️ LOG] [2026-03-15T14:28:36.746Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:28:36.762Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:28:36.764Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 🔧 Initializing databases...
+[2026-03-15T14:28:36.775Z] [03/15/2026, 09:28:36] [ℹ️ LOG] [2026-03-15T14:28:36.775Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-15T14:28:36.775Z] [03/15/2026, 09:28:36] [ℹ️ LOG] [2026-03-15T14:28:36.774Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-15T14:28:36.775Z] [03/15/2026, 09:28:36] [ℹ️ LOG] ✅ Settings database initialized
+[2026-03-15T14:28:36.778Z] [03/15/2026, 09:28:36] [ℹ️ LOG] [2026-03-15T14:28:36.778Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:28:36.778Z] [03/15/2026, 09:28:36] [ℹ️ LOG] [2026-03-15T14:28:36.778Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:28:36.778Z] [03/15/2026, 09:28:36] [ℹ️ LOG] [2026-03-15T14:28:36.778Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:28:36.779Z] [03/15/2026, 09:28:36] [ℹ️ LOG] [2026-03-15T14:28:36.779Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:28:36.779Z] [03/15/2026, 09:28:36] [ℹ️ LOG] [2026-03-15T14:28:36.779Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:28:36.779Z] [03/15/2026, 09:28:36] [ℹ️ LOG] [2026-03-15T14:28:36.779Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:28:36.779Z] [03/15/2026, 09:28:36] [ℹ️ LOG] ✅ User database initialized
+[2026-03-15T14:28:36.779Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 🎉 All databases initialized successfully
+[2026-03-15T14:28:36.821Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-15T14:28:36.822Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-15T14:28:36.823Z] [03/15/2026, 09:28:36] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-15T14:28:36.822Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-15T14:28:36.823Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-15T14:28:36.822Z] [03/15/2026, 09:28:36] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-15T14:49:45.792Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T14:49:45.805Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T14:49:45.805Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T14:49:45.806Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T14:49:45.805Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T14:49:45.806Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T14:49:45.806Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T14:49:45.806Z] [03/15/2026, 09:49:45] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T14:49:45.809Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T14:49:45.810Z] [03/15/2026, 09:49:45] [ℹ️ LOG] [2026-03-15T14:49:45.810Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T14:49:45.817Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-15T14:49:45.818Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 🔧 Initializing databases...
+[2026-03-15T14:49:45.824Z] [03/15/2026, 09:49:45] [ℹ️ LOG] [2026-03-15T14:49:45.824Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-15T14:49:45.825Z] [03/15/2026, 09:49:45] [ℹ️ LOG] [2026-03-15T14:49:45.825Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-15T14:49:45.825Z] [03/15/2026, 09:49:45] [ℹ️ LOG] ✅ Settings database initialized
+[2026-03-15T14:49:45.826Z] [03/15/2026, 09:49:45] [ℹ️ LOG] [2026-03-15T14:49:45.826Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:49:45.826Z] [03/15/2026, 09:49:45] [ℹ️ LOG] [2026-03-15T14:49:45.826Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:49:45.826Z] [03/15/2026, 09:49:45] [ℹ️ LOG] [2026-03-15T14:49:45.826Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T14:49:45.826Z] [03/15/2026, 09:49:45] [ℹ️ LOG] [2026-03-15T14:49:45.826Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T14:49:45.827Z] [03/15/2026, 09:49:45] [ℹ️ LOG] ✅ User database initialized
+[2026-03-15T14:49:45.827Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 🎉 All databases initialized successfully
+[2026-03-15T14:49:45.849Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-15T14:49:45.849Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-15T14:49:45.849Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-15T14:49:45.849Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-15T14:49:45.849Z] [03/15/2026, 09:49:45] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-15T14:49:45.849Z] [03/15/2026, 09:49:45] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-15T14:49:45.826Z] [03/15/2026, 09:49:45] [ℹ️ LOG] [2026-03-15T14:49:45.826Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T14:49:45.827Z] [03/15/2026, 09:49:45] [ℹ️ LOG] [2026-03-15T14:49:45.826Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T15:07:18.078Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T15:07:18.092Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T15:07:18.092Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T15:07:18.092Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T15:07:18.092Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T15:07:18.092Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T15:07:18.093Z] [03/15/2026, 10:07:18] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T15:07:18.092Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T15:07:18.095Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T15:07:18.096Z] [03/15/2026, 10:07:18] [ℹ️ LOG] [2026-03-15T15:07:18.096Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T15:07:18.104Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 🔧 Initializing databases...
+[2026-03-15T15:07:18.103Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 🔐 Using custom domain certificates from env: /Users/cmuir/P1Import-apps/oauth-playground/certs/api.pingdemo.com.crt
+[2026-03-15T15:07:18.108Z] [03/15/2026, 10:07:18] [ℹ️ LOG] [2026-03-15T15:07:18.108Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-15T15:07:18.108Z] [03/15/2026, 10:07:18] [ℹ️ LOG] [2026-03-15T15:07:18.108Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-15T15:07:18.109Z] [03/15/2026, 10:07:18] [ℹ️ LOG] ✅ Settings database initialized
+[2026-03-15T15:07:18.109Z] [03/15/2026, 10:07:18] [ℹ️ LOG] [2026-03-15T15:07:18.109Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T15:07:18.110Z] [03/15/2026, 10:07:18] [ℹ️ LOG] [2026-03-15T15:07:18.110Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T15:07:18.110Z] [03/15/2026, 10:07:18] [ℹ️ LOG] [2026-03-15T15:07:18.110Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T15:07:18.110Z] [03/15/2026, 10:07:18] [ℹ️ LOG] [2026-03-15T15:07:18.110Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T15:07:18.110Z] [03/15/2026, 10:07:18] [ℹ️ LOG] [2026-03-15T15:07:18.110Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T15:07:18.110Z] [03/15/2026, 10:07:18] [ℹ️ LOG] ✅ User database initialized
+[2026-03-15T15:07:18.132Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-15T15:07:18.111Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 🎉 All databases initialized successfully
+[2026-03-15T15:07:18.133Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-15T15:07:18.132Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-15T15:07:18.133Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-15T15:07:18.133Z] [03/15/2026, 10:07:18] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-15T15:07:18.110Z] [03/15/2026, 10:07:18] [ℹ️ LOG] [2026-03-15T15:07:18.110Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T15:07:18.133Z] [03/15/2026, 10:07:18] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
