@@ -22673,7 +22673,10 @@ const MCP_INTENTS = [
 	// ── Users ────────────────────────────────────────────────────────────────
 	{
 		id: 'list_users',
-		patterns: [/list.*user|show.*user|all.*user|get.*users|fetch.*user/i],
+		patterns: [
+			// Negative lookahead: don't match "List MFA ... for user" or "List MFA devices for user X"
+			/list(?!\s+mfa)(?!.*\bmfa\b).*\buser|show\s+(?:all\s+)?users?\b|all\s+users?\b|get\s+users?\b|fetch.*user/i,
+		],
 		mcpTool: 'pingone_list_users',
 		apiCall: { method: 'GET', path: '/environments/{envId}/users' },
 		howItWorks:
