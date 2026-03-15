@@ -2464,3 +2464,33 @@
   },
   "requestBody": "grant_type=password&client_id=66a4686b-9222-4ad2-91b6-03113711c9aa&username=cmuir%40pingidentity.com&password=%24qx%23rzI31cO%24&scope=p1%3Aread%3Aenvironment+p1%3Aread%3Aapplication+p1%3Aread%3Aresource+p1%3Aread%3Auser&client_secret=3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC"
 }
+[2026-03-15T16:13:35.881Z] [03/15/2026, 11:13:35] [⚠️ WARN] [mcp/web-search] Error: request to https://api.pingdemo.com:3001/api/api-key/brave-search failed, reason: self-signed certificate
+[2026-03-15T16:15:35.684Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-15T16:15:35.697Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-15T16:15:35.697Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-15T16:15:35.697Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-15T16:15:35.697Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-15T16:15:35.698Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-15T16:15:35.698Z] [03/15/2026, 11:15:35] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-15T16:15:35.697Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-15T16:15:35.701Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-15T16:15:35.702Z] [03/15/2026, 11:15:35] [ℹ️ LOG] [2026-03-15T16:15:35.702Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-15T16:15:35.709Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 🔐 Using custom domain certificates from env: /Users/cmuir/P1Import-apps/oauth-playground/certs/api.pingdemo.com.crt
+[2026-03-15T16:15:35.710Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 🔧 Initializing databases...
+[2026-03-15T16:15:35.712Z] [03/15/2026, 11:15:35] [ℹ️ LOG] [2026-03-15T16:15:35.712Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-15T16:15:35.713Z] [03/15/2026, 11:15:35] [ℹ️ LOG] [2026-03-15T16:15:35.713Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-15T16:15:35.714Z] [03/15/2026, 11:15:35] [ℹ️ LOG] ✅ Settings database initialized
+[2026-03-15T16:15:35.715Z] [03/15/2026, 11:15:35] [ℹ️ LOG] [2026-03-15T16:15:35.715Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T16:15:35.715Z] [03/15/2026, 11:15:35] [ℹ️ LOG] [2026-03-15T16:15:35.715Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T16:15:35.715Z] [03/15/2026, 11:15:35] [ℹ️ LOG] [2026-03-15T16:15:35.715Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T16:15:35.716Z] [03/15/2026, 11:15:35] [ℹ️ LOG] [2026-03-15T16:15:35.716Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-15T16:15:35.716Z] [03/15/2026, 11:15:35] [ℹ️ LOG] [2026-03-15T16:15:35.716Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-15T16:15:35.716Z] [03/15/2026, 11:15:35] [ℹ️ LOG] [2026-03-15T16:15:35.716Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-15T16:15:35.716Z] [03/15/2026, 11:15:35] [ℹ️ LOG] ✅ User database initialized
+[2026-03-15T16:15:35.716Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 🎉 All databases initialized successfully
+[2026-03-15T16:15:35.738Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-15T16:15:35.738Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-15T16:15:35.738Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-15T16:15:35.738Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-15T16:15:35.738Z] [03/15/2026, 11:15:35] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-15T16:15:35.738Z] [03/15/2026, 11:15:35] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
