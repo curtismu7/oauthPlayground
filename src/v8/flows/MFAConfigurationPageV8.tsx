@@ -26,6 +26,7 @@ import {
 import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 
 import { logger } from '../../utils/logger';
 
@@ -102,13 +103,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			setPingOneSettings(settings);
 			setHasPingOneSettingsChanges(false);
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Failed to load PingOne MFA settings:`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message:
-					'Failed to load PingOne MFA settings. Please ensure you have a valid worker token.',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'load-pingone-mfa-settings',
+				component: MODULE_TAG,
 			});
 		} finally {
 			setIsLoadingPingOneSettings(false);
@@ -126,13 +123,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					setSelectedPolicyId(policies[0].id);
 				}
 			} catch (error) {
-				logger.error(`${MODULE_TAG} Failed to load device authentication policies:`, error);
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message:
-						'Failed to load device authentication policies. Please ensure you have a valid worker token.',
-					dismissible: true,
+				UnifiedFlowErrorHandler.handleError(error, {
+					operation: 'load-device-auth-policies',
+					component: MODULE_TAG,
 				});
 			} finally {
 				setIsLoadingPolicies(false);
@@ -153,13 +146,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			setSelectedPolicy(policy);
 			setHasPolicyChanges(false);
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Failed to load device authentication policy:`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message:
-					'Failed to load device authentication policy. Please ensure you have a valid worker token.',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'load-device-auth-policy',
+				component: MODULE_TAG,
 			});
 		} finally {
 			setIsLoadingPolicy(false);
@@ -190,7 +179,14 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					}
 				}
 			} catch (error) {
-				logger.error(`${MODULE_TAG} Failed to load environment ID:`, error);
+				UnifiedFlowErrorHandler.handleError(
+					error,
+					{
+						operation: 'load-environment-id',
+						component: MODULE_TAG,
+					},
+					{ showToast: false }
+				);
 			}
 		};
 		loadEnvironmentAndSettings();
@@ -216,12 +212,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Failed to save PingOne MFA settings:`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: error instanceof Error ? error.message : 'Failed to update PingOne MFA settings',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'save-pingone-mfa-settings',
+				component: MODULE_TAG,
 			});
 		} finally {
 			setIsSavingPingOneSettings(false);
@@ -295,13 +288,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			// Reload the policy to get the latest from server
 			await loadSelectedPolicy(environmentId, selectedPolicyId);
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Failed to save device authentication policy:`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message:
-					error instanceof Error ? error.message : 'Failed to update device authentication policy',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'save-device-auth-policy',
+				component: MODULE_TAG,
 			});
 		} finally {
 			setIsSavingPolicy(false);
@@ -378,12 +367,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			await loadDeviceAuthPolicies(environmentId); // Refresh policy list
 			setSelectedPolicyId(newPolicy.id); // Select the newly created policy
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Failed to create policy:`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: error instanceof Error ? error.message : 'Failed to create policy.',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'create-device-auth-policy',
+				component: MODULE_TAG,
 			});
 			throw error; // Re-throw so modal can handle it
 		} finally {
@@ -414,12 +400,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			});
 			await loadPingOneSettings(environmentId);
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Failed to reset PingOne MFA settings:`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: error instanceof Error ? error.message : 'Failed to reset PingOne MFA settings',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'reset-pingone-mfa-settings',
+				component: MODULE_TAG,
 			});
 		}
 	};

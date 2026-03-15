@@ -1,8 +1,8 @@
 # MCP Token Exchange & Mock Agent Flow — Implementation Plan
 
 **Version:** 1.0  
-**Last Updated:** 2026-03-13  
-**Status:** Design / Plan
+**Last Updated:** 2026-03-15  
+**Status:** Partial — Phase 1 ✅, Phase 3 ✅; Phase 2 & 4 pending
 
 ---
 
@@ -204,11 +204,11 @@ The Mock MCP Agent Flow page **must** include a prominent section (e.g. collapsi
 
 ## 6. Verification Checklist
 
-- [ ] MCP Documentation page shows JSON-RPC 2.0, Hosts, Clients, Servers
+- [x] MCP Documentation page shows JSON-RPC 2.0, Hosts, Clients, Servers
 - [ ] `POST /api/token-exchange` with token-exchange grant works with subject_token from pi.flow
 - [ ] Token Exchange command: plan approved; implementation tracked
-- [ ] Mock Agent flow: plan approved; implementation tracked
-- [ ] All referenced docs updated
+- [x] Mock Agent flow: plan approved; implementation tracked ✅ Done (Phase 3)
+- [x] All referenced docs updated
 
 ---
 

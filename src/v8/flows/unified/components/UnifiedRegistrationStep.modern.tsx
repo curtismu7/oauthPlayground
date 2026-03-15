@@ -21,6 +21,7 @@ import { PageTransition } from '@/v8/components/PageTransition';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiInfo } from '../../../../icons';
 import { logger } from '../../../../utils/logger';
 import { type DeviceComponentProps, DeviceComponentRegistry } from './DeviceComponentRegistry';
@@ -121,15 +122,11 @@ export const UnifiedRegistrationStepModern: React.FC<UnifiedRegistrationStepMode
 
 			nav.goToNext();
 		} catch (error) {
-			logger.error(`${MODULE_TAG} Registration failed:`, error);
-			const msg = error instanceof Error ? error.message : 'Registration failed';
-			setRegistrationError(msg);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Registration Failed',
-				message: msg,
-				dismissible: true,
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'register-device',
+				component: MODULE_TAG,
 			});
+			setRegistrationError(parsed.userFriendlyMessage);
 		} finally {
 			setIsLoading(false);
 		}

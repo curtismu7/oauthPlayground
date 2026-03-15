@@ -52,6 +52,7 @@ const listAppsInputShape = {
 	scope: z.string().trim().optional(),
 	includeSecret: z.boolean().optional(),
 	limit: z.number().int().positive().max(200).optional(),
+	nextPageUrl: z.string().trim().optional().describe('Next page URL from previous response. Omit for first page.'),
 } as const;
 
 const applicationSchema = z.object({
@@ -73,6 +74,9 @@ const applicationSchema = z.object({
 const listAppsOutputSchema = z.object({
 	success: z.boolean(),
 	applications: z.array(applicationSchema).optional(),
+	count: z.number().optional(),
+	size: z.number().optional(),
+	nextPageUrl: z.string().optional(),
 	raw: z.unknown().optional(),
 	error: z
 		.object({
@@ -207,7 +211,7 @@ export function registerWorkerTools(server: McpServer, logger: Logger) {
 	server.registerTool(
 		'pingone.applications.list',
 		{
-			description: 'List PingOne applications using either a worker token or client credentials.',
+			description: 'List PingOne applications using worker token or client credentials. Supports pagination via nextPageUrl for long lists.',
 			inputSchema: listAppsInputShape,
 			outputSchema: listAppsOutputShape,
 		},

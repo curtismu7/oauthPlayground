@@ -101,10 +101,14 @@ describe('UnifiedFlowIntegrationV8U - Integration Tests', () => {
 		});
 
 		it('should generate authorization URL for OIDC authorization code flow', async () => {
-			const result = await UnifiedFlowIntegrationV8U.generateAuthorizationUrl('oidc', 'oauth-authz', {
-				...mockCredentials,
-				scopes: 'openid profile email',
-			});
+			const result = await UnifiedFlowIntegrationV8U.generateAuthorizationUrl(
+				'oidc',
+				'oauth-authz',
+				{
+					...mockCredentials,
+					scopes: 'openid profile email',
+				}
+			);
 			const url = result.authorizationUrl;
 			expect(url).toBeTruthy();
 			expect(url).toContain('response_type=code');

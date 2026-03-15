@@ -25,6 +25,7 @@ import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService'
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import {
 	type TokenStatusInfo,
 	WORKER_TOKEN_STATUS_STYLES,
@@ -649,12 +650,9 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error('[WorkerTokenStatusDisplayV8] Failed to refresh token status:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to refresh token status',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'refresh-token-status',
+				component: 'WorkerTokenStatusDisplayV8',
 			});
 		} finally {
 			setTimeout(() => setIsRefreshing(false), 500);
@@ -893,12 +891,9 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			// Dispatch event to notify other components
 			window.dispatchEvent(new CustomEvent('oauthConfigurationUpdated', { detail: oauthConfig }));
 		} catch (error) {
-			logger.error('[WorkerTokenStatusDisplayV8] Failed to save config:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to save OAuth configuration',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'save-oauth-config',
+				component: 'WorkerTokenStatusDisplayV8',
 			});
 		} finally {
 			setIsConfigLoading(false);

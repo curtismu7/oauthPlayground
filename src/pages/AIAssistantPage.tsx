@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
 import AIAssistant from '../components/AIAssistant';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const PageContainer = styled.div`
 	display: flex;

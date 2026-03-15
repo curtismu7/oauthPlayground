@@ -11,6 +11,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import fetch from 'node-fetch';
 import { McpApiKeyBridge } from '../services/mcpApiKeyBridge';
+import { logger } from '../utils/logger.js';
 
 const server = new Server(
 	{
@@ -135,12 +136,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
 	const transport = new StdioServerTransport();
 	await server.connect(transport);
-	console.error('Brave Search MCP server running on stdio');
+	logger.info('Brave Search MCP server running on stdio');
 }
 
 if (require.main === module) {
 	main().catch((error) => {
-		console.error('Server error:', error);
+		logger.error('Server error:', error);
 		process.exit(1);
 	});
 }

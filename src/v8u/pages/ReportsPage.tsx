@@ -68,7 +68,7 @@ export const ReportsPage: React.FC = () => {
 				data: generateMockData(selectedReport),
 			};
 
-			console.log('Generated Report:', reportData);
+			logger.info('ReportsPage', 'Generated Report', reportData);
 		}, 2000);
 	};
 
