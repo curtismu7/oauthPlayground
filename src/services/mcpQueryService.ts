@@ -100,7 +100,22 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 		pattern: /\bshow\s+org\s+licenses\b|\borg\s+licenses\b|licens|org.*licens|capacity/i,
 		tool: 'pingone_get_organization_licenses',
 	},
-	// users — create/delete before get so "Delete user <uuid>" matches delete
+	// MFA — before list_users so "List MFA devices for user X" matches here first
+	{
+		pattern: /mfa.*device|device.*mfa|list.*device|show.*device|authenticat.*device/i,
+		tool: 'pingone.mfa.devices.list',
+	},
+	{ pattern: /mfa.*polic|polic.*mfa|list.*mfa|show.*mfa.*polic/i, tool: 'pingone.mfa.policy.list' },
+	// users — group membership mutations come first so "Remove user from group"
+	// and "Add user to group" don't match delete_user / get_user_groups
+	{
+		pattern: /add.*user.*group|put.*user.*group|assign.*user.*group/i,
+		tool: 'pingone_add_user_to_group',
+	},
+	{
+		pattern: /remov.*user.*group|tak.*user.*out.*group|unassign.*user.*group/i,
+		tool: 'pingone_remove_user_from_group',
+	},
 	{
 		pattern: /list.*user|show.*users|all.*user|get.*users|fetch.*user/i,
 		tool: 'pingone_list_users',
@@ -124,14 +139,6 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 		pattern: /user.*groups?|groups?.*for.*user|what.*groups?.*user|user.*member/i,
 		tool: 'pingone_get_user_groups',
 	},
-	{
-		pattern: /add.*user.*group|put.*user.*group|assign.*user.*group/i,
-		tool: 'pingone_add_user_to_group',
-	},
-	{
-		pattern: /remov.*user.*group|tak.*user.*out.*group|unassign.*user.*group/i,
-		tool: 'pingone_remove_user_from_group',
-	},
 	// groups
 	{ pattern: /list.*group|show.*groups|all.*group|get.*groups/i, tool: 'pingone_list_groups' },
 	{
@@ -142,12 +149,6 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 	{ pattern: /delet.*group|remov.*group/i, tool: 'pingone_delete_group' },
 	// populations
 	{ pattern: /list.*pop|show.*pop|all.*pop|get.*pop/i, tool: 'pingone_list_populations' },
-	// MFA
-	{
-		pattern: /mfa.*device|device.*mfa|list.*device|show.*device|authenticat.*device/i,
-		tool: 'pingone.mfa.devices.list',
-	},
-	{ pattern: /mfa.*polic|polic.*mfa|list.*mfa|show.*mfa.*polic/i, tool: 'pingone.mfa.policy.list' },
 	// Subscriptions / webhooks
 	{
 		pattern: /list.*subscri|show.*subscri|all.*subscri|webhooks?/i,
