@@ -81,6 +81,7 @@ export const V7MClientCredentialsV9: React.FC = () => {
 			return;
 		}
 		setTokenResponse(res);
+		showGlobalSuccess('Access token issued', { description: 'Client credentials grant complete. Use the token to call protected APIs.' });
 	}
 
 	const accessToken = tokenResponse?.access_token;
@@ -92,6 +93,7 @@ export const V7MClientCredentialsV9: React.FC = () => {
 		}
 		const res = getUserInfoFromAccessToken(accessToken);
 		setUserinfoResponse(res);
+		showGlobalSuccess('UserInfo retrieved', { description: 'Identity claims returned from the UserInfo endpoint.' });
 	}
 
 	function handleIntrospect() {
@@ -101,6 +103,7 @@ export const V7MClientCredentialsV9: React.FC = () => {
 		}
 		const res = introspectToken(accessToken);
 		setIntrospectionResponse(res);
+		showGlobalSuccess('Token introspected', { description: 'Server-side token validation complete.' });
 	}
 
 	// Track if flow has been executed (for reset button behavior)
