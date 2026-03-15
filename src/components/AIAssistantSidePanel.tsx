@@ -255,7 +255,9 @@ const PingOneLoginContent: React.FC = () => {
 	useEffect(() => {
 		const data = unifiedWorkerTokenService.getTokenDataSync();
 		if (data?.credentials?.environmentId) setEnvironmentId(data.credentials.environmentId);
-		if (data?.credentials?.clientId) setClientId(data.credentials.clientId);
+		// Prefer authzClientId (OIDC app with Authorization Code grant) over worker clientId
+		const preferredClientId = data?.credentials?.authzClientId || data?.credentials?.clientId || '';
+		if (preferredClientId) setClientId(preferredClientId);
 	}, []);
 
 	const handleSubmit = useCallback(
@@ -327,9 +329,10 @@ const PingOneLoginContent: React.FC = () => {
 			<LoginCard>
 				<CardTitle>Environment Login</CardTitle>
 				<CardDescription>
-					Use your PingOne credentials to authenticate. Environment ID and Client ID are pre-filled
-					from worker token when available. For pi.flow you need an OAuth app (not Worker) with
-					Authorization Code grant. pi.flow is a response mode — redirect_uri is not required.
+					Use your PingOne credentials to authenticate. Client ID is pre-filled from{' '}
+					<strong>Authorization Client</strong> (Configuration) when available. Requires an
+					OAuth/OIDC app with <strong>Authorization Code</strong> grant — not a Worker app. pi.flow
+					is a response mode; no redirect_uri is needed.
 				</CardDescription>
 				<form onSubmit={handleSubmit}>
 					<FormRow>
@@ -348,7 +351,7 @@ const PingOneLoginContent: React.FC = () => {
 							type="text"
 							value={clientId}
 							onChange={(e) => setClientId(e.target.value)}
-							placeholder="OAuth app client ID"
+							placeholder="Authorization Code app Client ID (not Worker app)"
 							disabled={isLoading}
 						/>
 					</FormRow>
