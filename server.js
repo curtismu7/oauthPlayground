@@ -22787,6 +22787,18 @@ const MCP_INTENTS = [
 		howItWorks:
 			'Calls GET /environments/{envId}/populations. Returns all user populations with id, name, description, and passwordPolicy. Each user belongs to exactly one population.',
 	},
+	{
+		id: 'set_user_population',
+		patterns: [
+			/(?:add|move|set|assign|change|put)\s+(?:user\s+)?\S+\s+(?:to|into|in)\s+(?:population|pop)\s+\S+/i,
+			/(?:add|move|set|assign|change)\s+\S+\s+(?:to|into|in)\s+population/i,
+			/set.*population|move.*population|change.*population|assign.*population/i,
+		],
+		mcpTool: 'pingone_update_user',
+		apiCall: { method: 'PATCH', path: '/environments/{envId}/users/{userId}' },
+		howItWorks:
+			'Calls PATCH /environments/{envId}/users/{userId} with { population: { id: populationId } }. Moves the user into the specified population. Resolves username/email → userId and population name → populationId automatically.',
+	},
 	// ── MFA ──────────────────────────────────────────────────────────────────
 	{
 		id: 'list_mfa_devices',
@@ -23315,6 +23327,26 @@ async function _resolveGroupId(ctx, ident) {
 }
 
 /**
+ * Resolve a population identifier (name or UUID) to a PingOne population ID.
+ * Returns the UUID string or null.
+ */
+async function _resolvePopulationId(ctx, ident) {
+	if (!ident) return null;
+	if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ident)) return ident;
+	const r = await mcpCallPingOne({ ...ctx, path: `/populations?limit=100` });
+	const pops = r?._embedded?.populations ?? [];
+	const exact = pops.filter((p) => p.name?.toLowerCase() === ident.toLowerCase());
+	if (exact.length === 1) return exact[0].id;
+	if (exact.length > 1)
+		throw new Error(`Multiple populations match "${ident}". Use a UUID to be specific.`);
+	const partial = pops.filter((p) => p.name?.toLowerCase().includes(ident.toLowerCase()));
+	if (partial.length === 1) return partial[0].id;
+	if (partial.length > 1)
+		throw new Error(`Multiple populations match "${ident}". Be more specific.`);
+	return null;
+}
+
+/**
  * Resolve an application identifier (name or UUID) to a PingOne application ID.
  * Returns the UUID string or null.
  */
@@ -23809,6 +23841,89 @@ app.post('/api/mcp/query', async (req, res) => {
 			});
 			data = raw?._embedded?.populations || [];
 			summary = `Found ${data.length} population(s) in environment ${envId}.`;
+		} else if (intent.id === 'set_user_population') {
+			// Extract user ident and population ident from query
+			const uuids = [
+				...q.matchAll(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi),
+			].map((m) => m[0]);
+			// Try to extract population name from phrases like
+			// "add alice to population Default" / "move bob into Employees"
+			const popMatch = q.match(
+				/(?:to|into|in)\s+(?:population\s+|pop\s+)?["']?([\w][\w .\-]*?)["']?\s*$/i
+			);
+			const userMatch = q.match(
+				/(?:add|move|set|assign|change|put)\s+(?:user\s+)?["']?([\w.@+\-]+)["']?\s+(?:to|into|in)/i
+			);
+			const userRaw = uuids[0] || userMatch?.[1];
+			const popRaw = uuids[1] || popMatch?.[1];
+
+			if (!userRaw || !popRaw) {
+				return res.json({
+					success: false,
+					answer:
+						'Specify a user and a population. Example: "Move alice to population Employees" or "Add john@acme.com to Default"',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+				});
+			}
+
+			let userId;
+			try {
+				userId = await _resolveUserId(ctx, userRaw);
+			} catch (e) {
+				return res.json({
+					success: false,
+					answer: e.message,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+				});
+			}
+			if (!userId) {
+				return res.json({
+					success: false,
+					answer: `No user found for "${userRaw}". Use email, username, or UUID.`,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+				});
+			}
+
+			let populationId;
+			try {
+				populationId = await _resolvePopulationId(ctx, popRaw);
+			} catch (e) {
+				return res.json({
+					success: false,
+					answer: e.message,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+				});
+			}
+			if (!populationId) {
+				return res.json({
+					success: false,
+					answer: `No population found for "${popRaw}". Say "List populations" to see available ones.`,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+				});
+			}
+
+			data = await mcpCallPingOne({
+				...ctx,
+				path: `/users/${userId}`,
+				method: 'PATCH',
+				body: { population: { id: populationId } },
+			});
+			summary = `✅ Moved user "${userRaw}" into population "${popRaw}" (${populationId}).`;
 		} else if (intent.id === 'get_application') {
 			const name = _extractName(q);
 			const uuid = _extractUuid(q);
