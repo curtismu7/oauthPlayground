@@ -45,7 +45,6 @@ type Props = {
 
 export const V7MImplicitFlowV9: React.FC<Props> = ({
 	oidc = false,
-	title = 'OAuth Implicit Flow',
 }) => {
 	const [variant, setVariant] = useState<'oauth' | 'oidc'>(oidc ? 'oidc' : 'oauth');
 	const [clientId, setClientId] = useState('v7m-client');
@@ -131,6 +130,7 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 				scope: params.get('scope') ?? undefined,
 			});
 		}
+		showGlobalSuccess('Implicit grant complete', { description: 'Tokens are in the redirect fragment. No code exchange needed.' });
 	}
 
 	const idToken = tokens?.id_token;
@@ -141,8 +141,9 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 			showGlobalError('No access token available');
 			return;
 		}
-		const res = getUserInfoFromAccessToken(accessToken);
-		setUserinfoResponse(res);
+		const userInfoRes = getUserInfoFromAccessToken(accessToken);
+		setUserinfoResponse(userInfoRes);
+		showGlobalSuccess('UserInfo retrieved', { description: 'Identity claims returned from the UserInfo endpoint.' });
 	}
 
 	function handleIntrospect() {
@@ -150,8 +151,9 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 			showGlobalError('No access token available');
 			return;
 		}
-		const res = introspectToken(accessToken);
-		setIntrospectionResponse(res);
+		const introspectRes = introspectToken(accessToken);
+		setIntrospectionResponse(introspectRes);
+		showGlobalSuccess('Token introspected', { description: 'Server-side token validation complete.' });
 	}
 
 	async function _copyToClipboard(text: string) {
