@@ -23923,7 +23923,7 @@ app.post('/api/mcp/query', async (req, res) => {
 				...ctx,
 				path: `/users/${userId}/memberOfGroups`,
 				method: 'POST',
-				body: { id: groupId },
+				body: { group: { id: groupId } },
 			});
 			summary = `✅ Added user ${userId} to group ${groupId}.`;
 		} else if (intent.id === 'remove_user_from_group') {
