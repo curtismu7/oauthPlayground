@@ -146,6 +146,11 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 	{ pattern: /delet.*group|remov.*group/i, tool: 'pingone_delete_group' },
 	// populations
 	{ pattern: /list.*pop|show.*pop|all.*pop|get.*pop/i, tool: 'pingone_list_populations' },
+	{
+		pattern:
+			/(?:add|move|set|assign|change|put)\s+(?:user\s+)?\S+\s+(?:to|into|in)\s+(?:population|pop)\s+\S+|(?:add|move|set|assign|change)\s+\S+\s+(?:to|into|in)\s+population|set.*population|move.*population|change.*population|assign.*population/i,
+		tool: 'pingone_update_user',
+	},
 	// Subscriptions / webhooks
 	{
 		pattern: /list.*subscri|show.*subscri|all.*subscri|webhooks?/i,
