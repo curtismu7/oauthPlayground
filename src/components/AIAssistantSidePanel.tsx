@@ -149,7 +149,7 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 					$active={activeTab === 'pingone-login'}
 					onClick={() => setActiveTab('pingone-login')}
 				>
-					PingOne Login
+					P1 Login
 				</TabButton>
 				<TabButton $active={activeTab === 'admin'} onClick={() => setActiveTab('admin')}>
 					Admin
@@ -159,13 +159,13 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 					onClick={() => setActiveTab('user-login')}
 					title="Get user access token for introspection (e.g. Introspect user token)"
 				>
-					User login
+					User Login
 				</TabButton>
 				<TabButton
 					$active={activeTab === 'documentation'}
 					onClick={() => setActiveTab('documentation')}
 				>
-					Documentation
+					Docs
 				</TabButton>
 				<TabButton $active={activeTab === 'tools'} onClick={() => setActiveTab('tools')}>
 					Tools
@@ -1051,7 +1051,7 @@ const TabsContainer = styled.div`
 	display: flex;
 	background: #f8f9fa;
 	border-bottom: 1px solid #e0e0e0;
-	overflow: hidden;
+	overflow: visible;
 `;
 
 const TabButton = styled.button<{ $active?: boolean }>`
@@ -1059,16 +1059,20 @@ const TabButton = styled.button<{ $active?: boolean }>`
 	min-width: 0;
 	background: ${({ $active }) => ($active ? 'white' : 'transparent')};
 	border: none;
-	color: ${({ $active }) => ($active ? '#2563eb' : '#666')};
-	padding: 10px 4px;
-	font-size: 12px;
+	border-right: 1px solid #e0e0e0;
+	color: ${({ $active }) => ($active ? '#2563eb' : '#555')};
+	padding: 8px 6px;
+	font-size: 11px;
 	font-weight: ${({ $active }) => ($active ? '600' : '400')};
 	cursor: pointer;
 	transition: all 0.2s;
 	border-bottom: ${({ $active }) => ($active ? '2px solid #2563eb' : '2px solid transparent')};
 	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	overflow: visible;
+
+	&:last-child {
+		border-right: none;
+	}
 
 	&:hover {
 		background: rgba(37, 99, 235, 0.05);
