@@ -4815,6 +4815,120 @@ app.post('/api/pingone/token', async (req, res) => {
 	}
 });
 
+// RFC 8693 Token Exchange Endpoint — exchange a user access token for a newly-scoped token.
+// Useful for narrow-scoped tokens in real-life agent scenarios (e.g. banking: transfer:funds).
+// POST /api/pingone/token-exchange
+// Body: { environmentId, region?, clientId, clientSecret?, subjectToken, requestedScopes?, audience? }
+app.post('/api/pingone/token-exchange', async (req, res) => {
+	try {
+		const {
+			environmentId,
+			region = 'us',
+			clientId,
+			clientSecret,
+			subjectToken,
+			requestedScopes,
+			audience,
+		} = req.body;
+
+		if (!environmentId) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameter: environmentId',
+			});
+		}
+		if (!clientId) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameter: clientId',
+			});
+		}
+		if (!subjectToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameter: subjectToken',
+			});
+		}
+
+		const authBase =
+			region === 'eu'
+				? 'https://auth.pingone.eu'
+				: region === 'ap'
+					? 'https://auth.pingone.asia'
+					: region === 'ca'
+						? 'https://auth.pingone.ca'
+						: 'https://auth.pingone.com';
+		const tokenEndpoint = `${authBase}/${environmentId}/as/token`;
+
+		const params = new URLSearchParams({
+			grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+			client_id: clientId,
+			subject_token: subjectToken,
+			subject_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+			requested_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+		});
+		if (clientSecret) params.set('client_secret', clientSecret);
+		if (requestedScopes) params.set('scope', requestedScopes);
+		if (audience) params.set('audience', audience);
+
+		const headers = { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' };
+
+		console.log('[Token Exchange] Request to PingOne:', {
+			environmentId,
+			region,
+			tokenEndpoint,
+			requestedScopes: requestedScopes ?? '(none)',
+		});
+
+		const startTime = Date.now();
+		const response = await global.fetch(tokenEndpoint, {
+			method: 'POST',
+			headers,
+			body: params.toString(),
+		});
+		const duration = Date.now() - startTime;
+
+		let responseData;
+		const responseText = await response.text();
+		try {
+			responseData = JSON.parse(responseText);
+		} catch {
+			responseData = { raw: responseText };
+		}
+
+		logPingOneApiCall(
+			'Token Exchange (RFC 8693)',
+			tokenEndpoint,
+			'POST',
+			headers,
+			params.toString(),
+			response,
+			responseData,
+			duration,
+			{ environmentId, region }
+		);
+
+		if (!response.ok) {
+			console.error('[Token Exchange] PingOne error:', {
+				status: response.status,
+				data: responseData,
+			});
+			return res.status(response.status).json(responseData);
+		}
+
+		responseData.server_timestamp = new Date().toISOString();
+		responseData.grant_type = 'urn:ietf:params:oauth:grant-type:token-exchange';
+		res.json(responseData);
+	} catch (error) {
+		console.error('[Token Exchange] Server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description:
+				error instanceof Error ? error.message : 'Internal server error during token exchange',
+		});
+	}
+});
+
 // Token Introspection Endpoint (proxy to PingOne)
 app.post('/api/introspect-token', async (req, res) => {
 	try {
@@ -7717,7 +7831,7 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 
 		// Build authorization request parameters (per PingOne pi.flow documentation)
 		const authParams = new URLSearchParams();
-		authParams.set('response_type', 'code');
+		// response_type is set later (after PKCE logic) based on req.body.response_type
 		authParams.set('response_mode', 'pi.flow'); // CRITICAL: Enable redirectless flow
 		authParams.set('client_id', clientId);
 		// Ensure 'openid' is included in scopes for OIDC flows
@@ -7743,24 +7857,20 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			);
 		}
 
-		// Add PKCE parameters - REQUIRED for redirectless flows with PKCE
-		if (codeChallenge && typeof codeChallenge === 'string' && codeChallenge.trim().length > 0) {
-			authParams.set('code_challenge', codeChallenge.trim());
-			authParams.set('code_challenge_method', codeChallengeMethod || 'S256');
-			console.log(
-				`[PingOne Redirectless] Added PKCE: code_challenge=${codeChallenge.substring(0, 20)}... (length: ${codeChallenge.length})`
-			);
+		// PKCE: only add when using response_type=code. pi.flow with token/id_token delivers
+		// tokens directly at the resume step and does not require PKCE.
+		const responseType = req.body.response_type || 'token id_token';
+		authParams.set('response_type', responseType);
+		if (responseType.includes('code')) {
+			if (codeChallenge && typeof codeChallenge === 'string' && codeChallenge.trim().length > 0) {
+				authParams.set('code_challenge', codeChallenge.trim());
+				authParams.set('code_challenge_method', codeChallengeMethod || 'S256');
+				console.log(`[PingOne Redirectless] Added PKCE code_challenge (length: ${codeChallenge.length})`);
+			}
 		} else {
-			console.error(`[PingOne Redirectless] ERROR: Invalid code_challenge provided:`, {
-				hasCodeChallenge: !!codeChallenge,
-				type: typeof codeChallenge,
-				length: codeChallenge?.length,
-				value: codeChallenge?.substring(0, 50),
-			});
-			return res.status(400).json({
-				error: 'invalid_request',
-				error_description: 'code_challenge is required for PKCE flow',
-			});
+			// token/id_token response types require nonce
+			if (req.body.nonce) authParams.set('nonce', req.body.nonce);
+			console.log(`[PingOne Redirectless] Using response_type='${responseType}' — tokens delivered at resume, no PKCE needed`);
 		}
 
 		// CORRECT pi.flow PATTERN (per documentation):

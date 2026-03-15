@@ -627,36 +627,73 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 	);
 };
 
-/** User login: get a user access token via redirectless flow for introspection ("Introspect user token"). */
+/** User login: get a user access token via Authz Code + PKCE + pi.flow ("Introspect user token"). */
 interface UserLoginContentProps {
 	userAccessToken: string | null;
 	onUserTokenSet?: (token: string, expiresInSeconds: number, idToken?: string) => void;
 	onUserTokenClear?: () => void;
 }
 
+const DEFAULT_USER_SCOPES = 'openid profile email';
+
 const UserLoginContent: React.FC<UserLoginContentProps> = ({
 	userAccessToken,
 	onUserTokenSet,
 	onUserTokenClear,
 }) => {
+	const savedCreds = unifiedWorkerTokenService.getTokenDataSync()?.credentials;
+
+	// Use dedicated Authz client when configured; fall back to Worker client with a warning.
+	// A Worker client (client_credentials) cannot be used for Authorization Code + PKCE
+	// — PingOne requires a separate OIDC/Web App with Authorization Code grant.
+	const [authzClientId, setAuthzClientId] = useState(savedCreds?.authzClientId ?? '');
+	const [authzClientSecret, setAuthzClientSecret] = useState(savedCreds?.authzClientSecret ?? '');
+	const [scopesValue, setScopesValue] = useState(
+		savedCreds?.authzScopes?.join(' ') ?? DEFAULT_USER_SCOPES
+	);
+	const [showClientOverride, setShowClientOverride] = useState(false);
+
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
+	// Reload saved authz config whenever panel becomes visible
+	useEffect(() => {
+		const creds = unifiedWorkerTokenService.getTokenDataSync()?.credentials;
+		if (creds?.authzClientId) setAuthzClientId(creds.authzClientId);
+		if (creds?.authzClientSecret) setAuthzClientSecret(creds.authzClientSecret);
+		if (creds?.authzScopes) setScopesValue(creds.authzScopes.join(' '));
+	}, []);
+
 	const handleSignIn = useCallback(async () => {
 		if (!onUserTokenSet) return;
 		const data = unifiedWorkerTokenService.getTokenDataSync();
 		const envId = data?.credentials?.environmentId?.trim();
-		const clientId = data?.credentials?.clientId?.trim();
-		const clientSecret = data?.credentials?.clientSecret?.trim();
 		const region = (data?.credentials?.region as string) || 'us';
-		const user = username.trim();
-		const pwd = password;
-		if (!envId || !clientId || !clientSecret) {
-			setError('Configure worker token (or Authz OIDC client) in Configuration first.');
+
+		// Prefer dedicated Authz client; fall back to Worker client (with a warning logged)
+		const effectiveClientId = authzClientId.trim() || data?.credentials?.clientId?.trim();
+		const effectiveClientSecret = authzClientId.trim()
+			? authzClientSecret.trim()
+			: data?.credentials?.clientSecret?.trim() ?? '';
+		const scopes = scopesValue
+			.split(/[\s,]+/)
+			.map((s) => s.trim())
+			.filter(Boolean);
+
+		if (!envId || !effectiveClientId) {
+			setError('Configure Environment ID and an Authorization Code client in Configuration first.');
 			return;
 		}
+		if (!authzClientId.trim()) {
+			logger.warn(
+				'AIAssistantSidePanel',
+				'User login using Worker client — set an Authz Client ID in Configuration for a dedicated OIDC app.'
+			);
+		}
+		const user = username.trim();
+		const pwd = password;
 		if (!user || !pwd) {
 			setError('Username and password are required.');
 			return;
@@ -664,51 +701,39 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 		setError(null);
 		setIsLoading(true);
 		try {
-			// Step 1: Initialize Authz Code + PKCE flow with response_mode=pi.flow
+			// Step 1: Authorization request — response_type=token id_token + pi.flow
+			// PingOne returns a flowId; tokens come back at resume (no code exchange needed)
 			const initRes = await PingOneLoginService.initializeEmbeddedLogin(
 				envId,
-				clientId,
-				undefined, // omit redirect_uri for pi.flow
-				['openid', 'profile', 'email'],
+				effectiveClientId,
+				undefined, // redirect_uri not needed for pi.flow
+				scopes,
 				region
 			);
 			if (!initRes.success || !initRes.data?.flowId) {
-				throw new Error(initRes.error?.message || 'Failed to start login flow');
+				throw new Error(initRes.error?.message || 'Failed to start authorization flow');
 			}
-			const { flowId, codeVerifier } = initRes.data;
+			const { flowId } = initRes.data;
 
-			// Step 2: Submit credentials
+			// Step 2: Submit username + password to PingOne flow endpoint
 			const credsRes = await PingOneLoginService.submitCredentials(
 				flowId,
 				user,
 				pwd,
-				clientId,
-				clientSecret
+				effectiveClientId,
+				effectiveClientSecret || undefined
 			);
 			if (!credsRes.success) {
 				throw new Error(credsRes.error?.message || 'Invalid credentials');
 			}
 
-			// Step 3: Resume flow to get authorization code
+			// Step 3: Resume pi.flow — PingOne returns tokens directly in JSON (no redirect, no code exchange)
 			const resumeRes = await PingOneLoginService.resumeFlow(flowId);
-			if (!resumeRes.success || !resumeRes.data?.authorizationCode) {
-				throw new Error(resumeRes.error?.message || 'Failed to complete authorization flow');
+			if (!resumeRes.success || !resumeRes.data?.access_token) {
+				throw new Error(resumeRes.error?.message || 'Failed to get tokens from resume');
 			}
-			const { authorizationCode } = resumeRes.data;
-
-			// Step 4: Exchange authorization code + code_verifier for tokens
-			const tokenRes = await PingOneLoginService.exchangeCodeForTokens(
-				envId,
-				clientId,
-				clientSecret,
-				'', // redirect_uri not required for pi.flow
-				authorizationCode,
-				codeVerifier
-			);
-			if (!tokenRes.success || !tokenRes.data?.access_token) {
-				throw new Error(tokenRes.error?.message || 'Failed to exchange code for tokens');
-			}
-			const { access_token, id_token, expires_in } = tokenRes.data;
+			const { access_token, id_token, expires_in, scope } = resumeRes.data;
+			logger.info('AIAssistantSidePanel', `User login succeeded — scopes: ${scope ?? scopesValue}`);
 			onUserTokenSet(access_token, expires_in ?? 3600, id_token);
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : 'Login failed';
@@ -717,7 +742,7 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 		} finally {
 			setIsLoading(false);
 		}
-	}, [username, password, onUserTokenSet]);
+	}, [username, password, authzClientId, authzClientSecret, scopesValue, onUserTokenSet]);
 
 	const handleClear = useCallback(() => {
 		onUserTokenClear?.();
@@ -725,20 +750,37 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 	}, [onUserTokenClear]);
 
 	const hasToken = !!userAccessToken;
+	const usingWorkerFallback = !authzClientId.trim();
 
 	return (
 		<ContentSection>
 			<SectionTitle>User login</SectionTitle>
 			<SectionDescription>
-				Sign in with a PingOne user via Authorization Code + PKCE (response_mode=pi.flow). The
-				access token is stored so you can run &quot;Introspect user token&quot; in the agent.
-				Requires an OAuth app (not Worker) with Authorization Code grant enabled.
+				Authorization Code + PKCE with <code>response_mode=pi.flow</code> (redirectless). Requires
+				a PingOne OIDC/Web app with <strong>Authorization Code</strong> grant — not the Worker
+				(client_credentials) app. Set the <strong>Authz Client</strong> in Configuration or below.
 			</SectionDescription>
+
+			{/* Warning when no dedicated authz client is configured */}
+			{usingWorkerFallback && !hasToken && (
+				<LoginCard style={{ borderColor: '#f59e0b', background: '#fffbeb' }}>
+					<CardTitle style={{ color: '#92400e' }}>⚠️ No Authorization Client configured</CardTitle>
+					<CardDescription>
+						You have no <strong>Authz Client ID</strong> saved. The flow will attempt to use your
+						Worker client, but Worker apps only support <code>client_credentials</code> — they
+						typically cannot do Authorization Code + PKCE. Set a dedicated OIDC client with
+						Authorization Code grant in <strong>Configuration → Authorization Client</strong>, or
+						enter it below.
+					</CardDescription>
+				</LoginCard>
+			)}
+
 			{hasToken ? (
 				<LoginCard>
-					<CardTitle>User token set</CardTitle>
+					<CardTitle>✅ User token set</CardTitle>
 					<CardDescription>
-						You can say &quot;Introspect user token&quot; in the agent to introspect this token.
+						Say <strong>&quot;Introspect user token&quot;</strong> to inspect this access token, or{' '}
+						<strong>&quot;Show my token&quot;</strong> to view the raw JWT.
 					</CardDescription>
 					<LoginButton type="button" onClick={handleClear} disabled={!onUserTokenClear}>
 						Clear user token
@@ -746,18 +788,69 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 				</LoginCard>
 			) : (
 				<LoginCard>
-					<CardTitle>Username and password</CardTitle>
-					<CardDescription>
-						Credentials are submitted via Authorization Code + PKCE with response_mode=pi.flow. The
-						OIDC client (from Configuration) must have Authorization Code grant enabled.
-					</CardDescription>
+					{/* Client override section */}
+					<FormRow style={{ marginBottom: 0 }}>
+						<button
+							type="button"
+							onClick={() => setShowClientOverride((v) => !v)}
+							style={{
+								background: 'none',
+								border: 'none',
+								color: '#667eea',
+								fontSize: '12px',
+								cursor: 'pointer',
+								padding: '0',
+								textDecoration: 'underline',
+							}}
+						>
+							{showClientOverride ? '▲ Hide' : '▼ Authz Client'}{' '}
+							{authzClientId ? `(${authzClientId.slice(0, 8)}…)` : '(not set)'}
+						</button>
+					</FormRow>
+
+					{showClientOverride && (
+						<>
+							<FormRow>
+								<FormLabel>Authz Client ID</FormLabel>
+								<FormInput
+									type="text"
+									value={authzClientId}
+									onChange={(e) => setAuthzClientId(e.target.value)}
+									placeholder="OIDC app Client ID (Authorization Code grant)"
+									disabled={isLoading}
+								/>
+							</FormRow>
+							<FormRow>
+								<FormLabel>Authz Client Secret</FormLabel>
+								<FormInput
+									type="password"
+									value={authzClientSecret}
+									onChange={(e) => setAuthzClientSecret(e.target.value)}
+									placeholder="Leave empty for public PKCE-only clients"
+									disabled={isLoading}
+								/>
+							</FormRow>
+							<FormRow>
+								<FormLabel>Scopes</FormLabel>
+								<FormInput
+									type="text"
+									value={scopesValue}
+									onChange={(e) => setScopesValue(e.target.value)}
+									placeholder="openid profile email"
+									disabled={isLoading}
+									title="Space-separated OAuth scopes. Future banking demo: add transfer:funds account:read"
+								/>
+							</FormRow>
+						</>
+					)}
+
 					<FormRow>
 						<FormLabel>Username</FormLabel>
 						<FormInput
 							type="text"
 							value={username}
 							onChange={(e) => setUsername(e.target.value)}
-							placeholder="Username"
+							placeholder="PingOne username or email"
 							disabled={isLoading}
 							autoComplete="username"
 						/>
