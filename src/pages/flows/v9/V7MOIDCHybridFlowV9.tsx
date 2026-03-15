@@ -115,6 +115,11 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 			Math.floor(Date.now() / 1000),
 			300
 		);
+		if (res.type === 'error') {
+			showGlobalError(`${res.error}: ${(res as { error_description?: string }).error_description ?? ''}`);
+		} else {
+			showGlobalSuccess('Hybrid authorization issued', { description: `Front-channel tokens ready — code + ${responseType.replace('code', '').trim() || 'tokens'} in redirect fragment.` });
+		}
 		setHybridResult(res);
 		setTokenCodeResponse(null);
 		setTokenExchangeError(false);
@@ -132,6 +137,7 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 			code: hybridResult.code,
 			redirect_uri: redirectUri,
 			client_id: clientId,
+			client_secret: 'topsecret',
 			expectedClientSecret: 'topsecret',
 			issuer: 'https://mock.issuer/v7m',
 			environmentId: 'mock-env',
@@ -148,6 +154,7 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 			return;
 		}
 		setTokenCodeResponse(res as V9MockTokenSuccess);
+		showGlobalSuccess('Tokens received', { description: 'Back-channel token exchange complete. Step 3 is now active.' });
 	}
 
 	function handleIntrospect() {
@@ -159,6 +166,7 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 			return;
 		}
 		setIntrospectionResponse(introspectToken(token));
+		showGlobalSuccess('Token introspected', { description: 'Server-side token validation complete.' });
 	}
 
 	const frontChannelIdToken =
@@ -166,6 +174,10 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 	const frontChannelAccessToken =
 		hybridResult?.type === 'hybrid' ? hybridResult.tokens.access_token : undefined;
 	const backChannelAccessToken = tokenCodeResponse?.access_token;
+
+	// Track if flow has been executed (for reset button behavior)
+	const hasResults = hybridResult || tokenCodeResponse || introspectionResponse;
+	const currentStep = hasResults ? 1 : 0;
 
 	function handleReset() {
 		setHybridResult(null);
@@ -190,7 +202,7 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
 				<V9FlowRestartButton
 					onRestart={handleReset}
-					currentStep={0}
+					currentStep={currentStep}
 					totalSteps={1}
 					position="header"
 				/>
