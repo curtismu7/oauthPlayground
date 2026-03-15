@@ -4,6 +4,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { registerAuthTools } from './actions/auth.js';
 import { registerDeviceAuthTools } from './actions/deviceAuth.js';
 import { registerIntrospectTools } from './actions/introspect.js';
+import { registerTokenUtilsTools } from './actions/tokenUtils.js';
 import { registerMfaTools } from './actions/mfa.js';
 import { registerOidcTools } from './actions/oidc.js';
 import { registerPhase7Tools } from './actions/phase7.js';
@@ -25,7 +26,13 @@ async function main() {
 	const logger = new Logger('MCP');
 	logger.info('Starting PingOne MCP server');
 
-	const server = new McpServer({ name: 'pingone-mcp-server', version: '0.1.0' });
+	const server = new McpServer(
+		{ name: 'pingone-mcp-server', version: '0.1.0' },
+		{
+			capabilities: { tools: { listChanged: true }, resources: { listChanged: true } },
+			debouncedNotificationMethods: ['notifications/tools/list_changed', 'notifications/resources/list_changed'],
+		}
+	);
 	registerAuthTools(server, logger);
 	registerTrainingModule(server, logger);
 	registerWorkerTools(server, logger);
@@ -36,6 +43,7 @@ async function main() {
 	registerPhase8Tools(server, logger);
 	registerSubscriptionTools(server, logger);
 	registerIntrospectTools(server, logger);
+	registerTokenUtilsTools(server, logger);
 	registerDeviceAuthTools(server, logger);
 	registerRedirectlessTools(server, logger);
 	registerGroupTools(server, logger);
