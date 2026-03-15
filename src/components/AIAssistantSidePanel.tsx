@@ -75,7 +75,7 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 	apiCallHistory = [],
 }) => {
 	const [activeTab, setActiveTab] = useState<
-		'pingone-login' | 'admin' | 'user-login' | 'documentation' | 'tools'
+		'pingone-login' | 'admin' | 'user-login' | 'documentation' | 'tools' | 'api-explorer'
 	>('pingone-login');
 
 	// When parent requests Admin or User-login tab, switch to it immediately
@@ -181,6 +181,12 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 				<TabButton $active={activeTab === 'tools'} onClick={() => setActiveTab('tools')}>
 					MCP Query
 				</TabButton>
+				<TabButton
+					$active={activeTab === 'api-explorer'}
+					onClick={() => setActiveTab('api-explorer')}
+				>
+					API Explorer
+				</TabButton>
 			</TabsContainer>
 
 			<SidePanelContent>
@@ -204,6 +210,9 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 				)}
 				{activeTab === 'documentation' && <DocumentationContent />}
 				{activeTab === 'tools' && <McpQueryContent history={apiCallHistory} />}
+				{activeTab === 'api-explorer' && (
+					<ApiExplorerContent adminToken={adminToken} adminEnvironmentId={adminEnvironmentId} />
+				)}
 			</SidePanelContent>
 		</SidePanelContainer>
 	);
@@ -988,6 +997,189 @@ const McpQueryContent: React.FC<{ history: McpQueryRecord[] }> = ({ history }) =
 	);
 };
 
+// ── API Explorer tab ─────────────────────────────────────────────────────────
+
+interface ApiEndpointDef {
+	label: string;
+	method: 'GET' | 'POST' | 'DELETE';
+	path: string; // uses {envId} placeholder
+	description: string;
+}
+
+const API_ENDPOINTS: ApiEndpointDef[] = [
+	{
+		label: 'Get Environment',
+		method: 'GET',
+		path: '/v1/environments/{envId}',
+		description: 'Retrieve environment details and configuration',
+	},
+	{
+		label: 'List Users',
+		method: 'GET',
+		path: '/v1/environments/{envId}/users',
+		description: 'List all users in the environment',
+	},
+	{
+		label: 'List Applications',
+		method: 'GET',
+		path: '/v1/environments/{envId}/applications',
+		description: 'List all OAuth / OIDC applications',
+	},
+	{
+		label: 'List Populations',
+		method: 'GET',
+		path: '/v1/environments/{envId}/populations',
+		description: 'List all user populations',
+	},
+	{
+		label: 'List Resources',
+		method: 'GET',
+		path: '/v1/environments/{envId}/resources',
+		description: 'List OAuth resource server definitions',
+	},
+	{
+		label: 'List Schemas',
+		method: 'GET',
+		path: '/v1/environments/{envId}/schemas',
+		description: 'List user schema attribute definitions',
+	},
+	{
+		label: 'List Custom Domains',
+		method: 'GET',
+		path: '/v1/environments/{envId}/customDomains',
+		description: 'List custom domains configured for the environment',
+	},
+	{
+		label: 'List Password Policies',
+		method: 'GET',
+		path: '/v1/environments/{envId}/passwordPolicies',
+		description: 'List password policy configurations',
+	},
+	{
+		label: 'List Roles',
+		method: 'GET',
+		path: '/v1/roles',
+		description: 'List all PingOne admin roles',
+	},
+];
+
+interface ApiExplorerContentProps {
+	adminToken: string | null;
+	adminEnvironmentId: string | null;
+}
+
+const ApiExplorerContent: React.FC<ApiExplorerContentProps> = ({
+	adminToken,
+	adminEnvironmentId,
+}) => {
+	const [selectedIndex, setSelectedIndex] = useState(0);
+	const [response, setResponse] = useState<unknown>(null);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [statusCode, setStatusCode] = useState<number | null>(null);
+
+	const selected = API_ENDPOINTS[selectedIndex];
+	const envId = adminEnvironmentId ?? '{envId}';
+	const resolvedPath = selected.path.replace('{envId}', envId);
+	const resolvedUrl = `https://api.pingone.com${resolvedPath}`;
+
+	const canRun = !!adminToken && !!adminEnvironmentId;
+
+	const handleRun = useCallback(async () => {
+		if (!adminToken || !adminEnvironmentId) return;
+		setIsLoading(true);
+		setError(null);
+		setResponse(null);
+		setStatusCode(null);
+		try {
+			const url = `https://api.pingone.com${selected.path.replace('{envId}', adminEnvironmentId)}`;
+			const res = await fetch(url, {
+				method: selected.method,
+				headers: { Authorization: `Bearer ${adminToken}` },
+			});
+			setStatusCode(res.status);
+			const body = await res.json().catch(() => null);
+			if (!res.ok) {
+				const msg =
+					(body as Record<string, string> | null)?.message ||
+					(body as Record<string, string> | null)?.detail ||
+					`HTTP ${res.status}`;
+				setError(msg);
+			} else {
+				setResponse(body);
+			}
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Network error');
+		} finally {
+			setIsLoading(false);
+		}
+	}, [adminToken, adminEnvironmentId, selected]);
+
+	return (
+		<ContentSection>
+			<SectionTitle>API Explorer</SectionTitle>
+			<SectionDescription>
+				Run live PingOne Management API calls using your admin (worker) token. Select an endpoint,
+				inspect the resolved URL, then hit <strong>Run</strong>.
+			</SectionDescription>
+
+			{!canRun && (
+				<ApiExplorerAlert>
+					⚠️ Get an admin token first — go to the <strong>Admin</strong> tab.
+				</ApiExplorerAlert>
+			)}
+
+			{/* Endpoint selector */}
+			<ApiEndpointList>
+				{API_ENDPOINTS.map((ep, i) => (
+					<ApiEndpointItem
+						key={ep.label}
+						$active={i === selectedIndex}
+						onClick={() => {
+							setSelectedIndex(i);
+							setResponse(null);
+							setError(null);
+							setStatusCode(null);
+						}}
+					>
+						<ApiEndpointMethod $method={ep.method}>{ep.method}</ApiEndpointMethod>
+						<ApiEndpointLabel>{ep.label}</ApiEndpointLabel>
+					</ApiEndpointItem>
+				))}
+			</ApiEndpointList>
+
+			{/* Resolved URL + description */}
+			<ApiRequestBox>
+				<ApiRequestDescription>{selected.description}</ApiRequestDescription>
+				<ApiRequestUrl>{resolvedUrl}</ApiRequestUrl>
+				<ApiRunButton
+					type="button"
+					onClick={() => {
+						void handleRun();
+					}}
+					disabled={!canRun || isLoading}
+				>
+					{isLoading ? 'Running…' : '▶ Run'}
+				</ApiRunButton>
+			</ApiRequestBox>
+
+			{/* Response area */}
+			{(response !== null || error !== null) && (
+				<ApiResponseBox $ok={error === null}>
+					<ApiResponseStatus $ok={error === null}>
+						{statusCode !== null ? `HTTP ${statusCode}` : ''} {error === null ? '✓ OK' : '✗ Error'}
+					</ApiResponseStatus>
+					{error !== null ? (
+						<ApiResponseError>{error}</ApiResponseError>
+					) : (
+						<ApiResponsePre>{JSON.stringify(response, null, 2)}</ApiResponsePre>
+					)}
+				</ApiResponseBox>
+			)}
+		</ContentSection>
+	);
+};
+
 // Styled Components
 const SidePanelOverlay = styled.div`
 	position: fixed;
@@ -1380,6 +1572,154 @@ const McpHowItWorks = styled.p`
 	line-height: 1.4;
 	border-top: 1px solid #e5e7eb;
 	padding-top: 6px;
+`;
+
+// ── API Explorer styled components ───────────────────────────────────────────
+
+const ApiExplorerAlert = styled.div`
+	background: #fffbeb;
+	border: 1px solid #f59e0b;
+	border-radius: 6px;
+	padding: 10px 12px;
+	font-size: 12px;
+	color: #92400e;
+	margin-bottom: 12px;
+`;
+
+const ApiEndpointList = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	overflow: hidden;
+	margin-bottom: 12px;
+`;
+
+const ApiEndpointItem = styled.button<{ $active: boolean }>`
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	background: ${({ $active }) => ($active ? '#eff6ff' : 'white')};
+	border: none;
+	border-bottom: 1px solid #f3f4f6;
+	cursor: pointer;
+	text-align: left;
+	transition: background 0.1s;
+
+	&:last-child {
+		border-bottom: none;
+	}
+
+	&:hover {
+		background: ${({ $active }) => ($active ? '#eff6ff' : '#f9fafb')};
+	}
+`;
+
+const ApiEndpointMethod = styled.span<{ $method: string }>`
+	font-size: 9px;
+	font-weight: 700;
+	font-family: monospace;
+	padding: 2px 5px;
+	border-radius: 3px;
+	min-width: 36px;
+	text-align: center;
+	background: ${({ $method }) => METHOD_COLORS[$method] ?? '#6b7280'}22;
+	color: ${({ $method }) => METHOD_COLORS[$method] ?? '#6b7280'};
+	border: 1px solid ${({ $method }) => METHOD_COLORS[$method] ?? '#6b7280'}44;
+`;
+
+const ApiEndpointLabel = styled.span`
+	font-size: 12px;
+	color: #374151;
+	font-weight: 500;
+`;
+
+const ApiRequestBox = styled.div`
+	background: #f8f9fa;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 12px;
+`;
+
+const ApiRequestDescription = styled.p`
+	font-size: 12px;
+	color: #6b7280;
+	margin: 0;
+`;
+
+const ApiRequestUrl = styled.code`
+	font-size: 11px;
+	font-family: 'SF Mono', 'Fira Code', monospace;
+	color: #1f2937;
+	word-break: break-all;
+	background: #fff;
+	border: 1px solid #e5e7eb;
+	border-radius: 4px;
+	padding: 6px 8px;
+	display: block;
+`;
+
+const ApiRunButton = styled.button`
+	align-self: flex-start;
+	background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+	color: white;
+	border: none;
+	padding: 7px 16px;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.15s;
+
+	&:hover:not(:disabled) {
+		box-shadow: 0 3px 10px rgba(37, 99, 235, 0.35);
+		transform: translateY(-1px);
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+`;
+
+const ApiResponseBox = styled.div<{ $ok: boolean }>`
+	border: 1px solid ${({ $ok }) => ($ok ? '#d1fae5' : '#fecaca')};
+	border-radius: 8px;
+	overflow: hidden;
+`;
+
+const ApiResponseStatus = styled.div<{ $ok: boolean }>`
+	padding: 6px 12px;
+	font-size: 11px;
+	font-weight: 700;
+	background: ${({ $ok }) => ($ok ? '#d1fae5' : '#fecaca')};
+	color: ${({ $ok }) => ($ok ? '#065f46' : '#991b1b')};
+`;
+
+const ApiResponseError = styled.p`
+	padding: 10px 12px;
+	margin: 0;
+	font-size: 12px;
+	color: #991b1b;
+`;
+
+const ApiResponsePre = styled.pre`
+	margin: 0;
+	padding: 10px 12px;
+	font-size: 10px;
+	font-family: 'SF Mono', 'Fira Code', monospace;
+	color: #1f2937;
+	overflow: auto;
+	max-height: 300px;
+	background: #fff;
+	white-space: pre-wrap;
+	word-break: break-all;
 `;
 
 export default AIAssistantSidePanel;
