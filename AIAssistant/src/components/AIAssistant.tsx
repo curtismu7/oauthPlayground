@@ -3719,6 +3719,8 @@ const PromptsGuideSubtitle = styled.div`
 `;
 
 const PromptsGuideScroll = styled.div`
+	flex: 1;
+	min-height: 0;
 	overflow-y: auto;
 	padding: 0 16px 12px;
 	display: flex;
