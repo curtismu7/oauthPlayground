@@ -14,26 +14,27 @@ import {
 	decodeJwtHeader,
 	decodeJwtPayload,
 	isAdminLoginQuery,
+	isAgentEducationQuery,
 	isClearTokensQuery,
 	isDecodeTokenQuery,
+	isGroqExplainQuery,
 	isHelpQuery,
 	isIntrospectUserTokenQuery,
+	isJsonRpcExplainQuery,
 	isListToolsQuery,
+	isMcpExplainQuery,
 	isMcpQuery,
+	isMcpRolesQuery,
+	isMcpToolExplainQuery,
 	isShowApiCallsQuery,
+	isLastToolQuery,
 	isShowIdTokenQuery,
 	isShowMyTokenQuery,
 	isShowWorkerTokenQuery,
+	isThisAgentExplainQuery,
 	isUserInfoQuery,
 	isWebSearchQuery,
 	isWorkerTokenQuery,
-	isAgentEducationQuery,
-	isMcpExplainQuery,
-	isMcpRolesQuery,
-	isThisAgentExplainQuery,
-	isMcpToolExplainQuery,
-	isJsonRpcExplainQuery,
-	isGroqExplainQuery,
 	type McpQueryResult,
 } from '../services/mcpQueryService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
@@ -241,12 +242,13 @@ const INITIAL_MESSAGES: Message[] = [
 /** Use admin token if it expires at least this many ms in the future. */
 const ADMIN_TOKEN_BUFFER_MS = 60_000;
 
-/** A single recorded MCP API call (stored for "show api calls" command). */
+/** A single recorded MCP API call (stored for "show api calls" and "last tool" commands). */
 interface ApiCallRecord {
 	id: string;
 	query: string;
 	mcpTool: string | null;
 	apiCall: { method: string; path: string } | null;
+	howItWorks: string | null;
 	data: unknown;
 	timestamp: Date;
 }
@@ -495,17 +497,20 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 		setAdminEnvironmentId(null);
 	}, []);
 
-	const handleUserTokenSet = useCallback((token: string, _expiresInSeconds: number, receivedIdToken?: string) => {
-		setUserAccessToken(token);
-		if (receivedIdToken !== undefined) setIdToken(receivedIdToken);
-		// Persist to localStorage for educational inspection (see "show my token" / "show id token")
-		const record: { access_token: string; stored_at: number; id_token?: string } = {
-			access_token: token,
-			stored_at: Date.now(),
-			...(receivedIdToken !== undefined ? { id_token: receivedIdToken } : {}),
-		};
-		localStorage.setItem('ai-assistant-user-token', JSON.stringify(record));
-	}, []);
+	const handleUserTokenSet = useCallback(
+		(token: string, _expiresInSeconds: number, receivedIdToken?: string) => {
+			setUserAccessToken(token);
+			if (receivedIdToken !== undefined) setIdToken(receivedIdToken);
+			// Persist to localStorage for educational inspection (see "show my token" / "show id token")
+			const record: { access_token: string; stored_at: number; id_token?: string } = {
+				access_token: token,
+				stored_at: Date.now(),
+				...(receivedIdToken !== undefined ? { id_token: receivedIdToken } : {}),
+			};
+			localStorage.setItem('ai-assistant-user-token', JSON.stringify(record));
+		},
+		[]
+	);
 
 	const handleUserTokenClear = useCallback(() => {
 		setUserAccessToken(null);
@@ -627,12 +632,19 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					const header = decodeJwtHeader(userAccessToken);
 					const payload = decodeJwtPayload(userAccessToken);
 					const parts: string[] = [`## 🔑 User Access Token\n\n\`\`\`\n${userAccessToken}\n\`\`\``];
-					if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
-					if (payload) parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
-					parts.push('\n> ⚠️ **Educational only** — never store tokens in browser storage in production.');
+					if (header)
+						parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+					if (payload)
+						parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+					parts.push(
+						'\n> ⚠️ **Educational only** — never store tokens in browser storage in production.'
+					);
 					return parts.join('\n\n');
 				})();
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
@@ -646,19 +658,30 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					const header = decodeJwtHeader(idToken);
 					const payload = decodeJwtPayload(idToken);
 					const parts: string[] = [`## 🪪 ID Token\n\n\`\`\`\n${idToken}\n\`\`\``];
-					if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
-					if (payload) parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
-					parts.push('\n> ℹ️ The ID Token asserts who the user is. It contains identity claims (sub, name, email) and is meant only for the client that requested it — never forward it to APIs.\n> ⚠️ **Educational only** — never store ID tokens in browser storage in production.');
+					if (header)
+						parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+					if (payload)
+						parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+					parts.push(
+						'\n> ℹ️ The ID Token asserts who the user is. It contains identity claims (sub, name, email) and is meant only for the client that requested it — never forward it to APIs.\n> ⚠️ **Educational only** — never store ID tokens in browser storage in production.'
+					);
 					return parts.join('\n\n');
 				})();
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
 			}
 
 			if (isShowWorkerTokenQuery(query)) {
-				const useAdminTok = useAdminLogin && !!adminToken && adminTokenExpiry != null && Date.now() < adminTokenExpiry - ADMIN_TOKEN_BUFFER_MS;
+				const useAdminTok =
+					useAdminLogin &&
+					!!adminToken &&
+					adminTokenExpiry != null &&
+					Date.now() < adminTokenExpiry - ADMIN_TOKEN_BUFFER_MS;
 				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
 				const token = useAdminTok ? adminToken : (tokenData?.token ?? null);
 				const label = useAdminTok ? 'Admin Token' : 'Worker Token';
@@ -669,19 +692,28 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					const header = decodeJwtHeader(token);
 					const payload = decodeJwtPayload(token);
 					const parts: string[] = [`## 🔐 ${label}\n\n\`\`\`\n${token}\n\`\`\``];
-					if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
-					if (payload) parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
-					parts.push('\n> ⚠️ **Educational only** — worker tokens are high-privilege. Never reveal them in production UIs.');
+					if (header)
+						parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+					if (payload)
+						parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+					parts.push(
+						'\n> ⚠️ **Educational only** — worker tokens are high-privilege. Never reveal them in production UIs.'
+					);
 					return parts.join('\n\n');
 				})();
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
 			}
 
 			if (isDecodeTokenQuery(query)) {
-				const jwtMatch = query.match(/\bey[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\b/);
+				const jwtMatch = query.match(
+					/\bey[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\b/
+				);
 				const tokenToDecode = jwtMatch?.[0] ?? null;
 				const msg = (() => {
 					if (!tokenToDecode) {
@@ -689,15 +721,26 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					}
 					const header = decodeJwtHeader(tokenToDecode);
 					const payload = decodeJwtPayload(tokenToDecode);
-					const truncated = tokenToDecode.length > 80 ? `${tokenToDecode.slice(0, 80)}…` : tokenToDecode;
+					const truncated =
+						tokenToDecode.length > 80 ? `${tokenToDecode.slice(0, 80)}…` : tokenToDecode;
 					const parts: string[] = [`## 🔬 Decoded Token\n\n\`\`\`\n${truncated}\n\`\`\``];
-					if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
-					if (payload) parts.push(`### Payload Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
-					if (!header && !payload) parts.push('⚠️ Could not decode — this may not be a standard JWT.');
-					parts.push('\n> ℹ️ JWT decode is client-side base64 only — no signature verification. For **educational inspection** only.');
+					if (header)
+						parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+					if (payload)
+						parts.push(
+							`### Payload Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``
+						);
+					if (!header && !payload)
+						parts.push('⚠️ Could not decode — this may not be a standard JWT.');
+					parts.push(
+						'\n> ℹ️ JWT decode is client-side base64 only — no signature verification. For **educational inspection** only.'
+					);
 					return parts.join('\n\n');
 				})();
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
@@ -712,15 +755,101 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					const parts: string[] = ['## 📡 Recent API Calls'];
 					records.forEach((rec, i) => {
 						parts.push(`### ${i + 1}. ${rec.mcpTool ?? 'Unknown tool'}\n**Query:** ${rec.query}`);
-						if (rec.apiCall) parts.push(`**API Call:** \`${rec.apiCall.method} ${rec.apiCall.path}\``);
+						if (rec.apiCall)
+							parts.push(`**API Call:** \`${rec.apiCall.method} ${rec.apiCall.path}\``);
 						if (rec.data !== null && rec.data !== undefined) {
 							const json = JSON.stringify(rec.data, null, 2);
-							parts.push(`**Response:**\n\`\`\`json\n${json.length > 2000 ? `${json.slice(0, 2000)}\n…(truncated)` : json}\n\`\`\``);
+							parts.push(
+								`**Response:**\n\`\`\`json\n${json.length > 2000 ? `${json.slice(0, 2000)}\n…(truncated)` : json}\n\`\`\``
+							);
 						}
 					});
 					return parts.join('\n\n');
 				})();
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isLastToolQuery(query)) {
+				const msg = (() => {
+					const last = [...apiCallHistory].reverse()[0];
+					if (!last) {
+						return 'No MCP tool calls recorded yet. Execute a live command (e.g. **List all users**) first, then ask me again.';
+					}
+					const toolName = last.mcpTool ?? 'Unknown tool';
+					// Parse naming convention: pingone_<verb>_<resource>
+					const parts = toolName.replace(/^pingone[._]?/, '').split(/[._]/);
+					const verb = parts[0] ?? '';
+					const resource = parts.slice(1).join(' ');
+					const niceVerb: Record<string, string> = {
+						list: 'lists all',
+						get: 'fetches a single',
+						create: 'creates a new',
+						delete: 'deletes a',
+						update: 'updates a',
+						rotate: 'rotates the',
+						introspect: 'introspects a',
+						userinfo: 'retrieves claims from the OIDC UserInfo endpoint for',
+					};
+					const verbDesc = niceVerb[verb.toLowerCase()] ?? verb;
+					const methodDesc: Record<string, string> = {
+						GET: 'Read-only — retrieves data, no side effects, safe to retry.',
+						POST: 'Creates or triggers an action — not idempotent.',
+						PUT: 'Replaces a resource in full.',
+						PATCH: 'Partially updates a resource.',
+						DELETE: 'Removes a resource permanently.',
+					};
+					const lines: string[] = [
+						`## 🔌 Last MCP Tool: \`${toolName}\``,
+						'',
+						`**Your query:** "${last.query}"`,
+						`**When:** ${last.timestamp.toLocaleTimeString()}`,
+						'',
+						`### Tool name breakdown`,
+						`\`${toolName}\``,
+						`- **Prefix** \`pingone_\` — all PingOne Management / Auth API tools share this prefix`,
+						...(verb ? [`- **Action** \`${verb}\` — ${verbDesc} ${resource || 'resource(s)'}`] : []),
+						...(resource ? [`- **Resource** \`${resource.replace(/\s+/g, '_')}\` — the PingOne resource type being operated on`] : []),
+					];
+					if (last.apiCall) {
+						const { method, path } = last.apiCall;
+						lines.push('', `### API Call`);
+						lines.push(`\`\`\`\n${method} ${path}\n\`\`\``);
+						if (methodDesc[method.toUpperCase()]) {
+							lines.push(`> **HTTP ${method}** — ${methodDesc[method.toUpperCase()]}`);
+						}
+						// Highlight path segments
+						const pathNote: string[] = [];
+						if (path.includes('{envId}') || path.includes('/environments/')) pathNote.push('`{envId}` — your PingOne environment UUID');
+						if (path.includes('{userId}')) pathNote.push('`{userId}` — the specific user\'s UUID');
+						if (path.includes('{appId}') || path.includes('/applications/')) pathNote.push('`{appId}` — the application UUID');
+						if (path.includes('/as/')) pathNote.push('`/as/` — Authorization Server (OIDC/OAuth2 endpoints, not Management API)');
+						if (pathNote.length) lines.push('', '**Path segments:**', ...pathNote.map((n) => `- ${n}`));
+					}
+					if (last.howItWorks) {
+						lines.push('', `### How it works`, last.howItWorks);
+					}
+					// Data summary
+					if (last.data != null) {
+						if (Array.isArray(last.data)) {
+							lines.push('', `### Response`, `Returned **${(last.data as unknown[]).length} item(s)**. Run **"show api calls"** to see the full JSON.`);
+						} else if (typeof last.data === 'object' && last.data !== null) {
+							const keys = Object.keys(last.data as object);
+							lines.push('', `### Response`, `Returned an object with ${keys.length} field(s): \`${keys.slice(0, 6).join('`, `')}${keys.length > 6 ? '`, …' : '`'}`);
+						}
+					}
+					lines.push('', '---', '> 💡 **Related commands:** `show api calls` (last 5 with full data) · `decode jwt` (paste a token to inspect claims) · `what is mcp` (learn the protocol)');
+					return lines.join('\n');
+				})();
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
@@ -738,7 +867,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					{
 						id: crypto.randomUUID(),
 						type: 'assistant',
-						content: '🗑️ **Tokens cleared.** User access token, ID token, and admin token have been removed from memory and localStorage.\n\n> Note: The worker token (managed in Configuration) is not affected.',
+						content:
+							'🗑️ **Tokens cleared.** User access token, ID token, and admin token have been removed from memory and localStorage.\n\n> Note: The worker token (managed in Configuration) is not affected.',
 						timestamp: new Date(),
 					},
 				]);
@@ -765,7 +895,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'### This app is a working agent',
 					'When you type **"List all users"**, the agent:',
 					'1. Classifies it as an MCP query (`isMcpQuery()` → `true`)',
-					'2. Checks the Live toggle (won\'t simulate data)',
+					"2. Checks the Live toggle (won't simulate data)",
 					'3. POSTs to `/api/mcp/query` → calls PingOne → real user list returned',
 					'4. Displays the 🔌 MCP card with method, path, and raw data',
 					'',
@@ -776,7 +906,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'💡 Try: **"How does this agent work?"** — see the full implementation.',
 					'💡 Try: **"List all users"** — watch the agent make a real API call.',
 				].join('\n');
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
@@ -819,7 +952,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'💡 Try: **"Explain MCP host, client, server"** — the three roles.',
 					'💡 Try: **"What is a tool call?"** — see the JSON-RPC message format.',
 				].join('\n');
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
@@ -868,7 +1004,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'💡 MCP spec: https://modelcontextprotocol.io',
 					'💡 Try: **"What is JSON-RPC?"** — the protocol that connects client and server.',
 				].join('\n');
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
@@ -921,7 +1060,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'💡 Try: **"Show agent architecture"** — see the full stack diagram.',
 					'💡 Try: **"List all users"** — watch a real API call happen.',
 				].join('\n');
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
@@ -980,7 +1122,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'- **LLM**: Groq API · `llama-3.3-70b-versatile`',
 					'- **Identity**: PingOne (users · groups · MFA · apps · tokens · OIDC)',
 				].join('\n');
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
@@ -1032,7 +1177,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'💡 Try: **"List MCP tools"** — retrieves all 71 available tools from the server.',
 					'💡 Try: **"List all users"** — executes a real `tools/call` right now.',
 				].join('\n');
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
@@ -1094,7 +1242,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'await server.connect(transport);',
 					'```',
 				].join('\n');
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
@@ -1104,7 +1255,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 				const msg = [
 					'## How Does Groq Fit In? ⚡',
 					'',
-					'**Groq** is the LLM inference provider powering this agent\'s natural language understanding.',
+					"**Groq** is the LLM inference provider powering this agent's natural language understanding.",
 					'',
 					'### What Groq provides',
 					'- **API**: `api.groq.com/openai/v1/chat/completions`',
@@ -1133,7 +1284,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'💡 The **⚡ Groq** status dot in the header shows connection state.',
 					'💡 Add your key in **Configuration → AI Keys**.',
 				].join('\n');
-				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setMessages((prev) => [
+					...prev,
+					{ id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() },
+				]);
 				setIsTyping(false);
 				setInput(query);
 				return;
@@ -1201,7 +1355,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					if (mcpResult.apiCall) {
 						setApiCallHistory((prev) => [
 							...prev.slice(-19),
-							{ id: crypto.randomUUID(), query, mcpTool: mcpResult.mcpTool, apiCall: mcpResult.apiCall, data: mcpResult.data, timestamp: new Date() },
+							{
+								id: crypto.randomUUID(),
+								query,
+								mcpTool: mcpResult.mcpTool,
+								apiCall: mcpResult.apiCall,
+								howItWorks: mcpResult.howItWorks ?? null,
+								data: mcpResult.data,
+								timestamp: new Date(),
+							},
 						]);
 					}
 					setMessages((prev) => [...prev, assistantMessage]);

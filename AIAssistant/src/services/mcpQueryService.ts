@@ -241,6 +241,17 @@ export function isShowApiCallsQuery(query: string): boolean {
 	);
 }
 
+/**
+ * Returns true when the user is asking to inspect / explain the single most-recent MCP tool call:
+ * tool name, HTTP method + path, and the educational explanation.
+ * Distinct from isShowApiCallsQuery which lists the last 5 calls.
+ */
+export function isLastToolQuery(query: string): boolean {
+	return /\blast\s+(?:mcp\s+)?tool\b|\bwhat\s+(?:was\s+the\s+last|tool\s+did\s+you)\b|\bexplain\s+(?:the\s+)?last\s+(?:tool|call|mcp)\b|\bwhat\s+did\s+you\s+(?:just\s+)?(?:call|use|do)\b|\bwhat\s+mcp\s+tool\b|\blast\s+mcp\s+call\b|\bshow\s+last\s+tool\b|\bwhat\s+api\s+did\s+you\b|\bwhat\s+was\s+that\s+(?:tool|call)\b|\binspect\s+(?:last\s+)?(?:mcp|tool|call)\b|\bmcp\s+introspect\b/i.test(
+		query.trim()
+	);
+}
+
 /** Returns true when the query is asking to clear all stored tokens from memory/localStorage. */
 export function isClearTokensQuery(query: string): boolean {
 	return /\bclear\s+(?:all\s+)?(?:my\s+)?(?:stored\s+)?tokens?\b|\bforget\s+(?:my\s+)?tokens?\b|\bremove\s+(?:my\s+)?(?:stored\s+)?tokens?\b|\bdelete\s+(?:my\s+)?(?:stored\s+)?tokens?\b|\bclear\s+token\s+storage\b|\bsign\s+out\s+tokens?\b/i.test(
