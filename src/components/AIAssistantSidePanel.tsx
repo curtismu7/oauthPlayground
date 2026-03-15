@@ -988,36 +988,6 @@ const McpQueryContent: React.FC<{ history: McpQueryRecord[] }> = ({ history }) =
 	);
 };
 
-const ToolsContent: React.FC = () => (
-	<ContentSection>
-		<SectionTitle>Developer Tools</SectionTitle>
-
-		<ToolCard>
-			<ToolTitle>Token Debugger</ToolTitle>
-			<ToolDescription>Analyze and debug JWT tokens and OAuth flows</ToolDescription>
-			<ToolButton onClick={() => logger.info('Side Panel', 'Token debugger tool requested')}>
-				Launch Debugger
-			</ToolButton>
-		</ToolCard>
-
-		<ToolCard>
-			<ToolTitle>Flow Generator</ToolTitle>
-			<ToolDescription>Generate custom OAuth flows and configurations</ToolDescription>
-			<ToolButton onClick={() => logger.info('Side Panel', 'Flow generator tool requested')}>
-				Create Flow
-			</ToolButton>
-		</ToolCard>
-
-		<ToolCard>
-			<ToolTitle>API Explorer</ToolTitle>
-			<ToolDescription>Interactive API testing and exploration tool</ToolDescription>
-			<ToolButton onClick={() => logger.info('Side Panel', 'API explorer tool requested')}>
-				Explore APIs
-			</ToolButton>
-		</ToolCard>
-	</ContentSection>
-);
-
 // Styled Components
 const SidePanelOverlay = styled.div`
 	position: fixed;
@@ -1297,50 +1267,6 @@ const ResourceDescription = styled.p`
 	color: #666;
 	line-height: 1.4;
 	margin: 0;
-`;
-
-const ToolCard = styled.div`
-	background: white;
-	border: 1px solid #e0e0e0;
-	border-radius: 8px;
-	padding: 16px;
-`;
-
-const ToolTitle = styled.h3`
-	font-size: 16px;
-	font-weight: 600;
-	color: #333;
-	margin: 0 0 8px 0;
-`;
-
-const ToolDescription = styled.p`
-	font-size: 14px;
-	color: #666;
-	line-height: 1.4;
-	margin: 0 0 16px 0;
-`;
-
-const ToolButton = styled.button`
-	background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-	color: white;
-	border: none;
-	padding: 10px 16px;
-	border-radius: 6px;
-	font-size: 14px;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 0.2s;
-
-	&:hover {
-		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-	}
-
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-		transform: none;
-	}
 `;
 
 // ── MCP Query Log styled components ─────────────────────────────────────────
