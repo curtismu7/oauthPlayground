@@ -42,34 +42,26 @@ export class PingOneLoginService {
 				scopes,
 			});
 
-			// Generate PKCE parameters
-			const codeVerifier = PingOneLoginService.generateCodeVerifier();
-			const codeChallenge = await PingOneLoginService.generateCodeChallenge(codeVerifier);
-			const state = PingOneLoginService.generateState();
-
-			// Build request body for proxy endpoint.
+			// pi.flow with response_type=token id_token delivers tokens directly at the resume step.
+			// No PKCE and no redirect_uri required.
 			// Per https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html
-			// redirect_uri is NOT required for response_mode=pi.flow — omit when not provided.
+			const nonce = PingOneLoginService.generateState(); // reuse random state generator for nonce
+			const codeVerifier = ''; // not used for token response_type — kept for interface compat
+
 			const requestBody: Record<string, unknown> = {
 				environmentId: environmentId,
 				clientId: clientId,
-				response_type: 'code',
+				response_type: 'token id_token',
 				response_mode: 'pi.flow',
 				scopes: scopes.join(' '),
-				codeChallenge: codeChallenge,
-				codeChallengeMethod: 'S256',
-				state: state,
+				nonce: nonce,
 			};
-			if (redirectUri?.trim()) {
-				requestBody.redirectUri = redirectUri.trim();
-			}
 			if (region?.trim()) {
 				requestBody.region = region.trim().toLowerCase();
 			}
 
 			logger.info(`${MODULE_TAG} Request body:`, {
 				...requestBody,
-				codeChallenge: `${codeChallenge.substring(0, 20)}...`,
 				clientId: `${clientId.substring(0, 8)}...`,
 			});
 
@@ -122,14 +114,14 @@ export class PingOneLoginService {
 				);
 			}
 
-			// Store PKCE and flow params by flowId for submitCredentials/resumeFlow
+			// Store flow params by flowId for submitCredentials/resumeFlow
 			PingOneLoginService.storeFlowParams(flowId, {
 				codeVerifier,
 				environmentId,
 				clientId,
-				redirectUri: redirectUri?.trim() || '',
+				redirectUri: '',
 				sessionId,
-				state,
+				state: nonce,
 				resumeUrl:
 					resumeUrl || `https://auth.pingone.com/${environmentId}/as/resume?flowId=${flowId}`,
 			});
@@ -274,13 +266,24 @@ export class PingOneLoginService {
 	}
 
 	/**
-	 * Resume the flow to get authorization code
+	 * Resume the pi.flow — returns tokens directly in JSON (response_type=token id_token).
+	 * Per docs: https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html
+	 * "When authentication is complete, the app receives the access token or ID token
+	 *  in a JSON response instead of a redirect."
 	 */
 	static async resumeFlow(
 		flowId: string
-	): Promise<ServiceResponse<{ authorizationCode: string; state: string }>> {
+	): Promise<
+		ServiceResponse<{
+			access_token: string;
+			id_token?: string;
+			token_type: string;
+			expires_in: number;
+			scope: string;
+		}>
+	> {
 		try {
-			logger.info(`${MODULE_TAG} Resuming flow:`, flowId);
+			logger.info(`${MODULE_TAG} Resuming pi.flow to get tokens:`, flowId);
 
 			const params = PingOneLoginService.getFlowParams(flowId);
 			if (!params) {
@@ -292,16 +295,13 @@ export class PingOneLoginService {
 				flowId,
 				flowState: params.state,
 				clientId: params.clientId,
-				clientSecret: undefined as string | undefined,
-				codeVerifier: params.codeVerifier,
 				sessionId: params.sessionId,
+				// No codeVerifier — token response_type doesn't use PKCE
 			};
 
 			const response = await fetch(`${PingOneLoginService.PROXY_BASE_URL}/resume`, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
+				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(requestBody),
 			});
 
@@ -314,27 +314,31 @@ export class PingOneLoginService {
 
 			const result = await response.json();
 
-			const authorizationCode: string =
-				result.code || result.authorizeResponse?.code || result.flow?.code;
-			if (!authorizationCode) {
-				throw new Error('Authorization code not found in response');
+			// pi.flow resume returns tokens directly
+			const accessToken: string = result.access_token;
+			if (!accessToken) {
+				throw new Error(
+					`Token not found in resume response. Got keys: ${Object.keys(result).join(', ')}`
+				);
 			}
-
-			const state: string = result.state || params.state || flowId;
 
 			PingOneLoginService.clearFlowParams(flowId);
 
-			logger.info(`${MODULE_TAG} Flow resumed successfully`, {
+			logger.info(`${MODULE_TAG} pi.flow resumed — tokens received`, {
 				flowId,
-				hasAuthCode: !!authorizationCode,
-				state,
+				hasAccessToken: true,
+				hasIdToken: !!result.id_token,
+				scope: result.scope,
 			});
 
 			return {
 				success: true,
 				data: {
-					authorizationCode,
-					state,
+					access_token: accessToken,
+					id_token: result.id_token,
+					token_type: result.token_type || 'Bearer',
+					expires_in: result.expires_in ?? 3600,
+					scope: result.scope || '',
 				},
 				metadata: {
 					timestamp: new Date().toISOString(),
@@ -343,7 +347,7 @@ export class PingOneLoginService {
 				},
 			};
 		} catch (error) {
-			logger.error(MODULE_TAG, 'Failed to resume flow:', undefined, error as Error);
+			logger.error(MODULE_TAG, 'Failed to resume pi.flow:', undefined, error as Error);
 
 			const portalError: PortalError = {
 				code: 'RESUME_FAILED',
@@ -521,32 +525,8 @@ export class PingOneLoginService {
 	}
 
 	/**
-	 * Generate a random code verifier for PKCE
-	 */
-	private static generateCodeVerifier(): string {
-		const array = new Uint8Array(32);
-		crypto.getRandomValues(array);
-		return btoa(String.fromCharCode.apply(null, Array.from(array)))
-			.replace(/\+/g, '-')
-			.replace(/\//g, '_')
-			.replace(/=/g, '');
-	}
-
 	/**
-	 * Generate code challenge from code verifier
-	 */
-	private static async generateCodeChallenge(codeVerifier: string): Promise<string> {
-		const encoder = new TextEncoder();
-		const data = encoder.encode(codeVerifier);
-		const digest = await crypto.subtle.digest('SHA-256', data);
-		return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))))
-			.replace(/\+/g, '-')
-			.replace(/\//g, '_')
-			.replace(/=/g, '');
-	}
-
-	/**
-	 * Generate random state parameter
+	 * Generate random nonce/state parameter
 	 */
 	private static generateState(): string {
 		return (
