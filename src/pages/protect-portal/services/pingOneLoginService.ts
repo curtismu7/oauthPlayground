@@ -31,7 +31,9 @@ export class PingOneLoginService {
 		redirectUri?: string,
 		scopes: string[] = ['openid', 'profile', 'email'],
 		region?: string
-	): Promise<ServiceResponse<{ flowId: string; sessionId: string; resumeUrl?: string }>> {
+	): Promise<
+		ServiceResponse<{ flowId: string; sessionId: string; resumeUrl?: string; codeVerifier: string }>
+	> {
 		try {
 			logger.info(`${MODULE_TAG} Initializing PingOne embedded login`, {
 				environmentId,
@@ -143,6 +145,7 @@ export class PingOneLoginService {
 					flowId,
 					sessionId,
 					resumeUrl: resumeUrl || result.authorizeUrl,
+					codeVerifier,
 				},
 				metadata: {
 					timestamp: new Date().toISOString(),
