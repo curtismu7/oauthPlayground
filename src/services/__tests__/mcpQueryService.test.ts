@@ -128,6 +128,14 @@ describe('predictMcpTool', () => {
 	describe('populations', () => {
 		it('list populations', () =>
 			expect(predictMcpTool('List populations')).toBe('pingone_list_populations'));
+		it('add user to population by name', () =>
+			expect(predictMcpTool('Add alice to population Employees')).toBe('pingone_update_user'));
+		it('move user into population', () =>
+			expect(predictMcpTool('Move bob into population Default')).toBe('pingone_update_user'));
+		it('set user population', () =>
+			expect(predictMcpTool('Set population for alice to Employees')).toBe('pingone_update_user'));
+		it('change user population', () =>
+			expect(predictMcpTool('Change population for john@acme.com')).toBe('pingone_update_user'));
 	});
 
 	describe('MFA', () => {
