@@ -1946,6 +1946,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					userAccessToken={userAccessToken}
 					onUserTokenSet={handleUserTokenSet}
 					onUserTokenClear={handleUserTokenClear}
+					apiCallHistory={apiCallHistory}
 				/>
 			)}
 
@@ -3028,6 +3029,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					userAccessToken={userAccessToken}
 					onUserTokenSet={handleUserTokenSet}
 					onUserTokenClear={handleUserTokenClear}
+					apiCallHistory={apiCallHistory}
 				/>
 			)}
 
