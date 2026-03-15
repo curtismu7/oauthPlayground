@@ -1172,12 +1172,85 @@ const ApiExplorerContent: React.FC<ApiExplorerContentProps> = ({
 					{error !== null ? (
 						<ApiResponseError>{error}</ApiResponseError>
 					) : (
-						<ApiResponsePre>{JSON.stringify(response, null, 2)}</ApiResponsePre>
+						<ApiResponseBody>
+							<JsonViewer data={response} />
+						</ApiResponseBody>
 					)}
 				</ApiResponseBox>
 			)}
 		</ContentSection>
 	);
+};
+
+// ── JSON Viewer with per-value copy buttons ───────────────────────────────────
+
+const CopyValue: React.FC<{ value: string }> = ({ value }) => {
+	const [copied, setCopied] = React.useState(false);
+	const handleCopy = React.useCallback(() => {
+		void navigator.clipboard.writeText(value).then(() => {
+			setCopied(true);
+			setTimeout(() => setCopied(false), 1500);
+		});
+	}, [value]);
+	return (
+		<JsonCopyBtn type="button" onClick={handleCopy} $copied={copied} title={`Copy: ${value}`}>
+			{copied ? '✓' : '⎘'}
+		</JsonCopyBtn>
+	);
+};
+
+const JsonViewer: React.FC<{ data: unknown; depth?: number }> = ({ data, depth = 0 }) => {
+	if (data === null || data === undefined) {
+		return <JsonNull>null</JsonNull>;
+	}
+	if (typeof data === 'boolean') {
+		return <JsonBoolVal>{String(data)}</JsonBoolVal>;
+	}
+	if (typeof data === 'number') {
+		return (
+			<JsonLeafRow>
+				<JsonNumberVal>{data}</JsonNumberVal>
+				<CopyValue value={String(data)} />
+			</JsonLeafRow>
+		);
+	}
+	if (typeof data === 'string') {
+		return (
+			<JsonLeafRow>
+				<JsonStringVal>&quot;{data}&quot;</JsonStringVal>
+				<CopyValue value={data} />
+			</JsonLeafRow>
+		);
+	}
+	if (Array.isArray(data)) {
+		if (data.length === 0) return <JsonNull>[]</JsonNull>;
+		return (
+			<JsonBlock $depth={depth}>
+				{data.map((item, i) => (
+					// eslint-disable-next-line react/no-array-index-key
+					<JsonRow key={i}>
+						<JsonKey>[{i}]</JsonKey>
+						<JsonViewer data={item} depth={depth + 1} />
+					</JsonRow>
+				))}
+			</JsonBlock>
+		);
+	}
+	if (typeof data === 'object') {
+		const entries = Object.entries(data as Record<string, unknown>);
+		if (entries.length === 0) return <JsonNull>{'{}'}</JsonNull>;
+		return (
+			<JsonBlock $depth={depth}>
+				{entries.map(([k, v]) => (
+					<JsonRow key={k}>
+						<JsonKey>{k}:</JsonKey>
+						<JsonViewer data={v} depth={depth + 1} />
+					</JsonRow>
+				))}
+			</JsonBlock>
+		);
+	}
+	return <JsonStringVal>{String(data)}</JsonStringVal>;
 };
 
 // Styled Components
@@ -1709,17 +1782,88 @@ const ApiResponseError = styled.p`
 	color: #991b1b;
 `;
 
-const ApiResponsePre = styled.pre`
-	margin: 0;
+const ApiResponseBody = styled.div`
 	padding: 10px 12px;
-	font-size: 10px;
-	font-family: 'SF Mono', 'Fira Code', monospace;
-	color: #1f2937;
-	overflow: auto;
-	max-height: 300px;
+	max-height: 340px;
+	overflow-y: auto;
 	background: #fff;
-	white-space: pre-wrap;
+`;
+
+// ── JSON Viewer styled components ────────────────────────────────────────────
+
+const JsonBlock = styled.div<{ $depth: number }>`
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding-left: ${({ $depth }) => ($depth > 0 ? '12px' : '0')};
+	border-left: ${({ $depth }) => ($depth > 0 ? '2px solid #e5e7eb' : 'none')};
+`;
+
+const JsonRow = styled.div`
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	flex-wrap: wrap;
+	padding: 1px 0;
+`;
+
+const JsonKey = styled.span`
+	font-size: 11px;
+	font-weight: 600;
+	color: #6b7280;
+	font-family: 'SF Mono', 'Fira Code', monospace;
+	white-space: nowrap;
+`;
+
+const JsonLeafRow = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex-wrap: wrap;
+`;
+
+const JsonStringVal = styled.span`
+	font-size: 11px;
+	color: #1d4ed8;
+	font-family: 'SF Mono', 'Fira Code', monospace;
 	word-break: break-all;
+`;
+
+const JsonNumberVal = styled.span`
+	font-size: 11px;
+	color: #059669;
+	font-family: 'SF Mono', 'Fira Code', monospace;
+`;
+
+const JsonBoolVal = styled.span`
+	font-size: 11px;
+	color: #d97706;
+	font-family: 'SF Mono', 'Fira Code', monospace;
+`;
+
+const JsonNull = styled.span`
+	font-size: 11px;
+	color: #9ca3af;
+	font-family: 'SF Mono', 'Fira Code', monospace;
+`;
+
+const JsonCopyBtn = styled.button<{ $copied: boolean }>`
+	background: ${({ $copied }) => ($copied ? '#d1fae5' : '#f3f4f6')};
+	border: 1px solid ${({ $copied }) => ($copied ? '#6ee7b7' : '#e5e7eb')};
+	border-radius: 3px;
+	padding: 1px 5px;
+	font-size: 10px;
+	cursor: pointer;
+	color: ${({ $copied }) => ($copied ? '#065f46' : '#6b7280')};
+	line-height: 1.4;
+	transition: all 0.15s;
+	flex-shrink: 0;
+
+	&:hover {
+		background: #e0e7ff;
+		border-color: #a5b4fc;
+		color: #3730a3;
+	}
 `;
 
 export default AIAssistantSidePanel;
