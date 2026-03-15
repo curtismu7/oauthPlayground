@@ -496,15 +496,22 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 			? Math.max(0, Math.round((adminTokenExpiry - Date.now()) / 60_000))
 			: 0;
 
+	const [adminUsername, setAdminUsername] = useState('');
+	const [adminPassword, setAdminPassword] = useState('');
+
 	if (usernamePasswordOnly) {
-		const handleQuickLogin = async () => {
+		const handleRopcLogin = async () => {
 			if (!onAdminTokenSet) return;
 			const data = unifiedWorkerTokenService.getTokenDataSync();
 			const envId = data?.credentials?.environmentId?.trim();
 			const cid = data?.credentials?.clientId?.trim();
 			const secret = data?.credentials?.clientSecret?.trim();
 			if (!envId || !cid || !secret) {
-				setError('Configure PingOne OIDC client credentials in Configuration first.');
+				setError('Configure PingOne worker credentials in Configuration first.');
+				return;
+			}
+			if (!adminUsername.trim() || !adminPassword) {
+				setError('Username and password are required.');
 				return;
 			}
 			setError(null);
@@ -514,10 +521,12 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
-						grant_type: 'client_credentials',
+						grant_type: 'password',
 						client_id: cid,
 						client_secret: secret,
 						environment_id: envId,
+						username: adminUsername.trim(),
+						password: adminPassword,
 						scope: DEFAULT_ADMIN_SCOPE,
 						client_auth_method: 'client_secret_post',
 					}),
@@ -532,6 +541,7 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 				const expiresIn = typeof respData.expires_in === 'number' ? respData.expires_in : 3600;
 				if (!token) throw new Error('No access_token in response');
 				onAdminTokenSet(token, expiresIn, envId);
+				setAdminPassword('');
 			} catch (err) {
 				const msg = err instanceof Error ? err.message : 'Login failed';
 				setError(msg);
@@ -545,8 +555,8 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 			<ContentSection>
 				<SectionTitle>Admin login</SectionTitle>
 				<SectionDescription>
-					Uses client credentials from Configuration to get an admin access token. After sign-in,
-					the agent uses it for commands like &quot;list all users&quot;.
+					Sign in with your PingOne admin credentials. The agent will use this token for live
+					commands like &quot;list all users&quot;.
 				</SectionDescription>
 				{isLoggedIn ? (
 					<LoginCard>
@@ -560,20 +570,42 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 					</LoginCard>
 				) : (
 					<LoginCard>
-						<CardTitle>Get admin token</CardTitle>
+						<CardTitle>Enter admin credentials</CardTitle>
 						<CardDescription>
-							Credentials are loaded from Configuration (worker token app). Uses client_credentials
-							grant — no username or password needed.
+							Use your PingOne admin username and password. Client credentials are loaded from
+							Configuration.
 						</CardDescription>
+						<FormRow>
+							<FormLabel>Username</FormLabel>
+							<FormInput
+								type="text"
+								value={adminUsername}
+								onChange={(e) => setAdminUsername(e.target.value)}
+								placeholder="admin@example.com"
+								disabled={isLoading}
+								autoComplete="username"
+							/>
+						</FormRow>
+						<FormRow>
+							<FormLabel>Password</FormLabel>
+							<FormInput
+								type="password"
+								value={adminPassword}
+								onChange={(e) => setAdminPassword(e.target.value)}
+								placeholder="Password"
+								disabled={isLoading}
+								autoComplete="current-password"
+							/>
+						</FormRow>
 						{error && <FormError>{error}</FormError>}
 						<LoginButton
 							type="button"
 							onClick={() => {
-								void handleQuickLogin();
+								void handleRopcLogin();
 							}}
 							disabled={isLoading || !onAdminTokenSet}
 						>
-							{isLoading ? 'Signing in…' : 'Get admin token'}
+							{isLoading ? 'Signing in…' : 'Sign in'}
 						</LoginButton>
 					</LoginCard>
 				)}
