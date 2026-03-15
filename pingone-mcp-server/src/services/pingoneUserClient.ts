@@ -60,6 +60,7 @@ export interface GetUserRequest {
 	clientId?: string;
 	clientSecret?: string;
 	region?: string;
+	signal?: AbortSignal;
 }
 
 export interface GetUserResult {
@@ -78,6 +79,7 @@ export async function getUser(request: GetUserRequest): Promise<GetUserResult> {
 
 		const { data } = await axios.get<Record<string, unknown>>(url, {
 			headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+			signal: request.signal,
 		});
 
 		return { success: true, user: data, raw: data };
@@ -105,32 +107,64 @@ export interface ListUsersRequest {
 	region?: string;
 	filter?: string;
 	limit?: number;
+	/** Next page URL from previous response (_links.next.href). Omit for first page. */
+	nextPageUrl?: string;
+	signal?: AbortSignal;
 }
 
 export interface ListUsersResult {
 	success: boolean;
 	users?: Record<string, unknown>[];
+	/** Total count if returned by API (may be absent for large sets). */
+	count?: number;
+	/** Page size returned. */
+	size?: number;
+	/** Full URL for next page; pass back as nextPageUrl for subsequent requests. */
+	nextPageUrl?: string;
 	raw?: unknown;
 	error?: { code?: string; message: string };
 }
 
+/** Extracts next page href from PingOne _links.next. */
+function extractNextPageUrl(data: Record<string, unknown>): string | undefined {
+	const links = data._links as Record<string, { href?: string }> | undefined;
+	const next = links?.next?.href;
+	return typeof next === 'string' && next.trim() ? next : undefined;
+}
+
 export async function listUsers(request: ListUsersRequest): Promise<ListUsersResult> {
 	try {
-		const environmentId = resolveEnvironmentId(request.environmentId);
 		const token = await getWorkerToken(request);
-		const baseUrl = buildApiBaseUrl(environmentId, request.region);
-		const limit = request.limit && request.limit > 0 ? Math.min(request.limit, 200) : 100;
-		const params: Record<string, string> = { limit: String(limit) };
-		if (request.filter?.trim()) params.filter = request.filter.trim();
-		const url = `${baseUrl}/users`;
-		const { data } = await axios.get<Record<string, unknown>>(url, {
-			headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
-			params,
-		});
+		let data: Record<string, unknown>;
+
+		if (request.nextPageUrl?.trim()) {
+			const { data: resp } = await axios.get<Record<string, unknown>>(request.nextPageUrl.trim(), {
+				headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+				signal: request.signal,
+			});
+			data = resp;
+		} else {
+			const environmentId = resolveEnvironmentId(request.environmentId);
+			const baseUrl = buildApiBaseUrl(environmentId, request.region);
+			const limit = request.limit && request.limit > 0 ? Math.min(request.limit, 200) : 100;
+			const params: Record<string, string> = { limit: String(limit) };
+			if (request.filter?.trim()) params.filter = request.filter.trim();
+			const url = `${baseUrl}/users`;
+			const { data: resp } = await axios.get<Record<string, unknown>>(url, {
+				headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+				params,
+				signal: request.signal,
+			});
+			data = resp;
+		}
 
 		const embedded = data._embedded as Record<string, unknown> | undefined;
 		const users = (embedded?.users as Record<string, unknown>[]) ?? [];
-		return { success: true, users, raw: data };
+		const count = typeof data.count === 'number' ? data.count : undefined;
+		const size = typeof data.size === 'number' ? data.size : users.length;
+		const nextPageUrl = extractNextPageUrl(data);
+
+		return { success: true, users, count, size, nextPageUrl, raw: data };
 	} catch (err) {
 		const axiosError = err as AxiosError;
 		const status = axiosError.response?.status;
@@ -328,11 +362,16 @@ export async function getPopulation(request: GetPopulationRequest): Promise<GetP
 
 export interface ListPopulationsRequest extends WorkerTokenRequestBase {
 	limit?: number;
+	/** Next page URL from previous response (_links.next.href). Omit for first page. */
+	nextPageUrl?: string;
 }
 
 export interface ListPopulationsResult {
 	success: boolean;
 	populations?: Record<string, unknown>[];
+	count?: number;
+	size?: number;
+	nextPageUrl?: string;
 	raw?: unknown;
 	error?: { code?: string; message: string };
 }
@@ -340,20 +379,32 @@ export interface ListPopulationsResult {
 /** List populations in the environment. */
 export async function listPopulations(request: ListPopulationsRequest): Promise<ListPopulationsResult> {
 	try {
-		const environmentId = resolveEnvironmentId(request.environmentId);
 		const token = await getWorkerToken(request);
-		const baseUrl = buildApiBaseUrl(environmentId, request.region);
-		const limit = request.limit && request.limit > 0 ? Math.min(request.limit, 200) : 100;
-		const url = `${baseUrl}/populations`;
+		let data: Record<string, unknown>;
 
-		const { data } = await axios.get<Record<string, unknown>>(url, {
-			headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
-			params: { limit: String(limit) },
-		});
+		if (request.nextPageUrl?.trim()) {
+			const { data: resp } = await axios.get<Record<string, unknown>>(request.nextPageUrl.trim(), {
+				headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+			});
+			data = resp;
+		} else {
+			const environmentId = resolveEnvironmentId(request.environmentId);
+			const baseUrl = buildApiBaseUrl(environmentId, request.region);
+			const limit = request.limit && request.limit > 0 ? Math.min(request.limit, 200) : 100;
+			const url = `${baseUrl}/populations`;
+			const { data: resp } = await axios.get<Record<string, unknown>>(url, {
+				headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+				params: { limit: String(limit) },
+			});
+			data = resp;
+		}
 
 		const embedded = data._embedded as Record<string, unknown> | undefined;
 		const populations = (embedded?.populations as Record<string, unknown>[]) ?? [];
-		return { success: true, populations, raw: data };
+		const count = typeof data.count === 'number' ? data.count : undefined;
+		const size = typeof data.size === 'number' ? data.size : populations.length;
+		const nextPageUrl = extractNextPageUrl(data);
+		return { success: true, populations, count, size, nextPageUrl, raw: data };
 	} catch (err) {
 		const axiosError = err as AxiosError;
 		const status = axiosError.response?.status;

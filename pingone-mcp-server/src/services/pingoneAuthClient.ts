@@ -113,6 +113,15 @@ function buildAuthBaseUrl(environmentId: string): string {
 	return `https://auth.pingone.com/${environmentId}/as`;
 }
 
+/** Auth host by region for OIDC endpoints (userinfo, token). */
+function getAuthHost(region?: string): string {
+	const r = (region ?? 'us').toLowerCase().trim();
+	if (r === 'eu') return 'auth.pingone.eu';
+	if (r === 'ca') return 'auth.pingone.ca';
+	if (r === 'ap' || r === 'asia') return 'auth.pingone.asia';
+	return 'auth.pingone.com';
+}
+
 function buildApiBaseUrl(environmentId: string): string {
 	return `https://api.pingone.com/v1/environments/${environmentId}`;
 }
@@ -281,13 +290,19 @@ export async function revokeToken(request: RevokeRequest): Promise<OperationResu
 	}
 }
 
+/**
+ * Call OIDC UserInfo endpoint (auth.pingone.com/{envId}/as/userinfo).
+ * Uses auth host, not Management API.
+ */
 export async function getUserInfo(
 	environmentId: string,
-	accessToken: string
+	accessToken: string,
+	region?: string
 ): Promise<Record<string, any>> {
 	try {
 		const envId = resolveEnvironmentId(environmentId);
-		const url = `${buildApiBaseUrl(envId)}/userinfo`; // PingOne userinfo endpoint
+		const authHost = getAuthHost(region);
+		const url = `https://${authHost}/${envId}/as/userinfo`;
 
 		const response = await axios.get(url, {
 			headers: {

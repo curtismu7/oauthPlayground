@@ -225,7 +225,8 @@ export function registerPhase7Tools(server: McpServer, logger: Logger): void {
 						structuredContent: wrapResult({ success: false, error: { message: 'userInfoEndpoint or environmentId required' } }),
 					};
 				}
-				const userInfo = await getUserInfo(envId, parsed.accessToken);
+				const region = (parsed as { region?: string }).region;
+				const userInfo = await getUserInfo(envId, parsed.accessToken, region);
 				return {
 					content: [{ type: 'text' as const, text: `UserInfo: ${JSON.stringify(userInfo, null, 2)}` }],
 					structuredContent: wrapResult({ success: true, userInfo, raw: userInfo }),

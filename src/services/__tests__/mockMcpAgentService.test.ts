@@ -76,7 +76,10 @@ describe('mockMcpAgentService', () => {
 		});
 
 		it('returns error when subject_token is empty string', () => {
-			const result = callTool('mock_token_exchange', { subject_token: '', requested_scope: 'read' });
+			const result = callTool('mock_token_exchange', {
+				subject_token: '',
+				requested_scope: 'read',
+			});
 			expect(result.success).toBe(false);
 		});
 	});
@@ -88,8 +91,9 @@ describe('mockMcpAgentService', () => {
 			expect(result.tool).toBe('mock_list_users');
 			expect((result.response as { count: number }).count).toBe(2);
 			expect((result.response as { users: unknown[] }).users).toHaveLength(2);
-			const users = (result.response as { users: Array<{ id: string; name: { given: string; family: string } }> })
-				.users;
+			const users = (
+				result.response as { users: Array<{ id: string; name: { given: string; family: string } }> }
+			).users;
 			expect(users[0].id).toBe('u1');
 			expect(users[0].name.given).toBe('Alice');
 			expect(users[1].name.family).toBe('Demo');

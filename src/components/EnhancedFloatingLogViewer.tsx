@@ -36,6 +36,53 @@ type LogCategory =
 /** Log level for professional level-based coloring and counts */
 type LogLevel = 'error' | 'warn' | 'info' | 'debug' | 'none';
 
+const CENTRAL_TZ = 'America/Chicago';
+
+/** Parse timestamp from log line and format as 12-hour Central time. */
+function formatTimestampToCentral12h(line: string): { displayTime: string; displayLine: string } {
+	// Match [ISO timestamp] at start, e.g. [2025-03-13T15:30:00.123Z]
+	const isoMatch = line.match(/^\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)\]\s*/);
+	if (isoMatch) {
+		try {
+			const d = new Date(isoMatch[1]);
+			const displayTime = d.toLocaleTimeString('en-US', {
+				timeZone: CENTRAL_TZ,
+				hour: 'numeric',
+				minute: '2-digit',
+				second: '2-digit',
+				hour12: true,
+			});
+			const rest = line.slice(isoMatch[0].length);
+			// Remove redundant [localTime] block if present (e.g. [03/13/2025, 10:30:00])
+			const localReplaced = rest.replace(
+				/^\s*\[\d{1,2}\/\d{1,2}\/\d{4},?\s*\d{1,2}:\d{2}:\d{2}\s*(?:AM|PM)?\]\s*/,
+				''
+			);
+			return { displayTime, displayLine: `[${displayTime} CT] ${localReplaced.trimStart()}` };
+		} catch {
+			return { displayTime: '', displayLine: line };
+		}
+	}
+	// Match JSON "timestamp":1234567890 (ms since epoch)
+	const jsonMatch = line.match(/"timestamp"\s*:\s*(\d+)/);
+	if (jsonMatch) {
+		try {
+			const d = new Date(parseInt(jsonMatch[1], 10));
+			const displayTime = d.toLocaleTimeString('en-US', {
+				timeZone: CENTRAL_TZ,
+				hour: 'numeric',
+				minute: '2-digit',
+				second: '2-digit',
+				hour12: true,
+			});
+			return { displayTime, displayLine: `[${displayTime} CT] ${line}` };
+		} catch {
+			return { displayTime: '', displayLine: line };
+		}
+	}
+	return { displayTime: '', displayLine: line };
+}
+
 /** Detect log level from a line (timestamp + level patterns). */
 function getLogLevel(line: string): LogLevel {
 	const trimmed = line.trim();
@@ -385,6 +432,15 @@ const LogTable = styled.div`
 	min-width: 100%;
 `;
 
+const LogSeparator = styled.div<{ $standalone?: boolean }>`
+	padding: 2px 12px;
+	font-size: 10px;
+	letter-spacing: 2px;
+	color: ${(props) => (props.$standalone ? '#94a3b8' : '#475569')};
+	user-select: none;
+	border-bottom: 1px dashed ${(props) => (props.$standalone ? '#e2e8f0' : '#334155')};
+`;
+
 const LogLine = styled.div<{ $level: LogLevel; $standalone?: boolean }>`
 	display: flex;
 	align-items: stretch;
@@ -403,7 +459,16 @@ const LogLine = styled.div<{ $level: LogLevel; $standalone?: boolean }>`
 					return 'transparent';
 			}
 		}};
-	background: ${(props) => (props.$level === 'error' ? 'rgba(220, 38, 38, 0.08)' : 'transparent')};
+	background: ${(props) => {
+		switch (props.$level) {
+			case 'error':
+				return 'rgba(220, 38, 38, 0.08)';
+			case 'warn':
+				return 'rgba(217, 119, 6, 0.06)';
+			default:
+				return 'transparent';
+		}
+	}};
 	&:hover {
 		background: ${(props) =>
 			props.$standalone ? 'rgba(0, 0, 0, 0.04)' : 'rgba(248, 250, 252, 0.04)'};
@@ -421,10 +486,24 @@ const LineNum = styled.span<{ $standalone?: boolean }>`
 	flex-shrink: 0;
 `;
 
-const LineText = styled.span`
+const LineText = styled.span<{ $level: LogLevel; $standalone?: boolean }>`
 	padding: 2px 12px 2px 8px;
 	white-space: pre-wrap;
 	word-break: break-all;
+	color: ${(props) => {
+		switch (props.$level) {
+			case 'error':
+				return props.$standalone ? '#b91c1c' : '#fca5a5';
+			case 'warn':
+				return props.$standalone ? '#b45309' : '#fcd34d';
+			case 'info':
+				return props.$standalone ? '#1d4ed8' : '#93c5fd';
+			case 'debug':
+				return props.$standalone ? '#4b5563' : '#9ca3af';
+			default:
+				return props.$standalone ? '#111827' : '#e2e8f0';
+		}
+	}};
 `;
 
 const _APICallCard = styled.div<{ $success?: boolean }>`
@@ -935,6 +1014,7 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 					>
 						<input
 							type="checkbox"
+							title="Merge all log files (server, frontend, API) into a single view"
 							checked={combineLogs}
 							onChange={(e) => setCombineLogs(e.target.checked)}
 							style={{ width: 14, height: 14, cursor: 'pointer' }}
@@ -1045,11 +1125,19 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 								<LogTable>
 									{visibleLines.map((line, idx) => {
 										const level = getLogLevel(line);
+										const { displayLine } = formatTimestampToCentral12h(line || '');
 										return (
-											<LogLine key={idx} $level={level} $standalone={standalone}>
-												<LineNum $standalone={standalone}>{idx + 1}</LineNum>
-												<LineText>{line || ' '}</LineText>
-											</LogLine>
+											<React.Fragment key={idx}>
+												{idx > 0 && (
+													<LogSeparator $standalone={standalone}>* * * * * * * * * *</LogSeparator>
+												)}
+												<LogLine $level={level} $standalone={standalone}>
+													<LineNum $standalone={standalone}>{idx + 1}</LineNum>
+													<LineText $level={level} $standalone={standalone}>
+														{displayLine || ' '}
+													</LineText>
+												</LogLine>
+											</React.Fragment>
 										);
 									})}
 								</LogTable>
@@ -1066,8 +1154,8 @@ const FileOptions: React.FC<{ files: LogFile[] }> = ({ files }) => (
 	<>
 		{files.map((file) => (
 			<option key={file.name} value={file.name}>
-				{file.name.includes('api') ? '🔌' : file.name.includes('server') ? '🖥️' : '📄'} {file.name}{' '}
-				({(file.size / 1024).toFixed(1)} KB)
+				{file.name.includes('api') ? '🔌' : file.name.includes('server') ? '🖥️' : '📄'} {file.name} (
+				{(file.size / 1024).toFixed(1)} KB)
 			</option>
 		))}
 	</>

@@ -788,8 +788,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			// Check MFA configuration for silent API retrieval setting
 			void (async () => {
 				try {
-					const { MFAConfigurationServiceV8 } =
-						await import('@/v8/services/mfaConfigurationServiceV8');
+					const { MFAConfigurationServiceV8 } = await import(
+						'@/v8/services/mfaConfigurationServiceV8'
+					);
 					const config = MFAConfigurationServiceV8.loadConfiguration();
 					const silentApiRetrieval = config.workerToken.silentApiRetrieval;
 					const showTokenAtEnd = config.workerToken.showTokenAtEnd;
@@ -801,8 +802,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					});
 
 					// Use helper function to attempt silent retrieval (respects silentApiRetrieval setting)
-					const { handleShowWorkerTokenModal } =
-						await import('@/v8/utils/workerTokenModalHelperV8');
+					const { handleShowWorkerTokenModal } = await import(
+						'@/v8/utils/workerTokenModalHelperV8'
+					);
 					// #region agent log
 					// #endregion
 					await handleShowWorkerTokenModal(
@@ -1403,11 +1405,13 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				}}
 				onGetToken={async () => {
 					// Use helper to show worker token modal (respects silent API retrieval setting)
-					const { handleShowWorkerTokenModal } =
-						await import('@/v8/utils/workerTokenModalHelperV8');
+					const { handleShowWorkerTokenModal } = await import(
+						'@/v8/utils/workerTokenModalHelperV8'
+					);
 					// Load config to get silentApiRetrieval and showTokenAtEnd
-					const { MFAConfigurationServiceV8 } =
-						await import('@/v8/services/mfaConfigurationServiceV8');
+					const { MFAConfigurationServiceV8 } = await import(
+						'@/v8/services/mfaConfigurationServiceV8'
+					);
 					const config = MFAConfigurationServiceV8.loadConfiguration();
 					const silentApiRetrieval = config.workerToken.silentApiRetrieval || false;
 					const showTokenAtEnd = config.workerToken.showTokenAtEnd !== false;

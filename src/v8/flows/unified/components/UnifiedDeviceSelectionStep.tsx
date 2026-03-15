@@ -27,7 +27,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowController } from '@/v8/flows/controllers/MFAFlowController';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
-import { unifiedErrorHandlerV8 } from '@/v8/utils/unifiedErrorHandlerV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 
 import { logger } from '../../../../utils/logger';
 
@@ -122,26 +122,12 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 				});
 			}
 		} catch (error: unknown) {
-			// Use standardized error handling
-			const context = unifiedErrorHandlerV8.createContext(
-				'UnifiedDeviceSelectionStep',
-				'loadExistingDevices',
-				{ deviceType: config.deviceType }
-			);
-
-			const errorMessage = unifiedErrorHandlerV8.handle(error, context, {
-				showToast: false, // We'll show our own toast below
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'load-existing-devices',
+				component: MODULE_TAG,
+				deviceType: config.deviceType,
 			});
-
-			setLoadError(errorMessage);
-
-			// Show error toast
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: errorMessage,
-				dismissible: true,
-			});
+			setLoadError(parsed.userFriendlyMessage);
 		} finally {
 			setIsLoading(false);
 		}

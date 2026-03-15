@@ -1321,8 +1321,8 @@ const McpServerConfig: React.FC = () => {
 					<Card>
 						<CardTitle>MCP Inspector (test in browser)</CardTitle>
 						<p style={{ fontSize: 13, color: '#64748b', marginBottom: 12 }}>
-							From project root, run the inspector. Uses <code>mcp-inspector-config.json</code> (tsx, no build;
-							logs to <code>logs/mcp-server.log</code>).
+							From project root, run the inspector. Uses <code>mcp-inspector-config.json</code>{' '}
+							(tsx, no build; logs to <code>logs/mcp-server.log</code>).
 						</p>
 						<div style={{ position: 'relative', marginBottom: 12 }}>
 							<CodeBlock>npm run mcp:inspector</CodeBlock>
@@ -1331,11 +1331,14 @@ const McpServerConfig: React.FC = () => {
 						<p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>
 							Or with config explicitly:{' '}
 							<code style={{ fontSize: 11 }}>
-								npx @modelcontextprotocol/inspector --config mcp-inspector-config.json --server pingone
+								npx @modelcontextprotocol/inspector --config mcp-inspector-config.json --server
+								pingone
 							</code>
 						</p>
 						<p style={{ fontSize: 12, color: '#94a3b8' }}>
-							With built server: Use a config with <code>command: &quot;node&quot;</code>, <code>args: [&quot;pingone-mcp-server/dist/index.js&quot;]</code>, <code>{`env: { MCP_LOG_DIR: "logs" }`}</code>.
+							With built server: Use a config with <code>command: &quot;node&quot;</code>,{' '}
+							<code>args: [&quot;pingone-mcp-server/dist/index.js&quot;]</code>,{' '}
+							<code>{`env: { MCP_LOG_DIR: "logs" }`}</code>.
 						</p>
 					</Card>
 
@@ -1346,7 +1349,9 @@ const McpServerConfig: React.FC = () => {
 							<code style={{ fontSize: 12 }}>.vscode/mcp.json</code> or editor settings):
 						</p>
 						<p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>
-							Uses <code>mcpServers</code> (Cursor/Claude). Credentials from <code>~/.pingone-playground/credentials/mcp-config.json</code>. Add <code>MCP_LOG_DIR: "logs"</code> for project logs.
+							Uses <code>mcpServers</code> (Cursor/Claude). Credentials from{' '}
+							<code>~/.pingone-playground/credentials/mcp-config.json</code>. Add{' '}
+							<code>MCP_LOG_DIR: "logs"</code> for project logs.
 						</p>
 						<div style={{ position: 'relative' }}>
 							<CodeBlock>

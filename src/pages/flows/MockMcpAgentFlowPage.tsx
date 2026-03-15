@@ -5,17 +5,17 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { callTool, listTools, type MockToolCallResult } from '../../services/mockMcpAgentService';
-import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
-import V9FlowHeader from '../../services/v9/v9FlowHeaderService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { V9FlowRestartButton } from '../../services/v9/V9FlowRestartButton';
+import V9FlowHeader from '../../services/v9/v9FlowHeaderService';
+import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
 import {
+	getSectionHeaderStyle,
 	MOCK_FLOW_CONTAINER_STYLE,
 	MOCK_PRIMARY_BTN,
 	MOCK_SECTION_BODY_STYLE,
 	MOCK_SECTION_STYLE,
-	getSectionHeaderStyle,
 } from '../../v7/styles/mockFlowStyles';
-import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 function JsonBlock({ data }: { data: object }) {
 	return (
@@ -52,10 +52,18 @@ const MockMcpAgentFlowPage: React.FC = () => {
 	function handleTokenExchange() {
 		const token = subjectToken || currentToken;
 		if (!token) {
-			setLastResult({ success: false, tool: 'mock_token_exchange', error: 'No subject token. Run step 1 first.', request: {} });
+			setLastResult({
+				success: false,
+				tool: 'mock_token_exchange',
+				error: 'No subject token. Run step 1 first.',
+				request: {},
+			});
 			return;
 		}
-		const result = callTool('mock_token_exchange', { subject_token: token, requested_scope: 'p1:read:user' });
+		const result = callTool('mock_token_exchange', {
+			subject_token: token,
+			requested_scope: 'p1:read:user',
+		});
 		setLastResult(result);
 		if (result.success && result.response && 'access_token' in result.response) {
 			setCurrentToken(result.response.access_token as string);
@@ -65,7 +73,12 @@ const MockMcpAgentFlowPage: React.FC = () => {
 	function handleListUsers() {
 		const token = currentToken;
 		if (!token) {
-			setLastResult({ success: false, tool: 'mock_list_users', error: 'No token. Run steps 1 and 2 first.', request: {} });
+			setLastResult({
+				success: false,
+				tool: 'mock_list_users',
+				error: 'No token. Run steps 1 and 2 first.',
+				request: {},
+			});
 			return;
 		}
 		const result = callTool('mock_list_users', { access_token: token });
@@ -83,9 +96,7 @@ const MockMcpAgentFlowPage: React.FC = () => {
 
 	return (
 		<div style={MOCK_FLOW_CONTAINER_STYLE}>
-			<V7MMockBanner
-				description="This flow simulates an AI Agent using MCP tools and Token Exchange. No real APIs are called. Learn how Host, Client, Agent, and MCP Server use tokens securely."
-			/>
+			<V7MMockBanner description="This flow simulates an AI Agent using MCP tools and Token Exchange. No real APIs are called. Learn how Host, Client, Agent, and MCP Server use tokens securely." />
 			<V9FlowHeader flowId="mock-mcp-agent-flow" customConfig={{ flowType: 'pingone' }} />
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
 				<V9FlowRestartButton onRestart={handleReset} label="Reset flow" />
@@ -99,10 +110,24 @@ const MockMcpAgentFlowPage: React.FC = () => {
 				theme="ping"
 			>
 				<div style={{ padding: '1rem 0' }}>
-					<p><strong>Token storage:</strong> Never store tokens in plain text in client code, logs, or URLs. Worker tokens: use short-lived tokens; store credentials only in secure storage (mcp-config.json, env). User tokens: prefer sessionStorage (cleared on tab close); avoid localStorage for long-lived tokens. Most secure: backend-only storage.</p>
-					<p style={{ marginTop: 12 }}><strong>Token Exchange (RFC 8693):</strong> Exchange a subject token for a new token with different scope. Do not pass raw tokens in URLs or logs.</p>
-					<p style={{ marginTop: 12 }}><strong>MCP spec:</strong> Hosts must obtain explicit user consent before invoking tools.</p>
-					<Link to="/documentation/mcp" style={{ color: V9_COLORS.PRIMARY.BLUE, fontSize: 14, marginTop: 12, display: 'block' }}>
+					<p>
+						<strong>Token storage:</strong> Never store tokens in plain text in client code, logs,
+						or URLs. Worker tokens: use short-lived tokens; store credentials only in secure storage
+						(mcp-config.json, env). User tokens: prefer sessionStorage (cleared on tab close); avoid
+						localStorage for long-lived tokens. Most secure: backend-only storage.
+					</p>
+					<p style={{ marginTop: 12 }}>
+						<strong>Token Exchange (RFC 8693):</strong> Exchange a subject token for a new token
+						with different scope. Do not pass raw tokens in URLs or logs.
+					</p>
+					<p style={{ marginTop: 12 }}>
+						<strong>MCP spec:</strong> Hosts must obtain explicit user consent before invoking
+						tools.
+					</p>
+					<Link
+						to="/documentation/mcp"
+						style={{ color: V9_COLORS.PRIMARY.BLUE, fontSize: 14, marginTop: 12, display: 'block' }}
+					>
 						MCP Documentation →
 					</Link>
 				</div>
@@ -113,7 +138,9 @@ const MockMcpAgentFlowPage: React.FC = () => {
 					<strong>Step 1 — Get initial token</strong>
 				</div>
 				<div style={MOCK_SECTION_BODY_STYLE}>
-					<p style={{ marginBottom: 8 }}>Simulated Agent requests a worker token from the MCP server.</p>
+					<p style={{ marginBottom: 8 }}>
+						Simulated Agent requests a worker token from the MCP server.
+					</p>
 					<button type="button" style={MOCK_PRIMARY_BTN} onClick={handleGetToken}>
 						Send mock_get_token
 					</button>
@@ -125,8 +152,15 @@ const MockMcpAgentFlowPage: React.FC = () => {
 					<strong>Step 2 — Token exchange</strong>
 				</div>
 				<div style={MOCK_SECTION_BODY_STYLE}>
-					<p style={{ marginBottom: 8 }}>Agent exchanges the subject token for a new token with broader scope (RFC 8693).</p>
-					<button type="button" style={MOCK_PRIMARY_BTN} onClick={handleTokenExchange} disabled={!subjectToken && !currentToken}>
+					<p style={{ marginBottom: 8 }}>
+						Agent exchanges the subject token for a new token with broader scope (RFC 8693).
+					</p>
+					<button
+						type="button"
+						style={MOCK_PRIMARY_BTN}
+						onClick={handleTokenExchange}
+						disabled={!subjectToken && !currentToken}
+					>
 						Send mock_token_exchange
 					</button>
 				</div>
@@ -138,7 +172,12 @@ const MockMcpAgentFlowPage: React.FC = () => {
 				</div>
 				<div style={MOCK_SECTION_BODY_STYLE}>
 					<p style={{ marginBottom: 8 }}>Agent calls list-users with the exchanged token.</p>
-					<button type="button" style={MOCK_PRIMARY_BTN} onClick={handleListUsers} disabled={!currentToken}>
+					<button
+						type="button"
+						style={MOCK_PRIMARY_BTN}
+						onClick={handleListUsers}
+						disabled={!currentToken}
+					>
 						Send mock_list_users
 					</button>
 				</div>
@@ -146,19 +185,32 @@ const MockMcpAgentFlowPage: React.FC = () => {
 
 			{lastResult && (
 				<div style={MOCK_SECTION_STYLE}>
-					<div style={{ ...getSectionHeaderStyle('default'), background: lastResult.success ? '#d1fae5' : '#fee2e2' }}>
-						<strong>{lastResult.success ? '✓' : '✗'} MCP tool: {lastResult.tool}</strong>
+					<div
+						style={{
+							...getSectionHeaderStyle('default'),
+							background: lastResult.success ? '#d1fae5' : '#fee2e2',
+						}}
+					>
+						<strong>
+							{lastResult.success ? '✓' : '✗'} MCP tool: {lastResult.tool}
+						</strong>
 					</div>
 					<div style={MOCK_SECTION_BODY_STYLE}>
 						{lastResult.request && (
 							<>
-								<p style={{ marginBottom: 4 }}><strong>Request:</strong></p>
+								<p style={{ marginBottom: 4 }}>
+									<strong>Request:</strong>
+								</p>
 								<JsonBlock data={lastResult.request} />
-								<p style={{ marginTop: 12, marginBottom: 4 }}><strong>Response:</strong></p>
+								<p style={{ marginTop: 12, marginBottom: 4 }}>
+									<strong>Response:</strong>
+								</p>
 							</>
 						)}
 						{lastResult.response && <JsonBlock data={lastResult.response} />}
-						{lastResult.error && <p style={{ color: '#dc2626', marginTop: 8 }}>{lastResult.error}</p>}
+						{lastResult.error && (
+							<p style={{ color: '#dc2626', marginTop: 8 }}>{lastResult.error}</p>
+						)}
 					</div>
 				</div>
 			)}

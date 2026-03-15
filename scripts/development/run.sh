@@ -39,6 +39,7 @@ FRONTEND_HOST="${FRONTEND_HOST:-api.pingdemo.com}"
 BACKEND_HOST="${BACKEND_HOST:-api.pingdemo.com}"
 FRONTEND_URL="https://${FRONTEND_HOST}:${FRONTEND_PORT}"
 BACKEND_URL="https://${BACKEND_HOST}:${BACKEND_PORT}"
+ASSISTANT_URL="https://${FRONTEND_HOST}:${ASSISTANT_PORT}"
 # SSL cert paths (set by load_ssl_config from run-config-ssl.js; backend uses these if set)
 SSL_CERT_PATH="${SSL_CERT_PATH:-}"
 SSL_KEY_PATH="${SSL_KEY_PATH:-}"
@@ -58,6 +59,29 @@ MCP_PID_FILE_REL="pingone-mcp-server/mcp-server.pid"
 FRONTEND_STATUS="unknown"
 BACKEND_STATUS="unknown"
 OVERALL_STATUS="unknown"
+
+# Ensure we're in the project root (required for npx vite AIAssistant, mcp-inspector-config, etc.)
+# Uses script location so it works when run from any directory (e.g. cd scripts/development && ./run.sh)
+ensure_project_root() {
+    local SOURCE="${BASH_SOURCE[0]}"
+    while [ -L "$SOURCE" ]; do
+        local DIR
+        DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+        SOURCE="$(readlink "$SOURCE")"
+        [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+    done
+    local SCRIPT_DIR
+    SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+    local PROJECT_ROOT
+    PROJECT_ROOT="$(cd -P "$SCRIPT_DIR/../.." && pwd)"
+    if [ -f "$PROJECT_ROOT/package.json" ] && [ -f "$PROJECT_ROOT/server.js" ]; then
+        cd "$PROJECT_ROOT"
+        print_success "Using project root: $(pwd)"
+        return 0
+    fi
+    # Fallback: use find_project_directory
+    find_project_directory
+}
 
 # Function to find and change to the OAuth Playground directory
 find_project_directory() {
@@ -428,10 +452,13 @@ load_ssl_config() {
         eval "$run_ssl_output"
         FRONTEND_URL="https://${FRONTEND_HOST}:${FRONTEND_PORT}"
         BACKEND_URL="https://${BACKEND_HOST}:${BACKEND_PORT}"
-        export FRONTEND_HOST BACKEND_HOST SSL_CERT_PATH SSL_KEY_PATH
+        ASSISTANT_URL="https://${FRONTEND_HOST}:${ASSISTANT_PORT}"
+        export FRONTEND_HOST BACKEND_HOST SSL_CERT_PATH SSL_KEY_PATH BACKEND_URL ASSISTANT_URL
         print_success "Domain: ${FRONTEND_HOST:-api.pingdemo.com}"
     else
         print_warning "Could not load SSL config; using default domain ${FRONTEND_HOST:-api.pingdemo.com}"
+        ASSISTANT_URL="https://${FRONTEND_HOST:-api.pingdemo.com}:${ASSISTANT_PORT}"
+        export BACKEND_URL ASSISTANT_URL
     fi
 }
 
@@ -1259,7 +1286,7 @@ while [ $# -gt 0 ]; do
             echo "  AI Assistant only (backend + MCP + MCP Inspector + standalone UI):"
             echo "    1. cd to the OAuth Playground directory"
             echo "    2. Run: ./run.sh -assistant"
-            echo "    3. Open: https://localhost:3002 (AI Assistant)"
+            echo "    3. Open: ${ASSISTANT_URL:-https://api.pingdemo.com:3002} (AI Assistant)"
             echo "    4. MCP Inspector: http://localhost:${MCP_INSPECTOR_PORT} (test PingOne MCP tools)"
             echo "    5. Logs: backend.log | mcp-server.log | mcp-inspector.log | assistant.log"
             echo ""
@@ -1267,7 +1294,7 @@ while [ $# -gt 0 ]; do
             echo "    1. cd to the OAuth Playground directory"
             echo "    2. Run: ./run.sh -both"
             echo "    3. OAuth Playground: https://localhost:3000"
-            echo "    4. AI Assistant:     https://localhost:3002"
+            echo "    4. AI Assistant:     ${ASSISTANT_URL:-https://api.pingdemo.com:3002}"
             echo "    5. MCP Inspector:    http://localhost:${MCP_INSPECTOR_PORT} (test PingOne MCP tools)"
             echo "    6. Logs: backend.log | frontend.log | mcp-server.log | mcp-inspector.log | assistant.log"
             echo ""
@@ -1308,7 +1335,7 @@ start_mcp_server() {
     # Build if dist/index.js doesn't exist
     if [ ! -f "$dist_index" ]; then
         print_info "MCP server not built — running npm run build in ${MCP_SERVER_DIR_REL}/..."
-        if (cd "$MCP_SERVER_DIR_REL" && npm run build 2>&1); then
+        if (cd "$MCP_SERVER_DIR_REL" && NODE_OPTIONS="--max-old-space-size=4096" npm run build 2>&1); then
             print_success "MCP server built successfully"
         else
             print_error "MCP server build failed. Check ${MCP_SERVER_DIR_REL} for errors."
@@ -1336,11 +1363,11 @@ start_mcp_server() {
     sleep 1
 
     if kill -0 "$mcp_pid" 2>/dev/null; then
-        print_success "PingOne MCP server started (PID: $mcp_pid) — logs: mcp-server.log"
+        print_success "PingOne MCP server started (PID: $mcp_pid) — logs: logs/mcp-server.log"
         return 0
     else
-        print_error "MCP server process died immediately. Check mcp-server.log for details."
-        tail -5 mcp-server.log 2>/dev/null || true
+        print_error "MCP server process died immediately. Check logs/mcp-server.log for details."
+        tail -5 logs/mcp-server.log 2>/dev/null || true
         return 1
     fi
 }
@@ -1396,16 +1423,19 @@ start_assistant_frontend() {
         return 1
     fi
 
-    npx vite AIAssistant --port "$ASSISTANT_PORT" > assistant.log 2>&1 &
+    # Use api.pingdemo.com (or FRONTEND_HOST) so assistant is reachable at same domain as main app
+    export BACKEND_URL="${BACKEND_URL:-https://${BACKEND_HOST:-api.pingdemo.com}:${BACKEND_PORT}}"
+    npx vite AIAssistant --port "$ASSISTANT_PORT" --host > assistant.log 2>&1 &
     local assistant_pid=$!
     echo $assistant_pid > "$ASSISTANT_PID_FILE"
 
-    # Wait for Vite to be ready (up to 20s)
+    # Wait for Vite to be ready (up to 20s); check via ASSISTANT_URL (api.pingdemo.com:3002)
     local attempt=0
+    local assistant_check_url="${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}"
     print_info "Waiting for AI Assistant to be ready..."
     while [ $attempt -lt 20 ]; do
-        if curl -s -k "https://localhost:${ASSISTANT_PORT}" >/dev/null 2>&1; then
-            print_success "AI Assistant ready at https://localhost:${ASSISTANT_PORT}"
+        if curl -s -k "$assistant_check_url" >/dev/null 2>&1; then
+            print_success "AI Assistant ready at $assistant_check_url"
             return 0
         fi
         if ! kill -0 "$assistant_pid" 2>/dev/null; then
@@ -1420,7 +1450,7 @@ start_assistant_frontend() {
     echo ""
     # Vite might not respond to curl on HTTPS without certs — check process is alive
     if kill -0 "$assistant_pid" 2>/dev/null; then
-        print_success "AI Assistant started (PID: $assistant_pid) — https://localhost:${ASSISTANT_PORT}"
+        print_success "AI Assistant started (PID: $assistant_pid) — ${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}"
         return 0
     fi
     print_error "AI Assistant failed to start. Check assistant.log."
@@ -1436,17 +1466,13 @@ run_assistant_mode() {
     echo "║  Backend:        https://localhost:3001  (Express API)                        ║"
     echo "║  MCP Server:     pingone-mcp-server (stdio, background)                      ║"
     echo "║  MCP Inspector:   http://localhost:${MCP_INSPECTOR_PORT}  (test MCP tools)           ║"
-    echo "║  AI Assistant:   https://localhost:${ASSISTANT_PORT}  (Vite standalone)                 ║"
+    echo "║  AI Assistant:   ${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}  (Vite standalone)                 ║"
     echo "║                                                                              ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 
-    # Locate project directory (quick — assume cwd is correct if files exist)
-    if [ ! -f "package.json" ] || [ ! -f "server.js" ]; then
-        find_project_directory
-    else
-        print_success "Using current directory: $(pwd)"
-    fi
+    # Ensure we're in project root (required for npx vite AIAssistant, mcp-inspector-config, etc.)
+    ensure_project_root
 
     check_requirements
     load_ssl_config
@@ -1488,7 +1514,7 @@ run_assistant_mode() {
     echo -e "${GREEN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Open in browser:${NC}"
     echo -e "${GREEN}║${NC}   Backend API:      ${BLUE}https://localhost:${BACKEND_PORT}${NC}"
-    echo -e "${GREEN}║${NC}   AI Assistant:     ${BLUE}https://localhost:${ASSISTANT_PORT}${NC}"
+    echo -e "${GREEN}║${NC}   AI Assistant:     ${BLUE}${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}${NC}"
     echo -e "${GREEN}║${NC}   MCP Inspector:    ${BLUE}http://localhost:${MCP_INSPECTOR_PORT}${NC} (test PingOne MCP tools)"
     echo -e "${GREEN}║${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Background (no URL):${NC}"
@@ -1515,9 +1541,9 @@ run_assistant_mode() {
     read -r log_choice
     case "${log_choice:-skip}" in
         1) tail -f backend.log ;;
-        2) tail -f mcp-server.log ;;
+        2) tail -f logs/mcp-server.log ;;
         3) tail -f assistant.log ;;
-        4) tail -f backend.log mcp-server.log assistant.log ;;
+        4) tail -f backend.log logs/mcp-server.log assistant.log ;;
         *) print_info "Exiting. Servers continue running in background." ;;
     esac
 }
@@ -1536,16 +1562,13 @@ run_both_mode() {
     echo "║  OAuth Frontend: https://localhost:3000  (Vite main app)                    ║"
     echo "║  MCP Server:     pingone-mcp-server (stdio, background)                     ║"
     echo "║  MCP Inspector:  http://localhost:${MCP_INSPECTOR_PORT}  (test MCP tools)             ║"
-    echo "║  AI Assistant:   https://localhost:${ASSISTANT_PORT}  (Vite standalone)                ║"
+    echo "║  AI Assistant:   ${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}  (Vite standalone)                ║"
     echo "║                                                                             ║"
     echo "╚═════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 
-    if [ ! -f "package.json" ] || [ ! -f "server.js" ]; then
-        find_project_directory
-    else
-        print_success "Using current directory: $(pwd)"
-    fi
+    # Ensure we're in project root (required for npx vite AIAssistant, mcp-inspector-config, etc.)
+    ensure_project_root
 
     check_requirements
     load_ssl_config
@@ -1589,7 +1612,7 @@ run_both_mode() {
     echo -e "${GREEN}║${NC} ${CYAN}Open in browser:${NC}"
     echo -e "${GREEN}║${NC}   Backend API:      ${BLUE}https://localhost:${BACKEND_PORT}${NC}"
     echo -e "${GREEN}║${NC}   OAuth Playground: ${BLUE}https://localhost:${FRONTEND_PORT}${NC}"
-    echo -e "${GREEN}║${NC}   AI Assistant:     ${BLUE}https://localhost:${ASSISTANT_PORT}${NC}"
+    echo -e "${GREEN}║${NC}   AI Assistant:     ${BLUE}${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}${NC}"
     echo -e "${GREEN}║${NC}   MCP Inspector:    ${BLUE}http://localhost:${MCP_INSPECTOR_PORT}${NC} (test PingOne MCP tools)"
     echo -e "${GREEN}║${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Background (no URL):${NC}"
@@ -1601,25 +1624,28 @@ run_both_mode() {
     echo -e "${GREEN}║${NC}   mcp-server.log     — PingOne MCP server"
     echo -e "${GREEN}║${NC}   mcp-inspector.log  — MCP Inspector"
     echo -e "${GREEN}║${NC}   assistant.log      — AI Assistant (Vite)"
+    echo -e "${GREEN}║${NC}   pingone-api.log    — Masterflow API / PingOne API calls"
     echo -e "${GREEN}║${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Stop all:${NC} pkill -f 'server.js'; lsof -ti:${FRONTEND_PORT},${ASSISTANT_PORT},${MCP_INSPECTOR_PORT} | xargs kill -9"
     echo -e "${GREEN}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 
     if [ "${QUICK_MODE:-false}" = true ] || [ "${DEFAULT_MODE:-false}" = true ]; then
-        print_info "Quick/default mode: tailing backend.log (Ctrl+C to stop)"
-        tail -f backend.log
+        print_info "Quick/default mode: tailing masterflow API + MCP (pingone-api.log + mcp-server.log)"
+        tail -f logs/pingone-api.log logs/mcp-server.log 2>/dev/null || tail -f backend.log logs/mcp-server.log 2>/dev/null || tail -f backend.log
         return
     fi
 
-    echo -n "Tail a log? [1=backend, 2=frontend, 3=mcp-server, 4=assistant, 5=all, Enter=skip]: "
+    echo -n "Tail a log? [1=backend, 2=frontend, 3=mcp-server, 4=assistant, 5=pingone-api, 6=both (API+MCP), 7=all, Enter=skip]: "
     read -r log_choice
     case "${log_choice:-skip}" in
         1) tail -f backend.log ;;
         2) tail -f frontend.log ;;
-        3) tail -f mcp-server.log ;;
+        3) tail -f logs/mcp-server.log ;;
         4) tail -f assistant.log ;;
-        5) tail -f backend.log frontend.log mcp-server.log assistant.log ;;
+        5) tail -f logs/pingone-api.log 2>/dev/null || tail -f backend.log ;;
+        6) tail -f logs/pingone-api.log logs/mcp-server.log 2>/dev/null || tail -f backend.log logs/mcp-server.log ;;
+        7) tail -f backend.log frontend.log logs/mcp-server.log assistant.log ;;
         *) print_info "Exiting. Servers continue running in background." ;;
     esac
 }
@@ -1973,7 +1999,7 @@ show_url_banner() {
     echo -e "${PURPLE}║${NC}    API Docs   →  ${GREEN}${BACKEND_URL}/docs${NC}"
     echo -e "${PURPLE}║${NC}"
     echo -e "${PURPLE}║${NC}  ${CYAN}Standalone AI Assistant${NC}"
-    echo -e "${PURPLE}║${NC}    UI         →  ${GREEN}https://localhost:${ASSISTANT_PORT}${NC}"
+    echo -e "${PURPLE}║${NC}    UI         →  ${GREEN}${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}${NC}"
     echo -e "${PURPLE}║${NC}"
     echo -e "${PURPLE}║${NC}  ${CYAN}MCP Inspector${NC} (test PingOne MCP tools)"
     echo -e "${PURPLE}║${NC}    UI         →  ${GREEN}http://localhost:${MCP_INSPECTOR_PORT}${NC}"

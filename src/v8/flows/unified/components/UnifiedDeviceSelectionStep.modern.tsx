@@ -17,6 +17,7 @@ import { useGlobalMFA } from '@/v8/contexts/GlobalMFAContext';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { unifiedFlowServiceIntegration } from '@/v8/flows/unified/services/unifiedFlowServiceIntegration';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiCheck } from '../../../../icons';
 
 import { logger } from '../../../../utils/logger';
@@ -72,14 +73,11 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 				});
 			}
 		} catch (error: unknown) {
-			const errorMsg = error instanceof Error ? error.message : 'Failed to load devices';
-			setLoadError(errorMsg);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: errorMsg,
-				dismissible: true,
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'load-devices',
+				component: MODULE_TAG,
 			});
+			setLoadError(parsed.userFriendlyMessage);
 		} finally {
 			setIsLoading(false);
 		}

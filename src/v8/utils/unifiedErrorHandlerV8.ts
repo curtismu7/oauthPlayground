@@ -9,6 +9,7 @@
  * to ensure proper user experience and debugging capabilities.
  */
 
+import { getErrorMessage } from '../../utils/errorMessageUtils';
 import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[🚨 UNIFIED-ERROR-HANDLER-V8]';
@@ -45,7 +46,7 @@ export const unifiedErrorHandlerV8 = {
 		const { showToast = true, logError = true, customMessage, rethrow = false } = options;
 
 		// Extract error message
-		const errorMessage = extractErrorMessage(error);
+		const errorMessage = getErrorMessage(error);
 		const finalMessage = customMessage || errorMessage;
 		const contextMessage = `${context.component}: ${context.operation}`;
 
@@ -118,7 +119,7 @@ export const unifiedErrorHandlerV8 = {
 	 * Handle validation errors specifically
 	 */
 	handleValidationError(error: unknown, context: ErrorContext, validationErrors: string[]): void {
-		const errorMessage = extractErrorMessage(error);
+		const errorMessage = getErrorMessage(error);
 
 		// Log validation error
 		logger.error(`${MODULE_TAG} Validation error in ${context.component}:`, {
@@ -150,7 +151,7 @@ export const unifiedErrorHandlerV8 = {
 		context: ErrorContext,
 		options: ErrorHandlingOptions = {}
 	): void {
-		const errorMessage = extractErrorMessage(error);
+		const errorMessage = getErrorMessage(error);
 
 		// Check if it's a network error
 		const isNetworkError =
@@ -168,25 +169,6 @@ export const unifiedErrorHandlerV8 = {
 		});
 	},
 };
-
-/**
- * Extract meaningful error message from various error types
- */
-function extractErrorMessage(error: unknown): string {
-	if (error instanceof Error) {
-		return error.message;
-	}
-
-	if (typeof error === 'string') {
-		return error;
-	}
-
-	if (error && typeof error === 'object' && 'message' in error) {
-		return String(error.message);
-	}
-
-	return 'An unexpected error occurred';
-}
 
 /**
  * Track error for analytics and monitoring
@@ -216,7 +198,7 @@ function trackError(error: unknown, context: ErrorContext): void {
 			gtag('event', 'error', {
 				event_category: 'unified_mfa',
 				event_label: `${context.component}_${context.operation}`,
-				error_message: extractErrorMessage(error),
+				error_message: getErrorMessage(error),
 			});
 		}
 	}
