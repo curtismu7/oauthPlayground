@@ -22,7 +22,8 @@ The **pingone-mcp-server** implements the Model Context Protocol and conforms to
 | Pagination        | ⚠️     | tools/list returns all (~70); cursor pagination optional per spec      |
 | Prompts           | ⚠️     | Training prompts exist; spec prompts feature not formally declared    |
 | Error handling    | ✅     | Protocol errors + tool execution errors with `isError` pattern        |
-| Security          | ✅     | Credential handling, input validation, no arbitrary code exposure    |
+| Security          | ✅     | Worker token fully backend-only; PKCE for user login; SCIM escaping applied |
+| OAuth for MCP     | ⚠️     | MCP spec 2025-11-25 defines OAuth 2.0 auth for servers; not yet evaluated |
 
 ---
 
@@ -109,9 +110,11 @@ server.registerTool(
 **Spec**: Servers MUST sanitize outputs, rate limit, enforce access control, and validate inputs.
 
 **Evaluation**:
-- ✅ Zod schemas validate all tool inputs.
-- ✅ Credentials come from `credentialLoader` (storage/env), not from untrusted input.
+- ✅ Zod schemas validate all tool inputs in the `pingone-mcp-server` stdio server.
+- ✅ Credentials for the MCP stdio server come from `credentialLoader` (file/env), not from tool params.
 - ✅ Outputs are JSON or plain text; no arbitrary HTML or scripts.
+- ✅ SCIM filter values built from natural-language queries are escaped with `_scimEscape()` before sending to PingOne (prevents `"` / `\` injection in filter strings).
+- ⚠️ The `/api/mcp/query` relay endpoint (separate from the stdio MCP server) accepts an optional `workerToken` in the POST body. This is intentional — it allows the AI Assistant's admin-login flow to forward a user-supplied token. See [Section 9](#9-backend-relay-pattern-and-token-security) for the full token security model.
 - ⚠️ No explicit rate limiting in the server; host / network may provide limits.
 
 ---
@@ -198,8 +201,10 @@ server.registerTool(
 **Spec**: User data should be protected; hosts must not transmit resource data without consent.
 
 **Evaluation**:
-- ✅ Credentials stored in `~/.pingone-playground/credentials/` (local).
-- ✅ Tool calls use env/storage credentials; no credential exfiltration via tool params.
+- ✅ Worker-token credentials (clientId, clientSecret) stored server-side in `~/.pingone-playground/credentials/mcp-config.json` (local) and in process env. Never exposed to the frontend.
+- ✅ The worker `access_token` is cached in server memory (`_mcpTokenCache`) and is **never returned to the frontend**. Only metadata (expiresIn, scope, tokenType) is sent to the UI.
+- ✅ Tool calls use env/storage credentials for management-API calls; no client_credentials leakage via tool params.
+- ⚠️ User (end-user) access tokens and ID tokens obtained via the **PKCE + redirectless login** flow (`/api/mcp/user-token-via-login`) are returned to the frontend **by design**. This is required for the playground's educational purpose: users can view, decode, and introspect their own tokens. Both the access token and ID token are stored in `localStorage` under `ai-assistant-user-token` so they persist across page refreshes. This is an explicit, intentional trade-off for the playground's educational use case — **never do this in production**.
 - ✅ Host application controls when and how MCP is used.
 
 ### 6.3 Tool safety
@@ -243,19 +248,123 @@ server.registerTool(
 3. **Resource subscriptions** – `resources/subscribe` not implemented; applications resource is read-on-demand.
 4. **Cancellation** – ✅ Implemented. Tool handlers pass `extra?.signal` to API clients (axios); when client sends `notifications/cancelled`, in-flight requests abort.
 5. **Prompts feature** – Training prompts exist; formal declaration and alignment with spec prompts could be clarified.
+6. **OAuth 2.0 for MCP servers (2025-11-25)** – The MCP spec 2025-11-25 defines an [OAuth 2.0 authorization framework](https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization) for MCP servers used in multi-tenant contexts. The `pingone-mcp-server` currently uses stdio (not HTTP SSE), so this section is not applicable unless the server is later exposed as an HTTP MCP endpoint. Track for future HTTP transport migration.
+7. **Rate limiting** – No per-tool or per-session rate limiting. Acceptable for local playground; add before any public deployment.
 
 ### 8.2 Recommendations
 
 1. **Document SDK version** – Pin `@modelcontextprotocol/sdk` and note compatibility in README.
 2. **Rate limiting** – Add optional per-tool or per-session rate limiting for production.
 3. **Structured output** – `structuredContent` is used; consider documenting it as a stable contract for AI clients.
-4. **Spec alignment** – If adopting newer MCP versions (e.g. 2025-11-25 with Tasks, OAuth), re-evaluate conformance.
-
+4. **Spec alignment** – If adopting HTTP transport (e.g. for remote MCP access), implement the MCP OAuth 2.0 authorization framework from spec 2025-11-25 with PingOne as the authorization server.
 5. **Automated validation** – Run `npm run mcp:validate` (or `pnpm vitest run tests/backend/mcp-spec-validation.test.js`) to verify the server responds to initialize and tools/list per MCP spec. Validates tool structure (name, description, inputSchema).
 
 ---
 
-## 9. Conclusion
+## 9. Backend relay pattern and token security
+
+The `pingone-mcp-server` (stdio) and the `/api/mcp/query` backend relay endpoint are two distinct components. The spec evaluation above covers the **stdio MCP server**. This section documents the security model of the **relay endpoint**, which is what the AI Assistant uses.
+
+### 9.1 Architecture
+
+```
+Browser (AI Assistant)
+    │  POST /api/mcp/query { query, workerToken?, environmentId?, tokenToIntrospect? }
+    ▼
+server.js  (/api/mcp/query handler)
+    │  Uses backend-stored clientId + clientSecret (mcp-config.json / env)
+    │  Uses server-side worker token cache (_mcpTokenCache)
+    ▼
+PingOne Management API / Auth API
+```
+
+### 9.2 Token security by flow
+
+| Token type | Where obtained | Sent to frontend? | Persisted? | Notes |
+|---|---|---|---|---|
+| Worker token (`access_token`) | Backend — `client_credentials` grant using stored `clientSecret` | **No** — only metadata (expiresIn, scope, tokenType) | Server memory only (`_mcpTokenCache`) | Fully backend-side. Client cannot obtain the raw access_token. |
+| Admin token (user logs in via Admin Login panel) | Backend — PKCE + PingOne redirectless flow via `/api/mcp/user-token-via-login` | **Yes** — returned to frontend for display/introspection | React state + `localStorage` (`ai-assistant-user-token`) | **Educational only** — playground intentionally exposes token for learning. |
+| ID token (`id_token`) | Same flow as admin/user token — included in the authorization code exchange response | **Yes** — returned alongside `access_token` | React state + `localStorage` (`ai-assistant-user-token`) | **Educational only** — allows users to decode and inspect OIDC identity claims. Never store ID tokens in localStorage in production. |
+| User token introspection | **Frontend sends stored token** back to `/api/mcp/query` as `tokenToIntrospect` | N/A — backend uses it to call PingOne introspect; raw introspect result returned | Never stored server-side | Backend uses its own `clientId`/`clientSecret` (from mcp-config.json) for the introspection call. |
+
+### 9.3 PKCE + redirectless flow for admin/user login
+
+The admin/user login panels in the AI Assistant (`/api/mcp/user-token-via-login`, `/api/mcp/userinfo-via-login`) use **Authorization Code + PKCE** combined with PingOne's redirectless (pi.flow) API:
+
+1. Backend generates `codeVerifier` / `codeChallenge` (PKCE S256).
+2. Backend initiates PingOne redirectless authorize (pi.flow).
+3. Backend submits username/password to the PingOne flow API endpoint.
+4. Backend receives the authorization code via the resume endpoint.
+5. Backend exchanges the code for tokens using PKCE (no `client_secret` in the PKCE exchange itself when the app is public, or with `client_secret` for confidential apps).
+
+This is **not** ROPC (Resource Owner Password Credentials). PKCE is used, preventing authorization code injection attacks.
+
+### 9.4 SCIM filter injection mitigation
+
+All SCIM filter values derived from natural-language queries are passed through `_scimEscape()` before embedding in filter strings:
+
+```javascript
+function _scimEscape(val) {
+    return String(val).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+// Usage:
+path: `/groups?filter=name eq "${_scimEscape(name)}"`
+```
+
+Extraction functions (`_extractEmail`, `_extractUsernamePrefix`, `_extractGroupNameFilter`) use restrictive regex character classes that already exclude `"` and `\`. `_extractName` uses `\S+` which can match these characters, so `_scimEscape` is applied at the call site.
+
+### 9.5 CORS
+
+The local Express server restricts CORS to known origins (localhost + `api.pingdemo.com`) with `credentials: true`.
+
+The Vercel serverless proxy (`api/pingone/[...path].js`) uses an explicit `ALLOWED_ORIGINS` allowlist; CORS headers including `Access-Control-Allow-Credentials` are only sent for requests from listed origins.
+
+---
+
+### 9.6 Educational Token Inspector commands
+
+This feature set is the heart of the playground's educational mission. All commands work **client-side** with no backend call (except `Introspect token` / `Introspect user token` which still hit the PingOne introspect endpoint).
+
+| Command | What it does | Backend? |
+|---|---|---|
+| `Show my token` | Displays the stored user access token + decoded JWT header + claims | ❌ Client-side decode (`atob`) |
+| `Show id token` | Displays the stored ID token + decoded JWT header + claims | ❌ Client-side decode (`atob`) |
+| `Show worker token` | Displays the current worker or admin token + decoded claims | ❌ Client-side decode (`atob`) |
+| `Decode token <jwt>` | Decodes any pasted JWT (header + payload, no sig verification) | ❌ Client-side decode (`atob`) |
+| `Show api calls` | Displays the last 5 MCP API calls with method, path, and full JSON response | ❌ In-memory `apiCallHistory` state |
+| `Clear tokens` | Clears user access token, ID token, and admin token from state + localStorage | ❌ localStorage.removeItem |
+| `Introspect token` | Calls PingOne `/as/introspect` with worker/admin token | ✅ `/api/mcp/query` |
+| `Introspect user token` | Calls PingOne `/as/introspect` with the stored user access token | ✅ `/api/mcp/query` |
+
+**JWT decode implementation** (`decodeJwtPayload` / `decodeJwtHeader` in `mcpQueryService.ts`):
+```typescript
+export function decodeJwtPayload(token: string): Record<string, unknown> | null {
+    try {
+        const parts = token.split('.');
+        if (parts.length < 2) return null;
+        const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+        return JSON.parse(atob(padded)) as Record<string, unknown>;
+    } catch { return null; }
+}
+```
+
+> ⚠️ No signature verification is performed. This is intentional — the purpose is educational claim inspection, not security validation.
+
+**Token localStorage schema** (`ai-assistant-user-token`):
+```json
+{
+  "access_token": "eyJhbGci...",
+  "id_token": "eyJhbGci...",
+  "stored_at": 1710000000000
+}
+```
+
+**API call history** is tracked in `apiCallHistory` React state (max 20 entries). Each record contains `{ id, query, mcpTool, apiCall: { method, path }, data, timestamp }`. The history resets on page refresh (not persisted to localStorage).
+
+---
+
+## 10. Conclusion
 
 The **pingone-mcp-server** conforms to the MCP specification for the features it implements. It correctly uses JSON-RPC 2.0, exposes tools and resources via the official SDK, validates inputs, and reports errors in line with the spec. Security practices around credentials and tool semantics are appropriate. Optional features such as list-changed notifications, pagination, and cancellation are not implemented but are not required for core compliance.
 

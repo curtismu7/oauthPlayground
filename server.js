@@ -3,12 +3,12 @@
 
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execSync, spawn } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, randomBytes, createHash } from 'node:crypto';
 import fs from 'node:fs';
 import https from 'node:https';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -1531,6 +1531,46 @@ app.post('/api/settings/region', async (req, res) => {
 // ============================================================================
 // FILE STORAGE API
 // ============================================================================
+
+/**
+ * POST /api/file-storage/save-markdown - Save raw markdown/text to file (UTF-8)
+ * Body: { directory: string, filename: string, content: string }
+ * Supports natural language, checkboxes (- [ ], - [x]), and standard Markdown.
+ */
+app.post('/api/file-storage/save-markdown', async (req, res) => {
+	try {
+		const { directory, filename, content } = req.body;
+
+		if (!directory || !filename) {
+			return res.status(400).json({ error: 'Missing directory or filename' });
+		}
+
+		if (typeof content !== 'string') {
+			return res.status(400).json({ error: 'Content must be a string' });
+		}
+
+		const fs = await import('node:fs');
+		const path = await import('node:path');
+		const os = await import('node:os');
+
+		const baseDir = path.join(os.homedir(), '.pingone-playground', directory);
+		const filePath = path.join(baseDir, filename);
+
+		const resolvedBase = path.resolve(baseDir);
+		const resolvedPath = path.resolve(filePath);
+		if (!resolvedPath.startsWith(resolvedBase)) {
+			return res.status(403).json({ error: 'Invalid path' });
+		}
+
+		await fs.promises.mkdir(baseDir, { recursive: true });
+		await fs.promises.writeFile(filePath, content, 'utf8');
+
+		res.status(200).json({ success: true, path: filePath });
+	} catch (error) {
+		console.error('[File Storage] Failed to save markdown:', error);
+		res.status(500).json({ error: 'Failed to save file', message: error.message });
+	}
+});
 
 /**
  * POST /api/file-storage/save - Save data to file
@@ -3546,6 +3586,150 @@ app.delete('/api/credentials/sqlite/delete', express.json(), (req, res) => {
 	res.json({ success: true });
 });
 
+// ─── Worker token backend store (dual-write with client storage; enables future secure pull-only) ──
+//   POST   /api/tokens/worker    — store token (keyed by environmentId)
+//   GET    /api/tokens/worker    — retrieve token (?environmentId=xxx)
+//   Backend load order: SQLite (sqlite-store.json) first, then worker-tokens.json
+//   DELETE /api/tokens/worker    — clear token
+
+const WORKER_TOKENS_STORE_FILE = path.join(CREDENTIALS_DIR, 'worker-tokens.json');
+
+const WORKER_TOKEN_SQLITE_KEY_PREFIX = 'worker_token:';
+
+function _readWorkerTokensStore() {
+	try {
+		return JSON.parse(fs.readFileSync(WORKER_TOKENS_STORE_FILE, 'utf8'));
+	} catch {
+		return {};
+	}
+}
+
+function _writeWorkerTokensStore(data) {
+	fs.mkdirSync(CREDENTIALS_DIR, { recursive: true });
+	fs.writeFileSync(WORKER_TOKENS_STORE_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+/** Read token from SQLite store (sqlite-store.json); key = worker_token:${envId}. */
+function _readWorkerTokenFromSqlite(environmentId) {
+	try {
+		const store = _readSqliteStore();
+		const key = WORKER_TOKEN_SQLITE_KEY_PREFIX + String(environmentId);
+		const entry = store[key];
+		return entry && typeof entry.accessToken === 'string' ? entry : null;
+	} catch {
+		return null;
+	}
+}
+
+/** Write token to SQLite store. */
+function _writeWorkerTokenToSqlite(environmentId, accessToken, expiresAt) {
+	try {
+		const store = _readSqliteStore();
+		store[WORKER_TOKEN_SQLITE_KEY_PREFIX + String(environmentId)] = {
+			accessToken,
+			expiresAt: typeof expiresAt === 'number' ? expiresAt : Date.now() + 3600 * 1000,
+			savedAt: Date.now(),
+		};
+		_writeSqliteStore(store);
+	} catch (e) {
+		console.warn('[Tokens] SQLite token save failed:', e?.message);
+	}
+}
+
+/** Remove token from SQLite store. */
+function _deleteWorkerTokenFromSqlite(environmentId) {
+	try {
+		const store = _readSqliteStore();
+		delete store[WORKER_TOKEN_SQLITE_KEY_PREFIX + String(environmentId)];
+		_writeSqliteStore(store);
+	} catch (e) {
+		console.warn('[Tokens] SQLite token delete failed:', e?.message);
+	}
+}
+
+app.post('/api/tokens/worker', express.json(), (req, res) => {
+	const { environmentId, accessToken, expiresAt } = req.body ?? {};
+	if (!environmentId || !accessToken) {
+		return res.status(400).json({ success: false, error: 'Missing environmentId or accessToken' });
+	}
+	const exp = typeof expiresAt === 'number' ? expiresAt : Date.now() + 3600 * 1000;
+	const payload = { accessToken, expiresAt: exp, savedAt: Date.now() };
+
+	// Write to worker-tokens.json
+	const store = _readWorkerTokensStore();
+	store[String(environmentId)] = payload;
+	_writeWorkerTokensStore(store);
+
+	// Also write to SQLite (sqlite-store.json)
+	_writeWorkerTokenToSqlite(environmentId, accessToken, exp);
+
+	console.log(`🔑 [Tokens] Saved worker token for environment: ${environmentId}`);
+	res.json({ success: true });
+});
+
+app.get('/api/tokens/worker', (req, res) => {
+	const { environmentId } = req.query;
+	if (!environmentId) {
+		return res.status(400).json({ success: false, error: 'Missing environmentId' });
+	}
+	const envId = String(environmentId);
+	const now = Date.now();
+
+	// 1) Try SQLite first (sqlite-store.json)
+	let entry = _readWorkerTokenFromSqlite(envId);
+	if (entry && entry.expiresAt && entry.expiresAt >= now) {
+		return res.json({
+			token: {
+				accessToken: entry.accessToken,
+				expiresAt: entry.expiresAt,
+				environmentId: envId,
+			},
+		});
+	}
+	if (entry && entry.expiresAt && entry.expiresAt < now) {
+		_deleteWorkerTokenFromSqlite(envId);
+	}
+
+	// 2) Fallback to worker-tokens.json
+	const store = _readWorkerTokensStore();
+	entry = store[envId];
+	if (!entry) {
+		return res.json({ token: null });
+	}
+	if (entry.expiresAt && entry.expiresAt < now) {
+		delete store[envId];
+		_writeWorkerTokensStore(store);
+		_deleteWorkerTokenFromSqlite(envId);
+		return res.json({ token: null });
+	}
+	res.json({
+		token: {
+			accessToken: entry.accessToken,
+			expiresAt: entry.expiresAt,
+			environmentId: envId,
+		},
+	});
+});
+
+app.delete('/api/tokens/worker', express.json(), (req, res) => {
+	const { environmentId } = req.body ?? {};
+	if (!environmentId) {
+		return res.status(400).json({ success: false, error: 'Missing environmentId' });
+	}
+	const envId = String(environmentId);
+
+	// Remove from worker-tokens.json
+	const store = _readWorkerTokensStore();
+	delete store[envId];
+	_writeWorkerTokensStore(store);
+
+	// Remove from SQLite
+	_deleteWorkerTokenFromSqlite(envId);
+
+	console.log(`🔑 [Tokens] Cleared worker token for environment: ${environmentId}`);
+	res.json({ success: true });
+});
+
 // OAuth Token Exchange Endpoint
 app.post('/api/token-exchange', async (req, res) => {
 	console.log('🚀 [Server] Token exchange request received');
@@ -3581,6 +3765,8 @@ app.post('/api/token-exchange', async (req, res) => {
 			audience,
 			resource,
 			device_code, // RFC 8628 Device Authorization Flow
+			username,
+			password,
 		} = req.body;
 
 		// Validate required parameters
@@ -3618,6 +3804,15 @@ app.post('/api/token-exchange', async (req, res) => {
 		} else if (grant_type === 'client_credentials') {
 			// Client credentials grant only needs client_id and client_secret (handled by auth method)
 			console.log('🔑 [Server] Validating client_credentials grant type');
+		} else if (grant_type === 'password') {
+			// Resource Owner Password Credentials (ROPC) — Admin login in AI Assistant
+			if (!username || !password || String(username).trim() === '' || String(password).trim() === '') {
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameters: username and password for password grant',
+				});
+			}
+			console.log('🔑 [Server] Validating password (ROPC) grant type');
 		} else if (grant_type === 'urn:ietf:params:oauth:grant-type:device_code') {
 			// RFC 8628 Device Authorization Flow
 			if (!device_code || device_code.trim() === '') {
@@ -3719,6 +3914,17 @@ app.post('/api/token-exchange', async (req, res) => {
 				client_id: client_id,
 				...(finalScope ? { scope: finalScope } : {}), // Only include scope if provided
 			});
+		} else if (grant_type === 'password') {
+			// Resource Owner Password Credentials (ROPC) — Admin login
+			console.log('🔑 [Server] Building password (ROPC) request body');
+			const ropcParams = {
+				grant_type: 'password',
+				client_id: client_id,
+				username: String(username).trim(),
+				password: String(password),
+			};
+			if (scope) ropcParams.scope = scope;
+			tokenRequestBody = new URLSearchParams(ropcParams);
 		} else if (grant_type === 'urn:ietf:params:oauth:grant-type:token-exchange') {
 			// RFC 8693 Token Exchange
 			console.log('🔄 [Server] Building token exchange request body');
@@ -7682,7 +7888,7 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			const preview = responseText.substring(0, 500);
 			const looksLikeHtml = /<\s*(html|!DOCTYPE|head|body)/i.test(preview);
 			const hint = looksLikeHtml
-				? ' Response appears to be HTML—verify PingOne credentials (environmentId, clientId), redirect_uri is registered, and the app supports pi.flow.'
+				? ' Verify PingOne credentials (environmentId, clientId) and that the OAuth app supports response_mode=pi.flow and Authorization Code flow. See https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html'
 				: '';
 
 			console.error(`[PingOne Redirectless] Invalid response format detected`);
@@ -8530,6 +8736,328 @@ app.post('/api/pingone/userinfo', async (req, res) => {
 		res.status(500).json({
 			error: 'server_error',
 			message: error.message || 'Internal server error',
+		});
+	}
+});
+
+/**
+ * MCP/Agent: Get userinfo by prompting user to log in via Authorization Code flow (response_mode=pi.flow).
+ * Runs redirectless authorize → check-username-password → resume → token exchange → userinfo; returns userinfo to the agent.
+ * Body: { environmentId, clientId, clientSecret, username, password, region? }
+ */
+function generatePkce() {
+	const codeVerifier = randomBytes(32).toString('base64url');
+	const challenge = createHash('sha256').update(codeVerifier).digest('base64url');
+	return { codeVerifier, codeChallenge: challenge };
+}
+
+app.post('/api/mcp/userinfo-via-login', async (req, res) => {
+	try {
+		const { environmentId, clientId, clientSecret, username, password, region = 'us' } = req.body || {};
+		if (!environmentId || !clientId || !clientSecret || !username || !password) {
+			return res.status(400).json({
+				success: false,
+				error: 'invalid_request',
+				error_description:
+					'Missing required parameters: environmentId, clientId, clientSecret, username, password',
+			});
+		}
+		const baseUrl = `${req.protocol}://${req.get('host')}`;
+		const { codeVerifier, codeChallenge } = generatePkce();
+		const state = `userinfo-login-${Date.now()}`;
+
+		// Step 1: Start redirectless authorization (pi.flow)
+		const authRes = await fetch(`${baseUrl}/api/pingone/redirectless/authorize`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				environmentId,
+				clientId,
+				clientSecret,
+				codeChallenge,
+				codeChallengeMethod: 'S256',
+				state,
+				region,
+			}),
+		});
+		const authData = await authRes.json();
+		if (!authRes.ok) {
+			return res.status(authRes.status).json({
+				success: false,
+				error: authData.error || 'authorization_failed',
+				error_description: authData.error_description || authData.message || 'Failed to start login flow',
+			});
+		}
+		const sessionId = authData._sessionId || authData.sessionId;
+		const flowId = authData.id || authData.flowId;
+		const resumeUrl = authData.resumeUrl;
+		if (!sessionId || !flowId || !resumeUrl) {
+			return res.status(500).json({
+				success: false,
+				error: 'invalid_response',
+				error_description: 'Missing flowId, resumeUrl, or sessionId from authorize step',
+			});
+		}
+		const authDomain = (() => {
+			const r = (region || 'us').toLowerCase();
+			if (r === 'eu') return 'auth.pingone.eu';
+			if (r === 'ca') return 'auth.pingone.ca';
+			if (r === 'ap' || r === 'asia') return 'auth.pingone.asia';
+			return 'auth.pingone.com';
+		})();
+		const flowUrl = `https://${authDomain}/${environmentId}/flows/${flowId}`;
+
+		// Step 2: Submit username/password to PingOne Flow API
+		const checkRes = await fetch(`${baseUrl}/api/pingone/flows/check-username-password`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				flowUrl,
+				username,
+				password,
+				sessionId,
+				clientId,
+				clientSecret,
+			}),
+		});
+		if (!checkRes.ok) {
+			const checkErr = await checkRes.json().catch(() => ({}));
+			return res.status(checkRes.status).json({
+				success: false,
+				error: checkErr.error || 'credentials_rejected',
+				error_description:
+					checkErr.error_description || checkErr.message || 'Username or password rejected',
+			});
+		}
+
+		// Step 3: Resume flow to get authorization code
+		const resumeRes = await fetch(`${baseUrl}/api/pingone/resume`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				resumeUrl,
+				flowId,
+				clientId,
+				clientSecret,
+				codeVerifier,
+				flowState: state,
+				sessionId,
+			}),
+		});
+		const resumeData = await resumeRes.json();
+		if (!resumeRes.ok) {
+			return res.status(resumeRes.status).json({
+				success: false,
+				error: resumeData.error || 'resume_failed',
+				error_description: resumeData.error_description || resumeData.message || 'Failed to complete login',
+			});
+		}
+		const code =
+			resumeData.code ||
+			resumeData.authorizeResponse?.code ||
+			(resumeData.authorizeResponse && resumeData.authorizeResponse.code);
+		if (!code) {
+			return res.status(500).json({
+				success: false,
+				error: 'no_code',
+				error_description: 'Authorization code not returned from PingOne',
+			});
+		}
+
+		// Step 4: Exchange code for tokens
+		const tokenUrl = `https://${authDomain}/${environmentId}/as/token`;
+		const tokenBody = new URLSearchParams({
+			grant_type: 'authorization_code',
+			code,
+			code_verifier: codeVerifier,
+			client_id: clientId,
+			client_secret: clientSecret,
+		});
+		const tokenRes = await fetch(tokenUrl, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+			body: tokenBody.toString(),
+		});
+		const tokenData = await tokenRes.json().catch(() => ({}));
+		if (!tokenRes.ok || !tokenData.access_token) {
+			return res.status(tokenRes.ok ? 500 : tokenRes.status).json({
+				success: false,
+				error: tokenData.error || 'token_exchange_failed',
+				error_description:
+					tokenData.error_description || tokenData.message || 'Failed to exchange code for tokens',
+			});
+		}
+
+		// Step 5: Call OIDC UserInfo endpoint via MCP server
+		const userinfoData = await userInfoViaMcpServer({
+			environmentId,
+			accessToken: tokenData.access_token,
+			region,
+		});
+
+		return res.json({
+			success: true,
+			data: userinfoData,
+			answer: `Retrieved OIDC userinfo: sub=${userinfoData?.sub ?? '(unknown)'}${userinfoData?.name ? `, name=${userinfoData.name}` : ''}.`,
+		});
+	} catch (err) {
+		console.error('[MCP userinfo-via-login] Error:', err);
+		return res.status(500).json({
+			success: false,
+			error: 'server_error',
+			error_description: err.message || 'Internal server error during userinfo login flow',
+		});
+	}
+});
+
+// Returns only the user access token (and expiry) from the same redirectless + check + resume + token flow.
+// Use this to obtain a user token for introspection or other agent use (e.g. "Introspect user token").
+app.post('/api/mcp/user-token-via-login', async (req, res) => {
+	try {
+		const { environmentId, clientId, clientSecret, username, password, region = 'us' } = req.body || {};
+		if (!environmentId || !clientId || !clientSecret || !username || !password) {
+			return res.status(400).json({
+				success: false,
+				error: 'invalid_request',
+				error_description:
+					'Missing required parameters: environmentId, clientId, clientSecret, username, password',
+			});
+		}
+		const baseUrl = `${req.protocol}://${req.get('host')}`;
+		const { codeVerifier, codeChallenge } = generatePkce();
+		const state = `user-token-login-${Date.now()}`;
+
+		const authRes = await fetch(`${baseUrl}/api/pingone/redirectless/authorize`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				environmentId,
+				clientId,
+				clientSecret,
+				codeChallenge,
+				codeChallengeMethod: 'S256',
+				state,
+				region,
+			}),
+		});
+		const authData = await authRes.json();
+		if (!authRes.ok) {
+			return res.status(authRes.status).json({
+				success: false,
+				error: authData.error || 'authorization_failed',
+				error_description: authData.error_description || authData.message || 'Failed to start login flow',
+			});
+		}
+		const sessionId = authData._sessionId || authData.sessionId;
+		const flowId = authData.id || authData.flowId;
+		const resumeUrl = authData.resumeUrl;
+		if (!sessionId || !flowId || !resumeUrl) {
+			return res.status(500).json({
+				success: false,
+				error: 'invalid_response',
+				error_description: 'Missing flowId, resumeUrl, or sessionId from authorize step',
+			});
+		}
+		const authDomain = (() => {
+			const r = (region || 'us').toLowerCase();
+			if (r === 'eu') return 'auth.pingone.eu';
+			if (r === 'ca') return 'auth.pingone.ca';
+			if (r === 'ap' || r === 'asia') return 'auth.pingone.asia';
+			return 'auth.pingone.com';
+		})();
+		const flowUrl = `https://${authDomain}/${environmentId}/flows/${flowId}`;
+
+		const checkRes = await fetch(`${baseUrl}/api/pingone/flows/check-username-password`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				flowUrl,
+				username,
+				password,
+				sessionId,
+				clientId,
+				clientSecret,
+			}),
+		});
+		if (!checkRes.ok) {
+			const checkErr = await checkRes.json().catch(() => ({}));
+			return res.status(checkRes.status).json({
+				success: false,
+				error: checkErr.error || 'credentials_rejected',
+				error_description:
+					checkErr.error_description || checkErr.message || 'Username or password rejected',
+			});
+		}
+
+		const resumeRes = await fetch(`${baseUrl}/api/pingone/resume`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				resumeUrl,
+				flowId,
+				clientId,
+				clientSecret,
+				codeVerifier,
+				flowState: state,
+				sessionId,
+			}),
+		});
+		const resumeData = await resumeRes.json();
+		if (!resumeRes.ok) {
+			return res.status(resumeRes.status).json({
+				success: false,
+				error: resumeData.error || 'resume_failed',
+				error_description: resumeData.error_description || resumeData.message || 'Failed to complete login',
+			});
+		}
+		const code =
+			resumeData.code ||
+			resumeData.authorizeResponse?.code ||
+			(resumeData.authorizeResponse && resumeData.authorizeResponse.code);
+		if (!code) {
+			return res.status(500).json({
+				success: false,
+				error: 'no_code',
+				error_description: 'Authorization code not returned from PingOne',
+			});
+		}
+
+		const tokenUrl = `https://${authDomain}/${environmentId}/as/token`;
+		const tokenBody = new URLSearchParams({
+			grant_type: 'authorization_code',
+			code,
+			code_verifier: codeVerifier,
+			client_id: clientId,
+			client_secret: clientSecret,
+		});
+		const tokenRes = await fetch(tokenUrl, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+			body: tokenBody.toString(),
+		});
+		const tokenData = await tokenRes.json().catch(() => ({}));
+		if (!tokenRes.ok || !tokenData.access_token) {
+			return res.status(tokenRes.ok ? 500 : tokenRes.status).json({
+				success: false,
+				error: tokenData.error || 'token_exchange_failed',
+				error_description:
+					tokenData.error_description || tokenData.message || 'Failed to exchange code for tokens',
+			});
+		}
+
+		return res.json({
+			success: true,
+			access_token: tokenData.access_token,
+			...(tokenData.id_token ? { id_token: tokenData.id_token } : {}),
+			expires_in: typeof tokenData.expires_in === 'number' ? tokenData.expires_in : 3600,
+			token_type: tokenData.token_type || 'Bearer',
+		});
+	} catch (err) {
+		console.error('[MCP user-token-via-login] Error:', err);
+		return res.status(500).json({
+			success: false,
+			error: 'server_error',
+			error_description: err.message || 'Internal server error during user token login flow',
 		});
 	}
 });
@@ -21323,6 +21851,7 @@ async function initializeDatabases() {
 //   POST /api/mcp/server/add-tool       — generate + write a new action file
 
 const MCP_SERVER_DIR = path.join(__dirname, 'pingone-mcp-server');
+const MCP_TOOL_NAMES_FILE = path.join(MCP_SERVER_DIR, 'mcp-tool-names.json');
 const MCP_PID_FILE = path.join(MCP_SERVER_DIR, 'mcp-server.pid');
 const MCP_CRED_FILE = path.join(
 	os.homedir(),
@@ -21876,6 +22405,40 @@ app.post('/api/mcp/server/add-tool', express.json(), (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const MCP_INTENTS = [
+	// ── List tools (high priority so "List MCP tools" matches before any list_applications etc.) ──
+	{
+		id: 'list_tools',
+		patterns: [
+			/\blist\s+mcp\s+tools\b/i, // exact "List MCP tools" (most specific first)
+			/\b(?:list|show|what|which)\s+(?:all\s+)?(?:mcp\s+)?tools?\b/i,
+			/\bavailable\s+(?:mcp\s+)?tools?\b/i,
+			/\bmcp\s+tools\b/i,
+			/\blist\s+tools\b/i,
+		],
+		mcpTool: 'mcp_list_tools',
+		apiCall: null,
+		howItWorks:
+			'Returns the full list of MCP tools available in the PingOne MCP server. No credentials needed.',
+	},
+	// ── Help ─────────────────────────────────────────────────────────────────
+	{
+		id: 'help',
+		patterns: [
+			/^help$/i,
+			/what can (you|i|we) do/i,
+			/what can.*look.?up/i,
+			/what.*commands/i,
+			/how do i (use|start|get start)/i,
+			/how can.*help/i,
+			/what.*can.*do.*chat/i,
+			/what.*user.*chat|chat.*user/i,
+			/what.*look.*up.*ping|what.*ping.*look/i,
+		],
+		mcpTool: 'ai_assistant_help',
+		apiCall: null,
+		howItWorks:
+			'Returns a full guide to all available chat capabilities. No credentials needed.',
+	},
 	// ── Worker token ────────────────────────────────────────────────────────
 	{
 		id: 'worker_token',
@@ -21893,6 +22456,25 @@ const MCP_INTENTS = [
 		apiCall: { method: 'GET', path: '/environments/{envId}/applications' },
 		howItWorks:
 			'Calls GET /environments/{envId}/applications to retrieve all OAuth/OIDC application registrations. Each entry has a clientId, grant types, redirect URIs, and OIDC settings.',
+	},
+	// create/delete must come before get_application so "Create application named X" matches create
+	{
+		id: 'create_application',
+		patterns: [
+			/creat.*app(?:lication)?|add.*app(?:lication)?|new.*app(?:lication)?|register.*app/i,
+		],
+		mcpTool: 'pingone_create_application',
+		apiCall: { method: 'POST', path: '/environments/{envId}/applications' },
+		howItWorks:
+			'Calls POST /environments/{envId}/applications to create a new OAuth/OIDC client registration. Requires a name, protocol (OPENID_CONNECT), and grantTypes. Returns the new clientId.',
+	},
+	{
+		id: 'delete_application',
+		patterns: [/delet.*app(?:lication)?|remov.*app(?:lication)?/i],
+		mcpTool: 'pingone_delete_application',
+		apiCall: { method: 'DELETE', path: '/environments/{envId}/applications/{appId}' },
+		howItWorks:
+			'Calls DELETE /environments/{envId}/applications/{id}. This permanently removes the application and invalidates its clientId. This action is irreversible.',
 	},
 	{
 		id: 'get_application',
@@ -21920,23 +22502,17 @@ const MCP_INTENTS = [
 		howItWorks:
 			'Calls POST /environments/{envId}/applications/{id}/secret to issue a new clientSecret, invalidating the previous one. Any client using the old secret must be updated.',
 	},
+	// ── Org Licenses (before Users so "Show org licenses" matches here, not show.*user) ───
 	{
-		id: 'create_application',
+		id: 'org_licenses',
 		patterns: [
-			/creat.*app(?:lication)?|add.*app(?:lication)?|new.*app(?:lication)?|register.*app/i,
+			/show\s+org\s+licenses?|org\s+licenses?|organization\s+licenses?/i,
+			/licens|org.*licens|subscri.*licens|what.*licens|capacity/i,
 		],
-		mcpTool: 'pingone_create_application',
-		apiCall: { method: 'POST', path: '/environments/{envId}/applications' },
+		mcpTool: 'pingone_get_organization_licenses',
+		apiCall: { method: 'GET', path: '/organizations/{orgId}/licenses' },
 		howItWorks:
-			'Calls POST /environments/{envId}/applications to create a new OAuth/OIDC client registration. Requires a name, protocol (OPENID_CONNECT), and grantTypes. Returns the new clientId.',
-	},
-	{
-		id: 'delete_application',
-		patterns: [/delet.*app(?:lication)?|remov.*app(?:lication)?/i],
-		mcpTool: 'pingone_delete_application',
-		apiCall: { method: 'DELETE', path: '/environments/{envId}/applications/{appId}' },
-		howItWorks:
-			'Calls DELETE /environments/{envId}/applications/{id}. This permanently removes the application and invalidates its clientId. This action is irreversible.',
+			"Calls the PingOne Licensing API to return your organization's active licenses — product names, seat counts, expiry dates, and included feature flags.",
 	},
 	// ── Users ────────────────────────────────────────────────────────────────
 	{
@@ -21947,17 +22523,30 @@ const MCP_INTENTS = [
 		howItWorks:
 			'Calls GET /environments/{envId}/users. Supports SCIM filter syntax (e.g. username eq "alice") to narrow results. Returns user id, username, email, name, population, and account status.',
 	},
+	// add/remove user from group must come before create_user so "Add user X to group Y" matches add_to_group
 	{
-		id: 'get_user',
-		patterns: [/get\s+user|find\s+user|look\s*up\s+user|show\s+user|user\s+info|who\s+is\s+user/i],
-		mcpTool: 'pingone_get_user',
-		apiCall: { method: 'GET', path: '/environments/{envId}/users?filter=username eq "{value}"' },
+		id: 'add_user_to_group',
+		patterns: [/add.*user.*group|put.*user.*group|assign.*user.*group|user.*join.*group/i],
+		mcpTool: 'pingone_add_user_to_group',
+		apiCall: { method: 'POST', path: '/environments/{envId}/users/{userId}/memberOfGroups' },
 		howItWorks:
-			'Looks up a user by email or username using SCIM filter: GET /environments/{envId}/users?filter=username eq "value". Returns the full user object including status, population, and MFA settings.',
+			'Calls POST /environments/{envId}/users/{userId}/memberOfGroups with body { id: groupId }. Adds the user to the specified group. Supports UUIDs or name-based lookup: user by username/email, group by name. Example: "Add user curtis@acme.com to group DevTeam".',
 	},
 	{
+		id: 'remove_user_from_group',
+		patterns: [/remov.*user.*group|tak.*user.*out.*group|unassign.*user.*group|user.*leav.*group/i],
+		mcpTool: 'pingone_remove_user_from_group',
+		apiCall: {
+			method: 'DELETE',
+			path: '/environments/{envId}/users/{userId}/memberOfGroups/{groupId}',
+		},
+		howItWorks:
+			'Calls DELETE /environments/{envId}/users/{userId}/memberOfGroups/{groupId}. Removes the user from the group without deleting the user or the group.',
+	},
+	// create/delete must come before get_user so "Delete user <uuid>" and "Create user X" match correctly
+	{
 		id: 'create_user',
-		patterns: [/creat.*user|add.*user|new.*user|register.*user|onboard.*user/i],
+		patterns: [/creat.*user|new.*user|register.*user|onboard.*user/i],
 		mcpTool: 'pingone_create_user',
 		apiCall: { method: 'POST', path: '/environments/{envId}/users' },
 		howItWorks:
@@ -21971,6 +22560,23 @@ const MCP_INTENTS = [
 		howItWorks:
 			'Calls DELETE /environments/{envId}/users/{id}. Permanently removes the user account and all associated data. This action is irreversible — consider disabling the account (PATCH status=DISABLED) first.',
 	},
+	// OIDC UserInfo (must be before get_user so "Get userinfo" hits this, not Management API user lookup)
+	{
+		id: 'userinfo',
+		patterns: [/userinfo|get\s+userinfo|\buser\s+info\b|user\s+profile\s+claim|id.?token.*claim|current.*user.*claim/i],
+		mcpTool: 'pingone_userinfo',
+		apiCall: { method: 'GET', path: 'auth.pingone.com/{envId}/as/userinfo' },
+		howItWorks:
+			'Calls the OIDC UserInfo endpoint (auth.pingone.com/{envId}/as/userinfo) with a Bearer token. Returns OIDC standard claims (sub, name, email, phone_number). Requires an OAuth access token from a user login (e.g. Authorization Code flow); worker token cannot be used.',
+	},
+	{
+		id: 'get_user',
+		patterns: [/get\s+user(?!info)|find\s+user|look\s*up\s+user|show\s+user(?!info)|who\s+is\s+user|get\s+userinfo\s+use\s+\w+|userinfo\s+use\s+\w+\s+for\s+username/i],
+		mcpTool: 'pingone_get_user',
+		apiCall: { method: 'GET', path: '/environments/{envId}/users?filter=username eq "{value}"' },
+		howItWorks:
+			'Looks up a user by email or username using SCIM filter: GET /environments/{envId}/users?filter=username eq "value". Returns the full user object including status, population, and MFA settings.',
+	},
 	{
 		id: 'get_user_groups',
 		patterns: [/user.*groups?|groups?.*for.*user|what.*groups?.*user|user.*member/i],
@@ -21978,25 +22584,6 @@ const MCP_INTENTS = [
 		apiCall: { method: 'GET', path: '/environments/{envId}/users/{userId}/memberOfGroups' },
 		howItWorks:
 			'Calls GET /environments/{envId}/users/{userId}/memberOfGroups. Returns all groups the user belongs to, including the group id, name, and description.',
-	},
-	{
-		id: 'add_user_to_group',
-		patterns: [/add.*user.*group|put.*user.*group|assign.*user.*group|user.*join.*group/i],
-		mcpTool: 'pingone_add_user_to_group',
-		apiCall: { method: 'POST', path: '/environments/{envId}/users/{userId}/memberOfGroups' },
-		howItWorks:
-			'Calls POST /environments/{envId}/users/{userId}/memberOfGroups with body { id: groupId }. Adds the user to the specified group. Requires both a userId and a groupId.',
-	},
-	{
-		id: 'remove_user_from_group',
-		patterns: [/remov.*user.*group|tak.*user.*out.*group|unassign.*user.*group|user.*leav.*group/i],
-		mcpTool: 'pingone_remove_user_from_group',
-		apiCall: {
-			method: 'DELETE',
-			path: '/environments/{envId}/users/{userId}/memberOfGroups/{groupId}',
-		},
-		howItWorks:
-			'Calls DELETE /environments/{envId}/users/{userId}/memberOfGroups/{groupId}. Removes the user from the group without deleting the user or the group.',
 	},
 	// ── Groups ───────────────────────────────────────────────────────────────
 	{
@@ -22091,15 +22678,6 @@ const MCP_INTENTS = [
 		howItWorks:
 			'Calls POST /environments/{envId}/riskEvaluations with a user + event context. PingOne Protect returns a risk level (LOW/MEDIUM/HIGH) and contributing risk factors (IP reputation, anomalous behavior, impossible travel, etc.).',
 	},
-	// ── Org Licenses ─────────────────────────────────────────────────────────
-	{
-		id: 'org_licenses',
-		patterns: [/licens|org.*licens|subscri.*licens|what.*licens|capacity/i],
-		mcpTool: 'pingone_get_organization_licenses',
-		apiCall: { method: 'GET', path: '/environments/{envId}/licenses' },
-		howItWorks:
-			"Calls the PingOne Licensing API to return your organization's active licenses — product names, seat counts, expiry dates, and included feature flags.",
-	},
 	// ── OIDC ─────────────────────────────────────────────────────────────────
 	{
 		id: 'oidc_discovery',
@@ -22117,33 +22695,6 @@ const MCP_INTENTS = [
 		apiCall: { method: 'POST', path: '/environments/{envId}/as/introspect' },
 		howItWorks:
 			'Calls the PingOne token introspection endpoint (RFC 7662). Returns whether the token is active, plus its claims — expiry, scope, subject, client_id, and more.',
-	},
-	// ── Auth / UserInfo ───────────────────────────────────────────────────────
-	{
-		id: 'userinfo',
-		patterns: [/userinfo|user\s+profile\s+claim|id.?token.*claim|current.*user.*claim/i],
-		mcpTool: 'pingone_userinfo',
-		apiCall: { method: 'GET', path: '/environments/{envId}/as/userinfo' },
-		howItWorks:
-			'Calls GET /environments/{envId}/as/userinfo with a Bearer token. Returns OIDC standard claims (sub, name, email, phone_number) for the authenticated user. Useful for testing what claims an issued token carries.',
-	},
-	// ── Help ─────────────────────────────────────────────────────────────────
-	{
-		id: 'help',
-		patterns: [
-			/^help$/i,
-			/what can (you|i|we) do/i,
-			/what can.*look.?up/i,
-			/what.*commands/i,
-			/how do i (use|start|get start)/i,
-			/how can.*help/i,
-			/what.*can.*do.*chat/i,
-			/what.*user.*chat|chat.*user/i,
-			/what.*look.*up.*ping|what.*ping.*look/i,
-		],
-		mcpTool: 'ai_assistant_help',
-		apiCall: null,
-		howItWorks: 'Returns a full guide to all available chat capabilities. No credentials needed.',
 	},
 ];
 
@@ -22166,6 +22717,17 @@ function buildRegionUrl(region) {
 	if (r === 'au') return 'api.pingone.com.au';
 	if (r === 'sg') return 'api.pingone.sg';
 	return 'api.pingone.com';
+}
+
+/** Auth domain for OIDC endpoints (userinfo, token, authorize). Region-aware. */
+function buildAuthDomain(region) {
+	const r = (region || 'us').toLowerCase();
+	if (r === 'eu') return 'auth.pingone.eu';
+	if (r === 'ca') return 'auth.pingone.ca';
+	if (r === 'ap' || r === 'asia') return 'auth.pingone.asia';
+	if (r === 'au') return 'auth.pingone.com.au';
+	if (r === 'sg') return 'auth.pingone.sg';
+	return 'auth.pingone.com';
 }
 
 /** Returns stored custom PingOne API host, or null when none set. */
@@ -22220,7 +22782,7 @@ async function mcpCallPingOne({
 	if (method === 'DELETE' && response.status === 204) return { success: true };
 	if (!response.ok) {
 		const err = await response.json().catch(() => ({}));
-		// PingOne uses message, detail, error_description, error, or code
+		// PingOne uses message, detail, error_description, error, or code; validation details in err.details
 		const msg =
 			err?.message ||
 			err?.detail ||
@@ -22228,7 +22790,16 @@ async function mcpCallPingOne({
 			err?.error ||
 			err?.code ||
 			response.statusText;
-		throw Object.assign(new Error(msg || response.statusText), {
+		let fullMsg = msg || response.statusText;
+		if (err?.details && Array.isArray(err.details) && err.details.length > 0) {
+			const detailStr = err.details
+				.map((d) => (typeof d === 'string' ? d : d?.message || d?.reason || d?.field ? `${d.field || 'field'}: ${d.message || d.reason || ''}` : JSON.stringify(d)))
+				.join('; ');
+			fullMsg = `${fullMsg} (${detailStr})`;
+		} else if (err?.details && typeof err.details === 'object' && !Array.isArray(err.details)) {
+			fullMsg = `${fullMsg} (${JSON.stringify(err.details)})`;
+		}
+		throw Object.assign(new Error(fullMsg), {
 			status: response.status,
 			details: err,
 		});
@@ -22236,9 +22807,103 @@ async function mcpCallPingOne({
 	return response.json();
 }
 
-/** Pull the first email-looking token from a query string. */
+/**
+ * Call organization-level licenses API. Licenses are at /v1/organizations/{orgId}/licenses,
+ * not under /v1/environments/{envId}. Uses same Bearer token as Management API.
+ */
+async function mcpCallOrgLicenses({ workerToken, region }) {
+	const customDomain = await getStoredCustomDomain();
+	const isAppHost = customDomain && String(customDomain).toLowerCase().includes('pingdemo.com');
+	let host = customDomain && !isAppHost ? customDomain : buildRegionUrl(region);
+	if (String(host).toLowerCase().includes('pingdemo.com')) host = buildRegionUrl(region);
+	const cleanToken = String(workerToken || '').replace(/^Bearer\s+/i, '').trim();
+	const auth = `Bearer ${cleanToken}`;
+	writeToMcpLog('info', 'MCP org licenses', { host, region: region ?? 'na' });
+	// Get first organization, then fetch its licenses
+	const orgRes = await global.fetch(`https://${host}/v1/organizations?limit=1`, {
+		method: 'GET',
+		headers: { Authorization: auth, Accept: 'application/json' },
+	});
+	if (!orgRes.ok) {
+		const err = await orgRes.json().catch(() => ({}));
+		const msg = err?.message || err?.detail || err?.error_description || orgRes.statusText;
+		throw Object.assign(new Error(msg || orgRes.statusText), { status: orgRes.status, details: err });
+	}
+	const orgsData = await orgRes.json();
+	const orgs = orgsData._embedded?.organizations || [];
+	if (orgs.length === 0) {
+		throw new Error('No organizations found. Worker token may lack organization scope.');
+	}
+	const orgId = orgs[0].id;
+	const licRes = await global.fetch(`https://${host}/v1/organizations/${orgId}/licenses?limit=200`, {
+		method: 'GET',
+		headers: { Authorization: auth, Accept: 'application/json' },
+	});
+	if (!licRes.ok) {
+		const err = await licRes.json().catch(() => ({}));
+		const msg = err?.message || err?.detail || err?.error_description || licRes.statusText;
+		throw Object.assign(new Error(msg || licRes.statusText), { status: licRes.status, details: err });
+	}
+	return licRes.json();
+}
+
+/**
+ * Call OIDC UserInfo endpoint (auth.pingone.com, not Management API).
+ * Requires an OAuth access token from a user login; worker token will return 401.
+ * Used as fallback when pingone-mcp-server is not available.
+ */
+async function mcpCallUserInfo({ environmentId, accessToken, region }) {
+	const authHost = buildAuthDomain(region);
+	const url = `https://${authHost}/${environmentId}/as/userinfo`;
+	writeToMcpLog('info', 'MCP UserInfo (OIDC)', { authHost, envId: environmentId?.slice(0, 8) });
+	const response = await global.fetch(url, {
+		method: 'GET',
+		headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
+	});
+	if (!response.ok) {
+		const err = await response.json().catch(() => ({}));
+		const msg = err?.error_description || err?.error || err?.message || response.statusText;
+		if (response.status === 401) {
+			throw new Error(
+				'UserInfo requires an OAuth access token from a user login (e.g. Authorization Code flow). ' +
+					'The worker token grants Management API access, not user claims. ' +
+					'Complete an OAuth flow in the app to get an access token, then use that token with the UserInfo endpoint.'
+			);
+		}
+		throw Object.assign(new Error(msg || response.statusText), { status: response.status, details: err });
+	}
+	return response.json();
+}
+
+/** Lazy-loaded pingone-mcp-server getUserInfo module. */
+let _mcpUserInfoModule = null;
+
+/**
+ * Call OIDC UserInfo through the MCP server (pingone-mcp-server) when available; otherwise use local mcpCallUserInfo.
+ * Ensures userinfo goes through the MCP server as the single implementation.
+ */
+async function userInfoViaMcpServer({ environmentId, accessToken, region }) {
+	try {
+		if (!_mcpUserInfoModule) {
+			const modPath = path.join(__dirname, 'pingone-mcp-server', 'dist', 'services', 'pingoneAuthClient.js');
+			if (fs.existsSync(modPath)) {
+				const url = pathToFileURL(modPath).href;
+				_mcpUserInfoModule = await import(url);
+			}
+		}
+		if (_mcpUserInfoModule?.getUserInfo) {
+			writeToMcpLog('info', 'MCP UserInfo (via pingone-mcp-server)', { envId: environmentId?.slice(0, 8) });
+			return await _mcpUserInfoModule.getUserInfo(environmentId, accessToken, region || 'us');
+		}
+	} catch (e) {
+		writeToMcpLog('info', 'MCP UserInfo fallback to local', { reason: e?.message || String(e) });
+	}
+	return mcpCallUserInfo({ environmentId, accessToken, region });
+}
+
+/** Pull the first email-looking token from a query string. Handles + and other valid chars. */
 function _extractEmail(query) {
-	const m = query.match(/[\w.+%-]+@[\w-]+\.[a-z]{2,}/i);
+	const m = query.match(/[^\s@]+@[^\s@]+\.[a-z]{2,}/i);
 	return m ? m[0] : null;
 }
 /** Pull text after "named?|called?" or in quotes. */
@@ -22259,6 +22924,26 @@ function _extractUsernamePrefix(query) {
 		/(?:start(?:ing)?\s+with|begin(?:ning)?\s+with|named?\s+|called?\s+|whose\s+(?:name|username)\s+(?:is|starts?\s+with)\s+)["']?([\w.@+-]+)["']?/i
 	);
 	return m ? m[1] : null;
+}
+/** Pull a username for single-user lookup from phrases like "show user curtis", "get user X", "username curtis". */
+function _extractUsernameForLookup(query) {
+	const notEmailOrUuid = (val) =>
+		!/[^\s@]+@[^\s@]+\.[a-z]{2,}/i.test(val) &&
+		!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+	// "use curtis for username", "with curtis for username", "by username curtis"
+	const useFor = query.match(/(?:use|with|by)\s+["']?([\w.@+-]+)["']?\s+for\s+username/i);
+	if (useFor && notEmailOrUuid(useFor[1])) return useFor[1];
+	const usernameLabel = query.match(/username\s*[:=]\s*["']?([\w.@+-]+)["']?/i);
+	if (usernameLabel && notEmailOrUuid(usernameLabel[1])) return usernameLabel[1];
+	const usernameAfter = query.match(/\busername\s+["']?([\w.@+-]+)["']?/i);
+	if (usernameAfter && notEmailOrUuid(usernameAfter[1])) return usernameAfter[1];
+	// "show user curtis", "get user curtis", "find user X", "look up user X"
+	const afterUser = query.match(/(?:get|find|look\s*up|show)\s+user(?:info)?\s+["']?([\w.@+-]+)["']?/i);
+	if (afterUser && notEmailOrUuid(afterUser[1])) return afterUser[1];
+	// Fallback: any "user <token>" (e.g. "show user curtis", "user curtis")
+	const userThenToken = query.match(/\buser\s+["']?([\w.@+-]+)["']?(?:\s|$)/i);
+	if (userThenToken && notEmailOrUuid(userThenToken[1])) return userThenToken[1];
+	return null;
 }
 /** Pull an explicit count/limit from phrases like "show me 5", "get 2 users", "first 10", "top 3" */
 function _extractLimit(query) {
@@ -22328,13 +23013,22 @@ function _extractGroupNameFilter(query) {
 	const m = query.match(/(?:named?|called?|matching|with\s+name)\s+["']?([\w .@+-]{2,40})["']?/i);
 	return m ? m[1].trim() : null;
 }
+/** Extract user and group identifiers from "Add user X to group Y" / "Assign user X to group Y". */
+function _extractAddUserToGroupIdentifiers(query) {
+	const m = query.match(/user\s+([^\s]+)\s+.*?group\s+([^\s]+)/i);
+	return m ? { userIdent: m[1], groupIdent: m[2] } : null;
+}
+/** Escape value for SCIM filter (backslash and double-quote). */
+function _scimEscape(val) {
+	return String(val).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
 
 app.post('/api/mcp/query', async (req, res) => {
 	// Declared outside try so the catch block can include intent metadata in error responses
 	let _intent = null;
 	const _start = Date.now();
 	try {
-		const { query, workerToken, environmentId: reqEnvId, region } = req.body || {};
+		const { query, workerToken, environmentId: reqEnvId, region, userAccessToken } = req.body || {};
 
 		if (!query || typeof query !== 'string' || !query.trim()) {
 			return res
@@ -22363,6 +23057,25 @@ app.post('/api/mcp/query', async (req, res) => {
 				apiCall: null,
 				howItWorks: null,
 				data: null,
+			});
+		}
+
+		// List tools intent — no credentials needed; use canonical list from MCP server source
+		if (intent.id === 'list_tools') {
+			let toolNames = [];
+			try {
+				toolNames = JSON.parse(fs.readFileSync(MCP_TOOL_NAMES_FILE, 'utf8'));
+			} catch {
+				toolNames = MCP_INTENTS.filter((i) => i.mcpTool).map((i) => i.mcpTool);
+			}
+			const toolList = toolNames.map((n) => `• ${n}`).join('\n');
+			return res.json({
+				success: true,
+				answer: `📋 **MCP tools available in this assistant:**\n\n${toolList}\n\n💡 Use natural language to invoke them (e.g. "List all users", "Get worker token").`,
+				mcpTool: intent.mcpTool,
+				apiCall: null,
+				howItWorks: intent.howItWorks,
+				data: toolNames.map((name) => ({ name, id: null })),
 			});
 		}
 
@@ -22396,7 +23109,8 @@ app.post('/api/mcp/query', async (req, res) => {
 					'• "Delete group <id>"\n\n' +
 					'🔐 Auth & tokens:\n' +
 					'• "Get OIDC discovery document"\n' +
-					'• "Introspect token"\n' +
+					'• "Introspect token" (worker or admin token)\n' +
+					'• "Introspect user token" (after User login in side panel)\n' +
 					'• "Get userinfo"\n\n' +
 					'📡 Webhooks:\n' +
 					'• "List subscriptions" / "Delete subscription <id>"\n\n' +
@@ -22506,6 +23220,58 @@ app.post('/api/mcp/query', async (req, res) => {
 			(_mcpTokenCache.expiry > Date.now() ? _mcpTokenCache.token : null);
 		const ctx = { environmentId: envId, workerToken: token, region };
 
+		// OIDC UserInfo — requires user's OAuth access token (not worker token). See https://docs.pingidentity.com/developer-resources/openid_connect_developer_guide/userinfo-endpoint.html
+		if (intent.id === 'userinfo') {
+			const envIdForUserinfo =
+				reqEnvId ||
+				process.env.PINGONE_ENVIRONMENT_ID ||
+				process.env.VITE_PINGONE_ENVIRONMENT_ID ||
+				_mcpReadCredentials().environmentId;
+			const authHost = buildAuthDomain(region || 'us');
+			const userinfoUrl = envIdForUserinfo
+				? `https://${authHost}/${envIdForUserinfo}/as/userinfo`
+				: null;
+			if (userAccessToken && envIdForUserinfo) {
+				try {
+					const userinfoData = await userInfoViaMcpServer({
+						environmentId: envIdForUserinfo,
+						accessToken: userAccessToken,
+						region: region || 'us',
+					});
+					return res.json({
+						success: true,
+						answer: `Retrieved OIDC userinfo claims: sub=${userinfoData?.sub ?? '(unknown)'}${userinfoData?.name ? `, name=${userinfoData.name}` : ''}.`,
+						mcpTool: intent.mcpTool,
+						apiCall: { method: 'GET', path: userinfoUrl },
+						howItWorks: intent.howItWorks,
+						data: userinfoData,
+					});
+				} catch (err) {
+					return res.json({
+						success: false,
+						answer: err.message || 'UserInfo call failed',
+						mcpTool: intent.mcpTool,
+						apiCall: { method: 'GET', path: userinfoUrl },
+						howItWorks: intent.howItWorks,
+						data: null,
+						credentialsRequired: true,
+					});
+				}
+			}
+			return res.json({
+				success: false,
+				answer:
+					'**Get userinfo** calls the OIDC UserInfo endpoint (not the Management API). It requires a **user\'s** OAuth access token from a login (e.g. Authorization Code flow). The worker token cannot be used. Complete an OAuth flow in the app to get an access token, then pass it as `userAccessToken` when asking for userinfo—or use the app\'s UserInfo / OAuth flow page to call the endpoint directly. Endpoint: ' +
+					(userinfoUrl || 'https://auth.pingone.com/{envId}/as/userinfo') +
+					'. See [UserInfo Endpoint](https://docs.pingidentity.com/developer-resources/openid_connect_developer_guide/userinfo-endpoint.html).',
+				mcpTool: intent.mcpTool,
+				apiCall: { method: 'GET', path: userinfoUrl || 'auth.pingone.com/{envId}/as/userinfo' },
+				howItWorks: intent.howItWorks,
+				data: null,
+				credentialsRequired: true,
+			});
+		}
+
 		// OIDC discovery — no token needed, try live then fall back to educational
 		if (intent.id === 'oidc_discovery') {
 			let data = null;
@@ -22613,6 +23379,7 @@ app.post('/api/mcp/query', async (req, res) => {
 		} else if (intent.id === 'get_user') {
 			const email = _extractEmail(q);
 			const uuid = _extractUuid(q);
+			const username = _extractUsernameForLookup(q);
 			if (uuid) {
 				data = await mcpCallPingOne({ ...ctx, path: `/users/${uuid}` });
 				summary = `Found user ${data.username || uuid}.`;
@@ -22623,10 +23390,28 @@ app.post('/api/mcp/query', async (req, res) => {
 				});
 				data = raw?._embedded?.users || [];
 				summary = `Found ${data.length} user(s) matching ${email}.`;
+			} else if (username) {
+				const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+				const raw = await mcpCallPingOne({
+					...ctx,
+					path: `/users?filter=username eq "${esc(username)}"&limit=5`,
+				});
+				const users = raw?._embedded?.users || [];
+				if (users.length === 1) {
+					data = users[0];
+					summary = `Found user: ${data.username || data.userName || username} (${data.id}).`;
+				} else if (users.length > 1) {
+					data = users;
+					summary = `Found ${users.length} users matching username "${username}".`;
+				} else {
+					data = null;
+					summary = `No user found with username "${username}".`;
+				}
 			} else {
 				return res.json({
 					success: false,
-					answer: 'Please include an email address or user ID. Example: "Find user john@acme.com"',
+					answer:
+						'Please include an email address, username, or user ID. Example: "Find user john@acme.com" or "Get user alice"',
 					mcpTool: intent.mcpTool,
 					apiCall: intent.apiCall,
 					howItWorks: intent.howItWorks,
@@ -22668,7 +23453,7 @@ app.post('/api/mcp/query', async (req, res) => {
 				data = await mcpCallPingOne({ ...ctx, path: `/groups/${uuid}` });
 				summary = `Found group "${data.name}".`;
 			} else if (name) {
-				const raw = await mcpCallPingOne({ ...ctx, path: `/groups?filter=name eq "${name}"` });
+				const raw = await mcpCallPingOne({ ...ctx, path: `/groups?filter=name eq "${_scimEscape(name)}"` });
 				data = raw?._embedded?.groups || [];
 				summary = `Found ${data.length} group(s) named "${name}".`;
 			} else {
@@ -22750,15 +23535,11 @@ app.post('/api/mcp/query', async (req, res) => {
 			data = raw?._embedded?.subscriptions || [];
 			summary = `Found ${data.length} webhook subscription(s).`;
 		} else if (intent.id === 'org_licenses') {
-			const raw = await mcpCallPingOne({ ...ctx, path: '/licenses' });
+			const raw = await mcpCallOrgLicenses({ workerToken: ctx.workerToken, region: ctx.region });
 			data = raw?._embedded?.licenses || [];
 			summary = `Found ${data.length} license(s) for this organization.`;
-		} else if (intent.id === 'userinfo') {
-			data = await mcpCallPingOne({ ...ctx, path: '/as/userinfo' });
-			summary = `Retrieved userinfo claims: sub=${data?.sub || '(unknown)'}.`;
-
-			// ── WRITE operations ────────────────────────────────────────────────
 		} else if (intent.id === 'create_user') {
+			// ── WRITE operations ────────────────────────────────────────────────
 			const email = _extractEmail(q);
 			if (!email) {
 				return res.json({
@@ -22770,18 +23551,31 @@ app.post('/api/mcp/query', async (req, res) => {
 					data: null,
 				});
 			}
-			// Get default population
-			const popsRaw = await mcpCallPingOne({ ...ctx, path: '/populations?limit=1' });
+			// Get default population (required by PingOne API)
+			const popsRaw = await mcpCallPingOne({ ...ctx, path: '/populations?limit=10' });
 			const defaultPop = popsRaw?._embedded?.populations?.[0];
-			const namePart = email.split('@')[0];
+			if (!defaultPop?.id) {
+				return res.json({
+					success: false,
+					answer:
+						'No population found in this environment. Create a population first (PingOne Console → Users → Populations), then try again.',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+				});
+			}
+			// PingOne: username (required, unique), population.id (required); name.given/family optional per API docs.
+			const namePart = email.split('@')[0] || 'User';
+			const given = namePart.charAt(0).toUpperCase() + namePart.slice(1).toLowerCase();
 			const body = {
 				username: email,
-				email,
-				name: { given: namePart, family: '' },
-				population: { id: defaultPop?.id ?? '' },
+				email: email,
+				name: { given: given, family: 'User' },
+				population: { id: defaultPop.id },
 			};
 			data = await mcpCallPingOne({ ...ctx, path: '/users', method: 'POST', body });
-			summary = `✅ Created user ${email} with ID ${data.id}. Population: ${defaultPop?.name || '(default)'}.`;
+			summary = `✅ Created user ${email} with ID ${data.id}. Population: ${defaultPop?.name || defaultPop.id}.`;
 		} else if (intent.id === 'delete_user') {
 			const email = _extractEmail(q);
 			const uuid = _extractUuid(q);
@@ -22827,7 +23621,7 @@ app.post('/api/mcp/query', async (req, res) => {
 			if (!groupId && name) {
 				const raw = await mcpCallPingOne({
 					...ctx,
-					path: `/groups?filter=name eq "${name}"&limit=1`,
+					path: `/groups?filter=name eq "${_scimEscape(name)}"&limit=1`,
 				});
 				groupId = raw?._embedded?.groups?.[0]?.id;
 			}
@@ -22848,12 +23642,59 @@ app.post('/api/mcp/query', async (req, res) => {
 			const uuids = [
 				...q.matchAll(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi),
 			].map((m) => m[0]);
-			const [userId, groupId] = uuids;
+			let userId = uuids[0];
+			let groupId = uuids[1];
+			// Name-based lookup when UUIDs not provided (e.g. "Add user curtis to group DevTeam")
+			if ((!userId || !groupId) && _extractAddUserToGroupIdentifiers(q)) {
+				const { userIdent, groupIdent } = _extractAddUserToGroupIdentifiers(q);
+				const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+				if (!userId && userIdent) {
+					const userRaw = await mcpCallPingOne({
+						...ctx,
+						path: `/users?filter=username eq "${esc(userIdent)}"&limit=2`,
+					});
+					const users = userRaw?._embedded?.users ?? [];
+					if (users.length === 1) userId = users[0].id;
+					else if (users.length > 1)
+						return res.json({
+							success: false,
+							answer: `Multiple users match "${userIdent}". Use email or UUID. Example: "Add user john@acme.com to group DevTeam"`,
+							mcpTool: intent.mcpTool,
+							apiCall: intent.apiCall,
+							howItWorks: intent.howItWorks,
+							data: null,
+						});
+					else {
+						const swRaw = await mcpCallPingOne({
+							...ctx,
+							path: `/users?filter=username sw "${esc(userIdent)}"&limit=2`,
+						});
+						const swUsers = swRaw?._embedded?.users ?? [];
+						if (swUsers.length === 1) userId = swUsers[0].id;
+						else if (swUsers.length > 1)
+							return res.json({
+								success: false,
+								answer: `Multiple users match "${userIdent}". Use email or UUID.`,
+								mcpTool: intent.mcpTool,
+								apiCall: intent.apiCall,
+								howItWorks: intent.howItWorks,
+								data: null,
+							});
+					}
+				}
+				if (!groupId && groupIdent) {
+					const groupRaw = await mcpCallPingOne({
+						...ctx,
+						path: `/groups?filter=name eq "${esc(groupIdent)}"&limit=1`,
+					});
+					groupId = groupRaw?._embedded?.groups?.[0]?.id;
+				}
+			}
 			if (!userId || !groupId) {
 				return res.json({
 					success: false,
 					answer:
-						'Please include both a user UUID and a group UUID. Example: "Add user <userId> to group <groupId>"',
+						'Include a user (email or username) and group (name). Example: "Add user curtis@acme.com to group DevTeam"',
 					mcpTool: intent.mcpTool,
 					apiCall: intent.apiCall,
 					howItWorks: intent.howItWorks,
@@ -22871,12 +23712,41 @@ app.post('/api/mcp/query', async (req, res) => {
 			const uuids = [
 				...q.matchAll(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi),
 			].map((m) => m[0]);
-			const [userId, groupId] = uuids;
+			let userId = uuids[0];
+			let groupId = uuids[1];
+			// Name-based lookup when UUIDs not provided (e.g. "Remove user curtis from group DevTeam")
+			if ((!userId || !groupId) && _extractAddUserToGroupIdentifiers(q)) {
+				const { userIdent, groupIdent } = _extractAddUserToGroupIdentifiers(q);
+				const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+				if (!userId && userIdent) {
+					const userRaw = await mcpCallPingOne({
+						...ctx,
+						path: `/users?filter=username eq "${esc(userIdent)}"&limit=2`,
+					});
+					const users = userRaw?._embedded?.users ?? [];
+					if (users.length === 1) userId = users[0].id;
+					else if (users.length === 0) {
+						const swRaw = await mcpCallPingOne({
+							...ctx,
+							path: `/users?filter=username sw "${esc(userIdent)}"&limit=2`,
+						});
+						const swUsers = swRaw?._embedded?.users ?? [];
+						if (swUsers.length === 1) userId = swUsers[0].id;
+					}
+				}
+				if (!groupId && groupIdent) {
+					const groupRaw = await mcpCallPingOne({
+						...ctx,
+						path: `/groups?filter=name eq "${esc(groupIdent)}"&limit=1`,
+					});
+					groupId = groupRaw?._embedded?.groups?.[0]?.id;
+				}
+			}
 			if (!userId || !groupId) {
 				return res.json({
 					success: false,
 					answer:
-						'Please include both a user UUID and a group UUID. Example: "Remove user <userId> from group <groupId>"',
+						'Include a user (email or username) and group (name). Example: "Remove user curtis@acme.com from group DevTeam"',
 					mcpTool: intent.mcpTool,
 					apiCall: intent.apiCall,
 					howItWorks: intent.howItWorks,
@@ -22912,6 +23782,7 @@ app.post('/api/mcp/query', async (req, res) => {
 					protocol: 'OPENID_CONNECT',
 					type: 'WEB_APP',
 					grantTypes: ['AUTHORIZATION_CODE'],
+					responseTypes: ['CODE'],
 					redirectUris: [],
 				},
 			});
@@ -22973,9 +23844,77 @@ app.post('/api/mcp/query', async (req, res) => {
 			data = { deleted: true, subscriptionId: uuid };
 			summary = `✅ Deleted subscription ${uuid}.`;
 		} else if (intent.id === 'introspect_token') {
-			summary =
-				'Token introspection requires a token value. Use the Token Tools page to introspect a specific token, or provide it in the request body.';
-			data = null;
+			// Use worker token, or tokenToIntrospect (admin/user token) if provided in request body
+			const tokenToIntrospect = req.body.tokenToIntrospect || token;
+			const creds = _mcpReadCredentials();
+			if (!tokenToIntrospect) {
+				return res.json({
+					success: false,
+					answer:
+						'No token available to introspect. Say **Get worker token** first, or sign in with **Admin login** and try again—I\'ll use the worker token or admin token we have.',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+				});
+			}
+			if (!envId || !creds.clientId || !creds.clientSecret) {
+				return res.json({
+					success: false,
+					answer:
+						'Token introspection needs environment and client credentials. Configure the worker token (Configuration / MCP Server Config) with environment ID, client ID, and client secret, then try again.',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+				});
+			}
+			const authHost = buildAuthDomain(region || 'us');
+			const introspectUrl = `https://${authHost}/${envId}/as/introspect`;
+			const introspectBody = new URLSearchParams({
+				token: tokenToIntrospect,
+				client_id: creds.clientId,
+				client_secret: creds.clientSecret,
+			});
+			try {
+				const introResp = await global.fetch(introspectUrl, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+						Accept: 'application/json',
+					},
+					body: introspectBody.toString(),
+				});
+				data = await introResp.json().catch(() => ({}));
+				if (!introResp.ok) {
+					const errMsg = data.error_description || data.error || data.message || introResp.statusText;
+					return res.json({
+						success: false,
+						answer: `Introspection failed (${introResp.status}): ${errMsg}`,
+						mcpTool: intent.mcpTool,
+						apiCall: intent.apiCall,
+						howItWorks: intent.howItWorks,
+						data: data,
+					});
+				}
+				const active = data.active === true;
+				const sub = data.sub ?? data.client_id ?? '—';
+				const scope = data.scope ? ` scopes: ${data.scope}` : '';
+				const exp = data.exp ? ` expires: ${new Date(data.exp * 1000).toISOString()}` : '';
+				summary = active
+					? `✅ Token is **active**. Subject/client: ${sub}${scope}${exp}`
+					: `Token is **inactive** (expired or revoked).`;
+			} catch (introErr) {
+				const msg = introErr instanceof Error ? introErr.message : String(introErr);
+				return res.json({
+					success: false,
+					answer: `Introspection request failed: ${msg}`,
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+				});
+			}
 		} else if (intent.id === 'risk_evaluation') {
 			summary =
 				'Risk evaluation requires a userId and event context. This is an educational description: PingOne Protect evaluates IP reputation, device fingerprint, behavioral analytics, and past activity to produce a LOW/MEDIUM/HIGH risk score.';
