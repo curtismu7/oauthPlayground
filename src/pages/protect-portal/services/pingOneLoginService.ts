@@ -42,19 +42,19 @@ export class PingOneLoginService {
 				scopes,
 			});
 
-			// pi.flow with response_type=token id_token delivers tokens directly at the resume step.
-			// No PKCE and no redirect_uri required.
-			// Per https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html
-			const nonce = PingOneLoginService.generateState(); // reuse random state generator for nonce
-			const codeVerifier = ''; // not used for token response_type — kept for interface compat
+			// Use response_type=code + PKCE — works with any Authorization Code app.
+			// (response_type=token id_token requires Implicit grant which many apps don't have)
+			const codeVerifier = PingOneLoginService.generateCodeVerifier();
+			const codeChallenge = await PingOneLoginService.generateCodeChallenge(codeVerifier);
 
 			const requestBody: Record<string, unknown> = {
 				environmentId: environmentId,
 				clientId: clientId,
-				response_type: 'token id_token',
+				response_type: 'code',
 				response_mode: 'pi.flow',
 				scopes: scopes.join(' '),
-				nonce: nonce,
+				codeChallenge,
+				codeChallengeMethod: 'S256',
 			};
 			if (region?.trim()) {
 				requestBody.region = region.trim().toLowerCase();
@@ -266,12 +266,13 @@ export class PingOneLoginService {
 	}
 
 	/**
-	 * Resume the pi.flow — returns tokens directly in JSON (response_type=token id_token).
-	 * Per docs: https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html
-	 * "When authentication is complete, the app receives the access token or ID token
-	 *  in a JSON response instead of a redirect."
+	 * Resume the pi.flow — works for both response_type=code (returns code, exchanges for tokens)
+	 * and response_type=token id_token (tokens returned directly).
 	 */
-	static async resumeFlow(flowId: string): Promise<
+	static async resumeFlow(
+		flowId: string,
+		clientSecret?: string
+	): Promise<
 		ServiceResponse<{
 			access_token: string;
 			id_token?: string;
@@ -294,7 +295,7 @@ export class PingOneLoginService {
 				flowState: params.state,
 				clientId: params.clientId,
 				sessionId: params.sessionId,
-				// No codeVerifier — token response_type doesn't use PKCE
+				codeVerifier: params.codeVerifier || undefined,
 			};
 
 			const response = await fetch(`${PingOneLoginService.PROXY_BASE_URL}/resume`, {
@@ -311,6 +312,33 @@ export class PingOneLoginService {
 			}
 
 			const result = await response.json();
+
+			// pi.flow with response_type=code: resume returns { code, state }
+			// Exchange the code for tokens using PKCE verifier stored in FLOW_PARAMS_STORE.
+			if (result.code) {
+				const exchangeRes = await PingOneLoginService.exchangeCodeForTokens(
+					params.environmentId,
+					params.clientId,
+					clientSecret || '',
+					params.redirectUri || '',
+					result.code as string,
+					params.codeVerifier
+				);
+				if (!exchangeRes.success || !exchangeRes.data) {
+					throw new Error(exchangeRes.error?.message || 'Token exchange failed');
+				}
+				PingOneLoginService.clearFlowParams(flowId);
+				logger.info(`${MODULE_TAG} pi.flow code exchanged for tokens`, { flowId });
+				return {
+					success: true,
+					data: exchangeRes.data,
+					metadata: {
+						timestamp: new Date().toISOString(),
+						requestId: `resume-${Date.now()}`,
+						processingTime: 0,
+					},
+				};
+			}
 
 			// pi.flow with response_type=token id_token: tokens may be at the top
 			// level OR nested inside authorizeResponse depending on PingOne version.
@@ -524,16 +552,6 @@ export class PingOneLoginService {
 		}
 	}
 
-	/**
-	/**
-	 * Generate random nonce/state parameter
-	 */
-	private static generateState(): string {
-		return (
-			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-		);
-	}
-
 	private static storeFlowParams(
 		flowId: string,
 		params: {
@@ -593,6 +611,31 @@ export class PingOneLoginService {
 				PingOneLoginService.FLOW_PARAMS_STORE.delete(flowId);
 			}
 		}
+	}
+
+	// ============================================================================
+	// PKCE HELPERS
+	// ============================================================================
+
+	/** Generate a cryptographically random code verifier (RFC 7636). */
+	private static generateCodeVerifier(): string {
+		const array = new Uint8Array(32);
+		crypto.getRandomValues(array);
+		return btoa(String.fromCharCode(...array))
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+			.replace(/=/g, '');
+	}
+
+	/** Derive S256 code challenge from verifier. */
+	private static async generateCodeChallenge(verifier: string): Promise<string> {
+		const encoder = new TextEncoder();
+		const data = encoder.encode(verifier);
+		const digest = await crypto.subtle.digest('SHA-256', data);
+		return btoa(String.fromCharCode(...new Uint8Array(digest)))
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+			.replace(/=/g, '');
 	}
 }
 
