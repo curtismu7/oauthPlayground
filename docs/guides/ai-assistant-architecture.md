@@ -50,10 +50,10 @@ User query
 
 There are **two physical copies** of the AIAssistant component and its services:
 
-| Location                                     | Used by                                    | Entry point               |
-| -------------------------------------------- | ------------------------------------------ | ------------------------- |
-| `AIAssistant/src/components/AIAssistant.tsx` | Standalone popout window (`/ai-assistant`) | `AIAssistant/src/App.tsx` |
-| `src/components/AIAssistantSidePanel.tsx`    | Embedded in main app header                | `src/App.tsx`             |
+| Location                                     | Used by                                                        | Entry point               |
+| -------------------------------------------- | -------------------------------------------------------------- | ------------------------- |
+| `AIAssistant/src/components/AIAssistant.tsx` | Standalone page (`https://api.pingdemo.com:3000/ai-assistant`) | `AIAssistant/src/App.tsx` |
+| `src/components/AIAssistantSidePanel.tsx`    | Embedded in main app header                                    | `src/App.tsx`             |
 
 Both copies share the same **backend** (`server.js`) and have near-identical logic, but are **separate files** — a change to one does not propagate to the other automatically.
 
