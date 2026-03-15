@@ -275,7 +275,7 @@ const WELCOME_MESSAGE: Message = {
 	id: '1',
 	type: 'assistant',
 	content:
-		"Hi! I'm your OAuth Playground assistant. I can help you:\n\n• Find the right OAuth flow for your needs\n• Explain OAuth and OIDC concepts\n• Guide you through configuration\n• Troubleshoot issues\n\nWhat would you like to know?",
+		"Hi! I'm your MasterFlow AI assistant — connected to your PingOne environment via the **Model Context Protocol (MCP)**.\n\n**Live commands** (enable the Live toggle):\n- `List all users` · `Find user john@acme.com` · `Create user` · `Delete user`\n- `Show all apps` · `Get app secret` · `Rotate secret`\n- `List groups` · `List MFA policies` · `List subscriptions`\n- `Introspect token` · `Get userinfo` · `Show org licenses`\n\n**Always available** (no credentials needed):\n- `What is MCP?` · `What is an agent?` · `How does this agent work?`\n- `Decode JWT <paste-token>` · `Show my token` · `Last MCP tool`\n- `Admin login` · `User login` (side panel 👤)\n\nType any command or click **📋** for the full Prompt Reference guide.",
 	timestamp: new Date(),
 };
 
@@ -385,8 +385,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 	const [userAccessToken, setUserAccessToken] = useState<string | null>(null);
 	/** ID token from User login flow (OIDC); stored for educational inspection */
 	const [idToken, setIdToken] = useState<string | null>(null);
-	/** Recent MCP API call records (last 20) — shown by "show api calls" command */
-	const [apiCallHistory, setApiCallHistory] = useState<ApiCallRecord[]>([]);
+	/** Recent MCP API call records (last 20) — shown by "show api calls" and "last tool" commands. Persisted to sessionStorage so they survive soft navigation. */
+	const [apiCallHistory, setApiCallHistory] = useState<ApiCallRecord[]>(() => {
+		try {
+			const stored = sessionStorage.getItem('ai-assistant-api-history');
+			if (!stored) return [];
+			const parsed = JSON.parse(stored) as Array<Omit<ApiCallRecord, 'timestamp'> & { timestamp: string }>;
+			return parsed.map((r) => ({ ...r, timestamp: new Date(r.timestamp) }));
+		} catch {
+			return [];
+		}
+	});
 	/** When true, show the User login panel (pi.flow) to get a user access token for introspection. */
 	const [showUserTokenLogin, setShowUserTokenLogin] = useState(false);
 	const [userTokenUsername, setUserTokenUsername] = useState('');
@@ -534,6 +543,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 			.then((data) => setBraveAvailable(data.success === true && !!data.apiKey))
 			.catch(() => setBraveAvailable(false));
 	}, [isOpen]);
+
+	// Persist API call history to sessionStorage so it survives soft navigation within the tab
+	useEffect(() => {
+		try {
+			sessionStorage.setItem('ai-assistant-api-history', JSON.stringify(apiCallHistory));
+		} catch {
+			// sessionStorage may be unavailable (private browsing, storage quota exceeded, etc.)
+		}
+	}, [apiCallHistory]);
 
 	const handleRefreshTokenConfirm = useCallback(async () => {
 		setIsRefreshingToken(true);
@@ -1683,7 +1701,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 	const promptCategories = [
 		{
 			label: '🔑 Auth',
-			prompts: ['Get worker token', 'Admin login', 'List MCP tools'],
+			prompts: ['Get worker token', 'Admin login', 'User login', 'List MCP tools'],
 		},
 		{
 			label: '📱 Applications',
@@ -1737,6 +1755,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 				'Introspect token',
 				'Introspect user token',
 				'Get userinfo',
+				'Evaluate risk',
 			],
 		},
 		{
@@ -1747,6 +1766,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 				'Show worker token',
 				'Decode token <paste-jwt-here>',
 				'Show api calls',
+				'Last MCP tool',
+				'Inspect last call',
 				'Clear tokens',
 			],
 		},
@@ -1776,6 +1797,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 	const quickQuestions = [
 		'List MCP tools',
 		'Get worker token',
+		'Admin login',
 		'Show all apps',
 		'List all users',
 		'List groups',
@@ -1784,6 +1806,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 		'List subscriptions',
 		'Show org licenses',
 		'Get OIDC discovery document',
+		'Last MCP tool',
 		'What is MCP?',
 		'How does this agent work?',
 		'What can I do in chat?',
