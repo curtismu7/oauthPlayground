@@ -243,6 +243,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 		setAuthorizationUrl(res.url);
 		const params = new URL(res.url, window.location.origin).searchParams;
 		setCode(params.get('code') || '');
+		showGlobalSuccess('Authorization code issued', { description: 'Step 2 is now active — exchange the code for tokens.' });
 	}
 
 	async function handleExchangeToken() {
@@ -260,6 +261,11 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 			includeIdToken: oidc,
 			ttls: { accessTokenSeconds: 900, idTokenSeconds: 900, refreshTokenSeconds: 86400 },
 		});
+		if ('error' in res) {
+			showGlobalError(`${res.error}: ${res.error_description ?? ''}`);
+		} else {
+			showGlobalSuccess('Tokens received', { description: 'Step 3 is now active — use the access token.' });
+		}
 		setTokenResponse(res);
 	}
 
@@ -271,6 +277,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 		if (!accessToken) { showGlobalError('No access token available'); return; }
 		V9MockApiCalls.logUserInfoEndpoint({ environmentId: 'v7m-mock-env', accessToken });
 		setUserinfoResponse(getUserInfoFromAccessToken(accessToken));
+		showGlobalSuccess('UserInfo retrieved', { description: 'Identity claims returned from the UserInfo endpoint.' });
 	}
 
 	function handleIntrospect() {
@@ -279,6 +286,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 			environmentId: 'v7m-mock-env', token: accessToken, clientId, clientSecret: expectedSecret,
 		});
 		setIntrospectionResponse(introspectToken(accessToken));
+		showGlobalSuccess('Token introspected', { description: 'Server-side token validation complete.' });
 	}
 
 	const hasResults = tokenResponse || userinfoResponse || introspectionResponse;
