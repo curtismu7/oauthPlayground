@@ -579,7 +579,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 	/** Send a message. Pass overrideQuery when triggered by prompt chip/quick question to avoid stale closure. */
 	const handleSend = useCallback(
 		async (overrideQuery?: string) => {
-			const query = (overrideQuery ?? input).trim();
+			// Guard: if called directly as an onClick handler, overrideQuery will be a SyntheticEvent — ignore it
+			const query = (typeof overrideQuery === 'string' ? overrideQuery : input).trim();
 			if (!query) return;
 
 			const userMessage: Message = {
@@ -2424,7 +2425,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 												aria-label="Message input"
 											/>
 											<SendButton
-												onClick={handleSend}
+												onClick={() => handleSend()}
 												disabled={!input.trim()}
 												aria-label="Send message"
 												title="Send message (Enter)"
@@ -2899,7 +2900,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 											aria-label="Message input"
 										/>
 										<SendButton
-											onClick={handleSend}
+											onClick={() => handleSend()}
 											disabled={!input.trim()}
 											aria-label="Send message"
 											title="Send message (Enter)"
