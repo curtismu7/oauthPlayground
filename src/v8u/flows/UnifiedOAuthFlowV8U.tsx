@@ -535,18 +535,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// Intentionally omitting specVersion from dependencies to prevent loops
 	}, [flowType, specVersion]);
 
-	// Credentials and worker token section collapsed state — persisted so survives refresh/restart
-	const [isCredentialsCollapsed, setIsCredentialsCollapsed] = usePersistedCollapse(
-		effectiveFlowType,
-		'credentials',
-		currentStep > 0
-	);
-	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = usePersistedCollapse(
-		effectiveFlowType,
-		'worker-token-status',
-		true
-	);
-
 	// Worker token warning — shown when token is invalid/expired before an API call
 	const [workerTokenWarning, setWorkerTokenWarning] = useState<TokenStatusInfo | null>(null);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
@@ -920,18 +908,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	}, [specVersion]);
 
 	/**
-	 * Determine effective flow type - ensures selected flow is available for current spec version
+	 * Get the effective flow type, with fallback to available flows
 	 *
-	 * Some flows are not available in certain spec versions:
-	 * - Implicit flow: Removed in OAuth 2.1 (security concerns)
-	 * - ROPC flow: Removed in OAuth 2.1 (security concerns)
-	 * - Hybrid flow: Not part of OAuth 2.1 spec
-	 *
-	 * This memoized value:
-	 * 1. Checks if the selected flow type is available for the current spec version
-	 * 2. Returns the selected flow if available
-	 * 3. Falls back to the first available flow (usually 'oauth-authz') if not available
-	 *
+	 * This ensures the flow type is always valid for the current spec version.
 	 * The fallback prevents errors when switching spec versions that don't support the current flow.
 	 *
 	 * @returns {FlowType} The effective flow type (either selected or fallback)
@@ -952,6 +931,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		});
 		return fallback;
 	}, [flowType, availableFlows]);
+
+	// Credentials and worker token section collapsed state — persisted so survives refresh/restart
+	const [isCredentialsCollapsed, setIsCredentialsCollapsed] = usePersistedCollapse(
+		effectiveFlowType,
+		'credentials',
+		currentStep > 0
+	);
+	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = usePersistedCollapse(
+		effectiveFlowType,
+		'worker-token-status',
+		true
+	);
 
 	// Calculate current flow key (specVersion + flowType) - MUST be after effectiveFlowType is defined
 	const flowKey = useMemo(() => {
@@ -1869,9 +1860,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									message: 'Opening worker token settings…',
 									duration: 3000,
 								});
-								const { handleShowWorkerTokenModal } = await import(
-									'@/v8/utils/workerTokenModalHelperV8'
-								);
+								const { handleShowWorkerTokenModal } =
+									await import('@/v8/utils/workerTokenModalHelperV8');
 								await handleShowWorkerTokenModal(
 									setShowWorkerTokenModal,
 									setWorkerTokenWarning,
@@ -2768,9 +2758,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							<button
 								type="button"
 								onClick={async () => {
-									const { handleShowWorkerTokenModal } = await import(
-										'@/v8/utils/workerTokenModalHelperV8'
-									);
+									const { handleShowWorkerTokenModal } =
+										await import('@/v8/utils/workerTokenModalHelperV8');
 									await handleShowWorkerTokenModal(
 										() => {}, // setShowModal - not needed here
 										undefined, // setTokenStatus - not needed here
@@ -2823,9 +2812,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
 											try {
-												const { handleShowWorkerTokenModal } = await import(
-													'@/v8/utils/workerTokenModalHelperV8'
-												);
+												const { handleShowWorkerTokenModal } =
+													await import('@/v8/utils/workerTokenModalHelperV8');
 												// Attempt silent retrieval (will show modal if credentials are missing)
 												await handleShowWorkerTokenModal(
 													() => {}, // setShowModal - not needed here
