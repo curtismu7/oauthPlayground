@@ -107,31 +107,31 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-15T16:11:31.949Z
+// Last updated: 2026-03-15T16:14:53.041Z
 // Source: git log (1 days → 1 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
-  {
-    "id": "git-2026-03-15-bug-fixes",
-    "date": "2026-03-15",
-    "duration": 0.5,
-    "category": {
-      "id": "bug-fixes",
-      "name": "Bug Fixes",
-      "color": "#DC3545",
-      "icon": "🐛",
-      "description": "Bug Fixes"
-    },
-    "description": "SendButton onClick passed SyntheticEvent as overrideQuery causing trim() crash",
-    "filesModified": 1,
-    "linesOfCode": 4,
-    "issuesResolved": 1,
-    "documentation": [],
-    "achievements": [
-      "SendButton onClick passed SyntheticEvent as overrideQuery causing trim() crash"
-    ],
-    "version": "9.16.3"
-  }
+	{
+		id: 'git-2026-03-15-code-cleanup',
+		date: '2026-03-15',
+		duration: 5.8,
+		category: {
+			id: 'code-cleanup',
+			name: 'Code Cleanup',
+			color: '#FFC107',
+			icon: '🧹',
+			description: 'Code Cleanup',
+		},
+		description: 'Admin login uses client_credentials instead of unsupported ROPC/password grant',
+		filesModified: 12,
+		linesOfCode: 1727,
+		issuesResolved: 22,
+		documentation: [],
+		achievements: [
+			'Admin login uses client_credentials instead of unsupported ROPC/password grant',
+		],
+		version: '9.16.4',
+	},
 ];
 
 // ─── END AUTO-GENERATED sessions ───
