@@ -8,6 +8,17 @@ import { Logger } from '../services/logger.js';
 import { buildToolErrorResult } from '../services/mcpErrors.js';
 import { introspectToken, type IntrospectResult } from '../services/pingoneIntrospectClient.js';
 
+/** Decode a base64url segment without signature verification. */
+function decodeBase64Url(segment: string): Record<string, unknown> | null {
+	try {
+		const base64 = segment.replace(/-/g, '+').replace(/_/g, '/');
+		const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+		return JSON.parse(Buffer.from(padded, 'base64').toString('utf8')) as Record<string, unknown>;
+	} catch {
+		return null;
+	}
+}
+
 const inputShape = {
 	environmentId: z.string().trim().optional(),
 	token: z.string().trim().min(1, 'token is required'),
@@ -25,6 +36,10 @@ const outputShape = {
 	iat: z.number().optional(),
 	sub: z.string().optional(),
 	raw: z.record(z.unknown()).optional(),
+	/** JWT header decoded without signature verification (alg, kid, typ) */
+	decodedHeader: z.record(z.unknown()).optional(),
+	/** JWT payload decoded without signature verification */
+	decodedPayload: z.record(z.unknown()).optional(),
 	error: z.object({ code: z.string().optional(), message: z.string() }).optional(),
 } as const;
 
@@ -50,6 +65,12 @@ export function registerIntrospectTools(server: McpServer, logger: Logger): void
 					token: parsed.token,
 					tokenTypeHint: parsed.tokenTypeHint,
 				});
+
+				// Decode JWT header and payload without signature verification (educational / informational)
+				const jwtParts = parsed.token.split('.');
+				const decodedHeader = jwtParts.length >= 2 ? decodeBase64Url(jwtParts[0]) : null;
+				const decodedPayload = jwtParts.length >= 2 ? decodeBase64Url(jwtParts[1]) : null;
+
 				const structured = outputSchema.parse({
 					success: result.success,
 					...(result.success
@@ -63,6 +84,8 @@ export function registerIntrospectTools(server: McpServer, logger: Logger): void
 								iat: result.iat,
 								sub: result.sub,
 								raw: result.raw,
+								...(decodedHeader ? { decodedHeader } : {}),
+								...(decodedPayload ? { decodedPayload } : {}),
 							}
 						: { error: result.error }),
 				}) as Record<string, unknown>;

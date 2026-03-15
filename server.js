@@ -22696,6 +22696,21 @@ const MCP_INTENTS = [
 		howItWorks:
 			'Calls the PingOne token introspection endpoint (RFC 7662). Returns whether the token is active, plus its claims — expiry, scope, subject, client_id, and more.',
 	},
+	// ── Token decoder (client-side JWT decode, no credentials needed) ─────────
+	{
+		id: 'decode_token',
+		patterns: [
+			/decode\s+(?:this\s+)?(?:jwt|token)\b/i,
+			/parse\s+(?:this\s+)?(?:jwt|token)\b/i,
+			/what(?:'s|\s+is)\s+in\s+(?:this\s+)?(?:jwt|token)\b/i,
+			/show\s+(?:jwt|token)\s+(?:claims?|header|payload)\b/i,
+			/eyJ[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\./,
+		],
+		mcpTool: 'pingone_decode_jwt',
+		apiCall: null,
+		howItWorks:
+			'Decodes a JWT header and payload using base64url decoding. No network call, no credentials needed — educational only. Signature is NOT verified.',
+	},
 ];
 
 function classifyMcpIntent(query) {
@@ -23112,6 +23127,11 @@ app.post('/api/mcp/query', async (req, res) => {
 					'• "Introspect token" (worker or admin token)\n' +
 					'• "Introspect user token" (after User login in side panel)\n' +
 					'• "Get userinfo"\n\n' +
+					'🔍 Token Inspector (educational):\n' +
+					'• "Decode token eyJ..." — paste any JWT to see header + payload claims\n' +
+					'• "Show my token" / "Show ID token" — view tokens cached in the UI\n' +
+					'• "Show worker token" — view the server-side worker token\n' +
+					'• "Show API calls" — view API call history in the UI\n\n' +
 					'📡 Webhooks:\n' +
 					'• "List subscriptions" / "Delete subscription <id>"\n\n' +
 					'🌐 Web (Brave toggle) — live internet search\n' +
@@ -23915,6 +23935,71 @@ app.post('/api/mcp/query', async (req, res) => {
 					data: null,
 				});
 			}
+		} else if (intent.id === 'decode_token') {
+			// Extract a JWT from the query string (raw token pasted in) or from tokenToIntrospect
+			const jwtMatch = query.match(/eyJ[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+(?:\.[A-Za-z0-9\-_]*)?/);
+			const tokenToDecode = jwtMatch ? jwtMatch[0] : (req.body.tokenToIntrospect || token || '');
+			if (!tokenToDecode) {
+				return res.json({
+					success: false,
+					answer: 'Paste a JWT (starts with `eyJ`) directly into your message, or say **Get worker token** first and I\'ll decode that.',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+				});
+			}
+			const jwtParts = tokenToDecode.split('.');
+			if (jwtParts.length < 2) {
+				return res.json({
+					success: false,
+					answer: 'That does not look like a valid JWT — expected three dot-separated base64url segments.',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+				});
+			}
+			function _decodeBase64Url(seg) {
+				try {
+					const b64 = seg.replace(/-/g, '+').replace(/_/g, '/');
+					const padded = b64.padEnd(b64.length + ((4 - (b64.length % 4)) % 4), '=');
+					return JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
+				} catch {
+					return null;
+				}
+			}
+			const jwtHeader = _decodeBase64Url(jwtParts[0]);
+			const jwtPayload = _decodeBase64Url(jwtParts[1]);
+			if (!jwtHeader || !jwtPayload) {
+				return res.json({
+					success: false,
+					answer: 'Could not decode that JWT — the header or payload is not valid base64url JSON.',
+					mcpTool: intent.mcpTool,
+					apiCall: intent.apiCall,
+					howItWorks: intent.howItWorks,
+					data: null,
+				});
+			}
+			const expDate = typeof jwtPayload.exp === 'number' ? new Date(jwtPayload.exp * 1000) : null;
+			const expired = expDate ? expDate < new Date() : null;
+			const lines = [
+				`Algorithm: ${jwtHeader.alg ?? '(none)'}`,
+				jwtHeader.kid ? `Key ID (kid): ${jwtHeader.kid}` : null,
+				jwtPayload.sub ? `Subject (sub): ${jwtPayload.sub}` : null,
+				jwtPayload.iss ? `Issuer (iss): ${jwtPayload.iss}` : null,
+				jwtPayload.aud ? `Audience (aud): ${Array.isArray(jwtPayload.aud) ? jwtPayload.aud.join(', ') : jwtPayload.aud}` : null,
+				expDate ? `Expires (exp): ${expDate.toISOString()} ${expired ? '⚠️ EXPIRED' : '✅ valid'}` : null,
+				typeof jwtPayload.iat === 'number' ? `Issued at (iat): ${new Date(jwtPayload.iat * 1000).toISOString()}` : null,
+				jwtPayload.scope ? `Scope: ${jwtPayload.scope}` : null,
+				jwtPayload.client_id ? `Client ID: ${jwtPayload.client_id}` : null,
+			].filter(Boolean);
+			summary =
+				`## JWT Decoded ⚠️ educational only — no signature verification\n\n` +
+				`### Header\n\`\`\`json\n${JSON.stringify(jwtHeader, null, 2)}\n\`\`\`\n\n` +
+				`### Payload\n\`\`\`json\n${JSON.stringify(jwtPayload, null, 2)}\n\`\`\`\n\n` +
+				`### Summary\n${lines.join('\n')}`;
+			data = { header: jwtHeader, payload: jwtPayload };
 		} else if (intent.id === 'risk_evaluation') {
 			summary =
 				'Risk evaluation requires a userId and event context. This is an educational description: PingOne Protect evaluates IP reputation, device fingerprint, behavioral analytics, and past activity to produce a LOW/MEDIUM/HIGH risk score.';
