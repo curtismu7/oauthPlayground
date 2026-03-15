@@ -17,6 +17,10 @@ export interface McpQueryOptions {
 	environmentId?: string;
 	/** Region hint: com (NA), eu, ca, ap, au, sg */
 	region?: string;
+	/** Token to introspect (e.g. user access token from User login); when set, introspect uses this instead of worker/admin token */
+	tokenToIntrospect?: string;
+	/** User access token obtained via User login flow; forwarded to backend for user-context MCP calls */
+	userAccessToken?: string;
 }
 
 export interface McpQueryResult {
@@ -44,10 +48,27 @@ export interface McpQueryResult {
  * immediately before the network call returns.
  */
 const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
+	// Admin login — open username/password form (or prompt to configure worker token)
+	{
+		pattern: /\badmin\s+login\b|\blogin\s+as\s+admin\b|\blogin\s+admin\b/i,
+		tool: 'admin_login',
+	},
 	// worker token (must be first — broad pattern)
 	{
 		pattern: /worker.?token|client.?credentials|access.?token|get.?token|issue.?token/i,
 		tool: 'pingone_get_worker_token',
+	},
+	// list tools (high priority — before list.*app so "List MCP tools" matches here)
+	{
+		pattern:
+			/\blist\s+mcp\s+tools\b|\b(?:list|show|what|which)\s+(?:all\s+)?(?:mcp\s+)?tools?\b|\bavailable\s+(?:mcp\s+)?tools?\b|\bmcp\s+tools\b|\blist\s+tools\b/i,
+		tool: 'mcp_list_tools',
+	},
+	// help (high priority)
+	{
+		pattern:
+			/^help$|what can (you|i|we) do|what can.*look.?up|what commands|how do i (use|start|get start)|how can.*help|what.*can.*do.*chat|what.*user.*chat|chat.*user|what.*ping.*do|what.*look.*up.*ping/i,
+		tool: 'ai_assistant_help',
 	},
 	// applications
 	{
@@ -74,20 +95,31 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 		pattern: /get\s+app|find\s+app|app\s+details|app\s+info|which\s+app/i,
 		tool: 'pingone_get_application',
 	},
-	// users
+	// org licenses (before users so "Show org licenses" doesn't match show.*user)
+	{
+		pattern: /\bshow\s+org\s+licenses\b|\borg\s+licenses\b|licens|org.*licens|capacity/i,
+		tool: 'pingone_get_organization_licenses',
+	},
+	// users — create/delete before get so "Delete user <uuid>" matches delete
 	{
 		pattern: /list.*user|show.*users|all.*user|get.*users|fetch.*user/i,
 		tool: 'pingone_list_users',
 	},
 	{
-		pattern: /get\s+user|find\s+user|look\s*up\s+user|show\s+user|user\s+info|who\s+is/i,
-		tool: 'pingone_get_user',
-	},
-	{
-		pattern: /creat.*user|add.*user|new.*user|register.*user|onboard.*user/i,
+		pattern: /creat.*user|new.*user|register.*user|onboard.*user/i,
 		tool: 'pingone_create_user',
 	},
 	{ pattern: /delet.*user|remov.*user|deactivat.*user/i, tool: 'pingone_delete_user' },
+	// OIDC UserInfo (before get_user so "Get userinfo" hits this, not Management API user lookup)
+	{
+		pattern: /userinfo|get\s+userinfo|\buser\s+info\b|user\s+profile\s+claim|current.*user.*claim/i,
+		tool: 'pingone_userinfo',
+	},
+	{
+		pattern:
+			/get\s+user(?!info)|find\s+user|look\s*up\s+user|show\s+user(?!info)|who\s+is\s+user|get\s+userinfo\s+use\s+\w+|userinfo\s+use\s+\w+\s+for\s+username/i,
+		tool: 'pingone_get_user',
+	},
 	{
 		pattern: /user.*groups?|groups?.*for.*user|what.*groups?.*user|user.*member/i,
 		tool: 'pingone_get_user_groups',
@@ -131,18 +163,10 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 	},
 	// risk / org / OIDC / auth
 	{ pattern: /risk.*eval|eval.*risk|risk.*score|assess.*risk/i, tool: 'pingone_risk_evaluation' },
-	{ pattern: /licens|org.*licens|capacity/i, tool: 'pingone_get_organization_licenses' },
 	{ pattern: /oidc|openid|discovery|\.well-known|issuer/i, tool: 'pingone_oidc_config' },
 	{
 		pattern: /introspect|inspect.*token|token.*info|validate.*token/i,
 		tool: 'pingone_introspect_token',
-	},
-	{ pattern: /userinfo|user\s+profile\s+claim|current.*user.*claim/i, tool: 'pingone_userinfo' },
-	// help
-	{
-		pattern:
-			/^help$|what can (you|i|we) do|what can.*look.?up|what commands|how do i (use|start|get start)|how can.*help|what.*can.*do.*chat|what.*user.*chat|chat.*user|what.*ping.*do|what.*look.*up.*ping/i,
-		tool: 'ai_assistant_help',
 	},
 ];
 
@@ -164,9 +188,31 @@ export function isHelpQuery(query: string): boolean {
 	return predictMcpTool(query) === 'ai_assistant_help';
 }
 
+/** Returns true if the query is asking to list all MCP tools (works without credentials). */
+export function isListToolsQuery(query: string): boolean {
+	return predictMcpTool(query) === 'mcp_list_tools';
+}
+
 /** Returns true if the query is a worker token request (works without the Live toggle). */
 export function isWorkerTokenQuery(query: string): boolean {
 	return predictMcpTool(query) === 'pingone_get_worker_token';
+}
+
+/** Returns true when the query is a UserInfo request (OIDC userinfo endpoint). */
+export function isUserInfoQuery(query: string): boolean {
+	return predictMcpTool(query) === 'pingone_userinfo';
+}
+
+/** Returns true when the user is asking to open the Admin login form (username/password). */
+export function isAdminLoginQuery(query: string): boolean {
+	return predictMcpTool(query) === 'admin_login';
+}
+
+/** Returns true when the query is asking to introspect the user's access token (from User login). */
+export function isIntrospectUserTokenQuery(query: string): boolean {
+	return /\bintrospect\s+user\s+token\b|\bintrospect\s+user'?s?\s+token\b|user\s+token\s+introspect/i.test(
+		query.trim()
+	);
 }
 
 /**
@@ -193,6 +239,84 @@ export function isWebSearchQuery(query: string): boolean {
 	return patterns.some((p) => p.test(query));
 }
 
+// ── Educational token inspection utilities ────────────────────────────────────
+
+/**
+ * Decode a JWT payload without signature verification (educational display only).
+ * Returns null if the string is not a valid JWT format.
+ */
+export function decodeJwtPayload(token: string): Record<string, unknown> | null {
+	try {
+		const parts = token.split('.');
+		if (parts.length < 2) return null;
+		const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+		const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+		return JSON.parse(atob(padded)) as Record<string, unknown>;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Decode the JWT header (alg, kid, typ) without signature verification (educational display only).
+ * Returns null if the string is not a valid JWT format.
+ */
+export function decodeJwtHeader(token: string): Record<string, unknown> | null {
+	try {
+		const parts = token.split('.');
+		if (parts.length < 2) return null;
+		const base64 = parts[0].replace(/-/g, '+').replace(/_/g, '/');
+		const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+		return JSON.parse(atob(padded)) as Record<string, unknown>;
+	} catch {
+		return null;
+	}
+}
+
+/** Returns true when the query is asking to view/display the stored user access token. */
+export function isShowMyTokenQuery(query: string): boolean {
+	return /\bshow\s+(?:my\s+)?(?:user\s+)?(?:access\s+)?token\b|\bview\s+(?:my\s+)?(?:user\s+)?(?:access\s+)?token\b|\bdisplay\s+(?:my\s+)?(?:user\s+)?(?:access\s+)?token\b|\bwhat(?:'?s|\s+is)\s+my\s+(?:access\s+)?token\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is asking to view/decode the stored ID token. */
+export function isShowIdTokenQuery(query: string): boolean {
+	return /\bshow\s+(?:my\s+)?id[\s-]token\b|\bview\s+(?:my\s+)?id[\s-]token\b|\bdisplay\s+(?:my\s+)?id[\s-]token\b|\bdecode\s+(?:my\s+)?id[\s-]token\b|\bid[\s-]token\s+claims?\b|\bwhat(?:'?s|\s+is)\s+in\s+(?:my\s+)?id[\s-]token\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is asking to view/display the worker or admin token. */
+export function isShowWorkerTokenQuery(query: string): boolean {
+	return /\bshow\s+(?:the\s+)?(?:my\s+)?(?:worker|admin)\s+token\b|\bview\s+(?:the\s+)?(?:worker|admin)\s+token\b|\bdisplay\s+(?:the\s+)?(?:worker|admin)\s+token\b|\bwhat(?:'?s|\s+is)\s+(?:the\s+)?(?:worker|admin)\s+token\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query contains a pasted JWT to decode, or explicitly asks to decode a token. */
+export function isDecodeTokenQuery(query: string): boolean {
+	return (
+		/\bdecode\s+(?:this\s+)?(?:jwt|token)\b|\bparse\s+(?:this\s+)?(?:jwt|token)\b|\bwhat\s+claims\s+(?:are\s+)?in\b/i.test(query.trim()) ||
+		// freestanding JWT in the message text
+		/\bey[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\b/.test(query.trim())
+	);
+}
+
+/** Returns true when the query is asking to view the recent MCP API call history. */
+export function isShowApiCallsQuery(query: string): boolean {
+	return /\bshow\s+(?:(?:my|the|recent|last)\s+)?api\s+calls?\b|\bapi\s+call\s+histor(?:y|ies)\b|\brecent\s+api\s+calls?\b|\blast\s+api\s+call\b|\bwhat\s+api\s+calls?\s+(?:were|have\s+been)\s+made\b|\bshow\s+(?:my\s+)?(?:last|recent)\s+calls?\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is asking to clear all stored tokens from memory/localStorage. */
+export function isClearTokensQuery(query: string): boolean {
+	return /\bclear\s+(?:all\s+)?(?:my\s+)?(?:stored\s+)?tokens?\b|\bforget\s+(?:my\s+)?tokens?\b|\bremove\s+(?:my\s+)?(?:stored\s+)?tokens?\b|\bdelete\s+(?:my\s+)?(?:stored\s+)?tokens?\b|\bclear\s+token\s+storage\b|\bsign\s+out\s+tokens?\b/i.test(
+		query.trim()
+	);
+}
+
 /** Send the query to the backend MCP query handler and return the result. */
 export async function callMcpQuery(
 	query: string,
@@ -202,6 +326,8 @@ export async function callMcpQuery(
 	if (options.workerToken) body.workerToken = options.workerToken;
 	if (options.environmentId) body.environmentId = options.environmentId;
 	if (options.region) body.region = options.region;
+	if (options.tokenToIntrospect) body.tokenToIntrospect = options.tokenToIntrospect;
+	if (options.userAccessToken) body.userAccessToken = options.userAccessToken;
 
 	const response = await fetch('/api/mcp/query', {
 		method: 'POST',
@@ -239,6 +365,97 @@ export async function callMcpQuery(
 	}
 
 	return response.json() as Promise<McpQueryResult>;
+}
+
+/** Call backend to run PKCE + pi.flow login and return a user access token (for introspection). */
+export async function callUserTokenViaLogin(params: {
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
+	username: string;
+	password: string;
+	region?: string;
+}): Promise<{
+	success: boolean;
+	access_token?: string;
+	expires_in?: number;
+	error_description?: string;
+}> {
+	const res = await fetch('/api/mcp/user-token-via-login', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+		body: JSON.stringify({
+			environmentId: params.environmentId,
+			clientId: params.clientId,
+			clientSecret: params.clientSecret,
+			username: params.username,
+			password: params.password,
+			region: params.region || 'us',
+		}),
+	});
+	const json = (await res.json()) as {
+		success?: boolean;
+		access_token?: string;
+		id_token?: string;
+		expires_in?: number;
+		error_description?: string;
+		error?: string;
+	};
+	if (!res.ok) {
+		return {
+			success: false,
+			error_description: json.error_description || json.error || `Request failed (${res.status})`,
+		};
+	}
+	return {
+		success: !!json.success,
+		...(json.access_token !== undefined ? { access_token: json.access_token } : {}),
+		...(json.id_token !== undefined ? { id_token: json.id_token } : {}),
+		...(json.expires_in !== undefined ? { expires_in: json.expires_in } : {}),
+		...(json.error_description !== undefined ? { error_description: json.error_description } : {}),
+	};
+}
+
+/** Call backend to run PKCE + pi.flow login + userinfo and return the OIDC claims. */
+export async function callUserInfoViaLogin(params: {
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
+	username: string;
+	password: string;
+	region?: string;
+}): Promise<{ success: boolean; data?: unknown; answer?: string; error_description?: string }> {
+	const res = await fetch('/api/mcp/userinfo-via-login', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+		body: JSON.stringify({
+			environmentId: params.environmentId,
+			clientId: params.clientId,
+			clientSecret: params.clientSecret,
+			username: params.username,
+			password: params.password,
+			region: params.region || 'us',
+		}),
+	});
+	const json = (await res.json()) as {
+		success?: boolean;
+		data?: unknown;
+		answer?: string;
+		error_description?: string;
+		error?: string;
+	};
+	if (!res.ok) {
+		return {
+			success: false,
+			error_description: json.error_description || json.error || `Request failed (${res.status})`,
+		};
+	}
+	return {
+		success: !!json.success,
+		...(json.data !== undefined ? { data: json.data } : {}),
+		...(json.answer !== undefined ? { answer: json.answer } : {}),
+		...(json.error_description !== undefined ? { error_description: json.error_description } : {}),
+	};
 }
 
 /** Send a query to the Brave Search MCP endpoint and return the result. */
