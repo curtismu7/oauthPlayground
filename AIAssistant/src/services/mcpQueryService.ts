@@ -17,6 +17,10 @@ export interface McpQueryOptions {
 	environmentId?: string;
 	/** Region hint: com (NA), eu, ca, ap, au, sg */
 	region?: string;
+	/** User OAuth access token for OIDC UserInfo (GET .../as/userinfo). Required for "Get userinfo"; worker token cannot be used. */
+	userAccessToken?: string;
+	/** Token to introspect — when provided, backend uses this token for pingone_introspect_token instead of worker/admin token. */
+	tokenToIntrospect?: string;
 }
 
 export interface McpQueryResult {
@@ -45,6 +49,11 @@ export interface McpQueryResult {
  */
 const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 	// worker token (must be first — broad pattern)
+	// Admin login — open username/password form (high priority; before worker token)
+	{
+		pattern: /\badmin\s+login\b|\blogin\s+as\s+admin\b|\blogin\s+admin\b/i,
+		tool: 'admin_login',
+	},
 	{ pattern: /worker.?token|client.?credentials|access.?token|get.?token|issue.?token/i, tool: 'pingone_get_worker_token' },
 	// list tools — high priority; matches "List MCP tools", "list tools", "mcp tools"
 	{
@@ -69,7 +78,15 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 	{ pattern: /list.*user|show.*users|all.*user|get.*users|fetch.*user/i, tool: 'pingone_list_users' },
 	{ pattern: /creat.*user|new.*user|register.*user|onboard.*user/i, tool: 'pingone_create_user' },
 	{ pattern: /delet.*user|remov.*user|deactivat.*user/i, tool: 'pingone_delete_user' },
-	{ pattern: /get\s+user|find\s+user|look\s*up\s+user|show\s+user|user\s+info|who\s+is/i, tool: 'pingone_get_user' },
+	// OIDC UserInfo (before get_user so "Get userinfo" hits this, not Management API user lookup)
+	{
+		pattern: /userinfo|get\s+userinfo|\buser\s+info\b|user\s+profile\s+claim|current.*user.*claim/i,
+		tool: 'pingone_userinfo',
+	},
+	{
+		pattern: /get\s+user(?!info)|find\s+user|look\s*up\s+user|show\s+user(?!info)|who\s+is\s+user|get\s+userinfo\s+use\s+\w+|userinfo\s+use\s+\w+\s+for\s+username/i,
+		tool: 'pingone_get_user',
+	},
 	{ pattern: /user.*groups?|groups?.*for.*user|what.*groups?.*user|user.*member/i, tool: 'pingone_get_user_groups' },
 	{ pattern: /add.*user.*group|put.*user.*group|assign.*user.*group/i, tool: 'pingone_add_user_to_group' },
 	{ pattern: /remov.*user.*group|tak.*user.*out.*group|unassign.*user.*group/i, tool: 'pingone_remove_user_from_group' },
@@ -91,7 +108,6 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 	{ pattern: /risk.*eval|eval.*risk|risk.*score|assess.*risk/i, tool: 'pingone_risk_evaluation' },
 	{ pattern: /oidc|openid|discovery|\.well-known|issuer/i, tool: 'pingone_oidc_config' },
 	{ pattern: /introspect|inspect.*token|token.*info|validate.*token/i, tool: 'pingone_introspect_token' },
-	{ pattern: /userinfo|user\s+profile\s+claim|current.*user.*claim/i, tool: 'pingone_userinfo' },
 	// list tools (high priority patterns; also match "mcp tools", "MCP tools")
 	{
 		pattern:
@@ -154,6 +170,84 @@ export function isWebSearchQuery(query: string): boolean {
 	return patterns.some((p) => p.test(query));
 }
 
+// ── Educational token inspection utilities ────────────────────────────────────
+
+/**
+ * Decode a JWT payload without signature verification (educational display only).
+ * Returns null if the string is not a valid JWT format.
+ */
+export function decodeJwtPayload(token: string): Record<string, unknown> | null {
+	try {
+		const parts = token.split('.');
+		if (parts.length < 2) return null;
+		const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+		const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+		return JSON.parse(atob(padded)) as Record<string, unknown>;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Decode the JWT header (alg, kid, typ) without signature verification (educational display only).
+ * Returns null if the string is not a valid JWT format.
+ */
+export function decodeJwtHeader(token: string): Record<string, unknown> | null {
+	try {
+		const parts = token.split('.');
+		if (parts.length < 2) return null;
+		const base64 = parts[0].replace(/-/g, '+').replace(/_/g, '/');
+		const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+		return JSON.parse(atob(padded)) as Record<string, unknown>;
+	} catch {
+		return null;
+	}
+}
+
+/** Returns true when the query is asking to view/display the stored user access token. */
+export function isShowMyTokenQuery(query: string): boolean {
+	return /\bshow\s+(?:my\s+)?(?:user\s+)?(?:access\s+)?token\b|\bview\s+(?:my\s+)?(?:user\s+)?(?:access\s+)?token\b|\bdisplay\s+(?:my\s+)?(?:user\s+)?(?:access\s+)?token\b|\bwhat(?:'?s|\s+is)\s+my\s+(?:access\s+)?token\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is asking to view/decode the stored ID token. */
+export function isShowIdTokenQuery(query: string): boolean {
+	return /\bshow\s+(?:my\s+)?id[\s-]token\b|\bview\s+(?:my\s+)?id[\s-]token\b|\bdisplay\s+(?:my\s+)?id[\s-]token\b|\bdecode\s+(?:my\s+)?id[\s-]token\b|\bid[\s-]token\s+claims?\b|\bwhat(?:'?s|\s+is)\s+in\s+(?:my\s+)?id[\s-]token\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is asking to view/display the worker or admin token. */
+export function isShowWorkerTokenQuery(query: string): boolean {
+	return /\bshow\s+(?:the\s+)?(?:my\s+)?(?:worker|admin)\s+token\b|\bview\s+(?:the\s+)?(?:worker|admin)\s+token\b|\bdisplay\s+(?:the\s+)?(?:worker|admin)\s+token\b|\bwhat(?:'?s|\s+is)\s+(?:the\s+)?(?:worker|admin)\s+token\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query contains a pasted JWT to decode, or explicitly asks to decode a token. */
+export function isDecodeTokenQuery(query: string): boolean {
+	return (
+		/\bdecode\s+(?:this\s+)?(?:jwt|token)\b|\bparse\s+(?:this\s+)?(?:jwt|token)\b|\bwhat\s+claims\s+(?:are\s+)?in\b/i.test(query.trim()) ||
+		// freestanding JWT in the message text
+		/\bey[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\b/.test(query.trim())
+	);
+}
+
+/** Returns true when the query is asking to view the recent MCP API call history. */
+export function isShowApiCallsQuery(query: string): boolean {
+	return /\bshow\s+(?:(?:my|the|recent|last)\s+)?api\s+calls?\b|\bapi\s+call\s+histor(?:y|ies)\b|\brecent\s+api\s+calls?\b|\blast\s+api\s+call\b|\bwhat\s+api\s+calls?\s+(?:were|have\s+been)\s+made\b|\bshow\s+(?:my\s+)?(?:last|recent)\s+calls?\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is asking to clear all stored tokens from memory/localStorage. */
+export function isClearTokensQuery(query: string): boolean {
+	return /\bclear\s+(?:all\s+)?(?:my\s+)?(?:stored\s+)?tokens?\b|\bforget\s+(?:my\s+)?tokens?\b|\bremove\s+(?:my\s+)?(?:stored\s+)?tokens?\b|\bdelete\s+(?:my\s+)?(?:stored\s+)?tokens?\b|\bclear\s+token\s+storage\b|\bsign\s+out\s+tokens?\b/i.test(
+		query.trim()
+	);
+}
+
 /** Send the query to the backend MCP query handler and return the result. */
 export async function callMcpQuery(
 	query: string,
@@ -163,6 +257,8 @@ export async function callMcpQuery(
 	if (options.workerToken) body.workerToken = options.workerToken;
 	if (options.environmentId) body.environmentId = options.environmentId;
 	if (options.region) body.region = options.region;
+	if (options.userAccessToken) body.userAccessToken = options.userAccessToken;
+	if (options.tokenToIntrospect) body.tokenToIntrospect = options.tokenToIntrospect;
 
 	const response = await fetch('/api/mcp/query', {
 		method: 'POST',
@@ -172,19 +268,138 @@ export async function callMcpQuery(
 
 	if (!response.ok) {
 		// Try to extract structured error — server may include mcpTool/apiCall even on 5xx
-		const err = await response.json().catch(() => ({} as Record<string, unknown>));
+		let err: Record<string, unknown> = {};
+		const text = await response.text().catch(() => '');
+		try {
+			const json = text ? JSON.parse(text) : null;
+			err = (typeof json === 'object' && json !== null ? json : {}) as Record<string, unknown>;
+		} catch {
+			// Body may be HTML; use plain text only if short and not HTML
+			if (text && text.length < 500 && !/<\s*html/i.test(text)) {
+				err = { answer: text };
+			}
+		}
+		const msg =
+			(typeof err?.answer === 'string' && err.answer.trim()) ||
+			(typeof err?.error === 'string' && err.error.trim()) ||
+			(typeof err?.error_description === 'string' && err.error_description.trim()) ||
+			(typeof err?.message === 'string' && err.message.trim()) ||
+			response.statusText;
 		return {
 			success: false,
-			answer: `MCP query failed (${response.status}): ${(err.error_description as string) ?? (err.message as string) ?? response.statusText}`,
-			mcpTool: (err.mcpTool as string) ?? null,
-			apiCall: (err.apiCall as { method: string; path: string }) ?? null,
-			howItWorks: (err.howItWorks as string) ?? null,
+			answer: `MCP query failed (${response.status}): ${msg}`,
+			mcpTool: (err?.mcpTool as string) ?? null,
+			apiCall: (err?.apiCall as { method: string; path: string }) ?? null,
+			howItWorks: (err?.howItWorks as string) ?? null,
 			data: null,
-			error: (err.error_description as string) ?? response.statusText,
+			error: msg,
 		};
 	}
 
 	return response.json() as Promise<McpQueryResult>;
+}
+
+/** Returns true when the query is an Admin login request (open ROPC form). */
+export function isAdminLoginQuery(query: string): boolean {
+	return predictMcpTool(query) === 'admin_login';
+}
+
+/** Returns true when the query is asking to introspect the user's access token (not worker/admin). */
+export function isIntrospectUserTokenQuery(query: string): boolean {
+	return /\bintrospect\s+user\s+token\b|\bintrospect\s+user'?s?\s+token\b|user\s+token\s+introspect/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is a UserInfo request (OIDC userinfo endpoint). */
+export function isUserInfoQuery(query: string): boolean {
+	return predictMcpTool(query) === 'pingone_userinfo';
+}
+
+/** Call backend to run pi.flow login + return a user access token (for introspection). */
+export async function callUserTokenViaLogin(params: {
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
+	username: string;
+	password: string;
+	region?: string;
+}): Promise<{ success: boolean; access_token?: string; id_token?: string; expires_in?: number; error_description?: string }> {
+	const res = await fetch('/api/mcp/user-token-via-login', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+		body: JSON.stringify({
+			environmentId: params.environmentId,
+			clientId: params.clientId,
+			clientSecret: params.clientSecret,
+			username: params.username,
+			password: params.password,
+			region: params.region || 'us',
+		}),
+	});
+	const json = (await res.json()) as {
+		success?: boolean;
+		access_token?: string;
+		id_token?: string;
+		expires_in?: number;
+		error_description?: string;
+		error?: string;
+	};
+	if (!res.ok) {
+		return {
+			success: false,
+			error_description: json.error_description || json.error || `Request failed (${res.status})`,
+		};
+	}
+	return {
+		success: !!json.success,
+		access_token: json.access_token,
+		id_token: json.id_token,
+		expires_in: json.expires_in,
+		error_description: json.error_description,
+	};
+}
+
+/** Call backend to run pi.flow login + userinfo and return the result. */
+export async function callUserInfoViaLogin(params: {
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
+	username: string;
+	password: string;
+	region?: string;
+}): Promise<{ success: boolean; data?: unknown; answer?: string; error_description?: string }> {
+	const res = await fetch('/api/mcp/userinfo-via-login', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+		body: JSON.stringify({
+			environmentId: params.environmentId,
+			clientId: params.clientId,
+			clientSecret: params.clientSecret,
+			username: params.username,
+			password: params.password,
+			region: params.region || 'us',
+		}),
+	});
+	const json = (await res.json()) as {
+		success?: boolean;
+		data?: unknown;
+		answer?: string;
+		error_description?: string;
+		error?: string;
+	};
+	if (!res.ok) {
+		return {
+			success: false,
+			error_description: json.error_description || json.error || `Request failed (${res.status})`,
+		};
+	}
+	return {
+		success: !!json.success,
+		data: json.data,
+		answer: json.answer,
+		error_description: json.error_description,
+	};
 }
 
 /** Send a query to the Brave Search MCP endpoint and return the result. */

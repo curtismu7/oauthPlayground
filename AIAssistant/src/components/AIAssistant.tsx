@@ -10,14 +10,28 @@ import {
 import {
 	callMcpQuery,
 	callMcpWebSearch,
+	callUserInfoViaLogin,
+	callUserTokenViaLogin,
+	decodeJwtHeader,
+	decodeJwtPayload,
+	isAdminLoginQuery,
+	isClearTokensQuery,
+	isDecodeTokenQuery,
 	isMcpQuery,
 	isHelpQuery,
+	isIntrospectUserTokenQuery,
 	isListToolsQuery,
+	isShowApiCallsQuery,
+	isShowIdTokenQuery,
+	isShowMyTokenQuery,
+	isShowWorkerTokenQuery,
+	isUserInfoQuery,
 	isWorkerTokenQuery,
 	isWebSearchQuery,
 	type McpQueryResult,
 } from '../services/mcpQueryService';
 import { callGroqStream, isGroqAvailable, type GroqMessage } from '../services/groqService';
+import { saveMarkdown } from '../services/saveMarkdownService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 
 /** When true the assistant renders as a full-page app (no floating button, always open). */
@@ -32,7 +46,23 @@ export interface AIAssistantProps {
 
 const LS_MESSAGES_KEY = 'ai-assistant-messages';
 const LS_TOGGLES_KEY = 'ai-assistant-toggles';
+const LS_USER_TOKEN_KEY = 'ai-assistant-user-token';
 const MESSAGE_TTL_MS = 30 * 60 * 1000; // 30 min
+
+/** Friendly labels for prompt placeholders when asking the user for values. */
+const PLACEHOLDER_LABELS: Record<string, string> = {
+	'app-uuid': 'Application ID',
+	'user-uuid': 'User ID',
+	'group-uuid': 'Group ID',
+	'sub-uuid': 'Subscription ID',
+};
+
+/** Extract unique placeholder keys from a template (e.g. "<app-uuid>" → "app-uuid"). */
+function getPromptPlaceholders(template: string): string[] {
+	const matches = template.matchAll(/<([^>]+)>/g);
+	const keys = [...matches].map((m) => m[1]);
+	return [...new Set(keys)];
+}
 
 interface Message {
 	id: string;
@@ -52,6 +82,16 @@ interface Message {
 	groqUsed?: boolean;
 	/** True while tokens are still streaming in */
 	streaming?: boolean;
+	timestamp: Date;
+}
+
+/** A single recorded MCP API call (stored for "show api calls" command). */
+interface ApiCallRecord {
+	id: string;
+	query: string;
+	mcpTool: string | null;
+	apiCall: { method: string; path: string } | null;
+	data: unknown;
 	timestamp: Date;
 }
 
@@ -110,57 +150,117 @@ function renderMessageText(content: string): React.ReactNode {
 	});
 }
 
-// ─── MCP data card renderer ───────────────────────────────────────────────────
-// Renders arrays of API result objects as readable key-value cards.
-// Falls back to a <pre> code block for arrays of primitives.
+// ─── MCP data card renderer with paging ──────────────────────────────────────
+const PAGE_SIZE = 10;
 
-function renderMcpDataItems(data: unknown[]): React.ReactNode {
-	const MAX_ITEMS = 5;
-	const shown = data.slice(0, MAX_ITEMS);
-	const overflow = data.length - MAX_ITEMS;
-	const first = shown[0];
+const McpDataPagedDisplay: React.FC<{ data: unknown[] }> = ({ data }) => {
+	const [page, setPage] = useState(0);
+	const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+	const start = page * PAGE_SIZE;
+	const slice = data.slice(start, start + PAGE_SIZE);
+	const first = slice[0];
+
+	useEffect(() => {
+		if (!data) return;
+		setPage(0);
+	}, [data]);
 
 	if (typeof first !== 'object' || first === null) {
+		const totalChunks = Math.ceil(data.length / PAGE_SIZE);
+		const chunk = data.slice(start, start + PAGE_SIZE);
 		return (
-			<McpDataPre>
-				{JSON.stringify(shown, null, 2)}
-				{overflow > 0 ? `\n… +${overflow} more` : ''}
-			</McpDataPre>
+			<>
+				<McpDataPre>
+					{JSON.stringify(chunk, null, 2)}
+				</McpDataPre>
+				{data.length > PAGE_SIZE && (
+					<McpPagination>
+						<span>
+							Showing {start + 1}–{Math.min(start + PAGE_SIZE, data.length)} of {data.length}
+						</span>
+						<McpPaginationButtons>
+							<McpPageBtn
+								type="button"
+								onClick={() => setPage((p) => Math.max(0, p - 1))}
+								disabled={page === 0}
+							>
+								← Prev
+							</McpPageBtn>
+							<span>
+								Page {page + 1} of {totalChunks}
+							</span>
+							<McpPageBtn
+								type="button"
+								onClick={() => setPage((p) => Math.min(totalChunks - 1, p + 1))}
+								disabled={page >= totalChunks - 1}
+							>
+								Next →
+							</McpPageBtn>
+						</McpPaginationButtons>
+					</McpPagination>
+				)}
+			</>
 		);
 	}
 
 	return (
-		<McpDataItemList>
-			{shown.map((item, idx) => {
-				const obj = item as Record<string, unknown>;
-				return (
-					<McpDataItem key={idx}>
-						{Object.entries(obj)
-							.slice(0, 8)
-							.map(([k, v]) => {
-								let display: string;
-								if (v === null || v === undefined) display = '–';
-								else if (typeof v === 'object')
-									display = Array.isArray(v) ? `[${(v as unknown[]).length} items]` : '{…}';
-								else display = String(v).length > 60 ? `${String(v).slice(0, 60)}…` : String(v);
-								return (
-									<McpDataRow key={k}>
-										<McpDataKey>{k}</McpDataKey>
-										<McpDataVal>{display}</McpDataVal>
-									</McpDataRow>
-								);
-							})}
-					</McpDataItem>
-				);
-			})}
-			{overflow > 0 && (
-				<McpDataMoreNote>
-					+{overflow} more item{overflow !== 1 ? 's' : ''}
-				</McpDataMoreNote>
+		<>
+			<McpDataItemList>
+				{slice.map((item, idx) => {
+					const obj = item as Record<string, unknown>;
+					return (
+						<McpDataItem key={start + idx}>
+							{Object.entries(obj)
+								.slice(0, 8)
+								.map(([k, v]) => {
+									let display: string;
+									if (v === null || v === undefined) display = '–';
+									else if (typeof v === 'object')
+										display = Array.isArray(v) ? `[${(v as unknown[]).length} items]` : '{…}';
+									else display = String(v).length > 60 ? `${String(v).slice(0, 60)}…` : String(v);
+									return (
+										<McpDataRow key={k}>
+											<McpDataKey>{k}</McpDataKey>
+											<McpDataVal>{display}</McpDataVal>
+										</McpDataRow>
+									);
+								})}
+						</McpDataItem>
+					);
+				})}
+			</McpDataItemList>
+			{data.length > PAGE_SIZE && (
+				<McpPagination>
+					<span>
+						Showing {start + 1}–{Math.min(start + PAGE_SIZE, data.length)} of {data.length}
+					</span>
+					<McpPaginationButtons>
+						<McpPageBtn
+							type="button"
+							onClick={() => setPage((p) => Math.max(0, p - 1))}
+							disabled={page === 0}
+						>
+							← Prev
+						</McpPageBtn>
+						<span>
+							Page {page + 1} of {totalPages}
+						</span>
+						<McpPageBtn
+							type="button"
+							onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+							disabled={page >= totalPages - 1}
+						>
+							Next →
+						</McpPageBtn>
+					</McpPaginationButtons>
+				</McpPagination>
 			)}
-		</McpDataItemList>
+		</>
 	);
-}
+};
+
+/** Use admin token only when it expires more than this many ms in the future. */
+const ADMIN_TOKEN_BUFFER_MS = 60_000;
 
 const WELCOME_MESSAGE: Message = {
 	id: '1',
@@ -170,7 +270,7 @@ const WELCOME_MESSAGE: Message = {
 	timestamp: new Date(),
 };
 
-const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAuthFlow }) => {
+const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 	// In fullPage mode the window is always open and cannot be closed
 	const [isOpen, setIsOpen] = useState(fullPage ? true : false);
 	const [isExpanded, setIsExpanded] = useState(false);
@@ -255,6 +355,35 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 	const [showPromptsGuide, setShowPromptsGuide] = useState(false);
 	const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
 	const [copiedMessage, setCopiedMessage] = useState<string | null>(null);
+	const [savedMessage, setSavedMessage] = useState<string | null>(null);
+
+	/** When set, show modal to collect placeholder values; then fill prompt box with updated command. */
+	const [placeholderFill, setPlaceholderFill] = useState<{ template: string; placeholders: string[] } | null>(null);
+	/** Current values for each placeholder in the fill modal. */
+	const [placeholderValues, setPlaceholderValues] = useState<Record<string, string>>({});
+	/** When true, show the Get userinfo login panel (username/password, pi.flow). */
+	const [showUserInfoLogin, setShowUserInfoLogin] = useState(false);
+	const [userinfoUsername, setUserinfoUsername] = useState('');
+	const [userinfoPassword, setUserinfoPassword] = useState('');
+	const [userinfoLoginError, setUserinfoLoginError] = useState<string | null>(null);
+	const [userinfoLoginLoading, setUserinfoLoginLoading] = useState(false);
+	/** Admin token (client credentials or ROPC) — when set and valid, MCP calls use it */
+	const [adminToken, setAdminToken] = useState<string | null>(null);
+	const [adminTokenExpiry, setAdminTokenExpiry] = useState<number | null>(null);
+	const [adminEnvironmentId, setAdminEnvironmentId] = useState<string | null>(null);
+	const [useAdminLogin, setUseAdminLogin] = useState(false);
+	/** User access token from User login flow; used for "Introspect user token" */
+	const [userAccessToken, setUserAccessToken] = useState<string | null>(null);
+	/** ID token from User login flow (OIDC); stored for educational inspection */
+	const [idToken, setIdToken] = useState<string | null>(null);
+	/** Recent MCP API call records (last 20) — shown by "show api calls" command */
+	const [apiCallHistory, setApiCallHistory] = useState<ApiCallRecord[]>([]);
+	/** When true, show the User login panel (pi.flow) to get a user access token for introspection. */
+	const [showUserTokenLogin, setShowUserTokenLogin] = useState(false);
+	const [userTokenUsername, setUserTokenUsername] = useState('');
+	const [userTokenPassword, setUserTokenPassword] = useState('');
+	const [userTokenLoginError, setUserTokenLoginError] = useState<string | null>(null);
+	const [userTokenLoginLoading, setUserTokenLoginLoading] = useState(false);
 	/**
 	 * null = not yet checked, true = Groq is ready, false = no API key configured
 	 */
@@ -270,10 +399,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 	const navigate = useNavigate();
 
 	// ── Scroll agent results to bottom when new content arrives ──────────────
-	const scrollMessagesToBottom = useCallback(() => {
+	const scrollMessagesToBottom = useCallback((smooth = false) => {
 		const el = messagesContainerRef.current;
 		if (el) {
-			el.scrollTop = el.scrollHeight;
+			if (smooth) {
+				el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+			} else {
+				el.scrollTop = el.scrollHeight;
+			}
+			setShowScrollDownHint(false);
 		} else {
 			messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
 		}
@@ -309,12 +443,26 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 		}
 	}, [includeApiDocs, includeSpecs, includeWorkflows, includeUserGuide, includeWeb, includeLive]);
 
+	// ── Load stored user tokens from localStorage on mount ────────────────────
+	useEffect(() => {
+		try {
+			const stored = localStorage.getItem(LS_USER_TOKEN_KEY);
+			if (stored) {
+				const parsed = JSON.parse(stored) as { access_token?: string; id_token?: string };
+				if (typeof parsed.access_token === 'string') setUserAccessToken(parsed.access_token);
+				if (typeof parsed.id_token === 'string') setIdToken(parsed.id_token);
+			}
+		} catch {
+			// corrupted — ignore
+		}
+	}, []);
+
 	useEffect(() => {
 		if (messages.length === 0) return;
 		scrollMessagesToBottom();
 		const t = setTimeout(scrollMessagesToBottom, 150);
 		return () => clearTimeout(t);
-	}, [messages, isTyping, scrollMessagesToBottom]);
+	}, [messages, scrollMessagesToBottom]);
 
 	// Handle escape key to close AI assistant
 	useEffect(() => {
@@ -414,11 +562,67 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 		setShowRefreshTokenConfirm(true);
 	}, []);
 
+	/** Store admin token; MCP calls use it until expiry or clear. */
+	const handleAdminTokenSet = useCallback((token: string, expiresInSeconds: number, environmentId: string) => {
+		setAdminToken(token);
+		setAdminTokenExpiry(Date.now() + expiresInSeconds * 1000);
+		setAdminEnvironmentId(environmentId);
+	}, []);
+
+	const handleAdminTokenClear = useCallback(() => {
+		setAdminToken(null);
+		setAdminTokenExpiry(null);
+		setAdminEnvironmentId(null);
+		setUseAdminLogin(false);
+	}, []);
+
+	/** Store user access token from User login flow; used for "Introspect user token". */
+	const handleUserTokenSet = useCallback((token: string, expiresInSeconds: number, environmentId?: string, receivedIdToken?: string) => {
+		setUserAccessToken(token);
+		if (receivedIdToken !== undefined) setIdToken(receivedIdToken);
+		// Persist to localStorage for educational inspection
+		try {
+			const record: { access_token: string; stored_at: number; id_token?: string } = {
+				access_token: token,
+				stored_at: Date.now(),
+				...(receivedIdToken !== undefined ? { id_token: receivedIdToken } : {}),
+			};
+			localStorage.setItem(LS_USER_TOKEN_KEY, JSON.stringify(record));
+		} catch { /* storage quota — ignore */ }
+		// When in admin-login mode, also set the admin token so MCP calls use it
+		if (environmentId) handleAdminTokenSet(token, expiresInSeconds, environmentId);
+	}, [handleAdminTokenSet]);
+
+	const handleUserTokenClear = useCallback(() => {
+		setUserAccessToken(null);
+		setIdToken(null);
+		try { localStorage.removeItem(LS_USER_TOKEN_KEY); } catch { /* ignore */ }
+		handleAdminTokenClear();
+	}, [handleAdminTokenClear]);
+
 	const handleCopyMessage = useCallback((id: string, content: string) => {
 		navigator.clipboard.writeText(content).then(() => {
 			setCopiedMessage(id);
 			setTimeout(() => setCopiedMessage(null), 1800);
 		});
+	}, []);
+
+	/** Prompts with placeholders (e.g. <app-uuid>) need user to fill in before sending. */
+	const promptNeedsUserInput = useCallback((prompt: string) => /<[^>]+>/.test(prompt), []);
+
+	/** Save assistant message as .md file to ~/.pingone-playground/ai-assistant-output/ */
+	const handleSaveAsMarkdown = useCallback(async (id: string, content: string) => {
+		const defaultName = `output-${new Date().toISOString().slice(0, 16).replace('T', '-').replace(/:/g, '')}.md`;
+		const filename = window.prompt('Filename (e.g. my-plan.md):', defaultName)?.trim();
+		if (!filename) return;
+		const name = filename.endsWith('.md') ? filename : `${filename}.md`;
+		const result = await saveMarkdown(content, name);
+		if (result.success) {
+			setSavedMessage(id);
+			setTimeout(() => setSavedMessage(null), 2500);
+		} else {
+			window.alert(`Could not save: ${result.error}`);
+		}
 	}, []);
 
 	const handleNewChat = useCallback(() => {
@@ -449,8 +653,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 		URL.revokeObjectURL(url);
 	}, [messages]);
 
-	/** Send a message. Pass overrideQuery when triggered by prompt chip/quick question to avoid stale closure. */
-	const handleSend = async (overrideQuery?: string) => {
+	/** Send a message. Pass overrideQuery when triggered by prompt chip/quick question to avoid stale closure. keepInInput: leave the sent text in the prompt box (e.g. when executing from an available-command button). */
+	const handleSend = useCallback(async (overrideQuery?: string, options?: { keepInInput?: boolean }) => {
 		const query = (overrideQuery ?? input).trim();
 		if (!query) return;
 		const userMessage: Message = {
@@ -461,8 +665,167 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 		};
 
 		setMessages((prev) => [...prev, userMessage]);
-		setInput('');
+		setInput(options?.keepInInput ? query : '');
 		setIsTyping(true);
+
+		// "Admin login" command
+		if (isAdminLoginQuery(query)) {
+			const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+			const hasConfig =
+				tokenData?.credentials?.environmentId &&
+				tokenData?.credentials?.clientId &&
+				tokenData?.credentials?.clientSecret;
+			setMessages((prev) => [
+				...prev,
+				{
+					id: crypto.randomUUID(),
+					type: 'assistant',
+					content: hasConfig
+						? '**Admin login** — opening the User login panel. Enter your admin username and password to get an admin access token for MCP commands like "list all users".'
+						: 'To use **Admin login**, configure the PingOne OIDC client credentials (worker token) in **Configuration** first. You need an app with **Resource Owner Password** grant and Management API scopes.',
+					timestamp: new Date(),
+				},
+			]);
+			if (hasConfig) {
+				setShowUserTokenLogin(true);
+				setUserTokenLoginError(null);
+				setUseAdminLogin(true);
+			}
+			setIsTyping(false);
+			setInput(query);
+			return;
+		}
+
+		// ── Client-side token inspection commands ────────────────────────────────────
+		// These operate on locally-stored tokens — no backend call, no Live toggle needed.
+
+		if (isShowMyTokenQuery(query)) {
+			const msg = (() => {
+				if (!userAccessToken) {
+					return 'No user access token stored yet. Log in using **Admin login** or say **"Introspect user token"** to open the User login panel.';
+				}
+				const header = decodeJwtHeader(userAccessToken);
+				const payload = decodeJwtPayload(userAccessToken);
+				const parts: string[] = [`## 🔑 User Access Token\n\n\`\`\`\n${userAccessToken}\n\`\`\``];
+				if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+				if (payload) parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+				parts.push('\n> ⚠️ **Educational only** — never store tokens in browser storage in production.');
+				return parts.join('\n\n');
+			})();
+			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+			setIsTyping(false);
+			setInput(query);
+			return;
+		}
+
+		if (isShowIdTokenQuery(query)) {
+			const msg = (() => {
+				if (!idToken) {
+					return 'No ID token stored. Log in as a user (say **"User login"** or **"Introspect user token"**) to receive an ID token alongside the access token.';
+				}
+				const header = decodeJwtHeader(idToken);
+				const payload = decodeJwtPayload(idToken);
+				const parts: string[] = [`## 🪪 ID Token\n\n\`\`\`\n${idToken}\n\`\`\``];
+				if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+				if (payload) parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+				parts.push('\n> ℹ️ The ID Token asserts who the user is. It contains identity claims (sub, name, email) and is meant only for the client that requested it — never forward it to APIs.\n> ⚠️ **Educational only** — never store ID tokens in browser storage in production.');
+				return parts.join('\n\n');
+			})();
+			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+			setIsTyping(false);
+			setInput(query);
+			return;
+		}
+
+		if (isShowWorkerTokenQuery(query)) {
+			const useAdminTok = useAdminLogin && !!adminToken && adminTokenExpiry != null && Date.now() < adminTokenExpiry - ADMIN_TOKEN_BUFFER_MS;
+			const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+			const token = useAdminTok ? adminToken : (tokenData?.token ?? null);
+			const label = useAdminTok ? 'Admin Token' : 'Worker Token';
+			const msg = (() => {
+				if (!token) {
+					return `No ${label.toLowerCase()} available. Say **"Get worker token"** to request one, or **"Admin login"** to sign in as admin.`;
+				}
+				const header = decodeJwtHeader(token);
+				const payload = decodeJwtPayload(token);
+				const parts: string[] = [`## 🔐 ${label}\n\n\`\`\`\n${token}\n\`\`\``];
+				if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+				if (payload) parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+				parts.push('\n> ⚠️ **Educational only** — worker tokens are high-privilege. Never reveal them in production UIs.');
+				return parts.join('\n\n');
+			})();
+			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+			setIsTyping(false);
+			setInput(query);
+			return;
+		}
+
+		if (isDecodeTokenQuery(query)) {
+			const jwtMatch = query.match(/\bey[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\b/);
+			const tokenToDecode = jwtMatch?.[0] ?? null;
+			const msg = (() => {
+				if (!tokenToDecode) {
+					return 'Paste a JWT in your message to decode it. Example:\n\n```\ndecode eyJhbGci...\n```';
+				}
+				const header = decodeJwtHeader(tokenToDecode);
+				const payload = decodeJwtPayload(tokenToDecode);
+				const truncated = tokenToDecode.length > 80 ? `${tokenToDecode.slice(0, 80)}…` : tokenToDecode;
+				const parts: string[] = [`## 🔬 Decoded Token\n\n\`\`\`\n${truncated}\n\`\`\``];
+				if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+				if (payload) parts.push(`### Payload Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+				if (!header && !payload) parts.push('⚠️ Could not decode — this may not be a standard JWT.');
+				parts.push('\n> ℹ️ JWT decode is client-side base64 only — no signature verification. For **educational inspection** only.');
+				return parts.join('\n\n');
+			})();
+			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+			setIsTyping(false);
+			setInput(query);
+			return;
+		}
+
+		if (isShowApiCallsQuery(query)) {
+			const msg = (() => {
+				if (apiCallHistory.length === 0) {
+					return 'No API calls recorded yet. Execute a live MCP command (e.g. **List all users**) first.';
+				}
+				const records = [...apiCallHistory].reverse().slice(0, 5);
+				const parts: string[] = ['## 📡 Recent API Calls'];
+				records.forEach((rec, i) => {
+					parts.push(`### ${i + 1}. ${rec.mcpTool ?? 'Unknown tool'}\n**Query:** ${rec.query}`);
+					if (rec.apiCall) parts.push(`**API Call:** \`${rec.apiCall.method} ${rec.apiCall.path}\``);
+					if (rec.data !== null && rec.data !== undefined) {
+						const json = JSON.stringify(rec.data, null, 2);
+						parts.push(`**Response:**\n\`\`\`json\n${json.length > 2000 ? `${json.slice(0, 2000)}\n…(truncated)` : json}\n\`\`\``);
+					}
+				});
+				return parts.join('\n\n');
+			})();
+			setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+			setIsTyping(false);
+			setInput(query);
+			return;
+		}
+
+		if (isClearTokensQuery(query)) {
+			setUserAccessToken(null);
+			setIdToken(null);
+			setAdminToken(null);
+			setAdminTokenExpiry(null);
+			setAdminEnvironmentId(null);
+			try { localStorage.removeItem(LS_USER_TOKEN_KEY); } catch { /* ignore */ }
+			setMessages((prev) => [
+				...prev,
+				{
+					id: crypto.randomUUID(),
+					type: 'assistant',
+					content: '🗑️ **Tokens cleared.** User access token, ID token, and admin token have been removed from memory and localStorage.\n\n> Note: The worker token (managed in Configuration) is not affected.',
+					timestamp: new Date(),
+				},
+			]);
+			setIsTyping(false);
+			setInput(query);
+			return;
+		}
 
 		// Worker-token and help queries always go to MCP.
 		// Any PingOne-actionable query (isMcpQuery) with Live ON → MCP for real data.
@@ -472,13 +835,51 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 			setMessages((prev) => [
 				...prev,
 				{
-					id: (Date.now() + 1).toString(),
+					id: crypto.randomUUID(),
 					type: 'assistant',
 					content:
 						"🔌 **Live MCP is off.**\n\nTurn on the **Live** toggle in the header to execute this command against your real PingOne environment.\n\nI won't guess or simulate PingOne data — only the MCP tool can return real results.",
 					timestamp: new Date(),
 				},
 			]);
+			setIsTyping(false);
+			setInput(query); // Restore executed command so user can modify and re-run
+			return;
+		}
+
+		// "Introspect user token": open user login panel if no user token yet
+		if (isIntrospectUserTokenQuery(query) && includeLive && !userAccessToken) {
+			setMessages((prev) => [
+				...prev,
+				{
+					id: crypto.randomUUID(),
+					type: 'assistant',
+					content:
+						'**Introspect user token** — sign in first to get a user access token. Use the login panel that just opened.',
+					timestamp: new Date(),
+				},
+			]);
+			setShowUserTokenLogin(true);
+			setUserTokenLoginError(null);
+			setIsTyping(false);
+			setInput(query);
+			return;
+		}
+
+		// Get userinfo: show login panel (Authorization Code flow, response_mode=pi.flow) then call userinfo
+		if (isUserInfoQuery(query) && includeLive) {
+			setMessages((prev) => [
+				...prev,
+				{
+					id: crypto.randomUUID(),
+					type: 'assistant',
+					content:
+						'**Get userinfo** uses the OIDC UserInfo (end-user info) endpoint. Sign in in the side panel; we use the **user access token** from the auth call to call that endpoint and show your claims here.',
+					timestamp: new Date(),
+				},
+			]);
+			setShowUserInfoLogin(true);
+			setUserinfoLoginError(null);
 			setIsTyping(false);
 			return;
 		}
@@ -487,25 +888,43 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 			try {
 				// Pull stored credentials from our storage service (IndexedDB + SQLite)
 				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+				const useAdminToken =
+					useAdminLogin &&
+					!!adminToken &&
+					adminTokenExpiry != null &&
+					Date.now() < adminTokenExpiry - ADMIN_TOKEN_BUFFER_MS;
+				const useUserTokenForIntrospect = isIntrospectUserTokenQuery(query) && !!userAccessToken;
 				const mcpResult = await callMcpQuery(query, {
-					workerToken: tokenData?.token || undefined,
-					environmentId: tokenData?.credentials?.environmentId || undefined,
+					workerToken: useAdminToken ? adminToken! : (tokenData?.token || undefined),
+					environmentId: useAdminToken
+						? (adminEnvironmentId || undefined)
+						: (tokenData?.credentials?.environmentId || undefined),
 					region: (tokenData?.credentials?.region as string) || undefined,
+					...(useUserTokenForIntrospect && userAccessToken
+						? { tokenToIntrospect: userAccessToken }
+						: {}),
 				});
 				const assistantMessage: Message = {
-					id: (Date.now() + 1).toString(),
+					id: crypto.randomUUID(),
 					type: 'assistant',
 					content: mcpResult.answer,
 					mcpResult,
 					timestamp: new Date(),
 				};
+				// Track in API call history (for "show api calls" command)
+				if (mcpResult.apiCall) {
+					setApiCallHistory((prev) => [
+						...prev.slice(-19),
+						{ id: crypto.randomUUID(), query, mcpTool: mcpResult.mcpTool, apiCall: mcpResult.apiCall, data: mcpResult.data, timestamp: new Date() },
+					]);
+				}
 				setMessages((prev) => [...prev, assistantMessage]);
 			} catch (err) {
 				const message = err instanceof Error ? err.message : String(err);
 				setMessages((prev) => [
 					...prev,
 					{
-						id: (Date.now() + 1).toString(),
+						id: crypto.randomUUID(),
 						type: 'assistant',
 						content: `MCP query failed: ${message}`,
 						timestamp: new Date(),
@@ -513,13 +932,14 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 				]);
 			} finally {
 				setIsTyping(false);
+				setInput(query); // Restore executed command so user can modify and re-run
 			}
 			return;
 		}
 
 		// All other queries: Groq streams the answer token-by-token, then we optionally
 		// attach a live MCP data card (Live toggle) and/or Brave web results.
-		const streamingId = (Date.now() + 1).toString();
+		const streamingId = crypto.randomUUID();
 
 		// Add an empty placeholder that will be filled by streaming tokens
 		setMessages((prev) => [
@@ -616,7 +1036,22 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 
 		// Attach web / links to the finalised message
 		setMessages((prev) => prev.map((m) => (m.id === streamingId ? { ...m, links, webResult } : m)));
-	};
+	}, [
+		input,
+		includeApiDocs,
+		includeSpecs,
+		includeWorkflows,
+		includeUserGuide,
+		includeWeb,
+		includeLive,
+		useAdminLogin,
+		adminToken,
+		adminTokenExpiry,
+		adminEnvironmentId,
+		userAccessToken,
+		idToken,
+		apiCallHistory,
+	]);
 
 	const handleKeyPress = (e: React.KeyboardEvent) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
@@ -624,6 +1059,39 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 			handleSend();
 		}
 	};
+
+	/** Handle prompt/command button click: if placeholders, ask for values then fill; else put in input and execute. */
+	const handlePromptClick = useCallback(
+		(prompt: string, closeGuide?: boolean) => {
+			if (closeGuide) setShowPromptsGuide(false);
+			setInput(prompt);
+			if (promptNeedsUserInput(prompt)) {
+				const placeholders = getPromptPlaceholders(prompt);
+				setPlaceholderFill({ template: prompt, placeholders });
+				setPlaceholderValues(Object.fromEntries(placeholders.map((k) => [k, ''])));
+			} else {
+				handleSend(prompt, { keepInInput: true });
+			}
+		},
+		[promptNeedsUserInput, handleSend]
+	);
+
+	/** Build filled command from template and placeholder values; put in prompt box and optionally send. */
+	const handlePlaceholderFillSubmit = useCallback(
+		(andSend: boolean) => {
+			if (!placeholderFill) return;
+			let filled = placeholderFill.template;
+			placeholderFill.placeholders.forEach((key) => {
+				const value = placeholderValues[key]?.trim() ?? '';
+				filled = filled.replace(new RegExp(`<${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}>`, 'g'), value);
+			});
+			setInput(filled);
+			setPlaceholderFill(null);
+			setPlaceholderValues({});
+			if (andSend && filled.trim()) handleSend(filled, { keepInInput: true });
+		},
+		[placeholderFill, placeholderValues, handleSend]
+	);
 
 	const handleLinkClick = (path: string, external?: boolean) => {
 		if (external) {
@@ -634,10 +1102,123 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 		}
 	};
 
+	/** Submit Get userinfo login (Authorization Code flow, response_mode=pi.flow); on success add result to chat and close panel. */
+	const handleUserInfoLoginSubmit = useCallback(async () => {
+		const username = userinfoUsername.trim();
+		const password = userinfoPassword;
+		if (!username || !password) {
+			setUserinfoLoginError('Please enter username and password.');
+			return;
+		}
+		const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+		const creds = tokenData?.credentials;
+		if (!creds?.environmentId || !creds?.clientId || !creds?.clientSecret) {
+			setUserinfoLoginError('Save worker token credentials first (Configuration → MCP Server Config).');
+			return;
+		}
+		setUserinfoLoginError(null);
+		setUserinfoLoginLoading(true);
+		try {
+			const result = await callUserInfoViaLogin({
+				environmentId: creds.environmentId,
+				clientId: creds.clientId,
+				clientSecret: creds.clientSecret,
+				username,
+				password,
+				region: (creds.region as string) || 'us',
+			});
+			if (result.success && result.data != null) {
+				const mcpResult: McpQueryResult = {
+					success: true,
+					answer: result.answer ?? `Retrieved OIDC userinfo: sub=${(result.data as { sub?: string })?.sub ?? '(unknown)'}.`,
+					mcpTool: 'pingone_userinfo',
+					apiCall: { method: 'GET', path: `https://auth.pingone.com/${creds.environmentId}/as/userinfo` },
+					howItWorks:
+						'Uses the user access token from the auth (authorize) call to call the OIDC UserInfo (end-user info) endpoint. Returns OIDC standard claims (sub, name, email, etc.).',
+					data: result.data,
+				};
+				setMessages((prev) => [
+					...prev,
+					{
+						id: crypto.randomUUID(),
+						type: 'assistant',
+						content: mcpResult.answer,
+						mcpResult,
+						timestamp: new Date(),
+					},
+				]);
+				setShowUserInfoLogin(false);
+				setUserinfoUsername('');
+				setUserinfoPassword('');
+			} else {
+				setUserinfoLoginError(result.error_description ?? 'Login or userinfo call failed.');
+			}
+		} catch (err) {
+			setUserinfoLoginError(err instanceof Error ? err.message : 'Login failed.');
+		} finally {
+			setUserinfoLoginLoading(false);
+		}
+	}, [userinfoUsername, userinfoPassword]);
+
+	/** Submit User login to get a user access token (for "Introspect user token"). */
+	const handleUserTokenLoginSubmit = useCallback(async () => {
+		const username = userTokenUsername.trim();
+		const password = userTokenPassword;
+		if (!username || !password) {
+			setUserTokenLoginError('Please enter username and password.');
+			return;
+		}
+		const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+		const creds = tokenData?.credentials;
+		if (!creds?.environmentId || !creds?.clientId || !creds?.clientSecret) {
+			setUserTokenLoginError('Save worker token credentials first (Configuration → MCP Server Config).');
+			return;
+		}
+		setUserTokenLoginError(null);
+		setUserTokenLoginLoading(true);
+		try {
+			const result = await callUserTokenViaLogin({
+				environmentId: creds.environmentId,
+				clientId: creds.clientId,
+				clientSecret: creds.clientSecret,
+				username,
+				password,
+				region: (creds.region as string) || 'us',
+			});
+			if (result.success && result.access_token) {
+				handleUserTokenSet(
+					result.access_token,
+					result.expires_in ?? 3600,
+					useAdminLogin ? creds.environmentId : undefined,
+					result.id_token,
+				);
+				const idNote = result.id_token ? ' ID token also stored — say **"Show id token"** to inspect it.' : '';
+				setMessages((prev) => [
+					...prev,
+					{
+						id: crypto.randomUUID(),
+						type: 'assistant',
+						content: `✅ **Logged in as user** (${username}). Say **"Introspect user token"** to inspect the access token, or **"Show my token"** to view it.${idNote}`,
+						timestamp: new Date(),
+					},
+				]);
+				setShowUserTokenLogin(false);
+				setUserTokenUsername('');
+				setUserTokenPassword('');
+			} else {
+				setUserTokenLoginError(result.error_description ?? 'Login failed.');
+			}
+		} catch (err) {
+			setUserTokenLoginError(err instanceof Error ? err.message : 'Login failed.');
+		} finally {
+			setUserTokenLoginLoading(false);
+		}
+	}, [userTokenUsername, userTokenPassword, handleUserTokenSet, useAdminLogin]);
+
 	const promptCategories = [
 		{
 			label: '🔑 Auth',
-			prompts: ['Get worker token', 'List MCP tools'],
+			prompts: ['Get worker token', 'Admin login', 'List MCP tools'],
 		},
 		{
 			label: '📱 Applications',
@@ -689,7 +1270,19 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 				'Show org licenses',
 				'Get OIDC discovery document',
 				'Introspect token',
+				'Introspect user token',
 				'Get userinfo',
+			],
+		},
+		{
+			label: '🔍 Token Inspector',
+			prompts: [
+				'Show my token',
+				'Show id token',
+				'Show worker token',
+				'Decode token <paste-jwt-here>',
+				'Show api calls',
+				'Clear tokens',
 			],
 		},
 		{
@@ -760,9 +1353,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 													<PromptsChipText
 														type="button"
 														onClick={() => {
-															setInput(p);
 															setShowPromptsGuide(false);
-															handleSend(p);
+															handlePromptClick(p);
 														}}
 													>
 														{p}
@@ -788,6 +1380,226 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 								))}
 							</PromptsGuideScroll>
 						</PromptsGuidePanel>
+					)}
+
+					{/* Get userinfo — Sign in (Authorization Code flow, response_mode=pi.flow) */}
+					{showUserInfoLogin && (
+						<UserInfoLoginPanel $expanded={!fullPage && isExpanded} $fullPage={fullPage}>
+							<UserInfoLoginHeader>
+								<UserInfoLoginTitle>👤 Get userinfo — Sign in</UserInfoLoginTitle>
+								<UserInfoLoginClose
+									type="button"
+									onClick={() => {
+										setShowUserInfoLogin(false);
+										setUserinfoLoginError(null);
+										setUserinfoUsername('');
+										setUserinfoPassword('');
+									}}
+									aria-label="Close login panel"
+								>
+									✕
+								</UserInfoLoginClose>
+							</UserInfoLoginHeader>
+							<UserInfoLoginSubtitle>
+								Sign in via Authorization Code flow (response_mode=pi.flow). We use the <strong>user access token</strong> returned from the auth call to call the end-user UserInfo endpoint and show your claims here.
+							</UserInfoLoginSubtitle>
+							<UserInfoLoginForm
+								onSubmit={(e) => {
+									e.preventDefault();
+									handleUserInfoLoginSubmit();
+								}}
+							>
+								<div style={{ marginBottom: 12 }}>
+									<label htmlFor="userinfo-username" style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#333' }}>
+										Username
+									</label>
+									<input
+										id="userinfo-username"
+										type="text"
+										autoComplete="username"
+										value={userinfoUsername}
+										onChange={(e) => setUserinfoUsername(e.target.value)}
+										disabled={userinfoLoginLoading}
+										style={{
+											width: '100%',
+											padding: '8px 10px',
+											border: '1px solid #ccc',
+											borderRadius: 8,
+											fontSize: 14,
+											boxSizing: 'border-box',
+										}}
+										placeholder="PingOne username"
+									/>
+								</div>
+								<div style={{ marginBottom: 16 }}>
+									<label htmlFor="userinfo-password" style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#333' }}>
+										Password
+									</label>
+									<input
+										id="userinfo-password"
+										type="password"
+										autoComplete="current-password"
+										value={userinfoPassword}
+										onChange={(e) => setUserinfoPassword(e.target.value)}
+										disabled={userinfoLoginLoading}
+										style={{
+											width: '100%',
+											padding: '8px 10px',
+											border: '1px solid #ccc',
+											borderRadius: 8,
+											fontSize: 14,
+											boxSizing: 'border-box',
+										}}
+										placeholder="Password"
+									/>
+								</div>
+								{userinfoLoginError && (
+									<div style={{ marginBottom: 12, padding: 8, background: '#fee', color: '#c00', borderRadius: 8, fontSize: 13 }}>
+										{userinfoLoginError}
+									</div>
+								)}
+								<div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+									<button
+										type="button"
+										onClick={() => {
+											setShowUserInfoLogin(false);
+											setUserinfoLoginError(null);
+											setUserinfoUsername('');
+											setUserinfoPassword('');
+										}}
+										disabled={userinfoLoginLoading}
+										style={{
+											padding: '8px 14px',
+											borderRadius: 8,
+											border: '1px solid #ccc',
+											background: '#fff',
+											fontSize: 14,
+											cursor: userinfoLoginLoading ? 'not-allowed' : 'pointer',
+										}}
+									>
+										Cancel
+									</button>
+									<button
+										type="submit"
+										disabled={userinfoLoginLoading}
+										style={{
+											padding: '8px 14px',
+											borderRadius: 8,
+											border: 'none',
+											background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+											color: '#fff',
+											fontSize: 14,
+											fontWeight: 600,
+											cursor: userinfoLoginLoading ? 'not-allowed' : 'pointer',
+										}}
+									>
+										{userinfoLoginLoading ? 'Signing in…' : 'Submit'}
+									</button>
+								</div>
+							</UserInfoLoginForm>
+						</UserInfoLoginPanel>
+					)}
+
+					{/* User Token login — sign in to get a user access token for "Introspect user token" */}
+					{showUserTokenLogin && (
+						<UserInfoLoginPanel $expanded={!fullPage && isExpanded} $fullPage={fullPage}>
+							<UserInfoLoginHeader>
+								<UserInfoLoginTitle>👤 User login — get access token</UserInfoLoginTitle>
+								<UserInfoLoginClose
+									type="button"
+									onClick={() => {
+										setShowUserTokenLogin(false);
+										setUserTokenLoginError(null);
+										setUserTokenUsername('');
+										setUserTokenPassword('');
+										setUseAdminLogin(false);
+									}}
+									aria-label="Close user token login panel"
+								>
+									✕
+								</UserInfoLoginClose>
+							</UserInfoLoginHeader>
+							<UserInfoLoginSubtitle>
+								Sign in via Authorization Code flow (response_mode=pi.flow). The <strong>user access token</strong> is stored so you can say <strong>"Introspect user token"</strong> to inspect it.
+								{userAccessToken && (
+									<div style={{ marginTop: 8, padding: '6px 10px', background: '#e8f5e9', color: '#2e7d32', borderRadius: 8, fontSize: 12 }}>
+										✅ User token active — say "Introspect user token"
+										<button
+											type="button"
+											onClick={handleUserTokenClear}
+											style={{ marginLeft: 8, cursor: 'pointer', color: '#c62828', background: 'none', border: 'none', fontSize: 12 }}
+										>
+											Clear
+										</button>
+									</div>
+								)}
+							</UserInfoLoginSubtitle>
+							<UserInfoLoginForm
+								onSubmit={(e) => {
+									e.preventDefault();
+									handleUserTokenLoginSubmit();
+								}}
+							>
+								<div style={{ marginBottom: 12 }}>
+									<label htmlFor="usertoken-username" style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#333' }}>
+										Username
+									</label>
+									<input
+										id="usertoken-username"
+										type="text"
+										autoComplete="username"
+										value={userTokenUsername}
+										onChange={(e) => setUserTokenUsername(e.target.value)}
+										disabled={userTokenLoginLoading}
+										style={{ width: '100%', padding: '8px 10px', border: '1px solid #ccc', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+										placeholder="PingOne username"
+									/>
+								</div>
+								<div style={{ marginBottom: 16 }}>
+									<label htmlFor="usertoken-password" style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#333' }}>
+										Password
+									</label>
+									<input
+										id="usertoken-password"
+										type="password"
+										autoComplete="current-password"
+										value={userTokenPassword}
+										onChange={(e) => setUserTokenPassword(e.target.value)}
+										disabled={userTokenLoginLoading}
+										style={{ width: '100%', padding: '8px 10px', border: '1px solid #ccc', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+										placeholder="Password"
+									/>
+								</div>
+								{userTokenLoginError && (
+									<div style={{ marginBottom: 12, padding: 8, background: '#fee', color: '#c00', borderRadius: 8, fontSize: 13 }}>
+										{userTokenLoginError}
+									</div>
+								)}
+								<div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+									<button
+										type="button"
+										onClick={() => {
+											setShowUserTokenLogin(false);
+											setUserTokenLoginError(null);
+											setUserTokenUsername('');
+											setUserTokenPassword('');
+											setUseAdminLogin(false);
+										}}
+										disabled={userTokenLoginLoading}
+										style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #ccc', background: '#fff', fontSize: 14, cursor: userTokenLoginLoading ? 'not-allowed' : 'pointer' }}
+									>
+										Cancel
+									</button>
+									<button
+										type="submit"
+										disabled={userTokenLoginLoading}
+										style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#fff', fontSize: 14, fontWeight: 600, cursor: userTokenLoginLoading ? 'not-allowed' : 'pointer' }}
+									>
+										{userTokenLoginLoading ? 'Signing in…' : 'Sign in'}
+									</button>
+								</div>
+							</UserInfoLoginForm>
+						</UserInfoLoginPanel>
 					)}
 
 					<ChatWindow
@@ -1040,17 +1852,28 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 												</MessageContent>
 												{/* Streaming cursor */}
 												{message.streaming && <StreamingCursor />}
-												{/* Copy button — assistant messages only, shown on hover */}
+												{/* Copy / Save as .md — assistant messages only, shown on hover */}
 												{message.type === 'assistant' && !message.streaming && (
-													<MessageCopyBtn
-														type="button"
-														$copied={copiedMessage === message.id}
-														onClick={() => handleCopyMessage(message.id, message.content)}
-														title="Copy message"
-														aria-label="Copy message to clipboard"
-													>
-														{copiedMessage === message.id ? '✓ Copied' : '⎘ Copy'}
-													</MessageCopyBtn>
+													<MessageActionRow>
+														<MessageCopyBtn
+															type="button"
+															$copied={copiedMessage === message.id}
+															onClick={() => handleCopyMessage(message.id, message.content)}
+															title="Copy message"
+															aria-label="Copy message to clipboard"
+														>
+															{copiedMessage === message.id ? '✓ Copied' : '⎘ Copy'}
+														</MessageCopyBtn>
+														<MessageCopyBtn
+															type="button"
+															$copied={savedMessage === message.id}
+															onClick={() => handleSaveAsMarkdown(message.id, message.content)}
+															title="Save as .md file to disk"
+															aria-label="Save as markdown file"
+														>
+															{savedMessage === message.id ? '✓ Saved' : '📄 Save .md'}
+														</MessageCopyBtn>
+													</MessageActionRow>
 												)}
 												{/* Live-toggle nudge button — when Groq detected a PingOne command */}
 												{message.type === 'assistant' &&
@@ -1133,7 +1956,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 																			{JSON.stringify(message.mcpResult.data, null, 2)}
 																		</McpDataPre>
 																	) : (
-																		renderMcpDataItems(message.mcpResult.data as unknown[])
+																		<McpDataPagedDisplay data={message.mcpResult.data as unknown[]} />
 																	)}
 																</McpDataSection>
 															)}
@@ -1220,10 +2043,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 											{quickQuestions.map((question, idx) => (
 												<QuickQuestionButton
 													key={idx}
-													onClick={() => {
-														setInput(question);
-														handleSend(question);
-													}}
+													onClick={() => handlePromptClick(question)}
 												>
 													{question}
 												</QuickQuestionButton>
@@ -1252,7 +2072,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 										aria-label="Message input"
 									/>
 									<SendButton
-										onClick={handleSend}
+										onClick={() => handleSend()}
 										disabled={!input.trim()}
 										aria-label="Send message"
 										title="Send message (Enter)"
@@ -1298,6 +2118,71 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, onStartOAut
 								aria-busy={isRefreshingToken}
 							>
 								{isRefreshingToken ? 'Getting token…' : 'Get new token'}
+							</ConfirmButton>
+						</ConfirmActions>
+					</ConfirmDialog>
+				</ConfirmBackdrop>
+			)}
+
+			{/* Placeholder fill: ask for missing values then put updated command in prompt box */}
+			{placeholderFill && (
+				<ConfirmBackdrop
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby="placeholder-fill-title"
+					onClick={(e) => {
+						if (e.target === e.currentTarget) {
+							setPlaceholderFill(null);
+							setPlaceholderValues({});
+						}
+					}}
+				>
+					<ConfirmDialog onClick={(e) => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+						<ConfirmTitle id="placeholder-fill-title">This command needs more info</ConfirmTitle>
+						<ConfirmText style={{ marginBottom: 16 }}>
+							Enter the values below. The command will be filled in the prompt box; you can edit and send.
+						</ConfirmText>
+						<div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+							{placeholderFill.placeholders.map((key) => (
+								<div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+									<label htmlFor={`placeholder-${key}`} style={{ fontSize: 13, fontWeight: 500, color: '#333' }}>
+										{PLACEHOLDER_LABELS[key] ?? key}
+									</label>
+									<input
+										id={`placeholder-${key}`}
+										type="text"
+										value={placeholderValues[key] ?? ''}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+											setPlaceholderValues((prev) => ({ ...prev, [key]: e.target.value }))
+										}
+										placeholder={`e.g. ${key}`}
+										aria-label={PLACEHOLDER_LABELS[key] ?? key}
+										style={{
+											padding: '8px 12px',
+											border: '1px solid #ddd',
+											borderRadius: 8,
+											fontSize: 14,
+										}}
+									/>
+								</div>
+							))}
+						</div>
+						<ConfirmActions>
+							<ConfirmButton
+								type="button"
+								$primary={false}
+								onClick={() => {
+									setPlaceholderFill(null);
+									setPlaceholderValues({});
+								}}
+							>
+								Cancel
+							</ConfirmButton>
+							<ConfirmButton type="button" $primary={false} onClick={() => handlePlaceholderFillSubmit(false)}>
+								Fill in prompt
+							</ConfirmButton>
+							<ConfirmButton type="button" $primary onClick={() => handlePlaceholderFillSubmit(true)}>
+								Fill & send
 							</ConfirmButton>
 						</ConfirmActions>
 					</ConfirmDialog>
@@ -1461,11 +2346,6 @@ const HeaderTitle = styled.div`
 	font-weight: 600;
 	font-size: 13px;
 	white-space: nowrap;
-`;
-
-const HeaderSubtitle = styled.div`
-	font-size: 11px;
-	opacity: 0.9;
 `;
 
 const StatusRow = styled.div`
@@ -1669,6 +2549,18 @@ const MessageBubble = styled.div<{ $isUser: boolean }>`
 const MessageContent = styled.div`
 	line-height: 1.6;
 	font-size: 15px;
+`;
+
+const MessageActionRow = styled.div`
+	display: none;
+	margin-top: 8px;
+	gap: 8px;
+	flex-wrap: wrap;
+	align-items: center;
+
+	${MessageBubble}:hover & {
+		display: flex;
+	}
 `;
 
 const MessageCopyBtn = styled.button<{ $copied?: boolean }>`
@@ -2027,6 +2919,97 @@ const PromptsGuideScroll = styled.div`
 	gap: 10px;
 `;
 
+// ─── UserInfo Login Panel (Get userinfo — pi.flow sign-in) ───────────────────
+const UserInfoLoginPanel = styled.div<{ $expanded?: boolean; $fullPage?: boolean }>`
+	position: fixed;
+	z-index: 1002;
+	background: white;
+	border-radius: 16px;
+	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+	border: 1px solid rgba(102, 126, 234, 0.2);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	bottom: 24px;
+	right: 622px;
+	width: 380px;
+	max-height: 420px;
+	${({ $expanded }) =>
+		$expanded &&
+		`
+    top: 50%;
+    bottom: auto;
+    right: auto;
+    left: max(12px, calc(50% - min(550px, 46vw) - 472px));
+    transform: translateY(-50%);
+    max-height: min(88vh, 480px);
+  `}
+	${({ $fullPage }) =>
+		$fullPage &&
+		`
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: auto;
+    width: 360px;
+    max-height: none;
+    height: auto;
+    border-radius: 0;
+    border-right: 1px solid #e0e0e0;
+    border-top: none;
+    border-left: none;
+    border-bottom: none;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.08);
+    z-index: 10;
+  `}
+	@media (max-width: 900px) {
+		right: 8px;
+		left: 8px;
+		width: auto;
+		bottom: 90px;
+		max-height: min(65vh, 420px);
+	}
+`;
+
+const UserInfoLoginHeader = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 16px 4px;
+`;
+
+const UserInfoLoginTitle = styled.div`
+	font-size: 13px;
+	font-weight: 700;
+	color: #333;
+`;
+
+const UserInfoLoginClose = styled.button`
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-size: 18px;
+	color: #666;
+	padding: 4px;
+	line-height: 1;
+	&:hover {
+		color: #333;
+	}
+`;
+
+const UserInfoLoginSubtitle = styled.div`
+	font-size: 12px;
+	color: #666;
+	padding: 0 16px 12px;
+	line-height: 1.4;
+`;
+
+const UserInfoLoginForm = styled.form`
+	padding: 0 16px 16px;
+	overflow-y: auto;
+`;
+
 const PromptsCategory = styled.div``;
 
 const PromptsCategoryLabel = styled.div`
@@ -2295,11 +3278,42 @@ const McpDataVal = styled.span`
 	word-break: break-all;
 `;
 
-const McpDataMoreNote = styled.div`
-	font-size: 11px;
-	color: #888;
-	text-align: center;
-	padding: 4px 0 2px;
+const McpPagination = styled.div`
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-top: 10px;
+	padding: 8px 0;
+	font-size: 12px;
+	color: #666;
+`;
+
+const McpPaginationButtons = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 12px;
+`;
+
+const McpPageBtn = styled.button`
+	padding: 4px 10px;
+	font-size: 12px;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	background: white;
+	cursor: pointer;
+	color: #374151;
+
+	&:hover:not(:disabled) {
+		background: #f3f4f6;
+		border-color: #9ca3af;
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const ToggleLiveText = styled.span<{ $active: boolean }>`
@@ -2434,34 +3448,5 @@ const LiveNudgeButton = styled.button`
 	}
 `;
 
-// ─── Groq not-configured banner ───────────────────────────────────────────────
-
-const GroqBanner = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 8px;
-	padding: 8px 14px;
-	background: #fffbea;
-	border-bottom: 1px solid #f0dc82;
-	font-size: 12px;
-	color: #7a5c00;
-	flex-shrink: 0;
-`;
-
-const GroqBannerLink = styled.button`
-	background: none;
-	border: none;
-	font-size: 12px;
-	font-weight: 600;
-	color: #5a3e00;
-	text-decoration: underline;
-	cursor: pointer;
-	white-space: nowrap;
-	padding: 0;
-	&:hover {
-		color: #3d2a00;
-	}
-`;
 
 export default AIAssistant;
