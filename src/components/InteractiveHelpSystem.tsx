@@ -2,123 +2,123 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 const HelpContainer = styled.div`
-  background: white;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin: 1rem 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	background: white;
+	border-radius: 0.5rem;
+	padding: 1.5rem;
+	margin: 1rem 0;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const HelpHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.5rem;
 `;
 
 const HelpTitle = styled.h2`
-  margin: 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 1.5rem;
+	margin: 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1.5rem;
 `;
 
 const SearchContainer = styled.div`
-  position: relative;
-  margin-bottom: 1.5rem;
+	position: relative;
+	margin-bottom: 1.5rem;
 `;
 
 const SearchInput = styled.input`
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  
-  &:focus {
-    outline: none;
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+	width: 100%;
+	padding: 0.75rem 1rem;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+
+	&:focus {
+		outline: none;
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
 `;
 
 const TabContainer = styled.div`
-  display: flex;
-  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  margin-bottom: 1.5rem;
+	display: flex;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	margin-bottom: 1.5rem;
 `;
 
 const Tab = styled.button<{ $active: boolean }>`
-  background: none;
-  border: none;
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
-  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
-  
-  &:hover {
-    color: V9_COLORS.PRIMARY.BLUE;
-  }
+	background: none;
+	border: none;
+	padding: 0.75rem 1rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+	color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
+
+	&:hover {
+		color: V9_COLORS.PRIMARY.BLUE;
+	}
 `;
 
 const ContentArea = styled.div`
-  min-height: 400px;
+	min-height: 400px;
 `;
 
 const TutorialSection = styled.div`
-  margin-bottom: 2rem;
+	margin-bottom: 2rem;
 `;
 
 const TutorialTitle = styled.h3`
-  margin: 0 0 1rem 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 1.125rem;
-  font-weight: 600;
+	margin: 0 0 1rem 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1.125rem;
+	font-weight: 600;
 `;
 
 const TutorialStep = styled.div<{ $active: boolean; $completed: boolean }>`
-  border: 2px solid ${({ $active, $completed }) =>
-		$active ? '#3b82f6' : $completed ? '#10b981' : '#e5e7eb'};
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  background: ${({ $active, $completed }) =>
+	border: 2px solid
+		${({ $active, $completed }) => ($active ? '#3b82f6' : $completed ? '#10b981' : '#e5e7eb')};
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-bottom: 1rem;
+	background: ${({ $active, $completed }) =>
 		$active ? '#f8fafc' : $completed ? '#f0fdf4' : 'white'};
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  &:hover {
-    border-color: V9_COLORS.PRIMARY.BLUE;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:hover {
+		border-color: V9_COLORS.PRIMARY.BLUE;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const StepHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 0.5rem;
 `;
 
 const StepTitle = styled.h4`
-  margin: 0;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  font-size: 1rem;
-  font-weight: 600;
+	margin: 0;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	font-size: 1rem;
+	font-weight: 600;
 `;
 
 const StepNumber = styled.div<{ $active: boolean; $completed: boolean }>`
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  
-  ${({ $active, $completed }) => {
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.75rem;
+	font-weight: 600;
+
+	${({ $active, $completed }) => {
 		if ($completed) {
 			return `
         background-color: V9_COLORS.PRIMARY.GREEN;
@@ -139,34 +139,34 @@ const StepNumber = styled.div<{ $active: boolean; $completed: boolean }>`
 `;
 
 const StepDescription = styled.p`
-  margin: 0 0 0.75rem 0;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 0.875rem;
-  line-height: 1.5;
+	margin: 0 0 0.75rem 0;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.875rem;
+	line-height: 1.5;
 `;
 
 const CodeBlock = styled.pre`
-  background: V9_COLORS.TEXT.GRAY_DARK;
-  color: #f9fafb;
-  padding: 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  overflow-x: auto;
-  margin: 0.75rem 0;
+	background: V9_COLORS.TEXT.GRAY_DARK;
+	color: #f9fafb;
+	padding: 1rem;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	overflow-x: auto;
+	margin: 0.75rem 0;
 `;
 
 const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' }>`
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
-  
-  ${({ $variant }) => {
+	padding: 0.5rem 1rem;
+	border: none;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	margin-right: 0.5rem;
+	margin-bottom: 0.5rem;
+
+	${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
 				return `
@@ -191,71 +191,71 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' }>`
 `;
 
 const FAQItem = styled.div`
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-  border-radius: 0.375rem;
-  margin-bottom: 0.75rem;
-  overflow: hidden;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-radius: 0.375rem;
+	margin-bottom: 0.75rem;
+	overflow: hidden;
 `;
 
 const FAQQuestion = styled.button`
-  width: 100%;
-  padding: 1rem;
-  background: #f9fafb;
-  border: none;
-  text-align: left;
-  font-weight: 500;
-  color: V9_COLORS.TEXT.GRAY_DARK;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  
-  &:hover {
-    background: #f3f4f6;
-  }
+	width: 100%;
+	padding: 1rem;
+	background: #f9fafb;
+	border: none;
+	text-align: left;
+	font-weight: 500;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	cursor: pointer;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	&:hover {
+		background: #f3f4f6;
+	}
 `;
 
 const FAQAnswer = styled.div<{ $expanded: boolean }>`
-  padding: ${({ $expanded }) => ($expanded ? '1rem' : '0 1rem')};
-  max-height: ${({ $expanded }) => ($expanded ? '200px' : '0')};
-  overflow: hidden;
-  transition: all 0.3s ease;
-  background: white;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
-  font-size: 0.875rem;
-  line-height: 1.5;
+	padding: ${({ $expanded }) => ($expanded ? '1rem' : '0 1rem')};
+	max-height: ${({ $expanded }) => ($expanded ? '200px' : '0')};
+	overflow: hidden;
+	transition: all 0.3s ease;
+	background: white;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	font-size: 0.875rem;
+	line-height: 1.5;
 `;
 
 const TroubleshootingItem = styled.div`
-  background: V9_COLORS.BG.ERROR;
-  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
+	background: V9_COLORS.BG.ERROR;
+	border: 1px solid V9_COLORS.BG.ERROR_BORDER;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	margin-bottom: 1rem;
 `;
 
 const TroubleshootingTitle = styled.h4`
-  margin: 0 0 0.5rem 0;
-  color: V9_COLORS.PRIMARY.RED_DARK;
-  font-size: 0.875rem;
-  font-weight: 600;
+	margin: 0 0 0.5rem 0;
+	color: V9_COLORS.PRIMARY.RED_DARK;
+	font-size: 0.875rem;
+	font-weight: 600;
 `;
 
 const TroubleshootingDescription = styled.p`
-  margin: 0 0 0.75rem 0;
-  color: #7f1d1d;
-  font-size: 0.875rem;
-  line-height: 1.5;
+	margin: 0 0 0.75rem 0;
+	color: #7f1d1d;
+	font-size: 0.875rem;
+	line-height: 1.5;
 `;
 
 const TroubleshootingSolution = styled.div`
-  background: #f0fdf4;
-  border: 1px solid #86efac;
-  border-radius: 0.25rem;
-  padding: 0.75rem;
-  color: V9_COLORS.PRIMARY.GREEN;
-  font-size: 0.875rem;
-  line-height: 1.5;
+	background: #f0fdf4;
+	border: 1px solid #86efac;
+	border-radius: 0.25rem;
+	padding: 0.75rem;
+	color: V9_COLORS.PRIMARY.GREEN;
+	font-size: 0.875rem;
+	line-height: 1.5;
 `;
 
 interface TutorialStep {
@@ -289,7 +289,7 @@ const TUTORIALS = {
 				description: 'Set up your OAuth client with the correct redirect URI and scopes.',
 				code: `{
   "client_id": "your-client-id",
-  "redirect_uri": "http://localhost:3000/callback",
+  "redirect_uri": "https://api.pingdemo.com/callback",
   "scope": "openid profile email",
   "response_type": "code"
 }`,
@@ -339,7 +339,7 @@ const state = urlParams.get('state');`,
 				description: 'Set up your OAuth client for implicit flow.',
 				code: `{
   "client_id": "your-client-id",
-  "redirect_uri": "http://localhost:3000/callback",
+  "redirect_uri": "https://api.pingdemo.com/callback",
   "scope": "openid profile email",
   "response_type": "token id_token"
 }`,
