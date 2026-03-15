@@ -738,8 +738,12 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 				throw new Error(credsRes.error?.message || 'Invalid credentials');
 			}
 
-			// Step 3: Resume pi.flow — PingOne returns tokens directly in JSON (no redirect, no code exchange)
-			const resumeRes = await PingOneLoginService.resumeFlow(flowId);
+			// Step 3: Resume pi.flow — for response_type=code, returns auth code then exchanges
+			// for tokens; for response_type=token id_token, tokens returned directly.
+			const resumeRes = await PingOneLoginService.resumeFlow(
+				flowId,
+				effectiveClientSecret || undefined
+			);
 			if (!resumeRes.success || !resumeRes.data?.access_token) {
 				throw new Error(resumeRes.error?.message || 'Failed to get tokens from resume');
 			}
