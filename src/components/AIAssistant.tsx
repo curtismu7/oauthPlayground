@@ -518,6 +518,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 		setAdminToken(null);
 		setAdminTokenExpiry(null);
 		setAdminEnvironmentId(null);
+		// Reset admin mode so agent stops using admin auth and panel returns to default tab
+		setUseAdminLogin(false);
+		setAdminLoginUsernamePasswordOnly(false);
 	}, []);
 
 	const handleUserTokenSet = useCallback(
