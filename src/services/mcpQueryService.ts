@@ -297,7 +297,9 @@ export function isShowWorkerTokenQuery(query: string): boolean {
 /** Returns true when the query contains a pasted JWT to decode, or explicitly asks to decode a token. */
 export function isDecodeTokenQuery(query: string): boolean {
 	return (
-		/\bdecode\s+(?:this\s+)?(?:jwt|token)\b|\bparse\s+(?:this\s+)?(?:jwt|token)\b|\bwhat\s+claims\s+(?:are\s+)?in\b/i.test(query.trim()) ||
+		/\bdecode\s+(?:this\s+)?(?:jwt|token)\b|\bparse\s+(?:this\s+)?(?:jwt|token)\b|\bwhat\s+claims\s+(?:are\s+)?in\b/i.test(
+			query.trim()
+		) ||
 		// freestanding JWT in the message text
 		/\bey[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\b/.test(query.trim())
 	);
@@ -306,6 +308,17 @@ export function isDecodeTokenQuery(query: string): boolean {
 /** Returns true when the query is asking to view the recent MCP API call history. */
 export function isShowApiCallsQuery(query: string): boolean {
 	return /\bshow\s+(?:(?:my|the|recent|last)\s+)?api\s+calls?\b|\bapi\s+call\s+histor(?:y|ies)\b|\brecent\s+api\s+calls?\b|\blast\s+api\s+call\b|\bwhat\s+api\s+calls?\s+(?:were|have\s+been)\s+made\b|\bshow\s+(?:my\s+)?(?:last|recent)\s+calls?\b/i.test(
+		query.trim()
+	);
+}
+
+/**
+ * Returns true when the user is asking to inspect / explain the single most-recent MCP tool call:
+ * tool name, HTTP method + path, and the educational explanation.
+ * Distinct from isShowApiCallsQuery which lists the last 5 calls.
+ */
+export function isLastToolQuery(query: string): boolean {
+	return /\blast\s+(?:mcp\s+)?tool\b|\bwhat\s+(?:was\s+the\s+last|tool\s+did\s+you)\b|\bexplain\s+(?:the\s+)?last\s+(?:tool|call|mcp)\b|\bwhat\s+did\s+you\s+(?:just\s+)?(?:call|use|do)\b|\bwhat\s+mcp\s+tool\b|\blast\s+mcp\s+call\b|\bshow\s+last\s+tool\b|\bwhat\s+api\s+did\s+you\b|\bwhat\s+was\s+that\s+(?:tool|call)\b|\binspect\s+(?:last\s+)?(?:mcp|tool|call)\b|\bmcp\s+introspect\b/i.test(
 		query.trim()
 	);
 }
