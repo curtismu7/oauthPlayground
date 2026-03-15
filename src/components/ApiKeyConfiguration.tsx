@@ -321,10 +321,10 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 	const loadBackupStatus = useCallback(async () => {
 		try {
 			setLoadingBackup(true);
-			
+
 			// First, migrate any existing API keys to ensure they have isActive set correctly
 			await apiKeyService.migrateExistingApiKeys();
-			
+
 			// Then load the backup status
 			const status = await apiKeyService.getBackupStatus();
 			setBackupStatus(status);

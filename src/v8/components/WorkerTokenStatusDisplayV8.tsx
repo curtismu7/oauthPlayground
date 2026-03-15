@@ -454,22 +454,26 @@ const ConfigActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>
 	}
 `;
 
-const RefreshButton = styled.button`
-	background: transparent;
-	border: 1px solid rgba(255, 255, 255, 0.2);
+const RefreshButton = styled.button<{ $prominent?: boolean }>`
+	background: ${(props) => (props.$prominent ? '#10b981' : 'transparent')};
+	border: ${(props) =>
+		props.$prominent ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.2)'};
 	border-radius: 8px;
-	padding: 6px 8px;
-	color: #e5e7eb;
+	padding: ${(props) => (props.$prominent ? '8px 12px' : '6px 8px')};
+	color: ${(props) => (props.$prominent ? '#ffffff' : '#e5e7eb')};
 	cursor: pointer;
 	display: flex;
 	align-items: center;
-	gap: 4px;
-	font-size: 12px;
+	gap: 6px;
+	font-size: ${(props) => (props.$prominent ? '13px' : '12px')};
+	font-weight: ${(props) => (props.$prominent ? '500' : 'normal')};
 	transition: all 0.2s;
+	box-shadow: ${(props) => (props.$prominent ? '0 2px 8px rgba(16, 185, 129, 0.3)' : 'none')};
 
 	&:hover {
-		background: rgba(255, 255, 255, 0.1);
+		background: ${(props) => (props.$prominent ? '#059669' : 'rgba(255, 255, 255, 0.1)')};
 		transform: scale(1.05);
+		border-color: ${(props) => (props.$prominent ? '#059669' : 'rgba(255, 255, 255, 0.3)')};
 	}
 
 	&:disabled {
@@ -541,10 +545,9 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	showConfig = false,
 }) => {
 	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
-		isValid: false,
 		status: 'missing',
-		message: 'Checking...',
-		expiresAt: null,
+		message: 'No worker token found',
+		isValid: false,
 		minutesRemaining: 0,
 	});
 	const [config, setConfig] = useState(() => MFAConfigurationServiceV8.loadConfiguration());
@@ -552,6 +555,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	const [isLoading, setIsLoading] = useState(true); // Initial loading state
 	const [fullTokenData, setFullTokenData] = useState<UnifiedWorkerTokenData | null>(null);
 	const [tokenStatusInfo, setTokenStatusInfo] = useState<UnifiedWorkerTokenStatus | null>(null);
+	const [lastTokenUpdate, setLastTokenUpdate] = useState<number>(Date.now());
 
 	// Configuration modal state
 	const [showConfigModal, setShowConfigModal] = useState(false);
@@ -669,7 +673,12 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 
 		// Listen for token updates
 		const handleTokenUpdate = async () => {
-			// Use sync version for immediate updates
+			logger.debug('WorkerTokenStatusDisplayV8', 'Worker token update event received');
+
+			// Check if this is a new token (was missing before)
+			const wasMissing = tokenStatus.status === 'missing' || !tokenStatus.isValid;
+
+			// Get the new status immediately
 			const v8Status = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 
 			// Convert V8 TokenStatusInfo to V8U TokenStatusInfo
@@ -684,9 +693,22 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			};
 
 			setTokenStatus(convertedStatus);
+			setLastTokenUpdate(Date.now());
 
-			// Then do the full async update for additional data
-			await updateTokenStatus();
+			// If we just got a new token (was missing before), show success message and refresh
+			if (wasMissing && v8Status.isValid) {
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Worker token obtained! Fields updated automatically.',
+					duration: 4000,
+				});
+
+				// Auto-refresh to get the latest token data
+				await updateTokenStatus();
+			} else {
+				// Then do the full async update for additional data
+				await updateTokenStatus();
+			}
 		};
 
 		const handleConfigUpdate = () => {
@@ -704,7 +726,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
 			clearInterval(interval);
 		};
-	}, [refreshInterval, updateTokenStatus]);
+	}, [refreshInterval, updateTokenStatus, tokenStatus.isValid, tokenStatus.status]);
 
 	const getVariant = (): 'valid' | 'invalid' | 'warning' => {
 		return WorkerTokenStatusServiceV8U.getVariant(tokenStatus);
@@ -934,8 +956,13 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						</StatusText>
 					</StatusTitle>
 					{showRefresh && (
-						<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
+						<RefreshButton
+							onClick={handleRefresh}
+							disabled={isRefreshing}
+							$prominent={!tokenStatus.isValid || tokenStatus.status === 'missing'}
+						>
 							<FiRefreshCw className={isRefreshing ? 'spin' : ''} />
+							{(!tokenStatus.isValid || tokenStatus.status === 'missing') && <span>Get Token</span>}
 						</RefreshButton>
 					)}
 				</StatusHeader>
@@ -1011,8 +1038,15 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 							</>
 						)}
 						{showRefresh && (
-							<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
+							<RefreshButton
+								onClick={handleRefresh}
+								disabled={isRefreshing}
+								$prominent={!tokenStatus.isValid || tokenStatus.status === 'missing'}
+							>
 								<FiRefreshCw className={isRefreshing ? 'spin' : ''} />
+								{(!tokenStatus.isValid || tokenStatus.status === 'missing') && (
+									<span>Get Token</span>
+								)}
 							</RefreshButton>
 						)}
 					</div>
@@ -1171,8 +1205,13 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						</StatusText>
 					</StatusTitle>
 					{showRefresh && (
-						<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
+						<RefreshButton
+							onClick={handleRefresh}
+							disabled={isRefreshing}
+							$prominent={!tokenStatus.isValid || tokenStatus.status === 'missing'}
+						>
 							<FiRefreshCw className={isRefreshing ? 'spin' : ''} />
+							{(!tokenStatus.isValid || tokenStatus.status === 'missing') && <span>Get Token</span>}
 						</RefreshButton>
 					)}
 				</StatusHeader>

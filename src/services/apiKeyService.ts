@@ -306,7 +306,7 @@ class ApiKeyService {
 			if (result.success && result.tokens) {
 				for (const token of result.tokens) {
 					const metadata = token.metadata || {};
-					
+
 					// If isActive is not explicitly set, set it to true
 					if (metadata.isActive === undefined) {
 						await unifiedTokenStorageService.updateToken(token.id, {
@@ -315,8 +315,11 @@ class ApiKeyService {
 								isActive: true,
 							},
 						});
-						
-						logger.info(MODULE_TAG, `Migrated API key for service: ${metadata.service || token.service || 'unknown'}`);
+
+						logger.info(
+							MODULE_TAG,
+							`Migrated API key for service: ${metadata.service || token.service || 'unknown'}`
+						);
 					}
 				}
 			}
