@@ -14,6 +14,7 @@ import {
 	decodeJwtHeader,
 	decodeJwtPayload,
 	isAdminLoginQuery,
+	isUserLoginQuery,
 	isAgentEducationQuery,
 	isClearTokensQuery,
 	isDecodeTokenQuery,
@@ -286,6 +287,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 	const [useAdminLogin, setUseAdminLogin] = useState(false);
 	/** When true, Admin tab shows only username/password (credentials from Configuration) for "Admin login" command */
 	const [adminLoginUsernamePasswordOnly, setAdminLoginUsernamePasswordOnly] = useState(false);
+	/** When true, side panel opens to User login tab (triggered by "User login" command) */
+	const [showUserLogin, setShowUserLogin] = useState(false);
 	/** User access token from User login tab (side panel); used for "Introspect user token" */
 	const [userAccessToken, setUserAccessToken] = useState<string | null>(null);
 	/** ID token from User login tab (OIDC); stored for educational inspection */
@@ -295,7 +298,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 		try {
 			const stored = sessionStorage.getItem('ai-assistant-api-history');
 			if (!stored) return [];
-			const parsed = JSON.parse(stored) as Array<Omit<ApiCallRecord, 'timestamp'> & { timestamp: string }>;
+			const parsed = JSON.parse(stored) as Array<
+				Omit<ApiCallRecord, 'timestamp'> & { timestamp: string }
+			>;
 			return parsed.map((r) => ({ ...r, timestamp: new Date(r.timestamp) }));
 		} catch {
 			return [];
@@ -640,6 +645,43 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 				return;
 			}
 
+			// "User login" command: open User login tab in side panel for username/password → user access token
+			if (isUserLoginQuery(query)) {
+				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+				const hasConfig =
+					tokenData?.credentials?.environmentId &&
+					tokenData?.credentials?.clientId &&
+					tokenData?.credentials?.clientSecret;
+				if (hasConfig) {
+					setShowUserLogin(true);
+					setShowSidePanel(true);
+					setMessages((prev) => [
+						...prev,
+						{
+							id: crypto.randomUUID(),
+							type: 'assistant',
+							content:
+								'**User login** — The User login panel is open on the left. Enter your **username** and **password** to get a user access token. Once logged in, say **"Introspect user token"** or **"Show my token"** to inspect it.',
+							timestamp: new Date(),
+						},
+					]);
+				} else {
+					setMessages((prev) => [
+						...prev,
+						{
+							id: crypto.randomUUID(),
+							type: 'assistant',
+							content:
+								'To use **User login**, configure the PingOne OIDC client in **Configuration** first (Environment ID, Client ID, and Client Secret). Then say **"User login"** again to open the username/password form.',
+							timestamp: new Date(),
+						},
+					]);
+				}
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
 			// ── Client-side token inspection commands ────────────────────────────────────
 			// These operate on locally-stored tokens — no backend call, no Live toggle needed.
 
@@ -776,8 +818,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 						parts.push(`### ${i + 1}. ${rec.mcpTool ?? 'Unknown tool'}\n**Query:** ${rec.query}`);
 						if (rec.apiCall)
 							parts.push(`**API Call:** \`${rec.apiCall.method} ${rec.apiCall.path}\``);
-						if (rec.howItWorks)
-							parts.push(`**How it works:** ${rec.howItWorks}`);
+						if (rec.howItWorks) parts.push(`**How it works:** ${rec.howItWorks}`);
 						if (rec.data !== null && rec.data !== undefined) {
 							const json = JSON.stringify(rec.data, null, 2);
 							parts.push(
@@ -834,8 +875,14 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 						`### Tool name breakdown`,
 						`\`${toolName}\``,
 						`- **Prefix** \`pingone_\` — all PingOne Management / Auth API tools share this prefix`,
-						...(verb ? [`- **Action** \`${verb}\` — ${verbDesc} ${resource || 'resource(s)'}`] : []),
-						...(resource ? [`- **Resource** \`${resource.replace(/\s+/g, '_')}\` — the PingOne resource type being operated on`] : []),
+						...(verb
+							? [`- **Action** \`${verb}\` — ${verbDesc} ${resource || 'resource(s)'}`]
+							: []),
+						...(resource
+							? [
+									`- **Resource** \`${resource.replace(/\s+/g, '_')}\` — the PingOne resource type being operated on`,
+								]
+							: []),
 					];
 					if (last.apiCall) {
 						const { method, path } = last.apiCall;
@@ -846,11 +893,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 						}
 						// Highlight path segments
 						const pathNote: string[] = [];
-						if (path.includes('{envId}') || path.includes('/environments/')) pathNote.push('`{envId}` — your PingOne environment UUID');
-						if (path.includes('{userId}')) pathNote.push('`{userId}` — the specific user\'s UUID');
-						if (path.includes('{appId}') || path.includes('/applications/')) pathNote.push('`{appId}` — the application UUID');
-						if (path.includes('/as/')) pathNote.push('`/as/` — Authorization Server (OIDC/OAuth2 endpoints, not Management API)');
-						if (pathNote.length) lines.push('', '**Path segments:**', ...pathNote.map((n) => `- ${n}`));
+						if (path.includes('{envId}') || path.includes('/environments/'))
+							pathNote.push('`{envId}` — your PingOne environment UUID');
+						if (path.includes('{userId}')) pathNote.push("`{userId}` — the specific user's UUID");
+						if (path.includes('{appId}') || path.includes('/applications/'))
+							pathNote.push('`{appId}` — the application UUID');
+						if (path.includes('/as/'))
+							pathNote.push(
+								'`/as/` — Authorization Server (OIDC/OAuth2 endpoints, not Management API)'
+							);
+						if (pathNote.length)
+							lines.push('', '**Path segments:**', ...pathNote.map((n) => `- ${n}`));
 					}
 					if (last.howItWorks) {
 						lines.push('', `### How it works`, last.howItWorks);
@@ -858,13 +911,25 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					// Data summary
 					if (last.data != null) {
 						if (Array.isArray(last.data)) {
-							lines.push('', `### Response`, `Returned **${(last.data as unknown[]).length} item(s)**. Run **"show api calls"** to see the full JSON.`);
+							lines.push(
+								'',
+								`### Response`,
+								`Returned **${(last.data as unknown[]).length} item(s)**. Run **"show api calls"** to see the full JSON.`
+							);
 						} else if (typeof last.data === 'object' && last.data !== null) {
 							const keys = Object.keys(last.data as object);
-							lines.push('', `### Response`, `Returned an object with ${keys.length} field(s): \`${keys.slice(0, 6).join('`, `')}${keys.length > 6 ? '`, …' : '`'}`);
+							lines.push(
+								'',
+								`### Response`,
+								`Returned an object with ${keys.length} field(s): \`${keys.slice(0, 6).join('`, `')}${keys.length > 6 ? '`, …' : '`'}`
+							);
 						}
 					}
-					lines.push('', '---', '> 💡 **Related commands:** `show api calls` (last 5 with full data) · `decode jwt` (paste a token to inspect claims) · `what is mcp` (learn the protocol)');
+					lines.push(
+						'',
+						'---',
+						'> 💡 **Related commands:** `show api calls` (last 5 with full data) · `decode jwt` (paste a token to inspect claims) · `what is mcp` (learn the protocol)'
+					);
 					return lines.join('\n');
 				})();
 				setMessages((prev) => [
@@ -1837,10 +1902,11 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 								onClose={() => {
 									setShowSidePanel(false);
 									setAdminLoginUsernamePasswordOnly(false);
+									setShowUserLogin(false);
 								}}
 								embedded
 								onClear={handleClear}
-								requestedTab={useAdminLogin ? 'admin' : undefined}
+								requestedTab={useAdminLogin ? 'admin' : showUserLogin ? 'user-login' : undefined}
 								adminLoginUsernamePasswordOnly={adminLoginUsernamePasswordOnly}
 								adminToken={adminToken}
 								adminTokenExpiry={adminTokenExpiry}
@@ -1933,8 +1999,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 														_workerTokenStatus === null
 															? 'checking'
 															: includeLive &&
-																	_workerTokenStatus.hasCredentials &&
-																	_workerTokenStatus.tokenValid
+																  _workerTokenStatus.hasCredentials &&
+																  _workerTokenStatus.tokenValid
 																? 'ok'
 																: 'off'
 													}
@@ -1942,8 +2008,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 														_workerTokenStatus === null
 															? 'Checking MCP…'
 															: includeLive &&
-																	_workerTokenStatus.hasCredentials &&
-																	_workerTokenStatus.tokenValid
+																  _workerTokenStatus.hasCredentials &&
+																  _workerTokenStatus.tokenValid
 																? 'MCP connected — Live PingOne data ready'
 																: !includeLive
 																	? 'MCP disabled — turn on Live toggle'
@@ -2510,8 +2576,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 													_workerTokenStatus === null
 														? 'checking'
 														: includeLive &&
-																_workerTokenStatus.hasCredentials &&
-																_workerTokenStatus.tokenValid
+															  _workerTokenStatus.hasCredentials &&
+															  _workerTokenStatus.tokenValid
 															? 'ok'
 															: 'off'
 												}
@@ -2519,8 +2585,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 													_workerTokenStatus === null
 														? 'Checking MCP…'
 														: includeLive &&
-																_workerTokenStatus.hasCredentials &&
-																_workerTokenStatus.tokenValid
+															  _workerTokenStatus.hasCredentials &&
+															  _workerTokenStatus.tokenValid
 															? 'MCP connected — Live PingOne data ready'
 															: !includeLive
 																? 'MCP disabled — turn on Live toggle'
@@ -2922,9 +2988,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					onClose={() => {
 						setShowSidePanel(false);
 						setAdminLoginUsernamePasswordOnly(false);
+						setShowUserLogin(false);
 					}}
 					onClear={handleClear}
-					requestedTab={useAdminLogin ? 'admin' : undefined}
+					requestedTab={useAdminLogin ? 'admin' : showUserLogin ? 'user-login' : undefined}
 					adminLoginUsernamePasswordOnly={adminLoginUsernamePasswordOnly}
 					adminToken={adminToken}
 					adminTokenExpiry={adminTokenExpiry}
