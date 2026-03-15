@@ -48,16 +48,19 @@ export function registerGroupTools(server: McpServer, logger: Logger) {
 		'pingone_list_groups',
 		{
 			description:
-				'List PingOne groups in an environment. Supports optional SCIM filter (e.g. `name eq "Admins"`) and limit. Worker token requires p1:read:group scope.',
+				'List PingOne groups in an environment. Supports optional SCIM filter (e.g. `name eq "Admins"`), limit, and pagination via nextPageUrl. Worker token requires p1:read:group scope.',
 			inputSchema: {
 				...groupBaseShape,
 				filter: z.string().trim().optional().describe('SCIM filter, e.g. name eq "Admins"'),
 				limit: z.number().int().min(1).max(200).optional().describe('Max groups to return (default 100).'),
+				nextPageUrl: z.string().trim().optional().describe('Next page URL from previous response. Omit for first page.'),
 			},
 			outputSchema: {
 				success: z.boolean(),
 				groups: z.array(z.record(z.unknown())).optional(),
 				count: z.number().optional(),
+				size: z.number().optional(),
+				nextPageUrl: z.string().optional(),
 				raw: z.unknown().optional(),
 				error: z.object({ code: z.string().optional(), message: z.string() }).optional(),
 			},
@@ -66,12 +69,14 @@ export function registerGroupTools(server: McpServer, logger: Logger) {
 			logger.info('Listing PingOne groups', { environmentId: args.environmentId, filter: args.filter });
 			try {
 				const result = await listGroupsApi(args);
+				const size = result.groups?.length ?? 0;
+				const paginationNote = result.nextPageUrl ? ` More pages available — pass nextPageUrl for the next page.` : '';
 				return {
 					content: [
 						{
 							type: 'text' as const,
 							text: result.success
-								? `Retrieved ${result.count ?? 0} group(s).`
+								? `Retrieved ${size} group(s) on this page.${paginationNote}`
 								: `Failed: ${result.error?.message}`,
 						},
 						...(result.success

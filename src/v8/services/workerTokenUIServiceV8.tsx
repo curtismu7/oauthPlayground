@@ -17,6 +17,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiLoader, FiTrash2 } from '../../icons';
 import { logger } from '../../utils/logger';
 import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U';
@@ -347,12 +348,9 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				setIsGettingWorkerToken
 			);
 		} catch (error) {
-			logger.error('[WorkerTokenUIServiceV8] Error opening worker token modal:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to open worker token modal',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'open-worker-token-modal',
+				component: 'WorkerTokenUIServiceV8',
 			});
 		} finally {
 			setIsGettingWorkerToken(false);
@@ -376,12 +374,9 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error('[WorkerTokenUIServiceV8] Error clearing worker token:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to clear worker token',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'clear-worker-token',
+				component: 'WorkerTokenUIServiceV8',
 			});
 		}
 	}, []);
@@ -627,6 +622,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 						type="checkbox"
 						checked={silentApiRetrieval}
 						onChange={handleSilentRetrievalChange}
+						title="Automatically fetch worker token in background without showing modals"
 					/>
 					<SettingContent>
 						<SettingTitle>Silent API Token Retrieval</SettingTitle>
@@ -641,6 +637,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 						type="checkbox"
 						checked={showTokenAtEnd}
 						onChange={handleShowTokenAtEndChange}
+						title="Display the generated worker token in a modal after successful retrieval"
 					/>
 					<SettingContent>
 						<SettingTitle>Show Token After Generation</SettingTitle>

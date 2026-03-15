@@ -10,7 +10,7 @@ function renderPage() {
 	return render(
 		<BrowserRouter>
 			<MockMcpAgentFlowPage />
-		</BrowserRouter>,
+		</BrowserRouter>
 	);
 }
 

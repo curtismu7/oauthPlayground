@@ -18,11 +18,7 @@ export const protectFormFromExtensions = (
 	formElement: HTMLFormElement,
 	options: FormProtectionOptions = {}
 ): void => {
-	const {
-		disableAutofill = true,
-		randomizeNames = false,
-		disableAutocomplete = true,
-	} = options;
+	const { disableAutofill = true, randomizeNames = false, disableAutocomplete = true } = options;
 
 	// Protect the form itself
 	if (disableAutofill) {
@@ -68,7 +64,7 @@ export const createProtectedInput = (
 ): HTMLInputElement => {
 	const input = document.createElement('input');
 	input.type = type;
-	
+
 	if (placeholder) {
 		input.placeholder = placeholder;
 	}
@@ -97,11 +93,11 @@ export const ProtectedInputProps = {
 	disabled: false,
 	readOnly: false,
 	required: false,
-	
+
 	// Extension protection props
 	autoComplete: 'off' as const,
 	autoFill: 'off' as const,
-	
+
 	// Data attributes for extension protection
 	'data-extension-protected': 'true',
 };

@@ -73,8 +73,8 @@ const ExternalLink = styled.a`
 `;
 
 const pageConfig = {
-	flowType: 'documentation' as const,
-	theme: 'blue' as const,
+	flowType: 'pingone' as const,
+	theme: 'red' as const,
 	maxWidth: '1200px',
 	showHeader: false, // We handle the header manually with FlowHeader
 	showFooter: false,
@@ -89,7 +89,7 @@ const OIDCSpecs = () => {
 				<FlowHeader
 					flowId="oidc-specs"
 					customConfig={{
-						flowType: 'oidc',
+						flowType: 'pingone',
 						title: 'OIDC Specs',
 						subtitle:
 							'Official OpenID Connect specifications and related standards from the OpenID Foundation. Access core specs, security considerations, and implementation guides.',
@@ -102,8 +102,20 @@ const OIDCSpecs = () => {
 					subtitle="Essential OAuth 2.0 and OpenID Connect specifications"
 					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
+					theme="ping"
 				>
 					<LinkGrid>
+						<ExternalLink href="https://oauth.net/specs/" target="_blank" rel="noopener noreferrer">
+							<h3>
+								OAuth Working Group Specs
+								<span style={{ fontSize: '16px' }}>🔗</span>
+							</h3>
+							<p>
+								Complete index of OAuth 2.0, OAuth 2.1, RFCs, and active drafts from the OAuth
+								Working Group. Essential reference for finding any OAuth specification.
+							</p>
+						</ExternalLink>
+
 						<ExternalLink
 							href="https://openid.net/specs/openid-connect-core-1_0.html"
 							target="_blank"
@@ -152,6 +164,7 @@ const OIDCSpecs = () => {
 					subtitle="Authentication and authorization specifications for OAuth 2.0 and OpenID Connect"
 					icon={<i className="bi bi-question-circle"></i>}
 					defaultCollapsed={false}
+					theme="ping"
 				>
 					<LinkGrid>
 						<ExternalLink
@@ -205,6 +218,7 @@ const OIDCSpecs = () => {
 					subtitle="User information and identity management specifications"
 					icon={<span>👥</span>}
 					defaultCollapsed={false}
+					theme="ping"
 				>
 					<LinkGrid>
 						<ExternalLink
@@ -255,6 +269,7 @@ const OIDCSpecs = () => {
 					subtitle="Security considerations and best practices for OpenID Connect implementation"
 					icon={<span>🛡️</span>}
 					defaultCollapsed={false}
+					theme="ping"
 				>
 					<SpecCard title="Security Considerations">
 						<p>When implementing OpenID Connect, consider these security best practices:</p>

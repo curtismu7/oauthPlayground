@@ -1869,8 +1869,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									message: 'Opening worker token settings…',
 									duration: 3000,
 								});
-								const { handleShowWorkerTokenModal } =
-									await import('@/v8/utils/workerTokenModalHelperV8');
+								const { handleShowWorkerTokenModal } = await import(
+									'@/v8/utils/workerTokenModalHelperV8'
+								);
 								await handleShowWorkerTokenModal(
 									setShowWorkerTokenModal,
 									setWorkerTokenWarning,
@@ -2767,8 +2768,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							<button
 								type="button"
 								onClick={async () => {
-									const { handleShowWorkerTokenModal } =
-										await import('@/v8/utils/workerTokenModalHelperV8');
+									const { handleShowWorkerTokenModal } = await import(
+										'@/v8/utils/workerTokenModalHelperV8'
+									);
 									await handleShowWorkerTokenModal(
 										() => {}, // setShowModal - not needed here
 										undefined, // setTokenStatus - not needed here
@@ -2821,8 +2823,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
 											try {
-												const { handleShowWorkerTokenModal } =
-													await import('@/v8/utils/workerTokenModalHelperV8');
+												const { handleShowWorkerTokenModal } = await import(
+													'@/v8/utils/workerTokenModalHelperV8'
+												);
 												// Attempt silent retrieval (will show modal if credentials are missing)
 												await handleShowWorkerTokenModal(
 													() => {}, // setShowModal - not needed here

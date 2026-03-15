@@ -1,0 +1,157 @@
+version: '3.8'
+
+services:
+  # Banking API Server
+  banking-api-server:
+    build:
+      context: ./banking_api_server
+      dockerfile: Dockerfile
+    container_name: banking-api-server
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+    env_file:
+      - ./banking_api_server/.env
+    volumes:
+      - ./banking_api_server/data:/app/data
+    restart: unless-stopped
+    networks:
+      - banking-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Banking API UI (React Frontend)
+  banking-api-ui:
+    build:
+      context: ./banking_api_ui
+      dockerfile: Dockerfile
+    container_name: banking-api-ui
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+    depends_on:
+      - banking-api-server
+    restart: unless-stopped
+    networks:
+      - banking-network
+
+  # Banking MCP Server
+  banking-mcp-server:
+    build:
+      context: ./banking_mcp_server
+      dockerfile: Dockerfile
+      target: builder
+    container_name: banking-mcp-server
+    ports:
+      - "8080:8100"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - ./banking_mcp_server/.env.development
+    volumes:
+      - ./banking_mcp_server/dev-data:/app/dev-data
+      - ./banking_mcp_server/dev-logs:/app/dev-logs
+    restart: unless-stopped
+    networks:
+      - banking-network
+    command: ["npm", "run", "start:dev"]
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "node"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # LangChain Agent Backend
+  langchain-agent-backend:
+    build:
+      context: ./langchain_agent
+      dockerfile: Dockerfile
+    container_name: langchain-agent-backend
+    ports:
+      - "8081:8081"
+      - "8082:8082"
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - LOG_LEVEL=INFO
+    env_file:
+      - ./langchain_agent/.env
+    volumes:
+      - ./langchain_agent/logs:/app/logs
+      - ./langchain_agent/data:/app/data
+      - ./langchain_agent/config:/app/config
+      - langchain-visualizations:/app/visualizations
+    depends_on:
+      - banking-mcp-server
+    restart: unless-stopped
+    networks:
+      - banking-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # LangChain Agent Frontend
+  langchain-agent-frontend:
+    build:
+      context: ./langchain_agent/frontend
+      dockerfile: Dockerfile
+    container_name: langchain-agent-frontend
+    ports:
+      - "3002:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8081
+    depends_on:
+      - langchain-agent-backend
+    restart: unless-stopped
+    networks:
+      - banking-network
+
+  # LangChain Trace Server
+  langchain-trace-server:
+    build:
+      context: ./langchain_agent
+      dockerfile: Dockerfile.trace
+    container_name: langchain-trace-server
+    ports:
+      - "8090:8090"
+    environment:
+      - ENVIRONMENT=development
+    env_file:
+      - ./langchain_agent/.env
+    volumes:
+      - ./langchain_agent/logs:/app/logs
+      - ./langchain_agent/data:/app/data
+      - langchain-visualizations:/app/visualizations
+    restart: unless-stopped
+    networks:
+      - banking-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  banking-network:
+    driver: bridge
+
+volumes:
+  banking-data:
+  banking-logs:
+  mcp-data:
+  mcp-logs:
+  langchain-data:
+  langchain-logs:
+  langchain-visualizations:

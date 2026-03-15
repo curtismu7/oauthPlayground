@@ -1,16 +1,31 @@
 // api/pingone/[...path].js
 // Vercel Serverless Function - PingOne API proxy
 
+// Origins allowed to make credentialed cross-origin requests to this proxy.
+// Add your Vercel deployment URL(s) here.
+const ALLOWED_ORIGINS = [
+	'https://api.pingdemo.com',
+	'http://localhost:3000',
+	'http://localhost:3001',
+	'https://localhost:3000',
+	'https://localhost:3001',
+];
+
 export default async function handler(req, res) {
-	// Set CORS headers
-	res.setHeader('Access-Control-Allow-Credentials', 'true');
-	res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+	const requestOrigin = req.headers.origin || '';
+	const isAllowed = ALLOWED_ORIGINS.includes(requestOrigin);
+
+	// Set CORS headers — reflect origin only for known-good origins; never allow wildcard + credentials
+	if (isAllowed) {
+		res.setHeader('Access-Control-Allow-Credentials', 'true');
+		res.setHeader('Access-Control-Allow-Origin', requestOrigin);
+	}
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
 	// Handle preflight
 	if (req.method === 'OPTIONS') {
-		return res.status(200).end();
+		return res.status(isAllowed ? 200 : 403).end();
 	}
 
 	try {

@@ -8,6 +8,7 @@
  * across all MFA and OAuth flows.
  */
 
+import { getErrorMessage } from '../../utils/errorMessageUtils';
 import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[⚠️ ERROR-HANDLING-UTILS-V8]';
@@ -21,36 +22,10 @@ export interface ErrorDetails {
 }
 
 /**
- * Extract error message from various error types
- *
- * @param error - Error object (Error, string, or unknown)
- * @returns Human-readable error message
+ * Extract error message from various error types.
+ * Re-exports getErrorMessage for backward compatibility.
  */
-export function extractErrorMessage(error: unknown): string {
-	if (error instanceof Error) {
-		return error.message;
-	}
-
-	if (typeof error === 'string') {
-		return error;
-	}
-
-	if (error && typeof error === 'object') {
-		// Try common error message properties
-		const errorObj = error as Record<string, unknown>;
-		if (errorObj.message && typeof errorObj.message === 'string') {
-			return errorObj.message;
-		}
-		if (errorObj.error && typeof errorObj.error === 'string') {
-			return errorObj.error;
-		}
-		if (errorObj.error_description && typeof errorObj.error_description === 'string') {
-			return errorObj.error_description;
-		}
-	}
-
-	return 'An unknown error occurred';
-}
+export const extractErrorMessage = getErrorMessage;
 
 /**
  * Extract error code from error object

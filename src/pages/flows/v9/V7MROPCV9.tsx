@@ -197,6 +197,10 @@ export const V7MROPCV9: React.FC<Props> = ({
 		setIntrospectionResponse(res);
 	}
 
+	// Track if flow has been executed (for reset button behavior)
+	const hasResults = tokenResponse || userinfoResponse || introspectionResponse;
+	const currentStep = hasResults ? 1 : 0;
+
 	function handleReset() {
 		setTokenResponse(null);
 		setUserinfoResponse(null);
@@ -219,7 +223,7 @@ export const V7MROPCV9: React.FC<Props> = ({
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
 				<V9FlowRestartButton
 					onRestart={handleReset}
-					currentStep={0}
+					currentStep={currentStep}
 					totalSteps={1}
 					position="header"
 				/>
@@ -516,8 +520,8 @@ export const V7MROPCV9: React.FC<Props> = ({
 									color: '#92400e',
 								}}
 							>
-								<strong>⚠️ Security Note:</strong> In production, passwords and client secrets
-								should never be displayed or logged. This is shown for educational purposes only.
+								<strong>⚠️ Security Note:</strong> In production, passwords and client secrets should
+								never be displayed or logged. This is shown for educational purposes only.
 							</div>
 						</div>
 					)}

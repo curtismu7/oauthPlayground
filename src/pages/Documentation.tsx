@@ -2,7 +2,20 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+
+const pageConfig = {
+	flowType: 'pingone' as const,
+	theme: 'red' as const,
+	maxWidth: '1200px',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+};
+
+const { PageContainer, ContentWrapper, PageHeader } =
+	PageLayoutService.createPageLayout(pageConfig);
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
@@ -236,319 +249,276 @@ const Documentation = () => {
 	usePageScroll({ pageName: 'PingOne SSO Documentation', force: true });
 
 	return (
-		<div
-			style={{
-				maxWidth: '1200px',
-				margin: '0 auto',
-				padding: '2rem',
-				background: V9_COLORS.BG.GRAY_LIGHT,
-				minHeight: '100vh',
-			}}
-		>
-			{/* Header with Unified Flow Design */}
-			<div
-				style={{
-					marginBottom: '32px',
-					padding: '24px',
-					background: `linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.PRIMARY.BLUE} 100%)`,
-					borderRadius: '12px',
-					color: V9_COLORS.TEXT.GRAY_DARK,
-					position: 'relative',
-					overflow: 'hidden',
-				}}
-			>
-				{/* Decorative background pattern */}
-				<div
-					style={{
-						position: 'absolute',
-						top: 0,
-						right: 0,
-						width: '300px',
-						height: '100%',
-						background:
-							'radial-gradient(circle at top right, rgba(255,255,255,0.3) 0%, transparent 70%)',
-						pointerEvents: 'none',
-					}}
-				/>
-
-				<h1
-					style={{
-						fontSize: '32px',
-						fontWeight: '700',
-						margin: '0 0 8px 0',
-						position: 'relative',
-						zIndex: 1,
-					}}
-				>
-					📚 PingOne SSO Documentation
-				</h1>
-				<p
-					style={{
-						fontSize: '16px',
-						margin: 0,
-						opacity: 0.9,
-						position: 'relative',
-						zIndex: 1,
-					}}
-				>
-					Complete guide to implementing Single Sign-On with PingOne Identity Platform
-				</p>
-			</div>
-
-			<div style={{ marginBottom: '24px' }}>
-				<CollapsibleHeader
-					title="Quick Start"
-					subtitle="Jump into interactive tutorials and start learning PingOne SSO implementation"
-					icon={<MDIIcon icon="FiPlay" />}
-					defaultCollapsed={false}
-				>
-					<QuickStartBanner>
-						<h2>Ready to Implement PingOne SSO?</h2>
-						<p>
-							Jump into our interactive tutorials and start learning PingOne SSO implementation with
-							hands-on examples
-						</p>
-						<QuickStartButton to="/tutorials">
-							<MDIIcon icon="FiPlay" size={16} />
-							Start PingOne SSO Tutorials
-						</QuickStartButton>
-					</QuickStartBanner>
-				</CollapsibleHeader>
-			</div>
-
-			<div style={{ marginBottom: '24px' }}>
-				<CollapsibleHeader
-					title="PingOne SSO Overview"
-					subtitle="Complete guide to implementing Single Sign-On with PingOne Identity Platform"
-					icon={<MDIIcon icon="FiBookOpen" />}
-					defaultCollapsed={false}
-				>
-					<p>
-						This documentation provides comprehensive guidance for implementing Single Sign-On (SSO)
-						with PingOne Identity Platform. Whether you're integrating with web applications, mobile
-						apps, or enterprise systems, you'll find the resources you need to build secure,
-						standards-compliant SSO solutions.
-					</p>
-
-					<div
-						style={{
-							background: V9_COLORS.BG.GRAY_LIGHT,
-							border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
-							borderRadius: '8px',
-							padding: '24px',
-							marginTop: '1rem',
-						}}
+		<PageContainer>
+			{PageHeader ? (
+				<PageHeader>
+					<h1>📚 PingOne SSO Documentation</h1>
+					<p>Complete guide to implementing Single Sign-On with PingOne Identity Platform</p>
+				</PageHeader>
+			) : null}
+			<ContentWrapper>
+				<div style={{ marginBottom: '24px' }}>
+					<CollapsibleHeader
+						title="Quick Start"
+						subtitle="Jump into interactive tutorials and start learning PingOne SSO implementation"
+						icon={<MDIIcon icon="FiPlay" />}
+						defaultCollapsed={false}
+						theme="ping"
 					>
-						<h3 style={{ marginTop: 0, color: V9_COLORS.TEXT.GRAY_DARK }}>
-							PingOne SSO Implementation Guide:
-						</h3>
-						<ul style={{ marginBottom: 0, color: V9_COLORS.PRIMARY.BLUE }}>
-							<li>
-								<strong>PingOne Environment Setup:</strong> Configure your PingOne environment and
-								applications
-							</li>
-							<li>
-								<strong>SSO Flow Implementation:</strong> Authorization Code Flow with PKCE for
-								secure SSO
-							</li>
-							<li>
-								<strong>User Authentication:</strong> PingOne login flows and user management
-							</li>
-							<li>
-								<strong>Session Management:</strong> Token handling and refresh strategies
-							</li>
-							<li>
-								<strong>Multi-Factor Authentication:</strong> PingOne MFA integration and policies
-							</li>
-							<li>
-								<strong>Enterprise Integration:</strong> SAML, LDAP, and directory services
-							</li>
-							<li>
-								<strong>Security Best Practices:</strong> PingOne-specific security recommendations
-							</li>
-							<li>
-								<strong>Troubleshooting:</strong> Common PingOne SSO issues and solutions
-							</li>
-						</ul>
-					</div>
-				</CollapsibleHeader>
-			</div>
-
-			<div style={{ marginBottom: '24px' }}>
-				<FeatureHighlight>
-					<FeatureCard>
-						<div className="icon tutorials">
-							<MDIIcon icon="FiPlay" />
-						</div>
-						<h3>Interactive Tutorials</h3>
-						<p>Step-by-step guided learning with real examples and immediate feedback</p>
-						<FeatureButton to="/tutorials">Try Tutorials</FeatureButton>
-					</FeatureCard>
-
-					<FeatureCard>
-						<div className="icon flows">
-							<MDIIcon icon="FiCode" />
-						</div>
-						<h3>OAuth Flows</h3>
-						<p>Explore different OAuth 2.0 grant types with live implementations</p>
-						<FeatureButton to="/flows">View Flows</FeatureButton>
-					</FeatureCard>
-
-					<FeatureCard>
-						<div className="icon security">
-							<MDIIcon icon="FiShield" />
-						</div>
-						<h3>Security Guide</h3>
-						<p>Learn security best practices and common pitfalls to avoid</p>
-						<FeatureButton to="/documentation#security">Security Tips</FeatureButton>
-					</FeatureCard>
-
-					<FeatureCard>
-						<div className="icon tools">
-							<MDIIcon icon="FiTool" />
-						</div>
-						<h3>Developer Tools</h3>
-						<p>JWT decoder, PKCE generator, and other useful OAuth utilities</p>
-						<FeatureButton to="/tutorials?tab=utilities">Use Tools</FeatureButton>
-					</FeatureCard>
-				</FeatureHighlight>
-			</div>
-
-			<div style={{ marginBottom: '24px' }}>
-				<CollapsibleHeader
-					title="PingOne SSO Getting Started"
-					subtitle="Essential resources for implementing PingOne Single Sign-On"
-					icon={<MDIIcon icon="FiSettings" />}
-					defaultCollapsed={false}
-				>
-					<p>
-						If you're new to PingOne SSO implementation, start with these resources to understand
-						the PingOne platform and how to integrate SSO effectively.
-					</p>
-
-					<CardGrid>
-						<DocCard to="/documentation/pingone-basics">
-							<h3>
-								PingOne SSO Basics <MDIIcon icon="FiExternalLink" size={16} />
-							</h3>
+						<QuickStartBanner>
+							<h2>Ready to Implement PingOne SSO?</h2>
 							<p>
-								Learn the fundamental concepts of PingOne SSO, including environments, applications,
-								and user management.
+								Jump into our interactive tutorials and start learning PingOne SSO implementation
+								with hands-on examples
 							</p>
-						</DocCard>
+							<QuickStartButton to="/tutorials">
+								<MDIIcon icon="FiPlay" size={16} />
+								Start PingOne SSO Tutorials
+							</QuickStartButton>
+						</QuickStartBanner>
+					</CollapsibleHeader>
+				</div>
 
-						<DocCard to="/documentation/pingone-oidc">
-							<h3>
-								PingOne OpenID Connect <MDIIcon icon="FiExternalLink" size={16} />
-							</h3>
-							<p>
-								Understand how PingOne implements OpenID Connect for enterprise SSO and user
-								authentication.
-							</p>
-						</DocCard>
-
-						<DocCard to="/documentation/pingone-setup">
-							<h3>
-								PingOne Environment Setup <MDIIcon icon="FiExternalLink" size={16} />
-							</h3>
-							<p>
-								Step-by-step instructions for configuring your PingOne environment, applications,
-								and SSO policies.
-							</p>
-						</DocCard>
-					</CardGrid>
-				</CollapsibleHeader>
-			</div>
-
-			<div style={{ marginBottom: '24px' }}>
-				<CollapsibleHeader
-					title="PingOne SSO Flows"
-					subtitle="OAuth 2.0 and OpenID Connect flows optimized for PingOne SSO implementation"
-					icon={<MDIIcon icon="FiCode" />}
-					defaultCollapsed={false}
-				>
-					<p>
-						PingOne supports all standard OAuth 2.0 and OpenID Connect flows, each optimized for
-						different SSO scenarios. Choose the right flow based on your application type and
-						security requirements.
-					</p>
-
-					<CardGrid>
-						<DocCard to="/flows/oauth-authorization-code-v5">
-							<h3>PingOne Authorization Code SSO</h3>
-							<p>
-								The most secure PingOne SSO flow for server-side applications with confidential
-								client credentials.
-							</p>
-						</DocCard>
-
-						<DocCard to="/flows/oidc-authorization-code-v5">
-							<h3>PingOne OIDC SSO Flow</h3>
-							<p>
-								Enhanced PingOne SSO with OpenID Connect for user authentication and identity
-								information.
-							</p>
-						</DocCard>
-
-						<DocCard to="/flows/client-credentials-v5">
-							<h3>PingOne Service-to-Service</h3>
-							<p>PingOne machine-to-machine authentication for backend services and API access.</p>
-						</DocCard>
-
-						<DocCard to="/flows/oidc-device-authorization-v6">
-							<h3>PingOne Device SSO</h3>
-							<p>
-								PingOne SSO for devices with limited input capabilities like smart TVs and IoT
-								devices.
-							</p>
-						</DocCard>
-					</CardGrid>
-				</CollapsibleHeader>
-			</div>
-
-			<div style={{ marginBottom: '24px' }}>
-				<CollapsibleHeader
-					title="PingOne SSO Security"
-					subtitle="Security best practices and recommendations for PingOne SSO implementation"
-					icon={<MDIIcon icon="FiLock" />}
-					defaultCollapsed={false}
-				>
-					<p>
-						Implementing PingOne SSO securely requires following PingOne-specific best practices to
-						protect against common vulnerabilities and ensure enterprise-grade security.
-					</p>
-
-					<div
-						style={{
-							background: V9_COLORS.BG.ERROR,
-							border: `1px solid ${V9_COLORS.BG.ERROR_BORDER}`,
-							borderRadius: '8px',
-							padding: '16px',
-							marginBottom: '1.5rem',
-						}}
+				<div style={{ marginBottom: '24px' }}>
+					<CollapsibleHeader
+						title="PingOne SSO Overview"
+						subtitle="Complete guide to implementing Single Sign-On with PingOne Identity Platform"
+						icon={<MDIIcon icon="FiBookOpen" />}
+						defaultCollapsed={false}
+						theme="ping"
 					>
-						<p style={{ margin: 0, color: V9_COLORS.PRIMARY.RED, fontWeight: '500' }}>
-							<strong> Security Warning:</strong> OAuth 2.0 and OpenID Connect handle sensitive
-							authentication data. Always follow these security guidelines to protect your users and
-							applications.
-						</p>
-					</div>
-
-					<div style={{ marginTop: '1.5rem' }}>
-						<h3>Always Use HTTPS</h3>
 						<p>
-							All OAuth 2.0 and OpenID Connect endpoints must be accessed over HTTPS to protect
-							tokens and sensitive data in transit.
+							This documentation provides comprehensive guidance for implementing Single Sign-On
+							(SSO) with PingOne Identity Platform. Whether you're integrating with web
+							applications, mobile apps, or enterprise systems, you'll find the resources you need
+							to build secure, standards-compliant SSO solutions.
 						</p>
 
-						<h3>Validate ID Tokens</h3>
+						<div
+							style={{
+								background: V9_COLORS.BG.GRAY_LIGHT,
+								border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+								borderRadius: '8px',
+								padding: '24px',
+								marginTop: '1rem',
+							}}
+						>
+							<h3 style={{ marginTop: 0, color: V9_COLORS.TEXT.GRAY_DARK }}>
+								PingOne SSO Implementation Guide:
+							</h3>
+							<ul style={{ marginBottom: 0, color: V9_COLORS.PRIMARY.BLUE }}>
+								<li>
+									<strong>PingOne Environment Setup:</strong> Configure your PingOne environment and
+									applications
+								</li>
+								<li>
+									<strong>SSO Flow Implementation:</strong> Authorization Code Flow with PKCE for
+									secure SSO
+								</li>
+								<li>
+									<strong>User Authentication:</strong> PingOne login flows and user management
+								</li>
+								<li>
+									<strong>Session Management:</strong> Token handling and refresh strategies
+								</li>
+								<li>
+									<strong>Multi-Factor Authentication:</strong> PingOne MFA integration and policies
+								</li>
+								<li>
+									<strong>Enterprise Integration:</strong> SAML, LDAP, and directory services
+								</li>
+								<li>
+									<strong>Security Best Practices:</strong> PingOne-specific security
+									recommendations
+								</li>
+								<li>
+									<strong>Troubleshooting:</strong> Common PingOne SSO issues and solutions
+								</li>
+							</ul>
+						</div>
+					</CollapsibleHeader>
+				</div>
+
+				<div style={{ marginBottom: '24px' }}>
+					<FeatureHighlight>
+						<FeatureCard>
+							<div className="icon tutorials">
+								<MDIIcon icon="FiPlay" />
+							</div>
+							<h3>Interactive Tutorials</h3>
+							<p>Step-by-step guided learning with real examples and immediate feedback</p>
+							<FeatureButton to="/tutorials">Try Tutorials</FeatureButton>
+						</FeatureCard>
+
+						<FeatureCard>
+							<div className="icon flows">
+								<MDIIcon icon="FiCode" />
+							</div>
+							<h3>OAuth Flows</h3>
+							<p>Explore different OAuth 2.0 grant types with live implementations</p>
+							<FeatureButton to="/flows">View Flows</FeatureButton>
+						</FeatureCard>
+
+						<FeatureCard>
+							<div className="icon security">
+								<MDIIcon icon="FiShield" />
+							</div>
+							<h3>Security Guide</h3>
+							<p>Learn security best practices and common pitfalls to avoid</p>
+							<FeatureButton to="/documentation#security">Security Tips</FeatureButton>
+						</FeatureCard>
+
+						<FeatureCard>
+							<div className="icon tools">
+								<MDIIcon icon="FiTool" />
+							</div>
+							<h3>Developer Tools</h3>
+							<p>JWT decoder, PKCE generator, and other useful OAuth utilities</p>
+							<FeatureButton to="/tutorials?tab=utilities">Use Tools</FeatureButton>
+						</FeatureCard>
+					</FeatureHighlight>
+				</div>
+
+				<div style={{ marginBottom: '24px' }}>
+					<CollapsibleHeader
+						title="PingOne SSO Getting Started"
+						subtitle="Essential resources for implementing PingOne Single Sign-On"
+						icon={<MDIIcon icon="FiSettings" />}
+						defaultCollapsed={false}
+						theme="ping"
+					>
 						<p>
-							Always validate ID tokens to ensure they are properly signed, not expired, and issued
-							by a trusted identity provider.
+							If you're new to PingOne SSO implementation, start with these resources to understand
+							the PingOne platform and how to integrate SSO effectively.
 						</p>
 
-						<CodeBlock>
-							<code>{`// Example ID token validation
+						<CardGrid>
+							<DocCard to="/documentation/pingone-basics">
+								<h3>
+									PingOne SSO Basics <MDIIcon icon="FiExternalLink" size={16} />
+								</h3>
+								<p>
+									Learn the fundamental concepts of PingOne SSO, including environments,
+									applications, and user management.
+								</p>
+							</DocCard>
+
+							<DocCard to="/documentation/pingone-oidc">
+								<h3>
+									PingOne OpenID Connect <MDIIcon icon="FiExternalLink" size={16} />
+								</h3>
+								<p>
+									Understand how PingOne implements OpenID Connect for enterprise SSO and user
+									authentication.
+								</p>
+							</DocCard>
+
+							<DocCard to="/documentation/pingone-setup">
+								<h3>
+									PingOne Environment Setup <MDIIcon icon="FiExternalLink" size={16} />
+								</h3>
+								<p>
+									Step-by-step instructions for configuring your PingOne environment, applications,
+									and SSO policies.
+								</p>
+							</DocCard>
+						</CardGrid>
+					</CollapsibleHeader>
+				</div>
+
+				<div style={{ marginBottom: '24px' }}>
+					<CollapsibleHeader
+						title="PingOne SSO Flows"
+						subtitle="OAuth 2.0 and OpenID Connect flows optimized for PingOne SSO implementation"
+						icon={<MDIIcon icon="FiCode" />}
+						defaultCollapsed={false}
+						theme="ping"
+					>
+						<p>
+							PingOne supports all standard OAuth 2.0 and OpenID Connect flows, each optimized for
+							different SSO scenarios. Choose the right flow based on your application type and
+							security requirements.
+						</p>
+
+						<CardGrid>
+							<DocCard to="/flows/oauth-authorization-code-v5">
+								<h3>PingOne Authorization Code SSO</h3>
+								<p>
+									The most secure PingOne SSO flow for server-side applications with confidential
+									client credentials.
+								</p>
+							</DocCard>
+
+							<DocCard to="/flows/oidc-authorization-code-v5">
+								<h3>PingOne OIDC SSO Flow</h3>
+								<p>
+									Enhanced PingOne SSO with OpenID Connect for user authentication and identity
+									information.
+								</p>
+							</DocCard>
+
+							<DocCard to="/flows/client-credentials-v5">
+								<h3>PingOne Service-to-Service</h3>
+								<p>
+									PingOne machine-to-machine authentication for backend services and API access.
+								</p>
+							</DocCard>
+
+							<DocCard to="/flows/oidc-device-authorization-v6">
+								<h3>PingOne Device SSO</h3>
+								<p>
+									PingOne SSO for devices with limited input capabilities like smart TVs and IoT
+									devices.
+								</p>
+							</DocCard>
+						</CardGrid>
+					</CollapsibleHeader>
+				</div>
+
+				<div style={{ marginBottom: '24px' }}>
+					<CollapsibleHeader
+						title="PingOne SSO Security"
+						subtitle="Security best practices and recommendations for PingOne SSO implementation"
+						icon={<MDIIcon icon="FiLock" />}
+						defaultCollapsed={false}
+						theme="ping"
+					>
+						<p>
+							Implementing PingOne SSO securely requires following PingOne-specific best practices
+							to protect against common vulnerabilities and ensure enterprise-grade security.
+						</p>
+
+						<div
+							style={{
+								background: V9_COLORS.BG.ERROR,
+								border: `1px solid ${V9_COLORS.BG.ERROR_BORDER}`,
+								borderRadius: '8px',
+								padding: '16px',
+								marginBottom: '1.5rem',
+							}}
+						>
+							<p style={{ margin: 0, color: V9_COLORS.PRIMARY.RED, fontWeight: '500' }}>
+								<strong> Security Warning:</strong> OAuth 2.0 and OpenID Connect handle sensitive
+								authentication data. Always follow these security guidelines to protect your users
+								and applications.
+							</p>
+						</div>
+
+						<div style={{ marginTop: '1.5rem' }}>
+							<h3>Always Use HTTPS</h3>
+							<p>
+								All OAuth 2.0 and OpenID Connect endpoints must be accessed over HTTPS to protect
+								tokens and sensitive data in transit.
+							</p>
+
+							<h3>Validate ID Tokens</h3>
+							<p>
+								Always validate ID tokens to ensure they are properly signed, not expired, and
+								issued by a trusted identity provider.
+							</p>
+
+							<CodeBlock>
+								<code>{`// Example ID token validation
 const validateIdToken = (idToken, clientId, issuer) => {
   // Verify the token signature
   // Check the token expiration (exp claim)
@@ -556,152 +526,175 @@ const validateIdToken = (idToken, clientId, issuer) => {
   // Verify the audience (aud claim)
   // Check the nonce (if used)
 };`}</code>
-						</CodeBlock>
+							</CodeBlock>
 
-						<h3>Secure Token Storage</h3>
-						<p>
-							Store tokens securely based on your application type. For web applications, use
-							HTTP-only cookies or secure browser storage with appropriate security flags.
-						</p>
+							<h3>Secure Token Storage</h3>
+							<p>
+								Store tokens securely based on your application type. For web applications, use
+								HTTP-only cookies or secure browser storage with appropriate security flags.
+							</p>
 
-						<h3>Use PKCE for Public Clients</h3>
-						<p>
-							Always use PKCE (Proof Key for Code Exchange) for public clients to protect against
-							authorization code interception attacks.
-						</p>
-					</div>
-				</CollapsibleHeader>
-			</div>
+							<h3>Use PKCE for Public Clients</h3>
+							<p>
+								Always use PKCE (Proof Key for Code Exchange) for public clients to protect against
+								authorization code interception attacks.
+							</p>
+						</div>
+					</CollapsibleHeader>
+				</div>
 
-			<div style={{ marginBottom: '24px' }}>
-				<CollapsibleHeader
-					title="Common Issues & Troubleshooting"
-					subtitle="Solutions to the most common OAuth 2.0 and OpenID Connect implementation issues"
-					icon={<MDIIcon icon="FiHelpCircle" />}
-					defaultCollapsed={false}
-				>
-					<p>
-						This section covers the most common issues developers encounter when implementing OAuth
-						2.0 and OpenID Connect, along with practical solutions and debugging tips to help you
-						resolve them quickly.
-					</p>
-
-					<div
-						style={{
-							background: V9_COLORS.BG.GRAY_LIGHT,
-							border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
-							borderRadius: '8px',
-							padding: '16px',
-							marginBottom: '1.5rem',
-						}}
+				<div style={{ marginBottom: '24px' }}>
+					<CollapsibleHeader
+						title="Common Issues & Troubleshooting"
+						subtitle="Solutions to the most common OAuth 2.0 and OpenID Connect implementation issues"
+						icon={<MDIIcon icon="FiHelpCircle" />}
+						defaultCollapsed={false}
+						theme="ping"
 					>
-						<p style={{ margin: 0, color: V9_COLORS.PRIMARY.BLUE, fontWeight: '500' }}>
-							<strong> Pro Tip:</strong> Most OAuth 2.0 errors are related to configuration issues.
-							Double-check your client settings, redirect URIs, and scopes before diving into
-							complex debugging.
-						</p>
-					</div>
-
-					<div style={{ marginTop: '1.5rem' }}>
-						<h3>Invalid Redirect URI</h3>
 						<p>
-							<strong>Error:</strong> "The redirect URI in the request does not match the registered
-							redirect URIs"
-							<br />
-							<strong>Solution:</strong> Ensure the redirect URI in your application configuration
-							matches exactly (including trailing slashes) with the one used in the authorization
-							request.
+							This section covers the most common issues developers encounter when implementing
+							OAuth 2.0 and OpenID Connect, along with practical solutions and debugging tips to
+							help you resolve them quickly.
 						</p>
 
-						<h3>Invalid Client</h3>
-						<p>
-							<strong>Error:</strong> "Invalid client"
-							<br />
-							<strong>Solution:</strong> Verify that your client ID and client secret are correct
-							and that your application is properly configured in PingOne.
-						</p>
+						<div
+							style={{
+								background: V9_COLORS.BG.GRAY_LIGHT,
+								border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
+								borderRadius: '8px',
+								padding: '16px',
+								marginBottom: '1.5rem',
+							}}
+						>
+							<p style={{ margin: 0, color: V9_COLORS.PRIMARY.BLUE, fontWeight: '500' }}>
+								<strong> Pro Tip:</strong> Most OAuth 2.0 errors are related to configuration
+								issues. Double-check your client settings, redirect URIs, and scopes before diving
+								into complex debugging.
+							</p>
+						</div>
 
-						<h3>Invalid Grant</h3>
-						<p>
-							<strong>Error:</strong> "Invalid grant"
-							<br />
-							<strong>Solution:</strong> This can occur for several reasons:
-						</p>
-						<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
-							<li>The authorization code has expired (typically after 10 minutes)</li>
-							<li>The authorization code has already been used</li>
-							<li>The code verifier doesn't match the code challenge</li>
-						</ul>
-					</div>
-				</CollapsibleHeader>
-			</div>
+						<div style={{ marginTop: '1.5rem' }}>
+							<h3>Invalid Redirect URI</h3>
+							<p>
+								<strong>Error:</strong> "The redirect URI in the request does not match the
+								registered redirect URIs"
+								<br />
+								<strong>Solution:</strong> Ensure the redirect URI in your application configuration
+								matches exactly (including trailing slashes) with the one used in the authorization
+								request.
+							</p>
 
-			<div style={{ marginBottom: '24px' }}>
-				<CollapsibleHeader
-					title="PingOne SSO Resources"
-					subtitle="Additional resources and external links for PingOne SSO implementation"
-					icon={<MDIIcon icon="FiExternalLink" />}
-					defaultCollapsed={false}
-				>
-					<div style={{ marginTop: '1.5rem' }}>
-						<p>Explore these PingOne-specific resources for SSO implementation:</p>
+							<h3>Invalid Client</h3>
+							<p>
+								<strong>Error:</strong> "Invalid client"
+								<br />
+								<strong>Solution:</strong> Verify that your client ID and client secret are correct
+								and that your application is properly configured in PingOne.
+							</p>
 
-						<ul style={{ marginTop: '1rem', listStyle: 'none', padding: 0 }}>
-							<li style={{ marginBottom: '0.75rem' }}>
-								<ExternalLink
-									href="https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									PingOne API Documentation
-									<MDIIcon icon="FiExternalLink" />
-								</ExternalLink>
-							</li>
-							<li style={{ marginBottom: '0.75rem' }}>
-								<ExternalLink
-									href="https://docs.pingidentity.com/sdks/latest/sdks/index.html"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									PingOne SDKs
-									<MDIIcon icon="FiExternalLink" />
-								</ExternalLink>
-							</li>
-							<li style={{ marginBottom: '0.75rem' }}>
-								<ExternalLink
-									href="https://docs.pingidentity.com/bundle/pingone/page/lyc1469003009660.html"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									PingOne SSO Configuration Guide
-									<MDIIcon icon="FiExternalLink" />
-								</ExternalLink>
-							</li>
-							<li style={{ marginBottom: '0.75rem' }}>
-								<ExternalLink
-									href="https://docs.pingidentity.com/bundle/pingone/page/lyc1469003009660.html"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									PingOne Security Best Practices
-									<MDIIcon icon="FiExternalLink" />
-								</ExternalLink>
-							</li>
-							<li style={{ marginBottom: '0.75rem' }}>
-								<ExternalLink
-									href="https://developer.pingidentity.com/identity-for-ai/index.html"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									Identity for AI - PingOne Advanced Identity Cloud
-									<MDIIcon icon="FiExternalLink" />
-								</ExternalLink>
-							</li>
-						</ul>
-					</div>
-				</CollapsibleHeader>
-			</div>
-		</div>
+							<h3>Invalid Grant</h3>
+							<p>
+								<strong>Error:</strong> "Invalid grant"
+								<br />
+								<strong>Solution:</strong> This can occur for several reasons:
+							</p>
+							<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
+								<li>The authorization code has expired (typically after 10 minutes)</li>
+								<li>The authorization code has already been used</li>
+								<li>The code verifier doesn't match the code challenge</li>
+							</ul>
+						</div>
+					</CollapsibleHeader>
+				</div>
+
+				<div style={{ marginBottom: '24px' }}>
+					<CollapsibleHeader
+						title="PingOne SSO Resources"
+						subtitle="Additional resources and external links for PingOne SSO implementation"
+						icon={<MDIIcon icon="FiExternalLink" />}
+						defaultCollapsed={false}
+						theme="ping"
+					>
+						<div style={{ marginTop: '1.5rem' }}>
+							<p>Explore these resources for OAuth/OIDC and PingOne SSO implementation:</p>
+
+							<ul style={{ marginTop: '1rem', listStyle: 'none', padding: 0 }}>
+								<li style={{ marginBottom: '0.75rem' }}>
+									<ExternalLink
+										href="https://oauth.net/specs/"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										OAuth Working Group Specs (oauth.net)
+										<MDIIcon icon="FiExternalLink" />
+									</ExternalLink>
+									<span
+										style={{
+											display: 'block',
+											fontSize: '0.85rem',
+											color: 'var(--gray-600)',
+											marginTop: '0.25rem',
+										}}
+									>
+										Find OAuth 2.0, OAuth 2.1, RFCs, and active drafts
+									</span>
+								</li>
+								<li style={{ marginBottom: '0.75rem' }}>
+									<ExternalLink
+										href="https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										PingOne API Documentation
+										<MDIIcon icon="FiExternalLink" />
+									</ExternalLink>
+								</li>
+								<li style={{ marginBottom: '0.75rem' }}>
+									<ExternalLink
+										href="https://docs.pingidentity.com/sdks/latest/sdks/index.html"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										PingOne SDKs
+										<MDIIcon icon="FiExternalLink" />
+									</ExternalLink>
+								</li>
+								<li style={{ marginBottom: '0.75rem' }}>
+									<ExternalLink
+										href="https://docs.pingidentity.com/bundle/pingone/page/lyc1469003009660.html"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										PingOne SSO Configuration Guide
+										<MDIIcon icon="FiExternalLink" />
+									</ExternalLink>
+								</li>
+								<li style={{ marginBottom: '0.75rem' }}>
+									<ExternalLink
+										href="https://docs.pingidentity.com/bundle/pingone/page/lyc1469003009660.html"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										PingOne Security Best Practices
+										<MDIIcon icon="FiExternalLink" />
+									</ExternalLink>
+								</li>
+								<li style={{ marginBottom: '0.75rem' }}>
+									<ExternalLink
+										href="https://developer.pingidentity.com/identity-for-ai/index.html"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										Identity for AI - PingOne Advanced Identity Cloud
+										<MDIIcon icon="FiExternalLink" />
+									</ExternalLink>
+								</li>
+							</ul>
+						</div>
+					</CollapsibleHeader>
+				</div>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 

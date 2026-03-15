@@ -427,6 +427,23 @@ class AIAgentService {
 			],
 			specs: [
 				{
+					title: 'OAuth Working Group Specs (oauth.net)',
+					content:
+						'Complete index of OAuth 2.0, OAuth 2.1, RFCs, and active drafts. Find any OAuth specification in one place.',
+					path: 'https://oauth.net/specs/',
+					keywords: [
+						'oauth',
+						'specs',
+						'specifications',
+						'rfc',
+						'draft',
+						'2.0',
+						'2.1',
+						'education',
+						'reference',
+					],
+				},
+				{
 					title: 'OAuth 2.0 Framework (RFC 6749)',
 					content:
 						'The OAuth 2.0 authorization framework specification defining the core protocol.',

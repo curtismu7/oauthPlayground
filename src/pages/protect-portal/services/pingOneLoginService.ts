@@ -22,20 +22,21 @@ export class PingOneLoginService {
 	private static readonly PROXY_BASE_URL = '/api/pingone';
 
 	/**
-	 * Initialize PingOne embedded login using pi.flow
+	 * Initialize PingOne embedded login using pi.flow.
+	 * redirect_uri is optional per PingOne docs — omit for pi.flow to avoid validation errors.
 	 */
 	static async initializeEmbeddedLogin(
 		environmentId: string,
 		clientId: string,
-		redirectUri: string,
+		redirectUri?: string,
 		scopes: string[] = ['openid', 'profile', 'email'],
 		region?: string
-	): Promise<ServiceResponse<{ flowId: string; authorizeUrl: string }>> {
+	): Promise<ServiceResponse<{ flowId: string; sessionId: string; resumeUrl?: string }>> {
 		try {
 			logger.info(`${MODULE_TAG} Initializing PingOne embedded login`, {
 				environmentId,
 				clientId,
-				redirectUri,
+				redirectUri: redirectUri ?? '(omitted for pi.flow)',
 				scopes,
 			});
 
@@ -44,11 +45,12 @@ export class PingOneLoginService {
 			const codeChallenge = await PingOneLoginService.generateCodeChallenge(codeVerifier);
 			const state = PingOneLoginService.generateState();
 
-			// Build request body for proxy endpoint
+			// Build request body for proxy endpoint.
+			// Per https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html
+			// redirect_uri is NOT required for response_mode=pi.flow — omit when not provided.
 			const requestBody: Record<string, unknown> = {
 				environmentId: environmentId,
 				clientId: clientId,
-				redirectUri: redirectUri,
 				response_type: 'code',
 				response_mode: 'pi.flow',
 				scopes: scopes.join(' '),
@@ -56,6 +58,9 @@ export class PingOneLoginService {
 				codeChallengeMethod: 'S256',
 				state: state,
 			};
+			if (redirectUri?.trim()) {
+				requestBody.redirectUri = redirectUri.trim();
+			}
 			if (region?.trim()) {
 				requestBody.region = region.trim().toLowerCase();
 			}
@@ -76,15 +81,21 @@ export class PingOneLoginService {
 			});
 
 			if (!response.ok) {
-				// Try to get error details from response
 				let errorDetails = '';
+				let validationHint = '';
 				try {
-					const errorData = await response.json();
+					const errorData = (await response.json()) as Record<string, unknown>;
 					errorDetails =
-						errorData.error_description || errorData.message || JSON.stringify(errorData);
+						String(errorData.error_description) ||
+						String(errorData.message || '') ||
+						JSON.stringify(errorData);
 					logger.error(MODULE_TAG, 'Server error details:', { errorData });
+					// PingOne 400 often means app config issue — pi.flow is response_mode, not redirect URI
+					if (response.status === 400 && /validation|invalid|redirect/i.test(errorDetails)) {
+						validationHint =
+							' Ensure your OAuth app (not Worker) supports response_mode=pi.flow and Authorization Code flow. See https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html';
+					}
 				} catch (_e) {
-					// If response is not JSON, try to get text
 					try {
 						errorDetails = await response.text();
 					} catch (_e2) {
@@ -92,31 +103,46 @@ export class PingOneLoginService {
 					}
 				}
 				throw new Error(
-					`Proxy API error: ${response.status} ${response.statusText} - ${errorDetails}`
+					`Proxy API error: ${response.status} ${response.statusText} - ${errorDetails}${validationHint}`
 				);
 			}
 
 			const result = await response.json();
 
-			// Store PKCE parameters for later use
-			PingOneLoginService.storePKCEParams(
-				state,
+			// Server returns flow id from PingOne, sessionId for cookie jar, resumeUrl
+			const flowId = result.id || result.flowId;
+			const sessionId = result._sessionId;
+			const resumeUrl = result.resumeUrl;
+
+			if (!flowId || !sessionId) {
+				throw new Error(
+					`Invalid authorize response: missing flow id or session (id=${!!flowId}, _sessionId=${!!sessionId})`
+				);
+			}
+
+			// Store PKCE and flow params by flowId for submitCredentials/resumeFlow
+			PingOneLoginService.storeFlowParams(flowId, {
 				codeVerifier,
 				environmentId,
 				clientId,
-				redirectUri
-			);
+				redirectUri: redirectUri?.trim() || '',
+				sessionId,
+				state,
+				resumeUrl:
+					resumeUrl || `https://auth.pingone.com/${environmentId}/as/resume?flowId=${flowId}`,
+			});
 
 			logger.info(`${MODULE_TAG} PingOne embedded login initialized`, {
-				flowId: state,
-				proxyResponse: result,
+				flowId,
+				hasResumeUrl: !!resumeUrl,
 			});
 
 			return {
 				success: true,
 				data: {
-					flowId: state,
-					authorizeUrl: result.authorizeUrl || result.resumeUrl,
+					flowId,
+					sessionId,
+					resumeUrl: resumeUrl || result.authorizeUrl,
 				},
 				metadata: {
 					timestamp: new Date().toISOString(),
@@ -152,25 +178,29 @@ export class PingOneLoginService {
 	static async submitCredentials(
 		flowId: string,
 		username: string,
-		password: string
+		password: string,
+		clientId?: string,
+		clientSecret?: string
 	): Promise<ServiceResponse<{ flowId: string; requiresMFA: boolean; resumeUrl?: string }>> {
 		try {
 			logger.info(`${MODULE_TAG} Submitting credentials for flow:`, flowId);
 
-			// Get stored PKCE parameters
-			const pkceParams = PingOneLoginService.getPKCEParams(flowId);
-			if (!pkceParams) {
-				throw new Error('PKCE parameters not found for flow');
+			const params = PingOneLoginService.getFlowParams(flowId);
+			if (!params) {
+				throw new Error('Flow parameters not found. Re-initialize the login flow.');
 			}
 
-			// Build request body for proxy endpoint
-			const requestBody = {
-				flowId: flowId,
-				username: username,
-				password: password,
+			const flowUrl = `https://auth.pingone.com/${params.environmentId}/flows/${flowId}`;
+			const requestBody: Record<string, unknown> = {
+				flowUrl,
+				environmentId: params.environmentId,
+				sessionId: params.sessionId,
+				username,
+				password,
 			};
+			if (clientId) requestBody.clientId = clientId;
+			if (clientSecret) requestBody.clientSecret = clientSecret;
 
-			// Call proxy endpoint for credential submission
 			const response = await fetch(
 				`${PingOneLoginService.PROXY_BASE_URL}/flows/check-username-password`,
 				{
@@ -183,10 +213,21 @@ export class PingOneLoginService {
 			);
 
 			if (!response.ok) {
-				throw new Error(`Proxy API error: ${response.status} ${response.statusText}`);
+				const errData = await response.json().catch(() => ({}));
+				const msg =
+					errData.error_description || errData.message || errData.error || response.statusText;
+				throw new Error(msg);
 			}
 
 			const result = await response.json();
+
+			// Update stored sessionId and resumeUrl from response
+			if (result._sessionId || result.resumeUrl) {
+				PingOneLoginService.updateFlowParams(flowId, {
+					sessionId: result._sessionId ?? params.sessionId,
+					resumeUrl: result.resumeUrl ?? params.resumeUrl,
+				});
+			}
 
 			logger.info(`${MODULE_TAG} Credentials submitted successfully`, {
 				flowId,
@@ -238,19 +279,22 @@ export class PingOneLoginService {
 		try {
 			logger.info(`${MODULE_TAG} Resuming flow:`, flowId);
 
-			// Get stored PKCE parameters
-			const pkceParams = PingOneLoginService.getPKCEParams(flowId);
-			if (!pkceParams) {
-				throw new Error('PKCE parameters not found for flow');
+			const params = PingOneLoginService.getFlowParams(flowId);
+			if (!params) {
+				throw new Error('Flow parameters not found. Re-initialize the login flow.');
 			}
 
-			// Build request body for proxy endpoint
 			const requestBody = {
-				resumeUrl: `https://auth.pingone.com/${pkceParams.environmentId}/as/resume?flowId=${flowId}`,
+				resumeUrl: params.resumeUrl,
+				flowId,
+				flowState: params.state,
+				clientId: params.clientId,
+				clientSecret: undefined as string | undefined,
+				codeVerifier: params.codeVerifier,
+				sessionId: params.sessionId,
 			};
 
-			// Call proxy endpoint for resume
-			const response = await fetch(`${PingOneLoginService.PROXY_BASE_URL}/redirectless/poll`, {
+			const response = await fetch(`${PingOneLoginService.PROXY_BASE_URL}/resume`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -259,22 +303,23 @@ export class PingOneLoginService {
 			});
 
 			if (!response.ok) {
-				throw new Error(`Proxy API error: ${response.status} ${response.statusText}`);
+				const errData = await response.json().catch(() => ({}));
+				const msg =
+					errData.error_description || errData.message || errData.error || response.statusText;
+				throw new Error(msg);
 			}
 
 			const result = await response.json();
 
-			// Extract authorization code from various possible locations
 			const authorizationCode: string =
 				result.code || result.authorizeResponse?.code || result.flow?.code;
 			if (!authorizationCode) {
 				throw new Error('Authorization code not found in response');
 			}
 
-			const state: string = result.state || flowId;
+			const state: string = result.state || params.state || flowId;
 
-			// Clean up stored PKCE params
-			PingOneLoginService.clearPKCEParams(flowId);
+			PingOneLoginService.clearFlowParams(flowId);
 
 			logger.info(`${MODULE_TAG} Flow resumed successfully`, {
 				flowId,
@@ -406,21 +451,24 @@ export class PingOneLoginService {
 	}
 
 	// ============================================================================
-	// PKCE MANAGEMENT
+	// FLOW PARAMS (PKCE + session for pi.flow)
 	// ============================================================================
 
-	private static readonly PKCE_STORE = new Map<
+	private static readonly FLOW_PARAMS_STORE = new Map<
 		string,
 		{
 			codeVerifier: string;
 			environmentId: string;
 			clientId: string;
 			redirectUri: string;
+			sessionId: string;
+			state: string;
+			resumeUrl: string;
 			timestamp: number;
 		}
 	>();
 
-	private static readonly PKCE_TTL = 10 * 60 * 1000; // 10 minutes
+	private static readonly FLOW_PARAMS_TTL = 10 * 60 * 1000; // 10 minutes
 
 	/**
 	 * Extract user information from ID token
@@ -503,63 +551,63 @@ export class PingOneLoginService {
 		);
 	}
 
-	/**
-	 * Store PKCE parameters
-	 */
-	private static storePKCEParams(
-		state: string,
-		codeVerifier: string,
-		environmentId: string,
-		clientId: string,
-		redirectUri: string
+	private static storeFlowParams(
+		flowId: string,
+		params: {
+			codeVerifier: string;
+			environmentId: string;
+			clientId: string;
+			redirectUri: string;
+			sessionId: string;
+			state: string;
+			resumeUrl: string;
+		}
 	): void {
-		PingOneLoginService.PKCE_STORE.set(state, {
-			codeVerifier,
-			environmentId,
-			clientId,
-			redirectUri,
+		PingOneLoginService.FLOW_PARAMS_STORE.set(flowId, {
+			...params,
 			timestamp: Date.now(),
 		});
 	}
 
-	/**
-	 * Get stored PKCE parameters
-	 */
-	private static getPKCEParams(state: string): {
+	private static getFlowParams(flowId: string): {
 		codeVerifier: string;
 		environmentId: string;
 		clientId: string;
 		redirectUri: string;
+		sessionId: string;
+		state: string;
+		resumeUrl: string;
 	} | null {
-		const params = PingOneLoginService.PKCE_STORE.get(state);
-		if (!params) {
+		const params = PingOneLoginService.FLOW_PARAMS_STORE.get(flowId);
+		if (!params) return null;
+		if (Date.now() - params.timestamp > PingOneLoginService.FLOW_PARAMS_TTL) {
+			PingOneLoginService.FLOW_PARAMS_STORE.delete(flowId);
 			return null;
 		}
-
-		// Check if expired
-		if (Date.now() - params.timestamp > PingOneLoginService.PKCE_TTL) {
-			PingOneLoginService.PKCE_STORE.delete(state);
-			return null;
-		}
-
 		return params;
 	}
 
-	/**
-	 * Clear stored PKCE parameters
-	 */
-	private static clearPKCEParams(state: string): void {
-		PingOneLoginService.PKCE_STORE.delete(state);
+	private static updateFlowParams(
+		flowId: string,
+		updates: { sessionId?: string; resumeUrl?: string }
+	): void {
+		const params = PingOneLoginService.FLOW_PARAMS_STORE.get(flowId);
+		if (params) {
+			if (updates.sessionId) params.sessionId = updates.sessionId;
+			if (updates.resumeUrl) params.resumeUrl = updates.resumeUrl;
+		}
 	}
 
-	/**
-	 * Clean up expired PKCE parameters
-	 */
-	static cleanupExpiredPKCEParams(): void {
+	private static clearFlowParams(flowId: string): void {
+		PingOneLoginService.FLOW_PARAMS_STORE.delete(flowId);
+	}
+
+	/** Clean up expired flow parameters */
+	static cleanupExpiredFlowParams(): void {
 		const now = Date.now();
-		for (const [state, params] of PingOneLoginService.PKCE_STORE.entries()) {
-			if (now - params.timestamp > PingOneLoginService.PKCE_TTL) {
-				PingOneLoginService.PKCE_STORE.delete(state);
+		for (const [flowId, params] of PingOneLoginService.FLOW_PARAMS_STORE.entries()) {
+			if (now - params.timestamp > PingOneLoginService.FLOW_PARAMS_TTL) {
+				PingOneLoginService.FLOW_PARAMS_STORE.delete(flowId);
 			}
 		}
 	}

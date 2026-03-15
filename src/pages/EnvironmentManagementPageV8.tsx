@@ -6,7 +6,7 @@ import ApiCallList from '../components/ApiCallList';
 import { WaitScreen } from '../components/v9/V9ModernMessagingComponents';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
-import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
+import EnvironmentServiceV8, { PingOneEnvironment, UpdateEnvironmentRequest, CreateEnvironmentRequest } from '../services/environmentServiceV8';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { modernMessaging } from '../services/v9/V9ModernMessagingService';
@@ -778,13 +778,60 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		setShowCreateModal(true);
 	};
 
-	const handleSubmitCreateEnvironment = () => {
+	const handleSubmitCreateEnvironment = async () => {
 		const name = createNameInput.trim();
-		if (name) {
-			logger.info('Create environment:', name);
-			setEnvError('Environment created (demo mode - no API call made)');
+		if (!name) return;
+
+		try {
+			setEnvError(null);
+			
+			// Create environment using real API call
+			const createData: CreateEnvironmentRequest = {
+				name,
+				description: `Created via MasterFlow API Environment Management`,
+				type: 'SANDBOX', // Default to SANDBOX for safety
+				region: selectedApiRegion,
+			};
+
+			const newEnvironment = await EnvironmentServiceV8.createEnvironment(
+				createData,
+				globalTokenStatus.token || undefined,
+				selectedApiRegion
+			);
+
+			logger.info('[EnvironmentManagementPageV8] ✅ Environment created successfully', {
+				id: newEnvironment.id,
+				name: newEnvironment.name,
+			});
+
+			// Show success message
+			modernMessaging.showBanner({
+				type: 'success',
+				title: 'Environment Created',
+				message: `Environment "${name}" has been created successfully.`,
+				actions: [
+					{ label: 'Dismiss', action: () => modernMessaging.hideBanner() },
+				],
+			});
+
 			setShowCreateModal(false);
 			setCreateNameInput('');
+			
+			// Refresh the environments list
+			fetchEnvironments();
+		} catch (err) {
+			logger.error(
+				'EnvironmentManagementPageV8',
+				'[EnvironmentManagementPageV8] Failed to create environment:',
+				{
+					error: err,
+					message: err instanceof Error ? err.message : 'Unknown error',
+					name,
+				}
+			);
+
+			const errorMessage = err instanceof Error ? err.message : 'Failed to create environment';
+			setEnvError(errorMessage);
 		}
 	};
 
@@ -828,25 +875,78 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		setShowEditModal(true);
 	};
 
-	const handleSaveEdit = () => {
+	const handleSaveEdit = async () => {
 		if (!editingEnvironment || !editName.trim()) return;
 
 		if (editName.trim() !== editingEnvironment.name) {
-			// Simple name update - in a real app this would call an API
-			logger.info('Update environment name:', editingEnvironment.id, editName.trim());
+			try {
+				setEnvError(null);
+				setHasUnsavedChanges(false);
 
-			// For demo purposes, we'll just log it
-			// In production: await EnvironmentServiceV8.updateEnvironmentName(editingEnvironment.id, editName.trim());
+				// Update environment using real API call
+				const updateData: UpdateEnvironmentRequest = {
+					name: editName.trim(),
+				};
+				
+				// Only include description if it exists
+				if (editingEnvironment.description) {
+					updateData.description = editingEnvironment.description;
+				}
 
-			setEnvError('Environment name updated (demo mode - no API call made)');
+				const updatedEnvironment = await EnvironmentServiceV8.updateEnvironment(
+					editingEnvironment.id,
+					updateData,
+					globalTokenStatus.token || undefined,
+					selectedApiRegion
+				);
+
+				logger.info('[EnvironmentManagementPageV8] ✅ Environment updated successfully', {
+					id: updatedEnvironment.id,
+					oldName: editingEnvironment.name,
+					newName: editName.trim(),
+				});
+
+				// Show success message
+				modernMessaging.showBanner({
+					type: 'success',
+					title: 'Environment Updated',
+					message: `Environment name has been updated to "${editName.trim()}".`,
+					actions: [
+						{ label: 'Dismiss', action: () => modernMessaging.hideBanner() },
+					],
+				});
+
+				// Close modal
+				setShowEditModal(false);
+				setEditingEnvironment(null);
+				setEditName('');
+				
+				// Refresh the environments list
+				fetchEnvironments();
+			} catch (err) {
+				logger.error(
+					'EnvironmentManagementPageV8',
+					'[EnvironmentManagementPageV8] Failed to update environment:',
+					{
+						error: err,
+						message: err instanceof Error ? err.message : 'Unknown error',
+						environmentId: editingEnvironment.id,
+						oldName: editingEnvironment.name,
+						newName: editName.trim(),
+					}
+				);
+
+				const errorMessage = err instanceof Error ? err.message : 'Failed to update environment';
+				setEnvError(errorMessage);
+				setHasUnsavedChanges(true);
+			}
+		} else {
+			// No changes, just close modal
+			setShowEditModal(false);
+			setEditingEnvironment(null);
+			setEditName('');
 			setHasUnsavedChanges(false);
-			// In production: fetchEnvironments();
 		}
-
-		// Close modal
-		setShowEditModal(false);
-		setEditingEnvironment(null);
-		setEditName('');
 	};
 
 	const handleCancelEdit = () => {

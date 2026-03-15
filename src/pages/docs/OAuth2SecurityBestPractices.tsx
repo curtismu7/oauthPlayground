@@ -307,7 +307,10 @@ const InfoText = styled.p`
 const OAuth2SecurityBestPractices: React.FC = () => {
 	return (
 		<PageContainer>
-			<FlowHeader flowType="oauth2-security-best-practices" />
+			<FlowHeader
+				flowType="oauth2-security-best-practices"
+				customConfig={{ flowType: 'pingone' }}
+			/>
 
 			<ReferenceCard>
 				<ReferenceIcon>
@@ -336,6 +339,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				subtitle="Essential security practices for OAuth 2.0 client applications"
 				icon={<span>🔒</span>}
 				defaultCollapsed={false}
+				theme="ping"
 			>
 				<Subsection>
 					<SubsectionTitle>
@@ -467,6 +471,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				title="Authorization Code Flow Security"
 				subtitle="Security considerations for the authorization code flow"
 				icon={<span>🔄</span>}
+				theme="ping"
 				defaultCollapsed={false}
 			>
 				<Subsection>
@@ -563,6 +568,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				title="Token Security"
 				subtitle="Best practices for secure token handling and storage"
 				icon={<span>👥</span>}
+				theme="ping"
 				defaultCollapsed={false}
 			>
 				<Subsection>
@@ -662,6 +668,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				title="Transport Security"
 				subtitle="Network security requirements for OAuth 2.0"
 				icon={<span>🌐</span>}
+				theme="ping"
 				defaultCollapsed={false}
 			>
 				<BestPracticeCard $type="critical">
@@ -705,6 +712,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				title="Scope and Permission Security"
 				subtitle="Implementing secure scope and permission management"
 				icon={<span>⚙️</span>}
+				theme="ping"
 				defaultCollapsed={false}
 			>
 				<BestPracticeCard $type="important">
@@ -746,6 +754,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				title="Common Security Pitfalls"
 				subtitle="Avoiding common OAuth 2.0 security mistakes"
 				icon={<span>⚠️</span>}
+				theme="ping"
 				defaultCollapsed={false}
 			>
 				<WarningBox>
@@ -803,6 +812,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				title="Security Checklist"
 				subtitle="Comprehensive security checklist for OAuth 2.0 implementations"
 				icon={<span>✅</span>}
+				theme="ping"
 				defaultCollapsed={false}
 			>
 				<BestPracticeCard $type="recommended">

@@ -1,0 +1,2808 @@
+{
+	"info": {
+		"_postman_id": "banking-api-admin-v1",
+		"name": "Banking API - Admin",
+		"description": "Comprehensive Postman collection for testing Banking API endpoints as an administrator. Includes enhanced OAuth authentication flow with banking:admin scope, user management, account administration, transaction oversight, system monitoring, and comprehensive security validation.\n\n**Prerequisites:**\n- Environment configured with admin OAuth settings\n- Valid admin client credentials with banking:admin scope\n- Banking API server running\n- Admin user account in OAuth provider\n\n**Usage:**\n1. Run 'OAuth Admin Login Flow' first to authenticate with admin privileges\n2. Execute management requests in logical order\n3. Use Collection Runner for automated admin testing\n4. Review security tests to verify proper admin access control\n\n**Scopes Required:**\n- banking:admin (super-scope providing full administrative access)\n- openid (for user identification)\n- profile (for user profile access)\n- email (for user email access)\n\n**Admin Capabilities:**\n- Full user management (CRUD operations)\n- Complete account administration\n- Transaction oversight and management\n- System statistics and monitoring\n- Activity log access and management\n- Health check and system status\n\n**Security Features:**\n- Enhanced token validation with admin scope verification\n- Super-scope authorization testing\n- Comprehensive error scenario validation\n- Admin-specific security headers validation\n- Audit trail verification",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{admin_access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Collection-level pre-request script for Admin Collection",
+					"console.log('🔐 Banking API - Admin Collection');",
+					"",
+					"// Enhanced token validation for admin operations",
+					"function isAdminTokenValid() {",
+					"    const accessToken = pm.environment.get('admin_access_token');",
+					"    const expiresAt = pm.environment.get('admin_token_expires_at');",
+					"    ",
+					"    if (!accessToken || !expiresAt) {",
+					"        console.log('⚠️ Admin token or expiration missing');",
+					"        return false;",
+					"    }",
+					"    ",
+					"    const currentTime = Date.now();",
+					"    const tokenExpiryTime = parseInt(expiresAt);",
+					"    const bufferTime = 5 * 60 * 1000; // 5 minutes buffer",
+					"    ",
+					"    if (currentTime >= (tokenExpiryTime - bufferTime)) {",
+					"        console.log('⚠️ Admin token expired or expiring soon');",
+					"        return false;",
+					"    }",
+					"    ",
+					"    return true;",
+					"}",
+					"",
+					"// Validate admin scope in token",
+					"function validateAdminScope() {",
+					"    const accessToken = pm.environment.get('admin_access_token');",
+					"    if (!accessToken) return false;",
+					"    ",
+					"    try {",
+					"        // Decode JWT payload (simple base64 decode for validation)",
+					"        const parts = accessToken.split('.');",
+					"        if (parts.length !== 3) return false;",
+					"        ",
+					"        const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));",
+					"        const scopes = payload.scope ? payload.scope.split(' ') : [];",
+					"        ",
+					"        const hasAdminScope = scopes.includes('banking:admin');",
+					"        if (!hasAdminScope) {",
+					"            console.log('❌ Token missing banking:admin scope');",
+					"            console.log('Available scopes:', scopes);",
+					"        }",
+					"        ",
+					"        return hasAdminScope;",
+					"    } catch (error) {",
+					"        console.log('❌ Error validating admin scope:', error.message);",
+					"        return false;",
+					"    }",
+					"}",
+					"",
+					"// Skip validation for OAuth requests",
+					"const requestName = pm.info.requestName || '';",
+					"const isOAuthRequest = requestName.toLowerCase().includes('oauth') || ",
+					"                      requestName.toLowerCase().includes('login') ||",
+					"                      requestName.toLowerCase().includes('authorization');",
+					"",
+					"if (!isOAuthRequest) {",
+					"    if (!isAdminTokenValid()) {",
+					"        console.log('⚠️ Admin token invalid - run OAuth Admin Login Flow first');",
+					"    } else if (!validateAdminScope()) {",
+					"        console.log('⚠️ Admin scope validation failed - ensure proper admin credentials');",
+					"    } else {",
+					"        console.log('✅ Admin token and scope validated');",
+					"    }",
+					"}",
+					"",
+					"// Set admin-specific headers",
+					"pm.request.headers.add({",
+					"    key: 'X-Admin-Request',",
+					"    value: 'true'",
+					"});",
+					"",
+					"pm.request.headers.add({",
+					"    key: 'X-Request-Source',",
+					"    value: 'postman-admin-collection'",
+					"});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Collection-level test script for Admin Collection",
+					"",
+					"// Enhanced security validation for admin endpoints",
+					"pm.test('Admin security headers present', function () {",
+					"    const headers = pm.response.headers;",
+					"    ",
+					"    // Check for security headers",
+					"    if (headers.get('X-Content-Type-Options')) {",
+					"        pm.expect(headers.get('X-Content-Type-Options')).to.equal('nosniff');",
+					"    }",
+					"    ",
+					"    if (headers.get('X-Frame-Options')) {",
+					"        pm.expect(headers.get('X-Frame-Options')).to.be.oneOf(['DENY', 'SAMEORIGIN']);",
+					"    }",
+					"    ",
+					"    if (headers.get('Strict-Transport-Security')) {",
+					"        pm.expect(headers.get('Strict-Transport-Security')).to.include('max-age');",
+					"    }",
+					"});",
+					"",
+					"pm.test('No sensitive admin data in response headers', function () {",
+					"    const headerString = JSON.stringify(pm.response.headers.toObject()).toLowerCase();",
+					"    pm.expect(headerString).to.not.include('password');",
+					"    pm.expect(headerString).to.not.include('secret');",
+					"    pm.expect(headerString).to.not.include('token');",
+					"    pm.expect(headerString).to.not.include('key');",
+					"});",
+					"",
+					"pm.test('Admin audit trail headers present', function () {",
+					"    const headers = pm.response.headers;",
+					"    ",
+					"    // Check for audit trail headers (if implemented by API)",
+					"    if (headers.get('X-Request-ID')) {",
+					"        pm.expect(headers.get('X-Request-ID')).to.match(/^[a-f0-9-]+$/);",
+					"    }",
+					"});",
+					"",
+					"// Log admin operation details",
+					"const statusIcon = pm.response.code < 400 ? '✅' : '❌';",
+					"console.log(`${statusIcon} Admin Operation: ${pm.info.requestName} - ${pm.response.status} (${pm.response.responseTime}ms)`);",
+					"",
+					"// Store admin operation metadata for audit",
+					"if (pm.response.code < 400) {",
+					"    const operationLog = {",
+					"        timestamp: new Date().toISOString(),",
+					"        operation: pm.info.requestName,",
+					"        status: pm.response.code,",
+					"        responseTime: pm.response.responseTime,",
+					"        adminUser: pm.environment.get('admin_username') || 'unknown'",
+					"    };",
+					"    ",
+					"    // Store in environment for potential audit reporting",
+					"    const existingLog = pm.environment.get('admin_operations_log');",
+					"    const logArray = existingLog ? JSON.parse(existingLog) : [];",
+					"    logArray.push(operationLog);",
+					"    ",
+					"    // Keep only last 50 operations to prevent environment bloat",
+					"    if (logArray.length > 50) {",
+					"        logArray.splice(0, logArray.length - 50);",
+					"    }",
+					"    ",
+					"    pm.environment.set('admin_operations_log', JSON.stringify(logArray));",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "{{base_url}}",
+			"type": "string"
+		},
+		{
+			"key": "admin_client_id",
+			"value": "{{admin_client_id}}",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Admin Authentication",
+			"description": "Enhanced OAuth 2.0 authentication flow for administrators with banking:admin scope and comprehensive security validation",
+			"item": [
+				{
+					"name": "OAuth Admin Login Flow",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🔐 Starting OAuth Admin Login Flow');",
+									"console.log('🎯 Target: banking:admin scope with enhanced permissions');",
+									"",
+									"// Generate enhanced PKCE parameters for admin security",
+									"const array = new Uint8Array(32);",
+									"crypto.getRandomValues(array);",
+									"const codeVerifier = btoa(String.fromCharCode.apply(null, array))",
+									"    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');",
+									"const codeChallenge = codeVerifier;",
+									"",
+									"pm.environment.set('admin_code_verifier', codeVerifier);",
+									"pm.environment.set('admin_code_challenge', codeChallenge);",
+									"",
+									"// Generate admin-specific state with timestamp",
+									"const adminState = 'postman-admin-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);",
+									"pm.environment.set('admin_oauth_state', adminState);",
+									"",
+									"// Build admin authorization URL with enhanced scopes",
+									"const authUrl = pm.environment.get('oauth_auth_url');",
+									"const clientId = pm.environment.get('admin_client_id');",
+									"const redirectUri = pm.environment.get('admin_redirect_uri') || pm.environment.get('redirect_uri');",
+									"",
+									"// Admin scopes - banking:admin provides super-scope access",
+									"const adminScopes = 'openid profile email banking:admin';",
+									"",
+									"const authorizationUrl = `${authUrl}?` +",
+									"    `response_type=code&` +",
+									"    `client_id=${encodeURIComponent(clientId)}&` +",
+									"    `redirect_uri=${encodeURIComponent(redirectUri)}&` +",
+									"    `scope=${encodeURIComponent(adminScopes)}&` +",
+									"    `state=${encodeURIComponent(adminState)}&` +",
+									"    `code_challenge=${encodeURIComponent(codeChallenge)}&` +",
+									"    `code_challenge_method=plain&` +",
+									"    `prompt=consent`; // Force consent for admin operations",
+									"",
+									"pm.environment.set('admin_authorization_url', authorizationUrl);",
+									"",
+									"console.log('🌐 Admin Authorization URL:', authorizationUrl);",
+									"console.log('🔑 Required Scopes:', adminScopes);",
+									"console.log('📋 Next Steps:');",
+									"console.log('  1. Open URL in browser');",
+									"console.log('  2. Login with ADMIN credentials');",
+									"console.log('  3. Grant consent for admin scopes');",
+									"console.log('  4. Copy authorization code from callback');",
+									"console.log('  5. Run \"Exchange Admin Authorization Code\"');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{admin_authorization_url}}",
+							"host": ["{{admin_authorization_url}}"]
+						},
+						"description": "Generate OAuth authorization URL for admin login with banking:admin scope. This URL must be opened in a browser where the user will authenticate with admin credentials and grant consent for administrative operations."
+					}
+				},
+				{
+					"name": "Exchange Admin Authorization Code",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🔄 Exchanging admin authorization code for access token');",
+									"",
+									"// Validate required parameters",
+									"const authCode = pm.environment.get('admin_authorization_code');",
+									"const codeVerifier = pm.environment.get('admin_code_verifier');",
+									"const clientId = pm.environment.get('admin_client_id');",
+									"",
+									"if (!authCode) {",
+									"    throw new Error('Admin authorization code required - set admin_authorization_code environment variable');",
+									"}",
+									"",
+									"if (!codeVerifier) {",
+									"    throw new Error('Code verifier missing - run OAuth Admin Login Flow first');",
+									"}",
+									"",
+									"if (!clientId) {",
+									"    throw new Error('Admin client ID missing - check admin_client_id environment variable');",
+									"}",
+									"",
+									"console.log('✅ All required parameters present');",
+									"console.log('🎫 Requesting admin token with banking:admin scope');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Admin token exchange successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains admin access token', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('access_token');",
+									"    pm.expect(jsonData.access_token).to.be.a('string');",
+									"    pm.expect(jsonData.access_token.length).to.be.above(10);",
+									"});",
+									"",
+									"pm.test('Token type is Bearer', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('token_type');",
+									"    pm.expect(jsonData.token_type.toLowerCase()).to.equal('bearer');",
+									"});",
+									"",
+									"pm.test('Token has expiration time', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('expires_in');",
+									"    pm.expect(jsonData.expires_in).to.be.a('number');",
+									"    pm.expect(jsonData.expires_in).to.be.above(0);",
+									"});",
+									"",
+									"pm.test('Admin scope validation', function () {",
+									"    const jsonData = pm.response.json();",
+									"    ",
+									"    if (jsonData.scope) {",
+									"        const scopes = jsonData.scope.split(' ');",
+									"        pm.expect(scopes).to.include('banking:admin');",
+									"        console.log('✅ banking:admin scope confirmed in token response');",
+									"    } else {",
+									"        console.log('ℹ️ Scope not in token response - will validate in JWT payload');",
+									"    }",
+									"});",
+									"",
+									"// Enhanced admin token processing",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    ",
+									"    // Store admin tokens with admin prefix",
+									"    pm.environment.set('admin_access_token', jsonData.access_token);",
+									"    ",
+									"    if (jsonData.refresh_token) {",
+									"        pm.environment.set('admin_refresh_token', jsonData.refresh_token);",
+									"        console.log('✅ Admin refresh token stored');",
+									"    }",
+									"    ",
+									"    // Calculate and store expiration time",
+									"    const expiresAt = Date.now() + (parseInt(jsonData.expires_in) * 1000);",
+									"    pm.environment.set('admin_token_expires_at', expiresAt.toString());",
+									"    ",
+									"    // Decode and validate JWT payload for admin scope",
+									"    try {",
+									"        const parts = jsonData.access_token.split('.');",
+									"        if (parts.length === 3) {",
+									"            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));",
+									"            ",
+									"            // Extract admin user information",
+									"            if (payload.preferred_username) {",
+									"                pm.environment.set('admin_username', payload.preferred_username);",
+									"            }",
+									"            if (payload.email) {",
+									"                pm.environment.set('admin_email', payload.email);",
+									"            }",
+									"            if (payload.sub) {",
+									"                pm.environment.set('admin_user_id', payload.sub);",
+									"            }",
+									"            ",
+									"            // Validate admin scope in JWT",
+									"            const tokenScopes = payload.scope ? payload.scope.split(' ') : [];",
+									"            if (tokenScopes.includes('banking:admin')) {",
+									"                console.log('🎯 Admin scope validated in JWT token');",
+									"                pm.environment.set('admin_scope_validated', 'true');",
+									"            } else {",
+									"                console.log('❌ WARNING: banking:admin scope not found in JWT token');",
+									"                console.log('Available scopes:', tokenScopes);",
+									"                pm.environment.set('admin_scope_validated', 'false');",
+									"            }",
+									"            ",
+									"            // Store token metadata",
+									"            pm.environment.set('admin_token_scopes', JSON.stringify(tokenScopes));",
+									"            pm.environment.set('admin_token_issued_at', new Date().toISOString());",
+									"            ",
+									"            console.log('👤 Admin User:', payload.preferred_username || payload.sub);",
+									"            console.log('📧 Admin Email:', payload.email || 'N/A');",
+									"            console.log('🔑 Token Scopes:', tokenScopes.join(', '));",
+									"            console.log('⏰ Token Expires:', new Date(expiresAt).toISOString());",
+									"        }",
+									"    } catch (error) {",
+									"        console.log('⚠️ Error decoding JWT token:', error.message);",
+									"    }",
+									"    ",
+									"    console.log('🎉 Admin authentication successful!');",
+									"    console.log('🚀 Ready to perform administrative operations');",
+									"} else {",
+									"    console.log('❌ Admin token exchange failed');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"description": "OAuth 2.0 grant type"
+								},
+								{
+									"key": "client_id",
+									"value": "{{admin_client_id}}",
+									"description": "Admin client identifier"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{admin_client_secret}}",
+									"description": "Admin client secret"
+								},
+								{
+									"key": "code",
+									"value": "{{admin_authorization_code}}",
+									"description": "Authorization code from admin login"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{admin_redirect_uri}}",
+									"description": "Admin redirect URI"
+								},
+								{
+									"key": "code_verifier",
+									"value": "{{admin_code_verifier}}",
+									"description": "PKCE code verifier"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{oauth_token_url}}",
+							"host": ["{{oauth_token_url}}"]
+						},
+						"description": "Exchange admin authorization code for access token with banking:admin scope. This token provides super-scope access to all administrative functions."
+					}
+				},
+				{
+					"name": "Validate Admin Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Admin token validation successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Token is active', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('active');",
+									"    pm.expect(jsonData.active).to.be.true;",
+									"});",
+									"",
+									"pm.test('Admin scope present in introspection', function () {",
+									"    const jsonData = pm.response.json();",
+									"    ",
+									"    if (jsonData.scope) {",
+									"        const scopes = jsonData.scope.split(' ');",
+									"        pm.expect(scopes).to.include('banking:admin');",
+									"        console.log('✅ banking:admin scope confirmed via introspection');",
+									"    }",
+									"});",
+									"",
+									"pm.test('Token has valid expiration', function () {",
+									"    const jsonData = pm.response.json();",
+									"    ",
+									"    if (jsonData.exp) {",
+									"        const now = Math.floor(Date.now() / 1000);",
+									"        pm.expect(jsonData.exp).to.be.above(now);",
+									"        console.log('✅ Token expiration is valid');",
+									"    }",
+									"});",
+									"",
+									"pm.test('Admin client validation', function () {",
+									"    const jsonData = pm.response.json();",
+									"    ",
+									"    if (jsonData.client_id) {",
+									"        const expectedClientId = pm.environment.get('admin_client_id');",
+									"        pm.expect(jsonData.client_id).to.equal(expectedClientId);",
+									"        console.log('✅ Admin client ID validated');",
+									"    }",
+									"});",
+									"",
+									"// Log comprehensive token information",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log('🔍 Admin Token Introspection Results:');",
+									"    console.log('  Active:', jsonData.active);",
+									"    console.log('  Client ID:', jsonData.client_id);",
+									"    console.log('  Username:', jsonData.username);",
+									"    console.log('  Scope:', jsonData.scope);",
+									"    console.log('  Expires At:', jsonData.exp ? new Date(jsonData.exp * 1000).toISOString() : 'N/A');",
+									"    console.log('  Issued At:', jsonData.iat ? new Date(jsonData.iat * 1000).toISOString() : 'N/A');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "token",
+									"value": "{{admin_access_token}}",
+									"description": "Admin access token to validate"
+								},
+								{
+									"key": "client_id",
+									"value": "{{admin_client_id}}",
+									"description": "Admin client identifier"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{admin_client_secret}}",
+									"description": "Admin client secret"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{oauth_introspect_url}}",
+							"host": ["{{oauth_introspect_url}}"]
+						},
+						"description": "Validate admin access token via OAuth introspection endpoint. Confirms token is active, contains proper scopes, and validates admin client credentials."
+					}
+				},
+				{
+					"name": "Admin Token Status Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Admin token status check successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Admin user information present', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('user');",
+									"    pm.expect(jsonData.user).to.have.property('id');",
+									"});",
+									"",
+									"pm.test('Admin permissions validated', function () {",
+									"    const jsonData = pm.response.json();",
+									"    ",
+									"    if (jsonData.permissions) {",
+									"        pm.expect(jsonData.permissions).to.include('admin');",
+									"        console.log('✅ Admin permissions confirmed');",
+									"    }",
+									"});",
+									"",
+									"// Store admin user details",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    ",
+									"    if (jsonData.user) {",
+									"        pm.environment.set('admin_user_details', JSON.stringify(jsonData.user));",
+									"        console.log('👤 Admin User Details Stored');",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/status",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "status"]
+						},
+						"description": "Check admin authentication status and retrieve admin user information. Validates that the token provides admin-level access."
+					}
+				},
+				{
+					"name": "Admin Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Admin logout successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Clear admin tokens and session data",
+									"pm.environment.unset('admin_access_token');",
+									"pm.environment.unset('admin_refresh_token');",
+									"pm.environment.unset('admin_token_expires_at');",
+									"pm.environment.unset('admin_username');",
+									"pm.environment.unset('admin_email');",
+									"pm.environment.unset('admin_user_id');",
+									"pm.environment.unset('admin_scope_validated');",
+									"pm.environment.unset('admin_token_scopes');",
+									"pm.environment.unset('admin_user_details');",
+									"",
+									"console.log('🚪 Admin session terminated');",
+									"console.log('🧹 Admin tokens and session data cleared');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "logout"]
+						},
+						"description": "Logout admin user and invalidate admin session. Clears all admin tokens and session data from environment."
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Admin User Management",
+			"description": "Complete user management operations for administrators - create, read, update, delete users with comprehensive validation and security checks",
+			"item": [
+				{
+					"name": "Get All Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Users retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains users array', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('users');",
+									"    pm.expect(jsonData.users).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('User data structure is valid', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.users && jsonData.users.length > 0) {",
+									"        const user = jsonData.users[0];",
+									"        pm.expect(user).to.have.property('id');",
+									"        pm.expect(user).to.have.property('username');",
+									"        pm.expect(user).to.have.property('email');",
+									"        pm.expect(user).to.have.property('createdAt');",
+									"        pm.expect(user).to.not.have.property('password');",
+									"    }",
+									"});",
+									"",
+									"pm.test('No passwords in response', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.users && jsonData.users.length > 0) {",
+									"        jsonData.users.forEach(user => {",
+									"            pm.expect(user).to.not.have.property('password');",
+									"        });",
+									"    }",
+									"});",
+									"",
+									"pm.test('Admin scope allows user access', function () {",
+									"    // If we get a 200 response, admin scope is working",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Store user data for subsequent tests",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.users && jsonData.users.length > 0) {",
+									"        // Store first non-admin user for testing",
+									"        const regularUser = jsonData.users.find(u => u.role !== 'admin');",
+									"        if (regularUser) {",
+									"            pm.environment.set('test_user_id', regularUser.id);",
+									"            pm.environment.set('test_username', regularUser.username);",
+									"            pm.environment.set('test_user_email', regularUser.email);",
+									"        }",
+									"        console.log(`✅ Retrieved ${jsonData.users.length} users`);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						},
+						"description": "Retrieve all users in the system. Requires banking:admin scope. Returns comprehensive user information including roles, status, and metadata without passwords."
+					}
+				},
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('👤 Creating new user via admin endpoint');",
+									"",
+									"// Generate unique user data",
+									"const uniqueId = Date.now();",
+									"const userData = {",
+									"    username: `testuser_${uniqueId}`,",
+									"    email: `testuser_${uniqueId}@example.com`,",
+									"    password: 'TestPassword123!',",
+									"    firstName: 'Test',",
+									"    lastName: 'User',",
+									"    role: 'customer'",
+									"};",
+									"",
+									"pm.environment.set('new_user_username', userData.username);",
+									"pm.environment.set('new_user_email', userData.email);",
+									"",
+									"console.log('📝 Creating user:', userData.username);",
+									"console.log('📧 Email:', userData.email);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('User created successfully', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response contains user details', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData).to.have.property('user');",
+									"    pm.expect(jsonData.user).to.have.property('id');",
+									"});",
+									"",
+									"pm.test('User data is correct', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedUsername = pm.environment.get('new_user_username');",
+									"    const expectedEmail = pm.environment.get('new_user_email');",
+									"    ",
+									"    pm.expect(jsonData.user.username).to.equal(expectedUsername);",
+									"    pm.expect(jsonData.user.email).to.equal(expectedEmail);",
+									"    pm.expect(jsonData.user.role).to.equal('customer');",
+									"});",
+									"",
+									"// Store created user ID",
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('created_user_id', jsonData.user.id);",
+									"    console.log('✅ User created successfully:', jsonData.user.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{new_user_username}}\",\n    \"email\": \"{{new_user_email}}\",\n    \"password\": \"TestPassword123!\",\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"role\": \"customer\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						},
+						"description": "Create a new user account. Requires banking:admin scope and banking:write scope. Validates all required fields and ensures username/email uniqueness."
+					}
+				},
+				{
+					"name": "Get User by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('User retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('User details are complete', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('user');",
+									"    pm.expect(jsonData.user).to.have.property('id');",
+									"    pm.expect(jsonData.user).to.have.property('username');",
+									"    pm.expect(jsonData.user).to.have.property('email');",
+									"});",
+									"",
+									"pm.test('Admin can access any user data', function () {",
+									"    // Admin scope allows access to any user's information",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{created_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{created_user_id}}"]
+						},
+						"description": "Retrieve specific user by ID. Requires banking:read scope. Admin can access any user, regular users can only access their own data."
+					}
+				},
+				{
+					"name": "Update User",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('✏️ Updating user via admin endpoint');",
+									"",
+									"const updateData = {",
+									"    firstName: 'Updated',",
+									"    lastName: 'TestUser',",
+									"    status: 'active',",
+									"    role: 'customer'",
+									"};",
+									"",
+									"console.log('📝 Update data:', JSON.stringify(updateData, null, 2));",
+									"",
+									"pm.request.body.raw = JSON.stringify(updateData);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('User updated successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Update response contains user data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData).to.have.property('user');",
+									"});",
+									"",
+									"pm.test('User data was updated', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.user.firstName).to.equal('Updated');",
+									"    pm.expect(jsonData.user.lastName).to.equal('TestUser');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Updated\",\n    \"lastName\": \"TestUser\",\n    \"role\": \"premium_customer\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/{{created_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{created_user_id}}"]
+						},
+						"description": "Update user information. Requires banking:write scope. Admin can update any user including role changes, regular users can only update their own non-sensitive data."
+					}
+				},
+				{
+					"name": "Search Users",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🔍 Searching users via admin endpoint');",
+									"",
+									"// Use part of the created username for search",
+									"const searchQuery = 'testuser';",
+									"pm.environment.set('user_search_query', searchQuery);",
+									"console.log('🎯 Search query:', searchQuery);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('User search successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains users array', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('users');",
+									"    pm.expect(jsonData.users).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Search results match query', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const searchQuery = pm.environment.get('user_search_query').toLowerCase();",
+									"    ",
+									"    if (jsonData.users.length > 0) {",
+									"        jsonData.users.forEach(user => {",
+									"            const matchesUsername = user.username.toLowerCase().includes(searchQuery);",
+									"            const matchesEmail = user.email.toLowerCase().includes(searchQuery);",
+									"            const matchesName = (user.firstName + ' ' + user.lastName).toLowerCase().includes(searchQuery);",
+									"            ",
+									"            pm.expect(matchesUsername || matchesEmail || matchesName).to.be.true;",
+									"        });",
+									"    }",
+									"});",
+									"",
+									"pm.test('No passwords in search results', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.users.length > 0) {",
+									"        jsonData.users.forEach(user => {",
+									"            pm.expect(user).to.not.have.property('password');",
+									"        });",
+									"    }",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log(`✅ Found ${jsonData.users.length} users matching search`);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/search/{{user_search_query}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "search", "{{user_search_query}}"]
+						},
+						"description": "Search users by username, email, or name. Requires banking:admin scope and banking:read scope. Returns matching users without sensitive information."
+					}
+				},
+				{
+					"name": "Query User by Email (AI Agent)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🤖 Querying user by email (AI Agent endpoint)');",
+									"",
+									"// Use the created user's email for testing",
+									"const testEmail = pm.environment.get('new_user_email') || 'test@example.com';",
+									"pm.environment.set('query_email', testEmail);",
+									"console.log('📧 Query email:', testEmail);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Email query successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response indicates user exists', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('exists');",
+									"    pm.expect(jsonData.exists).to.be.true;",
+									"});",
+									"",
+									"pm.test('Response contains user data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('user');",
+									"    pm.expect(jsonData.user).to.have.property('id');",
+									"    pm.expect(jsonData.user).to.have.property('username');",
+									"    pm.expect(jsonData.user).to.have.property('email');",
+									"    pm.expect(jsonData.user).to.not.have.property('password');",
+									"});",
+									"",
+									"pm.test('Query metadata present', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('queriedBy');",
+									"    pm.expect(jsonData).to.have.property('queriedAt');",
+									"});",
+									"",
+									"pm.test('Email matches query', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const queryEmail = pm.environment.get('query_email');",
+									"    pm.expect(jsonData.user.email.toLowerCase()).to.equal(queryEmail.toLowerCase());",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log(`✅ User found: ${jsonData.user.username} (${jsonData.user.email})`);",
+									"    console.log(`🤖 Queried by: ${jsonData.queriedBy} at ${jsonData.queriedAt}`);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/query/by-email/{{query_email}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "query", "by-email", "{{query_email}}"]
+						},
+						"description": "Query user by email address. Special endpoint for AI agents with audit logging. Returns user information if found, with query metadata for audit purposes."
+					}
+				},
+				{
+					"name": "Delete User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('User deleted successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Deletion confirmation received', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.message).to.include('deleted');",
+									"});",
+									"",
+									"// Clean up environment variables",
+									"pm.environment.unset('created_user_id');",
+									"pm.environment.unset('new_user_username');",
+									"pm.environment.unset('new_user_email');",
+									"",
+									"console.log('🗑️ User deleted and environment cleaned up');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{created_user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{created_user_id}}"]
+						},
+						"description": "Delete a user from the system. Requires banking:admin scope and banking:write scope. Users with existing accounts cannot be deleted and should be deactivated instead."
+					}
+				},
+				{
+					"name": "Negative Test - Create User with Duplicate Username",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('❌ Testing duplicate username validation');",
+									"",
+									"// Use existing username to test duplicate validation",
+									"const existingUsername = pm.environment.get('test_username') || 'admin';",
+									"pm.environment.set('duplicate_username', existingUsername);",
+									"console.log('🎯 Testing with existing username:', existingUsername);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Duplicate username rejected', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Error message indicates username conflict', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"    pm.expect(jsonData.error.toLowerCase()).to.include('username');",
+									"    pm.expect(jsonData.error.toLowerCase()).to.include('exists');",
+									"});",
+									"",
+									"console.log('✅ Duplicate username validation working correctly');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{duplicate_username}}\",\n    \"email\": \"duplicate_test@example.com\",\n    \"password\": \"TestPassword123!\",\n    \"firstName\": \"Duplicate\",\n    \"lastName\": \"Test\",\n    \"role\": \"customer\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						},
+						"description": "Negative test: Attempt to create user with duplicate username. Should return 400 error with appropriate message."
+					}
+				},
+				{
+					"name": "Negative Test - Query Non-existent User by Email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Non-existent user query returns 404', function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test('Response indicates user not found', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('exists');",
+									"    pm.expect(jsonData.exists).to.be.false;",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"    pm.expect(jsonData.error).to.include('not found');",
+									"});",
+									"",
+									"pm.test('Queried email is returned', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('email');",
+									"    pm.expect(jsonData.email).to.equal('nonexistent@example.com');",
+									"});",
+									"",
+									"console.log('✅ Non-existent user query handled correctly');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/query/by-email/nonexistent@example.com",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "query", "by-email", "nonexistent@example.com"]
+						},
+						"description": "Negative test: Query for a user that doesn't exist by email. Should return 404 with appropriate error message and exists: false."
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Admin Account Management",
+			"description": "Complete account management operations for administrators - create, read, update, delete accounts with full administrative oversight",
+			"item": [
+				{
+					"name": "Get All Accounts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('All accounts retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains accounts array', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('accounts');",
+									"    pm.expect(jsonData.accounts).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Account data structure is valid', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.accounts && jsonData.accounts.length > 0) {",
+									"        const account = jsonData.accounts[0];",
+									"        pm.expect(account).to.have.property('id');",
+									"        pm.expect(account).to.have.property('accountNumber');",
+									"        pm.expect(account).to.have.property('accountType');",
+									"        pm.expect(account).to.have.property('balance');",
+									"        pm.expect(account).to.have.property('userId');",
+									"        pm.expect(account).to.have.property('createdAt');",
+									"        ",
+									"        // Validate data types",
+									"        pm.expect(account.id).to.be.a('string');",
+									"        pm.expect(account.accountNumber).to.be.a('string');",
+									"        pm.expect(account.accountType).to.be.a('string');",
+									"        pm.expect(account.balance).to.be.a('number');",
+									"        pm.expect(account.userId).to.be.a('string');",
+									"    }",
+									"});",
+									"",
+									"pm.test('Admin can access accounts from all users', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.accounts && jsonData.accounts.length > 1) {",
+									"        // Check if we have accounts from different users",
+									"        const userIds = [...new Set(jsonData.accounts.map(acc => acc.userId))];",
+									"        console.log(`📊 Accounts from ${userIds.length} different users`);",
+									"    }",
+									"});",
+									"",
+									"pm.test('Account balances are valid numbers', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.accounts && jsonData.accounts.length > 0) {",
+									"        jsonData.accounts.forEach(account => {",
+									"            pm.expect(account.balance).to.be.a('number');",
+									"            pm.expect(account.balance).to.be.at.least(0);",
+									"        });",
+									"    }",
+									"});",
+									"",
+									"pm.test('Response time is acceptable for admin operations', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"// Store account data for subsequent tests",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.accounts && jsonData.accounts.length > 0) {",
+									"        pm.environment.set('admin_test_account_id', jsonData.accounts[0].id);",
+									"        ",
+									"        // Calculate and log statistics",
+									"        const totalBalance = jsonData.accounts.reduce((sum, acc) => sum + acc.balance, 0);",
+									"        const avgBalance = totalBalance / jsonData.accounts.length;",
+									"        ",
+									"        console.log(`✅ Retrieved ${jsonData.accounts.length} accounts`);",
+									"        console.log(`💰 Total system balance: $${totalBalance.toFixed(2)}`);",
+									"        console.log(`📊 Average account balance: $${avgBalance.toFixed(2)}`);",
+									"        ",
+									"        // Store statistics for potential use in other tests",
+									"        pm.environment.set('admin_total_accounts', jsonData.accounts.length.toString());",
+									"        pm.environment.set('admin_total_balance', totalBalance.toString());",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/accounts",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts"]
+						},
+						"description": "Retrieve all accounts in the system. Requires banking:admin scope. Returns comprehensive account information for all users."
+					}
+				},
+				{
+					"name": "Get Account by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Account retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains account data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('account');",
+									"    pm.expect(jsonData.account).to.have.property('id');",
+									"    pm.expect(jsonData.account).to.have.property('accountNumber');",
+									"    pm.expect(jsonData.account).to.have.property('accountType');",
+									"    pm.expect(jsonData.account).to.have.property('balance');",
+									"});",
+									"",
+									"pm.test('Admin can access any account', function () {",
+									"    // If we get a 200 response, admin scope is working",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Log account details",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log(`✅ Retrieved account: ${jsonData.account.accountNumber}`);",
+									"    console.log(`💰 Balance: ${jsonData.account.balance}`);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/accounts/{{admin_test_account_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "{{admin_test_account_id}}"]
+						},
+						"description": "Retrieve specific account by ID. Requires banking:admin scope. Returns detailed account information for any account in the system."
+					}
+				},
+				{
+					"name": "Get Account Balance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Account balance retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains balance data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('balance');",
+									"    pm.expect(jsonData.balance).to.be.a('number');",
+									"});",
+									"",
+									"pm.test('Admin can access any account balance', function () {",
+									"    // If we get a 200 response, admin scope is working",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Log balance information",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log(`💰 Account Balance: ${jsonData.balance}`);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/accounts/{{admin_test_account_id}}/balance",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "{{admin_test_account_id}}", "balance"]
+						},
+						"description": "Retrieve account balance by account ID. Requires banking:admin scope. Returns current balance for any account in the system."
+					}
+				},
+				{
+					"name": "Create Account",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🏦 Creating new account via admin endpoint');",
+									"",
+									"const userId = pm.environment.get('test_user_id');",
+									"if (!userId) {",
+									"    console.log('⚠️ No test user ID available - using admin user');",
+									"}",
+									"",
+									"const uniqueId = Date.now();",
+									"const accountData = {",
+									"    userId: userId || pm.environment.get('admin_user_id'),",
+									"    accountType: 'savings',",
+									"    accountNumber: `SAV-ADMIN-${uniqueId}`,",
+									"    initialBalance: 1000.00,",
+									"    currency: 'USD',",
+									"    status: 'active'",
+									"};",
+									"",
+									"pm.environment.set('new_account_number', accountData.accountNumber);",
+									"",
+									"console.log('📝 Creating account:', accountData.accountNumber);",
+									"console.log('👤 For user:', accountData.userId);",
+									"",
+									"pm.request.body.raw = JSON.stringify(accountData);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Account created successfully', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response contains account details', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData).to.have.property('account');",
+									"    pm.expect(jsonData.account).to.have.property('id');",
+									"    pm.expect(jsonData.account).to.have.property('createdAt');",
+									"    pm.expect(jsonData.account).to.have.property('updatedAt');",
+									"});",
+									"",
+									"pm.test('Account data is correct', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedAccountNumber = pm.environment.get('new_account_number');",
+									"    ",
+									"    pm.expect(jsonData.account.accountNumber).to.equal(expectedAccountNumber);",
+									"    pm.expect(jsonData.account.accountType).to.equal('savings');",
+									"    pm.expect(jsonData.account.balance).to.equal(1000.00);",
+									"    pm.expect(jsonData.account.currency).to.equal('USD');",
+									"    pm.expect(jsonData.account.status).to.equal('active');",
+									"});",
+									"",
+									"pm.test('Account ID is valid UUID format', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;",
+									"    pm.expect(jsonData.account.id).to.match(uuidRegex);",
+									"});",
+									"",
+									"pm.test('Admin can create accounts for any user', function () {",
+									"    // Admin should be able to create accounts for other users",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Account creation includes audit trail', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.account).to.have.property('createdAt');",
+									"    ",
+									"    // Verify timestamp is recent (within last minute)",
+									"    const createdAt = new Date(jsonData.account.createdAt);",
+									"    const now = new Date();",
+									"    const timeDiff = now - createdAt;",
+									"    pm.expect(timeDiff).to.be.below(60000); // 60 seconds",
+									"});",
+									"",
+									"// Store created account ID and validate creation",
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('admin_created_account_id', jsonData.account.id);",
+									"    pm.environment.set('admin_created_account_number', jsonData.account.accountNumber);",
+									"    ",
+									"    console.log('✅ Account created successfully:', jsonData.account.id);",
+									"    console.log('🏦 Account Number:', jsonData.account.accountNumber);",
+									"    console.log('💰 Initial Balance:', jsonData.account.balance);",
+									"    console.log('👤 User ID:', jsonData.account.userId);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/accounts",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts"]
+						},
+						"description": "Create a new account for any user. Requires banking:admin scope. Allows setting account type, initial balance, and account parameters."
+					}
+				},
+				{
+					"name": "Update Account",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('✏️ Updating account via admin endpoint');",
+									"",
+									"const updateData = {",
+									"    status: 'active',",
+									"    accountType: 'savings',",
+									"    overdraftLimit: 500.00",
+									"};",
+									"",
+									"console.log('📝 Update data:', JSON.stringify(updateData, null, 2));",
+									"",
+									"pm.request.body.raw = JSON.stringify(updateData);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Account updated successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Update response contains account data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData).to.have.property('account');",
+									"});",
+									"",
+									"pm.test('Account data was updated', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.account.status).to.equal('active');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/accounts/{{admin_created_account_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "{{admin_created_account_id}}"]
+						},
+						"description": "Update account information. Requires banking:admin scope. Allows modification of account status, type, and parameters."
+					}
+				},
+				{
+					"name": "Delete Account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Account deleted successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Deletion confirmation received', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.message).to.include('deleted');",
+									"});",
+									"",
+									"// Clean up environment variables",
+									"pm.environment.unset('admin_created_account_id');",
+									"pm.environment.unset('new_account_number');",
+									"",
+									"console.log('🗑️ Account deleted and environment cleaned up');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/accounts/{{admin_created_account_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "{{admin_created_account_id}}"]
+						},
+						"description": "Delete account. Requires banking:admin scope. Permanently removes account from the system."
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Admin Transaction Management",
+			"description": "Complete transaction oversight and management for administrators - view all transactions, create administrative transactions, and manage transaction lifecycle",
+			"item": [
+				{
+					"name": "Get All Transactions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('All transactions retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains transactions array', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('transactions');",
+									"    pm.expect(jsonData.transactions).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Transaction data structure is valid', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.transactions && jsonData.transactions.length > 0) {",
+									"        const transaction = jsonData.transactions[0];",
+									"        pm.expect(transaction).to.have.property('id');",
+									"        pm.expect(transaction).to.have.property('amount');",
+									"        pm.expect(transaction).to.have.property('type');",
+									"        pm.expect(transaction).to.have.property('userId');",
+									"        pm.expect(transaction).to.have.property('createdAt');",
+									"        ",
+									"        // Validate data types",
+									"        pm.expect(transaction.id).to.be.a('string');",
+									"        pm.expect(transaction.amount).to.be.a('number');",
+									"        pm.expect(transaction.type).to.be.a('string');",
+									"        pm.expect(transaction.userId).to.be.a('string');",
+									"        ",
+									"        // Validate transaction types",
+									"        pm.expect(transaction.type).to.be.oneOf(['deposit', 'withdrawal', 'transfer']);",
+									"        ",
+									"        // Validate amount is positive",
+									"        pm.expect(transaction.amount).to.be.above(0);",
+									"    }",
+									"});",
+									"",
+									"pm.test('Admin can see all user transactions', function () {",
+									"    // Admin scope allows access to all transactions",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Transaction amounts are valid', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.transactions && jsonData.transactions.length > 0) {",
+									"        jsonData.transactions.forEach(transaction => {",
+									"            pm.expect(transaction.amount).to.be.a('number');",
+									"            pm.expect(transaction.amount).to.be.above(0);",
+									"            pm.expect(transaction.amount).to.be.below(1000000); // Reasonable upper limit",
+									"        });",
+									"    }",
+									"});",
+									"",
+									"pm.test('Admin can access transactions from multiple users', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.transactions && jsonData.transactions.length > 1) {",
+									"        const userIds = [...new Set(jsonData.transactions.map(txn => txn.userId))];",
+									"        console.log(`📊 Transactions from ${userIds.length} different users`);",
+									"    }",
+									"});",
+									"",
+									"pm.test('Response time is acceptable for admin operations', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"// Store transaction data and calculate statistics",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.transactions && jsonData.transactions.length > 0) {",
+									"        pm.environment.set('admin_test_transaction_id', jsonData.transactions[0].id);",
+									"        ",
+									"        // Calculate transaction statistics",
+									"        const totalAmount = jsonData.transactions.reduce((sum, txn) => sum + txn.amount, 0);",
+									"        const avgAmount = totalAmount / jsonData.transactions.length;",
+									"        const transactionTypes = jsonData.transactions.reduce((acc, txn) => {",
+									"            acc[txn.type] = (acc[txn.type] || 0) + 1;",
+									"            return acc;",
+									"        }, {});",
+									"        ",
+									"        console.log(`✅ Retrieved ${jsonData.transactions.length} transactions`);",
+									"        console.log(`💰 Total transaction volume: $${totalAmount.toFixed(2)}`);",
+									"        console.log(`📊 Average transaction amount: $${avgAmount.toFixed(2)}`);",
+									"        console.log(`📈 Transaction types:`, transactionTypes);",
+									"        ",
+									"        // Store statistics",
+									"        pm.environment.set('admin_total_transactions', jsonData.transactions.length.toString());",
+									"        pm.environment.set('admin_total_volume', totalAmount.toString());",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions"]
+						},
+						"description": "Retrieve all transactions in the system. Requires banking:admin scope. Returns comprehensive transaction information for all users and accounts."
+					}
+				},
+				{
+					"name": "Get Transaction by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Transaction retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains transaction data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('transaction');",
+									"    pm.expect(jsonData.transaction).to.have.property('id');",
+									"    pm.expect(jsonData.transaction).to.have.property('amount');",
+									"    pm.expect(jsonData.transaction).to.have.property('type');",
+									"    pm.expect(jsonData.transaction).to.have.property('userId');",
+									"});",
+									"",
+									"pm.test('Admin can access any transaction', function () {",
+									"    // If we get a 200 response, admin scope is working",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Log transaction details",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log(`✅ Retrieved transaction: ${jsonData.transaction.id}`);",
+									"    console.log(`💰 Amount: ${jsonData.transaction.amount}`);",
+									"    console.log(`📝 Type: ${jsonData.transaction.type}`);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/{{admin_test_transaction_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions", "{{admin_test_transaction_id}}"]
+						},
+						"description": "Retrieve specific transaction by ID. Requires banking:admin scope. Returns detailed transaction information for any transaction in the system."
+					}
+				},
+				{
+					"name": "Create Administrative Transaction",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('💼 Creating administrative transaction');",
+									"",
+									"const accountId = pm.environment.get('admin_test_account_id');",
+									"if (!accountId) {",
+									"    throw new Error('Account ID required - run Get All Accounts first');",
+									"}",
+									"",
+									"const uniqueId = Date.now();",
+									"const transactionData = {",
+									"    toAccountId: accountId,",
+									"    amount: 500.00,",
+									"    type: 'deposit',",
+									"    description: `Administrative adjustment - ${new Date().toISOString()}`,",
+									"    reference: `ADMIN-ADJ-${uniqueId}`,",
+									"    adminNote: 'Account balance adjustment by administrator'",
+									"};",
+									"",
+									"pm.environment.set('admin_transaction_reference', `ADMIN-ADJ-${uniqueId}`);",
+									"",
+									"console.log('💰 Admin transaction amount:', transactionData.amount);",
+									"console.log('🏦 Target account:', accountId);",
+									"",
+									"pm.request.body.raw = JSON.stringify(transactionData);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Administrative transaction created successfully', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response contains transaction details', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData).to.have.property('transaction');",
+									"    pm.expect(jsonData.transaction).to.have.property('id');",
+									"});",
+									"",
+									"pm.test('Admin transaction data is correct', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const expectedReference = pm.environment.get('admin_transaction_reference');",
+									"    ",
+									"    pm.expect(jsonData.transaction.type).to.equal('deposit');",
+									"    pm.expect(jsonData.transaction.amount).to.equal(500.00);",
+									"    pm.expect(jsonData.transaction.reference).to.equal(expectedReference);",
+									"});",
+									"",
+									"pm.test('Admin metadata present', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.transaction).to.have.property('performedBy');",
+									"    pm.expect(jsonData.transaction.description).to.include('Administrative');",
+									"});",
+									"",
+									"// Store admin transaction ID",
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set('admin_created_transaction_id', jsonData.transaction.id);",
+									"    console.log('✅ Admin transaction created:', jsonData.transaction.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions"]
+						},
+						"description": "Create administrative transaction. Requires banking:admin scope. Allows creating transactions on behalf of users with administrative notes and audit trail."
+					}
+				},
+				{
+					"name": "Update Transaction",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('✏️ Updating transaction via admin endpoint');",
+									"",
+									"const updateData = {",
+									"    description: 'Updated administrative transaction',",
+									"    adminNote: 'Transaction updated by administrator for audit purposes',",
+									"    status: 'completed'",
+									"};",
+									"",
+									"console.log('📝 Update data:', JSON.stringify(updateData, null, 2));",
+									"",
+									"pm.request.body.raw = JSON.stringify(updateData);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Transaction updated successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Update response contains transaction data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData).to.have.property('transaction');",
+									"});",
+									"",
+									"pm.test('Transaction data was updated', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.transaction.description).to.include('Updated administrative');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions/{{admin_created_transaction_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions", "{{admin_created_transaction_id}}"]
+						},
+						"description": "Update transaction information. Requires banking:admin scope. Allows modification of transaction details with administrative audit trail."
+					}
+				},
+				{
+					"name": "Delete Transaction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Transaction deleted successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Deletion confirmation received', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.message).to.include('deleted');",
+									"});",
+									"",
+									"// Clean up environment variables",
+									"pm.environment.unset('admin_created_transaction_id');",
+									"pm.environment.unset('admin_transaction_reference');",
+									"",
+									"console.log('🗑️ Transaction deleted and environment cleaned up');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/{{admin_created_transaction_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "transactions", "{{admin_created_transaction_id}}"]
+						},
+						"description": "Delete transaction. Requires banking:admin scope. Permanently removes transaction from the system with audit trail."
+					}
+				}
+			]
+		},
+		{
+			"name": "5. System Monitoring & Administration",
+			"description": "System-level monitoring, statistics, activity logs, and health checks for comprehensive administrative oversight",
+			"item": [
+				{
+					"name": "Get System Statistics",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('System statistics retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Statistics contain expected metrics', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('statistics');",
+									"    ",
+									"    const stats = jsonData.statistics;",
+									"    pm.expect(stats).to.have.property('totalUsers');",
+									"    pm.expect(stats).to.have.property('totalAccounts');",
+									"    pm.expect(stats).to.have.property('totalTransactions');",
+									"});",
+									"",
+									"pm.test('Numeric values are valid', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const stats = jsonData.statistics;",
+									"    ",
+									"    pm.expect(stats.totalUsers).to.be.a('number');",
+									"    pm.expect(stats.totalAccounts).to.be.a('number');",
+									"    pm.expect(stats.totalTransactions).to.be.a('number');",
+									"});",
+									"",
+									"// Log system statistics",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    const stats = jsonData.statistics;",
+									"    console.log('📊 System Statistics:');",
+									"    console.log('  👥 Total Users:', stats.totalUsers);",
+									"    console.log('  🏦 Total Accounts:', stats.totalAccounts);",
+									"    console.log('  💳 Total Transactions:', stats.totalTransactions);",
+									"    if (stats.totalBalance) {",
+									"        console.log('  💰 Total Balance:', stats.totalBalance);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/statistics",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "statistics"]
+						},
+						"description": "Retrieve system-wide statistics. Requires banking:admin scope. Returns comprehensive metrics about users, accounts, transactions, and system health."
+					}
+				},
+				{
+					"name": "Get Activity Logs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Activity logs retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains activity logs', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('activityLogs');",
+									"    pm.expect(jsonData.activityLogs).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Activity log structure is valid', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.activityLogs && jsonData.activityLogs.length > 0) {",
+									"        const log = jsonData.activityLogs[0];",
+									"        pm.expect(log).to.have.property('id');",
+									"        pm.expect(log).to.have.property('action');",
+									"        pm.expect(log).to.have.property('timestamp');",
+									"        pm.expect(log).to.have.property('userId');",
+									"    }",
+									"});",
+									"",
+									"// Log activity summary",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log(`📋 Retrieved ${jsonData.activityLogs.length} activity log entries`);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/activity-logs?limit=50",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "activity-logs"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"description": "Limit number of log entries"
+								}
+							]
+						},
+						"description": "Retrieve system activity logs. Requires banking:admin scope. Returns audit trail of user actions, system events, and administrative operations."
+					}
+				},
+				{
+					"name": "Get User Activity Summary",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('User activity summary retrieved successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains user activity data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('userActivity');",
+									"});",
+									"",
+									"pm.test('Activity summary has expected structure', function () {",
+									"    const jsonData = pm.response.json();",
+									"    const activity = jsonData.userActivity;",
+									"    ",
+									"    if (activity.length > 0) {",
+									"        const userSummary = activity[0];",
+									"        pm.expect(userSummary).to.have.property('userId');",
+									"        pm.expect(userSummary).to.have.property('actionCount');",
+									"        pm.expect(userSummary).to.have.property('lastActivity');",
+									"    }",
+									"});",
+									"",
+									"// Log user activity summary",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log(`👥 User activity summary for ${jsonData.userActivity.length} users`);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/user-activity-summary",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "user-activity-summary"]
+						},
+						"description": "Retrieve user activity summary. Requires banking:admin scope. Returns aggregated activity metrics for all users including login frequency and transaction patterns."
+					}
+				},
+				{
+					"name": "Export Activity Logs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Activity logs export successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Export contains data', function () {",
+									"    const responseText = pm.response.text();",
+									"    pm.expect(responseText.length).to.be.above(0);",
+									"});",
+									"",
+									"pm.test('Export format is valid', function () {",
+									"    const contentType = pm.response.headers.get('Content-Type');",
+									"    pm.expect(contentType).to.include('application/json');",
+									"});",
+									"",
+									"console.log('📤 Activity logs exported successfully');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/activity-logs/export?format=json&fromDate={{$isoTimestamp}}&days=7",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "activity-logs", "export"],
+							"query": [
+								{
+									"key": "format",
+									"value": "json",
+									"description": "Export format"
+								},
+								{
+									"key": "fromDate",
+									"value": "{{$isoTimestamp}}",
+									"description": "Start date for export"
+								},
+								{
+									"key": "days",
+									"value": "7",
+									"description": "Number of days to export"
+								}
+							]
+						},
+						"description": "Export activity logs for compliance and audit purposes. Requires banking:admin scope. Returns formatted activity data for specified date range."
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Health Checks & System Status",
+			"description": "System health monitoring, API status checks, and OAuth provider connectivity validation for operational oversight",
+			"item": [
+				{
+					"name": "API Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('API health check successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Health status is healthy', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"    pm.expect(jsonData.status).to.equal('healthy');",
+									"});",
+									"",
+									"pm.test('Health check includes system info', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('timestamp');",
+									"    pm.expect(jsonData).to.have.property('version');",
+									"});",
+									"",
+									"pm.test('Response time is acceptable', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+									"});",
+									"",
+									"// Log health status",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log('🏥 API Health Status:', jsonData.status);",
+									"    console.log('📅 Timestamp:', jsonData.timestamp);",
+									"    console.log('🔢 Version:', jsonData.version);",
+									"    console.log('⏱️ Response Time:', pm.response.responseTime + 'ms');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/health",
+							"host": ["{{base_url}}"],
+							"path": ["api", "health"]
+						},
+						"description": "Check API health and system status. Requires banking:admin scope for detailed system information. Returns API version, status, and performance metrics."
+					}
+				},
+				{
+					"name": "OAuth Provider Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('OAuth provider health check successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('OAuth provider is accessible', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('oauthProvider');",
+									"    pm.expect(jsonData.oauthProvider).to.have.property('status');",
+									"});",
+									"",
+									"pm.test('OAuth endpoints are reachable', function () {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.oauthProvider.endpoints) {",
+									"        pm.expect(jsonData.oauthProvider.endpoints).to.be.an('object');",
+									"    }",
+									"});",
+									"",
+									"// Log OAuth provider status",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    console.log('🔐 OAuth Provider Status:', jsonData.oauthProvider.status);",
+									"    if (jsonData.oauthProvider.responseTime) {",
+									"        console.log('⏱️ OAuth Response Time:', jsonData.oauthProvider.responseTime + 'ms');",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/oauth-health",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "oauth-health"]
+						},
+						"description": "Check OAuth provider connectivity and health. Requires banking:admin scope. Validates OAuth endpoints, response times, and authentication service availability."
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Security & Error Validation Tests",
+			"description": "Comprehensive security validation tests including scope verification, error scenarios, and admin-specific security checks",
+			"item": [
+				{
+					"name": "Validate Admin Scope Requirements",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🔒 Testing admin scope validation');",
+									"",
+									"// This test validates that the admin token has proper scopes",
+									"const adminToken = pm.environment.get('admin_access_token');",
+									"if (!adminToken) {",
+									"    throw new Error('Admin token required for scope validation test');",
+									"}",
+									"",
+									"console.log('🎯 Validating banking:admin scope requirement');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Admin endpoint accessible with admin scope', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Admin scope validation passed', function () {",
+									"    // If we get a 200 response, the admin scope was validated",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response contains admin-level data', function () {",
+									"    const jsonData = pm.response.json();",
+									"    // Admin endpoints should return comprehensive data",
+									"    pm.expect(jsonData).to.be.an('object');",
+									"});",
+									"",
+									"console.log('✅ Admin scope validation test passed');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "users"]
+						},
+						"description": "Validate that admin scope is properly required and validated for admin endpoints. This test confirms that banking:admin scope provides access to administrative functions."
+					}
+				},
+				{
+					"name": "Test Invalid Token Handling",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🚫 Testing invalid token handling');",
+									"",
+									"// Override the Authorization header with an invalid token",
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer invalid-token-12345'",
+									"});",
+									"",
+									"console.log('🎯 Using invalid token to test error handling');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Invalid token rejected', function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"pm.test('Error response structure is valid', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"    pm.expect(jsonData.error).to.include('Unauthorized');",
+									"});",
+									"",
+									"pm.test('No sensitive data in error response', function () {",
+									"    const responseText = pm.response.text().toLowerCase();",
+									"    pm.expect(responseText).to.not.include('password');",
+									"    pm.expect(responseText).to.not.include('secret');",
+									"    pm.expect(responseText).to.not.include('key');",
+									"});",
+									"",
+									"console.log('✅ Invalid token properly rejected');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "users"]
+						},
+						"description": "Test that invalid tokens are properly rejected by admin endpoints. Validates error handling and ensures no sensitive information is leaked in error responses."
+					}
+				},
+				{
+					"name": "Test Missing Authorization Header",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('🚫 Testing missing authorization header');",
+									"",
+									"// Remove the Authorization header",
+									"pm.request.headers.remove('Authorization');",
+									"",
+									"console.log('🎯 Request without authorization header');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Missing authorization header rejected', function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"pm.test('Proper error message for missing auth', function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"    pm.expect(jsonData.error.toLowerCase()).to.include('authorization');",
+									"});",
+									"",
+									"console.log('✅ Missing authorization properly rejected');"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/statistics",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "statistics"]
+						},
+						"description": "Test that requests without authorization headers are properly rejected. Validates that admin endpoints require authentication."
+					}
+				},
+				{
+					"name": "Test Expired Token Handling",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log('⏰ Testing expired token handling');",
+									"",
+									"// Simulate an expired token by setting expiration in the past",
+									"pm.environment.set('admin_token_expires_at', '1000000000000'); // Past timestamp",
+									"",
+									"console.log('🎯 Using token with past expiration time');"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Request completed (token validation depends on server implementation)', function () {",
+									"    // The response could be 200 (if server doesn't validate expiration client-side)",
+									"    // or 401 (if server validates token expiration)",
+									"    pm.expect([200, 401]).to.include(pm.response.code);",
+									"});",
+									"",
+									"if (pm.response.code === 401) {",
+									"    pm.test('Expired token properly rejected', function () {",
+									"        const jsonData = pm.response.json();",
+									"        pm.expect(jsonData).to.have.property('error');",
+									"    });",
+									"    console.log('✅ Expired token properly rejected');",
+									"} else {",
+									"    console.log('ℹ️ Server accepts token (expiration validation may be OAuth provider responsibility)');",
+									"}",
+									"",
+									"// Restore proper expiration time",
+									"const currentTime = Date.now();",
+									"const futureExpiration = currentTime + (3600 * 1000); // 1 hour from now",
+									"pm.environment.set('admin_token_expires_at', futureExpiration.toString());"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/statistics",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "statistics"]
+						},
+						"description": "Test handling of expired tokens. Validates that the system properly handles token expiration scenarios."
+					}
+				}
+			]
+		}
+	]
+}

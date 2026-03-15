@@ -5,6 +5,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import { FiAlertTriangle, FiCheckCircle, FiInfo } from '../../icons';
+import { FlowHeader } from '../../services/flowHeaderService';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -12,35 +13,6 @@ const PageContainer = styled.div`
 	padding: 2rem;
 	background: V9_COLORS.TEXT.WHITE;
 	min-height: 100vh;
-`;
-
-const Header = styled.div`
-	text-align: center;
-	margin-bottom: 3rem;
-	padding: 2rem;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	color: white;
-	border-radius: 0.75rem;
-	margin-bottom: 2rem;
-
-	h1 {
-		font-size: 2.5rem;
-		font-weight: 700;
-		margin-bottom: 1rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.75rem;
-		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	}
-
-	p {
-		font-size: 1.125rem;
-		max-width: 800px;
-		margin: 0 auto;
-		line-height: 1.6;
-		opacity: 0.95;
-	}
 `;
 
 const Section = styled.section`
@@ -216,17 +188,15 @@ const Link = styled.a`
 const SpiffeSpirePingOne: React.FC = () => {
 	return (
 		<PageContainer>
-			<Header>
-				<h1>
-					<span>🛡️</span>
-					SPIFFE & SPIRE with PingOne SSO
-				</h1>
-				<p>
-					Learn how to integrate SPIFFE (Secure Production Identity Framework for Everyone) and
-					SPIRE (SPIFFE Runtime Environment) with PingOne for secure workload authentication and
-					Single Sign-On.
-				</p>
-			</Header>
+			<FlowHeader
+				customConfig={{
+					flowType: 'pingone',
+					title: 'SPIFFE & SPIRE with PingOne SSO',
+					subtitle:
+						'Learn how to integrate SPIFFE (Secure Production Identity Framework for Everyone) and SPIRE (SPIFFE Runtime Environment) with PingOne for secure workload authentication and Single Sign-On.',
+					icon: '🛡️',
+				}}
+			/>
 
 			<Section>
 				<SectionTitle>

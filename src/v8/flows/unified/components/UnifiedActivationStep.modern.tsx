@@ -23,6 +23,7 @@ import { PageTransition } from '@/v8/components/PageTransition';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import {
 	FiAlertCircle,
 	FiArrowLeft,
@@ -166,15 +167,12 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 			setValidationAttempts((prev) => prev + 1);
 		} catch (error: unknown) {
 			setValidationAttempts((prev) => prev + 1);
-			const msg = error instanceof Error ? error.message : 'Invalid OTP code';
-			setOtpError(msg);
-			nav.setValidationErrors([msg]);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Activation Failed',
-				message: msg,
-				dismissible: true,
-			});
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{ operation: 'activate-device', component: MODULE_TAG },
+				{ setValidationErrors: nav.setValidationErrors }
+			);
+			setOtpError(parsed.userFriendlyMessage);
 			setOtp('');
 		} finally {
 			setIsLoading(false);
@@ -200,14 +198,11 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 			setOtp('');
 			setOtpError(null);
 		} catch (error: unknown) {
-			const msg = error instanceof Error ? error.message : 'Failed to resend verification code';
-			setOtpError(msg);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: msg,
-				dismissible: true,
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'resend-verification-code',
+				component: MODULE_TAG,
 			});
+			setOtpError(parsed.userFriendlyMessage);
 			setCanResend(true);
 			setResendCooldown(0);
 		} finally {

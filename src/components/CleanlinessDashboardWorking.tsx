@@ -148,7 +148,7 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 ];
 
 // ─── AUTO-GENERATED: live scan items — do not edit manually ───
-// Last updated: 2026-03-13T16:36:56.897Z
+// Last updated: 2026-03-15T13:43:03.075Z
 
 const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
   {
@@ -183,7 +183,7 @@ const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
     "id": "v9-logger-migration",
     "description": "console.* → logger.* migration",
     "status": "warning",
-    "countLabel": "54 console.error/warn remaining",
+    "countLabel": "40 console.error/warn remaining",
     "detail": "Structured logger across 90+ service files, 16 hooks, 3 contexts, 43 utils, 79 components. Intentional exceptions: loggingService, code-gen templates, CLI tools."
   },
   {
@@ -197,7 +197,7 @@ const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
     "id": "ts-any-usage",
     "description": "TypeScript `any` usage",
     "status": "pending",
-    "countLabel": "~417 occurrences",
+    "countLabel": "~416 occurrences",
     "detail": "Tracked across non-locked src/. Reduction goal: replace with proper generics."
   },
   {

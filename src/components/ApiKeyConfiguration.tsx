@@ -12,6 +12,7 @@ import { useApiKeyManager } from '../hooks/useApiKeyManager';
 import { type BackupStatus } from '../services/apiKeyBackupService';
 import { type ApiKeyConfig, type ApiKeyInfo, apiKeyService } from '../services/apiKeyService';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { logger } from '../utils/logger';
 
 const Container = styled.div`
 	background: ${V9_COLORS.BG.WHITE};
@@ -320,10 +321,20 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 	const loadBackupStatus = useCallback(async () => {
 		try {
 			setLoadingBackup(true);
+			
+			// First, migrate any existing API keys to ensure they have isActive set correctly
+			await apiKeyService.migrateExistingApiKeys();
+			
+			// Then load the backup status
 			const status = await apiKeyService.getBackupStatus();
 			setBackupStatus(status);
 		} catch (error) {
-			console.error('Failed to load backup status:', error);
+			logger.error(
+				'ApiKeyConfiguration',
+				'Failed to load backup status',
+				undefined,
+				error instanceof Error ? error : undefined
+			);
 		} finally {
 			setLoadingBackup(false);
 		}

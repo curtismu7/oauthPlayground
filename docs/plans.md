@@ -1,7 +1,7 @@
 # Plans — Current Index
 
 **Generated:** 2026-03-13  
-**Last updated:** 2026-03-13 (docs sync: regression log, Unified MFA Test Plan)  
+**Last updated:** 2026-03-14 (AI Assistant Admin Login plan)  
 **Scope:** Active plan documents and project status.
 
 ---
@@ -20,6 +20,7 @@
 | Update Log & Regression Plan | [docs/UPDATE_LOG_AND_REGRESSION_PLAN.md](UPDATE_LOG_AND_REGRESSION_PLAN.md) | ✅ Ongoing | Living doc. Updated on every fix. Section 4 checklist, Section 7 do-not-break. |
 | MCP Server Development | [MCP_SERVER_DEVELOPMENT_PLAN.md](../MCP_SERVER_DEVELOPMENT_PLAN.md) | ✅ Phases A–C, 5–9 complete | ~70 tools; Auth, Worker, User, OIDC, MFA, CRUD. AI Assistant + MCP wired. MFA expansion next. |
 | MCP Server Plan Assessment | [docs/MCP_SERVER_PLAN_ASSESSMENT.md](MCP_SERVER_PLAN_ASSESSMENT.md) | ✅ Assessment complete | Phases A–C, 5–9, AI Assistant + MCP done. MFA expansion next. |
+| AI Assistant Admin Login | [docs/AI_ASSISTANT_ADMIN_LOGIN_PLAN.md](AI_ASSISTANT_ADMIN_LOGIN_PLAN.md) | ✅ Implemented | Admin tab in side panel: env/client ID/secret, Get token (client_credentials via /api/token-exchange), Sign Out. Agent uses admin token for MCP when set and valid; else worker token. |
 | AI Assistant Improvement | [AIAssistant/IMPROVEMENT_PLAN.md](../AIAssistant/IMPROVEMENT_PLAN.md) | 🔄 Phase 1–2 mostly done | Streaming Groq ✅. Conversation persistence ✅. New chat ✅. Persist toggles ✅. Copy + Export conversation ✅. Save .md (write-to-disk) ✅. **Remaining:** Popout window, Retry on error, multi-line textarea. Phase 3 (knowledge base, summarization, decomposition) future. |
 | Astro Migration | [docs/ASTRO_MIGRATION_PLAN.md](ASTRO_MIGRATION_PLAN.md) | ⬜ Blocked (components only) | Full `@pingux/astro` component library requires registry access. **Icons unblocked:** Ping Icons CDN + `PingIcon`; optional local copy. Phase 1 steps documented. |
 | Project status / next steps | [project/plans/TODO_STATUS.md](../project/plans/TODO_STATUS.md) | 🔄 In progress | Button migration: infrastructure ✅, flows not yet adopted. UnifiedFlowErrorHandler ~66% (21/32). Recommended: complete Button Migration then Error Handler. |
@@ -42,5 +43,5 @@
 - **Tokens / auth:** Worker Token Analysis
 - **Testing:** Unified OAuth Test Plan (`test:unified-oauth`); Unified MFA Test Plan (`test:unified-mfa`); Mock MCP Agent Flow tests
 - **Regression:** Update Log & Regression Plan
-- **AI Assistant:** AI Assistant Improvement
+- **AI Assistant:** AI Assistant Improvement; AI Assistant Admin Login (Worker Token + Admin client credentials)
 - **Design system:** Astro Migration

@@ -319,7 +319,7 @@ logger.info('Access control check completed:', accessResult);`,
 	return (
 		<Container>
 			<ContentWrapper>
-				<FlowHeader flowType="resources-api-v9" />
+				<FlowHeader flowType="resources-api-v9" customConfig={{ flowType: 'pingone' }} />
 
 				<Header>
 					<Title>📚 PingOne Resources API</Title>

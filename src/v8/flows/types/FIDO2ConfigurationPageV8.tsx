@@ -32,6 +32,7 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiInfo } from '../../../icons';
 import { logger } from '../../../utils/logger';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
@@ -371,12 +372,12 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				);
 			}
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
-			// #region agent log
-			// #endregion
-			setPoliciesError(errorMessage);
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'load-fido2-policies',
+				component: MODULE_TAG,
+			});
+			setPoliciesError(parsed.userFriendlyMessage);
 			setFido2Policies([]); // Clear policies on error
-			logger.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
 		} finally {
 			setIsLoadingPolicies(false);
 		}
@@ -407,10 +408,11 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					setSelectedDeviceAuthPolicy(defaultPolicy);
 				}
 			} catch (error) {
-				const errorMessage =
-					error instanceof Error ? error.message : 'Failed to load device authentication policies';
-				setDeviceAuthPoliciesError(errorMessage);
-				logger.error(`${MODULE_TAG} Failed to load device authentication policies:`, error);
+				const parsed = UnifiedFlowErrorHandler.handleError(error, {
+					operation: 'load-device-auth-policies',
+					component: MODULE_TAG,
+				});
+				setDeviceAuthPoliciesError(parsed.userFriendlyMessage);
 			} finally {
 				setIsLoadingDeviceAuthPolicies(false);
 			}

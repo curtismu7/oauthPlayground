@@ -124,6 +124,7 @@ class ApiKeyService {
 			metadata: {
 				service,
 				...metadata,
+				isActive: true, // Explicitly set as active
 				createdAt: new Date().toISOString(),
 				lastUsedAt: new Date().toISOString(),
 				validationType: API_KEY_CONFIGS[service]?.validation?.type || 'none',
@@ -221,7 +222,7 @@ class ApiKeyService {
 						createdAt: metadata.createdAt || '',
 						updatedAt: metadata.updatedAt || metadata.createdAt || '',
 						lastUsedAt: metadata.lastUsedAt,
-						isActive: metadata.isActive !== false,
+						isActive: Boolean(metadata.isActive !== false),
 					};
 				}
 			}
@@ -254,7 +255,7 @@ class ApiKeyService {
 						createdAt: metadata.createdAt || '',
 						updatedAt: metadata.updatedAt || metadata.createdAt || '',
 						lastUsedAt: metadata.lastUsedAt,
-						isActive: metadata.isActive !== false,
+						isActive: Boolean(metadata.isActive !== false),
 					};
 				});
 			}
@@ -294,11 +295,42 @@ class ApiKeyService {
 	}
 
 	/**
+	 * Migrate existing API keys to ensure they have isActive property set correctly
+	 */
+	public async migrateExistingApiKeys(): Promise<void> {
+		try {
+			const result = await unifiedTokenStorageService.getTokens({
+				type: 'api_key',
+			});
+
+			if (result.success && result.tokens) {
+				for (const token of result.tokens) {
+					const metadata = token.metadata || {};
+					
+					// If isActive is not explicitly set, set it to true
+					if (metadata.isActive === undefined) {
+						await unifiedTokenStorageService.updateToken(token.id, {
+							metadata: {
+								...metadata,
+								isActive: true,
+							},
+						});
+						
+						logger.info(MODULE_TAG, `Migrated API key for service: ${metadata.service || token.service || 'unknown'}`);
+					}
+				}
+			}
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Error migrating API keys:', error);
+		}
+	}
+
+	/**
 	 * Check if an API key exists and is active
 	 */
 	public async hasApiKey(service: string): Promise<boolean> {
 		const info = await this.getApiKeyInfo(service);
-		return info?.isActive;
+		return Boolean(info?.isActive);
 	}
 
 	/**

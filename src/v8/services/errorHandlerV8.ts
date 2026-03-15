@@ -22,9 +22,9 @@
  * }
  */
 
+import { getErrorMessage } from '@/utils/errorMessageUtils';
 import { ERROR_MESSAGES, MODULE_TAGS } from '@/v8/config/constants';
 import type { IErrorHandlerService } from '@/v8/types/services';
-
 import { logger } from '../../utils/logger';
 
 const MODULE_TAG = MODULE_TAGS.ERROR_HANDLER;
@@ -154,22 +154,11 @@ export class ErrorHandlerV8 implements IErrorHandlerService {
 	}
 
 	/**
-	 * Get human-readable error message
-	 * @param error - Error object or message string
-	 * @returns Formatted error message
-	 * @example
-	 * const message = ErrorHandlerV8.getErrorMessage(error);
+	 * Get human-readable error message.
+	 * Delegates to shared getErrorMessage utility.
 	 */
-	static getErrorMessage(error: Error | string): string {
-		if (typeof error === 'string') {
-			return error;
-		}
-
-		if (error instanceof Error) {
-			return error.message;
-		}
-
-		return 'An unknown error occurred';
+	static getErrorMessage(error: Error | string | unknown): string {
+		return getErrorMessage(error);
 	}
 
 	/**

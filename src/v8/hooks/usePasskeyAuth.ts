@@ -18,6 +18,7 @@ import {
 	PasskeyRegistrationOptions,
 	PasskeyServiceV8,
 } from '@/v8/services/passkeyServiceV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 
 export interface UsePasskeyAuthResult {
 	isLoading: boolean;
@@ -149,14 +150,11 @@ export function usePasskeyAuth(): UsePasskeyAuthResult {
 				return result;
 			}
 		} catch (err) {
-			const errorMsg = err instanceof Error ? err.message : 'Registration failed';
-			setError(errorMsg);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: errorMsg,
-				dismissible: true,
+			const parsed = UnifiedFlowErrorHandler.handleError(err, {
+				operation: 'register',
+				component: 'usePasskeyAuth',
 			});
+			setError(parsed.userFriendlyMessage);
 			return { success: false };
 		} finally {
 			setIsLoading(false);

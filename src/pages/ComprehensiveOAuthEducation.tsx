@@ -276,7 +276,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 
 	return (
 		<Container>
-			<FlowHeader flowId="comprehensive-oauth-education" />
+			<FlowHeader flowId="comprehensive-oauth-education" customConfig={{ flowType: 'pingone' }} />
 
 			<Header>
 				<h1>

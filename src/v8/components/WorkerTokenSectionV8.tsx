@@ -20,8 +20,8 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { workerTokenManager } from '@/services/workerTokenManager';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiRefreshCw } from '../../icons';
-import { logger } from '../../utils/logger';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
 
@@ -275,12 +275,9 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(MODULE_TAG, 'Error refreshing worker token:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to refresh worker token',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'refresh-worker-token',
+				component: MODULE_TAG,
 			});
 		} finally {
 			setIsRefreshing(false);
@@ -297,12 +294,9 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error(MODULE_TAG, 'Error clearing worker token:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to clear worker token',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'clear-worker-token',
+				component: MODULE_TAG,
 			});
 		}
 	};
@@ -426,6 +420,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 						<CheckboxLabel>
 							<input
 								type="checkbox"
+								title="Automatically fetch worker token without showing the modal when token is needed"
 								checked={silentApiRetrieval}
 								onChange={(e) => onSilentApiRetrievalChange?.(e.target.checked)}
 							/>
@@ -437,6 +432,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 						<CheckboxLabel>
 							<input
 								type="checkbox"
+								title="Display the worker token after successful retrieval"
 								checked={showTokenAtEnd}
 								onChange={(e) => onShowTokenAtEndChange?.(e.target.checked)}
 							/>

@@ -22,6 +22,7 @@ import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; /
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat, validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiMail } from '../../../icons';
 import { logger } from '../../../utils/logger';
 import { type Device, MFADeviceSelector } from '../components/MFADeviceSelector';
@@ -136,7 +137,14 @@ const MobileDeviceSelectionStep: React.FC<
 				if (cancelled) {
 					return;
 				}
-				logger.error(`${MODULE_TAG} Failed to load devices`, error);
+				UnifiedFlowErrorHandler.handleError(
+					error,
+					{
+						operation: 'load-devices',
+						component: MODULE_TAG,
+					},
+					{ showToast: false }
+				);
 				setDeviceSelection((prev) => ({
 					...prev,
 					loadingDevices: false,
@@ -225,15 +233,14 @@ const MobileDeviceSelectionStep: React.FC<
 						});
 				}
 			} catch (error) {
-				const message = error instanceof Error ? error.message : 'Unknown error';
-				logger.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
-				nav.setValidationErrors([`Failed to authenticate: ${message}`]);
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: `Authentication failed: ${message}`,
-					dismissible: true,
-				});
+				UnifiedFlowErrorHandler.handleError(
+					error,
+					{
+						operation: 'initialize-authentication',
+						component: MODULE_TAG,
+					},
+					{ setValidationErrors: nav.setValidationErrors }
+				);
 				updateOtpState({ otpSent: false });
 			}
 		});
@@ -3233,19 +3240,17 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 													duration: 3000,
 												});
 											} catch (error) {
-												const errorMessage =
-													error instanceof Error ? error.message : 'Unknown error';
-												logger.error(`${MODULE_TAG} Failed to activate device:`, error);
+												const parsed = UnifiedFlowErrorHandler.handleError(
+													error,
+													{
+														operation: 'activate-device',
+														component: MODULE_TAG,
+													},
+													{ setValidationErrors: nav.setValidationErrors }
+												);
 												updateValidationState({
 													validationAttempts: validationState.validationAttempts + 1,
-													lastValidationError: errorMessage,
-												});
-												nav.setValidationErrors([`Activation failed: ${errorMessage}`]);
-												modernMessaging.showBanner({
-													type: 'error',
-													title: 'Error',
-													message: `Activation failed: ${errorMessage}`,
-													dismissible: true,
+													lastValidationError: parsed.userFriendlyMessage,
 												});
 											} finally {
 												setIsLoading(false);
@@ -3373,12 +3378,9 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 												throw new Error('Device ID is required to resend OTP');
 											}
 										} catch (error) {
-											const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-											modernMessaging.showBanner({
-												type: 'error',
-												title: 'Error',
-												message: `Failed to resend OTP: ${errorMessage}`,
-												dismissible: true,
+											UnifiedFlowErrorHandler.handleError(error, {
+												operation: 'resend-otp',
+												component: MODULE_TAG,
 											});
 										} finally {
 											setIsLoading(false);

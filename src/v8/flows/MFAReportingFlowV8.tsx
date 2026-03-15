@@ -33,6 +33,7 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
@@ -549,12 +550,9 @@ export const MFAReportingFlowV8: React.FC = () => {
 					duration: 3000,
 				});
 			} catch (error) {
-				logger.error(`${MODULE_TAG} Failed to load reports`, error);
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: 'Failed to load reports. Please check your credentials and try again.',
-					dismissible: true,
+				UnifiedFlowErrorHandler.handleError(error, {
+					operation: 'load-reports',
+					component: MODULE_TAG,
 				});
 			} finally {
 				setIsLoading(false);
