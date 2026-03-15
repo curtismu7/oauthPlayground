@@ -248,6 +248,57 @@ export function isClearTokensQuery(query: string): boolean {
 	);
 }
 
+// ── AI / MCP education predicates ────────────────────────────────────────────
+
+/** Returns true when the query is asking what an AI agent is. */
+export function isAgentEducationQuery(query: string): boolean {
+	return /\bwhat\s+is\s+an?\s+(?:ai\s+)?agent\b|\bexplain\s+(?:ai\s+)?agent\b|\bhow\s+does\s+an?\s+(?:ai\s+)?agent\s+work\b|\bwhat\s+are\s+(?:ai\s+)?agents\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is asking about the Model Context Protocol. */
+export function isMcpExplainQuery(query: string): boolean {
+	return /\bwhat\s+is\s+mcp\b|\bexplain\s+mcp\b|\bmodel\s+context\s+protocol\b|\bwhat\s+is\s+the\s+model\s+context\b|\bhow\s+does\s+mcp\s+work\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is asking about MCP host/client/server roles. */
+export function isMcpRolesQuery(query: string): boolean {
+	return /\bmcp\s+(?:host|client|server)\b|\bhost.*client.*server\b|\bthree\s+(?:roles?|parts?)\s+of\s+mcp\b|\bexplain\s+(?:mcp\s+)?(?:host|client|server)\b|\bmcp\s+roles?\b|\bhost\s+(?:and|vs?)\.?\s+client\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is asking how THIS specific agent (the MasterFlow assistant) works. */
+export function isThisAgentExplainQuery(query: string): boolean {
+	return /\bhow\s+does\s+this\s+agent\s+work\b|\bshow\s+(?:agent|this)\s+architecture\b|\bexplain\s+(?:this|the)\s+(?:agent|assistant)\s+(?:work|implementation|code)\b|\bagent\s+architecture\b|\bhow\s+(?:is\s+)?this\s+(?:assistant|agent)\s+(?:built|implemented|made)\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is asking about MCP tool calls. */
+export function isMcpToolExplainQuery(query: string): boolean {
+	return /\bwhat\s+is\s+a\s+tool\s+call\b|\bwhat\s+is\s+a\s+(?:mcp\s+)?tool\b|\bexplain\s+(?:mcp\s+)?tool\s+call\b|\bhow\s+do\s+(?:mcp\s+)?tool\s+calls?\s+work\b|\btools\/call\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is asking about JSON-RPC. */
+export function isJsonRpcExplainQuery(query: string): boolean {
+	return /\bwhat\s+is\s+json.?rpc\b|\bjson.?rpc\s+(?:2\.0)?\b|\bexplain\s+json.?rpc\b|\bhow\s+does\s+json.?rpc\s+work\b/i.test(
+		query.trim()
+	);
+}
+
+/** Returns true when the query is asking about the Groq LLM integration. */
+export function isGroqExplainQuery(query: string): boolean {
+	return /\bwhat\s+is\s+groq\b|\bhow\s+does\s+groq\s+fit\b|\bexplain\s+groq\b|\bwhat\s+llm\b|\bgroq\s+(?:api|key|model|llm)\b|\bllama.*70b\b|\bwhat\s+model\s+(?:does\s+this|is\s+used)\b/i.test(
+		query.trim()
+	);
+}
+
 /** Send the query to the backend MCP query handler and return the result. */
 export async function callMcpQuery(
 	query: string,

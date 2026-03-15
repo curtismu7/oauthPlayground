@@ -27,6 +27,13 @@ import {
 	isUserInfoQuery,
 	isWebSearchQuery,
 	isWorkerTokenQuery,
+	isAgentEducationQuery,
+	isMcpExplainQuery,
+	isMcpRolesQuery,
+	isThisAgentExplainQuery,
+	isMcpToolExplainQuery,
+	isJsonRpcExplainQuery,
+	isGroqExplainQuery,
 	type McpQueryResult,
 } from '../services/mcpQueryService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
@@ -740,6 +747,398 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 				return;
 			}
 
+			// ── AI / MCP education commands (client-side, always work, no Live needed) ───
+
+			if (isAgentEducationQuery(query)) {
+				const msg = [
+					'## What is an AI Agent? 🤖',
+					'',
+					'An **AI agent** is a system that can *perceive*, *reason*, and *act* — going beyond simple question-answering.',
+					'',
+					'### Three properties of an agent',
+					'| Property | What it means | In this app |',
+					'|----------|---------------|-------------|',
+					'| **Perception** | Reads input, history, tool results | Your message → `handleSend()` → intent classifier |',
+					'| **Reasoning** | Decides what to do next | `mcpQueryService.ts` predicates + Groq (Llama 3.3 70B) |',
+					'| **Action** | Calls tools, APIs, or responds | `POST /api/mcp/query` → PingOne REST API |',
+					'',
+					'### This app is a working agent',
+					'When you type **"List all users"**, the agent:',
+					'1. Classifies it as an MCP query (`isMcpQuery()` → `true`)',
+					'2. Checks the Live toggle (won\'t simulate data)',
+					'3. POSTs to `/api/mcp/query` → calls PingOne → real user list returned',
+					'4. Displays the 🔌 MCP card with method, path, and raw data',
+					'',
+					'### Why agents matter',
+					'Agents can chain tool calls autonomously. This agent handles ~70 MCP tools: users, groups, MFA, tokens, OIDC, and more.',
+					'',
+					'💡 Try: **"What is MCP?"** — the standard that connects agents to tools.',
+					'💡 Try: **"How does this agent work?"** — see the full implementation.',
+					'💡 Try: **"List all users"** — watch the agent make a real API call.',
+				].join('\n');
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isMcpExplainQuery(query)) {
+				const msg = [
+					'## Model Context Protocol (MCP) 🔌',
+					'',
+					'MCP is an **open standard** (Anthropic, Nov 2024) that lets AI applications connect to external tools and data sources in a standardized way.',
+					'',
+					'### The problem it solves',
+					'Before MCP, every AI app needed custom integrations per tool. MCP is "USB-C for AI" — one standard protocol, any tool or AI can plug in.',
+					'',
+					'### Our implementation',
+					'```',
+					'pingone-mcp-server/',
+					'├── src/index.ts          ← registers 70+ tools with @modelcontextprotocol/sdk',
+					'├── src/actions/',
+					'│   ├── users.ts          ← pingone_list_users, pingone_get_user, ...',
+					'│   ├── tokenUtils.ts     ← pingone_decode_jwt (educational, no network)',
+					'│   ├── introspect.ts     ← pingone_introspect_token (RFC 7662)',
+					'│   └── oidc.ts           ← pingone_oidc_config, pingone_oidc_discovery',
+					'└── src/services/         ← PingOne REST API clients',
+					'```',
+					'',
+					'### How the connection works',
+					'1. `pingone-mcp-server` runs as a **stdio process** (TypeScript → Node.js)',
+					'2. Communicates via **JSON-RPC 2.0** over stdin/stdout',
+					'3. Backend (`server.js`) connects to it, proxies calls via `/api/mcp/query`',
+					'4. You ask "List users" → backend sends `tools/call` → server calls PingOne → result returned',
+					'',
+					'### The spec',
+					'- Transport: `stdio` (our server) or HTTP/SSE (web servers)',
+					'- Protocol: JSON-RPC 2.0',
+					'- Features: tools, resources, prompts, sampling',
+					'- SDK: `@modelcontextprotocol/sdk` (npm)',
+					'',
+					'💡 Try: **"List MCP tools"** — calls the actual MCP server right now.',
+					'💡 Try: **"Explain MCP host, client, server"** — the three roles.',
+					'💡 Try: **"What is a tool call?"** — see the JSON-RPC message format.',
+				].join('\n');
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isMcpRolesQuery(query)) {
+				const msg = [
+					'## MCP: Host, Client, Server 🏗️',
+					'',
+					'The Model Context Protocol defines three distinct roles in every AI integration.',
+					'',
+					'### 🖥️ Host',
+					'The **host** is the application that runs the AI and manages MCP server connections.',
+					'',
+					'Examples: Claude Desktop, VS Code (with Copilot + MCP extensions)',
+					'**Our host**: This MasterFlow app (React frontend + Express backend in `server.js`)',
+					'',
+					'The host decides: which servers to spawn, when to invoke tools, what to show the user.',
+					'',
+					'### 🔗 Client',
+					'The **client** is the MCP connection embedded in the host — one connection per server.',
+					'',
+					'In our code:',
+					'- `server.js` acts as the MCP client',
+					'- It spawns `pingone-mcp-server` as a child stdio process',
+					'- It sends `tools/list` and `tools/call` JSON-RPC messages via stdin',
+					'',
+					'### 🔧 Server',
+					'The **server** exposes tools, resources, and prompts to the client.',
+					'',
+					'Ours: `pingone-mcp-server/` (TypeScript, stdio transport)',
+					'- Responds to `tools/list` → returns 70+ tool definitions',
+					'- Handles `tools/call { name: "pingone_list_users", arguments: {...} }`',
+					'- Each tool: validates with Zod → calls PingOne REST API → returns structured content',
+					'',
+					'### Visual overview',
+					'```',
+					'Host (MasterFlow app)',
+					'  └── Client (server.js MCP client)',
+					'           └── [stdio / JSON-RPC 2.0] Server (pingone-mcp-server)',
+					'                                               └── [HTTPS] PingOne REST API',
+					'',
+					'User → React UI → POST /api/mcp/query → client → server → PingOne',
+					'```',
+					'',
+					'💡 MCP spec: https://modelcontextprotocol.io',
+					'💡 Try: **"What is JSON-RPC?"** — the protocol that connects client and server.',
+				].join('\n');
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isThisAgentExplainQuery(query)) {
+				const msg = [
+					'## How This Agent Works 🤖➡️🔌➡️🌐',
+					'',
+					'Here is the exact flow when you send a message:',
+					'',
+					'### 1. Intent Classification (browser, `mcpQueryService.ts`)',
+					'Your query is tested against a series of predicates:',
+					'- `isShowMyTokenQuery()` / `isDecodeTokenQuery()` → **client-side** (no network)',
+					'- `isMcpExplainQuery()` / `isAgentEducationQuery()` → **built-in answer** (like this one)',
+					'- `isMcpQuery()` → **MCP backend call**',
+					'- `isWorkerTokenQuery()` / `isHelpQuery()` → **special handlers**',
+					'- Everything else → **Groq LLM**',
+					'',
+					'### 2. MCP Bridge (Express `server.js` → `pingone-mcp-server`)',
+					'```',
+					'POST /api/mcp/query { query, workerToken, environmentId }',
+					'  ↓ classifyMcpIntent() matches your query against MCP_INTENTS patterns',
+					'  ↓ fetches worker token (client_credentials grant to /as/token)',
+					'  ↓ calls the right PingOne REST API endpoint',
+					'  ↓ returns { answer, mcpTool, apiCall, howItWorks, data }',
+					'```',
+					'The 🔌 MCP card in responses shows: tool name, HTTP method+path, and raw data.',
+					'',
+					'### 3. Groq LLM (for AI / knowledge questions)',
+					'- Provider: `api.groq.com`',
+					'- Model: `llama-3.3-70b-versatile` (Meta Llama 3.3 70B)',
+					'- System prompt: "You are MasterFlow Agent, expert on OAuth, OIDC, PingOne, and MCP"',
+					'- Used for: open questions, explanations, OAuth/OIDC concepts',
+					'',
+					'### 4. Token Inspector (fully in-browser)',
+					'Decode/view commands never leave the browser:',
+					'- `isShowMyTokenQuery` → display `localStorage["ai-assistant-user-token"]`',
+					'- `isDecodeTokenQuery` → `atob()` decode the JWT segments inline',
+					'',
+					'### Key files',
+					'| File | Role |',
+					'|------|------|',
+					'| `src/services/mcpQueryService.ts` | Intent predicates |',
+					'| `src/components/AIAssistant.tsx` | `handleSend()` orchestrator |',
+					'| `server.js` `/api/mcp/query` | MCP intent dispatch |',
+					'| `pingone-mcp-server/src/index.ts` | MCP tool registration |',
+					'| `pingone-mcp-server/src/actions/` | PingOne API implementations |',
+					'',
+					'💡 Try: **"Show agent architecture"** — see the full stack diagram.',
+					'💡 Try: **"List all users"** — watch a real API call happen.',
+				].join('\n');
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (/\bshow\s+agent\s+architecture\b/i.test(query.trim())) {
+				const msg = [
+					'## Agent Architecture 🏗️',
+					'',
+					'```',
+					'┌──────────────────────────────────────────────────────┐',
+					'│  Browser (React 18 + TypeScript + styled-components)  │',
+					'│                                                       │',
+					'│  AIAssistant.tsx  handleSend(query)                  │',
+					'│   ├─ mcpQueryService.ts  classify intent             │',
+					'│   │                                                   │',
+					'│   ├─ TOKEN queries ──────────────── client-side      │',
+					'│   │   atob() decode, localStorage, no network        │',
+					'│   │                                                   │',
+					'│   ├─ EDUCATION queries ─────────── built-in answers  │',
+					'│   │   (this response — no API needed)                │',
+					'│   │                                                   │',
+					'│   ├─ AI KNOWLEDGE queries ───────── Groq API         │',
+					'│   │   POST api.groq.com  ←  Llama 3.3 70B           │',
+					'│   │                                                   │',
+					'│   └─ MCP queries ────────────────── backend bridge   │',
+					'│       POST /api/mcp/query                            │',
+					'└────────────────────┬─────────────────────────────────┘',
+					'                     │ HTTP / JSON',
+					'┌────────────────────▼─────────────────────────────────┐',
+					'│  server.js (Node.js / Express)                       │',
+					'│                                                       │',
+					'│  /api/mcp/query                                       │',
+					'│   classifyMcpIntent()  ← MCP_INTENTS regex array    │',
+					'│   ├─ list_tools   → read tool-names.json             │',
+					'│   ├─ worker_token → POST /as/token (CC grant)        │',
+					'│   ├─ list_users   → MCP tools/call                  │',
+					'│   ├─ introspect   → POST /as/introspect (RFC 7662)  │',
+					'│   └─ decode_token → base64url decode (no network)    │',
+					'│                │                                     │',
+					'│                │ stdin/stdout  JSON-RPC 2.0          │',
+					'│  ┌─────────────▼──────────────────────────────────┐ │',
+					'│  │  pingone-mcp-server (TypeScript stdio process)  │ │',
+					'│  │  70+ tools  ·  Zod validation  ·  PingOne SDK  │ │',
+					'│  └──────────────────────┬─────────────────────────┘ │',
+					'└─────────────────────────┼────────────────────────────┘',
+					'                          │ HTTPS',
+					'                          ▼',
+					'          api.pingone.com  (PingOne REST API)',
+					'```',
+					'',
+					'### Tech stack',
+					'- **Frontend**: React 18 · TypeScript · styled-components · Vite',
+					'- **Backend**: Node.js 20 · Express · native fetch',
+					'- **MCP**: `@modelcontextprotocol/sdk` · stdio transport · JSON-RPC 2.0',
+					'- **LLM**: Groq API · `llama-3.3-70b-versatile`',
+					'- **Identity**: PingOne (users · groups · MFA · apps · tokens · OIDC)',
+				].join('\n');
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isMcpToolExplainQuery(query)) {
+				const msg = [
+					'## What is an MCP Tool Call? 🔧',
+					'',
+					'A **tool call** is how an AI agent executes a specific action — like calling a REST API.',
+					'',
+					'### The JSON-RPC request',
+					'When you ask "List all users", the backend sends this to our MCP server:',
+					'```json',
+					'{',
+					'  "jsonrpc": "2.0",',
+					'  "id": 1,',
+					'  "method": "tools/call",',
+					'  "params": {',
+					'    "name": "pingone_list_users",',
+					'    "arguments": { "environmentId": "your-env-id", "limit": 20 }',
+					'  }',
+					'}',
+					'```',
+					'',
+					'### What the MCP server does',
+					'1. Validates arguments with **Zod** schema (rejects early if invalid)',
+					'2. Fetches or reuses a cached **worker token** (client_credentials grant)',
+					'3. Calls `GET https://api.pingone.com/v1/environments/{envId}/users`',
+					'4. Returns structured content:',
+					'```json',
+					'{',
+					'  "content": [{ "type": "text", "text": "Found 42 users..." }],',
+					'  "structuredContent": { "success": true, "count": 42, "users": [...] }',
+					'}',
+					'```',
+					'',
+					'### Where our tools live',
+					'```',
+					'pingone-mcp-server/src/actions/',
+					'├── users.ts        ← pingone_list_users, pingone_get_user, pingone_create_user',
+					'├── groups.ts       ← pingone_list_groups, pingone_create_group',
+					'├── mfa.ts          ← pingone_list_mfa_policies',
+					'├── tokenUtils.ts   ← pingone_decode_jwt  (no network, pure base64url)',
+					'├── introspect.ts   ← pingone_introspect_token (RFC 7662)',
+					'└── oidc.ts         ← pingone_oidc_config, pingone_oidc_discovery',
+					'```',
+					'',
+					'💡 Try: **"List MCP tools"** — retrieves all 70+ available tools from the server.',
+					'💡 Try: **"List all users"** — executes a real `tools/call` right now.',
+				].join('\n');
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isJsonRpcExplainQuery(query)) {
+				const msg = [
+					'## What is JSON-RPC 2.0? 📡',
+					'',
+					'**JSON-RPC 2.0** is the wire protocol MCP uses between the host/client and the server.',
+					'',
+					'### Why JSON-RPC?',
+					'- Simple request/response over any transport (stdio, HTTP, WebSocket)',
+					'- Client assigns `id`; server echoes it back — easy to match async responses',
+					'- Standard error codes (-32600 parse error, -32602 invalid params, etc.)',
+					'',
+					'### Request',
+					'```json',
+					'{',
+					'  "jsonrpc": "2.0",',
+					'  "id": 42,',
+					'  "method": "tools/list",',
+					'  "params": {}',
+					'}',
+					'```',
+					'',
+					'### Successful response',
+					'```json',
+					'{',
+					'  "jsonrpc": "2.0",',
+					'  "id": 42,',
+					'  "result": {',
+					'    "tools": [',
+					'      { "name": "pingone_list_users", "description": "...", "inputSchema": {} },',
+					'      { "name": "pingone_decode_jwt",  "description": "...", "inputSchema": {} }',
+					'    ]',
+					'  }',
+					'}',
+					'```',
+					'',
+					'### Error response',
+					'```json',
+					'{',
+					'  "jsonrpc": "2.0",',
+					'  "id": 42,',
+					'  "error": { "code": -32602, "message": "Invalid params", "data": "environmentId required" }',
+					'}',
+					'```',
+					'',
+					'### Our transport',
+					'`pingone-mcp-server` uses **stdio** — the simplest MCP transport:',
+					'- Client writes JSON-RPC to server **stdin**',
+					'- Server writes responses to **stdout**',
+					'- Errors go to **stderr** (never mixed with RPC output)',
+					'',
+					'In `pingone-mcp-server/src/index.ts`:',
+					'```typescript',
+					'const transport = new StdioServerTransport();',
+					'await server.connect(transport);',
+					'```',
+				].join('\n');
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isGroqExplainQuery(query)) {
+				const msg = [
+					'## How Does Groq Fit In? ⚡',
+					'',
+					'**Groq** is the LLM inference provider powering this agent\'s natural language understanding.',
+					'',
+					'### What Groq provides',
+					'- **API**: `api.groq.com/openai/v1/chat/completions`',
+					'- **Model**: `llama-3.3-70b-versatile` (Meta Llama 3.3, 70 billion parameters)',
+					'- **Speed**: ~300+ tokens/sec — significantly faster than OpenAI for comparable capability',
+					'- **Compatibility**: OpenAI-compatible request/response format',
+					'',
+					'### When we use Groq vs MCP',
+					'| Query | Path |',
+					'|-------|------|',
+					'| "What is PKCE?" | → Groq (open knowledge question) |',
+					'| "Explain OAuth 2.0 flows" | → Groq (educational) |',
+					'| "List all users" | → MCP (PingOne API call — no Groq needed) |',
+					'| "Show my token" | → Client-side (no Groq, no network) |',
+					'| "What is an agent?" | → Built-in answer (this response type) |',
+					'',
+					'### System prompt we send to Groq',
+					'```',
+					'You are MasterFlow Agent — an expert on OAuth 2.0, OIDC, PingOne Identity,',
+					'and Model Context Protocol (MCP). Help developers understand identity and AI integration.',
+					'```',
+					'',
+					'### Without Groq',
+					'If Groq is not configured, the agent still handles 100% of MCP/PingOne operations. Groq is only needed for open-ended AI/knowledge questions.',
+					'',
+					'💡 The **⚡ Groq** status dot in the header shows connection state.',
+					'💡 Add your key in **Configuration → AI Keys**.',
+				].join('\n');
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
 			// MCP queries with Live OFF: show nudge to turn on Live (don't let Groq fake PingOne data).
 			if (
 				isMcpQuery(query) &&
@@ -1036,6 +1435,19 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 			],
 		},
 		{
+			label: '🤖 Agent & MCP',
+			prompts: [
+				'What is an agent?',
+				'What is MCP?',
+				'Explain MCP host, client, server',
+				'How does this agent work?',
+				'Show agent architecture',
+				'What is a tool call?',
+				'What is JSON-RPC?',
+				'How does Groq fit in?',
+			],
+		},
+		{
 			label: '❓ Help',
 			prompts: [
 				'What can I do in chat?',
@@ -1056,6 +1468,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 		'List subscriptions',
 		'Show org licenses',
 		'Get OIDC discovery document',
+		'What is MCP?',
+		'How does this agent work?',
 		'What can I do in chat?',
 		'What is PKCE?',
 		"What's the difference between OAuth and OIDC?",
