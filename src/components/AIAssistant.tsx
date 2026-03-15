@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { aiAgentService } from '../services/aiAgentService';
-import AIAssistantSidePanel from './AIAssistantSidePanel';
 import {
 	getTokenStatus,
 	refreshAndStoreToken,
@@ -12,13 +11,27 @@ import { callGroq, type GroqMessage, isGroqAvailable } from '../services/groqSer
 import {
 	callMcpQuery,
 	callMcpWebSearch,
+	decodeJwtHeader,
+	decodeJwtPayload,
+	isAdminLoginQuery,
+	isClearTokensQuery,
+	isDecodeTokenQuery,
 	isHelpQuery,
+	isIntrospectUserTokenQuery,
+	isListToolsQuery,
 	isMcpQuery,
+	isShowApiCallsQuery,
+	isShowIdTokenQuery,
+	isShowMyTokenQuery,
+	isShowWorkerTokenQuery,
+	isUserInfoQuery,
 	isWebSearchQuery,
 	isWorkerTokenQuery,
 	type McpQueryResult,
 } from '../services/mcpQueryService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
+import { notifyHostNavigate, openAIAssistantPopout } from '../utils/aiAssistantPopoutHelper';
+import AIAssistantSidePanel from './AIAssistantSidePanel';
 
 interface Message {
 	id: string;
@@ -94,91 +107,188 @@ function renderMessageText(content: string): React.ReactNode {
 	});
 }
 
-// ─── MCP data card renderer ───────────────────────────────────────────────────
-// Renders arrays of API result objects as readable key-value cards.
-// Falls back to a <pre> code block for arrays of primitives.
+// ─── MCP data card renderer with paging ───────────────────────────────────────
+const PAGE_SIZE = 10;
 
-function renderMcpDataItems(data: unknown[]): React.ReactNode {
-	const MAX_ITEMS = 5;
-	const shown = data.slice(0, MAX_ITEMS);
-	const overflow = data.length - MAX_ITEMS;
-	const first = shown[0];
+const McpDataPagedDisplay: React.FC<{ data: unknown[] }> = ({ data }) => {
+	const [page, setPage] = useState(0);
+	const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+	const start = page * PAGE_SIZE;
+	const slice = data.slice(start, start + PAGE_SIZE);
+	const first = slice[0];
+
+	useEffect(() => {
+		if (!data) return;
+		setPage(0);
+	}, [data]);
 
 	if (typeof first !== 'object' || first === null) {
+		const totalChunks = Math.ceil(data.length / PAGE_SIZE);
+		const chunk = data.slice(start, start + PAGE_SIZE);
 		return (
-			<McpDataPre>
-				{JSON.stringify(shown, null, 2)}
-				{overflow > 0 ? `\n… +${overflow} more` : ''}
-			</McpDataPre>
+			<>
+				<McpDataPre>{JSON.stringify(chunk, null, 2)}</McpDataPre>
+				{data.length > PAGE_SIZE && (
+					<McpPagination>
+						<span>
+							Showing {start + 1}–{Math.min(start + PAGE_SIZE, data.length)} of {data.length}
+						</span>
+						<McpPaginationButtons>
+							<McpPageBtn
+								type="button"
+								onClick={() => setPage((p) => Math.max(0, p - 1))}
+								disabled={page === 0}
+							>
+								← Prev
+							</McpPageBtn>
+							<span>
+								Page {page + 1} of {totalChunks}
+							</span>
+							<McpPageBtn
+								type="button"
+								onClick={() => setPage((p) => Math.min(totalChunks - 1, p + 1))}
+								disabled={page >= totalChunks - 1}
+							>
+								Next →
+							</McpPageBtn>
+						</McpPaginationButtons>
+					</McpPagination>
+				)}
+			</>
 		);
 	}
 
 	return (
-		<McpDataItemList>
-			{shown.map((item, idx) => {
-				const obj = item as Record<string, unknown>;
-				return (
-					<McpDataItem key={idx}>
-						{Object.entries(obj)
-							.slice(0, 8)
-							.map(([k, v]) => {
-								let display: string;
-								if (v === null || v === undefined) display = '–';
-								else if (typeof v === 'object')
-									display = Array.isArray(v) ? `[${(v as unknown[]).length} items]` : '{…}';
-								else display = String(v).length > 60 ? `${String(v).slice(0, 60)}…` : String(v);
-								return (
-									<McpDataRow key={k}>
-										<McpDataKey>{k}</McpDataKey>
-										<McpDataVal>{display}</McpDataVal>
-									</McpDataRow>
-								);
-							})}
-					</McpDataItem>
-				);
-			})}
-			{overflow > 0 && (
-				<McpDataMoreNote>
-					+{overflow} more item{overflow !== 1 ? 's' : ''}
-				</McpDataMoreNote>
+		<>
+			<McpDataItemList>
+				{slice.map((item, idx) => {
+					const obj = item as Record<string, unknown>;
+					return (
+						<McpDataItem key={start + idx}>
+							{Object.entries(obj)
+								.slice(0, 8)
+								.map(([k, v]) => {
+									let display: string;
+									if (v === null || v === undefined) display = '–';
+									else if (typeof v === 'object')
+										display = Array.isArray(v) ? `[${(v as unknown[]).length} items]` : '{…}';
+									else display = String(v).length > 60 ? `${String(v).slice(0, 60)}…` : String(v);
+									return (
+										<McpDataRow key={k}>
+											<McpDataKey>{k}</McpDataKey>
+											<McpDataVal>{display}</McpDataVal>
+										</McpDataRow>
+									);
+								})}
+						</McpDataItem>
+					);
+				})}
+			</McpDataItemList>
+			{data.length > PAGE_SIZE && (
+				<McpPagination>
+					<span>
+						Showing {start + 1}–{Math.min(start + PAGE_SIZE, data.length)} of {data.length}
+					</span>
+					<McpPaginationButtons>
+						<McpPageBtn
+							type="button"
+							onClick={() => setPage((p) => Math.max(0, p - 1))}
+							disabled={page === 0}
+						>
+							← Prev
+						</McpPageBtn>
+						<span>
+							Page {page + 1} of {totalPages}
+						</span>
+						<McpPageBtn
+							type="button"
+							onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+							disabled={page >= totalPages - 1}
+						>
+							Next →
+						</McpPageBtn>
+					</McpPaginationButtons>
+				</McpPagination>
 			)}
-		</McpDataItemList>
+		</>
 	);
-}
+};
 
 interface AIAssistantProps {
 	/** Render as full-page layout instead of floating panel */
 	fullPage?: boolean;
+	/** When true, running in popout window — internal links notify host to navigate */
+	popout?: boolean;
 }
 
-const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
+const INITIAL_MESSAGES: Message[] = [
+	{
+		id: '1',
+		type: 'assistant',
+		content:
+			"Hi! I'm your OAuth Playground assistant. I can help you:\n\n• Find the right OAuth flow for your needs\n• Explain OAuth and OIDC concepts\n• Guide you through configuration\n• Troubleshoot issues\n\nWhat would you like to know?",
+		timestamp: new Date(),
+	},
+];
+
+/** Use admin token if it expires at least this many ms in the future. */
+const ADMIN_TOKEN_BUFFER_MS = 60_000;
+
+/** A single recorded MCP API call (stored for "show api calls" command). */
+interface ApiCallRecord {
+	id: string;
+	query: string;
+	mcpTool: string | null;
+	apiCall: { method: string; path: string } | null;
+	data: unknown;
+	timestamp: Date;
+}
+
+const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = false }) => {
 	const [isOpen, setIsOpen] = useState(fullPage);
-	const [isExpanded, setIsExpanded] = useState(fullPage);
+	// fullPage uses compact floating widget; only expand when user clicks
+	const [isExpanded, setIsExpanded] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(false);
+	/** False when user switches away (another tab, minimize); used to hide floating button */
+	const [isPageVisible, setIsPageVisible] = useState(() =>
+		typeof document !== 'undefined' ? document.visibilityState !== 'hidden' : true
+	);
 	// Context checkboxes - keeping for future use
-	// const [includeApiDocs, setIncludeApiDocs] = useState(false);
-	// const [includeSpecs, setIncludeSpecs] = useState(false);
-	// const [includeWorkflows, setIncludeWorkflows] = useState(false);
-	// const [includeUserGuide, setIncludeUserGuide] = useState(false);
+	const [includeApis, setIncludeApis] = useState(false);
+	const [includeSpecs, setIncludeSpecs] = useState(false);
+	const [includeWorkflows, setIncludeWorkflows] = useState(false);
+	const [includeUserGuide, setIncludeUserGuide] = useState(false);
 	const [includeWeb, setIncludeWeb] = useState(true);
 	/** When true, PingOne-actionable queries are sent to /api/mcp/query for live results */
 	const [includeLive, setIncludeLive] = useState(true);
-	const [messages, setMessages] = useState<Message[]>([
-		{
-			id: '1',
-			type: 'assistant',
-			content:
-				"Hi! I'm your OAuth Playground assistant. I can help you:\n\n• Find the right OAuth flow for your needs\n• Explain OAuth and OIDC concepts\n• Guide you through configuration\n• Troubleshoot issues\n\nWhat would you like to know?",
-			timestamp: new Date(),
-		},
-	]);
+	const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
 	const [input, setInput] = useState('');
 	const [isTyping, setIsTyping] = useState(false);
 	const [showRefreshTokenConfirm, setShowRefreshTokenConfirm] = useState(false);
 	const [isRefreshingToken, setIsRefreshingToken] = useState(false);
 	const [_workerTokenStatus, setWorkerTokenStatus] = useState<WorkerTokenStatus | null>(null);
 	const [showPromptsGuide, setShowPromptsGuide] = useState(false);
-	const [showSidePanel, setShowSidePanel] = useState(false);
+	const [showSidePanel, setShowSidePanel] = useState(fullPage); // visible by default on full page
+	/** Admin token (client credentials) — when set and valid, MCP calls use it instead of worker token */
+	const [adminToken, setAdminToken] = useState<string | null>(null);
+	const [adminTokenExpiry, setAdminTokenExpiry] = useState<number | null>(null);
+	const [adminEnvironmentId, setAdminEnvironmentId] = useState<string | null>(null);
+	/** When true, MCP calls use admin token (from side panel Admin tab) when valid; otherwise worker token */
+	const [useAdminLogin, setUseAdminLogin] = useState(false);
+	/** When true, Admin tab shows only username/password (credentials from Configuration) for "Admin login" command */
+	const [adminLoginUsernamePasswordOnly, setAdminLoginUsernamePasswordOnly] = useState(false);
+	/** User access token from User login tab (side panel); used for "Introspect user token" */
+	const [userAccessToken, setUserAccessToken] = useState<string | null>(null);
+	/** ID token from User login tab (OIDC); stored for educational inspection */
+	const [idToken, setIdToken] = useState<string | null>(null);
+	/** Recent MCP API call records (last 20) — shown by "show api calls" command */
+	const [apiCallHistory, setApiCallHistory] = useState<ApiCallRecord[]>([]);
+	/** When true (and fullPage), agent results render in the hosting page backdrop instead of only in chat */
+	const [showResultsInPage, setShowResultsInPage] = useState(false);
+	/** Draggable position (left, top) when user has moved the window; null = use default bottom-right */
+	const [assistantPosition, setAssistantPosition] = useState<{ x: number; y: number } | null>(null);
+	const [isDraggingAssistant, setIsDraggingAssistant] = useState(false);
+	const assistantDragRef = useRef({ startX: 0, startY: 0 });
 	/**
 	 * null = not yet checked, true = Groq is ready, false = no API key configured
 	 */
@@ -190,15 +300,47 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 	/** Rolling window of the last 10 conversational turns for Groq context */
 	const groqHistoryRef = useRef<GroqMessage[]>([]);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
+	const messagesContainerRef = useRef<HTMLDivElement>(null);
+	const pageResultsEndRef = useRef<HTMLDivElement>(null);
+	/** Command history for up/down arrow recall (last 50) */
+	const commandHistoryRef = useRef<string[]>([]);
+	const historyIndexRef = useRef<number>(-1);
+	const draftRef = useRef<string>('');
 	const navigate = useNavigate();
 
-	useEffect(() => {
-		if (messages.length === 0) {
-			return;
+	// Scroll agent results to bottom when new content arrives (messages, typing, MCP result)
+	const scrollMessagesToBottom = useCallback(() => {
+		const el = messagesContainerRef.current;
+		if (el) {
+			el.scrollTop = el.scrollHeight;
+		} else {
+			messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
 		}
+	}, []);
 
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	}, [messages]);
+	useEffect(() => {
+		if (messages.length === 0) return;
+		scrollMessagesToBottom();
+		// Deferred scroll to catch MCP result cards and other content that renders after paint
+		const t = setTimeout(scrollMessagesToBottom, 150);
+		return () => clearTimeout(t);
+	}, [messages, scrollMessagesToBottom]);
+
+	// Scroll page results to bottom when new assistant message arrives
+	useEffect(() => {
+		if (!showResultsInPage || !fullPage) return;
+		const assistantCount = messages.filter((m) => m.type === 'assistant').length;
+		if (assistantCount === 0) return;
+		const scroll = () => pageResultsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+		scroll();
+		const t = setTimeout(scroll, 150); // Defer to catch late-rendering MCP content
+		return () => clearTimeout(t);
+	}, [messages, showResultsInPage, fullPage]);
+
+	// Reset drag position when assistant is closed so it reopens at default spot
+	useEffect(() => {
+		if (!isOpen) setAssistantPosition(null);
+	}, [isOpen]);
 
 	// Handle escape key to close AI assistant
 	useEffect(() => {
@@ -237,6 +379,27 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 			document.removeEventListener('keydown', handleKeyDown);
 		};
 	}, [isOpen]);
+
+	// Load stored user tokens from localStorage on mount (educational persistence)
+	useEffect(() => {
+		try {
+			const stored = localStorage.getItem('ai-assistant-user-token');
+			if (stored) {
+				const parsed = JSON.parse(stored) as { access_token?: string; id_token?: string };
+				if (typeof parsed.access_token === 'string') setUserAccessToken(parsed.access_token);
+				if (typeof parsed.id_token === 'string') setIdToken(parsed.id_token);
+			}
+		} catch {
+			// corrupted — ignore
+		}
+	}, []);
+
+	// Hide floating button when user switches tab, minimizes, or leaves browser
+	useEffect(() => {
+		const handler = () => setIsPageVisible(document.visibilityState !== 'hidden');
+		document.addEventListener('visibilitychange', handler);
+		return () => document.removeEventListener('visibilitychange', handler);
+	}, []);
 
 	// Load worker token status when assistant opens so we can show refresh option.
 	// Also prime credentials (load from SQLite + sync to mcp-config) so MCP backend has creds for "Get worker token".
@@ -299,162 +462,504 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 		setShowRefreshTokenConfirm(true);
 	}, []);
 
-	const handleSend = async () => {
-		if (!input.trim()) return;
-
-		const query = input;
-		const userMessage: Message = {
-			id: Date.now().toString(),
-			type: 'user',
-			content: query,
-			timestamp: new Date(),
-		};
-
-		setMessages((prev) => [...prev, userMessage]);
+	/** Clears chat history, input, and context; resets to welcome state. */
+	const handleClear = useCallback(() => {
+		setMessages([{ ...INITIAL_MESSAGES[0], timestamp: new Date() }]);
 		setInput('');
-		setIsTyping(true);
+		groqHistoryRef.current = [];
+		commandHistoryRef.current = [];
+		historyIndexRef.current = -1;
+		draftRef.current = '';
+	}, []);
 
-		// Worker-token and help queries always go straight to MCP — they perform
-		// real server-side actions (token fetch) or return capability docs that
-		// the local knowledge base can't supply.
-		if (isWorkerTokenQuery(query) || isHelpQuery(query)) {
-			try {
-				// Pull stored credentials from our storage service (IndexedDB + SQLite)
-				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
-				const mcpResult = await callMcpQuery(query, {
-					workerToken: tokenData?.token || undefined,
-					environmentId: tokenData?.credentials?.environmentId || undefined,
-					region: (tokenData?.credentials?.region as string) || undefined,
-				});
-				const assistantMessage: Message = {
-					id: (Date.now() + 1).toString(),
-					type: 'assistant',
-					content: mcpResult.answer,
-					mcpResult,
-					timestamp: new Date(),
-				};
-				setMessages((prev) => [...prev, assistantMessage]);
-			} catch (err) {
-				const message = err instanceof Error ? err.message : String(err);
-				setMessages((prev) => [
-					...prev,
-					{
-						id: (Date.now() + 1).toString(),
-						type: 'assistant',
-						content: `MCP query failed: ${message}`,
-						timestamp: new Date(),
-					},
-				]);
-			} finally {
-				setIsTyping(false);
+	/** Store admin token from side panel (client credentials); used for MCP calls until expiry or sign out. */
+	const handleAdminTokenSet = useCallback(
+		(token: string, expiresInSeconds: number, environmentId: string) => {
+			setAdminToken(token);
+			setAdminTokenExpiry(Date.now() + expiresInSeconds * 1000);
+			setAdminEnvironmentId(environmentId);
+		},
+		[]
+	);
+
+	const handleAdminTokenClear = useCallback(() => {
+		setAdminToken(null);
+		setAdminTokenExpiry(null);
+		setAdminEnvironmentId(null);
+	}, []);
+
+	const handleUserTokenSet = useCallback((token: string, _expiresInSeconds: number, receivedIdToken?: string) => {
+		setUserAccessToken(token);
+		if (receivedIdToken !== undefined) setIdToken(receivedIdToken);
+		// Persist to localStorage for educational inspection (see "show my token" / "show id token")
+		const record: { access_token: string; stored_at: number; id_token?: string } = {
+			access_token: token,
+			stored_at: Date.now(),
+			...(receivedIdToken !== undefined ? { id_token: receivedIdToken } : {}),
+		};
+		localStorage.setItem('ai-assistant-user-token', JSON.stringify(record));
+	}, []);
+
+	const handleUserTokenClear = useCallback(() => {
+		setUserAccessToken(null);
+		setIdToken(null);
+		localStorage.removeItem('ai-assistant-user-token');
+	}, []);
+
+	/** Start dragging the assistant window (header mousedown). */
+	const handleAssistantHeaderMouseDown = useCallback(
+		(e: React.MouseEvent) => {
+			if ((e.target as HTMLElement).closest('button, input, label')) return;
+			const rect = (e.currentTarget as HTMLElement)
+				.closest('[data-chat-window]')
+				?.getBoundingClientRect();
+			if (!rect) return;
+			setIsDraggingAssistant(true);
+			assistantDragRef.current = {
+				startX: e.clientX - (assistantPosition?.x ?? rect.left),
+				startY: e.clientY - (assistantPosition?.y ?? rect.top),
+			};
+			if (!assistantPosition) {
+				setAssistantPosition({ x: rect.left, y: rect.top });
 			}
-			return;
-		}
+		},
+		[assistantPosition]
+	);
 
-		// All other queries: Groq answers conversationally, then optionally attach
-		// a live MCP data card (Live toggle) and/or Brave web results (web toggle or
-		// auto-detected spec/docs query).
-		setTimeout(async () => {
-			let answer: string;
-			let groqUsed = false;
+	/** Mouse move during drag. */
+	useEffect(() => {
+		if (!isDraggingAssistant) return;
+		const onMove = (e: MouseEvent) => {
+			const x = Math.max(
+				0,
+				Math.min(e.clientX - assistantDragRef.current.startX, window.innerWidth - 520)
+			);
+			const y = Math.max(0, e.clientY - assistantDragRef.current.startY);
+			setAssistantPosition({ x, y });
+		};
+		const onUp = () => setIsDraggingAssistant(false);
+		document.addEventListener('mousemove', onMove);
+		document.addEventListener('mouseup', onUp);
+		return () => {
+			document.removeEventListener('mousemove', onMove);
+			document.removeEventListener('mouseup', onUp);
+		};
+	}, [isDraggingAssistant]);
 
-			try {
-				const groqResult = await callGroq(query, groqHistoryRef.current, { includeLive });
-				if (!groqResult.notConfigured && groqResult.content) {
-					answer = groqResult.content;
-					groqUsed = true;
-					// Maintain rolling 10-turn history for context
-					groqHistoryRef.current = [
-						...groqHistoryRef.current,
-						{ role: 'user', content: query },
-						{ role: 'assistant', content: groqResult.content },
-					].slice(-20); // keep last 20 entries (10 turns)
-				} else {
-					// Fallback: local knowledge base
-					({ answer } = aiAgentService.getAnswer(query, {
-						includeApiDocs,
-						includeSpecs,
-						includeWorkflows,
-						includeUserGuide,
-					}));
-				}
-			} catch {
-				// Groq failed — fall back to local
-				({ answer } = aiAgentService.getAnswer(query, {
-					includeApiDocs,
-					includeSpecs,
-					includeWorkflows,
-					includeUserGuide,
-				}));
-			}
+	/** Send a message. Pass overrideQuery when triggered by prompt chip/quick question to avoid stale closure. */
+	const handleSend = useCallback(
+		async (overrideQuery?: string) => {
+			const query = (overrideQuery ?? input).trim();
+			if (!query) return;
 
-			const localResult = groqUsed
-				? null
-				: aiAgentService.getAnswer(query, {
-						includeApiDocs,
-						includeSpecs,
-						includeWorkflows,
-						includeUserGuide,
-					});
-			const links: Array<{ title: string; path: string; type: string; external?: boolean }> = (
-				localResult?.relatedLinks ?? []
-			).map((link) => ({
-				title: link.title,
-				path: link.path,
-				type: link.type,
-				external: link.external,
-			}));
-
-			// MCP live data card — only when Live toggle is on and query is actionable
-			let mcpResult: McpQueryResult | undefined;
-			if (includeLive && isMcpQuery(query)) {
-				try {
-					const tokenData = unifiedWorkerTokenService.getTokenDataSync();
-					mcpResult = await callMcpQuery(query, {
-						workerToken: tokenData?.token || undefined,
-						environmentId: tokenData?.credentials?.environmentId || undefined,
-						region: (tokenData?.credentials?.region as string) || undefined,
-					});
-				} catch {
-					// MCP failed; Groq answer still shown
-				}
-			}
-
-			let webResult: McpQueryResult | undefined;
-			if (includeWeb || isWebSearchQuery(query)) {
-				try {
-					webResult = await callMcpWebSearch(query);
-				} catch {
-					// Web search failed; keep local results only
-				}
-			}
-
-			const assistantMessage: Message = {
-				id: (Date.now() + 1).toString(),
-				type: 'assistant',
-				content: answer,
-				links,
-				mcpResult,
-				webResult,
-				groqUsed,
+			const userMessage: Message = {
+				id: Date.now().toString(),
+				type: 'user',
+				content: query,
 				timestamp: new Date(),
 			};
 
-			setMessages((prev) => [...prev, assistantMessage]);
-			setIsTyping(false);
-		}, 500);
-	};
+			setMessages((prev) => [...prev, userMessage]);
+			setInput('');
+			setIsTyping(true);
 
-	const handleKeyPress = (e: React.KeyboardEvent) => {
+			// Add to command history for up/down recall (dedupe consecutive)
+			const h = commandHistoryRef.current;
+			if (h.length === 0 || h[h.length - 1] !== query) {
+				commandHistoryRef.current = [...h.slice(-49), query];
+			}
+			historyIndexRef.current = -1;
+			draftRef.current = '';
+
+			// "Admin login" command: open username/password form in side panel, or tell user to configure first
+			if (isAdminLoginQuery(query)) {
+				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+				const hasConfig =
+					tokenData?.credentials?.environmentId &&
+					tokenData?.credentials?.clientId &&
+					tokenData?.credentials?.clientSecret;
+				if (hasConfig) {
+					setUseAdminLogin(true);
+					setShowSidePanel(true);
+					setAdminLoginUsernamePasswordOnly(true);
+					setMessages((prev) => [
+						...prev,
+						{
+							id: crypto.randomUUID(),
+							type: 'assistant',
+							content:
+								'**Admin login** — The form on the left is ready. Enter your **username** and **password** to log in as admin. After you sign in, I\'ll use that token for commands like "list all users".',
+							timestamp: new Date(),
+						},
+					]);
+				} else {
+					setMessages((prev) => [
+						...prev,
+						{
+							id: crypto.randomUUID(),
+							type: 'assistant',
+							content:
+								'To use **Admin login**, configure the PingOne OIDC client credentials (worker token) in **Configuration** first. You need an application with **Resource Owner Password** grant enabled and Management API scopes. Then say **Admin login** again to open the username/password form.',
+							timestamp: new Date(),
+						},
+					]);
+				}
+				setIsTyping(false);
+				setInput(query); // Restore executed command so user can modify and re-run
+				return;
+			}
+
+			// ── Client-side token inspection commands ────────────────────────────────────
+			// These operate on locally-stored tokens — no backend call, no Live toggle needed.
+
+			if (isShowMyTokenQuery(query)) {
+				const msg = (() => {
+					if (!userAccessToken) {
+						return 'No user access token stored yet. Log in using **Admin login** or say **"Introspect user token"** to open the User login panel.';
+					}
+					const header = decodeJwtHeader(userAccessToken);
+					const payload = decodeJwtPayload(userAccessToken);
+					const parts: string[] = [`## 🔑 User Access Token\n\n\`\`\`\n${userAccessToken}\n\`\`\``];
+					if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+					if (payload) parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+					parts.push('\n> ⚠️ **Educational only** — never store tokens in browser storage in production.');
+					return parts.join('\n\n');
+				})();
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isShowIdTokenQuery(query)) {
+				const msg = (() => {
+					if (!idToken) {
+						return 'No ID token stored. Log in as a user (say **"User login"** or **"Introspect user token"**) to receive an ID token alongside the access token.';
+					}
+					const header = decodeJwtHeader(idToken);
+					const payload = decodeJwtPayload(idToken);
+					const parts: string[] = [`## 🪪 ID Token\n\n\`\`\`\n${idToken}\n\`\`\``];
+					if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+					if (payload) parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+					parts.push('\n> ℹ️ The ID Token asserts who the user is. It contains identity claims (sub, name, email) and is meant only for the client that requested it — never forward it to APIs.\n> ⚠️ **Educational only** — never store ID tokens in browser storage in production.');
+					return parts.join('\n\n');
+				})();
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isShowWorkerTokenQuery(query)) {
+				const useAdminTok = useAdminLogin && !!adminToken && adminTokenExpiry != null && Date.now() < adminTokenExpiry - ADMIN_TOKEN_BUFFER_MS;
+				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+				const token = useAdminTok ? adminToken : (tokenData?.token ?? null);
+				const label = useAdminTok ? 'Admin Token' : 'Worker Token';
+				const msg = (() => {
+					if (!token) {
+						return `No ${label.toLowerCase()} available. Say **"Get worker token"** to request one, or **"Admin login"** to sign in as admin.`;
+					}
+					const header = decodeJwtHeader(token);
+					const payload = decodeJwtPayload(token);
+					const parts: string[] = [`## 🔐 ${label}\n\n\`\`\`\n${token}\n\`\`\``];
+					if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+					if (payload) parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+					parts.push('\n> ⚠️ **Educational only** — worker tokens are high-privilege. Never reveal them in production UIs.');
+					return parts.join('\n\n');
+				})();
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isDecodeTokenQuery(query)) {
+				const jwtMatch = query.match(/\bey[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,}\b/);
+				const tokenToDecode = jwtMatch?.[0] ?? null;
+				const msg = (() => {
+					if (!tokenToDecode) {
+						return 'Paste a JWT in your message to decode it. Example:\n\n```\ndecode eyJhbGci...\n```';
+					}
+					const header = decodeJwtHeader(tokenToDecode);
+					const payload = decodeJwtPayload(tokenToDecode);
+					const truncated = tokenToDecode.length > 80 ? `${tokenToDecode.slice(0, 80)}…` : tokenToDecode;
+					const parts: string[] = [`## 🔬 Decoded Token\n\n\`\`\`\n${truncated}\n\`\`\``];
+					if (header) parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+					if (payload) parts.push(`### Payload Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+					if (!header && !payload) parts.push('⚠️ Could not decode — this may not be a standard JWT.');
+					parts.push('\n> ℹ️ JWT decode is client-side base64 only — no signature verification. For **educational inspection** only.');
+					return parts.join('\n\n');
+				})();
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isShowApiCallsQuery(query)) {
+				const msg = (() => {
+					if (apiCallHistory.length === 0) {
+						return 'No API calls recorded yet. Execute a live MCP command (e.g. **List all users**) first.';
+					}
+					const records = [...apiCallHistory].reverse().slice(0, 5);
+					const parts: string[] = ['## 📡 Recent API Calls'];
+					records.forEach((rec, i) => {
+						parts.push(`### ${i + 1}. ${rec.mcpTool ?? 'Unknown tool'}\n**Query:** ${rec.query}`);
+						if (rec.apiCall) parts.push(`**API Call:** \`${rec.apiCall.method} ${rec.apiCall.path}\``);
+						if (rec.data !== null && rec.data !== undefined) {
+							const json = JSON.stringify(rec.data, null, 2);
+							parts.push(`**Response:**\n\`\`\`json\n${json.length > 2000 ? `${json.slice(0, 2000)}\n…(truncated)` : json}\n\`\`\``);
+						}
+					});
+					return parts.join('\n\n');
+				})();
+				setMessages((prev) => [...prev, { id: crypto.randomUUID(), type: 'assistant', content: msg, timestamp: new Date() }]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			if (isClearTokensQuery(query)) {
+				setUserAccessToken(null);
+				setIdToken(null);
+				setAdminToken(null);
+				setAdminTokenExpiry(null);
+				setAdminEnvironmentId(null);
+				localStorage.removeItem('ai-assistant-user-token');
+				setMessages((prev) => [
+					...prev,
+					{
+						id: crypto.randomUUID(),
+						type: 'assistant',
+						content: '🗑️ **Tokens cleared.** User access token, ID token, and admin token have been removed from memory and localStorage.\n\n> Note: The worker token (managed in Configuration) is not affected.',
+						timestamp: new Date(),
+					},
+				]);
+				setIsTyping(false);
+				setInput(query);
+				return;
+			}
+
+			// MCP queries with Live OFF: show nudge to turn on Live (don't let Groq fake PingOne data).
+			if (
+				isMcpQuery(query) &&
+				!includeLive &&
+				!isWorkerTokenQuery(query) &&
+				!isHelpQuery(query) &&
+				!isListToolsQuery(query) &&
+				!isAdminLoginQuery(query)
+			) {
+				setMessages((prev) => [
+					...prev,
+					{
+						id: crypto.randomUUID(),
+						type: 'assistant',
+						content:
+							"🔌 **Live MCP is off.**\n\nTurn on the **Live** toggle in the header to execute this command against your real PingOne environment.\n\nI won't guess or simulate PingOne data — only the MCP tool can return real results.",
+						timestamp: new Date(),
+					},
+				]);
+				setIsTyping(false);
+				setInput(query); // Restore executed command so user can modify and re-run
+				return;
+			}
+
+			// All MCP queries with Live ON (or worker-token/help/list-tools/userinfo which work without Live):
+			// go straight to MCP and use the result as the primary response.
+			if (
+				isWorkerTokenQuery(query) ||
+				isHelpQuery(query) ||
+				isListToolsQuery(query) ||
+				isUserInfoQuery(query) ||
+				(includeLive && isMcpQuery(query))
+			) {
+				try {
+					const useAdminToken =
+						useAdminLogin &&
+						!!adminToken &&
+						adminTokenExpiry != null &&
+						Date.now() < adminTokenExpiry - ADMIN_TOKEN_BUFFER_MS;
+					const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+					const useUserTokenForIntrospect = isIntrospectUserTokenQuery(query) && !!userAccessToken;
+					const mcpResult = await callMcpQuery(query, {
+						workerToken: useAdminToken ? adminToken : tokenData?.token || undefined,
+						environmentId: useAdminToken
+							? adminEnvironmentId || undefined
+							: tokenData?.credentials?.environmentId || undefined,
+						region: (tokenData?.credentials?.region as string) || undefined,
+						...(useUserTokenForIntrospect && userAccessToken
+							? { tokenToIntrospect: userAccessToken }
+							: {}),
+					});
+					const assistantMessage: Message = {
+						id: crypto.randomUUID(),
+						type: 'assistant',
+						content: mcpResult.answer,
+						mcpResult,
+						timestamp: new Date(),
+					};
+					// Track in API call history (for "show api calls" command)
+					if (mcpResult.apiCall) {
+						setApiCallHistory((prev) => [
+							...prev.slice(-19),
+							{ id: crypto.randomUUID(), query, mcpTool: mcpResult.mcpTool, apiCall: mcpResult.apiCall, data: mcpResult.data, timestamp: new Date() },
+						]);
+					}
+					setMessages((prev) => [...prev, assistantMessage]);
+				} catch (err) {
+					const message = err instanceof Error ? err.message : String(err);
+					setMessages((prev) => [
+						...prev,
+						{
+							id: crypto.randomUUID(),
+							type: 'assistant',
+							content: `MCP query failed: ${message}`,
+							timestamp: new Date(),
+						},
+					]);
+				} finally {
+					setIsTyping(false);
+					setInput(query); // Restore executed command so user can modify and re-run
+				}
+				return;
+			}
+
+			// All other queries: Groq answers conversationally, then optionally attach
+			// Brave web results (web toggle or auto-detected spec/docs query).
+			try {
+				let answer: string;
+				let groqUsed = false;
+				let localResult: ReturnType<typeof aiAgentService.getAnswer> | null = null;
+
+				const getLocalAnswer = () =>
+					aiAgentService.getAnswer(query, {
+						includeApiDocs: includeApis,
+						includeSpecs,
+						includeWorkflows,
+						includeUserGuide,
+					});
+
+				try {
+					const groqResult = await callGroq(query, groqHistoryRef.current, { includeLive });
+					if (!groqResult.notConfigured && groqResult.content) {
+						answer = groqResult.content;
+						groqUsed = true;
+						// Maintain rolling 10-turn history for context
+						groqHistoryRef.current = [
+							...groqHistoryRef.current,
+							{ role: 'user', content: query },
+							{ role: 'assistant', content: groqResult.content },
+						].slice(-20); // keep last 20 entries (10 turns)
+					} else {
+						// Fallback: local knowledge base — save result for links too
+						localResult = getLocalAnswer();
+						answer = localResult.answer;
+					}
+				} catch {
+					// Groq failed — fall back to local; save result for links too
+					localResult = getLocalAnswer();
+					answer = localResult.answer;
+				}
+
+				// When Groq was used, fetch local result only for related links (no duplicate answer call)
+				if (groqUsed) localResult = null;
+				const links: Array<{ title: string; path: string; type: string; external?: boolean }> = (
+					localResult?.relatedLinks ?? []
+				).map((link) => ({
+					title: link.title,
+					path: link.path,
+					type: link.type,
+					external: link.external,
+				}));
+
+				// MCP queries are handled above; only non-MCP queries reach here
+				let webResult: McpQueryResult | undefined;
+				if (includeWeb || isWebSearchQuery(query)) {
+					try {
+						webResult = await callMcpWebSearch(query);
+					} catch {
+						// Web search failed; keep local results only
+					}
+				}
+
+				const assistantMessage: Message = {
+					id: crypto.randomUUID(),
+					type: 'assistant',
+					content: answer,
+					links,
+					webResult,
+					groqUsed,
+					timestamp: new Date(),
+				};
+
+				setMessages((prev) => [...prev, assistantMessage]);
+			} finally {
+				setIsTyping(false);
+				setInput(query); // Restore executed command so user can modify and re-run
+			}
+		},
+		[
+			input,
+			includeApis,
+			includeSpecs,
+			includeWorkflows,
+			includeUserGuide,
+			includeWeb,
+			includeLive,
+			useAdminLogin,
+			adminToken,
+			adminTokenExpiry,
+			adminEnvironmentId,
+			userAccessToken,
+			idToken,
+			apiCallHistory,
+		]
+	);
+
+	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault();
 			handleSend();
+			return;
+		}
+		if (e.key === 'ArrowUp') {
+			const h = commandHistoryRef.current;
+			if (h.length === 0) return;
+			e.preventDefault();
+			if (historyIndexRef.current === -1) {
+				draftRef.current = input;
+				historyIndexRef.current = h.length - 1;
+				setInput(h[historyIndexRef.current]);
+			} else if (historyIndexRef.current > 0) {
+				historyIndexRef.current--;
+				setInput(h[historyIndexRef.current]);
+			}
+			return;
+		}
+		if (e.key === 'ArrowDown') {
+			if (historyIndexRef.current === -1) return;
+			e.preventDefault();
+			const h = commandHistoryRef.current;
+			if (historyIndexRef.current < h.length - 1) {
+				historyIndexRef.current++;
+				setInput(h[historyIndexRef.current]);
+			} else {
+				historyIndexRef.current = -1;
+				setInput(draftRef.current);
+			}
+			return;
+		}
+		// Typing exits history browse mode
+		if (historyIndexRef.current >= 0) {
+			historyIndexRef.current = -1;
 		}
 	};
 
 	const handleLinkClick = (path: string, external?: boolean) => {
 		if (external) {
 			window.open(path, '_blank', 'noopener,noreferrer');
+		} else if (popout && window.opener) {
+			notifyHostNavigate(path);
 		} else {
 			navigate(path);
 			setIsOpen(false);
@@ -464,7 +969,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 	const promptCategories = [
 		{
 			label: '🔑 Auth',
-			prompts: ['Get worker token'],
+			prompts: ['Get worker token', 'List MCP tools'],
 		},
 		{
 			label: '📱 Applications',
@@ -520,6 +1025,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 			],
 		},
 		{
+			label: '🔍 Token Inspector',
+			prompts: [
+				'Show my token',
+				'Show id token',
+				'Show worker token',
+				'Decode token <paste-jwt-here>',
+				'Show api calls',
+				'Clear tokens',
+			],
+		},
+		{
 			label: '❓ Help',
 			prompts: [
 				'What can I do in chat?',
@@ -530,6 +1046,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 	];
 
 	const quickQuestions = [
+		'List MCP tools',
 		'Get worker token',
 		'Show all apps',
 		'List all users',
@@ -544,329 +1061,1141 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 		"What's the difference between OAuth and OIDC?",
 	];
 
+	/** Shared page results content for fullPage backdrop and floating panel */
+	const pageResultsContent = (() => {
+		const assistantMessages = messages.filter((m) => m.type === 'assistant');
+		if (assistantMessages.length === 0) {
+			return <PageResultEmpty>Ask a question to see results here.</PageResultEmpty>;
+		}
+		return (
+			<PageResultContainer>
+				<PageResultHeader>
+					<span>Agent Results</span>
+					<PageResultClearBtn type="button" onClick={handleClear} title="Clear chat and results">
+						🗑 Clear
+					</PageResultClearBtn>
+				</PageResultHeader>
+				<PageResultContent>
+					{assistantMessages.map((msg, idx) => (
+						<React.Fragment key={msg.id}>
+							{idx > 0 && <PageResultSeparator />}
+							<PageResultBlock>
+								<MessageContent>{renderMessageText(msg.content)}</MessageContent>
+								{msg.groqUsed && (
+									<GroqBadgeRow>
+										<GroqBadge>⚡ Groq · Llama 3.3 70B</GroqBadge>
+									</GroqBadgeRow>
+								)}
+								{msg.mcpResult && (
+									<McpResultCard $isSuccess={!!msg.mcpResult.success}>
+										<McpResultHeader>
+											<McpBadge>🔌 MCP</McpBadge>
+											<McpToolName>{msg.mcpResult.mcpTool ?? 'PingOne MCP'}</McpToolName>
+											{!!msg.mcpResult.success && (
+												<McpSuccessBadge>
+													{msg.mcpResult.mcpTool === 'pingone_get_worker_token'
+														? '✓ Token ready'
+														: '✓ Success'}
+												</McpSuccessBadge>
+											)}
+										</McpResultHeader>
+										{msg.mcpResult.apiCall && (
+											<McpApiRow>
+												<McpApiMethod>{msg.mcpResult.apiCall.method}</McpApiMethod>
+												<McpApiPath>{msg.mcpResult.apiCall.path}</McpApiPath>
+											</McpApiRow>
+										)}
+										{msg.mcpResult.howItWorks && (
+											<McpExplanation>{msg.mcpResult.howItWorks}</McpExplanation>
+										)}
+										{msg.mcpResult.credentialsRequired && (
+											<McpCredentialHint>
+												Type <strong>&quot;Get worker token&quot;</strong> to authenticate.
+											</McpCredentialHint>
+										)}
+										{msg.mcpResult.data != null &&
+											((Array.isArray(msg.mcpResult.data) &&
+												(msg.mcpResult.data as unknown[]).length > 0) ||
+												(typeof msg.mcpResult.data === 'object' &&
+													Object.keys(msg.mcpResult.data as object).length > 0)) && (
+												<McpDataSection>
+													<McpDataLabel>
+														{Array.isArray(msg.mcpResult.data)
+															? `Data (${(msg.mcpResult.data as unknown[]).length} items)`
+															: 'Data'}
+														<McpJsonToggle
+															onClick={() =>
+																setMessages((prev) =>
+																	prev.map((m) =>
+																		m.id === msg.id && m.mcpResult
+																			? {
+																					...m,
+																					mcpResult: {
+																						...m.mcpResult,
+																						rawJson: !m.mcpResult.rawJson,
+																					},
+																				}
+																			: m
+																	)
+																)
+															}
+														>
+															{msg.mcpResult.rawJson ? '📋 Formatted' : '{ } JSON'}
+														</McpJsonToggle>
+													</McpDataLabel>
+													{msg.mcpResult.rawJson || !Array.isArray(msg.mcpResult.data) ? (
+														<McpDataPre>{JSON.stringify(msg.mcpResult.data, null, 2)}</McpDataPre>
+													) : (
+														<McpDataPagedDisplay
+															key={msg.id}
+															data={msg.mcpResult.data as unknown[]}
+														/>
+													)}
+												</McpDataSection>
+											)}
+									</McpResultCard>
+								)}
+								{msg.webResult &&
+									msg.webResult.data != null &&
+									Array.isArray(msg.webResult.data) &&
+									(msg.webResult.data as BraveResult[]).length > 0 && (
+										<BraveResultCard>
+											<BraveResultHeader>
+												<BraveBadge>🌐 Brave</BraveBadge>
+												<BraveToolName>brave_web_search</BraveToolName>
+											</BraveResultHeader>
+											<BraveResultsList>
+												{(msg.webResult.data as BraveResult[]).map((r, i) => (
+													<BraveResultItem
+														key={i}
+														onClick={() => window.open(r.url, '_blank', 'noopener,noreferrer')}
+													>
+														<BraveResultTitle>{r.title}</BraveResultTitle>
+														<BraveResultUrl>{r.url}</BraveResultUrl>
+														{r.content && <BraveResultSnippet>{r.content}</BraveResultSnippet>}
+													</BraveResultItem>
+												))}
+											</BraveResultsList>
+										</BraveResultCard>
+									)}
+								{msg.links && msg.links.length > 0 && (
+									<LinksContainer>
+										<LinksTitle>Related Resources:</LinksTitle>
+										{msg.links.map((link, linkIdx) => (
+											<LinkItem
+												key={linkIdx}
+												onClick={() => handleLinkClick(link.path, link.external)}
+											>
+												<LinkIcon $type={link.type}>
+													{link.type === 'flow' && '🔄'}
+													{link.type === 'feature' && '⚡'}
+													{link.type === 'doc' && '📖'}
+													{link.type === 'api' && '🔌'}
+													{link.type === 'spec' && '📋'}
+													{link.type === 'workflow' && '🔀'}
+													{link.type === 'guide' && '📚'}
+													{link.type === 'web' && '🌐'}
+												</LinkIcon>
+												<LinkText>{link.title}</LinkText>
+												<span style={{ fontSize: '14px' }}>🔗</span>
+											</LinkItem>
+										))}
+									</LinksContainer>
+								)}
+							</PageResultBlock>
+						</React.Fragment>
+					))}
+					<div ref={pageResultsEndRef} />
+				</PageResultContent>
+			</PageResultContainer>
+		);
+	})();
+
 	return (
 		<>
-			{/* Floating Button - only show when not in fullPage mode */}
-			{!fullPage && !isOpen && (
-				<FloatingButton onClick={() => setIsOpen(true)} aria-label="Open AI Assistant">
+			{/* Floating Button - only show when not in fullPage, chat closed, and page visible (hide when tab/window hidden) */}
+			{!fullPage && !isOpen && isPageVisible && (
+				<FloatingButton onClick={() => setIsOpen(true)} aria-label="Open MasterFlow Agent">
 					<span style={{ fontSize: '24px' }}>💬</span>
 					<Pulse />
 				</FloatingButton>
 			)}
 
-			{/* Chat Window */}
+			{/* Page backdrop (blank area) when fullPage - agent talks to this; side panel embedded when showSidePanel */}
+			{fullPage && (
+				<PageBackdrop $hasResults={showResultsInPage} $hasTools={showSidePanel}>
+					{(showResultsInPage || showSidePanel) && (
+						<PageBackdropMain>{showResultsInPage && pageResultsContent}</PageBackdropMain>
+					)}
+					{showSidePanel && (
+						<PageToolsSlot $alongsideResults>
+							<AIAssistantSidePanel
+								isVisible
+								onClose={() => {
+									setShowSidePanel(false);
+									setAdminLoginUsernamePasswordOnly(false);
+								}}
+								embedded
+								onClear={handleClear}
+								requestedTab={useAdminLogin ? 'admin' : undefined}
+								adminLoginUsernamePasswordOnly={adminLoginUsernamePasswordOnly}
+								adminToken={adminToken}
+								adminTokenExpiry={adminTokenExpiry}
+								adminEnvironmentId={adminEnvironmentId}
+								onAdminTokenSet={handleAdminTokenSet}
+								onAdminTokenClear={handleAdminTokenClear}
+								userAccessToken={userAccessToken}
+								onUserTokenSet={handleUserTokenSet}
+								onUserTokenClear={handleUserTokenClear}
+							/>
+						</PageToolsSlot>
+					)}
+				</PageBackdrop>
+			)}
+
+			{/* Chat Window - compact floating when fullPage, else normal */}
 			{isOpen && (
 				<>
 					{isExpanded && !fullPage && <ExpandOverlay onClick={() => setIsExpanded(false)} />}
-					<ChatWindow $expanded={isExpanded} $collapsed={isCollapsed} $fullPage={fullPage}>
-						<ChatHeader>
-							<HeaderContent>
-								<AssistantIcon>🤖</AssistantIcon>
-								<HeaderText>
-									<HeaderTitle>OAuth Assistant</HeaderTitle>
-									<StatusRow>
-										<StatusDot
-											$state={groqAvailable === null ? 'checking' : groqAvailable ? 'ok' : 'off'}
-											title={
-												groqAvailable
-													? 'Groq LLM connected (Llama 3.3 70B)'
-													: groqAvailable === false
-														? 'Groq not configured — click to add key'
-														: 'Checking Groq…'
-											}
-											onClick={
-												groqAvailable === false
-													? () => {
-															navigate('/configuration');
-															setIsOpen(false);
-														}
-													: undefined
-											}
-											style={{ cursor: groqAvailable === false ? 'pointer' : 'default' }}
+					{!fullPage && showResultsInPage ? (
+						<FloatingLayout>
+							<FloatingPagePanel>{pageResultsContent}</FloatingPagePanel>
+							<ChatWindow
+								$expanded={isExpanded}
+								$collapsed={isCollapsed}
+								$fullPage={fullPage}
+								$compactOnPage={fullPage}
+								$inFloatingLayout
+							>
+								<ChatHeader>
+									<HeaderContent>
+										<AssistantIcon>🤖</AssistantIcon>
+										<HeaderText>
+											<HeaderTitle>MasterFlow Agent</HeaderTitle>
+											<StatusRow>
+												<StatusDot
+													$state={
+														groqAvailable === null ? 'checking' : groqAvailable ? 'ok' : 'off'
+													}
+													title={
+														groqAvailable
+															? 'Groq LLM connected (Llama 3.3 70B)'
+															: groqAvailable === false
+																? 'Groq not configured — click to add key'
+																: 'Checking Groq…'
+													}
+													onClick={
+														groqAvailable === false
+															? () => {
+																	if (popout) notifyHostNavigate('/configuration');
+																	else {
+																		navigate('/configuration');
+																		setIsOpen(false);
+																	}
+																}
+															: undefined
+													}
+													style={{ cursor: groqAvailable === false ? 'pointer' : 'default' }}
+												>
+													⚡ Groq
+												</StatusDot>
+												<StatusDot
+													$state={
+														braveAvailable === null ? 'checking' : braveAvailable ? 'ok' : 'off'
+													}
+													title={
+														braveAvailable
+															? 'Brave Search connected'
+															: braveAvailable === false
+																? 'Brave Search not configured — click to add key'
+																: 'Checking Brave…'
+													}
+													onClick={
+														braveAvailable === false
+															? () => {
+																	if (popout) notifyHostNavigate('/configuration');
+																	else {
+																		navigate('/configuration');
+																		setIsOpen(false);
+																	}
+																}
+															: undefined
+													}
+													style={{ cursor: braveAvailable === false ? 'pointer' : 'default' }}
+												>
+													🌐 Brave
+												</StatusDot>
+												<StatusDot
+													$state={
+														_workerTokenStatus === null
+															? 'checking'
+															: includeLive &&
+																	_workerTokenStatus.hasCredentials &&
+																	_workerTokenStatus.tokenValid
+																? 'ok'
+																: 'off'
+													}
+													title={
+														_workerTokenStatus === null
+															? 'Checking MCP…'
+															: includeLive &&
+																	_workerTokenStatus.hasCredentials &&
+																	_workerTokenStatus.tokenValid
+																? 'MCP connected — Live PingOne data ready'
+																: !includeLive
+																	? 'MCP disabled — turn on Live toggle'
+																	: !_workerTokenStatus.hasCredentials
+																		? 'MCP not configured — save worker credentials in Configuration'
+																		: 'MCP needs refresh — click 🔑 to get worker token'
+													}
+													onClick={
+														(!includeLive || !_workerTokenStatus?.hasCredentials) &&
+														_workerTokenStatus !== null
+															? () => {
+																	if (popout) notifyHostNavigate('/configuration');
+																	else {
+																		navigate('/configuration');
+																		setIsOpen(false);
+																	}
+																}
+															: undefined
+													}
+													style={{
+														cursor:
+															(!includeLive || !_workerTokenStatus?.hasCredentials) &&
+															_workerTokenStatus !== null
+																? 'pointer'
+																: 'default',
+													}}
+												>
+													🔌 MCP
+												</StatusDot>
+											</StatusRow>
+										</HeaderText>
+									</HeaderContent>
+									<HeaderActions>
+										<ToggleContainer title="Show results in a page panel next to the agent">
+											<ToggleLabel>
+												<ToggleCheckbox
+													type="checkbox"
+													checked={showResultsInPage}
+													onChange={(e) => setShowResultsInPage(e.target.checked)}
+													aria-label="Show results in page"
+													title="Show results in a page panel next to the agent"
+												/>
+												<ToggleText>Page</ToggleText>
+											</ToggleLabel>
+										</ToggleContainer>
+										<ToggleContainer title="Show tools panel for PingOne login, docs, and configuration">
+											<ToggleLabel>
+												<ToggleCheckbox
+													type="checkbox"
+													checked={showSidePanel}
+													onChange={(e) => setShowSidePanel(e.target.checked)}
+													aria-label="Show Configure panel for tools and PingOne login"
+													title="Show tools panel for PingOne login, docs, and configuration"
+												/>
+												<ToggleText>Configure</ToggleText>
+											</ToggleLabel>
+										</ToggleContainer>
+										<ToggleContainer title="Include PingOne API reference docs in context">
+											<ToggleLabel>
+												<ToggleCheckbox
+													type="checkbox"
+													checked={includeApis}
+													onChange={(e) => setIncludeApis(e.target.checked)}
+													aria-label="Include PingOne API reference docs"
+													title="Include PingOne API reference docs in context"
+												/>
+												<ToggleText>APIs</ToggleText>
+											</ToggleLabel>
+										</ToggleContainer>
+										<ToggleContainer title="Include OAuth 2.0 and OIDC specifications in context">
+											<ToggleLabel>
+												<ToggleCheckbox
+													type="checkbox"
+													checked={includeSpecs}
+													onChange={(e) => setIncludeSpecs(e.target.checked)}
+													aria-label="Include OAuth/OIDC specifications"
+													title="Include OAuth 2.0 and OIDC specifications in context"
+												/>
+												<ToggleText>Specs</ToggleText>
+											</ToggleLabel>
+										</ToggleContainer>
+										<ToggleContainer title="Include PingOne workflow guides in context">
+											<ToggleLabel>
+												<ToggleCheckbox
+													type="checkbox"
+													checked={includeWorkflows}
+													onChange={(e) => setIncludeWorkflows(e.target.checked)}
+													aria-label="Include PingOne workflows"
+													title="Include PingOne workflow guides in context"
+												/>
+												<ToggleText>Workflows</ToggleText>
+											</ToggleLabel>
+										</ToggleContainer>
+										<ToggleContainer title="Include the OAuth Playground user guide in context">
+											<ToggleLabel>
+												<ToggleCheckbox
+													type="checkbox"
+													checked={includeUserGuide}
+													onChange={(e) => setIncludeUserGuide(e.target.checked)}
+													aria-label="Include User Guide"
+													title="Include the OAuth Playground user guide in context"
+												/>
+												<ToggleText>Guide</ToggleText>
+											</ToggleLabel>
+										</ToggleContainer>
+										<ToggleContainer title="Include live web results via Brave Search. Requires BRAVE_API_KEY on the server (see .env).">
+											<ToggleLabel>
+												<ToggleCheckbox
+													type="checkbox"
+													checked={includeWeb}
+													onChange={(e) => setIncludeWeb(e.target.checked)}
+													aria-label="Include web search results (Brave Search; needs BRAVE_API_KEY on server)"
+													title="Include live web results via Brave Search. Requires BRAVE_API_KEY on the server."
+												/>
+												<ToggleText>Web</ToggleText>
+												<ToggleHint>(Brave)</ToggleHint>
+											</ToggleLabel>
+										</ToggleContainer>
+										<ToggleContainer title="Call PingOne live via MCP tools. Requires PINGONE_ENVIRONMENT_ID + PINGONE_WORKER_TOKEN on the server.">
+											<ToggleLabel>
+												<ToggleCheckbox
+													type="checkbox"
+													checked={includeLive}
+													onChange={(e) => setIncludeLive(e.target.checked)}
+													aria-label="Call PingOne live via MCP tools (requires credentials on server)"
+													title="Call PingOne live via MCP tools. Requires credentials on the server."
+												/>
+												<ToggleLiveText $active={includeLive}>Live</ToggleLiveText>
+												<ToggleHint>(MCP)</ToggleHint>
+											</ToggleLabel>
+										</ToggleContainer>
+										<ToggleContainer title="Use Admin login token for MCP calls. Get token in side panel → Admin tab.">
+											<ToggleLabel>
+												<ToggleCheckbox
+													type="checkbox"
+													checked={useAdminLogin}
+													onChange={(e) => {
+														const checked = e.target.checked;
+														setUseAdminLogin(checked);
+														if (checked) setShowSidePanel(true);
+													}}
+													aria-label="Use Admin login token for MCP (get token in side panel Admin tab)"
+													title="Use Admin login token for MCP calls. Get token in side panel → Admin tab."
+												/>
+												<ToggleLiveText $active={useAdminLogin}>Admin</ToggleLiveText>
+											</ToggleLabel>
+										</ToggleContainer>
+										<RefreshTokenButton
+											type="button"
+											onClick={handleOpenRefreshTokenConfirm}
+											aria-label="Refresh worker token (requires confirmation)"
+											title="Get a new worker token using saved credentials (you will be asked to confirm)"
 										>
-											⚡ Groq
-										</StatusDot>
-										<StatusDot
-											$state={braveAvailable === null ? 'checking' : braveAvailable ? 'ok' : 'off'}
-											title={
-												braveAvailable
-													? 'Brave Search connected'
-													: braveAvailable === false
-														? 'Brave Search not configured — click to add key'
-														: 'Checking Brave…'
-											}
-											onClick={
-												braveAvailable === false
-													? () => {
-															navigate('/configuration');
-															setIsOpen(false);
-														}
-													: undefined
-											}
-											style={{ cursor: braveAvailable === false ? 'pointer' : 'default' }}
+											🔑
+										</RefreshTokenButton>
+										<RefreshTokenButton
+											type="button"
+											onClick={() => window.dispatchEvent(new Event('open-log-viewer'))}
+											aria-label="Open log viewer to see MCP calls"
+											title="Open log viewer — see MCP calls, API requests, and server logs"
 										>
-											🌐 Brave
-										</StatusDot>
-										<StatusDot
-											$state={
-												_workerTokenStatus === null
-													? 'checking'
-													: includeLive &&
-														  _workerTokenStatus.hasCredentials &&
-														  _workerTokenStatus.tokenValid
-														? 'ok'
-														: 'off'
-											}
+											📋
+										</RefreshTokenButton>
+										<CollapseButton
+											type="button"
+											onClick={() => {
+												setIsCollapsed((v) => !v);
+												setIsExpanded(false);
+											}}
+											aria-label={isCollapsed ? 'Restore assistant' : 'Minimise assistant'}
+											title={isCollapsed ? 'Restore' : 'Minimise'}
+										>
+											<span style={{ fontSize: '16px' }}>{isCollapsed ? '▲' : '▼'}</span>
+										</CollapseButton>
+										<ExpandButton
+											type="button"
+											onClick={() => setIsExpanded((v) => !v)}
+											aria-label={isExpanded ? 'Collapse to compact view' : 'Expand to full view'}
+											title={isExpanded ? 'Collapse' : 'Expand to full screen'}
+										>
+											<span style={{ fontSize: '16px' }}>{isExpanded ? '⊡' : '⛶'}</span>
+										</ExpandButton>
+										{!popout && !fullPage && (
+											<ExpandButton
+												type="button"
+												onClick={() => {
+													const opened = openAIAssistantPopout();
+													if (opened) {
+														setIsOpen(false);
+														setIsExpanded(false);
+														setIsCollapsed(false);
+													}
+												}}
+												aria-label="Open in popout window"
+												title="Open in popout window — move outside host page, still communicates with it"
+											>
+												<span style={{ fontSize: '16px' }}>🔗</span>
+											</ExpandButton>
+										)}
+										<ClearButton
+											type="button"
+											onClick={handleClear}
+											aria-label="Clear chat"
+											title="Clear chat and start fresh"
+										>
+											<span style={{ fontSize: '16px' }}>🗑</span>
+											Clear
+										</ClearButton>
+										<CloseButton
+											onClick={() => {
+												if (popout && typeof window !== 'undefined' && window.close) {
+													window.close();
+												} else if (fullPage) {
+													navigate('/');
+												} else {
+													setIsOpen(false);
+													setIsExpanded(false);
+													setIsCollapsed(false);
+												}
+											}}
 											title={
-												_workerTokenStatus === null
-													? 'Checking MCP…'
-													: includeLive &&
-														  _workerTokenStatus.hasCredentials &&
-														  _workerTokenStatus.tokenValid
-														? 'MCP connected — Live PingOne data ready'
-														: !includeLive
-															? 'MCP disabled — turn on Live toggle'
-															: !_workerTokenStatus.hasCredentials
-																? 'MCP not configured — save worker credentials in Configuration'
-																: 'MCP needs refresh — click 🔑 to get worker token'
+												popout
+													? 'Close popout window'
+													: fullPage
+														? 'Go back to home'
+														: 'Close assistant (Esc)'
 											}
-											onClick={
-												(!includeLive || !_workerTokenStatus?.hasCredentials) &&
-												_workerTokenStatus !== null
-													? () => {
-															navigate('/configuration');
-															setIsOpen(false);
-														}
-													: undefined
-											}
-											style={{
-												cursor:
+										>
+											<span style={{ fontSize: '20px' }}>❌</span>
+										</CloseButton>
+									</HeaderActions>
+								</ChatHeader>
+
+								{!isCollapsed && (
+									<>
+										<MessagesContainer ref={messagesContainerRef}>
+											{messages.map((message) => (
+												<MessageWrapper key={message.id} $isUser={message.type === 'user'}>
+													<MessageBubble $isUser={message.type === 'user'}>
+														<MessageContent>{renderMessageText(message.content)}</MessageContent>
+														{/* Groq badge — shown when the LLM answered */}
+														{message.groqUsed && (
+															<GroqBadgeRow>
+																<GroqBadge>⚡ Groq · Llama 3.3 70B</GroqBadge>
+															</GroqBadgeRow>
+														)}
+														{/* MCP Live result card */}
+														{message.mcpResult && (
+															<McpResultCard $isSuccess={!!message.mcpResult.success}>
+																<McpResultHeader>
+																	<McpBadge>🔌 MCP</McpBadge>
+																	<McpToolName>
+																		{message.mcpResult.mcpTool ?? 'PingOne MCP'}
+																	</McpToolName>
+																	{!!message.mcpResult.success && (
+																		<McpSuccessBadge>
+																			{message.mcpResult.mcpTool === 'pingone_get_worker_token'
+																				? '✓ Token ready'
+																				: '✓ Success'}
+																		</McpSuccessBadge>
+																	)}
+																</McpResultHeader>
+																{message.mcpResult.apiCall && (
+																	<McpApiRow>
+																		<McpApiMethod>{message.mcpResult.apiCall.method}</McpApiMethod>
+																		<McpApiPath>{message.mcpResult.apiCall.path}</McpApiPath>
+																	</McpApiRow>
+																)}
+																{message.mcpResult.howItWorks && (
+																	<McpExplanation>{message.mcpResult.howItWorks}</McpExplanation>
+																)}
+																{message.mcpResult.credentialsRequired && (
+																	<McpCredentialHint>
+																		� Type <strong>&quot;Get worker token&quot;</strong> to
+																		authenticate, then ask again for live PingOne data.
+																	</McpCredentialHint>
+																)}
+																{message.mcpResult.data != null &&
+																	((Array.isArray(message.mcpResult.data) &&
+																		(message.mcpResult.data as unknown[]).length > 0) ||
+																		(typeof message.mcpResult.data === 'object' &&
+																			Object.keys(message.mcpResult.data as object).length >
+																				0)) && (
+																		<McpDataSection>
+																			<McpDataLabel>
+																				{Array.isArray(message.mcpResult.data)
+																					? `Data (${(message.mcpResult.data as unknown[]).length} items)`
+																					: 'Data'}
+																				<McpJsonToggle
+																					onClick={() =>
+																						setMessages((prev) =>
+																							prev.map((m) =>
+																								m.id === message.id && m.mcpResult
+																									? {
+																											...m,
+																											mcpResult: {
+																												...m.mcpResult,
+																												rawJson: !m.mcpResult.rawJson,
+																											},
+																										}
+																									: m
+																							)
+																						)
+																					}
+																				>
+																					{message.mcpResult.rawJson ? '📋 Formatted' : '{ } JSON'}
+																				</McpJsonToggle>
+																			</McpDataLabel>
+																			{message.mcpResult.rawJson ||
+																			!Array.isArray(message.mcpResult.data) ? (
+																				<McpDataPre>
+																					{JSON.stringify(message.mcpResult.data, null, 2)}
+																				</McpDataPre>
+																			) : (
+																				<McpDataPagedDisplay
+																					key={message.id}
+																					data={message.mcpResult.data as unknown[]}
+																				/>
+																			)}
+																		</McpDataSection>
+																	)}
+															</McpResultCard>
+														)}
+														{/* Brave web search result card */}
+														{message.webResult && (
+															<BraveResultCard>
+																<BraveResultHeader>
+																	<BraveBadge>🌐 Brave</BraveBadge>
+																	<BraveToolName>brave_web_search</BraveToolName>
+																</BraveResultHeader>
+																{message.webResult.credentialsRequired && (
+																	<McpCredentialHint>
+																		💡 Add your Brave Search API key in the Configuration page to
+																		enable web search.
+																	</McpCredentialHint>
+																)}
+																{message.webResult.data != null &&
+																	Array.isArray(message.webResult.data) &&
+																	(message.webResult.data as BraveResult[]).length > 0 && (
+																		<BraveResultsList>
+																			{(message.webResult.data as BraveResult[]).map((r, i) => (
+																				<BraveResultItem
+																					key={i}
+																					onClick={() =>
+																						window.open(r.url, '_blank', 'noopener,noreferrer')
+																					}
+																				>
+																					<BraveResultTitle>{r.title}</BraveResultTitle>
+																					<BraveResultUrl>{r.url}</BraveResultUrl>
+																					{r.content && (
+																						<BraveResultSnippet>{r.content}</BraveResultSnippet>
+																					)}
+																				</BraveResultItem>
+																			))}
+																		</BraveResultsList>
+																	)}
+															</BraveResultCard>
+														)}
+														{message.links && message.links.length > 0 && (
+															<LinksContainer>
+																<LinksTitle>Related Resources:</LinksTitle>
+																{message.links.map((link, idx) => (
+																	<LinkItem
+																		key={idx}
+																		onClick={() => handleLinkClick(link.path, link.external)}
+																	>
+																		<LinkIcon $type={link.type}>
+																			{link.type === 'flow' && '🔄'}
+																			{link.type === 'feature' && '⚡'}
+																			{link.type === 'doc' && '📖'}
+																			{link.type === 'api' && '🔌'}
+																			{link.type === 'spec' && '📋'}
+																			{link.type === 'workflow' && '🔀'}
+																			{link.type === 'guide' && '📚'}
+																			{link.type === 'web' && '🌐'}
+																		</LinkIcon>
+																		<LinkText>{link.title}</LinkText>
+																		<span style={{ fontSize: '14px' }}>🔗</span>
+																	</LinkItem>
+																))}
+															</LinksContainer>
+														)}
+													</MessageBubble>
+												</MessageWrapper>
+											))}
+
+											{isTyping && (
+												<MessageWrapper $isUser={false}>
+													<MessageBubble $isUser={false}>
+														<TypingIndicator>
+															<Dot $delay={0} />
+															<Dot $delay={0.2} />
+															<Dot $delay={0.4} />
+														</TypingIndicator>
+													</MessageBubble>
+												</MessageWrapper>
+											)}
+
+											{messages.length === 1 && (
+												<QuickQuestionsContainer>
+													<QuickQuestionsTitle>Quick questions:</QuickQuestionsTitle>
+													{quickQuestions.map((question, idx) => (
+														<QuickQuestionButton
+															key={idx}
+															onClick={() => {
+																setInput(question);
+																handleSend(question);
+															}}
+														>
+															{question}
+														</QuickQuestionButton>
+													))}
+												</QuickQuestionsContainer>
+											)}
+
+											<div ref={messagesEndRef} />
+										</MessagesContainer>
+
+										{/* Prompts Guide Panel — slides up over message area */}
+										{showPromptsGuide && (
+											<PromptsGuidePanel>
+												<PromptsGuideHeader>
+													<PromptsGuideTitle>📋 Prompt Reference</PromptsGuideTitle>
+													<PromptsGuideClose
+														type="button"
+														onClick={() => setShowPromptsGuide(false)}
+														aria-label="Close prompt guide"
+													>
+														✕
+													</PromptsGuideClose>
+												</PromptsGuideHeader>
+												<PromptsGuideSubtitle>
+													Click any prompt to use it. Start with{' '}
+													<strong>&quot;Get worker token&quot;</strong> for live data.
+												</PromptsGuideSubtitle>
+												<PromptsGuideScroll>
+													{promptCategories.map((cat) => (
+														<PromptsCategory key={cat.label}>
+															<PromptsCategoryLabel>{cat.label}</PromptsCategoryLabel>
+															<PromptsList>
+																{cat.prompts.map((p) => (
+																	<PromptsChip
+																		key={p}
+																		type="button"
+																		onClick={() => {
+																			setInput(p);
+																			setShowPromptsGuide(false);
+																			handleSend(p);
+																		}}
+																	>
+																		{p}
+																	</PromptsChip>
+																))}
+															</PromptsList>
+														</PromptsCategory>
+													))}
+												</PromptsGuideScroll>
+											</PromptsGuidePanel>
+										)}
+
+										<InputContainer>
+											<PromptsToggleButton
+												type="button"
+												$active={showPromptsGuide}
+												onClick={() => setShowPromptsGuide((v) => !v)}
+												aria-label="Show prompt guide"
+												title="Browse all available prompts"
+											>
+												📋
+											</PromptsToggleButton>
+											<Input
+												value={input}
+												onChange={(e) => {
+													if (historyIndexRef.current >= 0) historyIndexRef.current = -1;
+													setInput(e.target.value);
+												}}
+												onKeyDown={handleKeyDown}
+												placeholder="Get worker token"
+												aria-label="Message input"
+											/>
+											<SendButton
+												onClick={handleSend}
+												disabled={!input.trim()}
+												aria-label="Send message"
+												title="Send message (Enter)"
+											>
+												<span style={{ fontSize: '20px' }}>⬆</span>
+											</SendButton>
+										</InputContainer>
+									</>
+								)}
+							</ChatWindow>
+						</FloatingLayout>
+					) : (
+						<ChatWindow
+							data-chat-window
+							$expanded={isExpanded}
+							$collapsed={isCollapsed}
+							$fullPage={fullPage}
+							$compactOnPage={fullPage}
+							{...(assistantPosition && {
+								$dragLeft: assistantPosition.x,
+								$dragTop: assistantPosition.y,
+							})}
+						>
+							<ChatHeader $draggable onMouseDown={handleAssistantHeaderMouseDown}>
+								<HeaderContent>
+									<AssistantIcon>🤖</AssistantIcon>
+									<HeaderText>
+										<HeaderTitle>MasterFlow Agent</HeaderTitle>
+										<StatusRow>
+											<StatusDot
+												$state={groqAvailable === null ? 'checking' : groqAvailable ? 'ok' : 'off'}
+												title={
+													groqAvailable
+														? 'Groq LLM connected (Llama 3.3 70B)'
+														: groqAvailable === false
+															? 'Groq not configured — click to add key'
+															: 'Checking Groq…'
+												}
+												onClick={
+													groqAvailable === false
+														? () => {
+																if (popout) notifyHostNavigate('/configuration');
+																else {
+																	navigate('/configuration');
+																	setIsOpen(false);
+																}
+															}
+														: undefined
+												}
+												style={{ cursor: groqAvailable === false ? 'pointer' : 'default' }}
+											>
+												⚡ Groq
+											</StatusDot>
+											<StatusDot
+												$state={
+													braveAvailable === null ? 'checking' : braveAvailable ? 'ok' : 'off'
+												}
+												title={
+													braveAvailable
+														? 'Brave Search connected'
+														: braveAvailable === false
+															? 'Brave Search not configured — click to add key'
+															: 'Checking Brave…'
+												}
+												onClick={
+													braveAvailable === false
+														? () => {
+																if (popout) notifyHostNavigate('/configuration');
+																else {
+																	navigate('/configuration');
+																	setIsOpen(false);
+																}
+															}
+														: undefined
+												}
+												style={{ cursor: braveAvailable === false ? 'pointer' : 'default' }}
+											>
+												🌐 Brave
+											</StatusDot>
+											<StatusDot
+												$state={
+													_workerTokenStatus === null
+														? 'checking'
+														: includeLive &&
+																_workerTokenStatus.hasCredentials &&
+																_workerTokenStatus.tokenValid
+															? 'ok'
+															: 'off'
+												}
+												title={
+													_workerTokenStatus === null
+														? 'Checking MCP…'
+														: includeLive &&
+																_workerTokenStatus.hasCredentials &&
+																_workerTokenStatus.tokenValid
+															? 'MCP connected — Live PingOne data ready'
+															: !includeLive
+																? 'MCP disabled — turn on Live toggle'
+																: !_workerTokenStatus.hasCredentials
+																	? 'MCP not configured — save worker credentials in Configuration'
+																	: 'MCP needs refresh — click 🔑 to get worker token'
+												}
+												onClick={
 													(!includeLive || !_workerTokenStatus?.hasCredentials) &&
 													_workerTokenStatus !== null
-														? 'pointer'
-														: 'default',
-											}}
-										>
-											🔌 MCP
-										</StatusDot>
-									</StatusRow>
-								</HeaderText>
-							</HeaderContent>
-							<HeaderActions>
-								<ToggleContainer title="Show side panel for additional tools and content">
-									<ToggleLabel>
-										<ToggleCheckbox
-											type="checkbox"
-											checked={showSidePanel}
-											onChange={(e) => setShowSidePanel(e.target.checked)}
-											aria-label="Show side panel for additional tools"
-										/>
-										<ToggleText>Panel</ToggleText>
-									</ToggleLabel>
-								</ToggleContainer>
-								<ToggleContainer title="Include PingOne API reference docs in context">
-									<ToggleLabel>
-										<ToggleCheckbox
-											type="checkbox"
-											checked={includeApis}
-											onChange={(e) => setIncludeApis(e.target.checked)}
-											aria-label="Include PingOne API reference docs"
-										/>
-										<ToggleText>APIs</ToggleText>
-									</ToggleLabel>
-								</ToggleContainer>
-								<ToggleContainer title="Include OAuth 2.0 and OIDC specifications in context">
-									<ToggleLabel>
-										<ToggleCheckbox
-											type="checkbox"
-											checked={includeSpecs}
-											onChange={(e) => setIncludeSpecs(e.target.checked)}
-											aria-label="Include OAuth/OIDC specifications"
-										/>
-										<ToggleText>Specs</ToggleText>
-									</ToggleLabel>
-								</ToggleContainer>
-								<ToggleContainer title="Include PingOne workflow guides in context">
-									<ToggleLabel>
-										<ToggleCheckbox
-											type="checkbox"
-											checked={includeWorkflows}
-											onChange={(e) => setIncludeWorkflows(e.target.checked)}
-											aria-label="Include PingOne workflows"
-										/>
-										<ToggleText>Workflows</ToggleText>
-									</ToggleLabel>
-								</ToggleContainer>
-								<ToggleContainer title="Include the OAuth Playground user guide in context">
-									<ToggleLabel>
-										<ToggleCheckbox
-											type="checkbox"
-											checked={includeUserGuide}
-											onChange={(e) => setIncludeUserGuide(e.target.checked)}
-											aria-label="Include User Guide"
-										/>
-										<ToggleText>Guide</ToggleText>
-									</ToggleLabel>
-								</ToggleContainer>
-								<ToggleContainer title="Include live web results via Brave Search. Requires BRAVE_API_KEY on the server (see .env).">
-									<ToggleLabel>
-										<ToggleCheckbox
-											type="checkbox"
-											checked={includeWeb}
-											onChange={(e) => setIncludeWeb(e.target.checked)}
-											aria-label="Include web search results (Brave Search; needs BRAVE_API_KEY on server)"
-										/>
-										<ToggleText>Web</ToggleText>
-										<ToggleHint>(Brave)</ToggleHint>
-									</ToggleLabel>
-								</ToggleContainer>
-								<ToggleContainer title="Call PingOne live via MCP tools. Requires PINGONE_ENVIRONMENT_ID + PINGONE_WORKER_TOKEN on the server.">
-									<ToggleLabel>
-										<ToggleCheckbox
-											type="checkbox"
-											checked={includeLive}
-											onChange={(e) => setIncludeLive(e.target.checked)}
-											aria-label="Call PingOne live via MCP tools (requires credentials on server)"
-										/>
-										<ToggleLiveText $active={includeLive}>Live</ToggleLiveText>
-										<ToggleHint>(MCP)</ToggleHint>
-									</ToggleLabel>
-								</ToggleContainer>
-								<RefreshTokenButton
-									type="button"
-									onClick={handleOpenRefreshTokenConfirm}
-									aria-label="Refresh worker token (requires confirmation)"
-									title="Get a new worker token using saved credentials (you will be asked to confirm)"
-								>
-									🔑
-								</RefreshTokenButton>
-								<CollapseButton
-									type="button"
-									onClick={() => {
-										setIsCollapsed((v) => !v);
-										setIsExpanded(false);
-									}}
-									aria-label={isCollapsed ? 'Restore assistant' : 'Minimise assistant'}
-									title={isCollapsed ? 'Restore' : 'Minimise'}
-								>
-									<span style={{ fontSize: '16px' }}>{isCollapsed ? '▲' : '▼'}</span>
-								</CollapseButton>
-								<ExpandButton
-									type="button"
-									onClick={() => setIsExpanded((v) => !v)}
-									aria-label={isExpanded ? 'Collapse to compact view' : 'Expand to full view'}
-									title={isExpanded ? 'Collapse' : 'Expand to full screen'}
-								>
-									<span style={{ fontSize: '16px' }}>{isExpanded ? '⊡' : '⛶'}</span>
-								</ExpandButton>
-								<CloseButton
-									onClick={() => {
-										if (fullPage) {
-											// In fullPage mode, navigate back or let the parent handle closing
-											navigate('/');
-										} else {
+														? () => {
+																if (popout) notifyHostNavigate('/configuration');
+																else {
+																	navigate('/configuration');
+																	setIsOpen(false);
+																}
+															}
+														: undefined
+												}
+												style={{
+													cursor:
+														(!includeLive || !_workerTokenStatus?.hasCredentials) &&
+														_workerTokenStatus !== null
+															? 'pointer'
+															: 'default',
+												}}
+											>
+												🔌 MCP
+											</StatusDot>
+										</StatusRow>
+									</HeaderText>
+								</HeaderContent>
+								<HeaderActions>
+									<ToggleContainer title="Show results in a page panel next to the agent">
+										<ToggleLabel>
+											<ToggleCheckbox
+												type="checkbox"
+												title="Show results in a page panel next to the agent"
+												checked={showResultsInPage}
+												onChange={(e) => setShowResultsInPage(e.target.checked)}
+												aria-label="Show results in page"
+											/>
+											<ToggleText>Page</ToggleText>
+										</ToggleLabel>
+									</ToggleContainer>
+									<ToggleContainer title="Show tools panel for PingOne login, docs, and configuration">
+										<ToggleLabel>
+											<ToggleCheckbox
+												type="checkbox"
+												title="Show tools panel for PingOne login, docs, and configuration"
+												checked={showSidePanel}
+												onChange={(e) => setShowSidePanel(e.target.checked)}
+												aria-label="Show Configure panel for tools and PingOne login"
+											/>
+											<ToggleText>Configure</ToggleText>
+										</ToggleLabel>
+									</ToggleContainer>
+									<ToggleContainer title="Include PingOne API reference docs in context">
+										<ToggleLabel>
+											<ToggleCheckbox
+												type="checkbox"
+												title="Include PingOne API reference docs in context"
+												checked={includeApis}
+												onChange={(e) => setIncludeApis(e.target.checked)}
+												aria-label="Include PingOne API reference docs"
+											/>
+											<ToggleText>APIs</ToggleText>
+										</ToggleLabel>
+									</ToggleContainer>
+									<ToggleContainer title="Include OAuth 2.0 and OIDC specifications in context">
+										<ToggleLabel>
+											<ToggleCheckbox
+												type="checkbox"
+												title="Include OAuth 2.0 and OIDC specifications in context"
+												checked={includeSpecs}
+												onChange={(e) => setIncludeSpecs(e.target.checked)}
+												aria-label="Include OAuth/OIDC specifications"
+											/>
+											<ToggleText>Specs</ToggleText>
+										</ToggleLabel>
+									</ToggleContainer>
+									<ToggleContainer title="Include PingOne workflows in context">
+										<ToggleLabel>
+											<ToggleCheckbox
+												type="checkbox"
+												title="Include PingOne workflows in context"
+												checked={includeWorkflows}
+												onChange={(e) => setIncludeWorkflows(e.target.checked)}
+												aria-label="Include PingOne workflows"
+											/>
+											<ToggleText>Workflows</ToggleText>
+										</ToggleLabel>
+									</ToggleContainer>
+									<ToggleContainer title="Include User Guide in context">
+										<ToggleLabel>
+											<ToggleCheckbox
+												type="checkbox"
+												title="Include User Guide in context"
+												checked={includeUserGuide}
+												onChange={(e) => setIncludeUserGuide(e.target.checked)}
+												aria-label="Include User Guide"
+											/>
+											<ToggleText>Guide</ToggleText>
+										</ToggleLabel>
+									</ToggleContainer>
+									{fullPage && (
+										<ToggleContainer title="Include web search in responses">
+											<ToggleLabel>
+												<ToggleCheckbox
+													type="checkbox"
+													title="Include web search in responses"
+													checked={includeWeb}
+													onChange={(e) => setIncludeWeb(e.target.checked)}
+													aria-label="Include web search"
+												/>
+												<ToggleText>Web</ToggleText>
+											</ToggleLabel>
+										</ToggleContainer>
+									)}
+									<ToggleContainer title="Include live PingOne data (MCP) when query is actionable">
+										<ToggleLabel>
+											<ToggleCheckbox
+												type="checkbox"
+												title="Include live PingOne data (MCP) when query is actionable"
+												checked={includeLive}
+												onChange={(e) => setIncludeLive(e.target.checked)}
+												aria-label="Include live MCP data"
+											/>
+											<ToggleText>Live</ToggleText>
+										</ToggleLabel>
+									</ToggleContainer>
+									<ToggleContainer title="Use Admin login token for MCP calls. Get token in side panel → Admin tab.">
+										<ToggleLabel>
+											<ToggleCheckbox
+												type="checkbox"
+												checked={useAdminLogin}
+												onChange={(e) => {
+													const checked = e.target.checked;
+													setUseAdminLogin(checked);
+													if (checked) setShowSidePanel(true);
+												}}
+												aria-label="Use Admin login token for MCP (get token in side panel Admin tab)"
+												title="Use Admin login token for MCP calls. Get token in side panel → Admin tab."
+											/>
+											<ToggleText>Admin</ToggleText>
+										</ToggleLabel>
+									</ToggleContainer>
+									<RefreshTokenButton
+										type="button"
+										onClick={() => window.dispatchEvent(new Event('open-log-viewer'))}
+										aria-label="Open log viewer to see MCP calls"
+										title="Open log viewer — see MCP calls, API requests, and server logs"
+									>
+										📋
+									</RefreshTokenButton>
+									<ClearButton
+										type="button"
+										onClick={handleClear}
+										aria-label="Clear chat"
+										title="Clear chat and start fresh"
+									>
+										<span style={{ fontSize: '16px' }}>🗑</span>
+										Clear
+									</ClearButton>
+									<CloseButton
+										onClick={() => {
 											setIsOpen(false);
-											setIsExpanded(false);
 											setIsCollapsed(false);
+										}}
+										title={
+											popout
+												? 'Close popout window'
+												: fullPage
+													? 'Go back to home'
+													: 'Close assistant (Esc)'
 										}
-									}}
-									title={fullPage ? 'Go back to home' : 'Close assistant (Esc)'}
-								>
-									<span style={{ fontSize: '20px' }}>❌</span>
-								</CloseButton>
-							</HeaderActions>
-						</ChatHeader>
+									>
+										<span style={{ fontSize: '20px' }}>❌</span>
+									</CloseButton>
+								</HeaderActions>
+							</ChatHeader>
 
-						{!isCollapsed && (
-							<>
-								<MessagesContainer>
-									{messages.map((message) => (
-										<MessageWrapper key={message.id} $isUser={message.type === 'user'}>
-											<MessageBubble $isUser={message.type === 'user'}>
-												<MessageContent>{renderMessageText(message.content)}</MessageContent>
-												{/* Groq badge — shown when the LLM answered */}
-												{message.groqUsed && (
-													<GroqBadgeRow>
-														<GroqBadge>⚡ Groq · Llama 3.3 70B</GroqBadge>
-													</GroqBadgeRow>
-												)}
-												{/* MCP Live result card */}
-												{message.mcpResult && (
-													<McpResultCard>
-														<McpResultHeader>
-															<McpBadge>🔌 MCP</McpBadge>
-															<McpToolName>
-																{message.mcpResult.mcpTool ?? 'PingOne MCP'}
-															</McpToolName>
-														</McpResultHeader>
-														{message.mcpResult.apiCall && (
-															<McpApiRow>
-																<McpApiMethod>{message.mcpResult.apiCall.method}</McpApiMethod>
-																<McpApiPath>{message.mcpResult.apiCall.path}</McpApiPath>
-															</McpApiRow>
-														)}
-														{message.mcpResult.howItWorks && (
-															<McpExplanation>{message.mcpResult.howItWorks}</McpExplanation>
-														)}
-														{message.mcpResult.credentialsRequired && (
-															<McpCredentialHint>
-																� Type <strong>&quot;Get worker token&quot;</strong> to
-																authenticate, then ask again for live PingOne data.
-															</McpCredentialHint>
-														)}
-														{message.mcpResult.data != null &&
-															Array.isArray(message.mcpResult.data) &&
-															(message.mcpResult.data as unknown[]).length > 0 && (
-																<McpDataSection>
-																	<McpDataLabel>
-																		Data ({(message.mcpResult.data as unknown[]).length} items)
-																		<McpJsonToggle
-																			onClick={() =>
-																				setMessages((prev) =>
-																					prev.map((m) =>
-																						m.id === message.id && m.mcpResult
-																							? {
-																									...m,
-																									mcpResult: {
-																										...m.mcpResult,
-																										rawJson: !m.mcpResult.rawJson,
-																									},
-																								}
-																							: m
-																					)
-																				)
-																			}
-																		>
-																			{message.mcpResult.rawJson ? '📋 Formatted' : '{ } JSON'}
-																		</McpJsonToggle>
-																	</McpDataLabel>
-																	{message.mcpResult.rawJson ? (
-																		<McpDataPre>
-																			{JSON.stringify(message.mcpResult.data, null, 2)}
-																		</McpDataPre>
-																	) : (
-																		renderMcpDataItems(message.mcpResult.data as unknown[])
-																	)}
-																</McpDataSection>
+							{!isCollapsed && (
+								<>
+									<MessagesContainer ref={messagesContainerRef}>
+										{messages.map((message) => (
+											<MessageWrapper key={message.id} $isUser={message.type === 'user'}>
+												<MessageBubble $isUser={message.type === 'user'}>
+													<MessageContent>{renderMessageText(message.content)}</MessageContent>
+													{message.groqUsed && (
+														<GroqBadgeRow>
+															<GroqBadge>⚡ Groq · Llama 3.3 70B</GroqBadge>
+														</GroqBadgeRow>
+													)}
+													{message.mcpResult && (
+														<McpResultCard $isSuccess={!!message.mcpResult.success}>
+															<McpResultHeader>
+																<McpBadge>🔌 MCP</McpBadge>
+																<McpToolName>
+																	{message.mcpResult.mcpTool ?? 'PingOne MCP'}
+																</McpToolName>
+																{!!message.mcpResult.success && (
+																	<McpSuccessBadge>
+																		{message.mcpResult.mcpTool === 'pingone_get_worker_token'
+																			? '✓ Token ready'
+																			: '✓ Success'}
+																	</McpSuccessBadge>
+																)}
+															</McpResultHeader>
+															{message.mcpResult.apiCall && (
+																<McpApiRow>
+																	<McpApiMethod>{message.mcpResult.apiCall.method}</McpApiMethod>
+																	<McpApiPath>{message.mcpResult.apiCall.path}</McpApiPath>
+																</McpApiRow>
 															)}
-													</McpResultCard>
-												)}
-												{/* Brave web search result card */}
-												{message.webResult && (
-													<BraveResultCard>
-														<BraveResultHeader>
-															<BraveBadge>🌐 Brave</BraveBadge>
-															<BraveToolName>brave_web_search</BraveToolName>
-														</BraveResultHeader>
-														{message.webResult.credentialsRequired && (
-															<McpCredentialHint>
-																💡 Add your Brave Search API key in the Configuration page to enable
-																web search.
-															</McpCredentialHint>
-														)}
-														{message.webResult.data != null &&
-															Array.isArray(message.webResult.data) &&
-															(message.webResult.data as BraveResult[]).length > 0 && (
+															{message.mcpResult.howItWorks && (
+																<McpExplanation>{message.mcpResult.howItWorks}</McpExplanation>
+															)}
+															{message.mcpResult.credentialsRequired && (
+																<McpCredentialHint>
+																	Type <strong>&quot;Get worker token&quot;</strong> to
+																	authenticate.
+																</McpCredentialHint>
+															)}
+															{message.mcpResult.data != null &&
+																((Array.isArray(message.mcpResult.data) &&
+																	(message.mcpResult.data as unknown[]).length > 0) ||
+																	(typeof message.mcpResult.data === 'object' &&
+																		Object.keys(message.mcpResult.data as object).length > 0)) && (
+																	<McpDataSection>
+																		<McpDataLabel>
+																			{Array.isArray(message.mcpResult.data)
+																				? `Data (${(message.mcpResult.data as unknown[]).length} items)`
+																				: 'Data'}
+																			<McpJsonToggle
+																				onClick={() =>
+																					setMessages((prev) =>
+																						prev.map((m) =>
+																							m.id === message.id && m.mcpResult
+																								? {
+																										...m,
+																										mcpResult: {
+																											...m.mcpResult,
+																											rawJson: !m.mcpResult.rawJson,
+																										},
+																									}
+																								: m
+																						)
+																					)
+																				}
+																			>
+																				{message.mcpResult.rawJson ? '📋 Formatted' : '{ } JSON'}
+																			</McpJsonToggle>
+																		</McpDataLabel>
+																		{message.mcpResult.rawJson ||
+																		!Array.isArray(message.mcpResult.data) ? (
+																			<McpDataPre>
+																				{JSON.stringify(message.mcpResult.data, null, 2)}
+																			</McpDataPre>
+																		) : (
+																			<McpDataPagedDisplay
+																				key={message.id}
+																				data={message.mcpResult.data as unknown[]}
+																			/>
+																		)}
+																	</McpDataSection>
+																)}
+														</McpResultCard>
+													)}
+													{message.webResult &&
+														message.webResult.data != null &&
+														Array.isArray(message.webResult.data) &&
+														(message.webResult.data as BraveResult[]).length > 0 && (
+															<BraveResultCard>
+																<BraveResultHeader>
+																	<BraveBadge>🌐 Brave</BraveBadge>
+																	<BraveToolName>brave_web_search</BraveToolName>
+																</BraveResultHeader>
 																<BraveResultsList>
 																	{(message.webResult.data as BraveResult[]).map((r, i) => (
 																		<BraveResultItem
@@ -883,144 +2212,127 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 																		</BraveResultItem>
 																	))}
 																</BraveResultsList>
-															)}
-													</BraveResultCard>
-												)}
-												{message.links && message.links.length > 0 && (
-													<LinksContainer>
-														<LinksTitle>Related Resources:</LinksTitle>
-														{message.links.map((link, idx) => (
-															<LinkItem
-																key={idx}
-																onClick={() => handleLinkClick(link.path, link.external)}
-															>
-																<LinkIcon $type={link.type}>
-																	{link.type === 'flow' && '🔄'}
-																	{link.type === 'feature' && '⚡'}
-																	{link.type === 'doc' && '📖'}
-																	{link.type === 'api' && '🔌'}
-																	{link.type === 'spec' && '📋'}
-																	{link.type === 'workflow' && '🔀'}
-																	{link.type === 'guide' && '📚'}
-																	{link.type === 'web' && '🌐'}
-																</LinkIcon>
-																<LinkText>{link.title}</LinkText>
-																<span style={{ fontSize: '14px' }}>🔗</span>
-															</LinkItem>
-														))}
-													</LinksContainer>
-												)}
-											</MessageBubble>
-										</MessageWrapper>
-									))}
-
-									{isTyping && (
-										<MessageWrapper $isUser={false}>
-											<MessageBubble $isUser={false}>
-												<TypingIndicator>
-													<Dot $delay={0} />
-													<Dot $delay={0.2} />
-													<Dot $delay={0.4} />
-												</TypingIndicator>
-											</MessageBubble>
-										</MessageWrapper>
+															</BraveResultCard>
+														)}
+													{message.links && message.links.length > 0 && (
+														<LinksContainer>
+															<LinksTitle>Related Resources:</LinksTitle>
+															{message.links.map((link, idx) => (
+																<LinkItem
+																	key={idx}
+																	onClick={() => handleLinkClick(link.path, link.external)}
+																>
+																	<LinkIcon $type={link.type}>
+																		{link.type === 'flow' && '🔄'}
+																		{link.type === 'feature' && '⚡'}
+																		{link.type === 'doc' && '📖'}
+																		{link.type === 'api' && '🔌'}
+																		{link.type === 'spec' && '📋'}
+																		{link.type === 'workflow' && '🔀'}
+																		{link.type === 'guide' && '📚'}
+																		{link.type === 'web' && '🌐'}
+																	</LinkIcon>
+																	<LinkText>{link.title}</LinkText>
+																	<span style={{ fontSize: '14px' }}>🔗</span>
+																</LinkItem>
+															))}
+														</LinksContainer>
+													)}
+												</MessageBubble>
+											</MessageWrapper>
+										))}
+										<div ref={messagesEndRef} />
+									</MessagesContainer>
+									{showPromptsGuide && (
+										<PromptsGuidePanel>
+											<PromptsGuideHeader>
+												<PromptsGuideTitle>Quick Prompts</PromptsGuideTitle>
+												<PromptsGuideClose onClick={() => setShowPromptsGuide(false)}>
+													×
+												</PromptsGuideClose>
+											</PromptsGuideHeader>
+											<PromptsGuideScroll>
+												{promptCategories.map((cat) => (
+													<PromptsCategory key={cat.label}>
+														<PromptsCategoryLabel>{cat.label}</PromptsCategoryLabel>
+														<PromptsList>
+															{cat.prompts.map((p) => (
+																<PromptsChip
+																	key={p}
+																	type="button"
+																	onClick={() => {
+																		setInput(p);
+																		setShowPromptsGuide(false);
+																		handleSend(p);
+																	}}
+																>
+																	{p}
+																</PromptsChip>
+															))}
+														</PromptsList>
+													</PromptsCategory>
+												))}
+											</PromptsGuideScroll>
+										</PromptsGuidePanel>
 									)}
 
-									{messages.length === 1 && (
-										<QuickQuestionsContainer>
-											<QuickQuestionsTitle>Quick questions:</QuickQuestionsTitle>
-											{quickQuestions.map((question, idx) => (
-												<QuickQuestionButton
-													key={idx}
-													onClick={() => {
-														setInput(question);
-														setTimeout(() => handleSend(), 100);
-													}}
-												>
-													{question}
-												</QuickQuestionButton>
-											))}
-										</QuickQuestionsContainer>
-									)}
-
-									<div ref={messagesEndRef} />
-								</MessagesContainer>
-
-								{/* Prompts Guide Panel — slides up over message area */}
-								{showPromptsGuide && (
-									<PromptsGuidePanel>
-										<PromptsGuideHeader>
-											<PromptsGuideTitle>📋 Prompt Reference</PromptsGuideTitle>
-											<PromptsGuideClose
-												type="button"
-												onClick={() => setShowPromptsGuide(false)}
-												aria-label="Close prompt guide"
-											>
-												✕
-											</PromptsGuideClose>
-										</PromptsGuideHeader>
-										<PromptsGuideSubtitle>
-											Click any prompt to use it. Start with{' '}
-											<strong>&quot;Get worker token&quot;</strong> for live data.
-										</PromptsGuideSubtitle>
-										<PromptsGuideScroll>
-											{promptCategories.map((cat) => (
-												<PromptsCategory key={cat.label}>
-													<PromptsCategoryLabel>{cat.label}</PromptsCategoryLabel>
-													<PromptsList>
-														{cat.prompts.map((p) => (
-															<PromptsChip
-																key={p}
-																type="button"
-																onClick={() => {
-																	setInput(p);
-																	setShowPromptsGuide(false);
-																}}
-															>
-																{p}
-															</PromptsChip>
-														))}
-													</PromptsList>
-												</PromptsCategory>
-											))}
-										</PromptsGuideScroll>
-									</PromptsGuidePanel>
-								)}
-
-								<InputContainer>
-									<PromptsToggleButton
-										type="button"
-										$active={showPromptsGuide}
-										onClick={() => setShowPromptsGuide((v) => !v)}
-										aria-label="Show prompt guide"
-										title="Browse all available prompts"
-									>
-										📋
-									</PromptsToggleButton>
-									<Input
-										value={input}
-										onChange={(e) => setInput(e.target.value)}
-										onKeyPress={handleKeyPress}
-										placeholder="Ask about OAuth flows, features, or configuration..."
-										aria-label="Message input"
-									/>
-									<SendButton
-										onClick={handleSend}
-										disabled={!input.trim()}
-										aria-label="Send message"
-										title="Send message (Enter)"
-									>
-										<span style={{ fontSize: '20px' }}>⬆</span>
-									</SendButton>
-								</InputContainer>
-							</>
-						)}
-					</ChatWindow>
+									<InputContainer>
+										<PromptsToggleButton
+											type="button"
+											$active={showPromptsGuide}
+											onClick={() => setShowPromptsGuide((v) => !v)}
+											aria-label="Show prompt guide"
+											title="Browse all available prompts"
+										>
+											📋
+										</PromptsToggleButton>
+										<Input
+											value={input}
+											onChange={(e) => {
+												if (historyIndexRef.current >= 0) historyIndexRef.current = -1;
+												setInput(e.target.value);
+											}}
+											onKeyDown={handleKeyDown}
+											placeholder="Get worker token"
+											aria-label="Message input"
+										/>
+										<SendButton
+											onClick={handleSend}
+											disabled={!input.trim()}
+											aria-label="Send message"
+											title="Send message (Enter)"
+										>
+											<span style={{ fontSize: '20px' }}>⬆</span>
+										</SendButton>
+									</InputContainer>
+								</>
+							)}
+						</ChatWindow>
+					)}
 				</>
 			)}
 
-			{/* Side Panel */}
-			<AIAssistantSidePanel isVisible={showSidePanel} onClose={() => setShowSidePanel(false)} />
+			{/* Tools & Resources overlay - only when not fullPage (fullPage uses embedded sidebar above) */}
+			{!fullPage && (
+				<AIAssistantSidePanel
+					isVisible={showSidePanel}
+					onClose={() => {
+						setShowSidePanel(false);
+						setAdminLoginUsernamePasswordOnly(false);
+					}}
+					onClear={handleClear}
+					requestedTab={useAdminLogin ? 'admin' : undefined}
+					adminLoginUsernamePasswordOnly={adminLoginUsernamePasswordOnly}
+					adminToken={adminToken}
+					adminTokenExpiry={adminTokenExpiry}
+					adminEnvironmentId={adminEnvironmentId}
+					onAdminTokenSet={handleAdminTokenSet}
+					onAdminTokenClear={handleAdminTokenClear}
+					userAccessToken={userAccessToken}
+					onUserTokenSet={handleUserTokenSet}
+					onUserTokenClear={handleUserTokenClear}
+				/>
+			)}
 
 			{/* Confirm dialog: get new worker token (user must confirm for security) */}
 			{showRefreshTokenConfirm && (
@@ -1120,11 +2432,184 @@ const ExpandOverlay = styled.div`
 	backdrop-filter: blur(2px);
 `;
 
-const ChatWindow = styled.div<{ $expanded?: boolean; $collapsed?: boolean; $fullPage?: boolean }>`
-	position: ${({ $fullPage }) => ($fullPage ? 'relative' : 'fixed')};
-	${({ $expanded, $collapsed, $fullPage }) =>
-		$fullPage
-			? `
+const FloatingLayout = styled.div`
+	position: fixed;
+	bottom: 24px;
+	right: 90px;
+	display: flex;
+	flex-direction: row-reverse;
+	align-items: flex-end;
+	gap: 16px;
+	z-index: 1001;
+`;
+
+const FloatingPagePanel = styled.div`
+	width: 400px;
+	height: 680px;
+	flex-shrink: 0;
+	background: #f8fafc;
+	border-radius: 16px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+`;
+
+const PageBackdrop = styled.div<{ $hasResults?: boolean; $hasTools?: boolean }>`
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: ${({ $hasResults, $hasTools }) => ($hasResults && $hasTools ? 'row' : 'column')};
+	background: #f8fafc;
+`;
+
+/** Main area (results) within PageBackdrop when side panel is shown; flex child for row layout */
+const PageBackdropMain = styled.div`
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+`;
+
+const PageResultContainer = styled.div`
+	flex: 1;
+	min-width: 0;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	background: white;
+	border-right: 1px solid #e2e8f0;
+`;
+
+const PageResultHeader = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 20px;
+	font-size: 14px;
+	font-weight: 600;
+	color: #334155;
+	background: #f1f5f9;
+	border-bottom: 1px solid #e2e8f0;
+`;
+
+const PageResultClearBtn = styled.button`
+	background: rgba(100, 116, 139, 0.15);
+	border: 1px solid #cbd5e1;
+	color: #475569;
+	padding: 4px 10px;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background 0.2s;
+
+	&:hover {
+		background: rgba(100, 116, 139, 0.25);
+	}
+`;
+
+const PageResultSeparator = styled.div`
+	height: 1px;
+	background: #e2e8f0;
+	margin: 24px 0;
+`;
+
+const PageResultBlock = styled.div``;
+
+const PageResultContent = styled.div`
+	flex: 1;
+	padding: 20px;
+	overflow-y: auto;
+`;
+
+const PageResultEmpty = styled.div`
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #94a3b8;
+	font-size: 14px;
+`;
+
+const PageToolsSlot = styled.div<{ $alongsideResults?: boolean }>`
+	width: ${({ $alongsideResults }) => ($alongsideResults ? '400px' : '100%')};
+	flex: ${({ $alongsideResults }) => ($alongsideResults ? '0 0 400px' : '1')};
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+`;
+
+const ChatWindow = styled.div<{
+	$expanded?: boolean;
+	$collapsed?: boolean;
+	$fullPage?: boolean;
+	$compactOnPage?: boolean;
+	$inFloatingLayout?: boolean;
+	$dragLeft?: number;
+	$dragTop?: number;
+}>`
+	position: ${({ $fullPage, $compactOnPage, $inFloatingLayout }) =>
+		$inFloatingLayout
+			? 'relative'
+			: $fullPage && $compactOnPage
+				? 'fixed'
+				: $fullPage
+					? 'relative'
+					: 'fixed'};
+	${({
+		$expanded,
+		$collapsed,
+		$fullPage,
+		$compactOnPage,
+		$inFloatingLayout,
+		$dragLeft,
+		$dragTop,
+	}) => {
+		const useDragPos =
+			$dragLeft != null &&
+			$dragTop != null &&
+			!$inFloatingLayout &&
+			($fullPage ? $compactOnPage : true);
+		if ($inFloatingLayout) {
+			return `
+    width: 520px;
+    height: ${$collapsed ? 'auto' : '680px'};
+    flex-shrink: 0;
+    `;
+		}
+		if (useDragPos) {
+			return `
+    left: ${$dragLeft}px;
+    top: ${$dragTop}px;
+    bottom: auto;
+    right: auto;
+    width: 520px;
+    height: ${$collapsed ? 'auto' : '680px'};
+    transform: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    z-index: 1001;
+    `;
+		}
+		if ($fullPage && $compactOnPage) {
+			return `
+    bottom: 24px;
+    right: 90px;
+    width: 520px;
+    height: ${$collapsed ? 'auto' : '680px'};
+    top: auto;
+    left: auto;
+    transform: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    z-index: 1001;
+    `;
+		}
+		if ($fullPage) {
+			return `
     width: 100%;
     height: 100%;
     top: 0;
@@ -1133,36 +2618,42 @@ const ChatWindow = styled.div<{ $expanded?: boolean; $collapsed?: boolean; $full
     right: auto;
     transform: none;
     border-radius: 0;
-    `
-			: $collapsed
-				? `
+    `;
+		}
+		if ($collapsed) {
+			return `
     bottom: 24px;
     right: 90px;
     width: 520px;
     height: auto;
-    `
-				: $expanded
-					? `
+    `;
+		}
+		if ($expanded) {
+			return `
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: min(1100px, 92vw);
-    height: min(88vh, 900px);
+    width: min(1400px, 96vw);
+    height: min(95vh, 1100px);
     bottom: auto;
     right: auto;
-    `
-					: `
+    `;
+		}
+		return `
     bottom: 24px;
     right: 90px;
     width: 520px;
     height: 680px;
-    `}
+    `;
+	}}
 	background: white;
-	border-radius: ${({ $fullPage }) => ($fullPage ? '0' : '16px')};
-	box-shadow: ${({ $fullPage }) => ($fullPage ? 'none' : '0 8px 32px rgba(0, 0, 0, 0.12)')};
+	border-radius: ${({ $fullPage, $compactOnPage }) =>
+		$fullPage && !$compactOnPage ? '0' : '16px'};
+	box-shadow: ${({ $fullPage, $compactOnPage }) =>
+		$fullPage && !$compactOnPage ? 'none' : '0 8px 32px rgba(0, 0, 0, 0.12)'};
 	display: flex;
 	flex-direction: column;
-	z-index: ${({ $fullPage }) => ($fullPage ? 'auto' : '1001')};
+	z-index: ${({ $fullPage, $compactOnPage }) => ($fullPage && !$compactOnPage ? 'auto' : '1001')};
 	overflow: hidden;
 	isolation: isolate;
 	transition:
@@ -1170,8 +2661,8 @@ const ChatWindow = styled.div<{ $expanded?: boolean; $collapsed?: boolean; $full
 		height 0.25s ease;
 
 	@media (max-width: 768px) {
-		${({ $fullPage, $collapsed }) =>
-			$fullPage
+		${({ $fullPage, $compactOnPage, $collapsed }) =>
+			$fullPage && !$compactOnPage
 				? `
       width: 100%;
       height: 100%;
@@ -1182,7 +2673,17 @@ const ChatWindow = styled.div<{ $expanded?: boolean; $collapsed?: boolean; $full
       transform: none;
       border-radius: 0;
       `
-				: `
+				: $fullPage && $compactOnPage
+					? `
+      width: calc(100vw - 32px);
+      height: ${$collapsed ? 'auto' : 'calc(100vh - 100px)'};
+      bottom: 16px;
+      right: 16px;
+      top: auto;
+      left: auto;
+      transform: none;
+      `
+					: `
       width: calc(100vw - 32px);
       height: ${$collapsed ? 'auto' : 'calc(100vh - 100px)'};
       bottom: 16px;
@@ -1194,16 +2695,22 @@ const ChatWindow = styled.div<{ $expanded?: boolean; $collapsed?: boolean; $full
 	}
 `;
 
-const ChatHeader = styled.div`
-	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+const ChatHeader = styled.div<{ $draggable?: boolean }>`
+	background: #dc2626;
 	color: white;
-	padding: 10px 14px;
+	padding: 6px 10px;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	gap: 8px;
-	flex-wrap: nowrap;
+	gap: 6px;
+	flex-wrap: wrap;
 	min-height: 0;
+	cursor: ${({ $draggable }) => ($draggable ? 'grab' : 'default')};
+	user-select: ${({ $draggable }) => ($draggable ? 'none' : 'auto')};
+
+	&:active {
+		cursor: ${({ $draggable }) => ($draggable ? 'grabbing' : 'default')};
+	}
 `;
 
 const HeaderContent = styled.div`
@@ -1214,41 +2721,41 @@ const HeaderContent = styled.div`
 `;
 
 const AssistantIcon = styled.div`
-	font-size: 24px;
+	font-size: 18px;
 	flex-shrink: 0;
 `;
 
 const HeaderText = styled.div`
 	display: flex;
 	flex-direction: column;
+	gap: 2px;
 `;
 
 const HeaderTitle = styled.div`
 	font-weight: 600;
-	font-size: 14px;
+	font-size: 13px;
 	white-space: nowrap;
 `;
 
 const _HeaderSubtitle = styled.div`
-	font-size: 12px;
+	font-size: 11px;
 	opacity: 0.9;
 `;
 
 const StatusRow = styled.div`
 	display: flex;
 	align-items: center;
-	gap: 6px;
-	margin-top: 4px;
+	gap: 4px;
 `;
 
 const StatusDot = styled.span<{ $state: 'ok' | 'off' | 'checking' }>`
 	display: inline-flex;
 	align-items: center;
-	gap: 3px;
-	font-size: 10px;
+	gap: 2px;
+	font-size: 9px;
 	font-weight: 600;
-	padding: 2px 7px;
-	border-radius: 20px;
+	padding: 1px 5px;
+	border-radius: 12px;
 	letter-spacing: 0.03em;
 	white-space: nowrap;
 	transition: opacity 0.3s;
@@ -1297,20 +2804,20 @@ const ToggleLabel = styled.label`
 `;
 
 const ToggleCheckbox = styled.input`
-	width: 16px;
-	height: 16px;
+	width: 14px;
+	height: 14px;
 	cursor: pointer;
 	accent-color: white;
 `;
 
 const ToggleText = styled.span`
-	font-size: 12px;
+	font-size: 11px;
 	font-weight: 500;
 	white-space: nowrap;
 `;
 
 const ToggleHint = styled.span`
-	font-size: 10px;
+	font-size: 9px;
 	opacity: 0.85;
 	white-space: nowrap;
 `;
@@ -1319,8 +2826,8 @@ const RefreshTokenButton = styled.button`
 	background: rgba(255, 255, 255, 0.2);
 	border: none;
 	color: white;
-	width: 32px;
-	height: 32px;
+	width: 28px;
+	height: 28px;
 	border-radius: 8px;
 	display: flex;
 	align-items: center;
@@ -1338,9 +2845,9 @@ const CollapseButton = styled.button`
 	background: rgba(255, 255, 255, 0.2);
 	border: none;
 	color: white;
-	width: 32px;
-	height: 32px;
-	border-radius: 8px;
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1352,13 +2859,34 @@ const CollapseButton = styled.button`
 	}
 `;
 
+const ClearButton = styled.button`
+	background: rgba(255, 255, 255, 0.2);
+	border: none;
+	color: white;
+	min-width: 28px;
+	height: 28px;
+	padding: 0 8px;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	cursor: pointer;
+	transition: background 0.2s;
+	font-size: 13px;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.3);
+	}
+`;
+
 const ExpandButton = styled.button`
 	background: rgba(255, 255, 255, 0.2);
 	border: none;
 	color: white;
-	width: 32px;
-	height: 32px;
-	border-radius: 8px;
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1374,9 +2902,9 @@ const CloseButton = styled.button`
 	background: rgba(255, 255, 255, 0.2);
 	border: none;
 	color: white;
-	width: 32px;
-	height: 32px;
-	border-radius: 8px;
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1390,6 +2918,7 @@ const CloseButton = styled.button`
 
 const MessagesContainer = styled.div`
 	flex: 1;
+	min-height: 0;
 	overflow-y: auto;
 	padding: 16px;
 	display: flex;
@@ -1745,16 +3274,23 @@ const PromptsToggleButton = styled.button<{ $active: boolean }>`
 
 // ─── MCP Live result card ────────────────────────────────────────────────────
 
-const McpResultCard = styled.div`
+const McpResultCard = styled.div<{ $isSuccess?: boolean }>`
 	margin-top: 12px;
 	padding: 10px 12px;
-	background: rgba(102, 126, 234, 0.07);
-	border: 1px solid rgba(102, 126, 234, 0.25);
+	background: ${({ $isSuccess }) =>
+		$isSuccess ? 'rgba(34, 197, 94, 0.12)' : 'rgba(102, 126, 234, 0.07)'};
+	border: 1px solid
+		${({ $isSuccess }) => ($isSuccess ? 'rgba(34, 197, 94, 0.5)' : 'rgba(102, 126, 234, 0.25)')};
 	border-radius: 10px;
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
 	font-size: 12px;
+	${({ $isSuccess }) =>
+		$isSuccess &&
+		`
+		box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
+	`}
 `;
 
 const McpResultHeader = styled.div`
@@ -1772,6 +3308,19 @@ const McpBadge = styled.span`
 	border-radius: 20px;
 	letter-spacing: 0.05em;
 	white-space: nowrap;
+`;
+
+const McpSuccessBadge = styled.span`
+	background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+	color: white;
+	font-size: 10px;
+	font-weight: 700;
+	padding: 2px 8px;
+	border-radius: 20px;
+	letter-spacing: 0.05em;
+	white-space: nowrap;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+	margin-left: auto;
 `;
 
 const McpToolName = styled.code`
@@ -1903,11 +3452,42 @@ const McpDataVal = styled.span`
 	word-break: break-all;
 `;
 
-const McpDataMoreNote = styled.div`
-	font-size: 11px;
-	color: #888;
-	text-align: center;
-	padding: 4px 0 2px;
+const McpPagination = styled.div`
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-top: 10px;
+	padding: 8px 0;
+	font-size: 12px;
+	color: #666;
+`;
+
+const McpPaginationButtons = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 12px;
+`;
+
+const McpPageBtn = styled.button`
+	padding: 4px 10px;
+	font-size: 12px;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	background: white;
+	cursor: pointer;
+	color: #374151;
+
+	&:hover:not(:disabled) {
+		background: #f3f4f6;
+		border-color: #9ca3af;
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const ToggleLiveText = styled.span<{ $active: boolean }>`
@@ -2015,36 +3595,6 @@ const GroqBadge = styled.span`
 	padding: 2px 8px;
 	letter-spacing: 0.03em;
 	white-space: nowrap;
-`;
-
-// ─── Groq not-configured banner ───────────────────────────────────────────────
-
-const _GroqBanner = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 8px;
-	padding: 8px 14px;
-	background: #fffbea;
-	border-bottom: 1px solid #f0dc82;
-	font-size: 12px;
-	color: #7a5c00;
-	flex-shrink: 0;
-`;
-
-const _GroqBannerLink = styled.button`
-	background: none;
-	border: none;
-	font-size: 12px;
-	font-weight: 600;
-	color: #5a3e00;
-	text-decoration: underline;
-	cursor: pointer;
-	white-space: nowrap;
-	padding: 0;
-	&:hover {
-		color: #3d2a00;
-	}
 `;
 
 export default AIAssistant;
