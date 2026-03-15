@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import { showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { FlowHeader } from '../services/flowHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
 
 const Container = styled.div`
@@ -233,16 +234,15 @@ const PARvsRAR: React.FC = () => {
 
 	return (
 		<Container>
-			<Header>
-				<h1>
-					<span style={{ fontSize: '32px' }}>🛡️</span>
-					RAR vs PAR and DPoP Guide
-				</h1>
-				<p>
-					Understanding Pushed Authorization Requests (PAR), Rich Authorization Requests (RAR), and
-					Demonstration of Proof-of-Possession (DPoP) with comprehensive examples and use cases.
-				</p>
-			</Header>
+			<FlowHeader
+				customConfig={{
+					flowType: 'pingone',
+					title: 'RAR vs PAR and DPoP Guide',
+					subtitle:
+						'Understanding Pushed Authorization Requests (PAR), Rich Authorization Requests (RAR), and Demonstration of Proof-of-Possession (DPoP) with comprehensive examples and use cases.',
+					icon: '🛡️',
+				}}
+			/>
 
 			<OverviewCard>
 				<CardHeader>
@@ -275,7 +275,7 @@ const PARvsRAR: React.FC = () => {
 
 			<CollapsibleHeader
 				title="What is PAR (Pushed Authorization Request)?"
-				theme="green"
+				theme="ping"
 				icon={<span>⚙️</span>}
 				defaultExpanded={true}
 			>
@@ -591,7 +591,7 @@ pushAuthorizationRequest(config)
 
 			<CollapsibleHeader
 				title="What is RAR (Rich Authorization Requests)?"
-				theme="blue"
+				theme="ping"
 				icon={<span>📖</span>}
 				defaultExpanded={true}
 			>
@@ -931,7 +931,7 @@ logger.info('RAR Authorization URL:', authUrl);`}</CodeBlock>
 
 			<CollapsibleHeader
 				title="PAR vs RAR: Key Differences"
-				theme="highlight"
+				theme="ping"
 				icon={<span>📤</span>}
 				defaultExpanded={true}
 			>
@@ -1036,7 +1036,7 @@ logger.info('RAR Authorization URL:', authUrl);`}</CodeBlock>
 
 			<CollapsibleHeader
 				title="PAR + RAR Combined Example"
-				theme="highlight"
+				theme="ping"
 				icon={<span>✅</span>}
 				defaultExpanded={true}
 			>
@@ -1353,7 +1353,7 @@ pushPARWithRAR(config, rarDetails)
 
 			<CollapsibleHeader
 				title="When to Use PAR, RAR, or Both"
-				theme="orange"
+				theme="ping"
 				icon={<span>⚙️</span>}
 				defaultExpanded={false}
 			>
@@ -1426,7 +1426,7 @@ pushPARWithRAR(config, rarDetails)
 
 			<CollapsibleHeader
 				title="OAuth 2.1 JWT & DPoP Advancements (RFC 9449 / RFC 9448)"
-				theme="highlight"
+				theme="ping"
 				icon={<span>🛡️</span>}
 				defaultExpanded={false}
 			>
@@ -1893,7 +1893,7 @@ const apiResponse = await fetch('https://api.bank.com/payments', {
 
 			<CollapsibleHeader
 				title="Summary & Next Steps"
-				theme="green"
+				theme="ping"
 				icon={<span>✅</span>}
 				defaultExpanded={false}
 			>

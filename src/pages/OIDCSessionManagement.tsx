@@ -367,8 +367,8 @@ const WarningCard = styled(Card)`
 
 // Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
 const pageConfig = {
-	flowType: 'documentation' as const,
-	theme: 'blue' as const,
+	flowType: 'pingone' as const,
+	theme: 'red' as const,
 	maxWidth: '72rem', // Wider for session management content (1152px)
 	showHeader: true,
 	showFooter: false,
@@ -458,6 +458,7 @@ const OIDCSessionManagement = () => {
 						subtitle="OpenID Connect Session Management 1.0 is a specification that defines how to manage sessions for OpenID Connect, including when to log out the End-User."
 						icon={<span>👥</span>}
 						defaultCollapsed={false}
+						theme="ping"
 					>
 						<div style={{ padding: '1.5rem' }}>
 							<OverviewCard>

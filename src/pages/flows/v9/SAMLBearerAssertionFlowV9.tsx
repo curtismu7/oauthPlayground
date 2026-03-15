@@ -1305,6 +1305,10 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		/>
 	);
 
+	// Track if flow has been executed (for reset button behavior)
+	const hasResults = tokenResponse || generatedSAML;
+	const currentStep = hasResults ? 1 : 0;
+
 	const handleReset = useCallback(() => {
 		setTokenResponse(null);
 		setGeneratedSAML('');
@@ -1334,7 +1338,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
 				<V9FlowRestartButton
 					onRestart={handleReset}
-					currentStep={0}
+					currentStep={currentStep}
 					totalSteps={1}
 					position="header"
 				/>

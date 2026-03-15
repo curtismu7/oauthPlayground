@@ -30,6 +30,7 @@ import {
 	type CibaStatus,
 	type CibaTokens,
 } from '@/v8/services/cibaServiceV8Enhanced';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[🔐 CIBA-FLOW-V8-ENHANCED]';
@@ -173,16 +174,11 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 					signingAlgs: metadata.backchannel_authentication_request_signing_alg_values_supported,
 				});
 			} catch (err) {
-				const errorMessage =
-					err instanceof Error ? err.message : 'Failed to load discovery metadata';
-				setDiscoveryError(errorMessage);
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: errorMessage,
-					dismissible: true,
+				const parsed = UnifiedFlowErrorHandler.handleError(err, {
+					operation: 'load-discovery-metadata',
+					component: MODULE_TAG,
 				});
-				logger.error(`${MODULE_TAG} Failed to load discovery metadata:`, err);
+				setDiscoveryError(parsed.userFriendlyMessage);
 			} finally {
 				setIsLoadingDiscovery(false);
 			}
@@ -242,17 +238,12 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 
 				return authReq;
 			} catch (err) {
-				const errorMessage =
-					err instanceof Error ? err.message : 'Failed to initiate authentication';
-				setError(errorMessage);
-				setStatus('error');
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: errorMessage,
-					dismissible: true,
+				const parsed = UnifiedFlowErrorHandler.handleError(err, {
+					operation: 'initiate-authentication',
+					component: MODULE_TAG,
 				});
-				logger.error(`${MODULE_TAG} Failed to initiate authentication:`, err);
+				setError(parsed.userFriendlyMessage);
+				setStatus('error');
 				throw err;
 			} finally {
 				setIsInitiating(false);
@@ -318,21 +309,17 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 
 				return result;
 			} catch (err) {
-				const errorMessage = err instanceof Error ? err.message : 'Polling failed';
-				setError(errorMessage);
-				setStatus('error');
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: errorMessage,
-					dismissible: true,
+				const parsed = UnifiedFlowErrorHandler.handleError(err, {
+					operation: 'poll-for-tokens',
+					component: MODULE_TAG,
 				});
-				logger.error(`${MODULE_TAG} Polling failed:`, err);
+				setError(parsed.userFriendlyMessage);
+				setStatus('error');
 
 				return {
 					status: 'error',
 					error: 'network_error',
-					error_description: errorMessage,
+					error_description: parsed.userFriendlyMessage,
 				};
 			}
 		},

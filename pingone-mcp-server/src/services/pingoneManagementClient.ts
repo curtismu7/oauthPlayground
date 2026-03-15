@@ -48,11 +48,16 @@ export interface ListApplicationsRequest {
 	scope?: string;
 	includeSecret?: boolean;
 	limit?: number;
+	/** Next page URL from previous response (_links.next.href). Omit for first page. */
+	nextPageUrl?: string;
 }
 
 export interface ListApplicationsResult {
 	success: boolean;
 	applications?: PingOneApplication[];
+	count?: number;
+	size?: number;
+	nextPageUrl?: string;
 	raw?: unknown;
 }
 
@@ -269,19 +274,31 @@ export async function listApplications(
 			token = workerTokenResult.accessToken;
 		}
 
-		const baseUrl = buildApiBaseUrl(environmentId, region);
-		const limit = request.limit && request.limit > 0 ? request.limit : 100;
-		const url = `${baseUrl}/applications?limit=${limit}`;
+		let data: Record<string, any>;
+		if (request.nextPageUrl?.trim()) {
+			const response = await axios.get(request.nextPageUrl.trim(), {
+				headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+				params: request.includeSecret ? { includeSecret: true } : undefined,
+			});
+			data = response.data;
+		} else {
+			const baseUrl = buildApiBaseUrl(environmentId, region);
+			const limit = request.limit && request.limit > 0 ? request.limit : 100;
+			const url = `${baseUrl}/applications?limit=${limit}`;
+			const response = await axios.get(url, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+					Accept: 'application/json',
+				},
+				params: request.includeSecret ? { includeSecret: true } : undefined,
+			});
+			data = response.data;
+		}
 
-		const response = await axios.get(url, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-				Accept: 'application/json',
-			},
-			params: request.includeSecret ? { includeSecret: true } : undefined,
-		});
-
-		const data = response.data as Record<string, any>;
+		const links = data._links as Record<string, { href?: string }> | undefined;
+		const nextPageUrl = typeof links?.next?.href === 'string' && links.next.href.trim()
+			? links.next.href
+			: undefined;
 		const embedded = data._embedded?.applications as Array<Record<string, any>> | undefined;
 
 		const applications: PingOneApplication[] = (embedded ?? []).map((app) => ({
@@ -562,6 +579,18 @@ export interface CreateApplicationResult {
 	error?: PingOneErrorPayload;
 }
 
+/** Ensure PingOne validation: when grantTypes contains AUTHORIZATION_CODE, responseTypes must contain CODE. */
+function normalizeCreateApplicationPayload(application: Record<string, unknown>): Record<string, unknown> {
+	const payload = { ...application };
+	const grantTypes = payload.grantTypes as string[] | undefined;
+	const rawResponse = payload.responseTypes;
+	const responseTypes = Array.isArray(rawResponse) ? [...rawResponse] : [];
+	if (Array.isArray(grantTypes) && grantTypes.includes('AUTHORIZATION_CODE') && !responseTypes.includes('CODE')) {
+		payload.responseTypes = responseTypes.length ? [...responseTypes, 'CODE'] : ['CODE'];
+	}
+	return payload;
+}
+
 /** Create a new application. Worker token requires p1:create:application scope. */
 export async function createApplication(
 	request: CreateApplicationRequest
@@ -570,9 +599,10 @@ export async function createApplication(
 		const environmentId = resolveEnvironmentId(request.environmentId);
 		const token = await getWorkerTokenForApp(request);
 		const baseUrl = buildApiBaseUrl(environmentId, request.region);
+		const body = normalizeCreateApplicationPayload(request.application);
 		const response = await axios.post<Record<string, unknown>>(
 			`${baseUrl}/applications`,
-			request.application,
+			body,
 			{ headers: { Authorization: `Bearer ${token}`, Accept: 'application/json', 'Content-Type': 'application/json' } }
 		);
 		return { success: true, application: response.data, raw: response.data };

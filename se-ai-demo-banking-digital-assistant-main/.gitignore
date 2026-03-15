@@ -1,0 +1,342 @@
+# ============================================================================
+# CONSOLIDATED .GITIGNORE FOR DIGITAL ASSISTANT STACK
+# ============================================================================
+# This file combines ignore patterns from all components:
+# - banking_api_server
+# - banking_api_ui  
+# - banking_mcp_server
+# - langchain_agent
+
+# ============================================================================
+# DEPENDENCIES & PACKAGE MANAGERS
+# ============================================================================
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.npm-cache/
+.eslintcache
+.parcel-cache/
+jspm_packages/
+.yarn-integrity
+package-lock.json.bak
+yarn.lock.bak
+
+# Python dependencies
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Python virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# ============================================================================
+# BUILD OUTPUTS & ARTIFACTS
+# ============================================================================
+
+# General build outputs
+build/
+dist/
+coverage/
+*.tsbuildinfo
+client/build/
+
+# Frontend builds
+frontend/build/
+frontend/dist/
+
+# Python builds
+target/
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+.nyc_output
+test-results/
+
+# ============================================================================
+# ENVIRONMENT & CONFIGURATION FILES
+# ============================================================================
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+!.env.template
+*.env
+*.local.env
+
+# Configuration files
+config.json
+config.*.json
+config/local.yaml
+config/local.yml
+config/local.json
+
+# ============================================================================
+# RUNTIME DATA & SENSITIVE FILES
+# ============================================================================
+
+# Banking MCP Server runtime data
+data/
+dev-data/
+tokens/
+sessions/
+auth_cache/
+banking-mcp-server.pid
+
+# Persistent data (contains sensitive information)
+data/persistent/
+
+# Process files
+*.pid
+*.seed
+*.pid.lock
+pids
+
+# SSL certificates and keys
+*.pem
+*.key
+*.crt
+*.csr
+ssl/
+certs/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+db.sqlite3-journal
+
+# ============================================================================
+# LOGS & MONITORING
+# ============================================================================
+
+# Log files
+logs/
+dev-logs/
+*.log
+*.log.*
+audit.log
+security.log
+startup.log
+server.log
+local_settings.py
+
+# ============================================================================
+# TEMPORARY & CACHE FILES
+# ============================================================================
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.temp/
+.cache/
+cache/
+*.tmp
+*.temp
+*.backup
+*.bak
+*.old
+*~
+
+# Cache directories
+.tscache/
+
+# ============================================================================
+# IDE & EDITOR FILES
+# ============================================================================
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.code-workspace
+.kiro/
+.kiro/workspace/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# ============================================================================
+# OS GENERATED FILES
+# ============================================================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+ehthumbs.db
+Thumbs.db
+
+# ============================================================================
+# TESTING & DEVELOPMENT
+# ============================================================================
+
+# Test artifacts
+tests/storage/test-*/
+tests/integration/test-*/
+
+# Test logging and session files
+**/test-*-logging/
+**/tests/**/test-*/
+**/tests/**/*.enc
+**/tests/**/*.session
+**/tests/**/*.log
+
+# Django stuff
+instance/
+.webassets-cache
+
+# Flask stuff
+.webassets-cache
+
+# Scrapy stuff
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# mkdocs documentation
+/site
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# ============================================================================
+# DOCKER & DEPLOYMENT
+# ============================================================================
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# ============================================================================
+# RUNTIME DIRECTORIES
+# ============================================================================
+
+runtime/
+run/
+visualizations/
+
+# ============================================================================
+# MEDIA & LARGE FILES
+# ============================================================================
+
+# Video files
+videos/
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+
+# ============================================================================
+# GENERATED FILES
+# ============================================================================
+
+# Visualization files (generated at runtime)
+visualizations/*.html
+runtime/*.html
+execution_trace_*.html
+execution_trace_*.json
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Translations
+*.mo
+*.pot
+
+# Output of 'npm pack'
+*.tgz
+
+# Optional REPL history
+.node_repl_history
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow
+__pypackages__/
+
+# Pipenv
+#Pipfile.lock
+# Environment files - never commit these
+.env
+.env.local
+.env.*.local
+**/.env
+**/env.local

@@ -18,9 +18,6 @@ import './styles/ui-settings.css';
 import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all buttons have white text
 import { lazy, Suspense } from 'react';
 import AIAssistant from './components/AIAssistant';
-import AIAssistantPage from './pages/AIAssistantPage';
-import { AIAssistantPopoutPage } from './pages/AIAssistantPopoutPage';
-import { AI_ASSISTANT_NAVIGATE, isAIAssistantPopout } from './utils/aiAssistantPopoutHelper';
 import { CleanlinessDashboardWorking } from './components/CleanlinessDashboardWorking';
 import { CleanupHistoryDashboard } from './components/CleanupHistoryDashboard';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
@@ -29,8 +26,10 @@ import { EnhancedFloatingLogViewer } from './components/EnhancedFloatingLogViewe
 import LoadingFallback from './components/LoadingFallback';
 import { StandardModalSpinner } from './components/ui/StandardSpinner';
 import { V9ModernMessagingProvider } from './components/v9/V9ModernMessagingComponents';
-
+import AIAssistantPage from './pages/AIAssistantPage';
+import { AIAssistantPopoutPage } from './pages/AIAssistantPopoutPage';
 import CombinedTokenPage from './pages/CombinedTokenPage';
+import { AI_ASSISTANT_NAVIGATE, isAIAssistantPopout } from './utils/aiAssistantPopoutHelper';
 
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
@@ -132,12 +131,12 @@ import CIBAvsDeviceAuthz from './pages/CIBAvsDeviceAuthz';
 import CustomDomainTestPage from './pages/CustomDomainTestPage';
 import Dashboard from './pages/Dashboard';
 import AIAgentAuthDraft from './pages/docs/AIAgentAuthDraft';
+import MCPDocumentation from './pages/docs/MCPDocumentation';
 // Added new migration and prompts pages
 import MigrateVscode from './pages/docs/migration/MigrateVscode';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices.tsx';
 import OAuthForAI from './pages/docs/OAuthForAI.tsx';
 import OIDCForAI from './pages/docs/OIDCForAI.tsx';
-import MCPDocumentation from './pages/docs/MCPDocumentation';
 import OIDCOverview from './pages/docs/OIDCOverviewV7.tsx';
 // Removed unused OIDC overview imports
 // import OIDCOverviewSimple from './pages/docs/OIDCOverview_Simple';

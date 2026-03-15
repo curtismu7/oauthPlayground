@@ -103,6 +103,10 @@ export const V7MClientCredentialsV9: React.FC = () => {
 		setIntrospectionResponse(res);
 	}
 
+	// Track if flow has been executed (for reset button behavior)
+	const hasResults = tokenResponse || userinfoResponse || introspectionResponse;
+	const currentStep = hasResults ? 1 : 0;
+
 	function handleReset() {
 		setTokenResponse(null);
 		setUserinfoResponse(null);
@@ -118,7 +122,7 @@ export const V7MClientCredentialsV9: React.FC = () => {
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
 				<V9FlowRestartButton
 					onRestart={handleReset}
-					currentStep={0}
+					currentStep={currentStep}
 					totalSteps={1}
 					position="header"
 				/>

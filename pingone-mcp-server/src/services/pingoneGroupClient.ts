@@ -73,6 +73,13 @@ function extractError(err: unknown): { code?: string; message: string } {
 
 // ─── List Groups ──────────────────────────────────────────────────────────────
 
+/** Extracts next page href from PingOne _links.next. */
+function extractNextPageUrl(data: Record<string, unknown>): string | undefined {
+	const links = data._links as Record<string, { href?: string }> | undefined;
+	const next = links?.next?.href;
+	return typeof next === 'string' && next.trim() ? next : undefined;
+}
+
 export interface ListGroupsRequest {
 	environmentId?: string;
 	workerToken?: string;
@@ -82,33 +89,49 @@ export interface ListGroupsRequest {
 	/** SCIM filter string, e.g. "name eq \"Admins\"" */
 	filter?: string;
 	limit?: number;
+	/** Next page URL from previous response (_links.next.href). Omit for first page. */
+	nextPageUrl?: string;
 }
 
 export interface ListGroupsResult {
 	success: boolean;
 	groups?: Record<string, unknown>[];
 	count?: number;
+	size?: number;
+	nextPageUrl?: string;
 	raw?: unknown;
 	error?: { code?: string; message: string };
 }
 
 export async function listGroups(request: ListGroupsRequest): Promise<ListGroupsResult> {
 	try {
-		const environmentId = resolveEnvironmentId(request.environmentId);
 		const token = await getWorkerToken(request);
-		const baseUrl = buildApiBaseUrl(environmentId, request.region);
-		const limit = request.limit && request.limit > 0 ? request.limit : 100;
-		const url =
-			`${baseUrl}/groups?limit=${limit}` +
-			(request.filter ? `&filter=${encodeURIComponent(request.filter)}` : '');
+		let data: Record<string, unknown>;
 
-		const { data } = await axios.get<Record<string, unknown>>(url, {
-			headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
-		});
+		if (request.nextPageUrl?.trim()) {
+			const { data: resp } = await axios.get<Record<string, unknown>>(request.nextPageUrl.trim(), {
+				headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+			});
+			data = resp;
+		} else {
+			const environmentId = resolveEnvironmentId(request.environmentId);
+			const baseUrl = buildApiBaseUrl(environmentId, request.region);
+			const limit = request.limit && request.limit > 0 ? request.limit : 100;
+			const url =
+				`${baseUrl}/groups?limit=${limit}` +
+				(request.filter ? `&filter=${encodeURIComponent(request.filter)}` : '');
+			const { data: resp } = await axios.get<Record<string, unknown>>(url, {
+				headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+			});
+			data = resp;
+		}
 
 		const embedded = data?._embedded as Record<string, unknown> | undefined;
 		const groups = (embedded?.groups ?? []) as Record<string, unknown>[];
-		return { success: true, groups, count: groups.length, raw: data };
+		const count = typeof data.count === 'number' ? data.count : undefined;
+		const size = typeof data.size === 'number' ? data.size : groups.length;
+		const nextPageUrl = extractNextPageUrl(data);
+		return { success: true, groups, count, size, nextPageUrl, raw: data };
 	} catch (err) {
 		return { success: false, error: extractError(err) };
 	}

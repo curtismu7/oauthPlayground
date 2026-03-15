@@ -46,11 +46,16 @@ const listUsersInputShape = {
 	region: z.string().trim().optional(),
 	filter: z.string().trim().optional(),
 	limit: z.number().int().min(1).max(200).optional(),
+	/** Next page URL from previous response. Omit for first page. */
+	nextPageUrl: z.string().trim().optional(),
 } as const;
 
 const listUsersOutputShape = {
 	success: z.boolean(),
 	users: z.array(z.record(z.unknown())).optional(),
+	count: z.number().optional(),
+	size: z.number().optional(),
+	nextPageUrl: z.string().optional(),
 	raw: z.unknown().optional(),
 	error: z.object({ code: z.string().optional(), message: z.string() }).optional(),
 } as const;
@@ -67,11 +72,12 @@ export function registerUserTools(server: McpServer, logger: Logger): void {
 			inputSchema: getUserInputShape,
 			outputSchema: getUserOutputShape,
 		},
-		async (args) => {
+		async (args, extra) => {
 			logger.info('Getting PingOne user', { userId: args.userId, environmentId: args.environmentId ?? '(from env)' });
 			try {
 				const parsed = z.object(getUserInputShape).parse(args);
-				const result = await getUserApi(parsed);
+				const signal = (extra as { signal?: AbortSignal })?.signal;
+				const result = await getUserApi({ ...parsed, signal });
 				const structured = getUserOutputSchema.parse({
 					success: result.success,
 					user: result.user,
@@ -104,24 +110,31 @@ export function registerUserTools(server: McpServer, logger: Logger): void {
 			inputSchema: listUsersInputShape,
 			outputSchema: listUsersOutputShape,
 		},
-		async (args) => {
+		async (args, extra) => {
 			logger.info('Listing PingOne users', { environmentId: args.environmentId ?? '(from env)', filter: args.filter });
 			try {
 				const parsed = z.object(listUsersInputShape).parse(args);
-				const result = await listUsersApi(parsed);
+				const signal = (extra as { signal?: AbortSignal })?.signal;
+				const result = await listUsersApi({ ...parsed, signal });
 				const structured = listUsersOutputSchema.parse({
 					success: result.success,
 					users: result.users,
+					count: result.count,
+					size: result.size,
+					nextPageUrl: result.nextPageUrl,
 					raw: result.raw,
 					error: result.error,
 				}) as Record<string, unknown>;
-				const count = result.users?.length ?? 0;
+				const size = result.size ?? result.users?.length ?? 0;
+				const paginationHint = result.nextPageUrl
+					? ` More pages: pass nextPageUrl for next page.`
+					: '';
 				return {
 					content: [
 						{
 							type: 'text' as const,
 							text: result.success
-								? `Found ${count} user(s). ${JSON.stringify(result.users ?? [], null, 2)}`
+								? `Found ${size} user(s) on this page${result.count != null ? ` (total: ${result.count})` : ''}.${paginationHint} ${JSON.stringify(result.users ?? [], null, 2)}`
 								: `List users failed: ${result.error?.message ?? 'Unknown'}`,
 						},
 					],
@@ -298,17 +311,21 @@ export function registerUserTools(server: McpServer, logger: Logger): void {
 		clientSecret: z.string().trim().optional(),
 		region: z.string().trim().optional(),
 		limit: z.number().int().min(1).max(200).optional(),
+		nextPageUrl: z.string().trim().optional().describe('Next page URL from previous response. Omit for first page.'),
 	} as const;
 	const listPopulationsOutput = {
 		success: z.boolean(),
 		populations: z.array(z.record(z.unknown())).optional(),
+		count: z.number().optional(),
+		size: z.number().optional(),
+		nextPageUrl: z.string().optional(),
 		raw: z.unknown().optional(),
 		error: z.object({ code: z.string().optional(), message: z.string() }).optional(),
 	} as const;
 	server.registerTool(
 		'pingone_list_populations',
 		{
-			description: 'List PingOne populations in the environment. Uses worker token or client credentials.',
+			description: 'List PingOne populations in the environment. Supports pagination via nextPageUrl. Uses worker token or client credentials.',
 			inputSchema: listPopulationsInput,
 			outputSchema: listPopulationsOutput,
 		},
@@ -317,10 +334,26 @@ export function registerUserTools(server: McpServer, logger: Logger): void {
 			try {
 				const parsed = z.object(listPopulationsInput).parse(args);
 				const result = await listPopulationsApi(parsed);
-				const structured = { success: result.success, populations: result.populations, raw: result.raw, error: result.error };
-				const count = result.populations?.length ?? 0;
+				const structured = {
+					success: result.success,
+					populations: result.populations,
+					count: result.count,
+					size: result.size,
+					nextPageUrl: result.nextPageUrl,
+					raw: result.raw,
+					error: result.error,
+				};
+				const size = result.populations?.length ?? 0;
+				const paginationNote = result.nextPageUrl ? ' More pages available — pass nextPageUrl for next page.' : '';
 				return {
-					content: [{ type: 'text' as const, text: result.success ? `Found ${count} population(s). ${JSON.stringify(result.populations ?? [], null, 2)}` : `Failed: ${result.error?.message ?? 'Unknown'}` }],
+					content: [
+						{
+							type: 'text' as const,
+							text: result.success
+								? `Found ${size} population(s) on this page.${paginationNote} ${JSON.stringify(result.populations ?? [], null, 2)}`
+								: `Failed: ${result.error?.message ?? 'Unknown'}`,
+						},
+					],
 					structuredContent: structured as Record<string, unknown>,
 				};
 			} catch (error) {
