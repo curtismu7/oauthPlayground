@@ -10,25 +10,13 @@ import { FlowTypeSelector } from '../FlowTypeSelector';
 
 describe('FlowTypeSelector', () => {
 	it('renders flow type dropdown with current selection', () => {
-		render(
-			<FlowTypeSelector
-				specVersion="oidc"
-				flowType="oauth-authz"
-				onChange={() => {}}
-			/>
-		);
+		render(<FlowTypeSelector specVersion="oidc" flowType="oauth-authz" onChange={() => {}} />);
 		expect(screen.getByLabelText(/Flow Type \(Grant type\)/i)).toBeInTheDocument();
 		expect(screen.getByDisplayValue('Authorization Code')).toBeInTheDocument();
 	});
 
 	it('shows available flows for OIDC spec version', () => {
-		render(
-			<FlowTypeSelector
-				specVersion="oidc"
-				flowType="oauth-authz"
-				onChange={() => {}}
-			/>
-		);
+		render(<FlowTypeSelector specVersion="oidc" flowType="oauth-authz" onChange={() => {}} />);
 		const select = screen.getByRole('combobox', { name: /Flow Type/i });
 		const options = Array.from(select.querySelectorAll('option'));
 		const labels = options.map((o) => o.textContent);
@@ -39,13 +27,7 @@ describe('FlowTypeSelector', () => {
 	});
 
 	it('shows available flows for OAuth 2.1 (no implicit)', () => {
-		render(
-			<FlowTypeSelector
-				specVersion="oauth2.1"
-				flowType="oauth-authz"
-				onChange={() => {}}
-			/>
-		);
+		render(<FlowTypeSelector specVersion="oauth2.1" flowType="oauth-authz" onChange={() => {}} />);
 		const select = screen.getByRole('combobox', { name: /Flow Type/i });
 		const options = Array.from(select.querySelectorAll('option'));
 		const labels = options.map((o) => o.textContent);
@@ -56,13 +38,7 @@ describe('FlowTypeSelector', () => {
 
 	it('calls onChange when user selects different flow', () => {
 		const handleChange = vi.fn();
-		render(
-			<FlowTypeSelector
-				specVersion="oidc"
-				flowType="oauth-authz"
-				onChange={handleChange}
-			/>
-		);
+		render(<FlowTypeSelector specVersion="oidc" flowType="oauth-authz" onChange={handleChange} />);
 		const select = screen.getByRole('combobox', { name: /Flow Type/i });
 		fireEvent.change(select, { target: { value: 'device-code' } });
 		expect(handleChange).toHaveBeenCalledWith('device-code');
@@ -82,11 +58,7 @@ describe('FlowTypeSelector', () => {
 
 	it('displays client-credentials option for OAuth 2.1', () => {
 		render(
-			<FlowTypeSelector
-				specVersion="oauth2.1"
-				flowType="client-credentials"
-				onChange={() => {}}
-			/>
+			<FlowTypeSelector specVersion="oauth2.1" flowType="client-credentials" onChange={() => {}} />
 		);
 		expect(screen.getByDisplayValue('Client Credentials')).toBeInTheDocument();
 	});

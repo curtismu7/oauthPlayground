@@ -107,13 +107,13 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-13T16:36:56.897Z
-// Source: git log (5 days → 5 sessions)
+// Last updated: 2026-03-15T13:43:03.075Z
+// Source: git log (1 days → 1 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
   {
-    "id": "git-2026-03-13-code-cleanup",
-    "date": "2026-03-13",
+    "id": "git-2026-03-15-code-cleanup",
+    "date": "2026-03-15",
     "duration": 12,
     "category": {
       "id": "code-cleanup",
@@ -122,115 +122,17 @@ const CLEANUP_SESSIONS: CleanupSession[] = [
       "icon": "🧹",
       "description": "Code Cleanup"
     },
-    "description": "25 commits: Add AI Assistant dedicated page implementation to regression log; Add dedicated AI Assistant page with full-page support …",
-    "filesModified": 121,
-    "linesOfCode": 18499,
-    "issuesResolved": 231,
+    "description": "6 commits: add button feedback toasts, fix silent token exchange error in auth-code + hybrid flows; add pingone_decode_jwt to tool list, update count to 71 …",
+    "filesModified": 21,
+    "linesOfCode": 7543,
+    "issuesResolved": 94,
     "documentation": [],
     "achievements": [
-      "Add AI Assistant dedicated page implementation to regression log",
-      "Add dedicated AI Assistant page with full-page support",
-      "Replace console.log with proper logging in AI Assistant side panel",
-      "Add AI Assistant side panel with PingOne login and tools",
-      "Clean up regression plan - remove duplicates and organize entries"
-    ],
-    "version": "9.16.2"
-  },
-  {
-    "id": "git-2026-03-12-code-cleanup",
-    "date": "2026-03-12",
-    "duration": 12,
-    "category": {
-      "id": "code-cleanup",
-      "name": "Code Cleanup",
-      "color": "#FFC107",
-      "icon": "🧹",
-      "description": "Code Cleanup"
-    },
-    "description": "5 commits: Update version to 9.16.2 - Complete all pages implementation; Complete remaining pages and step components …",
-    "filesModified": 13152,
-    "linesOfCode": 72031,
-    "issuesResolved": 900,
-    "documentation": [],
-    "achievements": [
-      "Update version to 9.16.2 - Complete all pages implementation",
-      "Complete remaining pages and step components",
-      "Update version to 9.16.1 - Complete token operations merge",
-      "Replace maintenance message with TokenManagementPage in Token Operations",
-      "popout window, persistence, streaming, copy/export, MCP routing fixes"
-    ],
-    "version": "9.16.2"
-  },
-  {
-    "id": "git-2026-03-11-security",
-    "date": "2026-03-11",
-    "duration": 12,
-    "category": {
-      "id": "security",
-      "name": "Security",
-      "color": "#E83E8C",
-      "icon": "🔒",
-      "description": "Security"
-    },
-    "description": "3 commits: 🔒 Security: Remove .env from Git tracking, keep API keys secure; Update CleanlinessDashboardWorking.tsx with new audit items and status changes …",
-    "filesModified": 717,
-    "linesOfCode": 11487,
-    "issuesResolved": 144,
-    "documentation": [],
-    "achievements": [
-      "🔒 Security: Remove .env from Git tracking, keep API keys secure",
-      "Update CleanlinessDashboardWorking.tsx with new audit items and status changes",
-      "UI: remove V7M/V8 from user-facing text; dashboard update messages; PARFlowV9 fix; Git log quiet"
-    ],
-    "version": "9.16.2"
-  },
-  {
-    "id": "git-2026-03-10-code-cleanup",
-    "date": "2026-03-10",
-    "duration": 12,
-    "category": {
-      "id": "code-cleanup",
-      "name": "Code Cleanup",
-      "color": "#FFC107",
-      "icon": "🧹",
-      "description": "Code Cleanup"
-    },
-    "description": "19 commits: Add dynamic sidebar resize support - v9.14.4; Fix discovery loading state and add validation - v9.14.3 …",
-    "filesModified": 548,
-    "linesOfCode": 43608,
-    "issuesResolved": 545,
-    "documentation": [],
-    "achievements": [
-      "Add dynamic sidebar resize support - v9.14.4",
-      "Fix discovery loading state and add validation - v9.14.3",
-      "Fix content layout spacing - v9.14.2",
-      "Fix menu scrolling issue - v9.14.1",
-      "no grey buttons, DPoP route/UI, PAR/RAR stepper, V9 logging, docs"
-    ],
-    "version": "9.16.2"
-  },
-  {
-    "id": "git-2026-03-09-code-cleanup",
-    "date": "2026-03-09",
-    "duration": 0.5,
-    "category": {
-      "id": "code-cleanup",
-      "name": "Code Cleanup",
-      "color": "#FFC107",
-      "icon": "🧹",
-      "description": "Code Cleanup"
-    },
-    "description": "41 commits: migrate credentialDebugger and mfaRedirectUriServiceV8 console.group/log/warn/error to structured logger — zero console.* calls in non-test production source; replace console.group/groupEnd with logger calls in CompleteMFAFlow, Dashboard, credentialLoader/Manager, fieldEditingDiagnostic, useDeviceAuthFlow; remove duplicate logger imports …",
-    "filesModified": 0,
-    "linesOfCode": 0,
-    "issuesResolved": 1,
-    "documentation": [],
-    "achievements": [
-      "migrate credentialDebugger and mfaRedirectUriServiceV8 console.group/log/warn/error to structured logger — zero console.* calls in non-test production source",
-      "replace console.group/groupEnd with logger calls in CompleteMFAFlow, Dashboard, credentialLoader/Manager, fieldEditingDiagnostic, useDeviceAuthFlow; remove duplicate logger imports",
-      "migrate console.warn Alert calls to showGlobalError/Success/Warning in v7 pages, fix console.error in v8 stepper, logger in webhookViewerPopoutHelper, clean up UnifiedDocumentationModal",
-      "remove console.group/groupEnd from credential services, fix V9_COLORS interpolation, drop unused _log in DeviceAuthFlowV9",
-      "session cleanup — env ID read-only display, remove floating stepper, logger.success→info, linter warnings (0/0), duplicate import, v8 quote normalization, misc service fixes"
+      "add button feedback toasts, fix silent token exchange error in auth-code + hybrid flows",
+      "add pingone_decode_jwt to tool list, update count to 71",
+      "simplify to 3-step educational layout, remove 9 modals",
+      "Agent & MCP education module with 8 new commands",
+      "add pingone_decode_jwt tool and decode_token intent"
     ],
     "version": "9.16.2"
   }

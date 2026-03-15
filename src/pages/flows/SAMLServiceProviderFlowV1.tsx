@@ -356,8 +356,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 	const isAdminConfigured = Boolean(
 		pingOneAdminCredentials.environmentId &&
-		pingOneAdminCredentials.clientId &&
-		pingOneAdminCredentials.clientSecret
+			pingOneAdminCredentials.clientId &&
+			pingOneAdminCredentials.clientSecret
 	);
 
 	// AuthnRequest processing

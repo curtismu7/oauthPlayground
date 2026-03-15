@@ -29,8 +29,8 @@ import type {
 	TokenResponse,
 } from '@/v8/services/hybridFlowIntegrationServiceV8';
 import { HybridFlowIntegrationServiceV8 } from '@/v8/services/hybridFlowIntegrationServiceV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 
-import { logger } from '../../utils/logger';
 export interface HybridFlowState {
 	// Flow configuration
 	variant: 'code id_token' | 'code token' | 'code token id_token';
@@ -99,12 +99,9 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 
 			setState((prev) => ({ ...prev, credentials: credentials as HybridFlowCredentials }));
 		} catch (error) {
-			logger.error('[HybridFlowV8] Failed to load credentials:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to load credentials',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'load-credentials',
+				component: 'HybridFlowV8',
 			});
 		}
 	}, []);
@@ -115,12 +112,9 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 			CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
 			setState((prev) => ({ ...prev, credentials }));
 		} catch (error) {
-			logger.error('[HybridFlowV8] Failed to save credentials:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to save credentials',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'save-credentials',
+				component: 'HybridFlowV8',
 			});
 		}
 	}, []);
@@ -147,12 +141,9 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 			setState((prev) => ({ ...prev, pkceCodes }));
 			return pkceCodes;
 		} catch (error) {
-			logger.error('[HybridFlowV8] Failed to generate PKCE:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to generate PKCE codes',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'generate-pkce',
+				component: 'HybridFlowV8',
 			});
 			throw error;
 		}
@@ -205,16 +196,11 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 				});
 				return authParams;
 			} catch (error) {
-				logger.error('[HybridFlowV8] Failed to generate authorization URL:', error);
-				const errorMessage =
-					error instanceof Error ? error.message : 'Failed to generate authorization URL';
-				setState((prev) => ({ ...prev, error: errorMessage, isLoading: false }));
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: errorMessage,
-					dismissible: true,
+				const parsed = UnifiedFlowErrorHandler.handleError(error, {
+					operation: 'generate-authorization-url',
+					component: 'HybridFlowV8',
 				});
+				setState((prev) => ({ ...prev, error: parsed.userFriendlyMessage, isLoading: false }));
 				throw error;
 			}
 		},
@@ -257,16 +243,11 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 				});
 				return tokens;
 			} catch (error) {
-				logger.error('[HybridFlowV8] Failed to exchange code:', error);
-				const errorMessage =
-					error instanceof Error ? error.message : 'Failed to exchange authorization code';
-				setState((prev) => ({ ...prev, error: errorMessage, isLoading: false }));
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: errorMessage,
-					dismissible: true,
+				const parsed = UnifiedFlowErrorHandler.handleError(error, {
+					operation: 'exchange-code',
+					component: 'HybridFlowV8',
 				});
+				setState((prev) => ({ ...prev, error: parsed.userFriendlyMessage, isLoading: false }));
 				throw error;
 			}
 		},
@@ -307,12 +288,9 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 				});
 			}
 		} catch (error) {
-			logger.error('[HybridFlowV8] Failed to process URL fragment:', error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to process URL fragment',
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'process-url-fragment',
+				component: 'HybridFlowV8',
 			});
 		}
 	}, []);

@@ -1,5 +1,6 @@
 // About component that displays comprehensive OAuth Playground documentation
 import { usePageScroll } from '../hooks/usePageScroll';
+import { FlowHeader } from '../services/flowHeaderService';
 import { APP_VERSION, MFA_V8_VERSION, UNIFIED_V8U_VERSION } from '../version';
 
 export default function About() {
@@ -7,6 +8,14 @@ export default function About() {
 	usePageScroll({ pageName: 'About', force: true });
 	return (
 		<div className="max-w-6xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg min-h-screen">
+			<FlowHeader
+				customConfig={{
+					flowType: 'pingone',
+					title: 'PingOne MasterFlow API Documentation',
+					subtitle: 'Complete guide to what the PingOne MasterFlow API does and how to use it',
+					icon: '📚',
+				}}
+			/>
 			{/* Header */}
 			<div className="bg-white rounded-lg shadow-lg p-8 mb-6">
 				<div className="flex items-center gap-4 mb-4">

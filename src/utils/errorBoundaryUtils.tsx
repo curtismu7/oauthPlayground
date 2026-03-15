@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+import { logger } from './logger';
 
 /**
  * Error boundary component to catch and handle external script errors
@@ -43,18 +44,23 @@ export class ExternalScriptErrorBoundary extends React.Component<
 
 		if (isExternalError) {
 			// Log but don't crash for external script errors
-			console.warn('External script error caught:', {
+			logger.warn('ExternalScriptErrorBoundary', 'External script error caught', {
 				message: error.message,
 				stack: error.stack,
 				componentStack: errorInfo.componentStack,
 			});
 		} else {
 			// Log application errors normally
-			console.error('Application error:', {
-				message: error.message,
-				stack: error.stack,
-				componentStack: errorInfo.componentStack,
-			});
+			logger.error(
+				'ExternalScriptErrorBoundary',
+				'Application error',
+				{
+					message: error.message,
+					stack: error.stack,
+					componentStack: errorInfo.componentStack,
+				},
+				error
+			);
 		}
 	}
 

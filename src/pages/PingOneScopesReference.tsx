@@ -3,6 +3,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const PageContainer = styled.div`
 	max-width: 90rem;
@@ -190,6 +191,15 @@ const InfoText = styled.div`
 const PingOneScopesReference: React.FC = () => {
 	return (
 		<PageContainer>
+			<FlowHeader
+				customConfig={{
+					flowType: 'pingone',
+					title: 'PingOne OAuth 2.0 & OIDC Scopes Reference',
+					subtitle:
+						'A guide to understanding and using the most common scopes in PingOne SSO and Management API. Scopes control what data and permissions an application receives when authenticating.',
+					icon: '📚',
+				}}
+			/>
 			<HeaderCard>
 				<TitleRow>
 					<span>📚</span>

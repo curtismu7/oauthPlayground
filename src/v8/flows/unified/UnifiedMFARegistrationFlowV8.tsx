@@ -50,6 +50,7 @@ import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAServiceV8, type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
 import { usePersistedCollapse } from '@/v8u/hooks/usePersistedCollapse';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { usePageStepper } from '../../../contexts/FloatingStepperContext';
 import { logger } from '../../../utils/logger';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
@@ -420,50 +421,9 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				// Stay in authentication flow so user can try another device
 			}
 		} catch (error) {
-			logger.error(
-				'UnifiedMFARegistrationFlowV8',
-				'Failed to initialize authentication',
-				undefined,
-				error instanceof Error ? error : new Error(String(error))
-			);
-
-			// Enhanced error handling for NO_USABLE_DEVICES
-			let errorMessage = 'Authentication failed: ';
-			if (error instanceof Error) {
-				const errorStr = error.message.toLowerCase();
-
-				// Check for NO_USABLE_DEVICES or device availability errors
-				if (
-					errorStr.includes('no usable devices') ||
-					errorStr.includes('too many') ||
-					errorStr.includes('cooldown') ||
-					errorStr.includes('blocked')
-				) {
-					errorMessage = '⚠️ Device Temporarily Unavailable\n\n';
-
-					if (errorStr.includes('cooldown') || errorStr.includes('too many')) {
-						errorMessage +=
-							'Too many notifications have been sent to this device. It is temporarily in cooldown. ';
-						errorMessage +=
-							'Please wait a few minutes and try again, or select a different device.';
-					} else if (errorStr.includes('blocked')) {
-						errorMessage +=
-							'This device has been blocked. Please contact your administrator or use a different device.';
-					} else {
-						errorMessage += error.message;
-					}
-				} else {
-					errorMessage += error.message;
-				}
-			} else {
-				errorMessage += 'Unknown error';
-			}
-
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: errorMessage,
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'initialize-authentication',
+				component: 'UnifiedMFARegistrationFlowV8',
 			});
 			// Do NOT set flowMode(null) - keep user in authentication flow so they can retry or select another device
 		}
@@ -532,17 +492,9 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				});
 			}
 		} catch (error) {
-			logger.error(
-				'UnifiedMFARegistrationFlowV8',
-				'OTP verification failed',
-				undefined,
-				error instanceof Error ? error : new Error(String(error))
-			);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: `Verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				dismissible: true,
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'verify-otp',
+				component: 'UnifiedMFARegistrationFlowV8',
 			});
 		}
 	};
@@ -1358,18 +1310,10 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 												setOtpCode('');
 											}
 										} catch (error) {
-											modernMessaging.showBanner({
-												type: 'error',
-												title: 'Error',
-												message: 'Failed to resend code',
-												dismissible: true,
+											UnifiedFlowErrorHandler.handleError(error, {
+												operation: 'resend-code',
+												component: 'UnifiedMFARegistrationFlowV8',
 											});
-											logger.error(
-												'UnifiedMFARegistrationFlowV8',
-												'Resend error',
-												undefined,
-												error instanceof Error ? error : new Error(String(error))
-											);
 										}
 									}}
 									style={{
@@ -2268,30 +2212,10 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					}
 				}
 			} catch (error) {
-				logger.error(
-					'UnifiedMFARegistrationFlowV8',
-					'Registration failed',
-					undefined,
-					error instanceof Error ? error : new Error(String(error))
-				);
-				const errorMessage = error instanceof Error ? error.message : 'Device registration failed';
-
-				// Check if error is due to too many devices
-				if (errorMessage.includes('Too many devices')) {
-					modernMessaging.showBanner({
-						type: 'error',
-						title: 'Error',
-						message: `${errorMessage}\n\nℹ️ You can manage your devices at:\nhttps://localhost:3000/v8/delete-all-devices`,
-						dismissible: true,
-					});
-				} else {
-					modernMessaging.showBanner({
-						type: 'error',
-						title: 'Error',
-						message: errorMessage,
-						dismissible: true,
-					});
-				}
+				UnifiedFlowErrorHandler.handleError(error, {
+					operation: 'register-device',
+					component: 'UnifiedMFARegistrationFlowV8',
+				});
 			} finally {
 				props.setIsLoading(false);
 			}

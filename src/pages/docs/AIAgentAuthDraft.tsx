@@ -603,11 +603,11 @@ const AIAgentAuthDraft: React.FC = () => {
 						<SpecList>
 							<li>
 								<ExternalLink
-									href="https://modelcontextprotocol.io/specification"
+									href="https://modelcontextprotocol.io/specification/2025-11-25"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									Model Context Protocol (MCP)
+									Model Context Protocol (MCP) 2025-11-25
 								</ExternalLink>
 							</li>
 						</SpecList>

@@ -31,6 +31,62 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Introspect all three token types from agent (2026-03-14)
+
+- **What:** Test introspection from the agent for (1) worker token, (2) admin token, (3) user token. Side panel must provide a login form for user credentials so the user can get a user access token and then say "Introspect user token".
+- **Fix:** (1) **Backend:** Added `POST /api/mcp/user-token-via-login` — same redirectless + check-username-password + resume + token exchange as userinfo-via-login, but returns `{ access_token, expires_in }` only (no userinfo call). (2) **Side panel:** New "User login" tab with username/password; uses env/clientId/clientSecret from Configuration (worker or Authz OIDC client); calls user-token-via-login and stores token via `onUserTokenSet`. (3) **Agent:** State `userAccessToken` / `userAccessTokenExpiry`; `handleUserTokenSet` / `handleUserTokenClear`; when `isIntrospectUserTokenQuery(query)` and `userAccessToken` exist, pass `tokenToIntrospect: userAccessToken` to `callMcpQuery`. (4) **mcpQueryService:** `McpQueryOptions.tokenToIntrospect`; `isIntrospectUserTokenQuery(query)` for phrases like "introspect user token"; request body includes `tokenToIntrospect` when provided. (5) Help text updated to mention "Introspect user token" after User login.
+- **Files:** `server.js`, `src/components/AIAssistantSidePanel.tsx`, `src/components/AIAssistant.tsx`, `src/services/mcpQueryService.ts`, `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md`
+- **Regression check:** (1) Get worker token → "Introspect token" → worker token introspected. (2) Admin login (side panel) → "Introspect token" → admin token introspected. (3) User login tab (username/password) → Sign in → "Introspect user token" → user token introspected. Side panel shows User login form; no credentials stored in code.
+
+### AI Assistant: restore executed command to input box (2026-03-14)
+
+- **What:** After executing a command (MCP, Admin login, Live-off nudge, or Groq), put the executed command back into the prompt/input box so the user can see and modify it before re-running.
+- **Fix:** In handleSend, after each path completes (Admin login return, Live-off nudge return, MCP try/finally return, Groq setTimeout completion), call setInput(query) so the input box shows the command that was run.
+- **Files:** `src/components/AIAssistant.tsx`
+- **Regression check:** Send "list users" → after response, input box contains "list users". Send from a prompt chip → after response, input box contains that chip's text. User can edit and re-send.
+
+### Show user by username (2026-03-14)
+
+- **What:** "Show user curtis" (username) should be a valid command and find the user by username.
+- **Fix:** (1) **_extractUsernameForLookup:** Added explicit notEmailOrUuid check for all branches; added fallback pattern so any "user &lt;token&gt;" is treated as username. (2) **get_user (username branch):** When exactly one user is found by username, set `data` to the single user object (not array) and summary to "Found user: X (id)."; when zero, data null and "No user found with username ...".
+- **Files:** `server.js`
+- **Regression check:** "Show user curtis" and "get user curtis" return the user when username exists; "find user john@acme.com" still finds by email; single-user response is one object.
+
+### Create user validation errors + PingOne error details (2026-03-14)
+
+- **What:** "Create user john@acme.com" returned 500 with "One or more validation errors were in the request" and no detail. Create user body might not match PingOne schema in some environments.
+- **Fix:** (1) **mcpCallPingOne:** When PingOne returns a non-ok response, append `err.details` to the thrown error message (array or object) so validation errors (field, message, reason) are visible in the MCP answer. (2) **create_user:** Build minimal compliant body: username (email), email, name.given (capitalized local part), name.family ('User'), population.id. Ensures name.given and name.family are non-empty and distinct.
+- **Files:** `server.js`
+- **Regression check:** Create user with valid email; if PingOne returns validation errors, the answer should now include the details. List users / other MCP calls unchanged.
+
+### Get userinfo → OIDC UserInfo, not Management API get user (2026-03-14)
+
+- **What:** "Get userinfo" was matching get_user (Management API user lookup) instead of the OIDC UserInfo endpoint (auth.pingone.com/…/as/userinfo) because `get\s+user` matched the substring "Get user" in "Get userinfo".
+- **Fix:** (1) **server.js:** Moved userinfo intent before get_user in MCP_INTENTS; added patterns for userinfo: `userinfo|get\s+userinfo|\buser\s+info\b|...`. Tightened get_user so it does not match userinfo: `get\s+user(?!info)`, `show\s+user(?!info)`; removed `user\s+info` from get_user. Removed duplicate userinfo block from OIDC section. (2) **mcpQueryService.ts (src + AIAssistant):** Added userinfo pattern before get_user; get_user pattern uses `get\s+user(?!info)|...` and no longer includes `user\s+info`. (3) get_user error example no longer mentions "Get userinfo use curtis for username".
+- **Files:** `server.js`, `src/services/mcpQueryService.ts`, `AIAssistant/src/services/mcpQueryService.ts`
+- **Regression check:** Say "Get userinfo" → MCP tool shown is pingone_userinfo, GET auth.pingone.com/…/as/userinfo (OIDC). Say "Find user john@acme.com" → pingone_get_user, Management API users filter.
+
+### MCP Introspect token: use worker or admin token (2026-03-14)
+
+- **What:** "Introspect token" in the AI Assistant should use an available token (worker, admin, or optional tokenToIntrospect) instead of only returning a message to use the Token Tools page.
+- **Fix:** In server.js, for `introspect_token` intent: resolve token to introspect from `req.body.tokenToIntrospect || token` (token = worker token sent in request; frontend sends admin token as workerToken when using Admin login). Require envId and _mcpReadCredentials() (clientId, clientSecret) for the introspection endpoint. Call PingOne `POST {authHost}/{envId}/as/introspect` with token, client_id, client_secret; return active/inactive and claims (sub, scope, exp) in the answer. If no token available, ask user to run "Get worker token" or "Admin login" first. If credentials missing, ask to configure worker token in Configuration.
+- **Files:** `server.js`
+- **Regression check:** Get worker token, then say "Introspect token" → response shows token active and claims. With Admin login, say "Introspect token" → introspects admin token. Without token → message to get worker token or Admin login.
+
+### AI Assistant "Admin login" command + ROPC (2026-03-14)
+
+- **What:** User can say **"Admin login"** (or "Login as admin") to open a username/password-only form in the side panel, or be told to configure worker token first. Submitting logs in via ROPC and the agent uses that token for admin/MCP calls (e.g. "list all users").
+- **Fix:** (1) **mcpQueryService:** New high-priority pattern for `admin_login`; added `isAdminLoginQuery()`. (2) **AIAssistant:** When `isAdminLoginQuery(query)` — if worker-token config (env, clientId, clientSecret) exists: set `useAdminLogin`, open side panel, set `adminLoginUsernamePasswordOnly`; else show message to configure PingOne OIDC client credentials in Configuration first. Clear `adminLoginUsernamePasswordOnly` when panel closes. (3) **AIAssistantSidePanel:** Prop `adminLoginUsernamePasswordOnly`; when true, Admin tab shows only Username/Password (credentials from config), "Sign in" calls `/api/token-exchange` with `grant_type=password` (ROPC). (4) **server.js:** `/api/token-exchange` supports `grant_type=password`: validate username/password, build body with grant_type, client_id, username, password, scope; client_secret appended by existing client_secret_post handling.
+- **Files:** `src/services/mcpQueryService.ts`, `src/components/AIAssistant.tsx`, `src/components/AIAssistantSidePanel.tsx`, `server.js`
+- **Regression check:** Say "Admin login" with no config → message to configure worker token. Configure worker token (app with ROPC + Management scopes), say "Admin login" → panel opens to Admin tab with only username/password; sign in → "Logged in as Admin"; "list all users" uses admin token. Sign Out / close panel → next "Admin login" or manual Admin tab shows expected form.
+
+### AI Assistant Admin Login (client credentials) (2026-03-14)
+
+- **What:** Implemented Admin Login per `docs/AI_ASSISTANT_ADMIN_LOGIN_PLAN.md` — second auth source for MCP/PingOne API calls alongside Worker Token.
+- **Fix:** (1) **Side panel:** New "Admin" tab with form (Environment ID, Client ID, Client Secret, "Use from Configuration" checkbox). "Get token" calls existing `/api/token-exchange` with `grant_type=client_credentials` and Management API scope; on success stores token and env in parent state. "Sign Out" clears admin token. (2) **AIAssistant:** State for `adminToken`, `adminTokenExpiry`, `adminEnvironmentId`; callbacks `handleAdminTokenSet` / `handleAdminTokenClear` passed to side panel. (3) **MCP calls:** When admin token is set and not expired (with 60s buffer), `callMcpQuery` uses admin token and admin env; else uses worker token from Configuration. No backend change — token-exchange already supports client_credentials.
+- **Files:** `src/components/AIAssistantSidePanel.tsx`, `src/components/AIAssistant.tsx`
+- **Regression check:** Worker token flow unchanged (Get worker token, List users, etc. without Admin). Open side panel → Admin tab → enter Admin app credentials → Get token → "Logged in as Admin" → List users uses admin token; Sign Out → next MCP call uses worker token or prompts.
+
 ### Unified MFA Test Plan + test:unified-mfa script (2026-03-13)
 
 - **What:** Documented automated test plan for Unified MFA (like UNIFIED_OAUTH_TEST_PLAN) and added a single-command script to run MFA-focused tests.

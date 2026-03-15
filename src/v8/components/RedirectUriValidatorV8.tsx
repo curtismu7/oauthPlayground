@@ -11,6 +11,7 @@
 
 import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiAlertTriangle, FiCheck, FiX } from '../../icons';
 
 const _MODULE_TAG = '[🔗 REDIRECT-URI-VALIDATOR-V8]';
@@ -77,12 +78,10 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 
 			// Clear copied state after 2 seconds
 			setTimeout(() => setCopiedUri(null), 2000);
-		} catch (_error) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to copy URI to clipboard',
-				dismissible: true,
+		} catch (error) {
+			UnifiedFlowErrorHandler.handleError(error, {
+				operation: 'copy-uri-to-clipboard',
+				component: _MODULE_TAG,
 			});
 		}
 	};

@@ -191,8 +191,8 @@ const UseCaseCard = styled(Card)`
 // Layout components at module scope — styled-components v6 calls useContext
 // internally when creating styled components; must not run inside a component.
 const pageConfig = {
-	flowType: 'documentation' as const,
-	theme: 'blue' as const,
+	flowType: 'pingone' as const,
+	theme: 'red' as const,
 	maxWidth: '1400px',
 	showHeader: false, // We handle the header manually with FlowHeader
 	showFooter: false,
@@ -215,7 +215,7 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 				<FlowHeader
 					flowId="ciba-vs-device-authz"
 					customConfig={{
-						flowType: 'documentation',
+						flowType: 'pingone',
 						title: 'CIBA vs Device Authorization Guide',
 						subtitle:
 							'Understanding when to use Client-Initiated Backchannel Authentication (CIBA) versus Device Authorization Grant, with comprehensive examples and use cases.',
@@ -254,7 +254,7 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 
 				<CollapsibleHeader
 					title="Quick Comparison Table"
-					theme="blue"
+					theme="ping"
 					icon={<span>⚙️</span>}
 					defaultCollapsed={false}
 				>
@@ -444,7 +444,7 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 
 				<CollapsibleHeader
 					title="CIBA Flow Example"
-					theme="purple"
+					theme="ping"
 					icon={<span>📱</span>}
 					defaultCollapsed={false}
 				>
@@ -663,7 +663,7 @@ auth_req_id=550e8400-e29b-41d4-a716-446655440000`}</CodeBlock>
 
 				<CollapsibleHeader
 					title="Device Authorization Flow Example"
-					theme="blue"
+					theme="ping"
 					icon={<span>🖥️</span>}
 					defaultCollapsed={false}
 				>
@@ -916,7 +916,7 @@ client_id=your_client_id`}</CodeBlock>
 
 				<CollapsibleHeader
 					title="When to Use Which?"
-					theme="green"
+					theme="ping"
 					icon={<span>📖</span>}
 					defaultCollapsed={false}
 				>
@@ -1043,7 +1043,7 @@ client_id=your_client_id`}</CodeBlock>
 
 				<CollapsibleHeader
 					title="Complete Code Examples"
-					theme="orange"
+					theme="ping"
 					icon={<i className="bi bi-question-circle"></i>}
 					defaultCollapsed={true}
 				>
@@ -1350,7 +1350,7 @@ function sleep(ms) {
 
 				<CollapsibleHeader
 					title="Summary & Recommendations"
-					theme="highlight"
+					theme="ping"
 					icon={<span>✅</span>}
 					defaultCollapsed={false}
 				>

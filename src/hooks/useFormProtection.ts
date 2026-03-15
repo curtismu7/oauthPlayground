@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { protectFormFromExtensions, type FormProtectionOptions } from '../utils/formProtection';
+import { type FormProtectionOptions, protectFormFromExtensions } from '../utils/formProtection';
 
 /**
  * React hook to protect forms from browser extension interference
@@ -30,10 +30,7 @@ export const useInputProtection = (
 		const input = inputRef.current;
 		if (!input) return;
 
-		const {
-			disableAutofill = true,
-			disableAutocomplete = true,
-		} = options;
+		const { disableAutofill = true, disableAutocomplete = true } = options;
 
 		// Apply protection attributes
 		if (disableAutocomplete) {
