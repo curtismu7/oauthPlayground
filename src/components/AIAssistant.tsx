@@ -3833,13 +3833,18 @@ const ConfirmButton = styled.button<{ $primary?: boolean }>`
 // ─── Prompts Guide Panel ─────────────────────────────────────────────────────
 
 const PromptsGuidePanel = styled.div`
-	flex-shrink: 0;
+	position: absolute;
+	bottom: 76px; /* above InputContainer */
+	top: 40px; /* below ChatHeader */
+	left: 0;
+	right: 0;
 	background: white;
 	border-top: 1px solid #e0e0e0;
-	box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
 	display: flex;
 	flex-direction: column;
-	max-height: 360px;
+	z-index: 5;
+	overflow: hidden;
 `;
 
 const PromptsGuideHeader = styled.div`
@@ -3878,6 +3883,8 @@ const PromptsGuideSubtitle = styled.div`
 `;
 
 const PromptsGuideScroll = styled.div`
+	flex: 1;
+	min-height: 0;
 	overflow-y: auto;
 	padding: 0 16px 12px;
 	display: flex;
