@@ -772,20 +772,46 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 
 			if (isShowMyTokenQuery(query)) {
 				const msg = (() => {
-					if (!userAccessToken) {
-						return 'No user access token stored yet. Log in using **Admin login** or say **"Introspect user token"** to open the User login panel.';
+					if (userAccessToken) {
+						const header = decodeJwtHeader(userAccessToken);
+						const payload = decodeJwtPayload(userAccessToken);
+						const parts: string[] = [
+							`## 🔑 User Access Token\n\n\`\`\`\n${userAccessToken}\n\`\`\``,
+						];
+						if (header)
+							parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+						if (payload)
+							parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+						parts.push(
+							'\n> ⚠️ **Educational only** — never store tokens in browser storage in production.'
+						);
+						return parts.join('\n\n');
 					}
-					const header = decodeJwtHeader(userAccessToken);
-					const payload = decodeJwtPayload(userAccessToken);
-					const parts: string[] = [`## 🔑 User Access Token\n\n\`\`\`\n${userAccessToken}\n\`\`\``];
-					if (header)
-						parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
-					if (payload)
-						parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
-					parts.push(
-						'\n> ⚠️ **Educational only** — never store tokens in browser storage in production.'
-					);
-					return parts.join('\n\n');
+					// No user token — fall back to worker/admin token if available
+					const useAdminTok =
+						useAdminLogin &&
+						!!adminToken &&
+						adminTokenExpiry != null &&
+						Date.now() < adminTokenExpiry - ADMIN_TOKEN_BUFFER_MS;
+					const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+					const fallbackToken = useAdminTok ? adminToken : (tokenData?.token ?? null);
+					const label = useAdminTok ? 'Admin Token' : 'Worker Token';
+					if (fallbackToken) {
+						const header = decodeJwtHeader(fallbackToken);
+						const payload = decodeJwtPayload(fallbackToken);
+						const parts: string[] = [
+							`## 🔐 ${label}\n_(No user access token — showing ${label.toLowerCase()} instead)_\n\n\`\`\`\n${fallbackToken}\n\`\`\``,
+						];
+						if (header)
+							parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
+						if (payload)
+							parts.push(`### Claims\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\``);
+						parts.push(
+							'\n> ⚠️ **Educational only** — worker tokens are high-privilege. Never reveal them in production UIs.'
+						);
+						return parts.join('\n\n');
+					}
+					return 'No token stored yet. Say **"Get worker token"** to request one, or say **"Introspect user token"** to log in as a user.';
 				})();
 				setMessages((prev) => [
 					...prev,

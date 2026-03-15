@@ -79,15 +79,28 @@ export class PingOneLoginService {
 				let validationHint = '';
 				try {
 					const errorData = (await response.json()) as Record<string, unknown>;
+					// The proxy wraps PingOne errors: { error_description, details: <PingOne body> }
+					// Surface the deepest available message so the PingOne error is visible.
+					const pingOneDetails = errorData.details as Record<string, unknown> | undefined;
+					const pingOneMsg = pingOneDetails
+						? String(
+								pingOneDetails.message ||
+									pingOneDetails.error_description ||
+									pingOneDetails.error ||
+									''
+							) || JSON.stringify(pingOneDetails)
+						: '';
 					errorDetails =
-						String(errorData.error_description) ||
-						String(errorData.message || '') ||
+						pingOneMsg ||
+						(errorData.error_description !== undefined
+							? String(errorData.error_description)
+							: '') ||
+						(errorData.message !== undefined ? String(errorData.message) : '') ||
 						JSON.stringify(errorData);
-					logger.error(MODULE_TAG, 'Server error details:', { errorData });
-					// PingOne 400 often means app config issue — pi.flow is response_mode, not redirect URI
-					if (response.status === 400 && /validation|invalid|redirect/i.test(errorDetails)) {
+					logger.error(MODULE_TAG, 'PingOne error response:', errorData);
+					if (response.status === 400) {
 						validationHint =
-							' Ensure your OAuth app (not Worker) supports response_mode=pi.flow and Authorization Code flow. See https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html';
+							' — Ensure the OAuth app (not Worker) has Authorization Code grant enabled. For pi.flow, no redirect_uri is required. See https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html';
 					}
 				} catch (_e) {
 					try {
@@ -96,9 +109,7 @@ export class PingOneLoginService {
 						errorDetails = 'Unable to read error details';
 					}
 				}
-				throw new Error(
-					`Proxy API error: ${response.status} ${response.statusText} - ${errorDetails}${validationHint}`
-				);
+				throw new Error(`PingOne ${response.status}: ${errorDetails}${validationHint}`);
 			}
 
 			const result = await response.json();
@@ -121,7 +132,7 @@ export class PingOneLoginService {
 				clientId,
 				redirectUri: '',
 				sessionId,
-				state: nonce,
+				state: undefined,
 				resumeUrl:
 					resumeUrl || `https://auth.pingone.com/${environmentId}/as/resume?flowId=${flowId}`,
 			});
