@@ -127,7 +127,6 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 			<SidePanelHeader
 				$draggable={!embedded}
 				onMouseDown={embedded ? undefined : handleHeaderMouseDown}
-				style={embedded ? undefined : { cursor: 'grab' }}
 			>
 				<SidePanelTitle>Tools & Resources</SidePanelTitle>
 				<SidePanelHeaderActions>
@@ -210,7 +209,6 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 				$y={position.y}
 				$width={PANEL_WIDTH}
 				onClick={(e) => e.stopPropagation()}
-				style={isDragging ? { cursor: 'grabbing' } : undefined}
 			>
 				{content}
 			</DraggablePanel>
@@ -962,6 +960,8 @@ const DraggablePanel = styled.div<{ $x: number; $y: number; $width: number }>`
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
+	/* Override parent overlay pointer-events:none so the panel stays interactive */
+	pointer-events: auto;
 `;
 
 const SidePanelContainer = styled.div<{ $embedded?: boolean }>`
@@ -983,6 +983,11 @@ const SidePanelHeader = styled.div<{ $draggable?: boolean }>`
 	justify-content: space-between;
 	gap: 12px;
 	user-select: ${({ $draggable }) => ($draggable ? 'none' : 'auto')};
+	cursor: ${({ $draggable }) => ($draggable ? 'grab' : 'auto')};
+
+	&:active {
+		cursor: ${({ $draggable }) => ($draggable ? 'grabbing' : 'auto')};
+	}
 `;
 
 const SidePanelTitle = styled.div`
