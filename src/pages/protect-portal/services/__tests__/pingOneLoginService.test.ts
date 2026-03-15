@@ -123,7 +123,7 @@ beforeEach(() => {
 });
 
 describe('PingOneLoginService.initializeEmbeddedLogin', () => {
-	it('calls /api/pingone/redirectless/authorize with response_type=token id_token', async () => {
+	it('calls /api/pingone/redirectless/authorize with response_type=code (Authorization Code + PKCE)', async () => {
 		mockAuthorizeSuccess();
 
 		const result = await PingOneLoginService.initializeEmbeddedLogin(ENV_ID, CLIENT_ID, undefined, [
@@ -135,21 +135,28 @@ describe('PingOneLoginService.initializeEmbeddedLogin', () => {
 		expect(result.success).toBe(true);
 		expect(result.data?.flowId).toBe(FLOW_ID);
 		expect(result.data?.sessionId).toBe(SESSION_ID);
+		// codeVerifier should be returned so the caller can pass it to resumeFlow if needed
+		expect(result.data?.codeVerifier).toBeTruthy();
 
 		const [url, opts] = mockFetch.mock.calls[0];
 		expect(url).toContain('/api/pingone/redirectless/authorize');
 		const body = JSON.parse(opts.body);
-		expect(body.response_type).toBe('token id_token');
+		expect(body.response_type).toBe('code');
 		expect(body.environmentId).toBe(ENV_ID);
 		expect(body.clientId).toBe(CLIENT_ID);
 	});
 
-	it('does NOT include code_challenge or code_verifier (no PKCE for token flow)', async () => {
+	it('includes PKCE code_challenge (S256) and does NOT include nonce', async () => {
 		mockAuthorizeSuccess();
 		await PingOneLoginService.initializeEmbeddedLogin(ENV_ID, CLIENT_ID);
 		const body = JSON.parse(mockFetch.mock.calls[0][1].body);
-		expect(body.code_challenge).toBeUndefined();
-		expect(body.code_verifier).toBeUndefined();
+		// PKCE verifier is generated internally; challenge goes in the request
+		expect(body.codeChallenge).toBeTruthy();
+		expect(body.codeChallengeMethod).toBe('S256');
+		// nonce is not used in Authorization Code flow
+		expect(body.nonce).toBeUndefined();
+		// code_verifier stays client-side — never sent in the authorize request
+		expect(body.codeVerifier).toBeUndefined();
 	});
 
 	it('includes region when provided', async () => {
@@ -249,5 +256,64 @@ describe('PingOneLoginService.resumeFlow — token extraction', () => {
 		const result = await PingOneLoginService.resumeFlow('non-existent-flow-id');
 		expect(result.success).toBe(false);
 		expect(result.error?.message).toMatch(/Flow parameters not found/i);
+	});
+
+	it('exchanges authorization code for tokens when resume returns { code } (PKCE code flow)', async () => {
+		await seedFlowParams();
+
+		// Step 3: resume → returns authorization code
+		mockFetch.mockResolvedValueOnce({
+			ok: true,
+			status: 200,
+			json: () => Promise.resolve({ code: 'auth-code-xyz-123', state: 'pi-flow-state' }),
+		});
+
+		// Step 4: token exchange → returns tokens
+		mockFetch.mockResolvedValueOnce({
+			ok: true,
+			status: 200,
+			json: () =>
+				Promise.resolve({
+					access_token: 'exchanged_access_token_pkce',
+					id_token: 'exchanged_id_token_pkce',
+					token_type: 'Bearer',
+					expires_in: 3600,
+					scope: 'openid profile email',
+				}),
+		});
+
+		const result = await PingOneLoginService.resumeFlow(FLOW_ID, 'client-secret-xyz');
+
+		expect(result.success).toBe(true);
+		expect(result.data?.access_token).toBe('exchanged_access_token_pkce');
+		expect(result.data?.id_token).toBe('exchanged_id_token_pkce');
+
+		// Verify the token exchange call included the code and code_verifier
+		const tokenExchangeCall = mockFetch.mock.calls[mockFetch.mock.calls.length - 1];
+		const exchangeBody = JSON.parse(tokenExchangeCall[1].body);
+		expect(exchangeBody.code).toBe('auth-code-xyz-123');
+		expect(exchangeBody.code_verifier).toBeTruthy();
+		expect(exchangeBody.grant_type).toBe('authorization_code');
+		expect(exchangeBody.client_secret).toBe('client-secret-xyz');
+	});
+
+	it('returns failure when code exchange fails', async () => {
+		await seedFlowParams();
+
+		// Resume returns authorization code
+		mockFetch.mockResolvedValueOnce({
+			ok: true,
+			status: 200,
+			json: () => Promise.resolve({ code: 'auth-code-xyz-123' }),
+		});
+		// Token exchange fails
+		mockFetch.mockResolvedValueOnce({
+			ok: false,
+			status: 400,
+			json: () => Promise.resolve({ error: 'invalid_grant', error_description: 'Code expired' }),
+		});
+
+		const result = await PingOneLoginService.resumeFlow(FLOW_ID, 'client-secret-xyz');
+		expect(result.success).toBe(false);
 	});
 });

@@ -9082,7 +9082,7 @@ app.post('/api/mcp/user-token-via-login', async (req, res) => {
 		const { codeVerifier, codeChallenge } = generatePkce();
 		const state = `user-token-login-${Date.now()}`;
 
-		const authRes = await fetch(`${baseUrl}/api/pingone/redirectless/authorize`, {
+		const authRes = await global.fetch(`${baseUrl}/api/pingone/redirectless/authorize`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -9123,7 +9123,7 @@ app.post('/api/mcp/user-token-via-login', async (req, res) => {
 		})();
 		const flowUrl = `https://${authDomain}/${environmentId}/flows/${flowId}`;
 
-		const checkRes = await fetch(`${baseUrl}/api/pingone/flows/check-username-password`, {
+		const checkRes = await global.fetch(`${baseUrl}/api/pingone/flows/check-username-password`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -9145,7 +9145,7 @@ app.post('/api/mcp/user-token-via-login', async (req, res) => {
 			});
 		}
 
-		const resumeRes = await fetch(`${baseUrl}/api/pingone/resume`, {
+		const resumeRes = await global.fetch(`${baseUrl}/api/pingone/resume`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -9187,7 +9187,7 @@ app.post('/api/mcp/user-token-via-login', async (req, res) => {
 			client_id: clientId,
 			client_secret: clientSecret,
 		});
-		const tokenRes = await fetch(tokenUrl, {
+		const tokenRes = await global.fetch(tokenUrl, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
 			body: tokenBody.toString(),
