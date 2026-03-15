@@ -65,6 +65,14 @@ export interface UnifiedWorkerTokenCredentials {
 	keyRotationPolicyId?: string;
 	useKeyRotationPolicy?: boolean;
 
+	// Authorization Code (OIDC) client — separate from the Worker (client_credentials) client.
+	// Required for user login via Authorization Code + PKCE + response_mode=pi.flow.
+	// The Worker client CANNOT do user login; it only supports client_credentials.
+	// Future banking demo: set authzScopes to ['openid','profile','transfer:funds','account:read']
+	authzClientId?: string;       // Client ID of the OIDC Authorization Code app in PingOne
+	authzClientSecret?: string;   // Client secret — leave empty for public/PKCE-only clients
+	authzScopes?: string[];       // Requested scopes for user login (default: openid profile email)
+
 	// Legacy compatibility fields
 	grant_type?: string;
 	tokenEndpoint?: string;
@@ -351,6 +359,12 @@ class UnifiedWorkerTokenService {
 				tokenEndpointAuthMethod: (c.tokenEndpointAuthMethod || c.clientAuthMethod) as
 					| UnifiedWorkerTokenCredentials['tokenEndpointAuthMethod']
 					| undefined,
+				// Authorization Code (OIDC) client — separate from Worker
+				authzClientId: (c.authzClientId as string) || undefined,
+				authzClientSecret: (c.authzClientSecret as string) || undefined,
+				authzScopes: c.authzScopes
+					? String(c.authzScopes).split(/\s+/).filter(Boolean)
+					: undefined,
 			};
 			return credentials;
 		} catch (error) {
@@ -409,6 +423,10 @@ class UnifiedWorkerTokenService {
 					issuerUrl: null,
 					redirectUri: null,
 					clientAuthMethod: credentials.tokenEndpointAuthMethod ?? null,
+					// Authorization Code (OIDC) client fields
+					authzClientId: credentials.authzClientId ?? null,
+					authzClientSecret: credentials.authzClientSecret ?? null,
+					authzScopes: Array.isArray(credentials.authzScopes) ? credentials.authzScopes.join(' ') : null,
 				},
 				timestamp: new Date().toISOString(),
 			};
