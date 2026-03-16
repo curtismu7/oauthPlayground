@@ -111,31 +111,32 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 // Source: git log (1 days → 1 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
-  {
-    "id": "git-2026-03-15-code-cleanup",
-    "date": "2026-03-15",
-    "duration": 12,
-    "category": {
-      "id": "code-cleanup",
-      "name": "Code Cleanup",
-      "color": "#FFC107",
-      "icon": "🧹",
-      "description": "Code Cleanup"
-    },
-    "description": "26 commits: show username/password fields in admin quick-login mode (ROPC); pre-fill authzClientId instead of worker clientId in P1 Login tab …",
-    "filesModified": 80,
-    "linesOfCode": 14599,
-    "issuesResolved": 182,
-    "documentation": [],
-    "achievements": [
-      "show username/password fields in admin quick-login mode (ROPC)",
-      "pre-fill authzClientId instead of worker clientId in P1 Login tab",
-      "prevent list_users from matching 'List MFA devices for user X'",
-      "add set-user-population command with auto name→ID resolution",
-      "auto-resolve usernames/emails/group-names to IDs in all API commands"
-    ],
-    "version": "9.16.5"
-  }
+	{
+		id: 'git-2026-03-15-code-cleanup',
+		date: '2026-03-15',
+		duration: 12,
+		category: {
+			id: 'code-cleanup',
+			name: 'Code Cleanup',
+			color: '#FFC107',
+			icon: '🧹',
+			description: 'Code Cleanup',
+		},
+		description:
+			'26 commits: show username/password fields in admin quick-login mode (ROPC); pre-fill authzClientId instead of worker clientId in P1 Login tab …',
+		filesModified: 80,
+		linesOfCode: 14599,
+		issuesResolved: 182,
+		documentation: [],
+		achievements: [
+			'show username/password fields in admin quick-login mode (ROPC)',
+			'pre-fill authzClientId instead of worker clientId in P1 Login tab',
+			"prevent list_users from matching 'List MFA devices for user X'",
+			'add set-user-population command with auto name→ID resolution',
+			'auto-resolve usernames/emails/group-names to IDs in all API commands',
+		],
+		version: '9.16.5',
+	},
 ];
 
 // ─── END AUTO-GENERATED sessions ───
