@@ -12,6 +12,15 @@ import SidebarMenuPing from './SidebarMenuPing';
 import SidebarSearch from './SidebarSearch';
 import { VersionBadge } from './VersionBadge';
 import '../styles/sidebar-ping-theme.css';
+import '../styles/sidebar-ping-admin-theme.css';
+
+// 'classic' = original theme, 'admin' = PingOne console style
+const SIDEBAR_THEME_KEY = 'sidebar.theme';
+type SidebarTheme = 'classic' | 'admin';
+function getSavedTheme(): SidebarTheme {
+	const v = localStorage.getItem(SIDEBAR_THEME_KEY) as SidebarTheme | null;
+	return v === 'classic' || v === 'admin' ? v : 'admin';
+}
 
 // App version from package.json
 const APP_VERSION = '9.11.76';
@@ -178,6 +187,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [matchAnywhere, setMatchAnywhere] = useState(false);
 
+	// Sidebar visual theme
+	const [sidebarTheme, setSidebarTheme] = useState<SidebarTheme>(getSavedTheme);
+	const toggleTheme = () => {
+		const next: SidebarTheme = sidebarTheme === 'admin' ? 'classic' : 'admin';
+		localStorage.setItem(SIDEBAR_THEME_KEY, next);
+		setSidebarTheme(next);
+	};
+
 	// Drag and drop mode
 	const [isDragDropMode, setIsDragDropMode] = useState(() => {
 		const saved = localStorage.getItem('sidebar.dragDropMode');
@@ -236,7 +253,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	if (!isOpen) return null;
 
 	const width = sidebarWidth;
-	const containerClass = USE_PING_MENU ? 'sidebar--ping' : '';
+	const isAdmin = USE_PING_MENU && sidebarTheme === 'admin';
+	const containerClass = USE_PING_MENU
+		? isAdmin
+			? 'sidebar--ping sidebar--ping-admin'
+			: 'sidebar--ping'
+		: '';
 	const minW = USE_PING_MENU ? SIDEBAR_PING_MIN_WIDTH : 300;
 	const maxW = USE_PING_MENU ? SIDEBAR_PING_MAX_WIDTH : 600;
 
@@ -249,79 +271,208 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			style={{
 				userSelect: isResizing ? 'none' : 'auto',
 				transition: isResizing ? 'none' : 'width 0.2s ease',
+				background: isAdmin ? '#1b2a3b' : undefined,
 			}}
 		>
 			<ResizeHandle onMouseDown={handleResizeStart} title="Drag to resize sidebar" />
 
-			<SidebarHeader>
-				<div
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-						marginBottom: USE_PING_MENU ? 0 : '16px',
-					}}
-				>
-					<h2
+			{isAdmin ? (
+				/* ── PingOne console-style header ── */
+				<>
+					<div className="sidebar-ping-admin__header">
+						<div className="sidebar-ping-admin__logo">
+							<div
+								className="sidebar-ping-admin__logo-icon"
+								aria-hidden
+								style={{
+									background: 'white',
+									borderRadius: 3,
+									width: 22,
+									height: 22,
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									flexShrink: 0,
+								}}
+							>
+								<svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none">
+									<rect width="14" height="14" rx="2" fill="#1b2a3b" />
+									<circle cx="7" cy="7" r="3.5" fill="white" />
+								</svg>
+							</div>
+							<span style={{ color: 'white', fontWeight: 700, fontSize: '1rem' }}>
+								MasterFlow API
+							</span>
+						</div>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+							<button
+								type="button"
+								onClick={toggleTheme}
+								title="Switch to classic theme"
+								className="sidebar-ping-admin__close-btn"
+								style={{ padding: 4 }}
+							>
+								<svg
+									aria-hidden="true"
+									width="14"
+									height="14"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="2"
+								>
+									<circle cx="12" cy="12" r="5" />
+									<path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+								</svg>
+							</button>
+							<CloseButton
+								onClick={onClose}
+								title="Close sidebar"
+								style={{
+									background: 'transparent',
+									border: 'none',
+									color: '#7a93ab',
+									width: 28,
+									height: 28,
+								}}
+							>
+								<svg
+									aria-hidden="true"
+									width="14"
+									height="14"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="2"
+								>
+									<path d="M18 6L6 18M6 6l12 12" />
+								</svg>
+							</CloseButton>
+						</div>
+					</div>
+					<div className="sidebar-ping-admin__controls">
+						<SidebarSearch
+							onSearch={handleSearch}
+							placeholder="Search flows and pages..."
+							activeSearchQuery={searchQuery}
+						/>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+							<button
+								type="button"
+								className={`sidebar-ping-admin__reorder-btn${isDragDropMode ? ' sidebar-ping-admin__reorder-btn--active' : ''}`}
+								onClick={toggleDragDropMode}
+								title={isDragDropMode ? 'Exit reorder mode' : 'Reorder menu items'}
+							>
+								<svg
+									aria-hidden="true"
+									width="12"
+									height="12"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="2"
+								>
+									<path d="M3 12h18M3 6h18M3 18h18" />
+								</svg>
+								{isDragDropMode ? 'Done' : 'Reorder'}
+							</button>
+						</div>
+					</div>
+				</>
+			) : (
+				/* ── Original / classic header ── */
+				<SidebarHeader>
+					<div
 						style={{
-							margin: 0,
-							fontSize: '1.25rem',
-							fontWeight: 'bold',
-							color: '#1f2937',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'space-between',
+							marginBottom: USE_PING_MENU ? 0 : '16px',
 						}}
 					>
-						PingOne MasterFlow API
-					</h2>
-					<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-						<VersionBadge version={APP_VERSION} variant="sidebar" />
-						<CloseButton onClick={onClose} title="Close sidebar">
-							<span style={{ fontSize: '20px' }}>❌</span>
-						</CloseButton>
-					</div>
-				</div>
-
-				{USE_PING_MENU ? (
-					<>
-						<SidebarSearch
-							onSearch={handleSearch}
-							placeholder="Search flows and pages..."
-							activeSearchQuery={searchQuery}
-						/>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '8px' }}>
-							<DragModeToggle
-								onClick={toggleDragDropMode}
-								title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop to reorder'}
-								$isActive={isDragDropMode}
-							>
-								<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
-								{isDragDropMode ? 'Drag mode' : 'Reorder'}
-							</DragModeToggle>
-						</div>
-					</>
-				) : (
-					<>
-						<SidebarSearch
-							onSearch={handleSearch}
-							placeholder="Search flows and pages..."
-							activeSearchQuery={searchQuery}
-							matchAnywhere={matchAnywhere}
-							onMatchAnywhereChange={setMatchAnywhere}
-						/>
-						<div
-							style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '12px' }}
+						<h2
+							style={{
+								margin: 0,
+								fontSize: '1.25rem',
+								fontWeight: 'bold',
+								color: '#1f2937',
+							}}
 						>
-							<DragModeToggle
-								onClick={toggleDragDropMode}
-								title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop mode'}
-								$isActive={isDragDropMode}
-							>
-								<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
-								{isDragDropMode ? 'Drag Mode' : 'Enable Drag'}
-							</DragModeToggle>
+							PingOne MasterFlow API
+						</h2>
+						<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+							<VersionBadge version={APP_VERSION} variant="sidebar" />
+							{USE_PING_MENU && (
+								<button
+									type="button"
+									onClick={toggleTheme}
+									title="Switch to PingOne console theme"
+									style={{
+										background: 'none',
+										border: '1px solid #e5e7eb',
+										borderRadius: 4,
+										padding: '3px 8px',
+										fontSize: '0.7rem',
+										cursor: 'pointer',
+										color: '#6b7280',
+									}}
+								>
+									🎨 Theme
+								</button>
+							)}
+							<CloseButton onClick={onClose} title="Close sidebar">
+								<span style={{ fontSize: '20px' }}>❌</span>
+							</CloseButton>
 						</div>
-					</>
-				)}
-			</SidebarHeader>
+					</div>
+
+					{USE_PING_MENU ? (
+						<>
+							<SidebarSearch
+								onSearch={handleSearch}
+								placeholder="Search flows and pages..."
+								activeSearchQuery={searchQuery}
+							/>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '8px' }}
+							>
+								<DragModeToggle
+									onClick={toggleDragDropMode}
+									title={
+										isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop to reorder'
+									}
+									$isActive={isDragDropMode}
+								>
+									<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
+									{isDragDropMode ? 'Drag mode' : 'Reorder'}
+								</DragModeToggle>
+							</div>
+						</>
+					) : (
+						<>
+							<SidebarSearch
+								onSearch={handleSearch}
+								placeholder="Search flows and pages..."
+								activeSearchQuery={searchQuery}
+								matchAnywhere={matchAnywhere}
+								onMatchAnywhereChange={setMatchAnywhere}
+							/>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '12px' }}
+							>
+								<DragModeToggle
+									onClick={toggleDragDropMode}
+									title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop mode'}
+									$isActive={isDragDropMode}
+								>
+									<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
+									{isDragDropMode ? 'Drag Mode' : 'Enable Drag'}
+								</DragModeToggle>
+							</div>
+						</>
+					)}
+				</SidebarHeader>
+			)}
 
 			<div
 				style={{
