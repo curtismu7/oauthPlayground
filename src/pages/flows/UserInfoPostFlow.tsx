@@ -166,13 +166,89 @@ const ErrorContainer = styled.div`
 	color: V9_COLORS.PRIMARY.RED_DARK;
 `;
 
-const InfoContainer = styled.div`
-	background: #dbeafe;
-	border: 1px solid #93c5fd;
-	border-radius: 0.375rem;
-	padding: 1rem;
+const TokenRequirementBanner = styled.div`
+	border-radius: 0.75rem;
+	overflow: hidden;
+	margin: 1.25rem 0;
+	border: 1px solid #e5e7eb;
+`;
+
+const TokenRequirementHeader = styled.div`
+	background: #1e3a5f;
+	color: white;
+	padding: 0.875rem 1.25rem;
+	font-weight: 700;
+	font-size: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+`;
+
+const TokenRequirementBody = styled.div`
+	background: #f0f7ff;
+	padding: 1.25rem;
+`;
+
+const TokenCompareGrid = styled.div`
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
 	margin: 1rem 0;
-	color: V9_COLORS.PRIMARY.BLUE_DARK;
+
+	@media (max-width: 640px) {
+		grid-template-columns: 1fr;
+	}
+`;
+
+const TokenCompareCard = styled.div<{ $type: 'no' | 'yes' }>`
+	border-radius: 0.5rem;
+	padding: 1rem;
+	border: 2px solid ${({ $type }) => ($type === 'yes' ? '#16a34a' : '#dc2626')};
+	background: ${({ $type }) => ($type === 'yes' ? '#f0fdf4' : '#fef2f2')};
+
+	h4 {
+		margin: 0 0 0.625rem 0;
+		font-size: 0.9rem;
+		font-weight: 700;
+		color: ${({ $type }) => ($type === 'yes' ? '#15803d' : '#b91c1c')};
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+	}
+
+	ul {
+		margin: 0;
+		padding-left: 1.25rem;
+		li {
+			font-size: 0.8rem;
+			color: #374151;
+			margin-bottom: 0.375rem;
+			line-height: 1.5;
+		}
+	}
+`;
+
+const HowToSteps = styled.ol`
+	margin: 0.75rem 0 0 0;
+	padding-left: 1.5rem;
+
+	li {
+		font-size: 0.875rem;
+		color: #1e3a5f;
+		margin-bottom: 0.625rem;
+		line-height: 1.6;
+
+		strong {
+			color: #1e40af;
+		}
+
+		a {
+			color: #2563eb;
+			text-decoration: underline;
+			font-weight: 600;
+			cursor: pointer;
+		}
+	}
 `;
 
 const UserInfoContainer = styled.div`
@@ -598,25 +674,142 @@ const retryUserInfoRequest = async (retryCount = 0) => {
 		<FlowContainer>
 			<FlowTitle>UserInfo POST Flow</FlowTitle>
 			<FlowDescription>
-				This flow demonstrates the UserInfo endpoint using POST requests. The UserInfo endpoint
-				allows clients to retrieve information about the authenticated user using their access
-				token.
+				Call the OIDC UserInfo endpoint to retrieve claims about a logged-in user. This requires a{' '}
+				<strong>user access token</strong> — obtained after a real user logs in — not a worker
+				(client credentials) token.
 			</FlowDescription>
 
-			<InfoContainer>
-				<h4> UserInfo POST Benefits</h4>
-				<p>
-					The UserInfo POST method allows for more complex requests with larger payloads, including
-					custom claims and additional parameters. It's particularly useful when you need to request
-					specific user information or when dealing with sensitive data that shouldn't be exposed in
-					URL parameters.
-				</p>
-			</InfoContainer>
+			{/* ─── Token requirement explanation ─── */}
+			<TokenRequirementBanner>
+				<TokenRequirementHeader>
+					<span>🔐</span> What token do I need?
+				</TokenRequirementHeader>
+				<TokenRequirementBody>
+					<p
+						style={{
+							margin: '0 0 0.75rem 0',
+							fontSize: '0.9rem',
+							color: '#1e3a5f',
+							lineHeight: 1.6,
+						}}
+					>
+						The{' '}
+						<code
+							style={{
+								background: '#dbeafe',
+								padding: '0 4px',
+								borderRadius: 3,
+								fontFamily: 'monospace',
+							}}
+						>
+							/userinfo
+						</code>{' '}
+						endpoint returns claims about the <strong>authenticated user</strong>. It needs an
+						access token that was issued during a user login — not a machine-to-machine worker
+						token.
+					</p>
+
+					<TokenCompareGrid>
+						<TokenCompareCard $type="no">
+							<h4>✗ Worker Token — will NOT work</h4>
+							<ul>
+								<li>
+									Obtained via <strong>Client Credentials</strong> grant
+								</li>
+								<li>
+									Represents the <em>application</em>, not a user
+								</li>
+								<li>
+									Has no <code>openid</code> scope or user context
+								</li>
+								<li>
+									PingOne returns <code>401 Unauthorized</code> or empty claims
+								</li>
+							</ul>
+						</TokenCompareCard>
+						<TokenCompareCard $type="yes">
+							<h4>✓ User Access Token — required</h4>
+							<ul>
+								<li>
+									Obtained via <strong>Authorization Code</strong> (or Implicit) flow
+								</li>
+								<li>A real user typed their username + password</li>
+								<li>
+									Must include <code>openid</code> scope (add <code>profile email</code> for more
+									claims)
+								</li>
+								<li>
+									Contains a <code>sub</code> claim identifying the user
+								</li>
+							</ul>
+						</TokenCompareCard>
+					</TokenCompareGrid>
+
+					<div
+						style={{
+							background: '#fffbeb',
+							border: '1px solid #fcd34d',
+							borderRadius: '0.5rem',
+							padding: '0.875rem 1rem',
+						}}
+					>
+						<strong style={{ fontSize: '0.875rem', color: '#92400e' }}>
+							🚀 How to get a user access token:
+						</strong>
+						<HowToSteps>
+							<li>
+								Go to the{' '}
+								<button
+									type="button"
+									onClick={() => {
+										window.location.href = '/flows/authorization-code';
+									}}
+									style={{
+										background: 'none',
+										border: 'none',
+										padding: 0,
+										cursor: 'pointer',
+										color: '#2563eb',
+										textDecoration: 'underline',
+										fontWeight: 600,
+										fontSize: 'inherit',
+									}}
+								>
+									Authorization Code Flow
+								</button>{' '}
+								(or any login flow) and complete a user login.
+							</li>
+							<li>
+								Make sure the scope includes <strong>openid</strong> (e.g.{' '}
+								<code
+									style={{
+										fontFamily: 'monospace',
+										background: '#fef9c3',
+										padding: '0 4px',
+										borderRadius: 2,
+									}}
+								>
+									openid profile email
+								</code>
+								).
+							</li>
+							<li>
+								After login succeeds, copy the <strong>Access Token</strong> from the token
+								response.
+							</li>
+							<li>
+								Paste it into the <strong>Access Token</strong> field below and run the flow.
+							</li>
+						</HowToSteps>
+					</div>
+				</TokenRequirementBody>
+			</TokenRequirementBanner>
 
 			<FormContainer>
 				<h3 style={{ marginTop: 0 }}>🔑 Worker Token & App Lookup</h3>
 				<p style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
-					Get a worker token and/or pick an app to fill credentials below without typing them in.
+					The worker token is used only to <strong>look up your App (Client ID)</strong> below. It
+					cannot be used as the UserInfo access token — see above for why.
 				</p>
 				<div style={{ marginBottom: '1rem' }}>
 					<button
