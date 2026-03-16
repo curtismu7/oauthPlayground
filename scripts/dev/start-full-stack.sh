@@ -18,8 +18,10 @@ NC='\033[0m' # No Color
 # Configuration
 FRONTEND_PORT=${FRONTEND_PORT:-3000}
 BACKEND_PORT=${BACKEND_PORT:-3001}
-FRONTEND_URL="http://localhost:${FRONTEND_PORT}"
-BACKEND_URL="https://localhost:${BACKEND_PORT}"
+FRONTEND_HOST=${FRONTEND_HOST:-api.pingdemo.com}
+BACKEND_HOST=${BACKEND_HOST:-api.pingdemo.com}
+FRONTEND_URL="https://${FRONTEND_HOST}:${FRONTEND_PORT}"
+BACKEND_URL="https://${BACKEND_HOST}:${BACKEND_PORT}"
 
 # PID files for process management
 FRONTEND_PID_FILE=".frontend.pid"
@@ -202,8 +204,8 @@ start_frontend() {
     local attempt=0
     
     while [ $attempt -lt $max_attempts ]; do
-        if curl -s "http://localhost:$FRONTEND_PORT" >/dev/null 2>&1; then
-            print_success "Frontend server started successfully on http://localhost:$FRONTEND_PORT"
+        if curl -sk "${FRONTEND_URL}" >/dev/null 2>&1; then
+            print_success "Frontend server started successfully on ${FRONTEND_URL}"
             return 0
         fi
         sleep 1
