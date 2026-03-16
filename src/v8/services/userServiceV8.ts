@@ -77,6 +77,17 @@ export class UserServiceV8 {
 		environmentId: string,
 		options: ListUsersOptions = {}
 	): Promise<ListUsersResult> {
+		if (!environmentId) {
+			logger.debug(`${MODULE_TAG} List users skipped (no environmentId)`);
+			return {
+				users: [],
+				count: 0,
+				totalCount: 0,
+				hasMore: false,
+				limit: options.limit ?? 10,
+				offset: options.offset ?? 0,
+			};
+		}
 		try {
 			const accessToken = await unifiedWorkerTokenService.getToken();
 			if (!accessToken) {
@@ -122,12 +133,13 @@ export class UserServiceV8 {
 			return data;
 		} catch (error) {
 			const msg = error instanceof Error ? error.message : String(error);
-			const isTokenUnavailable =
+			const isExpectedPrecondition =
 				msg.toLowerCase().includes('worker token') ||
-				msg.toLowerCase().includes('authenticate first');
-			if (isTokenUnavailable) {
-				// Expected precondition — UI shows "Worker token required"; avoid ERROR noise
-				logger.debug(`${MODULE_TAG} List users skipped (no token)`, { message: msg });
+				msg.toLowerCase().includes('authenticate first') ||
+				msg.toLowerCase().includes('missing required fields');
+			if (isExpectedPrecondition) {
+				// Expected precondition — UI shows inline prompt; avoid ERROR noise
+				logger.debug(`${MODULE_TAG} List users skipped`, { message: msg });
 			} else {
 				logger.error(`${MODULE_TAG} List users error`, error);
 			}

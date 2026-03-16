@@ -405,9 +405,35 @@ const PingOneLoginContent: React.FC = () => {
 								aria-label={showPingOnePassword ? 'Hide password' : 'Show password'}
 							>
 								{showPingOnePassword ? (
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										aria-hidden="true"
+									>
+										<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+										<circle cx="12" cy="12" r="3" />
+									</svg>
 								) : (
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										aria-hidden="true"
+									>
+										<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+										<line x1="1" y1="1" x2="23" y2="23" />
+									</svg>
 								)}
 							</button>
 						</div>
@@ -537,7 +563,7 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 	const [showAdminPassword, setShowAdminPassword] = useState(false);
 
 	const savedAdminCreds = unifiedWorkerTokenService.getTokenDataSync()?.credentials;
-	const hasAuthzClient = !!(savedAdminCreds?.authzClientId?.trim());
+	const hasAuthzClient = !!savedAdminCreds?.authzClientId?.trim();
 
 	if (usernamePasswordOnly) {
 		// PingOne does NOT support ROPC (grant_type=password).
@@ -631,90 +657,118 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 					</LoginCard>
 				) : (
 					<>
-					{!hasAuthzClient && (
-						<LoginCard style={{ borderColor: '#f59e0b', background: '#fffbeb', marginBottom: 8 }}>
-							<CardTitle style={{ color: '#92400e', fontSize: 13 }}>⚠️ No Authorization Client configured</CardTitle>
-							<CardDescription style={{ marginBottom: 0 }}>
-								Admin login requires a PingOne <strong>OIDC/Web App</strong> with{' '}
-								<strong>Authorization Code</strong> grant — not the Worker app. Set{' '}
-								<strong>Authz Client ID</strong> in{' '}
-								<strong>Configuration → Authorization Client</strong>.
+						{!hasAuthzClient && (
+							<LoginCard style={{ borderColor: '#f59e0b', background: '#fffbeb', marginBottom: 8 }}>
+								<CardTitle style={{ color: '#92400e', fontSize: 13 }}>
+									⚠️ No Authorization Client configured
+								</CardTitle>
+								<CardDescription style={{ marginBottom: 0 }}>
+									Admin login requires a PingOne <strong>OIDC/Web App</strong> with{' '}
+									<strong>Authorization Code</strong> grant — not the Worker app. Set{' '}
+									<strong>Authz Client ID</strong> in{' '}
+									<strong>Configuration → Authorization Client</strong>.
+								</CardDescription>
+							</LoginCard>
+						)}
+						<LoginCard>
+							<CardTitle>Enter admin credentials</CardTitle>
+							<CardDescription>
+								Use your PingOne admin username and password. Client credentials are loaded from
+								Configuration.
 							</CardDescription>
-						</LoginCard>
-					)}
-					<LoginCard>
-						<CardTitle>Enter admin credentials</CardTitle>
-						<CardDescription>
-							Use your PingOne admin username and password. Client credentials are loaded from
-							Configuration.
-						</CardDescription>
-						<FormRow>
-							<FormLabel>Username</FormLabel>
-							<FormInput
-								type="text"
-								value={adminUsername}
-								onChange={(e) => setAdminUsername(e.target.value)}
-								placeholder="admin@example.com"
-								disabled={isLoading}
-								autoComplete="username"
-							/>
-						</FormRow>
-						<FormRow>
-							<FormLabel>Password</FormLabel>
-							<div style={{ position: 'relative', width: '100%' }}>
+							<FormRow>
+								<FormLabel>Username</FormLabel>
 								<FormInput
-									type={showAdminPassword ? 'text' : 'password'}
-									value={adminPassword}
-									onChange={(e) => setAdminPassword(e.target.value)}
-									placeholder="Password"
+									type="text"
+									value={adminUsername}
+									onChange={(e) => setAdminUsername(e.target.value)}
+									placeholder="admin@example.com"
 									disabled={isLoading}
-									autoComplete="current-password"
-									style={{ paddingRight: '40px' }}
+									autoComplete="username"
 								/>
-								<button
-									type="button"
-									onClick={() => setShowAdminPassword(!showAdminPassword)}
-									style={{
-										position: 'absolute',
-										right: '8px',
-										top: '50%',
-										transform: 'translateY(-50%)',
-										background: 'none',
-										border: 'none',
-										cursor: isLoading ? 'not-allowed' : 'pointer',
-										color: isLoading ? '#ccc' : '#666',
-										padding: '4px',
-										borderRadius: '4px',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										fontSize: '14px',
-										lineHeight: '1',
-										opacity: isLoading ? 0.5 : 1,
-									}}
-									disabled={isLoading}
-									tabIndex={-1}
-									aria-label={showAdminPassword ? 'Hide password' : 'Show password'}
-								>
-									{showAdminPassword ? (
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-									) : (
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-									)}
-								</button>
-							</div>
-						</FormRow>
-						{error && <FormError>{error}</FormError>}
-						<LoginButton
-							type="button"
-							onClick={() => {
-								void handlePiFlowAdminLogin();
-							}}
-							disabled={isLoading || !onAdminTokenSet}
-						>
-							{isLoading ? 'Signing in…' : 'Sign in'}
-						</LoginButton>
-					</LoginCard>
+							</FormRow>
+							<FormRow>
+								<FormLabel>Password</FormLabel>
+								<div style={{ position: 'relative', width: '100%' }}>
+									<FormInput
+										type={showAdminPassword ? 'text' : 'password'}
+										value={adminPassword}
+										onChange={(e) => setAdminPassword(e.target.value)}
+										placeholder="Password"
+										disabled={isLoading}
+										autoComplete="current-password"
+										style={{ paddingRight: '40px' }}
+									/>
+									<button
+										type="button"
+										onClick={() => setShowAdminPassword(!showAdminPassword)}
+										style={{
+											position: 'absolute',
+											right: '8px',
+											top: '50%',
+											transform: 'translateY(-50%)',
+											background: 'none',
+											border: 'none',
+											cursor: isLoading ? 'not-allowed' : 'pointer',
+											color: isLoading ? '#ccc' : '#666',
+											padding: '4px',
+											borderRadius: '4px',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											fontSize: '14px',
+											lineHeight: '1',
+											opacity: isLoading ? 0.5 : 1,
+										}}
+										disabled={isLoading}
+										tabIndex={-1}
+										aria-label={showAdminPassword ? 'Hide password' : 'Show password'}
+									>
+										{showAdminPassword ? (
+											<svg
+												width="16"
+												height="16"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												aria-hidden="true"
+											>
+												<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+												<circle cx="12" cy="12" r="3" />
+											</svg>
+										) : (
+											<svg
+												width="16"
+												height="16"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												aria-hidden="true"
+											>
+												<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+												<line x1="1" y1="1" x2="23" y2="23" />
+											</svg>
+										)}
+									</button>
+								</div>
+							</FormRow>
+							{error && <FormError>{error}</FormError>}
+							<LoginButton
+								type="button"
+								onClick={() => {
+									void handlePiFlowAdminLogin();
+								}}
+								disabled={isLoading || !onAdminTokenSet}
+							>
+								{isLoading ? 'Signing in…' : 'Sign in'}
+							</LoginButton>
+						</LoginCard>
 					</>
 				)}
 			</ContentSection>
@@ -814,9 +868,35 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 								aria-label={showClientSecret ? 'Hide secret' : 'Show secret'}
 							>
 								{showClientSecret ? (
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										aria-hidden="true"
+									>
+										<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+										<circle cx="12" cy="12" r="3" />
+									</svg>
 								) : (
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										aria-hidden="true"
+									>
+										<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+										<line x1="1" y1="1" x2="23" y2="23" />
+									</svg>
 								)}
 							</button>
 						</div>
@@ -958,11 +1038,23 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 				'token id_token' // tokens returned directly at resume — no code exchange or PKCE needed
 			);
 			if (!initRes.success || !initRes.data?.flowId) {
-				steps.push({ label: 'Authorize', method: 'POST', endpoint: `/environments/${envId}/as/authorize`, status: 'error', detail: initRes.error?.message ?? 'No flowId returned' });
+				steps.push({
+					label: 'Authorize',
+					method: 'POST',
+					endpoint: `/environments/${envId}/as/authorize`,
+					status: 'error',
+					detail: initRes.error?.message ?? 'No flowId returned',
+				});
 				throw new Error(initRes.error?.message || 'Failed to start authorization flow');
 			}
 			const { flowId } = initRes.data;
-			steps.push({ label: 'Authorize', method: 'POST', endpoint: `/environments/${envId}/as/authorize`, status: 'success', detail: `flowId: ${flowId.slice(0, 8)}…` });
+			steps.push({
+				label: 'Authorize',
+				method: 'POST',
+				endpoint: `/environments/${envId}/as/authorize`,
+				status: 'success',
+				detail: `flowId: ${flowId.slice(0, 8)}…`,
+			});
 
 			// Step 2: Submit username + password to PingOne flow endpoint
 			const credsRes = await PingOneLoginService.submitCredentials(
@@ -973,10 +1065,22 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 				effectiveClientSecret || undefined
 			);
 			if (!credsRes.success) {
-				steps.push({ label: 'Submit Credentials', method: 'POST', endpoint: `/environments/${envId}/flows/${flowId.slice(0, 8)}…`, status: 'error', detail: credsRes.error?.message ?? 'Credentials rejected' });
+				steps.push({
+					label: 'Submit Credentials',
+					method: 'POST',
+					endpoint: `/environments/${envId}/flows/${flowId.slice(0, 8)}…`,
+					status: 'error',
+					detail: credsRes.error?.message ?? 'Credentials rejected',
+				});
 				throw new Error(credsRes.error?.message || 'Invalid credentials');
 			}
-			steps.push({ label: 'Submit Credentials', method: 'POST', endpoint: `/environments/${envId}/flows/${flowId.slice(0, 8)}…`, status: 'success', detail: 'Credentials accepted' });
+			steps.push({
+				label: 'Submit Credentials',
+				method: 'POST',
+				endpoint: `/environments/${envId}/flows/${flowId.slice(0, 8)}…`,
+				status: 'success',
+				detail: 'Credentials accepted',
+			});
 
 			// Step 3: Resume pi.flow — tokens returned directly in JSON (response_type=token id_token)
 			const resumeRes = await PingOneLoginService.resumeFlow(
@@ -984,11 +1088,23 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 				effectiveClientSecret || undefined
 			);
 			if (!resumeRes.success || !resumeRes.data?.access_token) {
-				steps.push({ label: 'Resume (get tokens)', method: 'POST', endpoint: `/environments/${envId}/as/resume`, status: 'error', detail: resumeRes.error?.message ?? 'No tokens returned' });
+				steps.push({
+					label: 'Resume (get tokens)',
+					method: 'POST',
+					endpoint: `/environments/${envId}/as/resume`,
+					status: 'error',
+					detail: resumeRes.error?.message ?? 'No tokens returned',
+				});
 				throw new Error(resumeRes.error?.message || 'Failed to get tokens from resume');
 			}
 			const { access_token, id_token, expires_in, scope } = resumeRes.data;
-			steps.push({ label: 'Resume (get tokens)', method: 'POST', endpoint: `/environments/${envId}/as/resume`, status: 'success', detail: `scope: ${scope ?? scopes.join(' ')}` });
+			steps.push({
+				label: 'Resume (get tokens)',
+				method: 'POST',
+				endpoint: `/environments/${envId}/as/resume`,
+				status: 'success',
+				detail: `scope: ${scope ?? scopes.join(' ')}`,
+			});
 
 			logger.info('AIAssistantSidePanel', `User login succeeded — scopes: ${scope ?? scopesValue}`);
 			onUserTokenSet(access_token, expires_in ?? 3600, id_token);
@@ -1127,16 +1243,14 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 									</TokenRowHeader>
 									{expandedToken === 'id' && (
 										<TokenPayload>
-											{Object.entries(decodeJwtPayload(loginResult.idToken) ?? {}).map(
-												([k, v]) => (
-													<TokenClaim key={k}>
-														<TokenClaimKey>{k}</TokenClaimKey>
-														<TokenClaimVal>
-															{typeof v === 'object' ? JSON.stringify(v) : String(v)}
-														</TokenClaimVal>
-													</TokenClaim>
-												)
-											)}
+											{Object.entries(decodeJwtPayload(loginResult.idToken) ?? {}).map(([k, v]) => (
+												<TokenClaim key={k}>
+													<TokenClaimKey>{k}</TokenClaimKey>
+													<TokenClaimVal>
+														{typeof v === 'object' ? JSON.stringify(v) : String(v)}
+													</TokenClaimVal>
+												</TokenClaim>
+											))}
 										</TokenPayload>
 									)}
 								</TokenRow>
@@ -1148,8 +1262,7 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 					{!loginResult && (
 						<LoginCard>
 							<CardDescription>
-								Token loaded from session. Say{' '}
-								<strong>&quot;Introspect user token&quot;</strong> or{' '}
+								Token loaded from session. Say <strong>&quot;Introspect user token&quot;</strong> or{' '}
 								<strong>&quot;Show my token&quot;</strong>.
 							</CardDescription>
 						</LoginCard>
@@ -1262,9 +1375,35 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 								aria-label={showUserPassword ? 'Hide password' : 'Show password'}
 							>
 								{showUserPassword ? (
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										aria-hidden="true"
+									>
+										<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+										<circle cx="12" cy="12" r="3" />
+									</svg>
 								) : (
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										aria-hidden="true"
+									>
+										<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+										<line x1="1" y1="1" x2="23" y2="23" />
+									</svg>
 								)}
 							</button>
 						</div>
@@ -1904,7 +2043,9 @@ const FlowStepRow = styled.div`
 	gap: 10px;
 	padding: 8px 12px;
 	border-bottom: 1px solid #f0f0f0;
-	&:last-child { border-bottom: none; }
+	&:last-child {
+		border-bottom: none;
+	}
 `;
 
 const FlowStepStatus = styled.div<{ $ok: boolean }>`
@@ -1936,7 +2077,9 @@ const FlowStepDetail = styled.div`
 
 const TokenRow = styled.div`
 	border-bottom: 1px solid #f0f0f0;
-	&:last-child { border-bottom: none; }
+	&:last-child {
+		border-bottom: none;
+	}
 `;
 
 const TokenRowHeader = styled.div`
@@ -1946,7 +2089,9 @@ const TokenRowHeader = styled.div`
 	padding: 8px 12px;
 	cursor: pointer;
 	user-select: none;
-	&:hover { background: #f8f9fa; }
+	&:hover {
+		background: #f8f9fa;
+	}
 `;
 
 const TokenLabel = styled.span`
