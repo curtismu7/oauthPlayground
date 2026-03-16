@@ -121,6 +121,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/cleanliness-dashboard', 'Component Cleanliness Dashboard', true],
 			['/api-status', 'API Status', true],
 			['/cleanup-history', 'App update History', true],
+			['/about', 'About', true],
 		]),
 	},
 	{
@@ -251,7 +252,6 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/pingone-sessions-api', 'PingOne Sessions API', true],
 			['/oidc', 'OIDC Information', true],
 			['/oidc-session-management', 'OIDC Session Management', true],
-			['/about', 'About Page', true],
 		]),
 	},
 	{
