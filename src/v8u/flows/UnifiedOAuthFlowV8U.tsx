@@ -560,7 +560,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		} else if (prevStep === 0 && currentStep > 0) {
 			// This will be handled after effectiveFlowType is declared
 		}
-	}, [currentStep]);
+	}, [currentStep, setIsCredentialsCollapsed]);
 
 	// Navigate to step
 	const navigateToStep = useCallback(
