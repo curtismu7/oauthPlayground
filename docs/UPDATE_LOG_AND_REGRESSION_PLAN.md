@@ -31,6 +31,90 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### API Testing Framework: Comprehensive endpoint inventory created (2026-03-16)
+
+- **What:** Complete inventory and testing plan created for all 45+ API endpoints in the system. Includes credential requirements, endpoint categorization, and test strategy for system-wide API validation.
+- **Fix:** Documented all API endpoints organized by category (System Health, Settings, File Storage, API Keys, PingOne Environments, OAuth Flows, MFA, Worker Tokens, MCP/AI). Created credential requirements matrix and testing framework plan.
+- **Files:** `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md` (API Testing Plan section added)
+- **Regression check:** Review API Testing Plan section → all endpoints documented with proper credential requirements. Test script ready for execution with provided credentials.
+
+### Biome Linting: MFA and Unified OAuth static-only class fixes (2026-03-16)
+
+- **What:** Biome linter was reporting `lint/complexity/noStaticOnlyClass` warnings for service classes that use static-only patterns. These are legitimate service patterns but needed justification comments.
+- **Fix:** Added `biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods` comments to all affected service classes. Also fixed duplicate `PasswordChangeError` interface in `OAuthIntegrationServiceV8.ts` and replaced `any` types with proper types in several files.
+- **Files:** `src/v8/lockdown/fido2/snapshot/mfaAuthenticationServiceV8.ts`, `src/v8/lockdown/fido2/snapshot/mfaConfigurationServiceV8.ts`, `src/v8/services/oauthErrorCodesServiceV8.ts`, `src/v8/services/oauthIntegrationServiceV8.ts`, `src/v8/services/unifiedFlowOptionsServiceV8.ts`, `src/services/errorHandlingService.ts`, `src/services/unifiedFlowLayoutService.ts`, `src/services/sharedService.ts`, `src/services/clientCredentialsSharedService.ts`, `src/services/serviceDiscoveryService.ts`, `src/protect-app/components/dashboard/DemoWorkerTokenUI.tsx`, `src/components/FIDO2RegistrationModal.tsx`
+- **Regression check:** Run `npx biome check` on all MFA and Unified OAuth files → 0 lint errors. All services maintain functionality with proper type safety.
+
+### V7MOAuthAuthCodeV9: unterminated string literal causing Vite 500 (2026-03-16)
+
+- **What:** Navigating to the OAuth Auth Code V9 mock flow caused a full page crash ("Failed to fetch dynamically imported module … 500 Internal Server Error"). The route component was lazy-loaded; Vite returned HTTP 500 because the file had a syntax error.
+- **Fix:** `src/pages/flows/v9/V7MOAuthAuthCodeV9.tsx` line 688: `{ '}` (broken — unterminated string, likely a paste accident trying to write `{' '}`) → `{' '}` (correct JSX whitespace expression on the same line as the surrounding text).
+- **Files:** `src/pages/flows/v9/V7MOAuthAuthCodeV9.tsx`
+- **Regression check:** Navigate to `/flows/oidc-authorization-code-v9` (or any route that renders V7MOAuthAuthCodeV9) — page loads without a Vite 500 or React lazy-load crash. `tsc --noEmit` reports zero errors for this file.
+
+### V7MOAuthAuthCodeV9: API calls moved inline for better UX (2026-03-16)
+
+- **What:** API call displays appeared at the bottom of each step, requiring users to scroll down to see the actual API calls they triggered. This created poor user experience and made learning less effective.
+- **Fix:** Moved all `MockApiCallDisplay` components to appear inline immediately after user actions, before explanations. New layout: [Button] → [API Call Display] → [JSON Response] → [Explanation Box]. Applied to all 4 API calls: Authorization request, Token exchange, UserInfo, and Introspection.
+- **Files:** `src/pages/flows/v9/V7MOAuthAuthCodeV9.tsx`
+- **Regression check:** Navigate to `/flows/oidc-authorization-code-v9` → execute flow steps → API calls appear immediately after each button click, before explanations. No scrolling required to see API calls. All functionality preserved.
+
+### UnifiedTokenStorageService: API key storage error fixed (2026-03-16)
+
+- **What:** Console errors "Invalid token type: api_key" when API keys were stored. The `validTokenTypes` array didn't include `api_key`, causing `ApiKeyService.storeApiKey()` to fail.
+- **Fix:** Added `'api_key'` to the `validTokenTypes` array in `unifiedTokenStorageService.ts`. This allows API keys to be stored in IndexedDB alongside other token types.
+- **Files:** `src/services/unifiedTokenStorageService.ts`
+- **Regression check:** Configure API keys in Configuration page → no console errors. API keys save and load correctly. `getAllApiKeys()` returns stored keys without throwing "Invalid token type" errors.
+
+### ApiKeyConfiguration: "Not Set" on page load despite keys on server (2026-03-16)
+
+- **What:** The Configuration page showed "Not Set" badge for all three API keys (Brave Search, GitHub, Groq) even when keys were saved server-side. The component called `getAllApiKeys()` on mount, which only read from IndexedDB. IndexedDB was empty on a fresh browser or after storage clear, so no keys were found even though the server had them in env vars / disk JSON / sqlite-store.
+- **Fix:** `src/services/apiKeyService.ts` `getAllApiKeys()`: after reading IndexedDB, detect which of the known services (`API_KEY_CONFIGS` keys) are missing from the result, then probe `/api/api-key/{service}` for each in parallel. If the backend returns a key, sync it into IndexedDB (via `storeApiKey`) and include it in the returned list with `isActive: true`. This mirrors the same backend-fallback pattern already used in the per-key `getApiKey()`.
+- **Files:** `src/services/apiKeyService.ts`
+- **Regression check:** Clear browser IndexedDB → reload `/configuration` → API Keys section → all configured keys show "✓ Configured" (not "Not Set"). Subsequent loads read from IndexedDB without backend round-trips.
+
+### CredentialsInput: controlled→uncontrolled input warning (2026-03-16)
+
+- **What:** React console warning "A component is changing a controlled input to be uncontrolled" from `CredentialsInput` when `environmentId`, `clientId`, or `clientSecret` props were `undefined`. The inputs used `value={environmentId}` etc. with no default, so `value` became `undefined` mid-lifecycle.
+- **Fix:** `src/components/CredentialsInput.tsx`: Added `= ''` empty-string defaults to `environmentId`, `clientId`, and `clientSecret` in the destructured props. Inputs are now always controlled (empty string, never undefined).
+- **Files:** `src/components/CredentialsInput.tsx`
+- **Regression check:** Open any page that uses `CredentialsInput` (e.g. `/flows/client-generator`) without pre-filled credentials → no "controlled to uncontrolled" warning in console. Typing into fields works normally.
+
+### JWKSTroubleshooting: `<pre>/<ul>` inside `<p>` DOM nesting violation (2026-03-16)
+
+- **What:** React console warnings "`<pre>` cannot appear as a descendant of `<p>`" and "`<ul>` cannot appear as a descendant of `<p>`" from `JWKSTroubleshooting.tsx`. `IssueDescription` was a `styled.p` but contained `<CodeBlock>` (renders `<pre>`) and `<ul>` — both invalid children of `<p>` per HTML spec.
+- **Fix:** `src/pages/JWKSTroubleshooting.tsx`: Changed `const IssueDescription = styled.p` → `const IssueDescription = styled.div`. Block-level children are valid inside `<div>`.
+- **Files:** `src/pages/JWKSTroubleshooting.tsx`
+- **Regression check:** Open `/jwks-troubleshooting` → no DOM nesting warnings in console. Issue descriptions (missing fields, root structure, Base64URL) render correctly with code blocks and lists.
+
+### DavinciTodoApp: `DavinciTodoService.getCurrentUser is not a function` crash (2026-03-16)
+
+- **What:** Navigating to `/sdk-examples/davinci-todo-app` caused an uncaught `TypeError: DavinciTodoService.getCurrentUser is not a function`. `DavinciTodoContext.tsx` called `DavinciTodoService.getCurrentUser()` on mount, but the method did not exist. `setCurrentUser` and `clearCurrentUser` existed but only logged — they stored nothing.
+- **Fix:** `src/sdk-examples/davinci-todo-app/services/davinciTodoService.ts`: (1) Added `private static currentUser: { id: string; email: string; name: string } | null = null` field. (2) Added `static getCurrentUser()` method returning the field. (3) Wired `setCurrentUser()` to actually store to the field and `clearCurrentUser()` to null it.
+- **Files:** `src/sdk-examples/davinci-todo-app/services/davinciTodoService.ts`
+- **Regression check:** Navigate to `/sdk-examples/davinci-todo-app` → no TypeError crash → `DavinciTodoProvider` mounts without error. `setCurrentUser(user)` followed by `getCurrentUser()` returns the same user.
+
+### Sidebar PingOne mode: menu text invisible (dark text on dark background) (2026-03-16)
+
+- **What:** In PingOne sidebar mode (`.sidebar--ping`), all menu item text and icons were nearly invisible. Two CSS blocks were forcing `color: #2d3748` (dark gray) on all elements including a "SUPER AGGRESSIVE" wildcard `sidebar-ping * { color: #2d3748 }`. The sidebar background is `#1e293b` (dark navy), so dark-on-dark made everything unreadable.
+- **Fix:** `src/styles/sidebar-ping-theme.css`: Removed both override blocks entirely. The existing variables already handle the correct colors — `--sidebar-ping-item-text: #f1f5f9` (near-white on dark bg) for inactive items, `--sidebar-ping-active-text: #ffffff` (white on blue) for active items. Replaced the active-item override block with a single clean rule using `var(--sidebar-ping-active-text)`.
+- **Files:** `src/styles/sidebar-ping-theme.css`
+- **Regression check:** Enable PingOne sidebar theme → all menu items, group headers, chevrons show white/near-white text clearly readable on dark navy. Active item shows white text on blue. No text visibility issues.
+
+### Memory footprint: lazy loading all page/flow/doc components + Suspense boundaries (2026-03-16)
+
+- **What:** App parsed ~139 heavy page/flow/documentation components on startup, including `AIAssistant.tsx` which eagerly loaded the entire `mcpQueryService.ts` (558 lines of MCP pattern matchers) on first render. This bloated initial bundle parse time and memory.
+- **Fix:** `src/App.tsx`: (1) Converted all 139 non-critical components (all flows, docs, features, samples, V8 pages) from static `import` to `React.lazy()`. (2) Added `<Suspense fallback={<LoadingFallback message="Loading..." />}>` wrapping the main `<Routes>` block. (3) Added `<Suspense fallback={null}>` around the floating `<AIAssistant />` component. (4) Added `<Suspense fallback={<LoadingFallback message="Loading AI Assistant..." />}>` around the AI Assistant popout `<Routes>` branch. The primary goal was deferring `mcpQueryService.ts` — it now loads only on first AI Assistant open.
+- **Files:** `src/App.tsx`
+- **Regression check:** App loads without console errors. Navigate between routes — pages load with brief loading fallback. AI Assistant opens and works. `tsc --noEmit` reports no errors in App.tsx.
+
+### Infinite POST loop: circuit breaker + concurrency guard + debounce (2026-03-16)
+
+- **What:** `POST /api/tokens/store` was firing hundreds of times per second causing `net::ERR_INSUFFICIENT_RESOURCES` / Chrome OOM. Root cause: `syncWorkerToken()` → `removeWorkerToken()` → `notifyListeners()` → `saveTokensToStorage()` → `storeToken()` → `storeInSQLite()` — all fire-and-forget with no guard against re-entrancy or rapid retries.
+- **Fix:** Three independent fixes: (1) **Circuit breaker** in `src/services/unifiedTokenStorageService.ts` `storeInSQLite()`: after 3 consecutive failures, opens circuit for 60 seconds (backs off, logs warning). On success resets the counter. (2) **Concurrency guard** in `src/v8u/services/tokenMonitoringService.ts` `syncWorkerToken()`: `isSyncingWorkerToken` flag — if already syncing, early return. Set at entry, cleared in `finally`. (3) **Debounced `notifyListeners`**: 100ms debounce using `notifyDebounceTimer` so N rapid token removes/changes only trigger one `saveTokensToStorage()` call.
+- **Files:** `src/services/unifiedTokenStorageService.ts`, `src/v8u/services/tokenMonitoringService.ts`
+- **Regression check:** No mass POST storm in network tab after token operations. Token save/load still works. `GET /api/tokens/store` and `POST /api/tokens/store` fire at most a few times per user action, never hundreds per second.
+
 ### Organization Licensing: region-aware API base URL + real error propagation (2026-03-16)
 
 - **What:** `/organization-licensing` page showed "The API returned no data" for all non-NA (EU/CA/AP/AU) tenants because the server route hardcoded `https://api.pingone.com/v1`. Additionally, real HTTP error messages were silently swallowed — the service returned `null` on failure so the caller always saw the generic message.
@@ -1776,10 +1860,11 @@ When changing the listed areas, run the corresponding checks to avoid regression
 - [ ] **WorkerTokenModalV9 scopes:** `credentials.scopes` may be a string (from storage) or an array. Any use of scopes (e.g. `.join(' ')`) must go through `normalizeScopes(scopes)` so it never calls `.join` on a non-array. See Update log "Worker Token Modal, FlowCredentials, ClaimsRequestBuilder: runtime errors".
 - [ ] **Worker token credentials — SQLite source of truth:** Worker token credentials are stored in and loaded from backend SQLite (`/api/credentials/sqlite`, key `__worker_token__`) so they persist across restarts. Do not rely on localStorage as source of truth. Load order in `unifiedWorkerTokenService`: memory → SQLite → IndexedDB → localStorage → legacy. Saving must call `unifiedWorkerTokenService.saveCredentials()` which persists to SQLite. See Update log "Worker token credentials: SQLite as source of truth".
 - [ ] **Worker token (access token) load order:** Access token load order must be: GET backend (backend checks SQLite first, then worker-tokens.json) → localStorage → IndexedDB. Do not omit SQLite from backend GET; do not reorder client fallbacks. See Update log "Worker token: add SQLite to backend load order".
-- [ ] **Token source:** Any change to `unifiedWorkerTokenService`, `workerTokenManager`, or `workerTokenRepository` storage keys: verify `/environments` and “Discover Apps” still see a valid token after saving via Worker Token modal.
+- [ ] **Token source:** Any change to `unifiedWorkerTokenService`, `workerTokenManager`, or `workerTokenRepository` storage keys: verify `/environments` and "Discover Apps" still see a valid token after saving via Worker Token modal.
 - [ ] **useGlobalWorkerToken:** If you change how the hook gets the token, ensure it still prefers `unifiedWorkerTokenService` when that has a valid token (so it matches the modal).
 - [ ] **Environments page:** Changing `EnvironmentManagementPageV8.tsx` or `environmentServiceV8.ts`: with valid worker token, `/environments` must load the list; effect must depend on `isValid` and `token` so fetch runs when token becomes available.
 - [ ] **Worker token expiration (dates):** Changing `workerTokenRepository.ts` or `workerTokenStatusServiceV8.ts`: never call `new Date(...).toISOString()` or date comparison without validating (e.g. `Number.isNaN` on getTime()); invalid `expiresAt` must be handled without throwing RangeError.
+- [ ] **API Key Storage:** When changing `unifiedTokenStorageService.ts` or `apiKeyService.ts`: ensure `api_key` is included in `validTokenTypes` array. API keys must store without "Invalid token type: api_key" errors and must be retrievable via `getAllApiKeys()` and `getApiKey()`. See Update log "UnifiedTokenStorageService: API key storage error fixed".
 
 ### Sidebar
 
@@ -1806,6 +1891,22 @@ When changing the listed areas, run the corresponding checks to avoid regression
 - [ ] **AppDiscoveryModalV8U (backdrop):** Backdrop must remain a non-button element (e.g. `div` with `role="presentation"`) so there is no button-inside-button.
 - [ ] **DraggableModal z-index hierarchy:** When changing modal z-index values, ensure DraggableModal (12002/12003) stays above all other UI elements including BrandDropdownSelector (12001) and NotificationSystem (12000). All modals using DraggableModal must appear on top.
 
+### API Testing Framework
+
+- [ ] **System Health Endpoints:** Before any deployment, verify all health endpoints return proper responses: `GET /api/health` (system status), `GET /api-status` (health alias), `GET /api/version` (version info), `GET /api/debug` (debug status).
+- [ ] **Settings Management:** Test all settings endpoints with proper validation: `GET/POST /api/settings/custom-domain`, `GET/POST /api/settings/environment-id`, `GET/POST /api/settings/region`, `GET/POST /api/settings/debug-log-viewer`. Ensure proper error handling for invalid inputs.
+- [ ] **File Storage Operations:** Verify file storage CRUD operations: `POST /api/file-storage/save`, `POST /api/file-storage/save-markdown`, `POST /api/file-storage/load`, `DELETE /api/file-storage/delete`. Test with various file types and sizes.
+- [ ] **API Key Management:** Test API key storage and retrieval: `GET/POST /api/api-key/{service}` (groq, brave), `GET/POST /api/api-key/backup`. Ensure encryption and proper validation.
+- [ ] **PingOne Environment APIs:** With valid worker token, test all environment endpoints: `GET /api/environments`, `GET /api/environments/{id}`, `POST /api/environments`, `PUT /api/environments/{id}`, `DELETE /api/environments/{id}`, `PUT /api/environments/{id}/status`, `GET /api/test-environments`.
+- [ ] **OAuth Flow Endpoints:** Test complete OAuth flows: `POST /api/par` (Pushed Authorization), `GET /api/oauth/authorize`, `POST /api/oauth/token`, `GET /api/oauth/userinfo`, `POST /api/oauth/introspect`, `POST /api/oauth/revoke`.
+- [ ] **MFA & Device Flow:** Test MFA device authorization: `POST /api/mfa/device-authorization`, `GET /api/mfa/device-status`, `POST /api/mfa/device-complete`. Verify proper error handling for expired codes.
+- [ ] **Worker Token & Backup:** Test worker token backup/restore: `POST /api/backup/save`, `POST /api/backup/load`, `DELETE /api/backup/delete`. Ensure data persistence across restarts.
+- [ ] **MCP/AI Assistant Endpoints:** Test AI query endpoints: `POST /api/mcp/query`, `POST /api/mcp/user-token-via-login`, `POST /api/mcp/userinfo-via-login`, `POST /api/mcp/web-search`. Verify proper token handling and error responses.
+- [ ] **Logging & Diagnostics:** Test logging infrastructure: `GET /api/logs/list`, `GET /api/logs/read`, `GET /api/logs/tail` (SSE), `POST /api/logs/authz-redirect`, `GET /api/pingone/calls/{id}`, `GET /api/pingone/api-calls`, `POST /api/pingone/log-call`.
+- [ ] **Credential Requirements Matrix:** Before testing, ensure all required credentials are configured: PingOne Environment ID/Client ID/Client Secret/Region in `.env`, API keys in `~/.pingone-playground/credentials/`, valid worker token for protected endpoints.
+- [ ] **Error Handling Validation:** Test error scenarios with invalid credentials, missing tokens, malformed requests, and rate limiting. Verify proper HTTP status codes and error messages.
+- [ ] **Response Format Verification:** Ensure all endpoints return consistent JSON response formats with proper status codes, headers, and error structures.
+
 ### Icons
 
 - [ ] **Feather icons (Fi\*):** Any use of `FiRefreshCw`, `FiCheck`, etc. must have a corresponding import from `src/icons` (e.g. `import { FiRefreshCw } from '../../../icons';`). Never use an icon component without importing it; otherwise "X is not defined" at runtime.
@@ -1828,6 +1929,7 @@ When changing the listed areas, run the corresponding checks to avoid regression
 - [ ] **JWT Bearer / flow pages:** Text on blue (step circles, buttons, MockApiCallDisplay header) must use `color: #ffffff`. JWT Bearer uses red header (flowType `pingone` in flowHeaderService). Do not revert to blue header or `color: 'white'` (use `#ffffff`).
 - [ ] **Mock Flows (V7M) shared styles:** When changing `src/v7/styles/mockFlowStyles.ts` or `V7MMockBanner`/`V7MStepSection`: all V7M pages (Client Credentials, Device Authorization, OAuth Auth Code, OIDC Hybrid, CIBA, Implicit, ROPC) must keep using shared container, banner, section/header/body styles and MOCK\_\* button/input constants. Do not reintroduce per-page duplicate style objects; disabled primary buttons must use MOCK_PRIMARY_BTN_DISABLED. Hybrid and CIBA must keep UnifiedCredentialManagerV9 below FlowHeader.
 - [ ] **Mock Flows (full regression):** When changing mock flow components, services, or `docs/MOCK_FLOWS_STANDARDIZATION_PLAN.md`: open each Mock flow from the sidebar (OIDC: Auth Code, Hybrid, CIBA; OAuth 2.0: Device Auth, Client Credentials, Implicit, ROPC; JWT Bearer, SAML Bearer, RAR, PAR, SPIFFE/SPIRE); complete the main path on at least 2–3 flows (e.g. Implicit, Auth Code); confirm tokens, UserInfo, and Introspect where applicable. See `docs/MOCK_FLOWS_STANDARDIZATION_PLAN.md` §8.
+- [ ] **V7MOAuthAuthCodeV9 API call layout:** When changing `V7MOAuthAuthCodeV9.tsx` or `MockApiCallDisplay` usage: API calls must appear inline immediately after user actions, before explanations. Layout order: [Button] → [API Call Display] → [JSON Response] → [Explanation Box]. No scrolling required to see API calls. See Update log "V7MOAuthAuthCodeV9: API calls moved inline for better UX".
 - [ ] **Flow stepper / section sync (PAR, RAR):** Any `useEffect` that syncs section expansion (or similar) with `currentStep` must not depend on an array/object defined inside the component (e.g. `SECTION_KEYS`), or the dependency changes every render and causes "Maximum update depth exceeded". Use a module-level constant for step/section keys, or depend only on `[currentStep]`. See Update log "PAR/RAR flows: fix Maximum update depth exceeded".
 
 ### Logging (V9 vs V8U)
@@ -1850,7 +1952,7 @@ Run these when doing a broader change or before release:
 
 1. **Worker token:** Save token via modal → open `/environments` → environments list loads.
 2. **Sidebar:** Enable drag mode → move one item to another group → refresh → order persisted.
-3. **MFA flags:** Open `/v8/mfa-feature-flags` → see “All at 100%” and no toggles.
+3. **MFA flags:** Open any MFA flow → flags behave as 100% (the admin page `/v8/mfa-feature-flags` has been removed; test via flows directly).
 4. **Discovery:** Trigger OIDC Discovery once → no `logger.discovery` or `logger.success` error; modal shows success.
 5. **Log viewer:** Open log viewer → switch category filters → content filters as expected.
 6. **Worker token (invalid expiry):** If testing with bad/missing `expiresAt` in storage → no RangeError; status shows “Expired” or “—” instead of crashing.
@@ -1859,6 +1961,10 @@ Run these when doing a broader change or before release:
 9. **Developer & Tools headers:** Open at least two routes under Developer & Tools (e.g. `/postman-collection-generator`, `/url-decoder`) → each shows a red header bar with white text at the top.
 10. **Mock Flows:** Open 2–3 flows from sidebar (e.g. `/flows/implicit-v9`, `/flows/oidc-authorization-code-v9`) → complete main path → confirm tokens, UserInfo, and Introspect where applicable. Yellow "Educational Mock Mode" banner at top; Reset button works.
 11. **MCP spec validation:** Run `pnpm run mcp:validate` — all 3 tests pass (pingone-mcp-server responds to initialize/tools/list, required fields, expected PingOne tools). Required before PR when touching `pingone-mcp-server` or MCP docs.
+12. **Sidebar PingOne theme:** Switch to PingOne sidebar mode → all menu text and icons are clearly readable (white/near-white on dark navy). Active item has white text on blue. No invisible/unreadable items.
+13. **API Keys status:** Open `/configuration` → API Keys section → confirm any previously-saved keys show "✓ Configured" (not "Not Set") even immediately after a browser reload.
+14. **Lazy loading / Suspense:** Navigate to a flow page (e.g. `/flows/oidc-authorization-code-v9`) → page loads correctly with brief fallback; no "Failed to fetch dynamically imported module" error in console.
+15. **Inline API calls:** Navigate to `/flows/oidc-authorization-code-v9` → execute flow steps → API calls appear immediately after each button click, before explanations. No scrolling required to see API calls. All functionality preserved.
 
 ---
 
@@ -1917,4 +2023,4 @@ Run these when doing a broader change or before release:
 
 ---
 
-_Last updated: 2026-03-26. Add new entries and checklist items as fixes and refactors are done. Update this doc on every fix._
+_Last updated: 2026-03-16. Add new entries and checklist items as fixes and refactors are done. Update this doc on every fix._

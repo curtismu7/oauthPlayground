@@ -334,7 +334,7 @@ export class MFAServiceV8 {
 			const parsed = UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa' as const,
 					operation: 'allowMfaBypass',
 				},
 				{
@@ -402,7 +402,7 @@ export class MFAServiceV8 {
 			const parsed = UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa' as const,
 					operation: 'checkMfaBypassStatus',
 				},
 				{
