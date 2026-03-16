@@ -87,7 +87,9 @@ const WaitScreenContent = styled.div`
 	background: ${V9_COLORS.WHITE};
 	padding: 2rem;
 	border-radius: 1rem;
-	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	box-shadow:
+		0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
 	max-width: 400px;
 	text-align: center;
 `;
@@ -132,7 +134,7 @@ const BannerContainer = styled.div<{ $type: BannerConfig['type'] }>`
 	border-radius: 0.75rem;
 	margin-bottom: 1rem;
 	border: 1px solid;
-	
+
 	${(props) => {
 		switch (props.$type) {
 			case 'error':
@@ -253,18 +255,18 @@ const CriticalErrorMessage = styled.p`
 
 const CriticalErrorDetails = styled.details`
 	margin-bottom: 1.5rem;
-	
+
 	summary {
 		cursor: pointer;
 		font-weight: 500;
 		color: ${V9_COLORS.GRAY};
 		margin-bottom: 0.5rem;
-		
+
 		&:hover {
 			color: ${V9_COLORS.BLACK};
 		}
 	}
-	
+
 	pre {
 		background: ${V9_COLORS.LIGHT_GRAY_BG};
 		padding: 1rem;
@@ -363,7 +365,7 @@ const FooterMessageContainer = styled.div<{ $type: FooterMessageConfig['type'] }
 	align-items: center;
 	gap: 0.5rem;
 	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
-	
+
 	${(props) => {
 		switch (props.$type) {
 			case 'progress':
@@ -422,6 +424,8 @@ export const Banner: React.FC<{ config: BannerConfig }> = ({ config }) => {
 		}
 	};
 
+	const handleDismiss = config.onDismiss ?? (() => modernMessaging.hideBanner());
+
 	return (
 		<BannerContainer $type={config.type}>
 			<BannerHeader>
@@ -430,7 +434,7 @@ export const Banner: React.FC<{ config: BannerConfig }> = ({ config }) => {
 					{config.title}
 				</BannerTitle>
 				{config.dismissible && (
-					<MDIIcon icon="FiX" size={16} style={{ cursor: 'pointer' }} onClick={config.onDismiss} />
+					<MDIIcon icon="FiX" size={16} style={{ cursor: 'pointer' }} onClick={handleDismiss} />
 				)}
 			</BannerHeader>
 			<BannerMessage>{config.message}</BannerMessage>
