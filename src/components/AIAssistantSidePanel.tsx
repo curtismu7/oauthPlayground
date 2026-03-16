@@ -714,6 +714,37 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 };
 
 /** User login: get a user access token via Authz Code + PKCE + pi.flow ("Introspect user token"). */
+
+interface LoginFlowStep {
+	label: string;
+	method: string;
+	endpoint: string;
+	status: 'success' | 'error';
+	detail: string;
+}
+
+interface LoginResult {
+	steps: LoginFlowStep[];
+	accessToken: string;
+	idToken?: string;
+	expiresIn: number;
+	scope?: string;
+	durationMs: number;
+}
+
+/** Decode the payload portion of a JWT without verifying the signature. */
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+	try {
+		const parts = token.split('.');
+		if (parts.length !== 3) return null;
+		const padded = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+		const json = atob(padded);
+		return JSON.parse(json) as Record<string, unknown>;
+	} catch {
+		return null;
+	}
+}
+
 interface UserLoginContentProps {
 	userAccessToken: string | null;
 	onUserTokenSet?: (token: string, expiresInSeconds: number, idToken?: string) => void;
@@ -743,6 +774,8 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 	const [password, setPassword] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [loginResult, setLoginResult] = useState<LoginResult | null>(null);
+	const [expandedToken, setExpandedToken] = useState<'access' | 'id' | null>(null);
 
 	// Reload saved authz config whenever panel becomes visible
 	useEffect(() => {
@@ -785,7 +818,11 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 			return;
 		}
 		setError(null);
+		setLoginResult(null);
+		setExpandedToken(null);
 		setIsLoading(true);
+		const startTime = Date.now();
+		const steps: LoginFlowStep[] = [];
 		try {
 			// Step 1: Authorization request — response_type=token id_token + pi.flow
 			// PingOne returns a flowId; tokens come back at resume (no code exchange needed)
@@ -798,9 +835,11 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 				'token id_token' // tokens returned directly at resume — no code exchange or PKCE needed
 			);
 			if (!initRes.success || !initRes.data?.flowId) {
+				steps.push({ label: 'Authorize', method: 'POST', endpoint: `/environments/${envId}/as/authorize`, status: 'error', detail: initRes.error?.message ?? 'No flowId returned' });
 				throw new Error(initRes.error?.message || 'Failed to start authorization flow');
 			}
 			const { flowId } = initRes.data;
+			steps.push({ label: 'Authorize', method: 'POST', endpoint: `/environments/${envId}/as/authorize`, status: 'success', detail: `flowId: ${flowId.slice(0, 8)}…` });
 
 			// Step 2: Submit username + password to PingOne flow endpoint
 			const credsRes = await PingOneLoginService.submitCredentials(
@@ -811,21 +850,33 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 				effectiveClientSecret || undefined
 			);
 			if (!credsRes.success) {
+				steps.push({ label: 'Submit Credentials', method: 'POST', endpoint: `/environments/${envId}/flows/${flowId.slice(0, 8)}…`, status: 'error', detail: credsRes.error?.message ?? 'Credentials rejected' });
 				throw new Error(credsRes.error?.message || 'Invalid credentials');
 			}
+			steps.push({ label: 'Submit Credentials', method: 'POST', endpoint: `/environments/${envId}/flows/${flowId.slice(0, 8)}…`, status: 'success', detail: 'Credentials accepted' });
 
-			// Step 3: Resume pi.flow — for response_type=code, returns auth code then exchanges
-			// for tokens; for response_type=token id_token, tokens returned directly.
+			// Step 3: Resume pi.flow — tokens returned directly in JSON (response_type=token id_token)
 			const resumeRes = await PingOneLoginService.resumeFlow(
 				flowId,
 				effectiveClientSecret || undefined
 			);
 			if (!resumeRes.success || !resumeRes.data?.access_token) {
+				steps.push({ label: 'Resume (get tokens)', method: 'POST', endpoint: `/environments/${envId}/as/resume`, status: 'error', detail: resumeRes.error?.message ?? 'No tokens returned' });
 				throw new Error(resumeRes.error?.message || 'Failed to get tokens from resume');
 			}
 			const { access_token, id_token, expires_in, scope } = resumeRes.data;
+			steps.push({ label: 'Resume (get tokens)', method: 'POST', endpoint: `/environments/${envId}/as/resume`, status: 'success', detail: `scope: ${scope ?? scopes.join(' ')}` });
+
 			logger.info('AIAssistantSidePanel', `User login succeeded — scopes: ${scope ?? scopesValue}`);
 			onUserTokenSet(access_token, expires_in ?? 3600, id_token);
+			setLoginResult({
+				steps,
+				accessToken: access_token,
+				idToken: id_token,
+				expiresIn: expires_in ?? 3600,
+				scope: scope ?? scopes.join(' '),
+				durationMs: Date.now() - startTime,
+			});
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : 'Login failed';
 			setError(msg);
@@ -837,6 +888,8 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 
 	const handleClear = useCallback(() => {
 		onUserTokenClear?.();
+		setLoginResult(null);
+		setExpandedToken(null);
 		setError(null);
 	}, [onUserTokenClear]);
 
@@ -867,16 +920,118 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 			)}
 
 			{hasToken ? (
-				<LoginCard>
-					<CardTitle>✅ User token set</CardTitle>
-					<CardDescription>
-						Say <strong>&quot;Introspect user token&quot;</strong> to inspect this access token, or{' '}
-						<strong>&quot;Show my token&quot;</strong> to view the raw JWT.
-					</CardDescription>
-					<LoginButton type="button" onClick={handleClear} disabled={!onUserTokenClear}>
-						Clear user token
-					</LoginButton>
-				</LoginCard>
+				<>
+					{/* ── Success header ─────────────────────────────────── */}
+					<LoginSuccessBanner>
+						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+							<span style={{ fontWeight: 700, fontSize: 15 }}>✅ Login successful</span>
+							<LoginButton
+								type="button"
+								onClick={handleClear}
+								disabled={!onUserTokenClear}
+								style={{ padding: '4px 10px', fontSize: 12 }}
+							>
+								Clear
+							</LoginButton>
+						</div>
+						{loginResult && (
+							<div style={{ fontSize: 12, color: '#065f46', marginTop: 4 }}>
+								Completed in {loginResult.durationMs}ms · scopes: {loginResult.scope}
+							</div>
+						)}
+					</LoginSuccessBanner>
+
+					{/* ── Flow steps / API calls ──────────────────────────── */}
+					{loginResult && (
+						<FlowSection>
+							<FlowSectionTitle>API calls</FlowSectionTitle>
+							{loginResult.steps.map((step, i) => (
+								<FlowStepRow key={i}>
+									<FlowStepStatus $ok={step.status === 'success'}>
+										{step.status === 'success' ? '✓' : '✗'}
+									</FlowStepStatus>
+									<div style={{ minWidth: 0, flex: 1 }}>
+										<FlowStepLabel>{step.label}</FlowStepLabel>
+										<FlowStepEndpoint>
+											<code style={{ fontSize: 10 }}>{step.method}</code> {step.endpoint}
+										</FlowStepEndpoint>
+										<FlowStepDetail>{step.detail}</FlowStepDetail>
+									</div>
+								</FlowStepRow>
+							))}
+						</FlowSection>
+					)}
+
+					{/* ── Tokens ─────────────────────────────────────────── */}
+					{loginResult && (
+						<FlowSection>
+							<FlowSectionTitle>Tokens</FlowSectionTitle>
+
+							{/* Access Token */}
+							<TokenRow>
+								<TokenRowHeader
+									onClick={() => setExpandedToken((v) => (v === 'access' ? null : 'access'))}
+								>
+									<TokenLabel>Access Token</TokenLabel>
+									<TokenPreview>{loginResult.accessToken.slice(0, 24)}…</TokenPreview>
+									<ExpandChevron $expanded={expandedToken === 'access'}>▼</ExpandChevron>
+								</TokenRowHeader>
+								{expandedToken === 'access' && (
+									<TokenPayload>
+										{Object.entries(decodeJwtPayload(loginResult.accessToken) ?? {}).map(
+											([k, v]) => (
+												<TokenClaim key={k}>
+													<TokenClaimKey>{k}</TokenClaimKey>
+													<TokenClaimVal>
+														{typeof v === 'object' ? JSON.stringify(v) : String(v)}
+													</TokenClaimVal>
+												</TokenClaim>
+											)
+										)}
+									</TokenPayload>
+								)}
+							</TokenRow>
+
+							{/* ID Token */}
+							{loginResult.idToken && (
+								<TokenRow>
+									<TokenRowHeader
+										onClick={() => setExpandedToken((v) => (v === 'id' ? null : 'id'))}
+									>
+										<TokenLabel>ID Token</TokenLabel>
+										<TokenPreview>{loginResult.idToken.slice(0, 24)}…</TokenPreview>
+										<ExpandChevron $expanded={expandedToken === 'id'}>▼</ExpandChevron>
+									</TokenRowHeader>
+									{expandedToken === 'id' && (
+										<TokenPayload>
+											{Object.entries(decodeJwtPayload(loginResult.idToken) ?? {}).map(
+												([k, v]) => (
+													<TokenClaim key={k}>
+														<TokenClaimKey>{k}</TokenClaimKey>
+														<TokenClaimVal>
+															{typeof v === 'object' ? JSON.stringify(v) : String(v)}
+														</TokenClaimVal>
+													</TokenClaim>
+												)
+											)}
+										</TokenPayload>
+									)}
+								</TokenRow>
+							)}
+						</FlowSection>
+					)}
+
+					{/* Fallback when arriving from localStorage (no loginResult) */}
+					{!loginResult && (
+						<LoginCard>
+							<CardDescription>
+								Token loaded from session. Say{' '}
+								<strong>&quot;Introspect user token&quot;</strong> or{' '}
+								<strong>&quot;Show my token&quot;</strong>.
+							</CardDescription>
+						</LoginCard>
+					)}
+				</>
 			) : (
 				<LoginCard>
 					{/* Client override section */}
@@ -1558,6 +1713,138 @@ const LoginButton = styled.button`
 		transform: none;
 	}
 `;
+
+// ── User Login success page components ──────────────────────────────────────
+
+const LoginSuccessBanner = styled.div`
+	background: #ecfdf5;
+	border: 1px solid #6ee7b7;
+	border-radius: 8px;
+	padding: 12px 14px;
+	margin-bottom: 10px;
+`;
+
+const FlowSection = styled.div`
+	margin-bottom: 10px;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	overflow: hidden;
+`;
+
+const FlowSectionTitle = styled.div`
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #6b7280;
+	padding: 8px 12px 6px;
+	background: #f8f9fa;
+	border-bottom: 1px solid #e0e0e0;
+`;
+
+const FlowStepRow = styled.div`
+	display: flex;
+	gap: 10px;
+	padding: 8px 12px;
+	border-bottom: 1px solid #f0f0f0;
+	&:last-child { border-bottom: none; }
+`;
+
+const FlowStepStatus = styled.div<{ $ok: boolean }>`
+	font-size: 13px;
+	font-weight: 700;
+	color: ${({ $ok }) => ($ok ? '#059669' : '#dc2626')};
+	flex-shrink: 0;
+	padding-top: 1px;
+`;
+
+const FlowStepLabel = styled.div`
+	font-size: 12px;
+	font-weight: 600;
+	color: #333;
+`;
+
+const FlowStepEndpoint = styled.div`
+	font-size: 10px;
+	color: #6b7280;
+	margin-top: 1px;
+	word-break: break-all;
+`;
+
+const FlowStepDetail = styled.div`
+	font-size: 11px;
+	color: #059669;
+	margin-top: 2px;
+`;
+
+const TokenRow = styled.div`
+	border-bottom: 1px solid #f0f0f0;
+	&:last-child { border-bottom: none; }
+`;
+
+const TokenRowHeader = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	cursor: pointer;
+	user-select: none;
+	&:hover { background: #f8f9fa; }
+`;
+
+const TokenLabel = styled.span`
+	font-size: 12px;
+	font-weight: 600;
+	color: #333;
+	flex-shrink: 0;
+`;
+
+const TokenPreview = styled.span`
+	font-size: 11px;
+	font-family: monospace;
+	color: #6b7280;
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+`;
+
+const ExpandChevron = styled.span<{ $expanded: boolean }>`
+	font-size: 10px;
+	color: #9ca3af;
+	flex-shrink: 0;
+	transform: ${({ $expanded }) => ($expanded ? 'rotate(180deg)' : 'rotate(0deg)')};
+	transition: transform 0.15s;
+`;
+
+const TokenPayload = styled.div`
+	padding: 0 12px 10px 12px;
+	background: #fafafa;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+`;
+
+const TokenClaim = styled.div`
+	display: flex;
+	gap: 8px;
+	font-size: 11px;
+`;
+
+const TokenClaimKey = styled.span`
+	color: #6b7280;
+	flex-shrink: 0;
+	min-width: 80px;
+	font-family: monospace;
+`;
+
+const TokenClaimVal = styled.span`
+	color: #111827;
+	font-family: monospace;
+	word-break: break-all;
+`;
+
+// ── end User Login success components ───────────────────────────────────────
 
 const ResourceLink = styled.a`
 	display: block;
