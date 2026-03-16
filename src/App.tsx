@@ -263,7 +263,6 @@ import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
 import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
-import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';
 import { MobileRegistrationDocsPageV8 } from './v8/pages/MobileRegistrationDocsPageV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
 // V8MTokenExchange archived — token-exchange-v7 route now redirects to v9
@@ -846,7 +845,6 @@ const AppRoutes: React.FC = () => {
 									element={<Navigate to="/v8/mfa/register/fido2" replace />}
 								/>
 								<Route path="/v8/mfa-config" element={<MFAConfigurationPageV8 />} />
-								<Route path="/v8/mfa-feature-flags" element={<MFAFeatureFlagsAdminV8 />} />
 								<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
 								<Route path="/v8/mfa-device-ordering" element={<MFADeviceOrderingFlowV8 />} />
 								<Route path="/v8/mfa-reporting" element={<MFAReportingFlowV8 />} />
