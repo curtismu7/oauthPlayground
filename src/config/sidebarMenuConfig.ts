@@ -174,6 +174,13 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/flows/par-v9', 'Pushed Authorization Requests (PAR)', true, true],
 						['/flows/saml-sp-dynamic-acs-v1', 'SAML SP Dynamic ACS', true, true],
 						['/flows/spiffe-spire-v9', 'SPIFFE/SPIRE', true, true],
+						['/flows/wimse-v1', 'WIMSE Workload Identity', true, true],
+						['/flows/attestation-client-auth-v1', 'Attestation Client Auth', true, true],
+						['/flows/mtls-client-auth-v1', 'mTLS Certificate-Bound Tokens', true, true],
+						['/flows/gnap-v1', 'GNAP (RFC 9635)', true, true],
+						['/flows/jar-jarm-v1', 'JAR + JARM (FAPI 2.0)', true, true],
+						['/flows/step-up-auth-v1', 'Step-Up Authentication', true, true],
+						['/flows/token-introspection-v1', 'Token Introspection', true, true],
 					],
 					'unsupported'
 				),
@@ -229,6 +236,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		items: items([
 			['/documentation', 'Documentation Hub', true],
 			['/documentation/oidc-overview', 'OIDC Overview', true],
+			['/docs/migration', 'V7/V8 → V9 Migration Guide', true],
 			['/oauth-2-1', 'OAuth 2.1 Specification', true],
 			['/docs/oauth2-security-best-practices', 'OAuth 2.0 Security Best Practices', true],
 			['/comprehensive-oauth-education', 'OAuth Education', true],

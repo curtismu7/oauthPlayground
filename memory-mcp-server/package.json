@@ -1,0 +1,37 @@
+{
+	"name": "oauth-playground-memory-server",
+	"version": "0.1.0",
+	"description": "Memory MCP server for OAuth playground user preferences and context",
+	"type": "module",
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "tsc --project tsconfig.json",
+		"start": "node dist/index.js",
+		"dev": "tsx src/index.ts",
+		"lint": "eslint . --ext .ts"
+	},
+	"keywords": [
+		"mcp",
+		"memory",
+		"oauth",
+		"playground",
+		"user-preferences"
+	],
+	"author": "",
+	"license": "MIT",
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.20.2",
+		"node-persist": "^4.0.0",
+		"zod": "^3.23.8"
+	},
+	"devDependencies": {
+		"@types/node": "^20.12.7",
+		"@types/node-persist": "^3.1.8",
+		"eslint": "^8.57.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-import": "^2.29.1",
+		"prettier": "^3.3.3",
+		"tsx": "^4.16.2",
+		"typescript": "^5.5.4"
+	}
+}
