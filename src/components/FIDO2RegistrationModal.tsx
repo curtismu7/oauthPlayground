@@ -27,7 +27,9 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 	rpName = 'OAuth Playground',
 }) => {
 	const [isRegistering, setIsRegistering] = useState(false);
-	const [capabilities, setCapabilities] = useState<any>(null);
+	const [capabilities, setCapabilities] = useState<ReturnType<
+		typeof FIDO2Service.getCapabilities
+	> | null>(null);
 	const [selectedAuthenticatorType, setSelectedAuthenticatorType] = useState<
 		'platform' | 'cross-platform' | 'any'
 	>('any');
@@ -105,18 +107,19 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 			} else {
 				throw new Error(result.error || 'Registration failed');
 			}
-		} catch (error: any) {
+		} catch (error: unknown) {
 			logger.error(
 				'FIDO2RegistrationModal',
 				'❌ [FIDO2 Registration] Registration failed:',
 				undefined,
 				error as Error
 			);
-			setError(error.message || 'Registration failed');
+			const errorMessage = error instanceof Error ? error.message : 'Registration failed';
+			setError(errorMessage);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
-				message: error.message || 'Failed to register passkey',
+				message: errorMessage,
 				dismissible: true,
 			});
 		} finally {

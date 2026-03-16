@@ -97,6 +97,7 @@ export enum ServiceMaturity {
 	LEGACY = 'legacy', // Maintained for backward compatibility
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class ServiceDiscoveryService {
 	private static serviceRegistry: Map<string, ServiceDefinition> = new Map();
 	private static initialized = false;

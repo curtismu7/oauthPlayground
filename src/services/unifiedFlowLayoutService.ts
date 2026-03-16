@@ -114,6 +114,7 @@ const THEME_COLORS: Record<ThemeColor, ExtendedThemeConfig> = {
  * Unified Flow Layout Service
  * Combines V5 comprehensive styling with V6 theme architecture
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class UnifiedFlowLayoutService {
 	// ==========================================
 	// V6 THEME SYSTEM (PRIMARY INTERFACE)
@@ -211,7 +212,11 @@ export class UnifiedFlowLayoutService {
 			justify-content: space-between;
 			width: 100%;
 			padding: 1.25rem 1.5rem;
-			background: linear-gradient(135deg, ${colors.primaryLighter}20 0%, ${colors.primaryLighter}30 100%);
+			background: linear-gradient(
+				135deg,
+				${colors.primaryLighter}20 0%,
+				${colors.primaryLighter}30 100%
+			);
 			border: none;
 			border-radius: 0.75rem;
 			cursor: pointer;
@@ -221,7 +226,11 @@ export class UnifiedFlowLayoutService {
 			transition: background 0.2s ease;
 
 			&:hover {
-				background: linear-gradient(135deg, ${colors.primaryLighter}30 0%, ${colors.primaryLighter}40 100%);
+				background: linear-gradient(
+					135deg,
+					${colors.primaryLighter}30 0%,
+					${colors.primaryLighter}40 100%
+				);
 			}
 
 			&:focus {
