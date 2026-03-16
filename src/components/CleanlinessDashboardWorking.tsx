@@ -148,16 +148,16 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 ];
 
 // ─── AUTO-GENERATED: live scan items — do not edit manually ───
-// Last updated: 2026-03-16T10:03:14.157Z
+// Last updated: 2026-03-16T14:23:51.217Z
 
 const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 	{
 		id: 'bootstrap-icons-migration',
 		description: 'Bootstrap Icons replacing question-mark emoji placeholders',
 		status: 'warning',
-		countLabel: '1 placeholders remaining → 340 bi-* in use',
+		countLabel: '1 placeholders remaining → 330 bi-* in use',
 		detail:
-			'1 question-mark spans remain outside src/locked/. 340 Bootstrap icon references already in place.',
+			'1 question-mark spans remain outside src/locked/. 330 Bootstrap icon references already in place.',
 	},
 	{
 		id: 'active-sidebar-identified',
@@ -187,7 +187,7 @@ const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 		id: 'v9-logger-migration',
 		description: 'console.* → logger.* migration',
 		status: 'warning',
-		countLabel: '40 console.error/warn remaining',
+		countLabel: '42 console.error/warn remaining',
 		detail:
 			'Structured logger across 90+ service files, 16 hooks, 3 contexts, 43 utils, 79 components. Intentional exceptions: loggingService, code-gen templates, CLI tools.',
 	},
