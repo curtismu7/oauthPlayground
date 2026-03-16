@@ -24519,6 +24519,91 @@ app.post('/api/mcp/query', async (req, res) => {
 
 // ─── End MCP Query Endpoint ───────────────────────────────────────────────────
 
+// ─── Token Introspection Routes (RFC 7662) ────────────────────────────────────
+// RFC 7662: OAuth 2.0 Token Introspection
+// Resource servers query the AS to validate opaque tokens and get token metadata
+
+const _introspectionTokenStore = new Map(); // token → metadata
+
+// POST /api/introspection/issue — Issue introspectable tokens (reference tokens, not self-contained JWTs)
+app.post('/api/introspection/issue', (req, res) => {
+	try {
+		const { subject, scope, audience, clientId, acr } = req.body;
+		const now = Math.floor(Date.now() / 1000);
+		const token = `opaque-${randomBytes(16).toString('hex')}`;
+		const metadata = {
+			active: true,
+			sub: subject ?? 'user@demo.example.com',
+			client_id: clientId ?? 'demo-client',
+			scope: scope ?? 'read write',
+			aud: audience ?? 'https://api.example.com',
+			iss: 'https://demo-as.example.com',
+			iat: now,
+			exp: now + 3600,
+			token_type: 'Bearer',
+			...(acr && { acr }),
+			nbf: now,
+		};
+		_introspectionTokenStore.set(token, metadata);
+		res.json({ success: true, access_token: token, expires_in: 3600, metadata });
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+
+// POST /api/introspection/introspect — RFC 7662 §2.1 introspection endpoint
+app.post('/api/introspection/introspect', (req, res) => {
+	try {
+		// RFC 7662 §2.1 — RS authenticates itself (we check a simple rs_token header for demo)
+		const rsAuth = req.headers['x-rs-identity'] ?? req.body.rs_identity;
+		if (!rsAuth) {
+			return res.status(401).json({
+				error: 'unauthorized',
+				error_description: 'Resource server must authenticate (x-rs-identity header)',
+			});
+		}
+
+		const { token, token_type_hint } = req.body;
+		if (!token)
+			return res
+				.status(400)
+				.json({ error: 'invalid_request', error_description: 'token required' });
+
+		const metadata = _introspectionTokenStore.get(token);
+		if (!metadata) {
+			// RFC 7662 §2.2 — unknown/expired = { active: false }
+			return res.json({ active: false });
+		}
+
+		const now = Math.floor(Date.now() / 1000);
+		if (metadata.exp < now) {
+			_introspectionTokenStore.set(token, { ...metadata, active: false });
+			return res.json({ active: false });
+		}
+
+		res.json({ ...metadata, token_type_hint: token_type_hint ?? 'access_token' });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// POST /api/introspection/revoke — RFC 7009 token revocation (pairs naturally with introspection)
+app.post('/api/introspection/revoke', (req, res) => {
+	const { token } = req.body;
+	if (!token) return res.status(400).json({ error: 'invalid_request' });
+	const existed = _introspectionTokenStore.has(token);
+	if (existed) {
+		const metadata = _introspectionTokenStore.get(token);
+		_introspectionTokenStore.set(token, {
+			...metadata,
+			active: false,
+			revoked_at: Math.floor(Date.now() / 1000),
+		});
+	}
+	// RFC 7009 §2.2 — always return 200 (don't reveal if token existed)
+	res.status(200).json({ revoked: true });
+});
+
 // API endpoint not found handler - MUST be after all API route definitions
 app.use('/api', (req, res) => {
 	console.error('[API 404] Endpoint not found:', {
@@ -24883,20 +24968,16 @@ app.post('/api/attestation/token', (req, res) => {
 
 		const EXPECTED_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-client-attestation';
 		if (client_assertion_type !== EXPECTED_TYPE) {
-			return res
-				.status(400)
-				.json({
-					error: 'invalid_client',
-					error_description: `client_assertion_type must be ${EXPECTED_TYPE}`,
-				});
+			return res.status(400).json({
+				error: 'invalid_client',
+				error_description: `client_assertion_type must be ${EXPECTED_TYPE}`,
+			});
 		}
 		if (!client_assertion || !client_assertion.includes('~')) {
-			return res
-				.status(400)
-				.json({
-					error: 'invalid_client',
-					error_description: 'client_assertion must be <attestation-jwt>~<pop-jwt>',
-				});
+			return res.status(400).json({
+				error: 'invalid_client',
+				error_description: 'client_assertion must be <attestation-jwt>~<pop-jwt>',
+			});
 		}
 
 		const [attestationJwt, popJwt] = client_assertion.split('~');
@@ -24936,12 +25017,10 @@ app.post('/api/attestation/token', (req, res) => {
 		// 4. Verify PoP JWT signed by client ephemeral key
 		const popIsValid = _attestVerifyJwt(popJwt, ephemeralPubDer);
 		if (!popIsValid) {
-			return res
-				.status(401)
-				.json({
-					error: 'invalid_client',
-					error_description: 'Client Attestation PoP JWT signature invalid',
-				});
+			return res.status(401).json({
+				error: 'invalid_client',
+				error_description: 'Client Attestation PoP JWT signature invalid',
+			});
 		}
 
 		// 5. Decode PoP JWT, validate aud/iat/exp
@@ -25151,23 +25230,19 @@ app.post('/api/mtls/token', (req, res) => {
 		} = req.body;
 
 		if (!certificate_jwt || !proof_jwt || !client_id) {
-			return res
-				.status(400)
-				.json({
-					error: 'invalid_request',
-					error_description: 'certificate_jwt, proof_jwt, and client_id required',
-				});
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'certificate_jwt, proof_jwt, and client_id required',
+			});
 		}
 
 		// 1. Verify certificate was signed by trusted CA
 		const certValid = _mtlsVerifyJwt(certificate_jwt, _mtlsCaKeyPair.publicKey);
 		if (!certValid) {
-			return res
-				.status(401)
-				.json({
-					error: 'invalid_client',
-					error_description: 'Certificate signature invalid — not issued by trusted CA',
-				});
+			return res.status(401).json({
+				error: 'invalid_client',
+				error_description: 'Certificate signature invalid — not issued by trusted CA',
+			});
 		}
 
 		// 2. Decode certificate and extract client public key
@@ -25190,12 +25265,10 @@ app.post('/api/mtls/token', (req, res) => {
 		// 4. Verify proof JWT signed by client private key (simulates TLS handshake proof of possession)
 		const proofValid = _mtlsVerifyJwt(proof_jwt, clientPubDer);
 		if (!proofValid) {
-			return res
-				.status(401)
-				.json({
-					error: 'invalid_client',
-					error_description: 'Proof JWT signature invalid — does not match certificate public key',
-				});
+			return res.status(401).json({
+				error: 'invalid_client',
+				error_description: 'Proof JWT signature invalid — does not match certificate public key',
+			});
 		}
 
 		// 5. Validate proof JWT claims
@@ -25344,16 +25417,14 @@ app.post('/api/gnap/continue/:txId', (req, res) => {
 		const grant = _gnapStore.get(txId);
 		if (!grant) return res.status(404).json({ error: 'unknown_transaction' });
 		if (grant.status !== 'approved') {
-			return res
-				.status(200)
-				.json({
-					continue: {
-						access_token: { value: `gnap-cont-${txId}` },
-						uri: `${req.protocol}://${req.get('host')}/api/gnap/continue/${txId}`,
-						wait: 5,
-					},
-					status: 'pending',
-				});
+			return res.status(200).json({
+				continue: {
+					access_token: { value: `gnap-cont-${txId}` },
+					uri: `${req.protocol}://${req.get('host')}/api/gnap/continue/${txId}`,
+					wait: 5,
+				},
+				status: 'pending',
+			});
 		}
 
 		const now = Math.floor(Date.now() / 1000);
@@ -25649,94 +25720,6 @@ app.post('/api/stepup/issue-token', (req, res) => {
 	}
 });
 // ─── End Step-Up Auth Routes ──────────────────────────────────────────────────
-
-// ─── Token Introspection Routes (RFC 7662) ────────────────────────────────────
-// RFC 7662: OAuth 2.0 Token Introspection
-// Resource servers query the AS to validate opaque tokens and get token metadata
-
-const _introspectionTokenStore = new Map(); // token → metadata
-
-// POST /api/introspection/issue — Issue introspectable tokens (reference tokens, not self-contained JWTs)
-app.post('/api/introspection/issue', (req, res) => {
-	try {
-		const { subject, scope, audience, clientId, acr } = req.body;
-		const now = Math.floor(Date.now() / 1000);
-		const token = `opaque-${randomBytes(16).toString('hex')}`;
-		const metadata = {
-			active: true,
-			sub: subject ?? 'user@demo.example.com',
-			client_id: clientId ?? 'demo-client',
-			scope: scope ?? 'read write',
-			aud: audience ?? 'https://api.example.com',
-			iss: 'https://demo-as.example.com',
-			iat: now,
-			exp: now + 3600,
-			token_type: 'Bearer',
-			...(acr && { acr }),
-			nbf: now,
-		};
-		_introspectionTokenStore.set(token, metadata);
-		res.json({ success: true, access_token: token, expires_in: 3600, metadata });
-	} catch (err) {
-		res.status(500).json({ success: false, error: err.message });
-	}
-});
-
-// POST /api/introspection/introspect — RFC 7662 §2.1 introspection endpoint
-app.post('/api/introspection/introspect', (req, res) => {
-	try {
-		// RFC 7662 §2.1 — RS authenticates itself (we check a simple rs_token header for demo)
-		const rsAuth = req.headers['x-rs-identity'] ?? req.body.rs_identity;
-		if (!rsAuth) {
-			return res
-				.status(401)
-				.json({
-					error: 'unauthorized',
-					error_description: 'Resource server must authenticate (x-rs-identity header)',
-				});
-		}
-
-		const { token, token_type_hint } = req.body;
-		if (!token)
-			return res
-				.status(400)
-				.json({ error: 'invalid_request', error_description: 'token required' });
-
-		const metadata = _introspectionTokenStore.get(token);
-		if (!metadata) {
-			// RFC 7662 §2.2 — unknown/expired = { active: false }
-			return res.json({ active: false });
-		}
-
-		const now = Math.floor(Date.now() / 1000);
-		if (metadata.exp < now) {
-			_introspectionTokenStore.set(token, { ...metadata, active: false });
-			return res.json({ active: false });
-		}
-
-		res.json({ ...metadata, token_type_hint: token_type_hint ?? 'access_token' });
-	} catch (err) {
-		res.status(500).json({ error: err.message });
-	}
-});
-
-// POST /api/introspection/revoke — RFC 7009 token revocation (pairs naturally with introspection)
-app.post('/api/introspection/revoke', (req, res) => {
-	const { token } = req.body;
-	if (!token) return res.status(400).json({ error: 'invalid_request' });
-	const existed = _introspectionTokenStore.has(token);
-	if (existed) {
-		const metadata = _introspectionTokenStore.get(token);
-		_introspectionTokenStore.set(token, {
-			...metadata,
-			active: false,
-			revoked_at: Math.floor(Date.now() / 1000),
-		});
-	}
-	// RFC 7009 §2.2 — always return 200 (don't reveal if token existed)
-	res.status(200).json({ revoked: true });
-});
-// ─── End Token Introspection Routes ──────────────────────────────────────────
 
 // Start servers
 async function startServers() {
