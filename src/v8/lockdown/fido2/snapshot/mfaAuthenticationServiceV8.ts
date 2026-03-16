@@ -112,6 +112,7 @@ export interface AuthenticationCompletionResult {
  * PingOne MFA v1 Authentication Service
  * Handles device authentication flows using MFA v1 APIs only
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class MfaAuthenticationServiceV8 {
 	/**
 	 * Get PingOne auth base URL - uses custom domain if provided, otherwise uses region-based domain
@@ -462,7 +463,7 @@ export class MfaAuthenticationServiceV8 {
 			const parsed = UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa' as const,
 					operation: 'initializeDeviceAuthentication',
 				},
 				{
@@ -611,7 +612,7 @@ export class MfaAuthenticationServiceV8 {
 			const parsed = UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa' as const,
 					operation: 'initializeOneTimeDeviceAuthentication',
 				},
 				{
@@ -749,7 +750,7 @@ export class MfaAuthenticationServiceV8 {
 			const parsed = UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa' as const,
 					operation: 'readDeviceAuthentication',
 				},
 				{

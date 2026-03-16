@@ -35,18 +35,6 @@ interface PasswordChangeError extends Error {
 }
 
 /**
- * Extended Error type for password change requirements.
- */
-interface PasswordChangeError extends Error {
-	code?: string;
-	requiresPasswordChange?: boolean;
-	userId?: string | null;
-	errorData?: unknown;
-	accessToken?: string;
-	tokens?: unknown;
-}
-
-/**
  * Format authentication method for display
  * Converts various formats (snake_case, UPPERCASE, etc.) to a readable format
  */
@@ -118,6 +106,7 @@ export interface DecodedToken {
  *
  * Real OAuth 2.0 integration with PingOne APIs
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class OAuthIntegrationServiceV8 {
 	/**
 	 * Generate PKCE codes for secure authorization code flow
@@ -722,9 +711,8 @@ export class OAuthIntegrationServiceV8 {
 								if (appConfig) {
 									// Fetch client secret if available
 									try {
-										const { appDiscoveryServiceV8 } = await import(
-											'@/v8/services/appDiscoveryServiceV8'
-										);
+										const { appDiscoveryServiceV8 } =
+											await import('@/v8/services/appDiscoveryServiceV8');
 										logger.info(`${MODULE_TAG} 🔍 Attempting to fetch application with secret...`, {
 											environmentId: credentials.environmentId,
 											clientId: credentials.clientId,

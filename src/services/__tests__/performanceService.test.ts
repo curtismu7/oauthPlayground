@@ -33,12 +33,12 @@ describe('PerformanceService', () => {
 		});
 
 		// Mock PerformanceObserver
-		global.PerformanceObserver = mockPerformanceObserver as any;
+		global.PerformanceObserver = mockPerformanceObserver as unknown as typeof PerformanceObserver;
 
 		// Reset performance service state
-		(performanceService as any).metrics = {};
-		(performanceService as any).chunkLoads = [];
-		(performanceService as any).observers = [];
+		(performanceService as { metrics: Record<string, unknown> }).metrics = {};
+		(performanceService as { chunkLoads: unknown[] }).chunkLoads = [];
+		(performanceService as { observers: unknown[] }).observers = [];
 	});
 
 	describe('Initialization', () => {
