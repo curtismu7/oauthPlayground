@@ -31,6 +31,54 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Organization Licensing: region-aware API base URL + real error propagation (2026-03-16)
+
+- **What:** `/organization-licensing` page showed "The API returned no data" for all non-NA (EU/CA/AP/AU) tenants because the server route hardcoded `https://api.pingone.com/v1`. Additionally, real HTTP error messages were silently swallowed — the service returned `null` on failure so the caller always saw the generic message.
+- **Fix:** (1) **server.js** `POST /api/pingone/organization-licensing`: Extract region from the worker token's JWT `iss` claim (`auth.pingone.{region}`) **before** any API call. Fall back to the `region` field in the request body, then to the stored region from SQLite, then to NA. Use `resolvePingOneMgmtBase(effectiveRegion)` to build `baseUrl`, so EU/CA/AP/AU tenants hit the correct endpoint. Also accept `region` in request body for explicit override. (2) **organizationLicensingService.ts**: On `!response.ok`, extract `error_description || details || error || message` from the JSON body and `throw new Error()` instead of returning `null`. Outer `catch` now re-throws instead of swallowing, so `OrganizationLicensing.tsx` gets the real error in its `catch` (already wired to show the message in the banner/setError).
+- **Files:** `server.js`, `src/services/organizationLicensingService.ts`
+- **Testing status:** Code analysis only — not manually verified in a running dev server. Manual test needed: EU tenant → `/organization-licensing` → enter org ID → should load org info (previously returned empty). Also: bad org ID → error banner should show the actual PingOne error text (e.g. "Organization not found").
+- **Regression check:** NA tenant org licensing should be unchanged. EU/CA/AP/AU tenants should now load org info correctly. Error cases (wrong org ID, expired token) should now show specific API error message instead of generic "returned no data".
+
+### Sidebar: PingOne console-style admin theme with toggle (2026-03-16)
+
+- **What:** User requested the sidebar look like PingOne Admin Console — dark navy, white text, thin accent bar on active items, no per-item icons, clean uppercase group labels. Original sidebar must be preserved.
+- **Fix:** (1) Created `src/styles/sidebar-ping-admin-theme.css` (~350 lines) — scoped to `.sidebar--ping-admin`; CSS vars `--spa-bg: #1b2a3b`, `--spa-accent: #4a90d9`, `--spa-text: #c8d6e5`; dark search input, thin left accent bar on active items, no icon column. (2) Updated `src/components/Sidebar.tsx`: Added `SidebarTheme` type, `getSavedTheme()` (defaults to `'admin'`), theme state + `toggleTheme()` persisted in `localStorage` as `sidebar.theme`. Admin header shows "MasterFlow API" + SVG logo + sun icon toggle. Classic header adds a "🎨 Theme" toggle button alongside the original header. `containerClass` adds `sidebar--ping sidebar--ping-admin` when admin theme is active.
+- **Files:** `src/styles/sidebar-ping-admin-theme.css` (new), `src/components/Sidebar.tsx`
+- **Testing status:** Code analysis only — not manually verified in a running dev server. Manual test needed: (1) Default load → dark navy sidebar renders. (2) Click sun/theme toggle → switches to classic, persists on reload. (3) All menu items, groups, and active states render correctly.
+- **Regression check:** Sidebar navigation must still work in both themes. Classic theme must look identical to pre-change. Theme toggle button must be visible and functional in both modes.
+
+### Banner dismiss: X button now actually closes the banner (2026-03-16)
+
+- **What:** Error/info banners shown via `modernMessaging.showBanner()` could not be dismissed — the X button called `config.onDismiss` which is always `undefined` because no callers pass it.
+- **Fix:** `src/components/v9/V9ModernMessagingComponents.tsx`: `const handleDismiss = config.onDismiss ?? (() => modernMessaging.hideBanner())`. X button `onClick` now calls `handleDismiss` instead of `config.onDismiss` directly.
+- **Files:** `src/components/v9/V9ModernMessagingComponents.tsx`
+- **Testing status:** Code analysis only — not manually verified. Manual test needed: trigger any error banner (e.g. try org licensing with no token) → click the X → banner should disappear.
+- **Regression check:** `onDismiss` callback prop still works if a caller passes it explicitly. Default behavior (no `onDismiss` passed) now dismisses via `modernMessaging.hideBanner()`.
+
+### Remove /v8/mfa-feature-flags page (2026-03-16)
+
+- **What:** The MFA Feature Flags admin page at `/v8/mfa-feature-flags` was removed per request.
+- **Fix:** (1) Deleted `src/v8/pages/MFAFeatureFlagsAdminV8.tsx`. (2) Removed import and `<Route>` from `src/App.tsx`. (3) Removed entry from `src/config/sidebarMenuConfig.ts`. (4) Removed item block from `src/components/DragDropSidebar.tsx`.
+- **Files:** `src/v8/pages/MFAFeatureFlagsAdminV8.tsx` (deleted), `src/App.tsx`, `src/config/sidebarMenuConfig.ts`, `src/components/DragDropSidebar.tsx`
+- **Testing status:** Code analysis only — not manually verified. Manual test needed: navigating to `/v8/mfa-feature-flags` should 404 or redirect; link should not appear in sidebar or DragDrop list.
+- **Regression check:** All other routes in `App.tsx` must still render. Sidebar must not show a broken/missing item. DragDrop sidebar must not reference the deleted item.
+
+### UserInfo flow: token requirement explanation (2026-03-16)
+
+- **What:** `/flows/userinfo` page did not explain whether a worker token is sufficient. It is NOT — the OIDC UserInfo endpoint requires a user access token (Authorization Code flow result). The old page left users confused.
+- **Fix:** `src/pages/flows/UserInfoPostFlow.tsx`: Replaced the vague description with a `TokenRequirementBanner` component showing two comparison cards: "✗ Worker Token — will NOT work" (explains why: no user context, no openid scope) and "✓ User Access Token — required". Added `HowToSteps` below explaining how to get a user access token with a clickable link to the Authorization Code Flow page.
+- **Files:** `src/pages/flows/UserInfoPostFlow.tsx`
+- **Testing status:** Code analysis only — not manually verified. Manual test needed: load `/flows/userinfo` → token requirement banner should render with both cards; link to auth code flow page should navigate correctly.
+- **Regression check:** UserInfo flow functionality (the actual API call) must be unaffected. Only the informational UI at the top of the page changed.
+
+### About page: rewrite with styled-components, moved to Dashboard group (2026-03-16)
+
+- **What:** `/about` page had no visible styling (was using Tailwind classes, which are not configured in this project). Also the "About" link was buried in the Documentation group instead of the top-level Dashboard group.
+- **Fix:** (1) Rewrote `src/pages/About.tsx` from scratch using styled-components. Sections: Header with `VersionBadge`, `StatsBanner`, Overview, OAuth Flows, OIDC, Educational Features, Developer Tools, Architecture. Imports `APP_VERSION`, `MFA_V8_VERSION`, `UNIFIED_V8U_VERSION` plus 16 react-icons/fi icons. (2) `src/config/sidebarMenuConfig.ts`: moved `/about` entry from `documentation-reference` group to `dashboard` group; renamed label "About Page" → "About".
+- **Files:** `src/pages/About.tsx`, `src/config/sidebarMenuConfig.ts`
+- **Testing status:** Code analysis only — not manually verified. Manual test needed: load `/about` → page should render with dark styled-components layout; "About" should appear in the top Dashboard sidebar group.
+- **Regression check:** `APP_VERSION`, `MFA_V8_VERSION`, `UNIFIED_V8U_VERSION` imports must resolve without errors. All other sidebar group entries must be unaffected.
+
 ### Comprehensive User Documentation Created (2026-03-15)
 
 - **What:** Created comprehensive user documentation including Master User Guide, Quick Start Guide, and Sidebar Navigation Guide to help users understand and use all flows and features.
