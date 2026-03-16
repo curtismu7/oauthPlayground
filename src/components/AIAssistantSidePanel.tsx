@@ -509,9 +509,8 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 			const envId = data?.credentials?.environmentId?.trim();
 			const region = (data?.credentials?.region as string) || 'us';
 			// Prefer authzClientId; fall back to worker clientId
-			const effectiveClientId = (
-				data?.credentials?.authzClientId?.trim() || data?.credentials?.clientId?.trim()
-			);
+			const effectiveClientId =
+				data?.credentials?.authzClientId?.trim() || data?.credentials?.clientId?.trim();
 			const effectiveSecret = data?.credentials?.authzClientId?.trim()
 				? (data?.credentials?.authzClientSecret?.trim() ?? '')
 				: (data?.credentials?.clientSecret?.trim() ?? '');
@@ -620,7 +619,7 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 						<LoginButton
 							type="button"
 							onClick={() => {
-								void handleRopcLogin();
+								void handlePiFlowAdminLogin();
 							}}
 							disabled={isLoading || !onAdminTokenSet}
 						>
