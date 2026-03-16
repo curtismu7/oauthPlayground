@@ -500,14 +500,23 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 	const [adminPassword, setAdminPassword] = useState('');
 
 	if (usernamePasswordOnly) {
-		const handleRopcLogin = async () => {
+		// PingOne does NOT support ROPC (grant_type=password).
+		// Admin login uses pi.flow (response_type=token id_token) — same as User Login —
+		// but stores the resulting token as adminToken via onAdminTokenSet.
+		const handlePiFlowAdminLogin = async () => {
 			if (!onAdminTokenSet) return;
 			const data = unifiedWorkerTokenService.getTokenDataSync();
 			const envId = data?.credentials?.environmentId?.trim();
-			const cid = data?.credentials?.clientId?.trim();
-			const secret = data?.credentials?.clientSecret?.trim();
-			if (!envId || !cid || !secret) {
-				setError('Configure PingOne worker credentials in Configuration first.');
+			const region = (data?.credentials?.region as string) || 'us';
+			// Prefer authzClientId; fall back to worker clientId
+			const effectiveClientId = (
+				data?.credentials?.authzClientId?.trim() || data?.credentials?.clientId?.trim()
+			);
+			const effectiveSecret = data?.credentials?.authzClientId?.trim()
+				? (data?.credentials?.authzClientSecret?.trim() ?? '')
+				: (data?.credentials?.clientSecret?.trim() ?? '');
+			if (!envId || !effectiveClientId) {
+				setError('Configure PingOne credentials in Configuration first.');
 				return;
 			}
 			if (!adminUsername.trim() || !adminPassword) {
@@ -517,30 +526,40 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 			setError(null);
 			setIsLoading(true);
 			try {
-				const res = await fetch('/api/token-exchange', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						grant_type: 'password',
-						client_id: cid,
-						client_secret: secret,
-						environment_id: envId,
-						username: adminUsername.trim(),
-						password: adminPassword,
-						scope: DEFAULT_ADMIN_SCOPE,
-						client_auth_method: 'client_secret_post',
-					}),
-				});
-				const respData = await res.json().catch(() => ({}));
-				if (!res.ok) {
-					throw new Error(
-						respData.error_description || respData.error || `Login failed (${res.status})`
-					);
+				// Step 1: start pi.flow with response_type=token id_token (no PKCE needed)
+				const initRes = await PingOneLoginService.initializeEmbeddedLogin(
+					envId,
+					effectiveClientId,
+					undefined,
+					['openid', 'profile', 'email'],
+					region,
+					'token id_token'
+				);
+				if (!initRes.success || !initRes.data?.flowId) {
+					throw new Error(initRes.error?.message || 'Failed to start authorization flow');
 				}
-				const token = respData.access_token;
-				const expiresIn = typeof respData.expires_in === 'number' ? respData.expires_in : 3600;
-				if (!token) throw new Error('No access_token in response');
-				onAdminTokenSet(token, expiresIn, envId);
+				const { flowId } = initRes.data;
+				// Step 2: submit credentials
+				const credsRes = await PingOneLoginService.submitCredentials(
+					flowId,
+					adminUsername.trim(),
+					adminPassword,
+					effectiveClientId,
+					effectiveSecret || undefined
+				);
+				if (!credsRes.success) {
+					throw new Error(credsRes.error?.message || 'Invalid credentials');
+				}
+				// Step 3: resume — tokens returned directly
+				const resumeRes = await PingOneLoginService.resumeFlow(
+					flowId,
+					effectiveSecret || undefined
+				);
+				if (!resumeRes.success || !resumeRes.data?.access_token) {
+					throw new Error(resumeRes.error?.message || 'Failed to get token from resume');
+				}
+				const { access_token, expires_in } = resumeRes.data;
+				onAdminTokenSet(access_token, expires_in ?? 3600, envId);
 				setAdminPassword('');
 			} catch (err) {
 				const msg = err instanceof Error ? err.message : 'Login failed';
