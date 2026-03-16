@@ -9,7 +9,7 @@
  * All fetch calls are mocked — no server or PingOne required.
  */
 
-import { describe, beforeEach, vi, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PingOneLoginService } from '../pingOneLoginService';
 
 // Mock global fetch before importing the service
@@ -47,7 +47,7 @@ function mockAuthorizeFailure() {
 	});
 }
 
-function mockCheckCredentialsSuccess() {
+function _mockCheckCredentialsSuccess() {
 	mockFetch.mockResolvedValueOnce({
 		ok: true,
 		status: 200,
@@ -55,7 +55,7 @@ function mockCheckCredentialsSuccess() {
 	});
 }
 
-function mockCheckCredentialsFailure() {
+function _mockCheckCredentialsFailure() {
 	mockFetch.mockResolvedValueOnce({
 		ok: false,
 		status: 401,

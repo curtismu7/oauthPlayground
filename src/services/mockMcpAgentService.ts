@@ -46,7 +46,7 @@ export function listTools(): MockToolsListResponse {
 
 export function callTool(name: MockToolName, args: Record<string, unknown>): MockToolCallResult {
 	if (name === 'mock_get_token') {
-		const accessToken = 'mock_wt_' + Date.now();
+		const accessToken = `mock_wt_${Date.now()}`;
 		return {
 			success: true,
 			tool: 'mock_get_token',
@@ -66,7 +66,7 @@ export function callTool(name: MockToolName, args: Record<string, unknown>): Moc
 				request: args,
 			};
 		}
-		const newToken = 'mock_te_' + Date.now();
+		const newToken = `mock_te_${Date.now()}`;
 		return {
 			success: true,
 			tool: 'mock_token_exchange',

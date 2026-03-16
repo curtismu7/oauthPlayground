@@ -62,6 +62,13 @@ const AIIdentityArchitectures = lazy(() => import('./pages/AIIdentityArchitectur
 const McpServerConfig = lazy(() => import('./pages/McpServerConfig'));
 const OAuthCodeGeneratorHub = lazy(() => import('./pages/OAuthCodeGeneratorHub'));
 const OAuthFlowsNew = lazy(() => import('./pages/OAuthFlowsNew'));
+const WIMSEFlow = lazy(() => import('./pages/flows/v9/WIMSEFlow'));
+const AttestationClientAuthFlow = lazy(() => import('./pages/flows/v9/AttestationClientAuthFlow'));
+const MtlsClientAuthFlow = lazy(() => import('./pages/flows/v9/MtlsClientAuthFlow'));
+const GnapFlow = lazy(() => import('./pages/flows/v9/GnapFlow'));
+const JarJarmFlow = lazy(() => import('./pages/flows/v9/JarJarmFlow'));
+const StepUpAuthFlow = lazy(() => import('./pages/flows/v9/StepUpAuthFlow'));
+const TokenIntrospectionFlowV1 = lazy(() => import('./pages/flows/v9/TokenIntrospectionFlow'));
 
 // Keep critical components eagerly loaded
 import DeviceMockFlow from './components/DeviceMockFlow';
@@ -134,6 +141,7 @@ import AIAgentAuthDraft from './pages/docs/AIAgentAuthDraft';
 import MCPDocumentation from './pages/docs/MCPDocumentation';
 // Added new migration and prompts pages
 import MigrateVscode from './pages/docs/migration/MigrateVscode';
+import MigrationGuide from './pages/docs/migration/MigrationGuide';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices.tsx';
 import OAuthForAI from './pages/docs/OAuthForAI.tsx';
 import OIDCForAI from './pages/docs/OIDCForAI.tsx';
@@ -1140,13 +1148,121 @@ const AppRoutes: React.FC = () => {
 									path="/v8u/spiffe-spire/tokens"
 									element={<Navigate to="/flows/spiffe-spire-v9/tokens" replace />}
 								/>
+								{/* WIMSE Workload Identity Demo */}
+								<Route
+									path="/flows/wimse-v1"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading WIMSE Flow..."
+													subtext="Preparing workload identity demo"
+												/>
+											}
+										>
+											<WIMSEFlow />
+										</Suspense>
+									}
+								/>
 								<Route
 									path="/flows/oidc-implicit-v6"
 									element={<Navigate to="/v8u/unified" replace />}
 								/>
+								{/* Attestation-Based Client Auth Demo */}
+								<Route
+									path="/flows/attestation-client-auth-v1"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading Attestation Flow..."
+													subtext="Preparing client attestation demo"
+												/>
+											}
+										>
+											<AttestationClientAuthFlow />
+										</Suspense>
+									}
+								/>
 								<Route
 									path="/flows/oauth-implicit-completion"
 									element={<OAuthImplicitFlowCompletion />}
+								/>
+								{/* mTLS Client Authentication Demo (RFC 8705) */}
+								<Route
+									path="/flows/mtls-client-auth-v1"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading mTLS Flow..."
+													subtext="Preparing certificate-bound token demo"
+												/>
+											}
+										>
+											<MtlsClientAuthFlow />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/flows/gnap-v1"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading GNAP Flow..."
+													subtext="Preparing grant negotiation demo"
+												/>
+											}
+										>
+											<GnapFlow />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/flows/jar-jarm-v1"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading JAR+JARM Flow..."
+													subtext="Preparing signed request/response demo"
+												/>
+											}
+										>
+											<JarJarmFlow />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/flows/step-up-auth-v1"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading Step-Up Auth..."
+													subtext="Preparing step-up authentication demo"
+												/>
+											}
+										>
+											<StepUpAuthFlow />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/flows/token-introspection-v1"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading Introspection Flow..."
+													subtext="Preparing token introspection demo"
+												/>
+											}
+										>
+											<TokenIntrospectionFlowV1 />
+										</Suspense>
+									}
 								/>
 								{/* Device Authorization — v9 mock flow (canonical); v7 → unified */}
 								<Route
@@ -1463,6 +1579,7 @@ const AppRoutes: React.FC = () => {
 								/>
 								<Route path="/docs/spiffe-spire-pingone" element={<SpiffeSpirePingOne />} />
 								{/* Added new migration and prompts routes */}
+								<Route path="/docs/migration" element={<MigrationGuide />} />
 								<Route path="/docs/migration/migrate-vscode" element={<MigrateVscode />} />
 								<Route path="/docs/prompts/prompt-all" element={<PromptAll />} />
 								<Route path="/auto-discover" element={<AutoDiscover />} />

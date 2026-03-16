@@ -62,6 +62,7 @@ interface MenuGroup {
 	items: MenuItem[];
 	subGroups?: MenuGroup[]; // Optional nested submenus
 	isOpen: boolean;
+	groupMatches?: boolean; // Flag to indicate if group header matches search query
 }
 
 interface SimpleDragDropSidebarProps {
@@ -2339,6 +2340,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					...result,
 					items: filteredItems, // Always show only matching items
 					isOpen: groupMatches || filteredItems.length > 0 || hasMatchingSubGroups || false,
+					groupMatches, // Add flag to indicate if group header matches
 				};
 			})
 			.filter((group) => {
@@ -2674,6 +2676,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						const countItems = (groups: MenuGroup[]): number => {
 							return groups.reduce((total, group) => {
 								let count = group.items.length;
+								// Add 1 for each group that matches the search query
+								if (group.groupMatches) {
+									count += 1;
+								}
 								if (group.subGroups && group.subGroups.length > 0) {
 									count += countItems(group.subGroups);
 								}
@@ -2681,7 +2687,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							}, 0);
 						};
 						return countItems(filteredMenuGroups);
-					})()} results for "{searchQuery}"
+					})()}{' '}
+					results for "{searchQuery}"
 				</div>
 			)}
 
@@ -2859,8 +2866,13 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							cursor: dragMode ? 'grab' : 'pointer',
 							border: dragMode
 								? '2px dashed rgba(255,255,255,0.3)'
-								: '1px solid rgba(255,255,255,0.2)',
-							boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
+								: searchQuery && group.groupMatches
+									? '2px solid rgba(255, 215, 0, 0.8)' // Gold highlight for matching groups
+									: '1px solid rgba(255,255,255,0.2)',
+							boxShadow:
+								searchQuery && group.groupMatches
+									? '0 4px 12px rgba(255, 215, 0, 0.4)' // Gold glow for matching groups
+									: '0 2px 4px rgba(59, 130, 246, 0.2)',
 							transition: 'all 0.2s ease',
 							userSelect: 'none',
 							WebkitUserSelect: 'none',
@@ -2895,9 +2907,28 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								WebkitUserSelect: 'none',
 								MozUserSelect: 'none',
 								msUserSelect: 'none',
+								position: 'relative',
 							}}
 						>
 							{group.label}
+							{searchQuery && group.groupMatches && (
+								<span
+									style={{
+										position: 'absolute',
+										right: '-20px',
+										top: '-8px',
+										background: 'rgba(255, 215, 0, 0.9)',
+										color: '#000',
+										fontSize: '10px',
+										fontWeight: 'bold',
+										padding: '2px 6px',
+										borderRadius: '10px',
+										boxShadow: '0 2px 4px rgba(255, 215, 0, 0.3)',
+									}}
+								>
+									MATCH
+								</span>
+							)}
 						</span>
 						<button
 							type="button"

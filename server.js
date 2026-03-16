@@ -3,7 +3,16 @@
 
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execSync, spawn } from 'node:child_process';
-import { randomUUID, randomBytes, createHash } from 'node:crypto';
+import crypto, {
+	randomUUID,
+	randomBytes,
+	createHash,
+	createSign,
+	createVerify,
+	generateKeyPairSync,
+	createPublicKey,
+	createPrivateKey,
+} from 'node:crypto';
 import fs from 'node:fs';
 import https from 'node:https';
 import os from 'node:os';
@@ -24571,6 +24580,1163 @@ function getServerConsoleUrl() {
 	const host = process.env.HOST || 'localhost';
 	return `${protocol}://${host}:${PORT}`;
 }
+
+// ─── WIMSE — Workload Identity Demo Routes ────────────────────────────────────
+// Ephemeral EC P-256 keypair — generated once at server start, demo only
+const _wimseKeyPair = generateKeyPairSync('ec', {
+	namedCurve: 'P-256',
+	publicKeyEncoding: { type: 'spki', format: 'der' },
+	privateKeyEncoding: { type: 'pkcs8', format: 'der' },
+});
+
+function _wimsePublicJwk() {
+	const pubKey = createPublicKey({ key: _wimseKeyPair.publicKey, format: 'der', type: 'spki' });
+	const raw = pubKey.export({ format: 'jwk' });
+	return { ...raw, use: 'sig', alg: 'ES256', kid: 'wimse-demo-key-1' };
+}
+
+function _wimseBase64url(buf) {
+	return Buffer.from(buf).toString('base64url');
+}
+
+function _wimseSignJwt(header, payload) {
+	const h = _wimseBase64url(JSON.stringify(header));
+	const p = _wimseBase64url(JSON.stringify(payload));
+	const signing = `${h}.${p}`;
+	const privKey = createPrivateKey({ key: _wimseKeyPair.privateKey, format: 'der', type: 'pkcs8' });
+	const sign = createSign('SHA256');
+	sign.update(signing);
+	sign.end();
+	// DER ASN.1 → raw R||S (64 bytes) for ES256
+	const derSig = sign.sign(privKey);
+	// Parse DER SEQUENCE: 0x30 len 0x02 rLen r 0x02 sLen s
+	let offset = 2; // skip 0x30 and total length
+	const rLen = derSig[offset + 1];
+	const rRaw = derSig.slice(offset + 2, offset + 2 + rLen);
+	offset += 2 + rLen;
+	const sLen = derSig[offset + 1];
+	const sRaw = derSig.slice(offset + 2, offset + 2 + sLen);
+	// Strip leading 0x00 padding and left-pad to 32 bytes
+	const r = rRaw[0] === 0x00 ? rRaw.slice(1) : rRaw;
+	const s = sRaw[0] === 0x00 ? sRaw.slice(1) : sRaw;
+	const rPad = Buffer.concat([Buffer.alloc(Math.max(0, 32 - r.length)), r]);
+	const sPad = Buffer.concat([Buffer.alloc(Math.max(0, 32 - s.length)), s]);
+	return `${signing}.${_wimseBase64url(Buffer.concat([rPad, sPad]))}`;
+}
+
+// POST /api/wimse/issue-wit — issue a Workload Identity Token
+app.post('/api/wimse/issue-wit', (req, res) => {
+	try {
+		const {
+			workloadId = 'spiffe://demo.local/payments-processor',
+			audience = 'https://api.example.com/inventory',
+			platform = 'generic',
+			ttlSeconds = 300,
+		} = req.body || {};
+
+		const now = Math.floor(Date.now() / 1000);
+		const header = { alg: 'ES256', typ: 'JWT', kid: 'wimse-demo-key-1' };
+		const payload = {
+			iss: 'https://wimse-demo.local/issuer',
+			sub: workloadId,
+			aud: audience,
+			iat: now,
+			exp: now + Number(ttlSeconds),
+			jti: randomUUID(),
+			wid: workloadId,
+			platform,
+			platform_attestation: {
+				type: platform,
+				verified: true,
+				timestamp: new Date().toISOString(),
+			},
+		};
+		const wit = _wimseSignJwt(header, payload);
+		res.json({ success: true, wit, header, payload, publicJwk: _wimsePublicJwk() });
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+
+// POST /api/wimse/token-exchange — RFC 8693 token exchange using WIT as subject_token
+app.post('/api/wimse/token-exchange', (req, res) => {
+	try {
+		const {
+			subject_token,
+			subject_token_type = 'urn:ietf:params:oauth:token-type:jwt',
+			requested_token_type = 'urn:ietf:params:oauth:token-type:access_token',
+			audience,
+			scope = 'read',
+		} = req.body || {};
+
+		if (!subject_token) {
+			return res
+				.status(400)
+				.json({ error: 'invalid_request', error_description: 'subject_token is required' });
+		}
+		if (subject_token_type !== 'urn:ietf:params:oauth:token-type:jwt') {
+			return res
+				.status(400)
+				.json({ error: 'invalid_request', error_description: 'Unsupported subject_token_type' });
+		}
+
+		const parts = subject_token.split('.');
+		if (parts.length !== 3) {
+			return res.status(400).json({ error: 'invalid_token', error_description: 'Malformed JWT' });
+		}
+
+		let witPayload;
+		try {
+			witPayload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
+		} catch {
+			return res
+				.status(400)
+				.json({ error: 'invalid_token', error_description: 'Cannot decode WIT payload' });
+		}
+
+		const now = Math.floor(Date.now() / 1000);
+		if (witPayload.exp && witPayload.exp < now) {
+			return res.status(400).json({ error: 'invalid_token', error_description: 'WIT has expired' });
+		}
+
+		// Verify ES256 signature
+		const signing = `${parts[0]}.${parts[1]}`;
+		const pubKey = createPublicKey({ key: _wimseKeyPair.publicKey, format: 'der', type: 'spki' });
+		const rawSig = Buffer.from(parts[2], 'base64url');
+		const rRaw = rawSig.slice(0, 32);
+		const sRaw = rawSig.slice(32);
+		const rDer = rRaw[0] & 0x80 ? Buffer.concat([Buffer.from([0x00]), rRaw]) : rRaw;
+		const sDer = sRaw[0] & 0x80 ? Buffer.concat([Buffer.from([0x00]), sRaw]) : sRaw;
+		const derSig = Buffer.concat([
+			Buffer.from([0x30, rDer.length + sDer.length + 4, 0x02, rDer.length]),
+			rDer,
+			Buffer.from([0x02, sDer.length]),
+			sDer,
+		]);
+		const verifier = createVerify('SHA256');
+		verifier.update(signing);
+		verifier.end();
+		if (!verifier.verify(pubKey, derSig)) {
+			return res
+				.status(400)
+				.json({ error: 'invalid_token', error_description: 'WIT signature verification failed' });
+		}
+
+		const targetAud = audience || witPayload.aud;
+		const atHeader = { alg: 'ES256', typ: 'at+JWT', kid: 'wimse-demo-key-1' };
+		const atPayload = {
+			iss: 'https://wimse-demo.local/issuer',
+			sub: witPayload.sub,
+			aud: targetAud,
+			iat: now,
+			exp: now + 3600,
+			jti: randomUUID(),
+			scope,
+			act: { sub: witPayload.sub },
+			client_id: 'wimse-demo-exchange',
+		};
+		const accessToken = _wimseSignJwt(atHeader, atPayload);
+		res.json({
+			access_token: accessToken,
+			issued_token_type: requested_token_type,
+			token_type: 'Bearer',
+			expires_in: 3600,
+			scope,
+			atPayload,
+		});
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+// ─── End WIMSE Routes ─────────────────────────────────────────────────────────
+
+// ─── Attestation-Based Client Auth Routes ─────────────────────────────────────
+// draft-ietf-oauth-attestation-based-client-auth
+// Two JWTs: Client Attestation JWT (signed by Attester) + Client Attestation PoP JWT (signed by client ephemeral key)
+// Combined as: <attestation>~<pop>  client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-client-attestation
+
+// Attester key pair — simulates a trusted platform attester (MDM, app store, etc.)
+const _attesterKeyPair = generateKeyPairSync('ec', {
+	namedCurve: 'P-256',
+	publicKeyEncoding: { type: 'spki', format: 'der' },
+	privateKeyEncoding: { type: 'pkcs8', format: 'der' },
+});
+
+function _attesterPublicJwk() {
+	const pub = createPublicKey({ key: _attesterKeyPair.publicKey, format: 'der', type: 'spki' });
+	const raw = pub.export({ format: 'jwk' });
+	return { ...raw, kid: 'attester-key-1' };
+}
+
+function _attestBase64url(buf) {
+	return Buffer.from(buf)
+		.toString('base64')
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_')
+		.replace(/=/g, '');
+}
+
+function _attestSignJwt(header, payload, privateKeyDer) {
+	const priv = createPrivateKey({ key: privateKeyDer, format: 'der', type: 'pkcs8' });
+	const hdr = _attestBase64url(Buffer.from(JSON.stringify(header)));
+	const pld = _attestBase64url(Buffer.from(JSON.stringify(payload)));
+	const signing = `${hdr}.${pld}`;
+	const sign = createSign('SHA256');
+	sign.update(signing);
+	const derSig = sign.sign(priv);
+	// DER SEQUENCE → raw R‖S (64 bytes) for ES256
+	let offset = 2;
+	const rLen = derSig[offset + 1];
+	let rRaw = derSig.slice(offset + 2, offset + 2 + rLen);
+	offset += 2 + rLen;
+	const sLen = derSig[offset + 1];
+	let sRaw = derSig.slice(offset + 2, offset + 2 + sLen);
+	if (rRaw.length > 32) rRaw = rRaw.slice(rRaw.length - 32);
+	if (sRaw.length > 32) sRaw = sRaw.slice(sRaw.length - 32);
+	const rPad = Buffer.alloc(32);
+	rRaw.copy(rPad, 32 - rRaw.length);
+	const sPad = Buffer.alloc(32);
+	sRaw.copy(sPad, 32 - sRaw.length);
+	const rawSig = Buffer.concat([rPad, sPad]);
+	return `${signing}.${_attestBase64url(rawSig)}`;
+}
+
+function _attestVerifyJwt(token, publicKeyDer) {
+	const parts = token.split('.');
+	if (parts.length !== 3) throw new Error('Invalid JWT structure');
+	const [hdrB64, pldB64, sigB64] = parts;
+	const pub = createPublicKey({ key: publicKeyDer, format: 'der', type: 'spki' });
+	const rawSig = Buffer.from(sigB64.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+	// raw R‖S → DER SEQUENCE
+	const r = rawSig.slice(0, 32);
+	const s = rawSig.slice(32, 64);
+	const rPadded = r[0] & 0x80 ? Buffer.concat([Buffer.from([0x00]), r]) : r;
+	const sPadded = s[0] & 0x80 ? Buffer.concat([Buffer.from([0x00]), s]) : s;
+	const inner = Buffer.concat([
+		Buffer.from([0x02, rPadded.length]),
+		rPadded,
+		Buffer.from([0x02, sPadded.length]),
+		sPadded,
+	]);
+	const der = Buffer.concat([Buffer.from([0x30, inner.length]), inner]);
+	const verify = createVerify('SHA256');
+	verify.update(`${hdrB64}.${pldB64}`);
+	return verify.verify(pub, der);
+}
+
+// POST /api/attestation/attester-jwks — public JWK set for the attester (AS can fetch to verify attestation JWTs)
+app.get('/api/attestation/attester-jwks', (_req, res) => {
+	res.json({ keys: [_attesterPublicJwk()] });
+});
+
+// POST /api/attestation/issue-attestation
+// Simulates the Attester signing a Client Attestation JWT.
+// In production: MDM, app store, or trusted platform does this out-of-band.
+app.post('/api/attestation/issue-attestation', (req, res) => {
+	try {
+		const { clientId, clientEphemeralPublicJwk, attester = 'demo-mdm', policies = [] } = req.body;
+		if (!clientId || !clientEphemeralPublicJwk) {
+			return res.status(400).json({ error: 'clientId and clientEphemeralPublicJwk required' });
+		}
+		const now = Math.floor(Date.now() / 1000);
+		// Client Attestation JWT — signed by Attester, cnf binds client ephemeral key
+		const header = { alg: 'ES256', typ: 'JWT', kid: 'attester-key-1' };
+		const payload = {
+			iss: `https://demo-attester.example.com/${attester}`,
+			sub: clientId,
+			iat: now,
+			exp: now + 300, // 5 min
+			cnf: { jwk: clientEphemeralPublicJwk }, // binds client ephemeral key
+			'policy-ids': policies,
+			attester,
+			// draft claim: client software attestation
+			client_attestation: {
+				app_id: clientId,
+				platform: attester,
+				integrity: 'pass',
+				version: '1.0.0',
+			},
+		};
+		const attestationJwt = _attestSignJwt(header, payload, _attesterKeyPair.privateKey);
+		const decodedHeader = header;
+		const decodedPayload = payload;
+		const attesterPublicJwk = _attesterPublicJwk();
+		res.json({ success: true, attestationJwt, decodedHeader, decodedPayload, attesterPublicJwk });
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+
+// POST /api/attestation/token
+// Simulates the AS receiving client_assertion_type=jwt-client-attestation
+// client_assertion = <attestation-jwt>~<pop-jwt>
+// Verifies: (1) attestation JWT signed by trusted attester, (2) PoP JWT signed by ephemeral key in cnf
+app.post('/api/attestation/token', (req, res) => {
+	try {
+		const {
+			client_assertion_type,
+			client_assertion,
+			grant_type = 'client_credentials',
+			scope = 'read',
+			audience,
+		} = req.body;
+
+		const EXPECTED_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-client-attestation';
+		if (client_assertion_type !== EXPECTED_TYPE) {
+			return res
+				.status(400)
+				.json({
+					error: 'invalid_client',
+					error_description: `client_assertion_type must be ${EXPECTED_TYPE}`,
+				});
+		}
+		if (!client_assertion || !client_assertion.includes('~')) {
+			return res
+				.status(400)
+				.json({
+					error: 'invalid_client',
+					error_description: 'client_assertion must be <attestation-jwt>~<pop-jwt>',
+				});
+		}
+
+		const [attestationJwt, popJwt] = client_assertion.split('~');
+
+		// 1. Verify attestation JWT signature (trusted attester key)
+		const attIsValid = _attestVerifyJwt(attestationJwt, _attesterKeyPair.publicKey);
+		if (!attIsValid) {
+			return res
+				.status(401)
+				.json({ error: 'invalid_client', error_description: 'Attestation JWT signature invalid' });
+		}
+
+		// 2. Decode attestation JWT and extract cnf.jwk (client ephemeral public key)
+		const attPayloadB64 = attestationJwt.split('.')[1];
+		const attPayload = JSON.parse(
+			Buffer.from(attPayloadB64.replace(/-/g, '+').replace(/_/g, '/'), 'base64')
+		);
+
+		// Check expiry
+		const now = Math.floor(Date.now() / 1000);
+		if (attPayload.exp < now) {
+			return res
+				.status(401)
+				.json({ error: 'invalid_client', error_description: 'Attestation JWT expired' });
+		}
+
+		// 3. Reconstruct client ephemeral public key DER from cnf.jwk
+		const cnfJwk = attPayload?.cnf?.jwk;
+		if (!cnfJwk) {
+			return res
+				.status(400)
+				.json({ error: 'invalid_client', error_description: 'Attestation JWT missing cnf.jwk' });
+		}
+		const ephemeralPubKey = createPublicKey({ key: cnfJwk, format: 'jwk' });
+		const ephemeralPubDer = ephemeralPubKey.export({ type: 'spki', format: 'der' });
+
+		// 4. Verify PoP JWT signed by client ephemeral key
+		const popIsValid = _attestVerifyJwt(popJwt, ephemeralPubDer);
+		if (!popIsValid) {
+			return res
+				.status(401)
+				.json({
+					error: 'invalid_client',
+					error_description: 'Client Attestation PoP JWT signature invalid',
+				});
+		}
+
+		// 5. Decode PoP JWT, validate aud/iat/exp
+		const popPayloadB64 = popJwt.split('.')[1];
+		const popPayload = JSON.parse(
+			Buffer.from(popPayloadB64.replace(/-/g, '+').replace(/_/g, '/'), 'base64')
+		);
+
+		if (popPayload.exp < now) {
+			return res
+				.status(401)
+				.json({ error: 'invalid_client', error_description: 'PoP JWT expired' });
+		}
+
+		// 6. Both verified — issue access token
+		const clientId = attPayload.sub;
+		const issuedAt = now;
+		const expiry = now + 3600;
+		const atHeader = { alg: 'ES256', typ: 'at+JWT' };
+		const atPayload = {
+			iss: 'https://demo-as.example.com',
+			sub: clientId,
+			client_id: clientId,
+			aud: audience || popPayload.aud || 'https://api.example.com',
+			iat: issuedAt,
+			exp: expiry,
+			scope,
+			grant_type,
+			jti: randomUUID(),
+			// draft: record attestation binding
+			cnf: { jwk: cnfJwk },
+			attester: attPayload.attester,
+		};
+		const accessToken = _attestSignJwt(atHeader, atPayload, _attesterKeyPair.privateKey);
+
+		res.json({
+			access_token: accessToken,
+			token_type: 'Bearer',
+			expires_in: 3600,
+			scope,
+			issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+			atPayload,
+			verificationSteps: {
+				step1_attestation_signature: 'PASS',
+				step2_cnf_jwk_extracted: 'PASS',
+				step3_pop_signature: 'PASS',
+				step4_pop_expiry: 'PASS',
+			},
+		});
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+// ─── End Attestation-Based Client Auth Routes ─────────────────────────────────
+
+// ─── mTLS Client Authentication Routes (RFC 8705) ────────────────────────────
+// Certificate-bound access tokens: cnf.x5t#S256 thumbprint in the token.
+// Since real TLS mutual auth can't be demonstrated over HTTP, we simulate:
+//   1. Demo CA signs a structured "certificate" binding client public JWK
+//   2. Client proves possession via signature (simulates the TLS handshake proof)
+//   3. AS issues access token with cnf.x5t#S256 bound to the presented certificate
+
+// Demo CA key pair — simulates a trusted CA (enterprise PKI, Let's Encrypt, etc.)
+const _mtlsCaKeyPair = generateKeyPairSync('ec', {
+	namedCurve: 'P-256',
+	publicKeyEncoding: { type: 'spki', format: 'der' },
+	privateKeyEncoding: { type: 'pkcs8', format: 'der' },
+});
+
+function _mtlsCaPublicJwk() {
+	const pub = createPublicKey({ key: _mtlsCaKeyPair.publicKey, format: 'der', type: 'spki' });
+	return { ...pub.export({ format: 'jwk' }), kid: 'demo-ca-key-1', use: 'sig' };
+}
+
+function _mtlsB64url(buf) {
+	return Buffer.from(buf)
+		.toString('base64')
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_')
+		.replace(/=/g, '');
+}
+
+function _mtlsSignJwt(header, payload, privateKeyDer) {
+	const priv = createPrivateKey({ key: privateKeyDer, format: 'der', type: 'pkcs8' });
+	const hdr = _mtlsB64url(Buffer.from(JSON.stringify(header)));
+	const pld = _mtlsB64url(Buffer.from(JSON.stringify(payload)));
+	const signing = `${hdr}.${pld}`;
+	const sign = createSign('SHA256');
+	sign.update(signing);
+	const derSig = sign.sign(priv);
+	let offset = 2;
+	const rLen = derSig[offset + 1];
+	let rRaw = derSig.slice(offset + 2, offset + 2 + rLen);
+	offset += 2 + rLen;
+	const sLen = derSig[offset + 1];
+	let sRaw = derSig.slice(offset + 2, offset + 2 + sLen);
+	if (rRaw.length > 32) rRaw = rRaw.slice(rRaw.length - 32);
+	if (sRaw.length > 32) sRaw = sRaw.slice(sRaw.length - 32);
+	const rPad = Buffer.alloc(32);
+	rRaw.copy(rPad, 32 - rRaw.length);
+	const sPad = Buffer.alloc(32);
+	sRaw.copy(sPad, 32 - sRaw.length);
+	return `${signing}.${_mtlsB64url(Buffer.concat([rPad, sPad]))}`;
+}
+
+function _mtlsVerifyJwt(token, publicKeyDer) {
+	const parts = token.split('.');
+	if (parts.length !== 3) throw new Error('Invalid JWT structure');
+	const [hdrB64, pldB64, sigB64] = parts;
+	const pub = createPublicKey({ key: publicKeyDer, format: 'der', type: 'spki' });
+	const rawSig = Buffer.from(sigB64.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+	const r = rawSig.slice(0, 32);
+	const s = rawSig.slice(32, 64);
+	const rP = r[0] & 0x80 ? Buffer.concat([Buffer.from([0x00]), r]) : r;
+	const sP = s[0] & 0x80 ? Buffer.concat([Buffer.from([0x00]), s]) : s;
+	const inner = Buffer.concat([
+		Buffer.from([0x02, rP.length]),
+		rP,
+		Buffer.from([0x02, sP.length]),
+		sP,
+	]);
+	const der = Buffer.concat([Buffer.from([0x30, inner.length]), inner]);
+	const v = createVerify('SHA256');
+	v.update(`${hdrB64}.${pldB64}`);
+	return v.verify(pub, der);
+}
+
+/** Compute x5t#S256 thumbprint: SHA-256 of the canonical cert structure bytes */
+function _mtlsThumbprint(certBody) {
+	// Canonical: sorted JSON (stable across JS engines for our controlled object)
+	const canonical = JSON.stringify(certBody, Object.keys(certBody).sort());
+	return _mtlsB64url(createHash('sha256').update(canonical).digest());
+}
+
+// GET /api/mtls/ca-jwks — CA public key (resource servers fetch this to validate bound tokens)
+app.get('/api/mtls/ca-jwks', (_req, res) => {
+	res.json({ keys: [_mtlsCaPublicJwk()] });
+});
+
+// POST /api/mtls/issue-certificate
+// Simulates CA signing a client certificate binding the client's public key.
+app.post('/api/mtls/issue-certificate', (req, res) => {
+	try {
+		const { clientPublicJwk, subject, ca = 'Demo Enterprise CA' } = req.body;
+		if (!clientPublicJwk || !subject) {
+			return res.status(400).json({ error: 'clientPublicJwk and subject required' });
+		}
+		const now = Math.floor(Date.now() / 1000);
+		const serial = randomBytes(8)
+			.toString('hex')
+			.toUpperCase()
+			.replace(/(.{2})/g, '$1:')
+			.slice(0, -1);
+
+		// Certificate body — the content the CA signs
+		const certBody = {
+			version: 3,
+			serialNumber: serial,
+			subject,
+			issuer: ca,
+			notBefore: now,
+			notAfter: now + 86400, // 24h
+			subjectPublicKeyInfo: clientPublicJwk,
+			keyUsage: ['digitalSignature', 'keyAgreement'],
+			extendedKeyUsage: ['clientAuth'],
+		};
+
+		// Compute thumbprint before signing (matches RFC 8705 x5t#S256)
+		const thumbprint = _mtlsThumbprint(certBody);
+
+		// CA signs the certificate body as a JWT (simulates X.509 CA signature)
+		const certJwt = _mtlsSignJwt(
+			{ alg: 'ES256', typ: 'CERT', kid: 'demo-ca-key-1' },
+			{ ...certBody, thumbprint },
+			_mtlsCaKeyPair.privateKey
+		);
+
+		res.json({
+			success: true,
+			certificateJwt: certJwt,
+			certBody: { ...certBody, thumbprint },
+			thumbprint,
+			caPublicJwk: _mtlsCaPublicJwk(),
+			// PEM-like display representation
+			pemLike: `-----BEGIN DEMO CERTIFICATE-----\n${Buffer.from(certJwt)
+				.toString('base64')
+				.match(/.{1,64}/g)
+				.join('\n')}\n-----END DEMO CERTIFICATE-----`,
+		});
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+
+// POST /api/mtls/token
+// Simulates the AS token endpoint for tls_client_auth.
+// Accepts: certificateJwt (proves CA-signed cert), proofJwt (signed by cert private key — simulates TLS handshake proof)
+app.post('/api/mtls/token', (req, res) => {
+	try {
+		const {
+			certificate_jwt,
+			proof_jwt,
+			grant_type = 'client_credentials',
+			client_id,
+			scope = 'read',
+			audience,
+		} = req.body;
+
+		if (!certificate_jwt || !proof_jwt || !client_id) {
+			return res
+				.status(400)
+				.json({
+					error: 'invalid_request',
+					error_description: 'certificate_jwt, proof_jwt, and client_id required',
+				});
+		}
+
+		// 1. Verify certificate was signed by trusted CA
+		const certValid = _mtlsVerifyJwt(certificate_jwt, _mtlsCaKeyPair.publicKey);
+		if (!certValid) {
+			return res
+				.status(401)
+				.json({
+					error: 'invalid_client',
+					error_description: 'Certificate signature invalid — not issued by trusted CA',
+				});
+		}
+
+		// 2. Decode certificate and extract client public key
+		const certPayloadB64 = certificate_jwt.split('.')[1];
+		const certPayload = JSON.parse(
+			Buffer.from(certPayloadB64.replace(/-/g, '+').replace(/_/g, '/'), 'base64')
+		);
+
+		const now = Math.floor(Date.now() / 1000);
+		if (certPayload.notAfter < now) {
+			return res
+				.status(401)
+				.json({ error: 'invalid_client', error_description: 'Certificate expired' });
+		}
+
+		// 3. Reconstruct client public key DER from cert's subjectPublicKeyInfo
+		const clientPubKey = createPublicKey({ key: certPayload.subjectPublicKeyInfo, format: 'jwk' });
+		const clientPubDer = clientPubKey.export({ type: 'spki', format: 'der' });
+
+		// 4. Verify proof JWT signed by client private key (simulates TLS handshake proof of possession)
+		const proofValid = _mtlsVerifyJwt(proof_jwt, clientPubDer);
+		if (!proofValid) {
+			return res
+				.status(401)
+				.json({
+					error: 'invalid_client',
+					error_description: 'Proof JWT signature invalid — does not match certificate public key',
+				});
+		}
+
+		// 5. Validate proof JWT claims
+		const proofPayloadB64 = proof_jwt.split('.')[1];
+		const proofPayload = JSON.parse(
+			Buffer.from(proofPayloadB64.replace(/-/g, '+').replace(/_/g, '/'), 'base64')
+		);
+		if (proofPayload.exp < now) {
+			return res
+				.status(401)
+				.json({ error: 'invalid_client', error_description: 'Proof JWT expired' });
+		}
+
+		// 6. Issue certificate-bound access token
+		const thumbprint = certPayload.thumbprint;
+		const atPayload = {
+			iss: 'https://demo-as.example.com',
+			sub: certPayload.subject,
+			client_id,
+			aud: audience || proofPayload.aud || 'https://api.example.com',
+			iat: now,
+			exp: now + 3600,
+			scope,
+			grant_type,
+			jti: randomUUID(),
+			// RFC 8705 — certificate-bound token: x5t#S256 thumbprint
+			cnf: { 'x5t#S256': thumbprint },
+		};
+
+		const accessToken = _mtlsSignJwt(
+			{ alg: 'ES256', typ: 'at+JWT' },
+			atPayload,
+			_mtlsCaKeyPair.privateKey
+		);
+
+		res.json({
+			access_token: accessToken,
+			token_type: 'Bearer',
+			expires_in: 3600,
+			scope,
+			atPayload,
+			verificationSteps: {
+				step1_cert_ca_signature: 'PASS',
+				step2_cert_expiry: 'PASS',
+				step3_proof_jwt_signature: 'PASS',
+				step4_proof_jwt_expiry: 'PASS',
+				step5_x5t_bound_in_token: `cnf.x5t#S256 = ${thumbprint.slice(0, 16)}…`,
+			},
+		});
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+// ─── End mTLS Routes ──────────────────────────────────────────────────────────
+
+// ─── GNAP — Grant Negotiation and Authorization Protocol (RFC 9635) ───────────
+// https://www.rfc-editor.org/rfc/rfc9635
+// GNAP replaces OAuth's redirect-based dance with a richer JSON negotiation:
+//   1. Client POSTs a grant request (resources, subjects, interact)
+//   2. AS returns interact redirect + pending grant
+//   3. User approves; AS issues interaction finish notification
+//   4. Client POSTs continuation request → receives access tokens + subject claims
+
+const _gnapStore = new Map(); // transactionId → grant state
+
+function _gnapId() {
+	return randomUUID();
+}
+
+// POST /api/gnap/grant  — Initial grant request
+app.post('/api/gnap/grant', (req, res) => {
+	try {
+		const { access, subject, interact, client } = req.body;
+		if (!access && !subject) {
+			return res
+				.status(400)
+				.json({ error: 'invalid_request', error_description: 'access or subject required' });
+		}
+		const txId = _gnapId();
+		const interactRef = _gnapId().replace(/-/g, '').slice(0, 16);
+
+		// Store pending grant
+		_gnapStore.set(txId, {
+			status: 'pending',
+			access: access ?? [],
+			subject: subject ?? null,
+			client: client ?? { display: { name: 'Demo Client' } },
+			interact: interact ?? null,
+			interactRef,
+			approvedAt: null,
+		});
+
+		const response = {
+			// RFC 9635 §2.2 — interact if requested
+			...(interact && {
+				interact: {
+					redirect: `${req.protocol}://${req.get('host')}/gnap/interact/${interactRef}`,
+					finish: {
+						method: 'redirect',
+						uri: interact?.finish?.uri ?? 'https://client.example.com/callback',
+						nonce: interact?.finish?.nonce ?? _gnapId().slice(0, 8),
+					},
+				},
+			}),
+			// RFC 9635 §2.3 — continuation handle
+			continue: {
+				access_token: { value: `gnap-cont-${txId}` },
+				uri: `${req.protocol}://${req.get('host')}/api/gnap/continue/${txId}`,
+				wait: 5,
+			},
+			instance_id: txId,
+		};
+
+		res.status(200).json(response);
+	} catch (err) {
+		res.status(500).json({ error: 'server_error', error_description: err.message });
+	}
+});
+
+// POST /api/gnap/interact/:interactRef/approve  — Simulate user approval
+app.post('/api/gnap/interact/:interactRef/approve', (req, res) => {
+	try {
+		const { interactRef } = req.params;
+		let found = null;
+		for (const [id, grant] of _gnapStore.entries()) {
+			if (grant.interactRef === interactRef) {
+				found = [id, grant];
+				break;
+			}
+		}
+		if (!found) return res.status(404).json({ error: 'unknown_ref' });
+		const [txId, grant] = found;
+		grant.status = 'approved';
+		grant.approvedAt = Date.now();
+		_gnapStore.set(txId, grant);
+		res.json({ status: 'approved', txId });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// POST /api/gnap/continue/:txId  — Continuation request after user approval
+app.post('/api/gnap/continue/:txId', (req, res) => {
+	try {
+		const { txId } = req.params;
+		const grant = _gnapStore.get(txId);
+		if (!grant) return res.status(404).json({ error: 'unknown_transaction' });
+		if (grant.status !== 'approved') {
+			return res
+				.status(200)
+				.json({
+					continue: {
+						access_token: { value: `gnap-cont-${txId}` },
+						uri: `${req.protocol}://${req.get('host')}/api/gnap/continue/${txId}`,
+						wait: 5,
+					},
+					status: 'pending',
+				});
+		}
+
+		const now = Math.floor(Date.now() / 1000);
+		// Build access tokens per requested resource
+		const accessTokens = (grant.access ?? []).map((resourceReq, i) => {
+			const label =
+				typeof resourceReq === 'string' ? resourceReq : (resourceReq.type ?? `resource-${i}`);
+			return {
+				value: `gnap-at-${_gnapId().slice(0, 8)}`,
+				label,
+				expires_in: 3600,
+				manage: `${req.protocol}://${req.get('host')}/api/gnap/token/${_gnapId().slice(0, 8)}`,
+				access: [resourceReq],
+				flags: ['bearer'],
+			};
+		});
+
+		// Subject info if requested
+		const subjectInfo = grant.subject
+			? {
+					sub_ids: [{ format: 'email', email: 'user@demo.example.com' }],
+					assertions: { id_token: `demo.id.token.${_gnapId().slice(0, 8)}` },
+					updated_at: new Date().toISOString(),
+				}
+			: undefined;
+
+		_gnapStore.delete(txId); // clean up after issuance
+
+		res.json({
+			access_token: accessTokens.length === 1 ? accessTokens[0] : undefined,
+			multiple_access_tokens:
+				accessTokens.length > 1
+					? Object.fromEntries(accessTokens.map((t) => [t.label, t]))
+					: undefined,
+			...(subjectInfo && { subject: subjectInfo }),
+			instance_id: txId,
+		});
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// GET /api/gnap/status/:txId  — Poll grant status
+app.get('/api/gnap/status/:txId', (req, res) => {
+	const grant = _gnapStore.get(req.params.txId);
+	if (!grant) return res.status(404).json({ error: 'unknown_transaction' });
+	res.json({ status: grant.status, interactRef: grant.interactRef });
+});
+// ─── End GNAP Routes ──────────────────────────────────────────────────────────
+
+// ─── JAR + JARM Routes ────────────────────────────────────────────────────────
+// JAR: RFC 9101 — JWT-Secured Authorization Requests
+// JARM: draft-ietf-oauth-jwsreq + draft-ietf-oauth-jarm (JWT-Secured Authorization Response Mode)
+
+const _jarKeyPair = generateKeyPairSync('ec', {
+	namedCurve: 'P-256',
+	publicKeyEncoding: { type: 'spki', format: 'der' },
+	privateKeyEncoding: { type: 'pkcs8', format: 'der' },
+});
+
+function _jarB64url(buf) {
+	return Buffer.from(buf)
+		.toString('base64')
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_')
+		.replace(/=/g, '');
+}
+
+function _jarSignJwt(header, payload, privateKeyDer) {
+	const priv = createPrivateKey({ key: privateKeyDer, format: 'der', type: 'pkcs8' });
+	const hdr = _jarB64url(Buffer.from(JSON.stringify(header)));
+	const pld = _jarB64url(Buffer.from(JSON.stringify(payload)));
+	const signing = `${hdr}.${pld}`;
+	const sign = createSign('SHA256');
+	sign.update(signing);
+	const derSig = sign.sign(priv);
+	let offset = 2;
+	const rLen = derSig[offset + 1];
+	let rRaw = derSig.slice(offset + 2, offset + 2 + rLen);
+	offset += 2 + rLen;
+	const sLen = derSig[offset + 1];
+	let sRaw = derSig.slice(offset + 2, offset + 2 + sLen);
+	if (rRaw.length > 32) rRaw = rRaw.slice(rRaw.length - 32);
+	if (sRaw.length > 32) sRaw = sRaw.slice(sRaw.length - 32);
+	const rPad = Buffer.alloc(32);
+	rRaw.copy(rPad, 32 - rRaw.length);
+	const sPad = Buffer.alloc(32);
+	sRaw.copy(sPad, 32 - sRaw.length);
+	return `${signing}.${_jarB64url(Buffer.concat([rPad, sPad]))}`;
+}
+
+// GET /api/jar/client-jwks — Client's public signing key (AS fetches this to verify request objects)
+app.get('/api/jar/client-jwks', (_req, res) => {
+	const pub = createPublicKey({ key: _jarKeyPair.publicKey, format: 'der', type: 'spki' });
+	res.json({
+		keys: [{ ...pub.export({ format: 'jwk' }), kid: 'jar-client-key-1', use: 'sig', alg: 'ES256' }],
+	});
+});
+
+// POST /api/jar/sign-request — Sign an authorization request object (JAR)
+app.post('/api/jar/sign-request', (req, res) => {
+	try {
+		const { clientId, responseType, redirectUri, scope, state, nonce, audience, acrValues } =
+			req.body;
+		const now = Math.floor(Date.now() / 1000);
+		const requestObject = {
+			iss: clientId,
+			aud: audience ?? 'https://demo-as.example.com',
+			iat: now,
+			exp: now + 60,
+			jti: randomUUID(),
+			response_type: responseType ?? 'code',
+			client_id: clientId,
+			redirect_uri: redirectUri ?? 'https://client.example.com/callback',
+			scope: scope ?? 'openid profile',
+			state: state ?? randomBytes(8).toString('hex'),
+			nonce: nonce ?? randomBytes(8).toString('hex'),
+			...(acrValues && { acr_values: acrValues }),
+		};
+		const requestJwt = _jarSignJwt(
+			{ alg: 'ES256', typ: 'oauth.authz.req+jwt', kid: 'jar-client-key-1' },
+			requestObject,
+			_jarKeyPair.privateKey
+		);
+		const authzUrl = `https://demo-as.example.com/authorize?client_id=${clientId}&request=${requestJwt}`;
+		res.json({
+			success: true,
+			requestJwt,
+			requestObject,
+			authzUrl,
+			clientJwksUri: `${req.protocol}://${req.get('host')}/api/jar/client-jwks`,
+		});
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+
+// POST /api/jar/jarm-response — Simulate AS returning a JARM response (JWT-wrapped auth code)
+app.post('/api/jar/jarm-response', (req, res) => {
+	try {
+		const { responseMode, state, clientId } = req.body;
+		const now = Math.floor(Date.now() / 1000);
+		const code = randomBytes(16).toString('hex');
+		const jarmPayload = {
+			iss: 'https://demo-as.example.com',
+			aud: clientId ?? 'demo-client',
+			exp: now + 60,
+			code,
+			state: state ?? randomBytes(8).toString('hex'),
+		};
+		const jarmJwt = _jarSignJwt(
+			{ alg: 'ES256', typ: 'JWT', kid: 'jar-client-key-1' },
+			jarmPayload,
+			_jarKeyPair.privateKey
+		);
+		const redirectUri = `https://client.example.com/callback`;
+		let redirectUrl;
+		if (responseMode === 'query.jwt') {
+			redirectUrl = `${redirectUri}?response=${jarmJwt}`;
+		} else if (responseMode === 'fragment.jwt') {
+			redirectUrl = `${redirectUri}#response=${jarmJwt}`;
+		} else {
+			// form_post.jwt
+			redirectUrl = null;
+		}
+		res.json({
+			success: true,
+			jarmJwt,
+			jarmPayload,
+			redirectUrl,
+			responseMode: responseMode ?? 'query.jwt',
+			authCode: code,
+		});
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+// ─── End JAR + JARM Routes ────────────────────────────────────────────────────
+
+// ─── Step-Up Authentication Routes (RFC 9470) ────────────────────────────────
+// RFC 9470: OAuth 2.0 Step Up Authentication Challenge Protocol
+// Resource server returns 401 with insufficient_user_authentication + acr/age challenges
+// Client re-authenticates at higher assurance then retries
+
+// POST /api/stepup/resource — Simulates a protected resource that may challenge
+app.post('/api/stepup/resource', (req, res) => {
+	try {
+		const { access_token, required_acr, max_age } = req.body;
+		if (!access_token)
+			return res
+				.status(401)
+				.json({ error: 'unauthorized', error_description: 'access_token required' });
+
+		// Decode (no sig verification in demo — just parse claims)
+		const parts = access_token.split('.');
+		if (parts.length !== 3) return res.status(401).json({ error: 'invalid_token' });
+		const tokPayload = JSON.parse(
+			Buffer.from(parts[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64')
+		);
+		const now = Math.floor(Date.now() / 1000);
+
+		// Check expiry
+		if (tokPayload.exp && tokPayload.exp < now) {
+			return res.status(401).json({ error: 'invalid_token', error_description: 'Token expired' });
+		}
+
+		const tokenAcr = tokPayload.acr ?? 'urn:mace:incommon:iap:bronze';
+		const tokenAuthTime = tokPayload.auth_time ?? now - 3600;
+
+		// ACR hierarchy for comparison
+		const acrLevels = {
+			'urn:mace:incommon:iap:bronze': 1,
+			'urn:mace:incommon:iap:silver': 2,
+			'urn:mace:incommon:iap:gold': 3,
+			'urn:mace:incommon:iap:platinum': 4,
+			phr: 2,
+			phrh: 3,
+		};
+		const requiredLevel = acrLevels[required_acr] ?? 2;
+		const currentLevel = acrLevels[tokenAcr] ?? 1;
+
+		// Check max_age
+		const authAge = now - tokenAuthTime;
+		const maxAgeOk = !max_age || authAge <= max_age;
+		const acrOk = currentLevel >= requiredLevel;
+
+		if (!acrOk || !maxAgeOk) {
+			// RFC 9470 §5 — WWW-Authenticate challenge
+			const challenges = [];
+			if (!acrOk) challenges.push(`acr_values="${required_acr}"`);
+			if (!maxAgeOk) challenges.push(`max_age=${max_age}`);
+			res.set(
+				'WWW-Authenticate',
+				`Bearer error="insufficient_user_authentication", ${challenges.join(', ')}`
+			);
+			return res.status(401).json({
+				error: 'insufficient_user_authentication',
+				error_description: `Resource requires ${!acrOk ? `ACR ${required_acr}` : ''}${!maxAgeOk ? ` auth within ${max_age}s` : ''}`,
+				required_acr: !acrOk ? required_acr : undefined,
+				max_age: !maxAgeOk ? max_age : undefined,
+				current_acr: tokenAcr,
+				current_auth_age_seconds: authAge,
+			});
+		}
+
+		// Access granted
+		res.json({
+			granted: true,
+			resource_data: {
+				account_balance: '$12,450.00',
+				last_transaction: '2026-03-15',
+				currency: 'USD',
+			},
+			token_acr: tokenAcr,
+			auth_age_seconds: authAge,
+		});
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// POST /api/stepup/issue-token — Issue a token with configurable ACR + auth_time
+app.post('/api/stepup/issue-token', (req, res) => {
+	try {
+		const { subject, acr, max_age_ago, scope, audience } = req.body;
+		const now = Math.floor(Date.now() / 1000);
+		const authTime = now - (max_age_ago ?? 0);
+		const payload = {
+			iss: 'https://demo-as.example.com',
+			sub: subject ?? 'user@demo.example.com',
+			aud: audience ?? 'https://api.example.com',
+			iat: now,
+			exp: now + 3600,
+			scope: scope ?? 'read',
+			acr: acr ?? 'urn:mace:incommon:iap:bronze',
+			auth_time: authTime,
+			amr: acr?.includes('gold')
+				? ['mfa', 'hwk']
+				: acr?.includes('silver')
+					? ['pwd', 'otp']
+					: ['pwd'],
+			jti: randomUUID(),
+		};
+		// Sign with JAR key for demo consistency
+		const token = _jarSignJwt(
+			{ alg: 'ES256', typ: 'at+JWT', kid: 'jar-client-key-1' },
+			payload,
+			_jarKeyPair.privateKey
+		);
+		res.json({ success: true, access_token: token, payload });
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+// ─── End Step-Up Auth Routes ──────────────────────────────────────────────────
+
+// ─── Token Introspection Routes (RFC 7662) ────────────────────────────────────
+// RFC 7662: OAuth 2.0 Token Introspection
+// Resource servers query the AS to validate opaque tokens and get token metadata
+
+const _introspectionTokenStore = new Map(); // token → metadata
+
+// POST /api/introspection/issue — Issue introspectable tokens (reference tokens, not self-contained JWTs)
+app.post('/api/introspection/issue', (req, res) => {
+	try {
+		const { subject, scope, audience, clientId, acr } = req.body;
+		const now = Math.floor(Date.now() / 1000);
+		const token = `opaque-${randomBytes(16).toString('hex')}`;
+		const metadata = {
+			active: true,
+			sub: subject ?? 'user@demo.example.com',
+			client_id: clientId ?? 'demo-client',
+			scope: scope ?? 'read write',
+			aud: audience ?? 'https://api.example.com',
+			iss: 'https://demo-as.example.com',
+			iat: now,
+			exp: now + 3600,
+			token_type: 'Bearer',
+			...(acr && { acr }),
+			nbf: now,
+		};
+		_introspectionTokenStore.set(token, metadata);
+		res.json({ success: true, access_token: token, expires_in: 3600, metadata });
+	} catch (err) {
+		res.status(500).json({ success: false, error: err.message });
+	}
+});
+
+// POST /api/introspection/introspect — RFC 7662 §2.1 introspection endpoint
+app.post('/api/introspection/introspect', (req, res) => {
+	try {
+		// RFC 7662 §2.1 — RS authenticates itself (we check a simple rs_token header for demo)
+		const rsAuth = req.headers['x-rs-identity'] ?? req.body.rs_identity;
+		if (!rsAuth) {
+			return res
+				.status(401)
+				.json({
+					error: 'unauthorized',
+					error_description: 'Resource server must authenticate (x-rs-identity header)',
+				});
+		}
+
+		const { token, token_type_hint } = req.body;
+		if (!token)
+			return res
+				.status(400)
+				.json({ error: 'invalid_request', error_description: 'token required' });
+
+		const metadata = _introspectionTokenStore.get(token);
+		if (!metadata) {
+			// RFC 7662 §2.2 — unknown/expired = { active: false }
+			return res.json({ active: false });
+		}
+
+		const now = Math.floor(Date.now() / 1000);
+		if (metadata.exp < now) {
+			_introspectionTokenStore.set(token, { ...metadata, active: false });
+			return res.json({ active: false });
+		}
+
+		res.json({ ...metadata, token_type_hint: token_type_hint ?? 'access_token' });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// POST /api/introspection/revoke — RFC 7009 token revocation (pairs naturally with introspection)
+app.post('/api/introspection/revoke', (req, res) => {
+	const { token } = req.body;
+	if (!token) return res.status(400).json({ error: 'invalid_request' });
+	const existed = _introspectionTokenStore.has(token);
+	if (existed) {
+		const metadata = _introspectionTokenStore.get(token);
+		_introspectionTokenStore.set(token, {
+			...metadata,
+			active: false,
+			revoked_at: Math.floor(Date.now() / 1000),
+		});
+	}
+	// RFC 7009 §2.2 — always return 200 (don't reveal if token existed)
+	res.status(200).json({ revoked: true });
+});
+// ─── End Token Introspection Routes ──────────────────────────────────────────
 
 // Start servers
 async function startServers() {
