@@ -6,6 +6,8 @@
  * @since 2025-01-XX
  */
 
+import { logger } from '../../../../utils/logger';
+
 const STORAGE_KEY = 'pingone_mfa_configuration_v8';
 const MODULE_TAG = '[⚙️ MFA-CONFIG-SERVICE-V8]';
 
@@ -118,6 +120,7 @@ const DEFAULT_CONFIG: MFAConfiguration = {
 	},
 };
 
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class MFAConfigurationServiceV8 {
 	/**
 	 * Load configuration from localStorage or return defaults
@@ -239,7 +242,6 @@ export class MFAConfigurationServiceV8 {
 			return true;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to import configuration:`, error);
-			import { logger } from '../../../../utils/logger';
 			return false;
 		}
 	}
