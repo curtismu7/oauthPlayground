@@ -10649,7 +10649,7 @@ app.get('/api/pingone/applications/:appId', async (req, res) => {
 app.post('/api/pingone/organization-licensing', async (req, res) => {
 	try {
 		console.log('[PingOne Org Licensing] Request received');
-		const { workerToken, organizationId } = req.body;
+		const { workerToken, organizationId, region: requestRegion } = req.body;
 
 		if (!workerToken) {
 			return res.status(400).json({
@@ -10658,7 +10658,40 @@ app.post('/api/pingone/organization-licensing', async (req, res) => {
 			});
 		}
 
-		const baseUrl = 'https://api.pingone.com/v1';
+		// ── Resolve region early so all API calls hit the correct regional endpoint ──
+		// Priority: 1) region from request body, 2) region parsed from token issuer, 3) stored region, 4) NA fallback
+		let detectedRegion = requestRegion || null;
+		if (!detectedRegion && workerToken?.includes('.')) {
+			try {
+				const parts = workerToken.split('.');
+				if (parts.length >= 2) {
+					const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+					const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('utf-8'));
+					if (payload.iss?.includes('auth.pingone.')) {
+						const m = payload.iss.match(/auth\.pingone\.([a-z0-9-]+)/);
+						if (m?.[1]) detectedRegion = m[1];
+					}
+				}
+			} catch (e) {
+				/* ignore */
+			}
+		}
+		if (!detectedRegion) {
+			try {
+				detectedRegion = await getStoredRegion();
+			} catch (e) {
+				/* ignore */
+			}
+		}
+		const mgmtBase = resolvePingOneMgmtBase(detectedRegion) || 'https://api.pingone.com';
+		const baseUrl = `${mgmtBase}/v1`;
+		console.log(
+			'[PingOne Org Licensing] Using base URL:',
+			baseUrl,
+			'(region:',
+			detectedRegion || 'na-fallback',
+			')'
+		);
 
 		// Get organization details
 		let organizationInfo;

@@ -76,11 +76,17 @@ export async function getOrganizationLicensingInfo(
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
+			const detail =
+				errorData.error_description ||
+				errorData.details ||
+				errorData.error ||
+				errorData.message ||
+				`HTTP ${response.status}`;
 			logger.error('ORG-LICENSE', 'Backend API request failed', {
 				status: response.status,
-				error: errorData.error_description || errorData.error || 'Unknown error',
+				error: detail,
 			});
-			return null;
+			throw new Error(`${response.status}: ${detail}`);
 		}
 
 		const orgInfo: OrganizationInfo = await response.json();
@@ -95,9 +101,8 @@ export async function getOrganizationLicensingInfo(
 	} catch (error) {
 		logger.error('ORG-LICENSE', 'Failed to fetch organization licensing', {
 			error: error instanceof Error ? error.message : String(error),
-			stack: error instanceof Error ? error.stack : undefined,
 		});
-		return null;
+		throw error; // re-throw so the caller receives the actual error message
 	}
 }
 
