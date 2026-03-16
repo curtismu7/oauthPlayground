@@ -248,6 +248,7 @@ const PingOneLoginContent: React.FC = () => {
 	const [clientId, setClientId] = useState('');
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
+	const [showPingOnePassword, setShowPingOnePassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<string | null>(null);
@@ -368,14 +369,48 @@ const PingOneLoginContent: React.FC = () => {
 					</FormRow>
 					<FormRow>
 						<FormLabel>Password</FormLabel>
-						<FormInput
-							type="password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							placeholder="Password"
-							disabled={isLoading}
-							autoComplete="current-password"
-						/>
+						<div style={{ position: 'relative', width: '100%' }}>
+							<FormInput
+								type={showPingOnePassword ? 'text' : 'password'}
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								placeholder="Password"
+								disabled={isLoading}
+								autoComplete="current-password"
+								style={{ paddingRight: '40px' }}
+							/>
+							<button
+								type="button"
+								onClick={() => setShowPingOnePassword(!showPingOnePassword)}
+								style={{
+									position: 'absolute',
+									right: '8px',
+									top: '50%',
+									transform: 'translateY(-50%)',
+									background: 'none',
+									border: 'none',
+									cursor: isLoading ? 'not-allowed' : 'pointer',
+									color: isLoading ? '#ccc' : '#666',
+									padding: '4px',
+									borderRadius: '4px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									fontSize: '14px',
+									lineHeight: '1',
+									opacity: isLoading ? 0.5 : 1,
+								}}
+								disabled={isLoading}
+								tabIndex={-1}
+								aria-label={showPingOnePassword ? 'Hide password' : 'Show password'}
+							>
+								{showPingOnePassword ? (
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+								) : (
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+								)}
+							</button>
+						</div>
 					</FormRow>
 					{error && <FormError>{error}</FormError>}
 					{success && <FormSuccess>{success}</FormSuccess>}
@@ -425,6 +460,7 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 	const [useFromConfig, setUseFromConfig] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [showClientSecret, setShowClientSecret] = useState(false);
 
 	useEffect(() => {
 		const data = unifiedWorkerTokenService.getTokenDataSync();
@@ -498,6 +534,10 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 
 	const [adminUsername, setAdminUsername] = useState('');
 	const [adminPassword, setAdminPassword] = useState('');
+	const [showAdminPassword, setShowAdminPassword] = useState(false);
+
+	const savedAdminCreds = unifiedWorkerTokenService.getTokenDataSync()?.credentials;
+	const hasAuthzClient = !!(savedAdminCreds?.authzClientId?.trim());
 
 	if (usernamePasswordOnly) {
 		// PingOne does NOT support ROPC (grant_type=password).
@@ -510,13 +550,14 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 			const envId = data?.credentials?.environmentId?.trim();
 			const region = (data?.credentials?.region as string) || 'us';
 			// Prefer authzClientId; fall back to worker clientId
-			const effectiveClientId =
-				data?.credentials?.authzClientId?.trim() || data?.credentials?.clientId?.trim();
-			const effectiveSecret = data?.credentials?.authzClientId?.trim()
-				? (data?.credentials?.authzClientSecret?.trim() ?? '')
-				: (data?.credentials?.clientSecret?.trim() ?? '');
+			// Admin pi.flow requires an OIDC/Web App (Authorization Code or Implicit grant).
+			// Worker clients only support client_credentials — PingOne returns 400 for token id_token requests.
+			const effectiveClientId = data?.credentials?.authzClientId?.trim();
+			const effectiveSecret = data?.credentials?.authzClientSecret?.trim() ?? '';
 			if (!envId || !effectiveClientId) {
-				setError('Configure PingOne credentials in Configuration first.');
+				setError(
+					'Admin login requires an Authorization Code client. Set Authz Client ID in Configuration → Authorization Client (not the Worker client).'
+				);
 				return;
 			}
 			if (!adminUsername.trim() || !adminPassword) {
@@ -589,6 +630,18 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 						</LoginButton>
 					</LoginCard>
 				) : (
+					<>
+					{!hasAuthzClient && (
+						<LoginCard style={{ borderColor: '#f59e0b', background: '#fffbeb', marginBottom: 8 }}>
+							<CardTitle style={{ color: '#92400e', fontSize: 13 }}>⚠️ No Authorization Client configured</CardTitle>
+							<CardDescription style={{ marginBottom: 0 }}>
+								Admin login requires a PingOne <strong>OIDC/Web App</strong> with{' '}
+								<strong>Authorization Code</strong> grant — not the Worker app. Set{' '}
+								<strong>Authz Client ID</strong> in{' '}
+								<strong>Configuration → Authorization Client</strong>.
+							</CardDescription>
+						</LoginCard>
+					)}
 					<LoginCard>
 						<CardTitle>Enter admin credentials</CardTitle>
 						<CardDescription>
@@ -608,14 +661,48 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 						</FormRow>
 						<FormRow>
 							<FormLabel>Password</FormLabel>
-							<FormInput
-								type="password"
-								value={adminPassword}
-								onChange={(e) => setAdminPassword(e.target.value)}
-								placeholder="Password"
-								disabled={isLoading}
-								autoComplete="current-password"
-							/>
+							<div style={{ position: 'relative', width: '100%' }}>
+								<FormInput
+									type={showAdminPassword ? 'text' : 'password'}
+									value={adminPassword}
+									onChange={(e) => setAdminPassword(e.target.value)}
+									placeholder="Password"
+									disabled={isLoading}
+									autoComplete="current-password"
+									style={{ paddingRight: '40px' }}
+								/>
+								<button
+									type="button"
+									onClick={() => setShowAdminPassword(!showAdminPassword)}
+									style={{
+										position: 'absolute',
+										right: '8px',
+										top: '50%',
+										transform: 'translateY(-50%)',
+										background: 'none',
+										border: 'none',
+										cursor: isLoading ? 'not-allowed' : 'pointer',
+										color: isLoading ? '#ccc' : '#666',
+										padding: '4px',
+										borderRadius: '4px',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										fontSize: '14px',
+										lineHeight: '1',
+										opacity: isLoading ? 0.5 : 1,
+									}}
+									disabled={isLoading}
+									tabIndex={-1}
+									aria-label={showAdminPassword ? 'Hide password' : 'Show password'}
+								>
+									{showAdminPassword ? (
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+									) : (
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+									)}
+								</button>
+							</div>
 						</FormRow>
 						{error && <FormError>{error}</FormError>}
 						<LoginButton
@@ -628,6 +715,7 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 							{isLoading ? 'Signing in…' : 'Sign in'}
 						</LoginButton>
 					</LoginCard>
+					</>
 				)}
 			</ContentSection>
 		);
@@ -690,14 +778,48 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 					</FormRow>
 					<FormRow>
 						<FormLabel>Client Secret</FormLabel>
-						<FormInput
-							type="password"
-							value={clientSecret}
-							onChange={(e) => setClientSecret(e.target.value)}
-							placeholder="Admin app client secret"
-							disabled={isLoading}
-							autoComplete="off"
-						/>
+						<div style={{ position: 'relative', width: '100%' }}>
+							<FormInput
+								type={showClientSecret ? 'text' : 'password'}
+								value={clientSecret}
+								onChange={(e) => setClientSecret(e.target.value)}
+								placeholder="Admin app client secret"
+								disabled={isLoading}
+								autoComplete="off"
+								style={{ paddingRight: '40px' }}
+							/>
+							<button
+								type="button"
+								onClick={() => setShowClientSecret(!showClientSecret)}
+								style={{
+									position: 'absolute',
+									right: '8px',
+									top: '50%',
+									transform: 'translateY(-50%)',
+									background: 'none',
+									border: 'none',
+									cursor: isLoading ? 'not-allowed' : 'pointer',
+									color: isLoading ? '#ccc' : '#666',
+									padding: '4px',
+									borderRadius: '4px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									fontSize: '14px',
+									lineHeight: '1',
+									opacity: isLoading ? 0.5 : 1,
+								}}
+								disabled={isLoading}
+								tabIndex={-1}
+								aria-label={showClientSecret ? 'Hide secret' : 'Show secret'}
+							>
+								{showClientSecret ? (
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+								) : (
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+								)}
+							</button>
+						</div>
 					</FormRow>
 					{error && <FormError>{error}</FormError>}
 					<LoginButton
@@ -772,6 +894,7 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
+	const [showUserPassword, setShowUserPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [loginResult, setLoginResult] = useState<LoginResult | null>(null);
@@ -1103,14 +1226,48 @@ const UserLoginContent: React.FC<UserLoginContentProps> = ({
 					</FormRow>
 					<FormRow>
 						<FormLabel>Password</FormLabel>
-						<FormInput
-							type="password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							placeholder="Password"
-							disabled={isLoading}
-							autoComplete="current-password"
-						/>
+						<div style={{ position: 'relative', width: '100%' }}>
+							<FormInput
+								type={showUserPassword ? 'text' : 'password'}
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								placeholder="Password"
+								disabled={isLoading}
+								autoComplete="current-password"
+								style={{ paddingRight: '40px' }}
+							/>
+							<button
+								type="button"
+								onClick={() => setShowUserPassword(!showUserPassword)}
+								style={{
+									position: 'absolute',
+									right: '8px',
+									top: '50%',
+									transform: 'translateY(-50%)',
+									background: 'none',
+									border: 'none',
+									cursor: isLoading ? 'not-allowed' : 'pointer',
+									color: isLoading ? '#ccc' : '#666',
+									padding: '4px',
+									borderRadius: '4px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									fontSize: '14px',
+									lineHeight: '1',
+									opacity: isLoading ? 0.5 : 1,
+								}}
+								disabled={isLoading}
+								tabIndex={-1}
+								aria-label={showUserPassword ? 'Hide password' : 'Show password'}
+							>
+								{showUserPassword ? (
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+								) : (
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+								)}
+							</button>
+						</div>
 					</FormRow>
 					{error && <FormError>{error}</FormError>}
 					<LoginButton type="button" onClick={handleSignIn} disabled={isLoading || !onUserTokenSet}>
