@@ -262,6 +262,7 @@ const OAUTH_ERROR_CODES: Record<string, OAuthErrorInfo> = {
 	},
 };
 
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class OAuthErrorCodesServiceV8 {
 	/**
 	 * Get error information for an OAuth error code

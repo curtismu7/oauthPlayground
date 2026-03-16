@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
-import { checkWorkerTokenStatus } from '@/v8/services/workerTokenStatusServiceV8';
+import { checkWorkerTokenStatus, TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 
 export const DemoWorkerTokenUI: React.FC = () => {
 	const [showTokenModal, setShowTokenModal] = useState(false);
 	const [showEducationModal, setShowEducationModal] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState<any>(null);
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo | null>(null);
 
 	useEffect(() => {
 		checkWorkerTokenStatus().then(setTokenStatus);
@@ -26,10 +26,12 @@ export const DemoWorkerTokenUI: React.FC = () => {
 				Worker Token UI Demo
 			</h4>
 			<div style={{ marginBottom: 12 }}>
-				<button onClick={() => setShowTokenModal(true)} style={{ marginRight: 8 }}>
+				<button type="button" onClick={() => setShowTokenModal(true)} style={{ marginRight: 8 }}>
 					Show Worker Token Modal
 				</button>
-				<button onClick={() => setShowEducationModal(true)}>Show Education Modal</button>
+				<button type="button" onClick={() => setShowEducationModal(true)}>
+					Show Education Modal
+				</button>
 			</div>
 			<div style={{ marginBottom: 12 }}>
 				<strong>Worker Token Status:</strong>

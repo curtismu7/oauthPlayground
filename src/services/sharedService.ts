@@ -96,6 +96,7 @@ export interface V7FlowConfig {
  * V7 ID Token Validation Manager
  * Handles OIDC ID token validation across all V7 flows
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class V7IDTokenValidationManager {
 	/**
 	 * Validate ID token for OIDC flows
@@ -151,6 +152,7 @@ export class V7IDTokenValidationManager {
  * V7 Error Handling Manager
  * Provides standardized error handling across all V7 flows
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class V7ErrorHandlingManager {
 	/**
 	 * Handle OAuth 2.0 errors
@@ -208,6 +210,7 @@ export class V7ErrorHandlingManager {
  * V7 Parameter Validation Manager
  * Handles parameter validation across all V7 flows
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class V7ParameterValidationManager {
 	/**
 	 * Validate parameters for a specific V7 flow
@@ -264,6 +267,7 @@ export class V7ParameterValidationManager {
  * V7 Security Headers Manager
  * Manages security headers across all V7 flows
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class V7SecurityHeadersManager {
 	/**
 	 * Get security headers for a specific V7 flow
@@ -321,6 +325,7 @@ export class V7SecurityHeadersManager {
  * V7 Specification Compliance Manager
  * Provides comprehensive specification compliance across all V7 flows
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class V7SpecificationComplianceManager {
 	/**
 	 * Get flow configuration
@@ -445,6 +450,7 @@ export class V7SpecificationComplianceManager {
  * V7 Flow Integration Manager
  * Provides integration helpers for V7 flows
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class V7FlowIntegrationManager {
 	/**
 	 * Initialize V7 flow with compliance features

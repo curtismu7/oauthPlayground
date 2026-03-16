@@ -73,6 +73,7 @@ export interface ClientCredentialsTokens {
 /**
  * Client Credentials Flow Defaults
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class ClientCredentialsDefaults {
 	/**
 	 * Get default credentials for client credentials flow
@@ -184,6 +185,7 @@ export class ClientCredentialsDefaults {
 /**
  * Client Credentials Sync
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class ClientCredentialsSync {
 	/**
 	 * Sync credentials from controller
@@ -213,6 +215,7 @@ export class ClientCredentialsSync {
 /**
  * Client Credentials Token Request
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class ClientCredentialsTokenRequest {
 	/**
 	 * Build token request parameters
@@ -378,6 +381,7 @@ export class ClientCredentialsTokenRequest {
 /**
  * Client Credentials Collapsible Sections Manager
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class ClientCredentialsCollapsibleSections {
 	/**
 	 * Get default state for collapsible sections

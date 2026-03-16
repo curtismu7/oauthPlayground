@@ -98,6 +98,7 @@ const ERROR_PATTERNS = {
 	[ErrorType.SERVER_ERROR]: [/internal server error/i, /500/i, /502/i, /503/i, /504/i],
 };
 
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class ErrorHandlingService {
 	private static errorStore: Map<string, FlowError> = new Map();
 	private static analyticsStore: Map<ErrorType, ErrorAnalytics> = new Map();
