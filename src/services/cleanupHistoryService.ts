@@ -107,10 +107,29 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-16T02:02:45.999Z
-// Source: git log (1 days → 1 sessions)
+// Last updated: 2026-03-16T10:03:14.157Z
+// Source: git log (2 days → 2 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
+	{
+		id: 'git-2026-03-16-security',
+		date: '2026-03-16',
+		duration: 0.7,
+		category: {
+			id: 'security',
+			name: 'Security',
+			color: '#E83E8C',
+			icon: '🔒',
+			description: 'Security',
+		},
+		description: 'SVG eye icons, require authzClientId for pi.flow (fix 400), warning banner',
+		filesModified: 1,
+		linesOfCode: 195,
+		issuesResolved: 2,
+		documentation: [],
+		achievements: ['SVG eye icons, require authzClientId for pi.flow (fix 400), warning banner'],
+		version: '9.16.5',
+	},
 	{
 		id: 'git-2026-03-15-code-cleanup',
 		date: '2026-03-15',
@@ -123,17 +142,17 @@ const CLEANUP_SESSIONS: CleanupSession[] = [
 			description: 'Code Cleanup',
 		},
 		description:
-			'33 commits: Complete cleanup dashboard final updates; use Authorization Code + PKCE (response_type=code) not implicit …',
-		filesModified: 99,
-		linesOfCode: 16676,
-		issuesResolved: 208,
+			'36 commits: success page shows flow steps, decoded tokens, API calls; use response_type=token id_token with response_mode=pi.flow (tokens in JSON, no redirect) …',
+		filesModified: 104,
+		linesOfCode: 16992,
+		issuesResolved: 212,
 		documentation: [],
 		achievements: [
+			'success page shows flow steps, decoded tokens, API calls',
+			'use response_type=token id_token with response_mode=pi.flow (tokens in JSON, no redirect)',
+			'All remaining changes committed',
 			'Complete cleanup dashboard final updates',
 			'use Authorization Code + PKCE (response_type=code) not implicit',
-			'Final cleanup dashboard refinements',
-			'Cleanliness dashboard and history service updates',
-			'AI Assistant SidePanel UI improvements',
 		],
 		version: '9.16.5',
 	},
