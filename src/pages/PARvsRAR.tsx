@@ -21,7 +21,7 @@ const Container = styled.div`
 	padding-bottom: 4rem;
 `;
 
-const Header = styled.div`
+const _Header = styled.div`
 	margin-bottom: 2rem;
 
 	h1 {

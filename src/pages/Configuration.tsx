@@ -754,7 +754,9 @@ const Configuration: React.FC = () => {
 			return 'openid profile email';
 		}
 	});
-	const [authzSaveStatus, setAuthzSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+	const [authzSaveStatus, setAuthzSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>(
+		'idle'
+	);
 
 	const handleSaveAuthzClient = useCallback(async () => {
 		setAuthzSaveStatus('saving');
@@ -1144,15 +1146,25 @@ const Configuration: React.FC = () => {
 				icon={<MDIIcon icon="FiKey" />}
 				defaultCollapsed={true}
 			>
-				<div style={{ padding: '0.75rem 0 0.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+				<div
+					style={{
+						padding: '0.75rem 0 0.25rem',
+						display: 'flex',
+						flexDirection: 'column',
+						gap: '0.75rem',
+					}}
+				>
 					<p style={{ margin: 0, fontSize: '0.8125rem', color: '#6b7280', lineHeight: 1.5 }}>
-						Worker apps only support <code>client_credentials</code> — they cannot perform user login.
-						Create a separate PingOne OIDC app (Web Application or Native) with{' '}
-						<strong>Authorization Code</strong> grant + PKCE, then enter its Client ID below.
-						Used by the AI Assistant &ldquo;User login&rdquo; tab and future banking demo flows.
+						Worker apps only support <code>client_credentials</code> — they cannot perform user
+						login. Create a separate PingOne OIDC app (Web Application or Native) with{' '}
+						<strong>Authorization Code</strong> grant + PKCE, then enter its Client ID below. Used
+						by the AI Assistant &ldquo;User login&rdquo; tab and future banking demo flows.
 					</p>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-						<label htmlFor="authz-client-id" style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#374151' }}>
+						<label
+							htmlFor="authz-client-id"
+							style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#374151' }}
+						>
 							Authz Client ID
 						</label>
 						<input
@@ -1173,9 +1185,14 @@ const Configuration: React.FC = () => {
 						/>
 					</div>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-						<label htmlFor="authz-client-secret" style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#374151' }}>
+						<label
+							htmlFor="authz-client-secret"
+							style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#374151' }}
+						>
 							Authz Client Secret{' '}
-							<span style={{ fontWeight: 400, color: '#9ca3af' }}>(leave empty for public PKCE clients)</span>
+							<span style={{ fontWeight: 400, color: '#9ca3af' }}>
+								(leave empty for public PKCE clients)
+							</span>
 						</label>
 						<input
 							id="authz-client-secret"
@@ -1195,7 +1212,10 @@ const Configuration: React.FC = () => {
 						/>
 					</div>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-						<label htmlFor="authz-scopes" style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#374151' }}>
+						<label
+							htmlFor="authz-scopes"
+							style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#374151' }}
+						>
 							Requested Scopes{' '}
 							<span style={{ fontWeight: 400, color: '#9ca3af' }}>(space-separated)</span>
 						</label>
@@ -1220,7 +1240,9 @@ const Configuration: React.FC = () => {
 							Banking demo example: <code>openid profile email transfer:funds account:read</code>
 						</p>
 					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingTop: '0.25rem' }}>
+					<div
+						style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingTop: '0.25rem' }}
+					>
 						<button
 							type="button"
 							onClick={handleSaveAuthzClient}

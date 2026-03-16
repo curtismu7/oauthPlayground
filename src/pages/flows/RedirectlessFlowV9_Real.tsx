@@ -17,7 +17,6 @@ import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { PasswordChangeModal } from '../../components/PasswordChangeModal';
 import { HelperText } from '../../components/ResultsPanel';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { AuthorizationCodeSharedService } from '../../services/authorizationCodeSharedService';
@@ -36,7 +35,6 @@ import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplaySe
 import { logger } from '../../utils/logger';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
-import { STEP_METADATA } from './config/RedirectlessFlow.config';
 
 // Define type for password change error
 interface PasswordChangeError extends Error {
@@ -299,47 +297,6 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 		}
 		return hasPkceCodes;
 	}, [controller]);
-
-	// Custom navigation handler with validation (V9 pattern)
-	const handleStepChange = useCallback(
-		(newStep: number) => {
-			logger.info('🔍 [Redirectless V9] handleStepChange called:', {
-				currentStep,
-				newStep,
-				credentials: controller.credentials,
-			});
-
-			// Use service navigation manager for proper validation
-			AuthorizationCodeSharedService.Navigation.handleNext(
-				currentStep,
-				controller.credentials,
-				'oauth', // Redirectless is based on OAuth
-				controller,
-				(step: number) => {
-					// Enhanced step validation - checks both controller state and bulletproof storage
-					const hasPkceCodes = checkHasPkceCodes();
-
-					switch (step) {
-						case 0:
-							return true; // Introduction step
-						case 1:
-							return hasPkceCodes;
-						case 2:
-							return !!(controller.authUrl && hasPkceCodes);
-						case 3:
-							return !!(controller.authCode || controller.authCode);
-						default:
-							return true;
-					}
-				},
-				() => {
-					logger.info('✅ [Redirectless V9] Navigation allowed, moving to step:', newStep);
-					setCurrentStep(newStep);
-				}
-			);
-		},
-		[currentStep, controller, checkHasPkceCodes]
-	);
 
 	// PKCE generation handler with service-based API call tracking
 	const handleGeneratePkce = useCallback(() => {
@@ -1783,19 +1740,6 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 						</ExplanationSection>
 					</StepSection>
 				)}
-
-				<StepNavigationButtons
-					currentStep={currentStep}
-					totalSteps={STEP_METADATA.length}
-					onPrevious={() => currentStep > 0 && setCurrentStep(currentStep - 1)}
-					onNext={() => handleStepChange(currentStep + 1)}
-					onReset={() => {
-						setCurrentStep(0);
-						controller.resetFlow();
-					}}
-					canNavigateNext={true}
-					isFirstStep={currentStep === 0}
-				/>
 
 				{/* V9 Service: Flow Completion */}
 				{controller.tokens?.accessToken && (
