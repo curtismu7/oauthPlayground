@@ -107,36 +107,35 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-15T21:01:54.398Z
+// Last updated: 2026-03-15T22:49:32.868Z
 // Source: git log (1 days → 1 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
-	{
-		id: 'git-2026-03-15-code-cleanup',
-		date: '2026-03-15',
-		duration: 12,
-		category: {
-			id: 'code-cleanup',
-			name: 'Code Cleanup',
-			color: '#FFC107',
-			icon: '🧹',
-			description: 'Code Cleanup',
-		},
-		description:
-			'15 commits: fix stale pingOneLoginService tests (code+PKCE); improve mcp-user-token-via-login tests; shorten tab labels, add dividers between tabs, prevent clipping …',
-		filesModified: 46,
-		linesOfCode: 4450,
-		issuesResolved: 56,
-		documentation: [],
-		achievements: [
-			'fix stale pingOneLoginService tests (code+PKCE); improve mcp-user-token-via-login tests',
-			'shorten tab labels, add dividers between tabs, prevent clipping',
-			"show worker token for 'show my token' when no user token; improve 400 error detail",
-			'use response_type=code+PKCE instead of token id_token (fixes 400 on Authz Code-only apps)',
-			'reset useAdminLogin on sign-out so agent exits admin mode',
-		],
-		version: '9.16.4',
-	},
+  {
+    "id": "git-2026-03-15-code-cleanup",
+    "date": "2026-03-15",
+    "duration": 12,
+    "category": {
+      "id": "code-cleanup",
+      "name": "Code Cleanup",
+      "color": "#FFC107",
+      "icon": "🧹",
+      "description": "Code Cleanup"
+    },
+    "description": "26 commits: show username/password fields in admin quick-login mode (ROPC); pre-fill authzClientId instead of worker clientId in P1 Login tab …",
+    "filesModified": 80,
+    "linesOfCode": 14599,
+    "issuesResolved": 182,
+    "documentation": [],
+    "achievements": [
+      "show username/password fields in admin quick-login mode (ROPC)",
+      "pre-fill authzClientId instead of worker clientId in P1 Login tab",
+      "prevent list_users from matching 'List MFA devices for user X'",
+      "add set-user-population command with auto name→ID resolution",
+      "auto-resolve usernames/emails/group-names to IDs in all API commands"
+    ],
+    "version": "9.16.5"
+  }
 ];
 
 // ─── END AUTO-GENERATED sessions ───

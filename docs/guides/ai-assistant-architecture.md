@@ -99,7 +99,7 @@ const ADMIN_TOKEN_BUFFER_MS = 60_000; // proactive refresh 60s before admin toke
 | `messages`           | array                | Chat messages (30-min TTL, from localStorage)                    |
 | `input`              | string               | Current input field value                                        |
 | `isTyping`           | bool                 | Shows typing indicator                                           |
-| `adminToken`         | string               | Admin token from ROPC login                                      |
+| `adminToken`         | string               | Admin token from pi.flow quick-login                             |
 | `adminTokenExpiry`   | number               | Unix ms expiry for admin token                                   |
 | `adminEnvironmentId` | string               | EnvId associated with admin token                                |
 | `useAdminLogin`      | bool                 | When true, use admin token instead of worker token for MCP calls |
@@ -280,7 +280,7 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 | Token            | Holder                                           | Source                                                        | Used for                                                  |
 | ---------------- | ------------------------------------------------ | ------------------------------------------------------------- | --------------------------------------------------------- |
 | **Worker token** | Backend in-memory cache (`_mcpTokenCache`)       | Client Credentials flow via PingOne `/as/token`               | All Management API calls from `/api/mcp/query`            |
-| **Admin token**  | Component state `adminToken`                     | ROPC via `/api/mcp/user-token-via-login` (admin mode)         | Optional override for MCP calls when `useAdminLogin=true` |
+| **Admin token**  | Component state `adminToken`                     | pi.flow (`response_type=token id_token`) via quick-login form | Optional override for MCP calls when `useAdminLogin=true` |
 | **User token**   | Component state `userAccessToken` + localStorage | pi.flow (Authorization Code + `response_type=token id_token`) | `isIntrospectUserTokenQuery`, `isUserInfoQuery`           |
 
 ### Worker Token Resolution in `/api/mcp/query`
@@ -576,7 +576,9 @@ Warning banner is shown in the UI when no `authzClientId` is configured.
 
 ### Admin Login Mode
 
-Same flow but `useAdminLogin=true` is set. The resulting `access_token` is stored as `adminToken` (not `userAccessToken`). Admin token is then passed as `workerToken` in `callMcpQuery()` calls.
+Same 3-step pi.flow as Standard User Login (`response_type=token id_token`), but `useAdminLogin=true` is set. The resulting `access_token` is stored as `adminToken` (not `userAccessToken`). Admin token is then passed as `workerToken` in `callMcpQuery()` calls.
+
+> **⚠️ PingOne does NOT support ROPC (`grant_type=password`).** Admin quick-login uses pi.flow — not ROPC — to authenticate the user interactively. The full-form Admin tab still uses `client_credentials` (worker app only, no user identity).
 
 ---
 
