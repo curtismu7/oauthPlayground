@@ -6594,3 +6594,1607 @@
 }
 [2026-03-15T21:04:20.192Z] [03/15/2026, 16:04:20] [ℹ️ LOG] [2026-03-15T21:04:20.192Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
 [2026-03-15T21:04:20.295Z] [03/15/2026, 16:04:20] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-15T22:56:57.171Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Received request body: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+  "response_type": "token id_token",
+  "response_mode": "pi.flow",
+  "scopes": "openid profile email",
+  "region": "us"
+}
+[2026-03-15T22:56:57.172Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Using region: us, auth domain: auth.pingone.com
+[2026-03-15T22:56:57.172Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Starting authorization request
+[2026-03-15T22:56:57.172Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Environment ID: b9817c16-9910-4415-b67e-4ac687da74d9
+[2026-03-15T22:56:57.172Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Client ID: a4f963ea...
+[2026-03-15T22:56:57.172Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Has Client Secret: false
+[2026-03-15T22:56:57.172Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Redirect URI: (using default)
+[2026-03-15T22:56:57.172Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Has PKCE: false
+[2026-03-15T22:56:57.172Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Scopes: openid profile email
+[2026-03-15T22:56:57.173Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] No credentials in Step 1 - following 4-step pattern (Flow API in Step 2)
+[2026-03-15T22:56:57.172Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] No redirect_uri provided - using pi.flow without redirect_uri
+[2026-03-15T22:56:57.173Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Using response_type='token id_token' — tokens delivered at resume, no PKCE needed
+[2026-03-15T22:56:57.173Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Checking for duplicate client_id: {
+  "count": 1,
+  "values": [
+    "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+  ]
+}
+[2026-03-15T22:56:57.173Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Authorization URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize
+[2026-03-15T22:56:57.173Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] POST Body: response_mode=pi.flow&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&scope=openid+profile+email&state=pi-flow-1773615417172&response_type=token+id_token
+[2026-03-15T22:56:57.173Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Attempt 1/3 to PingOne
+[2026-03-15T22:56:57.172Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Final scopes: openid profile email
+[2026-03-15T22:56:57.173Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] All URL parameters: [
+  [
+    "response_mode",
+    "pi.flow"
+  ],
+  [
+    "client_id",
+    "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+  ],
+  [
+    "scope",
+    "openid profile email"
+  ],
+  [
+    "state",
+    "pi-flow-1773615417172"
+  ],
+  [
+    "response_type",
+    "token id_token"
+  ]
+]
+[2026-03-15T22:56:57.517Z] [03/15/2026, 17:56:57] [ℹ️ LOG] 
+🍪 ====== SESSION TOKEN ANALYSIS ======
+[2026-03-15T22:56:57.518Z] [03/15/2026, 17:56:57] [ℹ️ LOG]    Headers - Set-Cookie count: 0
+[2026-03-15T22:56:57.518Z] [03/15/2026, 17:56:57] [ℹ️ LOG] ⚠️  No session tokens found in JSON or headers
+[2026-03-15T22:56:57.518Z] [03/15/2026, 17:56:57] [ℹ️ LOG]    This flow may use flowId-based authentication instead
+[2026-03-15T22:56:57.519Z] [03/15/2026, 17:56:57] [ℹ️ LOG] 🍪 ======================================
+
+[2026-03-15T22:56:57.517Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Checking for session tokens...
+[2026-03-15T22:56:57.519Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Success: {
+  "hasResumeUrl": true,
+  "hasFlowId": true,
+  "hasTokens": false,
+  "hasSessionTokens": false,
+  "flowStatus": "USERNAME_PASSWORD_REQUIRED"
+}
+[2026-03-15T22:56:57.518Z] [03/15/2026, 17:56:57] [ℹ️ LOG]    JSON - Has interactionId: false
+[2026-03-15T22:56:57.518Z] [03/15/2026, 17:56:57] [ℹ️ LOG]    JSON - Has interactionToken: false
+[2026-03-15T22:56:57.572Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Received request body: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+  "response_type": "token id_token",
+  "response_mode": "pi.flow",
+  "scopes": "openid profile email",
+  "region": "us"
+}
+[2026-03-15T22:56:57.573Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Environment ID: b9817c16-9910-4415-b67e-4ac687da74d9
+[2026-03-15T22:56:57.573Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Client ID: a4f963ea...
+[2026-03-15T22:56:57.573Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Has Client Secret: false
+[2026-03-15T22:56:57.573Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Redirect URI: (using default)
+[2026-03-15T22:56:57.573Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Scopes: openid profile email
+[2026-03-15T22:56:57.573Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Has PKCE: false
+[2026-03-15T22:56:57.573Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Final scopes: openid profile email
+[2026-03-15T22:56:57.573Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] No redirect_uri provided - using pi.flow without redirect_uri
+[2026-03-15T22:56:57.573Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Using response_type='token id_token' — tokens delivered at resume, no PKCE needed
+[2026-03-15T22:56:57.573Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] No credentials in Step 1 - following 4-step pattern (Flow API in Step 2)
+[2026-03-15T22:56:57.574Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] All URL parameters: [
+  [
+    "response_mode",
+    "pi.flow"
+  ],
+  [
+    "client_id",
+    "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+  ],
+  [
+    "scope",
+    "openid profile email"
+  ],
+  [
+    "state",
+    "pi-flow-1773615417573"
+  ],
+  [
+    "response_type",
+    "token id_token"
+  ]
+]
+[2026-03-15T22:56:57.574Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Checking for duplicate client_id: {
+  "count": 1,
+  "values": [
+    "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+  ]
+}
+[2026-03-15T22:56:57.574Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Authorization URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize
+[2026-03-15T22:56:57.574Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] POST Body: response_mode=pi.flow&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&scope=openid+profile+email&state=pi-flow-1773615417573&response_type=token+id_token
+[2026-03-15T22:56:57.574Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Attempt 1/3 to PingOne
+[2026-03-15T22:56:57.573Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Using region: us, auth domain: auth.pingone.com
+[2026-03-15T22:56:57.573Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Starting authorization request
+[2026-03-15T22:56:57.800Z] [03/15/2026, 17:56:57] [ℹ️ LOG] 
+🍪 ====== SESSION TOKEN ANALYSIS ======
+[2026-03-15T22:56:57.801Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Checking for session tokens...
+[2026-03-15T22:56:57.801Z] [03/15/2026, 17:56:57] [ℹ️ LOG]    JSON - Has interactionId: false
+[2026-03-15T22:56:57.801Z] [03/15/2026, 17:56:57] [ℹ️ LOG]    JSON - Has interactionToken: false
+[2026-03-15T22:56:57.801Z] [03/15/2026, 17:56:57] [ℹ️ LOG]    Headers - Set-Cookie count: 0
+[2026-03-15T22:56:57.801Z] [03/15/2026, 17:56:57] [ℹ️ LOG] ⚠️  No session tokens found in JSON or headers
+[2026-03-15T22:56:57.802Z] [03/15/2026, 17:56:57] [ℹ️ LOG]    This flow may use flowId-based authentication instead
+[2026-03-15T22:56:57.802Z] [03/15/2026, 17:56:57] [ℹ️ LOG] 🍪 ======================================
+
+[2026-03-15T22:56:57.802Z] [03/15/2026, 17:56:57] [ℹ️ LOG] [PingOne Redirectless] Success: {
+  "hasResumeUrl": true,
+  "hasFlowId": true,
+  "hasTokens": false,
+  "hasSessionTokens": false,
+  "flowStatus": "USERNAME_PASSWORD_REQUIRED"
+}
+[2026-03-15T22:57:19.615Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Received request body: {
+  "flowUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/0031fa30-57d7-4089-adbf-6051911db7c7",
+  "username": "eli... (9 chars)",
+  "password": "***REDACTED***",
+  "sessionId": "4ea8c242-dccc-4f44-98b0-d91043574b84",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+}
+[2026-03-15T22:57:19.616Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Using stored cookies: 0
+[2026-03-15T22:57:19.616Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Has client credentials: false
+[2026-03-15T22:57:19.617Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Request body (credentials redacted): {
+  "action": "usernamePassword.check",
+  "username": "eli... (9 chars)",
+  "password": "*** (8 chars)",
+  "bodyLength": 80
+}
+[2026-03-15T22:57:19.615Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Calling flow URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/0031fa30-57d7-4089-adbf-6051911db7c7
+[2026-03-15T22:57:19.617Z] [03/15/2026, 17:57:19] [⚠️ WARN] [PingOne Flow Check] ⚠️  NO COOKIES PROVIDED! PingOne Flow API requires cookies from Step 1's /as/authorize response.
+[2026-03-15T22:57:19.617Z] [03/15/2026, 17:57:19] [⚠️ WARN] [PingOne Flow Check] The flowId in URL is not sufficient - cookies maintain session state for stateful flows.
+[2026-03-15T22:57:19.617Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Making request to PingOne Flow API...
+[2026-03-15T22:57:19.616Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Username (length): eli... (9 chars)
+[2026-03-15T22:57:19.616Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Password (length): *** (8 chars)
+[2026-03-15T22:57:19.823Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Response status: 200 OK
+[2026-03-15T22:57:19.823Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Response headers: {
+  "contentType": "application/json;charset=UTF-8",
+  "setCookieCount": 2
+}
+[2026-03-15T22:57:19.830Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] ✅ Captured 2 cookies from Set-Cookie headers
+[2026-03-15T22:57:19.830Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Cookie names: ST, ST-NO-SS
+[2026-03-15T22:57:19.831Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] ✅ FOUND ST cookie in response - Will be forwarded to resume endpoint
+[2026-03-15T22:57:19.831Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Response data: {
+  "status": "COMPLETED",
+  "hasId": true,
+  "hasResumeUrl": true,
+  "hasError": false,
+  "hasUpdatedCookies": true
+}
+[2026-03-15T22:57:19.832Z] [03/15/2026, 17:57:19] [ℹ️ LOG] [PingOne Flow Check] Success: {
+  "status": "COMPLETED",
+  "hasResumeUrl": true,
+  "hasUpdatedCookies": true
+}
+[2026-03-15T22:57:20.387Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Received request body: {
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=0031fa30-57d7-4089-adbf-6051911db7c7",
+  "flowId": "0031fa30-57d7-4089-adbf-6051911db7c7",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+  "sessionId": "4ea8c242-dccc-4f44-98b0-d91043574b84"
+}
+[2026-03-15T22:57:20.387Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Calling resume URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=0031fa30-57d7-4089-adbf-6051911db7c7
+[2026-03-15T22:57:20.388Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Client ID: a4f963ea...
+[2026-03-15T22:57:20.387Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Flow ID: 0031fa30-57d7-4089-adbf-6051911db7c7
+[2026-03-15T22:57:20.388Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Has Client Secret: false
+[2026-03-15T22:57:20.388Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Has Code Verifier: false
+[2026-03-15T22:57:20.388Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Flow State: undefined
+[2026-03-15T22:57:20.388Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Final resume URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=0031fa30-57d7-4089-adbf-6051911db7c7&response_mode=pi.flow
+[2026-03-15T22:57:20.388Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Using stored cookies: 2
+[2026-03-15T22:57:20.388Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Resume URL parameters: {
+  "hasFlowId": true,
+  "hasResponseMode": true,
+  "responseMode": "pi.flow",
+  "hasState": false,
+  "hasCodeVerifier": false,
+  "codeVerifierLength": 0,
+  "allParams": [
+    [
+      "flowId",
+      "0031fa30-57d7-4089-adbf-6051911db7c7"
+    ],
+    [
+      "response_mode",
+      "pi.flow"
+    ]
+  ]
+}
+[2026-03-15T22:57:20.388Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] ✅ Including 2 cookies in request (REQUIRED for session continuity)
+[2026-03-15T22:57:20.388Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Cookie header preview: ST=094c0f0f-bf33-4d8b-8c5c-e4e8d789071c; ST-NO-SS=094c0f0f-bf33-4d8b-8c5c-e4e8d789071c...
+[2026-03-15T22:57:20.388Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Cookie names: ST, ST-NO-SS
+[2026-03-15T22:57:20.562Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Successfully parsed response as JSON
+[2026-03-15T22:57:20.565Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Full response data (JSON): {
+  "_links": {
+    "self": {
+      "href": "http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/0031fa30-57d7-4089-adbf-6051911db7c7"
+    },
+    "signOnPage": {
+      "href": "https://apps.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/signon/?flowId=0031fa30-57d7-4089-adbf-6051911db7c7"
+    }
+  },
+  "_embedded": {
+    "user": {
+      "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+      "username": "elizabeth",
+      "name": {
+        "formatted": "Jane J Doe",
+        "given": "Jane",
+        "middle": "Jack",
+        "family": "Doe",
+        "honorificPrefix": "Mrs"
+      }
+    },
+    "application": {
+      "name": "PingOne OIDC Playground - Authorization Code Flow"
+    }
+  },
+  "id": "0031fa30-57d7-4089-adbf-6051911db7c7",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "session": {
+    "id": "87adb745-e361-4928-86cb-79157f7e4748"
+  },
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=0031fa30-57d7-4089-adbf-6051911db7c7",
+  "status": "COMPLETED",
+  "createdAt": "2026-03-15T22:56:57.358Z",
+  "expiresAt": "2026-03-15T23:12:20.452Z",
+  "authorizeResponse": {
+    "access_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiJhNGY5NjNlYS0wNzM2LTQ1NmEtYmU3Mi1iMWZhNGY2M2Y4MWYiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiY2Q0ZmM2NWYtOTRhOC00ZjNmLTg1NzktYTE2YTRkNWM2MWE4IiwiaWF0IjoxNzczNjE1NDQwLCJleHAiOjE3NzM2MTkwNDAsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJzY29wZSI6Im9wZW5pZCIsInN1YiI6IjkyMTA2OGFiLWY5YmMtNDMyZC04ODY0LTkxNmJlNGM0NjJhOCIsInNpZCI6Ijg3YWRiNzQ1LWUzNjEtNDkyOC04NmNiLTc5MTU3ZjdlNDc0OCIsImF1dGhfdGltZSI6MTc3MzYxNTQzOSwiYWNyIjoiU2luZ2xlX0ZhY3RvciIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJpZCI6IjlhZDVhOGI5LTdkNDctNDg1Ny04ZWM3LTgyMjliN2M3Y2I4ZSJ9.YnxC1vJ3_SwvTh-87jeBuvdG7uLBSKf9VF6TwSn4lld4zNkvhDF6bo2AgP-rWksmahO2TIx3uVYRRNNJOPV99NaN5U8JK08OZd1uHEFPG0X-iz0lWUVPa5J3Odys4wPyyRc1_ZiPoQwyMJbyihKZ_IH4HlI0t0R_gjGZmSag5M9_kf6XP-hpAyeyHCokmUZdYf9b2tQqjXnd-COO5gk-tfDycZcpaIRmai0_LBO8_omZJX2vocGTOrwSSuruTBPaYZPf8byRnahIrrCHKJ3lfYDRyUmfEG8QHefgwfp1FWNFYSI6wuGn-hxysfJUmOQ8TlRNyXcEvlmRZU9QVdTp3A",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "scope": "openid",
+    "id_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwic3ViIjoiOTIxMDY4YWItZjliYy00MzJkLTg4NjQtOTE2YmU0YzQ2MmE4IiwiYXVkIjoiYTRmOTYzZWEtMDczNi00NTZhLWJlNzItYjFmYTRmNjNmODFmIiwiaWF0IjoxNzczNjE1NDQwLCJleHAiOjE3NzM2MTkwNDAsImFjciI6IlNpbmdsZV9GYWN0b3IiLCJhbXIiOlsicHdkIl0sImF1dGhfdGltZSI6MTc3MzYxNTQzOSwiYXRfaGFzaCI6IkZjZ1Zja1dMQzVJVVh1OHNKMkVEbWciLCJzaWQiOiI4N2FkYjc0NS1lMzYxLTQ5MjgtODZjYi03OTE1N2Y3ZTQ3NDgiLCJsYXN0TmFtZSI6IkRvZSIsImdpdmVuTmFtZSI6IkphbmUiLCJ1c2VybmFtZSI6ImVsaXphYmV0aCIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJlZ2lvbiI6Ik5BIn0.Jj0wX3ZzJJEXyTpNpZakyOWwTZlYo5tyZEibUIAnndeYF71Ej086EJ9FdLweZ_hq1JNZ4lHha_GRM3O85NHHKVAxVzIlYVyKUxhiA9YPKSxLGEJeeAibT0kpmistHdIO6Jb2E8zL1R_GpkWWNyTW89NCjnFao1D7ezgOP7HSkTSKbJgxJ7dgetO0naHJIdtYnH63LsU_gwAFUirtz097bxUqPAr7ENfKddCC-ZTuzaFVE_Gf11p7i6bgk_PdWCmoqDKSuRmdjnpvoYsGwPqyLyF6lR0UgmE8edNZN9enRibHpjINaMnjnKcIBm5_pbIwNwmA6Ts_D2O4ypSANq4b4Q",
+    "state": "pi-flow-1773615417172"
+  }
+}
+[2026-03-15T22:57:20.565Z] [03/15/2026, 17:57:20] [⚠️ WARN] [PingOne Resume] ⚠️  Response has 10 keys but no 'code' field
+[2026-03-15T22:57:20.563Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Response analysis (200 OK): {
+  "status": 200,
+  "statusText": "OK",
+  "contentType": "application/json;charset=UTF-8",
+  "responseKeys": [
+    "_links",
+    "_embedded",
+    "id",
+    "environment",
+    "session",
+    "resumeUrl",
+    "status",
+    "createdAt",
+    "expiresAt",
+    "authorizeResponse"
+  ],
+  "responseKeyCount": 10,
+  "responseIsEmpty": false,
+  "responseIsObject": true,
+  "responseType": "object",
+  "hasCode": false,
+  "hasRedirect": false,
+  "hasAccessToken": false,
+  "hasIdToken": false,
+  "hasUserId": false,
+  "allStringValues": [
+    "id:0031fa30-57d7-4089-adbf-605191...",
+    "resumeUrl:https://auth.pingone.com/b9817...",
+    "status:COMPLETED...",
+    "createdAt:2026-03-15T22:56:57.358Z...",
+    "expiresAt:2026-03-15T23:12:20.452Z..."
+  ]
+}
+[2026-03-15T22:57:20.573Z] [03/15/2026, 17:57:20] [⚠️ WARN] [PingOne Resume] All key-value pairs: _links: {"self":{"href":"http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/0031fa30-57d7-40..., _embedded: {"user":{"id":"921068ab-f9bc-432d-8864-916be4c462a8","username":"elizabeth","name":{"formatted":"Jan..., id: "0031fa30-57d7-4089-adbf-6051911db7c7", environment: {"id":"b9817c16-9910-4415-b67e-4ac687da74d9"}, session: {"id":"87adb745-e361-4928-86cb-79157f7e4748"}, resumeUrl: "https://auth.pingone.com/b9817c16-9910-4415-b67e-4...", status: "COMPLETED", createdAt: "2026-03-15T22:56:57.358Z", expiresAt: "2026-03-15T23:12:20.452Z", authorizeResponse: {"access_token":"eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01...
+[2026-03-15T22:57:20.569Z] [03/15/2026, 17:57:20] [⚠️ WARN] [PingOne Resume] Available keys: _links, _embedded, id, environment, session, resumeUrl, status, createdAt, expiresAt, authorizeResponse
+[2026-03-15T22:57:20.574Z] [03/15/2026, 17:57:20] [⚠️ WARN] [PingOne Resume] WARNING: Response does not contain 'code' field
+[2026-03-15T22:57:20.574Z] [03/15/2026, 17:57:20] [⚠️ WARN] [PingOne Resume] Response structure: [
+  "_links",
+  "_embedded",
+  "id",
+  "environment",
+  "session",
+  "resumeUrl",
+  "status",
+  "createdAt",
+  "expiresAt",
+  "authorizeResponse"
+]
+[2026-03-15T22:57:20.574Z] [03/15/2026, 17:57:20] [⚠️ WARN] [PingOne Resume] Response type: object
+[2026-03-15T22:57:20.575Z] [03/15/2026, 17:57:20] [⚠️ WARN] [PingOne Resume] Response values preview: {
+  "_links": {
+    "self": {
+      "href": "http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/0031fa30-57d7-4089-adbf-6051911db7c7"
+    },
+    "signOnPage": {
+      "href": "https://apps.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/signon/?flowId=0031fa30-57d7-4089-adbf-6051911db7c7"
+    }
+  },
+  "_embedded": {
+    "user": {
+      "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+      "username": "elizabeth",
+      "name": {
+        "formatted": "Jane J Doe",
+        "given": "Jane",
+        "middle": "Jack",
+        "family": "Doe",
+        "honorificPrefix": "Mrs"
+      }
+    },
+    "application": {
+      "name": "PingOne OIDC Playground - Authorization Code Flow"
+    }
+  },
+  "id": "0031fa30-57d7-4089-adbf-6051911db7c7",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "session": {
+    "id": "87adb745-e361-4928-86cb-79157f7e4748"
+  },
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=0031fa30-5
+[2026-03-15T22:57:20.575Z] [03/15/2026, 17:57:20] [❌ ERROR] [PingOne Resume] ❌ FINAL CHECK: No authorization code found after all extraction attempts
+[2026-03-15T22:57:20.575Z] [03/15/2026, 17:57:20] [❌ ERROR] [PingOne Resume] Response keys: [
+  "_links",
+  "_embedded",
+  "id",
+  "environment",
+  "session",
+  "resumeUrl",
+  "status",
+  "createdAt",
+  "expiresAt",
+  "authorizeResponse"
+]
+[2026-03-15T22:57:20.575Z] [03/15/2026, 17:57:20] [❌ ERROR] [PingOne Resume] Response values: {
+  "_links": {
+    "self": {
+      "href": "http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/0031fa30-57d7-4089-adbf-6051911db7c7"
+    },
+    "signOnPage": {
+      "href": "https://apps.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/signon/?flowId=0031fa30-57d7-4089-adbf-6051911db7c7"
+    }
+  },
+  "_embedded": {
+    "user": {
+      "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+      "username": "elizabeth",
+      "name": {
+        "formatted": "Jane J Doe",
+        "given": "Jane",
+        "middle": "Jack",
+        "family": "Doe",
+        "honorificPrefix": "Mrs"
+      }
+    },
+    "application": {
+      "name": "PingOne OIDC Playground - Authorization Code Flow"
+    }
+  },
+  "id": "0031fa30-57d7-4089-adbf-6051911db7c7",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "session": {
+    "id": "87adb745-e361-4928-86cb-79157f7e4748"
+  },
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=0031fa30-57d7-4089-adbf-6051911db7c7",
+  "status": "COMPLETED",
+  "createdAt": "2026-03-15T22:56:57.358Z",
+  "expiresAt": "2026-03-15T23:12:20.452Z",
+  "authorizeResponse": {
+    "access_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiJhNGY5NjNlYS0wNzM2LTQ1NmEtYmU3Mi1iMWZhNGY2M2Y4MWYiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiY2Q0ZmM2NWYtOTRhOC00ZjNmLTg1NzktYTE2YTRkNWM2MWE4IiwiaWF0IjoxNzczNjE1NDQwLCJleHAiOjE3NzM2MTkwNDAsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJzY29wZSI6Im9wZW5pZCIsInN1YiI6IjkyMTA2OGFiLWY5YmMtNDMyZC04ODY0LTkxNmJlNGM0NjJhOCIsInNpZCI6Ijg3YWRiNzQ1LWUzNjEtNDkyOC04NmNiLTc5MTU3ZjdlNDc0OCIsImF1dGhfdGltZSI6MTc3MzYxNTQzOSwiYWNyIjoiU2luZ2xlX0ZhY3RvciIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJpZCI6IjlhZDVhOGI5LTdkNDctNDg1Ny04ZWM3LTgyMjliN2M3Y2I4ZSJ9.YnxC1vJ3_SwvTh-87jeBuvdG7uLBSKf9VF6TwSn4lld4zNkvhDF6bo2AgP-rWksmahO2TIx3uVYRRNNJOPV99NaN5U8JK08OZd1uHEFPG0X-iz0lWUVPa5J3Odys4wPyyRc1_ZiPoQwyMJbyihKZ_IH4HlI0t0R_gjGZmSag5M9_kf6XP-hpAyeyHCokmUZdYf9b2tQqjXnd-COO5gk-tfDycZcpaIRmai0_LBO8_omZJX2vocGTOrwSSuruTBPaYZPf8byRnahIrrCHKJ3lfYDRyUmfEG8QHefgwfp1FWNFYSI6wuGn-hxysfJUmOQ8TlRNyXcEvlmRZU9QVdTp3A",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "scope": "openid",
+    "id_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwic3ViIjoiOTIxMDY4YWItZjliYy00MzJkLTg4NjQtOTE2YmU0YzQ2MmE4IiwiYXVkIjoiYTRmOTYzZWEtMDczNi00NTZhLWJlNzItYjFmYTRmNjNmODFmIiwiaWF0IjoxNzczNjE1NDQwLCJleHAiOjE3NzM2MTkwNDAsImFjciI6IlNpbmdsZV9GYWN0b3IiLCJhbXIiOlsicHdkIl0sImF1dGhfdGltZSI6MTc3MzYxNTQzOSwiYXRfaGFzaCI6IkZjZ1Zja1dMQzVJVVh1OHNKMkVEbWciLCJzaWQiOiI4N2FkYjc0NS1lMzYxLTQ5MjgtODZjYi03OTE1N2Y3ZTQ3NDgiLCJsYXN0TmFtZSI6IkRvZSIsImdpdmVuTmFtZSI6IkphbmUiLCJ1c2VybmFtZSI6ImVsaXphYmV0aCIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJlZ2lvbiI6Ik5BIn0.Jj0wX3ZzJJEXyTpNpZakyOWwTZlYo5tyZEibUIAnndeYF71Ej086EJ9FdLweZ_hq1JNZ4lHha_GRM3O85NHHKVAxVzIlYVyKUxhiA9YPKSxLGEJeeAibT0kpmistHdIO6Jb2E8zL1R_GpkWWNyTW89NCjnFao1D7ezgOP7HSkTSKbJgxJ7dgetO0naHJIdtYnH63LsU_gwAFUirtz097bxUqPAr7ENfKddCC-ZTuzaFVE_Gf11p7i6bgk_PdWCmoqDKSuRmdjnpvoYsGwPqyLyF6lR0UgmE8edNZN9enRibHpjINaMnjnKcIBm5_pbIwNwmA6Ts_D2O4ypSANq4b4Q",
+    "state": "pi-flow-1773615417172"
+  }
+}
+[2026-03-15T22:57:20.575Z] [03/15/2026, 17:57:20] [❌ ERROR] [PingOne Resume] This may indicate:
+[2026-03-15T22:57:20.575Z] [03/15/2026, 17:57:20] [❌ ERROR]   1. PingOne requires additional parameters in resume URL
+[2026-03-15T22:57:20.575Z] [03/15/2026, 17:57:20] [❌ ERROR]   2. Session cookies (ST) are invalid or expired
+[2026-03-15T22:57:20.575Z] [03/15/2026, 17:57:20] [❌ ERROR]   3. Flow ID or state mismatch
+[2026-03-15T22:57:20.576Z] [03/15/2026, 17:57:20] [❌ ERROR]   4. PingOne application configuration issue
+[2026-03-15T22:57:20.576Z] [03/15/2026, 17:57:20] [ℹ️ LOG] [PingOne Resume] Flattening authorizeResponse to top level — keys: access_token, token_type, expires_in, scope, id_token, state
+[2026-03-15T22:57:55.005Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Using region: us, auth domain: auth.pingone.com
+[2026-03-15T22:57:55.004Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Received request body: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+  "response_type": "token id_token",
+  "response_mode": "pi.flow",
+  "scopes": "openid profile email",
+  "region": "us"
+}
+[2026-03-15T22:57:55.005Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Starting authorization request
+[2026-03-15T22:57:55.006Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Client ID: a4f963ea...
+[2026-03-15T22:57:55.006Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Has Client Secret: false
+[2026-03-15T22:57:55.006Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Redirect URI: (using default)
+[2026-03-15T22:57:55.006Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Scopes: openid profile email
+[2026-03-15T22:57:55.006Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Has PKCE: false
+[2026-03-15T22:57:55.006Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Final scopes: openid profile email
+[2026-03-15T22:57:55.007Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Using response_type='token id_token' — tokens delivered at resume, no PKCE needed
+[2026-03-15T22:57:55.008Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Checking for duplicate client_id: {
+  "count": 1,
+  "values": [
+    "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+  ]
+}
+[2026-03-15T22:57:55.008Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Authorization URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize
+[2026-03-15T22:57:55.005Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Environment ID: b9817c16-9910-4415-b67e-4ac687da74d9
+[2026-03-15T22:57:55.007Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] No credentials in Step 1 - following 4-step pattern (Flow API in Step 2)
+[2026-03-15T22:57:55.007Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] All URL parameters: [
+  [
+    "response_mode",
+    "pi.flow"
+  ],
+  [
+    "client_id",
+    "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+  ],
+  [
+    "scope",
+    "openid profile email"
+  ],
+  [
+    "state",
+    "pi-flow-1773615475007"
+  ],
+  [
+    "response_type",
+    "token id_token"
+  ]
+]
+[2026-03-15T22:57:55.007Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] No redirect_uri provided - using pi.flow without redirect_uri
+[2026-03-15T22:57:55.008Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] POST Body: response_mode=pi.flow&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&scope=openid+profile+email&state=pi-flow-1773615475007&response_type=token+id_token
+[2026-03-15T22:57:55.008Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Attempt 1/3 to PingOne
+[2026-03-15T22:57:55.243Z] [03/15/2026, 17:57:55] [ℹ️ LOG] 
+🍪 ====== SESSION TOKEN ANALYSIS ======
+[2026-03-15T22:57:55.243Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Checking for session tokens...
+[2026-03-15T22:57:55.244Z] [03/15/2026, 17:57:55] [ℹ️ LOG]    JSON - Has interactionId: false
+[2026-03-15T22:57:55.244Z] [03/15/2026, 17:57:55] [ℹ️ LOG]    JSON - Has interactionToken: false
+[2026-03-15T22:57:55.245Z] [03/15/2026, 17:57:55] [ℹ️ LOG] 🍪 ======================================
+
+[2026-03-15T22:57:55.245Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Redirectless] Success: {
+  "hasResumeUrl": true,
+  "hasFlowId": true,
+  "hasTokens": false,
+  "hasSessionTokens": false,
+  "flowStatus": "USERNAME_PASSWORD_REQUIRED"
+}
+[2026-03-15T22:57:55.244Z] [03/15/2026, 17:57:55] [ℹ️ LOG] ⚠️  No session tokens found in JSON or headers
+[2026-03-15T22:57:55.245Z] [03/15/2026, 17:57:55] [ℹ️ LOG]    This flow may use flowId-based authentication instead
+[2026-03-15T22:57:55.244Z] [03/15/2026, 17:57:55] [ℹ️ LOG]    Headers - Set-Cookie count: 0
+[2026-03-15T22:57:55.279Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Received request body: {
+  "flowUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/0031bb88-b216-4e47-993c-9368837dec98",
+  "username": "eli... (9 chars)",
+  "password": "***REDACTED***",
+  "sessionId": "e453bff9-f9a5-4d75-a360-5ebe00e66da1",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+}
+[2026-03-15T22:57:55.279Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Calling flow URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/0031bb88-b216-4e47-993c-9368837dec98
+[2026-03-15T22:57:55.280Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Username (length): eli... (9 chars)
+[2026-03-15T22:57:55.280Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Password (length): *** (8 chars)
+[2026-03-15T22:57:55.280Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Has client credentials: false
+[2026-03-15T22:57:55.280Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Using stored cookies: 0
+[2026-03-15T22:57:55.280Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Request body (credentials redacted): {
+  "action": "usernamePassword.check",
+  "username": "eli... (9 chars)",
+  "password": "*** (8 chars)",
+  "bodyLength": 80
+}
+[2026-03-15T22:57:55.280Z] [03/15/2026, 17:57:55] [⚠️ WARN] [PingOne Flow Check] ⚠️  NO COOKIES PROVIDED! PingOne Flow API requires cookies from Step 1's /as/authorize response.
+[2026-03-15T22:57:55.281Z] [03/15/2026, 17:57:55] [⚠️ WARN] [PingOne Flow Check] The flowId in URL is not sufficient - cookies maintain session state for stateful flows.
+[2026-03-15T22:57:55.281Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Making request to PingOne Flow API...
+[2026-03-15T22:57:55.392Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Response headers: {
+  "contentType": "application/json;charset=UTF-8",
+  "setCookieCount": 2
+}
+[2026-03-15T22:57:55.392Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] ✅ Captured 2 cookies from Set-Cookie headers
+[2026-03-15T22:57:55.392Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Cookie names: ST, ST-NO-SS
+[2026-03-15T22:57:55.391Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Response status: 200 OK
+[2026-03-15T22:57:55.392Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] ✅ FOUND ST cookie in response - Will be forwarded to resume endpoint
+[2026-03-15T22:57:55.393Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Success: {
+  "status": "COMPLETED",
+  "hasResumeUrl": true,
+  "hasUpdatedCookies": true
+}
+[2026-03-15T22:57:55.393Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Flow Check] Response data: {
+  "status": "COMPLETED",
+  "hasId": true,
+  "hasResumeUrl": true,
+  "hasError": false,
+  "hasUpdatedCookies": true
+}
+[2026-03-15T22:57:55.418Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Received request body: {
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=0031bb88-b216-4e47-993c-9368837dec98",
+  "flowId": "0031bb88-b216-4e47-993c-9368837dec98",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+  "sessionId": "e453bff9-f9a5-4d75-a360-5ebe00e66da1"
+}
+[2026-03-15T22:57:55.418Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Flow State: undefined
+[2026-03-15T22:57:55.418Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Flow ID: 0031bb88-b216-4e47-993c-9368837dec98
+[2026-03-15T22:57:55.418Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Has Client Secret: false
+[2026-03-15T22:57:55.418Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Has Code Verifier: false
+[2026-03-15T22:57:55.418Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Client ID: a4f963ea...
+[2026-03-15T22:57:55.419Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Final resume URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=0031bb88-b216-4e47-993c-9368837dec98&response_mode=pi.flow
+[2026-03-15T22:57:55.418Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Using stored cookies: 2
+[2026-03-15T22:57:55.419Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Resume URL parameters: {
+  "hasFlowId": true,
+  "hasResponseMode": true,
+  "responseMode": "pi.flow",
+  "hasState": false,
+  "hasCodeVerifier": false,
+  "codeVerifierLength": 0,
+  "allParams": [
+    [
+      "flowId",
+      "0031bb88-b216-4e47-993c-9368837dec98"
+    ],
+    [
+      "response_mode",
+      "pi.flow"
+    ]
+  ]
+}
+[2026-03-15T22:57:55.419Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] ✅ Including 2 cookies in request (REQUIRED for session continuity)
+[2026-03-15T22:57:55.419Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Cookie names: ST, ST-NO-SS
+[2026-03-15T22:57:55.418Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Calling resume URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=0031bb88-b216-4e47-993c-9368837dec98
+[2026-03-15T22:57:55.419Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Cookie header preview: ST=eed0fbbc-ca1b-4fe4-a228-ac7a63d82ce9; ST-NO-SS=eed0fbbc-ca1b-4fe4-a228-ac7a63d82ce9...
+[2026-03-15T22:57:55.567Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Successfully parsed response as JSON
+[2026-03-15T22:57:55.567Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Response analysis (200 OK): {
+  "status": 200,
+  "statusText": "OK",
+  "contentType": "application/json;charset=UTF-8",
+  "responseKeys": [
+    "_links",
+    "_embedded",
+    "id",
+    "environment",
+    "session",
+    "resumeUrl",
+    "status",
+    "createdAt",
+    "expiresAt",
+    "authorizeResponse"
+  ],
+  "responseKeyCount": 10,
+  "responseIsEmpty": false,
+  "responseIsObject": true,
+  "responseType": "object",
+  "hasCode": false,
+  "hasRedirect": false,
+  "hasAccessToken": false,
+  "hasIdToken": false,
+  "hasUserId": false,
+  "allStringValues": [
+    "id:0031bb88-b216-4e47-993c-936883...",
+    "resumeUrl:https://auth.pingone.com/b9817...",
+    "status:COMPLETED...",
+    "createdAt:2026-03-15T22:57:55.126Z...",
+    "expiresAt:2026-03-15T23:12:55.488Z..."
+  ]
+}
+[2026-03-15T22:57:55.568Z] [03/15/2026, 17:57:55] [⚠️ WARN] [PingOne Resume] All key-value pairs: _links: {"self":{"href":"http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/0031bb88-b216-4e..., _embedded: {"user":{"id":"921068ab-f9bc-432d-8864-916be4c462a8","username":"elizabeth","name":{"formatted":"Jan..., id: "0031bb88-b216-4e47-993c-9368837dec98", environment: {"id":"b9817c16-9910-4415-b67e-4ac687da74d9"}, session: {"id":"8e2896c5-d3c4-4c62-a270-1980ba49e141"}, resumeUrl: "https://auth.pingone.com/b9817c16-9910-4415-b67e-4...", status: "COMPLETED", createdAt: "2026-03-15T22:57:55.126Z", expiresAt: "2026-03-15T23:12:55.488Z", authorizeResponse: {"access_token":"eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01...
+[2026-03-15T22:57:55.569Z] [03/15/2026, 17:57:55] [⚠️ WARN] [PingOne Resume] WARNING: Response does not contain 'code' field
+[2026-03-15T22:57:55.569Z] [03/15/2026, 17:57:55] [⚠️ WARN] [PingOne Resume] Response structure: [
+  "_links",
+  "_embedded",
+  "id",
+  "environment",
+  "session",
+  "resumeUrl",
+  "status",
+  "createdAt",
+  "expiresAt",
+  "authorizeResponse"
+]
+[2026-03-15T22:57:55.569Z] [03/15/2026, 17:57:55] [⚠️ WARN] [PingOne Resume] Response type: object
+[2026-03-15T22:57:55.569Z] [03/15/2026, 17:57:55] [⚠️ WARN] [PingOne Resume] Response values preview: {
+  "_links": {
+    "self": {
+      "href": "http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/0031bb88-b216-4e47-993c-9368837dec98"
+    },
+    "signOnPage": {
+      "href": "https://apps.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/signon/?flowId=0031bb88-b216-4e47-993c-9368837dec98"
+    }
+  },
+  "_embedded": {
+    "user": {
+      "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+      "username": "elizabeth",
+      "name": {
+        "formatted": "Jane J Doe",
+        "given": "Jane",
+        "middle": "Jack",
+        "family": "Doe",
+        "honorificPrefix": "Mrs"
+      }
+    },
+    "application": {
+      "name": "PingOne OIDC Playground - Authorization Code Flow"
+    }
+  },
+  "id": "0031bb88-b216-4e47-993c-9368837dec98",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "session": {
+    "id": "8e2896c5-d3c4-4c62-a270-1980ba49e141"
+  },
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=0031bb88-b
+[2026-03-15T22:57:55.569Z] [03/15/2026, 17:57:55] [❌ ERROR] [PingOne Resume] ❌ FINAL CHECK: No authorization code found after all extraction attempts
+[2026-03-15T22:57:55.569Z] [03/15/2026, 17:57:55] [❌ ERROR] [PingOne Resume] Response keys: [
+  "_links",
+  "_embedded",
+  "id",
+  "environment",
+  "session",
+  "resumeUrl",
+  "status",
+  "createdAt",
+  "expiresAt",
+  "authorizeResponse"
+]
+[2026-03-15T22:57:55.570Z] [03/15/2026, 17:57:55] [❌ ERROR] [PingOne Resume] Response values: {
+  "_links": {
+    "self": {
+      "href": "http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/0031bb88-b216-4e47-993c-9368837dec98"
+    },
+    "signOnPage": {
+      "href": "https://apps.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/signon/?flowId=0031bb88-b216-4e47-993c-9368837dec98"
+    }
+  },
+  "_embedded": {
+    "user": {
+      "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+      "username": "elizabeth",
+      "name": {
+        "formatted": "Jane J Doe",
+        "given": "Jane",
+        "middle": "Jack",
+        "family": "Doe",
+        "honorificPrefix": "Mrs"
+      }
+    },
+    "application": {
+      "name": "PingOne OIDC Playground - Authorization Code Flow"
+    }
+  },
+  "id": "0031bb88-b216-4e47-993c-9368837dec98",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "session": {
+    "id": "8e2896c5-d3c4-4c62-a270-1980ba49e141"
+  },
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=0031bb88-b216-4e47-993c-9368837dec98",
+  "status": "COMPLETED",
+  "createdAt": "2026-03-15T22:57:55.126Z",
+  "expiresAt": "2026-03-15T23:12:55.488Z",
+  "authorizeResponse": {
+    "access_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiJhNGY5NjNlYS0wNzM2LTQ1NmEtYmU3Mi1iMWZhNGY2M2Y4MWYiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMThkOWVkOTUtNjk3OS00MjQ2LWI2ZDgtNWJlNjAxMDA1MDNkIiwiaWF0IjoxNzczNjE1NDc1LCJleHAiOjE3NzM2MTkwNzUsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJzY29wZSI6Im9wZW5pZCIsInN1YiI6IjkyMTA2OGFiLWY5YmMtNDMyZC04ODY0LTkxNmJlNGM0NjJhOCIsInNpZCI6IjhlMjg5NmM1LWQzYzQtNGM2Mi1hMjcwLTE5ODBiYTQ5ZTE0MSIsImF1dGhfdGltZSI6MTc3MzYxNTQ3NSwiYWNyIjoiU2luZ2xlX0ZhY3RvciIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJpZCI6IjkzNTA4OTM5LTRkZTItNGQxZC1hYTdjLWUyYmM3MmYwNmQ4NyJ9.YbGsPOkiUZ9MtmhCR8AcoKYy5w2KdbQ1GUW4SInlvUsEdsfFu_7nYe-QyCnx9bvQ6UQrL4GB6wAwhnvba5xDqOW00tGOUPsjIWLuStSIUI6PLmDxFYUU_vAtvQg6NbiW66EZ15xEgnIR1FZHHETwqxyEAOjOYh4Tvf_ypdJr6gJUSUzY_8tgTVBHaQoKFKegcXDQjHmYpBFGqAk6MyKTlNp1B0Egti54WtKowtJKxKGF2kzg1kijtWmFD8Ral5VzNRHaARTDnvB1pZUEB5h63cRkTeUDBglSIr2ToL3velYBmI9C_baz9H8HQB_xtRtoJTZ2PrQxt0Esie3ZjUKuqw",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "scope": "openid",
+    "id_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwic3ViIjoiOTIxMDY4YWItZjliYy00MzJkLTg4NjQtOTE2YmU0YzQ2MmE4IiwiYXVkIjoiYTRmOTYzZWEtMDczNi00NTZhLWJlNzItYjFmYTRmNjNmODFmIiwiaWF0IjoxNzczNjE1NDc1LCJleHAiOjE3NzM2MTkwNzUsImFjciI6IlNpbmdsZV9GYWN0b3IiLCJhbXIiOlsicHdkIl0sImF1dGhfdGltZSI6MTc3MzYxNTQ3NSwiYXRfaGFzaCI6IlQ4eUxmcnZOMGpmU2ttVHJWUm1uc2ciLCJzaWQiOiI4ZTI4OTZjNS1kM2M0LTRjNjItYTI3MC0xOTgwYmE0OWUxNDEiLCJsYXN0TmFtZSI6IkRvZSIsImdpdmVuTmFtZSI6IkphbmUiLCJ1c2VybmFtZSI6ImVsaXphYmV0aCIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJlZ2lvbiI6Ik5BIn0.ggZ_K3SC0ReEHWL6cGXUPpL1aJP3FycbF6f0-qflhg1jDno3S90Lv8DyFMB3Zjkrd3cxzLun21hrM8UWoriznADaQX7YwwrKz-wyZM3QcM0--DPZxBJUIIws6Uqussdi8Fgdf_PpMFPfdJaiE-ezDm5W8jVS0GyhQSN_hi9_FohnpCpfZ5QSBOI4mVa9sGT4y2tpgkCXuB3FFzWZUA13hr8Oe8c0kj-2m1teusu1yyq5roo7DbncluqIjwlzOnhvecg8_BrWjUQcWEXE0ss9KQIg8ziA1xeIeh36x91vi_NvwmuF72FgBNCvBw8gRWnEB4CxanClTr1y_mvmI_82HA",
+    "state": "pi-flow-1773615475007"
+  }
+}
+[2026-03-15T22:57:55.570Z] [03/15/2026, 17:57:55] [❌ ERROR] [PingOne Resume] This may indicate:
+[2026-03-15T22:57:55.570Z] [03/15/2026, 17:57:55] [❌ ERROR]   1. PingOne requires additional parameters in resume URL
+[2026-03-15T22:57:55.570Z] [03/15/2026, 17:57:55] [❌ ERROR]   2. Session cookies (ST) are invalid or expired
+[2026-03-15T22:57:55.571Z] [03/15/2026, 17:57:55] [❌ ERROR]   3. Flow ID or state mismatch
+[2026-03-15T22:57:55.571Z] [03/15/2026, 17:57:55] [❌ ERROR]   4. PingOne application configuration issue
+[2026-03-15T22:57:55.571Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Flattening authorizeResponse to top level — keys: access_token, token_type, expires_in, scope, id_token, state
+[2026-03-15T22:57:55.568Z] [03/15/2026, 17:57:55] [ℹ️ LOG] [PingOne Resume] Full response data (JSON): {
+  "_links": {
+    "self": {
+      "href": "http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/0031bb88-b216-4e47-993c-9368837dec98"
+    },
+    "signOnPage": {
+      "href": "https://apps.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/signon/?flowId=0031bb88-b216-4e47-993c-9368837dec98"
+    }
+  },
+  "_embedded": {
+    "user": {
+      "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+      "username": "elizabeth",
+      "name": {
+        "formatted": "Jane J Doe",
+        "given": "Jane",
+        "middle": "Jack",
+        "family": "Doe",
+        "honorificPrefix": "Mrs"
+      }
+    },
+    "application": {
+      "name": "PingOne OIDC Playground - Authorization Code Flow"
+    }
+  },
+  "id": "0031bb88-b216-4e47-993c-9368837dec98",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "session": {
+    "id": "8e2896c5-d3c4-4c62-a270-1980ba49e141"
+  },
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=0031bb88-b216-4e47-993c-9368837dec98",
+  "status": "COMPLETED",
+  "createdAt": "2026-03-15T22:57:55.126Z",
+  "expiresAt": "2026-03-15T23:12:55.488Z",
+  "authorizeResponse": {
+    "access_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiJhNGY5NjNlYS0wNzM2LTQ1NmEtYmU3Mi1iMWZhNGY2M2Y4MWYiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMThkOWVkOTUtNjk3OS00MjQ2LWI2ZDgtNWJlNjAxMDA1MDNkIiwiaWF0IjoxNzczNjE1NDc1LCJleHAiOjE3NzM2MTkwNzUsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJzY29wZSI6Im9wZW5pZCIsInN1YiI6IjkyMTA2OGFiLWY5YmMtNDMyZC04ODY0LTkxNmJlNGM0NjJhOCIsInNpZCI6IjhlMjg5NmM1LWQzYzQtNGM2Mi1hMjcwLTE5ODBiYTQ5ZTE0MSIsImF1dGhfdGltZSI6MTc3MzYxNTQ3NSwiYWNyIjoiU2luZ2xlX0ZhY3RvciIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJpZCI6IjkzNTA4OTM5LTRkZTItNGQxZC1hYTdjLWUyYmM3MmYwNmQ4NyJ9.YbGsPOkiUZ9MtmhCR8AcoKYy5w2KdbQ1GUW4SInlvUsEdsfFu_7nYe-QyCnx9bvQ6UQrL4GB6wAwhnvba5xDqOW00tGOUPsjIWLuStSIUI6PLmDxFYUU_vAtvQg6NbiW66EZ15xEgnIR1FZHHETwqxyEAOjOYh4Tvf_ypdJr6gJUSUzY_8tgTVBHaQoKFKegcXDQjHmYpBFGqAk6MyKTlNp1B0Egti54WtKowtJKxKGF2kzg1kijtWmFD8Ral5VzNRHaARTDnvB1pZUEB5h63cRkTeUDBglSIr2ToL3velYBmI9C_baz9H8HQB_xtRtoJTZ2PrQxt0Esie3ZjUKuqw",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "scope": "openid",
+    "id_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwic3ViIjoiOTIxMDY4YWItZjliYy00MzJkLTg4NjQtOTE2YmU0YzQ2MmE4IiwiYXVkIjoiYTRmOTYzZWEtMDczNi00NTZhLWJlNzItYjFmYTRmNjNmODFmIiwiaWF0IjoxNzczNjE1NDc1LCJleHAiOjE3NzM2MTkwNzUsImFjciI6IlNpbmdsZV9GYWN0b3IiLCJhbXIiOlsicHdkIl0sImF1dGhfdGltZSI6MTc3MzYxNTQ3NSwiYXRfaGFzaCI6IlQ4eUxmcnZOMGpmU2ttVHJWUm1uc2ciLCJzaWQiOiI4ZTI4OTZjNS1kM2M0LTRjNjItYTI3MC0xOTgwYmE0OWUxNDEiLCJsYXN0TmFtZSI6IkRvZSIsImdpdmVuTmFtZSI6IkphbmUiLCJ1c2VybmFtZSI6ImVsaXphYmV0aCIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJlZ2lvbiI6Ik5BIn0.ggZ_K3SC0ReEHWL6cGXUPpL1aJP3FycbF6f0-qflhg1jDno3S90Lv8DyFMB3Zjkrd3cxzLun21hrM8UWoriznADaQX7YwwrKz-wyZM3QcM0--DPZxBJUIIws6Uqussdi8Fgdf_PpMFPfdJaiE-ezDm5W8jVS0GyhQSN_hi9_FohnpCpfZ5QSBOI4mVa9sGT4y2tpgkCXuB3FFzWZUA13hr8Oe8c0kj-2m1teusu1yyq5roo7DbncluqIjwlzOnhvecg8_BrWjUQcWEXE0ss9KQIg8ziA1xeIeh36x91vi_NvwmuF72FgBNCvBw8gRWnEB4CxanClTr1y_mvmI_82HA",
+    "state": "pi-flow-1773615475007"
+  }
+}
+[2026-03-15T22:57:55.568Z] [03/15/2026, 17:57:55] [⚠️ WARN] [PingOne Resume] Available keys: _links, _embedded, id, environment, session, resumeUrl, status, createdAt, expiresAt, authorizeResponse
+[2026-03-15T22:57:55.568Z] [03/15/2026, 17:57:55] [⚠️ WARN] [PingOne Resume] ⚠️  Response has 10 keys but no 'code' field
+[2026-03-15T22:58:02.227Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Received request body: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+  "response_type": "token id_token",
+  "response_mode": "pi.flow",
+  "scopes": "openid profile email",
+  "region": "us"
+}
+[2026-03-15T22:58:02.228Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Using region: us, auth domain: auth.pingone.com
+[2026-03-15T22:58:02.229Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Environment ID: b9817c16-9910-4415-b67e-4ac687da74d9
+[2026-03-15T22:58:02.229Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Client ID: a4f963ea...
+[2026-03-15T22:58:02.230Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Redirect URI: (using default)
+[2026-03-15T22:58:02.228Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Starting authorization request
+[2026-03-15T22:58:02.230Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Has Client Secret: false
+[2026-03-15T22:58:02.230Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Scopes: openid profile email
+[2026-03-15T22:58:02.231Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Has PKCE: false
+[2026-03-15T22:58:02.231Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Final scopes: openid profile email
+[2026-03-15T22:58:02.231Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] No redirect_uri provided - using pi.flow without redirect_uri
+[2026-03-15T22:58:02.231Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] No credentials in Step 1 - following 4-step pattern (Flow API in Step 2)
+[2026-03-15T22:58:02.232Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] All URL parameters: [
+  [
+    "response_mode",
+    "pi.flow"
+  ],
+  [
+    "client_id",
+    "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+  ],
+  [
+    "scope",
+    "openid profile email"
+  ],
+  [
+    "state",
+    "pi-flow-1773615482231"
+  ],
+  [
+    "response_type",
+    "token id_token"
+  ]
+]
+[2026-03-15T22:58:02.232Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Checking for duplicate client_id: {
+  "count": 1,
+  "values": [
+    "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+  ]
+}
+[2026-03-15T22:58:02.232Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Authorization URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize
+[2026-03-15T22:58:02.233Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] POST Body: response_mode=pi.flow&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&scope=openid+profile+email&state=pi-flow-1773615482231&response_type=token+id_token
+[2026-03-15T22:58:02.233Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Attempt 1/3 to PingOne
+[2026-03-15T22:58:02.231Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Using response_type='token id_token' — tokens delivered at resume, no PKCE needed
+[2026-03-15T22:58:02.441Z] [03/15/2026, 17:58:02] [ℹ️ LOG] 
+🍪 ====== SESSION TOKEN ANALYSIS ======
+[2026-03-15T22:58:02.442Z] [03/15/2026, 17:58:02] [ℹ️ LOG]    JSON - Has interactionToken: false
+[2026-03-15T22:58:02.443Z] [03/15/2026, 17:58:02] [ℹ️ LOG]    Headers - Set-Cookie count: 0
+[2026-03-15T22:58:02.443Z] [03/15/2026, 17:58:02] [ℹ️ LOG]    This flow may use flowId-based authentication instead
+[2026-03-15T22:58:02.443Z] [03/15/2026, 17:58:02] [ℹ️ LOG] 🍪 ======================================
+
+[2026-03-15T22:58:02.443Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Success: {
+  "hasResumeUrl": true,
+  "hasFlowId": true,
+  "hasTokens": false,
+  "hasSessionTokens": false,
+  "flowStatus": "USERNAME_PASSWORD_REQUIRED"
+}
+[2026-03-15T22:58:02.443Z] [03/15/2026, 17:58:02] [ℹ️ LOG] ⚠️  No session tokens found in JSON or headers
+[2026-03-15T22:58:02.442Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Redirectless] Checking for session tokens...
+[2026-03-15T22:58:02.442Z] [03/15/2026, 17:58:02] [ℹ️ LOG]    JSON - Has interactionId: false
+[2026-03-15T22:58:02.475Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Received request body: {
+  "flowUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/005dd345-ac60-4365-91cb-f7e2bf8a20b6",
+  "username": "eli... (9 chars)",
+  "password": "***REDACTED***",
+  "sessionId": "586bdbab-8c2f-49f9-aff1-116064be4924",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+}
+[2026-03-15T22:58:02.476Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Calling flow URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/005dd345-ac60-4365-91cb-f7e2bf8a20b6
+[2026-03-15T22:58:02.476Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Password (length): *** (8 chars)
+[2026-03-15T22:58:02.476Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Using stored cookies: 0
+[2026-03-15T22:58:02.476Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Has client credentials: false
+[2026-03-15T22:58:02.476Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Request body (credentials redacted): {
+  "action": "usernamePassword.check",
+  "username": "eli... (9 chars)",
+  "password": "*** (8 chars)",
+  "bodyLength": 80
+}
+[2026-03-15T22:58:02.476Z] [03/15/2026, 17:58:02] [⚠️ WARN] [PingOne Flow Check] ⚠️  NO COOKIES PROVIDED! PingOne Flow API requires cookies from Step 1's /as/authorize response.
+[2026-03-15T22:58:02.476Z] [03/15/2026, 17:58:02] [⚠️ WARN] [PingOne Flow Check] The flowId in URL is not sufficient - cookies maintain session state for stateful flows.
+[2026-03-15T22:58:02.476Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Username (length): eli... (9 chars)
+[2026-03-15T22:58:02.476Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Making request to PingOne Flow API...
+[2026-03-15T22:58:02.588Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Response status: 200 OK
+[2026-03-15T22:58:02.591Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Response headers: {
+  "contentType": "application/json;charset=UTF-8",
+  "setCookieCount": 2
+}
+[2026-03-15T22:58:02.592Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] ✅ Captured 2 cookies from Set-Cookie headers
+[2026-03-15T22:58:02.593Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Cookie names: ST, ST-NO-SS
+[2026-03-15T22:58:02.593Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] ✅ FOUND ST cookie in response - Will be forwarded to resume endpoint
+[2026-03-15T22:58:02.594Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Response data: {
+  "status": "COMPLETED",
+  "hasId": true,
+  "hasResumeUrl": true,
+  "hasError": false,
+  "hasUpdatedCookies": true
+}
+[2026-03-15T22:58:02.594Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Flow Check] Success: {
+  "status": "COMPLETED",
+  "hasResumeUrl": true,
+  "hasUpdatedCookies": true
+}
+[2026-03-15T22:58:02.637Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Received request body: {
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=005dd345-ac60-4365-91cb-f7e2bf8a20b6",
+  "flowId": "005dd345-ac60-4365-91cb-f7e2bf8a20b6",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+  "sessionId": "586bdbab-8c2f-49f9-aff1-116064be4924"
+}
+[2026-03-15T22:58:02.637Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Flow State: undefined
+[2026-03-15T22:58:02.637Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Flow ID: 005dd345-ac60-4365-91cb-f7e2bf8a20b6
+[2026-03-15T22:58:02.637Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Calling resume URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=005dd345-ac60-4365-91cb-f7e2bf8a20b6
+[2026-03-15T22:58:02.637Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Has Client Secret: false
+[2026-03-15T22:58:02.637Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Has Code Verifier: false
+[2026-03-15T22:58:02.638Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Using stored cookies: 2
+[2026-03-15T22:58:02.638Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Final resume URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=005dd345-ac60-4365-91cb-f7e2bf8a20b6&response_mode=pi.flow
+[2026-03-15T22:58:02.638Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Resume URL parameters: {
+  "hasFlowId": true,
+  "hasResponseMode": true,
+  "responseMode": "pi.flow",
+  "hasState": false,
+  "hasCodeVerifier": false,
+  "codeVerifierLength": 0,
+  "allParams": [
+    [
+      "flowId",
+      "005dd345-ac60-4365-91cb-f7e2bf8a20b6"
+    ],
+    [
+      "response_mode",
+      "pi.flow"
+    ]
+  ]
+}
+[2026-03-15T22:58:02.638Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Cookie names: ST, ST-NO-SS
+[2026-03-15T22:58:02.638Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] ✅ Including 2 cookies in request (REQUIRED for session continuity)
+[2026-03-15T22:58:02.638Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Cookie header preview: ST=f3af6a93-4ada-4cc9-9e68-c583d8a02681; ST-NO-SS=f3af6a93-4ada-4cc9-9e68-c583d8a02681...
+[2026-03-15T22:58:02.637Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Client ID: a4f963ea...
+[2026-03-15T22:58:02.788Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Successfully parsed response as JSON
+[2026-03-15T22:58:02.789Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Response analysis (200 OK): {
+  "status": 200,
+  "statusText": "OK",
+  "contentType": "application/json;charset=UTF-8",
+  "responseKeys": [
+    "_links",
+    "_embedded",
+    "id",
+    "environment",
+    "session",
+    "resumeUrl",
+    "status",
+    "createdAt",
+    "expiresAt",
+    "authorizeResponse"
+  ],
+  "responseKeyCount": 10,
+  "responseIsEmpty": false,
+  "responseIsObject": true,
+  "responseType": "object",
+  "hasCode": false,
+  "hasRedirect": false,
+  "hasAccessToken": false,
+  "hasIdToken": false,
+  "hasUserId": false,
+  "allStringValues": [
+    "id:005dd345-ac60-4365-91cb-f7e2bf...",
+    "resumeUrl:https://auth.pingone.com/b9817...",
+    "status:COMPLETED...",
+    "createdAt:2026-03-15T22:58:02.323Z...",
+    "expiresAt:2026-03-15T23:13:02.709Z..."
+  ]
+}
+[2026-03-15T22:58:02.791Z] [03/15/2026, 17:58:02] [⚠️ WARN] [PingOne Resume] All key-value pairs: _links: {"self":{"href":"http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/005dd345-ac60-43..., _embedded: {"user":{"id":"921068ab-f9bc-432d-8864-916be4c462a8","username":"elizabeth","name":{"formatted":"Jan..., id: "005dd345-ac60-4365-91cb-f7e2bf8a20b6", environment: {"id":"b9817c16-9910-4415-b67e-4ac687da74d9"}, session: {"id":"c917db7c-187d-4671-8766-923f06e738cf"}, resumeUrl: "https://auth.pingone.com/b9817c16-9910-4415-b67e-4...", status: "COMPLETED", createdAt: "2026-03-15T22:58:02.323Z", expiresAt: "2026-03-15T23:13:02.709Z", authorizeResponse: {"access_token":"eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01...
+[2026-03-15T22:58:02.790Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Full response data (JSON): {
+  "_links": {
+    "self": {
+      "href": "http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/005dd345-ac60-4365-91cb-f7e2bf8a20b6"
+    },
+    "signOnPage": {
+      "href": "https://apps.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/signon/?flowId=005dd345-ac60-4365-91cb-f7e2bf8a20b6"
+    }
+  },
+  "_embedded": {
+    "user": {
+      "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+      "username": "elizabeth",
+      "name": {
+        "formatted": "Jane J Doe",
+        "given": "Jane",
+        "middle": "Jack",
+        "family": "Doe",
+        "honorificPrefix": "Mrs"
+      }
+    },
+    "application": {
+      "name": "PingOne OIDC Playground - Authorization Code Flow"
+    }
+  },
+  "id": "005dd345-ac60-4365-91cb-f7e2bf8a20b6",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "session": {
+    "id": "c917db7c-187d-4671-8766-923f06e738cf"
+  },
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=005dd345-ac60-4365-91cb-f7e2bf8a20b6",
+  "status": "COMPLETED",
+  "createdAt": "2026-03-15T22:58:02.323Z",
+  "expiresAt": "2026-03-15T23:13:02.709Z",
+  "authorizeResponse": {
+    "access_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiJhNGY5NjNlYS0wNzM2LTQ1NmEtYmU3Mi1iMWZhNGY2M2Y4MWYiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiYWU5YTAxY2QtMTBjNy00ZTk5LWI3ZDEtY2E5YWI0ZTlhZTVjIiwiaWF0IjoxNzczNjE1NDgyLCJleHAiOjE3NzM2MTkwODIsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJzY29wZSI6Im9wZW5pZCIsInN1YiI6IjkyMTA2OGFiLWY5YmMtNDMyZC04ODY0LTkxNmJlNGM0NjJhOCIsInNpZCI6ImM5MTdkYjdjLTE4N2QtNDY3MS04NzY2LTkyM2YwNmU3MzhjZiIsImF1dGhfdGltZSI6MTc3MzYxNTQ4MiwiYWNyIjoiU2luZ2xlX0ZhY3RvciIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJpZCI6ImQ0NmZjNDgwLTg2NWItNDcwZS04ZjZhLTY5MDNjZTVlYjQwOSJ9.t6SsMVjUpF9pp7UrH0XsqNZg5lqHoePoQOO7lyjFHBqC0NjqMcGxvjBXtrataNeMgzdq4upg_hubJ2pStrsQkL_3qJOIfj_FVH5WPCjBujp1qD2iMJGM8nyD8nedYjWAQ3AD2BpYqfhKBF-FV4WURTyizsfFs53p6urdu5dRrLizFGmb0nbKOzQCAVAzVfsO_Bj-HJqN-SdQx2RZukdWA6skrxkwBuBWhzJYHF9nH7XxIUBQhSCRaLuLU5a14OSXN5dxzOgnN82BW0_M2cvlK163UxhXe6atbJrSPPFrBCo_nF0PKJcU1nXDYgfhyO2HgdwOqGo7nmVruhoXn9iWqg",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "scope": "openid",
+    "id_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwic3ViIjoiOTIxMDY4YWItZjliYy00MzJkLTg4NjQtOTE2YmU0YzQ2MmE4IiwiYXVkIjoiYTRmOTYzZWEtMDczNi00NTZhLWJlNzItYjFmYTRmNjNmODFmIiwiaWF0IjoxNzczNjE1NDgyLCJleHAiOjE3NzM2MTkwODIsImFjciI6IlNpbmdsZV9GYWN0b3IiLCJhbXIiOlsicHdkIl0sImF1dGhfdGltZSI6MTc3MzYxNTQ4MiwiYXRfaGFzaCI6Im9mTWdObkk5aEJxYmtVWS1ONmZ1d1EiLCJzaWQiOiJjOTE3ZGI3Yy0xODdkLTQ2NzEtODc2Ni05MjNmMDZlNzM4Y2YiLCJsYXN0TmFtZSI6IkRvZSIsImdpdmVuTmFtZSI6IkphbmUiLCJ1c2VybmFtZSI6ImVsaXphYmV0aCIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJlZ2lvbiI6Ik5BIn0.CbN5LNCIcsQL_eKbA18Oi95TPeh6Q7H1LeIYyMu1eSoTc2XcPWappBmj1iefVCw9TKyQIibvJfkUZv70ZlJn4KhetykfkGbYSGbLppuG4iZcEPeipRLu3hzcb9sdMj99vnrqH5ldt1UIW0JDjgsJ23VrVlCL9V4vZyaOb7e__GmofDrTWcXwzG0Nvvz4CJK9jp5-jQzu7qFi7pQSJNbgwLNel3yEWg6wAQI0xmg3mJUqHoezl6Ce8mCcyP6LYOWZD3wkI5ptpPbE1g4dLFJ8wB0hbNwu476voC3olhSWv0F9lw_qjnZ10F9Uiif8jPFvx2SirQIx1jXbuVd5tYyxAA",
+    "state": "pi-flow-1773615482231"
+  }
+}
+[2026-03-15T22:58:02.790Z] [03/15/2026, 17:58:02] [⚠️ WARN] [PingOne Resume] ⚠️  Response has 10 keys but no 'code' field
+[2026-03-15T22:58:02.790Z] [03/15/2026, 17:58:02] [⚠️ WARN] [PingOne Resume] Available keys: _links, _embedded, id, environment, session, resumeUrl, status, createdAt, expiresAt, authorizeResponse
+[2026-03-15T22:58:02.791Z] [03/15/2026, 17:58:02] [⚠️ WARN] [PingOne Resume] WARNING: Response does not contain 'code' field
+[2026-03-15T22:58:02.791Z] [03/15/2026, 17:58:02] [⚠️ WARN] [PingOne Resume] Response structure: [
+  "_links",
+  "_embedded",
+  "id",
+  "environment",
+  "session",
+  "resumeUrl",
+  "status",
+  "createdAt",
+  "expiresAt",
+  "authorizeResponse"
+]
+[2026-03-15T22:58:02.791Z] [03/15/2026, 17:58:02] [⚠️ WARN] [PingOne Resume] Response type: object
+[2026-03-15T22:58:02.792Z] [03/15/2026, 17:58:02] [⚠️ WARN] [PingOne Resume] Response values preview: {
+  "_links": {
+    "self": {
+      "href": "http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/005dd345-ac60-4365-91cb-f7e2bf8a20b6"
+    },
+    "signOnPage": {
+      "href": "https://apps.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/signon/?flowId=005dd345-ac60-4365-91cb-f7e2bf8a20b6"
+    }
+  },
+  "_embedded": {
+    "user": {
+      "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+      "username": "elizabeth",
+      "name": {
+        "formatted": "Jane J Doe",
+        "given": "Jane",
+        "middle": "Jack",
+        "family": "Doe",
+        "honorificPrefix": "Mrs"
+      }
+    },
+    "application": {
+      "name": "PingOne OIDC Playground - Authorization Code Flow"
+    }
+  },
+  "id": "005dd345-ac60-4365-91cb-f7e2bf8a20b6",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "session": {
+    "id": "c917db7c-187d-4671-8766-923f06e738cf"
+  },
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=005dd345-a
+[2026-03-15T22:58:02.793Z] [03/15/2026, 17:58:02] [❌ ERROR] [PingOne Resume] Response keys: [
+  "_links",
+  "_embedded",
+  "id",
+  "environment",
+  "session",
+  "resumeUrl",
+  "status",
+  "createdAt",
+  "expiresAt",
+  "authorizeResponse"
+]
+[2026-03-15T22:58:02.792Z] [03/15/2026, 17:58:02] [❌ ERROR] [PingOne Resume] ❌ FINAL CHECK: No authorization code found after all extraction attempts
+[2026-03-15T22:58:02.793Z] [03/15/2026, 17:58:02] [❌ ERROR] [PingOne Resume] Response values: {
+  "_links": {
+    "self": {
+      "href": "http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/005dd345-ac60-4365-91cb-f7e2bf8a20b6"
+    },
+    "signOnPage": {
+      "href": "https://apps.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/signon/?flowId=005dd345-ac60-4365-91cb-f7e2bf8a20b6"
+    }
+  },
+  "_embedded": {
+    "user": {
+      "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+      "username": "elizabeth",
+      "name": {
+        "formatted": "Jane J Doe",
+        "given": "Jane",
+        "middle": "Jack",
+        "family": "Doe",
+        "honorificPrefix": "Mrs"
+      }
+    },
+    "application": {
+      "name": "PingOne OIDC Playground - Authorization Code Flow"
+    }
+  },
+  "id": "005dd345-ac60-4365-91cb-f7e2bf8a20b6",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "session": {
+    "id": "c917db7c-187d-4671-8766-923f06e738cf"
+  },
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=005dd345-ac60-4365-91cb-f7e2bf8a20b6",
+  "status": "COMPLETED",
+  "createdAt": "2026-03-15T22:58:02.323Z",
+  "expiresAt": "2026-03-15T23:13:02.709Z",
+  "authorizeResponse": {
+    "access_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiJhNGY5NjNlYS0wNzM2LTQ1NmEtYmU3Mi1iMWZhNGY2M2Y4MWYiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiYWU5YTAxY2QtMTBjNy00ZTk5LWI3ZDEtY2E5YWI0ZTlhZTVjIiwiaWF0IjoxNzczNjE1NDgyLCJleHAiOjE3NzM2MTkwODIsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJzY29wZSI6Im9wZW5pZCIsInN1YiI6IjkyMTA2OGFiLWY5YmMtNDMyZC04ODY0LTkxNmJlNGM0NjJhOCIsInNpZCI6ImM5MTdkYjdjLTE4N2QtNDY3MS04NzY2LTkyM2YwNmU3MzhjZiIsImF1dGhfdGltZSI6MTc3MzYxNTQ4MiwiYWNyIjoiU2luZ2xlX0ZhY3RvciIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJpZCI6ImQ0NmZjNDgwLTg2NWItNDcwZS04ZjZhLTY5MDNjZTVlYjQwOSJ9.t6SsMVjUpF9pp7UrH0XsqNZg5lqHoePoQOO7lyjFHBqC0NjqMcGxvjBXtrataNeMgzdq4upg_hubJ2pStrsQkL_3qJOIfj_FVH5WPCjBujp1qD2iMJGM8nyD8nedYjWAQ3AD2BpYqfhKBF-FV4WURTyizsfFs53p6urdu5dRrLizFGmb0nbKOzQCAVAzVfsO_Bj-HJqN-SdQx2RZukdWA6skrxkwBuBWhzJYHF9nH7XxIUBQhSCRaLuLU5a14OSXN5dxzOgnN82BW0_M2cvlK163UxhXe6atbJrSPPFrBCo_nF0PKJcU1nXDYgfhyO2HgdwOqGo7nmVruhoXn9iWqg",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "scope": "openid",
+    "id_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwic3ViIjoiOTIxMDY4YWItZjliYy00MzJkLTg4NjQtOTE2YmU0YzQ2MmE4IiwiYXVkIjoiYTRmOTYzZWEtMDczNi00NTZhLWJlNzItYjFmYTRmNjNmODFmIiwiaWF0IjoxNzczNjE1NDgyLCJleHAiOjE3NzM2MTkwODIsImFjciI6IlNpbmdsZV9GYWN0b3IiLCJhbXIiOlsicHdkIl0sImF1dGhfdGltZSI6MTc3MzYxNTQ4MiwiYXRfaGFzaCI6Im9mTWdObkk5aEJxYmtVWS1ONmZ1d1EiLCJzaWQiOiJjOTE3ZGI3Yy0xODdkLTQ2NzEtODc2Ni05MjNmMDZlNzM4Y2YiLCJsYXN0TmFtZSI6IkRvZSIsImdpdmVuTmFtZSI6IkphbmUiLCJ1c2VybmFtZSI6ImVsaXphYmV0aCIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJlZ2lvbiI6Ik5BIn0.CbN5LNCIcsQL_eKbA18Oi95TPeh6Q7H1LeIYyMu1eSoTc2XcPWappBmj1iefVCw9TKyQIibvJfkUZv70ZlJn4KhetykfkGbYSGbLppuG4iZcEPeipRLu3hzcb9sdMj99vnrqH5ldt1UIW0JDjgsJ23VrVlCL9V4vZyaOb7e__GmofDrTWcXwzG0Nvvz4CJK9jp5-jQzu7qFi7pQSJNbgwLNel3yEWg6wAQI0xmg3mJUqHoezl6Ce8mCcyP6LYOWZD3wkI5ptpPbE1g4dLFJ8wB0hbNwu476voC3olhSWv0F9lw_qjnZ10F9Uiif8jPFvx2SirQIx1jXbuVd5tYyxAA",
+    "state": "pi-flow-1773615482231"
+  }
+}
+[2026-03-15T22:58:02.795Z] [03/15/2026, 17:58:02] [❌ ERROR]   3. Flow ID or state mismatch
+[2026-03-15T22:58:02.796Z] [03/15/2026, 17:58:02] [❌ ERROR]   4. PingOne application configuration issue
+[2026-03-15T22:58:02.799Z] [03/15/2026, 17:58:02] [ℹ️ LOG] [PingOne Resume] Flattening authorizeResponse to top level — keys: access_token, token_type, expires_in, scope, id_token, state
+[2026-03-15T22:58:02.793Z] [03/15/2026, 17:58:02] [❌ ERROR] [PingOne Resume] This may indicate:
+[2026-03-15T22:58:02.794Z] [03/15/2026, 17:58:02] [❌ ERROR]   1. PingOne requires additional parameters in resume URL
+[2026-03-15T22:58:02.795Z] [03/15/2026, 17:58:02] [❌ ERROR]   2. Session cookies (ST) are invalid or expired
+[2026-03-15T22:58:05.841Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Received request body: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+  "response_type": "token id_token",
+  "response_mode": "pi.flow",
+  "scopes": "openid profile email",
+  "region": "us"
+}
+[2026-03-15T22:58:05.841Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Using region: us, auth domain: auth.pingone.com
+[2026-03-15T22:58:05.842Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Environment ID: b9817c16-9910-4415-b67e-4ac687da74d9
+[2026-03-15T22:58:05.842Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Starting authorization request
+[2026-03-15T22:58:05.842Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Client ID: a4f963ea...
+[2026-03-15T22:58:05.842Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Has Client Secret: false
+[2026-03-15T22:58:05.842Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Redirect URI: (using default)
+[2026-03-15T22:58:05.842Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Has PKCE: false
+[2026-03-15T22:58:05.842Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] No redirect_uri provided - using pi.flow without redirect_uri
+[2026-03-15T22:58:05.842Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Using response_type='token id_token' — tokens delivered at resume, no PKCE needed
+[2026-03-15T22:58:05.842Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Final scopes: openid profile email
+[2026-03-15T22:58:05.842Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] No credentials in Step 1 - following 4-step pattern (Flow API in Step 2)
+[2026-03-15T22:58:05.843Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] All URL parameters: [
+  [
+    "response_mode",
+    "pi.flow"
+  ],
+  [
+    "client_id",
+    "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+  ],
+  [
+    "scope",
+    "openid profile email"
+  ],
+  [
+    "state",
+    "pi-flow-1773615485842"
+  ],
+  [
+    "response_type",
+    "token id_token"
+  ]
+]
+[2026-03-15T22:58:05.843Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Authorization URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize
+[2026-03-15T22:58:05.843Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] POST Body: response_mode=pi.flow&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&scope=openid+profile+email&state=pi-flow-1773615485842&response_type=token+id_token
+[2026-03-15T22:58:05.843Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Checking for duplicate client_id: {
+  "count": 1,
+  "values": [
+    "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+  ]
+}
+[2026-03-15T22:58:05.843Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Attempt 1/3 to PingOne
+[2026-03-15T22:58:05.842Z] [03/15/2026, 17:58:05] [ℹ️ LOG] [PingOne Redirectless] Scopes: openid profile email
+[2026-03-15T22:58:06.034Z] [03/15/2026, 17:58:06] [ℹ️ LOG] 
+🍪 ====== SESSION TOKEN ANALYSIS ======
+[2026-03-15T22:58:06.035Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Redirectless] Checking for session tokens...
+[2026-03-15T22:58:06.037Z] [03/15/2026, 17:58:06] [ℹ️ LOG]    JSON - Has interactionId: false
+[2026-03-15T22:58:06.038Z] [03/15/2026, 17:58:06] [ℹ️ LOG]    JSON - Has interactionToken: false
+[2026-03-15T22:58:06.038Z] [03/15/2026, 17:58:06] [ℹ️ LOG]    Headers - Set-Cookie count: 0
+[2026-03-15T22:58:06.039Z] [03/15/2026, 17:58:06] [ℹ️ LOG]    This flow may use flowId-based authentication instead
+[2026-03-15T22:58:06.039Z] [03/15/2026, 17:58:06] [ℹ️ LOG] 🍪 ======================================
+
+[2026-03-15T22:58:06.039Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Redirectless] Success: {
+  "hasResumeUrl": true,
+  "hasFlowId": true,
+  "hasTokens": false,
+  "hasSessionTokens": false,
+  "flowStatus": "USERNAME_PASSWORD_REQUIRED"
+}
+[2026-03-15T22:58:06.038Z] [03/15/2026, 17:58:06] [ℹ️ LOG] ⚠️  No session tokens found in JSON or headers
+[2026-03-15T22:58:06.084Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Received request body: {
+  "flowUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/00494792-bff9-4b16-b5b7-67efbf79861e",
+  "username": "eli... (9 chars)",
+  "password": "***REDACTED***",
+  "sessionId": "742dbba6-b3dd-4822-8726-b062b11aaab4",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f"
+}
+[2026-03-15T22:58:06.085Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Calling flow URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/00494792-bff9-4b16-b5b7-67efbf79861e
+[2026-03-15T22:58:06.085Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Password (length): *** (8 chars)
+[2026-03-15T22:58:06.085Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Has client credentials: false
+[2026-03-15T22:58:06.085Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Request body (credentials redacted): {
+  "action": "usernamePassword.check",
+  "username": "eli... (9 chars)",
+  "password": "*** (8 chars)",
+  "bodyLength": 80
+}
+[2026-03-15T22:58:06.085Z] [03/15/2026, 17:58:06] [⚠️ WARN] [PingOne Flow Check] ⚠️  NO COOKIES PROVIDED! PingOne Flow API requires cookies from Step 1's /as/authorize response.
+[2026-03-15T22:58:06.085Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Using stored cookies: 0
+[2026-03-15T22:58:06.085Z] [03/15/2026, 17:58:06] [⚠️ WARN] [PingOne Flow Check] The flowId in URL is not sufficient - cookies maintain session state for stateful flows.
+[2026-03-15T22:58:06.085Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Making request to PingOne Flow API...
+[2026-03-15T22:58:06.085Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Username (length): eli... (9 chars)
+[2026-03-15T22:58:06.214Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Response status: 200 OK
+[2026-03-15T22:58:06.215Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Response headers: {
+  "contentType": "application/json;charset=UTF-8",
+  "setCookieCount": 2
+}
+[2026-03-15T22:58:06.215Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] ✅ Captured 2 cookies from Set-Cookie headers
+[2026-03-15T22:58:06.216Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Success: {
+  "status": "COMPLETED",
+  "hasResumeUrl": true,
+  "hasUpdatedCookies": true
+}
+[2026-03-15T22:58:06.216Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Cookie names: ST, ST-NO-SS
+[2026-03-15T22:58:06.216Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] ✅ FOUND ST cookie in response - Will be forwarded to resume endpoint
+[2026-03-15T22:58:06.216Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Flow Check] Response data: {
+  "status": "COMPLETED",
+  "hasId": true,
+  "hasResumeUrl": true,
+  "hasError": false,
+  "hasUpdatedCookies": true
+}
+[2026-03-15T22:58:06.246Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Received request body: {
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=00494792-bff9-4b16-b5b7-67efbf79861e",
+  "flowId": "00494792-bff9-4b16-b5b7-67efbf79861e",
+  "clientId": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+  "sessionId": "742dbba6-b3dd-4822-8726-b062b11aaab4"
+}
+[2026-03-15T22:58:06.246Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Calling resume URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=00494792-bff9-4b16-b5b7-67efbf79861e
+[2026-03-15T22:58:06.246Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Flow ID: 00494792-bff9-4b16-b5b7-67efbf79861e
+[2026-03-15T22:58:06.247Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Flow State: undefined
+[2026-03-15T22:58:06.247Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Client ID: a4f963ea...
+[2026-03-15T22:58:06.247Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Has Client Secret: false
+[2026-03-15T22:58:06.247Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Has Code Verifier: false
+[2026-03-15T22:58:06.247Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Using stored cookies: 2
+[2026-03-15T22:58:06.247Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Final resume URL: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=00494792-bff9-4b16-b5b7-67efbf79861e&response_mode=pi.flow
+[2026-03-15T22:58:06.247Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Resume URL parameters: {
+  "hasFlowId": true,
+  "hasResponseMode": true,
+  "responseMode": "pi.flow",
+  "hasState": false,
+  "hasCodeVerifier": false,
+  "codeVerifierLength": 0,
+  "allParams": [
+    [
+      "flowId",
+      "00494792-bff9-4b16-b5b7-67efbf79861e"
+    ],
+    [
+      "response_mode",
+      "pi.flow"
+    ]
+  ]
+}
+[2026-03-15T22:58:06.247Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Cookie names: ST, ST-NO-SS
+[2026-03-15T22:58:06.247Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Cookie header preview: ST=e8c85f15-cf88-4a82-a0b2-4e9bee3839d8; ST-NO-SS=e8c85f15-cf88-4a82-a0b2-4e9bee3839d8...
+[2026-03-15T22:58:06.247Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] ✅ Including 2 cookies in request (REQUIRED for session continuity)
+[2026-03-15T22:58:06.384Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Successfully parsed response as JSON
+[2026-03-15T22:58:06.386Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Response analysis (200 OK): {
+  "status": 200,
+  "statusText": "OK",
+  "contentType": "application/json;charset=UTF-8",
+  "responseKeys": [
+    "_links",
+    "_embedded",
+    "id",
+    "environment",
+    "session",
+    "resumeUrl",
+    "status",
+    "createdAt",
+    "expiresAt",
+    "authorizeResponse"
+  ],
+  "responseKeyCount": 10,
+  "responseIsEmpty": false,
+  "responseIsObject": true,
+  "responseType": "object",
+  "hasCode": false,
+  "hasRedirect": false,
+  "hasAccessToken": false,
+  "hasIdToken": false,
+  "hasUserId": false,
+  "allStringValues": [
+    "id:00494792-bff9-4b16-b5b7-67efbf...",
+    "resumeUrl:https://auth.pingone.com/b9817...",
+    "status:COMPLETED...",
+    "createdAt:2026-03-15T22:58:05.916Z...",
+    "expiresAt:2026-03-15T23:13:06.306Z..."
+  ]
+}
+[2026-03-15T22:58:06.387Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Full response data (JSON): {
+  "_links": {
+    "self": {
+      "href": "http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/00494792-bff9-4b16-b5b7-67efbf79861e"
+    },
+    "signOnPage": {
+      "href": "https://apps.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/signon/?flowId=00494792-bff9-4b16-b5b7-67efbf79861e"
+    }
+  },
+  "_embedded": {
+    "user": {
+      "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+      "username": "elizabeth",
+      "name": {
+        "formatted": "Jane J Doe",
+        "given": "Jane",
+        "middle": "Jack",
+        "family": "Doe",
+        "honorificPrefix": "Mrs"
+      }
+    },
+    "application": {
+      "name": "PingOne OIDC Playground - Authorization Code Flow"
+    }
+  },
+  "id": "00494792-bff9-4b16-b5b7-67efbf79861e",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "session": {
+    "id": "b402dece-368a-4423-a098-0fe4cb7e7b14"
+  },
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=00494792-bff9-4b16-b5b7-67efbf79861e",
+  "status": "COMPLETED",
+  "createdAt": "2026-03-15T22:58:05.916Z",
+  "expiresAt": "2026-03-15T23:13:06.306Z",
+  "authorizeResponse": {
+    "access_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiJhNGY5NjNlYS0wNzM2LTQ1NmEtYmU3Mi1iMWZhNGY2M2Y4MWYiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiYmZhYjJmMmEtNTFkZi00YjI2LTg3ZGEtNWJiYzkwNWM1ZTViIiwiaWF0IjoxNzczNjE1NDg2LCJleHAiOjE3NzM2MTkwODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJzY29wZSI6Im9wZW5pZCIsInN1YiI6IjkyMTA2OGFiLWY5YmMtNDMyZC04ODY0LTkxNmJlNGM0NjJhOCIsInNpZCI6ImI0MDJkZWNlLTM2OGEtNDQyMy1hMDk4LTBmZTRjYjdlN2IxNCIsImF1dGhfdGltZSI6MTc3MzYxNTQ4NiwiYWNyIjoiU2luZ2xlX0ZhY3RvciIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJpZCI6ImE5N2FjMTMyLWE4YWMtNDU1Yy1hODk0LWY0ZDgwM2M3ZjdkMiJ9.BC4Wo2EQbdPENQyASXaade_F7ca_FMj2JzJwjPnnpR6L1Fq4g0qwHfdohDaDYybHxmeCaaN1iUP3mvfIenE_hCN9yvQaq9ydilx1htVrbr8FUwAQzrogFcXqHVyJEaHTAGn6h6wbAP4DnwWcva4EBdHstHEflyq0GAWME_ovinjlbp8TN655h2S7E-RlzPNVg_6gsd8NqC6TVkXrYbJS7bWUsEZpXHiGjoyijWU2xdULkmG2lwmyZWc-XVgWtgJ_vbspcOBUkKNm8txbZpVGnk4Bh0JkGKA8CPTiqNlcpK-1lXgqKsa6AH-y8VAIbRdtY9EoTYxVLc_gBNGEw3Cmaw",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "scope": "openid",
+    "id_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwic3ViIjoiOTIxMDY4YWItZjliYy00MzJkLTg4NjQtOTE2YmU0YzQ2MmE4IiwiYXVkIjoiYTRmOTYzZWEtMDczNi00NTZhLWJlNzItYjFmYTRmNjNmODFmIiwiaWF0IjoxNzczNjE1NDg2LCJleHAiOjE3NzM2MTkwODYsImFjciI6IlNpbmdsZV9GYWN0b3IiLCJhbXIiOlsicHdkIl0sImF1dGhfdGltZSI6MTc3MzYxNTQ4NiwiYXRfaGFzaCI6ImVid29PbEdsazlkNWdidGk5dnRkbEEiLCJzaWQiOiJiNDAyZGVjZS0zNjhhLTQ0MjMtYTA5OC0wZmU0Y2I3ZTdiMTQiLCJsYXN0TmFtZSI6IkRvZSIsImdpdmVuTmFtZSI6IkphbmUiLCJ1c2VybmFtZSI6ImVsaXphYmV0aCIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJlZ2lvbiI6Ik5BIn0.lXM4qzGgeYrMPY54pGtqUf6XNWDezPjZ55hJivqv8lEqybtTJgpIsWT2Le3Yq1_VuGJ_YgnDGsSHI0V8hckvB6dM1ZvggGUlVASLl2PgIZgcCGg5I6G3xqi3dHwYxU_eqVNzX0nXLAnVs5PtXCdVjDPkT5zqLSPmDYf9UJU6G5QKv-A-mCL_gBIwynbACLbqmWZES_wLkAXw1P_II49C5IgSVziPzA3V2grTjGXOYw36lf4TPB0lLRKfxQVXedkfhXLgsAgfw6cLqC2Ms4vConvFUaZjAmgA8NC0yW_ULvWtamEypq0zn5zC-7IWIawC9G55aKkG0-N_XX7dNHv2cA",
+    "state": "pi-flow-1773615485842"
+  }
+}
+[2026-03-15T22:58:06.387Z] [03/15/2026, 17:58:06] [⚠️ WARN] [PingOne Resume] ⚠️  Response has 10 keys but no 'code' field
+[2026-03-15T22:58:06.387Z] [03/15/2026, 17:58:06] [⚠️ WARN] [PingOne Resume] Available keys: _links, _embedded, id, environment, session, resumeUrl, status, createdAt, expiresAt, authorizeResponse
+[2026-03-15T22:58:06.388Z] [03/15/2026, 17:58:06] [⚠️ WARN] [PingOne Resume] Response type: object
+[2026-03-15T22:58:06.389Z] [03/15/2026, 17:58:06] [⚠️ WARN] [PingOne Resume] Response values preview: {
+  "_links": {
+    "self": {
+      "href": "http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/00494792-bff9-4b16-b5b7-67efbf79861e"
+    },
+    "signOnPage": {
+      "href": "https://apps.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/signon/?flowId=00494792-bff9-4b16-b5b7-67efbf79861e"
+    }
+  },
+  "_embedded": {
+    "user": {
+      "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+      "username": "elizabeth",
+      "name": {
+        "formatted": "Jane J Doe",
+        "given": "Jane",
+        "middle": "Jack",
+        "family": "Doe",
+        "honorificPrefix": "Mrs"
+      }
+    },
+    "application": {
+      "name": "PingOne OIDC Playground - Authorization Code Flow"
+    }
+  },
+  "id": "00494792-bff9-4b16-b5b7-67efbf79861e",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "session": {
+    "id": "b402dece-368a-4423-a098-0fe4cb7e7b14"
+  },
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=00494792-b
+[2026-03-15T22:58:06.389Z] [03/15/2026, 17:58:06] [❌ ERROR] [PingOne Resume] ❌ FINAL CHECK: No authorization code found after all extraction attempts
+[2026-03-15T22:58:06.389Z] [03/15/2026, 17:58:06] [❌ ERROR] [PingOne Resume] Response keys: [
+  "_links",
+  "_embedded",
+  "id",
+  "environment",
+  "session",
+  "resumeUrl",
+  "status",
+  "createdAt",
+  "expiresAt",
+  "authorizeResponse"
+]
+[2026-03-15T22:58:06.390Z] [03/15/2026, 17:58:06] [❌ ERROR] [PingOne Resume] Response values: {
+  "_links": {
+    "self": {
+      "href": "http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/00494792-bff9-4b16-b5b7-67efbf79861e"
+    },
+    "signOnPage": {
+      "href": "https://apps.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/signon/?flowId=00494792-bff9-4b16-b5b7-67efbf79861e"
+    }
+  },
+  "_embedded": {
+    "user": {
+      "id": "921068ab-f9bc-432d-8864-916be4c462a8",
+      "username": "elizabeth",
+      "name": {
+        "formatted": "Jane J Doe",
+        "given": "Jane",
+        "middle": "Jack",
+        "family": "Doe",
+        "honorificPrefix": "Mrs"
+      }
+    },
+    "application": {
+      "name": "PingOne OIDC Playground - Authorization Code Flow"
+    }
+  },
+  "id": "00494792-bff9-4b16-b5b7-67efbf79861e",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "session": {
+    "id": "b402dece-368a-4423-a098-0fe4cb7e7b14"
+  },
+  "resumeUrl": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/resume?flowId=00494792-bff9-4b16-b5b7-67efbf79861e",
+  "status": "COMPLETED",
+  "createdAt": "2026-03-15T22:58:05.916Z",
+  "expiresAt": "2026-03-15T23:13:06.306Z",
+  "authorizeResponse": {
+    "access_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiJhNGY5NjNlYS0wNzM2LTQ1NmEtYmU3Mi1iMWZhNGY2M2Y4MWYiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiYmZhYjJmMmEtNTFkZi00YjI2LTg3ZGEtNWJiYzkwNWM1ZTViIiwiaWF0IjoxNzczNjE1NDg2LCJleHAiOjE3NzM2MTkwODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJzY29wZSI6Im9wZW5pZCIsInN1YiI6IjkyMTA2OGFiLWY5YmMtNDMyZC04ODY0LTkxNmJlNGM0NjJhOCIsInNpZCI6ImI0MDJkZWNlLTM2OGEtNDQyMy1hMDk4LTBmZTRjYjdlN2IxNCIsImF1dGhfdGltZSI6MTc3MzYxNTQ4NiwiYWNyIjoiU2luZ2xlX0ZhY3RvciIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJpZCI6ImE5N2FjMTMyLWE4YWMtNDU1Yy1hODk0LWY0ZDgwM2M3ZjdkMiJ9.BC4Wo2EQbdPENQyASXaade_F7ca_FMj2JzJwjPnnpR6L1Fq4g0qwHfdohDaDYybHxmeCaaN1iUP3mvfIenE_hCN9yvQaq9ydilx1htVrbr8FUwAQzrogFcXqHVyJEaHTAGn6h6wbAP4DnwWcva4EBdHstHEflyq0GAWME_ovinjlbp8TN655h2S7E-RlzPNVg_6gsd8NqC6TVkXrYbJS7bWUsEZpXHiGjoyijWU2xdULkmG2lwmyZWc-XVgWtgJ_vbspcOBUkKNm8txbZpVGnk4Bh0JkGKA8CPTiqNlcpK-1lXgqKsa6AH-y8VAIbRdtY9EoTYxVLc_gBNGEw3Cmaw",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "scope": "openid",
+    "id_token": "eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01nZ05zcGM4R2pBUVN2dC13YTQiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwic3ViIjoiOTIxMDY4YWItZjliYy00MzJkLTg4NjQtOTE2YmU0YzQ2MmE4IiwiYXVkIjoiYTRmOTYzZWEtMDczNi00NTZhLWJlNzItYjFmYTRmNjNmODFmIiwiaWF0IjoxNzczNjE1NDg2LCJleHAiOjE3NzM2MTkwODYsImFjciI6IlNpbmdsZV9GYWN0b3IiLCJhbXIiOlsicHdkIl0sImF1dGhfdGltZSI6MTc3MzYxNTQ4NiwiYXRfaGFzaCI6ImVid29PbEdsazlkNWdidGk5dnRkbEEiLCJzaWQiOiJiNDAyZGVjZS0zNjhhLTQ0MjMtYTA5OC0wZmU0Y2I3ZTdiMTQiLCJsYXN0TmFtZSI6IkRvZSIsImdpdmVuTmFtZSI6IkphbmUiLCJ1c2VybmFtZSI6ImVsaXphYmV0aCIsImVudiI6ImI5ODE3YzE2LTk5MTAtNDQxNS1iNjdlLTRhYzY4N2RhNzRkOSIsIm9yZyI6Ijk3YmE0NGYyLWY3ZWUtNDE0NC1hYTk1LTllNjM2YjU3YzA5NiIsInAxLnJlZ2lvbiI6Ik5BIn0.lXM4qzGgeYrMPY54pGtqUf6XNWDezPjZ55hJivqv8lEqybtTJgpIsWT2Le3Yq1_VuGJ_YgnDGsSHI0V8hckvB6dM1ZvggGUlVASLl2PgIZgcCGg5I6G3xqi3dHwYxU_eqVNzX0nXLAnVs5PtXCdVjDPkT5zqLSPmDYf9UJU6G5QKv-A-mCL_gBIwynbACLbqmWZES_wLkAXw1P_II49C5IgSVziPzA3V2grTjGXOYw36lf4TPB0lLRKfxQVXedkfhXLgsAgfw6cLqC2Ms4vConvFUaZjAmgA8NC0yW_ULvWtamEypq0zn5zC-7IWIawC9G55aKkG0-N_XX7dNHv2cA",
+    "state": "pi-flow-1773615485842"
+  }
+}
+[2026-03-15T22:58:06.390Z] [03/15/2026, 17:58:06] [❌ ERROR] [PingOne Resume] This may indicate:
+[2026-03-15T22:58:06.390Z] [03/15/2026, 17:58:06] [❌ ERROR]   1. PingOne requires additional parameters in resume URL
+[2026-03-15T22:58:06.390Z] [03/15/2026, 17:58:06] [❌ ERROR]   2. Session cookies (ST) are invalid or expired
+[2026-03-15T22:58:06.390Z] [03/15/2026, 17:58:06] [❌ ERROR]   3. Flow ID or state mismatch
+[2026-03-15T22:58:06.390Z] [03/15/2026, 17:58:06] [❌ ERROR]   4. PingOne application configuration issue
+[2026-03-15T22:58:06.390Z] [03/15/2026, 17:58:06] [ℹ️ LOG] [PingOne Resume] Flattening authorizeResponse to top level — keys: access_token, token_type, expires_in, scope, id_token, state
+[2026-03-15T22:58:06.388Z] [03/15/2026, 17:58:06] [⚠️ WARN] [PingOne Resume] All key-value pairs: _links: {"self":{"href":"http://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/flows/00494792-bff9-4b..., _embedded: {"user":{"id":"921068ab-f9bc-432d-8864-916be4c462a8","username":"elizabeth","name":{"formatted":"Jan..., id: "00494792-bff9-4b16-b5b7-67efbf79861e", environment: {"id":"b9817c16-9910-4415-b67e-4ac687da74d9"}, session: {"id":"b402dece-368a-4423-a098-0fe4cb7e7b14"}, resumeUrl: "https://auth.pingone.com/b9817c16-9910-4415-b67e-4...", status: "COMPLETED", createdAt: "2026-03-15T22:58:05.916Z", expiresAt: "2026-03-15T23:13:06.306Z", authorizeResponse: {"access_token":"eyJraWQiOiI4MjkzOTZhMC1iNzgxLTExZjAtOTZlYS0zOTY5MGY1NzI4OTYiLCJ4NXQiOiJucFA3Y1pjU01...
+[2026-03-15T22:58:06.388Z] [03/15/2026, 17:58:06] [⚠️ WARN] [PingOne Resume] WARNING: Response does not contain 'code' field
+[2026-03-15T22:58:06.388Z] [03/15/2026, 17:58:06] [⚠️ WARN] [PingOne Resume] Response structure: [
+  "_links",
+  "_embedded",
+  "id",
+  "environment",
+  "session",
+  "resumeUrl",
+  "status",
+  "createdAt",
+  "expiresAt",
+  "authorizeResponse"
+]
+[2026-03-15T22:59:39.371Z] [03/15/2026, 17:59:39] [ℹ️ LOG] 🚀 [Server] Token exchange request received
+[2026-03-15T22:59:39.372Z] [03/15/2026, 17:59:39] [ℹ️ LOG] 🔑 [Server] Validating password (ROPC) grant type
+[2026-03-15T22:59:39.372Z] [03/15/2026, 17:59:39] [ℹ️ LOG] 🔧 [Server] Token exchange configuration: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "tokenEndpoint": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/token",
+  "grantType": "password",
+  "clientId": "66a4686b...",
+  "hasClientSecret": true,
+  "hasCode": false,
+  "hasCodeVerifier": false,
+  "clientAuthMethod": "client_secret_post",
+  "scope": "openid profile",
+  "allParams": {
+    "grant_type": "password",
+    "client_id": "66a4686b-9222-4ad2-91b6-03113711c9aa",
+    "client_secret": "3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC",
+    "environment_id": "b9817c16-9910-4415-b67e-4ac687da74d9",
+    "username": "elizabeth",
+    "password": "Tigers7&",
+    "scope": "openid profile"
+  }
+}
+[2026-03-15T22:59:39.372Z] [03/15/2026, 17:59:39] [ℹ️ LOG] 📥 [Server] Request body: {
+  "grant_type": "password",
+  "client_id": "66a4686b-9222-4ad2-91b6-03113711c9aa",
+  "hasCode": false,
+  "hasCodeVerifier": false,
+  "hasClientSecret": true,
+  "hasEnvironmentId": true,
+  "code": "undefined...",
+  "codeVerifier": "undefined...",
+  "clientId": "66a4686b...",
+  "fullBody": {
+    "grant_type": "password",
+    "client_id": "66a4686b-9222-4ad2-91b6-03113711c9aa",
+    "client_secret": "3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC",
+    "environment_id": "b9817c16-9910-4415-b67e-4ac687da74d9",
+    "username": "elizabeth",
+    "password": "Tigers7&",
+    "scope": "openid profile"
+  }
+}
+[2026-03-15T22:59:39.372Z] [03/15/2026, 17:59:39] [ℹ️ LOG] 🔑 [Server] Building password (ROPC) request body
+[2026-03-15T22:59:39.372Z] [03/15/2026, 17:59:39] [ℹ️ LOG] 🔐 [Server] Using client_secret_post for confidential client: {
+  "clientId": "66a4686b...",
+  "clientSecretLength": 64,
+  "hasClientSecret": true,
+  "authMethod": "client_secret_post"
+}
+[2026-03-15T22:59:39.372Z] [03/15/2026, 17:59:39] [ℹ️ LOG] 🌐 [Server] Making request to PingOne token endpoint: {
+  "url": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/token",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Accept": "application/json",
+    "Authorization": "None"
+  },
+  "body": "grant_type=password&client_id=66a4686b-9222-4ad2-91b6-03113711c9aa&username=elizabeth&password=Tigers7%26&scope=openid+profile&client_secret=3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC"
+}
+[2026-03-15T22:59:39.494Z] [03/15/2026, 17:59:39] [ℹ️ LOG] 📥 [Server] PingOne token response: {
+  "status": 400,
+  "statusText": "Bad Request",
+  "ok": false,
+  "headers": {
+    "access-control-allow-credentials": "true",
+    "access-control-allow-origin": "*",
+    "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+    "connection": "keep-alive",
+    "content-length": "167",
+    "content-type": "application/json;charset=UTF-8",
+    "correlation-id": "7dcc04d1-cf99-4512-b1f6-a6b2d4f1bdae",
+    "date": "Sun, 15 Mar 2026 22:59:39 GMT",
+    "expires": "0",
+    "pragma": "no-cache",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "via": "1.1 496a85635be885af91c839cfaadbbeb8.cloudfront.net (CloudFront)",
+    "x-amz-apigw-id": "aSX6WFZ8iYcEBUA=",
+    "x-amz-cf-id": "8X4zC4I6KYxwdAHEP8uuJhWDT5ctq7lXWl1oPY5wBKWW3xvB8p05Mw==",
+    "x-amz-cf-pop": "DFW59-P6",
+    "x-amzn-requestid": "7dcc04d1-cf99-4512-b1f6-a6b2d4f1bdae",
+    "x-amzn-trace-id": "Root=1-69b739db-2b04f2ed6c337e046e1cfab8;Parent=1198044aa764aed0;Sampled=0;Lineage=1:4e17ef71:0",
+    "x-cache": "Error from cloudfront",
+    "x-content-type-options": "nosniff"
+  }
+}
+[2026-03-15T22:59:39.494Z] [03/15/2026, 17:59:39] [❌ ERROR] ❌ [Server] PingOne token exchange error: {
+  "status": 400,
+  "statusText": "Bad Request",
+  "responseData": {
+    "error": "unsupported_grant_type",
+    "error_description": "Request failed: Invalid grant type: password (Correlation ID: 7dcc04d1-cf99-4512-b1f6-a6b2d4f1bdae)"
+  },
+  "requestBody": "grant_type=password&client_id=66a4686b-9222-4ad2-91b6-03113711c9aa&username=elizabeth&password=Tigers7%26&scope=openid+profile&client_secret=3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC"
+}
+[2026-03-15T22:59:51.273Z] [03/15/2026, 17:59:51] [ℹ️ LOG] 🚀 [Server] Token exchange request received
+[2026-03-15T22:59:51.274Z] [03/15/2026, 17:59:51] [ℹ️ LOG] 📥 [Server] Request body: {
+  "grant_type": "password",
+  "client_id": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+  "hasCode": false,
+  "hasCodeVerifier": false,
+  "hasClientSecret": true,
+  "hasEnvironmentId": true,
+  "code": "undefined...",
+  "codeVerifier": "undefined...",
+  "clientId": "a4f963ea...",
+  "fullBody": {
+    "grant_type": "password",
+    "client_id": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+    "client_secret": "0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a",
+    "environment_id": "b9817c16-9910-4415-b67e-4ac687da74d9",
+    "username": "elizabeth",
+    "password": "Tigers7&",
+    "scope": "openid profile"
+  }
+}
+[2026-03-15T22:59:51.274Z] [03/15/2026, 17:59:51] [ℹ️ LOG] 🔑 [Server] Validating password (ROPC) grant type
+[2026-03-15T22:59:51.274Z] [03/15/2026, 17:59:51] [ℹ️ LOG] 🔧 [Server] Token exchange configuration: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "tokenEndpoint": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/token",
+  "grantType": "password",
+  "clientId": "a4f963ea...",
+  "hasClientSecret": true,
+  "hasCode": false,
+  "hasCodeVerifier": false,
+  "clientAuthMethod": "client_secret_post",
+  "scope": "openid profile",
+  "allParams": {
+    "grant_type": "password",
+    "client_id": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+    "client_secret": "0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a",
+    "environment_id": "b9817c16-9910-4415-b67e-4ac687da74d9",
+    "username": "elizabeth",
+    "password": "Tigers7&",
+    "scope": "openid profile"
+  }
+}
+[2026-03-15T22:59:51.274Z] [03/15/2026, 17:59:51] [ℹ️ LOG] 🔑 [Server] Building password (ROPC) request body
+[2026-03-15T22:59:51.274Z] [03/15/2026, 17:59:51] [ℹ️ LOG] 🔐 [Server] Using client_secret_post for confidential client: {
+  "clientId": "a4f963ea...",
+  "clientSecretLength": 64,
+  "hasClientSecret": true,
+  "authMethod": "client_secret_post"
+}
+[2026-03-15T22:59:51.274Z] [03/15/2026, 17:59:51] [ℹ️ LOG] 🌐 [Server] Making request to PingOne token endpoint: {
+  "url": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/token",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Accept": "application/json",
+    "Authorization": "None"
+  },
+  "body": "grant_type=password&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&username=elizabeth&password=Tigers7%26&scope=openid+profile&client_secret=0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a"
+}
+[2026-03-15T22:59:51.375Z] [03/15/2026, 17:59:51] [ℹ️ LOG] 📥 [Server] PingOne token response: {
+  "status": 400,
+  "statusText": "Bad Request",
+  "ok": false,
+  "headers": {
+    "access-control-allow-credentials": "true",
+    "access-control-allow-origin": "*",
+    "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+    "connection": "keep-alive",
+    "content-length": "167",
+    "content-type": "application/json;charset=UTF-8",
+    "correlation-id": "e58fd566-4d95-4d20-baf0-972f8d50f828",
+    "date": "Sun, 15 Mar 2026 22:59:51 GMT",
+    "expires": "0",
+    "pragma": "no-cache",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "via": "1.1 1339c9ce0c990f11807dade69a2fe306.cloudfront.net (CloudFront)",
+    "x-amz-apigw-id": "aSX8NHikiYcEcMg=",
+    "x-amz-cf-id": "F2tx_HZ1hCzsErLZ69u-e7eNy_kccBiAUARcyXz0XNZJ0WNKGXsHxA==",
+    "x-amz-cf-pop": "DFW59-P6",
+    "x-amzn-requestid": "e58fd566-4d95-4d20-baf0-972f8d50f828",
+    "x-amzn-trace-id": "Root=1-69b739e7-04faa7c82cfe5fe43c9a1230;Parent=62f66da5d0789242;Sampled=0;Lineage=1:4e17ef71:0",
+    "x-cache": "Error from cloudfront",
+    "x-content-type-options": "nosniff"
+  }
+}
+[2026-03-15T22:59:51.375Z] [03/15/2026, 17:59:51] [❌ ERROR] ❌ [Server] PingOne token exchange error: {
+  "status": 400,
+  "statusText": "Bad Request",
+  "responseData": {
+    "error": "unsupported_grant_type",
+    "error_description": "Request failed: Invalid grant type: password (Correlation ID: e58fd566-4d95-4d20-baf0-972f8d50f828)"
+  },
+  "requestBody": "grant_type=password&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&username=elizabeth&password=Tigers7%26&scope=openid+profile&client_secret=0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a"
+}
