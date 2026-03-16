@@ -313,7 +313,6 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/organization-licensing', 'Organization Licensing', true],
 			['/pingone-user-profile', 'User Profile', true],
 			['/security/password-reset', 'Password Reset', true],
-			['/v8/mfa-feature-flags', 'MFA Feature Flags', true],
 			['/advanced-security-settings', 'Advanced Security Settings', true],
 		]),
 	},

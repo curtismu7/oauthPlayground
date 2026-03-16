@@ -362,22 +362,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				icon: <span>⚡</span>,
 				isOpen: true,
 				items: [
-					// ADMIN Entries
-					{
-						id: 'mfa-feature-flags-admin-v8',
-						path: '/v8/mfa-feature-flags',
-						label: '🚦 MFA Feature Flags',
-						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
-								<span>⚙️</span>
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Control unified flow rollout with per-device feature flags and percentage-based gradual deployment">
-								ADMIN
-							</MigrationBadge>
-						),
-					},
 					{
 						id: 'api-status-page',
 						path: '/api-status',
