@@ -107,27 +107,33 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-16T10:03:14.157Z
+// Last updated: 2026-03-16T14:23:51.217Z
 // Source: git log (2 days → 2 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
 	{
-		id: 'git-2026-03-16-security',
+		id: 'git-2026-03-16-code-cleanup',
 		date: '2026-03-16',
-		duration: 0.7,
+		duration: 12,
 		category: {
-			id: 'security',
-			name: 'Security',
-			color: '#E83E8C',
-			icon: '🔒',
-			description: 'Security',
+			id: 'code-cleanup',
+			name: 'Code Cleanup',
+			color: '#FFC107',
+			icon: '🧹',
+			description: 'Code Cleanup',
 		},
-		description: 'SVG eye icons, require authzClientId for pi.flow (fix 400), warning banner',
-		filesModified: 1,
-		linesOfCode: 195,
-		issuesResolved: 2,
+		description:
+			'4 commits: rewrite with styled-components, move to Dashboard group; icon consistency, user profile button, password reset tests …',
+		filesModified: 55,
+		linesOfCode: 27709,
+		issuesResolved: 346,
 		documentation: [],
-		achievements: ['SVG eye icons, require authzClientId for pi.flow (fix 400), warning banner'],
+		achievements: [
+			'rewrite with styled-components, move to Dashboard group',
+			'icon consistency, user profile button, password reset tests',
+			'add 7 new V9 flows, MCP servers, search group headers, migration guide',
+			'SVG eye icons, require authzClientId for pi.flow (fix 400), warning banner',
+		],
 		version: '9.16.5',
 	},
 	{
