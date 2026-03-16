@@ -154,7 +154,9 @@ export default defineConfig(({ mode }) => {
 		],
 		server: {
 			port: 3000,
-			open: true,
+			// Open the custom domain by default (FRONTEND_HOST is set to api.pingdemo.com by run.sh)
+			open: `https://${process.env.FRONTEND_HOST || 'api.pingdemo.com'}:3000`,
+			host: true,
 			// Use custom cert (run-config-ssl) when SSL_CERT_PATH/SSL_KEY_PATH set; else basicSsl plugin
 			...(httpsOptions && { https: httpsOptions }),
 			// In production, Vercel will handle HTTPS
