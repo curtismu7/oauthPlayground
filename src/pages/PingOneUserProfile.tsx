@@ -640,8 +640,13 @@ const PingOneUserProfile: React.FC = () => {
 	// IMPORTANT: This hook must be called first to maintain consistent hook order
 	const globalTokenStatus = useGlobalWorkerToken();
 
-	// Use global worker token instead of custom accessToken state
-	const accessToken = globalTokenStatus.token || '';
+	// Use global worker token — fall back to direct sync read so the button enables
+	// even when the hook's expiry check is strict but the token is still usable.
+	const accessToken =
+		globalTokenStatus.token ||
+		(!globalTokenStatus.isLoading
+			? (unifiedWorkerTokenService.getTokenDataSync()?.token ?? '')
+			: '');
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -1552,6 +1557,7 @@ const PingOneUserProfile: React.FC = () => {
 							onClick={() => handleLoadUserProfile()}
 							disabled={
 								isResolvingUser ||
+								globalTokenStatus.isLoading ||
 								!userIdentifier.trim() ||
 								!environmentId.trim() ||
 								!accessToken.trim()
@@ -1561,6 +1567,7 @@ const PingOneUserProfile: React.FC = () => {
 								padding: '0.75rem',
 								background:
 									isResolvingUser ||
+									globalTokenStatus.isLoading ||
 									!userIdentifier.trim() ||
 									!environmentId.trim() ||
 									!accessToken.trim()
@@ -1573,6 +1580,7 @@ const PingOneUserProfile: React.FC = () => {
 								fontWeight: '600',
 								cursor:
 									isResolvingUser ||
+									globalTokenStatus.isLoading ||
 									!userIdentifier.trim() ||
 									!environmentId.trim() ||
 									!accessToken.trim()
@@ -1580,7 +1588,11 @@ const PingOneUserProfile: React.FC = () => {
 										: 'pointer',
 							}}
 						>
-							{isResolvingUser ? 'Resolving user…' : 'Load User Profile'}
+							{isResolvingUser
+								? 'Resolving user…'
+								: globalTokenStatus.isLoading
+									? 'Checking token…'
+									: 'Load User Profile'}
 						</button>
 					</div>
 				</div>
