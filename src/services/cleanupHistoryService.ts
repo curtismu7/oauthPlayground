@@ -107,7 +107,7 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-15T22:49:32.868Z
+// Last updated: 2026-03-16T02:00:15.587Z
 // Source: git log (1 days → 1 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
@@ -123,17 +123,17 @@ const CLEANUP_SESSIONS: CleanupSession[] = [
 			description: 'Code Cleanup',
 		},
 		description:
-			'26 commits: show username/password fields in admin quick-login mode (ROPC); pre-fill authzClientId instead of worker clientId in P1 Login tab …',
-		filesModified: 80,
-		linesOfCode: 14599,
-		issuesResolved: 182,
+			'29 commits: AI Assistant SidePanel UI improvements; replace ROPC with pi.flow (PingOne has no ROPC grant type) …',
+		filesModified: 91,
+		linesOfCode: 16645,
+		issuesResolved: 208,
 		documentation: [],
 		achievements: [
+			'AI Assistant SidePanel UI improvements',
+			'replace ROPC with pi.flow (PingOne has no ROPC grant type)',
+			'use response_type=token id_token in pi.flow — skip PKCE, no Auth Code grant required',
 			'show username/password fields in admin quick-login mode (ROPC)',
 			'pre-fill authzClientId instead of worker clientId in P1 Login tab',
-			"prevent list_users from matching 'List MFA devices for user X'",
-			'add set-user-population command with auto name→ID resolution',
-			'auto-resolve usernames/emails/group-names to IDs in all API commands',
 		],
 		version: '9.16.5',
 	},
