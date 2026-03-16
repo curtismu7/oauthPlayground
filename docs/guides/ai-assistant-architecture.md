@@ -280,7 +280,7 @@ const LOCAL_PATTERNS: Array<{ pattern: RegExp; tool: string }> = [
 | Token            | Holder                                           | Source                                                        | Used for                                                  |
 | ---------------- | ------------------------------------------------ | ------------------------------------------------------------- | --------------------------------------------------------- |
 | **Worker token** | Backend in-memory cache (`_mcpTokenCache`)       | Client Credentials flow via PingOne `/as/token`               | All Management API calls from `/api/mcp/query`            |
-| **Admin token**  | Component state `adminToken`                     | pi.flow (`response_type=code` + PKCE) via quick-login form    | Optional override for MCP calls when `useAdminLogin=true` |
+| **Admin token**  | Component state `adminToken`                     | pi.flow `response_type=token id_token` (tokens in JSON body, no redirect) | Optional override for MCP calls when `useAdminLogin=true` |
 | **User token**   | Component state `userAccessToken` + localStorage | pi.flow (Authorization Code + `response_type=token id_token`) | `isIntrospectUserTokenQuery`, `isUserInfoQuery`           |
 
 ### Worker Token Resolution in `/api/mcp/query`
@@ -576,9 +576,9 @@ Warning banner is shown in the UI when no `authzClientId` is configured.
 
 ### Admin Login Mode
 
-Same 3-step pi.flow as Standard User Login but with `response_type=code` + PKCE (Authorization Code flow). `useAdminLogin=true` is set and the resulting `access_token` is stored as `adminToken`. Admin token is passed as `workerToken` in `callMcpQuery()` calls.
+Uses the same 3-step pi.flow as Standard User Login — `response_type=token id_token` with `response_mode=pi.flow`. Tokens are returned **directly in the JSON body** of the resume response; no browser redirect and no code exchange. `useAdminLogin=true` is set and the resulting `access_token` is stored as `adminToken`, then passed as `workerToken` in `callMcpQuery()` calls.
 
-> **⚠️ PingOne does NOT support ROPC (`grant_type=password`).** Admin quick-login uses Authorization Code + PKCE via pi.flow. The full-form Admin tab uses `client_credentials` (worker app, no user identity).
+> **⚠️ PingOne does NOT support ROPC (`grant_type=password`).** Admin quick-login uses pi.flow interactive login (`response_mode=pi.flow, response_type=token id_token`). The full-form Admin tab uses `client_credentials` (worker app, no user identity).
 
 ---
 
