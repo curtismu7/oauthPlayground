@@ -107,7 +107,7 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-16T02:01:13.416Z
+// Last updated: 2026-03-16T02:01:58.853Z
 // Source: git log (1 days → 1 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
@@ -123,17 +123,17 @@ const CLEANUP_SESSIONS: CleanupSession[] = [
 			description: 'Code Cleanup',
 		},
 		description:
-			'30 commits: Cleanliness dashboard and history service updates; AI Assistant SidePanel UI improvements …',
-		filesModified: 93,
-		linesOfCode: 16654,
+			'32 commits: use Authorization Code + PKCE (response_type=code) not implicit; Final cleanup dashboard refinements …',
+		filesModified: 97,
+		linesOfCode: 16669,
 		issuesResolved: 208,
 		documentation: [],
 		achievements: [
+			'use Authorization Code + PKCE (response_type=code) not implicit',
+			'Final cleanup dashboard refinements',
 			'Cleanliness dashboard and history service updates',
 			'AI Assistant SidePanel UI improvements',
 			'replace ROPC with pi.flow (PingOne has no ROPC grant type)',
-			'use response_type=token id_token in pi.flow — skip PKCE, no Auth Code grant required',
-			'show username/password fields in admin quick-login mode (ROPC)',
 		],
 		version: '9.16.5',
 	},
