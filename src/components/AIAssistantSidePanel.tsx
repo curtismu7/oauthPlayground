@@ -501,8 +501,9 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 
 	if (usernamePasswordOnly) {
 		// PingOne does NOT support ROPC (grant_type=password).
-		// Admin login uses pi.flow with response_type=code + PKCE (Authorization Code flow)
-		// which is more secure than implicit. resumeFlow exchanges the code for tokens internally.
+		// Admin login uses pi.flow with response_type=token id_token.
+		// response_mode=pi.flow means no browser redirect — tokens are returned directly
+		// in the JSON body of the resume response. No code exchange or PKCE needed.
 		const handlePiFlowAdminLogin = async () => {
 			if (!onAdminTokenSet) return;
 			const data = unifiedWorkerTokenService.getTokenDataSync();
@@ -525,14 +526,15 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 			setError(null);
 			setIsLoading(true);
 			try {
-				// Step 1: start pi.flow with response_type=code + PKCE (Authorization Code flow)
+				// Step 1: start pi.flow — response_type=token id_token with response_mode=pi.flow
+				// PingOne returns tokens directly in the JSON body; no redirect, no code exchange.
 				const initRes = await PingOneLoginService.initializeEmbeddedLogin(
 					envId,
 					effectiveClientId,
 					undefined,
 					['openid', 'profile', 'email'],
-					region
-					// response_type defaults to 'code' — PKCE generated automatically
+					region,
+					'token id_token'
 				);
 				if (!initRes.success || !initRes.data?.flowId) {
 					throw new Error(initRes.error?.message || 'Failed to start authorization flow');
@@ -549,7 +551,7 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 				if (!credsRes.success) {
 					throw new Error(credsRes.error?.message || 'Invalid credentials');
 				}
-				// Step 3: resume — auth code exchanged for tokens inside resumeFlow via PKCE
+				// Step 3: resume — tokens returned directly in JSON (no code exchange)
 				const resumeRes = await PingOneLoginService.resumeFlow(
 					flowId,
 					effectiveSecret || undefined
