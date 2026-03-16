@@ -5,14 +5,10 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-	type LogContext,
-	type LogLevel,
-	unifiedFlowLoggerService,
-} from '../unifiedFlowLoggerServiceV8U';
+import { unifiedFlowLoggerService } from '../unifiedFlowLoggerServiceV8U';
 
 describe('unifiedFlowLoggerServiceV8U', () => {
-	const originalConsole = { ...console };
+	const _originalConsole = { ...console };
 
 	beforeEach(() => {
 		vi.spyOn(console, 'info').mockImplementation(() => {});
