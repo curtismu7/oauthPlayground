@@ -3,6 +3,27 @@ import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
+import {
+	FiActivity,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiCloud,
+	FiCpu,
+	FiDatabase,
+	FiEye,
+	FiGitBranch,
+	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiLink,
+	FiLock,
+	FiSettings,
+	FiShield,
+	FiTarget,
+	FiTrendingUp,
+	FiUsers,
+	FiZap,
+} from '../icons';
 
 const Container = styled.div`
 	max-width: 1400px;
@@ -59,7 +80,13 @@ const ArchitectureDiagram = styled.div`
 		left: 0;
 		right: 0;
 		height: 4px;
-		background: linear-gradient(90deg, V9_COLORS.PRIMARY.BLUE, #8b5cf6, #06b6d4, V9_COLORS.PRIMARY.GREEN);
+		background: linear-gradient(
+			90deg,
+			V9_COLORS.PRIMARY.BLUE,
+			#8b5cf6,
+			#06b6d4,
+			V9_COLORS.PRIMARY.GREEN
+		);
 	}
 `;
 
@@ -142,18 +169,19 @@ const AgentType = styled.div`
 				return 'linear-gradient(135deg, #f3f4f6 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)';
 		}
 	}};
-	border: 1px solid ${({ variant }) => {
-		switch (variant) {
-			case 'personal':
-				return '#3b82f6';
-			case 'managed':
-				return '#10b981';
-			case 'digital':
-				return '#f59e0b';
-			default:
-				return '#6b7280';
-		}
-	}};
+	border: 1px solid
+		${({ variant }) => {
+			switch (variant) {
+				case 'personal':
+					return '#3b82f6';
+				case 'managed':
+					return '#10b981';
+				case 'digital':
+					return '#f59e0b';
+				default:
+					return '#6b7280';
+			}
+		}};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin: 1rem 0;
@@ -226,18 +254,19 @@ const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' | 'error' }>
 				return '#f8fafc';
 		}
 	}};
-	border: 1px solid ${({ $type }) => {
-		switch ($type) {
-			case 'warning':
-				return '#f59e0b';
-			case 'success':
-				return '#10b981';
-			case 'error':
-				return '#ef4444';
-			default:
-				return '#3b82f6';
-		}
-	}};
+	border: 1px solid
+		${({ $type }) => {
+			switch ($type) {
+				case 'warning':
+					return '#f59e0b';
+				case 'success':
+					return '#10b981';
+				case 'error':
+					return '#ef4444';
+				default:
+					return '#3b82f6';
+			}
+		}};
 	color: ${({ $type }) => {
 		switch ($type) {
 			case 'warning':
@@ -261,7 +290,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 			<Header>
 				<h1>
-					<i className="bi bi-cpu" />
+					<FiCpu />
 					Identity for AI Architectures
 				</h1>
 				<p>
@@ -274,7 +303,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="Identity Layers for AI"
 				subtitle="Understanding the different layers of identity in AI architectures"
-				icon={<span>🛡️</span>}
+				icon={<FiShield />}
 				theme="blue"
 				defaultCollapsed={false}
 			>
@@ -282,7 +311,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					<ArchitectureDiagram>
 						<Layer>
 							<LayerIcon color="V9_COLORS.PRIMARY.BLUE">
-								<span>👥</span>
+								<FiUsers />
 							</LayerIcon>
 							<LayerContent>
 								<h3>Users</h3>
@@ -292,7 +321,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="#8b5cf6">
-								<span>🔑</span>
+								<FiKey />
 							</LayerIcon>
 							<LayerContent>
 								<h3>API Clients</h3>
@@ -302,7 +331,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="#06b6d4">
-								<i className="bi bi-cpu" />
+								<FiCpu />
 							</LayerIcon>
 							<LayerContent>
 								<h3>Workloads</h3>
@@ -312,7 +341,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="V9_COLORS.PRIMARY.GREEN">
-								<i className="bi bi-database" />
+								<FiDatabase />
 							</LayerIcon>
 							<LayerContent>
 								<h3>Devices/Machines</h3>
@@ -322,7 +351,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="V9_COLORS.PRIMARY.YELLOW">
-								<span>⚡</span>
+								<FiZap />
 							</LayerIcon>
 							<LayerContent>
 								<h3>AI Agents</h3>
@@ -337,7 +366,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="OAuth Client Types for AI Agents"
 				subtitle="Understanding different OAuth client types and their use cases for AI agents"
-				icon={<span>🔑</span>}
+				icon={<FiKey />}
 				theme="green"
 				defaultCollapsed={false}
 			>
@@ -352,7 +381,8 @@ const AIIdentityArchitectures: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<span>👥</span>Personal Agents
+							<FiUsers />
+							Personal Agents
 						</h3>
 						<p style={{ color: '#2563eb', marginBottom: '1rem' }}>
 							<strong>OAuth Public Client</strong>
@@ -374,7 +404,8 @@ const AIIdentityArchitectures: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<span>⚙️</span>Managed Agents
+							<FiSettings />
+							Managed Agents
 						</h3>
 						<p style={{ color: '#059669', marginBottom: '1rem' }}>
 							<strong>OAuth Confidential Client</strong>
@@ -397,7 +428,7 @@ const AIIdentityArchitectures: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<i className="bi bi-cpu" />
+							<FiCpu />
 							Digital Workers
 						</h3>
 						<p style={{ color: '#d97706', marginBottom: '1rem' }}>
@@ -416,14 +447,15 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="Trust Boundaries in AI Architectures"
 				subtitle="Understanding security boundaries and trust models for AI agent interactions"
-				icon={<span>🔒</span>}
+				icon={<FiLock />}
 				theme="orange"
 				defaultCollapsed={false}
 			>
 				<Card>
 					<TrustBoundary>
 						<h3>
-							<span>🛡️</span>Trust Boundary
+							<FiShield />
+							Trust Boundary
 						</h3>
 						<p>
 							The security perimeter that defines trusted vs. untrusted components in AI
@@ -432,7 +464,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					</TrustBoundary>
 
 					<InfoBox $type="info">
-						<span>ℹ️</span>
+						<FiInfo />
 						<div>
 							<strong>Key Considerations:</strong>
 							<ul style={{ margin: '0.5rem 0 0 1.5rem' }}>
@@ -450,7 +482,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="Architecture Patterns"
 				subtitle="Different architectural patterns for AI agent identity management"
-				icon={<i className="bi bi-git" />}
+				icon={<FiGitBranch />}
 				theme="highlight"
 				defaultCollapsed={false}
 			>
@@ -473,7 +505,8 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<span>🌐</span>Single Platform, Multi-Domain
+								<FiGlobe />
+								Single Platform, Multi-Domain
 							</h4>
 							<p style={{ color: '#4b5563', margin: 0 }}>
 								Centralized identity management across multiple domains within a single platform
@@ -497,7 +530,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<i className="bi bi-cloud" />
+								<FiCloud />
 								Multi-Platform, Multi-Domain
 							</h4>
 							<p style={{ color: '#4b5563', margin: 0 }}>
@@ -522,7 +555,8 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<span>🔗</span>External Agent Integration
+								<FiLink />
+								External Agent Integration
 							</h4>
 							<p style={{ color: '#4b5563', margin: 0 }}>
 								Integration with external and third-party AI agents
@@ -536,7 +570,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="CUAs vs Bots: The Paradigm Shift"
 				subtitle="Understanding the difference between Computer Using Agents and traditional bots"
-				icon={<span>🎯</span>}
+				icon={<FiTarget />}
 				theme="yellow"
 				defaultCollapsed={false}
 			>
@@ -566,7 +600,8 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<span>⚠️</span>Before: Bots as Threats
+								<FiAlertTriangle />
+								Before: Bots as Threats
 							</h4>
 							<ul style={{ color: '#dc2626', margin: 0, paddingLeft: '1.5rem' }}>
 								<li>Credential stuffing</li>
@@ -593,7 +628,8 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<span>✅</span>Now: CUAs as Verified Agents
+								<FiCheckCircle />
+								Now: CUAs as Verified Agents
 							</h4>
 							<ul style={{ color: '#059669', margin: 0, paddingLeft: '1.5rem' }}>
 								<li>Identified & approved agents</li>
@@ -605,7 +641,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					</div>
 
 					<InfoBox $type="warning">
-						<span>⚠️</span>
+						<FiAlertTriangle />
 						<div>
 							<strong>Key Insight:</strong> The paradigm has shifted from treating all automated
 							entities as threats to recognizing and managing legitimate Computer Using Agents
@@ -619,14 +655,14 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="Identity for AI: Thematic Roadmap"
 				subtitle="Key areas of focus for identity management in AI architectures"
-				icon={<span>📈</span>}
+				icon={<FiTrendingUp />}
 				theme="green"
 				defaultCollapsed={false}
 			>
 				<Card>
 					<RoadmapItem>
 						<RoadmapIcon color="V9_COLORS.PRIMARY.BLUE">
-							<i className="bi bi-eye" />
+							<FiEye />
 						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Making Agents Visible Across The Estate</h4>
@@ -640,7 +676,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="#8b5cf6">
-							<span>👥</span>
+							<FiUsers />
 						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Bringing Brand Experiences to Life on the Agentic Channel</h4>
@@ -653,7 +689,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="#06b6d4">
-							<span>🔑</span>
+							<FiKey />
 						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Getting Token Issuance Right</h4>
@@ -666,7 +702,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="V9_COLORS.PRIMARY.GREEN">
-							<span>🛡️</span>
+							<FiShield />
 						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Authentication & Authorization</h4>
@@ -680,7 +716,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="V9_COLORS.PRIMARY.YELLOW">
-							<i className="bi bi-activity" />
+							<FiActivity />
 						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Enterprise Grade Service Layer for Agents</h4>
@@ -698,7 +734,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="What's Needed for AI Identity"
 				subtitle="Essential components and capabilities for comprehensive AI identity management"
-				icon={<span>⚙️</span>}
+				icon={<FiSettings />}
 				theme="blue"
 				defaultCollapsed={false}
 			>
@@ -727,7 +763,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<i className="bi bi-eye" />
+								<FiEye />
 								Agent Discovery
 							</h4>
 							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
@@ -754,7 +790,8 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<span>🛡️</span>Security & Governance
+								<FiShield />
+								Security & Governance
 							</h4>
 							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
 								<li>Agent Identity Type Provisioning</li>
@@ -780,7 +817,8 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<span>👥</span>Human-Agent Experience
+								<FiUsers />
+								Human-Agent Experience
 							</h4>
 							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
 								<li>Consents & Constraints</li>
@@ -806,7 +844,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<i className="bi bi-activity" />
+								<FiActivity />
 								Operations & Monitoring
 							</h4>
 							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
@@ -823,7 +861,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="Emerging Trends"
 				subtitle="Latest developments and trends in AI identity management"
-				icon={<span>📈</span>}
+				icon={<FiTrendingUp />}
 				theme="highlight"
 				defaultCollapsed={false}
 			>
@@ -846,7 +884,8 @@ const AIIdentityArchitectures: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<span>⚡</span>SSO for AI Agents
+							<FiZap />
+							SSO for AI Agents
 						</h4>
 						<p style={{ color: '#1f2937', marginBottom: '1rem' }}>
 							<strong>OAuth Assertion Grant Flow</strong> enables Agent SSO and enterprise managed
@@ -860,7 +899,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					</div>
 
 					<InfoBox $type="success">
-						<span>✅</span>
+						<FiCheckCircle />
 						<div>
 							<strong>Key Benefits:</strong> Simplified credential management, enhanced security,
 							and centralized policy enforcement for AI agents across enterprise systems.
