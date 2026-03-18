@@ -23,7 +23,7 @@ test.describe('AI Identity Flows - Navigation & UI', () => {
 			// Check that collapsible headers are present
 			const firstHeader = page.locator('text=AI Agent Identity Patterns').first();
 			await expect(firstHeader).toBeVisible();
-			
+
 			// Click to expand/collapse
 			await firstHeader.click();
 			await expect(page.getByText(/OAuth Assertion Grant/i)).toBeVisible();
@@ -38,12 +38,12 @@ test.describe('AI Identity Flows - Navigation & UI', () => {
 		test('loads OIDC for AI page with V9 styling', async ({ page }) => {
 			await expect(page).toHaveURL(/\/docs\/oidc-for-ai/);
 			await expect(page.getByText(/OIDC for AI/i)).toBeVisible();
-			await expect(page.getByText(/AI Agent Authentication/i)).toBeVisible();
+			await expect(page.getByRole('heading', { name: /AI Agent Authentication/i })).toBeVisible();
 		});
 
 		test('shows proper OIDC content and links', async ({ page }) => {
-			await expect(page.getByText(/RFC 7523/i)).toBeVisible();
-			await expect(page.getByText(/OpenID Connect Core/i)).toBeVisible();
+			await expect(page.getByRole('heading', { name: /RFC 7523/i })).toBeVisible();
+			await expect(page.getByText(/OpenID Connect Core/i).first()).toBeVisible();
 		});
 	});
 
@@ -59,8 +59,8 @@ test.describe('AI Identity Flows - Navigation & UI', () => {
 		});
 
 		test('displays OAuth compatibility table', async ({ page }) => {
-			await expect(page.getByText(/OAuth 2.0 Grant Type/i)).toBeVisible();
-			await expect(page.getByText(/Assertion Grant/i)).toBeVisible();
+			await expect(page.getByText(/OAuth 2.0 Grant Type/i).first()).toBeVisible();
+			await expect(page.getByRole('cell', { name: /Assertion Grant/i }).first()).toBeVisible();
 		});
 	});
 
@@ -93,8 +93,8 @@ test.describe('AI Identity Flows - Navigation & UI', () => {
 		});
 
 		test('displays resource cards and links', async ({ page }) => {
-			await expect(page.getByText(/Types of AI Agents/i)).toBeVisible();
-			await expect(page.getByText(/PingOne AI Solutions/i)).toBeVisible();
+			await expect(page.getByRole('heading', { name: /Types of AI Agents/i })).toBeVisible();
+			await expect(page.getByText(/PingOne AI Solutions/i).first()).toBeVisible();
 		});
 	});
 
@@ -114,11 +114,13 @@ test.describe('AI Identity Flows - Navigation & UI', () => {
 
 			// Navigate to PingOne AI Perspective
 			await page.goto('/docs/ping-view-on-ai');
-			await expect(page.getByText(/PingOne AI Perspective/i)).toBeVisible();
+			await expect(
+				page.getByRole('heading', { name: 'PingOne AI Perspective' }).first()
+			).toBeVisible();
 
 			// Navigate to Ping AI Resources
 			await page.goto('/ping-ai-resources');
-			await expect(page.getByText(/Ping AI Resources/i)).toBeVisible();
+			await expect(page.getByRole('heading', { name: 'Ping AI Resources' })).toBeVisible();
 		});
 
 		test('all AI flows have proper V9 fluid layout', async ({ page }) => {
@@ -127,15 +129,15 @@ test.describe('AI Identity Flows - Navigation & UI', () => {
 				'/docs/oidc-for-ai',
 				'/docs/oauth-for-ai',
 				'/docs/ping-view-on-ai',
-				'/ping-ai-resources'
+				'/ping-ai-resources',
 			];
 
 			for (const flow of aiFlows) {
 				await page.goto(flow);
-				
+
 				// Check that the page loads without errors
 				await expect(page.locator('body')).toBeVisible();
-				
+
 				// Check for V9-styled content (no hardcoded max-width containers)
 				const body = page.locator('body');
 				await expect(body).toBeVisible();

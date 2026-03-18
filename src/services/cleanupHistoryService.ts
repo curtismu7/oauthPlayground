@@ -107,82 +107,10 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-18T11:24:35.100Z
-// Source: git log (3 days → 3 sessions)
+// Last updated: 2026-03-18T12:57:33.763Z
+// Source: git log (0 days → 0 sessions)
 
-const CLEANUP_SESSIONS: CleanupSession[] = [
-  {
-    "id": "git-2026-03-18-testing",
-    "date": "2026-03-18",
-    "duration": 12,
-    "category": {
-      "id": "testing",
-      "name": "Testing & QA",
-      "color": "#20C997",
-      "icon": "✅",
-      "description": "Testing & QA"
-    },
-    "description": "v9.16.9 - Fix Playwright E2E tests: TOTP QR code and keyboard navigation no longer stuck",
-    "filesModified": 470,
-    "linesOfCode": 33060,
-    "issuesResolved": 413,
-    "documentation": [],
-    "achievements": [
-      "v9.16.9 - Fix Playwright E2E tests: TOTP QR code and keyboard navigation no longer stuck"
-    ],
-    "version": "9.16.9"
-  },
-  {
-    "id": "git-2026-03-16-code-cleanup",
-    "date": "2026-03-16",
-    "duration": 12,
-    "category": {
-      "id": "code-cleanup",
-      "name": "Code Cleanup",
-      "color": "#FFC107",
-      "icon": "🧹",
-      "description": "Code Cleanup"
-    },
-    "description": "12 commits: add comprehensive API testing framework to regression documentation; always open api.pingdemo.com on start, not localhost …",
-    "filesModified": 93,
-    "linesOfCode": 31832,
-    "issuesResolved": 398,
-    "documentation": [],
-    "achievements": [
-      "add comprehensive API testing framework to regression documentation",
-      "always open api.pingdemo.com on start, not localhost",
-      "update regression log for 6 changes from 2026-03-16 session",
-      "fix org licensing region-aware base URL and error propagation",
-      "add PingOne console-style dark admin theme with toggle (classic preserved)"
-    ],
-    "version": "9.16.9"
-  },
-  {
-    "id": "git-2026-03-15-code-cleanup",
-    "date": "2026-03-15",
-    "duration": 12,
-    "category": {
-      "id": "code-cleanup",
-      "name": "Code Cleanup",
-      "color": "#FFC107",
-      "icon": "🧹",
-      "description": "Code Cleanup"
-    },
-    "description": "36 commits: success page shows flow steps, decoded tokens, API calls; use response_type=token id_token with response_mode=pi.flow (tokens in JSON, no redirect) …",
-    "filesModified": 104,
-    "linesOfCode": 16992,
-    "issuesResolved": 212,
-    "documentation": [],
-    "achievements": [
-      "success page shows flow steps, decoded tokens, API calls",
-      "use response_type=token id_token with response_mode=pi.flow (tokens in JSON, no redirect)",
-      "All remaining changes committed",
-      "Complete cleanup dashboard final updates",
-      "use Authorization Code + PKCE (response_type=code) not implicit"
-    ],
-    "version": "9.16.9"
-  }
-];
+const CLEANUP_SESSIONS: CleanupSession[] = [];
 
 // ─── END AUTO-GENERATED sessions ───
 
