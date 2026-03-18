@@ -32,12 +32,20 @@ NC='\033[0m' # No Color
 # and API endpoint configurations. Do not change these values.
 FRONTEND_PORT=3000  # Vite dev server (HTTPS)
 BACKEND_PORT=3001   # Express API server (HTTPS only)
+ASSISTANT_PORT=3002  # Standalone AI Assistant (Vite)
+MCP_INSPECTOR_PORT=6274  # MCP Inspector UI (modelcontextprotocol/inspector)
 FRONTEND_URL="https://localhost:${FRONTEND_PORT}"
 BACKEND_URL="https://localhost:${BACKEND_PORT}"
 
 # PID files for process management
 FRONTEND_PID_FILE=".frontend.pid"
 BACKEND_PID_FILE=".backend.pid"
+ASSISTANT_PID_FILE=".assistant.pid"
+MCP_INSPECTOR_PID_FILE=".mcp-inspector.pid"
+MCP_PID_FILE_REL="pingone-mcp-server/mcp-server.pid"
+
+# Project root (resolved from this script's location) — used to scope pkill patterns
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # Function to print colored output
 print_status() {
@@ -65,15 +73,18 @@ show_banner() {
     echo -e "${PURPLE}"
     echo "╔══════════════════════════════════════════════════════════════════════════════╗"
     echo "║                                                                              ║"
-    echo "║                    🛑 OAuth Playground Server Stop 🛑                        ║"
+    echo "║                    🛑 MasterFlow API Server Stop 🛑                          ║"
     echo "║                                                                              ║"
-    echo "║  Frontend: https://localhost:3000 (Vite Dev Server)                        ║"
-    echo "║  Backend:  https://localhost:3001 (Express API Server - HTTPS)              ║"
+    echo "║  Frontend:      https://localhost:3000 (Vite Dev Server)                   ║"
+    echo "║  Backend:       https://localhost:3001 (Express API Server)                ║"
+    echo "║  AI Assistant:  https://localhost:3002 (Standalone Vite)                   ║"
+    echo "║  MCP Inspector: http://localhost:6274  (MCP Inspector UI)                  ║"
+    echo "║  MCP Server:    PingOne MCP Server                                          ║"
     echo "║                                                                              ║"
     echo "║  This script will:                                                          ║"
-    echo "║  1. Kill all running servers (frontend and backend)                        ║"
-    echo "║  2. Clean up PID files                                                     ║"
-    echo "║  3. Free ports 3000 and 3001                                              ║"
+    echo "║  1. Kill all running servers (frontend, backend, assistant, MCP)           ║"
+    echo "║  2. Clean up PID files                                                      ║"
+    echo "║  3. Free all ports (3000, 3001, 3002, 6274)                                ║"
     echo "║                                                                              ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -99,13 +110,13 @@ get_port_process() {
 kill_all_servers() {
     print_status "🛑 Killing all existing servers..."
     
-    # Kill by PID files first
+    # Kill by PID files first (use 1 s grace period, not 2 s, to keep shutdown snappy)
     if [ -f "$FRONTEND_PID_FILE" ]; then
         local pid=$(cat "$FRONTEND_PID_FILE" 2>/dev/null)
         if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
             print_info "Killing frontend process (PID: $pid)"
             kill "$pid" 2>/dev/null || true
-            sleep 2
+            sleep 1
             if kill -0 "$pid" 2>/dev/null; then
                 kill -9 "$pid" 2>/dev/null || true
             fi
@@ -118,7 +129,7 @@ kill_all_servers() {
         if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
             print_info "Killing backend process (PID: $pid)"
             kill "$pid" 2>/dev/null || true
-            sleep 2
+            sleep 1
             if kill -0 "$pid" 2>/dev/null; then
                 kill -9 "$pid" 2>/dev/null || true
             fi
@@ -126,9 +137,67 @@ kill_all_servers() {
         rm -f "$BACKEND_PID_FILE"
     fi
     
+    # Kill AI Assistant by PID file
+    if [ -f "$ASSISTANT_PID_FILE" ]; then
+        local pid=$(cat "$ASSISTANT_PID_FILE" 2>/dev/null)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            print_info "Killing AI Assistant process (PID: $pid)"
+            kill "$pid" 2>/dev/null || true
+            sleep 1
+            if kill -0 "$pid" 2>/dev/null; then
+                kill -9 "$pid" 2>/dev/null || true
+            fi
+        fi
+        rm -f "$ASSISTANT_PID_FILE"
+    fi
+    
+    # Kill MCP server (PingOne) by PID file
+    if [ -f "$MCP_PID_FILE_REL" ]; then
+        local pid=$(cat "$MCP_PID_FILE_REL" 2>/dev/null)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            print_info "Killing MCP server (PID: $pid)"
+            kill "$pid" 2>/dev/null || true
+            sleep 1
+            if kill -0 "$pid" 2>/dev/null; then
+                kill -9 "$pid" 2>/dev/null || true
+            fi
+        fi
+        rm -f "$MCP_PID_FILE_REL"
+    fi
+
+    # Kill MCP Inspector by PID file
+    if [ -f "$MCP_INSPECTOR_PID_FILE" ]; then
+        local pid=$(cat "$MCP_INSPECTOR_PID_FILE" 2>/dev/null)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            print_info "Killing MCP Inspector (PID: $pid)"
+            kill "$pid" 2>/dev/null || true
+            sleep 1
+            if kill -0 "$pid" 2>/dev/null; then
+                kill -9 "$pid" 2>/dev/null || true
+            fi
+        fi
+        rm -f "$MCP_INSPECTOR_PID_FILE"
+    fi
+
+    # Kill Memory MCP server by PID file
+    if [ -f ".memory-mcp.pid" ]; then
+        local pid=$(cat ".memory-mcp.pid" 2>/dev/null)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            print_info "Killing Memory MCP server (PID: $pid)"
+            kill "$pid" 2>/dev/null || true
+            sleep 1
+            if kill -0 "$pid" 2>/dev/null; then
+                kill -9 "$pid" 2>/dev/null || true
+            fi
+        fi
+        rm -f ".memory-mcp.pid"
+    fi
+    
     # Kill processes by port
     local frontend_pid=$(get_port_process $FRONTEND_PORT)
     local backend_pid=$(get_port_process $BACKEND_PORT)
+    local assistant_pid=$(get_port_process $ASSISTANT_PORT)
+    local mcp_inspector_pid=$(get_port_process $MCP_INSPECTOR_PORT)
     
     if [ -n "$frontend_pid" ]; then
         print_info "Killing process on port $FRONTEND_PORT (PID: $frontend_pid)"
@@ -140,26 +209,73 @@ kill_all_servers() {
         kill -9 "$backend_pid" 2>/dev/null || true
     fi
     
-    # Kill any node processes that might be related to our project
-    print_info "Cleaning up any remaining Node.js processes..."
-    pkill -f "vite" 2>/dev/null || true
-    pkill -f "server.js" 2>/dev/null || true
-    pkill -f "oauth-playground" 2>/dev/null || true
+    if [ -n "$assistant_pid" ]; then
+        print_info "Killing process on port $ASSISTANT_PORT (PID: $assistant_pid)"
+        kill -9 "$assistant_pid" 2>/dev/null || true
+    fi
     
-    # Wait for processes to die
-    sleep 3
+    if [ -n "$mcp_inspector_pid" ]; then
+        print_info "Killing process on port $MCP_INSPECTOR_PORT (PID: $mcp_inspector_pid)"
+        kill -9 "$mcp_inspector_pid" 2>/dev/null || true
+    fi
+    # Also kill inspector proxy port 6277
+    lsof -ti:6277 | xargs kill -9 2>/dev/null || true
+    
+    # Kill any node processes that might be related to our project
+    # Scope patterns to PROJECT_ROOT to avoid killing other projects on this machine
+    print_info "Cleaning up any remaining Node.js processes..."
+    pkill -f "${PROJECT_ROOT}.*vite" 2>/dev/null || true
+    pkill -f "${PROJECT_ROOT}/server.js" 2>/dev/null || true
+    pkill -f "${PROJECT_ROOT}/pingone-mcp-server" 2>/dev/null || true
+    pkill -f "${PROJECT_ROOT}/memory-mcp-server" 2>/dev/null || true
+    pkill -f "@modelcontextprotocol/inspector" 2>/dev/null || true
+    # Fallback: catch processes that may not have full paths (e.g. spawned from npm run dev)
+    pkill -f "masterflow-api" 2>/dev/null || true
+    
+    # Wait for processes to die — only as long as needed (max 2 s instead of fixed 3 s)
+    local waited=0
+    while [ $waited -lt 2 ]; do
+        local still_running=false
+        for p in $FRONTEND_PORT $BACKEND_PORT $ASSISTANT_PORT $MCP_INSPECTOR_PORT; do
+            if check_port "$p" 2>/dev/null; then
+                still_running=true
+                break
+            fi
+        done
+        [ "$still_running" = false ] && break
+        sleep 1
+        waited=$((waited + 1))
+    done
+
+    # Clear Vite dev cache so next restart starts clean and doesn't drag in stale memory
+    print_info "Clearing Vite cache..."
+    rm -rf node_modules/.vite 2>/dev/null || true
+    rm -rf .vite 2>/dev/null || true
+    print_success "Vite cache cleared"
     
     # Verify ports are free
     if check_port $FRONTEND_PORT; then
         print_warning "Port $FRONTEND_PORT still in use, force killing..."
         lsof -ti:$FRONTEND_PORT | xargs kill -9 2>/dev/null || true
-        sleep 2
+        sleep 0.5
     fi
     
     if check_port $BACKEND_PORT; then
         print_warning "Port $BACKEND_PORT still in use, force killing..."
         lsof -ti:$BACKEND_PORT | xargs kill -9 2>/dev/null || true
-        sleep 2
+        sleep 0.5
+    fi
+    
+    if check_port $ASSISTANT_PORT; then
+        print_warning "Port $ASSISTANT_PORT still in use, force killing..."
+        lsof -ti:$ASSISTANT_PORT | xargs kill -9 2>/dev/null || true
+        sleep 0.5
+    fi
+    
+    if check_port $MCP_INSPECTOR_PORT; then
+        print_warning "Port $MCP_INSPECTOR_PORT still in use, force killing..."
+        lsof -ti:$MCP_INSPECTOR_PORT | xargs kill -9 2>/dev/null || true
+        sleep 0.5
     fi
     
     print_success "All servers killed successfully"
@@ -240,13 +356,84 @@ main() {
         all_free=false
     fi
     
-    echo ""
-    if [ "$all_free" = true ]; then
-        print_success "✅ All servers have been stopped and ports are free"
-    else
-        print_warning "⚠️  Some ports may still be in use. You may need to manually kill processes."
+    if check_port $ASSISTANT_PORT; then
+        print_error "Port $ASSISTANT_PORT is still in use"
+        all_free=false
     fi
-    print_info "You can now run ./run.sh to start them again"
+    
+    if check_port $MCP_INSPECTOR_PORT; then
+        print_error "Port $MCP_INSPECTOR_PORT is still in use"
+        all_free=false
+    fi
+    
+    echo ""
+    show_stop_summary "$all_free"
+}
+
+# Function to show final stop status banner (mirrors run.sh show_final_summary)
+show_stop_summary() {
+    local all_free="${1:-true}"
+
+    # Determine banner color / status text
+    local banner_color status_icon status_text
+    if [ "$all_free" = true ]; then
+        banner_color="${GREEN}"
+        status_icon="🛑"
+        status_text="ALL SYSTEMS STOPPED"
+    else
+        banner_color="${YELLOW}"
+        status_icon="⚠️"
+        status_text="STOP COMPLETE — SOME PORTS STILL IN USE"
+    fi
+
+    echo -e "${banner_color}╔══════════════════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${banner_color}║                                                                              ║${NC}"
+    echo -e "${banner_color}║                    ${status_icon}  OAUTH PLAYGROUND STATUS ${status_icon}                   ║${NC}"
+    echo -e "${banner_color}║                                                                              ║${NC}"
+    echo -e "${banner_color}║                          ${status_text}                          ║${NC}"
+    echo -e "${banner_color}║                                                                              ║${NC}"
+    echo -e "${banner_color}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
+
+    # Per-port status
+    for entry in \
+        "Frontend|${FRONTEND_PORT}|${FRONTEND_URL}" \
+        "Backend|${BACKEND_PORT}|${BACKEND_URL}" \
+        "AI Assistant|${ASSISTANT_PORT}|https://localhost:${ASSISTANT_PORT}" \
+        "MCP Inspector|${MCP_INSPECTOR_PORT}|http://localhost:${MCP_INSPECTOR_PORT}"
+    do
+        local label port url
+        label="${entry%%|*}"; rest="${entry#*|}"; port="${rest%%|*}"; url="${rest#*|}"
+        echo -e "${banner_color}║${NC} ${BLUE}${label} (Port ${port}):${NC}"
+        if check_port "$port" 2>/dev/null; then
+            echo -e "${banner_color}║${NC}   ${YELLOW}⚠️  STILL RUNNING${NC} — ${url}"
+        else
+            echo -e "${banner_color}║${NC}   ${GREEN}✅ STOPPED — port ${port} is free${NC}"
+        fi
+        echo -e "${banner_color}║${NC}"
+    done
+
+    echo -e "${banner_color}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
+
+    if [ "$all_free" = true ]; then
+        echo -e "${banner_color}║${NC} ${GREEN}🎉 SUCCESS: All servers stopped and all ports are free${NC}"
+    else
+        echo -e "${banner_color}║${NC} ${YELLOW}⚠️  Some ports may still be in use — kill manually if needed${NC}"
+        echo -e "${banner_color}║${NC} ${YELLOW}   e.g.  lsof -ti:3000 | xargs kill -9${NC}"
+    fi
+
+    echo -e "${banner_color}║${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}📋 Restart commands:${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   ./run.sh         - Restart servers (will prompt to tail logs)${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   ./run.sh -quick  - Restart servers (no prompts)${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   ./run.sh --help  - Show help message${NC}"
+    echo -e "${banner_color}║${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}Modes:${NC}"
+    echo -e "${banner_color}║${NC}   Masterflow only        →  ${YELLOW}./run.sh${NC}"
+    echo -e "${banner_color}║${NC}   MCP server + Inspector →  ${YELLOW}./run.sh -mcp${NC}"
+    echo -e "${banner_color}║${NC}   AI Assistant only      →  ${YELLOW}./run.sh -assistant${NC}"
+    echo -e "${banner_color}║${NC}   Both together          →  ${YELLOW}./run.sh -both${NC}"
+    echo -e "${banner_color}║${NC}"
+    echo -e "${banner_color}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 }
 

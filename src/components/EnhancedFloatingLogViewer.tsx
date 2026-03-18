@@ -13,7 +13,7 @@ import { logger } from '../utils/logger';
 // Maximum string length to avoid browser crashes (approximately 50MB)
 const _MAX_STRING_LENGTH = 50 * 1024 * 1024;
 
-interface LogEntry {
+interface _LogEntry {
 	timestamp: string;
 	level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
 	category: string;

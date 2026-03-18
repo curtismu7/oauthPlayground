@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { JWTAuthConfig, jwtAuthService } from '../services/jwtAuthService';
+import { JWTAuthConfig as JWTAuthConfigData, jwtAuthService } from '../services/jwtAuthService';
 
 import { logger } from '../utils/logger';
 
 interface JWTAuthConfigProps {
-	onConfigChange: (config: JWTAuthConfig) => void;
-	initialConfig?: Partial<JWTAuthConfig>;
+	onConfigChange: (config: JWTAuthConfigData) => void;
+	initialConfig?: Partial<JWTAuthConfigData>;
 }
 
 const Container = styled.div`
@@ -245,7 +245,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 	const [authMethod, setAuthMethod] = useState<'CLIENT_SECRET_JWT' | 'PRIVATE_KEY_JWT'>(
 		'CLIENT_SECRET_JWT'
 	);
-	const [config, setConfig] = useState<JWTAuthConfig>({
+	const [config, setConfig] = useState<JWTAuthConfigData>({
 		clientId: '',
 		clientSecret: '',
 		privateKey: '',
@@ -270,7 +270,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 		onConfigChange(config);
 	}, [config, onConfigChange]);
 
-	const handleInputChange = (field: keyof JWTAuthConfig, value: string) => {
+	const handleInputChange = (field: keyof JWTAuthConfigData, value: string) => {
 		setConfig((prev) => ({ ...prev, [field]: value }));
 
 		// Clear error when user starts typing
@@ -325,7 +325,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 		setTestResult(null);
 
 		try {
-			let result;
+			let result: any;
 
 			if (authMethod === 'CLIENT_SECRET_JWT') {
 				result = await jwtAuthService.exchangeClientSecretJWT(

@@ -27,7 +27,7 @@ import { workerTokenDiscoveryService } from '../../../services/workerTokenDiscov
 import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
 
 const Container = styled.div`
-	max-width: 1200px;
+	max-width: 90rem;
 	margin: 0 auto;
 	padding: 20px;
 `;

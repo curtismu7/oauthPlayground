@@ -213,7 +213,9 @@ const ensureRequiredScopes = (
 ): string => {
 	const scopes = new Set((scopeValue ?? '').split(' ').filter(Boolean));
 	const required = variant === 'oidc' ? DEFAULT_OIDC_SCOPES : DEFAULT_OAUTH_SCOPES;
-	required.split(' ').forEach((scope) => scopes.add(scope));
+	required.split(' ').forEach((scope) => {
+		scopes.add(scope);
+	});
 	return Array.from(scopes).join(' ').trim();
 };
 
@@ -434,7 +436,9 @@ export const useAuthorizationCodeFlowController = (
 			`${flowKey}_v3_code_verifier`,
 			'oauth_code_verifier',
 		];
-		legacyKeys.forEach((key) => sessionStorage.removeItem(key));
+		legacyKeys.forEach((key) => {
+			sessionStorage.removeItem(key);
+		});
 
 		logger.info(
 			'✅ [useAuthorizationCodeFlowController] PKCE codes cleared on flow load',
@@ -2179,7 +2183,9 @@ export const useAuthorizationCodeFlowController = (
 			`${flowKey}_v3_code_verifier`,
 			'oauth_code_verifier',
 		];
-		legacyKeys.forEach((key) => sessionStorage.removeItem(key));
+		legacyKeys.forEach((key) => {
+			sessionStorage.removeItem(key);
+		});
 
 		logger.info('✅ [useAuthorizationCodeFlowController] PKCE codes cleared', 'Logger info');
 		showGlobalSuccess('PKCE codes cleared', {

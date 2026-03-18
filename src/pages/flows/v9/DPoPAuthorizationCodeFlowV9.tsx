@@ -2,6 +2,7 @@ import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 import V9FlowUIService from '../../../services/v9/v9FlowUIService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
@@ -354,6 +355,7 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 
 	return (
 		<Container>
+			<V9FlowHeader flowId="dpop-flow" />
 			<StepHeader>
 				<StepHeaderLeft>
 					<VersionBadge>V9</VersionBadge>

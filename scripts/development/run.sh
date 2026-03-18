@@ -232,6 +232,51 @@ print_info() {
     echo -e "${CYAN}[$(date +'%H:%M:%S')] ℹ️${NC} $1"
 }
 
+# Returns a one-line memory summary: "Used X GB / Total Y GB (Z% used, W GB free)"
+get_memory_info() {
+    local total_mb used_mb free_mb pct color
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # macOS: use vm_stat + sysctl
+        local page_size
+        page_size=$(pagesize 2>/dev/null || echo 4096)
+        local total_bytes
+        total_bytes=$(sysctl -n hw.memsize 2>/dev/null || echo 0)
+        total_mb=$(( total_bytes / 1024 / 1024 ))
+        # Pages active+wired+speculative+occupied = "used"
+        local pages_active pages_wired pages_speculative pages_occupied
+        pages_active=$(vm_stat | awk '/Pages active/ {gsub(/\./, "", $3); print $3+0}')
+        pages_wired=$(vm_stat | awk '/Pages wired/ {gsub(/\./, "", $4); print $4+0}')
+        pages_speculative=$(vm_stat | awk '/Pages speculative/ {gsub(/\./, "", $3); print $3+0}')
+        pages_occupied=$(vm_stat | awk '/occupied by compressor/ {gsub(/\./, "", $5); print $5+0}')
+        local pages_used=$(( pages_active + pages_wired + pages_speculative + pages_occupied ))
+        used_mb=$(( pages_used * page_size / 1024 / 1024 ))
+        free_mb=$(( total_mb - used_mb ))
+    else
+        # Linux: use /proc/meminfo
+        total_mb=$(awk '/^MemTotal:/ {printf "%d", $2/1024}' /proc/meminfo 2>/dev/null || echo 0)
+        free_mb=$(awk '/^MemAvailable:/ {printf "%d", $2/1024}' /proc/meminfo 2>/dev/null || echo 0)
+        used_mb=$(( total_mb - free_mb ))
+    fi
+    local total_gb used_gb free_gb
+    total_gb=$(awk "BEGIN {printf \"%.1f\", ${total_mb}/1024}")
+    used_gb=$(awk "BEGIN {printf \"%.1f\", ${used_mb}/1024}")
+    free_gb=$(awk "BEGIN {printf \"%.1f\", ${free_mb}/1024}")
+    if [ "$total_mb" -gt 0 ]; then
+        pct=$(awk "BEGIN {printf \"%d\", (${used_mb}/${total_mb})*100}")
+    else
+        pct=0
+    fi
+    # Colour: green <60%, yellow 60-80%, red >80%
+    if [ "$pct" -lt 60 ]; then
+        color="${GREEN}"
+    elif [ "$pct" -lt 80 ]; then
+        color="${YELLOW}"
+    else
+        color="${RED}"
+    fi
+    echo -e "${color}${used_gb} GB used / ${total_gb} GB total  (${pct}% used, ${free_gb} GB free)${NC}"
+}
+
 # Function to display banner
 show_banner() {
     echo -e "${PURPLE}"
@@ -349,11 +394,10 @@ kill_all_servers() {
     pkill -f "oauth-playground" 2>/dev/null || true
     pkill -f "@modelcontextprotocol/inspector" 2>/dev/null || true
     
-    # Clear Vite cache and node_modules to ensure clean restart
-    print_info "Clearing Vite cache and dependencies..."
+    # Clear Vite cache only (not dist — unneeded for dev; not node_modules — too expensive)
+    print_info "Clearing Vite dev cache..."
     rm -rf node_modules/.vite 2>/dev/null || true
     rm -rf .vite 2>/dev/null || true
-    rm -rf dist 2>/dev/null || true
     print_success "Vite cache cleared"
     
     # Wait for processes to die
@@ -751,8 +795,9 @@ start_backend() {
     fi
     
     # Start backend server (HTTPS only)
+    # Cap Node heap at 2 GB — keeps Express/SQLite well within bounds and prevents OOM
     print_info "Starting backend server on port $BACKEND_PORT (HTTPS)..."
-    BACKEND_PORT=3001 node server.js > backend.log 2>&1 &
+    BACKEND_PORT=3001 NODE_OPTIONS="--max-old-space-size=2048" node server.js > backend.log 2>&1 &
     local backend_pid=$!
     echo $backend_pid > "$BACKEND_PID_FILE"
     
@@ -823,20 +868,14 @@ start_frontend() {
         }
     fi
     
-    # Clear all caches before starting Vite for clean restart
-    print_info "Performing comprehensive cache cleanup before starting Vite..."
-    rm -rf node_modules/.vite 2>/dev/null || true
-    rm -rf .vite 2>/dev/null || true
-    rm -rf dist 2>/dev/null || true
-    rm -rf .vite-cache 2>/dev/null || true
-    find node_modules -name ".cache" -type d -exec rm -rf {} + 2>/dev/null || true
-    print_success "All caches cleared for clean Vite restart"
-    
-    # Start frontend server (listen on all interfaces so https://api.pingdemo.com:3000 works)
+    # Vite cache was already cleared in kill_all_servers; no need to repeat here.
+
+    # Cap Node/Vite heap at 4 GB — large enough for Vite transform + HMR, avoids Chrome OOM
+    # (Vite runs inside Node; this is separate from browser memory)
     print_info "Starting frontend on $FRONTEND_URL..."
     export VITE_HMR_HOST="$FRONTEND_HOST"
     export VITE_PUBLIC_APP_URL="https://${FRONTEND_HOST}:3000"
-    npm run dev -- --host > frontend.log 2>&1 &
+    NODE_OPTIONS="--max-old-space-size=4096" npm run dev -- --host > frontend.log 2>&1 &
     local frontend_pid=$!
     echo $frontend_pid > "$FRONTEND_PID_FILE"
     
@@ -1122,6 +1161,14 @@ show_final_summary() {
     echo -e "${banner_color}║${NC} ${CYAN}   ./run.sh -quick - Restart servers (no prompts)${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}   ./run.sh --help - Show help message${NC}"
     echo -e "${banner_color}║${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}Modes:${NC}"
+    echo -e "${banner_color}║${NC}   Masterflow only        →  ${YELLOW}./run.sh${NC}"
+    echo -e "${banner_color}║${NC}   MCP server + Inspector →  ${YELLOW}./run.sh -mcp${NC}"
+    echo -e "${banner_color}║${NC}   AI Assistant only      →  ${YELLOW}./run.sh -assistant${NC}"
+    echo -e "${banner_color}║${NC}   Both together          →  ${YELLOW}./run.sh -both${NC}"
+    echo -e "${banner_color}║${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}💾 System memory:${NC} $(get_memory_info)"
+    echo -e "${banner_color}║${NC}"
     echo -e "${banner_color}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 }
@@ -1316,6 +1363,10 @@ while [ $# -gt 0 ]; do
             export BOTH_MODE=true
             shift
             ;;
+        -mcp|--mcp)
+            export MCP_ONLY_MODE=true
+            shift
+            ;;
 
         *)
             print_warning "Unknown option: $1 (use --help for usage)"
@@ -1335,7 +1386,7 @@ start_mcp_server() {
     # Build if dist/index.js doesn't exist
     if [ ! -f "$dist_index" ]; then
         print_info "MCP server not built — running npm run build in ${MCP_SERVER_DIR_REL}/..."
-        if (cd "$MCP_SERVER_DIR_REL" && NODE_OPTIONS="--max-old-space-size=4096" npm run build 2>&1); then
+        if (cd "$MCP_SERVER_DIR_REL" && NODE_OPTIONS="--max-old-space-size=2048" npm run build 2>&1); then
             print_success "MCP server built successfully"
         else
             print_error "MCP server build failed. Check ${MCP_SERVER_DIR_REL} for errors."
@@ -1357,7 +1408,8 @@ start_mcp_server() {
 
     # Ensure logs/ directory exists (backend may not be started yet)
     mkdir -p logs
-    node "$dist_index" > logs/mcp-server.log 2>&1 &
+    # MCP server is a lightweight stdio bridge — 512 MB is sufficient
+    NODE_OPTIONS="--max-old-space-size=512" node "$dist_index" > logs/mcp-server.log 2>&1 &
     local mcp_pid=$!
     echo $mcp_pid > "$MCP_PID_FILE_REL"
     sleep 1
@@ -1463,21 +1515,16 @@ run_assistant_mode() {
     echo "║                                                                              ║"
     echo "║              🤖 AI Assistant Mode — Standalone Startup 🤖                   ║"
     echo "║                                                                              ║"
-    echo "║  Backend:        https://localhost:3001  (Express API)                        ║"
-    echo "║  MCP Server:     pingone-mcp-server (stdio, background)                      ║"
-    echo "║  MCP Inspector:   http://localhost:${MCP_INSPECTOR_PORT}  (test MCP tools)           ║"
-    echo "║  AI Assistant:   ${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}  (Vite standalone)                 ║"
+    echo "║  Always starts:  Backend + PingOne MCP Server + AI Assistant                 ║"
+    echo "║  Optional:       extra MCP server, MCP Inspector                             ║"
     echo "║                                                                              ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 
-    # Ensure we're in project root (required for npx vite AIAssistant, mcp-inspector-config, etc.)
     ensure_project_root
-
     check_requirements
     load_ssl_config
 
-    # Kill existing backend
     print_status "🛑 Cleaning up existing processes..."
     if check_port $BACKEND_PORT; then
         print_info "Killing process on port $BACKEND_PORT"
@@ -1487,50 +1534,65 @@ run_assistant_mode() {
     pkill -f "server.js" 2>/dev/null || true
     sleep 1
 
-    # Start backend
+    # Always: backend
     start_backend
     if [ "$BACKEND_STATUS" != "running" ]; then
         print_error "Backend failed to start. Aborting assistant mode."
         exit 1
     fi
 
-    # Start MCP server (non-fatal if it fails — backend still works without it)
-    start_mcp_server || print_warning "MCP server failed to start — continuing without it"
+    # Always: PingOne MCP server
+    start_mcp_server || print_warning "PingOne MCP server failed to start — continuing without it"
 
-    # Start MCP Inspector (visual testing UI for PingOne MCP tools)
-    start_mcp_inspector || print_warning "MCP Inspector failed to start — continuing without it"
-
-    # Start AI Assistant frontend
+    # Always: AI Assistant frontend
     start_assistant_frontend || {
         print_error "AI Assistant frontend failed to start."
         exit 1
     }
 
-    # Status summary — all services started with URLs
-    print_success "All services started. Key URLs:"
+    # Optional extras (skip in quick mode)
+    if [ "${QUICK_MODE:-false}" != true ]; then
+        echo ""
+        echo -e "${CYAN}Optional extras (press Enter to skip each):${NC}"
+        echo -e "  1) ${GREEN}memory-mcp${NC}  — user preferences + session context for AI clients"
+        echo -n "Start an optional MCP server? [1=memory-mcp, Enter=none]: "
+        read -r mcp_extra
+        case "${mcp_extra:-none}" in
+            1) start_memory_mcp_server || print_warning "Memory MCP server failed to start — continuing without it" ;;
+            *) print_info "No extra MCP server started." ;;
+        esac
+
+        echo ""
+        echo -n "Start MCP Inspector (visual tool tester)? (y/N): "
+        read -r inspector_choice
+        if [ "$inspector_choice" = "y" ] || [ "$inspector_choice" = "Y" ]; then
+            start_mcp_inspector || print_warning "MCP Inspector failed to start"
+        else
+            print_info "MCP Inspector not started."
+        fi
+    fi
+
     echo ""
     echo -e "${GREEN}╔══════════════════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║              ✅ BACKEND + MCP + MCP INSPECTOR + AI ASSISTANT STARTED         ║${NC}"
+    echo -e "${GREEN}║                     ✅ AI ASSISTANT MODE STARTED                            ║${NC}"
     echo -e "${GREEN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Open in browser:${NC}"
-    echo -e "${GREEN}║${NC}   Backend API:      ${BLUE}https://localhost:${BACKEND_PORT}${NC}"
-    echo -e "${GREEN}║${NC}   AI Assistant:     ${BLUE}${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}${NC}"
-    echo -e "${GREEN}║${NC}   MCP Inspector:    ${BLUE}http://localhost:${MCP_INSPECTOR_PORT}${NC} (test PingOne MCP tools)"
+    echo -e "${GREEN}║${NC}   Backend API:   ${BLUE}https://localhost:${BACKEND_PORT}${NC}"
+    echo -e "${GREEN}║${NC}   AI Assistant:  ${BLUE}${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}${NC}"
     echo -e "${GREEN}║${NC}"
-    echo -e "${GREEN}║${NC} ${CYAN}Background (no URL):${NC}"
-    echo -e "${GREEN}║${NC}   MCP Server:       ${BLUE}stdio process${NC} → logs/mcp-server.log"
+    echo -e "${GREEN}║${NC} ${CYAN}Background:${NC}"
+    echo -e "${GREEN}║${NC}   PingOne MCP:  stdio → logs/mcp-server.log"
     echo -e "${GREEN}║${NC}"
-    echo -e "${GREEN}║${NC} ${CYAN}Log files:${NC}"
-    echo -e "${GREEN}║${NC}   backend.log       — Express API server"
-    echo -e "${GREEN}║${NC}   mcp-server.log    — PingOne MCP server"
-    echo -e "${GREEN}║${NC}   mcp-inspector.log — MCP Inspector"
-    echo -e "${GREEN}║${NC}   assistant.log     — AI Assistant (Vite)"
+    echo -e "${GREEN}║${NC} ${CYAN}Modes:${NC}"
+    echo -e "${GREEN}║${NC}   Masterflow only        →  ${YELLOW}./run.sh${NC}"
+    echo -e "${GREEN}║${NC}   MCP server + Inspector →  ${YELLOW}./run.sh -mcp${NC}"
+    echo -e "${GREEN}║${NC}   AI Assistant only      →  ${YELLOW}./run.sh -assistant${NC}"
+    echo -e "${GREEN}║${NC}   Both together          →  ${YELLOW}./run.sh -both${NC}"
     echo -e "${GREEN}║${NC}"
-    echo -e "${GREEN}║${NC} ${CYAN}Stop all:${NC} pkill -f 'server.js'; lsof -ti:${ASSISTANT_PORT},${MCP_INSPECTOR_PORT} | xargs kill -9"
+    echo -e "${GREEN}║${NC} ${CYAN}💾 System memory:${NC} $(get_memory_info)"
     echo -e "${GREEN}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 
-    # Offer to tail a log
     if [ "${QUICK_MODE:-false}" = true ] || [ "${DEFAULT_MODE:-false}" = true ]; then
         print_info "Quick/default mode: tailing backend.log (Ctrl+C to stop)"
         tail -f backend.log
@@ -1558,22 +1620,16 @@ run_both_mode() {
     echo "║                                                                             ║"
     echo "║          🚀 Full Stack + AI Assistant — Combined Mode 🤖                   ║"
     echo "║                                                                             ║"
-    echo "║  Backend:        https://localhost:3001  (Express API)                      ║"
-    echo "║  OAuth Frontend: https://localhost:3000  (Vite main app)                    ║"
-    echo "║  MCP Server:     pingone-mcp-server (stdio, background)                     ║"
-    echo "║  MCP Inspector:  http://localhost:${MCP_INSPECTOR_PORT}  (test MCP tools)             ║"
-    echo "║  AI Assistant:   ${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}  (Vite standalone)                ║"
+    echo "║  Always starts:  Backend + PingOne MCP + OAuth Playground + AI Assistant    ║"
+    echo "║  Optional:       extra MCP server, MCP Inspector                            ║"
     echo "║                                                                             ║"
     echo "╚═════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 
-    # Ensure we're in project root (required for npx vite AIAssistant, mcp-inspector-config, etc.)
     ensure_project_root
-
     check_requirements
     load_ssl_config
 
-    # Kill all existing processes including assistant port
     print_status "🛑 Cleaning up existing processes..."
     kill_all_servers
     if check_port $ASSISTANT_PORT; then
@@ -1584,49 +1640,63 @@ run_both_mode() {
     pkill -f "vite.*AIAssistant" 2>/dev/null || true
     sleep 1
 
-    # Start backend
+    # Always: backend
     start_backend
     if [ "$BACKEND_STATUS" != "running" ]; then
         print_error "Backend failed to start. Aborting."
         exit 1
     fi
 
-    # Start MCP server (non-fatal)
-    start_mcp_server || print_warning "MCP server failed to start — continuing without it"
+    # Always: PingOne MCP server
+    start_mcp_server || print_warning "PingOne MCP server failed to start — continuing without it"
 
-    # Start MCP Inspector (visual testing UI for PingOne MCP tools)
-    start_mcp_inspector || print_warning "MCP Inspector failed to start — continuing without it"
-
-    # Start main OAuth Playground frontend
+    # Always: OAuth Playground frontend
     start_frontend
 
-    # Start AI Assistant frontend (non-fatal)
+    # Always: AI Assistant frontend
     start_assistant_frontend || print_warning "AI Assistant frontend failed to start"
 
-    # Status summary — all services started with URLs
-    print_success "All services started. Key URLs:"
+    # Optional extras (skip in quick mode)
+    if [ "${QUICK_MODE:-false}" != true ]; then
+        echo ""
+        echo -e "${CYAN}Optional extras (press Enter to skip each):${NC}"
+        echo -e "  1) ${GREEN}memory-mcp${NC}  — user preferences + session context for AI clients"
+        echo -n "Start an optional MCP server? [1=memory-mcp, Enter=none]: "
+        read -r mcp_extra
+        case "${mcp_extra:-none}" in
+            1) start_memory_mcp_server || print_warning "Memory MCP server failed to start — continuing without it" ;;
+            *) print_info "No extra MCP server started." ;;
+        esac
+
+        echo ""
+        echo -n "Start MCP Inspector (visual tool tester)? (y/N): "
+        read -r inspector_choice
+        if [ "$inspector_choice" = "y" ] || [ "$inspector_choice" = "Y" ]; then
+            start_mcp_inspector || print_warning "MCP Inspector failed to start"
+        else
+            print_info "MCP Inspector not started."
+        fi
+    fi
+
     echo ""
     echo -e "${GREEN}╔══════════════════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║        ✅ BACKEND + FRONTEND + MCP + MCP INSPECTOR + AI ASSISTANT STARTED    ║${NC}"
+    echo -e "${GREEN}║                  ✅ FULL STACK + AI ASSISTANT STARTED                        ║${NC}"
     echo -e "${GREEN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Open in browser:${NC}"
-    echo -e "${GREEN}║${NC}   Backend API:      ${BLUE}https://localhost:${BACKEND_PORT}${NC}"
     echo -e "${GREEN}║${NC}   OAuth Playground: ${BLUE}https://localhost:${FRONTEND_PORT}${NC}"
     echo -e "${GREEN}║${NC}   AI Assistant:     ${BLUE}${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}${NC}"
-    echo -e "${GREEN}║${NC}   MCP Inspector:    ${BLUE}http://localhost:${MCP_INSPECTOR_PORT}${NC} (test PingOne MCP tools)"
+    echo -e "${GREEN}║${NC}   Backend API:      ${BLUE}https://localhost:${BACKEND_PORT}${NC}"
     echo -e "${GREEN}║${NC}"
-    echo -e "${GREEN}║${NC} ${CYAN}Background (no URL):${NC}"
-    echo -e "${GREEN}║${NC}   MCP Server:       ${BLUE}stdio process${NC} → logs/mcp-server.log"
+    echo -e "${GREEN}║${NC} ${CYAN}Background:${NC}"
+    echo -e "${GREEN}║${NC}   PingOne MCP:  stdio → logs/mcp-server.log"
     echo -e "${GREEN}║${NC}"
-    echo -e "${GREEN}║${NC} ${CYAN}Log files:${NC}"
-    echo -e "${GREEN}║${NC}   backend.log        — Express API server"
-    echo -e "${GREEN}║${NC}   frontend.log       — OAuth Playground (Vite)"
-    echo -e "${GREEN}║${NC}   mcp-server.log     — PingOne MCP server"
-    echo -e "${GREEN}║${NC}   mcp-inspector.log  — MCP Inspector"
-    echo -e "${GREEN}║${NC}   assistant.log      — AI Assistant (Vite)"
-    echo -e "${GREEN}║${NC}   pingone-api.log    — Masterflow API / PingOne API calls"
+    echo -e "${GREEN}║${NC} ${CYAN}Modes:${NC}"
+    echo -e "${GREEN}║${NC}   Masterflow only        →  ${YELLOW}./run.sh${NC}"
+    echo -e "${GREEN}║${NC}   MCP server + Inspector →  ${YELLOW}./run.sh -mcp${NC}"
+    echo -e "${GREEN}║${NC}   AI Assistant only      →  ${YELLOW}./run.sh -assistant${NC}"
+    echo -e "${GREEN}║${NC}   Both together          →  ${YELLOW}./run.sh -both${NC}"
     echo -e "${GREEN}║${NC}"
-    echo -e "${GREEN}║${NC} ${CYAN}Stop all:${NC} pkill -f 'server.js'; lsof -ti:${FRONTEND_PORT},${ASSISTANT_PORT},${MCP_INSPECTOR_PORT} | xargs kill -9"
+    echo -e "${GREEN}║${NC} ${CYAN}💾 System memory:${NC} $(get_memory_info)"
     echo -e "${GREEN}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 
@@ -1636,7 +1706,7 @@ run_both_mode() {
         return
     fi
 
-    echo -n "Tail a log? [1=backend, 2=frontend, 3=mcp-server, 4=assistant, 5=pingone-api, 6=both (API+MCP), 7=all, Enter=skip]: "
+    echo -n "Tail a log? [1=backend, 2=frontend, 3=mcp-server, 4=assistant, 5=pingone-api, 6=api+mcp, 7=all, Enter=skip]: "
     read -r log_choice
     case "${log_choice:-skip}" in
         1) tail -f backend.log ;;
@@ -1685,6 +1755,11 @@ main() {
                 export BOTH_MODE
                 shift
                 ;;
+            -mcp|--mcp)
+                MCP_ONLY_MODE=true
+                export MCP_ONLY_MODE
+                shift
+                ;;
             *)
                 break
                 ;;
@@ -1696,6 +1771,12 @@ main() {
     # If assistant mode was re-enabled inside main(), delegate immediately
     if [ "${ASSISTANT_MODE:-false}" = true ]; then
         run_assistant_mode
+        return
+    fi
+
+    # If MCP-only mode was set inside main(), delegate immediately
+    if [ "${MCP_ONLY_MODE:-false}" = true ]; then
+        run_mcp_only_mode
         return
     fi
 
@@ -1725,7 +1806,10 @@ main() {
     
     # Step 4: Start frontend
     start_frontend
-    
+
+    # Step 4a: Start PingOne MCP server (always on in default mode — lightweight stdio process)
+    start_mcp_server || print_warning "PingOne MCP server failed to start — continuing without it"
+
     # Step 5: Run health checks
     run_health_checks
     
@@ -1737,7 +1821,34 @@ main() {
     
     # Step 8: Final success message and server status summary
     show_final_summary
-    
+
+    # Step 8a: Optional extra MCP server + MCP Inspector
+    if [ "${QUICK_MODE:-false}" != true ]; then
+        echo ""
+        echo -e "${CYAN}Optional extras (press Enter to skip each):${NC}"
+        echo -e "  1) ${GREEN}memory-mcp${NC}      — user preferences + session context for AI clients"
+        echo -n "Start an optional MCP server? [1=memory-mcp, Enter=none]: "
+        read -r mcp_extra
+        case "${mcp_extra:-none}" in
+            1)
+                start_memory_mcp_server || print_warning "Memory MCP server failed to start — continuing without it"
+                ;;
+            *)
+                print_info "No extra MCP server started."
+                ;;
+        esac
+
+        echo ""
+        echo -n "Start MCP Inspector (visual tool tester)? (y/N): "
+        read -r inspector_choice
+        if [ "$inspector_choice" = "y" ] || [ "$inspector_choice" = "Y" ]; then
+            start_mcp_inspector || print_warning "MCP Inspector failed to start"
+            echo -e "   ${GREEN}✅ MCP Inspector:${NC}  ${BLUE}http://localhost:${MCP_INSPECTOR_PORT}${NC}"
+        else
+            print_info "MCP Inspector not started."
+        fi
+    fi
+
     # Step 9: Ask user if they want to tail a log file (interactive)
     if [ "$OVERALL_STATUS" = "success" ] || [ "$OVERALL_STATUS" = "partial" ]; then
         if [ "$QUICK_MODE" = true ]; then
@@ -2006,11 +2117,105 @@ show_url_banner() {
     echo -e "${PURPLE}║${NC}"
     echo -e "${PURPLE}║${NC}  ${CYAN}How to run${NC}"
     echo -e "${PURPLE}║${NC}    Masterflow only         →  ${YELLOW}./run.sh${NC}"
+    echo -e "${PURPLE}║${NC}    MCP server + Inspector  →  ${YELLOW}./run.sh -mcp${NC}"
     echo -e "${PURPLE}║${NC}    AI Assistant only       →  ${YELLOW}./run.sh -assistant${NC}"
     echo -e "${PURPLE}║${NC}    Both together           →  ${YELLOW}./run.sh -both${NC}"
     echo -e "${PURPLE}║${NC}"
+    echo -e "${PURPLE}║${NC}  ${CYAN}System memory:${NC}  $(get_memory_info)"
+    echo -e "${PURPLE}║${NC}"
     echo -e "${PURPLE}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
+}
+
+###############################################################################
+# MCP-ONLY MODE — PingOne MCP server + optional Memory MCP + MCP Inspector
+###############################################################################
+
+run_mcp_only_mode() {
+    echo -e "${PURPLE}"
+    echo "╔═══════════════════════════════════════════════════════════════════════╗"
+    echo "║                                                                       ║"
+    echo "║         🔌 MCP-Only Mode — PingOne MCP Server + Inspector             ║"
+    echo "║                                                                       ║"
+    echo "║  PingOne MCP: stdio background process                                ║"
+    echo "║  MCP Inspector (optional): http://localhost:${MCP_INSPECTOR_PORT}                   ║"
+    echo "║                                                                       ║"
+    echo "╚═══════════════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+
+    ensure_project_root
+    check_requirements
+    load_ssl_config
+
+    # Kill stale MCP processes only
+    print_status "🛑 Cleaning up existing MCP processes..."
+    if [ -f "${MCP_PID_FILE_REL}" ]; then
+        local old_mcp_pid
+        old_mcp_pid=$(cat "${MCP_PID_FILE_REL}" 2>/dev/null)
+        [ -n "$old_mcp_pid" ] && kill -9 "$old_mcp_pid" 2>/dev/null || true
+        rm -f "${MCP_PID_FILE_REL}"
+    fi
+    pkill -f "pingone-mcp-server" 2>/dev/null || true
+    sleep 1
+
+    # Start PingOne MCP server
+    start_mcp_server || { print_error "PingOne MCP server failed to start. Aborting."; exit 1; }
+
+    # Offer optional extra MCP server
+    echo ""
+    echo -e "${CYAN}Optional extras:${NC}"
+    echo -e "  1) ${GREEN}memory-mcp${NC}  — user preferences + session context for AI clients"
+    echo -n "Start an optional MCP server? [1=memory-mcp, Enter=none]: "
+    read -r mcp_extra
+    case "${mcp_extra:-none}" in
+        1)
+            start_memory_mcp_server || print_warning "Memory MCP server failed to start — continuing without it"
+            ;;
+        *)
+            print_info "No extra MCP server started."
+            ;;
+    esac
+
+    # Offer MCP Inspector
+    echo ""
+    echo -n "Start MCP Inspector? (Y/n): "
+    read -r inspector_choice
+    if [ -z "$inspector_choice" ] || [ "$inspector_choice" = "y" ] || [ "$inspector_choice" = "Y" ]; then
+        start_mcp_inspector || print_warning "MCP Inspector failed to start"
+        echo -e "   ${GREEN}✅ MCP Inspector:${NC}  ${BLUE}http://localhost:${MCP_INSPECTOR_PORT}${NC}"
+    else
+        print_info "MCP Inspector not started."
+    fi
+
+    echo ""
+    echo -e "${GREEN}╔══════════════════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║                     ✅ MCP-ONLY MODE RUNNING                                ║${NC}"
+    echo -e "${GREEN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
+    echo -e "${GREEN}║${NC} ${CYAN}Logs:${NC}"
+    echo -e "${GREEN}║${NC}   PingOne MCP:   logs/mcp-server.log"
+    echo -e "${GREEN}║${NC}   Memory MCP:    logs/memory-mcp-server.log  (if started)"
+    echo -e "${GREEN}║${NC}   MCP Inspector: logs/mcp-inspector.log  (if started)"
+    echo -e "${GREEN}║${NC}"
+    echo -e "${GREEN}║${NC} ${CYAN}Modes:${NC}"
+    echo -e "${GREEN}║${NC}   Masterflow only        →  ${YELLOW}./run.sh${NC}"
+    echo -e "${GREEN}║${NC}   MCP server + Inspector →  ${YELLOW}./run.sh -mcp${NC}"
+    echo -e "${GREEN}║${NC}   AI Assistant only      →  ${YELLOW}./run.sh -assistant${NC}"
+    echo -e "${GREEN}║${NC}   Both together          →  ${YELLOW}./run.sh -both${NC}"
+    echo -e "${GREEN}║${NC}"
+    echo -e "${GREEN}║${NC} ${CYAN}💾 System memory:${NC} $(get_memory_info)"
+    echo -e "${GREEN}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+
+    if [ "${QUICK_MODE:-false}" != true ]; then
+        echo -n "Tail a log? [1=mcp-server, 2=memory-mcp, 3=inspector, Enter=skip]: "
+        read -r log_choice
+        case "${log_choice:-skip}" in
+            1) tail -f logs/mcp-server.log ;;
+            2) tail -f logs/memory-mcp-server.log ;;
+            3) tail -f logs/mcp-inspector.log ;;
+            *) print_info "Exiting. MCP server continues running in background." ;;
+        esac
+    fi
 }
 
 # Run main function
@@ -2020,6 +2225,9 @@ if [ "${ASSISTANT_MODE:-false}" = true ]; then
 elif [ "${BOTH_MODE:-false}" = true ]; then
     show_url_banner
     run_both_mode
+elif [ "${MCP_ONLY_MODE:-false}" = true ]; then
+    show_url_banner
+    run_mcp_only_mode
 else
     show_url_banner
     main "$@"

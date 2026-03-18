@@ -2641,9 +2641,16 @@ app.put('/api/environments/:id', async (req, res) => {
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
-			throw new Error(
-				`Failed to update environment: ${response.status} - ${errorData.message || response.statusText}`
-			);
+			const statusCode = response.status;
+			console.error(`[PingOne Update Environment API] ❌ Error: ${statusCode} - ${errorData.message || response.statusText}`);
+			
+			// Return the actual status code from PingOne (400, 401, 403, etc.) instead of always 500
+			return res.status(statusCode).json({
+				error: errorData.error || 'PingOne API Error',
+				message: errorData.message || response.statusText,
+				details: errorData.details || errorData,
+				source: 'PingOne Platform API',
+			});
 		}
 
 		const envData = await response.json();
@@ -2666,7 +2673,7 @@ app.put('/api/environments/:id', async (req, res) => {
 			JSON.stringify({
 				error: 'Internal server error',
 				message: error.message,
-				source: 'PingOne Platform API Proxy',
+				source: 'Backend Server',
 			})
 		);
 	}
@@ -24637,45 +24644,6 @@ app.post('/api/introspection/revoke', (req, res) => {
 	res.status(200).json({ revoked: true });
 });
 
-// API endpoint not found handler - MUST be after all API route definitions
-app.use('/api', (req, res) => {
-	console.error('[API 404] Endpoint not found:', {
-		method: req.method,
-		path: req.path,
-		query: req.query,
-		body: req.body,
-	});
-	res.status(404).json({
-		error: 'endpoint_not_found',
-		message: `API endpoint not found: ${req.method} ${req.path}`,
-		path: req.path,
-		method: req.method,
-	});
-});
-
-// Catch-all handler for React Router - MUST be after all API routes and static files
-// This ensures client-side routing works for routes like /mfa-unified-callback
-app.use((req, res, next) => {
-	// Only handle GET requests for React Router
-	if (req.method !== 'GET') {
-		return next();
-	}
-
-	// Serve index.html for all other routes to support React Router
-	const indexPath = path.join(__dirname, 'dist', 'index.html');
-
-	// Check if index.html exists
-	fs.access(indexPath, fs.constants.F_OK, (err) => {
-		if (err) {
-			console.error('[React Router 404] index.html not found:', indexPath);
-			return res.status(404).send('Application not found. Please build the application first.');
-		}
-
-		console.log(`[React Router] Serving index.html for route: ${req.path}`);
-		res.sendFile(indexPath);
-	});
-});
-
 // Load or generate self-signed certificates for HTTPS (env SSL_CERT_PATH/SSL_KEY_PATH take precedence)
 const certs = getCertPaths();
 
@@ -25753,6 +25721,45 @@ app.post('/api/stepup/issue-token', (req, res) => {
 	}
 });
 // ─── End Step-Up Auth Routes ──────────────────────────────────────────────────
+
+// API endpoint not found handler - MUST be after all API route definitions
+app.use('/api', (req, res) => {
+	console.error('[API 404] Endpoint not found:', {
+		method: req.method,
+		path: req.path,
+		query: req.query,
+		body: req.body,
+	});
+	res.status(404).json({
+		error: 'endpoint_not_found',
+		message: `API endpoint not found: ${req.method} ${req.path}`,
+		path: req.path,
+		method: req.method,
+	});
+});
+
+// Catch-all handler for React Router - MUST be after all API routes and static files
+// This ensures client-side routing works for routes like /mfa-unified-callback
+app.use((req, res, next) => {
+	// Only handle GET requests for React Router
+	if (req.method !== 'GET') {
+		return next();
+	}
+
+	// Serve index.html for all other routes to support React Router
+	const indexPath = path.join(__dirname, 'dist', 'index.html');
+
+	// Check if index.html exists
+	fs.access(indexPath, fs.constants.F_OK, (err) => {
+		if (err) {
+			console.error('[React Router 404] index.html not found:', indexPath);
+			return res.status(404).send('Application not found. Please build the application first.');
+		}
+
+		console.log(`[React Router] Serving index.html for route: ${req.path}`);
+		res.sendFile(indexPath);
+	});
+});
 
 // Start servers
 async function startServers() {

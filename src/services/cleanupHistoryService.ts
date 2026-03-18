@@ -107,7 +107,7 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 ];
 
 // ─── AUTO-GENERATED: git-driven sessions — do not edit manually ───
-// Last updated: 2026-03-16T14:23:51.217Z
+// Last updated: 2026-03-16T23:51:32.486Z
 // Source: git log (2 days → 2 sessions)
 
 const CLEANUP_SESSIONS: CleanupSession[] = [
@@ -123,18 +123,19 @@ const CLEANUP_SESSIONS: CleanupSession[] = [
 			description: 'Code Cleanup',
 		},
 		description:
-			'4 commits: rewrite with styled-components, move to Dashboard group; icon consistency, user profile button, password reset tests …',
-		filesModified: 55,
-		linesOfCode: 27709,
-		issuesResolved: 346,
+			'12 commits: add comprehensive API testing framework to regression documentation; always open api.pingdemo.com on start, not localhost …',
+		filesModified: 93,
+		linesOfCode: 31832,
+		issuesResolved: 398,
 		documentation: [],
 		achievements: [
-			'rewrite with styled-components, move to Dashboard group',
-			'icon consistency, user profile button, password reset tests',
-			'add 7 new V9 flows, MCP servers, search group headers, migration guide',
-			'SVG eye icons, require authzClientId for pi.flow (fix 400), warning banner',
+			'add comprehensive API testing framework to regression documentation',
+			'always open api.pingdemo.com on start, not localhost',
+			'update regression log for 6 changes from 2026-03-16 session',
+			'fix org licensing region-aware base URL and error propagation',
+			'add PingOne console-style dark admin theme with toggle (classic preserved)',
 		],
-		version: '9.16.5',
+		version: '9.16.7',
 	},
 	{
 		id: 'git-2026-03-15-code-cleanup',
@@ -160,7 +161,7 @@ const CLEANUP_SESSIONS: CleanupSession[] = [
 			'Complete cleanup dashboard final updates',
 			'use Authorization Code + PKCE (response_type=code) not implicit',
 		],
-		version: '9.16.5',
+		version: '9.16.7',
 	},
 ];
 

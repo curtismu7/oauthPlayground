@@ -504,6 +504,30 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 		draftRef.current = '';
 	}, []);
 
+	const handleCheckAllHeaderOptions = useCallback(() => {
+		setShowResultsInPage(true);
+		setShowSidePanel(true);
+		setIncludeApis(true);
+		setIncludeSpecs(true);
+		setIncludeWorkflows(true);
+		setIncludeUserGuide(true);
+		setIncludeWeb(true);
+		setIncludeLive(true);
+		setUseAdminLogin(true);
+	}, []);
+
+	const handleUncheckAllHeaderOptions = useCallback(() => {
+		setShowResultsInPage(false);
+		setShowSidePanel(false);
+		setIncludeApis(false);
+		setIncludeSpecs(false);
+		setIncludeWorkflows(false);
+		setIncludeUserGuide(false);
+		setIncludeWeb(false);
+		setIncludeLive(false);
+		setUseAdminLogin(false);
+	}, []);
+
 	/** Store admin token from side panel (client credentials); used for MCP calls until expiry or sign out. */
 	const handleAdminTokenSet = useCallback(
 		(token: string, expiresInSeconds: number, environmentId: string) => {
@@ -2027,8 +2051,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 														_workerTokenStatus === null
 															? 'checking'
 															: includeLive &&
-																  _workerTokenStatus.hasCredentials &&
-																  _workerTokenStatus.tokenValid
+																	_workerTokenStatus.hasCredentials &&
+																	_workerTokenStatus.tokenValid
 																? 'ok'
 																: 'off'
 													}
@@ -2036,8 +2060,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 														_workerTokenStatus === null
 															? 'Checking MCP…'
 															: includeLive &&
-																  _workerTokenStatus.hasCredentials &&
-																  _workerTokenStatus.tokenValid
+																	_workerTokenStatus.hasCredentials &&
+																	_workerTokenStatus.tokenValid
 																? 'MCP connected — Live PingOne data ready'
 																: !includeLive
 																	? 'MCP disabled — turn on Live toggle'
@@ -2604,8 +2628,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 													_workerTokenStatus === null
 														? 'checking'
 														: includeLive &&
-															  _workerTokenStatus.hasCredentials &&
-															  _workerTokenStatus.tokenValid
+																_workerTokenStatus.hasCredentials &&
+																_workerTokenStatus.tokenValid
 															? 'ok'
 															: 'off'
 												}
@@ -2613,8 +2637,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 													_workerTokenStatus === null
 														? 'Checking MCP…'
 														: includeLive &&
-															  _workerTokenStatus.hasCredentials &&
-															  _workerTokenStatus.tokenValid
+																_workerTokenStatus.hasCredentials &&
+																_workerTokenStatus.tokenValid
 															? 'MCP connected — Live PingOne data ready'
 															: !includeLive
 																? 'MCP disabled — turn on Live toggle'
@@ -3511,6 +3535,36 @@ const ToggleHint = styled.span`
 	font-size: 9px;
 	opacity: 0.85;
 	white-space: nowrap;
+`;
+
+const ToggleSectionLabel = styled.span`
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	opacity: 0.9;
+	padding: 2px 6px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.12);
+	white-space: nowrap;
+`;
+
+const ToggleBulkButton = styled.button`
+	background: rgba(255, 255, 255, 0.14);
+	border: 1px solid rgba(255, 255, 255, 0.35);
+	color: white;
+	height: 24px;
+	padding: 0 8px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	cursor: pointer;
+	transition: background 0.2s;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.24);
+	}
 `;
 
 const RefreshTokenButton = styled.button`

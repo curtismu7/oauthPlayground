@@ -1405,6 +1405,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									your PingOne environment to auto-fill all configuration fields.
 								</p>
 								<button
+									type="button"
 									onClick={() => setShowWorkerTokenModal(true)}
 									disabled={false}
 									style={{
@@ -2032,6 +2033,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							Generate a worker token to use Config Checker and create PingOne applications.
 						</div>
 						<button
+							type="button"
 							onClick={() => setShowWorkerTokenModal(true)}
 							style={{
 								display: 'inline-flex',
@@ -2393,7 +2395,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									);
 
 									// Create the application based on type
-									let result;
+									let result: any;
 									if (appType === 'OIDC_WEB_APP') {
 										result = await pingOneAppCreationService.createOIDCWebApp({
 											type: 'OIDC_WEB_APP',

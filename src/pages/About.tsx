@@ -1,5 +1,6 @@
 // src/pages/About.tsx
 import styled from 'styled-components';
+import { usePageScroll } from '../hooks/usePageScroll';
 import {
 	FiActivity,
 	FiBook,
@@ -8,6 +9,8 @@ import {
 	FiCpu,
 	FiGlobe,
 	FiInfo,
+	FiKey,
+	FiLock,
 	FiPackage,
 	FiSearch,
 	FiShield,
@@ -17,9 +20,8 @@ import {
 	FiUsers,
 	FiZap,
 } from '../icons';
-import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
-import { APP_VERSION, MFA_V8_VERSION, UNIFIED_V8U_VERSION } from '../version';
+import { APP_VERSION } from '../version';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -37,8 +39,8 @@ const Section = styled.div`
 `;
 
 const VersionBadge = styled.div`
-	background: #e0e7ff;
-	border: 1px solid #a5b4fc;
+	background: #dbeafe;
+	border: 1px solid #93c5fd;
 	border-radius: 0.75rem;
 	padding: 1rem 1.5rem;
 	margin-top: 1.5rem;
@@ -51,7 +53,7 @@ const VersionItem = styled.div`
 	.label {
 		font-size: 0.75rem;
 		font-weight: 600;
-		color: #4338ca;
+		color: #1d4ed8;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		margin-bottom: 0.25rem;
@@ -59,7 +61,7 @@ const VersionItem = styled.div`
 	.value {
 		font-size: 0.95rem;
 		font-weight: 700;
-		color: #312e81;
+		color: #1e3a8a;
 	}
 `;
 
@@ -73,7 +75,7 @@ const SectionTitle = styled.h2`
 	gap: 0.75rem;
 
 	svg {
-		color: #4f46e5;
+		color: #2563eb;
 		flex-shrink: 0;
 	}
 `;
@@ -104,7 +106,7 @@ const FeatureCard = styled.div<{ $accent?: string }>`
 		gap: 0.5rem;
 
 		svg {
-			color: ${({ $accent }) => $accent ?? '#4f46e5'};
+			color: ${({ $accent }) => $accent ?? '#2563eb'};
 		}
 	}
 
@@ -122,7 +124,7 @@ const FeatureCard = styled.div<{ $accent?: string }>`
 `;
 
 const StatsBanner = styled.div`
-	background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+	background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
 	border-radius: 1rem;
 	padding: 2rem;
 	margin-bottom: 1.5rem;
@@ -167,28 +169,6 @@ const StatItem = styled.div`
 	}
 `;
 
-const CheckList = styled.ul`
-	margin: 0;
-	padding: 0;
-	list-style: none;
-
-	li {
-		display: flex;
-		align-items: flex-start;
-		gap: 0.5rem;
-		font-size: 0.875rem;
-		color: #374151;
-		margin-bottom: 0.625rem;
-		line-height: 1.5;
-
-		svg {
-			color: #10b981;
-			flex-shrink: 0;
-			margin-top: 0.125rem;
-		}
-	}
-`;
-
 export default function About() {
 	usePageScroll({ pageName: 'About', force: true });
 
@@ -198,7 +178,7 @@ export default function About() {
 				customConfig={{
 					flowType: 'pingone',
 					title: 'OAuth Playground — About',
-					subtitle: 'Complete guide to what the PingOne MasterFlow API does and how to use it',
+					subtitle: 'Everything the PingOne MasterFlow API playground does',
 					icon: '📚',
 				}}
 			/>
@@ -209,11 +189,12 @@ export default function About() {
 					<div style={{ fontSize: '3rem', lineHeight: 1 }}>📚</div>
 					<div>
 						<h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#1f2937', margin: 0 }}>
-							PingOne MasterFlow API Documentation
+							PingOne MasterFlow API Playground
 						</h1>
 						<p style={{ color: '#6b7280', marginTop: '0.5rem', lineHeight: 1.6, marginBottom: 0 }}>
-							A comprehensive PingOne API integration and testing platform for mastering OAuth 2.0
-							and OpenID Connect flows.
+							A hands-on PingOne OAuth 2.0 &amp; OIDC testing platform. Run real flows against your
+							PingOne environment, explore mock flows offline, manage MFA devices, and learn through
+							interactive guides — all in one place.
 						</p>
 					</div>
 				</div>
@@ -223,12 +204,12 @@ export default function About() {
 						<div className="value">{APP_VERSION}</div>
 					</VersionItem>
 					<VersionItem>
-						<div className="label">MFA (v8)</div>
-						<div className="value">{MFA_V8_VERSION}</div>
+						<div className="label">Architecture</div>
+						<div className="value">V9</div>
 					</VersionItem>
 					<VersionItem>
-						<div className="label">Unified (v8u)</div>
-						<div className="value">{UNIFIED_V8U_VERSION}</div>
+						<div className="label">Stack</div>
+						<div className="value">React 18 + Node.js</div>
 					</VersionItem>
 				</VersionBadge>
 			</Section>
@@ -237,242 +218,279 @@ export default function About() {
 			<StatsBanner>
 				<StatsBannerTitle>
 					<FiTrendingUp size={22} />
-					Impact &amp; Reach
+					What's Inside
 				</StatsBannerTitle>
 				<p style={{ opacity: 0.85, margin: 0, fontSize: '0.95rem' }}>
-					Helping developers master OAuth concepts through interactive learning and comprehensive
-					API testing.
+					A complete PingOne developer toolkit — real flows, mock flows, AI assistance, and
+					reference documentation.
 				</p>
 				<StatsGrid>
 					<StatItem>
-						<div className="number">25+</div>
-						<div className="desc">OAuth Flows</div>
+						<div className="number">20+</div>
+						<div className="desc">Mock OAuth Flows</div>
 					</StatItem>
 					<StatItem>
-						<div className="number">V1–V9</div>
-						<div className="desc">Flow Versions</div>
+						<div className="number">4</div>
+						<div className="desc">Real PingOne Apps</div>
 					</StatItem>
 					<StatItem>
-						<div className="number">100%</div>
-						<div className="desc">Interactive</div>
+						<div className="number">14+</div>
+						<div className="desc">Developer Tools</div>
 					</StatItem>
 					<StatItem>
-						<div className="number">∞</div>
-						<div className="desc">Learning</div>
+						<div className="number">AI</div>
+						<div className="desc">MCP Agent Built-in</div>
 					</StatItem>
 				</StatsGrid>
 			</StatsBanner>
 
-			{/* Overview */}
-			<Section>
-				<SectionTitle>
-					<FiInfo size={22} />
-					Overview
-				</SectionTitle>
-				<p style={{ color: '#374151', lineHeight: 1.7, marginBottom: '1.25rem' }}>
-					The <strong>PingOne MasterFlow API</strong> is designed to help developers learn, test,
-					and master OAuth 2.0 and OpenID Connect (OIDC) flows using PingOne as the identity
-					provider.
-				</p>
-				<CheckList>
-					<li>
-						<FiCheckCircle size={16} />
-						<span>Interactive step-by-step OAuth and OIDC flow demonstrations</span>
-					</li>
-					<li>
-						<FiCheckCircle size={16} />
-						<span>Real PingOne API integration with live token exchange</span>
-					</li>
-					<li>
-						<FiCheckCircle size={16} />
-						<span>Educational mock flows for offline / safe exploration</span>
-					</li>
-					<li>
-						<FiCheckCircle size={16} />
-						<span>MFA device management, password reset, and user profile tools</span>
-					</li>
-					<li>
-						<FiCheckCircle size={16} />
-						<span>AI assistant powered by MCP server for guided learning</span>
-					</li>
-				</CheckList>
-			</Section>
-
-			{/* Interactive OAuth Flows */}
+			{/* Mock Flows */}
 			<Section>
 				<SectionTitle>
 					<FiZap size={22} />
-					Interactive OAuth Flows
+					Mock OAuth &amp; OIDC Flows
 				</SectionTitle>
+				<p style={{ color: '#374151', lineHeight: 1.7, marginBottom: '1.25rem' }}>
+					Explore every major OAuth 2.0 and OIDC flow interactively — no PingOne credentials
+					required. Each flow walks through the full protocol with live request/response inspection.
+				</p>
 				<Grid>
 					<FeatureCard $accent="#059669">
 						<h4>
 							<FiCheckCircle size={16} />
-							Authorization Code Flow
+							OIDC Flows
 						</h4>
 						<ul>
-							<li>Complete OAuth authorization code flow with PKCE</li>
-							<li>Interactive PKCE generation and verification</li>
-							<li>Real-time authorization URL building</li>
-							<li>Step-by-step token exchange and inspection</li>
+							<li>Authorization Code (with PKCE)</li>
+							<li>Hybrid Flow</li>
+							<li>CIBA (Backchannel Authentication)</li>
 						</ul>
 					</FeatureCard>
-
 					<FeatureCard $accent="#2563eb">
 						<h4>
 							<FiActivity size={16} />
-							Client Credentials Flow
+							OAuth 2.0 Flows
 						</h4>
 						<ul>
-							<li>Machine-to-machine authentication</li>
-							<li>Client secret and private key JWT methods</li>
-							<li>Token introspection and validation</li>
-							<li>Scope-based access control</li>
+							<li>Device Authorization</li>
+							<li>Client Credentials</li>
+							<li>Implicit Flow</li>
+							<li>JWT Bearer Token &amp; SAML Bearer Assertion</li>
 						</ul>
 					</FeatureCard>
-
-					<FeatureCard $accent="#7c3aed">
+					<FeatureCard $accent="#0891b2">
 						<h4>
-							<FiCpu size={16} />
-							Device Code Flow
+							<FiShield size={16} />
+							Advanced / Emerging Flows
 						</h4>
 						<ul>
-							<li>IoT and input-constrained device authentication</li>
-							<li>Interactive device code generation</li>
-							<li>Polling-based token retrieval</li>
-							<li>Real-time status updates</li>
-						</ul>
-					</FeatureCard>
-
-					<FeatureCard $accent="#d97706">
-						<h4>
-							<FiStar size={16} />
-							Advanced Flows
-						</h4>
-						<ul>
-							<li>JWT Bearer Token, RAR, CIBA (Backchannel)</li>
-							<li>PAR, DPoP, WIMSE, mTLS, GNAP</li>
+							<li>DPoP, RAR, PAR, mTLS, GNAP</li>
+							<li>SPIFFE/SPIRE, WIMSE Workload Identity</li>
 							<li>JAR + JARM (FAPI 2.0), Step-Up Auth</li>
 							<li>Token Introspection, Attestation Client Auth</li>
+							<li>Resource Owner Password (ROPC) — unsupported demo</li>
+						</ul>
+					</FeatureCard>
+					<FeatureCard $accent="#d97706">
+						<h4>
+							<FiCpu size={16} />
+							MCP &amp; Agent Flow
+						</h4>
+						<ul>
+							<li>Mock MCP Agent Flow — simulate AI agent OAuth</li>
+							<li>See how agents authenticate to APIs</li>
 						</ul>
 					</FeatureCard>
 				</Grid>
 			</Section>
 
-			{/* OpenID Connect */}
+			{/* Real PingOne Apps */}
 			<Section>
 				<SectionTitle>
-					<FiShield size={22} />
-					OpenID Connect Integration
+					<FiGlobe size={22} />
+					Real PingOne API Apps
+				</SectionTitle>
+				<p style={{ color: '#374151', lineHeight: 1.7, marginBottom: '1.25rem' }}>
+					These run live against your PingOne environment using your worker token and credentials.
+				</p>
+				<Grid>
+					<FeatureCard $accent="#059669">
+						<h4>
+							<FiUsers size={16} />
+							Unified OAuth &amp; OIDC
+						</h4>
+						<ul>
+							<li>Full authorization code + PKCE flow against real PingOne</li>
+							<li>Live token exchange and UserInfo lookup</li>
+							<li>Enhanced State Management (V2)</li>
+							<li>Flow Comparison Tool</li>
+						</ul>
+					</FeatureCard>
+					<FeatureCard $accent="#2563eb">
+						<h4>
+							<FiLock size={16} />
+							Unified MFA
+						</h4>
+						<ul>
+							<li>MFA device registration and management</li>
+							<li>Push, SMS, TOTP, FIDO2 device flows</li>
+							<li>Delete All Devices utility</li>
+							<li>Token Monitoring Dashboard</li>
+						</ul>
+					</FeatureCard>
+					<FeatureCard $accent="#0891b2">
+						<h4>
+							<FiKey size={16} />
+							Tokens &amp; Session
+						</h4>
+						<ul>
+							<li>Worker Token management (V9)</li>
+							<li>Token Operations — introspect, revoke, refresh</li>
+							<li>UserInfo Flow — compare worker vs. user tokens</li>
+							<li>PingOne Logout &amp; Session management</li>
+							<li>Redirectless Login Modal (V9)</li>
+						</ul>
+					</FeatureCard>
+					<FeatureCard $accent="#d97706">
+						<h4>
+							<FiShield size={16} />
+							Admin &amp; Platform
+						</h4>
+						<ul>
+							<li>Organization Licensing info</li>
+							<li>User Profile management</li>
+							<li>Password Reset</li>
+							<li>Advanced Security Settings</li>
+							<li>Webhook Viewer &amp; Custom Domain Test</li>
+						</ul>
+					</FeatureCard>
+				</Grid>
+			</Section>
+
+			{/* Setup & Configuration */}
+			<Section>
+				<SectionTitle>
+					<FiTool size={22} />
+					Setup &amp; Configuration
+				</SectionTitle>
+				<Grid $cols={3}>
+					<FeatureCard $accent="#2563eb">
+						<h4>
+							<FiPackage size={16} />
+							Configuration Management
+						</h4>
+						<ul>
+							<li>Global credential storage across all flows</li>
+							<li>Worker token with auto-fetch and expiry tracking</li>
+							<li>Region selector (NA / EU / CA / AP / AU)</li>
+						</ul>
+					</FeatureCard>
+					<FeatureCard $accent="#059669">
+						<h4>
+							<FiSearch size={16} />
+							OIDC Discovery
+						</h4>
+						<ul>
+							<li>Auto-discover issuer metadata</li>
+							<li>Inspect JWKS, endpoints, and supported flows</li>
+						</ul>
+					</FeatureCard>
+					<FeatureCard $accent="#0891b2">
+						<h4>
+							<FiGlobe size={16} />
+							Environment Management
+						</h4>
+						<ul>
+							<li>Multi-environment support</li>
+							<li>Environment ID auto-detection</li>
+							<li>PingOne region resolution</li>
+						</ul>
+					</FeatureCard>
+				</Grid>
+			</Section>
+
+			{/* AI & Identity */}
+			<Section>
+				<SectionTitle>
+					<FiCpu size={22} />
+					AI &amp; Identity
 				</SectionTitle>
 				<Grid>
 					<FeatureCard $accent="#2563eb">
 						<h4>
-							<FiUsers size={16} />
-							User Authentication
+							<FiCpu size={16} />
+							MasterFlow Agent (MCP)
 						</h4>
 						<ul>
-							<li>Complete OIDC login flows</li>
-							<li>ID token validation and parsing</li>
-							<li>User profile information retrieval</li>
-							<li>Session management</li>
+							<li>Built-in AI assistant powered by Model Context Protocol</li>
+							<li>Ask questions about PingOne in natural language</li>
+							<li>Guided OAuth flow walkthroughs</li>
+							<li>Live PingOne API queries via MCP server</li>
+							<li>MCP Server config &amp; documentation</li>
 						</ul>
 					</FeatureCard>
-
-					<FeatureCard $accent="#059669">
+					<FeatureCard $accent="#0891b2">
 						<h4>
-							<FiShield size={16} />
-							Enhanced Security
+							<FiBook size={16} />
+							AI &amp; Identity Resources
 						</h4>
 						<ul>
-							<li>PKCE implementation</li>
-							<li>State parameter protection</li>
-							<li>Nonce validation</li>
-							<li>Token refresh mechanisms</li>
+							<li>AI Agent Overview &amp; Glossary</li>
+							<li>Ping AI Resources &amp; Architectures</li>
+							<li>OIDC for AI &amp; OAuth for AI guides</li>
+							<li>AI Agent Auth IETF Draft reference</li>
+							<li>PingOne AI Perspective</li>
 						</ul>
 					</FeatureCard>
 				</Grid>
 			</Section>
 
-			{/* Educational Features */}
+			{/* Documentation */}
 			<Section>
 				<SectionTitle>
 					<FiBook size={22} />
-					Educational Features
+					Documentation &amp; Reference
 				</SectionTitle>
 				<Grid>
-					<div>
-						<h3
-							style={{
-								fontSize: '1rem',
-								fontWeight: 600,
-								color: '#1f2937',
-								marginBottom: '1rem',
-								marginTop: 0,
-							}}
-						>
-							Interactive Learning
-						</h3>
-						<CheckList>
-							<li>
-								<FiCheckCircle size={16} />
-								<span>
-									<strong>Step-by-Step Guides:</strong> Each flow includes detailed explanations
-								</span>
-							</li>
-							<li>
-								<FiCheckCircle size={16} />
-								<span>
-									<strong>Visual Flow Diagrams:</strong> See how OAuth messages flow between parties
-								</span>
-							</li>
-							<li>
-								<FiCheckCircle size={16} />
-								<span>
-									<strong>Code Examples:</strong> Copy-paste ready code snippets
-								</span>
-							</li>
-							<li>
-								<FiCheckCircle size={16} />
-								<span>
-									<strong>Best Practices:</strong> Security recommendations and tips
-								</span>
-							</li>
-						</CheckList>
-					</div>
-					<div>
-						<h3
-							style={{
-								fontSize: '1rem',
-								fontWeight: 600,
-								color: '#1f2937',
-								marginBottom: '1rem',
-								marginTop: 0,
-							}}
-						>
-							Multiple Flow Versions
-						</h3>
-						<CheckList>
-							<li>
-								<FiCheckCircle size={16} />
-								<span>
-									<strong>V1–V4 Flows:</strong> Educational versions with detailed explanations
-								</span>
-							</li>
-							<li>
-								<FiCheckCircle size={16} />
-								<span>
-									<strong>V5–V8 Flows:</strong> Production-ready implementations
-								</span>
-							</li>
-							<li>
-								<FiCheckCircle size={16} />
-								<span>
-									<strong>V9 Flows:</strong> Modern architecture, standardized patterns
-								</span>
-							</li>
-						</CheckList>
-					</div>
+					<FeatureCard $accent="#059669">
+						<h4>
+							<FiBook size={16} />
+							Guides &amp; Specs
+						</h4>
+						<ul>
+							<li>OIDC Overview &amp; Specifications</li>
+							<li>OAuth 2.1 Specification</li>
+							<li>OAuth 2.0 Security Best Practices</li>
+							<li>V9 Migration Guide (V7/V8 → V9)</li>
+							<li>OAuth Education Hub</li>
+						</ul>
+					</FeatureCard>
+					<FeatureCard $accent="#2563eb">
+						<h4>
+							<FiStar size={16} />
+							Comparison Guides
+						</h4>
+						<ul>
+							<li>RAR vs PAR and DPoP Guide</li>
+							<li>CIBA vs Device Authorization</li>
+							<li>SPIFFE/SPIRE with PingOne</li>
+							<li>OIDC Session Management</li>
+							<li>Resources API Tutorial</li>
+						</ul>
+					</FeatureCard>
+					<FeatureCard $accent="#0891b2">
+						<h4>
+							<FiInfo size={16} />
+							Reference
+						</h4>
+						<ul>
+							<li>OAuth Scopes Reference</li>
+							<li>Advanced OAuth Parameters Demo</li>
+							<li>PingOne Sessions API</li>
+							<li>Mock &amp; Educational Features guide</li>
+							<li>Complete Prompts Guide</li>
+						</ul>
+					</FeatureCard>
 				</Grid>
 			</Section>
 
@@ -483,54 +501,53 @@ export default function About() {
 					Developer Tools
 				</SectionTitle>
 				<Grid>
-					<FeatureCard $accent="#4f46e5">
+					<FeatureCard $accent="#2563eb">
 						<h4>
-							<FiSearch size={16} />
-							Token Analysis
+							<FiCode size={16} />
+							Code Generation
 						</h4>
 						<ul>
-							<li>JWT Decoder — decode and inspect JWT tokens</li>
-							<li>Token Introspection — query validity and metadata</li>
-							<li>Claims Inspection — view token payload</li>
-							<li>Signature Validation — verify token authenticity</li>
+							<li>OAuth Code Generator Hub</li>
+							<li>Postman Collection Generator</li>
+							<li>Application Generator</li>
+							<li>Client Generator</li>
 						</ul>
 					</FeatureCard>
-
 					<FeatureCard $accent="#059669">
 						<h4>
-							<FiGlobe size={16} />
-							API Testing
+							<FiSearch size={16} />
+							Analysis &amp; Debug
 						</h4>
 						<ul>
-							<li>Endpoint Discovery — browse available API endpoints</li>
-							<li>Request Builder — construct API calls with proper auth</li>
-							<li>Response Analysis — inspect API responses and headers</li>
-							<li>Error Simulation — test error conditions and handling</li>
+							<li>JWKS Troubleshooting</li>
+							<li>URL Decoder</li>
+							<li>Ultimate Token Display</li>
+							<li>Debug Log Viewer (V9)</li>
+							<li>Service Test Runner</li>
 						</ul>
 					</FeatureCard>
-
-					<FeatureCard $accent="#7c3aed">
-						<h4>
-							<FiCpu size={16} />
-							AI &amp; MCP
-						</h4>
-						<ul>
-							<li>MasterFlow Agent — AI assistant powered by MCP</li>
-							<li>PingOne MCP server for live API queries</li>
-							<li>Guided flow walkthroughs via natural language</li>
-						</ul>
-					</FeatureCard>
-
-					<FeatureCard $accent="#d97706">
+					<FeatureCard $accent="#0891b2">
 						<h4>
 							<FiPackage size={16} />
-							Configuration Management
+							SDK &amp; Examples
 						</h4>
 						<ul>
-							<li>Global credential storage across all flows</li>
-							<li>Worker token management</li>
-							<li>Environment ID auto-discovery</li>
-							<li>Per-flow isolated credential sets</li>
+							<li>SDK Sample App</li>
+							<li>SDK Examples</li>
+							<li>Code Examples library</li>
+							<li>DaVinci Todo App</li>
+						</ul>
+					</FeatureCard>
+					<FeatureCard $accent="#d97706">
+						<h4>
+							<FiActivity size={16} />
+							Dashboards
+						</h4>
+						<ul>
+							<li>Main Dashboard — environment overview</li>
+							<li>Platform Dashboard — PingOne environment stats</li>
+							<li>API Status — real-time backend health</li>
+							<li>Protect Portal App</li>
 						</ul>
 					</FeatureCard>
 				</Grid>
@@ -540,16 +557,16 @@ export default function About() {
 			<Section>
 				<SectionTitle>
 					<FiCode size={22} />
-					Architecture
+					Technical Architecture
 				</SectionTitle>
 				<Grid $cols={3}>
-					<FeatureCard $accent="#4f46e5">
+					<FeatureCard $accent="#2563eb">
 						<h4>Frontend</h4>
 						<ul>
 							<li>React 18 + TypeScript</li>
-							<li>Styled-components</li>
+							<li>Styled-components (V9 color standards)</li>
 							<li>React Router v6</li>
-							<li>Vite build toolchain</li>
+							<li>Vite 6 build toolchain</li>
 						</ul>
 					</FeatureCard>
 					<FeatureCard $accent="#059669">
@@ -558,11 +575,11 @@ export default function About() {
 							<li>Node.js + Express</li>
 							<li>SQLite for credential storage</li>
 							<li>PingOne Management API proxy</li>
-							<li>MCP server integration</li>
+							<li>MCP server (Model Context Protocol)</li>
 						</ul>
 					</FeatureCard>
 					<FeatureCard $accent="#d97706">
-						<h4>Testing</h4>
+						<h4>Quality &amp; Testing</h4>
 						<ul>
 							<li>Vitest + Jest for unit tests</li>
 							<li>Supertest for backend API tests</li>

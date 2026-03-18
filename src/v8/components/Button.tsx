@@ -88,6 +88,7 @@ export const Button: React.FC<ButtonProps> = ({
 
 	return (
 		<button
+			type="button"
 			{...props}
 			disabled={disabled || loading}
 			onMouseEnter={(e) => {

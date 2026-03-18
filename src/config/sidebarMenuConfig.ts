@@ -22,6 +22,8 @@ export interface SidebarMenuItem {
 	migratedToV9?: boolean;
 	/** When true, badge renders as MOCK instead of version badge. */
 	mock?: boolean;
+	/** Override badge type for this item (takes priority over group default). */
+	badgeType?: import('../components/VersionBadgeService').VersionBadgeType;
 }
 
 export interface SidebarMenuGroup {
@@ -29,6 +31,8 @@ export interface SidebarMenuGroup {
 	label: string;
 	items: SidebarMenuItem[];
 	subGroups?: SidebarMenuGroup[];
+	/** Badge type applied to all items in this group (unless item overrides with mock or badgeType). */
+	groupBadgeType?: import('../components/VersionBadgeService').VersionBadgeType;
 }
 
 /** Stable id from path for menu items (path without leading slash, query preserved, slashes to dashes). */
@@ -56,13 +60,30 @@ function items(
 }
 
 /** Apply version badges to menu items based on migration status */
-function applyVersionBadges(items: SidebarMenuItem[]): SidebarMenuItem[] {
+function applyVersionBadges(
+	items: SidebarMenuItem[],
+	groupBadgeType?: import('../components/VersionBadgeService').VersionBadgeType
+): SidebarMenuItem[] {
 	return items.map((item) => {
 		// Mock badge takes priority
 		if (item.mock) {
 			return {
 				...item,
 				versionBadge: { type: 'mock', showVersion: false, showBadge: true },
+			};
+		}
+		// Per-item override
+		if (item.badgeType) {
+			return {
+				...item,
+				versionBadge: { type: item.badgeType, showVersion: false, showBadge: true },
+			};
+		}
+		// Group-level badge type
+		if (groupBadgeType) {
+			return {
+				...item,
+				versionBadge: { type: groupBadgeType, showVersion: false, showBadge: true },
 			};
 		}
 		// Apply 'updated' badge to specific recently standardized apps
@@ -74,7 +95,6 @@ function applyVersionBadges(items: SidebarMenuItem[]): SidebarMenuItem[] {
 		];
 
 		if (recentlyUpdatedApps.includes(item.path)) {
-			// Use applyUpdatedBadge for recently updated apps
 			return {
 				...item,
 				versionBadge: {
@@ -90,15 +110,19 @@ function applyVersionBadges(items: SidebarMenuItem[]): SidebarMenuItem[] {
 }
 
 /** Apply version badges to menu groups recursively */
-function applyVersionBadgesToGroups(groups: SidebarMenuGroup[]): SidebarMenuGroup[] {
+function applyVersionBadgesToGroups(
+	groups: SidebarMenuGroup[],
+	inheritedBadgeType?: import('../components/VersionBadgeService').VersionBadgeType
+): SidebarMenuGroup[] {
 	return groups.map((group) => {
+		const effectiveBadge = group.groupBadgeType ?? inheritedBadgeType;
 		const updatedGroup: SidebarMenuGroup = {
 			...group,
-			items: applyVersionBadges(group.items),
+			items: applyVersionBadges(group.items, effectiveBadge),
 		};
 
 		if (group.subGroups) {
-			updatedGroup.subGroups = applyVersionBadgesToGroups(group.subGroups);
+			updatedGroup.subGroups = applyVersionBadgesToGroups(group.subGroups, effectiveBadge);
 		}
 
 		return updatedGroup;
@@ -157,6 +181,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 					[
 						['/flows/device-authorization-v9', 'Device Authorization', true, true],
 						['/flows/client-credentials-v9', 'Client Credentials', true, true],
+						['/flows/client-credentials-standardized', '✨ Client Credentials (Standardized)', true, true],
 						['/flows/implicit-v9', 'Implicit Flow', true, true],
 						['/flows/jwt-bearer-token-v9', 'JWT Bearer Token', true, true],
 						['/flows/saml-bearer-assertion-v9', 'SAML Bearer Assertion', true, true],
@@ -199,10 +224,11 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 	{
 		id: 'unified-production-flows',
 		label: "Real PingOne API's & support apps",
+		groupBadgeType: 'pingone',
 		items: items([
 			['/v8u/unified', 'Unified OAuth & OIDC', true],
 			['/v8/unified-mfa', 'Unified MFA', true],
-			['/v8u/enhanced-state-management', 'Enhanced State Management (V2)', true],
+			// ['/v8u/enhanced-state-management', 'Enhanced State Management (V2)', true],
 			['/protect-portal', 'Protect Portal App', true],
 		]),
 		subGroups: [
@@ -223,21 +249,23 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 	{
 		id: 'tokens-session',
 		label: 'Tokens & Session',
+		groupBadgeType: 'pingone',
 		items: items([
-			['/flows/worker-token-v9', 'Worker Token (V9)', true],
+			['/flows/worker-token-v9', 'Worker Token', true],
 			['/token/operations', 'Token Operations', true],
 			['/flows/userinfo', 'UserInfo Flow', true],
 			['/flows/pingone-logout', 'PingOne Logout', true],
-			['/flows/redirectless-v9-real', 'Redirectless Login Modal (V9)', true],
+			['/flows/redirectless-v9-real', 'Redirectless Login Modal', true],
 		]),
 	},
 	{
 		id: 'documentation-reference',
 		label: 'Documentation & Reference',
+		groupBadgeType: 'docs',
 		items: items([
 			['/documentation', 'Documentation Hub', true],
 			['/documentation/oidc-overview', 'OIDC Overview', true],
-			['/docs/migration', 'V7/V8 → V9 Migration Guide', true],
+			['/docs/migration', 'Migration Guide', true],
 			['/oauth-2-1', 'OAuth 2.1 Specification', true],
 			['/docs/oauth2-security-best-practices', 'OAuth 2.0 Security Best Practices', true],
 			['/comprehensive-oauth-education', 'OAuth Education', true],
@@ -257,6 +285,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 	{
 		id: 'artificial-intelligence',
 		label: 'AI & Identity',
+		groupBadgeType: 'ai',
 		items: items([
 			['/ai-assistant', 'MasterFlow Agent', true],
 			['/mcp-server', 'MCP Server Config', true],
@@ -287,10 +316,12 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 	{
 		id: 'developer-tools',
 		label: 'Developer & Tools',
+		groupBadgeType: 'tools',
 		items: items([
 			['/postman-collection-generator', 'Postman Collection Generator', true],
 			['/oauth-code-generator-hub', 'OAuth Code Generator Hub', true],
 			['/application-generator', 'Application Generator', true],
+			['/code-editor-demo', 'Code Editor Demo', true],
 			['/client-generator', 'Client Generator', true],
 			['/service-test-runner', 'Service Test Runner', true],
 			['/sdk-sample-app', 'SDK Sample App', true],
@@ -300,13 +331,14 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/url-decoder', 'URL Decoder', true],
 			['/ultimate-token-display-demo', 'Ultimate Token Display', true],
 			['/davinci-todo', 'DaVinci Todo App', true],
-			['/v9/debug-logs-popout', 'Debug Log Viewer (V9)', true],
-			['/v7/settings', 'V7 Mock Server Settings', true],
+			['/v9/debug-logs-popout', 'Debug Log Viewer', true],
+			['/v7/settings', 'Mock Server Settings', true],
 		]),
 	},
 	{
 		id: 'admin-platform',
 		label: 'Admin & Platform',
+		groupBadgeType: 'admin',
 		items: items([
 			['/custom-domain-test', 'Custom Domain & API Test', true],
 			['/pingone-webhook-viewer', 'Webhook Viewer', true],

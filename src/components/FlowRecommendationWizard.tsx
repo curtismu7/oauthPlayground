@@ -530,12 +530,12 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 						))}
 
 						<NavigationButtons>
-							<button className="nav-button secondary" onClick={handleRestart}>
+							<button type="button" className="nav-button secondary" onClick={handleRestart}>
 								<span>⬅️</span>
 								Start Over
 							</button>
 							{onClose && (
-								<button className="nav-button secondary" onClick={onClose}>
+								<button type="button" className="nav-button secondary" onClick={onClose}>
 									<span>❌</span>
 									Close
 								</button>
@@ -583,6 +583,7 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 
 					<NavigationButtons>
 						<button
+							type="button"
 							className="nav-button secondary"
 							onClick={handlePrevious}
 							disabled={currentStep === 0}
@@ -595,7 +596,12 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 							Step {currentStep + 1} of {wizardSteps.length}
 						</span>
 
-						<button className="nav-button primary" onClick={handleNext} disabled={!canProceed}>
+						<button
+							type="button"
+							className="nav-button primary"
+							onClick={handleNext}
+							disabled={!canProceed}
+						>
 							{currentStep === wizardSteps.length - 1 ? 'Get Recommendations' : 'Next'}
 							<span>➡️</span>
 						</button>

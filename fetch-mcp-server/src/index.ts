@@ -2,6 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { FetchManager } from './services/fetchManager.js';
 import { registerFetchTools } from './tools/fetchTools.js';
+import { registerFetchPrompts } from './prompts/fetchPrompts.js';
 
 async function main() {
 	const fetchManager = new FetchManager();
@@ -16,12 +17,16 @@ async function main() {
 			capabilities: {
 				tools: { listChanged: true },
 				resources: { listChanged: true },
+				prompts: { listChanged: true },
 			},
 		}
 	);
 
 	// Register fetch tools
 	registerFetchTools(server, fetchManager);
+
+	// Register fetch prompts
+	registerFetchPrompts(server);
 
 	const transport = new StdioServerTransport();
 	await server.connect(transport);

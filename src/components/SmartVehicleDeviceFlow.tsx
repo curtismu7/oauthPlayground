@@ -707,6 +707,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 							}}
 						>
 							<button
+								type="button"
 								style={{
 									background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
 									color: 'white',
@@ -725,6 +726,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 								<span>🧭</span> Navigate
 							</button>
 							<button
+								type="button"
 								style={{
 									background:
 										'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
@@ -744,6 +746,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 								<span>🎵</span> Media
 							</button>
 							<button
+								type="button"
 								style={{
 									background:
 										'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',

@@ -2185,6 +2185,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 														{origin}
 													</span>
 													<button
+														type="button"
 														onClick={() => removeCorsOrigin(origin)}
 														style={{
 															background: 'none',

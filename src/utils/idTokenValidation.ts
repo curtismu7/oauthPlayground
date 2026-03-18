@@ -455,13 +455,17 @@ export class IDTokenValidationService {
 
 		if (result.errors.length > 0) {
 			report += `Errors:\n`;
-			result.errors.forEach((error) => (report += `  ❌ ${error}\n`));
+			result.errors.forEach((error) => {
+				report += `  ❌ ${error}\n`;
+			});
 			report += `\n`;
 		}
 
 		if (result.warnings.length > 0) {
 			report += `Warnings:\n`;
-			result.warnings.forEach((warning) => (report += `  ⚠️ ${warning}\n`));
+			result.warnings.forEach((warning) => {
+				report += `  ⚠️ ${warning}\n`;
+			});
 			report += `\n`;
 		}
 
