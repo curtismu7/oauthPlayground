@@ -52,9 +52,6 @@ export default defineConfig(({ mode }) => {
 		define: {
 			// Polyfill for global object in browser environment
 			global: 'globalThis',
-			// Ensure React is available globally for vendor bundles
-			// Use simple string literals that Vite can handle
-			React: 'window.React',
 			__PINGONE_ENVIRONMENT_ID__: JSON.stringify(env.PINGONE_ENVIRONMENT_ID),
 			__PINGONE_CLIENT_ID__: JSON.stringify(env.PINGONE_CLIENT_ID),
 			__PINGONE_CLIENT_SECRET__: JSON.stringify(env.PINGONE_CLIENT_SECRET),
@@ -71,6 +68,9 @@ export default defineConfig(({ mode }) => {
 			__PINGONE_FEATURE_ANALYTICS__: JSON.stringify(env.PINGONE_FEATURE_ANALYTICS),
 		},
 		resolve: {
+			// Force all React imports to resolve to the same physical module,
+			// preventing multiple-React-copies (useRef null) and OOM crashes.
+			dedupe: ['react', 'react-dom', 'react-dom/client', 'react-router-dom'],
 			alias: {
 				'@': path.resolve(__dirname, './src'),
 				'@/v8': path.resolve(__dirname, './src/v8'),

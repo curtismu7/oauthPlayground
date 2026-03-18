@@ -42,21 +42,21 @@ function saveHiddenItems(hidden: Set<string>): void {
 const GROUP_ICON: Record<string, string> = {
 	dashboard: 'chart-box',
 	'setup-configuration': 'cog',
-	'mock-flows': 'alert-box',
-	'oidc-mock': 'account-key',
-	'oauth-2-mock': 'lock',
-	'unsupported-flows': 'alert-circle-outline',
-	'unified-production-flows': 'flash',
-	'flow-tools': 'tool',
-	'tokens-session': 'key-chain',
-	'documentation-reference': 'book-open-variant',
-	'artificial-intelligence': 'robot',
-	'ai-ping': 'robot',
-	'developer-tools': 'code-tags',
-	'admin-platform': 'account-cog',
+	'mock-flows': 'alert',
+	'oidc-mock': 'account-key-outline',
+	'oauth-2-mock': 'cellphone-key',
+	'unsupported-flows': 'alert-circle',
+	'unified-production-flows': 'lightning-bolt',
+	'flow-tools': 'auto-fix',
+	'tokens-session': 'usb-flash-drive',
+	'documentation-reference': 'book-open-page-variant',
+	'artificial-intelligence': 'face-agent',
+	'ai-ping': 'face-agent',
+	'developer-tools': 'code-braces',
+	'admin-platform': 'settings',
 };
 
-const DEFAULT_ITEM_ICON = 'page-next-outline';
+const DEFAULT_ITEM_ICON = 'flag';
 
 /** Full item snapshot stored in localStorage. */
 interface StoredItem {
