@@ -661,6 +661,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 							}}
 						>
 							<button
+								type="button"
 								style={{
 									background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
 									color: 'white',
@@ -682,6 +683,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 							</button>
 
 							<button
+								type="button"
 								style={{
 									background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
 									color: 'white',
@@ -712,6 +714,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 							}}
 						>
 							<button
+								type="button"
 								style={{
 									background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
 									color: 'white',
@@ -730,6 +733,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 								<span>➕</span> Add Item
 							</button>
 							<button
+								type="button"
 								style={{
 									background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
 									color: 'white',
@@ -748,6 +752,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 								<span>❌</span> Void
 							</button>
 							<button
+								type="button"
 								style={{
 									background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
 									color: 'white',

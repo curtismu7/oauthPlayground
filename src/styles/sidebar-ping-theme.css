@@ -178,6 +178,7 @@
 
 .sidebar-ping__group-header:hover {
 	color: #ffffff;
+	background: rgba(255, 255, 255, 0.08);
 }
 
 .sidebar-ping__group-header:focus-visible {
@@ -228,50 +229,14 @@
 	border-left-color: var(--sidebar-ping-active-bar);
 }
 
-/* Ensure ALL inactive menu text and icon have strong 3D effect with dark text */
-.sidebar-ping__nav .sidebar-ping__item,
-.sidebar-ping__nav .sidebar-ping__item .sidebar-ping__item-label,
-.sidebar-ping__nav .sidebar-ping__item .sidebar-ping__item-icon,
-.sidebar-ping__nav .sidebar-ping__item a,
-.sidebar-ping__nav .sidebar-ping__item span,
-.sidebar-ping__nav .sidebar-ping__item div,
-.sidebar-ping__nav .sidebar-ping__item i,
-.sidebar-ping__nav .sidebar-ping__item svg {
-	color: #2d3748;
-	font-weight: 700;
-	text-shadow:
-		0 1px 2px rgba(255, 255, 255, 0.8),
-		0 2px 4px rgba(255, 255, 255, 0.6),
-		0 -1px 1px rgba(0, 0, 0, 0.3);
-	letter-spacing: 0.3px;
-}
-
-/* Force dark text for any sidebar elements - SUPER AGGRESSIVE */
-.sidebar-ping *,
-.sidebar-ping * *,
-.sidebar-ping * * *,
-.sidebar-ping a,
-.sidebar-ping span,
-.sidebar-ping div,
-.sidebar-ping i,
-.sidebar-ping svg {
-	color: #2d3748;
-}
-
-/* Ensure selected menu text and icon have enhanced 3D effect with dark text */
+/* Active item text — white on blue background */
 .sidebar-ping__nav .sidebar-ping__item--active,
 .sidebar-ping__nav .sidebar-ping__item--active .sidebar-ping__item-label,
 .sidebar-ping__nav .sidebar-ping__item--active .sidebar-ping__item-icon,
 .sidebar-ping__nav .sidebar-ping__item--active a,
 .sidebar-ping__nav .sidebar-ping__item--active span,
 .sidebar-ping__nav .sidebar-ping__item--active div {
-	color: #1a202c;
-	font-weight: 800;
-	text-shadow:
-		0 1px 2px rgba(255, 255, 255, 0.9),
-		0 2px 4px rgba(255, 255, 255, 0.7),
-		0 -1px 2px rgba(0, 0, 0, 0.4);
-	letter-spacing: 0.4px;
+	color: var(--sidebar-ping-active-text);
 }
 
 .sidebar-ping__item--active:hover {

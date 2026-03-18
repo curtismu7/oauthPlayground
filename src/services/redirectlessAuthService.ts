@@ -206,7 +206,7 @@ export class RedirectlessAuthService {
 				responseHeaders: Object.fromEntries(response.headers.entries()),
 			});
 
-			let errorBody;
+			let errorBody: any;
 			try {
 				errorBody = JSON.parse(errorText);
 			} catch {
@@ -467,7 +467,7 @@ export class RedirectlessAuthService {
 					: 'MISSING',
 			});
 
-			let errorBody;
+			let errorBody: any;
 			try {
 				errorBody = JSON.parse(errorText);
 			} catch {

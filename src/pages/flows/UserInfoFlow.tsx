@@ -300,7 +300,7 @@ const UserInfoFlow: React.FC = () => {
 			const storedTokens = localStorage.getItem(key);
 			if (storedTokens) {
 				try {
-					let parsedTokens;
+					let parsedTokens: any;
 					if (key === 'access_token') {
 						// Handle direct token storage
 						parsedTokens = { access_token: storedTokens };
@@ -1032,6 +1032,7 @@ logger.info('Welcome, ' + user.name + '!');`,
 							Configuration page before running this demo.
 							<br />
 							<button
+								type="button"
 								onClick={() => {
 									window.location.reload();
 								}}
@@ -1115,6 +1116,7 @@ logger.info('Welcome, ' + user.name + '!');`,
 									<br />
 									<div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
 										<button
+											type="button"
 											onClick={() => (window.location.href = '/flows/authorization-code')}
 											style={{
 												padding: '8px 16px',
@@ -1129,6 +1131,7 @@ logger.info('Welcome, ' + user.name + '!');`,
 											Go to Authorization Code Flow
 										</button>
 										<button
+											type="button"
 											onClick={() => (window.location.href = '/flows/implicit')}
 											style={{
 												padding: '8px 16px',
@@ -1143,6 +1146,7 @@ logger.info('Welcome, ' + user.name + '!');`,
 											Go to Implicit Flow
 										</button>
 										<button
+											type="button"
 											onClick={() => {
 												logger.debug('UserInfoFlow', 'Debug info', {
 													config,
@@ -1171,6 +1175,7 @@ logger.info('Welcome, ' + user.name + '!');`,
 											Debug Info
 										</button>
 										<button
+											type="button"
 											onClick={refreshTokens}
 											style={{
 												padding: '8px 16px',
@@ -1185,6 +1190,7 @@ logger.info('Welcome, ' + user.name + '!');`,
 											Refresh Token Detection
 										</button>
 										<button
+											type="button"
 											onClick={() => {
 												// Force refresh the page to reload auth context
 

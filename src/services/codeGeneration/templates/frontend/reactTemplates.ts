@@ -121,7 +121,7 @@ export const LoginButton: React.FC = () => {
   const { isAuthenticated, login, logout } = useAuth();
 
   return (
-    <button onClick={isAuthenticated ? logout : login}>
+    <button type="button" onClick={isAuthenticated ? logout : login}>
       {isAuthenticated ? 'Logout' : 'Login with PingOne'}
     </button>
   );
@@ -291,7 +291,7 @@ export const MFADeviceList: React.FC<DeviceListProps> = ({
     <div className="device-list">
       <h3>Select MFA Device</h3>
       {devices.map((device) => (
-        <button
+        <button type="button"
           key={device.id}
           className="device-item"
           onClick={() => onDeviceSelect(device.id)}
@@ -370,7 +370,7 @@ export const MFAChallenge: React.FC<MFAChallengeProps> = ({
       <h3>MFA Challenge</h3>
       
       {!challengeSent ? (
-        <button
+        <button type="button"
           onClick={sendChallenge}
           disabled={loading}
           className="send-challenge-btn"

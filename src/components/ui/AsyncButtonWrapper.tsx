@@ -60,6 +60,7 @@ export const AsyncButtonWrapper: React.FC<AsyncButtonWrapperProps> = ({
 	// When not loading, render the original button unchanged
 	return (
 		<button
+			type="button"
 			onClick={onClick}
 			disabled={disabled}
 			className={className}

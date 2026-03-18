@@ -176,6 +176,7 @@ export const TokenRequestStep: React.FC<{
 
 				<div style={{ marginBottom: '1rem' }}>
 					<button
+						type="button"
 						onClick={makeTokenRequest}
 						disabled={isRequesting || isCompleted}
 						style={{

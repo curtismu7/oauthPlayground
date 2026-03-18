@@ -204,6 +204,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 					{/* Copy Current URI */}
 					{currentUri && (
 						<button
+							type="button"
 							onClick={() => copyToClipboard(currentUri, 'current')}
 							style={{
 								padding: '8px',
@@ -278,6 +279,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 					>
 						<div style={{ fontWeight: '600', color: '#374151' }}>Suggested Redirect URI</div>
 						<button
+							type="button"
 							onClick={() => setShowSuggestions(!showSuggestions)}
 							style={{
 								padding: '4px 8px',
@@ -318,6 +320,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 							</div>
 							<div style={{ display: 'flex', gap: '8px' }}>
 								<button
+									type="button"
 									onClick={() => copyToClipboard(suggestedUri, 'suggested')}
 									style={{
 										padding: '6px 10px',
@@ -340,6 +343,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 									Copy
 								</button>
 								<button
+									type="button"
 									onClick={applySuggestedUri}
 									style={{
 										padding: '6px 10px',
@@ -387,6 +391,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 									>
 										<span style={{ color: '#374151', wordBreak: 'break-all' }}>{uri}</span>
 										<button
+											type="button"
 											onClick={() => copyToClipboard(uri, 'current')}
 											style={{
 												padding: '4px 8px',

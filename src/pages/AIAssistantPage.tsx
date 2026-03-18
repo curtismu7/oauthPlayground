@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import AIAssistant from '../components/AIAssistant';
+import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 
 const PageContainer = styled.div`
@@ -25,6 +26,8 @@ const AIAssistantContainer = styled.div`
 `;
 
 const AIAssistantPage: React.FC = () => {
+	usePageScroll();
+
 	return (
 		<PageContainer>
 			<ContentContainer>

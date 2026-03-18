@@ -118,7 +118,7 @@ export const LoginButton = () => {
   };
 
   return (
-    <button onClick={handleLogin} className="login-btn">
+    <button type="button" onClick={handleLogin} className="login-btn">
       Login with PingOne
     </button>
   );
@@ -412,7 +412,7 @@ export const ChallengeButton = ({
   };
 
   return (
-    <button onClick={sendChallenge} disabled={loading || sent}>
+    <button type="button" onClick={sendChallenge} disabled={loading || sent}>
       {sent ? 'Code Sent!' : loading ? 'Sending...' : 'Send Code'}
     </button>
   );

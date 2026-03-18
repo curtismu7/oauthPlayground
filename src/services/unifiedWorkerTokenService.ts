@@ -73,6 +73,10 @@ export interface UnifiedWorkerTokenCredentials {
 	authzClientSecret?: string; // Client secret — leave empty for public/PKCE-only clients
 	authzScopes?: string[]; // Requested scopes for user login (default: openid profile email)
 
+	// Saved usernames for side-panel login forms (never save passwords)
+	adminUsername?: string; // Last-used admin username for the Admin tab pi.flow login
+	p1LoginUsername?: string; // Last-used username for the P1 Login tab
+
 	// Legacy compatibility fields
 	grant_type?: string;
 	tokenEndpoint?: string;

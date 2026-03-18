@@ -14,7 +14,7 @@ import { logger } from '../utils/logger';
 // Maximum string length to avoid browser crashes (approximately 50MB)
 const MAX_STRING_LENGTH = 50 * 1024 * 1024;
 
-interface LogEntry {
+interface _LogEntry {
 	timestamp: string;
 	level: 'INFO' | 'WARN' | 'ERROR';
 	category: string;
@@ -26,7 +26,7 @@ interface LogEntry {
 type LogCategory = 'ALL' | 'server' | 'api' | 'frontend' | 'mfa' | 'oauth' | 'other';
 type LogSource = 'file';
 
-interface SourceOption {
+interface _SourceOption {
 	value: LogSource;
 	label: string;
 	icon: string;

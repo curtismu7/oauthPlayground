@@ -35,7 +35,7 @@ const MIN_SPINNER_DELAY = 2000; // 2 seconds
 
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 	message = 'Loading...',
-	size = 'md',
+	_size = 'md',
 	className,
 }) => {
 	return (

@@ -447,22 +447,22 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 					</BestPracticeCard>
 
 					<CodeBlock>
-						<CodeComment>// Good: Exact URI matching</CodeComment>
+						<CodeComment>{'// Good: Exact URI matching'}</CodeComment>
 						<br />
 						<CodeString>'https://myapp.com/callback'</CodeString>{' '}
-						<CodeComment>// Allowed</CodeComment>
+						<CodeComment>{'// Allowed'}</CodeComment>
 						<br />
 						<CodeString>'https://myapp.com/callback?param=value'</CodeString>{' '}
-						<CodeComment>// Allowed</CodeComment>
+						<CodeComment>{'// Allowed'}</CodeComment>
 						<br />
 						<br />
-						<CodeComment>// Bad: Wildcard matching (security risk)</CodeComment>
+						<CodeComment>{'// Bad: Wildcard matching (security risk)'}</CodeComment>
 						<br />
 						<CodeString>'https://*.myapp.com/callback'</CodeString>{' '}
-						<CodeComment>// Dangerous</CodeComment>
+						<CodeComment>{'// Dangerous'}</CodeComment>
 						<br />
 						<CodeString>'https://myapp.com/callback#'</CodeString>{' '}
-						<CodeComment>// Invalid (fragment)</CodeComment>
+						<CodeComment>{'// Invalid (fragment)'}</CodeComment>
 					</CodeBlock>
 				</Subsection>
 			</CollapsibleHeader>
@@ -508,16 +508,16 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 					</BestPracticeCard>
 
 					<CodeBlock>
-						<CodeComment>// PKCE Implementation Example</CodeComment>
+						<CodeComment>{'// PKCE Implementation Example'}</CodeComment>
 						<br />
 						<CodeKeyword>const</CodeKeyword> codeVerifier = generateCodeVerifier();{' '}
-						<CodeComment>// 43-128 chars</CodeComment>
+						<CodeComment>{'// 43-128 chars'}</CodeComment>
 						<br />
 						<CodeKeyword>const</CodeKeyword> codeChallenge = generateCodeChallenge(codeVerifier);{' '}
-						<CodeComment>// SHA256</CodeComment>
+						<CodeComment>{'// SHA256'}</CodeComment>
 						<br />
 						<br />
-						<CodeComment>// Authorization URL</CodeComment>
+						<CodeComment>{'// Authorization URL'}</CodeComment>
 						<br />
 						<CodeString>'https://auth.pingone.com/env/as/authorize'</CodeString> +
 						<br />

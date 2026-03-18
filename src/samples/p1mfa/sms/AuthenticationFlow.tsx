@@ -102,6 +102,7 @@ export const AuthenticationFlow: React.FC<AuthenticationFlowProps> = ({ sdk, use
 			<div>
 				<StatusDisplay status={status} message={message} request={request} response={response} />
 				<button
+					type="button"
 					onClick={() => {
 						setStep('input');
 						setStatus('idle');
@@ -169,6 +170,7 @@ export const AuthenticationFlow: React.FC<AuthenticationFlowProps> = ({ sdk, use
 						/>
 					</div>
 					<button
+						type="button"
 						onClick={handleInitialize}
 						disabled={!userId || !policyId}
 						style={{
@@ -213,6 +215,7 @@ export const AuthenticationFlow: React.FC<AuthenticationFlowProps> = ({ sdk, use
 								}}
 							/>
 							<button
+								type="button"
 								onClick={handleComplete}
 								disabled={!otp || otp.length < 6}
 								style={{

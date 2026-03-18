@@ -5,58 +5,42 @@ const _log = createModuleLogger('pages/CodeEditorDemo.tsx');
 
 import styled from 'styled-components';
 import { InteractiveCodeEditor } from '../components/InteractiveCodeEditor';
+import { FlowHeader } from '../services/flowHeaderService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 import { logger } from '../utils/logger';
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 40px 20px;
+  background: ${V9_COLORS.BG.GRAY_LIGHT};
+  padding: 0;
 `;
 
 const ContentWrapper = styled.div`
   max-width: 1400px;
   margin: 0 auto;
-`;
-
-const PageHeader = styled.div`
-  text-align: center;
-  margin-bottom: 40px;
-`;
-
-const PageTitle = styled.h1`
-  font-size: 48px;
-  font-weight: 800;
-  color: V9_COLORS.TEXT.WHITE;
-  margin: 0 0 16px 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const PageSubtitle = styled.p`
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
-  font-weight: 500;
+  padding: 2rem;
 `;
 
 const DemoSection = styled.div`
-  background: V9_COLORS.TEXT.WHITE;
-  border-radius: 16px;
+  background: ${V9_COLORS.BG.WHITE};
+  border: 1px solid ${V9_COLORS.BORDER.GRAY};
+  border-radius: 12px;
   padding: 32px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   margin-bottom: 32px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 `;
 
 const SectionTitle = styled.h2`
   font-size: 24px;
   font-weight: 700;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: ${V9_COLORS.TEXT.GRAY_DARK};
   margin: 0 0 16px 0;
 `;
 
 const SectionDescription = styled.p`
   font-size: 16px;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
   line-height: 1.6;
   margin: 0 0 24px 0;
 `;
@@ -69,16 +53,17 @@ const FeatureGrid = styled.div`
 `;
 
 const FeatureCard = styled.div`
-  background: #f9fafb;
-  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+  background: ${V9_COLORS.BG.WHITE};
+  border: 1px solid ${V9_COLORS.BORDER.GRAY};
   border-radius: 8px;
   padding: 16px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 `;
 
 const FeatureTitle = styled.h3`
   font-size: 16px;
   font-weight: 600;
-  color: V9_COLORS.TEXT.GRAY_DARK;
+  color: ${V9_COLORS.TEXT.GRAY_DARK};
   margin: 0 0 8px 0;
   display: flex;
   align-items: center;
@@ -87,7 +72,7 @@ const FeatureTitle = styled.h3`
 
 const FeatureDescription = styled.p`
   font-size: 14px;
-  color: V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
   margin: 0;
   line-height: 1.5;
 `;
@@ -188,14 +173,16 @@ initiateAuthorizationFlow();`;
 const CodeEditorDemo: React.FC = () => {
 	return (
 		<PageContainer>
-			<ContentWrapper>
-				<PageHeader>
-					<PageTitle>🚀 Interactive Code Editor Demo</PageTitle>
-					<PageSubtitle>
-						Test the Monaco Editor with real-time editing, syntax highlighting, and more
-					</PageSubtitle>
-				</PageHeader>
+			{/* MasterFlow API Standard Header */}
+			<FlowHeader
+				flowType="pingone"
+				customConfig={{
+					title: '🚀 Interactive Code Editor Demo',
+					subtitle: 'Test the Monaco Editor with real-time editing, syntax highlighting, and more',
+				}}
+			/>
 
+			<ContentWrapper>
 				<DemoSection>
 					<SectionTitle>✨ Features</SectionTitle>
 					<SectionDescription>

@@ -3,33 +3,15 @@ import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
-import {
-	FiActivity,
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCloud,
-	FiCpu,
-	FiDatabase,
-	FiEye,
-	FiGitBranch,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiLink,
-	FiLock,
-	FiSettings,
-	FiShield,
-	FiTarget,
-	FiTrendingUp,
-	FiUsers,
-	FiZap,
-} from '../icons';
+import { FlowUIService } from '../services/flowUIService';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
-const Container = styled.div`
-	max-width: 1400px;
-	margin: 0 auto;
-	padding: 2rem;
-`;
+// V9 Components
+const ContentWrapper = FlowUIService.getContentWrapper();
+const MainCard = FlowUIService.getMainCard();
+const V9InfoBox = FlowUIService.getInfoBox();
+
+// V9 Fluid Layout - no hardcoded max-width
 
 const Header = styled.div`
 	text-align: center;
@@ -907,7 +889,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					</InfoBox>
 				</Card>
 			</CollapsibleHeader>
-		</Container>
+		</ContentWrapper>
 	);
 };
 

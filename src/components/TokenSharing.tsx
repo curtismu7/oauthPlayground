@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { tokenLifecycleManager } from '../utils/tokenLifecycle';
 import { getOAuthTokens } from '../utils/tokenStorage';
@@ -201,11 +201,7 @@ const TokenSharing: React.FC = () => {
 		Array<{ id: string; flowType: string; flowName: string; isExpired: boolean }>
 	>([]);
 
-	useEffect(() => {
-		loadAvailableTokens();
-	}, [loadAvailableTokens]);
-
-	const loadAvailableTokens = () => {
+	const loadAvailableTokens = useCallback(() => {
 		const tokens = tokenLifecycleManager.getAllTokenLifecycleInfo();
 		setAvailableTokens(
 			tokens.map((token) => ({
@@ -215,7 +211,11 @@ const TokenSharing: React.FC = () => {
 				isExpired: token.isExpired,
 			}))
 		);
-	};
+	}, []); // tokenLifecycleManager is stable, no need for dependency
+
+	useEffect(() => {
+		loadAvailableTokens();
+	}, [loadAvailableTokens]);
 
 	const handleExport = () => {
 		if (!selectedTokenId) {

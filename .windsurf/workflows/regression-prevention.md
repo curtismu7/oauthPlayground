@@ -46,8 +46,25 @@ This workflow ensures all code changes follow the regression prevention process 
 **Actions**:
 1. **Add Update Log Entry** to UPDATE_LOG_AND_REGRESSION_PLAN.md:
    ```markdown
-   - **[Feature Name] (YYYY-MM-DD)**
-     - **What:** Brief description of what was wrong
+   ### [Feature Name]: [Brief Description] (YYYY-MM-DD)
+   - **What:** Brief description of what was wrong
+   - **Fix:** How you fixed it (technical details)
+   - **Files:** List of files modified
+   - **Regression check:** How to verify the fix works
+   ```
+2. **Add Regression Checklist Item** if applicable:
+   - Find the appropriate section in Section 4
+   - Add a new checklist item for your changes
+   - Reference your Update log entry
+3. **Update Quick Regression Checklist** if needed:
+   - Add new item to Section 5 if it's a common check
+   - Include verification steps
+
+**Verification**:
+- [ ] Update log entry added with all required fields
+- [ ] Regression checklist item added (if applicable)
+- [ ] Quick regression checklist updated (if needed)
+- [ ] Documentation is clear and actionable
      - **Cause:** Why it happened
      - **Fix:** What was changed and where
      - **Files:** List of affected files

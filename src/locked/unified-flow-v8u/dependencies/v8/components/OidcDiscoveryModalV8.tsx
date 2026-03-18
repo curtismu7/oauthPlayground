@@ -132,6 +132,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 								Issuer
 							</label>
 							<button
+								type="button"
 								onClick={() => handleCopy(result.issuer, 'issuer')}
 								style={{
 									padding: '4px 8px',
@@ -190,6 +191,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 										>
 											<small style={{ color: '#666', fontWeight: '600' }}>Authorization</small>
 											<button
+												type="button"
 												onClick={() => handleCopy(result.authorizationEndpoint!, 'authz')}
 												style={{
 													padding: '2px 6px',
@@ -232,6 +234,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 										>
 											<small style={{ color: '#666', fontWeight: '600' }}>Token</small>
 											<button
+												type="button"
 												onClick={() => handleCopy(result.tokenEndpoint!, 'token')}
 												style={{
 													padding: '2px 6px',
@@ -274,6 +277,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 										>
 											<small style={{ color: '#666', fontWeight: '600' }}>User Info</small>
 											<button
+												type="button"
 												onClick={() => handleCopy(result.userInfoEndpoint!, 'userinfo')}
 												style={{
 													padding: '2px 6px',
@@ -323,6 +327,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 									Supported Scopes
 								</label>
 								<button
+									type="button"
 									onClick={() => handleCopy(result.scopesSupported!.join(' '), 'scopes')}
 									style={{
 										padding: '4px 8px',
@@ -371,6 +376,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 									Supported Response Types
 								</label>
 								<button
+									type="button"
 									onClick={() =>
 										handleCopy(result.responseTypesSupported!.join(' '), 'responseTypes')
 									}
@@ -408,6 +414,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 				{/* Actions */}
 				<div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
 					<button
+						type="button"
 						onClick={onClose}
 						style={{
 							padding: '8px 16px',
@@ -426,6 +433,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 						Close
 					</button>
 					<button
+						type="button"
 						onClick={() => {
 							onApply(result);
 							onClose();

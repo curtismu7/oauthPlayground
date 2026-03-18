@@ -145,7 +145,7 @@ const ErrorMessage = styled.div`
 export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 	token,
 	tokenType = 'Access Token',
-	onCopy,
+	_onCopy,
 	copyLabel,
 	showTokenType = true,
 	showExpiry = true,

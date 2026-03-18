@@ -160,6 +160,7 @@ export const SettingsPage: React.FC = () => {
 					style={{ borderColor: currentTheme.colors.border }}
 				>
 					<button
+						type="button"
 						onClick={handleSaveSettings}
 						className="px-6 py-2 rounded font-medium"
 						style={{
@@ -170,6 +171,7 @@ export const SettingsPage: React.FC = () => {
 						Save Settings
 					</button>
 					<button
+						type="button"
 						onClick={handleResetSettings}
 						className="px-6 py-2 rounded font-medium"
 						style={{

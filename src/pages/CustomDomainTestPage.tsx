@@ -114,7 +114,13 @@ export default function CustomDomainTestPage() {
 
 	// Handler for worker token modal
 	const handleWorkerTokenClick = useCallback(async () => {
-		await handleShowWorkerTokenModal(setShowWorkerTokenModal);
+		await handleShowWorkerTokenModal(
+			setShowWorkerTokenModal,
+			undefined,
+			undefined,
+			undefined,
+			true
+		);
 	}, []);
 
 	useEffect(() => {
@@ -299,9 +305,9 @@ export default function CustomDomainTestPage() {
 										}}
 									>
 										{tokenStatus.status === 'valid'
-											? `Valid · ${tokenStatus.minutesRemaining ?? 0}m left`
+											? `Valid · ${tokenStatus.minutesRemaining ? `${tokenStatus.minutesRemaining}m` : '<1m'} left`
 											: tokenStatus.status === 'expiring-soon'
-												? `Expiring · ${tokenStatus.minutesRemaining ?? 0}m left`
+												? `Expiring · ${tokenStatus.minutesRemaining ? `${tokenStatus.minutesRemaining}m` : '<1m'} left`
 												: tokenStatus.status === 'expired'
 													? 'Expired'
 													: 'No token'}

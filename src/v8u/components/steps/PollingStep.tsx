@@ -134,6 +134,7 @@ export const PollingStep: React.FC<{
 				<div style={{ display: 'flex', gap: '0.5rem' }}>
 					{!isPolling && !isCompleted && (
 						<button
+							type="button"
 							onClick={startPolling}
 							style={{
 								padding: '0.5rem 1rem',
@@ -150,6 +151,7 @@ export const PollingStep: React.FC<{
 
 					{isPolling && (
 						<button
+							type="button"
 							onClick={stopPolling}
 							style={{
 								padding: '0.5rem 1rem',
