@@ -1917,6 +1917,27 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Popout window: `logger is not defined`** — Replaced `logger.info` with `console.log` in injected script in `SuperSimpleApiDisplayV8.tsx`.
 - **AppDiscoveryModalV8U: button inside button (validateDOMNesting)** — Backdrop is `<div role="presentation">`, not `<button>`; modal also portaled to body.
 
+**2026-03-18: Sidebar MDI icons — subset mismatch causing invisible/question-mark icons**
+
+- **What:** Several GROUP_ICON entries in `SidebarMenuPing.tsx` mapped to MDI icon names not present in the custom font subset (`materialdesignicons-subset.woff2`). Affected: `robot`, `flash`, `code-tags`, `tool`, `key-chain`, `lock`, `book-open-variant`, `account-cog`, `account-key`, `alert-box`, `alert-circle-outline`, `folder-outline`, `page-next-outline`. These rendered as blank/tofu boxes.
+- **Fix:** Replaced all icon names with equivalents that ARE in the subset: `face-agent` (AI groups), `lightning-bolt` (production flows), `code-braces` (developer tools), `auto-fix` (flow tools), `usb-flash-drive` (tokens), `cellphone-key` (OAuth mock), `account-key-outline` (OIDC mock), `alert` (mock flows), `alert-circle` (unsupported flows), `book-open-page-variant` (docs), `settings` (admin). `DEFAULT_ITEM_ICON` changed from `page-next-outline` → `flag`.
+- **Files:** `src/components/SidebarMenuPing.tsx`
+- **Regression check:** Open sidebar → all group headers show a visible icon. AI & Identity group shows face-agent icon. No blank squares.
+
+**2026-03-18: Sidebar DragModeToggle — bi-question-circle replaced with bi-grip-vertical**
+
+- **What:** DragModeToggle button in `Sidebar.tsx` used `bi bi-question-circle` (literally a question mark icon) for the drag-to-reorder button. This confused users who saw a question mark icon.
+- **Fix:** Changed to `bi bi-grip-vertical` (three-dot grip handle), the semantic Bootstrap Icons icon for drag/reorder.
+- **Files:** `src/components/Sidebar.tsx`
+- **Regression check:** Open sidebar → Reorder/Drag Mode toggle button shows a grip/handle icon, not a question mark.
+
+**2026-03-18: vite.config.ts + main.tsx — multiple React copies OOM fix (applied to cleanup branch)**
+
+- **What:** `React: 'window.React'` in vite.config.ts `define` caused Vite to pre-bundle React into multiple dep chunks, tripling baseline heap usage and triggering Chrome "Aw, Snap!" (Error code 5) on OOM.
+- **Fix:** Removed `React: 'window.React'` from `define`. Added `resolve.dedupe: ['react', 'react-dom', 'react-dom/client', 'react-router-dom']` to force single module resolution. In `main.tsx`, removed the `window.React = React` / `window.ReactDOM = ReactDOM` global assignments (only needed for the now-removed define config). Cleared `node_modules/.vite/deps` cache.
+- **Files:** `vite.config.ts`, `src/main.tsx`
+- **Regression check:** Hard-reload app → no "Cannot read properties of null (reading 'useRef')" in console; no Chrome OOM crash on pages with heavy flows like MCP Server.
+
 ---
 
 ## 4. Regression Checklist (Do Not Break)
