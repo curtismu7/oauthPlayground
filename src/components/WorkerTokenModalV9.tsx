@@ -338,11 +338,11 @@ const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
 		onClose();
 	}, [navigate, onClose]);
 	/** Normalize scopes to array (storage may return string). */
-	const normalizeScopes = (scopes: string[] | string | undefined): string[] => {
+	const normalizeScopes = useCallback((scopes: string[] | string | undefined): string[] => {
 		if (Array.isArray(scopes)) return scopes;
 		if (typeof scopes === 'string' && scopes.trim()) return scopes.trim().split(/\s+/);
 		return [];
-	};
+	}, []);
 
 	// State
 	const [credentials, setCredentials] = useState<{
