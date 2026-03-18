@@ -148,7 +148,7 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 ];
 
 // ─── AUTO-GENERATED: live scan items — do not edit manually ───
-// Last updated: 2026-03-18T12:57:33.763Z
+// Last updated: 2026-03-18T13:04:03.791Z
 
 const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 	{
