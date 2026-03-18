@@ -35,6 +35,7 @@ export const RedirectUriEducationButton: React.FC<RedirectUriEducationButtonProp
 
 	return (
 		<button
+			type="button"
 			onClick={openEducationalModal}
 			disabled={isLoading || !flowInfo}
 			style={getButtonStyle()}

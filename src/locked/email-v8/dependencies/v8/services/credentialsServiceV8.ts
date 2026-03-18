@@ -22,6 +22,8 @@
  * CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
  */
 
+import { logger } from '../../../../../utils/logger';
+
 const MODULE_TAG = '[💾 CREDENTIALS-SERVICE-V8]';
 const ENABLE_CREDENTIALS_DEBUG_LOGGING = false;
 
@@ -554,7 +556,6 @@ export class CredentialsServiceV8 {
 			return parsed;
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Error importing credentials`, { error });
-			import { logger } from '../../../../../utils/logger';
 			throw new Error(
 				`Failed to import credentials: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);

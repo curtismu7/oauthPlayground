@@ -23,11 +23,11 @@ import {
 } from '../services/pingoneUserClient.js';
 
 const getUserInputShape = {
-	environmentId: z.string().trim().optional(),
+	environmentId: z.string().trim().optional().describe('Leave blank — uses credentials loaded from the playground app storage. Call pingone_show_stored_config to verify.'),
 	userId: z.string().trim().min(1, 'userId is required'),
-	workerToken: z.string().trim().optional(),
-	clientId: z.string().trim().optional(),
-	clientSecret: z.string().trim().optional(),
+	workerToken: z.string().trim().optional().describe('Leave blank — server will auto-fetch a token using stored credentials.'),
+	clientId: z.string().trim().optional().describe('Leave blank — uses client_id loaded from the playground app storage.'),
+	clientSecret: z.string().trim().optional().describe('Leave blank — uses client_secret loaded from the playground app storage.'),
 	region: z.string().trim().optional(),
 } as const;
 
@@ -39,10 +39,10 @@ const getUserOutputShape = {
 } as const;
 
 const listUsersInputShape = {
-	environmentId: z.string().trim().optional(),
-	workerToken: z.string().trim().optional(),
-	clientId: z.string().trim().optional(),
-	clientSecret: z.string().trim().optional(),
+	environmentId: z.string().trim().optional().describe('Leave blank — uses credentials loaded from the playground app storage. Call pingone_show_stored_config to verify.'),
+	workerToken: z.string().trim().optional().describe('Leave blank — server will auto-fetch a token using stored credentials.'),
+	clientId: z.string().trim().optional().describe('Leave blank — uses client_id loaded from the playground app storage.'),
+	clientSecret: z.string().trim().optional().describe('Leave blank — uses client_secret loaded from the playground app storage.'),
 	region: z.string().trim().optional(),
 	filter: z.string().trim().optional(),
 	limit: z.number().int().min(1).max(200).optional(),

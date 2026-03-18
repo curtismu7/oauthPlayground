@@ -9,7 +9,7 @@ import { buildToolErrorResult } from '../services/mcpErrors.js';
 import { getOidcConfig as getOidcConfigApi, getOidcDiscovery as getOidcDiscoveryApi } from '../services/pingoneOidcClient.js';
 
 const oidcConfigInputShape = {
-	environmentId: z.string().trim().min(1, 'environmentId is required'),
+	environmentId: z.string().trim().optional().describe('Leave blank — uses environmentId loaded from the playground app storage or PINGONE_ENVIRONMENT_ID env var.'),
 	region: z.string().trim().optional(),
 } as const;
 
@@ -44,7 +44,17 @@ export function registerOidcTools(server: McpServer, logger: Logger): void {
 			logger.info('Fetching OIDC config', { environmentId: args.environmentId, region: args.region });
 			try {
 				const parsed = z.object(oidcConfigInputShape).parse(args);
-				const result = await getOidcConfigApi(parsed);
+			const resolvedEnvId =
+				parsed.environmentId ??
+				process.env.PINGONE_ENVIRONMENT_ID ??
+				process.env.VITE_PINGONE_ENVIRONMENT_ID;
+			if (!resolvedEnvId) {
+				return {
+					content: [{ type: 'text' as const, text: 'environmentId is required. Save credentials in the playground app or set PINGONE_ENVIRONMENT_ID.' }],
+					structuredContent: { success: false, error: { message: 'environmentId not found in args or storage/env' } },
+				};
+			}
+			const result = await getOidcConfigApi({ ...parsed, environmentId: resolvedEnvId });
 				const structured = {
 					success: result.success,
 					config: result.config,

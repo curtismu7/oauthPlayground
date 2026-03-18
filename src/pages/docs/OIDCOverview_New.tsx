@@ -591,6 +591,7 @@ const OIDCOverviewNew = () => {
 									</div>
 
 									<button
+										type="button"
 										onClick={() => setExpandedFlow(expandedFlow === flow.id ? null : flow.id)}
 										style={{
 											width: '100%',

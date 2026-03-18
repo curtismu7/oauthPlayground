@@ -2448,6 +2448,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								</div>
 							</div>
 							<button
+								type="button"
 								onClick={() => setShowAuthErrorModal(false)}
 								style={{
 									background: 'none',
@@ -2510,6 +2511,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							}}
 						>
 							<button
+								type="button"
 								onClick={() => setShowAuthErrorModal(false)}
 								style={{
 									padding: '0.75rem 1.5rem',
@@ -2524,6 +2526,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								Close
 							</button>
 							<button
+								type="button"
 								onClick={() => {
 									setShowAuthErrorModal(false);
 									if (onGenerateWorkerToken) {
@@ -2582,6 +2585,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								</div>
 							</div>
 							<button
+								type="button"
 								onClick={() => setShowCreationResultModal(false)}
 								style={{
 									background: 'none',
@@ -2688,6 +2692,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							}}
 						>
 							<button
+								type="button"
 								onClick={() => setShowCreationResultModal(false)}
 								style={{
 									padding: '0.75rem 1.5rem',
@@ -2702,6 +2707,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								Close
 							</button>
 							<button
+								type="button"
 								onClick={() => {
 									setShowCreationResultModal(false);
 									// Copy client ID to clipboard

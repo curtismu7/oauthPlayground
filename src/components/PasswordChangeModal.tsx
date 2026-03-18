@@ -195,8 +195,8 @@ interface PasswordChangeModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	onPasswordChange: (oldPassword: string, newPassword: string) => Promise<void>;
-	userId?: string | undefined;
-	environmentId?: string | undefined;
+	_userId?: string | undefined;
+	_environmentId?: string | undefined;
 	message?: string;
 }
 
@@ -204,8 +204,8 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 	isOpen,
 	onClose,
 	onPasswordChange,
-	userId,
-	environmentId,
+	_userId,
+	_environmentId,
 	message,
 }) => {
 	const [oldPassword, setOldPassword] = useState('');

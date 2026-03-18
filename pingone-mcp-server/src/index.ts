@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { registerAuthTools } from './actions/auth.js';
+import { registerConfigTools } from './actions/config.js';
 import { registerDeviceAuthTools } from './actions/deviceAuth.js';
 import { registerIntrospectTools } from './actions/introspect.js';
 import { registerTokenUtilsTools } from './actions/tokenUtils.js';
@@ -29,11 +30,12 @@ async function main() {
 	const server = new McpServer(
 		{ name: 'pingone-mcp-server', version: '0.1.0' },
 		{
-			capabilities: { tools: { listChanged: true }, resources: { listChanged: true } },
+			capabilities: { tools: { listChanged: true }, resources: { listChanged: true }, prompts: { listChanged: true } },
 			debouncedNotificationMethods: ['notifications/tools/list_changed', 'notifications/resources/list_changed'],
 		}
 	);
 	registerAuthTools(server, logger);
+	registerConfigTools(server, logger);
 	registerTrainingModule(server, logger);
 	registerWorkerTools(server, logger);
 	registerUserTools(server, logger);

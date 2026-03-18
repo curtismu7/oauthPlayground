@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
+import { usePageScroll } from '@/hooks/usePageScroll';
+import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import { Card, CardBody } from '../components/Card';
 import { PingIcon } from '../components/PingIcon';
 import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';
@@ -87,32 +89,32 @@ const StatusBadge = styled.button<{ $status: 'supported' | 'not-supported' | 'pa
 		switch ($status) {
 			case 'supported':
 				return `
-          background-color: V9_COLORS.BG.SUCCESS;
-          color: V9_COLORS.PRIMARY.GREEN;
+          background-color: ${V9_COLORS.BG.SUCCESS};
+          color: ${V9_COLORS.PRIMARY.GREEN};
           &:hover {
-            background-color: V9_COLORS.BG.SUCCESS_BORDER;
+            background-color: ${V9_COLORS.BG.SUCCESS_BORDER};
             transform: scale(1.02);
             box-shadow: 0 2px 8px rgba(22, 101, 52, 0.2);
           }
         `;
 			case 'not-supported':
 				return `
-          background-color: V9_COLORS.BG.ERROR;
-          color: V9_COLORS.PRIMARY.RED_DARK;
+          background-color: ${V9_COLORS.BG.ERROR};
+          color: ${V9_COLORS.PRIMARY.RED_DARK};
           &:hover {
-            background-color: V9_COLORS.BG.ERROR_BORDER;
+            background-color: ${V9_COLORS.BG.ERROR_BORDER};
             transform: scale(1.02);
             box-shadow: 0 2px 8px rgba(153, 27, 27, 0.2);
           }
         `;
 			case 'partial':
 				return `
-          background-color: V9_COLORS.BG.WARNING;
-          color: V9_COLORS.PRIMARY.YELLOW_DARK;
-          border: 2px solid V9_COLORS.PRIMARY.YELLOW_DARK;
+          background-color: ${V9_COLORS.BG.WARNING};
+          color: ${V9_COLORS.PRIMARY.YELLOW_DARK};
+          border: 2px solid ${V9_COLORS.PRIMARY.YELLOW_DARK};
           box-shadow: 0 2px 4px rgba(217, 119, 6, 0.1);
           &:hover {
-            background-color: V9_COLORS.BG.WARNING_BORDER;
+            background-color: ${V9_COLORS.BG.WARNING_BORDER};
             transform: scale(1.02);
             box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
             border-color: #b45309;
@@ -127,7 +129,7 @@ const StatusBadge = styled.button<{ $status: 'supported' | 'not-supported' | 'pa
 	}
 
 	&:focus {
-		outline: 2px solid V9_COLORS.PRIMARY.BLUE;
+		outline: 2px solid ${V9_COLORS.PRIMARY.BLUE};
 		outline-offset: 2px;
 	}
 `;
@@ -162,7 +164,7 @@ const PopupContent = styled.div`
 		margin: 0 0 1rem 0;
 		font-size: 1.25rem;
 		font-weight: 600;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: ${V9_COLORS.TEXT.GRAY_DARK};
 	}
 
 	p {
@@ -190,11 +192,11 @@ const CloseButton = styled.button`
 	border: none;
 	font-size: 1.5rem;
 	cursor: pointer;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 	padding: 0.25rem;
 
 	&:hover {
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: ${V9_COLORS.TEXT.GRAY_DARK};
 	}
 `;
 
@@ -364,15 +366,15 @@ const CollapsibleHeader = styled.button`
 	align-items: center;
 	justify-content: space-between;
 	padding: 1rem 1.5rem;
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.5rem;
 	cursor: pointer;
 	transition: all 0.2s ease;
 	margin-bottom: 0.5rem;
 
 	&:hover {
-		background: V9_COLORS.BG.GRAY_MEDIUM;
+		background: ${V9_COLORS.BG.GRAY_MEDIUM};
 		border-color: #cbd5e1;
 	}
 
@@ -385,14 +387,14 @@ const CollapsibleHeader = styled.button`
 		margin: 0;
 		font-size: 1.5rem;
 		font-weight: 600;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		color: ${V9_COLORS.TEXT.GRAY_DARK};
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
 	}
 
 	svg {
-		color: V9_COLORS.TEXT.GRAY_MEDIUM;
+		color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 		transition: transform 0.2s ease;
 	}
 `;
@@ -408,7 +410,7 @@ const CollapsibleContent = styled.div<{ $isOpen: boolean }>`
 const pageConfig = {
 	flowType: 'pingone' as const,
 	theme: 'red' as const,
-	maxWidth: '1400px',
+	maxWidth: '90rem',
 	showHeader: false,
 	showFooter: false,
 	responsive: true,
@@ -417,6 +419,8 @@ const pageConfig = {
 const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
 const AIAgentOverview = () => {
+	usePageScroll();
+
 	// State for collapsible sections (only for inner comparison table)
 	const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
 		comparisonTable: true, // Add state for the inner comparison table - expanded by default
@@ -943,8 +947,7 @@ const AIAgentOverview = () => {
 										onClick={() => toggleSection('comparisonTable')}
 										style={{
 											padding: '1rem',
-											background:
-												'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
+											background: `linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.TEXT.GRAY_LIGHTER} 100%)`,
 											borderRadius: '0.5rem',
 											border: '1px solid #cbd5e1',
 											marginBottom: expandedSections.comparisonTable ? '1rem' : '0',

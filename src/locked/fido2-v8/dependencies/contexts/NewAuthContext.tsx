@@ -963,7 +963,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							}
 
 							// Determine correct return path based on flow version
-							let returnPath;
+							let returnPath: any;
 							if (isV7Flow) {
 								const isV7_2 =
 									parsed?.flow === 'oauth-authorization-code-v7-2' ||
@@ -1380,7 +1380,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							}
 
 							// Determine correct return path based on flow version
-							let returnPath;
+							let returnPath: any;
 							if (isV7Flow) {
 								// For V7 flows, redirect directly to the flow page (they handle auth code themselves)
 								logger.info(
@@ -1600,7 +1600,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					let errorMessage = `Token exchange failed: ${errorText}`;
 
 					// Parse error response for better user guidance
-					let parsedError;
+					let parsedError: any;
 					try {
 						parsedError = JSON.parse(errorText);
 					} catch (_e) {

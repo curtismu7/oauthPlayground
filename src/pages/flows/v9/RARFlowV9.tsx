@@ -71,7 +71,7 @@ const TEXT_SECONDARY = V9_COLORS.TEXT.GRAY_MEDIUM;
 
 // Custom responsive container for RAR flow with V9 colors
 const ResponsiveContainer = styled(Container)`
-	max-width: 1200px;
+	max-width: 90rem;
 	margin: 0 auto;
 	padding: 1rem;
 	border: 1px solid ${BORDER};

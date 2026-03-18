@@ -9,7 +9,7 @@
  * Supports in-memory storage and file export
  */
 
-import { logger } from '../utils/logger';
+import { logger as baseLogger } from '../utils/logger';
 export enum LogLevel {
 	ERROR = 0,
 	WARN = 1,
@@ -119,16 +119,16 @@ class LoggingService {
 
 		switch (entry.level) {
 			case LogLevel.ERROR:
-				logger.error(message, entry.data);
+				baseLogger.error(message, entry.data);
 				break;
 			case LogLevel.WARN:
-				logger.warn(message, entry.data);
+				baseLogger.warn(message, entry.data);
 				break;
 			case LogLevel.INFO:
-				logger.info(message, entry.data);
+				baseLogger.info(message, entry.data);
 				break;
 			case LogLevel.DEBUG:
-				logger.debug(message, entry.data);
+				baseLogger.debug(message, entry.data);
 				break;
 		}
 	}

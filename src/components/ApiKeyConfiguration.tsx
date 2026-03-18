@@ -104,8 +104,8 @@ const StatusIndicator = styled.span<{ $hasBackup: boolean }>`
 	border-radius: 4px;
 	font-size: 11px;
 	font-weight: 500;
-	background: ${(props) => (props.$hasBackup ? V9_COLORS.SUCCESS.LIGHT : V9_COLORS.ERROR.LIGHT)};
-	color: ${(props) => (props.$hasBackup ? V9_COLORS.SUCCESS.DARK : V9_COLORS.ERROR.DARK)};
+	background: ${(props) => (props.$hasBackup ? V9_COLORS.BG.SUCCESS : V9_COLORS.BG.ERROR)};
+	color: ${(props) => (props.$hasBackup ? V9_COLORS.PRIMARY.GREEN_DARK : V9_COLORS.PRIMARY.RED_DARK)};
 `;
 
 const BackupActions = styled.div`

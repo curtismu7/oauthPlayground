@@ -404,6 +404,7 @@ export class UnifiedTokenStorageService {
 				'v8_storage',
 				'v8_credentials',
 				'v8u_pkce',
+				'api_key',
 			];
 
 			if (!validTokenTypes.includes(token.type)) {

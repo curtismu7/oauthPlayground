@@ -317,20 +317,6 @@ const AuthzCallback: React.FC = () => {
 						}, 2000);
 						return;
 					}
-
-					// For OAuth V3 flows, we should ONLY handle popups, not full redirects
-					// OAuth V3 full redirects should be handled by the OAuth V3 flow itself
-					if (isOAuthV3) {
-						logger.info(
-							' [AuthzCallback] OAuth V3 flow should only use popup authorization',
-							'Logger info'
-						);
-						setStatus('error');
-						setMessage(
-							'OAuth V3 flow detected but not in popup mode. Please use popup authorization.'
-						);
-						return;
-					}
 				}
 
 				// For non-popup flows, check if this is an Enhanced V3 or OAuth V3 flow that should defer token exchange

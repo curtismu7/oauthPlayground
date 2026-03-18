@@ -166,7 +166,7 @@ const MetaRow = styled.div`
 const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout({
 	flowType: 'pingone' as const,
 	theme: 'red' as const,
-	maxWidth: '1200px',
+	maxWidth: '90rem',
 	showHeader: false,
 	showFooter: false,
 	responsive: true,

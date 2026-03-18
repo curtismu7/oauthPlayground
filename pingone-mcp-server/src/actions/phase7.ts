@@ -99,7 +99,7 @@ export function registerPhase7Tools(server: McpServer, logger: Logger): void {
 
 	// --- risk evaluation (not implemented: no real PingOne Protect API call) ---
 	const riskInput = {
-		environmentId: z.string().trim().min(1, 'environmentId is required'),
+		environmentId: z.string().trim().optional().describe('Leave blank — uses environmentId loaded from the playground app storage or PINGONE_ENVIRONMENT_ID env var.'),
 		riskEvent: z.record(z.unknown()),
 		workerToken: z.string().trim().optional(),
 	} as const;
@@ -127,7 +127,12 @@ export function registerPhase7Tools(server: McpServer, logger: Logger): void {
 			logger.info('Risk evaluation (not implemented)', { environmentId: args.environmentId });
 			try {
 				const parsed = z.object(riskInput).parse(args);
-				const result = await evaluateRiskApi(parsed);
+				const resolvedEnvId =
+					parsed.environmentId ??
+					process.env.PINGONE_ENVIRONMENT_ID ??
+					process.env.VITE_PINGONE_ENVIRONMENT_ID ??
+					'';
+				const result = await evaluateRiskApi({ ...parsed, environmentId: resolvedEnvId });
 				const text = result.success
 					? `Risk: ${result.result?.level} (score ${result.result?.score}), action: ${result.result?.recommendedAction}. ${JSON.stringify(result, null, 2)}`
 					: `Not implemented: ${result.error?.message ?? 'Unknown'}`;
@@ -144,7 +149,7 @@ export function registerPhase7Tools(server: McpServer, logger: Logger): void {
 
 	// --- token exchange ---
 	const tokenExchangeInput = {
-		environmentId: z.string().trim().min(1, 'environmentId is required'),
+		environmentId: z.string().trim().optional().describe('Leave blank — uses environmentId loaded from the playground app storage or PINGONE_ENVIRONMENT_ID env var.'),
 		region: z.string().trim().optional(),
 		body: z.string().trim().min(1, 'body (URL-encoded token request) is required'),
 		authMethod: z.enum(['client_secret_post', 'client_secret_basic']).optional(),
@@ -172,7 +177,12 @@ export function registerPhase7Tools(server: McpServer, logger: Logger): void {
 			logger.info('Token exchange', { environmentId: args.environmentId });
 			try {
 				const parsed = z.object(tokenExchangeInput).parse(args);
-				const result = await tokenExchangeApi(parsed);
+				const resolvedEnvId =
+					parsed.environmentId ??
+					process.env.PINGONE_ENVIRONMENT_ID ??
+					process.env.VITE_PINGONE_ENVIRONMENT_ID ??
+					'';
+				const result = await tokenExchangeApi({ ...parsed, environmentId: resolvedEnvId });
 				const text = result.success
 					? `Tokens received. access_token: ${result.accessToken ? '...' + result.accessToken.slice(-8) : 'none'}. ${JSON.stringify({ tokenType: result.tokenType, expiresIn: result.expiresIn }, null, 2)}`
 					: `Failed: ${result.error?.message ?? 'Unknown'}`;

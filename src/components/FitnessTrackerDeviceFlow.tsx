@@ -294,9 +294,9 @@ interface FitnessTrackerDeviceFlowProps {
 
 const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
 	state,
-	onStateUpdate,
-	onComplete,
-	onError,
+	_onStateUpdate,
+	_onComplete,
+	_onError,
 }) => {
 	const [currentTime, setCurrentTime] = useState(new Date());
 

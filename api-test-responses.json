@@ -1,0 +1,402 @@
+{
+  "timestamp": "2026-03-17T15:25:36.365Z",
+  "baseUrl": "https://localhost:3001",
+  "responses": [
+    {
+      "endpoint": "/api/pingone/token",
+      "method": "POST",
+      "httpStatus": 400,
+      "responseTime": 305,
+      "timestamp": "2026-03-17T15:25:36.671Z",
+      "response": {
+        "error": "invalid_scope",
+        "error_description": "Request failed: At least one scope must be granted (Correlation ID: a470c568-3492-4141-bc63-92f01b0b1e54)"
+      }
+    },
+    {
+      "endpoint": "/api/health",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 15,
+      "timestamp": "2026-03-17T15:25:36.686Z",
+      "response": {
+        "status": "ok",
+        "timestamp": "2026-03-17T15:25:36.685Z",
+        "version": "9.16.8",
+        "versions": {
+          "app": "9.16.8",
+          "mfaV8": "9.16.8",
+          "unifiedV8u": "9.16.8"
+        },
+        "pid": 16668,
+        "startTime": "2026-03-17T15:19:53.054Z",
+        "uptimeSeconds": 343,
+        "environment": "development",
+        "node": {
+          "version": "v22.16.0",
+          "platform": "darwin",
+          "arch": "arm64"
+        },
+        "memory": {
+          "rss": 82853888,
+          "heapTotal": 19087360,
+          "heapUsed": 16101512,
+          "external": 3700578,
+          "arrayBuffers": 96390
+        },
+        "systemMemory": {
+          "total": 68719476736,
+          "free": 67108864,
+          "used": 68652367872
+        },
+        "loadAverage": [
+          19.2685546875,
+          16.27978515625,
+          14.64990234375
+        ],
+        "cpuUsage": {
+          "avg1mPercent": 0,
+          "avg5mPercent": 0,
+          "avg15mPercent": 0
+        },
+        "requestStats": {
+          "totalRequests": 0,
+          "activeConnections": 0,
+          "avgResponseTime": 0,
+          "errorRate": 0
+        }
+      }
+    },
+    {
+      "endpoint": "/api-status",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 26,
+      "timestamp": "2026-03-17T15:25:36.714Z",
+      "response": {
+        "status": "ok",
+        "timestamp": "2026-03-17T15:25:36.712Z",
+        "version": "9.16.8",
+        "versions": {
+          "app": "9.16.8",
+          "mfaV8": "9.16.8",
+          "unifiedV8u": "9.16.8"
+        },
+        "pid": 16668,
+        "startTime": "2026-03-17T15:19:53.054Z",
+        "uptimeSeconds": 343,
+        "environment": "development",
+        "node": {
+          "version": "v22.16.0",
+          "platform": "darwin",
+          "arch": "arm64"
+        },
+        "memory": {
+          "rss": 91242496,
+          "heapTotal": 19087360,
+          "heapUsed": 16391952,
+          "external": 3700578,
+          "arrayBuffers": 96390
+        },
+        "systemMemory": {
+          "total": 68719476736,
+          "free": 70664192,
+          "used": 68648812544
+        },
+        "loadAverage": [
+          19.2685546875,
+          16.27978515625,
+          14.64990234375
+        ],
+        "cpuUsage": {
+          "avg1mPercent": 0,
+          "avg5mPercent": 0,
+          "avg15mPercent": 0
+        },
+        "requestStats": {
+          "totalRequests": 0,
+          "activeConnections": 0,
+          "avgResponseTime": 0,
+          "errorRate": 0
+        }
+      }
+    },
+    {
+      "endpoint": "/api/version",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 17,
+      "timestamp": "2026-03-17T15:25:36.731Z",
+      "response": {
+        "app": "9.16.8",
+        "mfaV8": "9.16.8",
+        "unifiedV8u": "9.16.8"
+      }
+    },
+    {
+      "endpoint": "/api/debug",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 13,
+      "timestamp": "2026-03-17T15:25:36.744Z",
+      "response": {
+        "message": "Debug endpoint working",
+        "timestamp": "2026-03-17T15:25:36.743Z"
+      }
+    },
+    {
+      "endpoint": "/api/settings/custom-domain",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 13,
+      "timestamp": "2026-03-17T15:25:36.757Z",
+      "response": {
+        "domain": "api.pingdemo.com"
+      }
+    },
+    {
+      "endpoint": "/api/settings/environment-id",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 10,
+      "timestamp": "2026-03-17T15:25:36.767Z",
+      "response": {
+        "value": "b9817c16-9910-4415-b67e-4ac687da74d9"
+      }
+    },
+    {
+      "endpoint": "/api/settings/region",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 15,
+      "timestamp": "2026-03-17T15:25:36.782Z",
+      "response": {
+        "value": "us"
+      }
+    },
+    {
+      "endpoint": "/api/settings/debug-log-viewer",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 11,
+      "timestamp": "2026-03-17T15:25:36.793Z",
+      "response": {
+        "lastSelectedFile": "\"server.log\""
+      }
+    },
+    {
+      "endpoint": "/api/file-storage/save",
+      "method": "POST",
+      "httpStatus": 200,
+      "responseTime": 14,
+      "timestamp": "2026-03-17T15:25:36.808Z",
+      "response": {
+        "success": true
+      }
+    },
+    {
+      "endpoint": "/api/file-storage/load",
+      "method": "POST",
+      "httpStatus": 200,
+      "responseTime": 13,
+      "timestamp": "2026-03-17T15:25:36.821Z",
+      "response": {
+        "success": true,
+        "data": {
+          "test": true,
+          "timestamp": "2026-03-17T15:25:36.794Z"
+        }
+      }
+    },
+    {
+      "endpoint": "/api/file-storage/delete",
+      "method": "DELETE",
+      "httpStatus": 200,
+      "responseTime": 12,
+      "timestamp": "2026-03-17T15:25:36.833Z",
+      "response": {
+        "success": true
+      }
+    },
+    {
+      "endpoint": "/api/api-key/groq",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 11,
+      "timestamp": "2026-03-17T15:25:36.844Z",
+      "response": {
+        "success": true,
+        "apiKey": "REDACTED_GROQ_KEY"
+      }
+    },
+    {
+      "endpoint": "/api/api-key/backup",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 9,
+      "timestamp": "2026-03-17T15:25:36.854Z",
+      "response": {
+        "success": false,
+        "message": "API key for backup not configured"
+      }
+    },
+    {
+      "endpoint": "/api/api-key/brave",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 10,
+      "timestamp": "2026-03-17T15:25:36.864Z",
+      "response": {
+        "success": false,
+        "message": "API key for brave not configured"
+      }
+    },
+    {
+      "endpoint": "/api/api-key/backup",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 13,
+      "timestamp": "2026-03-17T15:25:36.877Z",
+      "response": {
+        "success": false,
+        "message": "API key for backup not configured"
+      }
+    },
+    {
+      "endpoint": "/api/par",
+      "method": "POST",
+      "httpStatus": 401,
+      "responseTime": 98,
+      "timestamp": "2026-03-17T15:25:36.975Z",
+      "response": {
+        "error": "invalid_client",
+        "error_description": "Request denied: Unsupported authentication method (Correlation ID: 44f39636-7aa0-4df6-b633-88cbd60ce0ee)"
+      }
+    },
+    {
+      "endpoint": "/api/mcp/query",
+      "method": "POST",
+      "httpStatus": 200,
+      "responseTime": 18,
+      "timestamp": "2026-03-17T15:25:36.994Z",
+      "response": {
+        "success": false,
+        "answer": "I couldn't identify a specific PingOne operation in that query. Try asking to list applications, list users, list groups, fetch OIDC discovery, or get a worker token. Ask \"What can I do?\" for a full guide.",
+        "mcpTool": null,
+        "apiCall": null,
+        "howItWorks": null,
+        "data": null
+      }
+    },
+    {
+      "endpoint": "/api/logs/list",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 11,
+      "timestamp": "2026-03-17T15:25:37.005Z",
+      "response": [
+        {
+          "name": "server.log",
+          "size": 927443,
+          "modified": "2026-03-17T15:25:36.976Z",
+          "category": "server"
+        },
+        {
+          "name": "pingone-api.log",
+          "size": 6395528,
+          "modified": "2026-03-17T15:25:36.669Z",
+          "category": "other"
+        },
+        {
+          "name": "mcp-server.log",
+          "size": 555,
+          "modified": "2026-03-17T15:25:36.995Z",
+          "category": "mfa"
+        },
+        {
+          "name": "client.log",
+          "size": 27064,
+          "modified": "2026-03-17T15:19:53.078Z",
+          "category": "other"
+        },
+        {
+          "name": "authz-redirects.log",
+          "size": 38230,
+          "modified": "2026-03-17T15:19:53.078Z",
+          "category": "oauth"
+        },
+        {
+          "name": "ai-assistant.log",
+          "size": 121109,
+          "modified": "2026-03-17T15:25:36.995Z",
+          "category": "other"
+        },
+        {
+          "name": "startup.log",
+          "size": 7310,
+          "modified": "2026-03-16T14:32:00.053Z",
+          "category": "other"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/pingone/api-calls",
+      "method": "GET",
+      "httpStatus": 200,
+      "responseTime": 10,
+      "timestamp": "2026-03-17T15:25:37.015Z",
+      "response": {
+        "calls": [
+          {
+            "id": "backend-1773761136662-o551i1ylp",
+            "method": "POST",
+            "url": "https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/token",
+            "operationName": "Worker Token Request (client_credentials)",
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Accept": "application/json"
+            },
+            "body": "grant_type=client_credentials&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&client_secret=0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a&scope=p1%3Aread%3Auser%20p1%3Aupdate%3Auser%20p1%3Acreate%3Auser%20p1%3Adelete%3Auser%20p1%3Aread%3AuserPassword%20p1%3Areset%3AuserPassword",
+            "response": {
+              "status": 400,
+              "statusText": "Bad Request",
+              "headers": {
+                "access-control-allow-credentials": "true",
+                "access-control-allow-origin": "*",
+                "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+                "connection": "keep-alive",
+                "content-length": "164",
+                "content-type": "application/json;charset=UTF-8",
+                "correlation-id": "a470c568-3492-4141-bc63-92f01b0b1e54",
+                "date": "Tue, 17 Mar 2026 15:25:36 GMT",
+                "expires": "0",
+                "pragma": "no-cache",
+                "strict-transport-security": "max-age=31536000; includeSubDomains",
+                "via": "1.1 f268cf780887789c73b64489ab458dda.cloudfront.net (CloudFront)",
+                "x-amz-apigw-id": "aX7RqGMEiYcErPw=",
+                "x-amz-cf-id": "TslDA_trGUhJZRxAGQ1XXl5amVDvuB7UY6z_tPKsjvW0gJUUvegl7w==",
+                "x-amz-cf-pop": "DFW59-P6",
+                "x-amzn-requestid": "a470c568-3492-4141-bc63-92f01b0b1e54",
+                "x-amzn-trace-id": "Root=1-69b97270-46b20e7a094484e6507373be;Parent=1a4bfcb8a599ddec;Sampled=0;Lineage=1:4e17ef71:0",
+                "x-cache": "Error from cloudfront",
+                "x-content-type-options": "nosniff"
+              },
+              "data": {
+                "error": "invalid_scope",
+                "error_description": "Request failed: At least one scope must be granted (Correlation ID: a470c568-3492-4141-bc63-92f01b0b1e54)"
+              }
+            },
+            "timestamp": "2026-03-17T15:25:36.662Z",
+            "duration": 208,
+            "metadata": {
+              "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+              "region": "us"
+            },
+            "isProxy": false,
+            "source": "backend"
+          }
+        ]
+      }
+    }
+  ]
+}

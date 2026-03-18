@@ -19,6 +19,7 @@ import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredent
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
 import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
+import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 import { createModuleLogger } from '../../../utils/consoleMigrationHelper';
 import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
@@ -918,43 +919,7 @@ const PingOnePARFlowV9: React.FC = () => {
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
-			{/* Header */}
-			<div
-				style={{
-					background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, #15803d 100%)',
-					color: 'white',
-					padding: '2rem',
-				}}
-			>
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-					<div>
-						<h1 style={{ fontSize: '2rem', fontWeight: '700', margin: 0 }}>PingOne PAR Flow</h1>
-						<p
-							style={{
-								fontSize: '1rem',
-								color: 'rgba(255, 255, 255, 0.85)',
-								margin: '0.5rem 0 0 0',
-							}}
-						>
-							Pushed Authorization Request - V9 Architecture
-						</p>
-					</div>
-					<div style={{ textAlign: 'right' }}>
-						<div style={{ fontSize: '2.5rem', fontWeight: '700', lineHeight: '1' }}>
-							{currentStep + 1}
-						</div>
-						<div
-							style={{
-								fontSize: '0.875rem',
-								color: 'rgba(255, 255, 255, 0.75)',
-								letterSpacing: '0.05em',
-							}}
-						>
-							of {STEP_METADATA.length}
-						</div>
-					</div>
-				</div>
-			</div>
+			<V9FlowHeader flowId="pingone-par-v9" />
 
 			{/* Progress Steps */}
 			<div
@@ -968,7 +933,7 @@ const PingOnePARFlowV9: React.FC = () => {
 					style={{
 						display: 'flex',
 						justifyContent: 'space-between',
-						maxWidth: '1200px',
+						maxWidth: '90rem',
 						margin: '0 auto',
 					}}
 				>

@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '@/services/v9/V9ColorStandards';
+import { usePageScroll } from '../../../hooks/usePageScroll';
 import { PageLayoutService } from '../../../services/pageLayoutService';
 
 // Create layout components at module level
@@ -10,7 +12,7 @@ const _migrationLayout = PageLayoutService.createPageLayout({
 });
 
 const ContentContainer = styled.div`
-	max-width: 1200px;
+	max-width: 90rem;
 	margin: 0 auto;
 	padding: 2rem;
 `;
@@ -18,12 +20,12 @@ const ContentContainer = styled.div`
 const Title = styled.h1`
 	font-size: 2.5rem;
 	font-weight: 700;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
 	margin-bottom: 1rem;
 `;
 
 const Description = styled.p`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 	font-size: 1.125rem;
 	margin-bottom: 2rem;
 	line-height: 1.6;
@@ -36,9 +38,9 @@ const Section = styled.section`
 const SectionTitle = styled.h2`
 	font-size: 1.875rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
 	margin-bottom: 1rem;
-	border-bottom: 2px solid V9_COLORS.PRIMARY.RED;
+	border-bottom: 2px solid ${V9_COLORS.PRIMARY.RED};
 	padding-bottom: 0.5rem;
 `;
 
@@ -49,13 +51,13 @@ const Subsection = styled.div`
 const SubsectionTitle = styled.h3`
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: V9_COLORS.TEXT.GRAY_DARK;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
 	margin-bottom: 0.75rem;
 `;
 
 const CodeBlock = styled.pre`
-	background: V9_COLORS.BG.GRAY_LIGHT;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	background: ${V9_COLORS.BG.GRAY_LIGHT};
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.5rem;
 	padding: 1rem;
 	overflow-x: auto;
@@ -64,15 +66,17 @@ const CodeBlock = styled.pre`
 `;
 
 const Note = styled.div`
-	background: V9_COLORS.BG.WARNING;
-	border: 1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT;
+	background: ${V9_COLORS.BG.WARNING};
+	border: 1px solid ${V9_COLORS.BG.WARNING_BORDER};
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
-	color: V9_COLORS.PRIMARY.YELLOW_DARK;
+	color: ${V9_COLORS.PRIMARY.YELLOW_DARK};
 `;
 
 const MigrateVscode: React.FC = () => {
+	usePageScroll();
+
 	return (
 		<_migrationLayout.PageContainer>
 			<_migrationLayout.PageHeader />

@@ -79,9 +79,8 @@ const renderFormattedDescription = (description: string): React.ReactNode => {
 		const parts: React.ReactNode[] = [];
 		let lastIndex = 0;
 		const boldRegex = /\*\*(.+?)\*\*/g;
-		let match;
 
-		while ((match = boldRegex.exec(text)) !== null) {
+		for (const match of text.matchAll(boldRegex)) {
 			if (match.index > lastIndex) {
 				parts.push(text.substring(lastIndex, match.index));
 			}

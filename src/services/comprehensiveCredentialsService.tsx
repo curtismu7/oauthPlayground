@@ -2576,7 +2576,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									);
 
 									// Create the application based on type
-									let result;
+									let result: any;
 									if (appType === 'OIDC_WEB_APP') {
 										result = await pingOneAppCreationService.createOIDCWebApp({
 											type: 'OIDC_WEB_APP',

@@ -58,16 +58,6 @@ const isRefreshTokenValid = (tokens: OAuthTokens | null): boolean => {
 	return refreshExpiresAt ? now < refreshExpiresAt : false;
 };
 
-const getStoredTokens = (): OAuthTokens | null => {
-	try {
-		const tokens = oauthStorage.getTokens();
-		return tokens ? JSON.parse(JSON.stringify(tokens)) : null;
-	} catch (error) {
-		logger.error('NewAuthContext', 'Error parsing stored tokens', error);
-		return null;
-	}
-};
-
 // OAuth-specific token checker that excludes worker tokens
 const getOAuthTokens = (): OAuthTokens | null => {
 	try {
@@ -410,11 +400,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		}));
 	}, []);
 
-	// Load tokens from storage on component mount and check configuration
+	// Load tokens from storage on component mount — single initialization, no duplicate
 	useEffect(() => {
 		const loadTokensFromStorage = () => {
 			try {
-				const storedTokens = getOAuthTokens(); // Use OAuth-specific token checker
+				// Use OAuth-specific checker (excludes worker tokens)
+				const storedTokens = getOAuthTokens();
 				const storedUser = getStoredUser();
 
 				if (storedTokens && isTokenValid(storedTokens)) {
@@ -536,64 +527,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		return () => window.removeEventListener('storage', handleStorageChange);
 	}, [refreshConfig]);
 
-	// Initialize auth state
-	useEffect(() => {
-		const initializeAuth = async () => {
-			try {
-				const storedTokens = getStoredTokens();
-				const storedUser = getStoredUser();
-
-				if (storedTokens && isTokenValid(storedTokens)) {
-					updateState({
-						isAuthenticated: true,
-						tokens: storedTokens,
-						user: storedUser,
-						isLoading: false,
-						error: null,
-					});
-				} else {
-					updateState({
-						isAuthenticated: false,
-						tokens: storedTokens,
-						user: storedUser,
-						isLoading: false,
-						error: null,
-					});
-				}
-			} catch (error) {
-				logger.error('NewAuthContext', 'Error initializing auth state', error);
-				updateState({
-					isAuthenticated: false,
-					tokens: null,
-					user: null,
-					isLoading: false,
-					error: 'Failed to initialize authentication',
-				});
-			}
-		};
-
-		initializeAuth();
-	}, [updateState]);
-
-	// Listen for configuration changes from the Configuration page
-	useEffect(() => {
-		const handleConfigChange = async () => {
-			try {
-				const newConfig = await loadConfiguration();
-				setConfig(newConfig);
-				logger.info('NewAuthContext', 'Configuration updated from localStorage');
-			} catch (error) {
-				logger.error('NewAuthContext', 'Error reloading configuration', error);
-			}
-		};
-
-		// Listen for the custom event dispatched when config is saved
-		window.addEventListener('pingone-config-changed', handleConfigChange);
-
-		return () => {
-			window.removeEventListener('pingone-config-changed', handleConfigChange);
-		};
-	}, []);
+	// Duplicate initializeAuth removed — loadTokensFromStorage (above) covers mount-time init.
+	// Duplicate pingone-config-changed listener removed — the handler in handleConfigChange
+	// (registered above) already covers this with proper dedup / isHandlingChange guard.
 
 	// Login function
 	const login = useCallback(

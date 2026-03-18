@@ -7,6 +7,24 @@
       "env": {
         "MCP_LOG_DIR": "logs"
       }
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "memory-mcp-server/src/index.ts"],
+      "env": {}
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "filesystem-mcp-server/src/index.ts"],
+      "env": {}
+    },
+    "fetch": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "fetch-mcp-server/src/index.ts"],
+      "env": {}
     }
   }
 }

@@ -430,7 +430,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 
 	// Render component (messaging from app-level V9ModernMessagingProvider to avoid duplicate banners)
 	return (
-		<div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+		<div style={{ padding: '2rem', maxWidth: '90rem', margin: '0 auto' }}>
 			<V7MMockBanner description="This flow simulates the OAuth 2.0 JWT Bearer Token flow (RFC 7523) in-browser. No external APIs are called. JWT and token responses are generated for learning." />
 			<V9FlowHeader flowId="jwt-bearer-token-v7" />
 

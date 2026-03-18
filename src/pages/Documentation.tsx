@@ -512,8 +512,7 @@ const Documentation = () => {
 									🚀 Complete Prompts Guide <MDIIcon icon="FiExternalLink" size={14} />
 								</h3>
 								<p>
-									Prompt engineering guide for working with MasterFlow Agent and this
-									playground.{' '}
+									Prompt engineering guide for working with MasterFlow Agent and this playground.{' '}
 								</p>
 							</DocCard>
 						</CardGrid>

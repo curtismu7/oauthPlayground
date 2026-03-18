@@ -619,14 +619,6 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({ oidc = false }) => {
 
 					{authorizationUrl && code && (
 						<>
-							<div style={explainBox(1)}>
-								<strong>✅ What just happened:</strong> The authorization server validated the
-								request and issued a one-time <strong>authorization code</strong> bound to your PKCE
-								challenge, client, redirect URI, and user. In a real flow, the user would see a
-								login page first. The browser is redirected back to your <code>redirect_uri</code>{' '}
-								with <code>?code=…&state=…</code> in the URL.
-							</div>
-
 							<div style={{ marginTop: 14 }}>
 								<div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: '#374151' }}>
 									Authorization URL sent:
@@ -668,6 +660,7 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({ oidc = false }) => {
 								</div>
 							</div>
 
+							{/* Inline API Call Display */}
 							<div style={{ marginTop: 12 }}>
 								<MockApiCallDisplay
 									title="Authorization request → redirect response"
@@ -686,6 +679,14 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({ oidc = false }) => {
 									}}
 									defaultExpanded={false}
 								/>
+							</div>
+
+							<div style={explainBox(1)}>
+								<strong>✅ What just happened:</strong> The authorization server validated the
+								request and issued a one-time <strong>authorization code</strong> bound to your PKCE
+								challenge, client, redirect URI, and user. In a real flow, the user would see a
+								login page first. The browser is redirected back to your <code>redirect_uri</code>{' '}
+								with <code>?code=…&state=…</code> in the URL.
 							</div>
 						</>
 					)}
@@ -749,6 +750,36 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({ oidc = false }) => {
 
 					{tokenResponse && (
 						<>
+							{/* Inline API Call Display */}
+							<div style={{ marginTop: 12 }}>
+								<MockApiCallDisplay
+									title="Token request (POST)"
+									method="POST"
+									url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/token`}
+									headers={{
+										'Content-Type': 'application/x-www-form-urlencoded',
+										Authorization: `Basic ${btoa(`${clientId}:***`)}`,
+									}}
+									body={`grant_type=authorization_code&code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(redirectUri)}&code_verifier=${encodeURIComponent(codeVerifier)}`}
+									response={
+										'error' in tokenResponse
+											? { status: 400, statusText: 'Bad Request', data: tokenResponse }
+											: { status: 200, statusText: 'OK', data: tokenResponse }
+									}
+									defaultExpanded
+								/>
+							</div>
+
+							<div style={{ marginTop: 12 }}>
+								<ColoredJsonDisplay
+									data={tokenResponse}
+									label="Token Response"
+									collapsible
+									defaultCollapsed={false}
+									showCopyButton
+								/>
+							</div>
+
 							{'error' in tokenResponse ? (
 								<div style={{ ...explainBox(2), borderColor: '#fca5a5', background: '#fef2f2' }}>
 									<strong>❌ Token exchange failed:</strong> {tokenResponse.error} —{' '}
@@ -781,35 +812,6 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({ oidc = false }) => {
 									</ul>
 								</div>
 							)}
-
-							<div style={{ marginTop: 12 }}>
-								<MockApiCallDisplay
-									title="Token request (POST)"
-									method="POST"
-									url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/token`}
-									headers={{
-										'Content-Type': 'application/x-www-form-urlencoded',
-										Authorization: `Basic ${btoa(`${clientId}:***`)}`,
-									}}
-									body={`grant_type=authorization_code&code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(redirectUri)}&code_verifier=${encodeURIComponent(codeVerifier)}`}
-									response={
-										'error' in tokenResponse
-											? { status: 400, statusText: 'Bad Request', data: tokenResponse }
-											: { status: 200, statusText: 'OK', data: tokenResponse }
-									}
-									defaultExpanded
-								/>
-							</div>
-
-							<div style={{ marginTop: 12 }}>
-								<ColoredJsonDisplay
-									data={tokenResponse}
-									label="Token Response"
-									collapsible
-									defaultCollapsed={false}
-									showCopyButton
-								/>
-							</div>
 
 							{'access_token' in tokenResponse && (
 								<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
@@ -897,15 +899,8 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({ oidc = false }) => {
 
 					{userinfoResponse && (
 						<>
-							<div style={explainBox(3)}>
-								<strong>👤 UserInfo</strong> (<code>GET /as/userinfo</code>): Send your Bearer
-								access token to retrieve the authenticated user's profile. Returns claims based on
-								the scopes you requested.{' '}
-								{oidc
-									? 'For OIDC flows, prefer the ID token for authentication — call UserInfo for fresh or additional claims.'
-									: 'In an OAuth-only flow this is how you learn who the user is.'}
-							</div>
-							<div style={{ marginTop: 10 }}>
+							{/* Inline API Call Display */}
+							<div style={{ marginTop: 12 }}>
 								<MockApiCallDisplay
 									title="UserInfo request (GET)"
 									method="GET"
@@ -925,19 +920,21 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({ oidc = false }) => {
 									showCopyButton
 								/>
 							</div>
+							<div style={explainBox(3)}>
+								<strong>👤 UserInfo</strong> (<code>GET /as/userinfo</code>): Send your Bearer
+								access token to retrieve the authenticated user's profile. Returns claims based on
+								the scopes you requested.{' '}
+								{oidc
+									? 'For OIDC flows, prefer the ID token for authentication — call UserInfo for fresh or additional claims.'
+									: 'In an OAuth-only flow this is how you learn who the user is.'}
+							</div>
 						</>
 					)}
 
 					{introspectionResponse && (
 						<>
-							<div style={{ ...explainBox(3), marginTop: userinfoResponse ? 16 : 0 }}>
-								<strong>🔎 Token Introspection</strong> (<code>POST /as/introspect</code>, RFC
-								7662): Resource servers call this to check whether a token is still{' '}
-								<code>active</code> and to read its metadata (scope, exp, sub, client_id). It's more
-								reliable than JWT validation alone for sensitive operations because the AS controls
-								the answer.
-							</div>
-							<div style={{ marginTop: 10 }}>
+							{/* Inline API Call Display */}
+							<div style={{ marginTop: 12 }}>
 								<MockApiCallDisplay
 									title="Introspect request (POST)"
 									method="POST"
@@ -957,6 +954,13 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({ oidc = false }) => {
 									defaultCollapsed={false}
 									showCopyButton
 								/>
+							</div>
+							<div style={{ ...explainBox(3), marginTop: userinfoResponse ? 16 : 0 }}>
+								<strong>🔎 Token Introspection</strong> (<code>POST /as/introspect</code>, RFC
+								7662): Resource servers call this to check whether a token is still{' '}
+								<code>active</code> and to read its metadata (scope, exp, sub, client_id). It's more
+								reliable than JWT validation alone for sensitive operations because the AS controls
+								the answer.
 							</div>
 						</>
 					)}

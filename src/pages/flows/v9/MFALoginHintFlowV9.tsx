@@ -957,7 +957,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 				}}
 			/>
 
-			<div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
+			<div style={{ maxWidth: '90rem', margin: '0 auto', padding: '2rem' }}>
 				{/* Step Progress Indicator */}
 				<div style={{ marginBottom: '2rem' }}>
 					<div

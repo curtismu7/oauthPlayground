@@ -116,7 +116,7 @@ const GlobalErrorDisplay: React.FC = () => {
 	}
 
 	// Try to interpret the error using PingOne error interpreter
-	let interpretedError;
+	let interpretedError: any;
 	try {
 		interpretedError = PingOneErrorInterpreter.interpret({
 			error: 'token_exchange_failed',

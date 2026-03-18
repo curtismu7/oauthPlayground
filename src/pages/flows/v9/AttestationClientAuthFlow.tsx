@@ -5,8 +5,7 @@
 
 import type React from 'react';
 import { useCallback, useState } from 'react';
-import styled from 'styled-components';
-
+import styled from 'styled-components';import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface EphemeralKeyPair {
@@ -98,7 +97,7 @@ async function signJwtBrowser(
 // ─── Styled components ────────────────────────────────────────────────────────
 
 const Page = styled.div`
-	max-width: 860px;
+	max-width: 90rem;
 	margin: 0 auto;
 	padding: 2rem 1.5rem;
 	font-family: system-ui, sans-serif;
@@ -469,6 +468,7 @@ const AttestationClientAuthFlow: React.FC = () => {
 
 	return (
 		<Page>
+			<V9FlowHeader flowId="attestation-client-auth" />
 			<PageTitle>
 				Attestation-Based Client Auth
 				<DraftBadge>IETF Draft</DraftBadge>

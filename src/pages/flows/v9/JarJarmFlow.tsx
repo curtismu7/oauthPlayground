@@ -5,6 +5,7 @@
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 
 type Tab = 'jar' | 'jarm';
 type Step = 0 | 1 | 2;
@@ -25,7 +26,7 @@ interface JarmResult {
 }
 
 const Page = styled.div`
-	max-width: 860px;
+	max-width: 90rem;
 	margin: 0 auto;
 	padding: 2rem 1.5rem;
 	font-family: system-ui, sans-serif;
@@ -513,6 +514,7 @@ const JarJarmFlow: React.FC = () => {
 
 	return (
 		<Page>
+			<V9FlowHeader flowId="jar-jarm" />
 			<PageTitle>
 				JAR + JARM<RfcBadge>RFC 9101</RfcBadge>
 				<RfcBadge>FAPI 2.0</RfcBadge>

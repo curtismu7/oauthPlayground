@@ -773,6 +773,12 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'Emerging standards and draft specifications for AI agent authentication and authorization.',
 		icon: '📄',
 	},
+	'mcp-server-config': {
+		flowType: 'pingone',
+		title: 'MCP Server Configuration',
+		subtitle: 'Configure and manage the PingOne MCP server with 70+ tools for AI agent integration.',
+		icon: '🔧',
+	},
 	'oidc-specs': {
 		flowType: 'oidc',
 		title: 'OIDC Specs',
@@ -954,6 +960,64 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		subtitle:
 			'Educational implementation of RFC 7522 SAML Bearer Assertion for OAuth token exchange. Mock implementation since PingOne does not support SAML Bearer assertions.',
 		icon: '🛡️',
+	},
+
+	// Emerging / Advanced OAuth Flows
+	'attestation-client-auth': {
+		flowType: 'oauth',
+		title: 'Attestation-Based Client Authentication',
+		subtitle:
+			'🪪 draft-ietf-oauth-attestation-based-client-auth — Client proves its identity with a signed attestation statement (WIA, DCAttestation, Android Keystore, etc.) plus a Proof-of-Possession key — no shared secret required.',
+		icon: '🪪',
+		version: 'V1',
+	},
+	wimse: {
+		flowType: 'oauth',
+		title: 'WIMSE — Workload Identity in Multi-System Environments',
+		subtitle:
+			'⚙️ IETF draft-ietf-wimse-arch — Issues a Workload Identity Token (WIT) to a service, then exchanges it for a scoped access token via RFC 8693 Token Exchange. Demonstrates zero-trust workload-to-workload authentication.',
+		icon: '⚙️',
+		version: 'V1',
+	},
+	gnap: {
+		flowType: 'oauth',
+		title: 'GNAP — Grant Negotiation and Authorization Protocol',
+		subtitle:
+			'🤝 RFC 9635 — Proposed next-generation authorization protocol. Clients POST structured grant requests; the AS issues interaction URIs for user consent. Demonstrates the JSON negotiation model as an alternative to OAuth 2.0 redirect flows.',
+		icon: '🤝',
+		version: 'V1',
+	},
+	'mtls-client-auth': {
+		flowType: 'oauth',
+		title: 'mTLS Client Authentication',
+		subtitle:
+			'🔏 RFC 8705 — Mutual-TLS Client Authentication and Certificate-Bound Access Tokens. The client authenticates with a TLS certificate; the issued access token carries a cnf.x5t#S256 thumbprint that resource servers verify on every call.',
+		icon: '🔏',
+		version: 'V1',
+	},
+	'jar-jarm': {
+		flowType: 'oauth',
+		title: 'JAR + JARM — JWT-Secured Authorization (FAPI 2.0)',
+		subtitle:
+			'✍️ JAR (RFC 9101) signs the authorization request as a JWT. JARM (draft-ietf-oauth-jarm) signs the authorization response as a JWT. Together they prevent parameter tampering — required by the FAPI 2.0 Security Profile.',
+		icon: '✍️',
+		version: 'V1',
+	},
+	'step-up-auth': {
+		flowType: 'oidc',
+		title: 'Step-Up Authentication',
+		subtitle:
+			'⬆️ RFC 9470 — A resource server demands higher assurance (acr_values) or a fresher authentication (max_age) by returning a 401 challenge, triggering re-authentication at the required level.',
+		icon: '⬆️',
+		version: 'V1',
+	},
+	'token-introspection': {
+		flowType: 'oauth',
+		title: 'Token Introspection',
+		subtitle:
+			'🔍 RFC 7662 + RFC 7009 — Resource servers query the AS to validate opaque access tokens (introspection). Tokens can also be revoked (RFC 7009). Demonstrates the server-to-server token validation and revocation pattern.',
+		icon: '🔍',
+		version: 'V1',
 	},
 
 	// Developer & Tools (red header / PingOne style)

@@ -237,20 +237,6 @@ export async function loadProductionAppCredentials(
 }
 
 /**
- * Check if Production app has credentials stored
- */
-export async function hasProductionAppCredentials(
-	appId: keyof typeof PRODUCTION_APP_CONFIGS
-): Promise<boolean> {
-	try {
-		const credentials = await loadProductionAppCredentials(appId);
-		return credentials !== null && Object.keys(credentials).length > 0;
-	} catch (_error) {
-		return false;
-	}
-}
-
-/**
  * Export credentials for a Production app
  */
 export async function exportProductionAppCredentials(

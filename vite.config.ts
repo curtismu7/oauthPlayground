@@ -96,8 +96,10 @@ export default defineConfig(({ mode }) => {
 				},
 				strategies: 'generateSW',
 				workbox: {
-					globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-					maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10 MB (increased to handle current bundle size)
+					// Exclude JS bundles from precache — they're large and change on every build
+					// (causes OOM in Chrome when the SW re-downloads 10MB+ on each deploy)
+					globPatterns: ['**/*.{css,html,ico,png,svg,woff2}'],
+					maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB
 					runtimeCaching: [
 						{
 							urlPattern: /^https:\/\/api\./,

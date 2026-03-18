@@ -1043,6 +1043,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 					<ModalHeader>
 						<h2>Enter MFA Code</h2>
 						<button
+							type="button"
 							onClick={() => setShowMFAChallenge(false)}
 							style={{
 								background: 'none',
@@ -1100,6 +1101,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 					<ModalHeader>
 						<h2>Configuration Required</h2>
 						<button
+							type="button"
 							onClick={() => setShowSetupModal(false)}
 							style={{
 								background: 'none',
@@ -1144,6 +1146,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 
 					<div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
 						<button
+							type="button"
 							onClick={() => setShowSetupModal(false)}
 							style={{
 								padding: '0.75rem 1.5rem',
@@ -1168,6 +1171,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 							Cancel
 						</button>
 						<button
+							type="button"
 							onClick={() => {
 								setShowSetupModal(false);
 								setShowAuthzConfigModal(true);
@@ -1275,6 +1279,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 							</p>
 						</div>
 						<button
+							type="button"
 							onClick={() => {
 								setIsAuthenticated(false);
 								setTokens(null);
@@ -1308,7 +1313,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 								</div>
 								<h3>{product.name}</h3>
 								<div className="price">{product.price}</div>
-								<button>Add to Cart</button>
+								<button type="button">Add to Cart</button>
 							</ProductCard>
 						))}
 					</ProductsGrid>

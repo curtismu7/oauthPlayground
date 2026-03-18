@@ -295,6 +295,10 @@ const InfoValue = styled.span`
 `;
 
 const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
+	const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
+	const [maskedStates, setMaskedStates] = useState<Record<string, boolean>>({});
+	const { announce } = useAccessibility();
+
 	// Early return if tokens is undefined or null
 	if (!tokens) {
 		return (
@@ -306,9 +310,6 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
 			</TokenContainer>
 		);
 	}
-	const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
-	const [maskedStates, setMaskedStates] = useState<Record<string, boolean>>({});
-	const { announce } = useAccessibility();
 
 	const copyToClipboard = async (text: string, key: string) => {
 		try {

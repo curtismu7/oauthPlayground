@@ -164,7 +164,9 @@ export class FlowContextService {
 					'implicit_flow_v3_context',
 				];
 
-				keys.forEach((key) => sessionStorage.removeItem(key));
+				keys.forEach((key) => {
+					sessionStorage.removeItem(key);
+				});
 			}
 
 			logger.info('[FlowContextService] Cleared flow context', 'Logger info');

@@ -1,5 +1,5 @@
 // Enhanced logging utility for OAuth Playground
-import { logger } from '../../../../utils/logger';
+import { logger as baseLogger } from '../../../../utils/logger';
 
 // Define specific data types for different logging contexts
 type LogData =
@@ -103,7 +103,7 @@ class Logger {
 		this.addToHistory('ERROR', component, message, data, error);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.error(` [${component}] ${message}`, data || '', error || '');
+			baseLogger.error(` [${component}] ${message}`, data || '', error || '');
 		}
 	}
 
@@ -111,7 +111,7 @@ class Logger {
 		this.addToHistory('WARN', component, message, data);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.warn(` [${component}] ${message}`, data || '');
+			baseLogger.warn(` [${component}] ${message}`, data || '');
 		}
 	}
 
@@ -124,7 +124,7 @@ class Logger {
 		this.addToHistory('INFO', component, message, data);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.info(` [${component}] ${message}`, data || '');
+			baseLogger.info(` [${component}] ${message}`, data || '');
 		}
 	}
 
@@ -137,7 +137,7 @@ class Logger {
 		this.addToHistory('DEBUG', component, message, data);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.debug(` [${component}] ${message}`, data || '');
+			baseLogger.debug(` [${component}] ${message}`, data || '');
 		}
 	}
 
@@ -145,7 +145,7 @@ class Logger {
 		this.addToHistory('SUCCESS', component, message, data);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.info(` [${component}] ${message}`, data || '');
+			baseLogger.info(` [${component}] ${message}`, data || '');
 		}
 	}
 
@@ -153,7 +153,7 @@ class Logger {
 		this.addToHistory('FLOW', component, message, data);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.info(` [${component}] ${message}`, data || '');
+			baseLogger.info(` [${component}] ${message}`, data || '');
 		}
 	}
 
@@ -161,7 +161,7 @@ class Logger {
 		this.addToHistory('SECURITY', component, message, data);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.info(` [${component}] ${message}`, data || '');
+			baseLogger.info(` [${component}] ${message}`, data || '');
 		}
 	}
 
@@ -169,7 +169,7 @@ class Logger {
 		this.addToHistory('AUTH', component, message, data);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.info(` [${component}] ${message}`, data || '');
+			baseLogger.info(` [${component}] ${message}`, data || '');
 		}
 	}
 
@@ -177,7 +177,7 @@ class Logger {
 		this.addToHistory('CONFIG', component, message, data);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.info(` [${component}] ${message}`, data || '');
+			baseLogger.info(` [${component}] ${message}`, data || '');
 		}
 	}
 
@@ -185,7 +185,7 @@ class Logger {
 		this.addToHistory('API', component, message, data);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.info(` [${component}] ${message}`, data || '');
+			baseLogger.info(` [${component}] ${message}`, data || '');
 		}
 	}
 
@@ -193,7 +193,7 @@ class Logger {
 		this.addToHistory('STORAGE', component, message, data);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.info(` [${component}] ${message}`, data || '');
+			baseLogger.info(` [${component}] ${message}`, data || '');
 		}
 	}
 
@@ -201,7 +201,7 @@ class Logger {
 		this.addToHistory('UI', component, message, data);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.info(` [${component}] ${message}`, data || '');
+			baseLogger.info(` [${component}] ${message}`, data || '');
 		}
 	}
 
@@ -209,7 +209,7 @@ class Logger {
 		this.addToHistory('DISCOVERY', component, message, data);
 		// Log to console
 		if (component !== 'CONSOLE') {
-			logger.info(` [${component}] ${message}`, data || '');
+			baseLogger.info(` [${component}] ${message}`, data || '');
 		}
 	}
 

@@ -502,7 +502,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	// Step 1: Choose Registration or Authentication
 	if (!flowMode) {
 		return (
-			<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
+			<div style={{ maxWidth: '1600px', margin: '0 auto', padding: '24px' }}>
 				{/* Header */}
 				<div
 					style={{
@@ -1076,7 +1076,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	// Authentication flow - dedicated view (device selection + OTP modals only; no registration grid)
 	if (flowMode === 'authentication') {
 		return (
-			<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
+			<div style={{ maxWidth: '1600px', margin: '0 auto', padding: '24px' }}>
 				<div
 					style={{
 						background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
@@ -1434,7 +1434,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 
 	// Registration flow - show device type selection cards
 	return (
-		<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
+		<div style={{ maxWidth: '1600px', margin: '0 auto', padding: '24px' }}>
 			{/* Header */}
 			<div
 				style={{

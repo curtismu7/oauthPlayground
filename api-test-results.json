@@ -1,0 +1,183 @@
+{
+  "timestamp": "2026-03-17T15:25:36.361Z",
+  "baseUrl": "https://localhost:3001",
+  "results": [
+    {
+      "endpoint": "/api/health",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 15,
+      "timestamp": "2026-03-17T15:25:36.687Z"
+    },
+    {
+      "endpoint": "/api-status",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 26,
+      "timestamp": "2026-03-17T15:25:36.714Z"
+    },
+    {
+      "endpoint": "/api/version",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 17,
+      "timestamp": "2026-03-17T15:25:36.731Z"
+    },
+    {
+      "endpoint": "/api/debug",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 13,
+      "timestamp": "2026-03-17T15:25:36.744Z"
+    },
+    {
+      "endpoint": "/api/settings/custom-domain",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 13,
+      "timestamp": "2026-03-17T15:25:36.757Z"
+    },
+    {
+      "endpoint": "/api/settings/environment-id",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 10,
+      "timestamp": "2026-03-17T15:25:36.767Z"
+    },
+    {
+      "endpoint": "/api/settings/region",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 15,
+      "timestamp": "2026-03-17T15:25:36.782Z"
+    },
+    {
+      "endpoint": "/api/settings/debug-log-viewer",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 11,
+      "timestamp": "2026-03-17T15:25:36.793Z"
+    },
+    {
+      "endpoint": "/api/file-storage/save",
+      "method": "POST",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 14,
+      "timestamp": "2026-03-17T15:25:36.808Z"
+    },
+    {
+      "endpoint": "/api/file-storage/load",
+      "method": "POST",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 13,
+      "timestamp": "2026-03-17T15:25:36.821Z"
+    },
+    {
+      "endpoint": "/api/file-storage/delete",
+      "method": "DELETE",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 12,
+      "timestamp": "2026-03-17T15:25:36.833Z"
+    },
+    {
+      "endpoint": "/api/api-key/groq",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 11,
+      "timestamp": "2026-03-17T15:25:36.844Z"
+    },
+    {
+      "endpoint": "/api/api-key/backup",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 9,
+      "timestamp": "2026-03-17T15:25:36.854Z"
+    },
+    {
+      "endpoint": "/api/api-key/brave",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 10,
+      "timestamp": "2026-03-17T15:25:36.864Z"
+    },
+    {
+      "endpoint": "/api/api-key/backup",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 13,
+      "timestamp": "2026-03-17T15:25:36.877Z"
+    },
+    {
+      "endpoint": "/api/par",
+      "method": "POST",
+      "status": "FAIL",
+      "httpStatus": 401,
+      "error": null,
+      "responseTime": 98,
+      "timestamp": "2026-03-17T15:25:36.975Z"
+    },
+    {
+      "endpoint": "/api/mcp/query",
+      "method": "POST",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 18,
+      "timestamp": "2026-03-17T15:25:36.994Z"
+    },
+    {
+      "endpoint": "/api/logs/list",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 11,
+      "timestamp": "2026-03-17T15:25:37.005Z"
+    },
+    {
+      "endpoint": "/api/pingone/api-calls",
+      "method": "GET",
+      "status": "PASS",
+      "httpStatus": 200,
+      "error": null,
+      "responseTime": 10,
+      "timestamp": "2026-03-17T15:25:37.015Z"
+    }
+  ],
+  "summary": {
+    "total": 19,
+    "passed": 18,
+    "failed": 1,
+    "skipped": 2
+  }
+}

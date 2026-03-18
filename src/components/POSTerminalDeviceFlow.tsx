@@ -350,16 +350,16 @@ const POSBase = styled.div`
 
 interface POSTerminalDeviceFlowProps {
 	state: DeviceFlowState;
-	onStateUpdate: (newState: DeviceFlowState) => void;
-	onComplete: (tokens: Record<string, unknown>) => void;
-	onError: (error: string) => void;
+	_onStateUpdate: (newState: DeviceFlowState) => void;
+	_onComplete: (tokens: Record<string, unknown>) => void;
+	_onError: (error: string) => void;
 }
 
 const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 	state,
-	onStateUpdate,
-	onComplete,
-	onError,
+	_onStateUpdate,
+	_onComplete,
+	_onError,
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);
@@ -687,6 +687,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 							}}
 						>
 							<button
+								type="button"
 								style={{
 									background:
 										'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
@@ -709,6 +710,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 							</button>
 
 							<button
+								type="button"
 								style={{
 									background:
 										'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
@@ -740,6 +742,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 							}}
 						>
 							<button
+								type="button"
 								style={{
 									background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
 									color: 'white',
@@ -758,6 +761,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 								<span>➕</span> Add Item
 							</button>
 							<button
+								type="button"
 								style={{
 									background:
 										'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)',
@@ -777,6 +781,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 								<span>❌</span> Void
 							</button>
 							<button
+								type="button"
 								style={{
 									background:
 										'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',

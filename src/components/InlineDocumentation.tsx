@@ -288,7 +288,12 @@ interface CodeExampleProps {
 	explanation?: string;
 }
 
-export const CodeExample: React.FC<CodeExampleProps> = ({ title, language, code, explanation }) => {
+export const CodeExample: React.FC<CodeExampleProps> = ({
+	title,
+	_language,
+	code,
+	explanation,
+}) => {
 	return (
 		<DocSection>
 			<DocSectionTitle>

@@ -489,9 +489,9 @@ interface GasPumpDeviceFlowProps {
 
 const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 	state,
-	onStateUpdate,
-	onComplete,
-	onError,
+	_onStateUpdate,
+	_onComplete,
+	_onError,
 }) => {
 	const [selectedFuel, setSelectedFuel] = useState<
 		'regular' | 'special' | 'super' | 'diesel' | 'rec90'

@@ -3,6 +3,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { MemoryManager } from './services/memoryManager.js';
 import { registerMemoryTools } from './tools/memoryTools.js';
+import { registerMemoryPrompts } from './prompts/memoryPrompts.js';
 
 async function main() {
 	const memoryManager = new MemoryManager();
@@ -17,12 +18,16 @@ async function main() {
 			capabilities: {
 				tools: { listChanged: true },
 				resources: { listChanged: true },
+				prompts: { listChanged: true },
 			},
 		}
 	);
 
 	// Register memory tools
 	registerMemoryTools(server, memoryManager);
+
+	// Register memory prompts
+	registerMemoryPrompts(server, memoryManager);
 
 	const transport = new StdioServerTransport();
 	await server.connect(transport);

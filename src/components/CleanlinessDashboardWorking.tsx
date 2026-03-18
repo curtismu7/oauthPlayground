@@ -148,16 +148,16 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 ];
 
 // ─── AUTO-GENERATED: live scan items — do not edit manually ───
-// Last updated: 2026-03-16T14:23:51.217Z
+// Last updated: 2026-03-16T23:51:32.486Z
 
 const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 	{
 		id: 'bootstrap-icons-migration',
 		description: 'Bootstrap Icons replacing question-mark emoji placeholders',
 		status: 'warning',
-		countLabel: '1 placeholders remaining → 330 bi-* in use',
+		countLabel: '1 placeholders remaining → 325 bi-* in use',
 		detail:
-			'1 question-mark spans remain outside src/locked/. 330 Bootstrap icon references already in place.',
+			'1 question-mark spans remain outside src/locked/. 325 Bootstrap icon references already in place.',
 	},
 	{
 		id: 'active-sidebar-identified',
@@ -187,7 +187,7 @@ const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 		id: 'v9-logger-migration',
 		description: 'console.* → logger.* migration',
 		status: 'warning',
-		countLabel: '42 console.error/warn remaining',
+		countLabel: '44 console.error/warn remaining',
 		detail:
 			'Structured logger across 90+ service files, 16 hooks, 3 contexts, 43 utils, 79 components. Intentional exceptions: loggingService, code-gen templates, CLI tools.',
 	},
@@ -195,7 +195,7 @@ const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 		id: 'eslint-disable-count',
 		description: 'ESLint/Biome disable directives',
 		status: 'clean',
-		countLabel: '48 eslint-disable + 138 biome-ignore',
+		countLabel: '48 eslint-disable + 157 biome-ignore',
 		detail:
 			'Targeted suppression comments. Goal: eliminate no-explicit-any and exhaustive-deps groups.',
 	},
@@ -203,7 +203,7 @@ const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 		id: 'ts-any-usage',
 		description: 'TypeScript `any` usage',
 		status: 'pending',
-		countLabel: '~416 occurrences',
+		countLabel: '~409 occurrences',
 		detail: 'Tracked across non-locked src/. Reduction goal: replace with proper generics.',
 	},
 	{

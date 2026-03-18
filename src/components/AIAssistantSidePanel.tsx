@@ -256,6 +256,7 @@ const PingOneLoginContent: React.FC = () => {
 	useEffect(() => {
 		const data = unifiedWorkerTokenService.getTokenDataSync();
 		if (data?.credentials?.environmentId) setEnvironmentId(data.credentials.environmentId);
+		if (data?.credentials?.p1LoginUsername) setUsername(data.credentials.p1LoginUsername);
 		// Prefer authzClientId (OIDC app with Authorization Code grant) over worker clientId
 		const preferredClientId = data?.credentials?.authzClientId || data?.credentials?.clientId || '';
 		if (preferredClientId) setClientId(preferredClientId);
@@ -307,6 +308,14 @@ const PingOneLoginContent: React.FC = () => {
 					throw new Error(resumeRes.error?.message || 'Failed to complete flow');
 				} else {
 					setSuccess('Login successful.');
+					// Persist username (not password) so the field is pre-filled on next open
+					const existingCreds = unifiedWorkerTokenService.getTokenDataSync()?.credentials;
+					if (existingCreds && username.trim()) {
+						unifiedWorkerTokenService.saveCredentials({
+							...existingCreds,
+							p1LoginUsername: username.trim(),
+						}).catch(() => {});
+					}
 				}
 			} catch (err) {
 				const msg = err instanceof Error ? err.message : 'Login failed';
@@ -562,6 +571,12 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 	const [adminPassword, setAdminPassword] = useState('');
 	const [showAdminPassword, setShowAdminPassword] = useState(false);
 
+	// Load saved admin username on mount (password is never saved)
+	useEffect(() => {
+		const data = unifiedWorkerTokenService.getTokenDataSync();
+		if (data?.credentials?.adminUsername) setAdminUsername(data.credentials.adminUsername);
+	}, []);
+
 	const savedAdminCreds = unifiedWorkerTokenService.getTokenDataSync()?.credentials;
 	const hasAuthzClient = !!savedAdminCreds?.authzClientId?.trim();
 
@@ -629,6 +644,14 @@ const AdminLoginContent: React.FC<AdminLoginContentProps> = ({
 				const { access_token, expires_in } = resumeRes.data;
 				onAdminTokenSet(access_token, expires_in ?? 3600, envId);
 				setAdminPassword('');
+				// Persist username (not password) so the field is pre-filled on next open
+				const existingCreds = unifiedWorkerTokenService.getTokenDataSync()?.credentials;
+				if (existingCreds && adminUsername.trim()) {
+					unifiedWorkerTokenService.saveCredentials({
+						...existingCreds,
+						adminUsername: adminUsername.trim(),
+					}).catch(() => {});
+				}
 			} catch (err) {
 				const msg = err instanceof Error ? err.message : 'Login failed';
 				setError(msg);

@@ -158,6 +158,7 @@ export const AuthSms: React.FC<AuthSmsProps> = ({ sdk, userId, policyId, deviceI
 			{step === 'input' && (
 				<div>
 					<button
+						type="button"
 						onClick={handleInitialize}
 						disabled={!userId || !policyId}
 						style={{
@@ -242,6 +243,7 @@ export const AuthSms: React.FC<AuthSmsProps> = ({ sdk, userId, policyId, deviceI
 						/>
 					</div>
 					<button
+						type="button"
 						onClick={handleComplete}
 						disabled={!otp || otp.length < 6}
 						style={{

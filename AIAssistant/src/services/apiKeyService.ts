@@ -229,6 +229,18 @@ class ApiKeyService {
 			});
 
 			if (result.success && result.data) {
+				// Backup keys found in IndexedDB to the backend SQLite store (fire & forget).
+				for (const item of result.data) {
+					const svc: string = (item.metadata?.service as string) || '';
+					if (svc && item.value) {
+						fetch(`/api/api-key/${svc}`, {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ apiKey: item.value }),
+						}).catch(() => {}); // best-effort, never block the consumer
+					}
+				}
+
 				return result.data.map((item: any) => {
 					const metadata = (item.metadata || {}) as Record<string, unknown>;
 					return {

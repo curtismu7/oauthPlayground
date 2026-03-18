@@ -181,7 +181,9 @@ class FieldEditingService {
 
 							// Check for input elements within the added node (nested forms)
 							const inputs = element.querySelectorAll('input, textarea, select');
-							inputs.forEach((input) => this.protectField(input as HTMLElement));
+							inputs.forEach((input) => {
+								this.protectField(input as HTMLElement);
+							});
 						}
 					});
 				}
@@ -206,7 +208,9 @@ class FieldEditingService {
 	 */
 	stopMonitoring(): void {
 		// Disconnect all active observers
-		this.observers.forEach((observer) => observer.disconnect());
+		this.observers.forEach((observer) => {
+			observer.disconnect();
+		});
 		this.observers.clear();
 		this.state.isMonitoring = false;
 	}
