@@ -140,6 +140,7 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 					}}
 				>
 					<button
+						type="button"
 						onClick={onCancel}
 						style={{
 							padding: '8px 16px',
@@ -155,6 +156,7 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 						{cancelText}
 					</button>
 					<button
+						type="button"
 						onClick={onConfirm}
 						style={{
 							padding: '8px 16px',

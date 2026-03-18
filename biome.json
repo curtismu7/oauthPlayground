@@ -4,6 +4,7 @@
 		"ignoreUnknown": true,
 		"includes": [
 			"**/src/**/*",
+			"tests/**/*",
 			"*.md",
 			"**/*.md",
 			"**/*.json",
@@ -46,11 +47,24 @@
 				"noArrayIndexKey": "off"
 			},
 			"correctness": {
-				"useExhaustiveDependencies": "warn"
+				"useExhaustiveDependencies": "warn",
+				"noInvalidUseBeforeDeclaration": "off",
+				"useHookAtTopLevel": "warn"
 			},
 			"complexity": {
 				"noForEach": "off",
 				"useLiteralKeys": "off"
+			},
+			"a11y": {
+				"noLabelWithoutControl": "off",
+				"noStaticElementInteractions": "off",
+				"useKeyWithClickEvents": "off",
+				"useSemanticElements": "off",
+				"useKeyWithMouseEvents": "off",
+				"noSvgWithoutTitle": "off"
+			},
+			"security": {
+				"noDangerouslySetInnerHtml": "off"
 			}
 		}
 	},

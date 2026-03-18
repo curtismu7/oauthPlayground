@@ -550,18 +550,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Flow not available modal state - REMOVED: Dropdown already filters flows, so modal is not needed
 	// All modal-related state and logic has been removed since FlowTypeSelector filters flows by spec version
 
-	// On step 0 always expand credentials; when leaving step 0 restore persisted state (or collapse)
-	useEffect(() => {
-		const prevStep = prevStepRef.current;
-		prevStepRef.current = currentStep;
-
-		if (currentStep === 0) {
-			setIsCredentialsCollapsed(false);
-		} else if (prevStep === 0 && currentStep > 0) {
-			// This will be handled after effectiveFlowType is declared
-		}
-	}, [currentStep, setIsCredentialsCollapsed]);
-
 	// Navigate to step
 	const navigateToStep = useCallback(
 		(step: number, newFlowType?: FlowType) => {
@@ -1872,8 +1860,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									message: 'Opening worker token settings…',
 									duration: 3000,
 								});
-								const { handleShowWorkerTokenModal } =
-									await import('@/v8/utils/workerTokenModalHelperV8');
+								const { handleShowWorkerTokenModal } = await import(
+									'@/v8/utils/workerTokenModalHelperV8'
+								);
 								await handleShowWorkerTokenModal(
 									setShowWorkerTokenModal,
 									setWorkerTokenWarning,
@@ -2770,8 +2759,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							<button
 								type="button"
 								onClick={async () => {
-									const { handleShowWorkerTokenModal } =
-										await import('@/v8/utils/workerTokenModalHelperV8');
+									const { handleShowWorkerTokenModal } = await import(
+										'@/v8/utils/workerTokenModalHelperV8'
+									);
 									await handleShowWorkerTokenModal(
 										() => {}, // setShowModal - not needed here
 										undefined, // setTokenStatus - not needed here
@@ -2824,8 +2814,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
 											try {
-												const { handleShowWorkerTokenModal } =
-													await import('@/v8/utils/workerTokenModalHelperV8');
+												const { handleShowWorkerTokenModal } = await import(
+													'@/v8/utils/workerTokenModalHelperV8'
+												);
 												// Attempt silent retrieval (will show modal if credentials are missing)
 												await handleShowWorkerTokenModal(
 													() => {}, // setShowModal - not needed here

@@ -36,11 +36,11 @@ export class FetchManager {
 	private maxHistorySize = 100;
 
 	async initialize(): Promise<void> {
-		console.log('Fetch manager initialized');
+		console.error('[fetch-mcp] Fetch manager initialized');
 	}
 
 	async shutdown(): Promise<void> {
-		console.log('Fetch manager shutdown');
+		console.error('[fetch-mcp] Fetch manager shutdown');
 	}
 
 	private addToHistory(response: FetchResponse): void {

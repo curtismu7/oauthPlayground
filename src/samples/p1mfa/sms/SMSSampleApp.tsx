@@ -88,6 +88,7 @@ export const SMSSampleApp: React.FC = () => {
 				}}
 			>
 				<button
+					type="button"
 					onClick={() => setActiveTab('credentials')}
 					style={{
 						padding: '0.75rem 1.5rem',
@@ -101,6 +102,7 @@ export const SMSSampleApp: React.FC = () => {
 					Credentials
 				</button>
 				<button
+					type="button"
 					onClick={() => setActiveTab('registration')}
 					disabled={!sdk}
 					style={{
@@ -116,6 +118,7 @@ export const SMSSampleApp: React.FC = () => {
 					Registration
 				</button>
 				<button
+					type="button"
 					onClick={() => setActiveTab('authentication')}
 					disabled={!sdk}
 					style={{
@@ -131,6 +134,7 @@ export const SMSSampleApp: React.FC = () => {
 					Authentication
 				</button>
 				<button
+					type="button"
 					onClick={() => {
 						setActiveTab('devices');
 						if (sdk && userId) {
@@ -235,6 +239,7 @@ export const SMSSampleApp: React.FC = () => {
 								}}
 							/>
 							<button
+								type="button"
 								onClick={handleLoadDevices}
 								disabled={!userId || loadingDevices}
 								style={{

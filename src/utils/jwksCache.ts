@@ -356,7 +356,9 @@ export class JWKSCache {
 		}
 
 		if (expiredKeys.length > 0) {
-			expiredKeys.forEach((key) => this.cache.delete(key));
+			expiredKeys.forEach((key) => {
+				this.cache.delete(key);
+			});
 			this.stats.evictions += expiredKeys.length;
 			this.stats.size = this.cache.size;
 			logger.debug('JWKSCache', 'Cleanup completed', {
@@ -494,7 +496,9 @@ export class LocalStorageJWKSCache {
 			const keys = Object.keys(localStorage);
 			const cacheKeys = keys.filter((key) => key.startsWith(this.prefix));
 
-			cacheKeys.forEach((key) => localStorage.removeItem(key));
+			cacheKeys.forEach((key) => {
+				localStorage.removeItem(key);
+			});
 
 			logger.info('LocalStorageJWKSCache', 'Cache cleared', { clearedEntries: cacheKeys.length });
 		} catch (error) {

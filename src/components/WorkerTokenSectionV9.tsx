@@ -22,7 +22,7 @@ import {
 	type V9TokenStatusInfo,
 } from '../services/v9/V9WorkerTokenStatusService';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
-import WorkerTokenModalV9Styled from './WorkerTokenModalV9Styled';
+import WorkerTokenModalV9 from './WorkerTokenModalV9';
 
 // ---------------------------------------------------------------------------
 // Styled components — V9 blue palette
@@ -162,7 +162,7 @@ export interface WorkerTokenSectionV9Props {
 }
 
 export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
-	environmentId,
+	environmentId: _environmentId,
 	onTokenUpdated,
 	compact = false,
 	// showSettings kept for interface compatibility — V9 section has no settings UI
@@ -320,10 +320,9 @@ export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
 				</Actions>
 			</Section>
 
-			<WorkerTokenModalV9Styled
+			<WorkerTokenModalV9
 				isOpen={showModal}
 				onClose={() => setShowModal(false)}
-				environmentId={environmentId ?? ''}
 				onTokenGenerated={(token: string) => {
 					setShowModal(false);
 					if (onTokenUpdated) onTokenUpdated(token);

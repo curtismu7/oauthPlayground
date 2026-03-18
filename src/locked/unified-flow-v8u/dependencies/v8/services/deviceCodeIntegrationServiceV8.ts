@@ -576,8 +576,7 @@ export class DeviceCodeIntegrationServiceV8 {
 	 * Sleep utility for polling
 	 * @param ms - Milliseconds to sleep
 	 */
-	private;
-	static sleep(ms: number): Promise<void> {
+	private static sleep(ms: number): Promise<void> {
 		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 
@@ -586,8 +585,7 @@ export class DeviceCodeIntegrationServiceV8 {
 	 * @param str - Base64 URL encoded string
 	 * @returns Decoded string
 	 */
-	private;
-	static base64UrlDecode(str: string): string {
+	private static base64UrlDecode(str: string): string {
 		let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
 
 		// Add padding if needed

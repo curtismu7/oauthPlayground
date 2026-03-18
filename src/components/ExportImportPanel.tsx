@@ -280,49 +280,57 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 	const dropZoneRef = useRef<HTMLDivElement>(null);
 	const dropHandlerRef = useRef<FileDropHandler | null>(null);
 
-	const processImportFile = async (file: File) => {
-		setIsProcessing(true);
-		setImportResult(null);
+	const processImportFile = useCallback(
+		async (file: File) => {
+			setIsProcessing(true);
+			setImportResult(null);
 
-		try {
-			// Validate file first
-			const fileValidation = validateFile(file, {
-				accept: ['.json'],
-				maxSize: 1024 * 1024,
-			});
-
-			if (!fileValidation.isValid) {
-				setDropError(fileValidation.error || 'File validation failed');
-				return;
-			}
-
-			// Import and validate configuration
-			const result = await exportImportService.importConfiguration(file);
-			setImportResult(result);
-
-			if (result.isValid && result.configuration) {
-				// Auto-apply if valid
-				onImport(result.configuration, result.metadata);
-				modernMessaging.showFooterMessage({
-					type: 'status',
-					message: 'Configuration imported and applied successfully!',
-					duration: 4000,
+			try {
+				// Validate file first
+				const fileValidation = validateFile(file, {
+					accept: ['.json'],
+					maxSize: 1024 * 1024,
 				});
-			} else {
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: 'Configuration import failed. Please check the validation errors.',
-					dismissible: true,
-				});
+
+				if (!fileValidation.isValid) {
+					setDropError(fileValidation.error || 'File validation failed');
+					return;
+				}
+
+				// Import and validate configuration
+				const result = await exportImportService.importConfiguration(file);
+				setImportResult(result);
+
+				if (result.isValid && result.configuration) {
+					// Auto-apply if valid
+					onImport(result.configuration, result.metadata);
+					modernMessaging.showFooterMessage({
+						type: 'status',
+						message: 'Configuration imported and applied successfully!',
+						duration: 4000,
+					});
+				} else {
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Configuration import failed. Please check the validation errors.',
+						dismissible: true,
+					});
+				}
+			} catch (error) {
+				logger.error(
+					'ExportImportPanel',
+					'[ExportImport] Import failed:',
+					undefined,
+					error as Error
+				);
+				setDropError(error instanceof Error ? error.message : 'Import failed');
+			} finally {
+				setIsProcessing(false);
 			}
-		} catch (error) {
-			logger.error('ExportImportPanel', '[ExportImport] Import failed:', undefined, error as Error);
-			setDropError(error instanceof Error ? error.message : 'Import failed');
-		} finally {
-			setIsProcessing(false);
-		}
-	};
+		},
+		[onImport]
+	);
 
 	const handleFilesDropped = useCallback(
 		async (files: File[]) => {

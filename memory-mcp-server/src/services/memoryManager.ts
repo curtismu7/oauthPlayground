@@ -54,12 +54,12 @@ export class MemoryManager {
 
 	async initialize(): Promise<void> {
 		await this.storage.init();
-		console.log('Memory storage initialized');
+		console.error('[memory-mcp] Memory storage initialized');
 	}
 
 	async shutdown(): Promise<void> {
 		// node-persist doesn't have a close method, just clear if needed
-		console.log('Memory storage closed');
+		console.error('[memory-mcp] Memory storage closed');
 	}
 
 	// User Preferences

@@ -88,9 +88,13 @@ describe('CSRFProtection', () => {
 		protection = new CSRFProtection();
 		vi.clearAllMocks();
 		// Clear mock cookies
-		Object.keys(mockCookies).forEach((key) => delete mockCookies[key]);
+		Object.keys(mockCookies).forEach((key) => {
+			delete mockCookies[key];
+		});
 		// Clear mock meta tags
-		Object.keys(mockMetaTags).forEach((key) => delete mockMetaTags[key]);
+		Object.keys(mockMetaTags).forEach((key) => {
+			delete mockMetaTags[key];
+		});
 	});
 
 	afterEach(() => {
@@ -309,7 +313,9 @@ describe('CSRFProtection', () => {
 describe('Utility Functions', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		Object.keys(mockCookies).forEach((key) => delete mockCookies[key]);
+		Object.keys(mockCookies).forEach((key) => {
+			delete mockCookies[key];
+		});
 	});
 
 	describe('getCSRFToken', () => {

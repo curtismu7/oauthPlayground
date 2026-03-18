@@ -201,9 +201,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		return saved === 'true';
 	});
 
-	// Save sidebar width to localStorage (App/Navbar read from same key)
+	// Save sidebar width to localStorage and notify App (same-tab custom event)
 	useEffect(() => {
 		localStorage.setItem('sidebar.width', String(sidebarWidth));
+		window.dispatchEvent(new CustomEvent('sidebar-width-changed'));
 	}, [sidebarWidth]);
 
 	// Handle search
@@ -271,7 +272,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			style={{
 				userSelect: isResizing ? 'none' : 'auto',
 				transition: isResizing ? 'none' : 'width 0.2s ease',
-				background: isAdmin ? '#1b2a3b' : undefined,
+				background: isAdmin ? '#1e293b' : undefined,
 			}}
 		>
 			<ResizeHandle onMouseDown={handleResizeStart} title="Drag to resize sidebar" />
@@ -314,11 +315,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							>
 								<svg
 									aria-hidden="true"
-									width="14"
-									height="14"
+									width="22"
+									height="22"
 									viewBox="0 0 24 24"
 									fill="none"
-									stroke="currentColor"
+									stroke="#f59e0b"
 									strokeWidth="2"
 								>
 									<circle cx="12" cy="12" r="5" />

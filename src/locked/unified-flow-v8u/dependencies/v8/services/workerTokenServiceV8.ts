@@ -14,6 +14,8 @@
  * - Memory: In-memory cache for performance
  */
 
+import { logger } from '../../../../../utils/logger';
+
 const MODULE_TAG = '[🔑 WORKER-TOKEN-V8]';
 
 const BROWSER_STORAGE_KEY = 'v8:worker_token';
@@ -145,7 +147,6 @@ class WorkerTokenServiceV8 {
 		// Import analytics utility once for this function
 		const { safeAnalyticsFetch } = await import('@/v8/utils/analyticsServerCheckV8');
 
-		import { logger } from '../../../../../utils/logger';
 		// Try memory cache first
 		if (this.memoryCache) {
 			return this.extractCredentials(this.memoryCache);

@@ -824,6 +824,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 							}}
 						>
 							<button
+								type="button"
 								style={{
 									background: 'linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%)',
 									color: 'white',
@@ -842,6 +843,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 								<span>📄</span> Scan Document
 							</button>
 							<button
+								type="button"
 								style={{
 									background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
 									color: 'white',
