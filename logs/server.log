@@ -11583,3 +11583,173 @@
 [2026-03-18T11:23:19.964Z] [03/18/2026, 06:23:19] [ℹ️ LOG] [2026-03-18T11:23:19.964Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Database initialized: /Users/cmuir/P1Import-apps/oauth-playground/data/enhanced_credentials.db
 [2026-03-18T11:23:22.305Z] [03/18/2026, 06:23:22] [ℹ️ LOG] [2026-03-18T11:23:22.305Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials saved: __worker_token__
 [2026-03-18T11:23:22.773Z] [03/18/2026, 06:23:22] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:42:53.909Z] [03/18/2026, 07:42:53] [ℹ️ LOG] [2026-03-18T12:42:53.909Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:42:55.306Z] [03/18/2026, 07:42:55] [ℹ️ LOG] [2026-03-18T12:42:55.306Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:42:55.922Z] [03/18/2026, 07:42:55] [ℹ️ LOG] [2026-03-18T12:42:55.922Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:42:56.527Z] [03/18/2026, 07:42:56] [ℹ️ LOG] [2026-03-18T12:42:56.527Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:42:57.133Z] [03/18/2026, 07:42:57] [ℹ️ LOG] [2026-03-18T12:42:57.133Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:42:57.431Z] [03/18/2026, 07:42:57] [ℹ️ LOG] [2026-03-18T12:42:57.431Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:42:58.934Z] [03/18/2026, 07:42:58] [ℹ️ LOG] [2026-03-18T12:42:58.934Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:42:58.935Z] [03/18/2026, 07:42:58] [ℹ️ LOG] [2026-03-18T12:42:58.935Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:42:59.250Z] [03/18/2026, 07:42:59] [ℹ️ LOG] [2026-03-18T12:42:59.250Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:42:59.547Z] [03/18/2026, 07:42:59] [ℹ️ LOG] [2026-03-18T12:42:59.547Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:42:59.555Z] [03/18/2026, 07:42:59] [ℹ️ LOG] [2026-03-18T12:42:59.555Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:00.454Z] [03/18/2026, 07:43:00] [ℹ️ LOG] [2026-03-18T12:43:00.454Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:01.360Z] [03/18/2026, 07:43:01] [ℹ️ LOG] [2026-03-18T12:43:01.359Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:01.667Z] [03/18/2026, 07:43:01] [ℹ️ LOG] [2026-03-18T12:43:01.666Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:02.273Z] [03/18/2026, 07:43:02] [ℹ️ LOG] [2026-03-18T12:43:02.273Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:02.580Z] [03/18/2026, 07:43:02] [ℹ️ LOG] [2026-03-18T12:43:02.580Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:03.170Z] [03/18/2026, 07:43:03] [ℹ️ LOG] [2026-03-18T12:43:03.164Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:03.501Z] [03/18/2026, 07:43:03] [ℹ️ LOG] [2026-03-18T12:43:03.501Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:04.113Z] [03/18/2026, 07:43:04] [ℹ️ LOG] [2026-03-18T12:43:04.113Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:04.428Z] [03/18/2026, 07:43:04] [ℹ️ LOG] [2026-03-18T12:43:04.428Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:05.013Z] [03/18/2026, 07:43:05] [ℹ️ LOG] [2026-03-18T12:43:05.013Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:05.341Z] [03/18/2026, 07:43:05] [ℹ️ LOG] [2026-03-18T12:43:05.340Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:05.977Z] [03/18/2026, 07:43:05] [ℹ️ LOG] [2026-03-18T12:43:05.977Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:06.529Z] [03/18/2026, 07:43:06] [ℹ️ LOG] [2026-03-18T12:43:06.529Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:06.842Z] [03/18/2026, 07:43:06] [ℹ️ LOG] [2026-03-18T12:43:06.842Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:07.384Z] [03/18/2026, 07:43:07] [ℹ️ LOG] [2026-03-18T12:43:07.383Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:07.713Z] [03/18/2026, 07:43:07] [ℹ️ LOG] [2026-03-18T12:43:07.713Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:08.312Z] [03/18/2026, 07:43:08] [ℹ️ LOG] [2026-03-18T12:43:08.312Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:08.611Z] [03/18/2026, 07:43:08] [ℹ️ LOG] [2026-03-18T12:43:08.611Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:09.216Z] [03/18/2026, 07:43:09] [ℹ️ LOG] [2026-03-18T12:43:09.216Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:09.526Z] [03/18/2026, 07:43:09] [ℹ️ LOG] [2026-03-18T12:43:09.526Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:10.146Z] [03/18/2026, 07:43:10] [ℹ️ LOG] [2026-03-18T12:43:10.146Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:10.456Z] [03/18/2026, 07:43:10] [ℹ️ LOG] [2026-03-18T12:43:10.456Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:11.959Z] [03/18/2026, 07:43:11] [ℹ️ LOG] [2026-03-18T12:43:11.959Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:12.429Z] [03/18/2026, 07:43:12] [ℹ️ LOG] [2026-03-18T12:43:12.429Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:12.781Z] [03/18/2026, 07:43:12] [ℹ️ LOG] [2026-03-18T12:43:12.781Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:13.337Z] [03/18/2026, 07:43:13] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:13.515Z] [03/18/2026, 07:43:13] [❌ ERROR] [2026-03-18T12:43:13.514Z] ERROR [🔐 CREDENTIALS-SQLITE-API] Save failed: {
+  "errno": 8,
+  "code": "SQLITE_READONLY"
+}
+[2026-03-18T12:43:13.660Z] [03/18/2026, 07:43:13] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:13.714Z] [03/18/2026, 07:43:13] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:13.785Z] [03/18/2026, 07:43:13] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:13.983Z] [03/18/2026, 07:43:13] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:14.006Z] [03/18/2026, 07:43:14] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:14.238Z] [03/18/2026, 07:43:14] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:14.280Z] [03/18/2026, 07:43:14] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:14.322Z] [03/18/2026, 07:43:14] [❌ ERROR] [2026-03-18T12:43:14.322Z] ERROR [🔐 CREDENTIALS-SQLITE-API] Save failed: {
+  "errno": 8,
+  "code": "SQLITE_READONLY"
+}
+[2026-03-18T12:43:14.524Z] [03/18/2026, 07:43:14] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:14.565Z] [03/18/2026, 07:43:14] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:14.804Z] [03/18/2026, 07:43:14] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:14.838Z] [03/18/2026, 07:43:14] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:14.858Z] [03/18/2026, 07:43:14] [❌ ERROR] [2026-03-18T12:43:14.858Z] ERROR [🔐 CREDENTIALS-SQLITE-API] Save failed: {
+  "errno": 8,
+  "code": "SQLITE_READONLY"
+}
+[2026-03-18T12:43:15.089Z] [03/18/2026, 07:43:15] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:15.125Z] [03/18/2026, 07:43:15] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:15.377Z] [03/18/2026, 07:43:15] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:15.386Z] [03/18/2026, 07:43:15] [❌ ERROR] [2026-03-18T12:43:15.386Z] ERROR [🔐 CREDENTIALS-SQLITE-API] Save failed: {
+  "errno": 8,
+  "code": "SQLITE_READONLY"
+}
+[2026-03-18T12:43:15.399Z] [03/18/2026, 07:43:15] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:15.665Z] [03/18/2026, 07:43:15] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:15.680Z] [03/18/2026, 07:43:15] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:15.958Z] [03/18/2026, 07:43:15] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:15.953Z] [03/18/2026, 07:43:15] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:15.975Z] [03/18/2026, 07:43:15] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:16.255Z] [03/18/2026, 07:43:16] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:16.273Z] [03/18/2026, 07:43:16] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:16.286Z] [03/18/2026, 07:43:16] [❌ ERROR] [2026-03-18T12:43:16.286Z] ERROR [🔐 CREDENTIALS-SQLITE-API] Save failed: {
+  "errno": 8,
+  "code": "SQLITE_READONLY"
+}
+[2026-03-18T12:43:16.554Z] [03/18/2026, 07:43:16] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:16.562Z] [03/18/2026, 07:43:16] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:16.838Z] [03/18/2026, 07:43:16] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:16.850Z] [03/18/2026, 07:43:16] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:17.146Z] [03/18/2026, 07:43:17] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:17.152Z] [03/18/2026, 07:43:17] [❌ ERROR] [2026-03-18T12:43:17.152Z] ERROR [🔐 CREDENTIALS-SQLITE-API] Save failed: {
+  "errno": 8,
+  "code": "SQLITE_READONLY"
+}
+[2026-03-18T12:43:17.153Z] [03/18/2026, 07:43:17] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:17.439Z] [03/18/2026, 07:43:17] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:17.458Z] [03/18/2026, 07:43:17] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:17.727Z] [03/18/2026, 07:43:17] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:17.747Z] [03/18/2026, 07:43:17] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:17.748Z] [03/18/2026, 07:43:17] [❌ ERROR] [2026-03-18T12:43:17.747Z] ERROR [🔐 CREDENTIALS-SQLITE-API] Save failed: {
+  "errno": 8,
+  "code": "SQLITE_READONLY"
+}
+[2026-03-18T12:43:18.045Z] [03/18/2026, 07:43:18] [ℹ️ LOG] [2026-03-18T12:43:18.044Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:43:18.049Z] [03/18/2026, 07:43:18] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:18.381Z] [03/18/2026, 07:43:18] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:18.404Z] [03/18/2026, 07:43:18] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:43:18.720Z] [03/18/2026, 07:43:18] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:47:59.160Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2026-03-18T12:47:59.175Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2026-03-18T12:47:59.175Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2026-03-18T12:47:59.176Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+[2026-03-18T12:47:59.176Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2026-03-18T12:47:59.176Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+[2026-03-18T12:47:59.177Z] [03/18/2026, 07:47:59] Log stream started; server lifecycle and backend logs will appear here (format: [timestamp] [localTime]).
+[2026-03-18T12:47:59.176Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 📋 Log streams (Log Viewer can show all; format: [timestamp] [localTime]):
+[2026-03-18T12:47:59.179Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 💾 User database service initialized
+[2026-03-18T12:47:59.181Z] [03/18/2026, 07:47:59] [ℹ️ LOG] [2026-03-18T12:47:59.181Z] INFO  [🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+[2026-03-18T12:47:59.186Z] [03/18/2026, 07:47:59] [ℹ️ LOG] [Groq] Loaded API key from /Users/cmuir/.pingone-playground/credentials/groq-config.json
+[2026-03-18T12:47:59.187Z] [03/18/2026, 07:47:59] [ℹ️ LOG] [BraveSearch] Loaded API key from /Users/cmuir/.pingone-playground/credentials/brave-config.json
+[2026-03-18T12:47:59.189Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2026-03-18T12:47:59.192Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 🔧 Initializing databases...
+[2026-03-18T12:47:59.199Z] [03/18/2026, 07:47:59] [ℹ️ LOG] [2026-03-18T12:47:59.199Z] INFO  [💾 BACKUP-DB] Backup tables created
+[2026-03-18T12:47:59.200Z] [03/18/2026, 07:47:59] [ℹ️ LOG] [2026-03-18T12:47:59.200Z] INFO  [💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[2026-03-18T12:47:59.200Z] [03/18/2026, 07:47:59] [ℹ️ LOG] ✅ Settings database initialized
+[2026-03-18T12:47:59.201Z] [03/18/2026, 07:47:59] [ℹ️ LOG] [2026-03-18T12:47:59.201Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-18T12:47:59.201Z] [03/18/2026, 07:47:59] [ℹ️ LOG] [2026-03-18T12:47:59.201Z] INFO  [💾 USER-DB] Tables created successfully
+[2026-03-18T12:47:59.202Z] [03/18/2026, 07:47:59] [ℹ️ LOG] [2026-03-18T12:47:59.202Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-18T12:47:59.202Z] [03/18/2026, 07:47:59] [ℹ️ LOG] [2026-03-18T12:47:59.202Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-18T12:47:59.202Z] [03/18/2026, 07:47:59] [ℹ️ LOG] [2026-03-18T12:47:59.202Z] INFO  [💾 USER-DB] Indexes created successfully
+[2026-03-18T12:47:59.202Z] [03/18/2026, 07:47:59] [ℹ️ LOG] [2026-03-18T12:47:59.202Z] INFO  [💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db
+[2026-03-18T12:47:59.203Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 🎉 All databases initialized successfully
+[2026-03-18T12:47:59.227Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 📡 Health check: https://localhost:3001/api/health
+[2026-03-18T12:47:59.227Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 👤 UserInfo: https://localhost:3001/api/userinfo
+[2026-03-18T12:47:59.202Z] [03/18/2026, 07:47:59] [ℹ️ LOG] ✅ User database initialized
+[2026-03-18T12:47:59.227Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+[2026-03-18T12:47:59.227Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3001/api/token-exchange
+[2026-03-18T12:47:59.227Z] [03/18/2026, 07:47:59] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+[2026-03-18T12:47:59.227Z] [03/18/2026, 07:47:59] [ℹ️ LOG] ✅ Token validation: https://localhost:3001/api/validate-token
+[2026-03-18T12:52:11.907Z] [03/18/2026, 07:52:11] [ℹ️ LOG] [2026-03-18T12:52:11.907Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Database initialized: /Users/cmuir/P1Import-apps/oauth-playground/data/enhanced_credentials.db
+[2026-03-18T12:52:11.923Z] [03/18/2026, 07:52:11] [ℹ️ LOG] [2026-03-18T12:52:11.923Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:52:12.063Z] [03/18/2026, 07:52:12] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:52:30.698Z] [03/18/2026, 07:52:30] [ℹ️ LOG] [Discovery] Request received: {
+  "environment_id": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "us",
+  "query": {
+    "environment_id": "b9817c16-9910-4415-b67e-4ac687da74d9",
+    "region": "us"
+  }
+}
+[2026-03-18T12:52:30.698Z] [03/18/2026, 07:52:30] [ℹ️ LOG] [Discovery] Fetching configuration from: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/.well-known/openid_configuration
+[2026-03-18T12:52:30.698Z] [03/18/2026, 07:52:30] [ℹ️ LOG] [Discovery] Fetching from PingOne...
+[2026-03-18T12:52:30.858Z] [03/18/2026, 07:52:30] [ℹ️ LOG] [Discovery] PingOne response: 403 Forbidden
+[2026-03-18T12:52:30.858Z] [03/18/2026, 07:52:30] [❌ ERROR] [Discovery] PingOne error: 403 Forbidden
+[2026-03-18T12:52:30.858Z] [03/18/2026, 07:52:30] [ℹ️ LOG] [Discovery] Using fallback configuration for environment: b9817c16-9910-4415-b67e-4ac687da74d9
+[2026-03-18T12:52:30.858Z] [03/18/2026, 07:52:30] [❌ ERROR] [Discovery] Error body: {"message":"Missing Authentication Token"}
+
+[2026-03-18T12:52:38.111Z] [03/18/2026, 07:52:38] [ℹ️ LOG] [2026-03-18T12:52:38.111Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:52:38.133Z] [03/18/2026, 07:52:38] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:52:41.092Z] [03/18/2026, 07:52:41] [ℹ️ LOG] [2026-03-18T12:52:41.092Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:53:59.485Z] [03/18/2026, 07:53:59] [ℹ️ LOG] [2026-03-18T12:53:59.485Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:53:59.638Z] [03/18/2026, 07:53:59] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:54:01.807Z] [03/18/2026, 07:54:01] [ℹ️ LOG] [2026-03-18T12:54:01.807Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:54:01.838Z] [03/18/2026, 07:54:01] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:54:25.594Z] [03/18/2026, 07:54:25] [ℹ️ LOG] [2026-03-18T12:54:25.594Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:54:25.612Z] [03/18/2026, 07:54:25] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:55:18.038Z] [03/18/2026, 07:55:18] [ℹ️ LOG] [2026-03-18T12:55:18.037Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:55:18.213Z] [03/18/2026, 07:55:18] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:55:18.283Z] [03/18/2026, 07:55:18] [ℹ️ LOG] [2026-03-18T12:55:18.283Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:55:18.432Z] [03/18/2026, 07:55:18] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:56:12.992Z] [03/18/2026, 07:56:12] [ℹ️ LOG] [2026-03-18T12:56:12.992Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:56:13.030Z] [03/18/2026, 07:56:13] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:56:16.447Z] [03/18/2026, 07:56:16] [ℹ️ LOG] [2026-03-18T12:56:16.447Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:56:54.310Z] [03/18/2026, 07:56:54] [ℹ️ LOG] [2026-03-18T12:56:54.310Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
+[2026-03-18T12:56:54.352Z] [03/18/2026, 07:56:54] [ℹ️ LOG] 📁 [Server] Saved MCP config (mcp-config.json)
+[2026-03-18T12:56:57.829Z] [03/18/2026, 07:56:57] [ℹ️ LOG] [2026-03-18T12:56:57.829Z] INFO  [🔐 CREDENTIALS-SQLITE-API] Credentials loaded: __worker_token__
