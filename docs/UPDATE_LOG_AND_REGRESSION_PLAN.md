@@ -43,6 +43,13 @@ This document:
 - **Files:** `AIIdentityArchitecturesV9.tsx`, `OIDCForAIV9.tsx`, `OAuthForAIV9.tsx`, `PingViewOnAIV9.tsx`, `PingAIResourcesV9.tsx`, `SpecCard.tsx`, `AIAssistantPage.tsx`, `McpServerConfigFlowV9.tsx`, `MCPDocumentation.tsx`, `AIAgentOverview.tsx`, `AIGlossary.tsx`, `PromptAll.tsx`, `MigrateVscode.tsx`, `AIAgentAuthDraft.tsx`, `src/services/flowHeaderService.tsx`
 - **Regression check:** Navigate to `/mcp-server` — red header with title "MCP Server Configuration" must appear. Navigate to `/ai-identity-architectures`, `/docs/oidc-for-ai`, `/ai-glossary`, `/docs/prompts/prompt-all` — pages must load without white/blank styled-components (color values render correctly). All pages must scroll to top on route change.
 
+### McpServerConfigFlowV9: infinite re-render loop when WorkerTokenSectionV9 onTokenUpdated was inline (2026-03-18)
+
+- **What:** `WorkerTokenSectionV9` uses `useCallback([onTokenUpdated])` → `useEffect([updateStatus])`. Passing an inline arrow function as `onTokenUpdated` creates a new reference every render → `updateStatus` becomes new → useEffect fires → `setTokenStatus` → re-render → new inline reference → loop.
+- **Fix:** Extracted the credentials-population logic into a stable `useCallback(() => {...}, [])` named `handleWorkerTokenUpdated` and passed that reference to `<WorkerTokenSectionV9 onTokenUpdated={handleWorkerTokenUpdated} />`.
+- **Files:** `src/pages/flows/v9/McpServerConfigFlowV9.tsx`
+- **Regression check:** Navigate to `/mcp-server`, open Worker Token section. Clicking "Get Worker Token" opens the modal once without looping. After acquiring a token, credentials form fields auto-populate. **Rule:** Never pass inline arrow functions as `onTokenUpdated` to `WorkerTokenSectionV9` — always use a stable `useCallback` reference.
+
 ### McpServerConfigFlowV9: replaced custom worker token state with WorkerTokenSectionV9 service (2026-03-18)
 
 - **What:** The credentials tab had a hand-rolled `workerTokenAvailable` state, a `WorkerTokenIndicator` styled div, a `loadFromWorkerToken` button, and a `checkWorkerToken` useEffect — all duplicating what `WorkerTokenSectionV9` already provides. The bottom `<WorkerTokenSectionV9 $compact>` also had the wrong prop (`$compact` instead of `compact`), so the compact layout was never applied.
