@@ -440,7 +440,9 @@ class ScopeValidationService {
 
 		scopeSources.forEach((source) => {
 			const parsed = this.parseScopes(source);
-			parsed.forEach((scope) => allScopes.add(scope));
+			parsed.forEach((scope) => {
+				allScopes.add(scope);
+			});
 		});
 
 		return Array.from(allScopes).join(' ');

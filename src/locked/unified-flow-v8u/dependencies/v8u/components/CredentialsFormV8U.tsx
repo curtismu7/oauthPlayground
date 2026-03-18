@@ -4593,6 +4593,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowPromptInfoModal(false)}
 								style={{
 									marginTop: '24px',
@@ -4956,6 +4957,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowPARInfoModal(false)}
 								style={{
 									marginTop: '24px',

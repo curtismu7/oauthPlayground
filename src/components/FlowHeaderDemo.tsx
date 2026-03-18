@@ -92,13 +92,13 @@ const FlowHeaderDemo: React.FC = () => {
 					}}
 				>
 					<div style={{ marginBottom: '1rem' }}>
-						<div style={{ color: '#10b981', marginBottom: '0.5rem' }}>// Basic Usage:</div>
+						<div style={{ color: '#10b981', marginBottom: '0.5rem' }}>{/* Basic Usage: */}</div>
 						<div>{'<FlowHeader flowId="oauth-authorization-code-v5" />'}</div>
 					</div>
 
 					<div style={{ marginBottom: '1rem' }}>
 						<div style={{ color: '#10b981', marginBottom: '0.5rem' }}>
-							// With Custom Configuration:
+							{/* With Custom Configuration: */}
 						</div>
 						<div>{'<FlowHeader'}</div>
 						<div>{'  flowId="client-credentials-v5"'}</div>
@@ -109,7 +109,7 @@ const FlowHeaderDemo: React.FC = () => {
 					</div>
 
 					<div>
-						<div style={{ color: '#10b981', marginBottom: '0.5rem' }}>// Import:</div>
+						<div style={{ color: '#10b981', marginBottom: '0.5rem' }}>{/* Import: */}</div>
 						<div>{"import { FlowHeader } from '../services/flowHeaderService';"}</div>
 					</div>
 				</div>

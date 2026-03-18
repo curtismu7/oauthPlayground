@@ -36,6 +36,7 @@ const BootstrapIcon: React.FC<{
 
 	return (
 		<i
+			role="img"
 			className={`bi ${getBootstrapIconClass(icon)}`}
 			style={{
 				fontSize: `${size}px`,

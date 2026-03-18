@@ -227,6 +227,7 @@ export const PerformanceMonitorV8: React.FC<PerformanceMonitorV8Props> = ({
 					🗑️ Clear History
 				</button>
 				<button
+					type="button"
 					onClick={() => {
 						const data = JSON.stringify(metrics, null, 2);
 						const blob = new Blob([data], { type: 'application/json' });

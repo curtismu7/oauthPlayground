@@ -243,24 +243,76 @@ class ApiKeyService {
 				type: 'api_key',
 			});
 
+			const indexedDbKeys: ApiKeyInfo[] =
+				result.success && result.data
+					? result.data.map((item: any) => {
+							const metadata = item.metadata || {};
+							return {
+								id: item.id,
+								service: metadata.service || item.service || '',
+								name: metadata.name || item.service || '',
+								description: metadata.description || '',
+								value: this.maskApiKey(item.value),
+								createdAt: metadata.createdAt || '',
+								updatedAt: metadata.updatedAt || metadata.createdAt || '',
+								lastUsedAt: metadata.lastUsedAt,
+								isActive: Boolean(metadata.isActive !== false),
+							};
+						})
+					: [];
+
+			// Backup keys found in IndexedDB to the backend SQLite store (fire & forget).
+			// Ensures the SQLite copy stays in sync even if it was wiped or never written.
 			if (result.success && result.data) {
-				return result.data.map((item: any) => {
-					const metadata = item.metadata || {};
-					return {
-						id: item.id,
-						service: metadata.service || item.service || '',
-						name: metadata.name || item.service || '',
-						description: metadata.description || '',
-						value: this.maskApiKey(item.value),
-						createdAt: metadata.createdAt || '',
-						updatedAt: metadata.updatedAt || metadata.createdAt || '',
-						lastUsedAt: metadata.lastUsedAt,
-						isActive: Boolean(metadata.isActive !== false),
-					};
-				});
+				for (const item of result.data) {
+					const svc: string = item.metadata?.service || item.service || '';
+					if (svc && item.value) {
+						fetch(`/api/api-key/${svc}`, {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ apiKey: item.value }),
+						}).catch(() => {}); // best-effort, never block the consumer
+					}
+				}
 			}
 
-			return [];
+			// For any known service not yet in IndexedDB, probe the backend.
+			// This recovers keys stored via env / disk / sqlite-store that were never
+			// synced into the browser (e.g. fresh visit, browser storage cleared).
+			const foundServices = new Set(indexedDbKeys.map((k) => k.service));
+			const backendSyncPromises = Object.keys(API_KEY_CONFIGS)
+				.filter((svc) => !foundServices.has(svc))
+				.map(async (svc) => {
+					try {
+						const res = await fetch(`/api/api-key/${svc}`);
+						const data = await res.json();
+						if (data.success && data.apiKey) {
+							// Sync into IndexedDB so subsequent loads are instant
+							await this.storeApiKey(svc, data.apiKey);
+							const config = API_KEY_CONFIGS[svc];
+							return {
+								id: `backend-${svc}`,
+								service: svc,
+								name: config?.name || svc,
+								description: config?.description || '',
+								value: this.maskApiKey(data.apiKey),
+								createdAt: new Date().toISOString(),
+								updatedAt: new Date().toISOString(),
+								lastUsedAt: undefined,
+								isActive: true,
+							} as ApiKeyInfo;
+						}
+					} catch {
+						/* backend unavailable — skip */
+					}
+					return null;
+				});
+
+			const backendKeys = (await Promise.all(backendSyncPromises)).filter(
+				(k): k is ApiKeyInfo => k !== null
+			);
+
+			return [...indexedDbKeys, ...backendKeys];
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Error retrieving all API keys:', error);
 			return [];

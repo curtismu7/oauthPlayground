@@ -218,6 +218,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 					}}
 				/>
 				<button
+					type="button"
 					onClick={() => {
 						setStep('input');
 						setStatus('idle');
@@ -266,6 +267,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 						/>
 					</div>
 					<button
+						type="button"
 						onClick={handleRegister}
 						disabled={!userId || !policyId}
 						style={{
@@ -325,6 +327,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 						}}
 					/>
 					<button
+						type="button"
 						onClick={handleCreateCredential}
 						style={{
 							marginTop: '1rem',

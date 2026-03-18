@@ -100,7 +100,7 @@ const IssueTitle = styled.h3`
 	margin: 0 0 0.5rem 0;
 `;
 
-const IssueDescription = styled.p`
+const IssueDescription = styled.div`
 	color: #4a5568;
 	margin: 0;
 	line-height: 1.5;

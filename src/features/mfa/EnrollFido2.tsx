@@ -182,6 +182,7 @@ export const EnrollFido2: React.FC<EnrollFido2Props> = ({
 					}}
 				/>
 				<button
+					type="button"
 					onClick={() => {
 						setStep('input');
 						setStatus('idle');
@@ -211,6 +212,7 @@ export const EnrollFido2: React.FC<EnrollFido2Props> = ({
 			{step === 'input' && (
 				<div>
 					<button
+						type="button"
 						onClick={handleRegister}
 						disabled={!userId || !policyId}
 						style={{
@@ -269,6 +271,7 @@ export const EnrollFido2: React.FC<EnrollFido2Props> = ({
 						}}
 					/>
 					<button
+						type="button"
 						onClick={handleCreateCredential}
 						style={{
 							marginTop: '1rem',

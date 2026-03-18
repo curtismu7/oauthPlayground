@@ -15,9 +15,9 @@ import {
 } from '../services/pingoneManagementClient.js';
 
 const workerTokenInputShape = {
-	environmentId: z.string().trim().optional(),
-	clientId: z.string().trim().optional(),
-	clientSecret: z.string().trim().optional(),
+	environmentId: z.string().trim().optional().describe('Leave blank — uses credentials loaded from the playground app storage. Call pingone_show_stored_config to verify.'),
+	clientId: z.string().trim().optional().describe('Leave blank — uses client_id loaded from the playground app storage.'),
+	clientSecret: z.string().trim().optional().describe('Leave blank — uses client_secret loaded from the playground app storage.'),
 	scope: z.string().trim().optional(),
 	tokenEndpointAuthMethod: z.enum(['client_secret_post', 'client_secret_basic']).optional(),
 } as const;
@@ -44,11 +44,11 @@ const workerTokenOutputSchema = z.object({
 const workerTokenOutputShape = workerTokenOutputSchema.shape;
 
 const listAppsInputShape = {
-	environmentId: z.string().trim().optional(),
+	environmentId: z.string().trim().optional().describe('Leave blank — uses credentials loaded from the playground app storage. Call pingone_show_stored_config to verify.'),
 	region: z.string().trim().optional(),
-	workerToken: z.string().trim().optional(),
-	clientId: z.string().trim().optional(),
-	clientSecret: z.string().trim().optional(),
+	workerToken: z.string().trim().optional().describe('Leave blank — server will auto-fetch a token using stored credentials.'),
+	clientId: z.string().trim().optional().describe('Leave blank — uses client_id loaded from the playground app storage.'),
+	clientSecret: z.string().trim().optional().describe('Leave blank — uses client_secret loaded from the playground app storage.'),
 	scope: z.string().trim().optional(),
 	includeSecret: z.boolean().optional(),
 	limit: z.number().int().positive().max(200).optional(),

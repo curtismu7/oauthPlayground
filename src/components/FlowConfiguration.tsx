@@ -811,7 +811,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 												onChange={(e) => updateConfig({ nonce: e.target.value })}
 												placeholder="Random string for replay protection"
 											/>
-											<button onClick={generateNonce}>Generate</button>
+											<button type="button" onClick={generateNonce}>
+												Generate
+											</button>
 										</div>
 									</ConfigField>
 
@@ -825,7 +827,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 												onChange={(e) => updateConfig({ state: e.target.value })}
 												placeholder="Random string for CSRF protection"
 											/>
-											<button onClick={generateState}>Generate</button>
+											<button type="button" onClick={generateState}>
+												Generate
+											</button>
 										</div>
 									</ConfigField>
 
@@ -987,7 +991,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 											value={value}
 											onChange={(e) => updateCustomParam(key, key, e.target.value)}
 										/>
-										<button onClick={() => removeCustomParam(key)}>Remove</button>
+										<button type="button" onClick={() => removeCustomParam(key)}>
+											Remove
+										</button>
 									</ClaimRow>
 								))}
 								<AddButton onClick={addCustomParam}>+ Add Custom Parameter</AddButton>
@@ -1013,7 +1019,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 												value={String(value)}
 												onChange={(e) => updateCustomClaim(key, key, e.target.value)}
 											/>
-											<button onClick={() => removeCustomClaim(key)}>Remove</button>
+											<button type="button" onClick={() => removeCustomClaim(key)}>
+												Remove
+											</button>
 										</ClaimRow>
 									))}
 									<AddButton onClick={addCustomClaim}>+ Add Custom Claim</AddButton>

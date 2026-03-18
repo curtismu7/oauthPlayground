@@ -814,6 +814,7 @@ export const MFAHubV8: React.FC = () => {
 								))}
 							</ul>
 							<button
+								type="button"
 								className="feature-button"
 								style={{ background: feature.color }}
 								onClick={(e) => {

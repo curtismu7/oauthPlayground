@@ -127,7 +127,7 @@ class IndexedDBViewerService {
 			return new Promise((resolve, reject) => {
 				const request = store.openCursor();
 
-				request.onsuccess = (event) => {
+				request.onsuccess = async (event) => {
 					const cursor = (event.target as IDBRequest).result;
 
 					if (cursor) {

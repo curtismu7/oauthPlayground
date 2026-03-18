@@ -323,7 +323,9 @@ class PersistentCredentialsManager {
 					key === 'login_credentials'
 			);
 
-			keysToRemove.forEach((key) => localStorage.removeItem(key));
+			keysToRemove.forEach((key) => {
+				localStorage.removeItem(key);
+			});
 
 			logger.info('PersistentCredentials', 'Cleared all credentials and state', {
 				removedKeys: keysToRemove.length,

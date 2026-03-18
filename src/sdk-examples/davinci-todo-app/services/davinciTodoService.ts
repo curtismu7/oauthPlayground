@@ -68,6 +68,7 @@ export class DavinciTodoService {
 	private static readonly ENVIRONMENT_ID = import.meta.env.VITE_PINGONE_ENVIRONMENT_ID || '';
 
 	private static accessToken: string | null = null;
+	private static currentUser: { id: string; email: string; name: string } | null = null;
 
 	/**
 	 * Initialize DaVinci client with real PingOne authentication
@@ -506,10 +507,17 @@ export class DavinciTodoService {
 	}
 
 	/**
+	 * Get current user information
+	 */
+	static getCurrentUser(): { id: string; email: string; name: string } | null {
+		return DavinciTodoService.currentUser;
+	}
+
+	/**
 	 * Set current user information
 	 */
 	static setCurrentUser(user: { id: string; email: string; name: string }): void {
-		// In a real implementation, this would store user information
+		DavinciTodoService.currentUser = user;
 		logger.info('[DavinciTodoService] 👤 User set:', user);
 	}
 
@@ -517,7 +525,7 @@ export class DavinciTodoService {
 	 * Clear current user information
 	 */
 	static clearCurrentUser(): void {
-		// In a real implementation, this would clear user information
+		DavinciTodoService.currentUser = null;
 		logger.info('[DavinciTodoService] 👤 User cleared', 'Logger info');
 	}
 
