@@ -20,7 +20,7 @@ function resolveAuthBase(region: string): string {
 }
 
 export interface GetOidcConfigRequest {
-	environmentId: string;
+	environmentId?: string;
 	region?: string;
 }
 
@@ -34,9 +34,12 @@ export interface GetOidcConfigResult {
 /** Fetch PingOne OIDC discovery for an environment (no auth). */
 export async function getOidcConfig(request: GetOidcConfigRequest): Promise<GetOidcConfigResult> {
 	try {
-		const envId = request.environmentId?.trim();
+		const envId =
+			(request.environmentId?.trim()) ??
+			process.env.PINGONE_ENVIRONMENT_ID ??
+			process.env.VITE_PINGONE_ENVIRONMENT_ID;
 		if (!envId) {
-			return { success: false, error: { message: 'environmentId is required' } };
+			return { success: false, error: { message: 'environmentId is required. Save credentials in the playground app or set PINGONE_ENVIRONMENT_ID.' } };
 		}
 		const region = request.region?.trim() ?? 'na';
 		const baseUrl = resolveAuthBase(region);

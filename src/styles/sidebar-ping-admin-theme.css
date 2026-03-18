@@ -7,29 +7,34 @@
 
 /* ─── Colour tokens ────────────────────────────────────────────────────────── */
 .sidebar--ping-admin {
-	--spa-bg: #1b2a3b;
-	--spa-bg-hover: rgba(255, 255, 255, 0.07);
-	--spa-bg-active: rgba(74, 144, 217, 0.18);
-	--spa-accent: #4a90d9;
-	--spa-text: #c8d6e5;
-	--spa-text-dim: #7a93ab;
+	--spa-bg: #1e293b;
+	--spa-bg-hover: rgba(255, 255, 255, 0.08);
+	--spa-bg-active: rgba(255, 255, 255, 0.12);
+	--spa-accent: #60a5fa;
+	--spa-text: #e8f0f8;
+	--spa-text-dim: #93b8d4;
 	--spa-text-active: #ffffff;
-	--spa-divider: rgba(255, 255, 255, 0.1);
-	--spa-header-bg: #15202e;
+	--spa-divider: rgba(255, 255, 255, 0.12);
+	--spa-header-bg: #1e293b;
 	--spa-logo-text: #ffffff;
-	--spa-group-label: #7a93ab;
-	--spa-chevron: #7a93ab;
+	--spa-group-label: #d0dfe8;
+	--spa-chevron: #d0dfe8;
 	--spa-item-font: 0.875rem;
-	--spa-group-font: 0.7rem;
+	--spa-group-font: 0.72rem;
 	--spa-radius: 4px;
 	--spa-left-bar: 3px solid var(--spa-accent);
+	/* Override the classic theme's :root variable so item highlight stays on-theme */
+	--sidebar-ping-active-bg: rgba(255, 255, 255, 0.12);
+	--sidebar-ping-active-text: #ffffff;
+	--sidebar-ping-bg: #1e293b;
 }
 
 /* ─── Sidebar container ────────────────────────────────────────────────────── */
 .sidebar--ping-admin {
 	background: var(--spa-bg);
+	color: var(--spa-text);
 	border-right: 1px solid rgba(255, 255, 255, 0.06);
-	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Clear out any colour overrides from the old theme that bleed in via specificity */
@@ -82,7 +87,9 @@
 	color: var(--spa-text-dim);
 	cursor: pointer;
 	border-radius: var(--spa-radius);
-	transition: background 0.15s, color 0.15s;
+	transition:
+		background 0.15s,
+		color 0.15s;
 }
 
 .sidebar--ping-admin .sidebar-ping-admin__close-btn:hover {
@@ -97,28 +104,39 @@
 	gap: 6px;
 	padding: 0.625rem 0.75rem 0.375rem;
 	border-bottom: 1px solid var(--spa-divider);
+	color: var(--spa-text);
+}
+
+/* Counter the classic theme's .sidebar-ping * { color: #2d3748 } for the header + controls */
+.sidebar--ping-admin .sidebar-ping-admin__header,
+.sidebar--ping-admin .sidebar-ping-admin__header *,
+.sidebar--ping-admin .sidebar-ping-admin__controls,
+.sidebar--ping-admin .sidebar-ping-admin__controls button,
+.sidebar--ping-admin .sidebar-ping-admin__controls svg {
+	color: var(--spa-text);
+	text-shadow: none;
 }
 
 /* Override SidebarSearch input to match dark theme */
-.sidebar--ping-admin input[type='search'],
-.sidebar--ping-admin input[type='text'] {
-	background: rgba(255, 255, 255, 0.08) !important;
-	border: 1px solid rgba(255, 255, 255, 0.15) !important;
-	color: var(--spa-text) !important;
-	border-radius: var(--spa-radius) !important;
-	font-size: 0.8rem !important;
+.sidebar--ping-admin input[type="search"],
+.sidebar--ping-admin input[type="text"] {
+	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	color: var(--spa-text);
+	border-radius: var(--spa-radius);
+	font-size: 0.8rem;
 }
 
-.sidebar--ping-admin input[type='search']::placeholder,
-.sidebar--ping-admin input[type='text']::placeholder {
-	color: var(--spa-text-dim) !important;
+.sidebar--ping-admin input[type="search"]::placeholder,
+.sidebar--ping-admin input[type="text"]::placeholder {
+	color: var(--spa-text-dim);
 }
 
-.sidebar--ping-admin input[type='search']:focus,
-.sidebar--ping-admin input[type='text']:focus {
-	border-color: var(--spa-accent) !important;
-	outline: none !important;
-	box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2) !important;
+.sidebar--ping-admin input[type="search"]:focus,
+.sidebar--ping-admin input[type="text"]:focus {
+	border-color: var(--spa-accent);
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
 }
 
 /* Reorder / drag mode button */
@@ -134,7 +152,10 @@
 	background: transparent;
 	color: var(--spa-text-dim);
 	cursor: pointer;
-	transition: background 0.15s, color 0.15s, border-color 0.15s;
+	transition:
+		background 0.15s,
+		color 0.15s,
+		border-color 0.15s;
 }
 
 .sidebar--ping-admin button.sidebar-ping-admin__reorder-btn:hover,
@@ -142,6 +163,24 @@
 	background: rgba(74, 144, 217, 0.15);
 	border-color: var(--spa-accent);
 	color: var(--spa-accent);
+}
+
+/* ─── Counter global ui-settings.css nav rules ────────────────────────────── */
+/* ui-settings.css sets: nav { background: gradient } and nav a/button { background: white } */
+.sidebar--ping-admin nav {
+	background: transparent;
+}
+.sidebar--ping-admin nav a,
+.sidebar--ping-admin nav button {
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	color: inherit;
+	font-weight: inherit;
+}
+.sidebar--ping-admin nav a:hover,
+.sidebar--ping-admin nav button:hover {
+	background: transparent;
 }
 
 /* ─── Scrollable nav ───────────────────────────────────────────────────────── */
@@ -169,9 +208,6 @@
 }
 
 /* ─── Section dividers between groups ─────────────────────────────────────── */
-.sidebar--ping-admin .sidebar-ping__group + .sidebar-ping__group {
-	/* thin rule between every group */
-}
 
 /* Explicit divider element (rendered by SidebarMenuPing for section breaks) */
 .sidebar--ping-admin .sidebar-ping__section-divider {
@@ -205,6 +241,7 @@
 
 .sidebar--ping-admin .sidebar-ping__group-header:hover {
 	color: var(--spa-text);
+	background: rgba(255, 255, 255, 0.08);
 }
 
 .sidebar--ping-admin .sidebar-ping__group-header:focus-visible {
@@ -232,11 +269,11 @@
 	transition: transform 0.2s ease;
 }
 
-.sidebar--ping-admin .sidebar-ping__group-header[aria-expanded='false'] .sidebar-ping__chevron {
+.sidebar--ping-admin .sidebar-ping__group-header[aria-expanded="false"] .sidebar-ping__chevron {
 	transform: rotate(-90deg);
 }
 
-.sidebar--ping-admin .sidebar-ping__group-header[aria-expanded='true'] .sidebar-ping__chevron {
+.sidebar--ping-admin .sidebar-ping__group-header[aria-expanded="true"] .sidebar-ping__chevron {
 	transform: rotate(0deg);
 }
 
@@ -265,7 +302,10 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	border-left: 3px solid transparent;
-	transition: background 0.12s ease, color 0.12s ease, border-left-color 0.12s ease;
+	transition:
+		background 0.12s ease,
+		color 0.12s ease,
+		border-left-color 0.12s ease;
 	letter-spacing: 0;
 }
 
@@ -291,6 +331,34 @@
 	color: var(--spa-text-active);
 }
 
+/* Override the classic theme's aggressive dark-text + text-shadow rules on nav items */
+.sidebar--ping-admin .sidebar-ping__nav .sidebar-ping__item {
+	background: transparent;
+	color: #e8f0f8;
+	text-shadow: none;
+	font-weight: 400;
+	letter-spacing: 0;
+	border-color: transparent;
+	box-shadow: none;
+}
+
+.sidebar--ping-admin .sidebar-ping__nav .sidebar-ping__item--active {
+	background: rgba(255, 255, 255, 0.15);
+	border-left-color: var(--spa-accent);
+	color: #ffffff;
+	font-weight: 600;
+	text-shadow: none;
+}
+
+.sidebar--ping-admin .sidebar-ping__nav .sidebar-ping__item--active:hover {
+	background: rgba(255, 255, 255, 0.22);
+}
+
+/* Neutralise text-shadow from classic theme — scoped only to nav items */
+.sidebar--ping-admin .sidebar-ping__nav * {
+	text-shadow: none;
+}
+
 /* Hide per-item icons — PingOne console style has no icons on sub-items */
 .sidebar--ping-admin .sidebar-ping__item-icon {
 	display: none;
@@ -306,8 +374,8 @@
 /* Version / badge chips */
 .sidebar--ping-admin .sidebar-ping__item .version-badge,
 .sidebar--ping-admin .sidebar-ping__item .badges-chip,
-.sidebar--ping-admin .sidebar-ping__item [class*='badge'],
-.sidebar--ping-admin .sidebar-ping__item [class*='Badge'] {
+.sidebar--ping-admin .sidebar-ping__item [class*="badge"],
+.sidebar--ping-admin .sidebar-ping__item [class*="Badge"] {
 	font-size: 0.6rem;
 	padding: 1px 5px;
 	border-radius: 8px;
@@ -347,7 +415,9 @@
 	border-radius: 4px;
 	border: 2px dashed transparent;
 	background: transparent;
-	transition: background 0.1s, border-color 0.1s;
+	transition:
+		background 0.1s,
+		border-color 0.1s;
 }
 
 .sidebar--ping-admin .sidebar-ping__drop-zone--group.sidebar-ping__drop-zone--active {
@@ -371,13 +441,13 @@
 }
 
 /* ─── Search results (flat list) ───────────────────────────────────────────── */
-.sidebar--ping-admin .sidebar-ping__nav [style*='color: #94a3b8'],
-.sidebar--ping-admin .sidebar-ping__nav [style*='color:#94a3b8'] {
-	color: var(--spa-text-dim) !important;
+.sidebar--ping-admin .sidebar-ping__nav [style*="color: #94a3b8"],
+.sidebar--ping-admin .sidebar-ping__nav [style*="color:#94a3b8"] {
+	color: var(--spa-text-dim);
 }
 
 /* Search result sub-label (group name) */
-.sidebar--ping-admin .sidebar-ping__nav span[style*='color: #cbd5e1'],
-.sidebar--ping-admin .sidebar-ping__nav span[style*='color:#cbd5e1'] {
-	color: var(--spa-text-dim) !important;
+.sidebar--ping-admin .sidebar-ping__nav span[style*="color: #cbd5e1"],
+.sidebar--ping-admin .sidebar-ping__nav span[style*="color:#cbd5e1"] {
+	color: var(--spa-text-dim);
 }

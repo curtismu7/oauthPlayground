@@ -207,6 +207,7 @@ export const ReportsPage: React.FC = () => {
 				{/* Generate Button */}
 				<div className="flex space-x-4">
 					<button
+						type="button"
 						onClick={handleGenerateReport}
 						disabled={!selectedReport || isGenerating}
 						className="px-6 py-2 rounded font-medium disabled:opacity-50"
@@ -218,6 +219,7 @@ export const ReportsPage: React.FC = () => {
 						{isGenerating ? 'Generating...' : 'Generate Report'}
 					</button>
 					<button
+						type="button"
 						className="px-6 py-2 rounded font-medium"
 						style={{
 							backgroundColor: 'transparent',
@@ -258,6 +260,7 @@ export const ReportsPage: React.FC = () => {
 								</div>
 								<div className="flex space-x-2">
 									<button
+										type="button"
 										className="px-3 py-1 text-sm rounded"
 										style={{
 											backgroundColor: currentTheme.colors.primary,
@@ -267,6 +270,7 @@ export const ReportsPage: React.FC = () => {
 										View
 									</button>
 									<button
+										type="button"
 										className="px-3 py-1 text-sm rounded"
 										style={{
 											backgroundColor: 'transparent',

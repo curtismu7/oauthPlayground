@@ -122,7 +122,7 @@ export const MFAHeaderV8: React.FC<MFAHeaderV8Props> = ({
 			<style>{`
 				.mfa-header-v8 {
 					margin-bottom: 0;
-					max-width: 1400px; /* Match body width */
+					max-width: 1600px; /* Match body width */
 					margin: 0 auto;
 				}
 

@@ -5,6 +5,7 @@
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 
 type Step = 0 | 1 | 2 | 3;
 
@@ -38,7 +39,7 @@ const REQUIRED_ACR_OPTIONS = [
 ];
 
 const Page = styled.div`
-	max-width: 860px;
+	max-width: 90rem;
 	margin: 0 auto;
 	padding: 2rem 1.5rem;
 	font-family: system-ui, sans-serif;
@@ -363,6 +364,7 @@ const StepUpAuthFlow: React.FC = () => {
 
 	return (
 		<Page>
+			<V9FlowHeader flowId="step-up-auth" />
 			<PageTitle>
 				Step-Up Authentication<RfcBadge>RFC 9470</RfcBadge>
 			</PageTitle>

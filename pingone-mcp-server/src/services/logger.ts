@@ -58,7 +58,7 @@ export class Logger {
 	constructor(private readonly scope: string) {}
 
 	info(message: string, meta?: unknown) {
-		console.log(`[${this.scope}] INFO: ${message}`, meta ?? '');
+		console.error(`[${this.scope}] INFO: ${message}`, meta ?? '');
 		appendToLog('INFO', this.scope, message, meta);
 	}
 

@@ -81,7 +81,7 @@ const Input = styled.input`
 	width: 200px;
 `;
 
-const LogEntry = styled.div<{ level: LogLevel }>`
+const LogEntryRow = styled.div<{ level: LogLevel }>`
 	padding: 4px 8px;
 	border-radius: 2px;
 	margin-bottom: 2px;
@@ -283,13 +283,13 @@ export const LogViewer: React.FC<LogViewerProps> = ({ visible = true, onClose })
 
 			<div>
 				{filteredLogs.map((log, index) => (
-					<LogEntry key={index} level={log.level}>
+					<LogEntryRow key={index} level={log.level}>
 						<Timestamp>{formatTimestamp(log.timestamp)}</Timestamp>
 						<Level level={log.level}>{LogLevel[log.level]}</Level>
 						<Module>[{log.module}]</Module>
 						<Message>{log.message}</Message>
 						{log.data && <Data>{JSON.stringify(log.data, null, 2)}</Data>}
-					</LogEntry>
+					</LogEntryRow>
 				))}
 			</div>
 		</Container>

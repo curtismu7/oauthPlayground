@@ -383,7 +383,9 @@ export const useAuthorizationCodeFlowController = (
 			`${flowKey}_v3_code_verifier`,
 			'oauth_code_verifier',
 		];
-		legacyKeys.forEach((key) => sessionStorage.removeItem(key));
+		legacyKeys.forEach((key) => {
+			sessionStorage.removeItem(key);
+		});
 
 		logger.info(
 			'✅ [useAuthorizationCodeFlowV7Controller] PKCE codes cleared on flow load',
@@ -1859,7 +1861,9 @@ export const useAuthorizationCodeFlowController = (
 			`${flowKey}_v3_code_verifier`,
 			'oauth_code_verifier',
 		];
-		legacyKeys.forEach((key) => sessionStorage.removeItem(key));
+		legacyKeys.forEach((key) => {
+			sessionStorage.removeItem(key);
+		});
 
 		logger.info('✅ [useAuthorizationCodeFlowV7Controller] PKCE codes cleared', 'Logger info');
 		showGlobalSuccess('PKCE codes cleared', {

@@ -236,12 +236,12 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 	}}
 `;
 
-const DropdownContainer = styled.div`
+const _DropdownContainer = styled.div`
   position: relative;
   margin-bottom: 1.5rem;
 `;
 
-const DropdownButton = styled.button`
+const _DropdownButton = styled.button`
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -261,7 +261,7 @@ const DropdownButton = styled.button`
   }
 `;
 
-const DropdownMenu = styled.div<{ $isOpen: boolean }>`
+const _DropdownMenu = styled.div<{ $isOpen: boolean }>`
   position: absolute;
   top: 100%;
   left: 0;
@@ -275,7 +275,7 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   display: ${(props) => (props.$isOpen ? 'block' : 'none')};
 `;
 
-const DropdownItem = styled.button`
+const _DropdownItem = styled.button`
   width: 100%;
   padding: 0.75rem 1rem;
   border: none;
@@ -388,21 +388,20 @@ export const TokenMonitoringPage: React.FC = () => {
 	const [message, setMessage] = useState<string>('');
 	const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [selectedFlowType, setSelectedFlowType] = useState<string>('all');
-	const [selectedTokenType, setSelectedTokenType] = useState<string>('all');
-	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-	const [isFlowDropdownOpen, setIsFlowDropdownOpen] = useState(false);
+	const [selectedFlowType, _setSelectedFlowType] = useState<string>('all');
+	const [selectedTokenType, _setSelectedTokenType] = useState<string>('all');
+	const [_isDropdownOpen, _setIsDropdownOpen] = useState(false);
+	const [_isFlowDropdownOpen, _setIsFlowDropdownOpen] = useState(false);
 	const [decodedTokens, setDecodedTokens] = useState<Record<string, unknown>>({});
 	const [copiedTokenId, setCopiedTokenId] = useState<string | null>(null);
 
 	const { actions: enhancedStateActions } = useUnifiedFlowState();
 	const setTokenMetricsRef = useRef(enhancedStateActions.setTokenMetrics);
-
-	// Standardized spinner hooks for different operation types
-	const refreshSpinner = useStandardSpinner(3000); // Token refresh - 3 seconds
 	const syncSpinner = useStandardSpinner(5000); // Manual sync - 5 seconds
+	const refreshSpinner = useStandardSpinner(3000); // Token refresh - 3 seconds
 	const revokeSpinner = useStandardSpinner(4000); // Token revoke - 4 seconds
 	const copySpinner = useStandardSpinner(1000); // Copy operation - 1 second
+	const cleanupSpinner = useStandardSpinner();
 
 	useEffect(() => {
 		setTokenMetricsRef.current = enhancedStateActions.setTokenMetrics;
@@ -506,11 +505,14 @@ export const TokenMonitoringPage: React.FC = () => {
 	// Auto-decode JWT tokens so decoded content is visible in the token list
 	useEffect(() => {
 		const nextDecoded: Record<string, unknown> = {};
+		const autoExpanded: Record<string, unknown> = {};
 		tokens.forEach((token) => {
 			if (TokenDisplayService.isJWT(token.value)) {
 				const decoded = TokenDisplayService.decodeJWT(token.value);
 				if (decoded) {
 					nextDecoded[token.id] = decoded;
+					// Auto-expand decoded content for JWT tokens by default
+					autoExpanded[token.id] = decoded;
 					logger.debug(`[TokenMonitoringPage] Decoded JWT token ${token.id}`, {
 						tokenType: token.type,
 						tokenSource: token.source,
@@ -526,21 +528,9 @@ export const TokenMonitoringPage: React.FC = () => {
 				});
 			}
 		});
-		setDecodedTokens(nextDecoded);
+		// Combine both decoded and auto-expanded in one update to prevent infinite loop
+		setDecodedTokens((prev) => ({ ...prev, ...nextDecoded, ...autoExpanded }));
 	}, [tokens]);
-
-	// Auto-expand decoded content for JWT tokens by default
-	useEffect(() => {
-		const autoExpanded: Record<string, unknown> = {};
-		tokens.forEach((token) => {
-			if (TokenDisplayService.isJWT(token.value) && decodedTokens[token.id]) {
-				autoExpanded[token.id] = decodedTokens[token.id];
-			}
-		});
-		if (Object.keys(autoExpanded).length > 0) {
-			setDecodedTokens((prev) => ({ ...prev, ...autoExpanded }));
-		}
-	}, [tokens, decodedTokens]);
 
 	// Token actions
 	const handleRefreshToken = async (tokenId: string) => {
@@ -678,6 +668,29 @@ export const TokenMonitoringPage: React.FC = () => {
 		}
 	};
 
+	const handleManualCleanup = async () => {
+		await cleanupSpinner.executeWithSpinner(
+			async () => {
+				const service = TokenMonitoringService.getInstance();
+				const removedCount = await service.cleanupOldTokens();
+				setMessage(`Cleaned up ${removedCount} old tokens`);
+				setMessageType('success');
+			},
+			{
+				onSuccess: () => {
+					// Success handled in the main function
+				},
+				onError: (error) => {
+					logger.error('Failed to cleanup tokens:', {
+						error: error instanceof Error ? error.message : String(error),
+					});
+					setMessage('Failed to cleanup tokens');
+					setMessageType('error');
+				},
+			}
+		);
+	};
+
 	const handleToggleDecoded = (tokenId: string) => {
 		setDecodedTokens((prev) => {
 			const newState = { ...prev };
@@ -724,6 +737,12 @@ export const TokenMonitoringPage: React.FC = () => {
 		return date.toLocaleString();
 	};
 
+	const formatDate = (timestamp: number | null) => {
+		if (!timestamp) return 'Unknown';
+		const date = new Date(timestamp);
+		return date.toLocaleString();
+	};
+
 	return (
 		<PageContainer>
 			<WorkerTokenExpiryBannerV8
@@ -735,12 +754,17 @@ export const TokenMonitoringPage: React.FC = () => {
 			<StandardModalSpinner
 				show={refreshSpinner.isLoading}
 				message="Refreshing token..."
-				theme="blue"
+				theme="green"
 			/>
 			<StandardModalSpinner
 				show={revokeSpinner.isLoading}
 				message="Revoking token..."
-				theme="orange"
+				theme="red"
+			/>
+			<StandardModalSpinner
+				show={cleanupSpinner.isLoading}
+				message="Cleaning up old tokens..."
+				theme="purple"
 			/>
 
 			<PageHeader>
@@ -753,21 +777,13 @@ export const TokenMonitoringPage: React.FC = () => {
 							Get Worker Token
 						</ActionButton>
 					)}
-					<ActionButton
-						onClick={() => {
-							logger.debug('[TokenMonitoringPage] Manual refresh triggered', 'Logger debug');
-							TokenMonitoringService.resetInstance();
-							const freshService = TokenMonitoringService.getInstance();
-							freshService.manualSyncWorkerToken().catch((err) => {
-								logger.warn('[TokenMonitoringPage] Manual refresh failed', {
-									error: err instanceof Error ? err.message : String(err),
-								});
-							});
-						}}
-						style={{ background: '#3b82f6' }}
-					>
+					<ActionButton onClick={handleManualSync} $variant="secondary">
 						<span>🔄</span>
-						Refresh Tokens
+						Manual Sync
+					</ActionButton>
+					<ActionButton onClick={handleManualCleanup} $variant="secondary">
+						<span>🧹</span>
+						Cleanup Old Tokens
 					</ActionButton>
 				</div>
 			</PageHeader>
@@ -812,99 +828,6 @@ export const TokenMonitoringPage: React.FC = () => {
 				</StatCard>
 			</StatsGrid>
 
-			<div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-				<ActionButton onClick={handleManualSync} $variant="secondary">
-					<span>🔄</span>
-					Manual Sync
-				</ActionButton>
-
-				<DropdownContainer>
-					<DropdownButton onClick={() => setIsFlowDropdownOpen(!isFlowDropdownOpen)}>
-						<span>{getFlowTypeLabel(selectedFlowType)}</span>
-						{isFlowDropdownOpen ? <span>⬆️</span> : <span>⬇️</span>}
-					</DropdownButton>
-					<DropdownMenu $isOpen={isFlowDropdownOpen}>
-						<DropdownItem
-							onClick={() => {
-								setSelectedFlowType('all');
-								setIsFlowDropdownOpen(false);
-							}}
-						>
-							<span>🗄️</span> ALL Flows
-						</DropdownItem>
-						<DropdownItem
-							onClick={() => {
-								setSelectedFlowType('oauth_flow');
-								setIsFlowDropdownOpen(false);
-							}}
-						>
-							<span>🛡️</span> OAuth Flow
-						</DropdownItem>
-						<DropdownItem
-							onClick={() => {
-								setSelectedFlowType('worker_token');
-								setIsFlowDropdownOpen(false);
-							}}
-						>
-							<span>⚙️</span> Worker Token Flow
-						</DropdownItem>
-					</DropdownMenu>
-				</DropdownContainer>
-
-				<DropdownContainer>
-					<DropdownButton onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-						<span>
-							{selectedTokenType === 'all'
-								? 'ALL Token Types'
-								: getTokenTypeLabel(selectedTokenType)}
-						</span>
-						{isDropdownOpen ? <span>⬆️</span> : <span>⬇️</span>}
-					</DropdownButton>
-					<DropdownMenu $isOpen={isDropdownOpen}>
-						<DropdownItem
-							onClick={() => {
-								setSelectedTokenType('all');
-								setIsDropdownOpen(false);
-							}}
-						>
-							<span>🗄️</span> ALL Token Types
-						</DropdownItem>
-						<DropdownItem
-							onClick={() => {
-								setSelectedTokenType('access_token');
-								setIsDropdownOpen(false);
-							}}
-						>
-							<span>🛡️</span> Access Tokens
-						</DropdownItem>
-						<DropdownItem
-							onClick={() => {
-								setSelectedTokenType('refresh_token');
-								setIsDropdownOpen(false);
-							}}
-						>
-							<span>🔄</span> Refresh Tokens
-						</DropdownItem>
-						<DropdownItem
-							onClick={() => {
-								setSelectedTokenType('id_token');
-								setIsDropdownOpen(false);
-							}}
-						>
-							<span>ℹ️</span> ID Tokens
-						</DropdownItem>
-						<DropdownItem
-							onClick={() => {
-								setSelectedTokenType('worker_token');
-								setIsDropdownOpen(false);
-							}}
-						>
-							<span>⚙️</span> Worker Tokens
-						</DropdownItem>
-					</DropdownMenu>
-				</DropdownContainer>
-			</div>
-
 			{filteredTokens.length === 0 ? (
 				<EmptyState>
 					<span>🗄️</span>
@@ -939,6 +862,7 @@ export const TokenMonitoringPage: React.FC = () => {
 								<TokenValue>{TokenDisplayService.maskToken(token.value)}</TokenValue>
 								<TokenMetadata>
 									<span>ID: {token.id}</span>
+									{token.issuedAt && <span>Created: {formatDate(token.issuedAt)}</span>}
 									{token.expiresAt && <span>Expires: {formatExpiry(token.expiresAt)}</span>}
 									{token.source && <span>Source: {token.source}</span>}
 								</TokenMetadata>

@@ -25,6 +25,7 @@ export const V9_COLORS = {
 		GRAY_MEDIUM: '#6b7280', // gray-500
 		GRAY_LIGHT: '#9ca3af', // gray-400
 		GRAY_LIGHTER: '#e5e7eb', // gray-200
+		INFO: '#ffffff', // white — on solid blue INFO background
 	},
 
 	// Background colors
@@ -32,12 +33,24 @@ export const V9_COLORS = {
 		WHITE: '#ffffff',
 		GRAY_LIGHT: '#f8fafc', // slate-50
 		GRAY_MEDIUM: '#f1f5f9', // slate-100
+		INFO_LIGHT: '#3b82f6', // blue-500 — solid, white text readable
 		SUCCESS: '#ecfdf5', // emerald-50
 		SUCCESS_BORDER: '#10b981', // emerald-500
 		WARNING: '#fef3c7', // amber-50
 		WARNING_BORDER: '#f59e0b', // amber-500
 		ERROR: '#fef2f2', // red-50
 		ERROR_BORDER: '#ef4444', // red-500
+	},
+
+	// Border colors
+	BORDER: {
+		GRAY: '#e5e7eb', // gray-200
+		INFO: '#2563eb', // blue-600
+	},
+
+	// Status colors
+	STATUS: {
+		WARNING: '#f59e0b', // amber-500
 	},
 
 	// Button styles with proper contrast

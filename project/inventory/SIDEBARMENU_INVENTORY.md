@@ -278,4 +278,48 @@ npx lighthouse https://localhost:3000 --view
 
 **Last Updated**: 2026-02-16
 **Version**: 2.0 (Post-Rebuild)
-**Maintainer**: OAuth Playground Development Team
+
+## 🎭 Mock Flows Index (AI-Queryable)
+
+> Keyword triggers: `mock`, `simulate`, `educational`, `no api`, `demo`
+
+### OAuth Mock Flows (subgroup: `mock-educational-flows`)
+| Label | Path | Calls PingOne? |
+|-------|------|----------------|
+| Mock Authorization Code | `/flows/oauth-authorization-code-mock` | ❌ No |
+| Mock Implicit Flow | `/flows/implicit-mock` | ❌ No |
+| Mock Client Credentials | `/flows/client-credentials-mock` | ❌ No |
+| Mock Device Authorization | `/flows/device-authorization-mock` | ❌ No |
+| Mock OIDC ROPC | `/flows/mock-oidc-ropc` | ❌ No |
+
+### Advanced Mock Flows (subgroup: `mock-educational-flows`)
+| Label | Path | Calls PingOne? |
+|-------|------|----------------|
+| Mock DPoP Auth Code | `/flows/dpop-authorization-code-mock` | ❌ No |
+| Mock CIBA | `/flows/ciba-mock` | ❌ No |
+| Mock PAR | `/flows/par-mock` | ❌ No |
+| Mock JWT Bearer | `/flows/jwt-bearer-mock` | ❌ No |
+| Mock Token Exchange | `/flows/token-exchange-mock` | ❌ No |
+| SAML Bearer Assertion (Mock) | `/flows/saml-bearer-assertion-v7` | ❌ No |
+
+### V7 Mock Server Flows (subgroup: `mock-educational-flows`)
+| Label | Path | Calls PingOne? |
+|-------|------|----------------|
+| Mock Auth Code Condensed | `/flows/oauth-authorization-code-v7-condensed-mock` | ❌ No |
+| Mock Redirectless Authorize | `/api/pingone/redirectless/authorize-mock` | ❌ No |
+| Mock User Profile | `/api/pingone/user-mock/:userId` | ❌ No |
+
+## 🤖 AIAssistant Menu Discovery Index (Prompt Mapping)
+
+Use these prompt families for menu indexing:
+
+| User prompt pattern | Indexed topic | Expected result |
+|---|---|---|
+| `show ai menu items` / `find mcp items` | AI | AI Assistant + AI docs paths |
+| `show unified flows` / `list v8u flows` | Unified | `/v8u/unified*` entries |
+| `show oauth flows` / `find oauth menu` | OAuth | OAuth flow route list |
+| `show oidc menu items` / `find userinfo flow` | OIDC | OIDC routes + docs |
+| `show mock flows` / `list simulated flows` | Mock | Mock/Educational flow routes |
+| `show tools menu items` / `find configuration page` | Tools | Config, credentials, token tools, protect portal |
+
+**Regression guard:** AIAssistant menu index must stay aligned with sidebar routes in `src/config/sidebarMenuConfig.ts`.

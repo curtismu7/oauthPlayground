@@ -397,6 +397,7 @@ export const IntegratedMFASample: React.FC = () => {
 					{ id: 'devices', label: 'Devices' },
 				].map((tab) => (
 					<button
+						type="button"
 						key={tab.id}
 						onClick={() => {
 							setActiveTab(tab.id as Tab);
@@ -476,6 +477,7 @@ export const IntegratedMFASample: React.FC = () => {
 						with tokens.
 					</p>
 					<button
+						type="button"
 						onClick={handleOIDCSignIn}
 						disabled={!oidcConfig.clientId}
 						style={{
@@ -533,6 +535,7 @@ export const IntegratedMFASample: React.FC = () => {
 								/>
 							</div>
 							<button
+								type="button"
 								onClick={handleEnrollSMS}
 								disabled={!smsEnrollState.phone}
 								style={{
@@ -577,6 +580,7 @@ export const IntegratedMFASample: React.FC = () => {
 								/>
 							</div>
 							<button
+								type="button"
 								onClick={handleActivateSMS}
 								disabled={!smsEnrollState.otp || smsEnrollState.otp.length < 6}
 								style={{
@@ -612,6 +616,7 @@ export const IntegratedMFASample: React.FC = () => {
 					{fido2EnrollState.step === 'input' && (
 						<div>
 							<button
+								type="button"
 								onClick={handleEnrollFIDO2}
 								disabled={!oidcConfig.policyId}
 								style={{
@@ -634,6 +639,7 @@ export const IntegratedMFASample: React.FC = () => {
 								Device created! Click below to create WebAuthn credential:
 							</p>
 							<button
+								type="button"
 								onClick={handleWebAuthnRegistration}
 								style={{
 									padding: '0.75rem 1.5rem',
@@ -664,6 +670,7 @@ export const IntegratedMFASample: React.FC = () => {
 					{smsAuthState.step === 'input' && (
 						<div>
 							<button
+								type="button"
 								onClick={handleAuthSMS}
 								disabled={!oidcConfig.policyId}
 								style={{
@@ -706,6 +713,7 @@ export const IntegratedMFASample: React.FC = () => {
 								/>
 							</div>
 							<button
+								type="button"
 								onClick={handleCompleteSMSAuth}
 								disabled={!smsAuthState.otp || smsAuthState.otp.length < 6}
 								style={{
@@ -739,6 +747,7 @@ export const IntegratedMFASample: React.FC = () => {
 					{fido2AuthState.step === 'input' && (
 						<div>
 							<button
+								type="button"
 								onClick={handleAuthFIDO2}
 								disabled={!oidcConfig.policyId}
 								style={{
@@ -759,6 +768,7 @@ export const IntegratedMFASample: React.FC = () => {
 						<div>
 							<p style={{ marginBottom: '1rem' }}>Click below to get WebAuthn assertion:</p>
 							<button
+								type="button"
 								onClick={handleWebAuthnAssertion}
 								style={{
 									padding: '0.75rem 1.5rem',
@@ -806,6 +816,7 @@ export const IntegratedMFASample: React.FC = () => {
 								}}
 							/>
 							<button
+								type="button"
 								onClick={loadDevices}
 								disabled={!userContext.userId || loadingDevices}
 								style={{

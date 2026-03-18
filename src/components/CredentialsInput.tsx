@@ -372,9 +372,9 @@ const SectionDivider = styled.div`
 `;
 
 export const CredentialsInput = ({
-	environmentId,
-	clientId,
-	clientSecret,
+	environmentId = '',
+	clientId = '',
+	clientSecret = '',
 	redirectUri = '',
 	scopes = 'openid',
 	loginHint = '',

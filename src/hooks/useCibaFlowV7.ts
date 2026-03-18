@@ -452,7 +452,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 					}),
 				});
 
-				let data;
+				let data: any;
 				try {
 					const text = await response.text();
 					try {

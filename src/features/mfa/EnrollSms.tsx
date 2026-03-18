@@ -188,6 +188,7 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 					}}
 				/>
 				<button
+					type="button"
 					onClick={() => {
 						setStep('input');
 						setStatus('idle');
@@ -237,6 +238,7 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 						/>
 					</div>
 					<button
+						type="button"
 						onClick={handleRegister}
 						disabled={!userId || !phone}
 						style={{
@@ -272,6 +274,7 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 						copyableValues={deviceId ? { deviceId, userId } : { userId }}
 					/>
 					<button
+						type="button"
 						onClick={handleSendOTP}
 						style={{
 							marginTop: '1rem',
@@ -332,6 +335,7 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 						/>
 					</div>
 					<button
+						type="button"
 						onClick={handleActivate}
 						disabled={!otp || otp.length < 6}
 						style={{

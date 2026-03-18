@@ -77,6 +77,17 @@ const ScopeHighlight = styled.span<{ color: string }>`
   border: 1px solid ${(props) => props.color}40;
 `;
 
+// Default scope colors (moved outside component to avoid dependency issues)
+const defaultScopeColors = {
+	openid: '#3b82f6',
+	profile: '#10b981',
+	email: '#f59e0b',
+	phone: '#8b5cf6',
+	address: '#ec4899',
+	offline_access: '#f97316',
+	admin: '#dc2626',
+};
+
 const JsonEditor: React.FC<JsonEditorProps> = ({
 	value,
 	onChange,
@@ -89,20 +100,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 	const [isEditing, setIsEditing] = useState(false);
 	const [editValue, setEditValue] = useState('');
 
-	// Default scope colors
-	const defaultScopeColors = {
-		openid: '#3b82f6',
-		profile: '#10b981',
-		email: '#f59e0b',
-		address: '#ef4444',
-		phone: '#8b5cf6',
-		offline_access: '#06b6d4',
-		read: '#84cc16',
-		write: '#f97316',
-		admin: '#dc2626',
-	};
-
-	const colors = { ...defaultScopeColors, ...scopeColors };
+	const colors = useMemo(() => ({ ...defaultScopeColors, ...scopeColors }), [scopeColors]);
 
 	useEffect(() => {
 		setEditValue(JSON.stringify(value, null, 2));

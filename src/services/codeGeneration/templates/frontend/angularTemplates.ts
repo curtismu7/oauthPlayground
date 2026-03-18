@@ -116,7 +116,7 @@ import { AuthService } from './auth.service';
 @Component({
   selector: 'app-login',
   template: \`
-    <button (click)="login()" class="login-btn">
+    <button type="button" (click)="login()" class="login-btn">
       Login with PingOne
     </button>
   \`
@@ -367,7 +367,7 @@ import { Component, Input } from '@angular/core';
   template: \`
     <div class="mfa-challenge">
       <h3>MFA Challenge</h3>
-      <button 
+      <button type="button" 
         (click)="sendChallenge()"
         [disabled]="loading || sent"
         class="send-challenge-btn">

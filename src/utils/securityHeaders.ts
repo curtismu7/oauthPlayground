@@ -185,19 +185,25 @@ export class SecurityHeadersService {
 
 		if (validation.errors.length > 0) {
 			report += `Errors:\n`;
-			validation.errors.forEach((error) => (report += `  ❌ ${error}\n`));
+			validation.errors.forEach((error) => {
+				report += `  ❌ ${error}\n`;
+			});
 			report += `\n`;
 		}
 
 		if (validation.warnings.length > 0) {
 			report += `Warnings:\n`;
-			validation.warnings.forEach((warning) => (report += `  ⚠️ ${warning}\n`));
+			validation.warnings.forEach((warning) => {
+				report += `  ⚠️ ${warning}\n`;
+			});
 			report += `\n`;
 		}
 
 		if (validation.missingHeaders.length > 0) {
 			report += `Missing Headers:\n`;
-			validation.missingHeaders.forEach((header) => (report += `  ❌ ${header}\n`));
+			validation.missingHeaders.forEach((header) => {
+				report += `  ❌ ${header}\n`;
+			});
 			report += `\n`;
 		}
 

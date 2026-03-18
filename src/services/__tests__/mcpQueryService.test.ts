@@ -42,8 +42,7 @@ import {
 describe('predictMcpTool', () => {
 	describe('admin login', () => {
 		it.each(['admin login', 'login as admin', 'Login Admin'])('matches "%s"', (q) =>
-			expect(predictMcpTool(q)).toBe('admin_login')
-		);
+			expect(predictMcpTool(q)).toBe('admin_login'));
 	});
 
 	describe('worker token', () => {
@@ -60,17 +59,22 @@ describe('predictMcpTool', () => {
 	});
 
 	describe('list tools', () => {
-		it.each(['List MCP tools', 'list tools', 'show mcp tools', 'available tools', 'mcp tools'])(
-			'matches "%s"',
-			(q) => expect(predictMcpTool(q)).toBe('mcp_list_tools')
-		);
+		it.each([
+			'List MCP tools',
+			'list tools',
+			'show mcp tools',
+			'available tools',
+			'mcp tools',
+		])('matches "%s"', (q) => expect(predictMcpTool(q)).toBe('mcp_list_tools'));
 	});
 
 	describe('help', () => {
-		it.each(['help', 'What can you do', 'what can I do', 'what commands are there'])(
-			'matches "%s"',
-			(q) => expect(predictMcpTool(q)).toBe('ai_assistant_help')
-		);
+		it.each([
+			'help',
+			'What can you do',
+			'what can I do',
+			'what commands are there',
+		])('matches "%s"', (q) => expect(predictMcpTool(q)).toBe('ai_assistant_help'));
 	});
 
 	describe('applications', () => {
@@ -194,16 +198,17 @@ describe('isMcpQuery', () => {
 
 describe('isAdminLoginQuery', () => {
 	it.each(['admin login', 'login as admin'])('matches "%s"', (q) =>
-		expect(isAdminLoginQuery(q)).toBe(true)
-	);
+		expect(isAdminLoginQuery(q)).toBe(true));
 	it('does not match "user login"', () => expect(isAdminLoginQuery('user login')).toBe(false));
 });
 
 describe('isUserLoginQuery', () => {
-	it.each(['user login', 'login as user', 'user sign-in', 'get user access token'])(
-		'matches "%s"',
-		(q) => expect(isUserLoginQuery(q)).toBe(true)
-	);
+	it.each([
+		'user login',
+		'login as user',
+		'user sign-in',
+		'get user access token',
+	])('matches "%s"', (q) => expect(isUserLoginQuery(q)).toBe(true));
 	it('does not match "admin login"', () => expect(isUserLoginQuery('admin login')).toBe(false));
 	it('does not match general "get worker token"', () =>
 		expect(isUserLoginQuery('get worker token')).toBe(false));
@@ -211,25 +216,25 @@ describe('isUserLoginQuery', () => {
 
 describe('isShowMyTokenQuery', () => {
 	it.each(['show my token', 'view my user token', "what's my access token"])('matches "%s"', (q) =>
-		expect(isShowMyTokenQuery(q)).toBe(true)
-	);
+		expect(isShowMyTokenQuery(q)).toBe(true));
 	it('does not match "show worker token"', () =>
 		expect(isShowMyTokenQuery('show worker token')).toBe(false));
 });
 
 describe('isShowIdTokenQuery', () => {
-	it.each(['show my id token', 'show id-token', 'id token claims', 'decode my id token'])(
-		'matches "%s"',
-		(q) => expect(isShowIdTokenQuery(q)).toBe(true)
-	);
+	it.each([
+		'show my id token',
+		'show id-token',
+		'id token claims',
+		'decode my id token',
+	])('matches "%s"', (q) => expect(isShowIdTokenQuery(q)).toBe(true));
 	it('does not match "show my token"', () =>
 		expect(isShowIdTokenQuery('show my token')).toBe(false));
 });
 
 describe('isShowWorkerTokenQuery', () => {
 	it.each(['show worker token', 'show the admin token', 'view worker token'])('matches "%s"', (q) =>
-		expect(isShowWorkerTokenQuery(q)).toBe(true)
-	);
+		expect(isShowWorkerTokenQuery(q)).toBe(true));
 	it('does not match "show my token"', () =>
 		expect(isShowWorkerTokenQuery('show my token')).toBe(false));
 });
@@ -246,10 +251,12 @@ describe('isDecodeTokenQuery', () => {
 });
 
 describe('isShowApiCallsQuery', () => {
-	it.each(['show api calls', 'api call history', 'recent api calls', 'show my last calls'])(
-		'matches "%s"',
-		(q) => expect(isShowApiCallsQuery(q)).toBe(true)
-	);
+	it.each([
+		'show api calls',
+		'api call history',
+		'recent api calls',
+		'show my last calls',
+	])('matches "%s"', (q) => expect(isShowApiCallsQuery(q)).toBe(true));
 });
 
 describe('isLastToolQuery', () => {
@@ -265,17 +272,20 @@ describe('isLastToolQuery', () => {
 });
 
 describe('isClearTokensQuery', () => {
-	it.each(['clear tokens', 'clear all tokens', 'forget my tokens', 'remove stored tokens'])(
-		'matches "%s"',
-		(q) => expect(isClearTokensQuery(q)).toBe(true)
-	);
+	it.each([
+		'clear tokens',
+		'clear all tokens',
+		'forget my tokens',
+		'remove stored tokens',
+	])('matches "%s"', (q) => expect(isClearTokensQuery(q)).toBe(true));
 });
 
 describe('isIntrospectUserTokenQuery', () => {
-	it.each(['introspect user token', "introspect user's token", 'user token introspect'])(
-		'matches "%s"',
-		(q) => expect(isIntrospectUserTokenQuery(q)).toBe(true)
-	);
+	it.each([
+		'introspect user token',
+		"introspect user's token",
+		'user token introspect',
+	])('matches "%s"', (q) => expect(isIntrospectUserTokenQuery(q)).toBe(true));
 	it('does not match plain "introspect token"', () =>
 		expect(isIntrospectUserTokenQuery('introspect token')).toBe(false));
 });
@@ -306,8 +316,7 @@ describe('isWorkerTokenQuery', () => {
 
 describe('isAgentEducationQuery', () => {
 	it.each(['what is an agent', 'what is an AI agent', 'explain agent'])('matches "%s"', (q) =>
-		expect(isAgentEducationQuery(q)).toBe(true)
-	);
+		expect(isAgentEducationQuery(q)).toBe(true));
 });
 
 describe('isMcpExplainQuery', () => {
@@ -320,17 +329,20 @@ describe('isMcpExplainQuery', () => {
 });
 
 describe('isMcpRolesQuery', () => {
-	it.each(['mcp host client server', 'explain mcp host', 'mcp roles', 'host and client'])(
-		'matches "%s"',
-		(q) => expect(isMcpRolesQuery(q)).toBe(true)
-	);
+	it.each([
+		'mcp host client server',
+		'explain mcp host',
+		'mcp roles',
+		'host and client',
+	])('matches "%s"', (q) => expect(isMcpRolesQuery(q)).toBe(true));
 });
 
 describe('isThisAgentExplainQuery', () => {
-	it.each(['how does this agent work', 'show agent architecture', 'agent architecture'])(
-		'matches "%s"',
-		(q) => expect(isThisAgentExplainQuery(q)).toBe(true)
-	);
+	it.each([
+		'how does this agent work',
+		'show agent architecture',
+		'agent architecture',
+	])('matches "%s"', (q) => expect(isThisAgentExplainQuery(q)).toBe(true));
 });
 
 describe('isMcpToolExplainQuery', () => {
@@ -344,15 +356,16 @@ describe('isMcpToolExplainQuery', () => {
 
 describe('isJsonRpcExplainQuery', () => {
 	it.each(['what is JSON-RPC', 'what is jsonrpc 2.0', 'explain json rpc'])('matches "%s"', (q) =>
-		expect(isJsonRpcExplainQuery(q)).toBe(true)
-	);
+		expect(isJsonRpcExplainQuery(q)).toBe(true));
 });
 
 describe('isGroqExplainQuery', () => {
-	it.each(['what is groq', 'how does groq fit', 'what llm does this use', 'groq api'])(
-		'matches "%s"',
-		(q) => expect(isGroqExplainQuery(q)).toBe(true)
-	);
+	it.each([
+		'what is groq',
+		'how does groq fit',
+		'what llm does this use',
+		'groq api',
+	])('matches "%s"', (q) => expect(isGroqExplainQuery(q)).toBe(true));
 });
 
 // ── Web search predicate ──────────────────────────────────────────────────────

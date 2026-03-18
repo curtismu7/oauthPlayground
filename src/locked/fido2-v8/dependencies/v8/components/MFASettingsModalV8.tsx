@@ -98,6 +98,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 						MFA Settings
 					</h3>
 					<button
+						type="button"
 						onMouseDown={(e) => e.stopPropagation()}
 						onClick={onClose}
 						className="close-button"

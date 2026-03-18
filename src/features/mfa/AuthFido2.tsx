@@ -189,6 +189,7 @@ export const AuthFido2: React.FC<AuthFido2Props> = ({ sdk, userId, policyId, dev
 			{step === 'input' && (
 				<div>
 					<button
+						type="button"
 						onClick={handleInitialize}
 						disabled={!userId || !policyId}
 						style={{
@@ -250,6 +251,7 @@ export const AuthFido2: React.FC<AuthFido2Props> = ({ sdk, userId, policyId, dev
 						}}
 					/>
 					<button
+						type="button"
 						onClick={handleGetAssertion}
 						style={{
 							marginTop: '1rem',
