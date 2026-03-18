@@ -15,7 +15,6 @@ import './styles/vendor/end-user-nano.css';
 import './styles/icons.css';
 import './styles/nano-overrides.css';
 
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
@@ -25,14 +24,10 @@ import { EducationPreferenceService } from './services/educationPreferenceServic
 import { initRegionCache } from './services/regionService';
 import { GlobalStyle, theme } from './styles/global';
 
-// Expose React globally for any third-party vendor bundles that expect window.React
-// (Vite config maps the bare `React` identifier to window.React for vendor chunks)
+// Expose EducationPreferenceService for testing
 if (typeof window !== 'undefined') {
-	const w = window as unknown as Record<string, unknown>;
-	w.React = React;
-	w.ReactDOM = ReactDOM;
-	// Expose EducationPreferenceService for testing
-	w.EducationPreferenceService = EducationPreferenceService;
+	(window as unknown as Record<string, unknown>).EducationPreferenceService =
+		EducationPreferenceService;
 }
 
 // Suppress defaultProps warnings from drag-and-drop libraries (library issue, not our code)
