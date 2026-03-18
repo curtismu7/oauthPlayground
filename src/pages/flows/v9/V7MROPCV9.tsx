@@ -526,8 +526,8 @@ export const V7MROPCV9: React.FC<Props> = ({ oidc = false }) => {
 									color: '#92400e',
 								}}
 							>
-								<strong>⚠️ Security Note:</strong> In production, passwords and client secrets
-								should never be displayed or logged. This is shown for educational purposes only.
+								<strong>⚠️ Security Note:</strong> In production, passwords and client secrets should
+								never be displayed or logged. This is shown for educational purposes only.
 							</div>
 						</div>
 					)}

@@ -9696,7 +9696,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 
 					// Handle non-200 responses
-					let errorData;
+					let errorData: any;
 					let responseText = '';
 					try {
 						responseText = await response.text();

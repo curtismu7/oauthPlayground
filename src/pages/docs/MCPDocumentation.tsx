@@ -11,7 +11,7 @@ import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 const pageConfig = {
 	flowType: 'pingone' as const,
 	theme: 'red' as const,
-	maxWidth: '1200px',
+	maxWidth: '90rem',
 	showHeader: true,
 	showFooter: false,
 	responsive: true,

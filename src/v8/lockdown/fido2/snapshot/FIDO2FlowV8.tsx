@@ -144,9 +144,13 @@ const findNestedValue = (source: unknown, keys: string[]): unknown => {
 		}
 
 		if (Array.isArray(value)) {
-			value.forEach((child) => queue.push({ value: child, depth: depth + 1 }));
+			value.forEach((child) => {
+				queue.push({ value: child, depth: depth + 1 });
+			});
 		} else {
-			Object.values(value).forEach((child) => queue.push({ value: child, depth: depth + 1 }));
+			Object.values(value).forEach((child) => {
+				queue.push({ value: child, depth: depth + 1 });
+			});
 		}
 	}
 

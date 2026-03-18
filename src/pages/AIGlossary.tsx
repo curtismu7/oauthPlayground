@@ -2,9 +2,11 @@
 // AI Glossary - Ping UI Migrated Version
 // Comprehensive glossary of AI and authentication terms
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import { PingIcon } from '../components/PingIcon';
+import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
 
@@ -25,7 +27,7 @@ const PageContainer = styled.main`
 `;
 
 const PageContent = styled.div`
-	max-width: 1400px;
+	max-width: 90rem;
 	margin: 0 auto;
 	display: grid;
 	gap: clamp(1.5rem, 3.5vw, 2.5rem);
@@ -114,7 +116,7 @@ const TermsGrid = styled.div`
 `;
 
 const TermItem = styled.div`
-	border-left: 4px solid rgba(79, 70, 229, 0.4);
+	border-left: 4px solid ${V9_COLORS.PRIMARY.BLUE}66;
 	padding-left: clamp(1rem, 2.5vw, 1.25rem);
 	display: grid;
 	gap: 0.6rem;
@@ -163,8 +165,8 @@ const RelatedTerms = styled.div`
 	gap: 0.4rem;
 
 	span {
-		background: rgba(79, 70, 229, 0.15);
-		color: var(--primary-color, #4f46e5);
+		background: ${V9_COLORS.PRIMARY.BLUE}26;
+		color: ${V9_COLORS.PRIMARY.BLUE};
 		padding: 0.2rem 0.55rem;
 		border-radius: 999px;
 		font-size: 0.85rem;
@@ -214,11 +216,8 @@ interface GlossaryCategory {
 }
 
 const AIGlossary: React.FC = () => {
+	usePageScroll();
 	const [searchTerm, setSearchTerm] = useState('');
-
-	useEffect(() => {
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, []);
 
 	const glossaryData: GlossaryCategory[] = [
 		{

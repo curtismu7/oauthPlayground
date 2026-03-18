@@ -207,9 +207,9 @@ class UserDatabaseService {
 	}
 
 	/**
-	 * Create performance indexes
+	 * Create performance indexes (synchronous)
 	 */
-	createIndexes() {
+	createPerformanceIndexes() {
 		this.db.exec(`
 			CREATE INDEX IF NOT EXISTS idx_users_env_username ON users(environment_id, username);
 			CREATE INDEX IF NOT EXISTS idx_users_env_email ON users(environment_id, email);
@@ -226,7 +226,8 @@ class UserDatabaseService {
 	async saveUsers(environmentId, users) {
 		await this.init();
 
-		return new Promise(async (resolve, reject) => {
+		return new Promise((resolve, reject) => {
+			// biome-ignore lint/suspicious/noAsyncPromiseExecutor: SQLite serialize requires async executor
 			this.db.serialize(async () => {
 				try {
 					await this.run('BEGIN TRANSACTION');
@@ -444,21 +445,18 @@ class UserDatabaseService {
 	async clearEnvironmentData(environmentId) {
 		await this.init();
 
-		return new Promise(async (resolve, reject) => {
-			try {
-				await this.run('BEGIN TRANSACTION');
-				await this.run('DELETE FROM users WHERE environment_id = ?', [environmentId]);
-				await this.run('DELETE FROM sync_metadata WHERE environment_id = ?', [environmentId]);
-				await this.run('COMMIT');
+		try {
+			await this.run('BEGIN TRANSACTION');
+			await this.run('DELETE FROM users WHERE environment_id = ?', [environmentId]);
+			await this.run('DELETE FROM sync_metadata WHERE environment_id = ?', [environmentId]);
+			await this.run('COMMIT');
 
-				logger.info(`${MODULE_TAG} Cleared data for environment ${environmentId}`);
-				resolve();
-			} catch (error) {
-				await this.run('ROLLBACK');
-				logger.error(`${MODULE_TAG} Failed to clear environment data:`, error);
-				reject(error);
-			}
-		});
+			logger.info(`${MODULE_TAG} Cleared data for environment ${environmentId}`);
+		} catch (error) {
+			await this.run('ROLLBACK');
+			logger.error(`${MODULE_TAG} Failed to clear environment data:`, error);
+			throw error;
+		}
 	}
 
 	/**

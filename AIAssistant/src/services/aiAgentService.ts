@@ -26,6 +26,13 @@ interface CapabilityIndex {
 		path: string;
 		keywords: string[];
 	}>;
+	mockFlows: Array<{
+		name: string;
+		description: string;
+		path: string;
+		keywords: string[];
+		subGroup: string;
+	}>;
 	features: Array<{
 		name: string;
 		description: string;
@@ -61,6 +68,16 @@ interface CapabilityIndex {
 		content: string;
 		path: string;
 		keywords: string[];
+	}>;
+	/** Indexed sidebar menu items — single source of truth for AI menu discovery */
+	menuIndex: Array<{
+		label: string;
+		path: string;
+		group: string;
+		groupId: string;
+		keywords: string[];
+		description: string;
+		mock?: boolean;
 	}>;
 }
 
@@ -191,6 +208,109 @@ class AIAgentService {
 					description: 'Exchange one token type for another using OAuth 2.0 Token Exchange.',
 					path: '/flows/token-exchange-v7',
 					keywords: ['token', 'exchange', 'swap', 'convert', 'delegation'],
+				},
+			],
+			mockFlows: [
+				// ── OAuth Mock Flows (subgroup from sidebarMenuConfig) ──
+				{
+					name: 'Mock Authorization Code Flow',
+					description: 'Simulated OAuth 2.0 Authorization Code flow — no real API calls. Pre-filled credentials for learning.',
+					path: '/flows/oauth-authorization-code-mock',
+					keywords: ['mock', 'authorization', 'code', 'simulate', 'educational', 'learning'],
+					subGroup: 'OAuth Mock Flows',
+				},
+				{
+					name: 'Mock Implicit Flow',
+					description: 'Simulated OAuth 2.0 Implicit grant — educational demo, no PingOne required.',
+					path: '/flows/implicit-mock',
+					keywords: ['mock', 'implicit', 'simulate', 'educational', 'spa'],
+					subGroup: 'OAuth Mock Flows',
+				},
+				{
+					name: 'Mock Client Credentials Flow',
+					description: 'Simulated machine-to-machine client credentials flow for learning M2M patterns.',
+					path: '/flows/client-credentials-mock',
+					keywords: ['mock', 'client', 'credentials', 'm2m', 'machine', 'simulate'],
+					subGroup: 'OAuth Mock Flows',
+				},
+				{
+					name: 'Mock Device Authorization Flow',
+					description: 'Simulated device code flow — demonstrates IoT/TV authentication without hardware.',
+					path: '/flows/device-authorization-mock',
+					keywords: ['mock', 'device', 'tv', 'iot', 'simulate', 'educational'],
+					subGroup: 'OAuth Mock Flows',
+				},
+				{
+					name: 'Mock OIDC ROPC Flow',
+					description: 'Simulated OIDC Resource Owner Password Credentials — educational demo only.',
+					path: '/flows/mock-oidc-ropc',
+					keywords: ['mock', 'oidc', 'ropc', 'resource', 'owner', 'password', 'simulate'],
+					subGroup: 'OAuth Mock Flows',
+				},
+				// ── Advanced Mock Flows ──
+				{
+					name: 'Mock DPoP Authorization Code Flow',
+					description: 'Simulated DPoP (Demonstrating Proof of Possession) bound token flow — RFC 9449.',
+					path: '/flows/dpop-authorization-code-mock',
+					keywords: ['mock', 'dpop', 'proof', 'possession', 'rfc9449', 'simulate'],
+					subGroup: 'Advanced Mock Flows',
+				},
+				{
+					name: 'Mock CIBA Flow',
+					description: 'Simulated Client Initiated Backchannel Authentication — decoupled auth demo.',
+					path: '/flows/ciba-mock',
+					keywords: ['mock', 'ciba', 'backchannel', 'decoupled', 'simulate'],
+					subGroup: 'Advanced Mock Flows',
+				},
+				{
+					name: 'Mock PAR Flow',
+					description: 'Simulated Pushed Authorization Request — RFC 9126 security demo.',
+					path: '/flows/par-mock',
+					keywords: ['mock', 'par', 'pushed', 'authorization', 'rfc9126', 'simulate'],
+					subGroup: 'Advanced Mock Flows',
+				},
+				{
+					name: 'Mock JWT Bearer Token Flow',
+					description: 'Simulated JWT Bearer token grant — service-to-service auth demo.',
+					path: '/flows/jwt-bearer-mock',
+					keywords: ['mock', 'jwt', 'bearer', 'assertion', 'simulate'],
+					subGroup: 'Advanced Mock Flows',
+				},
+				{
+					name: 'Mock Token Exchange Flow',
+					description: 'Simulated OAuth 2.0 Token Exchange — RFC 8693 delegation demo.',
+					path: '/flows/token-exchange-mock',
+					keywords: ['mock', 'token', 'exchange', 'delegation', 'rfc8693', 'simulate'],
+					subGroup: 'Advanced Mock Flows',
+				},
+				{
+					name: 'SAML Bearer Assertion Flow (Mock)',
+					description: 'Simulated SAML-to-OAuth token exchange — no SAML IdP required.',
+					path: '/flows/saml-bearer-assertion-v7',
+					keywords: ['mock', 'saml', 'bearer', 'assertion', 'sso', 'simulate'],
+					subGroup: 'Advanced Mock Flows',
+				},
+				// ── V7 Mock Server Flows ──
+				{
+					name: 'Mock OAuth Auth Code (Condensed)',
+					description: 'Condensed V7 authorization code UI prototype — mock server backed.',
+					path: '/flows/oauth-authorization-code-v7-condensed-mock',
+					keywords: ['mock', 'v7', 'condensed', 'authorization', 'code', 'prototype'],
+					subGroup: 'V7 Mock Server Flows',
+				},
+				{
+					name: 'Mock Redirectless Authorize',
+					description: 'V7 mock server flow — redirectless authorization without a redirect.',
+					path: '/api/pingone/redirectless/authorize-mock',
+					keywords: ['mock', 'redirectless', 'v7', 'server', 'authorize'],
+					subGroup: 'V7 Mock Server Flows',
+				},
+				{
+					name: 'Mock User Profile',
+					description: 'V7 mock user profile endpoint — returns simulated user data.',
+					path: '/api/pingone/user-mock/:userId',
+					keywords: ['mock', 'user', 'profile', 'v7', 'server', 'simulate'],
+					subGroup: 'V7 Mock Server Flows',
 				},
 			],
 			features: [
@@ -709,6 +829,92 @@ class AIAgentService {
 					],
 				},
 			],
+			menuIndex: [
+				// Dashboard
+				{ label: 'Dashboard', path: '/dashboard', group: 'Dashboard', groupId: 'dashboard', keywords: ['dashboard', 'overview', 'main'], description: 'Main dashboard overview.' },
+				{ label: 'Platform Dashboard', path: '/pingone-dashboard', group: 'Dashboard', groupId: 'dashboard', keywords: ['platform', 'dashboard', 'pingone'], description: 'PingOne platform dashboard.' },
+				{ label: 'Component Cleanliness Dashboard', path: '/cleanliness-dashboard', group: 'Dashboard', groupId: 'dashboard', keywords: ['cleanliness', 'dashboard', 'components'], description: 'Component cleanliness dashboard.' },
+				{ label: 'API Status', path: '/api-status', group: 'Dashboard', groupId: 'dashboard', keywords: ['api', 'status', 'health'], description: 'API status and health.' },
+				{ label: 'App update History', path: '/cleanup-history', group: 'Dashboard', groupId: 'dashboard', keywords: ['update', 'history', 'changelog'], description: 'App update and cleanup history.' },
+				{ label: 'About', path: '/about', group: 'Dashboard', groupId: 'dashboard', keywords: ['about', 'info', 'user guide'], description: 'About and user guide.' },
+
+				// Admin & Configuration
+				{ label: 'Configuration Management', path: '/configuration', group: 'Admin & Configuration', groupId: 'admin-configuration', keywords: ['configuration', 'settings', 'admin'], description: 'Manage configuration and settings.' },
+				{ label: 'OIDC Discovery', path: '/auto-discover', group: 'Admin & Configuration', groupId: 'admin-configuration', keywords: ['oidc', 'discovery', 'admin'], description: 'OIDC discovery and metadata.' },
+				{ label: 'Environment Management', path: '/environments', group: 'Admin & Configuration', groupId: 'admin-configuration', keywords: ['environment', 'management', 'admin'], description: 'Manage environments.' },
+				{ label: 'Credential Management', path: '/credential-management', group: 'Admin & Configuration', groupId: 'admin-configuration', keywords: ['credential', 'management', 'admin'], description: 'Manage credentials.' },
+				{ label: 'Protect Portal App', path: '/protect-portal', group: 'Admin & Configuration', groupId: 'admin-configuration', keywords: ['protect', 'portal', 'admin'], description: 'PingOne Protect Portal.' },
+				{ label: 'Delete All Devices', path: '/v8/delete-all-devices', group: 'Admin & Configuration', groupId: 'admin-configuration', keywords: ['delete', 'devices', 'admin'], description: 'Delete all devices.' },
+				{ label: 'Flow Comparison Tool', path: '/v8u/flow-comparison', group: 'Admin & Configuration', groupId: 'admin-configuration', keywords: ['flow', 'comparison', 'admin'], description: 'Compare flows.' },
+				{ label: 'Token Monitoring Dashboard', path: '/v8u/token-monitoring', group: 'Admin & Configuration', groupId: 'admin-configuration', keywords: ['token', 'monitoring', 'admin'], description: 'Monitor tokens.' },
+
+				// PingOne Platform
+				{ label: 'Unified OAuth & OIDC', path: '/v8u/unified', group: 'PingOne Platform', groupId: 'pingone-platform', keywords: ['unified', 'oauth', 'oidc', 'pingone'], description: 'Unified OAuth & OIDC landing.' },
+				{ label: 'Unified MFA', path: '/v8/unified-mfa', group: 'PingOne Platform', groupId: 'pingone-platform', keywords: ['unified', 'mfa', 'pingone'], description: 'Unified MFA.' },
+				{ label: 'Enhanced State Management (V2)', path: '/v8u/enhanced-state-management', group: 'PingOne Platform', groupId: 'pingone-platform', keywords: ['enhanced', 'state', 'management', 'pingone'], description: 'Enhanced state management.' },
+				{ label: 'Protect Portal App', path: '/protect-portal', group: 'PingOne Platform', groupId: 'pingone-platform', keywords: ['protect', 'portal', 'pingone'], description: 'PingOne Protect Portal.' },
+
+				// Unified & Production Flows (Flow Tools)
+				{ label: 'Delete All Devices', path: '/v8/delete-all-devices', group: 'Unified & Production Flows', groupId: 'unified-production-flows', keywords: ['delete', 'devices', 'flow'], description: 'Delete all devices.' },
+				{ label: 'Flow Comparison Tool', path: '/v8u/flow-comparison', group: 'Unified & Production Flows', groupId: 'unified-production-flows', keywords: ['flow', 'comparison', 'tool'], description: 'Compare flows.' },
+				{ label: 'Token Monitoring Dashboard', path: '/v8u/token-monitoring', group: 'Unified & Production Flows', groupId: 'unified-production-flows', keywords: ['token', 'monitoring', 'dashboard'], description: 'Monitor tokens.' },
+
+				// OAuth 2.0 Flows
+				{ label: 'Authorization Code Flow', path: '/flows/oauth-authorization-code-v7', group: 'OAuth 2.0 Flows', groupId: 'oauth-flows', keywords: ['authorization', 'code', 'oauth'], description: 'OAuth 2.0 Authorization Code flow.' },
+				{ label: 'Client Credentials Flow', path: '/flows/client-credentials-v7', group: 'OAuth 2.0 Flows', groupId: 'oauth-flows', keywords: ['client', 'credentials', 'oauth'], description: 'OAuth 2.0 Client Credentials flow.' },
+				{ label: 'Device Authorization Flow', path: '/flows/device-authorization-v7', group: 'OAuth 2.0 Flows', groupId: 'oauth-flows', keywords: ['device', 'authorization', 'oauth'], description: 'OAuth 2.0 Device Authorization flow.' },
+				{ label: 'Implicit Flow', path: '/flows/implicit-v7', group: 'OAuth 2.0 Flows', groupId: 'oauth-flows', keywords: ['implicit', 'oauth'], description: 'OAuth 2.0 Implicit flow.' },
+				{ label: 'JWT Bearer Token Flow', path: '/flows/jwt-bearer-token-v7', group: 'OAuth 2.0 Flows', groupId: 'oauth-flows', keywords: ['jwt', 'bearer', 'oauth'], description: 'OAuth 2.0 JWT Bearer Token flow.' },
+				{ label: 'CIBA Flow', path: '/flows/ciba-v7', group: 'OAuth 2.0 Flows', groupId: 'oauth-flows', keywords: ['ciba', 'oauth'], description: 'OAuth 2.0 CIBA flow.' },
+				{ label: 'Hybrid Flow', path: '/flows/oidc-hybrid-v7', group: 'OAuth 2.0 Flows', groupId: 'oauth-flows', keywords: ['hybrid', 'oauth'], description: 'OAuth 2.0 Hybrid flow.' },
+
+				// OpenID Connect
+				{ label: 'OIDC Hybrid Flow', path: '/flows/oidc-hybrid-v7', group: 'OpenID Connect', groupId: 'oidc-flows', keywords: ['oidc', 'hybrid', 'openid'], description: 'OIDC Hybrid flow.' },
+				{ label: 'UserInfo Flow', path: '/flows/userinfo', group: 'OpenID Connect', groupId: 'oidc-flows', keywords: ['userinfo', 'oidc'], description: 'OIDC UserInfo flow.' },
+				{ label: 'OIDC Specifications', path: '/docs/oidc-specs', group: 'OpenID Connect', groupId: 'oidc-flows', keywords: ['oidc', 'specifications'], description: 'OIDC specifications.' },
+				{ label: 'Mock OIDC ROPC', path: '/flows/mock-oidc-ropc', group: 'OpenID Connect', groupId: 'oidc-flows', keywords: ['mock', 'oidc', 'ropc'], description: 'Mock OIDC ROPC flow.', mock: true },
+				{ label: 'Mock OAuth Auth Code Condensed', path: '/flows/oauth-authorization-code-v7-condensed-mock', group: 'OpenID Connect', groupId: 'oidc-flows', keywords: ['mock', 'oauth', 'auth code'], description: 'Mock OAuth Auth Code Condensed flow.', mock: true },
+
+				// PingOne Flows
+				{ label: 'Worker Token (V9)', path: '/flows/worker-token-v9', group: 'PingOne Flows', groupId: 'pingone-flows', keywords: ['worker', 'token', 'pingone'], description: 'PingOne Worker Token flow.' },
+				{ label: 'PingOne Logout', path: '/flows/pingone-logout', group: 'PingOne Flows', groupId: 'pingone-flows', keywords: ['logout', 'pingone'], description: 'PingOne Logout flow.' },
+				{ label: 'Redirectless Login Modal (V9)', path: '/flows/redirectless-v9-real', group: 'PingOne Flows', groupId: 'pingone-flows', keywords: ['redirectless', 'login', 'pingone'], description: 'Redirectless Login Modal flow.' },
+				{ label: 'UserInfo Flow', path: '/flows/userinfo', group: 'PingOne Flows', groupId: 'pingone-flows', keywords: ['userinfo', 'pingone'], description: 'PingOne UserInfo flow.' },
+				{ label: 'Protect Portal App', path: '/protect-portal', group: 'PingOne Flows', groupId: 'pingone-flows', keywords: ['protect', 'portal', 'pingone'], description: 'PingOne Protect Portal.' },
+
+				// Tokens & Session
+				{ label: 'Token Operations', path: '/token/operations', group: 'Tokens & Session', groupId: 'tokens-session', keywords: ['token', 'operations'], description: 'Token operations.' },
+				{ label: 'UserInfo Flow', path: '/flows/userinfo', group: 'Tokens & Session', groupId: 'tokens-session', keywords: ['userinfo', 'token'], description: 'UserInfo flow.' },
+				{ label: 'PingOne Logout', path: '/flows/pingone-logout', group: 'Tokens & Session', groupId: 'tokens-session', keywords: ['logout', 'token'], description: 'PingOne Logout.' },
+				{ label: 'Redirectless Login Modal (V9)', path: '/flows/redirectless-v9-real', group: 'Tokens & Session', groupId: 'tokens-session', keywords: ['redirectless', 'login', 'token'], description: 'Redirectless Login Modal.' },
+				{ label: 'Worker Token (V9)', path: '/flows/worker-token-v9', group: 'Tokens & Session', groupId: 'tokens-session', keywords: ['worker', 'token'], description: 'Worker Token.' },
+
+				// Developer & Tools
+				{ label: 'Token Management', path: '/token-management', group: 'Developer & Tools', groupId: 'developer-tools', keywords: ['token', 'management', 'developer'], description: 'Token management tools.' },
+				{ label: 'Code Generator', path: '/oauth-code-generator-hub', group: 'Developer & Tools', groupId: 'developer-tools', keywords: ['code', 'generator', 'developer'], description: 'Code generator hub.' },
+				{ label: 'Application Generator', path: '/application-generator', group: 'Developer & Tools', groupId: 'developer-tools', keywords: ['application', 'generator', 'developer'], description: 'Application generator.' },
+				{ label: 'PingOne Scopes Reference', path: '/pingone-scopes-reference', group: 'Developer & Tools', groupId: 'developer-tools', keywords: ['pingone', 'scopes', 'reference'], description: 'PingOne scopes reference.' },
+
+				// Education & Tutorials
+				{ label: 'Playground User Guide', path: '/about', group: 'Education & Tutorials', groupId: 'education-tutorials', keywords: ['user', 'guide', 'education'], description: 'Playground user guide.' },
+				{ label: 'Interactive OAuth Flows Guide', path: '/about', group: 'Education & Tutorials', groupId: 'education-tutorials', keywords: ['oauth', 'flows', 'guide'], description: 'Interactive OAuth flows guide.' },
+				{ label: 'OpenID Connect Integration Guide', path: '/about', group: 'Education & Tutorials', groupId: 'education-tutorials', keywords: ['oidc', 'integration', 'guide'], description: 'OIDC integration guide.' },
+				{ label: 'Educational Features Guide', path: '/about', group: 'Education & Tutorials', groupId: 'education-tutorials', keywords: ['educational', 'features', 'guide'], description: 'Educational features guide.' },
+
+				// Mock & Educational Flows
+				{ label: 'Mock Authorization Code Flow', path: '/flows/oauth-authorization-code-mock', group: 'Mock & Educational Flows', groupId: 'mock-educational-flows', keywords: ['mock', 'authorization code', 'educational'], description: 'Mock Authorization Code flow.', mock: true },
+				{ label: 'Mock Implicit Flow', path: '/flows/implicit-mock', group: 'Mock & Educational Flows', groupId: 'mock-educational-flows', keywords: ['mock', 'implicit', 'educational'], description: 'Mock Implicit flow.', mock: true },
+				{ label: 'Mock Client Credentials Flow', path: '/flows/client-credentials-mock', group: 'Mock & Educational Flows', groupId: 'mock-educational-flows', keywords: ['mock', 'client credentials', 'educational'], description: 'Mock Client Credentials flow.', mock: true },
+
+				// Artificial Intelligence
+				{ label: 'MasterFlow AI Assistant', path: '/ai-assistant', group: 'Artificial Intelligence', groupId: 'artificial-intelligence', keywords: ['ai', 'assistant', 'agent', 'mcp', 'chat'], description: 'Interactive AI assistant with MCP-backed PingOne actions.' },
+				{ label: 'OAuth & OIDC for AI', path: '/docs/oauth-for-ai', group: 'Artificial Intelligence', groupId: 'artificial-intelligence', keywords: ['ai', 'oauth for ai', 'oidc for ai', 'agents'], description: 'AI-focused OAuth/OIDC reference page.' },
+
+				// Documentation & Reference
+				{ label: 'Documentation Hub', path: '/documentation', group: 'Documentation & Reference', groupId: 'documentation-reference', keywords: ['documentation', 'reference', 'hub'], description: 'Documentation hub.' },
+				{ label: 'OIDC Overview', path: '/documentation/oidc-overview', group: 'Documentation & Reference', groupId: 'documentation-reference', keywords: ['oidc', 'overview', 'reference'], description: 'OIDC overview.' },
+				{ label: 'OAuth 2.0 Security Best Practices', path: '/docs/oauth2-security-best-practices', group: 'Documentation & Reference', groupId: 'documentation-reference', keywords: ['oauth', 'security', 'best practices'], description: 'OAuth 2.0 security best practices.' },
+			],
 		};
 	}
 
@@ -724,6 +930,26 @@ class AIAgentService {
 			includeWorkflows = false,
 			includeUserGuide = false,
 		} = options;
+
+		// Search mock flows (always included — they're internal content)
+		for (const flow of this.capabilityIndex.mockFlows) {
+			const relevance = this.calculateRelevance(
+				normalizedQuery,
+				flow.name,
+				`${flow.description} ${flow.subGroup}`,
+				flow.keywords
+			);
+			if (relevance > 0) {
+				results.push({
+					title: `${flow.name} [Mock]`,
+					content: flow.description,
+					path: flow.path,
+					type: 'flow',
+					relevance,
+					external: false,
+				});
+			}
+		}
 
 		// Search flows
 		for (const flow of this.capabilityIndex.flows) {
@@ -873,6 +1099,26 @@ class AIAgentService {
 			}
 		}
 
+		// Search indexed sidebar/menu items
+		for (const item of this.capabilityIndex.menuIndex) {
+			const relevance = this.calculateRelevance(
+				normalizedQuery,
+				item.label,
+				`${item.description} ${item.group}`,
+				item.keywords
+			);
+			if (relevance > 0) {
+				results.push({
+					title: `${item.label} (${item.group})`,
+					content: item.description,
+					path: item.path,
+					type: 'feature',
+					relevance,
+					external: false,
+				});
+			}
+		}
+
 		// Sort by relevance (highest first)
 		return results.sort((a, b) => b.relevance - a.relevance).slice(0, 10);
 	}
@@ -934,7 +1180,99 @@ class AIAgentService {
 		query: string,
 		options: SearchOptions = {}
 	): { answer: string; relatedLinks: SearchResult[] } {
-		const _normalizedQuery = query.toLowerCase();
+		const q = query.toLowerCase();
+
+		// ── 1. Topic-based menu listing ──────────────────────────────────────────
+		const MENU_TOPICS: Array<{ groupId: string; groupLabel: string; regex: RegExp }> = [
+			{ groupId: 'artificial-intelligence',  groupLabel: 'Artificial Intelligence',    regex: /\b(ai|agent|assistant|mcp|llm|groq)\b/ },
+			{ groupId: 'unified-production-flows', groupLabel: 'Unified & Production Flows', regex: /\b(unified|v8u)\b/ },
+			{ groupId: 'oauth-flows',              groupLabel: 'OAuth 2.0 Flows',            regex: /\boauth\s*(2\.?0?\s*)?(flows?|menu|items?|list)\b/ },
+			{ groupId: 'oidc-flows',               groupLabel: 'OpenID Connect',             regex: /\b(oidc|openid\s*connect)\b/ },
+			{ groupId: 'mock-educational-flows',   groupLabel: 'Mock & Educational Flows',   regex: /\b(mock|simulated?|educational|no\s*api)\b/ },
+			{ groupId: 'pingone-flows',            groupLabel: 'PingOne Flows',              regex: /\bpingone\s*(flows?|menu)\b/ },
+			{ groupId: 'tokens-session',           groupLabel: 'Tokens & Session',           regex: /\b(tokens?\s*(flows?|menu|items?)?|session\s*management)\b/ },
+			{ groupId: 'developer-tools',          groupLabel: 'Developer & Tools',          regex: /\b(developer\s*tools?|debug|code\s*generator|cleanliness)\b/ },
+			{ groupId: 'admin-configuration',      groupLabel: 'Admin & Configuration',      regex: /\b(admin|configuration|credential\s*management|settings)\b/ },
+			{ groupId: 'pingone-platform',         groupLabel: 'PingOne Platform',           regex: /\b(pingone\s*platform|protect\s*portal|jwks|identity\s*metrics|kroger)\b/ },
+			{ groupId: 'education-tutorials',      groupLabel: 'Education & Tutorials',      regex: /\b(education|tutorials?|user\s*guide|getting\s*started)\b/ },
+			{ groupId: 'documentation-reference',  groupLabel: 'Documentation & Reference',  regex: /\b(docs?\s*(menu|reference|items?)|documentation\s*reference)\b/ },
+			{ groupId: 'dashboard',                groupLabel: 'Dashboard',                  regex: /\bdashboard\b/ },
+		];
+
+		const isListingIntent = /\b(show|list|find|where\s*is|what.s\s*in|navigate|go\s*to|open|menu|sidebar|what\s*are)\b/.test(q);
+
+		if (isListingIntent) {
+			const matched = MENU_TOPICS.find((t) => t.regex.test(q));
+			if (matched) {
+				const items = this.capabilityIndex.menuIndex.filter(
+					(item) => item.groupId === matched.groupId
+				);
+
+				// Answer text: just a short header + count — no inline paths.
+				// All items go into relatedLinks so the chat UI renders them as
+				// clickable LinkItem buttons (see AIAssistant.tsx message.links renderer).
+				const answer = [
+					`## ${matched.groupLabel}`,
+					'',
+					`Found **${items.length} item${items.length === 1 ? '' : 's'}**. Click any link below to open it.`,
+					'',
+					...items.map((item) =>
+						`- **${item.label}**${item.mock ? ' 🎭' : ''} — ${item.description}`
+					),
+					'',
+					'> 🎭 = Mock/educational flow — no real PingOne API calls required.',
+				].join('\n');
+
+				const relatedLinks: SearchResult[] = items.map((item) => ({
+					title: `${item.label}${item.mock ? ' 🎭' : ''}`,
+					content: item.description,
+					path: item.path,
+					type: 'flow' as const,
+					relevance: 100,
+					external: item.path.startsWith('http'),
+				}));
+
+				return { answer, relatedLinks };
+			}
+		}
+
+		// ── 2. "Show all menu" / full sidebar dump ───────────────────────────────
+		if (/\b(all\s*menu|full\s*menu|full\s*sidebar|entire\s*menu|all\s*items|everything\s*in\s*(the\s*)?menu)\b/.test(q)) {
+			const byGroup = this.capabilityIndex.menuIndex.reduce<Record<string, typeof this.capabilityIndex.menuIndex>>(
+				(acc, item) => {
+					if (!acc[item.group]) {
+						acc[item.group] = [];
+					}
+					acc[item.group].push(item);
+					return acc;
+				},
+				{}
+			);
+
+			const lines: string[] = ['## Full Sidebar Menu', ''];
+			for (const [group, groupItems] of Object.entries(byGroup)) {
+				lines.push(`### ${group}`);
+				for (const item of groupItems) {
+					lines.push(`- **${item.label}**${item.mock ? ' 🎭' : ''} — ${item.description}`);
+				}
+				lines.push('');
+			}
+			lines.push('> Click any Related Resource link below to navigate. 🎭 = Mock flow.');
+
+			// Surface top 10 as clickable links (chat UI limit)
+			const relatedLinks: SearchResult[] = this.capabilityIndex.menuIndex
+				.slice(0, 10)
+				.map((item) => ({
+					title: item.label,
+					content: item.description,
+					path: item.path,
+					type: 'flow' as const,
+					relevance: 90,
+					external: item.path.startsWith('http'),
+				}));
+
+			return { answer: lines.join('\n'), relatedLinks };
+		}
 
 		// Common question patterns
 		const patterns = [

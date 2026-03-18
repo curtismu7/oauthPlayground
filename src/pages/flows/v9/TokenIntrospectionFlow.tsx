@@ -5,6 +5,7 @@
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 
 type Tab = 'issue' | 'introspect' | 'revoke';
 
@@ -20,7 +21,7 @@ interface IntrospectResult {
 }
 
 const Page = styled.div`
-	max-width: 860px;
+	max-width: 90rem;
 	margin: 0 auto;
 	padding: 2rem 1.5rem;
 	font-family: system-ui, sans-serif;
@@ -456,6 +457,7 @@ const TokenIntrospectionFlow: React.FC = () => {
 
 	return (
 		<Page>
+			<V9FlowHeader flowId="token-introspection" />
 			<PageTitle>
 				Token Introspection<RfcBadge>RFC 7662</RfcBadge>
 				<RfcBadge>RFC 7009</RfcBadge>

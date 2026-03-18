@@ -1,5 +1,8 @@
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
-import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
+import {
+	type UnifiedStorageItem,
+	unifiedTokenStorage,
+} from '../../services/unifiedTokenStorageService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import type { WorkerAccessToken } from '../../services/unifiedWorkerTokenTypes';
 import { logger } from './unifiedFlowLoggerServiceV8U';
@@ -66,7 +69,8 @@ export class TokenMonitoringService {
 	private config: TokenMonitoringServiceConfig;
 	private pollingTimer: NodeJS.Timeout | null = null;
 	private notificationPermission: NotificationPermission = 'default';
-	private readonly STORAGE_KEY = 'v8u.tokenMonitoring.tokens';
+	private isSyncingWorkerToken = false;
+	private notifyDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 	private readonly API_CALLS_KEY = 'v8u.tokenMonitoring.apiCalls';
 	private apiCalls: ApiCall[] = [];
 	private maxApiCalls: number = 100; // Keep only last 100 API calls
@@ -86,6 +90,7 @@ export class TokenMonitoringService {
 		this.startPolling();
 		this.setupTokenSync();
 		this.setupApiCallTrackerSync();
+		this.startAutomaticCleanup();
 
 		logger.debug(
 			'[TokenMonitoring] Service initialized; token list will be built from real sources (unified storage + worker token)',
@@ -257,11 +262,18 @@ export class TokenMonitoringService {
 	}
 
 	private notifyListeners(): void {
-		const tokens = Array.from(this.tokens.values());
+		const tokens = this.getAllTokens();
 		this.listeners.forEach((listener) => {
 			listener(tokens);
 		});
-		this.saveTokensToStorage();
+		// Debounce storage save so that removing N tokens at once only triggers one write
+		if (this.notifyDebounceTimer !== null) {
+			clearTimeout(this.notifyDebounceTimer);
+		}
+		this.notifyDebounceTimer = setTimeout(() => {
+			this.notifyDebounceTimer = null;
+			void this.saveTokensToStorage();
+		}, 100);
 	}
 
 	private notifyApiCallListeners(): void {
@@ -271,14 +283,38 @@ export class TokenMonitoringService {
 		this.saveApiCallsToStorage();
 	}
 
-	private saveTokensToStorage(): void {
+	private async saveTokensToStorage(): Promise<void> {
 		try {
-			if (typeof window !== 'undefined') {
-				const tokenData = Array.from(this.tokens.values());
-				window.localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tokenData));
+			// Convert TokenInfo to UnifiedStorageItem format
+			const tokensToStore = Array.from(this.tokens.values()).map((token) => ({
+				id: token.id,
+				type: token.type as UnifiedStorageItem['type'],
+				value: token.value,
+				expiresAt: token.expiresAt,
+				issuedAt: token.issuedAt || Date.now(),
+				scope: token.scope,
+				source: token.source || ('oauth_flow' as UnifiedStorageItem['source']),
+				flowType: 'unified',
+				createdAt: token.issuedAt || Date.now(),
+				updatedAt: Date.now(),
+				metadata: {
+					status: token.status,
+					introspectionData: token.introspectionData,
+					isVisible: token.isVisible,
+				},
+			}));
+
+			// Store each token using unified storage
+			for (const token of tokensToStore) {
+				await unifiedTokenStorage.storeToken(token);
 			}
+
+			logger.debug(
+				`[TokenMonitoring] Saved ${tokensToStore.length} tokens to unified storage`,
+				'Logger debug'
+			);
 		} catch (error) {
-			logger.warn('[TokenMonitoring] Failed to save tokens to storage:', {
+			logger.warn('[TokenMonitoring] Failed to save tokens to unified storage:', {
 				error: error instanceof Error ? error.message : String(error),
 			});
 		}
@@ -735,6 +771,9 @@ export class TokenMonitoringService {
 	}
 
 	private async syncWorkerToken(): Promise<void> {
+		// Guard against concurrent execution (e.g. interval fires before previous call finishes)
+		if (this.isSyncingWorkerToken) return;
+		this.isSyncingWorkerToken = true;
 		try {
 			logger.debug('[TokenMonitoring] Syncing worker token...', 'Logger debug');
 
@@ -808,6 +847,8 @@ export class TokenMonitoringService {
 			logger.error('[TokenMonitoring] Failed to sync worker token:', {
 				error: error instanceof Error ? error.message : String(error),
 			} as Record<string, unknown>);
+		} finally {
+			this.isSyncingWorkerToken = false;
 		}
 	}
 
@@ -1435,5 +1476,90 @@ export class TokenMonitoringService {
 				token.expiresAt > currentTime &&
 				token.expiresAt - currentTime <= milliseconds
 		);
+	}
+
+	/**
+	 * Clean up old tokens - removes tokens older than the specified age
+	 * @param maxAge - Maximum age in milliseconds (default: 2 hours)
+	 * @returns Number of tokens cleaned up
+	 */
+	public async cleanupOldTokens(maxAge: number = 2 * 60 * 60 * 1000): Promise<number> {
+		const currentTime = Date.now();
+		const cutoffTime = currentTime - maxAge;
+		let cleanedCount = 0;
+
+		// Get all tokens and filter for old ones
+		const allTokens = this.getAllTokens();
+		const tokensToRemove = allTokens.filter((token) => {
+			// Remove if token is older than maxAge
+			if (token.issuedAt && token.issuedAt < cutoffTime) {
+				return true;
+			}
+			// Also remove if token is expired and older than maxAge
+			if (
+				token.expiresAt &&
+				token.expiresAt < currentTime &&
+				token.issuedAt &&
+				token.issuedAt < cutoffTime
+			) {
+				return true;
+			}
+			return false;
+		});
+
+		// Remove old tokens from memory
+		tokensToRemove.forEach((token) => {
+			this.tokens.delete(token.id);
+			cleanedCount++;
+		});
+
+		// Remove from unified storage as well
+		for (const token of tokensToRemove) {
+			await unifiedTokenStorage.deleteToken(token.id);
+		}
+
+		// Update storage and notify listeners
+		await this.saveTokensToStorage();
+		this.notifyListeners();
+
+		if (cleanedCount > 0) {
+			logger.info(
+				'[TokenMonitoring] Cleanup completed',
+				{
+					tokensRemoved: cleanedCount,
+					maxAge: maxAge / 1000 / 60, // Convert to minutes for logging
+					totalRemaining: this.tokens.size,
+				},
+				'Logger info'
+			);
+		}
+
+		return cleanedCount;
+	}
+
+	/**
+	 * Start automatic cleanup every 2 hours
+	 */
+	public startAutomaticCleanup(): NodeJS.Timeout {
+		// Run cleanup every 2 hours
+		const cleanupInterval = 2 * 60 * 60 * 1000;
+
+		// Run initial cleanup
+		void this.cleanupOldTokens();
+
+		// Schedule recurring cleanup
+		const timer = setInterval(() => {
+			void this.cleanupOldTokens();
+		}, cleanupInterval);
+
+		logger.info(
+			'[TokenMonitoring] Automatic cleanup started',
+			{
+				interval: cleanupInterval / 1000 / 60, // Convert to minutes
+			},
+			'Logger info'
+		);
+
+		return timer;
 	}
 }

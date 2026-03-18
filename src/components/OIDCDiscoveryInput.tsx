@@ -16,7 +16,7 @@ import { logger } from '../utils/logger';
 
 interface OIDCDiscoveryInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
-	onCredentialsGenerated?: (credentials: any) => void;
+	_onCredentialsGenerated?: (credentials: any) => void;
 	initialIssuerUrl?: string;
 	className?: string;
 	disabled?: boolean;
@@ -345,7 +345,7 @@ const ResultsCollapsible = styled.div<{ isOpen: boolean }>`
 
 const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 	onDiscoveryComplete,
-	onCredentialsGenerated,
+	_onCredentialsGenerated,
 	initialIssuerUrl = '',
 	className,
 	disabled = false,

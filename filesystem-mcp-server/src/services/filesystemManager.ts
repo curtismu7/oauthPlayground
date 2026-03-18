@@ -42,14 +42,14 @@ export class FilesystemManager {
 		// Set up log watching
 		this.setupLogWatcher();
 
-		console.log('Filesystem manager initialized');
+		console.error('[filesystem-mcp] Filesystem manager initialized');
 	}
 
 	async shutdown(): Promise<void> {
 		if (this.logWatcher) {
 			await this.logWatcher.close();
 		}
-		console.log('Filesystem manager shutdown');
+		console.error('[filesystem-mcp] Filesystem manager shutdown');
 	}
 
 	private setupLogWatcher(): void {
@@ -59,7 +59,7 @@ export class FilesystemManager {
 		});
 
 		this.logWatcher.on('change', (filePath: string) => {
-			console.log(`Log file changed: ${filePath}`);
+			console.error(`[filesystem-mcp] Log file changed: ${filePath}`);
 		});
 	}
 
@@ -107,7 +107,7 @@ export class FilesystemManager {
 			userId,
 		});
 
-		console.log(`Configuration saved for flow ${flowId}`);
+		console.error(`[filesystem-mcp] Configuration saved for flow ${flowId}`);
 	}
 
 	async loadConfig(flowId: string): Promise<Record<string, unknown> | null> {
@@ -142,7 +142,7 @@ export class FilesystemManager {
 			userId,
 		});
 
-		console.log(`Configuration deleted for flow ${flowId}`);
+		console.error(`[filesystem-mcp] Configuration deleted for flow ${flowId}`);
 	}
 
 	async listConfigs(): Promise<string[]> {
@@ -170,7 +170,7 @@ export class FilesystemManager {
 		const logLine = JSON.stringify(entry) + '\n';
 		await fs.appendFile(validatedPath, logLine);
 
-		console.log(`Log entry written to ${logFileName}`);
+		console.error(`[filesystem-mcp] Log entry written to ${logFileName}`);
 	}
 
 	async readLogs(date?: string, level?: LogEntry['level']): Promise<LogEntry[]> {
@@ -259,7 +259,7 @@ export class FilesystemManager {
 				}
 			}
 
-			console.log(`Cleaned up ${deletedCount} temporary files`);
+			console.error(`[filesystem-mcp] Cleaned up ${deletedCount} temporary files`);
 			return deletedCount;
 		} catch (error) {
 			console.error('Error cleaning up temp files:', error);
