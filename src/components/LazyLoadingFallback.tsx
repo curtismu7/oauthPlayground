@@ -293,6 +293,7 @@ export const LazyLoadingErrorFallback: React.FC<{
 				</LoadingSubtitle>
 
 				<button
+					type="button"
 					onClick={onRetry}
 					style={{
 						padding: '0.75rem 1.5rem',

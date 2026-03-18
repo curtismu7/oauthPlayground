@@ -156,7 +156,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		subGroups?: Array<SerializableGroup>;
 	};
 
-	const createSerializableGroups = (groups: MenuGroup[]): SerializableGroup[] => {
+	const createSerializableGroups = useCallback((groups: MenuGroup[]): SerializableGroup[] => {
 		return groups.map((group) => {
 			const result: SerializableGroup = {
 				id: group.id,
@@ -173,7 +173,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			}
 			return result;
 		});
-	};
+	}, []);
 
 	type SerializedGroup = {
 		id: string;
@@ -490,37 +490,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="Utility to delete all MFA devices for a user with device type filtering">
-								UTILITY
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'enhanced-state-management',
-						path: '/v8u/enhanced-state-management',
-						label: 'Enhanced State Management (V2)',
-						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>🗄️</span>
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Advanced state management with undo/redo, offline capabilities, and persistence">
-								UTILITY
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'token-monitoring-dashboard',
-						path: '/v8u/token-monitoring',
-						label: 'Token Monitoring Dashboard',
-						icon: (
-							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>👁️</span>
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Real-time token monitoring dashboard">UTILITY</MigrationBadge>
+							<MigrationBadge title="Delete all MFA devices utility">UTILITY</MigrationBadge>
 						),
 					},
 					{
@@ -1455,17 +1425,17 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								),
 							},
 							{
-								id: 'saml-sp-dynamic-acs-v1',
-								path: '/flows/saml-sp-dynamic-acs-v1',
-								label: 'SAML Service Provider (V1)',
+								id: 'saml-sp-dynamic-acs-v9',
+								path: '/flows/v9/saml-sp-dynamic-acs',
+								label: 'SAML Service Provider (V9)',
 								icon: (
 									<ColoredIcon $color="#8b5cf6">
 										<span>🛡️</span>
 									</ColoredIcon>
 								),
 								badge: (
-									<MigrationBadge title="Educational: SAML Service Provider with Dynamic ACS">
-										<span>⚠️</span>
+									<MigrationBadge title="V9: SAML Service Provider with Dynamic ACS">
+										<span>✅</span>
 									</MigrationBadge>
 								),
 							},
@@ -2671,8 +2641,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							}, 0);
 						};
 						return countItems(filteredMenuGroups);
-					})()}{' '}
-					results for "{searchQuery}"
+					})()} results for "{searchQuery}"
 				</div>
 			)}
 
@@ -2778,6 +2747,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 										: '💾 Save Layout'}
 							</button>
 							<button
+								type="button"
 								onClick={() => {
 									localStorage.removeItem('simpleDragDropSidebar.menuOrder');
 									window.location.reload();
@@ -2844,7 +2814,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							gap: '0.5rem',
 							padding: '0.75rem 1rem',
 							background:
-								'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
+								'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
 							borderRadius: '0.5rem',
 							marginBottom: '0.25rem',
 							cursor: dragMode ? 'grab' : 'pointer',
@@ -2856,7 +2826,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							boxShadow:
 								searchQuery && group.groupMatches
 									? '0 4px 12px rgba(255, 215, 0, 0.4)' // Gold glow for matching groups
-									: '0 2px 4px rgba(59, 130, 246, 0.2)',
+									: '0 2px 4px rgba(96, 165, 250, 0.2)',
 							transition: 'all 0.2s ease',
 							userSelect: 'none',
 							WebkitUserSelect: 'none',
@@ -2866,7 +2836,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						onMouseEnter={(e) => {
 							if (!dragMode) {
 								e.currentTarget.style.background =
-									'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
+									'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
 								e.currentTarget.style.transform = 'translateY(-1px)';
 								e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
 							}
@@ -2874,9 +2844,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						onMouseLeave={(e) => {
 							if (!dragMode) {
 								e.currentTarget.style.background =
-									'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
+									'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)';
 								e.currentTarget.style.transform = 'translateY(0px)';
-								e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
+								e.currentTarget.style.boxShadow = '0 2px 4px rgba(96, 165, 250, 0.2)';
 							}
 						}}
 					>

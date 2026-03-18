@@ -21,7 +21,12 @@ export type VersionBadgeType =
 	| 'new' // Newly created applications
 	| 'migrated' // Recently migrated applications
 	| 'updated' // Updated with latest standards
-	| 'mock'; // Mock / educational flow
+	| 'mock' // Mock / educational flow
+	| 'docs' // Documentation & Reference
+	| 'ai' // AI & Identity
+	| 'tools' // Developer & Tools
+	| 'admin' // Admin & Platform
+	| 'pingone'; // Real PingOne API flows
 
 export interface VersionBadgeConfig {
 	type: VersionBadgeType;
@@ -96,6 +101,36 @@ const VERSION_BADGE_CONFIG = {
 		bgColor: 'rgba(139, 92, 246, 0.9)',
 		label: 'MOCK',
 		description: 'Mock / Educational Flow',
+	},
+	docs: {
+		color: '#ffffff',
+		bgColor: 'rgba(37, 99, 235, 0.9)', // Blue
+		label: 'DOCS',
+		description: 'Documentation & Reference',
+	},
+	ai: {
+		color: '#ffffff',
+		bgColor: 'rgba(124, 58, 237, 0.9)', // Indigo-violet
+		label: '🤖 AI',
+		description: 'AI & Identity',
+	},
+	tools: {
+		color: '#ffffff',
+		bgColor: 'rgba(15, 118, 110, 0.9)', // Teal
+		label: 'TOOL',
+		description: 'Developer Tool',
+	},
+	admin: {
+		color: '#ffffff',
+		bgColor: 'rgba(220, 38, 38, 0.9)', // Red
+		label: 'ADMIN',
+		description: 'Admin & Platform',
+	},
+	pingone: {
+		color: '#ffffff',
+		bgColor: 'rgba(234, 88, 12, 0.9)', // Orange
+		label: 'LIVE',
+		description: 'Real PingOne API',
 	},
 } as const;
 

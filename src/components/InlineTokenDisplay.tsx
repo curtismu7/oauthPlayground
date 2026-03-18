@@ -220,7 +220,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 	flowKey = '',
 	className,
 	defaultMasked = false,
-	allowMaskToggle = true,
+	_allowMaskToggle = true,
 }) => {
 	// Respect defaultMasked prop for security
 	const [masked, _setMasked] = useState(defaultMasked);

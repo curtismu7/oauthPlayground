@@ -140,11 +140,6 @@ const FlowInfoCard: React.FC<FlowInfoCardProps> = ({ flowInfo }) => {
 	// Default to collapsed (as requested), but honor UI settings
 	const [isOpen, setIsOpen] = useState(settings.collapsibleDefaultState === 'expanded');
 
-	// Handle null flowInfo gracefully
-	if (!flowInfo) {
-		return null;
-	}
-
 	// Listen for UI settings changes
 	useEffect(() => {
 		const handleSettingsChange = (event: CustomEvent) => {
@@ -158,6 +153,11 @@ const FlowInfoCard: React.FC<FlowInfoCardProps> = ({ flowInfo }) => {
 			window.removeEventListener('uiSettingsChanged', handleSettingsChange as EventListener);
 		};
 	}, []);
+
+	// Handle null flowInfo gracefully
+	if (!flowInfo) {
+		return null;
+	}
 
 	return (
 		<CardContainer $colorScheme={settings.colorScheme} $fontSize={settings.fontSize}>

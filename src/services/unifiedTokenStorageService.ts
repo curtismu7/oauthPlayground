@@ -288,6 +288,12 @@ export class UnifiedTokenStorageService {
 	private cache: Map<string, UnifiedToken> = new Map();
 	private readonly CACHE_KEY = 'unified_token_cache';
 
+	// Circuit breaker: stop hammering backend when it's unavailable
+	private sqliteFailureCount = 0;
+	private sqliteCircuitOpenUntil = 0;
+	private readonly SQLITE_CIRCUIT_THRESHOLD = 3;
+	private readonly SQLITE_CIRCUIT_COOLDOWN_MS = 60_000;
+
 	private constructor() {
 		this.initializeIndexedDB();
 	}
@@ -390,7 +396,7 @@ export class UnifiedTokenStorageService {
 			await this.initializeIndexedDB();
 
 			// Validate that the token type is compatible with storage
-			const validTokenTypes: UnifiedStorageItem['type'][] = [
+			const validTokenTypes = [
 				'access_token',
 				'refresh_token',
 				'id_token',
@@ -404,6 +410,7 @@ export class UnifiedTokenStorageService {
 				'v8_storage',
 				'v8_credentials',
 				'v8u_pkce',
+				'api_key',
 			];
 
 			if (!validTokenTypes.includes(token.type)) {
@@ -465,6 +472,11 @@ export class UnifiedTokenStorageService {
 	 * Store token in SQLite via backend API
 	 */
 	private async storeInSQLite(token: UnifiedToken): Promise<void> {
+		// Circuit breaker: skip when backend is known to be unavailable
+		if (Date.now() < this.sqliteCircuitOpenUntil) {
+			return;
+		}
+
 		try {
 			const response = await fetch('/api/tokens/store', {
 				method: 'POST',
@@ -481,8 +493,19 @@ export class UnifiedTokenStorageService {
 				throw new Error(`SQLite storage failed: ${response.statusText}`);
 			}
 
+			// Success: reset failure counter
+			this.sqliteFailureCount = 0;
 			logger.debug(MODULE_TAG, 'Token stored in SQLite', { tokenId: token.id });
 		} catch (error) {
+			this.sqliteFailureCount++;
+			if (this.sqliteFailureCount >= this.SQLITE_CIRCUIT_THRESHOLD) {
+				this.sqliteCircuitOpenUntil = Date.now() + this.SQLITE_CIRCUIT_COOLDOWN_MS;
+				this.sqliteFailureCount = 0;
+				logger.warn(
+					MODULE_TAG,
+					`SQLite circuit breaker opened — skipping for ${this.SQLITE_CIRCUIT_COOLDOWN_MS / 1000}s (backend unreachable)`
+				);
+			}
 			logger.warn(MODULE_TAG, 'SQLite storage failed', undefined, error);
 			throw error;
 		}

@@ -1066,7 +1066,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 				}}
 			/>
 
-			<div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
+			<div style={{ maxWidth: '90rem', margin: '0 auto', padding: '2rem' }}>
 				{/* Restart Button */}
 				<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
 					<V9FlowRestartButton

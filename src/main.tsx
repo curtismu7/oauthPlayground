@@ -25,41 +25,14 @@ import { EducationPreferenceService } from './services/educationPreferenceServic
 import { initRegionCache } from './services/regionService';
 import { GlobalStyle, theme } from './styles/global';
 
-// Make React available globally for vendor bundles and any scripts that might need it
-// This must happen before any other code that might use React
+// Expose React globally for any third-party vendor bundles that expect window.React
+// (Vite config maps the bare `React` identifier to window.React for vendor chunks)
 if (typeof window !== 'undefined') {
-	// Set React on window object
-	(window as unknown as Record<string, unknown>).React = React;
-	(window as unknown as Record<string, unknown>).ReactDOM = ReactDOM;
-
+	const w = window as unknown as Record<string, unknown>;
+	w.React = React;
+	w.ReactDOM = ReactDOM;
 	// Expose EducationPreferenceService for testing
-	(window as unknown as Record<string, unknown>).EducationPreferenceService =
-		EducationPreferenceService;
-
-	// Also make it available on globalThis for broader compatibility
-	// Ensure globalThis exists before using it
-	if (typeof globalThis !== 'undefined') {
-		(globalThis as unknown as Record<string, unknown>).React = React;
-		(globalThis as unknown as Record<string, unknown>).ReactDOM = ReactDOM;
-	}
-
-	// Ensure React.Children and React.Component are available
-	// Add defensive checks to prevent "Cannot set properties of undefined" errors
-	if (React && typeof React === 'object') {
-		// Only set if the properties exist
-		if (React.Children) {
-			(window as unknown as Record<string, unknown>).ReactChildren = React.Children;
-			if (typeof globalThis !== 'undefined') {
-				(globalThis as unknown as Record<string, unknown>).ReactChildren = React.Children;
-			}
-		}
-		if (React.Component) {
-			(window as unknown as Record<string, unknown>).ReactComponent = React.Component;
-			if (typeof globalThis !== 'undefined') {
-				(globalThis as unknown as Record<string, unknown>).ReactComponent = React.Component;
-			}
-		}
-	}
+	w.EducationPreferenceService = EducationPreferenceService;
 }
 
 // Suppress defaultProps warnings from drag-and-drop libraries (library issue, not our code)

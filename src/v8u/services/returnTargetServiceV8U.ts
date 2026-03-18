@@ -42,6 +42,8 @@ const STORAGE_KEYS = {
  *
  * Manages flow-aware return targets with structured storage and single-consumption semantics.
  */
+
+// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class ReturnTargetServiceV8U {
 	/**
 	 * Set a return target for a specific flow kind

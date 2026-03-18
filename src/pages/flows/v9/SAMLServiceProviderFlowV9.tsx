@@ -1,19 +1,19 @@
-// src/pages/flows/SAMLServiceProviderFlowV1.tsx
-// SAML 2.0 Service Provider Flow with Dynamic ACS URL Support
+// src/pages/flows/v9/SAMLServiceProviderFlowV9.tsx
+// SAML 2.0 Service Provider Flow V9 with Dynamic ACS URL Support
 // Demonstrates PingOne's new "Always accept ACS URL in signed SAML 2.0 AuthnRequest" feature
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { CredentialsImportExport } from '../../components/CredentialsImportExport';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { useSamlSpFlowController } from '../../hooks/useSamlSpFlowController';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import { FlowCompletionService } from '../../services/flowCompletionService';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { samlService as SAMLService } from '../../services/samlService';
-import { logger } from '../../utils/logger';
-import { V7MMockBanner } from '../../v7/components/V7MMockBanner';
+import { CredentialsImportExport } from '../../../components/CredentialsImportExport';
+import { usePageScroll } from '../../../hooks/usePageScroll';
+import { useSamlSpFlowController } from '../../../hooks/useSamlSpFlowController';
+import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
+import { FlowCompletionService } from '../../../services/flowCompletionService';
+import { FlowHeader } from '../../../services/flowHeaderService';
+import { samlService as SAMLService } from '../../../services/samlService';
+import { logger } from '../../../utils/logger';
+import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
 
 // Styled Components
 const Container = styled.div`
@@ -24,7 +24,7 @@ const Container = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-	max-width: 1200px;
+	max-width: 90rem;
 	margin: 0 auto;
 	padding: 2rem;
 `;
@@ -310,7 +310,7 @@ const completionConfig = {
 	],
 };
 
-const SAMLServiceProviderFlowV1: React.FC = () => {
+const SAMLServiceProviderFlowV9: React.FC = () => {
 	// Scroll management
 	usePageScroll();
 
@@ -1288,4 +1288,4 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 	);
 };
 
-export default SAMLServiceProviderFlowV1;
+export default SAMLServiceProviderFlowV9;

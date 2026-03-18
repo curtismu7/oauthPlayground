@@ -265,6 +265,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 							📱 Discover Applications
 						</h2>
 						<button
+							type="button"
 							onClick={onClose}
 							style={{
 								background: 'none',

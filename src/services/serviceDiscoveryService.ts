@@ -561,9 +561,15 @@ errorResponse.recoveryOptions.forEach(option => {
 		};
 
 		// Initialize counters
-		Object.values(ServiceCategory).forEach((cat) => (stats.servicesByCategory[cat] = 0));
-		Object.values(ServiceMaturity).forEach((mat) => (stats.servicesByMaturity[mat] = 0));
-		Object.values(ServiceComplexity).forEach((comp) => (stats.servicesByComplexity[comp] = 0));
+		Object.values(ServiceCategory).forEach((cat) => {
+			stats.servicesByCategory[cat] = 0;
+		});
+		Object.values(ServiceMaturity).forEach((mat) => {
+			stats.servicesByMaturity[mat] = 0;
+		});
+		Object.values(ServiceComplexity).forEach((comp) => {
+			stats.servicesByComplexity[comp] = 0;
+		});
 
 		// Count services
 		services.forEach((service) => {

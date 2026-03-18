@@ -90,7 +90,7 @@ onMounted(() => {
 
 <template>
   <div class="auth-container">
-    <button @click="isAuthenticated ? logout() : login()" class="auth-btn">
+    <button type="button" @click="isAuthenticated ? logout() : login()" class="auth-btn">
       {{ isAuthenticated ? 'Logout' : 'Login with PingOne' }}
     </button>
   </div>
@@ -281,7 +281,7 @@ onMounted(() => {
       No MFA devices found
     </div>
     <div v-else>
-      <button
+      <button type="button"
         v-for="device in devices"
         :key="device.id"
         class="device-item"
@@ -359,7 +359,7 @@ const sendChallenge = async () => {
   <div class="mfa-challenge">
     <h3>MFA Challenge</h3>
     
-    <button
+    <button type="button"
       v-if="!challengeSent"
       @click="sendChallenge"
       :disabled="loading"

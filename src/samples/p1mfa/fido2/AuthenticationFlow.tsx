@@ -117,6 +117,7 @@ export const AuthenticationFlow: React.FC<AuthenticationFlowProps> = ({ sdk, use
 			<div>
 				<StatusDisplay status={status} message={message} request={request} response={response} />
 				<button
+					type="button"
 					onClick={() => {
 						setStep('input');
 						setStatus('idle');
@@ -183,6 +184,7 @@ export const AuthenticationFlow: React.FC<AuthenticationFlowProps> = ({ sdk, use
 						/>
 					</div>
 					<button
+						type="button"
 						onClick={handleInitialize}
 						disabled={!userId || !policyId}
 						style={{
@@ -205,6 +207,7 @@ export const AuthenticationFlow: React.FC<AuthenticationFlowProps> = ({ sdk, use
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					{step === 'webauthn' && status === 'success' && (
 						<button
+							type="button"
 							onClick={handleGetAssertion}
 							style={{
 								marginTop: '1rem',

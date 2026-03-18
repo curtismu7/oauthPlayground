@@ -350,6 +350,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 						</li>
 					</ol>
 					<button
+						type="button"
 						onClick={openChromePasskeyManager}
 						style={{
 							marginTop: '0.75rem',
@@ -371,6 +372,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 
 				{/* Refresh Button */}
 				<button
+					type="button"
 					onClick={loadDevices}
 					disabled={loading || !environmentId || !userId || !workerToken}
 					style={{
@@ -481,6 +483,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 											{device.id}
 										</code>
 										<button
+											type="button"
 											onClick={() => copyToClipboard(device.id, `device-${device.id}`)}
 											style={{
 												background: 'none',
@@ -518,6 +521,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 													{device.credentialId.substring(0, 50)}...
 												</code>
 												<button
+													type="button"
 													onClick={() => copyToClipboard(device.credentialId!, `cred-${device.id}`)}
 													style={{
 														background: 'none',
@@ -593,6 +597,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 
 							{/* Delete Button */}
 							<button
+								type="button"
 								onClick={() => deleteDevice(device.id)}
 								style={{
 									padding: '0.5rem 1rem',
