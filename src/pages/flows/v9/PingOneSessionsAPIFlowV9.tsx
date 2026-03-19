@@ -48,6 +48,19 @@ interface WorkerTokenStatus {
 	clientId?: string;
 }
 
+interface RawPingOneSession {
+	id: string;
+	createdAt: string;
+	expiresAt?: string;
+	lastAccessAt?: string;
+	status?: string;
+	_embedded?: {
+		user?: { id?: string };
+		application?: { id?: string; name?: string };
+		device?: { id?: string; name?: string };
+	};
+}
+
 // ─── Styled Components (V9 Color Standards) ───────────────────────────────────
 
 const Container = styled.div`
@@ -70,7 +83,9 @@ const FeatureGrid = styled.div`
 
 const FeatureCard = styled(Card)`
 	border-left: 4px solid ${V9_COLORS.BORDER.INFO};
-	transition: transform 0.2s, box-shadow 0.2s;
+	transition:
+		transform 0.2s,
+		box-shadow 0.2s;
 
 	&:hover {
 		transform: translateY(-2px);
@@ -275,16 +290,17 @@ const CredentialsTypeIndicator = styled.div<{ type: 'worker' | 'authz' | 'manual
 				return V9_COLORS.BG.WARNING_LIGHT;
 		}
 	}};
-	border: 1px solid ${({ type }) => {
-		switch (type) {
-			case 'worker':
-				return V9_COLORS.BORDER.SUCCESS;
-			case 'authz':
-				return V9_COLORS.BORDER.INFO;
-			case 'manual':
-				return V9_COLORS.BORDER.WARNING;
-		}
-	}};
+	border: 1px solid
+		${({ type }) => {
+			switch (type) {
+				case 'worker':
+					return V9_COLORS.BORDER.SUCCESS;
+				case 'authz':
+					return V9_COLORS.BORDER.INFO;
+				case 'manual':
+					return V9_COLORS.BORDER.WARNING;
+			}
+		}};
 	border-radius: 0.375rem;
 	padding: 0.5rem 1rem;
 	margin-bottom: 1rem;
@@ -392,12 +408,12 @@ const EmptyState = styled.div`
 	text-align: center;
 	padding: 3rem;
 	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
-	
+
 	h4 {
 		margin: 0 0 0.5rem 0;
 		color: ${V9_COLORS.TEXT.GRAY_DARK};
 	}
-	
+
 	p {
 		margin: 0;
 		font-size: 0.875rem;
@@ -520,7 +536,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 
 			const data = await response.json();
 			const sessions: EnvironmentSession[] = (data._embedded?.sessions || []).map(
-				(session: any) => ({
+				(session: RawPingOneSession) => ({
 					id: session.id,
 					userId: session._embedded?.user?.id || 'Unknown',
 					applicationId: session._embedded?.application?.id || 'Unknown',

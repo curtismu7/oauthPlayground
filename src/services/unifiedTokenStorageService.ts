@@ -373,16 +373,74 @@ export class UnifiedTokenStorageService {
 	}
 
 	/**
-	 * Save cache to localStorage
+	 * Save cache to localStorage with quota management
 	 */
 	private saveCache(): void {
 		try {
 			const tokens = Array.from(this.cache.values());
-			localStorage.setItem(this.CACHE_KEY, JSON.stringify(tokens));
-			logger.debug(MODULE_TAG, `Saved ${tokens.length} tokens to cache`);
+			const cacheData = JSON.stringify(tokens);
+
+			// Check if we're approaching localStorage quota
+			const existingData = localStorage.getItem(this.CACHE_KEY);
+			const totalSize = cacheData.length + (existingData?.length || 0);
+			const estimatedQuota = 5 * 1024 * 1024; // 5MB estimated localStorage quota
+
+			if (totalSize > estimatedQuota * 0.8) {
+				// 80% threshold
+				// Clear old tokens to free up space
+				this.cleanupOldTokens();
+				const cleanedTokens = Array.from(this.cache.values());
+				localStorage.setItem(this.CACHE_KEY, JSON.stringify(cleanedTokens));
+				logger.debug(
+					MODULE_TAG,
+					`Cleaned and saved ${cleanedTokens.length} tokens to cache (quota management)`
+				);
+			} else {
+				localStorage.setItem(this.CACHE_KEY, cacheData);
+				logger.debug(MODULE_TAG, `Saved ${tokens.length} tokens to cache`);
+			}
 		} catch (error) {
-			logger.warn(MODULE_TAG, 'Failed to save cache', error as Error);
+			if (error instanceof Error && error.name === 'QuotaExceededError') {
+				// Emergency cleanup on quota exceeded
+				this.cleanupOldTokens();
+				try {
+					const essentialTokens = Array.from(this.cache.values()).slice(-50); // Keep only 50 most recent
+					localStorage.setItem(this.CACHE_KEY, JSON.stringify(essentialTokens));
+					logger.warn(MODULE_TAG, 'Emergency cache cleanup due to quota exceeded');
+				} catch (cleanupError) {
+					logger.warn(MODULE_TAG, 'Failed to save cache even after cleanup', cleanupError as Error);
+					// As last resort, clear the cache entirely
+					localStorage.removeItem(this.CACHE_KEY);
+				}
+			} else {
+				logger.warn(MODULE_TAG, 'Failed to save cache', error as Error);
+			}
 		}
+	}
+
+	/**
+	 * Clean up old tokens to free storage space
+	 */
+	private cleanupOldTokens(): void {
+		const tokens = Array.from(this.cache.entries());
+
+		// Sort by timestamp, keep only recent tokens
+		const sortedTokens = tokens.sort((a, b) => {
+			const aTime = a[1].timestamp || a[1].createdAt || 0;
+			const bTime = b[1].timestamp || b[1].createdAt || 0;
+			return bTime - aTime; // Most recent first
+		});
+
+		// Keep only the 100 most recent tokens
+		const recentTokens = sortedTokens.slice(0, 100);
+
+		// Clear cache and repopulate with recent tokens
+		this.cache.clear();
+		recentTokens.forEach(([key, token]) => {
+			this.cache.set(key, token);
+		});
+
+		logger.debug(MODULE_TAG, `Cleaned up cache: kept ${recentTokens.length} most recent tokens`);
 	}
 
 	/**
@@ -930,15 +988,31 @@ export class UnifiedTokenStorageService {
 
 			return {
 				success: true,
-				source: 'indexeddb',
+				data: undefined,
+				source: 'all',
+				timestamp: Date.now(),
 			};
 		} catch (error) {
-			logger.error(MODULE_TAG, 'Failed to clear all tokens', undefined, error);
+			logger.error(MODULE_TAG, 'Failed to clear all tokens', error as Error);
 			return {
 				success: false,
-				error: error instanceof Error ? error.message : String(error),
-				source: 'none',
+				error: error as Error,
+				source: 'all',
+				timestamp: Date.now(),
 			};
+		}
+	}
+
+	/**
+	 * Manually clear localStorage cache for immediate quota relief
+	 */
+	public clearLocalStorageCache(): void {
+		try {
+			localStorage.removeItem(this.CACHE_KEY);
+			this.cache.clear();
+			logger.info(MODULE_TAG, 'LocalStorage cache cleared manually');
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'Failed to clear localStorage cache', error as Error);
 		}
 	}
 

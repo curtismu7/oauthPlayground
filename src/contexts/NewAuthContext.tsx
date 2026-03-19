@@ -162,17 +162,28 @@ const getStoredUser = (): UserInfo | null => {
 
 // Loading state to prevent multiple simultaneous configuration loads
 let isLoadingConfiguration = false;
+let cachedConfiguration: AppConfig | null = null;
 
 // Function to load configuration from environment variables or localStorage
 async function loadConfiguration(): Promise<AppConfig> {
+	// Return cached configuration if available
+	if (cachedConfiguration) {
+		return cachedConfiguration;
+	}
+
 	// Prevent multiple simultaneous loads
 	if (isLoadingConfiguration) {
 		return new Promise((resolve) => {
-			// Wait for current load to complete
+			const started = Date.now();
 			const checkInterval = setInterval(() => {
-				if (!isLoadingConfiguration) {
+				if (!isLoadingConfiguration && cachedConfiguration) {
 					clearInterval(checkInterval);
-					resolve(loadConfiguration());
+					resolve(cachedConfiguration);
+				} else if (Date.now() - started > 5000) {
+					// Safety timeout: stop waiting and fall through to a fresh load
+					clearInterval(checkInterval);
+					isLoadingConfiguration = false;
+					loadConfiguration().then(resolve);
 				}
 			}, 100);
 		});
@@ -224,7 +235,8 @@ async function loadConfiguration(): Promise<AppConfig> {
 			});
 
 			if (v7Credentials.credentials?.clientId && v7Credentials.credentials?.environmentId) {
-				return v7Credentials.credentials;
+				cachedConfiguration = v7Credentials.credentials as AppConfig;
+				return cachedConfiguration;
 			}
 		} catch (_v7Error) {
 			// V7 FlowCredentialService not available, continue to fallback
@@ -234,7 +246,8 @@ async function loadConfiguration(): Promise<AppConfig> {
 		const permanentCredentials = credentialManager.getAllCredentials();
 
 		if (permanentCredentials?.clientId && permanentCredentials?.environmentId) {
-			return permanentCredentials;
+			cachedConfiguration = permanentCredentials as AppConfig;
+			return cachedConfiguration;
 		}
 
 		// Final fallback to V5 Config Service (used by Login page)
@@ -242,7 +255,13 @@ async function loadConfiguration(): Promise<AppConfig> {
 			const v5Config = pingOneConfigService.getConfig();
 
 			if (v5Config?.clientId && v5Config?.environmentId) {
-				return v5Config;
+				cachedConfiguration = {
+					disableLogin: false,
+					endSessionEndpoint: '',
+					scopes: ['openid', 'profile', 'email'],
+					...v5Config,
+				} as AppConfig;
+				return cachedConfiguration;
 			}
 		} catch (_v5Error) {
 			// V5 Config Service not available, continue to fallback
@@ -250,8 +269,13 @@ async function loadConfiguration(): Promise<AppConfig> {
 
 		// Otherwise, fall back to environment variables
 		if (envConfig.clientId && envConfig.environmentId) {
-			return envConfig;
+			cachedConfiguration = envConfig;
+			return cachedConfiguration;
 		}
+
+		// Load credentials from credential manager
+		const configCredentials = credentialManager.loadConfigCredentials();
+		const authzCredentials = credentialManager.loadAuthzFlowCredentials();
 
 		// Use config credentials if available, otherwise use authz credentials
 		let allCredentials = configCredentials;
@@ -283,11 +307,12 @@ async function loadConfiguration(): Promise<AppConfig> {
 				' [NewAuthContext] Using credentials from credential manager:',
 				configFromCredentials
 			);
+			cachedConfiguration = configFromCredentials;
 			return configFromCredentials;
 		}
 
 		// Return default config
-		return {
+		const defaultConfig = {
 			disableLogin: false,
 			clientId: '',
 			clientSecret: '',
@@ -299,6 +324,8 @@ async function loadConfiguration(): Promise<AppConfig> {
 			scopes: ['openid', 'profile', 'email'],
 			environmentId: '',
 		};
+		cachedConfiguration = defaultConfig;
+		return defaultConfig;
 	} catch (error) {
 		logger.error('NewAuthContext', 'Error loading configuration', error);
 		return {
@@ -2109,3 +2136,7 @@ async function getUserInfo(userInfoEndpoint: string, accessToken: string): Promi
 
 	return response.json();
 }
+
+// Export new modular contexts for gradual migration
+export { AuthConfigProvider, useAuthConfig } from './AuthConfigContext';
+export { AuthTokenProvider, useAuthToken } from './AuthTokenContext';

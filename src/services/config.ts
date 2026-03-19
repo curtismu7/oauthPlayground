@@ -10,16 +10,13 @@ const envSchema = z.object({
 	VITE_APP_VERSION: z.string().default(APP_VERSION),
 	VITE_APP_DEFAULT_THEME: z.enum(['light', 'dark']).default('light'),
 
-	// PingOne Configuration
-	VITE_PINGONE_ENVIRONMENT_ID: z.string().min(1, 'PingOne Environment ID is required'),
-	VITE_PINGONE_CLIENT_ID: z.string().min(1, 'PingOne Client ID is required'),
-	VITE_PINGONE_CLIENT_SECRET: z.string().min(1, 'PingOne Client Secret is required'),
-	VITE_PINGONE_REDIRECT_URI: z.string().url('Valid redirect URI is required'),
-	VITE_PINGONE_LOGOUT_REDIRECT_URI: z.string().url('Valid logout redirect URI is required'),
-	VITE_PINGONE_API_URL: z
-		.string()
-		.url('Valid API URL is required')
-		.default('https://auth.pingone.com'),
+	// PingOne Configuration - Optional (stored in SQLite/IndexedDB at runtime)
+	VITE_PINGONE_ENVIRONMENT_ID: z.string().optional().default(''),
+	VITE_PINGONE_CLIENT_ID: z.string().optional().default(''),
+	VITE_PINGONE_CLIENT_SECRET: z.string().optional().default(''),
+	VITE_PINGONE_REDIRECT_URI: z.string().optional().default('http://localhost:3000/callback'),
+	VITE_PINGONE_LOGOUT_REDIRECT_URI: z.string().optional().default('http://localhost:3000'),
+	VITE_PINGONE_API_URL: z.string().optional().default('https://auth.pingone.com'),
 
 	// Optional configuration with defaults
 	VITE_DEV_SERVER_PORT: z.coerce.number().int().positive().default(3000),

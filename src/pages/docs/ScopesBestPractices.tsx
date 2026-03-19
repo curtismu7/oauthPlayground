@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { PageLayoutService } from '../../services/pageLayoutService';
+import DocumentationHeader from '../../components/DocumentationHeader';
 
 const _Container = styled.div`
 	max-width: 1200px;
@@ -300,7 +301,11 @@ const ScopesBestPractices: React.FC = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>
-				{LayoutFlowHeader && <LayoutFlowHeader />}
+				<DocumentationHeader
+					emoji="🔑"
+					title="OAuth 2.0 Scopes Best Practices"
+					description="Comprehensive guide to designing, implementing, and managing OAuth 2.0 scopes for secure API access control"
+				/>
 
 				<Content>
 					<Section>

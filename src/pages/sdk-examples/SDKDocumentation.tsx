@@ -1,103 +1,106 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import DocumentationHeader from '../../components/DocumentationHeader';
 
 const Container = styled.div`
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+	padding: 2rem;
+	max-width: 1200px;
+	margin: 0 auto;
 `;
 
 const Header = styled.h1`
-  color: #333;
-  margin-bottom: 2rem;
-  font-size: 2.5rem;
+	color: #333;
+	margin-bottom: 2rem;
+	font-size: 2.5rem;
 `;
 
 const Description = styled.p`
-  color: #666;
-  margin-bottom: 3rem;
-  font-size: 1.1rem;
-  line-height: 1.6;
+	color: #666;
+	margin-bottom: 3rem;
+	font-size: 1.1rem;
+	line-height: 1.6;
 `;
 
 const BackButton = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: #6c757d;
-  color: V9_COLORS.TEXT.WHITE !important;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 500;
-  margin-bottom: 2rem;
-  transition: background-color 0.2s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: #6c757d;
+	color: V9_COLORS.TEXT.WHITE !important;
+	padding: 0.75rem 1.5rem;
+	border-radius: 4px;
+	text-decoration: none;
+	font-weight: 500;
+	margin-bottom: 2rem;
+	transition: background-color 0.2s ease;
 
-  &:hover {
-    background: #545b62;
-    color: V9_COLORS.TEXT.WHITE !important;
-  }
+	&:hover {
+		background: #545b62;
+		color: V9_COLORS.TEXT.WHITE !important;
+	}
 `;
 
 const DocumentationGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+	gap: 2rem;
+	margin-bottom: 3rem;
 `;
 
 const DocCard = styled.div`
-  background: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+	background: white;
+	border-radius: 8px;
+	padding: 2rem;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	border: 1px solid #e0e0e0;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  }
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+	}
 `;
 
 const DocTitle = styled.h3`
-  color: #333;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
+	color: #333;
+	margin-bottom: 1rem;
+	font-size: 1.5rem;
 `;
 
 const DocDescription = styled.p`
-  color: #666;
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
+	color: #666;
+	margin-bottom: 1.5rem;
+	line-height: 1.5;
 `;
 
 const DocLink = styled.a`
-  display: inline-block;
-  background: #007bff;
-  color: V9_COLORS.TEXT.WHITE !important;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
+	display: inline-block;
+	background: #007bff;
+	color: V9_COLORS.TEXT.WHITE !important;
+	padding: 0.75rem 1.5rem;
+	border-radius: 4px;
+	text-decoration: none;
+	font-weight: 500;
+	transition: background-color 0.2s ease;
 
-  &:hover {
-    background: #0056b3;
-    color: V9_COLORS.TEXT.WHITE !important;
-  }
+	&:hover {
+		background: #0056b3;
+		color: V9_COLORS.TEXT.WHITE !important;
+	}
 `;
 
 const StatusBadge = styled.span<{ status: 'available' | 'coming-soon' }>`
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 1rem;
-  
-  ${(props) =>
+	display: inline-block;
+	padding: 0.25rem 0.75rem;
+	border-radius: 12px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	margin-bottom: 1rem;
+
+	${(props) =>
 		props.status === 'available'
 			? `
     background: #d4edda;
@@ -110,25 +113,25 @@ const StatusBadge = styled.span<{ status: 'available' | 'coming-soon' }>`
 `;
 
 const Section = styled.section`
-  margin-bottom: 3rem;
+	margin-bottom: 3rem;
 `;
 
 const SectionTitle = styled.h2`
-  color: #333;
-  margin-bottom: 1.5rem;
-  font-size: 2rem;
-  border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 0.5rem;
+	color: #333;
+	margin-bottom: 1.5rem;
+	font-size: 2rem;
+	border-bottom: 2px solid #e0e0e0;
+	padding-bottom: 0.5rem;
 `;
 
 const CodeBlock = styled.pre`
-  background: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  padding: 1rem;
-  overflow-x: auto;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
+	background: #f8f9fa;
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+	padding: 1rem;
+	overflow-x: auto;
+	font-family: 'Courier New', monospace;
+	font-size: 0.9rem;
 `;
 
 const SDKDocumentation: React.FC = () => {
@@ -136,7 +139,12 @@ const SDKDocumentation: React.FC = () => {
 		<Container>
 			<BackButton to="/sdk-examples">← Back to SDK Examples</BackButton>
 
-			<Header>SDK Documentation</Header>
+			<DocumentationHeader
+				emoji="📖"
+				title="SDK Documentation"
+				description="Comprehensive documentation for PingOne SDKs, including usage guides, examples, and best practices for integrating PingOne services into your applications."
+			/>
+
 			<Description>
 				Comprehensive documentation for PingOne SDKs, including usage guides, examples, and best
 				practices for integrating PingOne services into your applications.

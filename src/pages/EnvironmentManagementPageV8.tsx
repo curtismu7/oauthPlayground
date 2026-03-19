@@ -3,6 +3,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ApiCallList from '../components/ApiCallList';
+import DocumentationHeader from '../components/DocumentationHeader';
 import { WaitScreen } from '../components/v9/V9ModernMessagingComponents';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
@@ -1212,585 +1213,576 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					</div>
 				</div>
 
-				<div style={styles.header}>
-					<h1 style={styles.title}>MasterFlow API - Environment Management</h1>
-					<p style={{ color: '#6b7280', fontSize: '1.1rem', marginBottom: '1rem' }}>
-						Manage your PingOne environments with comprehensive tools for monitoring, configuration,
-						and API integration
-					</p>
-					<div style={styles.actions}>
-						<button type="button" style={styles.button()} onClick={handleRefresh}>
-							<span>🔄</span>Refresh
-						</button>
-						<button
-							type="button"
-							style={styles.button(showApiDisplay ? 'primary' : 'secondary')}
-							onClick={handleToggleApiDisplay}
-						>
-							<i className="bi bi-code-slash" />
-							{showApiDisplay ? 'Hide API' : 'Show API'}
-						</button>
-						<button
-							type="button"
-							style={styles.button('secondary')}
-							onClick={handleExportEnvironments}
-						>
-							<i className="bi bi-download" />
-							Export
-						</button>
-						<button
-							type="button"
-							style={styles.button('secondary')}
-							onClick={handleImportEnvironments}
-						>
-							<span>⬆️</span>Import
-						</button>
-						<button
-							type="button"
-							style={styles.button('primary')}
-							onClick={handleCreateEnvironment}
-						>
-							<i className="bi bi-plus-circle" />
-							Create Environment
-						</button>
-					</div>
-				</div>
+				<DocumentationHeader
+					emoji="🌍"
+					title="Environment Management"
+					description="Manage your PingOne environments with comprehensive tools for monitoring, configuration, and API integration"
+				/>
 
-				<div style={styles.searchContainer}>
-					<select
-						style={{
-							...styles.filterSelect,
-							minWidth: '150px',
-							opacity: isChangingRegion ? 0.6 : 1,
-						}}
-						value={selectedApiRegion}
-						onChange={handleRegionChange}
-						disabled={isChangingRegion}
+				<div style={styles.actions}>
+					<button type="button" style={styles.button()} onClick={handleRefresh}>
+						<span>🔄</span>Refresh
+					</button>
+					<button
+						type="button"
+						style={styles.button(showApiDisplay ? 'primary' : 'secondary')}
+						onClick={handleToggleApiDisplay}
 					>
-						<option value="na">North America</option>
-						<option value="ca">Canada</option>
-						<option value="eu">Europe</option>
-						<option value="au">Australia</option>
-						<option value="sg">Singapore</option>
-						<option value="ap">Asia Pacific</option>
+						<i className="bi bi-code-slash" />
+						{showApiDisplay ? 'Hide API' : 'Show API'}
+					</button>
+					<button
+						type="button"
+						style={styles.button('secondary')}
+						onClick={handleExportEnvironments}
+					>
+						<i className="bi bi-download" />
+						Export
+					</button>
+					<button
+						type="button"
+						style={styles.button('secondary')}
+						onClick={handleImportEnvironments}
+					>
+						<span>⬆️</span>Import
+					</button>
+					<button type="button" style={styles.button('primary')} onClick={handleCreateEnvironment}>
+						<i className="bi bi-plus-circle" />
+						Create Environment
+					</button>
+				</div>
+			</div>
+
+			<div style={styles.searchContainer}>
+				<select
+					style={{
+						...styles.filterSelect,
+						minWidth: '150px',
+						opacity: isChangingRegion ? 0.6 : 1,
+					}}
+					value={selectedApiRegion}
+					onChange={handleRegionChange}
+					disabled={isChangingRegion}
+				>
+					<option value="na">North America</option>
+					<option value="ca">Canada</option>
+					<option value="eu">Europe</option>
+					<option value="au">Australia</option>
+					<option value="sg">Singapore</option>
+					<option value="ap">Asia Pacific</option>
+				</select>
+				<select
+					style={{ ...styles.filterSelect, flex: 1, minWidth: '300px' }}
+					value={selectedEnvironmentId}
+					onChange={(e) => setSelectedEnvironmentId(e.target.value)}
+				>
+					<option value="">Select Environment...</option>
+					{environments?.map((env) => (
+						<option key={env.id} value={env.id}>
+							{env.name} ({env.type}) - {env.region}
+						</option>
+					))}
+				</select>
+				<div style={styles.filterContainer}>
+					<select
+						style={styles.filterSelect}
+						value={typeFilter}
+						onChange={(e) => setTypeFilter(e.target.value)}
+					>
+						<option value="all">All Types</option>
+						<option value="PRODUCTION">Production</option>
+						<option value="SANDBOX">Sandbox</option>
+						<option value="DEVELOPMENT">Development</option>
 					</select>
 					<select
-						style={{ ...styles.filterSelect, flex: 1, minWidth: '300px' }}
-						value={selectedEnvironmentId}
-						onChange={(e) => setSelectedEnvironmentId(e.target.value)}
+						style={styles.filterSelect}
+						value={statusFilter}
+						onChange={(e) => setStatusFilter(e.target.value)}
 					>
-						<option value="">Select Environment...</option>
-						{environments?.map((env) => (
-							<option key={env.id} value={env.id}>
-								{env.name} ({env.type}) - {env.region}
-							</option>
-						))}
+						<option value="all">All Status</option>
+						<option value="ACTIVE">Active</option>
+						<option value="INACTIVE">Inactive</option>
+						<option value="DELETE_PENDING">Delete Pending</option>
 					</select>
-					<div style={styles.filterContainer}>
-						<select
-							style={styles.filterSelect}
-							value={typeFilter}
-							onChange={(e) => setTypeFilter(e.target.value)}
-						>
-							<option value="all">All Types</option>
-							<option value="PRODUCTION">Production</option>
-							<option value="SANDBOX">Sandbox</option>
-							<option value="DEVELOPMENT">Development</option>
-						</select>
-						<select
-							style={styles.filterSelect}
-							value={statusFilter}
-							onChange={(e) => setStatusFilter(e.target.value)}
-						>
-							<option value="all">All Status</option>
-							<option value="ACTIVE">Active</option>
-							<option value="INACTIVE">Inactive</option>
-							<option value="DELETE_PENDING">Delete Pending</option>
-						</select>
-						<select
-							style={styles.filterSelect}
-							value={regionFilter}
-							onChange={(e) => setRegionFilter(e.target.value)}
-						>
-							<option value="all">All Regions</option>
-							<option value="NA">North America (.com)</option>
-							<option value="EU">European Union (.eu)</option>
-							<option value="CA">Canada (.ca)</option>
-							<option value="AU">Australia (.com.au)</option>
-							<option value="SG">Singapore (.sg)</option>
-							<option value="AP">Asia Pacific (.asia)</option>
-						</select>
-					</div>
-				</div>
-
-				{showBulkActions && (
-					<div
-						style={{
-							marginBottom: '1rem',
-							padding: '1rem',
-							background: '#f8f9fa',
-							borderRadius: '4px',
-						}}
+					<select
+						style={styles.filterSelect}
+						value={regionFilter}
+						onChange={(e) => setRegionFilter(e.target.value)}
 					>
-						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-							<span>{selectedEnvironments.length} environments selected</span>
-							<div style={{ display: 'flex', gap: '0.5rem' }}>
-								<button
-									type="button"
-									style={styles.button('secondary')}
-									onClick={() => handleBulkStatusUpdate('ACTIVE')}
-								>
-									Activate
-								</button>
-								<button
-									type="button"
-									style={styles.button('secondary')}
-									onClick={() => handleBulkStatusUpdate('INACTIVE')}
-								>
-									Deactivate
-								</button>
-								<button type="button" style={styles.button('danger')} onClick={handleBulkDelete}>
-									Delete
-								</button>
-								<button
-									type="button"
-									style={styles.button('secondary')}
-									onClick={() => setSelectedEnvironments([])}
-								>
-									Clear Selection
-								</button>
-							</div>
-						</div>
-					</div>
-				)}
+						<option value="all">All Regions</option>
+						<option value="NA">North America (.com)</option>
+						<option value="EU">European Union (.eu)</option>
+						<option value="CA">Canada (.ca)</option>
+						<option value="AU">Australia (.com.au)</option>
+						<option value="SG">Singapore (.sg)</option>
+						<option value="AP">Asia Pacific (.asia)</option>
+					</select>
+				</div>
+			</div>
 
+			{showBulkActions && (
 				<div
 					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
 						marginBottom: '1rem',
 						padding: '1rem',
 						background: '#f8f9fa',
 						borderRadius: '4px',
 					}}
 				>
-					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<input
-							type="checkbox"
-							checked={
-								selectedEnvironments.length === environments?.length && environments?.length > 0
-							}
-							{...(selectedEnvironments.length > 0 &&
-							selectedEnvironments.length < (environments?.length || 0)
-								? { indeterminate: 'true' }
-								: {})}
-							onChange={handleSelectAll}
-							style={{ marginRight: '0.5rem' }}
-							id="select-all-checkbox"
-						/>
-						<label htmlFor="select-all-checkbox">
-							Select All ({environments?.length || 0} environments)
-						</label>
+					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+						<span>{selectedEnvironments.length} environments selected</span>
+						<div style={{ display: 'flex', gap: '0.5rem' }}>
+							<button
+								type="button"
+								style={styles.button('secondary')}
+								onClick={() => handleBulkStatusUpdate('ACTIVE')}
+							>
+								Activate
+							</button>
+							<button
+								type="button"
+								style={styles.button('secondary')}
+								onClick={() => handleBulkStatusUpdate('INACTIVE')}
+							>
+								Deactivate
+							</button>
+							<button type="button" style={styles.button('danger')} onClick={handleBulkDelete}>
+								Delete
+							</button>
+							<button
+								type="button"
+								style={styles.button('secondary')}
+								onClick={() => setSelectedEnvironments([])}
+							>
+								Clear Selection
+							</button>
+						</div>
 					</div>
-					<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+				</div>
+			)}
+
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					marginBottom: '1rem',
+					padding: '1rem',
+					background: '#f8f9fa',
+					borderRadius: '4px',
+				}}
+			>
+				<div style={{ display: 'flex', alignItems: 'center' }}>
+					<input
+						type="checkbox"
+						checked={
+							selectedEnvironments.length === environments?.length && environments?.length > 0
+						}
+						{...(selectedEnvironments.length > 0 &&
+						selectedEnvironments.length < (environments?.length || 0)
+							? { indeterminate: 'true' }
+							: {})}
+						onChange={handleSelectAll}
+						style={{ marginRight: '0.5rem' }}
+						id="select-all-checkbox"
+					/>
+					<label htmlFor="select-all-checkbox">
+						Select All ({environments?.length || 0} environments)
+					</label>
+				</div>
+				<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+					<input
+						type="text"
+						placeholder="Search environments..."
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+						style={{
+							padding: '0.5rem',
+							border: '1px solid #ddd',
+							borderRadius: '4px',
+							minWidth: '200px',
+						}}
+					/>
+				</div>
+			</div>
+
+			<div style={styles.environmentGrid}>
+				{/* CRITICAL FIX: Add null safety check to prevent undefined .map() crash */}
+				{filteredEnvironments.map((environment) => (
+					<div key={environment.id} style={styles.environmentCard}>
+						<div style={styles.cardHeader}>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+								<input
+									type="checkbox"
+									checked={selectedEnvironments.includes(environment.id)}
+									onChange={() => handleSelectEnvironment(environment.id)}
+									style={{ marginRight: '0.5rem' }}
+								/>
+								<h3 style={styles.cardTitle}>{environment.name}</h3>
+							</div>
+							<div
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'flex-end',
+									gap: '0.25rem',
+								}}
+							>
+								<span style={styles.cardStatus(environment.status)}>
+									{EnvironmentServiceV8.formatEnvironmentStatus(environment.status)}
+								</span>
+								<span style={styles.cardType(environment.type)}>
+									{EnvironmentServiceV8.formatEnvironmentType(environment.type)}
+								</span>
+							</div>
+						</div>
+
+						{environment.description && (
+							<p style={styles.cardDescription}>{environment.description}</p>
+						)}
+
+						<div style={styles.cardInfo}>
+							<div style={styles.infoItem}>
+								<span style={styles.infoLabel}>ID:</span>
+								<span style={styles.infoValue}>{environment.id}</span>
+							</div>
+							<div style={styles.infoItem}>
+								<span style={styles.infoLabel}>Region:</span>
+								<span style={styles.infoValue}>{environment.region || 'N/A'}</span>
+							</div>
+							<div style={styles.infoItem}>
+								<span style={styles.infoLabel}>Created:</span>
+								<span style={styles.infoValue}>
+									{new Date(environment.createdAt).toLocaleDateString()}
+								</span>
+							</div>
+							<div style={styles.infoItem}>
+								<span style={styles.infoLabel}>Updated:</span>
+								<span style={styles.infoValue}>
+									{new Date(environment.updatedAt).toLocaleDateString()}
+								</span>
+							</div>
+							<div style={styles.infoItem}>
+								<span style={styles.infoLabel}>Services:</span>
+								<span style={styles.infoValue}>{environment.enabledServices.length}</span>
+							</div>
+							<div style={styles.infoItem}>
+								<span style={styles.infoLabel}>Status:</span>
+								<span style={styles.infoValue}>
+									{EnvironmentServiceV8.formatEnvironmentStatus(environment.status)}
+								</span>
+							</div>
+						</div>
+
+						<div style={styles.cardActions}>
+							<button
+								type="button"
+								style={styles.iconButton}
+								onClick={() => handleToggleEnvironmentStatus(environment.id)}
+								disabled={!EnvironmentServiceV8.canEditEnvironment(environment)}
+								title={environment.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
+							>
+								<span>🔄</span>
+							</button>
+							<button
+								type="button"
+								style={styles.iconButton}
+								onClick={() => handleEditEnvironment(environment.id)}
+								disabled={!EnvironmentServiceV8.canEditEnvironment(environment)}
+								title="Edit"
+							>
+								<i className="bi bi-pencil" />
+							</button>
+							<button
+								type="button"
+								style={styles.iconButton}
+								onClick={() => handleDeleteEnvironment(environment.id)}
+								disabled={!EnvironmentServiceV8.canDeleteEnvironment(environment)}
+								title="Delete"
+							>
+								<span>🗑️</span>
+							</button>
+						</div>
+					</div>
+				))}
+			</div>
+
+			{totalPages > 1 && (
+				<div style={styles.pagination}>
+					<button
+						type="button"
+						style={styles.paginationButton(false)}
+						onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+						disabled={currentPage === 1}
+					>
+						Previous
+					</button>
+
+					{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+						<button
+							key={page}
+							type="button"
+							style={styles.paginationButton(page === currentPage)}
+							onClick={() => setCurrentPage(page)}
+						>
+							{page}
+						</button>
+					))}
+
+					<button
+						type="button"
+						style={styles.paginationButton(false)}
+						onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+						disabled={currentPage === totalPages}
+					>
+						Next
+					</button>
+				</div>
+			)}
+
+			{/* Edit Environment Modal */}
+			<button
+				type="button"
+				aria-label="Close modal"
+				style={{ ...styles.apiDisplayOverlay(showEditModal), border: 'none' }}
+				onClick={handleCancelEdit}
+			/>
+			<div style={styles.apiDisplayModal(showEditModal)}>
+				<div style={styles.apiDisplayHeader}>
+					<h3 style={styles.apiDisplayTitle}>
+						<i className="bi bi-pencil" />
+						Edit Environment
+					</h3>
+					<button type="button" style={styles.closeButton} onClick={handleCancelEdit}>
+						×
+					</button>
+				</div>
+				<div style={styles.apiDisplayContent}>
+					<div style={{ padding: '1rem' }}>
+						{editingEnvironment && (
+							<div>
+								<div style={{ marginBottom: '1rem' }}>
+									<label
+										htmlFor="env-id"
+										style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+									>
+										Environment ID
+									</label>
+									<input
+										id="env-id"
+										type="text"
+										value={editingEnvironment.id}
+										disabled
+										style={{
+											width: '100%',
+											padding: '0.5rem',
+											border: '1px solid #ddd',
+											borderRadius: '4px',
+											background: '#f5f5f5',
+										}}
+									/>
+								</div>
+								<div style={{ marginBottom: '1rem' }}>
+									<label
+										htmlFor="env-name"
+										style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+									>
+										Environment Name
+									</label>
+									<input
+										id="env-name"
+										type="text"
+										value={editName}
+										onChange={(e) => handleNameChange(e.target.value)}
+										placeholder="Enter environment name"
+										style={{
+											width: '100%',
+											padding: '0.5rem',
+											border: '1px solid #ddd',
+											borderRadius: '4px',
+											fontSize: '1rem',
+										}}
+									/>
+								</div>
+								<div style={{ marginBottom: '1rem' }}>
+									<label
+										htmlFor="env-type"
+										style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+									>
+										Type
+									</label>
+									<input
+										id="env-type"
+										type="text"
+										value={editingEnvironment.type}
+										disabled
+										style={{
+											width: '100%',
+											padding: '0.5rem',
+											border: '1px solid #ddd',
+											borderRadius: '4px',
+											background: '#f5f5f5',
+										}}
+									/>
+								</div>
+								<div style={{ marginBottom: '1rem' }}>
+									<label
+										htmlFor="env-region"
+										style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+									>
+										Region
+									</label>
+									<input
+										id="env-region"
+										type="text"
+										value={editingEnvironment.region || 'N/A'}
+										disabled
+										style={{
+											width: '100%',
+											padding: '0.5rem',
+											border: '1px solid #ddd',
+											borderRadius: '4px',
+											background: '#f5f5f5',
+										}}
+									/>
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+				<div
+					style={{
+						padding: '1rem',
+						borderTop: '1px solid #eee',
+						display: 'flex',
+						gap: '0.5rem',
+						justifyContent: 'flex-end',
+					}}
+				>
+					<button type="button" style={styles.button('secondary')} onClick={handleCancelEdit}>
+						Cancel
+					</button>
+					<button
+						type="button"
+						onClick={handleSaveEdit}
+						disabled={!editName.trim()}
+						style={{
+							...styles.button(),
+							backgroundColor: hasUnsavedChanges
+								? '#dc2626'
+								: editName.trim()
+									? '#2563eb'
+									: '#6b7280',
+							color: '#ffffff',
+							opacity: editName.trim() ? 1 : 0.6,
+							cursor: editName.trim() ? 'pointer' : 'not-allowed',
+						}}
+					>
+						{hasUnsavedChanges ? 'Save Changes*' : editName.trim() ? 'Saved' : 'Save Changes'}
+					</button>
+				</div>
+			</div>
+
+			{/* Create Environment Modal */}
+			<button
+				type="button"
+				aria-label="Close create modal"
+				style={{ ...styles.apiDisplayOverlay(showCreateModal), border: 'none' }}
+				onClick={() => {
+					setShowCreateModal(false);
+					setCreateNameInput('');
+				}}
+			/>
+			<div style={styles.apiDisplayModal(showCreateModal)}>
+				<div style={styles.apiDisplayHeader}>
+					<h3 style={styles.apiDisplayTitle}>
+						<i className="bi bi-plus-circle" />
+						Create Environment
+					</h3>
+					<button
+						type="button"
+						style={styles.closeButton}
+						onClick={() => {
+							setShowCreateModal(false);
+							setCreateNameInput('');
+						}}
+					>
+						×
+					</button>
+				</div>
+				<div style={styles.apiDisplayContent}>
+					<div style={{ padding: '1rem' }}>
+						<label
+							htmlFor="create-env-name"
+							style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+						>
+							Environment Name
+						</label>
 						<input
+							id="create-env-name"
 							type="text"
-							placeholder="Search environments..."
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
+							value={createNameInput}
+							onChange={(e) => setCreateNameInput(e.target.value)}
+							placeholder="Enter environment name"
 							style={{
+								width: '100%',
 								padding: '0.5rem',
 								border: '1px solid #ddd',
 								borderRadius: '4px',
-								minWidth: '200px',
+								fontSize: '1rem',
 							}}
 						/>
 					</div>
 				</div>
-
-				<div style={styles.environmentGrid}>
-					{/* CRITICAL FIX: Add null safety check to prevent undefined .map() crash */}
-					{filteredEnvironments.map((environment) => (
-						<div key={environment.id} style={styles.environmentCard}>
-							<div style={styles.cardHeader}>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-									<input
-										type="checkbox"
-										checked={selectedEnvironments.includes(environment.id)}
-										onChange={() => handleSelectEnvironment(environment.id)}
-										style={{ marginRight: '0.5rem' }}
-									/>
-									<h3 style={styles.cardTitle}>{environment.name}</h3>
-								</div>
-								<div
-									style={{
-										display: 'flex',
-										flexDirection: 'column',
-										alignItems: 'flex-end',
-										gap: '0.25rem',
-									}}
-								>
-									<span style={styles.cardStatus(environment.status)}>
-										{EnvironmentServiceV8.formatEnvironmentStatus(environment.status)}
-									</span>
-									<span style={styles.cardType(environment.type)}>
-										{EnvironmentServiceV8.formatEnvironmentType(environment.type)}
-									</span>
-								</div>
-							</div>
-
-							{environment.description && (
-								<p style={styles.cardDescription}>{environment.description}</p>
-							)}
-
-							<div style={styles.cardInfo}>
-								<div style={styles.infoItem}>
-									<span style={styles.infoLabel}>ID:</span>
-									<span style={styles.infoValue}>{environment.id}</span>
-								</div>
-								<div style={styles.infoItem}>
-									<span style={styles.infoLabel}>Region:</span>
-									<span style={styles.infoValue}>{environment.region || 'N/A'}</span>
-								</div>
-								<div style={styles.infoItem}>
-									<span style={styles.infoLabel}>Created:</span>
-									<span style={styles.infoValue}>
-										{new Date(environment.createdAt).toLocaleDateString()}
-									</span>
-								</div>
-								<div style={styles.infoItem}>
-									<span style={styles.infoLabel}>Updated:</span>
-									<span style={styles.infoValue}>
-										{new Date(environment.updatedAt).toLocaleDateString()}
-									</span>
-								</div>
-								<div style={styles.infoItem}>
-									<span style={styles.infoLabel}>Services:</span>
-									<span style={styles.infoValue}>{environment.enabledServices.length}</span>
-								</div>
-								<div style={styles.infoItem}>
-									<span style={styles.infoLabel}>Status:</span>
-									<span style={styles.infoValue}>
-										{EnvironmentServiceV8.formatEnvironmentStatus(environment.status)}
-									</span>
-								</div>
-							</div>
-
-							<div style={styles.cardActions}>
-								<button
-									type="button"
-									style={styles.iconButton}
-									onClick={() => handleToggleEnvironmentStatus(environment.id)}
-									disabled={!EnvironmentServiceV8.canEditEnvironment(environment)}
-									title={environment.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
-								>
-									<span>🔄</span>
-								</button>
-								<button
-									type="button"
-									style={styles.iconButton}
-									onClick={() => handleEditEnvironment(environment.id)}
-									disabled={!EnvironmentServiceV8.canEditEnvironment(environment)}
-									title="Edit"
-								>
-									<i className="bi bi-pencil" />
-								</button>
-								<button
-									type="button"
-									style={styles.iconButton}
-									onClick={() => handleDeleteEnvironment(environment.id)}
-									disabled={!EnvironmentServiceV8.canDeleteEnvironment(environment)}
-									title="Delete"
-								>
-									<span>🗑️</span>
-								</button>
-							</div>
-						</div>
-					))}
-				</div>
-
-				{totalPages > 1 && (
-					<div style={styles.pagination}>
-						<button
-							type="button"
-							style={styles.paginationButton(false)}
-							onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-							disabled={currentPage === 1}
-						>
-							Previous
-						</button>
-
-						{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-							<button
-								key={page}
-								type="button"
-								style={styles.paginationButton(page === currentPage)}
-								onClick={() => setCurrentPage(page)}
-							>
-								{page}
-							</button>
-						))}
-
-						<button
-							type="button"
-							style={styles.paginationButton(false)}
-							onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-							disabled={currentPage === totalPages}
-						>
-							Next
-						</button>
-					</div>
-				)}
-
-				{/* Edit Environment Modal */}
-				<button
-					type="button"
-					aria-label="Close modal"
-					style={{ ...styles.apiDisplayOverlay(showEditModal), border: 'none' }}
-					onClick={handleCancelEdit}
-				/>
-				<div style={styles.apiDisplayModal(showEditModal)}>
-					<div style={styles.apiDisplayHeader}>
-						<h3 style={styles.apiDisplayTitle}>
-							<i className="bi bi-pencil" />
-							Edit Environment
-						</h3>
-						<button type="button" style={styles.closeButton} onClick={handleCancelEdit}>
-							×
-						</button>
-					</div>
-					<div style={styles.apiDisplayContent}>
-						<div style={{ padding: '1rem' }}>
-							{editingEnvironment && (
-								<div>
-									<div style={{ marginBottom: '1rem' }}>
-										<label
-											htmlFor="env-id"
-											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
-										>
-											Environment ID
-										</label>
-										<input
-											id="env-id"
-											type="text"
-											value={editingEnvironment.id}
-											disabled
-											style={{
-												width: '100%',
-												padding: '0.5rem',
-												border: '1px solid #ddd',
-												borderRadius: '4px',
-												background: '#f5f5f5',
-											}}
-										/>
-									</div>
-									<div style={{ marginBottom: '1rem' }}>
-										<label
-											htmlFor="env-name"
-											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
-										>
-											Environment Name
-										</label>
-										<input
-											id="env-name"
-											type="text"
-											value={editName}
-											onChange={(e) => handleNameChange(e.target.value)}
-											placeholder="Enter environment name"
-											style={{
-												width: '100%',
-												padding: '0.5rem',
-												border: '1px solid #ddd',
-												borderRadius: '4px',
-												fontSize: '1rem',
-											}}
-										/>
-									</div>
-									<div style={{ marginBottom: '1rem' }}>
-										<label
-											htmlFor="env-type"
-											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
-										>
-											Type
-										</label>
-										<input
-											id="env-type"
-											type="text"
-											value={editingEnvironment.type}
-											disabled
-											style={{
-												width: '100%',
-												padding: '0.5rem',
-												border: '1px solid #ddd',
-												borderRadius: '4px',
-												background: '#f5f5f5',
-											}}
-										/>
-									</div>
-									<div style={{ marginBottom: '1rem' }}>
-										<label
-											htmlFor="env-region"
-											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
-										>
-											Region
-										</label>
-										<input
-											id="env-region"
-											type="text"
-											value={editingEnvironment.region || 'N/A'}
-											disabled
-											style={{
-												width: '100%',
-												padding: '0.5rem',
-												border: '1px solid #ddd',
-												borderRadius: '4px',
-												background: '#f5f5f5',
-											}}
-										/>
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
-					<div
-						style={{
-							padding: '1rem',
-							borderTop: '1px solid #eee',
-							display: 'flex',
-							gap: '0.5rem',
-							justifyContent: 'flex-end',
-						}}
-					>
-						<button type="button" style={styles.button('secondary')} onClick={handleCancelEdit}>
-							Cancel
-						</button>
-						<button
-							type="button"
-							onClick={handleSaveEdit}
-							disabled={!editName.trim()}
-							style={{
-								...styles.button(),
-								backgroundColor: hasUnsavedChanges
-									? '#dc2626'
-									: editName.trim()
-										? '#2563eb'
-										: '#6b7280',
-								color: '#ffffff',
-								opacity: editName.trim() ? 1 : 0.6,
-								cursor: editName.trim() ? 'pointer' : 'not-allowed',
-							}}
-						>
-							{hasUnsavedChanges ? 'Save Changes*' : editName.trim() ? 'Saved' : 'Save Changes'}
-						</button>
-					</div>
-				</div>
-
-				{/* Create Environment Modal */}
-				<button
-					type="button"
-					aria-label="Close create modal"
-					style={{ ...styles.apiDisplayOverlay(showCreateModal), border: 'none' }}
-					onClick={() => {
-						setShowCreateModal(false);
-						setCreateNameInput('');
+				<div
+					style={{
+						padding: '1rem',
+						borderTop: '1px solid #eee',
+						display: 'flex',
+						gap: '0.5rem',
+						justifyContent: 'flex-end',
 					}}
-				/>
-				<div style={styles.apiDisplayModal(showCreateModal)}>
-					<div style={styles.apiDisplayHeader}>
-						<h3 style={styles.apiDisplayTitle}>
-							<i className="bi bi-plus-circle" />
-							Create Environment
-						</h3>
-						<button
-							type="button"
-							style={styles.closeButton}
-							onClick={() => {
-								setShowCreateModal(false);
-								setCreateNameInput('');
-							}}
-						>
-							×
-						</button>
-					</div>
-					<div style={styles.apiDisplayContent}>
-						<div style={{ padding: '1rem' }}>
-							<label
-								htmlFor="create-env-name"
-								style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
-							>
-								Environment Name
-							</label>
-							<input
-								id="create-env-name"
-								type="text"
-								value={createNameInput}
-								onChange={(e) => setCreateNameInput(e.target.value)}
-								placeholder="Enter environment name"
-								style={{
-									width: '100%',
-									padding: '0.5rem',
-									border: '1px solid #ddd',
-									borderRadius: '4px',
-									fontSize: '1rem',
-								}}
-							/>
-						</div>
-					</div>
-					<div
-						style={{
-							padding: '1rem',
-							borderTop: '1px solid #eee',
-							display: 'flex',
-							gap: '0.5rem',
-							justifyContent: 'flex-end',
+				>
+					<button
+						type="button"
+						style={styles.button('secondary')}
+						onClick={() => {
+							setShowCreateModal(false);
+							setCreateNameInput('');
 						}}
 					>
-						<button
-							type="button"
-							style={styles.button('secondary')}
-							onClick={() => {
-								setShowCreateModal(false);
-								setCreateNameInput('');
-							}}
-						>
-							Cancel
-						</button>
-						<button
-							type="button"
-							onClick={handleSubmitCreateEnvironment}
-							disabled={!createNameInput.trim()}
-							style={styles.button()}
-						>
-							Create
-						</button>
-					</div>
+						Cancel
+					</button>
+					<button
+						type="button"
+						onClick={handleSubmitCreateEnvironment}
+						disabled={!createNameInput.trim()}
+						style={styles.button()}
+					>
+						Create
+					</button>
 				</div>
+			</div>
 
-				{/* API Display Modal */}
-				<button
-					type="button"
-					aria-label="Close modal"
-					style={{ ...styles.apiDisplayOverlay(showApiDisplay), border: 'none' }}
-					onClick={() => setShowApiDisplay(false)}
-				/>
-				<div style={styles.apiDisplayModal(showApiDisplay)}>
-					<div style={styles.apiDisplayHeader}>
-						<h3 style={styles.apiDisplayTitle}>
-							<i className="bi bi-code-slash" />
-							API Call History
-						</h3>
-						<button
-							type="button"
-							style={styles.closeButton}
-							onClick={() => setShowApiDisplay(false)}
-						>
-							×
-						</button>
-					</div>
-					<div style={styles.apiDisplayContent}>
-						<ApiCallList />
-					</div>
+			{/* API Display Modal */}
+			<button
+				type="button"
+				aria-label="Close modal"
+				style={{ ...styles.apiDisplayOverlay(showApiDisplay), border: 'none' }}
+				onClick={() => setShowApiDisplay(false)}
+			/>
+			<div style={styles.apiDisplayModal(showApiDisplay)}>
+				<div style={styles.apiDisplayHeader}>
+					<h3 style={styles.apiDisplayTitle}>
+						<i className="bi bi-code-slash" />
+						API Call History
+					</h3>
+					<button type="button" style={styles.closeButton} onClick={() => setShowApiDisplay(false)}>
+						×
+					</button>
+				</div>
+				<div style={styles.apiDisplayContent}>
+					<ApiCallList />
 				</div>
 			</div>
 		</>

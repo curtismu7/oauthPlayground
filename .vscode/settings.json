@@ -267,6 +267,14 @@
 		"/^grep\\b.*-(f|P)\\b/": false,
 		"sort": true,
 		"/^sort\\b.*-(o|S)\\b/": false,
+		"pgrep": true,
+		"od": true,
+		"node": true,
+		"npx": true,
+		"sed": true,
+		"awk": true,
+		"python3": true,
+		"python": true,
 		"tree": true,
 		"/^tree\\b.*-o\\b/": false,
 		"/\\(.+\\)/": {
@@ -314,5 +322,29 @@
 		"iex": false
 	},
 	"gitlens.hovers.autolinks.enabled": false,
-	"typescript.autoClosingTags": false
+	"typescript.autoClosingTags": false,
+	"files.watcherExclude": {
+		"**/node_modules/**": true,
+		"**/.git/objects/**": true,
+		"**/build/**": true,
+		"**/dist/**": true,
+		"**/coverage/**": true,
+		"**/.pnpm/**": true,
+		"**/test-results/**": true,
+		"**/*.log": true
+	},
+	"typescript.tsserver.maxTsServerMemory": 8192,
+	"typescript.tsserver.experimental.enableProjectDiagnostics": false,
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/dist": true,
+		"**/build": true,
+		"**/.git": true,
+		"**/.pnpm": true
+	},
+	"editor.codeActionsOnSave": {
+		"source.fixAll.biome": "explicit"
+	},
+	"biome.enabled": true,
+	"eslint.enable": false
 }

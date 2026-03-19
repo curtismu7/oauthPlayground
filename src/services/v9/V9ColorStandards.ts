@@ -51,6 +51,7 @@ export const V9_COLORS = {
 	// Status colors
 	STATUS: {
 		WARNING: '#f59e0b', // amber-500
+		SUCCESS: '#10b981', // emerald-500
 	},
 
 	// Button styles with proper contrast
