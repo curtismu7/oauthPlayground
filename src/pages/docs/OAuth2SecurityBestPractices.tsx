@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
+import DocumentationHeader from '../../components/DocumentationHeader';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -310,6 +311,12 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			<FlowHeader
 				flowType="oauth2-security-best-practices"
 				customConfig={{ flowType: 'pingone' }}
+			/>
+
+			<DocumentationHeader
+				emoji="🔒"
+				title="OAuth 2.0 Security Best Practices"
+				description="Essential security practices for OAuth 2.0 client applications based on RFC 9700 and industry standards"
 			/>
 
 			<ReferenceCard>

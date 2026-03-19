@@ -30,6 +30,7 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import DocumentationHeader from '../components/DocumentationHeader';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
@@ -972,44 +973,11 @@ const Configuration: React.FC = () => {
 		<div style={styles.container}>
 			<FlowHeader flowId="configuration" />
 
-			<div
-				style={{
-					background:
-						'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
-					borderRadius: '1rem',
-					padding: '2rem',
-					marginBottom: '2rem',
-					textAlign: 'center',
-					color: 'white',
-				}}
-			>
-				<h1
-					style={{
-						fontSize: '2rem',
-						fontWeight: '700',
-						color: 'white',
-						marginBottom: '0.5rem',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						gap: '0.75rem',
-					}}
-				>
-					<MDIIcon icon="FiSettings" />
-					Setup & Config
-				</h1>
-				<p
-					style={{
-						color: 'rgba(255,255,255,0.85)',
-						fontSize: '1.1rem',
-						maxWidth: '700px',
-						margin: '0 auto',
-					}}
-				>
-					Complete setup guide for the PingOne OAuth/OIDC Playground. Get your environment
-					configured and start exploring OAuth flows in minutes.
-				</p>
-			</div>
+			<DocumentationHeader
+				emoji="⚙️"
+				title="Setup & Configuration"
+				description="Complete setup guide for the PingOne OAuth/OIDC Playground. Get your environment configured and start exploring OAuth flows in minutes"
+			/>
 
 			{/* PingOne Region Configuration */}
 			<div style={styles.card}>

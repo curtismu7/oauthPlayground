@@ -7,7 +7,6 @@ import { SpecCard } from '../../../components/SpecCard';
 import { showGlobalSuccess } from '../../../contexts/NotificationSystem';
 import { FiCheck, FiInfo, FiShield, FiX } from '../../../icons';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
-import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 
 // ─── Styled Components (V9 Color Standards) ───────────────────────────────────
@@ -118,10 +117,12 @@ const OAuth21InformationalFlowV9: React.FC = () => {
 	return (
 		<Container>
 			<V9FlowHeader
-				title="OAuth 2.1"
-				subtitle="Evolution of OAuth 2.0 with built-in security improvements and best practices"
 				flowId="oauth-2-1"
-				showRestart={true}
+				customConfig={{
+					flowType: 'oauth',
+					title: 'OAuth 2.1',
+					subtitle: 'Evolution of OAuth 2.0 with built-in security improvements and best practices',
+				}}
 			/>
 
 			{/* Overview Section */}
@@ -520,8 +521,6 @@ POST /token grant_type=authorization_code&code=...&code_verifier=...`}</CodeBloc
 					</PingOneNote>
 				</CardBody>
 			</Card>
-
-			<V9FlowRestartButton flowId="oauth-2-1" />
 		</Container>
 	);
 };
