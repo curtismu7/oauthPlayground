@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import PageLayoutService from '../../services/pageLayoutService';
+import DocumentationHeader from '../../components/DocumentationHeader';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const pageConfig = {
@@ -61,7 +61,9 @@ const DocCard = styled(Link)`
 	border-radius: 12px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	padding: 20px;
-	transition: transform 0.2s, box-shadow 0.2s;
+	transition:
+		transform 0.2s,
+		box-shadow 0.2s;
 	text-decoration: none;
 	color: inherit;
 	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
@@ -133,12 +135,11 @@ const MCPDocumentation: React.FC = () => {
 
 	return (
 		<PageContainer>
-			{PageHeader ? (
-				<PageHeader>
-					<h1>Model Context Protocol (MCP)</h1>
-					<p>Open-source standard for connecting AI applications to external systems</p>
-				</PageHeader>
-			) : null}
+			<DocumentationHeader
+				emoji="🤖"
+				title="Model Context Protocol (MCP)"
+				description="Open-source standard for connecting AI applications to external systems"
+			/>
 			<ContentWrapper>
 				<div style={{ marginBottom: '24px' }}>
 					<CollapsibleHeader

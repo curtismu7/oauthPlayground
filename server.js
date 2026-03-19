@@ -23,12 +23,15 @@ import dotenv from 'dotenv';
 import express from 'express';
 import fetch from 'node-fetch';
 
-// Import user database service and API routes
-import { userDatabaseService } from './src/server/services/userDatabaseService.js';
-import { settingsDB } from './src/server/services/settingsDatabaseService.js';
-import { setupUserApiRoutes } from './src/server/routes/userApiRoutes.js';
-import { setupBackupApiRoutes } from './src/server/routes/backupApiRoutes.js';
-import { credentialsSqliteApi } from './src/api/credentialsSqliteApi.js';
+// SQLite-dependent modules — all loaded dynamically below with in-memory fallbacks
+// so the app starts cleanly on Vercel and other environments without native sqlite3.
+// import { userDatabaseService } from './src/server/services/userDatabaseService.js';
+// import { settingsDB } from './src/server/services/settingsDatabaseService.js';
+// import { setupUserApiRoutes } from './src/server/routes/userApiRoutes.js';
+// SQLite-dependent modules are loaded dynamically below to allow graceful fallback when
+// native sqlite3 binaries are unavailable (e.g. Vercel serverless, CI environments).
+// import { setupBackupApiRoutes } from './src/server/routes/backupApiRoutes.js';
+// import { credentialsSqliteApi } from './src/api/credentialsSqliteApi.js';
 // import databaseApiRoutes from './src/server/routes/databaseApiRoutes.js';
 // import { registerTokenStorageRoutes } from './src/server/tokenStorageApi.js';
 
@@ -37,7 +40,8 @@ dotenv.config();
 // Setup file logging
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const logsDir = path.join(__dirname, 'logs');
+// On Vercel (read-only bundle filesystem), redirect logs to /tmp which is writable.
+const logsDir = process.env.VERCEL ? path.join('/tmp', 'logs') : path.join(__dirname, 'logs');
 const logFile = path.join(logsDir, 'server.log');
 const clientLogFile = path.join(logsDir, 'client.log');
 
@@ -56,8 +60,13 @@ const BRAVE_KEY_FILE = path.join(
 );
 
 // Create logs directory if it doesn't exist
-if (!fs.existsSync(logsDir)) {
-	fs.mkdirSync(logsDir, { recursive: true });
+try {
+	if (!fs.existsSync(logsDir)) {
+		fs.mkdirSync(logsDir, { recursive: true });
+	}
+} catch (err) {
+	// Silently ignore — log directory creation failures are non-fatal
+	// (occurs on read-only filesystems in CI/Vercel environments)
 }
 
 // Consolidated log file for all PingOne API calls
@@ -932,22 +941,77 @@ app.use((_req, res, next) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Initialize user database service
-try {
-	userDatabaseService.init();
-	console.log('💾 User database service initialized');
-} catch (error) {
-	console.error('❌ Failed to initialize user database service:', error);
+// ── SQLite-based services — loaded dynamically so missing native binaries don't
+//    crash the whole server (e.g. Vercel serverless, CI without native addons).
+//    On Vercel we skip loading entirely to prevent the sqlite3 native binding
+//    loader from hanging the function cold-start.
+let userDatabaseService = {
+	init() {},
+	getUserById() {
+		return null;
+	},
+	searchUsers() {
+		return [];
+	},
+};
+let settingsDB = {
+	async init() {},
+	async get() {
+		return null;
+	},
+	async set() {},
+};
+
+if (!process.env.VERCEL) {
+	try {
+		const userMod = await import('./src/server/services/userDatabaseService.js');
+		userDatabaseService = userMod.userDatabaseService;
+	} catch (err) {
+		console.warn('⚠️ User DB service unavailable (SQLite):', err.message);
+	}
+
+	try {
+		const settingsMod = await import('./src/server/services/settingsDatabaseService.js');
+		settingsDB = settingsMod.settingsDB;
+	} catch (err) {
+		console.warn('⚠️ Settings DB unavailable (SQLite):', err.message);
+	}
+
+	// Initialize user database service
+	try {
+		userDatabaseService.init();
+		console.log('💾 User database service initialized');
+	} catch (error) {
+		console.error('❌ Failed to initialize user database service:', error);
+	}
+
+	// Setup user API routes (dynamic import — SQLite dependent)
+	try {
+		const { setupUserApiRoutes } = await import('./src/server/routes/userApiRoutes.js');
+		setupUserApiRoutes(app);
+	} catch (err) {
+		console.warn('⚠️ User API routes unavailable (SQLite):', err.message);
+	}
+
+	// Setup backup API routes (dynamic import — SQLite native addon; skipped on Vercel)
+	try {
+		const { setupBackupApiRoutes } = await import('./src/server/routes/backupApiRoutes.js');
+		setupBackupApiRoutes(app);
+	} catch (err) {
+		console.warn('⚠️ Backup API routes unavailable (SQLite native module missing):', err.message);
+	}
+
+	// Setup enhanced credentials SQLite API (dynamic import — SQLite native addon; skipped on Vercel)
+	try {
+		const { credentialsSqliteApi } = await import('./src/api/credentialsSqliteApi.js');
+		credentialsSqliteApi(app);
+	} catch (err) {
+		console.warn(
+			'⚠️ SQLite credentials API unavailable (SQLite native module missing):',
+			err.message
+		);
+	}
 }
-
-// Setup user API routes
-setupUserApiRoutes(app);
-
-// Setup backup API routes
-setupBackupApiRoutes(app);
-
-// Setup enhanced credentials SQLite API
-credentialsSqliteApi(app);
 
 // Setup database viewer API routes (commented out until TypeScript is compiled)
 // app.use('/api/database', databaseApiRoutes);
@@ -2642,8 +2706,10 @@ app.put('/api/environments/:id', async (req, res) => {
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
 			const statusCode = response.status;
-			console.error(`[PingOne Update Environment API] ❌ Error: ${statusCode} - ${errorData.message || response.statusText}`);
-			
+			console.error(
+				`[PingOne Update Environment API] ❌ Error: ${statusCode} - ${errorData.message || response.statusText}`
+			);
+
 			// Return the actual status code from PingOne (400, 401, 403, etc.) instead of always 500
 			return res.status(statusCode).json({
 				error: errorData.error || 'PingOne API Error',
@@ -25841,8 +25907,9 @@ if (httpsServer) {
 	});
 }
 
-// Start the servers
-if (process.env.NODE_ENV !== 'test') {
+// Start the servers — skip in test and Vercel serverless contexts (Vercel invokes the
+// exported Express `app` directly; it does not need a listening HTTP/HTTPS server).
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
 	startServers().catch((error) => {
 		console.error('❌ Failed to start servers:', error);
 		process.exit(1);
