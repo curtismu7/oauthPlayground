@@ -12,9 +12,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Ensure logs directory exists
-const logsDir = path.join(__dirname, '../../logs/callback-debug');
-if (!fs.existsSync(logsDir)) {
-	fs.mkdirSync(logsDir, { recursive: true });
+const logsDir = process.env.VERCEL
+	? path.join('/tmp', 'callback-debug')
+	: path.join(__dirname, '../../logs/callback-debug');
+try {
+	if (!fs.existsSync(logsDir)) {
+		fs.mkdirSync(logsDir, { recursive: true });
+	}
+} catch {
+	// Non-fatal — log writes will fail gracefully
 }
 
 // Create a log file for today's date
