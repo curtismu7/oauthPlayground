@@ -66,6 +66,35 @@ This document:
 
 _(Newest first. **Update this section on every fix.** Add date and one-line summary; link to files or PRs if useful.)_
 
+### Vercel deployment: routing, SQLite, and log-dir fixes (2026-03-19)
+
+- **What:** Production deployment at `https://oauth-playground-pi.vercel.app` had three distinct failures: (1) API routes returned the SPA `index.html` instead of JSON — incorrect routing config. (2) `/api/health`, `/api/version`, `/api/jwks` timed out because `sqlite3` native binding loader was triggered even inside `try/catch` dynamic `import()` blocks, hanging the Lambda cold-start. (3) `api/logs/callback-debug.js` crashed on startup because it tried to `mkdirSync` a path under `__dirname` which is read-only in Vercel's Lambda filesystem.
+- **Fix:** (1) **`vercel.json`**: Changed from `"routes": [{ "src": "/api/(.*)", ... }, { "src": "/(.*)", ... }]` to `"routes": [{ "handle": "filesystem" }, { "src": "/(.*)", "dest": "/index.html" }]` — the `handle: filesystem` checkpoint lets Vercel match serverless functions before falling through to the SPA catch-all. (2) **`server.js`**: Wrapped all SQLite dynamic `import()` blocks in `if (!process.env.VERCEL)` so they are never attempted in the Vercel Lambda environment. In-memory fallback stubs (`settingsDB`, `userDatabaseService`) ensure all other routes remain functional. (3) **`api/logs/callback-debug.js`**: Changed `logsDir` to `process.env.VERCEL ? path.join('/tmp', 'callback-debug') : path.join(__dirname, '../../logs/callback-debug')` and wrapped `mkdirSync` in a try-catch.
+- **Files:** `vercel.json`, `server.js`, `api/logs/callback-debug.js`
+- **Regression check:** `GET https://oauth-playground-pi.vercel.app/api/health` → 200 JSON `{ status: "ok" }`. `GET /api/version` → 200 JSON. `GET /api/jwks` → 200 JSON. `GET /flows/client-credentials-v9` → 200 HTML (SPA). Local dev server unaffected — SQLite loads normally when `VERCEL` env is not set.
+
+### Vercel deployment: SQLite dynamic imports + log dir + startup guard (2026-03-19)
+
+- **What:** Express `server.js` failed to initialize in Vercel serverless context: (1) Static `sqlite3` imports (`userDatabaseService`, `settingsDB`, `setupBackupApiRoutes`, `credentialsSqliteApi`) caused `FUNCTION_INVOCATION_FAILED` — native `sqlite3` binary can't be loaded in Lambda. (2) Server tried to call `fs.mkdirSync(logsDir)` on a read-only filesystem. (3) `startServers()` was called in production even though Vercel invokes the Express `app` directly, not via an HTTP port.
+- **Fix:** (1) Commented out all four SQLite static imports. Added `!process.env.VERCEL` guard around dynamic import blocks — skip SQLite loading entirely on Vercel. (2) Changed `logsDir` to `process.env.VERCEL ? path.join('/tmp', 'logs') : path.join(__dirname, 'logs')`. Wrapped `mkdirSync` in try-catch. (3) Added `&& !process.env.VERCEL` to the `startServers()` condition. (4) Created `api/[...path].js` catch-all that imports `server.js` and delegates to the Express `app`.
+- **Files:** `server.js`, `api/[...path].js` (new), `api/pingone/[...path].js` (repurposed from raw proxy to Express delegate)
+- **Regression check:** Local: `npm run dev` works normally, SQLite loads, logs go to `./logs/`. Vercel: no 500s, no timeout. In-memory fallbacks mean settings/user routes return null/empty instead of crashing.
+
+### Real-credential integration tests: worker token + PingOne API (2026-03-19)
+
+- **What:** Added `scripts/test-real-creds.mjs` — a full integration test that reads `.env.local`, obtains a real PingOne worker token via the local server, then tests live API calls against the configured PingOne environment.
+- **What it verifies:** (1) `POST /api/worker-token` obtains a valid Bearer token from PingOne. (2) `GET /api/settings/environment-id` returns the configured environment ID. (3) `GET /api/version` returns app version info. (4) `GET /api/jwks` returns a valid JWKS. (5) `GET /api/playground-jwks` returns playground JWKS. (6) `GET /api/health` returns `{ status: "ok" }`. (7) `POST /api/pingone/proxy` (users list) returns real PingOne users. (8) `POST /api/pingone/proxy` (apps list) returns real PingOne applications. Results were 8/8 pass on first run with live credentials.
+- **Files:** `scripts/test-real-creds.mjs` (new), `test-results/api-test-results-2026-03-19T23-23-10-962Z.json` (new)
+- **Credentials required:** `PINGONE_ENVIRONMENT_ID`, `PINGONE_CLIENT_ID`, `PINGONE_CLIENT_SECRET` in `.env.local` (Worker App). Server must be running on `https://localhost:3001`.
+- **Regression check:** `node scripts/test-real-creds.mjs` → 8/8 tests pass. All PingOne API calls return real data. Worker token flow functional end-to-end.
+
+### Playwright E2E test suite: mock flows comprehensive validation + AI identity flows (2026-03-19)
+
+- **What:** Added comprehensive Playwright tests for all mock OAuth flows and fixed strict-mode violations in AI identity flow tests. 145 total tests (123 passing before session, additional fixes bring count higher).
+- **Fix:** (1) `tests/e2e/mock-flows-comprehensive-validation.spec.ts` (new): Tests for field validation across all 8 mock flows — Client Credentials, Auth Code, OIDC Hybrid, CIBA, ROPC, Implicit, Device Authorization, SAML Bearer. Each test checks that relevant OAuth parameters are present, validates URL patterns, and uses `.first()` on broad text selectors to avoid strict-mode violations. (2) `tests/e2e/mock-flows.spec.ts`: Fixed test 72 (UI Consistency) — root cause was `index.html`'s `#initial-spinner` div containing its own `<h1>MasterFlow API</h1>` that triggered heading-based readiness detection before React mounted. Fix: `waitForFunction(() => !document.getElementById('initial-spinner'))`. Fixed test 68 (DPoP) with `.first()` selector. (3) `tests/e2e/ai-identity-flows.spec.ts`: Fixed strict mode violations on `getByText(/access_token|id_token|code=/)` selectors by adding `.first()`.
+- **Files:** `tests/e2e/mock-flows-comprehensive-validation.spec.ts` (new), `tests/e2e/mock-flows.spec.ts`, `tests/e2e/ai-identity-flows.spec.ts`
+- **Regression check:** `npx playwright test tests/e2e/mock-flows.spec.ts tests/e2e/mock-flows-comprehensive-validation.spec.ts --project=chromium` → all tests pass. `#initial-spinner` wait pattern must be used whenever checking for React mount in future tests.
+
 ### v9 flow pages: all outer container widths standardised to `90rem` (2026-03-17)
 
 - **What:** 19 v9 flow files had hard-coded outer container widths (`860px`, `800px`, or `1200px`) causing pages to render at inconsistent widths and not fill the available content column (especially visible with a wide sidebar).
