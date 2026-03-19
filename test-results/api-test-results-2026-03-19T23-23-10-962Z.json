@@ -1,0 +1,566 @@
+{
+  "metadata": {
+    "timestamp": "2026-03-19T23:23:10.964Z",
+    "baseUrl": "https://localhost:3001",
+    "version": "unknown",
+    "totalTests": 38,
+    "passed": 38,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 567
+  },
+  "tests": [
+    {
+      "name": "Health Check Endpoint",
+      "category": "health",
+      "endpoint": "/api/health",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseTime": 18,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.033Z"
+    },
+    {
+      "name": "API Version",
+      "category": "health",
+      "endpoint": "/api/version",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseTime": 11,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.045Z"
+    },
+    {
+      "name": "Network Check",
+      "category": "health",
+      "endpoint": "/api/network/check",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseTime": 118,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.163Z"
+    },
+    {
+      "name": "Debug Info",
+      "category": "health",
+      "endpoint": "/api/debug",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseTime": 32,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.196Z"
+    },
+    {
+      "name": "Get Env Config",
+      "category": "config",
+      "endpoint": "/api/env-config",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseTime": 15,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.211Z"
+    },
+    {
+      "name": "Get Environments List",
+      "category": "config",
+      "endpoint": "/api/environments",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        401
+      ],
+      "actualStatus": 401,
+      "responseTime": 26,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.238Z"
+    },
+    {
+      "name": "Get Settings: Region",
+      "category": "config",
+      "endpoint": "/api/settings/region",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseTime": 9,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.248Z"
+    },
+    {
+      "name": "Get Settings: Custom Domain",
+      "category": "config",
+      "endpoint": "/api/settings/custom-domain",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseTime": 9,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.259Z"
+    },
+    {
+      "name": "Get Settings: Environment ID",
+      "category": "config",
+      "endpoint": "/api/settings/environment-id",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseTime": 17,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.276Z"
+    },
+    {
+      "name": "Get Settings: Debug Log Viewer",
+      "category": "config",
+      "endpoint": "/api/settings/debug-log-viewer",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseTime": 7,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.283Z"
+    },
+    {
+      "name": "Load Credentials",
+      "category": "credentials",
+      "endpoint": "/api/credentials/load",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400
+      ],
+      "actualStatus": 400,
+      "responseTime": 7,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.290Z"
+    },
+    {
+      "name": "Load SQLite Credentials",
+      "category": "credentials",
+      "endpoint": "/api/credentials/sqlite/load",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400
+      ],
+      "actualStatus": 400,
+      "responseTime": 7,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.297Z"
+    },
+    {
+      "name": "Token Exchange (OPTIONS preflight)",
+      "category": "token",
+      "endpoint": "/api/token-exchange",
+      "method": "OPTIONS",
+      "status": "PASSED",
+      "expectedStatus": 204,
+      "actualStatus": 204,
+      "responseTime": 8,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.305Z"
+    },
+    {
+      "name": "Token Exchange (POST — missing body)",
+      "category": "token",
+      "endpoint": "/api/token-exchange",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 10,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.315Z"
+    },
+    {
+      "name": "Get Worker Token",
+      "category": "token",
+      "endpoint": "/api/tokens/worker",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400
+      ],
+      "actualStatus": 400,
+      "responseTime": 8,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.323Z"
+    },
+    {
+      "name": "Validate Token (missing body)",
+      "category": "token",
+      "endpoint": "/api/validate-token",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 9,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.333Z"
+    },
+    {
+      "name": "Introspect Token (missing body)",
+      "category": "token",
+      "endpoint": "/api/introspect-token",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 8,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.341Z"
+    },
+    {
+      "name": "Playground JWKS",
+      "category": "token",
+      "endpoint": "/api/playground-jwks",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseTime": 7,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.348Z"
+    },
+    {
+      "name": "JWKS Endpoint",
+      "category": "token",
+      "endpoint": "/api/jwks",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400
+      ],
+      "actualStatus": 400,
+      "responseTime": 7,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.355Z"
+    },
+    {
+      "name": "PingOne Token Endpoint",
+      "category": "pingone",
+      "endpoint": "/api/pingone/token",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 10,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.365Z"
+    },
+    {
+      "name": "PingOne Worker Token",
+      "category": "pingone",
+      "endpoint": "/api/pingone/worker-token",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 11,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.376Z"
+    },
+    {
+      "name": "PingOne Users Lookup (missing body)",
+      "category": "pingone",
+      "endpoint": "/api/pingone/users/lookup",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 8,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.384Z"
+    },
+    {
+      "name": "PingOne API Calls Log",
+      "category": "pingone",
+      "endpoint": "/api/pingone/api-calls",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseTime": 9,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.393Z"
+    },
+    {
+      "name": "PingOne OIDC Discovery (missing params)",
+      "category": "pingone",
+      "endpoint": "/api/pingone/oidc-discovery",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 9,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.402Z"
+    },
+    {
+      "name": "PingOne Token Exchange (missing body)",
+      "category": "pingone",
+      "endpoint": "/api/pingone/token-exchange",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 8,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.410Z"
+    },
+    {
+      "name": "PingOne Risk Evaluation (missing body)",
+      "category": "pingone",
+      "endpoint": "/api/pingone/risk-evaluations",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 9,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.419Z"
+    },
+    {
+      "name": "UserInfo Endpoint (no token)",
+      "category": "oauth",
+      "endpoint": "/api/userinfo",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 8,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.428Z"
+    },
+    {
+      "name": "OAuth Metadata",
+      "category": "oauth",
+      "endpoint": "/api/oauth-metadata",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400
+      ],
+      "actualStatus": 400,
+      "responseTime": 13,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.441Z"
+    },
+    {
+      "name": "Client Credentials (missing body)",
+      "category": "oauth",
+      "endpoint": "/api/client-credentials",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 9,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.450Z"
+    },
+    {
+      "name": "Discovery Endpoint (missing env_id)",
+      "category": "oauth",
+      "endpoint": "/api/discovery",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400
+      ],
+      "actualStatus": 400,
+      "responseTime": 9,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.459Z"
+    },
+    {
+      "name": "CIBA Backchannel Auth (missing body)",
+      "category": "ciba",
+      "endpoint": "/api/ciba-backchannel",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 10,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.469Z"
+    },
+    {
+      "name": "CIBA Token Poll (missing body)",
+      "category": "ciba",
+      "endpoint": "/api/ciba-token",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 9,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.479Z"
+    },
+    {
+      "name": "Device Authorization (missing body)",
+      "category": "device",
+      "endpoint": "/api/device-authorization",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 11,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.490Z"
+    },
+    {
+      "name": "Device UserInfo (no token)",
+      "category": "device",
+      "endpoint": "/api/device-userinfo",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 11,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.501Z"
+    },
+    {
+      "name": "Pushed Authorization Request (missing body)",
+      "category": "par",
+      "endpoint": "/api/par",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 6,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.507Z"
+    },
+    {
+      "name": "List Log Files",
+      "category": "logs",
+      "endpoint": "/api/logs/list",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400
+      ],
+      "actualStatus": 200,
+      "responseTime": 8,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.515Z"
+    },
+    {
+      "name": "MCP Web Search (missing body)",
+      "category": "mcp",
+      "endpoint": "/api/mcp/web-search",
+      "method": "POST",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 7,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.522Z"
+    },
+    {
+      "name": "Password State Check (missing params)",
+      "category": "password",
+      "endpoint": "/api/pingone/password/state",
+      "method": "GET",
+      "status": "PASSED",
+      "expectedStatus": [
+        200,
+        400,
+        401
+      ],
+      "actualStatus": 400,
+      "responseTime": 9,
+      "error": null,
+      "timestamp": "2026-03-19T23:23:11.531Z"
+    }
+  ]
+}
