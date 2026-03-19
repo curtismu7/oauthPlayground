@@ -281,204 +281,81 @@ const AIIdentityArchitectures: React.FC = () => {
 				</p>
 			</Header>
 
-			{/* Identity Layers */}
-			<CollapsibleHeader
-				title="Identity Layers for AI"
-				subtitle="Understanding the different layers of identity in AI architectures"
-				icon={<FiShield />}
-				theme="blue"
-				defaultCollapsed={false}
-			>
-				<Card>
-					<ArchitectureDiagram>
-						<Layer>
-							<LayerIcon color="V9_COLORS.PRIMARY.BLUE">
-								<FiUsers />
-							</LayerIcon>
-							<LayerContent>
-								<h3>Users</h3>
-								<p>Service Account, Password, Secret</p>
-							</LayerContent>
-						</Layer>
+			<ContentWrapper>
+				{/* Identity Layers */}
+				<CollapsibleHeader
+					title="Identity Layers for AI"
+					subtitle="Understanding the different layers of identity in AI architectures"
+					icon={<FiShield />}
+					theme="blue"
+					defaultCollapsed={false}
+				>
+					<Card>
+						<ArchitectureDiagram>
+							<Layer>
+								<LayerIcon color="V9_COLORS.PRIMARY.BLUE">
+									<FiUsers />
+								</LayerIcon>
+								<LayerContent>
+									<h3>Users</h3>
+									<p>Service Account, Password, Secret</p>
+								</LayerContent>
+							</Layer>
 
-						<Layer>
-							<LayerIcon color="#8b5cf6">
-								<FiKey />
-							</LayerIcon>
-							<LayerContent>
-								<h3>API Clients</h3>
-								<p>OAuth Client ID, Client Secret, API Keys, mTLS</p>
-							</LayerContent>
-						</Layer>
+							<Layer>
+								<LayerIcon color="#8b5cf6">
+									<FiKey />
+								</LayerIcon>
+								<LayerContent>
+									<h3>API Clients</h3>
+									<p>OAuth Client ID, Client Secret, API Keys, mTLS</p>
+								</LayerContent>
+							</Layer>
 
-						<Layer>
-							<LayerIcon color="#06b6d4">
-								<FiCpu />
-							</LayerIcon>
-							<LayerContent>
-								<h3>Workloads</h3>
-								<p>SPIFFE, WIMSE, Secrets, mTLS</p>
-							</LayerContent>
-						</Layer>
+							<Layer>
+								<LayerIcon color="#06b6d4">
+									<FiCpu />
+								</LayerIcon>
+								<LayerContent>
+									<h3>Workloads</h3>
+									<p>SPIFFE, WIMSE, Secrets, mTLS</p>
+								</LayerContent>
+							</Layer>
 
-						<Layer>
-							<LayerIcon color="V9_COLORS.PRIMARY.GREEN">
-								<FiDatabase />
-							</LayerIcon>
-							<LayerContent>
-								<h3>Devices/Machines</h3>
-								<p>IP Address, mTLS</p>
-							</LayerContent>
-						</Layer>
+							<Layer>
+								<LayerIcon color="V9_COLORS.PRIMARY.GREEN">
+									<FiDatabase />
+								</LayerIcon>
+								<LayerContent>
+									<h3>Devices/Machines</h3>
+									<p>IP Address, mTLS</p>
+								</LayerContent>
+							</Layer>
 
-						<Layer>
-							<LayerIcon color="V9_COLORS.PRIMARY.YELLOW">
-								<FiZap />
-							</LayerIcon>
-							<LayerContent>
-								<h3>AI Agents</h3>
-								<p>Agent Identity Types, Resource Types, Identifiers & Credential Types</p>
-							</LayerContent>
-						</Layer>
-					</ArchitectureDiagram>
-				</Card>
-			</CollapsibleHeader>
+							<Layer>
+								<LayerIcon color="V9_COLORS.PRIMARY.YELLOW">
+									<FiZap />
+								</LayerIcon>
+								<LayerContent>
+									<h3>AI Agents</h3>
+									<p>Agent Identity Types, Resource Types, Identifiers & Credential Types</p>
+								</LayerContent>
+							</Layer>
+						</ArchitectureDiagram>
+					</Card>
+				</CollapsibleHeader>
 
-			{/* OAuth Client Types */}
-			<CollapsibleHeader
-				title="OAuth Client Types for AI Agents"
-				subtitle="Understanding different OAuth client types and their use cases for AI agents"
-				icon={<FiKey />}
-				theme="green"
-				defaultCollapsed={false}
-			>
-				<Card>
-					<AgentType variant="personal">
-						<h3
-							style={{
-								color: '#2563eb',
-								marginBottom: '1rem',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-							}}
-						>
-							<FiUsers />
-							Personal Agents
-						</h3>
-						<p style={{ color: '#2563eb', marginBottom: '1rem' }}>
-							<strong>OAuth Public Client</strong>
-						</p>
-						<ul style={{ color: '#2563eb', margin: 0, paddingLeft: '1.5rem' }}>
-							<li>Authorization code grant with PKCE</li>
-							<li>Cannot store client secrets securely</li>
-							<li>Dynamic Client Registration</li>
-						</ul>
-					</AgentType>
-
-					<AgentType variant="managed">
-						<h3
-							style={{
-								color: '#059669',
-								marginBottom: '1rem',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-							}}
-						>
-							<FiSettings />
-							Managed Agents
-						</h3>
-						<p style={{ color: '#059669', marginBottom: '1rem' }}>
-							<strong>OAuth Confidential Client</strong>
-						</p>
-						<ul style={{ color: '#059669', margin: 0, paddingLeft: '1.5rem' }}>
-							<li>Pre-registered Clients</li>
-							<li>Client credential grant</li>
-							<li>Can store client secrets securely</li>
-							<li>Token Exchange</li>
-						</ul>
-					</AgentType>
-
-					<AgentType variant="digital">
-						<h3
-							style={{
-								color: '#d97706',
-								marginBottom: '1rem',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-							}}
-						>
-							<FiCpu />
-							Digital Workers
-						</h3>
-						<p style={{ color: '#d97706', marginBottom: '1rem' }}>
-							<strong>Semi-Supervised Agent LCM</strong>
-						</p>
-						<ul style={{ color: '#d97706', margin: 0, paddingLeft: '1.5rem' }}>
-							<li>Agent onboarding, offboarding, and governance</li>
-							<li>Human-in-the-Loop</li>
-							<li>Confirm/Approve with user for JIT access and high risk interactions</li>
-						</ul>
-					</AgentType>
-				</Card>
-			</CollapsibleHeader>
-
-			{/* Trust Boundaries */}
-			<CollapsibleHeader
-				title="Trust Boundaries in AI Architectures"
-				subtitle="Understanding security boundaries and trust models for AI agent interactions"
-				icon={<FiLock />}
-				theme="orange"
-				defaultCollapsed={false}
-			>
-				<Card>
-					<TrustBoundary>
-						<h3>
-							<FiShield />
-							Trust Boundary
-						</h3>
-						<p>
-							The security perimeter that defines trusted vs. untrusted components in AI
-							architectures
-						</p>
-					</TrustBoundary>
-
-					<InfoBox $type="info">
-						<FiInfo />
-						<div>
-							<strong>Key Considerations:</strong>
-							<ul style={{ margin: '0.5rem 0 0 1.5rem' }}>
-								<li>Agent Discovery and Registration</li>
-								<li>Consent Validation and User Approval</li>
-								<li>Token Exchange and Delegation</li>
-								<li>Human-in-the-Loop Controls</li>
-							</ul>
-						</div>
-					</InfoBox>
-				</Card>
-			</CollapsibleHeader>
-
-			{/* Architecture Patterns */}
-			<CollapsibleHeader
-				title="Architecture Patterns"
-				subtitle="Different architectural patterns for AI agent identity management"
-				icon={<FiGitBranch />}
-				theme="highlight"
-				defaultCollapsed={false}
-			>
-				<Card>
-					<div style={{ display: 'grid', gap: '1.5rem', marginBottom: '2rem' }}>
-						<div
-							style={{
-								padding: '1.5rem',
-								background: '#f8fafc',
-								borderRadius: '0.75rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-							}}
-						>
-							<h4
+				{/* OAuth Client Types */}
+				<CollapsibleHeader
+					title="OAuth Client Types for AI Agents"
+					subtitle="Understanding different OAuth client types and their use cases for AI agents"
+					icon={<FiKey />}
+					theme="green"
+					defaultCollapsed={false}
+				>
+					<Card>
+						<AgentType variant="personal">
+							<h3
 								style={{
 									color: '#2563eb',
 									marginBottom: '1rem',
@@ -487,121 +364,21 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiGlobe />
-								Single Platform, Multi-Domain
-							</h4>
-							<p style={{ color: '#4b5563', margin: 0 }}>
-								Centralized identity management across multiple domains within a single platform
+								<FiUsers />
+								Personal Agents
+							</h3>
+							<p style={{ color: '#2563eb', marginBottom: '1rem' }}>
+								<strong>OAuth Public Client</strong>
 							</p>
-						</div>
-
-						<div
-							style={{
-								padding: '1.5rem',
-								background: '#f0fdf4',
-								borderRadius: '0.75rem',
-								border: '1px solid V9_COLORS.BG.SUCCESS_BORDER',
-							}}
-						>
-							<h4
-								style={{
-									color: '#059669',
-									marginBottom: '1rem',
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.5rem',
-								}}
-							>
-								<FiCloud />
-								Multi-Platform, Multi-Domain
-							</h4>
-							<p style={{ color: '#4b5563', margin: 0 }}>
-								Distributed identity management across multiple platforms and domains
-							</p>
-						</div>
-
-						<div
-							style={{
-								padding: '1.5rem',
-								background: '#fef3c7',
-								borderRadius: '0.75rem',
-								border: '1px solid V9_COLORS.BG.WARNING_BORDER',
-							}}
-						>
-							<h4
-								style={{
-									color: '#d97706',
-									marginBottom: '1rem',
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.5rem',
-								}}
-							>
-								<FiLink />
-								External Agent Integration
-							</h4>
-							<p style={{ color: '#4b5563', margin: 0 }}>
-								Integration with external and third-party AI agents
-							</p>
-						</div>
-					</div>
-				</Card>
-			</CollapsibleHeader>
-
-			{/* CUAs vs Bots */}
-			<CollapsibleHeader
-				title="CUAs vs Bots: The Paradigm Shift"
-				subtitle="Understanding the difference between Computer Using Agents and traditional bots"
-				icon={<FiTarget />}
-				theme="yellow"
-				defaultCollapsed={false}
-			>
-				<Card>
-					<div
-						style={{
-							display: 'grid',
-							gridTemplateColumns: '1fr 1fr',
-							gap: '2rem',
-							marginBottom: '2rem',
-						}}
-					>
-						<div
-							style={{
-								padding: '1.5rem',
-								background: '#fef2f2',
-								borderRadius: '0.75rem',
-								border: '1px solid V9_COLORS.BG.ERROR_BORDER',
-							}}
-						>
-							<h4
-								style={{
-									color: '#dc2626',
-									marginBottom: '1rem',
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.5rem',
-								}}
-							>
-								<FiAlertTriangle />
-								Before: Bots as Threats
-							</h4>
-							<ul style={{ color: '#dc2626', margin: 0, paddingLeft: '1.5rem' }}>
-								<li>Credential stuffing</li>
-								<li>Password spraying</li>
-								<li>Automated fraud</li>
-								<li>Malicious intent</li>
+							<ul style={{ color: '#2563eb', margin: 0, paddingLeft: '1.5rem' }}>
+								<li>Authorization code grant with PKCE</li>
+								<li>Cannot store client secrets securely</li>
+								<li>Dynamic Client Registration</li>
 							</ul>
-						</div>
+						</AgentType>
 
-						<div
-							style={{
-								padding: '1.5rem',
-								background: '#ecfdf5',
-								borderRadius: '0.75rem',
-								border: '1px solid #a7f3d0',
-							}}
-						>
-							<h4
+						<AgentType variant="managed">
+							<h3
 								style={{
 									color: '#059669',
 									marginBottom: '1rem',
@@ -610,187 +387,22 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiCheckCircle />
-								Now: CUAs as Verified Agents
-							</h4>
+								<FiSettings />
+								Managed Agents
+							</h3>
+							<p style={{ color: '#059669', marginBottom: '1rem' }}>
+								<strong>OAuth Confidential Client</strong>
+							</p>
 							<ul style={{ color: '#059669', margin: 0, paddingLeft: '1.5rem' }}>
-								<li>Identified & approved agents</li>
-								<li>Intent evaluation</li>
-								<li>Known user context</li>
-								<li>Legitimate access</li>
+								<li>Pre-registered Clients</li>
+								<li>Client credential grant</li>
+								<li>Can store client secrets securely</li>
+								<li>Token Exchange</li>
 							</ul>
-						</div>
-					</div>
+						</AgentType>
 
-					<InfoBox $type="warning">
-						<FiAlertTriangle />
-						<div>
-							<strong>Key Insight:</strong> The paradigm has shifted from treating all automated
-							entities as threats to recognizing and managing legitimate Computer Using Agents
-							(CUAs) that act on behalf of users.
-						</div>
-					</InfoBox>
-				</Card>
-			</CollapsibleHeader>
-
-			{/* Thematic Roadmap */}
-			<CollapsibleHeader
-				title="Identity for AI: Thematic Roadmap"
-				subtitle="Key areas of focus for identity management in AI architectures"
-				icon={<FiTrendingUp />}
-				theme="green"
-				defaultCollapsed={false}
-			>
-				<Card>
-					<RoadmapItem>
-						<RoadmapIcon color="V9_COLORS.PRIMARY.BLUE">
-							<FiEye />
-						</RoadmapIcon>
-						<RoadmapContent>
-							<h4>Making Agents Visible Across The Estate</h4>
-							<p>
-								Bot detection capabilities to identify unknown agents interacting with services.
-								Centrally manage agents and tools with a single management plane for agent
-								identities.
-							</p>
-						</RoadmapContent>
-					</RoadmapItem>
-
-					<RoadmapItem>
-						<RoadmapIcon color="#8b5cf6">
-							<FiUsers />
-						</RoadmapIcon>
-						<RoadmapContent>
-							<h4>Bringing Brand Experiences to Life on the Agentic Channel</h4>
-							<p>
-								Standardized approaches to offer best-in-class brand and security experiences to a
-								human using an agent. Human in the loop; consents; constraints.
-							</p>
-						</RoadmapContent>
-					</RoadmapItem>
-
-					<RoadmapItem>
-						<RoadmapIcon color="#06b6d4">
-							<FiKey />
-						</RoadmapIcon>
-						<RoadmapContent>
-							<h4>Getting Token Issuance Right</h4>
-							<p>
-								Issue the right tokens to the right actors with the right scopes at the right
-								control points. Agent Detection, MCP Gateway, Agent Management.
-							</p>
-						</RoadmapContent>
-					</RoadmapItem>
-
-					<RoadmapItem>
-						<RoadmapIcon color="V9_COLORS.PRIMARY.GREEN">
-							<FiShield />
-						</RoadmapIcon>
-						<RoadmapContent>
-							<h4>Authentication & Authorization</h4>
-							<p>
-								Entitlements management with least privilege, policy-based access control.
-								Permission and policy controls to handle permission creep & delegated entitlements
-								across A2A agents.
-							</p>
-						</RoadmapContent>
-					</RoadmapItem>
-
-					<RoadmapItem>
-						<RoadmapIcon color="V9_COLORS.PRIMARY.YELLOW">
-							<FiActivity />
-						</RoadmapIcon>
-						<RoadmapContent>
-							<h4>Enterprise Grade Service Layer for Agents</h4>
-							<p>
-								Protocol support, security controls and integrations to securely provide tools to
-								agents, gain visibility of, and manage access policies. Revocation and kill switch
-								controls.
-							</p>
-						</RoadmapContent>
-					</RoadmapItem>
-				</Card>
-			</CollapsibleHeader>
-
-			{/* What's Needed */}
-			<CollapsibleHeader
-				title="What's Needed for AI Identity"
-				subtitle="Essential components and capabilities for comprehensive AI identity management"
-				icon={<FiSettings />}
-				theme="blue"
-				defaultCollapsed={false}
-			>
-				<Card>
-					<div
-						style={{
-							display: 'grid',
-							gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-							gap: '1.5rem',
-						}}
-					>
-						<div
-							style={{
-								padding: '1.5rem',
-								background: '#f8fafc',
-								borderRadius: '0.75rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-							}}
-						>
-							<h4
-								style={{
-									color: '#2563eb',
-									marginBottom: '1rem',
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.5rem',
-								}}
-							>
-								<FiEye />
-								Agent Discovery
-							</h4>
-							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
-								<li>Agent Platform Integrations</li>
-								<li>CUA Detection</li>
-								<li>Centralized Control Plane</li>
-							</ul>
-						</div>
-
-						<div
-							style={{
-								padding: '1.5rem',
-								background: '#f0fdf4',
-								borderRadius: '0.75rem',
-								border: '1px solid V9_COLORS.BG.SUCCESS_BORDER',
-							}}
-						>
-							<h4
-								style={{
-									color: '#059669',
-									marginBottom: '1rem',
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.5rem',
-								}}
-							>
-								<FiShield />
-								Security & Governance
-							</h4>
-							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
-								<li>Agent Identity Type Provisioning</li>
-								<li>Policy Management</li>
-								<li>Human Oversight & Accountability</li>
-							</ul>
-						</div>
-
-						<div
-							style={{
-								padding: '1.5rem',
-								background: '#fef3c7',
-								borderRadius: '0.75rem',
-								border: '1px solid V9_COLORS.BG.WARNING_BORDER',
-							}}
-						>
-							<h4
+						<AgentType variant="digital">
+							<h3
 								style={{
 									color: '#d97706',
 									marginBottom: '1rem',
@@ -799,97 +411,489 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiUsers />
-								Human-Agent Experience
-							</h4>
-							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
-								<li>Consents & Constraints</li>
-								<li>Human in the Loop</li>
-								<li>Requests & Approvals</li>
+								<FiCpu />
+								Digital Workers
+							</h3>
+							<p style={{ color: '#d97706', marginBottom: '1rem' }}>
+								<strong>Semi-Supervised Agent LCM</strong>
+							</p>
+							<ul style={{ color: '#d97706', margin: 0, paddingLeft: '1.5rem' }}>
+								<li>Agent onboarding, offboarding, and governance</li>
+								<li>Human-in-the-Loop</li>
+								<li>Confirm/Approve with user for JIT access and high risk interactions</li>
 							</ul>
+						</AgentType>
+					</Card>
+				</CollapsibleHeader>
+
+				{/* Trust Boundaries */}
+				<CollapsibleHeader
+					title="Trust Boundaries in AI Architectures"
+					subtitle="Understanding security boundaries and trust models for AI agent interactions"
+					icon={<FiLock />}
+					theme="orange"
+					defaultCollapsed={false}
+				>
+					<Card>
+						<TrustBoundary>
+							<h3>
+								<FiShield />
+								Trust Boundary
+							</h3>
+							<p>
+								The security perimeter that defines trusted vs. untrusted components in AI
+								architectures
+							</p>
+						</TrustBoundary>
+
+						<InfoBox $type="info">
+							<FiInfo />
+							<div>
+								<strong>Key Considerations:</strong>
+								<ul style={{ margin: '0.5rem 0 0 1.5rem' }}>
+									<li>Agent Discovery and Registration</li>
+									<li>Consent Validation and User Approval</li>
+									<li>Token Exchange and Delegation</li>
+									<li>Human-in-the-Loop Controls</li>
+								</ul>
+							</div>
+						</InfoBox>
+					</Card>
+				</CollapsibleHeader>
+
+				{/* Architecture Patterns */}
+				<CollapsibleHeader
+					title="Architecture Patterns"
+					subtitle="Different architectural patterns for AI agent identity management"
+					icon={<FiGitBranch />}
+					theme="highlight"
+					defaultCollapsed={false}
+				>
+					<Card>
+						<div style={{ display: 'grid', gap: '1.5rem', marginBottom: '2rem' }}>
+							<div
+								style={{
+									padding: '1.5rem',
+									background: '#f8fafc',
+									borderRadius: '0.75rem',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								}}
+							>
+								<h4
+									style={{
+										color: '#2563eb',
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
+								>
+									<FiGlobe />
+									Single Platform, Multi-Domain
+								</h4>
+								<p style={{ color: '#4b5563', margin: 0 }}>
+									Centralized identity management across multiple domains within a single platform
+								</p>
+							</div>
+
+							<div
+								style={{
+									padding: '1.5rem',
+									background: '#f0fdf4',
+									borderRadius: '0.75rem',
+									border: '1px solid V9_COLORS.BG.SUCCESS_BORDER',
+								}}
+							>
+								<h4
+									style={{
+										color: '#059669',
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
+								>
+									<FiCloud />
+									Multi-Platform, Multi-Domain
+								</h4>
+								<p style={{ color: '#4b5563', margin: 0 }}>
+									Distributed identity management across multiple platforms and domains
+								</p>
+							</div>
+
+							<div
+								style={{
+									padding: '1.5rem',
+									background: '#fef3c7',
+									borderRadius: '0.75rem',
+									border: '1px solid V9_COLORS.BG.WARNING_BORDER',
+								}}
+							>
+								<h4
+									style={{
+										color: '#d97706',
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
+								>
+									<FiLink />
+									External Agent Integration
+								</h4>
+								<p style={{ color: '#4b5563', margin: 0 }}>
+									Integration with external and third-party AI agents
+								</p>
+							</div>
+						</div>
+					</Card>
+				</CollapsibleHeader>
+
+				{/* CUAs vs Bots */}
+				<CollapsibleHeader
+					title="CUAs vs Bots: The Paradigm Shift"
+					subtitle="Understanding the difference between Computer Using Agents and traditional bots"
+					icon={<FiTarget />}
+					theme="yellow"
+					defaultCollapsed={false}
+				>
+					<Card>
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: '1fr 1fr',
+								gap: '2rem',
+								marginBottom: '2rem',
+							}}
+						>
+							<div
+								style={{
+									padding: '1.5rem',
+									background: '#fef2f2',
+									borderRadius: '0.75rem',
+									border: '1px solid V9_COLORS.BG.ERROR_BORDER',
+								}}
+							>
+								<h4
+									style={{
+										color: '#dc2626',
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
+								>
+									<FiAlertTriangle />
+									Before: Bots as Threats
+								</h4>
+								<ul style={{ color: '#dc2626', margin: 0, paddingLeft: '1.5rem' }}>
+									<li>Credential stuffing</li>
+									<li>Password spraying</li>
+									<li>Automated fraud</li>
+									<li>Malicious intent</li>
+								</ul>
+							</div>
+
+							<div
+								style={{
+									padding: '1.5rem',
+									background: '#ecfdf5',
+									borderRadius: '0.75rem',
+									border: '1px solid #a7f3d0',
+								}}
+							>
+								<h4
+									style={{
+										color: '#059669',
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
+								>
+									<FiCheckCircle />
+									Now: CUAs as Verified Agents
+								</h4>
+								<ul style={{ color: '#059669', margin: 0, paddingLeft: '1.5rem' }}>
+									<li>Identified & approved agents</li>
+									<li>Intent evaluation</li>
+									<li>Known user context</li>
+									<li>Legitimate access</li>
+								</ul>
+							</div>
 						</div>
 
+						<InfoBox $type="warning">
+							<FiAlertTriangle />
+							<div>
+								<strong>Key Insight:</strong> The paradigm has shifted from treating all automated
+								entities as threats to recognizing and managing legitimate Computer Using Agents
+								(CUAs) that act on behalf of users.
+							</div>
+						</InfoBox>
+					</Card>
+				</CollapsibleHeader>
+
+				{/* Thematic Roadmap */}
+				<CollapsibleHeader
+					title="Identity for AI: Thematic Roadmap"
+					subtitle="Key areas of focus for identity management in AI architectures"
+					icon={<FiTrendingUp />}
+					theme="green"
+					defaultCollapsed={false}
+				>
+					<Card>
+						<RoadmapItem>
+							<RoadmapIcon color="V9_COLORS.PRIMARY.BLUE">
+								<FiEye />
+							</RoadmapIcon>
+							<RoadmapContent>
+								<h4>Making Agents Visible Across The Estate</h4>
+								<p>
+									Bot detection capabilities to identify unknown agents interacting with services.
+									Centrally manage agents and tools with a single management plane for agent
+									identities.
+								</p>
+							</RoadmapContent>
+						</RoadmapItem>
+
+						<RoadmapItem>
+							<RoadmapIcon color="#8b5cf6">
+								<FiUsers />
+							</RoadmapIcon>
+							<RoadmapContent>
+								<h4>Bringing Brand Experiences to Life on the Agentic Channel</h4>
+								<p>
+									Standardized approaches to offer best-in-class brand and security experiences to a
+									human using an agent. Human in the loop; consents; constraints.
+								</p>
+							</RoadmapContent>
+						</RoadmapItem>
+
+						<RoadmapItem>
+							<RoadmapIcon color="#06b6d4">
+								<FiKey />
+							</RoadmapIcon>
+							<RoadmapContent>
+								<h4>Getting Token Issuance Right</h4>
+								<p>
+									Issue the right tokens to the right actors with the right scopes at the right
+									control points. Agent Detection, MCP Gateway, Agent Management.
+								</p>
+							</RoadmapContent>
+						</RoadmapItem>
+
+						<RoadmapItem>
+							<RoadmapIcon color="V9_COLORS.PRIMARY.GREEN">
+								<FiShield />
+							</RoadmapIcon>
+							<RoadmapContent>
+								<h4>Authentication & Authorization</h4>
+								<p>
+									Entitlements management with least privilege, policy-based access control.
+									Permission and policy controls to handle permission creep & delegated entitlements
+									across A2A agents.
+								</p>
+							</RoadmapContent>
+						</RoadmapItem>
+
+						<RoadmapItem>
+							<RoadmapIcon color="V9_COLORS.PRIMARY.YELLOW">
+								<FiActivity />
+							</RoadmapIcon>
+							<RoadmapContent>
+								<h4>Enterprise Grade Service Layer for Agents</h4>
+								<p>
+									Protocol support, security controls and integrations to securely provide tools to
+									agents, gain visibility of, and manage access policies. Revocation and kill switch
+									controls.
+								</p>
+							</RoadmapContent>
+						</RoadmapItem>
+					</Card>
+				</CollapsibleHeader>
+
+				{/* What's Needed */}
+				<CollapsibleHeader
+					title="What's Needed for AI Identity"
+					subtitle="Essential components and capabilities for comprehensive AI identity management"
+					icon={<FiSettings />}
+					theme="blue"
+					defaultCollapsed={false}
+				>
+					<Card>
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+								gap: '1.5rem',
+							}}
+						>
+							<div
+								style={{
+									padding: '1.5rem',
+									background: '#f8fafc',
+									borderRadius: '0.75rem',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								}}
+							>
+								<h4
+									style={{
+										color: '#2563eb',
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
+								>
+									<FiEye />
+									Agent Discovery
+								</h4>
+								<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
+									<li>Agent Platform Integrations</li>
+									<li>CUA Detection</li>
+									<li>Centralized Control Plane</li>
+								</ul>
+							</div>
+
+							<div
+								style={{
+									padding: '1.5rem',
+									background: '#f0fdf4',
+									borderRadius: '0.75rem',
+									border: '1px solid V9_COLORS.BG.SUCCESS_BORDER',
+								}}
+							>
+								<h4
+									style={{
+										color: '#059669',
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
+								>
+									<FiShield />
+									Security & Governance
+								</h4>
+								<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
+									<li>Agent Identity Type Provisioning</li>
+									<li>Policy Management</li>
+									<li>Human Oversight & Accountability</li>
+								</ul>
+							</div>
+
+							<div
+								style={{
+									padding: '1.5rem',
+									background: '#fef3c7',
+									borderRadius: '0.75rem',
+									border: '1px solid V9_COLORS.BG.WARNING_BORDER',
+								}}
+							>
+								<h4
+									style={{
+										color: '#d97706',
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
+								>
+									<FiUsers />
+									Human-Agent Experience
+								</h4>
+								<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
+									<li>Consents & Constraints</li>
+									<li>Human in the Loop</li>
+									<li>Requests & Approvals</li>
+								</ul>
+							</div>
+
+							<div
+								style={{
+									padding: '1.5rem',
+									background: '#f8fafc',
+									borderRadius: '0.75rem',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								}}
+							>
+								<h4
+									style={{
+										color: '#2563eb',
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
+								>
+									<FiActivity />
+									Operations & Monitoring
+								</h4>
+								<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
+									<li>Governance & Certification</li>
+									<li>Audit Trail</li>
+									<li>Just-in-Time Privilege</li>
+								</ul>
+							</div>
+						</div>
+					</Card>
+				</CollapsibleHeader>
+
+				{/* Emerging Trends */}
+				<CollapsibleHeader
+					title="Emerging Trends"
+					subtitle="Latest developments and trends in AI identity management"
+					icon={<FiTrendingUp />}
+					theme="highlight"
+					defaultCollapsed={false}
+				>
+					<Card>
 						<div
 							style={{
 								padding: '1.5rem',
-								background: '#f8fafc',
+								background:
+									'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
 								borderRadius: '0.75rem',
-								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								border: '1px solid #0ea5e9',
 							}}
 						>
 							<h4
 								style={{
-									color: '#2563eb',
+									color: '#1f2937',
 									marginBottom: '1rem',
 									display: 'flex',
 									alignItems: 'center',
 									gap: '0.5rem',
 								}}
 							>
-								<FiActivity />
-								Operations & Monitoring
+								<FiZap />
+								SSO for AI Agents
 							</h4>
-							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
-								<li>Governance & Certification</li>
-								<li>Audit Trail</li>
-								<li>Just-in-Time Privilege</li>
+							<p style={{ color: '#1f2937', marginBottom: '1rem' }}>
+								<strong>OAuth Assertion Grant Flow</strong> enables Agent SSO and enterprise managed
+								authorization policy
+							</p>
+							<ul style={{ color: '#1f2937', margin: 0, paddingLeft: '1.5rem' }}>
+								<li>
+									Eliminates need for agent to store multiple secrets for each backend service
+								</li>
+								<li>Agent Credential exchanged for Assertion Grant</li>
+								<li>Centralized authorization policy management</li>
 							</ul>
 						</div>
-					</div>
-				</Card>
-			</CollapsibleHeader>
 
-			{/* Emerging Trends */}
-			<CollapsibleHeader
-				title="Emerging Trends"
-				subtitle="Latest developments and trends in AI identity management"
-				icon={<FiTrendingUp />}
-				theme="highlight"
-				defaultCollapsed={false}
-			>
-				<Card>
-					<div
-						style={{
-							padding: '1.5rem',
-							background:
-								'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
-							borderRadius: '0.75rem',
-							border: '1px solid #0ea5e9',
-						}}
-					>
-						<h4
-							style={{
-								color: '#1f2937',
-								marginBottom: '1rem',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-							}}
-						>
-							<FiZap />
-							SSO for AI Agents
-						</h4>
-						<p style={{ color: '#1f2937', marginBottom: '1rem' }}>
-							<strong>OAuth Assertion Grant Flow</strong> enables Agent SSO and enterprise managed
-							authorization policy
-						</p>
-						<ul style={{ color: '#1f2937', margin: 0, paddingLeft: '1.5rem' }}>
-							<li>Eliminates need for agent to store multiple secrets for each backend service</li>
-							<li>Agent Credential exchanged for Assertion Grant</li>
-							<li>Centralized authorization policy management</li>
-						</ul>
-					</div>
-
-					<InfoBox $type="success">
-						<FiCheckCircle />
-						<div>
-							<strong>Key Benefits:</strong> Simplified credential management, enhanced security,
-							and centralized policy enforcement for AI agents across enterprise systems.
-						</div>
-					</InfoBox>
-				</Card>
-			</CollapsibleHeader>
-		</ContentWrapper>
+						<InfoBox $type="success">
+							<FiCheckCircle />
+							<div>
+								<strong>Key Benefits:</strong> Simplified credential management, enhanced security,
+								and centralized policy enforcement for AI agents across enterprise systems.
+							</div>
+						</InfoBox>
+					</Card>
+				</CollapsibleHeader>
+			</ContentWrapper>
+		</Container>
 	);
 };
 

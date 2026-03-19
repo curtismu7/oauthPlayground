@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import FlowConfigurationTable from '../../components/FlowConfigurationTable';
 import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
+import DocumentationHeader from '../../components/DocumentationHeader';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertTriangle,
@@ -651,17 +652,11 @@ const OIDCOverview = () => {
 					padding: '0 1rem',
 				}}
 			>
-				{/* Enhanced Header */}
-				<Header>
-					<h1>
-						<span>🛡️</span>
-						OpenID Connect Overview
-					</h1>
-					<p>
-						Comprehensive guide to OpenID Connect authentication flows, concepts, and best
-						practices. Learn about OIDC flows, security considerations, and implementation patterns.
-					</p>
-				</Header>
+				<DocumentationHeader
+					emoji="🛡️"
+					title="OpenID Connect Overview"
+					description="Comprehensive guide to OpenID Connect authentication flows, concepts, and best practices. Learn about OIDC flows, security considerations, and implementation patterns."
+				/>
 
 				{/* Search and Filter Controls */}
 				<SearchContainer>
