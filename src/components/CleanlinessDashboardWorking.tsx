@@ -148,7 +148,7 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 ];
 
 // ─── AUTO-GENERATED: live scan items — do not edit manually ───
-// Last updated: 2026-03-18T13:04:03.791Z
+// Last updated: 2026-03-19T23:13:15.288Z
 
 const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 	{
@@ -203,7 +203,7 @@ const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 		id: 'ts-any-usage',
 		description: 'TypeScript `any` usage',
 		status: 'pending',
-		countLabel: '~418 occurrences',
+		countLabel: '~417 occurrences',
 		detail: 'Tracked across non-locked src/. Reduction goal: replace with proper generics.',
 	},
 	{
