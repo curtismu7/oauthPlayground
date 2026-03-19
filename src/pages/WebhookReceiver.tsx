@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import DocumentationHeader from '../components/DocumentationHeader';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FiAlertTriangle } from '../icons';
 
@@ -144,12 +145,11 @@ const WebhookReceiver: React.FC = () => {
 
 	return (
 		<Container>
-			<Header>
-				<Title>
-					<span>🖥️</span>
-					Webhook Receiver
-				</Title>
-			</Header>
+			<DocumentationHeader
+				emoji="🖥️"
+				title="Webhook Receiver"
+				description="Receives and processes PingOne webhook events for real-time monitoring and automation"
+			/>
 
 			<WebhookInfo>
 				<h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>

@@ -5,6 +5,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { V9_COLORS } from '@/services/v9/V9ColorStandards';
+import DocumentationHeader from '../components/DocumentationHeader';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
@@ -15,7 +16,11 @@ const Container = styled.div`
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
-	background: linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.TEXT.GRAY_LIGHTER} 100%);
+	background: linear-gradient(
+		135deg,
+		${V9_COLORS.BG.GRAY_LIGHT} 0%,
+		${V9_COLORS.TEXT.GRAY_LIGHTER} 100%
+	);
 `;
 
 const ContentWrapper = styled.div`
@@ -58,12 +63,18 @@ const ArchitectureGrid = styled.div`
 const MainCard = styled.div`
 	background-color: #ffffff;
 	border-radius: 0.75rem;
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	box-shadow:
+		0 4px 6px -1px rgba(0, 0, 0, 0.1),
+		0 2px 4px -1px rgba(0, 0, 0, 0.06);
 	padding: 1.5rem;
 `;
 
 const ArchitectureCard = styled.div`
-	background: linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.TEXT.GRAY_LIGHTER} 100%);
+	background: linear-gradient(
+		135deg,
+		${V9_COLORS.BG.GRAY_LIGHT} 0%,
+		${V9_COLORS.TEXT.GRAY_LIGHTER} 100%
+	);
 	border: 2px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.75rem;
 	padding: 2rem;
@@ -165,21 +176,13 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="ai-identity-architectures" />
 
-				<Header>
-					<h1>
-						<span>🤖</span>
-						AI Identity Architectures
-					</h1>
-					<p>
-						Comprehensive patterns and architectures for AI identity management,
-						security, and integration with enterprise identity systems.
-					</p>
-				</Header>
+				<DocumentationHeader
+					emoji="🤖"
+					title="AI Identity Architectures"
+					description="Comprehensive patterns and architectures for AI identity management, security, and integration with enterprise identity systems."
+				/>
 
-				<CollapsibleHeader
-					title="AI Agent Identity Patterns"
-					defaultCollapsed={false}
-				>
+				<CollapsibleHeader title="AI Agent Identity Patterns" defaultCollapsed={false}>
 					<ArchitectureGrid>
 						<MainCard>
 							<ArchitectureCard>
@@ -188,8 +191,8 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 									OAuth Assertion Grant
 								</h3>
 								<p>
-									<strong>JWT Bearer Grant for AI Agents</strong> enables secure agent-to-service authentication
-									using signed assertions.
+									<strong>JWT Bearer Grant for AI Agents</strong> enables secure agent-to-service
+									authentication using signed assertions.
 								</p>
 								<ul>
 									<li>Agent authenticates with client credentials</li>
@@ -201,7 +204,11 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 									<span>📋</span>
 									<div>
 										<strong>Specification:</strong>{' '}
-										<SpecLink href="https://tools.ietf.org/html/rfc7523" target="_blank" rel="noopener noreferrer">
+										<SpecLink
+											href="https://tools.ietf.org/html/rfc7523"
+											target="_blank"
+											rel="noopener noreferrer"
+										>
 											RFC 7523 - JWT Bearer Token Profiles
 										</SpecLink>
 									</div>
@@ -237,10 +244,7 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 					</ArchitectureGrid>
 				</CollapsibleHeader>
 
-				<CollapsibleHeader
-					title="Enterprise Integration Patterns"
-					defaultCollapsed={true}
-				>
+				<CollapsibleHeader title="Enterprise Integration Patterns" defaultCollapsed={true}>
 					<ArchitectureGrid>
 						<MainCard>
 							<ArchitectureCard>
@@ -249,8 +253,8 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 									PingOne Integration
 								</h3>
 								<p>
-									<strong>PingOne AI Identity Services</strong> provides enterprise-grade
-									identity management for AI agents and workloads.
+									<strong>PingOne AI Identity Services</strong> provides enterprise-grade identity
+									management for AI agents and workloads.
 								</p>
 								<ul>
 									<li>Centralized AI agent credential management</li>
@@ -261,8 +265,8 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 								<InfoBox $variant="success">
 									<span>✅</span>
 									<div>
-										<strong>Key Benefits:</strong> Unified identity management across
-										human users and AI agents with enterprise security controls.
+										<strong>Key Benefits:</strong> Unified identity management across human users
+										and AI agents with enterprise security controls.
 									</div>
 								</InfoBox>
 							</ArchitectureCard>
@@ -275,8 +279,8 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 									Federated Identity
 								</h3>
 								<p>
-									<strong>Federated AI Identity</strong> enables cross-domain
-									authentication for distributed AI systems.
+									<strong>Federated AI Identity</strong> enables cross-domain authentication for
+									distributed AI systems.
 								</p>
 								<ul>
 									<li>Cross-organization AI agent trust</li>
@@ -288,7 +292,11 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 									<span>📋</span>
 									<div>
 										<strong>Specifications:</strong>{' '}
-										<SpecLink href="https://openid.net/specs/openid-connect-federation-1_0.html" target="_blank" rel="noopener noreferrer">
+										<SpecLink
+											href="https://openid.net/specs/openid-connect-federation-1_0.html"
+											target="_blank"
+											rel="noopener noreferrer"
+										>
 											OpenID Connect Federation
 										</SpecLink>
 									</div>
@@ -298,10 +306,7 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 					</ArchitectureGrid>
 				</CollapsibleHeader>
 
-				<CollapsibleHeader
-					title="Security Best Practices"
-					defaultCollapsed={true}
-				>
+				<CollapsibleHeader title="Security Best Practices" defaultCollapsed={true}>
 					<MainCard>
 						<ArchitectureCard>
 							<h3>
@@ -309,8 +314,8 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 								AI Security Framework
 							</h3>
 							<p>
-								<strong>Comprehensive Security</strong> for AI systems includes
-								authentication, authorization, and ongoing monitoring.
+								<strong>Comprehensive Security</strong> for AI systems includes authentication,
+								authorization, and ongoing monitoring.
 							</p>
 							<ul>
 								<li>Cryptographic attestation of AI models</li>
@@ -330,10 +335,7 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 					</MainCard>
 				</CollapsibleHeader>
 
-				<CollapsibleHeader
-					title="Implementation Examples"
-					defaultCollapsed={true}
-				>
+				<CollapsibleHeader title="Implementation Examples" defaultCollapsed={true}>
 					<MainCard>
 						<ArchitectureCard>
 							<h3>
@@ -347,7 +349,11 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 								<span>📋</span>
 								<div>
 									<strong>Code Example:</strong> See the{' '}
-									<SpecLink href="/flows/v9/saml-sp-dynamic-acs" target="_blank" rel="noopener noreferrer">
+									<SpecLink
+										href="/flows/v9/saml-sp-dynamic-acs"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
 										SAML Service Provider V9
 									</SpecLink>{' '}
 									for implementation patterns and code samples.

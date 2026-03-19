@@ -1,6 +1,3 @@
-// src/pages/docs/PingOneScopesReference.tsx
-// Educational reference for PingOne OAuth and OIDC scopes, including catalog, usage tips, and best practices
-
 import React from 'react';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -12,6 +9,7 @@ import {
 	FiTarget,
 } from '../../services/commonImportsService';
 import PageLayoutService from '../../services/pageLayoutService';
+import DocumentationHeader from '../../components/DocumentationHeader';
 
 const pageConfig = PageLayoutService.getDefaultConfig('documentation');
 
@@ -202,22 +200,11 @@ const PingOneScopesReference: React.FC = () => {
 		<PageContainer>
 			<ContentWrapper>
 				<MainCard>
-					{PageHeader && (
-						<PageHeader>
-							<div style={{ display: 'flex', alignItems: 'center' }}>
-								<HeroIcon>
-									<FiBook />
-								</HeroIcon>
-								<div>
-									<HeroTitle>PingOne OAuth & OIDC Scope Reference</HeroTitle>
-									<HeroSubtitle>
-										Curated catalog of PingOne scopes, including least-privilege guidance, scope
-										combinations, and real-world authorization advice.
-									</HeroSubtitle>
-								</div>
-							</div>
-						</PageHeader>
-					)}
+					<DocumentationHeader
+						emoji="📚"
+						title="PingOne OAuth & OIDC Scope Reference"
+						description="Curated catalog of PingOne scopes, including least-privilege guidance, scope combinations, and real-world authorization advice"
+					/>
 
 					<SectionContainer>
 						<Pill>

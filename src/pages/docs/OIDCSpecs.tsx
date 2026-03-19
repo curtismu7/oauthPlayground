@@ -3,6 +3,7 @@ import { SpecCard } from '../../components/SpecCard';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { PageLayoutService } from '../../services/pageLayoutService';
+import DocumentationHeader from '../../components/DocumentationHeader';
 
 const _DocsContainer = styled.div`
 	max-width: 1200px;
@@ -86,15 +87,10 @@ const OIDCSpecs = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>
-				<FlowHeader
-					flowId="oidc-specs"
-					customConfig={{
-						flowType: 'pingone',
-						title: 'OIDC Specs',
-						subtitle:
-							'Official OpenID Connect specifications and related standards from the OpenID Foundation. Access core specs, security considerations, and implementation guides.',
-						icon: '📋',
-					}}
+				<DocumentationHeader
+					emoji="📋"
+					title="OpenID Connect Specifications"
+					description="Official OpenID Connect specifications and related standards from the OpenID Foundation"
 				/>
 
 				<CollapsibleHeader

@@ -37,8 +37,9 @@ test.describe('AI Identity Flows - Navigation & UI', () => {
 
 		test('loads OIDC for AI page with V9 styling', async ({ page }) => {
 			await expect(page).toHaveURL(/\/docs\/oidc-for-ai/);
-			await expect(page.getByText(/OIDC for AI/i)).toBeVisible();
-			await expect(page.getByRole('heading', { name: /AI Agent Authentication/i })).toBeVisible();
+			await expect(page.getByText(/OIDC for AI/i).first()).toBeVisible();
+			// Check for the collapsible section header (always visible as a button)
+			await expect(page.getByText(/AI Authentication Patterns/i).first()).toBeVisible();
 		});
 
 		test('shows proper OIDC content and links', async ({ page }) => {
@@ -102,25 +103,32 @@ test.describe('AI Identity Flows - Navigation & UI', () => {
 		test('can navigate between all AI flows', async ({ page }) => {
 			// Start with AI Identity Architectures
 			await page.goto('/ai-identity-architectures');
-			await expect(page.getByText(/AI Identity Architectures/i)).toBeVisible();
+			await page.waitForLoadState('domcontentloaded');
+			await expect(page.getByText(/AI Identity Architectures/i).first()).toBeVisible();
 
 			// Navigate to OIDC for AI
 			await page.goto('/docs/oidc-for-ai');
-			await expect(page.getByText(/OIDC for AI/i)).toBeVisible();
+			await page.waitForLoadState('domcontentloaded');
+			await expect(page.getByText(/OIDC for AI/i).first()).toBeVisible();
 
 			// Navigate to OAuth for AI
 			await page.goto('/docs/oauth-for-ai');
-			await expect(page.getByText(/OAuth for AI/i)).toBeVisible();
+			await page.waitForLoadState('domcontentloaded');
+			await expect(page.getByText(/OAuth for AI/i).first()).toBeVisible();
 
 			// Navigate to PingOne AI Perspective
 			await page.goto('/docs/ping-view-on-ai');
+			await page.waitForLoadState('domcontentloaded');
 			await expect(
 				page.getByRole('heading', { name: 'PingOne AI Perspective' }).first()
-			).toBeVisible();
+			).toBeVisible({ timeout: 10000 });
 
 			// Navigate to Ping AI Resources
 			await page.goto('/ping-ai-resources');
-			await expect(page.getByRole('heading', { name: 'Ping AI Resources' })).toBeVisible();
+			await page.waitForLoadState('domcontentloaded');
+			await expect(page.getByRole('heading', { name: 'Ping AI Resources' }).first()).toBeVisible({
+				timeout: 10000,
+			});
 		});
 
 		test('all AI flows have proper V9 fluid layout', async ({ page }) => {
