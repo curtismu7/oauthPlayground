@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import DocumentationHeader from '../components/DocumentationHeader';
 
 interface FeatureSupport {
 	pf: 'full' | 'partial' | 'none' | 'plugin';
@@ -141,7 +142,8 @@ const FeatureRow = styled.div<{ $unverified?: boolean }>`
 	border-bottom: 1px solid #f3f4f6;
 	transition: background 0.2s;
 	background: ${(props) => (props.$unverified ? '#fef3c7' : 'transparent')};
-	border-left: ${(props) => (props.$unverified ? '4px solid V9_COLORS.PRIMARY.YELLOW' : '4px solid transparent')};
+	border-left: ${(props) =>
+		props.$unverified ? '4px solid V9_COLORS.PRIMARY.YELLOW' : '4px solid transparent'};
 
 	&:hover {
 		background: ${(props) => (props.$unverified ? '#f59e0b' : '#f9fafb')};
@@ -233,11 +235,11 @@ const InfoIcon = styled.span<{ $size?: number }>`
 	opacity: 0.6;
 	transition: opacity 0.2s;
 	font-size: ${({ $size = 14 }) => $size}px;
-	
+
 	&::before {
 		content: 'ℹ️';
 	}
-	
+
 	&:hover {
 		opacity: 1;
 	}
@@ -983,13 +985,11 @@ const PingProductComparison: React.FC = () => {
 
 	return (
 		<PageContainer>
-			<Header>
-				<Title>Ping Product Comparison</Title>
-				<Subtitle>
-					OAuth 2.0 and OpenID Connect feature support across PingFederate, PingOne Advanced
-					Identity Cloud, and PingOne
-				</Subtitle>
-			</Header>
+			<DocumentationHeader
+				emoji="📊"
+				title="Ping Product Comparison"
+				description="OAuth 2.0 and OpenID Connect feature support across PingFederate, PingOne Advanced Identity Cloud, and PingOne"
+			/>
 
 			{/* Verification Status Banner */}
 			<div

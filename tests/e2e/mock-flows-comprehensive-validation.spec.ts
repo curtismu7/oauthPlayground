@@ -282,9 +282,11 @@ test.describe('Mock Flows - Comprehensive Field Validation', () => {
 				}
 			}
 
-			// Check if flow already shows results
+			// Check if flow already shows results (.first() avoids strict mode violation
+			// when sidebar items like "JWT Bearer Token" also match the regex)
 			const hasResults = await page
 				.getByText(/access_token|id_token|code=|Bearer|JWT/i)
+				.first()
 				.isVisible();
 			if (hasResults) {
 				console.log(`  ✅ Flow already shows token/results`);
@@ -293,6 +295,7 @@ test.describe('Mock Flows - Comprehensive Field Validation', () => {
 			// Check for authentication errors (should not exist in mock flows)
 			const hasAuthError = await page
 				.getByText(/login required|authentication failed|unauthorized|401|403/i)
+				.first()
 				.isVisible();
 			expect(hasAuthError).toBeFalsy();
 
