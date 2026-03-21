@@ -3972,7 +3972,6 @@ app.post('/api/token-exchange', async (req, res) => {
 			redirectUri: redirect_uri,
 			clientAuthMethod: req.body.client_auth_method || 'client_secret_post',
 			scope: scope,
-			allParams: req.body,
 		});
 
 		// Prepare request body based on grant type
@@ -4146,6 +4145,18 @@ app.post('/api/token-exchange', async (req, res) => {
 			});
 		}
 
+		// Log request body with sensitive fields redacted to avoid leaking credentials
+		const _redactedBody = new URLSearchParams(tokenRequestBody.toString());
+		for (const _s of [
+			'client_secret',
+			'code_verifier',
+			'refresh_token',
+			'subject_token',
+			'actor_token',
+			'code',
+		]) {
+			if (_redactedBody.has(_s)) _redactedBody.set(_s, '[REDACTED]');
+		}
 		console.log('🌐 [Server] Making request to PingOne token endpoint:', {
 			url: tokenEndpoint,
 			method: 'POST',
@@ -4154,7 +4165,7 @@ app.post('/api/token-exchange', async (req, res) => {
 				Accept: headers['Accept'],
 				Authorization: headers['Authorization'] ? 'Basic [REDACTED]' : 'None',
 			},
-			body: tokenRequestBody.toString(),
+			body: _redactedBody.toString(),
 		});
 
 		// Make request to PingOne
@@ -4184,15 +4195,18 @@ app.post('/api/token-exchange', async (req, res) => {
 			};
 		}
 
-		// Parse request body for logging (URLSearchParams to object)
+		// Parse request body for logging (URLSearchParams to object) — redact sensitive fields
 		const requestBodyObj = {};
+		const _sensitiveKeys = new Set([
+			'client_secret',
+			'code_verifier',
+			'refresh_token',
+			'subject_token',
+			'actor_token',
+			'code',
+		]);
 		tokenRequestBody.forEach((value, key) => {
-			// Redact sensitive values
-			if (key === 'client_secret') {
-				requestBodyObj[key] = '[REDACTED]';
-			} else {
-				requestBodyObj[key] = value;
-			}
+			requestBodyObj[key] = _sensitiveKeys.has(key) ? '[REDACTED]' : value;
 		});
 
 		// Comprehensive PingOne API call logging
@@ -4233,7 +4247,7 @@ app.post('/api/token-exchange', async (req, res) => {
 				status: tokenResponse.status,
 				statusText: tokenResponse.statusText,
 				responseData,
-				requestBody: tokenRequestBody.toString(),
+				requestBody: _redactedBody.toString(),
 			});
 
 			// Check for MUST_CHANGE_PASSWORD in error response
@@ -4532,80 +4546,8 @@ app.post('/api/client-credentials', async (req, res) => {
 		// Prepare body for the request to PingOne
 		const body = new URLSearchParams(requestBody);
 
-		// #region agent log
-		const logPath = '/Users/cmuir/P1Import-apps/oauth-playground/.cursor/debug.log';
-		const logEntry = `${JSON.stringify({
-			location: 'server.js:1889',
-			message: 'Backend preparing request body for PingOne',
-			data: {
-				requestBodyKeys: Object.keys(requestBody),
-				requestBodyClientId: requestBody.client_id,
-				requestBodyClientIdType: typeof requestBody.client_id,
-				requestBodyClientIdLength: requestBody.client_id?.length,
-				bodyClientId: body.get('client_id'),
-				bodyClientIdType: typeof body.get('client_id'),
-				expectedClientId: '4a275422-e580-4be6-84f2-3a624a849cbb',
-				clientIdMatches: body.get('client_id') === '4a275422-e580-4be6-84f2-3a624a849cbb',
-				requestBodyScope: requestBody.scope,
-				requestBodyScopeType: typeof requestBody.scope,
-				bodyKeys: Array.from(body.keys()),
-				bodyEntries: Object.fromEntries(body.entries()),
-				bodyScope: body.get('scope'),
-				authMethod: auth_method,
-			},
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run1',
-			hypothesisId: 'BACKEND-CLIENT-ID',
-		})}\n`;
-		try {
-			fs.appendFileSync(logPath, logEntry);
-		} catch (_e) {
-			// Ignore log errors
-		}
-		// #endregion
-
 		console.log(`[Client Credentials] Using auth method: ${auth_method || 'client_secret_post'}`);
 		console.log(`[Client Credentials] Token endpoint URL:`, tokenEndpoint);
-		console.log(`[Client Credentials] Request headers:`, headers);
-		console.log(`[Client Credentials] Request body keys:`, Array.from(body.keys()));
-		console.log(`[Client Credentials] Request body values:`, Object.fromEntries(body.entries()));
-		console.log(`[Client Credentials] Request body string (URL-encoded):`, body.toString());
-		console.log(`[Client Credentials] Full request URL:`, `${tokenEndpoint}`);
-		console.log(`[Client Credentials] Request method: POST`);
-
-		// #region agent log - capture actual request being sent
-		const bodyString = body.toString();
-		const clientIdFromBody = body.get('client_id');
-		const logEntry4 = `${JSON.stringify({
-			location: 'server.js:1933',
-			message: 'About to send request to PingOne - actual body string',
-			data: {
-				bodyString,
-				bodyStringLength: bodyString.length,
-				clientId: clientIdFromBody,
-				clientIdLength: clientIdFromBody?.length,
-				clientIdType: typeof clientIdFromBody,
-				expectedClientId: '4a275422-e580-4be6-84f2-3a624a849cbb',
-				clientIdMatches: clientIdFromBody === '4a275422-e580-4be6-84f2-3a624a849cbb',
-				hasScope: bodyString.includes('scope'),
-				scopeValue: body.get('scope'),
-				hasGrantType: bodyString.includes('grant_type'),
-				hasClientId: bodyString.includes('client_id'),
-				hasClientSecret: bodyString.includes('client_secret'),
-				allParams: Object.fromEntries(body.entries()),
-			},
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run1',
-			hypothesisId: 'ACTUAL-REQUEST-CLIENT-ID',
-		})}\n`;
-		try {
-			fs.appendFileSync(logPath, logEntry4);
-		} catch (_e) {
-			// Ignore log errors
-		}
-		// #endregion
 
 		const requestStartTime = Date.now();
 		const response = await global.fetch(tokenEndpoint, {
@@ -4617,28 +4559,6 @@ app.post('/api/client-credentials', async (req, res) => {
 
 		// Clone response for logging (before consuming the body)
 		const responseClone = response.clone();
-
-		// #region agent log
-		const logEntry2 = `${JSON.stringify({
-			location: 'server.js:1966',
-			message: 'Backend received response from PingOne',
-			data: {
-				status: response.status,
-				statusText: response.statusText,
-				hasBody: !!body,
-				bodyString: body.toString(),
-			},
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run1',
-			hypothesisId: 'BACKEND-RESPONSE',
-		})}\n`;
-		try {
-			fs.appendFileSync(logPath, logEntry2);
-		} catch (_e) {
-			// Ignore log errors
-		}
-		// #endregion
 
 		const responseText = await response.text();
 		let data;
@@ -4662,8 +4582,17 @@ app.post('/api/client-credentials', async (req, res) => {
 			responseDataForLogging = data;
 		}
 
-		// Parse URL-encoded body for better logging display
+		// Parse URL-encoded body for logging — redact sensitive fields
 		const bodyForLogging = Object.fromEntries(body.entries());
+		for (const _sk of [
+			'client_secret',
+			'code_verifier',
+			'refresh_token',
+			'subject_token',
+			'actor_token',
+		]) {
+			if (_sk in bodyForLogging) bodyForLogging[_sk] = '[REDACTED]';
+		}
 
 		logPingOneApiCall(
 			'Client Credentials Token Request',
@@ -4682,39 +4611,11 @@ app.post('/api/client-credentials', async (req, res) => {
 			}
 		);
 
-		// #region agent log
-		const logEntry3 = `${JSON.stringify({
-			location: 'server.js:1985',
-			message: 'Backend parsed PingOne response',
-			data: {
-				status: response.status,
-				responseText,
-				parsedData: data,
-				error: data.error,
-				errorDescription: data.error_description,
-				requestBodyString: body.toString(),
-				requestBodyScope: body.get('scope'),
-				hasAccessToken: !!data.access_token,
-			},
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run1',
-			hypothesisId: 'BACKEND-RESPONSE-DATA',
-		})}\n`;
-		try {
-			fs.appendFileSync(logPath, logEntry3);
-		} catch (_e) {
-			// Ignore log errors
-		}
-		// #endregion
-
 		if (!response.ok) {
 			console.error(`[Client Credentials] PingOne error (${response.status}):`, {
 				status: response.status,
 				statusText: response.statusText,
 				errorData: data,
-				requestHeaders: headers,
-				requestBody: Object.fromEntries(body.entries()),
 				tokenEndpoint,
 			});
 			return res.status(response.status).json(data);
@@ -6446,41 +6347,6 @@ app.post('/api/device-authorization', async (req, res) => {
 			contentType: 'application/x-www-form-urlencoded',
 		});
 
-		// #region agent log - Debug instrumentation for 403 error
-		try {
-			// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			//  method: 'POST',
-			//  headers: { 'Content-Type': 'application/json' },
-			//  body: JSON.stringify({
-			//    location: 'server.js:3362',
-			//    message: 'About to send request to PingOne with FIXED endpoint',
-			//    data: {
-			//      endpoint: deviceEndpoint,
-			//      endpointPath: deviceEndpoint.includes('/as/device_authorization')
-			//        ? 'CORRECT (/as/device_authorization)'
-			//        : 'WRONG (/as/device)',
-			//      method: 'POST',
-			//      headers: {
-			//        'Content-Type': 'application/x-www-form-urlencoded',
-			//        Accept: 'application/json',
-			//      },
-			//      body: formDataString,
-			//      bodyLength: formDataString.length,
-			//      formDataKeys: Array.from(formData.keys()),
-			//      clientIdValue: formData.get('client_id')
-			//        ? formData.get('client_id').substring(0, 15) + '...'
-			//        : 'MISSING',
-			//      scopeValue: formData.get('scope') || 'NONE',
-			//    },
-			//    timestamp: Date.now(),
-			//    sessionId: 'debug-session',
-			//    runId: 'post-fix',
-			//    hypothesisId: 'B',
-			//  }),
-			// }).catch(() => {});
-		} catch (e) {}
-		// #endregion
-
 		const response = await global.fetch(deviceEndpoint, {
 			method: 'POST',
 			headers: {
@@ -6489,34 +6355,6 @@ app.post('/api/device-authorization', async (req, res) => {
 			},
 			body: formDataString, // Send as string (URLSearchParams.toString() format)
 		});
-
-		// #region agent log - Debug instrumentation for 403 error
-		try {
-			const responseText = await response
-				.clone()
-				.text()
-				.catch(() => 'FAILED_TO_READ');
-			// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			//  method: 'POST',
-			//  headers: { 'Content-Type': 'application/json' },
-			//  body: JSON.stringify({
-			//    location: 'server.js:3380',
-			//    message: 'Received response from PingOne',
-			//    data: {
-			//      status: response.status,
-			//      statusText: response.statusText,
-			//      responseHeaders: Object.fromEntries(response.headers.entries()),
-			//      responseBody: responseText,
-			//      responseBodyLength: responseText.length,
-			//    },
-			//    timestamp: Date.now(),
-			//    sessionId: 'debug-session',
-			//    runId: 'pre-fix',
-			//    hypothesisId: 'C',
-			//  }),
-			// }).catch(() => {});
-		} catch (_e) {}
-		// #endregion
 
 		let data;
 		try {
@@ -13810,43 +13648,6 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 					: null,
 		});
 
-		// #region agent log
-		// Log the exact JSON body being sent to PingOne (for all device types, especially EMAIL)
-		const jsonBodyString = JSON.stringify(requestBody);
-		// Silently attempt analytics (suppress all errors to prevent console spam)
-		// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-		//  method: 'POST',
-		//  headers: { 'Content-Type': 'application/json' },
-		//  body: JSON.stringify({
-		//    location: 'server.js:8786',
-		//    message: 'JSON body being sent to PingOne for device registration',
-		//    data: {
-		//      deviceType: type,
-		//      jsonBodyString,
-		//      jsonBodyParsed: requestBody,
-		//      endpoint: deviceEndpoint,
-		//      requestBodyKeys: Object.keys(requestBody),
-		//      hasType: 'type' in requestBody,
-		//      typeValue: requestBody.type,
-		//      hasEmail: 'email' in requestBody,
-		//      emailValue: requestBody.email,
-		//      hasStatus: 'status' in requestBody,
-		//      statusValue: requestBody.status,
-		//      hasPolicy: 'policy' in requestBody,
-		//      policyValue: requestBody.policy,
-		//      hasPhone: 'phone' in requestBody,
-		//      phoneValue: requestBody.phone,
-		//    },
-		//    timestamp: Date.now(),
-		//    sessionId: 'debug-session',
-		//    runId: 'run1',
-		//    hypothesisId: 'A',
-		//  }),
-		// }).catch(() => {
-		//  // Silently ignore - analytics server not available
-		// });
-		// #endregion
-
 		const startTime = Date.now();
 		const response = await global.fetch(deviceEndpoint, {
 			method: 'POST',
@@ -13858,41 +13659,6 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 		// Clone response for logging (before consuming it)
 		const responseClone = response.clone();
 		const _responseCloneForLogging = response.clone();
-
-		// #region agent log
-		// Log error response details if request failed
-		let errorTextForLogging = null;
-		if (!response.ok) {
-			errorTextForLogging = await responseClone.text();
-			let errorData = null;
-			try {
-				errorData = JSON.parse(errorTextForLogging);
-			} catch {
-				errorData = { raw: errorTextForLogging };
-			}
-			// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			//  method: 'POST',
-			//  headers: { 'Content-Type': 'application/json' },
-			//  body: JSON.stringify({
-			//    location: 'server.js:8827',
-			//    message: 'PingOne device registration error response',
-			//    data: {
-			//      status: response.status,
-			//      statusText: response.statusText,
-			//      errorData,
-			//      errorText: errorTextForLogging,
-			//      jsonBodyThatWasSent: jsonBodyString,
-			//      deviceType: type,
-			//      endpoint: deviceEndpoint,
-			//    },
-			//    timestamp: Date.now(),
-			//    sessionId: 'debug-session',
-			//    runId: 'run1',
-			//    hypothesisId: 'A',
-			//  }),
-			// }).catch(() => {});
-		}
-		// #endregion
 
 		// Parse response body
 		// If we already consumed responseClone for error logging, use that text; otherwise clone and read
@@ -17090,32 +16856,7 @@ app.post('/api/pingone/mfa/check-fido2-assertion', async (req, res) => {
 			compatibility: requestBody.compatibility,
 		});
 
-		// #region agent log
-		const requestBodyString = JSON.stringify(requestBody);
-		console.log('[MFA Check FIDO2 Assertion] Full request body being sent to PingOne:', {
-			requestBodyString: requestBodyString.substring(0, 500),
-			origin: requestBody.origin,
-			assertionType: typeof requestBody.assertion,
-			assertionIsString: typeof requestBody.assertion === 'string',
-			assertionLength: typeof requestBody.assertion === 'string' ? requestBody.assertion.length : 0,
-			compatibility: requestBody.compatibility,
-		});
-		// #endregion
-
 		const startTime = Date.now();
-
-		// #region agent log - Verify request body format before sending to PingOne
-		console.log('[MFA Check FIDO2 Assertion] FINAL REQUEST BODY TO PINGONE:', {
-			requestBodyString: requestBodyString.substring(0, 500),
-			requestBodyParsed: JSON.parse(requestBodyString),
-			hasOrigin: !!JSON.parse(requestBodyString).origin,
-			origin: JSON.parse(requestBodyString).origin,
-			assertionType: typeof JSON.parse(requestBodyString).assertion,
-			assertionIsString: typeof JSON.parse(requestBodyString).assertion === 'string',
-			hasCompatibility: !!JSON.parse(requestBodyString).compatibility,
-			compatibility: JSON.parse(requestBodyString).compatibility,
-		});
-		// #endregion
 
 		// Build Authorization header explicitly to ensure correct format
 		// Ensure token is sent as raw JWT (not hashed or encoded)
