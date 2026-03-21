@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### Security hardening: HTTP headers, session fixation fix, dependency audit (2026-03-21)
+
+- **What:** Production security audit of `https://oauth-playground-pi.vercel.app` via live header inspection and code review against OWASP Top 10. Three issues found: (1) Missing hardening response headers — no `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, or `Permissions-Policy`; CSP existed but `X-Powered-By: Express` was leaking server fingerprint. (2) Session fixation risk on the `POST /api/pingone/redirectless/authorize` endpoint — server was accepting an attacker-chosen `sessionId` from `req.body` and creating a new cookie-jar entry under that ID. (3) `npm audit` reported 3 moderate and 1 high-severity vulnerabilities in `dompurify`, `effect`, and transitive deps.
+- **Fix:** (1) **`server.js` headers middleware** — added `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=()`; called `app.disable('x-powered-by')`. (2) **Session fixation** — changed `cookieJar` session ID resolution: only honour a client-supplied `sessionId` if it **already exists in the jar** (flow continuation); otherwise generate a fresh `randomUUID()`. (3) **`npm audit fix`** — bumped `dompurify`, `effect`, and affected transitive packages.
+- **Files:** `server.js`, `package-lock.json`
+- **Commit:** `093f37107`
+- **Regression check:** (a) `curl -I https://oauth-playground-pi.vercel.app/api/health` → response must include `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, no `X-Powered-By` header. (b) `POST /api/pingone/redirectless/authorize` with a novel `sessionId` not yet in the jar → server must assign a new UUID, not the supplied ID. (c) All 20/20 API + SPA route tests pass (see `/tmp/oauthplayground-test.mjs`).
+
 ### Playwright E2E Tests: Fixed stuck TOTP QR code and keyboard navigation tests (2026-03-18)
 
 - **What:** Two Playwright tests were getting stuck and failing: "TOTP registration flow shows QR code" and "supports keyboard navigation". The TOTP test was waiting for QR code elements that didn't exist or weren't loading, and the keyboard navigation test was waiting for focus that never appeared.
