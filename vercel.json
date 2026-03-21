@@ -1,11 +1,17 @@
 {
-	"buildCommand": "npm run build",
-	"devCommand": "npm run dev",
-	"installCommand": "npm install --legacy-peer-deps",
-	"framework": "vite",
-	"outputDirectory": "dist",
-	"routes": [
-		{ "handle": "filesystem" },
-		{ "src": "/(.*)", "dest": "/index.html" }
-	]
+  "buildCommand": "npm run build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "routes": [
+    { "handle": "filesystem" },
+    {
+      "src": "^/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 }
