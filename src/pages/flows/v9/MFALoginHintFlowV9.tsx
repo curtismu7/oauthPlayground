@@ -949,13 +949,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 					<p>{messageState.criticalError.message}</p>
 				</div>
 			)}
-			<V9FlowHeader
-				flowId="mfa-login-hint"
-				customConfig={{
-					title: 'MFA Login Hint Flow',
-					subtitle: 'Multi-Factor Authentication using Login Hint Token',
-				}}
-			/>
+			<V9FlowHeader flowId="mfa-login-hint" />
 
 			<div style={{ maxWidth: '90rem', margin: '0 auto', padding: '2rem' }}>
 				{/* Step Progress Indicator */}

@@ -4,6 +4,7 @@ import packageJson from '../../package.json';
 import AdvancedSecuritySettingsMock from '../components/AdvancedSecuritySettingsMock';
 import { ApiKeyConfiguration } from '../components/ApiKeyConfiguration';
 import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
+import DocumentationHeader from '../components/DocumentationHeader';
 import { Icon } from '../components/Icon/Icon';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
@@ -30,7 +31,6 @@ import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
-import DocumentationHeader from '../components/DocumentationHeader';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({
@@ -1097,10 +1097,122 @@ const Configuration: React.FC = () => {
 				)}
 			</div>
 
+			{/* Credential type quick-reference */}
+			<div
+				style={{
+					display: 'grid',
+					gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+					gap: '1rem',
+					marginBottom: '1.5rem',
+				}}
+			>
+				{/* Worker / client_credentials */}
+				<div
+					style={{
+						background: '#eff6ff',
+						border: '1px solid #bfdbfe',
+						borderRadius: '0.75rem',
+						padding: '1rem 1.25rem',
+					}}
+				>
+					<div
+						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}
+					>
+						<span style={{ fontSize: '20px' }}>🔧</span>
+						<strong style={{ color: '#1e40af', fontSize: '0.9375rem' }}>Worker Token</strong>
+						<span
+							style={{
+								display: 'inline-block',
+								background: '#1e40af',
+								color: '#fff',
+								borderRadius: '0.375rem',
+								padding: '0.1rem 0.45rem',
+								fontSize: '0.7rem',
+								fontWeight: 600,
+								letterSpacing: '0.03em',
+								marginLeft: '0.25rem',
+							}}
+						>
+							client_credentials
+						</span>
+					</div>
+					<ul
+						style={{
+							margin: 0,
+							paddingLeft: '1.25rem',
+							fontSize: '0.8125rem',
+							color: '#1e3a8a',
+							lineHeight: 1.7,
+						}}
+					>
+						<li>
+							PingOne app type: <strong>Worker</strong>
+						</li>
+						<li>
+							Grant type: <strong>Client Credentials</strong>
+						</li>
+						<li>Credentials: Environment ID · Client ID · Client Secret</li>
+						<li>Used for: Management API calls, Config Checker, admin operations</li>
+					</ul>
+				</div>
+
+				{/* OIDC / authorization_code */}
+				<div
+					style={{
+						background: '#f0fdf4',
+						border: '1px solid #bbf7d0',
+						borderRadius: '0.75rem',
+						padding: '1rem 1.25rem',
+					}}
+				>
+					<div
+						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}
+					>
+						<span style={{ fontSize: '20px' }}>👤</span>
+						<strong style={{ color: '#15803d', fontSize: '0.9375rem' }}>
+							Authorization Client
+						</strong>
+						<span
+							style={{
+								display: 'inline-block',
+								background: '#15803d',
+								color: '#fff',
+								borderRadius: '0.375rem',
+								padding: '0.1rem 0.45rem',
+								fontSize: '0.7rem',
+								fontWeight: 600,
+								letterSpacing: '0.03em',
+								marginLeft: '0.25rem',
+							}}
+						>
+							authorization_code
+						</span>
+					</div>
+					<ul
+						style={{
+							margin: 0,
+							paddingLeft: '1.25rem',
+							fontSize: '0.8125rem',
+							color: '#14532d',
+							lineHeight: 1.7,
+						}}
+					>
+						<li>
+							PingOne app type: <strong>OIDC Web Application</strong> or <strong>Native</strong>
+						</li>
+						<li>
+							Grant type: <strong>Authorization Code + PKCE</strong>
+						</li>
+						<li>Credentials: Client ID · Client Secret (optional for public clients)</li>
+						<li>Used for: user login, OAuth playground flows, AI Assistant</li>
+					</ul>
+				</div>
+			</div>
+
 			{/* Worker Token Section - First Step */}
 			<UnifiedFlowCollapsibleHeader
 				title="Worker Token Credentials"
-				subtitle="Obtain a PingOne Management API worker token to enable Config Checker functionality across all flows"
+				subtitle="PingOne Worker app → client_credentials grant. Needed for Management API calls and Config Checker. In PingOne: create a Worker app and assign it the Environment Admin or Identity Data Admin role."
 				icon={<MDIIcon icon="FiKey" />}
 				defaultCollapsed={false}
 			>
@@ -1110,7 +1222,7 @@ const Configuration: React.FC = () => {
 			{/* Authorization Code (OIDC) Client — for user login via Authz Code + PKCE + pi.flow */}
 			<UnifiedFlowCollapsibleHeader
 				title="Authorization Client (OIDC)"
-				subtitle="Configure a dedicated PingOne OIDC/Web app for user login. Required for Authz Code + PKCE + pi.flow — separate from the Worker (client_credentials) app."
+				subtitle="PingOne OIDC Web or Native app → authorization_code + PKCE. Required for user login flows and the OAuth Playground flows. Must be a separate app from the Worker app above."
 				icon={<MDIIcon icon="FiKey" />}
 				defaultCollapsed={true}
 			>
