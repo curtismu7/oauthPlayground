@@ -97,8 +97,12 @@ export default defineConfig(({ mode }) => {
 				strategies: 'generateSW',
 				workbox: {
 					// Exclude JS bundles from precache — they're large and change on every build
-					// (causes OOM in Chrome when the SW re-downloads 10MB+ on each deploy)
-					globPatterns: ['**/*.{css,html,ico,png,svg,woff2}'],
+					// (causes OOM in Chrome when the SW re-downloads 10MB+ on each deploy).
+					// Also exclude HTML: if index.html is precached, the SW serves stale HTML
+					// (with old chunk hashes) after a redeploy. Vercel only keeps the current
+					// deployment's assets, so old hashes return 404. Let the browser always
+					// fetch index.html fresh from Vercel's CDN (Cache-Control: no-store).
+					globPatterns: ['**/*.{css,ico,png,svg,woff2}'],
 					maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB
 					runtimeCaching: [
 						{
@@ -267,7 +271,19 @@ export default defineConfig(({ mode }) => {
 
 						// Simple vendor separation only
 						if (normalizedId.includes('node_modules')) {
-							if (normalizedId.includes('react') || normalizedId.includes('react-dom')) {
+							// Be explicit about the react chunk — only the core react/react-dom packages
+							// plus scheduler (react-dom's internal dep). Using a broad 'react' substring
+							// match would incorrectly pull in packages like react-pro-sidebar, causing
+							// them to land in the same chunk as React itself and triggering a circular
+							// init issue where Surface.js calls React.forwardRef before React is fully
+							// evaluated → "Cannot read properties of undefined".
+							// scheduler must be in this chunk to avoid a circular dep: react-dom imports
+							// scheduler, so if scheduler lands in vendor we get vendor→react→vendor.
+							if (
+								/\/node_modules\/react\//.test(normalizedId) ||
+								/\/node_modules\/react-dom\//.test(normalizedId) ||
+								/\/node_modules\/scheduler\//.test(normalizedId)
+							) {
 								return 'react';
 							}
 							if (normalizedId.includes('react-router')) {
