@@ -116,14 +116,7 @@ const OAuth21InformationalFlowV9: React.FC = () => {
 
 	return (
 		<Container>
-			<V9FlowHeader
-				flowId="oauth-2-1"
-				customConfig={{
-					flowType: 'oauth',
-					title: 'OAuth 2.1',
-					subtitle: 'Evolution of OAuth 2.0 with built-in security improvements and best practices',
-				}}
-			/>
+			<V9FlowHeader flowId="oauth-2-1" />
 
 			{/* Overview Section */}
 			<Card>
