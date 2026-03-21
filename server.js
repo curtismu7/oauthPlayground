@@ -920,7 +920,7 @@ app.use(
 	})
 );
 
-// Add CSP headers
+// Add CSP and hardening headers
 app.use((_req, res, next) => {
 	res.setHeader(
 		'Content-Security-Policy',
@@ -933,8 +933,19 @@ app.use((_req, res, next) => {
 			"frame-ancestors 'none'; " +
 			"base-uri 'self'"
 	);
+	// Prevent MIME-type sniffing
+	res.setHeader('X-Content-Type-Options', 'nosniff');
+	// Legacy framing protection (belt-and-suspenders alongside frame-ancestors)
+	res.setHeader('X-Frame-Options', 'DENY');
+	// Don't leak Referer to external origins
+	res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+	// Restrict access to browser features
+	res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 	next();
 });
+
+// Hide stack fingerprint
+app.disable('x-powered-by');
 
 // JSON parser - accepts application/json Content-Type
 // Increase limit to support large bulk user imports from CLI
@@ -8192,7 +8203,11 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 		}
 
 		// Store cookies server-side and return only a sessionId to the frontend
-		const sessionId = req.body.sessionId || randomUUID();
+		// Security: only accept a client-supplied sessionId if it already exists
+		// in the jar (flow continuation). Never honour a pre-staged/attacker-chosen ID.
+		const clientSessionId = req.body.sessionId;
+		const sessionId =
+			clientSessionId && cookieJar.has(clientSessionId) ? clientSessionId : randomUUID();
 		const existing = cookieJar.get(sessionId) || [];
 		const merged = mergeCookieArrays(existing, sessionCookies);
 		cookieJar.set(sessionId, merged);
