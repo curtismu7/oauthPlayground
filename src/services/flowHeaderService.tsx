@@ -244,7 +244,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: undefined,
 	},
 	'ciba-v9': {
-		flowType: 'oidc',
+		flowType: 'pingone',
 		title: 'CIBA Flow (V9) — Client Initiated Backchannel Authentication',
 		subtitle:
 			"🛡️ V9: Backchannel authentication flow for decoupled device scenarios — push auth request to user's mobile device. PingOne-specific implementation.",
@@ -277,7 +277,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V7',
 	},
 	'ciba-v7': {
-		flowType: 'oidc',
+		flowType: 'pingone',
 		title: 'OIDC CIBA Flow - Client Initiated Backchannel Authentication',
 		subtitle:
 			'🛡️ Enhanced CIBA implementation with services - Client Initiated Backchannel Authentication for secure, user-friendly authentication without redirects. Perfect for mobile apps, IoT devices, and scenarios requiring seamless user experience.',
@@ -348,7 +348,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 
 	// Unified Flows
 	'token-exchange-v7': {
-		flowType: 'oauth',
+		flowType: 'pingone',
 		title: 'OAuth 2.0 Token Exchange - RFC 8693',
 		subtitle:
 			'🔄 Secure Application-to-Application (A2A) communication using OAuth 2.0 Token Exchange. Demonstrates scope reduction, audience restriction, and user delegation patterns for enterprise security architectures.',
@@ -358,7 +358,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 
 	// Token Exchange V9 (canonical; redirects here)
 	'token-exchange-v9': {
-		flowType: 'oauth',
+		flowType: 'pingone',
 		title: 'OAuth 2.0 Token Exchange (V9) - RFC 8693',
 		subtitle:
 			'🔄 Secure Application-to-Application (A2A) communication using OAuth 2.0 Token Exchange. Scope reduction, audience restriction, and user delegation with V9 services.',
@@ -366,7 +366,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V9',
 	},
 	'token-exchange': {
-		flowType: 'oauth',
+		flowType: 'pingone',
 		title: 'OAuth 2.0 Token Exchange - RFC 8693',
 		subtitle:
 			'🔄 Secure Application-to-Application (A2A) communication using OAuth 2.0 Token Exchange. Scope reduction, audience restriction, and user delegation.',
@@ -375,7 +375,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 
 	'oidc-hybrid-v7': {
-		flowType: 'oidc',
+		flowType: 'pingone',
 		title: 'Hybrid Flow - Unified OAuth/OIDC',
 		subtitle:
 			'🔄 Unified OAuth/OIDC hybrid flow implementation - Advanced flow combining Authorization Code and Implicit patterns with modern architecture and enhanced educational content.',
@@ -776,7 +776,8 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	'mcp-server-config': {
 		flowType: 'pingone',
 		title: 'MCP Server Configuration',
-		subtitle: 'Configure and manage the PingOne MCP server with 70+ tools for AI agent integration.',
+		subtitle:
+			'Configure and manage the PingOne MCP server with 70+ tools for AI agent integration.',
 		icon: '🔧',
 	},
 	'oidc-specs': {
@@ -810,7 +811,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🔑',
 	},
 	'oauth-ropc-v7': {
-		flowType: 'oauth',
+		flowType: 'pingone',
 		title: 'OAuth ROPC',
 		subtitle:
 			'🚀 Enhanced implementation: Modern UI with improved user experience, enhanced error handling, and better visual design. Resource Owner Password Credentials flow with comprehensive educational content.',
@@ -964,7 +965,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 
 	// Emerging / Advanced OAuth Flows
 	'attestation-client-auth': {
-		flowType: 'oauth',
+		flowType: 'pingone',
 		title: 'Attestation-Based Client Authentication',
 		subtitle:
 			'🪪 draft-ietf-oauth-attestation-based-client-auth — Client proves its identity with a signed attestation statement (WIA, DCAttestation, Android Keystore, etc.) plus a Proof-of-Possession key — no shared secret required.',
@@ -972,7 +973,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V1',
 	},
 	wimse: {
-		flowType: 'oauth',
+		flowType: 'pingone',
 		title: 'WIMSE — Workload Identity in Multi-System Environments',
 		subtitle:
 			'⚙️ IETF draft-ietf-wimse-arch — Issues a Workload Identity Token (WIT) to a service, then exchanges it for a scoped access token via RFC 8693 Token Exchange. Demonstrates zero-trust workload-to-workload authentication.',
@@ -980,7 +981,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V1',
 	},
 	gnap: {
-		flowType: 'oauth',
+		flowType: 'pingone',
 		title: 'GNAP — Grant Negotiation and Authorization Protocol',
 		subtitle:
 			'🤝 RFC 9635 — Proposed next-generation authorization protocol. Clients POST structured grant requests; the AS issues interaction URIs for user consent. Demonstrates the JSON negotiation model as an alternative to OAuth 2.0 redirect flows.',
@@ -988,7 +989,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V1',
 	},
 	'mtls-client-auth': {
-		flowType: 'oauth',
+		flowType: 'pingone',
 		title: 'mTLS Client Authentication',
 		subtitle:
 			'🔏 RFC 8705 — Mutual-TLS Client Authentication and Certificate-Bound Access Tokens. The client authenticates with a TLS certificate; the issued access token carries a cnf.x5t#S256 thumbprint that resource servers verify on every call.',
@@ -996,7 +997,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V1',
 	},
 	'jar-jarm': {
-		flowType: 'oauth',
+		flowType: 'pingone',
 		title: 'JAR + JARM — JWT-Secured Authorization (FAPI 2.0)',
 		subtitle:
 			'✍️ JAR (RFC 9101) signs the authorization request as a JWT. JARM (draft-ietf-oauth-jarm) signs the authorization response as a JWT. Together they prevent parameter tampering — required by the FAPI 2.0 Security Profile.',
@@ -1004,7 +1005,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V1',
 	},
 	'step-up-auth': {
-		flowType: 'oidc',
+		flowType: 'pingone',
 		title: 'Step-Up Authentication',
 		subtitle:
 			'⬆️ RFC 9470 — A resource server demands higher assurance (acr_values) or a fresher authentication (max_age) by returning a 401 challenge, triggering re-authentication at the required level.',
@@ -1012,12 +1013,38 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V1',
 	},
 	'token-introspection': {
-		flowType: 'oauth',
+		flowType: 'pingone',
 		title: 'Token Introspection',
 		subtitle:
 			'🔍 RFC 7662 + RFC 7009 — Resource servers query the AS to validate opaque access tokens (introspection). Tokens can also be revoked (RFC 7009). Demonstrates the server-to-server token validation and revocation pattern.',
 		icon: '🔍',
 		version: 'V1',
+	},
+
+	// Missing V9 page entries — were not in FLOW_CONFIGS, so header rendered null
+	'oauth-2-1': {
+		flowType: 'pingone',
+		title: 'OAuth 2.1',
+		subtitle:
+			'Evolution of OAuth 2.0 with built-in security improvements and best practices. Required PKCE, deprecated implicit flow, and enhanced security recommendations.',
+		icon: '🛡️',
+		version: 'V9',
+	},
+	'pingone-sessions-api': {
+		flowType: 'pingone',
+		title: 'PingOne Sessions API',
+		subtitle:
+			'Interactive API testing for PingOne Sessions management endpoints. Manage user sessions, inspect active sessions, and revoke sessions programmatically.',
+		icon: '🔗',
+		version: 'V9',
+	},
+	'mfa-login-hint': {
+		flowType: 'pingone',
+		title: 'MFA Login Hint Flow',
+		subtitle:
+			'Multi-Factor Authentication using Login Hint Token. Demonstrates MFA enrollment and verification with PingOne identity assurance.',
+		icon: '🔐',
+		version: 'V9',
 	},
 
 	// Developer & Tools (red header / PingOne style)
