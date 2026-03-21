@@ -670,12 +670,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 
 	return (
 		<Container>
-			<V9FlowHeader
-				title="PingOne Sessions API"
-				subtitle="Interactive API testing for PingOne Sessions management endpoints"
-				flowId="pingone-sessions-api"
-				showRestart={true}
-			/>
+			<V9FlowHeader flowId="pingone-sessions-api" />
 
 			{/* Overview */}
 			<OverviewCard>
