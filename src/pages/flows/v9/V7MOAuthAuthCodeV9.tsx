@@ -1,6 +1,7 @@
 // src/pages/flows/v9/V7MOAuthAuthCodeV9.tsx
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
 import { ColoredJsonDisplay } from '../../../components/ColoredJsonDisplay';
 import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 import {
@@ -1000,6 +1001,266 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({ oidc = false }) => {
 				<PingOneApiCallDisplay {...PingOneApiExamples.tokenEndpoint} />
 				{oidc && <PingOneApiCallDisplay {...PingOneApiExamples.userInfoEndpoint} />}
 			</div>
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'Build Authorization URL with PKCE',
+						description: 'Generate PKCE challenge and build the authorization URL.',
+						code: {
+							javascript: `// Authorization Code Flow with PKCE - JavaScript
+// Step 1: Generate PKCE code verifier and challenge
+function generateCodeVerifier() {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array))
+    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');
+}
+
+async function generateCodeChallenge(verifier) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode(...new Uint8Array(hash)))
+    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');
+}
+
+const codeVerifier = generateCodeVerifier();
+const codeChallenge = await generateCodeChallenge(codeVerifier);
+sessionStorage.setItem('pkce_verifier', codeVerifier);
+
+// Step 2: Build authorization URL
+const authUrl = new URL('https://auth.pingone.com/{environmentId}/as/authorize');
+authUrl.searchParams.append('client_id', 'your-client-id');
+authUrl.searchParams.append('redirect_uri', 'https://yourapp.com/callback');
+authUrl.searchParams.append('response_type', 'code');
+authUrl.searchParams.append('scope', 'openid profile email');
+authUrl.searchParams.append('state', crypto.randomUUID());
+authUrl.searchParams.append('code_challenge', codeChallenge);
+authUrl.searchParams.append('code_challenge_method', 'S256');
+
+// Redirect user to authorization server
+window.location.href = authUrl.toString();`,
+							dotnet: `// Authorization Code Flow with PKCE - C# (.NET)
+using System.Security.Cryptography;
+using System.Text;
+
+// Step 1: Generate PKCE code verifier and challenge
+string GenerateCodeVerifier()
+{
+    var bytes = new byte[32];
+    RandomNumberGenerator.Fill(bytes);
+    return Convert.ToBase64String(bytes)
+        .Replace("+", "-").Replace("/", "_").Replace("=", "");
+}
+
+string GenerateCodeChallenge(string verifier)
+{
+    using var sha256 = SHA256.Create();
+    var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(verifier));
+    return Convert.ToBase64String(hash)
+        .Replace("+", "-").Replace("/", "_").Replace("=", "");
+}
+
+var codeVerifier = GenerateCodeVerifier();
+var codeChallenge = GenerateCodeChallenge(codeVerifier);
+// Store verifier securely (session, secure cookie, etc.)
+
+// Step 2: Build authorization URL
+var authUrl = new UriBuilder("https://auth.pingone.com/{environmentId}/as/authorize");
+var query = HttpUtility.ParseQueryString(string.Empty);
+query["client_id"] = "your-client-id";
+query["redirect_uri"] = "https://yourapp.com/callback";
+query["response_type"] = "code";
+query["scope"] = "openid profile email";
+query["state"] = Guid.NewGuid().ToString();
+query["code_challenge"] = codeChallenge;
+query["code_challenge_method"] = "S256";
+authUrl.Query = query.ToString();
+
+// Redirect user
+Response.Redirect(authUrl.ToString());`,
+							go: `// Authorization Code Flow with PKCE - Go
+package main
+
+import (
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
+	"fmt"
+	"net/url"
+	"strings"
+)
+
+// Step 1: Generate PKCE code verifier and challenge
+func generateCodeVerifier() string {
+	b := make([]byte, 32)
+	rand.Read(b)
+	return base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(b)
+}
+
+func generateCodeChallenge(verifier string) string {
+	h := sha256.New()
+	h.Write([]byte(verifier))
+	return base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(h.Sum(nil))
+}
+
+func main() {
+	codeVerifier := generateCodeVerifier()
+	codeChallenge := generateCodeChallenge(codeVerifier)
+	// Store verifier securely
+
+	// Step 2: Build authorization URL
+	baseURL := "https://auth.pingone.com/{environmentId}/as/authorize"
+	params := url.Values{}
+	params.Add("client_id", "your-client-id")
+	params.Add("redirect_uri", "https://yourapp.com/callback")
+	params.Add("response_type", "code")
+	params.Add("scope", "openid profile email")
+	params.Add("state", generateRandomState())
+	params.Add("code_challenge", codeChallenge)
+	params.Add("code_challenge_method", "S256")
+
+	authURL := baseURL + "?" + params.Encode()
+	fmt.Println("Redirect to:", authURL)
+}`,
+						},
+					},
+					{
+						title: 'Exchange Authorization Code for Tokens',
+						description: 'Handle the callback and exchange the code for access token.',
+						code: {
+							javascript: `// Exchange authorization code for tokens - JavaScript
+// Parse callback URL
+const urlParams = new URLSearchParams(window.location.search);
+const code = urlParams.get('code');
+const state = urlParams.get('state');
+
+// Validate state parameter (compare with stored value)
+const storedState = sessionStorage.getItem('oauth_state');
+if (state !== storedState) {
+  throw new Error('State mismatch - possible CSRF attack');
+}
+
+// Retrieve stored PKCE verifier
+const codeVerifier = sessionStorage.getItem('pkce_verifier');
+
+// Exchange code for tokens
+const response = await fetch('https://auth.pingone.com/{environmentId}/as/token', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: new URLSearchParams({
+    grant_type: 'authorization_code',
+    code: code,
+    redirect_uri: 'https://yourapp.com/callback',
+    client_id: 'your-client-id',
+    code_verifier: codeVerifier
+  })
+});
+
+const tokens = await response.json();
+const accessToken = tokens.access_token;
+const idToken = tokens.id_token;
+const refreshToken = tokens.refresh_token;
+
+// Clean up stored values
+sessionStorage.removeItem('pkce_verifier');
+sessionStorage.removeItem('oauth_state');`,
+							dotnet: `// Exchange authorization code for tokens - C# (.NET)
+using System.Net.Http;
+using System.Text.Json;
+
+// Parse callback parameters
+var code = Request.Query["code"];
+var state = Request.Query["state"];
+
+// Validate state (compare with stored value)
+var storedState = HttpContext.Session.GetString("oauth_state");
+if (state != storedState)
+{
+    throw new Exception("State mismatch - possible CSRF attack");
+}
+
+// Retrieve stored PKCE verifier
+var codeVerifier = HttpContext.Session.GetString("pkce_verifier");
+
+// Exchange code for tokens
+var client = new HttpClient();
+var content = new FormUrlEncodedContent(new Dictionary<string, string>
+{
+    { "grant_type", "authorization_code" },
+    { "code", code },
+    { "redirect_uri", "https://yourapp.com/callback" },
+    { "client_id", "your-client-id" },
+    { "code_verifier", codeVerifier }
+});
+
+var response = await client.PostAsync(
+    "https://auth.pingone.com/{environmentId}/as/token",
+    content
+);
+
+var json = await response.Content.ReadAsStringAsync();
+var tokens = JsonSerializer.Deserialize<TokenResponse>(json);
+
+// Clean up session
+HttpContext.Session.Remove("pkce_verifier");
+HttpContext.Session.Remove("oauth_state");`,
+							go: `// Exchange authorization code for tokens - Go
+package main
+
+import (
+	"encoding/json"
+	"net/http"
+	"net/url"
+	"strings"
+)
+
+func handleCallback(w http.ResponseWriter, r *http.Request) {
+	// Parse callback parameters
+	code := r.URL.Query().Get("code")
+	state := r.URL.Query().Get("state")
+
+	// Validate state (retrieve from session/cookie)
+	storedState := getStoredState(r)
+	if state != storedState {
+		http.Error(w, "State mismatch", http.StatusBadRequest)
+		return
+	}
+
+	// Retrieve stored PKCE verifier
+	codeVerifier := getStoredVerifier(r)
+
+	// Exchange code for tokens
+	data := url.Values{}
+	data.Set("grant_type", "authorization_code")
+	data.Set("code", code)
+	data.Set("redirect_uri", "https://yourapp.com/callback")
+	data.Set("client_id", "your-client-id")
+	data.Set("code_verifier", codeVerifier)
+
+	resp, err := http.Post(
+		"https://auth.pingone.com/{environmentId}/as/token",
+		"application/x-www-form-urlencoded",
+		strings.NewReader(data.Encode()),
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	var tokens map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&tokens)
+
+	// Clean up stored values
+	clearStoredValues(w)
+}`,
+						},
+					},
+				]}
+			/>
 		</div>
 	);
 };

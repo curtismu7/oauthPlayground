@@ -1,0 +1,574 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e5]: 
+    - text: Initializing application...
+  - generic [ref=e6]:
+    - banner "Main navigation" [ref=e7]:
+      - generic [ref=e8]:
+        - img "Ping Identity"
+        - generic [ref=e9]:
+          - generic [ref=e10]: PingOne MasterFlow API
+          - generic [ref=e11]: Version 9.16.23
+      - navigation "Main navigation" [ref=e12]:
+        - link "Assistant" [ref=e13] [cursor=pointer]:
+          - /url: /ai-assistant
+          - img [ref=e14]
+          - generic [ref=e16]: Assistant
+        - link "AI Prompts" [ref=e17] [cursor=pointer]:
+          - /url: /docs/prompts/prompt-all
+          - img [ref=e18]
+          - generic [ref=e20]: AI Prompts
+        - link "Docs" [ref=e21] [cursor=pointer]:
+          - /url: /documentation
+          - img [ref=e22]
+          - generic [ref=e26]: Docs
+        - link "Configuration" [ref=e27] [cursor=pointer]:
+          - /url: /configuration
+          - img [ref=e28]
+          - generic [ref=e31]: Configuration
+        - link "API Status" [ref=e32] [cursor=pointer]:
+          - /url: /api-status
+          - img [ref=e33]
+          - generic [ref=e38]: API Status
+        - link "Dashboard" [ref=e39] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e40]
+          - generic [ref=e42]: Dashboard
+        - link "OIDC Discovery tool" [ref=e43] [cursor=pointer]:
+          - /url: /auto-discover
+          - img [ref=e44]
+          - generic [ref=e47]: OIDC Discovery
+        - link "App Generator" [ref=e48] [cursor=pointer]:
+          - /url: /client-generator
+          - img [ref=e49]
+          - generic [ref=e52]: App Generator
+        - button "Export all Unified Flow use cases" [ref=e53] [cursor=pointer]:
+          - img [ref=e54]
+          - generic [ref=e58]: Export All
+        - link "Login to the application" [ref=e59] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e60]
+          - generic [ref=e64]: Login
+    - generic [ref=e65]:
+      - generic "Drag to resize sidebar" [ref=e66]
+      - generic [ref=e67]:
+        - generic [ref=e68]:
+          - img [ref=e70]
+          - generic [ref=e73]: MasterFlow API
+        - generic [ref=e74]:
+          - button "Switch to classic theme" [ref=e75] [cursor=pointer]:
+            - img [ref=e76]
+          - button "Close sidebar" [ref=e79] [cursor=pointer]:
+            - img [ref=e80]
+      - generic [ref=e82]:
+        - generic [ref=e84]:
+          - generic:
+            - generic: 🔍
+          - textbox "Search flows and pages... (⌘K)" [ref=e85]
+        - button "Reorder" [ref=e87] [cursor=pointer]:
+          - img [ref=e88]
+          - text: Reorder
+      - navigation "Main navigation" [ref=e91]:
+        - group [ref=e92]:
+          - button "Dashboard" [expanded] [ref=e94] [cursor=pointer]:
+            - generic [ref=e95]:
+              - generic [ref=e96]: 
+              - text: Dashboard
+            - generic [ref=e97]: 
+          - region "Dashboard" [ref=e98]:
+            - list [ref=e99]:
+              - listitem [ref=e100]:
+                - link "Dashboard V9 v9.16.23" [ref=e101] [cursor=pointer]:
+                  - /url: /dashboard
+                  - text: 
+                  - generic [ref=e102]: Dashboard
+                  - generic "V9 Modern Messaging + Ping UI v9.16.23" [ref=e103]: V9 v9.16.23
+              - listitem [ref=e104]:
+                - link "Platform Dashboard V9 v9.16.23" [ref=e105] [cursor=pointer]:
+                  - /url: /pingone-dashboard
+                  - text: 
+                  - generic [ref=e106]: Platform Dashboard
+                  - generic "V9 Modern Messaging + Ping UI v9.16.23" [ref=e107]: V9 v9.16.23
+              - listitem [ref=e108]:
+                - link "Component Cleanliness Dashboard V9 v9.16.23" [ref=e109] [cursor=pointer]:
+                  - /url: /cleanliness-dashboard
+                  - text: 
+                  - generic [ref=e110]: Component Cleanliness Dashboard
+                  - generic "V9 Modern Messaging + Ping UI v9.16.23" [ref=e111]: V9 v9.16.23
+              - listitem [ref=e112]:
+                - link "API Status V9 v9.16.23" [ref=e113] [cursor=pointer]:
+                  - /url: /api-status
+                  - text: 
+                  - generic [ref=e114]: API Status
+                  - generic "V9 Modern Messaging + Ping UI v9.16.23" [ref=e115]: V9 v9.16.23
+              - listitem [ref=e116]:
+                - link "App update History V9 v9.16.23" [ref=e117] [cursor=pointer]:
+                  - /url: /cleanup-history
+                  - text: 
+                  - generic [ref=e118]: App update History
+                  - generic "V9 Modern Messaging + Ping UI v9.16.23" [ref=e119]: V9 v9.16.23
+              - listitem [ref=e120]:
+                - link "About V9 v9.16.23" [ref=e121] [cursor=pointer]:
+                  - /url: /about
+                  - text: 
+                  - generic [ref=e122]: About
+                  - generic "V9 Modern Messaging + Ping UI v9.16.23" [ref=e123]: V9 v9.16.23
+        - group [ref=e124]:
+          - button "Setup & Configuration" [expanded] [ref=e126] [cursor=pointer]:
+            - generic [ref=e127]:
+              - generic [ref=e128]: 
+              - text: Setup & Configuration
+            - generic [ref=e129]: 
+          - region "Setup & Configuration" [ref=e130]:
+            - list [ref=e131]:
+              - listitem [ref=e132]:
+                - link "Configuration Management ✓ UPDATED v9.16.23" [ref=e133] [cursor=pointer]:
+                  - /url: /configuration
+                  - text: 
+                  - generic [ref=e134]: Configuration Management
+                  - generic "Updated with Latest Standards v9.16.23" [ref=e135]: ✓ UPDATED v9.16.23
+              - listitem [ref=e136]:
+                - link "OIDC Discovery V9 v9.16.23" [ref=e137] [cursor=pointer]:
+                  - /url: /auto-discover
+                  - text: 
+                  - generic [ref=e138]: OIDC Discovery
+                  - generic "V9 Modern Messaging + Ping UI v9.16.23" [ref=e139]: V9 v9.16.23
+              - listitem [ref=e140]:
+                - link "Environment Management V9 v9.16.23" [ref=e141] [cursor=pointer]:
+                  - /url: /environments
+                  - text: 
+                  - generic [ref=e142]: Environment Management
+                  - generic "V9 Modern Messaging + Ping UI v9.16.23" [ref=e143]: V9 v9.16.23
+        - group [ref=e144]:
+          - button "Real PingOne API's & support apps" [expanded] [ref=e146] [cursor=pointer]:
+            - generic [ref=e147]:
+              - generic [ref=e148]: 
+              - text: Real PingOne API's & support apps
+            - generic [ref=e149]: 
+          - region "Real PingOne API's & support apps" [ref=e150]:
+            - list [ref=e151]:
+              - listitem [ref=e152]:
+                - link "Unified OAuth & OIDC LIVE" [ref=e153] [cursor=pointer]:
+                  - /url: /v8u/unified
+                  - text: 
+                  - generic [ref=e154]: Unified OAuth & OIDC
+                  - generic "Real PingOne API" [ref=e155]: LIVE
+              - listitem [ref=e156]:
+                - link "Unified MFA LIVE" [ref=e157] [cursor=pointer]:
+                  - /url: /v8/unified-mfa
+                  - text: 
+                  - generic [ref=e158]: Unified MFA
+                  - generic "Real PingOne API" [ref=e159]: LIVE
+              - listitem [ref=e160]:
+                - link "Protect Portal App LIVE" [ref=e161] [cursor=pointer]:
+                  - /url: /protect-portal
+                  - text: 
+                  - generic [ref=e162]: Protect Portal App
+                  - generic "Real PingOne API" [ref=e163]: LIVE
+              - listitem [ref=e164]:
+                - list [ref=e165]:
+                  - listitem [ref=e166]:
+                    - link "Delete All Devices LIVE" [ref=e167] [cursor=pointer]:
+                      - /url: /v8/delete-all-devices
+                      - text: 
+                      - generic [ref=e168]: Delete All Devices
+                      - generic "Real PingOne API" [ref=e169]: LIVE
+                  - listitem [ref=e170]:
+                    - link "Flow Comparison Tool LIVE" [ref=e171] [cursor=pointer]:
+                      - /url: /v8u/flow-comparison
+                      - text: 
+                      - generic [ref=e172]: Flow Comparison Tool
+                      - generic "Real PingOne API" [ref=e173]: LIVE
+                  - listitem [ref=e174]:
+                    - link "Token Monitoring Dashboard LIVE" [ref=e175] [cursor=pointer]:
+                      - /url: /v8u/token-monitoring
+                      - text: 
+                      - generic [ref=e176]: Token Monitoring Dashboard
+                      - generic "Real PingOne API" [ref=e177]: LIVE
+        - group [ref=e178]:
+          - button "Tokens & Session" [expanded] [ref=e180] [cursor=pointer]:
+            - generic [ref=e181]:
+              - generic [ref=e182]: 
+              - text: Tokens & Session
+            - generic [ref=e183]: 
+          - region "Tokens & Session" [ref=e184]:
+            - list [ref=e185]:
+              - listitem [ref=e186]:
+                - link "Worker Token LIVE" [ref=e187] [cursor=pointer]:
+                  - /url: /flows/worker-token-v9
+                  - text: 
+                  - generic [ref=e188]: Worker Token
+                  - generic "Real PingOne API" [ref=e189]: LIVE
+              - listitem [ref=e190]:
+                - link "Token Operations LIVE" [ref=e191] [cursor=pointer]:
+                  - /url: /token/operations
+                  - text: 
+                  - generic [ref=e192]: Token Operations
+                  - generic "Real PingOne API" [ref=e193]: LIVE
+              - listitem [ref=e194]:
+                - link "UserInfo Flow LIVE" [ref=e195] [cursor=pointer]:
+                  - /url: /flows/userinfo
+                  - text: 
+                  - generic [ref=e196]: UserInfo Flow
+                  - generic "Real PingOne API" [ref=e197]: LIVE
+              - listitem [ref=e198]:
+                - link "PingOne Logout LIVE" [ref=e199] [cursor=pointer]:
+                  - /url: /flows/pingone-logout
+                  - text: 
+                  - generic [ref=e200]: PingOne Logout
+                  - generic "Real PingOne API" [ref=e201]: LIVE
+              - listitem [ref=e202]:
+                - link "Redirectless Login Modal LIVE" [ref=e203] [cursor=pointer]:
+                  - /url: /flows/redirectless-v9-real
+                  - text: 
+                  - generic [ref=e204]: Redirectless Login Modal
+                  - generic "Real PingOne API" [ref=e205]: LIVE
+        - group [ref=e206]:
+          - button "Documentation & Reference" [expanded] [ref=e208] [cursor=pointer]:
+            - generic [ref=e209]:
+              - generic [ref=e210]: 
+              - text: Documentation & Reference
+            - generic [ref=e211]: 
+          - region "Documentation & Reference" [ref=e212]:
+            - list [ref=e213]:
+              - listitem [ref=e214]:
+                - link "Documentation Hub DOCS" [ref=e215] [cursor=pointer]:
+                  - /url: /documentation
+                  - text: 
+                  - generic [ref=e216]: Documentation Hub
+                  - generic "Documentation & Reference" [ref=e217]: DOCS
+              - listitem [ref=e218]:
+                - link "OIDC Overview DOCS" [ref=e219] [cursor=pointer]:
+                  - /url: /documentation/oidc-overview
+                  - text: 
+                  - generic [ref=e220]: OIDC Overview
+                  - generic "Documentation & Reference" [ref=e221]: DOCS
+              - listitem [ref=e222]:
+                - link "Migration Guide DOCS" [ref=e223] [cursor=pointer]:
+                  - /url: /docs/migration
+                  - text: 
+                  - generic [ref=e224]: Migration Guide
+                  - generic "Documentation & Reference" [ref=e225]: DOCS
+              - listitem [ref=e226]:
+                - link "OAuth 2.1 Specification DOCS" [ref=e227] [cursor=pointer]:
+                  - /url: /oauth-2-1
+                  - text: 
+                  - generic [ref=e228]: OAuth 2.1 Specification
+                  - generic "Documentation & Reference" [ref=e229]: DOCS
+              - listitem [ref=e230]:
+                - link "OAuth 2.0 Security Best Practices DOCS" [ref=e231] [cursor=pointer]:
+                  - /url: /docs/oauth2-security-best-practices
+                  - text: 
+                  - generic [ref=e232]: OAuth 2.0 Security Best Practices
+                  - generic "Documentation & Reference" [ref=e233]: DOCS
+              - listitem [ref=e234]:
+                - link "OAuth Education DOCS" [ref=e235] [cursor=pointer]:
+                  - /url: /comprehensive-oauth-education
+                  - text: 
+                  - generic [ref=e236]: OAuth Education
+                  - generic "Documentation & Reference" [ref=e237]: DOCS
+              - listitem [ref=e238]:
+                - link "Resources API Tutorial DOCS" [ref=e239] [cursor=pointer]:
+                  - /url: /v9/resources-api
+                  - text: 
+                  - generic [ref=e240]: Resources API Tutorial
+                  - generic "Documentation & Reference" [ref=e241]: DOCS
+              - listitem [ref=e242]:
+                - link "Advanced OAuth Parameters Demo DOCS" [ref=e243] [cursor=pointer]:
+                  - /url: /flows/advanced-oauth-params-demo
+                  - text: 
+                  - generic [ref=e244]: Advanced OAuth Parameters Demo
+                  - generic "Documentation & Reference" [ref=e245]: DOCS
+              - listitem [ref=e246]:
+                - link "RAR vs PAR and DPoP Guide DOCS" [ref=e247] [cursor=pointer]:
+                  - /url: /par-vs-rar
+                  - text: 
+                  - generic [ref=e248]: RAR vs PAR and DPoP Guide
+                  - generic "Documentation & Reference" [ref=e249]: DOCS
+              - listitem [ref=e250]:
+                - link "CIBA vs Device Authorization Guide DOCS" [ref=e251] [cursor=pointer]:
+                  - /url: /ciba-vs-device-authz
+                  - text: 
+                  - generic [ref=e252]: CIBA vs Device Authorization Guide
+                  - generic "Documentation & Reference" [ref=e253]: DOCS
+              - listitem [ref=e254]:
+                - link "OAuth Scopes Reference DOCS" [ref=e255] [cursor=pointer]:
+                  - /url: /pingone-scopes-reference
+                  - text: 
+                  - generic [ref=e256]: OAuth Scopes Reference
+                  - generic "Documentation & Reference" [ref=e257]: DOCS
+              - listitem [ref=e258]:
+                - link "OIDC Specifications DOCS" [ref=e259] [cursor=pointer]:
+                  - /url: /docs/oidc-specs
+                  - text: 
+                  - generic [ref=e260]: OIDC Specifications
+                  - generic "Documentation & Reference" [ref=e261]: DOCS
+              - listitem [ref=e262]:
+                - link "SPIFFE/SPIRE with PingOne DOCS" [ref=e263] [cursor=pointer]:
+                  - /url: /docs/spiffe-spire-pingone
+                  - text: 
+                  - generic [ref=e264]: SPIFFE/SPIRE with PingOne
+                  - generic "Documentation & Reference" [ref=e265]: DOCS
+              - listitem [ref=e266]:
+                - link "Mock & Educational Features DOCS" [ref=e267] [cursor=pointer]:
+                  - /url: /pingone-mock-features
+                  - text: 
+                  - generic [ref=e268]: Mock & Educational Features
+                  - generic "Documentation & Reference" [ref=e269]: DOCS
+              - listitem [ref=e270]:
+                - link "PingOne Sessions API DOCS" [ref=e271] [cursor=pointer]:
+                  - /url: /pingone-sessions-api
+                  - text: 
+                  - generic [ref=e272]: PingOne Sessions API
+                  - generic "Documentation & Reference" [ref=e273]: DOCS
+              - listitem [ref=e274]:
+                - link "OIDC Information DOCS" [ref=e275] [cursor=pointer]:
+                  - /url: /oidc
+                  - text: 
+                  - generic [ref=e276]: OIDC Information
+                  - generic "Documentation & Reference" [ref=e277]: DOCS
+              - listitem [ref=e278]:
+                - link "OIDC Session Management DOCS" [ref=e279] [cursor=pointer]:
+                  - /url: /oidc-session-management
+                  - text: 
+                  - generic [ref=e280]: OIDC Session Management
+                  - generic "Documentation & Reference" [ref=e281]: DOCS
+        - group [ref=e282]:
+          - button "AI & Identity" [expanded] [ref=e284] [cursor=pointer]:
+            - generic [ref=e285]:
+              - generic [ref=e286]: 
+              - text: AI & Identity
+            - generic [ref=e287]: 
+          - region "AI & Identity" [ref=e288]:
+            - list [ref=e289]:
+              - listitem [ref=e290]:
+                - link "MasterFlow Agent 🤖 AI" [ref=e291] [cursor=pointer]:
+                  - /url: /ai-assistant
+                  - text: 
+                  - generic [ref=e292]: MasterFlow Agent
+                  - generic "AI & Identity" [ref=e293]: 🤖 AI
+              - listitem [ref=e294]:
+                - link "MCP Server Config 🤖 AI" [ref=e295] [cursor=pointer]:
+                  - /url: /mcp-server
+                  - text: 
+                  - generic [ref=e296]: MCP Server Config
+                  - generic "AI & Identity" [ref=e297]: 🤖 AI
+              - listitem [ref=e298]:
+                - link "MCP Documentation 🤖 AI" [ref=e299] [cursor=pointer]:
+                  - /url: /documentation/mcp
+                  - text: 
+                  - generic [ref=e300]: MCP Documentation
+                  - generic "AI & Identity" [ref=e301]: 🤖 AI
+              - listitem [ref=e302]:
+                - link "AI Agent Overview 🤖 AI" [ref=e303] [cursor=pointer]:
+                  - /url: /ai-agent-overview
+                  - text: 
+                  - generic [ref=e304]: AI Agent Overview
+                  - generic "AI & Identity" [ref=e305]: 🤖 AI
+              - listitem [ref=e306]:
+                - link "AI Glossary 🤖 AI" [ref=e307] [cursor=pointer]:
+                  - /url: /ai-glossary
+                  - text: 
+                  - generic [ref=e308]: AI Glossary
+                  - generic "AI & Identity" [ref=e309]: 🤖 AI
+              - listitem [ref=e310]:
+                - link "🚀 Complete Prompts Guide 🤖 AI" [ref=e311] [cursor=pointer]:
+                  - /url: /docs/prompts/prompt-all
+                  - text: 
+                  - generic [ref=e312]: 🚀 Complete Prompts Guide
+                  - generic "AI & Identity" [ref=e313]: 🤖 AI
+              - listitem [ref=e314]:
+                - link "VSCode Migration Guide 🤖 AI" [ref=e315] [cursor=pointer]:
+                  - /url: /docs/migration/migrate-vscode
+                  - text: 
+                  - generic [ref=e316]: VSCode Migration Guide
+                  - generic "AI & Identity" [ref=e317]: 🤖 AI
+              - listitem [ref=e318]:
+                - list [ref=e319]:
+                  - listitem [ref=e320]:
+                    - link "Ping AI Resources 🤖 AI" [ref=e321] [cursor=pointer]:
+                      - /url: /ping-ai-resources
+                      - text: 
+                      - generic [ref=e322]: Ping AI Resources
+                      - generic "AI & Identity" [ref=e323]: 🤖 AI
+                  - listitem [ref=e324]:
+                    - link "AI Identity Architectures 🤖 AI" [ref=e325] [cursor=pointer]:
+                      - /url: /ai-identity-architectures
+                      - text: 
+                      - generic [ref=e326]: AI Identity Architectures
+                      - generic "AI & Identity" [ref=e327]: 🤖 AI
+                  - listitem [ref=e328]:
+                    - link "OIDC for AI 🤖 AI" [ref=e329] [cursor=pointer]:
+                      - /url: /docs/oidc-for-ai
+                      - text: 
+                      - generic [ref=e330]: OIDC for AI
+                      - generic "AI & Identity" [ref=e331]: 🤖 AI
+                  - listitem [ref=e332]:
+                    - link "OAuth for AI 🤖 AI" [ref=e333] [cursor=pointer]:
+                      - /url: /docs/oauth-for-ai
+                      - text: 
+                      - generic [ref=e334]: OAuth for AI
+                      - generic "AI & Identity" [ref=e335]: 🤖 AI
+                  - listitem [ref=e336]:
+                    - link "PingOne AI Perspective 🤖 AI" [ref=e337] [cursor=pointer]:
+                      - /url: /docs/ping-view-on-ai
+                      - text: 
+                      - generic [ref=e338]: PingOne AI Perspective
+                      - generic "AI & Identity" [ref=e339]: 🤖 AI
+                  - listitem [ref=e340]:
+                    - link "AI Agent Auth (IETF Draft) 🤖 AI" [ref=e341] [cursor=pointer]:
+                      - /url: /docs/ai-agent-auth-draft
+                      - text: 
+                      - generic [ref=e342]: AI Agent Auth (IETF Draft)
+                      - generic "AI & Identity" [ref=e343]: 🤖 AI
+        - group [ref=e344]:
+          - button "Developer & Tools" [expanded] [ref=e346] [cursor=pointer]:
+            - generic [ref=e347]:
+              - generic [ref=e348]: 
+              - text: Developer & Tools
+            - generic [ref=e349]: 
+          - region "Developer & Tools" [ref=e350]:
+            - list [ref=e351]:
+              - listitem [ref=e352]:
+                - link "Postman Collection Generator TOOL" [ref=e353] [cursor=pointer]:
+                  - /url: /postman-collection-generator
+                  - text: 
+                  - generic [ref=e354]: Postman Collection Generator
+                  - generic "Developer Tool" [ref=e355]: TOOL
+              - listitem [ref=e356]:
+                - link "OAuth Code Generator Hub TOOL" [ref=e357] [cursor=pointer]:
+                  - /url: /oauth-code-generator-hub
+                  - text: 
+                  - generic [ref=e358]: OAuth Code Generator Hub
+                  - generic "Developer Tool" [ref=e359]: TOOL
+              - listitem [ref=e360]:
+                - link "Application Generator TOOL" [ref=e361] [cursor=pointer]:
+                  - /url: /application-generator
+                  - text: 
+                  - generic [ref=e362]: Application Generator
+                  - generic "Developer Tool" [ref=e363]: TOOL
+              - listitem [ref=e364]:
+                - link "Code Editor Demo TOOL" [ref=e365] [cursor=pointer]:
+                  - /url: /code-editor-demo
+                  - text: 
+                  - generic [ref=e366]: Code Editor Demo
+                  - generic "Developer Tool" [ref=e367]: TOOL
+              - listitem [ref=e368]:
+                - link "Client Generator TOOL" [ref=e369] [cursor=pointer]:
+                  - /url: /client-generator
+                  - text: 
+                  - generic [ref=e370]: Client Generator
+                  - generic "Developer Tool" [ref=e371]: TOOL
+              - listitem [ref=e372]:
+                - link "Service Test Runner TOOL" [ref=e373] [cursor=pointer]:
+                  - /url: /service-test-runner
+                  - text: 
+                  - generic [ref=e374]: Service Test Runner
+                  - generic "Developer Tool" [ref=e375]: TOOL
+              - listitem [ref=e376]:
+                - link "SDK Sample App TOOL" [ref=e377] [cursor=pointer]:
+                  - /url: /sdk-sample-app
+                  - text: 
+                  - generic [ref=e378]: SDK Sample App
+                  - generic "Developer Tool" [ref=e379]: TOOL
+              - listitem [ref=e380]:
+                - link "SDK Examples TOOL" [ref=e381] [cursor=pointer]:
+                  - /url: /sdk-examples
+                  - text: 
+                  - generic [ref=e382]: SDK Examples
+                  - generic "Developer Tool" [ref=e383]: TOOL
+              - listitem [ref=e384]:
+                - link "Code Examples TOOL" [ref=e385] [cursor=pointer]:
+                  - /url: /code-examples
+                  - text: 
+                  - generic [ref=e386]: Code Examples
+                  - generic "Developer Tool" [ref=e387]: TOOL
+              - listitem [ref=e388]:
+                - link "JWKS Troubleshooting TOOL" [ref=e389] [cursor=pointer]:
+                  - /url: /jwks-troubleshooting
+                  - text: 
+                  - generic [ref=e390]: JWKS Troubleshooting
+                  - generic "Developer Tool" [ref=e391]: TOOL
+              - listitem [ref=e392]:
+                - link "URL Decoder TOOL" [ref=e393] [cursor=pointer]:
+                  - /url: /url-decoder
+                  - text: 
+                  - generic [ref=e394]: URL Decoder
+                  - generic "Developer Tool" [ref=e395]: TOOL
+              - listitem [ref=e396]:
+                - link "Ultimate Token Display TOOL" [ref=e397] [cursor=pointer]:
+                  - /url: /ultimate-token-display-demo
+                  - text: 
+                  - generic [ref=e398]: Ultimate Token Display
+                  - generic "Developer Tool" [ref=e399]: TOOL
+              - listitem [ref=e400]:
+                - link "DaVinci Todo App TOOL" [ref=e401] [cursor=pointer]:
+                  - /url: /davinci-todo
+                  - text: 
+                  - generic [ref=e402]: DaVinci Todo App
+                  - generic "Developer Tool" [ref=e403]: TOOL
+              - listitem [ref=e404]:
+                - link "Debug Log Viewer TOOL" [ref=e405] [cursor=pointer]:
+                  - /url: /v9/debug-logs-popout
+                  - text: 
+                  - generic [ref=e406]: Debug Log Viewer
+                  - generic "Developer Tool" [ref=e407]: TOOL
+              - listitem [ref=e408]:
+                - link "Mock Server Settings TOOL" [ref=e409] [cursor=pointer]:
+                  - /url: /v7/settings
+                  - text: 
+                  - generic [ref=e410]: Mock Server Settings
+                  - generic "Developer Tool" [ref=e411]: TOOL
+        - group [ref=e412]:
+          - button "Admin & Platform" [expanded] [ref=e414] [cursor=pointer]:
+            - generic [ref=e415]:
+              - generic [ref=e416]: 
+              - text: Admin & Platform
+            - generic [ref=e417]: 
+          - region "Admin & Platform" [ref=e418]:
+            - list [ref=e419]:
+              - listitem [ref=e420]:
+                - link "Custom Domain & API Test ADMIN" [ref=e421] [cursor=pointer]:
+                  - /url: /custom-domain-test
+                  - text: 
+                  - generic [ref=e422]: Custom Domain & API Test
+                  - generic "Admin & Platform" [ref=e423]: ADMIN
+              - listitem [ref=e424]:
+                - link "Webhook Viewer ADMIN" [ref=e425] [cursor=pointer]:
+                  - /url: /pingone-webhook-viewer
+                  - text: 
+                  - generic [ref=e426]: Webhook Viewer
+                  - generic "Admin & Platform" [ref=e427]: ADMIN
+              - listitem [ref=e428]:
+                - link "Organization Licensing ADMIN" [ref=e429] [cursor=pointer]:
+                  - /url: /organization-licensing
+                  - text: 
+                  - generic [ref=e430]: Organization Licensing
+                  - generic "Admin & Platform" [ref=e431]: ADMIN
+              - listitem [ref=e432]:
+                - link "User Profile ADMIN" [ref=e433] [cursor=pointer]:
+                  - /url: /pingone-user-profile
+                  - text: 
+                  - generic [ref=e434]: User Profile
+                  - generic "Admin & Platform" [ref=e435]: ADMIN
+              - listitem [ref=e436]:
+                - link "Password Reset ADMIN" [ref=e437] [cursor=pointer]:
+                  - /url: /security/password-reset
+                  - text: 
+                  - generic [ref=e438]: Password Reset
+                  - generic "Admin & Platform" [ref=e439]: ADMIN
+              - listitem [ref=e440]:
+                - link "Advanced Security Settings ADMIN" [ref=e441] [cursor=pointer]:
+                  - /url: /advanced-security-settings
+                  - text: 
+                  - generic [ref=e442]: Advanced Security Settings
+                  - generic "Admin & Platform" [ref=e443]: ADMIN
+    - main [ref=e445]:
+      - generic [ref=e446]:
+        - generic [ref=e448]: Loading Unified OAuth Flow...
+        - generic [ref=e449]: Preparing flow configuration
+  - button "📋" [ref=e450] [cursor=pointer]
+```
