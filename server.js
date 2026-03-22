@@ -3373,14 +3373,21 @@ app.get('/favicon.ico', (_req, res) => {
 });
 
 // Environment variables endpoint (for frontend to load default credentials)
+// NOTE: client_secret is NEVER returned to the browser — only a boolean flag.
+// The actual secret is used server-side in the token-exchange proxy.
 app.get('/api/env-config', (_req, res) => {
 	console.log('🔧 [Server] Environment config requested');
+
+	const rawSecret =
+		process.env.PINGONE_CLIENT_SECRET || process.env.VITE_PINGONE_CLIENT_SECRET || '';
 
 	const envConfig = {
 		environmentId:
 			process.env.PINGONE_ENVIRONMENT_ID || process.env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		clientId: process.env.PINGONE_CLIENT_ID || process.env.VITE_PINGONE_CLIENT_ID || '',
-		clientSecret: process.env.PINGONE_CLIENT_SECRET || process.env.VITE_PINGONE_CLIENT_SECRET || '',
+		// Never expose the secret — consumers use hasClientSecret to show "pre-configured" UI
+		clientSecret: '',
+		hasClientSecret: rawSecret.length > 0,
 		redirectUri:
 			process.env.PINGONE_REDIRECT_URI ||
 			process.env.VITE_PINGONE_REDIRECT_URI ||
@@ -3393,6 +3400,7 @@ app.get('/api/env-config', (_req, res) => {
 	console.log('📤 [Server] Sending environment config:', {
 		hasEnvironmentId: !!envConfig.environmentId,
 		hasClientId: !!envConfig.clientId,
+		hasClientSecret: envConfig.hasClientSecret,
 		redirectUri: envConfig.redirectUri,
 	});
 
@@ -3844,7 +3852,6 @@ app.post('/api/token-exchange', async (req, res) => {
 		const {
 			grant_type,
 			client_id,
-			client_secret,
 			redirect_uri,
 			code,
 			code_verifier,
@@ -3861,6 +3868,13 @@ app.post('/api/token-exchange', async (req, res) => {
 			username,
 			password,
 		} = req.body;
+
+		// Fall back to server-side env secret when client omits it (Vercel pre-configured mode)
+		const client_secret =
+			req.body.client_secret ||
+			process.env.PINGONE_CLIENT_SECRET ||
+			process.env.VITE_PINGONE_CLIENT_SECRET ||
+			'';
 
 		// Validate required parameters
 		if (!grant_type || !client_id || client_id.trim() === '') {
