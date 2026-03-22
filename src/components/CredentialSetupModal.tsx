@@ -265,6 +265,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 	// True when PINGONE_CLIENT_SECRET is set server-side (Vercel env var) — user doesn't need to enter it
 	const [serverHasSecret, setServerHasSecret] = useState(false);
+	// True when both clientId + clientSecret are server-configured (shared Vercel deployment)
+	const [preConfigured, setPreConfigured] = useState(false);
+	// Allow admins/power-users to override even in preConfigured mode
+	const [showOverrideForm, setShowOverrideForm] = useState(false);
 	const [originalFormData, setOriginalFormData] = useState<typeof formData | null>(null);
 
 	// Handle escape key to close modal
@@ -304,6 +308,10 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			// If server has the secret pre-configured, mark it and leave the field blank
 			if (envConfig.hasClientSecret) {
 				setServerHasSecret(true);
+			}
+			// If both clientId + secret are server-configured, flag full pre-configured mode
+			if (envConfig.preConfigured) {
+				setPreConfigured(true);
 			}
 
 			// Pre-populate form with environment variables (never expose the secret value)
@@ -805,10 +813,14 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			<ModalContent>
 				<ModalHeader>
 					<h2>
-						<span>🔒</span>
-						Setup PingOne Credentials
+						<span>{preConfigured && !showOverrideForm ? '✅' : '🔒'}</span>
+						{preConfigured && !showOverrideForm ? 'Ready to Use' : 'Setup PingOne Credentials'}
 					</h2>
-					<p>Configure your PingOne environment to get started with the OAuth Playground</p>
+					<p>
+						{preConfigured && !showOverrideForm
+							? 'This playground is pre-configured and ready to go. No setup required.'
+							: 'Configure your PingOne environment to get started with the OAuth Playground'}
+					</p>
 				</ModalHeader>
 
 				<ModalBody>
@@ -820,431 +832,519 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						/>
 					)}
 
-					{/* Current localStorage Status */}
-					<div
-						style={{
-							marginBottom: '2rem',
-							padding: '1rem',
-							backgroundColor: '#f8f9fa',
-							borderRadius: '6px',
-							border: '1px solid #dee2e6',
-						}}
-					>
-						<h4
-							style={{ marginTop: 0, marginBottom: '0.5rem', fontSize: '0.9rem', color: '#495057' }}
-						>
-							Current Stored Credentials
-						</h4>
-						<div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
-							<div style={{ marginBottom: '0.25rem' }}>
-								<strong>Permanent Credentials:</strong>{' '}
-								{credentialManager.arePermanentCredentialsComplete() ? (
-									<span style={{ color: '#28a745' }}> Complete</span>
-								) : (
-									<span style={{ color: '#dc3545' }}> Missing</span>
-								)}
+					{/* Pre-configured mode: show ready banner, hide the form */}
+					{preConfigured && !showOverrideForm ? (
+						<>
+							<div
+								style={{
+									padding: '24px',
+									borderRadius: '10px',
+									background: 'linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%)',
+									border: '1.5px solid #6ee7b7',
+									marginBottom: '20px',
+									textAlign: 'center',
+								}}
+							>
+								<div style={{ fontSize: '48px', marginBottom: '12px' }}>✅</div>
+								<h3 style={{ margin: '0 0 8px', color: '#065f46', fontSize: '18px' }}>
+									All credentials are pre-configured
+								</h3>
+								<p style={{ margin: '0', color: '#047857', fontSize: '14px' }}>
+									Client ID and Client Secret are securely stored as server environment variables.
+									You can start using all OAuth flows immediately — no configuration needed.
+								</p>
 							</div>
-							<div style={{ marginBottom: '0.25rem' }}>
-								<strong>Session Credentials:</strong>{' '}
-								{credentialManager.getAllCredentials().clientSecret ? (
-									<span style={{ color: '#28a745' }}> Present</span>
-								) : (
-									<span style={{ color: '#dc3545' }}> Missing</span>
-								)}
-							</div>
-							<div style={{ marginBottom: '0.25rem', fontSize: '0.8rem', color: '#6c757d' }}>
-								<strong>Status:</strong> {credentialManager.getCredentialsStatus().overall}
-							</div>
-							{credentialManager.arePermanentCredentialsComplete() && (
+
+							{formData.environmentId && (
 								<div
 									style={{
-										marginTop: '0.5rem',
-										padding: '0.5rem',
-										backgroundColor: 'white',
-										borderRadius: '4px',
-										border: '1px solid #dee2e6',
+										padding: '12px 16px',
+										borderRadius: '8px',
+										background: '#f8fafc',
+										border: '1px solid #e2e8f0',
+										fontSize: '13px',
+										color: '#475569',
+										marginBottom: '16px',
 									}}
 								>
-									<div>
-										<strong>Environment ID:</strong>{' '}
-										{credentialManager.getAllCredentials().environmentId || 'Not set'}
+									<div style={{ marginBottom: '4px' }}>
+										<strong>Environment ID:</strong> {formData.environmentId}
 									</div>
-									<div>
+									<div style={{ marginBottom: '4px' }}>
 										<strong>Client ID:</strong>{' '}
-										{credentialManager.getAllCredentials().clientId
-											? `${credentialManager.getAllCredentials().clientId.substring(0, 12)}...`
-											: 'Not set'}
+										{formData.clientId
+											? `${formData.clientId.substring(0, 12)}…`
+											: '(server-configured)'}
 									</div>
 									<div>
 										<strong>Client Secret:</strong>{' '}
-										{credentialManager.getAllCredentials().clientSecret ? '' : 'Not set'}
+										<span style={{ color: '#22c55e' }}>🔒 Server-configured (hidden)</span>
 									</div>
 								</div>
 							)}
-						</div>
-					</div>
 
-					<form onSubmit={handleSubmit}>
-						<FormGroup>
-							<label htmlFor="environmentId">Environment ID *</label>
-							<input
-								type="text"
-								id="environmentId"
-								name="environmentId"
-								value={formData.environmentId}
-								onChange={handleChange}
-								placeholder="e.g., abc12345-6789-4abc-def0-1234567890ab"
-								className={errors.environmentId ? 'is-invalid' : ''}
-								disabled={isLoading}
-							/>
-							{errors.environmentId && (
-								<div className="invalid-feedback">{errors.environmentId}</div>
-							)}
-							<div className="form-text">Your PingOne Environment ID from the Admin Console</div>
-						</FormGroup>
-
-						<FormGroup>
-							<label htmlFor="clientId">Client ID *</label>
-							<input
-								type="text"
-								id="clientId"
-								name="clientId"
-								value={formData.clientId}
-								onChange={handleChange}
-								placeholder="Enter your application's Client ID"
-								className={errors.clientId ? 'is-invalid' : ''}
-								disabled={isLoading}
-							/>
-							{errors.clientId && <div className="invalid-feedback">{errors.clientId}</div>}
-							<div className="form-text">The Client ID of your PingOne application</div>
-						</FormGroup>
-
-						<FormGroup>
-							<label htmlFor="clientSecret">Client Secret</label>
-							{serverHasSecret && !formData.clientSecret ? (
-								<>
-									<div
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '8px',
-											padding: '8px 12px',
-											borderRadius: '6px',
-											background: 'var(--color-success-subtle, #d1fae5)',
-											border: '1px solid var(--color-success-muted, #6ee7b7)',
-											color: 'var(--color-success-fg, #065f46)',
-											fontSize: '14px',
-										}}
-									>
-										<span>🔒</span>
-										<span>
-											<strong>Pre-configured</strong> — stored securely as a server environment
-											variable. You can override it below if needed.
-										</span>
+							<button
+								type="button"
+								onClick={() => setShowOverrideForm(true)}
+								style={{
+									background: 'none',
+									border: 'none',
+									color: '#6b7280',
+									fontSize: '12px',
+									cursor: 'pointer',
+									textDecoration: 'underline',
+									padding: '0',
+								}}
+							>
+								Advanced: override or store custom credentials locally
+							</button>
+						</>
+					) : (
+						<>
+							{/* Current localStorage Status */}
+							<div
+								style={{
+									marginBottom: '2rem',
+									padding: '1rem',
+									backgroundColor: '#f8f9fa',
+									borderRadius: '6px',
+									border: '1px solid #dee2e6',
+								}}
+							>
+								<h4
+									style={{
+										marginTop: 0,
+										marginBottom: '0.5rem',
+										fontSize: '0.9rem',
+										color: '#495057',
+									}}
+								>
+									Current Stored Credentials
+								</h4>
+								<div style={{ fontSize: '0.85rem', color: '#6c757d' }}>
+									<div style={{ marginBottom: '0.25rem' }}>
+										<strong>Permanent Credentials:</strong>{' '}
+										{credentialManager.arePermanentCredentialsComplete() ? (
+											<span style={{ color: '#28a745' }}> Complete</span>
+										) : (
+											<span style={{ color: '#dc3545' }}> Missing</span>
+										)}
 									</div>
-									<SecretInputContainer style={{ marginTop: '8px' }}>
-										<input
-											type={showSecret ? 'text' : 'password'}
-											id="clientSecret"
-											name="clientSecret"
-											value={formData.clientSecret}
-											onChange={handleChange}
-											placeholder="Leave blank to use the pre-configured server secret"
-											disabled={isLoading}
-										/>
-										<button
-											type="button"
-											className="toggle-button"
-											onClick={() => setShowSecret(!showSecret)}
-											disabled={isLoading}
-											aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
-											title={showSecret ? 'Hide client secret' : 'Show client secret'}
+									<div style={{ marginBottom: '0.25rem' }}>
+										<strong>Session Credentials:</strong>{' '}
+										{credentialManager.getAllCredentials().clientSecret ? (
+											<span style={{ color: '#28a745' }}> Present</span>
+										) : (
+											<span style={{ color: '#dc3545' }}> Missing</span>
+										)}
+									</div>
+									<div style={{ marginBottom: '0.25rem', fontSize: '0.8rem', color: '#6c757d' }}>
+										<strong>Status:</strong> {credentialManager.getCredentialsStatus().overall}
+									</div>
+									{credentialManager.arePermanentCredentialsComplete() && (
+										<div
+											style={{
+												marginTop: '0.5rem',
+												padding: '0.5rem',
+												backgroundColor: 'white',
+												borderRadius: '4px',
+												border: '1px solid #dee2e6',
+											}}
 										>
-											{showSecret ? (
-												<span style={{ fontSize: '18px' }}>🙈</span>
-											) : (
-												<span style={{ fontSize: '18px' }}>👁️</span>
-											)}
-										</button>
-									</SecretInputContainer>
-								</>
-							) : (
-								<SecretInputContainer>
+											<div>
+												<strong>Environment ID:</strong>{' '}
+												{credentialManager.getAllCredentials().environmentId || 'Not set'}
+											</div>
+											<div>
+												<strong>Client ID:</strong>{' '}
+												{credentialManager.getAllCredentials().clientId
+													? `${credentialManager.getAllCredentials().clientId.substring(0, 12)}...`
+													: 'Not set'}
+											</div>
+											<div>
+												<strong>Client Secret:</strong>{' '}
+												{credentialManager.getAllCredentials().clientSecret ? '' : 'Not set'}
+											</div>
+										</div>
+									)}
+								</div>
+							</div>
+
+							<form onSubmit={handleSubmit}>
+								<FormGroup>
+									<label htmlFor="environmentId">Environment ID *</label>
 									<input
-										type={showSecret ? 'text' : 'password'}
-										id="clientSecret"
-										name="clientSecret"
-										value={formData.clientSecret}
+										type="text"
+										id="environmentId"
+										name="environmentId"
+										value={formData.environmentId}
 										onChange={handleChange}
-										placeholder="Enter your application's Client Secret (optional)"
+										placeholder="e.g., abc12345-6789-4abc-def0-1234567890ab"
+										className={errors.environmentId ? 'is-invalid' : ''}
 										disabled={isLoading}
 									/>
-									<button
-										type="button"
-										className="toggle-button"
-										onClick={() => setShowSecret(!showSecret)}
+									{errors.environmentId && (
+										<div className="invalid-feedback">{errors.environmentId}</div>
+									)}
+									<div className="form-text">
+										Your PingOne Environment ID from the Admin Console
+									</div>
+								</FormGroup>
+
+								<FormGroup>
+									<label htmlFor="clientId">Client ID *</label>
+									<input
+										type="text"
+										id="clientId"
+										name="clientId"
+										value={formData.clientId}
+										onChange={handleChange}
+										placeholder="Enter your application's Client ID"
+										className={errors.clientId ? 'is-invalid' : ''}
 										disabled={isLoading}
-										aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
-										title={showSecret ? 'Hide client secret' : 'Show client secret'}
+									/>
+									{errors.clientId && <div className="invalid-feedback">{errors.clientId}</div>}
+									<div className="form-text">The Client ID of your PingOne application</div>
+								</FormGroup>
+
+								<FormGroup>
+									<label htmlFor="clientSecret">Client Secret</label>
+									{serverHasSecret && !formData.clientSecret ? (
+										<>
+											<div
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '8px 12px',
+													borderRadius: '6px',
+													background: 'var(--color-success-subtle, #d1fae5)',
+													border: '1px solid var(--color-success-muted, #6ee7b7)',
+													color: 'var(--color-success-fg, #065f46)',
+													fontSize: '14px',
+												}}
+											>
+												<span>🔒</span>
+												<span>
+													<strong>Pre-configured</strong> — stored securely as a server environment
+													variable. You can override it below if needed.
+												</span>
+											</div>
+											<SecretInputContainer style={{ marginTop: '8px' }}>
+												<input
+													type={showSecret ? 'text' : 'password'}
+													id="clientSecret"
+													name="clientSecret"
+													value={formData.clientSecret}
+													onChange={handleChange}
+													placeholder="Leave blank to use the pre-configured server secret"
+													disabled={isLoading}
+												/>
+												<button
+													type="button"
+													className="toggle-button"
+													onClick={() => setShowSecret(!showSecret)}
+													disabled={isLoading}
+													aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
+													title={showSecret ? 'Hide client secret' : 'Show client secret'}
+												>
+													{showSecret ? (
+														<span style={{ fontSize: '18px' }}>🙈</span>
+													) : (
+														<span style={{ fontSize: '18px' }}>👁️</span>
+													)}
+												</button>
+											</SecretInputContainer>
+										</>
+									) : (
+										<SecretInputContainer>
+											<input
+												type={showSecret ? 'text' : 'password'}
+												id="clientSecret"
+												name="clientSecret"
+												value={formData.clientSecret}
+												onChange={handleChange}
+												placeholder="Enter your application's Client Secret (optional)"
+												disabled={isLoading}
+											/>
+											<button
+												type="button"
+												className="toggle-button"
+												onClick={() => setShowSecret(!showSecret)}
+												disabled={isLoading}
+												aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
+												title={showSecret ? 'Hide client secret' : 'Show client secret'}
+											>
+												{showSecret ? (
+													<span style={{ fontSize: '18px' }}>🙈</span>
+												) : (
+													<span style={{ fontSize: '18px' }}>👁️</span>
+												)}
+											</button>
+										</SecretInputContainer>
+									)}
+									<div className="form-text">Only required for confidential clients</div>
+								</FormGroup>
+
+								<FormGroup>
+									<label htmlFor="redirectUri">Callback URL *</label>
+									<input
+										type="url"
+										id="redirectUri"
+										name="redirectUri"
+										value={formData.redirectUri}
+										onChange={handleChange}
+										className={errors.redirectUri ? 'is-invalid' : ''}
+										disabled={isLoading}
+										placeholder="https://localhost:3000/authz-callback"
+									/>
+									{errors.redirectUri && (
+										<div className="invalid-feedback">{errors.redirectUri}</div>
+									)}
+									<div className="form-text">
+										Must match the redirect URI configured in your PingOne application
+									</div>
+								</FormGroup>
+
+								<FormGroup>
+									<label htmlFor="region">Region</label>
+									<RegionSelect
+										id="region"
+										value={formData.region}
+										onChange={(r) => {
+											setFormData((prev) => ({ ...prev, region: r }));
+											if (errors.region) setErrors((e) => ({ ...e, region: undefined }));
+										}}
+										disabled={isLoading}
+										variant="compact"
+										style={{
+											width: '100%',
+											padding: '0.75rem',
+											fontSize: '0.875rem',
+											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+											borderRadius: '0.375rem',
+										}}
+									/>
+									<div className="form-text">
+										The region where your PingOne environment is hosted
+									</div>
+								</FormGroup>
+
+								<FormGroup>
+									<label htmlFor="customDomain">Custom Domain (Optional)</label>
+									<input
+										type="text"
+										id="customDomain"
+										name="customDomain"
+										value={formData.customDomain}
+										onChange={handleChange}
+										disabled={isLoading}
+										placeholder="auth.yourcompany.com"
+										style={{
+											width: '100%',
+											padding: '0.75rem',
+											fontSize: '0.875rem',
+											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+											borderRadius: '0.375rem',
+										}}
+									/>
+									<div className="form-text">
+										Your custom PingOne domain (e.g., auth.yourcompany.com). If set, this overrides
+										the region-based domain. Leave empty to use the default region domain.
+									</div>
+								</FormGroup>
+
+								<FormGroup>
+									<label htmlFor="authEndpoint">Authorization Endpoint</label>
+									<input
+										type="url"
+										id="authEndpoint"
+										name="authEndpoint"
+										value={
+											formData.environmentId
+												? (() => {
+														const baseUrl = formData.customDomain.trim()
+															? `https://${formData.customDomain.trim()}`
+															: (() => {
+																	const regionDomains = {
+																		us: 'auth.pingone.com',
+																		eu: 'auth.pingone.eu',
+																		ap: 'auth.pingone.asia',
+																		ca: 'auth.pingone.ca',
+																	};
+																	return `https://${regionDomains[formData.region]}`;
+																})();
+														return `${baseUrl}/${formData.environmentId}/as/authorize`;
+													})()
+												: ''
+										}
+										readOnly
+										disabled
+										style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
+									/>
+									<div className="form-text">Auto-generated from Environment ID</div>
+								</FormGroup>
+
+								<FormGroup>
+									<label htmlFor="scopes">Scopes</label>
+									<input
+										type="text"
+										id="scopes"
+										name="scopes"
+										value="openid profile email"
+										readOnly
+										disabled
+										style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
+									/>
+									<div className="form-text">Standard OAuth scopes for user authentication</div>
+								</FormGroup>
+
+								<FormGroup>
+									<label htmlFor="responseType">Response Type</label>
+									<select
+										id="responseType"
+										name="responseType"
+										value="code"
+										disabled
+										style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
 									>
-										{showSecret ? (
-											<span style={{ fontSize: '18px' }}>🙈</span>
-										) : (
-											<span style={{ fontSize: '18px' }}>👁️</span>
-										)}
-									</button>
-								</SecretInputContainer>
-							)}
-							<div className="form-text">Only required for confidential clients</div>
-						</FormGroup>
-
-						<FormGroup>
-							<label htmlFor="redirectUri">Callback URL *</label>
-							<input
-								type="url"
-								id="redirectUri"
-								name="redirectUri"
-								value={formData.redirectUri}
-								onChange={handleChange}
-								className={errors.redirectUri ? 'is-invalid' : ''}
-								disabled={isLoading}
-								placeholder="https://localhost:3000/authz-callback"
-							/>
-							{errors.redirectUri && <div className="invalid-feedback">{errors.redirectUri}</div>}
-							<div className="form-text">
-								Must match the redirect URI configured in your PingOne application
-							</div>
-						</FormGroup>
-
-						<FormGroup>
-							<label htmlFor="region">Region</label>
-							<RegionSelect
-								id="region"
-								value={formData.region}
-								onChange={(r) => {
-									setFormData((prev) => ({ ...prev, region: r }));
-									if (errors.region) setErrors((e) => ({ ...e, region: undefined }));
-								}}
-								disabled={isLoading}
-								variant="compact"
-								style={{
-									width: '100%',
-									padding: '0.75rem',
-									fontSize: '0.875rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-									borderRadius: '0.375rem',
-								}}
-							/>
-							<div className="form-text">The region where your PingOne environment is hosted</div>
-						</FormGroup>
-
-						<FormGroup>
-							<label htmlFor="customDomain">Custom Domain (Optional)</label>
-							<input
-								type="text"
-								id="customDomain"
-								name="customDomain"
-								value={formData.customDomain}
-								onChange={handleChange}
-								disabled={isLoading}
-								placeholder="auth.yourcompany.com"
-								style={{
-									width: '100%',
-									padding: '0.75rem',
-									fontSize: '0.875rem',
-									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
-									borderRadius: '0.375rem',
-								}}
-							/>
-							<div className="form-text">
-								Your custom PingOne domain (e.g., auth.yourcompany.com). If set, this overrides the
-								region-based domain. Leave empty to use the default region domain.
-							</div>
-						</FormGroup>
-
-						<FormGroup>
-							<label htmlFor="authEndpoint">Authorization Endpoint</label>
-							<input
-								type="url"
-								id="authEndpoint"
-								name="authEndpoint"
-								value={
-									formData.environmentId
-										? (() => {
-												const baseUrl = formData.customDomain.trim()
-													? `https://${formData.customDomain.trim()}`
-													: (() => {
-															const regionDomains = {
-																us: 'auth.pingone.com',
-																eu: 'auth.pingone.eu',
-																ap: 'auth.pingone.asia',
-																ca: 'auth.pingone.ca',
-															};
-															return `https://${regionDomains[formData.region]}`;
-														})();
-												return `${baseUrl}/${formData.environmentId}/as/authorize`;
-											})()
-										: ''
-								}
-								readOnly
-								disabled
-								style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
-							/>
-							<div className="form-text">Auto-generated from Environment ID</div>
-						</FormGroup>
-
-						<FormGroup>
-							<label htmlFor="scopes">Scopes</label>
-							<input
-								type="text"
-								id="scopes"
-								name="scopes"
-								value="openid profile email"
-								readOnly
-								disabled
-								style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
-							/>
-							<div className="form-text">Standard OAuth scopes for user authentication</div>
-						</FormGroup>
-
-						<FormGroup>
-							<label htmlFor="responseType">Response Type</label>
-							<select
-								id="responseType"
-								name="responseType"
-								value="code"
-								disabled
-								style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
-							>
-								<option value="code">code (Authorization Code Flow)</option>
-							</select>
-							<div className="form-text">OAuth response type for authorization code flow</div>
-						</FormGroup>
-					</form>
+										<option value="code">code (Authorization Code Flow)</option>
+									</select>
+									<div className="form-text">OAuth response type for authorization code flow</div>
+								</FormGroup>
+							</form>
+						</>
+					)}
 				</ModalBody>
 
 				<ModalFooter>
-					<div
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							width: '100%',
-						}}
-					>
-						<label
+					{preConfigured && !showOverrideForm ? (
+						<div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+							<SaveButton onClick={onClose}>Got it, let&apos;s go!</SaveButton>
+						</div>
+					) : (
+						<div
 							style={{
 								display: 'flex',
 								alignItems: 'center',
-								gap: '0.5rem',
-								fontSize: '0.875rem',
-								color: '#6b7280',
-								cursor: 'pointer',
+								justifyContent: 'space-between',
+								width: '100%',
 							}}
 						>
-							<input
-								type="checkbox"
+							<label
 								style={{
-									margin: 0,
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									fontSize: '0.875rem',
+									color: '#6b7280',
 									cursor: 'pointer',
 								}}
-								onChange={(e) => {
-									// Store the preference in localStorage
-									if (e.target.checked) {
-										localStorage.setItem('skip_startup_credentials_modal', 'true');
-										logger.info(
-											' [CredentialSetupModal] User chose to skip startup credentials modal',
-											'Logger info'
-										);
-									} else {
-										localStorage.removeItem('skip_startup_credentials_modal');
-										logger.info(
-											' [CredentialSetupModal] User will see startup credentials modal',
-											'Logger info'
-										);
-									}
-								}}
-							/>
-							Do not show again
-						</label>
+							>
+								<input
+									type="checkbox"
+									style={{
+										margin: 0,
+										cursor: 'pointer',
+									}}
+									onChange={(e) => {
+										// Store the preference in localStorage
+										if (e.target.checked) {
+											localStorage.setItem('skip_startup_credentials_modal', 'true');
+											logger.info(
+												' [CredentialSetupModal] User chose to skip startup credentials modal',
+												'Logger info'
+											);
+										} else {
+											localStorage.removeItem('skip_startup_credentials_modal');
+											logger.info(
+												' [CredentialSetupModal] User will see startup credentials modal',
+												'Logger info'
+											);
+										}
+									}}
+								/>
+								Do not show again
+							</label>
 
-						<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-							<div style={{ display: 'flex', gap: '0.5rem' }}>
-								<button
-									type="button"
-									onClick={handleExport}
-									disabled={isLoading}
-									style={{
-										display: 'inline-flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										gap: '0.5rem',
-										padding: '0.75rem 1rem',
-										fontSize: '0.875rem',
-										fontWeight: '500',
-										color: '#3b82f6',
-										background: 'white',
-										border: '1px solid V9_COLORS.PRIMARY.BLUE',
-										borderRadius: '6px',
-										cursor: isLoading ? 'not-allowed' : 'pointer',
-										opacity: isLoading ? 0.65 : 1,
-									}}
-									title="Export credentials to JSON file"
-								>
-									<span>📥</span>
-									Export
-								</button>
-								<button
-									type="button"
-									onClick={handleImport}
-									disabled={isLoading}
-									style={{
-										display: 'inline-flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										gap: '0.5rem',
-										padding: '0.75rem 1rem',
-										fontSize: '0.875rem',
-										fontWeight: '500',
-										color: '#10b981',
-										background: 'white',
-										border: '1px solid V9_COLORS.PRIMARY.GREEN',
-										borderRadius: '6px',
-										cursor: isLoading ? 'not-allowed' : 'pointer',
-										opacity: isLoading ? 0.65 : 1,
-									}}
-									title="Import credentials from JSON file"
-								>
-									<span>📤</span>
-									Import
-								</button>
-							</div>
-							<div style={{ display: 'flex', gap: '0.75rem' }}>
-								<CancelButton onClick={handleCancel} disabled={isLoading}>
-									Cancel
-								</CancelButton>
-								<SaveButton
-									onClick={handleSubmit}
-									disabled={isLoading || (hasBeenSaved && !hasUnsavedChanges)}
-									style={{
-										opacity: hasBeenSaved && !hasUnsavedChanges ? 0.5 : 1,
-										cursor: hasBeenSaved && !hasUnsavedChanges ? 'not-allowed' : 'pointer',
-									}}
-								>
-									{isLoading ? (
-										<>
-											<FiLoader className="animate-spin" />
-											Saving...
-										</>
-									) : hasBeenSaved && !hasUnsavedChanges ? (
-										'Saved'
-									) : (
-										'Save Configuration'
-									)}
-								</SaveButton>
+							<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+								<div style={{ display: 'flex', gap: '0.5rem' }}>
+									<button
+										type="button"
+										onClick={handleExport}
+										disabled={isLoading}
+										style={{
+											display: 'inline-flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											gap: '0.5rem',
+											padding: '0.75rem 1rem',
+											fontSize: '0.875rem',
+											fontWeight: '500',
+											color: '#3b82f6',
+											background: 'white',
+											border: '1px solid V9_COLORS.PRIMARY.BLUE',
+											borderRadius: '6px',
+											cursor: isLoading ? 'not-allowed' : 'pointer',
+											opacity: isLoading ? 0.65 : 1,
+										}}
+										title="Export credentials to JSON file"
+									>
+										<span>📥</span>
+										Export
+									</button>
+									<button
+										type="button"
+										onClick={handleImport}
+										disabled={isLoading}
+										style={{
+											display: 'inline-flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											gap: '0.5rem',
+											padding: '0.75rem 1rem',
+											fontSize: '0.875rem',
+											fontWeight: '500',
+											color: '#10b981',
+											background: 'white',
+											border: '1px solid V9_COLORS.PRIMARY.GREEN',
+											borderRadius: '6px',
+											cursor: isLoading ? 'not-allowed' : 'pointer',
+											opacity: isLoading ? 0.65 : 1,
+										}}
+										title="Import credentials from JSON file"
+									>
+										<span>📤</span>
+										Import
+									</button>
+								</div>
+								<div style={{ display: 'flex', gap: '0.75rem' }}>
+									<CancelButton onClick={handleCancel} disabled={isLoading}>
+										Cancel
+									</CancelButton>
+									<SaveButton
+										onClick={handleSubmit}
+										disabled={isLoading || (hasBeenSaved && !hasUnsavedChanges)}
+										style={{
+											opacity: hasBeenSaved && !hasUnsavedChanges ? 0.5 : 1,
+											cursor: hasBeenSaved && !hasUnsavedChanges ? 'not-allowed' : 'pointer',
+										}}
+									>
+										{isLoading ? (
+											<>
+												<FiLoader className="animate-spin" />
+												Saving...
+											</>
+										) : hasBeenSaved && !hasUnsavedChanges ? (
+											'Saved'
+										) : (
+											'Save Configuration'
+										)}
+									</SaveButton>
+								</div>
 							</div>
 						</div>
-					</div>
+					)}
 				</ModalFooter>
 			</ModalContent>
 		</ModalOverlay>
