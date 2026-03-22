@@ -334,7 +334,7 @@ class AuthorizationUrlValidationService {
 		}
 
 		// Check for openid scope requirement using flow-aware check
-		const requiresOpenId = requiresOpenIdScope(flowType);
+			const requiresOpenId = config.requireOpenId !== false && requiresOpenIdScope(flowType);
 		if (requiresOpenId && !scopes.includes('openid')) {
 			result.errors.push('URL_VALIDATION_ERROR: Missing required scope: openid');
 			result.suggestions.push(
@@ -407,22 +407,7 @@ class AuthorizationUrlValidationService {
 		// Redirect URI validation - only warn if it's HTTP (not HTTPS)
 		// Allow HTTPS localhost URIs (they are valid HTTPS)
 		if (parsedUrl.redirectUri?.startsWith('http://')) {
-			// Check if it's localhost - then it's acceptable but warn anyway
-			try {
-				const url = new URL(parsedUrl.redirectUri);
-				if (['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)) {
-					// HTTP localhost is acceptable for development but warn
-					result.warnings.push(
-						'URL_VALIDATION_WARNING: Redirect URI uses HTTP - HTTPS recommended for security'
-					);
-				} else {
-					// HTTP non-localhost should use HTTPS
-					result.warnings.push('URL_VALIDATION_WARNING: Redirect URI should use HTTPS');
-				}
-			} catch {
-				// If URL parsing fails, just check the prefix
-				result.warnings.push('URL_VALIDATION_WARNING: Redirect URI should use HTTPS');
-			}
+			result.warnings.push('URL_VALIDATION_WARNING: Redirect URI should use HTTPS');
 		}
 	}
 

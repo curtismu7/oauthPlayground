@@ -10,18 +10,6 @@ import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import LoadingFallback from '../LoadingFallback';
 
-// Mock JSDOM for styled components
-Object.defineProperty(window, 'document', {
-	value: {
-		querySelectorAll: vi.fn(() => []),
-		createElement: vi.fn(() => ({
-			setAttribute: vi.fn(),
-			appendChild: vi.fn(),
-		})),
-	},
-	writable: true,
-});
-
 describe('Lazy Loading Components', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();

@@ -4,6 +4,7 @@
  * and error handling with authorization challenges
  */
 
+import { vi } from 'vitest';
 import { BankingAPIClient } from '../../src/banking/BankingAPIClient';
 import { BankingToolProvider } from '../../src/tools/BankingToolProvider';
 import { BankingAuthenticationManager } from '../../src/auth/BankingAuthenticationManager';
@@ -22,8 +23,8 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 
 // Mock axios for both PingOne and Banking API calls
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+vi.mock('axios');
+const mockedAxios = axios as vi.Mocked<typeof axios>;
 
 describe('Banking Operations Integration Tests', () => {
   let bankingClient: BankingAPIClient;
@@ -149,7 +150,7 @@ describe('Banking Operations Integration Tests', () => {
 
   beforeEach(async () => {
     // Reset mocks before each test
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Create a fresh test session for each test
     const testAgentToken = 'test-agent-token-' + Date.now();

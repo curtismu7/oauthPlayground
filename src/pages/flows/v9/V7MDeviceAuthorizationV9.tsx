@@ -2,6 +2,7 @@
 // lint-file-disable: token-value-in-jsx
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
 import { ColoredJsonDisplay } from '../../../components/ColoredJsonDisplay';
 import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 import { DEMO_API_BASE, DEMO_ENVIRONMENT_ID } from '../../../components/PingOneApiCallDisplay';
@@ -691,6 +692,223 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 					<li>Requires client authentication</li>
 				</ul>
 			</V7MHelpModal>
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'Device Authorization Request',
+						description: 'Request device code and user code for device flow.',
+						code: {
+							javascript: `// Device Authorization Flow - JavaScript
+// Step 1: Request device code
+const response = await fetch('https://auth.pingone.com/{environmentId}/as/device_authorization', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: new URLSearchParams({
+    client_id: 'your-client-id',
+    scope: 'openid profile email'
+  })
+});
+
+const deviceAuth = await response.json();
+console.log('User Code:', deviceAuth.user_code);
+console.log('Verification URI:', deviceAuth.verification_uri);
+console.log('Device Code:', deviceAuth.device_code);
+
+// Display to user:
+// "Go to ${deviceAuth.verification_uri} and enter code: ${deviceAuth.user_code}"`,
+							dotnet: `// Device Authorization Flow - C# (.NET)
+using System.Net.Http;
+using System.Text.Json;
+
+// Step 1: Request device code
+var client = new HttpClient();
+var content = new FormUrlEncodedContent(new Dictionary<string, string>
+{
+    { "client_id", "your-client-id" },
+    { "scope", "openid profile email" }
+});
+
+var response = await client.PostAsync(
+    "https://auth.pingone.com/{environmentId}/as/device_authorization",
+    content
+);
+
+var json = await response.Content.ReadAsStringAsync();
+var deviceAuth = JsonSerializer.Deserialize<DeviceAuthResponse>(json);
+
+Console.WriteLine($"User Code: {deviceAuth.UserCode}");
+Console.WriteLine($"Verification URI: {deviceAuth.VerificationUri}");
+Console.WriteLine($"Device Code: {deviceAuth.DeviceCode}");`,
+							go: `// Device Authorization Flow - Go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+)
+
+func main() {
+	// Step 1: Request device code
+	data := url.Values{}
+	data.Set("client_id", "your-client-id")
+	data.Set("scope", "openid profile email")
+
+	resp, err := http.Post(
+		"https://auth.pingone.com/{environmentId}/as/device_authorization",
+		"application/x-www-form-urlencoded",
+		strings.NewReader(data.Encode()),
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	var deviceAuth map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&deviceAuth)
+
+	fmt.Println("User Code:", deviceAuth["user_code"])
+	fmt.Println("Verification URI:", deviceAuth["verification_uri"])
+	fmt.Println("Device Code:", deviceAuth["device_code"])
+}`,
+						},
+					},
+					{
+						title: 'Poll for Tokens',
+						description: 'Poll the token endpoint until user completes authorization.',
+						code: {
+							javascript: `// Step 2: Poll for tokens - JavaScript
+const deviceCode = deviceAuth.device_code;
+const interval = deviceAuth.interval || 5; // seconds
+
+async function pollForTokens() {
+  while (true) {
+    await new Promise(resolve => setTimeout(resolve, interval * 1000));
+
+    const response = await fetch('https://auth.pingone.com/{environmentId}/as/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+        device_code: deviceCode,
+        client_id: 'your-client-id'
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.access_token) {
+      console.log('Access Token:', result.access_token);
+      return result;
+    } else if (result.error === 'authorization_pending') {
+      console.log('Waiting for user authorization...');
+      continue;
+    } else if (result.error === 'slow_down') {
+      interval += 5; // Increase polling interval
+      continue;
+    } else {
+      throw new Error(result.error_description || result.error);
+    }
+  }
+}
+
+pollForTokens();`,
+							dotnet: `// Step 2: Poll for tokens - C# (.NET)
+using System.Threading.Tasks;
+
+var deviceCode = deviceAuth.DeviceCode;
+var interval = deviceAuth.Interval ?? 5; // seconds
+
+async Task<TokenResponse> PollForTokens()
+{
+    while (true)
+    {
+        await Task.Delay(interval * 1000);
+
+        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            { "grant_type", "urn:ietf:params:oauth:grant-type:device_code" },
+            { "device_code", deviceCode },
+            { "client_id", "your-client-id" }
+        });
+
+        var response = await client.PostAsync(
+            "https://auth.pingone.com/{environmentId}/as/token",
+            content
+        );
+
+        var json = await response.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<TokenResponse>(json);
+
+        if (result.AccessToken != null)
+        {
+            Console.WriteLine($"Access Token: {result.AccessToken}");
+            return result;
+        }
+        else if (result.Error == "authorization_pending")
+        {
+            Console.WriteLine("Waiting for user authorization...");
+            continue;
+        }
+        else if (result.Error == "slow_down")
+        {
+            interval += 5;
+            continue;
+        }
+        else
+        {
+            throw new Exception(result.ErrorDescription ?? result.Error);
+        }
+    }
+}`,
+							go: `// Step 2: Poll for tokens - Go
+func pollForTokens(deviceCode string, interval int) (map[string]interface{}, error) {
+	for {
+		time.Sleep(time.Duration(interval) * time.Second)
+
+		data := url.Values{}
+		data.Set("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
+		data.Set("device_code", deviceCode)
+		data.Set("client_id", "your-client-id")
+
+		resp, err := http.Post(
+			"https://auth.pingone.com/{environmentId}/as/token",
+			"application/x-www-form-urlencoded",
+			strings.NewReader(data.Encode()),
+		)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+
+		var result map[string]interface{}
+		json.NewDecoder(resp.Body).Decode(&result)
+
+		if accessToken, ok := result["access_token"]; ok {
+			fmt.Println("Access Token:", accessToken)
+			return result, nil
+		} else if result["error"] == "authorization_pending" {
+			fmt.Println("Waiting for user authorization...")
+			continue
+		} else if result["error"] == "slow_down" {
+			interval += 5
+			continue
+		} else {
+			return nil, fmt.Errorf("%v", result["error"])
+		}
+	}
+}`,
+						},
+					},
+				]}
+			/>
 		</div>
 	);
 };

@@ -1,0 +1,239 @@
+<mxfile host="Lucidchart" modified="2026-03-22" agent="Claude" version="21.0.0">
+  <diagram id="arch-main" name="MasterFlow + Banking Architecture">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1"
+                  connect="1" arrows="1" fold="1" page="1" pageScale="1"
+                  pageWidth="1200" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ═══════════════════════════════════════════════
+             CONTAINERS (subgraphs)
+             ═══════════════════════════════════════════════ -->
+
+        <!-- User Browser -->
+        <mxCell id="c_browser" value="User Browser"
+                style="swimlane;fontStyle=1;align=center;startSize=30;
+                       fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#000000;
+                       rounded=1;arcSize=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="200" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- OAuth Playground (Vercel) -->
+        <mxCell id="c_oauth" value="OAuth Playground (Vercel)"
+                style="swimlane;fontStyle=1;align=center;startSize=30;
+                       fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;
+                       rounded=1;arcSize=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="310" y="60" width="270" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- Banking Demo (Vercel) -->
+        <mxCell id="c_banking" value="Banking Demo (Vercel)"
+                style="swimlane;fontStyle=1;align=center;startSize=30;
+                       fillColor=#ffe6cc;strokeColor=#d79b00;fontColor=#000000;
+                       rounded=1;arcSize=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="660" y="60" width="270" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- Banking MCP Cluster -->
+        <mxCell id="c_mcp" value="Banking MCP Cluster"
+                style="swimlane;fontStyle=1;align=center;startSize=30;
+                       fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#000000;
+                       rounded=1;arcSize=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="660" y="310" width="270" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- PingOne -->
+        <mxCell id="c_ping" value="PingOne"
+                style="swimlane;fontStyle=1;align=center;startSize=30;
+                       fillColor=#f8cecc;strokeColor=#b85450;fontColor=#000000;
+                       rounded=1;arcSize=5;"
+                vertex="1" parent="1">
+          <mxGeometry x="310" y="310" width="270" height="190" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════
+             NODES
+             ═══════════════════════════════════════════════ -->
+
+        <!-- UI -->
+        <mxCell id="ui" value="MasterFlow UI&#xa;(React / Vite)"
+                style="rounded=1;whiteSpace=wrap;html=1;
+                       fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=0;"
+                vertex="1" parent="c_browser">
+          <mxGeometry x="35" y="45" width="130" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- EXP -->
+        <mxCell id="exp" value="Express&#xa;server.js&#xa;/api/*"
+                style="rounded=1;whiteSpace=wrap;html=1;
+                       fillColor=#d5e8d4;strokeColor=#82b366;"
+                vertex="1" parent="c_oauth">
+          <mxGeometry x="20" y="45" width="105" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- VFN -->
+        <mxCell id="vfn" value="Vercel Serverless&#xa;api/token-exchange.js"
+                style="rounded=1;whiteSpace=wrap;html=1;
+                       fillColor=#d5e8d4;strokeColor=#82b366;"
+                vertex="1" parent="c_oauth">
+          <mxGeometry x="145" y="45" width="105" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- BAPI -->
+        <mxCell id="bapi" value="Banking API Server&#xa;(Express)"
+                style="rounded=1;whiteSpace=wrap;html=1;
+                       fillColor=#ffe6cc;strokeColor=#d79b00;"
+                vertex="1" parent="c_banking">
+          <mxGeometry x="20" y="45" width="105" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- BUIS -->
+        <mxCell id="buis" value="Banking UI&#xa;(React)"
+                style="rounded=1;whiteSpace=wrap;html=1;
+                       fillColor=#ffe6cc;strokeColor=#d79b00;"
+                vertex="1" parent="c_banking">
+          <mxGeometry x="145" y="45" width="105" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- BMCP -->
+        <mxCell id="bmcp" value="Banking MCP Server&#xa;(TypeScript / WebSocket)"
+                style="rounded=1;whiteSpace=wrap;html=1;
+                       fillColor=#e1d5e7;strokeColor=#9673a6;"
+                vertex="1" parent="c_mcp">
+          <mxGeometry x="20" y="45" width="105" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- AGENT -->
+        <mxCell id="agent" value="LangChain Agent&#xa;(Python / FastAPI)"
+                style="rounded=1;whiteSpace=wrap;html=1;
+                       fillColor=#e1d5e7;strokeColor=#9673a6;"
+                vertex="1" parent="c_mcp">
+          <mxGeometry x="145" y="45" width="105" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- P1_AUTH -->
+        <mxCell id="p1auth" value="Authorization&#xa;Endpoint"
+                style="rounded=1;whiteSpace=wrap;html=1;
+                       fillColor=#f8cecc;strokeColor=#b85450;"
+                vertex="1" parent="c_ping">
+          <mxGeometry x="20" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- P1_TOK -->
+        <mxCell id="p1tok" value="Token&#xa;Endpoint"
+                style="rounded=1;whiteSpace=wrap;html=1;
+                       fillColor=#f8cecc;strokeColor=#b85450;"
+                vertex="1" parent="c_ping">
+          <mxGeometry x="150" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- P1_INT -->
+        <mxCell id="p1int" value="Introspect&#xa;Endpoint"
+                style="rounded=1;whiteSpace=wrap;html=1;
+                       fillColor=#f8cecc;strokeColor=#b85450;"
+                vertex="1" parent="c_ping">
+          <mxGeometry x="20" y="115" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- P1_MGMT -->
+        <mxCell id="p1mgmt" value="Management&#xa;API"
+                style="rounded=1;whiteSpace=wrap;html=1;
+                       fillColor=#f8cecc;strokeColor=#b85450;"
+                vertex="1" parent="c_ping">
+          <mxGeometry x="150" y="115" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ═══════════════════════════════════════════════
+             EDGES  (all parented to root "1" so they can
+             cross container boundaries)
+             ═══════════════════════════════════════════════ -->
+
+        <!-- UI → EXP : OAuth flows via BFF -->
+        <mxCell id="e1" value="OAuth flows&#xa;via BFF"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;
+                       fontSize=10;labelBackgroundColor=#ffffff;"
+                edge="1" source="ui" target="exp" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- UI → VFN : token-exchange request -->
+        <mxCell id="e2" value="token-exchange&#xa;request"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;
+                       fontSize=10;labelBackgroundColor=#ffffff;dashed=1;"
+                edge="1" source="ui" target="vfn" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- EXP → P1_TOK : token exchange rfc 8693 -->
+        <mxCell id="e3" value="token exchange&#xa;rfc 8693"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;
+                       fontSize=10;labelBackgroundColor=#ffffff;"
+                edge="1" source="exp" target="p1tok" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- VFN → P1_TOK : token exchange -->
+        <mxCell id="e4" value="token exchange"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;
+                       fontSize=10;labelBackgroundColor=#ffffff;"
+                edge="1" source="vfn" target="p1tok" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- BUIS → BAPI : banking requests -->
+        <mxCell id="e5" value="banking requests"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;
+                       fontSize=10;labelBackgroundColor=#ffffff;"
+                edge="1" source="buis" target="bapi" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- BAPI → P1_INT : validate token -->
+        <mxCell id="e6" value="validate token"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;
+                       fontSize=10;labelBackgroundColor=#ffffff;"
+                edge="1" source="bapi" target="p1int" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- AGENT → BMCP : WS + Authorization: Bearer -->
+        <mxCell id="e7" value="WS + Authorization: Bearer"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;
+                       fontSize=10;labelBackgroundColor=#ffffff;"
+                edge="1" source="agent" target="bmcp" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- BMCP → P1_INT : introspect agent token -->
+        <mxCell id="e8" value="introspect agent token"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;
+                       fontSize=10;labelBackgroundColor=#ffffff;"
+                edge="1" source="bmcp" target="p1int" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- AGENT → P1_TOK : CC token + resource indicator -->
+        <mxCell id="e9" value="CC token +&#xa;resource indicator"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;
+                       fontSize=10;labelBackgroundColor=#ffffff;"
+                edge="1" source="agent" target="p1tok" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- AGENT → P1_AUTH : user delegated request -->
+        <mxCell id="e10" value="user delegated request"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;
+                       fontSize=10;labelBackgroundColor=#ffffff;dashed=1;"
+                edge="1" source="agent" target="p1auth" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,6 +1,7 @@
 // src/pages/flows/v9/V7MROPCV9.tsx
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
 import { ColoredJsonDisplay } from '../../../components/ColoredJsonDisplay';
 import ColoredUrlDisplay from '../../../components/ColoredUrlDisplay';
 import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
@@ -807,6 +808,92 @@ token=<access_token>`}
 					</pre>
 				</div>
 			</V7MHelpModal>
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'Resource Owner Password Credentials Request',
+						description: 'Request tokens using username and password (deprecated flow).',
+						code: {
+							javascript: `// ROPC Flow - JavaScript (DEPRECATED - Use Authorization Code with PKCE instead)
+const response = await fetch('https://auth.pingone.com/{environmentId}/as/token', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: new URLSearchParams({
+    grant_type: 'password',
+    username: 'user@example.com',
+    password: 'user-password',
+    client_id: 'your-client-id',
+    client_secret: 'your-client-secret',
+    scope: 'openid profile email'
+  })
+});
+
+const tokens = await response.json();
+const accessToken = tokens.access_token;
+const idToken = tokens.id_token;
+const refreshToken = tokens.refresh_token;`,
+							dotnet: `// ROPC Flow - C# (.NET) (DEPRECATED - Use Authorization Code with PKCE instead)
+using System.Net.Http;
+using System.Text.Json;
+
+var client = new HttpClient();
+var content = new FormUrlEncodedContent(new Dictionary<string, string>
+{
+    { "grant_type", "password" },
+    { "username", "user@example.com" },
+    { "password", "user-password" },
+    { "client_id", "your-client-id" },
+    { "client_secret", "your-client-secret" },
+    { "scope", "openid profile email" }
+});
+
+var response = await client.PostAsync(
+    "https://auth.pingone.com/{environmentId}/as/token",
+    content
+);
+
+var json = await response.Content.ReadAsStringAsync();
+var tokens = JsonSerializer.Deserialize<TokenResponse>(json);
+Console.WriteLine($"Access Token: {tokens.AccessToken}");`,
+							go: `// ROPC Flow - Go (DEPRECATED - Use Authorization Code with PKCE instead)
+package main
+
+import (
+	"encoding/json"
+	"net/http"
+	"net/url"
+	"strings"
+)
+
+func main() {
+	data := url.Values{}
+	data.Set("grant_type", "password")
+	data.Set("username", "user@example.com")
+	data.Set("password", "user-password")
+	data.Set("client_id", "your-client-id")
+	data.Set("client_secret", "your-client-secret")
+	data.Set("scope", "openid profile email")
+
+	resp, err := http.Post(
+		"https://auth.pingone.com/{environmentId}/as/token",
+		"application/x-www-form-urlencoded",
+		strings.NewReader(data.Encode()),
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	var tokens map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&tokens)
+}`,
+						},
+					},
+				]}
+			/>
 		</div>
 	);
 };
