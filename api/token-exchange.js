@@ -36,7 +36,6 @@ export default async function handler(req, res) {
 		const {
 			environment_id,
 			client_id,
-			client_secret,
 			client_auth_method,
 			code,
 			redirect_uri,
@@ -56,6 +55,9 @@ export default async function handler(req, res) {
 			audience,
 			resource,
 		} = req.body;
+
+		// Fall back to server-side env secret when the client omits it (Vercel pre-configured mode)
+		const client_secret = req.body.client_secret || process.env.PINGONE_CLIENT_SECRET || '';
 
 		// Validate required fields based on grant type
 		if (!environment_id) {
