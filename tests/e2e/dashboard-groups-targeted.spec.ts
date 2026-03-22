@@ -130,9 +130,9 @@ test.describe('Dashboard Groups - Targeted Tests', () => {
 			await page.waitForTimeout(500);
 		}
 
-		// Check for dashboard-specific content
-		await expect(dashboardContent).toContainText(
-			/Monitor system status|explore OAuth flows|track recent activity/i
+		// Check for dashboard-specific content (subtitle is in header, not content)
+		await expect(dashboardHeader).toContainText(
+			/Monitor system status.*explore OAuth flows.*track recent activity/i
 		);
 
 		// Look for dashboard icon (chart-box)
@@ -278,10 +278,10 @@ test.describe('Dashboard Groups - Targeted Tests', () => {
 			await page.waitForTimeout(500);
 		}
 
-		// Check for activity content
+		// Check for activity content (subtitle is in header)
 		await expect(recentActivityContent).toBeVisible();
-		await expect(recentActivityContent).toContainText(
-			/Latest OAuth flow runs|credential updates|API interactions/i
+		await expect(recentActivityHeader).toContainText(
+			/Latest OAuth flow runs.*credential updates.*API interactions/i
 		);
 
 		// Look for activity items or empty state

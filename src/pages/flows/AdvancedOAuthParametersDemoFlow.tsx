@@ -21,6 +21,7 @@ import {
 	ClaimsRequestBuilder,
 	ClaimsRequestStructure,
 } from '../../components/ClaimsRequestBuilder';
+import { CodeExamplesSection } from '../../components/CodeExamplesSection';
 import DisplayParameterSelector, { DisplayMode } from '../../components/DisplayParameterSelector';
 import { EnhancedPromptSelector, PromptValue } from '../../components/EnhancedPromptSelector';
 import { ResourceParameterInput } from '../../components/ResourceParameterInput';
@@ -542,6 +543,151 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 					</p>
 				</InfoBox>
 			</CollapsibleHeader>
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'Resource Indicators (RFC 8707)',
+						description: 'Request access tokens for specific resource servers.',
+						code: `// Build authorization URL with resource indicators
+const authUrl = new URL('https://auth.example.com/authorize');
+authUrl.searchParams.append('client_id', 'your-client-id');
+authUrl.searchParams.append('redirect_uri', 'https://yourapp.com/callback');
+authUrl.searchParams.append('response_type', 'code');
+authUrl.searchParams.append('scope', 'openid profile email');
+
+// Add multiple resource indicators
+authUrl.searchParams.append('resource', 'https://api.example.com');
+authUrl.searchParams.append('resource', 'https://files.example.com');
+
+// Redirect user to authorization server
+window.location.href = authUrl.toString();
+
+// The resulting access token will have 'aud' claim containing:
+// ["https://api.example.com", "https://files.example.com"]`,
+					},
+					{
+						title: 'ACR Values (Authentication Context)',
+						description: 'Request specific authentication methods or levels.',
+						code: `// Request specific authentication context
+const authUrl = new URL('https://auth.example.com/authorize');
+authUrl.searchParams.append('client_id', 'your-client-id');
+authUrl.searchParams.append('redirect_uri', 'https://yourapp.com/callback');
+authUrl.searchParams.append('response_type', 'code');
+authUrl.searchParams.append('scope', 'openid');
+
+// Request multi-factor authentication
+authUrl.searchParams.append('acr_values', 'urn:mace:incommon:iap:silver urn:mace:incommon:iap:bronze');
+
+// The ID token will contain 'acr' claim indicating which method was used
+// Example: { "acr": "urn:mace:incommon:iap:silver" }`,
+					},
+					{
+						title: 'Claims Request Parameter',
+						description: 'Request specific claims in ID token or UserInfo.',
+						code: `// Request specific claims
+const claimsRequest = {
+  id_token: {
+    email: { essential: true },
+    email_verified: { essential: true },
+    phone_number: null,
+    address: null
+  },
+  userinfo: {
+    given_name: { essential: true },
+    family_name: { essential: true },
+    picture: null
+  }
+};
+
+const authUrl = new URL('https://auth.example.com/authorize');
+authUrl.searchParams.append('client_id', 'your-client-id');
+authUrl.searchParams.append('redirect_uri', 'https://yourapp.com/callback');
+authUrl.searchParams.append('response_type', 'code');
+authUrl.searchParams.append('scope', 'openid profile email');
+
+// Add claims parameter (must be JSON string)
+authUrl.searchParams.append('claims', JSON.stringify(claimsRequest));
+
+window.location.href = authUrl.toString();`,
+					},
+					{
+						title: 'Max Age and Auth Time',
+						description: 'Control authentication freshness requirements.',
+						code: `// Require fresh authentication (within last 5 minutes)
+const authUrl = new URL('https://auth.example.com/authorize');
+authUrl.searchParams.append('client_id', 'your-client-id');
+authUrl.searchParams.append('redirect_uri', 'https://yourapp.com/callback');
+authUrl.searchParams.append('response_type', 'code');
+authUrl.searchParams.append('scope', 'openid');
+
+// Require authentication within last 300 seconds (5 minutes)
+authUrl.searchParams.append('max_age', '300');
+
+window.location.href = authUrl.toString();
+
+// Validate auth_time in ID token
+function validateAuthTime(idToken, maxAge) {
+  const payload = JSON.parse(atob(idToken.split('.')[1]));
+  const authTime = payload.auth_time;
+  const currentTime = Math.floor(Date.now() / 1000);
+  
+  if (currentTime - authTime > maxAge) {
+    throw new Error('Authentication is too old');
+  }
+  
+  return true;
+}`,
+					},
+					{
+						title: 'Display and UI Locales',
+						description: 'Control authorization server UI presentation.',
+						code: `// Request specific UI display and language
+const authUrl = new URL('https://auth.example.com/authorize');
+authUrl.searchParams.append('client_id', 'your-client-id');
+authUrl.searchParams.append('redirect_uri', 'https://yourapp.com/callback');
+authUrl.searchParams.append('response_type', 'code');
+authUrl.searchParams.append('scope', 'openid');
+
+// Request popup display (if supported)
+authUrl.searchParams.append('display', 'popup');
+// Options: page, popup, touch, wap
+
+// Request Spanish UI, fallback to English
+authUrl.searchParams.append('ui_locales', 'es-ES en-US');
+
+// Request Spanish claims in tokens
+authUrl.searchParams.append('claims_locales', 'es-ES en-US');
+
+window.location.href = authUrl.toString();`,
+					},
+					{
+						title: 'ID Token Hint',
+						description: 'Pass existing ID token to hint user identity.',
+						code: `// Use existing ID token to hint user identity
+const existingIdToken = sessionStorage.getItem('id_token');
+
+const authUrl = new URL('https://auth.example.com/authorize');
+authUrl.searchParams.append('client_id', 'your-client-id');
+authUrl.searchParams.append('redirect_uri', 'https://yourapp.com/callback');
+authUrl.searchParams.append('response_type', 'code');
+authUrl.searchParams.append('scope', 'openid');
+
+// Pass existing ID token as hint
+if (existingIdToken) {
+  authUrl.searchParams.append('id_token_hint', existingIdToken);
+}
+
+// Optionally require no interaction if hint is valid
+authUrl.searchParams.append('prompt', 'none');
+
+window.location.href = authUrl.toString();
+
+// If prompt=none and id_token_hint is valid, user won't see login screen
+// If invalid or expired, will get error: login_required`,
+					},
+				]}
+			/>
 		</Container>
 	);
 };

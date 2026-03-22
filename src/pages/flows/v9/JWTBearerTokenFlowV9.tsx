@@ -2,7 +2,9 @@
 // OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V9 Service Architecture
 
 import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Card, CardBody, CardHeader } from '../../../components/Card';
+import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
 import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 import { modernMessaging } from '../../../components/v9/V9ModernMessagingComponents';
 import UnifiedTokenDisplayService from '../../../services/unifiedTokenDisplayService';
@@ -1446,6 +1448,215 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 					)}
 				</div>
 			)}
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'Generate JWT Assertion',
+						description: 'Create a signed JWT assertion for the JWT Bearer grant.',
+						code: `// Generate JWT assertion for JWT Bearer grant (RFC 7523)
+const header = {
+  alg: 'RS256',
+  typ: 'JWT',
+  kid: 'your-key-id' // Key identifier
+};
+
+const now = Math.floor(Date.now() / 1000);
+const payload = {
+  iss: 'your-client-id', // Issuer (your client ID)
+  sub: 'user@example.com', // Subject (user identifier)
+  aud: 'https://auth.example.com/token', // Audience (token endpoint)
+  exp: now + 300, // Expiration (5 minutes from now)
+  iat: now, // Issued at
+  jti: crypto.randomUUID() // Unique identifier
+};
+
+// Sign the JWT with your private key
+const headerB64 = btoa(JSON.stringify(header)).replace(/=/g, '');
+const payloadB64 = btoa(JSON.stringify(payload)).replace(/=/g, '');
+const message = \`\${headerB64}.\${payloadB64}\`;
+
+// Sign with RS256 (requires private key)
+const signature = await crypto.subtle.sign(
+  { name: 'RSASSA-PKCS1-v1_5' },
+  privateKey,
+  new TextEncoder().encode(message)
+);
+
+const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
+  .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');
+
+const jwtAssertion = \`\${message}.\${signatureB64}\`;`,
+					},
+					{
+						title: 'Token Request with JWT Bearer',
+						description: 'Exchange JWT assertion for an access token.',
+						code: `// Request access token using JWT Bearer grant
+const tokenResponse = await fetch('https://auth.example.com/token', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: new URLSearchParams({
+    grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+    assertion: jwtAssertion,
+    scope: 'openid profile email' // Optional
+  })
+});
+
+const tokenData = await tokenResponse.json();
+const accessToken = tokenData.access_token;
+const expiresIn = tokenData.expires_in;
+const tokenType = tokenData.token_type; // 'Bearer'`,
+					},
+					{
+						title: 'Generate RSA Key Pair',
+						description: 'Create an RSA key pair for signing JWT assertions.',
+						code: `// Generate RSA key pair for JWT signing
+const keyPair = await crypto.subtle.generateKey(
+  {
+    name: 'RSASSA-PKCS1-v1_5',
+    modulusLength: 2048,
+    publicExponent: new Uint8Array([1, 0, 1]),
+    hash: 'SHA-256'
+  },
+  true, // extractable
+  ['sign', 'verify']
+);
+
+// Export public key as JWK
+const publicKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
+
+// Export private key (store securely!)
+const privateKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.privateKey);
+
+// Register public key with authorization server
+// The server needs your public key to verify JWT signatures`,
+					},
+					{
+						title: 'Use Access Token for API Calls',
+						description: 'Make authenticated API requests with the access token.',
+						code: `// Use access token to call protected API
+const apiResponse = await fetch('https://api.example.com/users/me', {
+  method: 'GET',
+  headers: {
+    'Authorization': \`Bearer \${accessToken}\`,
+    'Content-Type': 'application/json'
+  }
+});
+
+if (!apiResponse.ok) {
+  throw new Error(\`API error: \${apiResponse.status}\`);
+}
+
+const userData = await apiResponse.json();
+console.log('User data:', userData);`,
+					},
+					{
+						title: 'Security Best Practices',
+						description: 'Important security considerations for JWT Bearer flow.',
+						code: `// ✅ DO: Use short expiration times (5 minutes or less)
+const payload = {
+  exp: Math.floor(Date.now() / 1000) + 300, // 5 minutes
+  // ... other claims
+};
+
+// ✅ DO: Use unique JTI for each assertion
+const payload = {
+  jti: crypto.randomUUID(), // Prevents replay attacks
+  // ... other claims
+};
+
+// ✅ DO: Store private keys securely
+// Never expose private keys in client-side code
+// Use secure key management systems (HSM, KMS)
+
+// ✅ DO: Validate audience claim
+const payload = {
+  aud: 'https://auth.example.com/token', // Exact token endpoint URL
+  // ... other claims
+};
+
+// ✅ DO: Use RS256 or ES256 algorithms
+// Avoid HS256 for JWT Bearer (requires shared secrets)
+
+// ❌ DON'T: Reuse JWT assertions
+// Each token request should use a fresh JWT
+
+// ❌ DON'T: Use long expiration times
+// exp: Math.floor(Date.now() / 1000) + 86400 // 24 hours - TOO LONG
+
+// ❌ DON'T: Skip signature verification on server
+// Always verify JWT signature with registered public key`,
+					},
+					{
+						title: 'Complete Flow Example',
+						description: 'End-to-end implementation of JWT Bearer grant.',
+						code: `// Complete JWT Bearer flow implementation
+async function getAccessTokenWithJWT(clientId, privateKey, subject, tokenEndpoint) {
+  // 1. Create JWT header
+  const header = {
+    alg: 'RS256',
+    typ: 'JWT'
+  };
+
+  // 2. Create JWT payload
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    iss: clientId,
+    sub: subject,
+    aud: tokenEndpoint,
+    exp: now + 300,
+    iat: now,
+    jti: crypto.randomUUID()
+  };
+
+  // 3. Sign JWT
+  const headerB64 = btoa(JSON.stringify(header)).replace(/=/g, '');
+  const payloadB64 = btoa(JSON.stringify(payload)).replace(/=/g, '');
+  const message = \`\${headerB64}.\${payloadB64}\`;
+
+  const signature = await crypto.subtle.sign(
+    { name: 'RSASSA-PKCS1-v1_5' },
+    privateKey,
+    new TextEncoder().encode(message)
+  );
+
+  const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
+    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');
+
+  const jwtAssertion = \`\${message}.\${signatureB64}\`;
+
+  // 4. Request access token
+  const response = await fetch(tokenEndpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwtAssertion,
+      scope: 'openid profile email'
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(\`Token request failed: \${response.status}\`);
+  }
+
+  return await response.json();
+}
+
+// Usage
+const tokenData = await getAccessTokenWithJWT(
+  'your-client-id',
+  privateKey,
+  'user@example.com',
+  'https://auth.example.com/token'
+);
+
+console.log('Access token:', tokenData.access_token);`,
+					},
+				]}
+			/>
 		</div>
 	);
 };

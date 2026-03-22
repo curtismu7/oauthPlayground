@@ -1001,4 +1001,5 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 	);
 };
 
+export { FlowCredentials };
 export default FlowCredentials;

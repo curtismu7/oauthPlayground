@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { CodeExamplesSection } from '../../components/CodeExamplesSection';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { callTool, listTools, type MockToolCallResult } from '../../services/mockMcpAgentService';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
@@ -229,6 +230,96 @@ const MockMcpAgentFlowPage: React.FC = () => {
 					</ul>
 				</div>
 			</div>
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'Step 1: Get Initial Worker Token',
+						description: 'Request a worker token from the MCP server using client credentials.',
+						code: `// Get worker token from MCP server
+const response = await fetch('https://auth.example.com/token', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  },
+  body: new URLSearchParams({
+    grant_type: 'client_credentials',
+    client_id: 'your-client-id',
+    client_secret: 'your-client-secret',
+    scope: 'mcp:tools'
+  })
+});
+
+const data = await response.json();
+// Store the access_token securely
+// NEVER log or expose tokens in production
+const workerToken = data.access_token;`,
+					},
+					{
+						title: 'Step 2: Token Exchange (RFC 8693)',
+						description: 'Exchange the subject token for a new token with different scope.',
+						code: `// Exchange token for broader scope
+const exchangeResponse = await fetch('https://auth.example.com/token', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  },
+  body: new URLSearchParams({
+    grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+    subject_token: workerToken,
+    subject_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+    requested_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+    scope: 'p1:read:user p1:update:user'
+  })
+});
+
+const exchangeData = await exchangeResponse.json();
+const exchangedToken = exchangeData.access_token;`,
+					},
+					{
+						title: 'Step 3: Call Protected API',
+						description: 'Use the exchanged token to access protected resources.',
+						code: `// Call protected API with exchanged token
+const apiResponse = await fetch('https://api.pingone.com/v1/environments/{envId}/users', {
+  method: 'GET',
+  headers: {
+    'Authorization': \`Bearer \${exchangedToken}\`,
+    'Content-Type': 'application/json'
+  }
+});
+
+const users = await apiResponse.json();
+console.log('Users:', users);`,
+					},
+					{
+						title: 'Security Best Practices',
+						description: 'Always follow these security guidelines when implementing token flows.',
+						code: `// ✅ DO: Store tokens securely
+// Use sessionStorage (cleared on tab close) or secure backend storage
+sessionStorage.setItem('access_token', token);
+
+// ✅ DO: Clear tokens on logout
+sessionStorage.removeItem('access_token');
+
+// ❌ DON'T: Store tokens in localStorage for long-lived sessions
+// localStorage.setItem('access_token', token); // AVOID
+
+// ❌ DON'T: Log tokens or include them in URLs
+// console.log('Token:', token); // NEVER DO THIS
+// window.location.href = '/callback?token=' + token; // NEVER DO THIS
+
+// ✅ DO: Validate token expiration
+function isTokenValid(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+}`,
+					},
+				]}
+			/>
 		</div>
 	);
 };

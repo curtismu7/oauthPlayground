@@ -1,8 +1,10 @@
 // src/tests/integration/KrogerRealApi.test.ts
 // Verifies live PingOne APIs backing the Kroger MFA experience.
+// Requires PINGONE_ENVIRONMENT_ID, PINGONE_CLIENT_ID, PINGONE_CLIENT_SECRET env vars.
+// Skipped automatically when credentials are not configured.
 
 import 'dotenv/config';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 const envId = process.env.PINGONE_ENVIRONMENT_ID;
 const clientId = process.env.PINGONE_CLIENT_ID;
@@ -10,16 +12,16 @@ const clientSecret = process.env.PINGONE_CLIENT_SECRET;
 const apiBase = process.env.PINGONE_API_URL ?? 'https://auth.pingone.com';
 const usernameUnderTest = process.env.KROGER_E2E_USERNAME ?? 'curtis7';
 
-if (!envId || !clientId || !clientSecret) {
-	throw new Error(
-		'PINGONE credentials are required. Ensure PINGONE_ENVIRONMENT_ID, PINGONE_CLIENT_ID, and PINGONE_CLIENT_SECRET are set.'
-	);
-}
+const credentialsMissing = !envId || !clientId || !clientSecret;
 
-const tokenEndpoint = `${apiBase.replace(/\/$/, '')}/${envId}/as/token`;
-const managementApiBase = `https://api.pingone.com/v1/environments/${envId}`;
+const tokenEndpoint = credentialsMissing
+	? ''
+	: `${apiBase.replace(/\/$/, '')}/${envId}/as/token`;
+const managementApiBase = credentialsMissing
+	? ''
+	: `https://api.pingone.com/v1/environments/${envId}`;
 
-describe.skipIf(process.env.CI === 'true')('Kroger MFA real PingOne API', () => {
+describe.skipIf(credentialsMissing || process.env.CI === 'true')('Kroger MFA real PingOne API', () => {
 	let workerToken: string;
 	let krogerUserId: string;
 
