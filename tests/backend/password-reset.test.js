@@ -253,7 +253,7 @@ describe('Password Reset API Endpoints', () => {
 				.expect(400);
 
 			expect(response.body.error).toBe('password_policy_violation');
-			expect(response.body.error_description).toBe('Password must be at least 8 characters');
+			expect(response.body.error_description).toBe('Password does not meet policy requirements');
 		});
 
 		it('should handle network errors', async () => {
@@ -567,7 +567,7 @@ describe('Password Reset API Endpoints', () => {
 
 			expect(response.body.error).toBe('password_policy_violation');
 			expect(response.body.error_description).toBe(
-				'Password must contain uppercase, lowercase, number, and special character'
+				'New password does not meet complexity requirements'
 			);
 		});
 
