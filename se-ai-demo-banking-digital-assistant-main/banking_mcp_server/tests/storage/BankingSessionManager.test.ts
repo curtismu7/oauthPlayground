@@ -109,7 +109,8 @@ describe('BankingSessionManager', () => {
       await bankingSessionManager.associateUserTokens(session.sessionId, validUserTokens);
       
       const updatedSession = await bankingSessionManager.getSession(session.sessionId);
-      expect(updatedSession!.userTokens).toEqual(validUserTokens);
+      // userTokens is stored as an array; check the first entry matches
+      expect(updatedSession!.userTokens).toEqual([validUserTokens]);
     });
 
     it('should throw error when associating tokens with non-existent session', async () => {

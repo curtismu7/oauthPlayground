@@ -4,6 +4,7 @@
  * user authorization, and performance tests for concurrent agent sessions
  */
 
+import { vi } from 'vitest';
 import WebSocket from 'ws';
 import { BankingMCPServer, ServerConfig } from '../../src/server/BankingMCPServer';
 import { BankingAuthenticationManager } from '../../src/auth/BankingAuthenticationManager';
@@ -24,8 +25,8 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 
 // Mock axios for API calls
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+vi.mock('axios');
+const mockedAxios = axios as vi.Mocked<typeof axios>;
 
 describe('MCP Protocol End-to-End Integration Tests', () => {
   let server: BankingMCPServer;
@@ -123,7 +124,7 @@ describe('MCP Protocol End-to-End Integration Tests', () => {
 
   beforeEach(() => {
     // Reset mocks before each test
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('MCP Handshake and Connection Management', () => {

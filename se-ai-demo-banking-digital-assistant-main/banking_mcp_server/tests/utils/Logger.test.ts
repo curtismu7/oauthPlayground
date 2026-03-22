@@ -2,12 +2,13 @@
  * Unit tests for Logger utility
  */
 
+import { vi } from 'vitest';
 import { Logger, LogLevel, createDefaultLoggerConfig, type LoggerConfig } from '../../src/utils/Logger';
 
 describe('Logger', () => {
   let logger: Logger;
   let mockConfig: LoggerConfig;
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: vi.SpyInstance;
 
   beforeEach(() => {
     mockConfig = {
@@ -20,7 +21,7 @@ describe('Logger', () => {
     };
     
     logger = new Logger(mockConfig);
-    consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'log').mockImplementation();
   });
 
   afterEach(() => {
