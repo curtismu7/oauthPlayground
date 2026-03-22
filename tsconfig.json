@@ -59,6 +59,18 @@
 		"noUncheckedIndexedAccess": false
 	},
 	"include": ["src"],
-	"exclude": ["node_modules", "backups", "dist", "src/locked", "src/pages/flows/_backup"],
+	"exclude": [
+		"node_modules",
+		"backups",
+		"dist",
+		"src/locked",
+		"src/pages/flows/_backup",
+		"src/**/lockdown/**",
+		"src/**/snapshot/**",
+		"src/pages/flows/archived/**",
+		"src/samples/**",
+		"src/templates/**",
+		"src/examples/**"
+	],
 	"references": [{ "path": "./tsconfig.node.json" }]
 }

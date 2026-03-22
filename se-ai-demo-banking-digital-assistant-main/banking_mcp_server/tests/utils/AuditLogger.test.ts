@@ -2,6 +2,7 @@
  * Unit tests for AuditLogger utility
  */
 
+import { vi } from 'vitest';
 import { AuditLogger } from '../../src/utils/AuditLogger';
 import { Logger, LogLevel, type LoggerConfig } from '../../src/utils/Logger';
 
@@ -12,8 +13,8 @@ const getAuditEvent = (mockCall: any[]) => {
 
 describe('AuditLogger', () => {
   let auditLogger: AuditLogger;
-  let mockLogger: jest.Mocked<Logger>;
-  let consoleSpy: jest.SpyInstance;
+  let mockLogger: vi.Mocked<Logger>;
+  let consoleSpy: vi.SpyInstance;
 
   beforeEach(() => {
     const mockConfig: LoggerConfig = {
@@ -23,17 +24,17 @@ describe('AuditLogger', () => {
     };
 
     mockLogger = {
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-      debug: jest.fn(),
-      logAuthenticationEvent: jest.fn(),
-      logBankingOperation: jest.fn(),
-      logSecurityEvent: jest.fn()
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      debug: vi.fn(),
+      logAuthenticationEvent: vi.fn(),
+      logBankingOperation: vi.fn(),
+      logSecurityEvent: vi.fn()
     } as any;
 
     auditLogger = new AuditLogger(mockLogger);
-    consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'log').mockImplementation();
   });
 
   afterEach(() => {

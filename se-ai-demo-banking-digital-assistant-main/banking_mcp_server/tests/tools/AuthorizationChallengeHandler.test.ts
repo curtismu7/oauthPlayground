@@ -2,24 +2,25 @@
  * Authorization Challenge Handler Tests
  */
 
+import { vi } from 'vitest';
 import { AuthorizationChallengeHandler } from '../../src/tools/AuthorizationChallengeHandler';
 import { BankingAuthenticationManager } from '../../src/auth/BankingAuthenticationManager';
 import { BankingSessionManager } from '../../src/storage/BankingSessionManager';
 import { Session, UserTokens, AuthorizationRequest, AuthenticationError, AuthErrorCodes } from '../../src/interfaces/auth';
 
 // Mock dependencies
-jest.mock('../../src/auth/BankingAuthenticationManager');
-jest.mock('../../src/storage/BankingSessionManager');
+vi.mock('../../src/auth/BankingAuthenticationManager');
+vi.mock('../../src/storage/BankingSessionManager');
 
 describe('AuthorizationChallengeHandler', () => {
   let handler: AuthorizationChallengeHandler;
-  let mockAuthManager: jest.Mocked<BankingAuthenticationManager>;
-  let mockSessionManager: jest.Mocked<BankingSessionManager>;
+  let mockAuthManager: vi.Mocked<BankingAuthenticationManager>;
+  let mockSessionManager: vi.Mocked<BankingSessionManager>;
   let mockSession: Session;
 
   beforeEach(() => {
-    mockAuthManager = new BankingAuthenticationManager({} as any) as jest.Mocked<BankingAuthenticationManager>;
-    mockSessionManager = new BankingSessionManager('test', 'test-key') as jest.Mocked<BankingSessionManager>;
+    mockAuthManager = new BankingAuthenticationManager({} as any) as vi.Mocked<BankingAuthenticationManager>;
+    mockSessionManager = new BankingSessionManager('test', 'test-key') as vi.Mocked<BankingSessionManager>;
     handler = new AuthorizationChallengeHandler(mockAuthManager, mockSessionManager);
 
     // Create mock session with valid user tokens
@@ -43,7 +44,7 @@ describe('AuthorizationChallengeHandler', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('detectAuthorizationChallenge', () => {

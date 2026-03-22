@@ -4861,6 +4861,108 @@ function decodeJwtPayload(token) {
 	}
 }
 
+/**
+ * Validate RFC 8693 may_act claim with full AND semantics.
+ *
+ * Rules (per spec pseudocode):
+ *  1. may_act must be present when actor_token is supplied → delegation_not_permitted
+ *  2. may_act must be a plain object (not array/string) → invalid_may_act
+ *  3. For each recognised field (client_id, sub, iss) ALL present values must match the
+ *     actor's identity → actor_mismatch  (AND semantics, not OR)
+ *  4. At least one recognised field must be present → unsupported_may_act
+ *  5. Wildcard values ('*') are never permitted → actor_mismatch
+ *
+ * @param {string} subjectToken  Raw JWT of the subject being delegated
+ * @param {string} actorToken    Raw JWT of the requesting actor
+ * @returns {{ actorClientId: string|null, actorSub: string|null, actClaim: object }}
+ * @throws {{ status: number, error: string, error_description: string }}
+ */
+function validateMayAct(subjectToken, actorToken) {
+	const subjectPayload = decodeJwtPayload(subjectToken);
+	const actorPayload = decodeJwtPayload(actorToken);
+
+	const mayAct = subjectPayload?.may_act;
+
+	// Rule 1: delegation requested but no may_act claim
+	if (!mayAct) {
+		throw {
+			status: 403,
+			error: 'delegation_not_permitted',
+			error_description: 'Subject token does not contain a may_act claim; delegation is not permitted',
+		};
+	}
+
+	// Rule 2: may_act must be a plain non-array object
+	if (typeof mayAct !== 'object' || Array.isArray(mayAct)) {
+		throw {
+			status: 400,
+			error: 'invalid_may_act',
+			error_description: 'may_act claim must be a JSON object, not an array or scalar',
+		};
+	}
+
+	// Extract actor identity from actor token
+	// client_id may appear as azp (Authorized Party) in some IdP tokens
+	const actorClientId = actorPayload?.client_id ?? actorPayload?.azp ?? null;
+	const actorSub = actorPayload?.sub ?? null;
+	const actorIss = actorPayload?.iss ?? null;
+
+	// Rule 3 + 4: AND matching — every field that appears in may_act must match
+	let supported = false;
+
+	if (Object.prototype.hasOwnProperty.call(mayAct, 'client_id')) {
+		supported = true;
+		const expected = mayAct.client_id;
+		if (expected === '*' || !actorClientId || actorClientId !== expected) {
+			throw {
+				status: 403,
+				error: 'actor_mismatch',
+				error_description: `Actor client_id does not match may_act.client_id (expected: ${expected})`,
+			};
+		}
+	}
+
+	if (Object.prototype.hasOwnProperty.call(mayAct, 'sub')) {
+		supported = true;
+		const expected = mayAct.sub;
+		if (expected === '*' || !actorSub || actorSub !== expected) {
+			throw {
+				status: 403,
+				error: 'actor_mismatch',
+				error_description: `Actor sub does not match may_act.sub (expected: ${expected})`,
+			};
+		}
+	}
+
+	if (Object.prototype.hasOwnProperty.call(mayAct, 'iss')) {
+		supported = true;
+		const expected = mayAct.iss;
+		if (expected === '*' || !actorIss || actorIss !== expected) {
+			throw {
+				status: 403,
+				error: 'actor_mismatch',
+				error_description: `Actor iss does not match may_act.iss (expected: ${expected})`,
+			};
+		}
+	}
+
+	// Rule 4: no recognised fields found in may_act
+	if (!supported) {
+		throw {
+			status: 400,
+			error: 'unsupported_may_act',
+			error_description: 'may_act claim contains no supported identity fields (client_id, sub, iss)',
+		};
+	}
+
+	// Build the act claim for the issued token (RFC 8693 §4.4)
+	const actClaim = {};
+	if (actorClientId) actClaim.client_id = actorClientId;
+	if (actorSub) actClaim.sub = actorSub;
+
+	return { actorClientId, actorSub, actClaim };
+}
+
 app.post('/api/pingone/token-exchange', async (req, res) => {
 	try {
 		const {
@@ -4893,37 +4995,32 @@ app.post('/api/pingone/token-exchange', async (req, res) => {
 			});
 		}
 
-		// may_act validation (RFC 8693 §2.1): when an actor_token is supplied,
-		// decode the subject token (without signature verification) and confirm
-		// the actor's sub is listed in the subject token's may_act claim.
+		// may_act validation (RFC 8693 §2.1 + spec AND semantics):
+		// When an actor_token is supplied the subject token MUST contain a valid may_act
+		// object whose every identity field matches the actor.  Hard-fail with specific
+		// error codes; never silently allow unconstrained delegation.
+		let actClaim = null;
 		let actorSub = null;
 		if (actorToken) {
-			const actorPayload = decodeJwtPayload(actorToken);
-			actorSub = actorPayload?.sub ?? null;
-			if (actorSub) {
-				const subjectPayload = decodeJwtPayload(subjectToken);
-				const mayActClaim = subjectPayload?.may_act;
-				if (mayActClaim) {
-					const actorList = Array.isArray(mayActClaim) ? mayActClaim : [mayActClaim];
-					const isAllowed = actorList.some(
-						(a) => (typeof a === 'object' && a !== null ? a.sub : a) === actorSub
-					);
-					if (!isAllowed) {
-						console.error('[Token Exchange] may_act delegation denied:', {
-							actorSub,
-							mayActClaim,
-						});
-						return res.status(403).json({
-							error: 'access_denied',
-							error_description: `Actor sub (${actorSub}) is not listed in the subject token's may_act claim`,
-						});
-					}
-					console.log(`[Token Exchange] may_act delegation approved for actor: ${actorSub}`);
-				} else {
-					console.warn(
-						'[Token Exchange] subject token has no may_act claim — delegation not explicitly permitted'
-					);
-				}
+			try {
+				const validated = validateMayAct(subjectToken, actorToken);
+				actorSub = validated.actorSub;
+				actClaim = validated.actClaim;
+				console.log('[Token Exchange] may_act delegation approved', {
+					environmentId,
+					actorClientId: validated.actorClientId,
+					actorSub: validated.actorSub,
+				});
+			} catch (mayActErr) {
+				console.error('[Token Exchange] may_act validation failed', {
+					environmentId,
+					error: mayActErr.error,
+					error_description: mayActErr.error_description,
+				});
+				return res.status(mayActErr.status ?? 403).json({
+					error: mayActErr.error,
+					error_description: mayActErr.error_description,
+				});
 			}
 		}
 
@@ -4948,7 +5045,7 @@ app.post('/api/pingone/token-exchange', async (req, res) => {
 		if (requestedScopes) params.set('scope', requestedScopes);
 		if (audience) params.set('audience', audience);
 		// Include actor_token in PingOne request when delegation has been validated
-		if (actorToken && actorSub) {
+		if (actorToken && actClaim) {
 			params.set('actor_token', actorToken);
 			params.set('actor_token_type', 'urn:ietf:params:oauth:token-type:access_token');
 		}
@@ -5004,8 +5101,8 @@ app.post('/api/pingone/token-exchange', async (req, res) => {
 		responseData.server_timestamp = new Date().toISOString();
 		responseData.grant_type = 'urn:ietf:params:oauth:grant-type:token-exchange';
 		// RFC 8693 §4.4: include act claim in envelope to indicate delegation chain
-		if (actorSub) {
-			responseData.act = { sub: actorSub };
+		if (actClaim) {
+			responseData.act = actClaim;
 		}
 		res.json(responseData);
 	} catch (error) {
@@ -5014,6 +5111,52 @@ app.post('/api/pingone/token-exchange', async (req, res) => {
 			error: 'server_error',
 			error_description:
 				error instanceof Error ? error.message : 'Internal server error during token exchange',
+		});
+	}
+});
+
+// POST /api/may-act/validate
+// Validate a subject_token + actor_token pair against the RFC 8693 may_act rules.
+// Returns a detailed diagnostic object — for playground/debugging use only.
+app.post('/api/may-act/validate', (req, res) => {
+	const { subject_token, actor_token } = req.body ?? {};
+
+	if (!subject_token) {
+		return res.status(400).json({ error: 'invalid_request', error_description: 'subject_token is required' });
+	}
+	if (!actor_token) {
+		return res.status(400).json({ error: 'invalid_request', error_description: 'actor_token is required' });
+	}
+
+	const subjectPayload = decodeJwtPayload(subject_token);
+	const actorPayload = decodeJwtPayload(actor_token);
+
+	const diagnostics = {
+		subject: {
+			sub: subjectPayload?.sub ?? null,
+			iss: subjectPayload?.iss ?? null,
+			may_act: subjectPayload?.may_act ?? null,
+		},
+		actor: {
+			sub: actorPayload?.sub ?? null,
+			client_id: actorPayload?.client_id ?? actorPayload?.azp ?? null,
+			iss: actorPayload?.iss ?? null,
+		},
+	};
+
+	try {
+		const result = validateMayAct(subject_token, actor_token);
+		return res.json({
+			valid: true,
+			act_claim: result.actClaim,
+			diagnostics,
+		});
+	} catch (err) {
+		return res.status(err.status ?? 403).json({
+			valid: false,
+			error: err.error,
+			error_description: err.error_description,
+			diagnostics,
 		});
 	}
 });

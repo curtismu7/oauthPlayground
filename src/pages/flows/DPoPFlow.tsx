@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
 import { showFlowSuccess } from '../../components/CentralizedSuccessMessage';
+import { CodeExamplesSection } from '../../components/CodeExamplesSection';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import DPoPService, { type DPoPKeyPair, type DPoPProof } from '../../services/dpopService';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
@@ -981,6 +982,165 @@ dpop_jkt=base64url-encoded-thumbprint-of-dpop-public-key`}</CodeBlock>
 					</CardBody>
 				</MainCard>
 			</CollapsibleHeader>
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'Generate DPoP Key Pair',
+						description: 'Create an ES256 key pair for signing DPoP proofs.',
+						code: `// Generate ES256 key pair for DPoP
+const keyPair = await crypto.subtle.generateKey(
+  {
+    name: 'ECDSA',
+    namedCurve: 'P-256'
+  },
+  true, // extractable
+  ['sign', 'verify']
+);
+
+// Export public key as JWK
+const publicKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
+
+// Generate JWK thumbprint (jkt)
+const jwkString = JSON.stringify({
+  crv: publicKeyJwk.crv,
+  kty: publicKeyJwk.kty,
+  x: publicKeyJwk.x,
+  y: publicKeyJwk.y
+});
+const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(jwkString));
+const jkt = btoa(String.fromCharCode(...new Uint8Array(hash)))
+  .replace(/+/g, '-').replace(///g, '_').replace(/=/g, '');`,
+					},
+					{
+						title: 'Create DPoP Proof JWT',
+						description: 'Generate a signed DPoP proof for a token request.',
+						code: `// Create DPoP proof for token endpoint
+const dpopProof = {
+  // Header
+  typ: 'dpop+jwt',
+  alg: 'ES256',
+  jwk: publicKeyJwk // Include public key
+};
+
+// Payload
+const payload = {
+  jti: crypto.randomUUID(), // Unique identifier
+  htm: 'POST', // HTTP method
+  htu: 'https://auth.example.com/token', // Token endpoint URL (no query/fragment)
+  iat: Math.floor(Date.now() / 1000) // Issued at timestamp
+};
+
+// Sign the JWT
+const header = btoa(JSON.stringify(dpopProof)).replace(/=/g, '');
+const body = btoa(JSON.stringify(payload)).replace(/=/g, '');
+const message = \`\${header}.\${body}\`;
+
+const signature = await crypto.subtle.sign(
+  { name: 'ECDSA', hash: 'SHA-256' },
+  keyPair.privateKey,
+  new TextEncoder().encode(message)
+);
+
+const sig = btoa(String.fromCharCode(...new Uint8Array(signature)))
+  .replace(/+/g, '-').replace(///g, '_').replace(/=/g, '');
+
+const dpopJwt = \`\${message}.\${sig}\`;`,
+					},
+					{
+						title: 'Token Request with DPoP',
+						description: 'Request an access token using DPoP proof.',
+						code: `// Request access token with DPoP proof
+const tokenResponse = await fetch('https://auth.example.com/token', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'DPoP': dpopJwt // Include DPoP proof in header
+  },
+  body: new URLSearchParams({
+    grant_type: 'client_credentials',
+    client_id: 'your-client-id',
+    client_secret: 'your-client-secret'
+  })
+});
+
+const tokenData = await tokenResponse.json();
+const accessToken = tokenData.access_token;
+const tokenType = tokenData.token_type; // Should be 'DPoP'`,
+					},
+					{
+						title: 'API Request with DPoP',
+						description: 'Make an API call using DPoP-bound access token.',
+						code: `// Create DPoP proof for API request
+const apiDpopProof = {
+  typ: 'dpop+jwt',
+  alg: 'ES256',
+  jwk: publicKeyJwk
+};
+
+const apiPayload = {
+  jti: crypto.randomUUID(),
+  htm: 'GET', // HTTP method for API call
+  htu: 'https://api.example.com/users', // API endpoint URL
+  iat: Math.floor(Date.now() / 1000),
+  ath: await generateAccessTokenHash(accessToken) // Hash of access token
+};
+
+// Sign and create API DPoP proof (same process as before)
+const apiDpopJwt = await signDpopProof(apiDpopProof, apiPayload, keyPair.privateKey);
+
+// Make API request
+const apiResponse = await fetch('https://api.example.com/users', {
+  method: 'GET',
+  headers: {
+    'Authorization': \`DPoP \${accessToken}\`, // Use DPoP token type
+    'DPoP': apiDpopJwt // Include fresh DPoP proof
+  }
+});
+
+const users = await apiResponse.json();
+
+// Helper: Generate access token hash (ath)
+async function generateAccessTokenHash(token) {
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
+  return btoa(String.fromCharCode(...new Uint8Array(hash)))
+    .replace(/+/g, '-').replace(///g, '_').replace(/=/g, '');
+}`,
+					},
+					{
+						title: 'Security Considerations',
+						description: 'Important security practices when implementing DPoP.',
+						code: `// ✅ DO: Store private keys securely
+// Use IndexedDB or secure key storage, never localStorage
+const keyStore = await window.crypto.subtle.exportKey('jwk', keyPair.privateKey);
+// Store in IndexedDB with encryption
+
+// ✅ DO: Generate fresh DPoP proofs for each request
+// Never reuse DPoP proofs - they are bound to specific requests
+const freshProof = await createDpopProof(method, url, keyPair);
+
+// ✅ DO: Include 'ath' claim in API requests
+// Binds the DPoP proof to the specific access token
+const proofWithAth = {
+  ...baseProof,
+  ath: await hashAccessToken(accessToken)
+};
+
+// ✅ DO: Validate token type is 'DPoP'
+if (tokenData.token_type !== 'DPoP') {
+  throw new Error('Expected DPoP token type');
+}
+
+// ❌ DON'T: Use DPoP with Bearer tokens
+// Authorization: Bearer <token> // WRONG for DPoP
+// Authorization: DPoP <token>   // CORRECT
+
+// ❌ DON'T: Include query parameters or fragments in 'htu'
+// htu: 'https://api.example.com/users?page=1' // WRONG
+// htu: 'https://api.example.com/users'        // CORRECT`,
+					},
+				]}
+			/>
 		</Container>
 	);
 };

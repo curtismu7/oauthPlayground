@@ -60,12 +60,14 @@ export function computeDeviceStatus(
 			// FIDO2 devices are always active after registration
 			return 'ACTIVE';
 		case 'TOTP':
+			// TOTP always requires an activation step (user must verify the OTP seed)
+			return 'ACTIVATION_REQUIRED';
 		case 'SMS':
 		case 'EMAIL':
 		case 'WHATSAPP':
 		case 'MOBILE':
-			// These devices typically require activation
-			return status === 'ACTIVE' ? 'ACTIVE' : 'ACTIVATION_REQUIRED';
+			// Non-TOTP devices are active immediately on registration unless explicitly set otherwise
+			return status === 'ACTIVATION_REQUIRED' ? 'ACTIVATION_REQUIRED' : 'ACTIVE';
 		default:
 			return 'ACTIVATION_REQUIRED';
 	}

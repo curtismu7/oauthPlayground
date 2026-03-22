@@ -4,6 +4,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { CIBAUserApprovalModal } from '../../../components/CIBAUserApprovalModal';
+import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
 import { ColoredJsonDisplay } from '../../../components/ColoredJsonDisplay';
 import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 import { DEMO_API_BASE, DEMO_ENVIRONMENT_ID } from '../../../components/PingOneApiCallDisplay';
@@ -729,6 +730,236 @@ export const V7MCIBAFlowV9: React.FC = () => {
 				requestContext={`CIBA-${authReqId?.substring(0, 8) || 'Unknown'}`}
 				clientName={clientId}
 				scope={scope}
+			/>
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'CIBA Backchannel Authentication Request',
+						description: 'Initiate backchannel authentication request.',
+						code: {
+							javascript: `// CIBA Flow - JavaScript
+// Step 1: Backchannel authentication request
+const response = await fetch('https://auth.pingone.com/{environmentId}/as/bc-authorize', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: new URLSearchParams({
+    client_id: 'your-client-id',
+    client_secret: 'your-client-secret',
+    scope: 'openid profile email',
+    login_hint: 'user@example.com',
+    binding_message: 'Sign in to ACME Portal - ref: 7823'
+  })
+});
+
+const authData = await response.json();
+const authReqId = authData.auth_req_id;
+const interval = authData.interval || 5;
+console.log('Auth Request ID:', authReqId);`,
+							dotnet: `// CIBA Flow - C# (.NET)
+using System.Net.Http;
+using System.Text.Json;
+
+// Step 1: Backchannel authentication request
+var client = new HttpClient();
+var content = new FormUrlEncodedContent(new Dictionary<string, string>
+{
+    { "client_id", "your-client-id" },
+    { "client_secret", "your-client-secret" },
+    { "scope", "openid profile email" },
+    { "login_hint", "user@example.com" },
+    { "binding_message", "Sign in to ACME Portal - ref: 7823" }
+});
+
+var response = await client.PostAsync(
+    "https://auth.pingone.com/{environmentId}/as/bc-authorize",
+    content
+);
+
+var json = await response.Content.ReadAsStringAsync();
+var authData = JsonSerializer.Deserialize<CIBAAuthResponse>(json);
+var authReqId = authData.AuthReqId;
+var interval = authData.Interval ?? 5;
+Console.WriteLine($"Auth Request ID: {authReqId}");`,
+							go: `// CIBA Flow - Go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+)
+
+func main() {
+	// Step 1: Backchannel authentication request
+	data := url.Values{}
+	data.Set("client_id", "your-client-id")
+	data.Set("client_secret", "your-client-secret")
+	data.Set("scope", "openid profile email")
+	data.Set("login_hint", "user@example.com")
+	data.Set("binding_message", "Sign in to ACME Portal - ref: 7823")
+
+	resp, err := http.Post(
+		"https://auth.pingone.com/{environmentId}/as/bc-authorize",
+		"application/x-www-form-urlencoded",
+		strings.NewReader(data.Encode()),
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	var authData map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&authData)
+
+	authReqId := authData["auth_req_id"].(string)
+	interval := 5
+	if i, ok := authData["interval"].(float64); ok {
+		interval = int(i)
+	}
+	fmt.Println("Auth Request ID:", authReqId)
+}`,
+						},
+					},
+					{
+						title: 'Poll for CIBA Tokens',
+						description: 'Poll token endpoint until user completes authentication on their device.',
+						code: {
+							javascript: `// Step 2: Poll for tokens - JavaScript
+async function pollForCIBATokens(authReqId, interval) {
+  while (true) {
+    await new Promise(resolve => setTimeout(resolve, interval * 1000));
+
+    const response = await fetch('https://auth.pingone.com/{environmentId}/as/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        grant_type: 'urn:openid:params:oauth:grant-type:ciba',
+        auth_req_id: authReqId,
+        client_id: 'your-client-id',
+        client_secret: 'your-client-secret'
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.access_token) {
+      console.log('Access Token:', result.access_token);
+      return result;
+    } else if (result.error === 'authorization_pending') {
+      console.log('Waiting for user to approve on their device...');
+      continue;
+    } else if (result.error === 'slow_down') {
+      interval += 5;
+      continue;
+    } else if (result.error === 'access_denied') {
+      throw new Error('User denied the authentication request');
+    } else {
+      throw new Error(result.error_description || result.error);
+    }
+  }
+}
+
+pollForCIBATokens(authReqId, interval);`,
+							dotnet: `// Step 2: Poll for tokens - C# (.NET)
+using System.Threading.Tasks;
+
+async Task<TokenResponse> PollForCIBATokens(string authReqId, int interval)
+{
+    while (true)
+    {
+        await Task.Delay(interval * 1000);
+
+        var content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            { "grant_type", "urn:openid:params:oauth:grant-type:ciba" },
+            { "auth_req_id", authReqId },
+            { "client_id", "your-client-id" },
+            { "client_secret", "your-client-secret" }
+        });
+
+        var response = await client.PostAsync(
+            "https://auth.pingone.com/{environmentId}/as/token",
+            content
+        );
+
+        var json = await response.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<TokenResponse>(json);
+
+        if (result.AccessToken != null)
+        {
+            Console.WriteLine($"Access Token: {result.AccessToken}");
+            return result;
+        }
+        else if (result.Error == "authorization_pending")
+        {
+            Console.WriteLine("Waiting for user to approve on their device...");
+            continue;
+        }
+        else if (result.Error == "slow_down")
+        {
+            interval += 5;
+            continue;
+        }
+        else if (result.Error == "access_denied")
+        {
+            throw new Exception("User denied the authentication request");
+        }
+        else
+        {
+            throw new Exception(result.ErrorDescription ?? result.Error);
+        }
+    }
+}`,
+							go: `// Step 2: Poll for tokens - Go
+func pollForCIBATokens(authReqId string, interval int) (map[string]interface{}, error) {
+	for {
+		time.Sleep(time.Duration(interval) * time.Second)
+
+		data := url.Values{}
+		data.Set("grant_type", "urn:openid:params:oauth:grant-type:ciba")
+		data.Set("auth_req_id", authReqId)
+		data.Set("client_id", "your-client-id")
+		data.Set("client_secret", "your-client-secret")
+
+		resp, err := http.Post(
+			"https://auth.pingone.com/{environmentId}/as/token",
+			"application/x-www-form-urlencoded",
+			strings.NewReader(data.Encode()),
+		)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+
+		var result map[string]interface{}
+		json.NewDecoder(resp.Body).Decode(&result)
+
+		if accessToken, ok := result["access_token"]; ok {
+			fmt.Println("Access Token:", accessToken)
+			return result, nil
+		} else if result["error"] == "authorization_pending" {
+			fmt.Println("Waiting for user to approve on their device...")
+			continue
+		} else if result["error"] == "slow_down" {
+			interval += 5
+			continue
+		} else if result["error"] == "access_denied" {
+			return nil, errors.New("user denied the authentication request")
+		} else {
+			return nil, fmt.Errorf("%v", result["error"])
+		}
+	}
+}`,
+						},
+					},
+				]}
 			/>
 		</div>
 	);

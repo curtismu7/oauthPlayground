@@ -1,6 +1,6 @@
 // src/utils/__tests__/jwks.test.ts - Tests for JWKS utilities
 
-import { jwtVerify } from 'jose';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('jose');
