@@ -4818,7 +4818,26 @@ app.post('/api/pingone/token', async (req, res) => {
 // RFC 8693 Token Exchange Endpoint — exchange a user access token for a newly-scoped token.
 // Useful for narrow-scoped tokens in real-life agent scenarios (e.g. banking: transfer:funds).
 // POST /api/pingone/token-exchange
-// Body: { environmentId, region?, clientId, clientSecret?, subjectToken, requestedScopes?, audience? }
+// Body: { environmentId, region?, clientId, clientSecret?, subjectToken, actorToken?, requestedScopes?, audience? }
+
+/**
+ * Decode a JWT payload without verifying the signature (for may_act / act claim inspection).
+ * Never use the returned claims for authorization decisions that require trust — only for
+ * cross-checking semantics (e.g. verifying actor sub is listed in subject token's may_act).
+ * @param {string} token
+ * @returns {object|null}
+ */
+function decodeJwtPayload(token) {
+	try {
+		const parts = String(token).split('.');
+		if (parts.length < 2) return null;
+		const padded = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+		return JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
+	} catch {
+		return null;
+	}
+}
+
 app.post('/api/pingone/token-exchange', async (req, res) => {
 	try {
 		const {
@@ -4827,6 +4846,7 @@ app.post('/api/pingone/token-exchange', async (req, res) => {
 			clientId,
 			clientSecret,
 			subjectToken,
+			actorToken,
 			requestedScopes,
 			audience,
 		} = req.body;
@@ -4850,6 +4870,40 @@ app.post('/api/pingone/token-exchange', async (req, res) => {
 			});
 		}
 
+		// may_act validation (RFC 8693 §2.1): when an actor_token is supplied,
+		// decode the subject token (without signature verification) and confirm
+		// the actor's sub is listed in the subject token's may_act claim.
+		let actorSub = null;
+		if (actorToken) {
+			const actorPayload = decodeJwtPayload(actorToken);
+			actorSub = actorPayload?.sub ?? null;
+			if (actorSub) {
+				const subjectPayload = decodeJwtPayload(subjectToken);
+				const mayActClaim = subjectPayload?.may_act;
+				if (mayActClaim) {
+					const actorList = Array.isArray(mayActClaim) ? mayActClaim : [mayActClaim];
+					const isAllowed = actorList.some(
+						(a) => (typeof a === 'object' && a !== null ? a.sub : a) === actorSub
+					);
+					if (!isAllowed) {
+						console.error('[Token Exchange] may_act delegation denied:', {
+							actorSub,
+							mayActClaim,
+						});
+						return res.status(403).json({
+							error: 'access_denied',
+							error_description: `Actor sub (${actorSub}) is not listed in the subject token's may_act claim`,
+						});
+					}
+					console.log(`[Token Exchange] may_act delegation approved for actor: ${actorSub}`);
+				} else {
+					console.warn(
+						'[Token Exchange] subject token has no may_act claim — delegation not explicitly permitted'
+					);
+				}
+			}
+		}
+
 		const authBase =
 			region === 'eu'
 				? 'https://auth.pingone.eu'
@@ -4870,6 +4924,11 @@ app.post('/api/pingone/token-exchange', async (req, res) => {
 		if (clientSecret) params.set('client_secret', clientSecret);
 		if (requestedScopes) params.set('scope', requestedScopes);
 		if (audience) params.set('audience', audience);
+		// Include actor_token in PingOne request when delegation has been validated
+		if (actorToken && actorSub) {
+			params.set('actor_token', actorToken);
+			params.set('actor_token_type', 'urn:ietf:params:oauth:token-type:access_token');
+		}
 
 		const headers = {
 			'Content-Type': 'application/x-www-form-urlencoded',
@@ -4921,6 +4980,10 @@ app.post('/api/pingone/token-exchange', async (req, res) => {
 
 		responseData.server_timestamp = new Date().toISOString();
 		responseData.grant_type = 'urn:ietf:params:oauth:grant-type:token-exchange';
+		// RFC 8693 §4.4: include act claim in envelope to indicate delegation chain
+		if (actorSub) {
+			responseData.act = { sub: actorSub };
+		}
 		res.json(responseData);
 	} catch (error) {
 		console.error('[Token Exchange] Server error:', error);
