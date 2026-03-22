@@ -16,8 +16,8 @@ test.describe('Dashboard Groups - Core Functionality', () => {
 		// Check that we're on the dashboard
 		await expect(page).toHaveURL(/\/$/);
 
-		// Look for main dashboard title
-		await expect(page.getByText(/Dashboard/i)).toBeVisible();
+		// Look for main dashboard title (use first() to avoid strict mode violation)
+		await expect(page.getByText(/Dashboard/i).first()).toBeVisible();
 
 		// Check for all main section headers
 		const expectedSections = [

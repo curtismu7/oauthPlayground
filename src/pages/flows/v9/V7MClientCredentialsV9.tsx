@@ -1,6 +1,7 @@
 // src/pages/flows/v9/V7MClientCredentialsV9.tsx
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
 import { ColoredJsonDisplay } from '../../../components/ColoredJsonDisplay';
 import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 import {
@@ -452,6 +453,136 @@ export const V7MClientCredentialsV9: React.FC = () => {
 
 				<PingOneApiCallDisplay {...PingOneApiExamples.tokenEndpoint} />
 			</div>
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'Client Credentials Token Request',
+						description: 'Request an access token using client credentials grant.',
+						code: {
+							javascript: `// Client Credentials Flow - JavaScript
+const response = await fetch('https://auth.pingone.com/{environmentId}/as/token', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: new URLSearchParams({
+    grant_type: 'client_credentials',
+    client_id: 'your-client-id',
+    client_secret: 'your-client-secret',
+    scope: 'read write'
+  })
+});
+
+const data = await response.json();
+const accessToken = data.access_token;
+console.log('Access Token:', accessToken);`,
+							dotnet: `// Client Credentials Flow - C# (.NET)
+using System.Net.Http;
+using System.Collections.Generic;
+
+var client = new HttpClient();
+var content = new FormUrlEncodedContent(new Dictionary<string, string>
+{
+    { "grant_type", "client_credentials" },
+    { "client_id", "your-client-id" },
+    { "client_secret", "your-client-secret" },
+    { "scope", "read write" }
+});
+
+var response = await client.PostAsync(
+    "https://auth.pingone.com/{environmentId}/as/token",
+    content
+);
+
+var json = await response.Content.ReadAsStringAsync();
+var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(json);
+Console.WriteLine($"Access Token: {tokenResponse.AccessToken}");`,
+							go: `// Client Credentials Flow - Go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+)
+
+func main() {
+	data := url.Values{}
+	data.Set("grant_type", "client_credentials")
+	data.Set("client_id", "your-client-id")
+	data.Set("client_secret", "your-client-secret")
+	data.Set("scope", "read write")
+
+	resp, err := http.Post(
+		"https://auth.pingone.com/{environmentId}/as/token",
+		"application/x-www-form-urlencoded",
+		strings.NewReader(data.Encode()),
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&result)
+	fmt.Println("Access Token:", result["access_token"])
+}`,
+						},
+					},
+					{
+						title: 'Using the Access Token',
+						description: 'Call a protected API with the access token.',
+						code: {
+							javascript: `// Call Protected API - JavaScript
+const apiResponse = await fetch('https://api.pingone.com/v1/environments/{envId}/users', {
+  method: 'GET',
+  headers: {
+    'Authorization': \`Bearer \${accessToken}\`,
+    'Content-Type': 'application/json'
+  }
+});
+
+const users = await apiResponse.json();
+console.log('Users:', users);`,
+							dotnet: `// Call Protected API - C# (.NET)
+using System.Net.Http.Headers;
+
+var apiClient = new HttpClient();
+apiClient.DefaultRequestHeaders.Authorization = 
+    new AuthenticationHeaderValue("Bearer", accessToken);
+
+var apiResponse = await apiClient.GetAsync(
+    "https://api.pingone.com/v1/environments/{envId}/users"
+);
+
+var usersJson = await apiResponse.Content.ReadAsStringAsync();
+var users = JsonSerializer.Deserialize<UserList>(usersJson);
+Console.WriteLine($"Found {users.Count} users");`,
+							go: `// Call Protected API - Go
+req, _ := http.NewRequest(
+	"GET",
+	"https://api.pingone.com/v1/environments/{envId}/users",
+	nil,
+)
+req.Header.Set("Authorization", "Bearer "+accessToken)
+req.Header.Set("Content-Type", "application/json")
+
+apiResp, err := http.DefaultClient.Do(req)
+if err != nil {
+	panic(err)
+}
+defer apiResp.Body.Close()
+
+var users map[string]interface{}
+json.NewDecoder(apiResp.Body).Decode(&users)
+fmt.Println("Users:", users)`,
+						},
+					},
+				]}
+			/>
 		</div>
 	);
 };

@@ -2,6 +2,7 @@
  * BankingAPIClient Tests
  */
 
+import { vi } from 'vitest';
 import axios from 'axios';
 import { BankingAPIClient, BankingAPIClientOptions } from '../../src/banking/BankingAPIClient';
 import {
@@ -14,8 +15,8 @@ import {
 } from '../../src/interfaces/banking';
 
 // Mock axios
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+vi.mock('axios');
+const mockedAxios = axios as vi.Mocked<typeof axios>;
 
 describe('BankingAPIClient', () => {
   let client: BankingAPIClient;
@@ -23,14 +24,14 @@ describe('BankingAPIClient', () => {
 
   beforeEach(() => {
     // Reset all mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Create mock axios instance
     mockAxiosInstance = {
-      request: jest.fn(),
+      request: vi.fn(),
       interceptors: {
-        request: { use: jest.fn() },
-        response: { use: jest.fn() }
+        request: { use: vi.fn() },
+        response: { use: vi.fn() }
       },
       defaults: {
         baseURL: '',
@@ -623,7 +624,7 @@ describe('BankingAPIClient', () => {
       // Mock circuit breaker to throw CircuitBreakerError
       const CircuitBreakerError = require('../../src/utils/CircuitBreaker').CircuitBreakerError;
       const circuitBreaker = (client as any).circuitBreaker;
-      jest.spyOn(circuitBreaker, 'execute').mockRejectedValue(
+      vi.spyOn(circuitBreaker, 'execute').mockRejectedValue(
         new CircuitBreakerError(
           'Circuit breaker is open',
           { state: 'OPEN', failureCount: 5, successCount: 0, totalRequests: 5 }

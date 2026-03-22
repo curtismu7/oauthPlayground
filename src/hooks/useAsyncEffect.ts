@@ -14,7 +14,6 @@
  */
 
 import { DependencyList, useEffect } from 'react';
-import { logger } from '../utils/logger';
 
 type AsyncEffectCallback = () => Promise<void>;
 type CleanupFunction = () => void;
@@ -35,7 +34,7 @@ export function useAsyncEffect(
 					if (onError) {
 						onError(error as Error);
 					} else {
-						logger.error('useAsyncEffect', 'Unhandled error', undefined, error as Error);
+						console.error('[useAsyncEffect] Unhandled error:', error);
 					}
 				}
 			}

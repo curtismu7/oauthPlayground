@@ -2,6 +2,7 @@
  * Unit tests for ErrorHandler utility
  */
 
+import { vi } from 'vitest';
 import { 
   ErrorHandler, 
   BankingMCPError, 
@@ -22,22 +23,22 @@ import { Logger, LogLevel, type LoggerConfig } from '../../src/utils/Logger';
 
 describe('ErrorHandler', () => {
   let errorHandler: ErrorHandler;
-  let mockLogger: jest.Mocked<Logger>;
-  let consoleSpy: jest.SpyInstance;
+  let mockLogger: vi.Mocked<Logger>;
+  let consoleSpy: vi.SpyInstance;
 
   beforeEach(() => {
     mockLogger = {
-      error: jest.fn(),
-      warn: jest.fn(),
-      info: jest.fn(),
-      debug: jest.fn(),
-      logAuthenticationEvent: jest.fn(),
-      logBankingOperation: jest.fn(),
-      logSecurityEvent: jest.fn()
+      error: vi.fn(),
+      warn: vi.fn(),
+      info: vi.fn(),
+      debug: vi.fn(),
+      logAuthenticationEvent: vi.fn(),
+      logBankingOperation: vi.fn(),
+      logSecurityEvent: vi.fn()
     } as any;
 
     errorHandler = new ErrorHandler(mockLogger);
-    consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'log').mockImplementation();
   });
 
   afterEach(() => {

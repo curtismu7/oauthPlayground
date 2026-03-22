@@ -4,6 +4,9 @@
 // Note: Hybrid flow is deprecated per RFC 9700 / OAuth 2.0 Security BCP; presented for learning only.
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardBody, CardHeader } from '../../../components/Card';
+import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
 import { ColoredJsonDisplay } from '../../../components/ColoredJsonDisplay';
 import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 import { DEMO_API_BASE, DEMO_ENVIRONMENT_ID } from '../../../components/PingOneApiCallDisplay';
@@ -803,6 +806,398 @@ export const V7MOIDCHybridFlowV9: React.FC = () => {
 				</p>
 				<p>See OIDC Core 1.0 §3.3.2.11 for the full specification.</p>
 			</V7MHelpModal>
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'OIDC Hybrid Flow Authorization Request',
+						description: 'Initiate hybrid flow with code + id_token response type.',
+						code: {
+							javascript: `// Build OIDC Hybrid Flow authorization URL - JavaScript
+const authUrl = new URL('https://auth.pingone.com/{environmentId}/as/authorize');
+authUrl.searchParams.append('client_id', 'your-client-id');
+authUrl.searchParams.append('redirect_uri', 'https://yourapp.com/callback');
+authUrl.searchParams.append('scope', 'openid profile email');
+
+// Hybrid flow response types:
+// 'code id_token' - most common
+// 'code token' - code + access token
+// 'code id_token token' - all three
+authUrl.searchParams.append('response_type', 'code id_token');
+
+// Required for OIDC
+const state = crypto.randomUUID();
+const nonce = crypto.randomUUID();
+authUrl.searchParams.append('state', state);
+authUrl.searchParams.append('nonce', nonce);
+
+// Store state and nonce for validation
+sessionStorage.setItem('oauth_state', state);
+sessionStorage.setItem('oauth_nonce', nonce);
+
+// Redirect user
+window.location.href = authUrl.toString();`,
+							dotnet: `// Build OIDC Hybrid Flow authorization URL - C# (.NET)
+using System.Web;
+
+var authUrl = new UriBuilder("https://auth.pingone.com/{environmentId}/as/authorize");
+var query = HttpUtility.ParseQueryString(string.Empty);
+query["client_id"] = "your-client-id";
+query["redirect_uri"] = "https://yourapp.com/callback";
+query["scope"] = "openid profile email";
+
+// Hybrid flow response types:
+// 'code id_token' - most common
+// 'code token' - code + access token
+// 'code id_token token' - all three
+query["response_type"] = "code id_token";
+
+// Required for OIDC
+var state = Guid.NewGuid().ToString();
+var nonce = Guid.NewGuid().ToString();
+query["state"] = state;
+query["nonce"] = nonce;
+authUrl.Query = query.ToString();
+
+// Store state and nonce in session
+HttpContext.Session.SetString("oauth_state", state);
+HttpContext.Session.SetString("oauth_nonce", nonce);
+
+// Redirect user
+Response.Redirect(authUrl.ToString());`,
+							go: `// Build OIDC Hybrid Flow authorization URL - Go
+package main
+
+import (
+	"fmt"
+	"net/url"
+)
+
+func main() {
+	baseURL := "https://auth.pingone.com/{environmentId}/as/authorize"
+	params := url.Values{}
+	params.Add("client_id", "your-client-id")
+	params.Add("redirect_uri", "https://yourapp.com/callback")
+	params.Add("scope", "openid profile email")
+	
+	// Hybrid flow response types:
+	// 'code id_token' - most common
+	// 'code token' - code + access token
+	// 'code id_token token' - all three
+	params.Add("response_type", "code id_token")
+	
+	// Required for OIDC
+	state := generateRandomState()
+	nonce := generateRandomNonce()
+	params.Add("state", state)
+	params.Add("nonce", nonce)
+	
+	// Store state and nonce in session
+	// storeInSession("oauth_state", state)
+	// storeInSession("oauth_nonce", nonce)
+	
+	authURL := baseURL + "?" + params.Encode()
+	fmt.Println("Redirect to:", authURL)
+}`
+						}
+					},
+					{
+						title: 'Handle Hybrid Flow Callback',
+						description: 'Process the front-channel response with code and id_token.',
+						code: {
+							javascript: `// Parse callback URL fragment (front-channel response) - JavaScript
+const fragment = new URLSearchParams(window.location.hash.substring(1));
+const code = fragment.get('code');
+const idToken = fragment.get('id_token');
+const state = fragment.get('state');
+
+// Validate state
+const storedState = sessionStorage.getItem('oauth_state');
+if (state !== storedState) {
+  throw new Error('State mismatch - possible CSRF attack');
+}
+
+// Validate ID token
+const payload = JSON.parse(atob(idToken.split('.')[1]));
+
+// Check nonce
+const storedNonce = sessionStorage.getItem('oauth_nonce');
+if (payload.nonce !== storedNonce) {
+  throw new Error('Nonce mismatch');
+}
+
+// Verify c_hash (code hash)
+const cHash = payload.c_hash;
+if (!await verifyCodeHash(code, cHash)) {
+  throw new Error('Code hash validation failed');
+}
+
+// Now exchange code for tokens via back-channel
+const tokens = await exchangeCodeForTokens(code);`,
+							dotnet: `// Parse callback URL fragment (front-channel response) - C# (.NET)
+// Note: Fragment is client-side only, use JavaScript to extract and send to server
+var code = Request.Query["code"];
+var idToken = Request.Query["id_token"];
+var state = Request.Query["state"];
+
+// Validate state
+var storedState = HttpContext.Session.GetString("oauth_state");
+if (state != storedState)
+{
+    throw new Exception("State mismatch - possible CSRF attack");
+}
+
+// Validate ID token
+var handler = new JwtSecurityTokenHandler();
+var jwtToken = handler.ReadJwtToken(idToken);
+
+// Check nonce
+var nonce = jwtToken.Claims.FirstOrDefault(c => c.Type == "nonce")?.Value;
+var storedNonce = HttpContext.Session.GetString("oauth_nonce");
+if (nonce != storedNonce)
+{
+    throw new Exception("Nonce mismatch");
+}
+
+// Verify c_hash
+var cHash = jwtToken.Claims.FirstOrDefault(c => c.Type == "c_hash")?.Value;
+if (!VerifyCodeHash(code, cHash))
+{
+    throw new Exception("Code hash validation failed");
+}
+
+// Exchange code for tokens
+var tokens = await ExchangeCodeForTokens(code);`,
+							go: `// Parse callback URL fragment (front-channel response) - Go
+// Note: Fragment is client-side only, use JavaScript to extract
+code := r.URL.Query().Get("code")
+idToken := r.URL.Query().Get("id_token")
+state := r.URL.Query().Get("state")
+
+// Validate state
+storedState := getStoredState(r)
+if state != storedState {
+	return errors.New("state mismatch")
+}
+
+// Decode ID token
+parts := strings.Split(idToken, ".")
+payload, _ := base64.RawURLEncoding.DecodeString(parts[1])
+
+var claims map[string]interface{}
+json.Unmarshal(payload, &claims)
+
+// Check nonce
+nonce := claims["nonce"].(string)
+storedNonce := getStoredNonce(r)
+if nonce != storedNonce {
+	return errors.New("nonce mismatch")
+}
+
+// Verify c_hash
+cHash := claims["c_hash"].(string)
+if !verifyCodeHash(code, cHash) {
+	return errors.New("code hash validation failed")
+}
+
+// Exchange code for tokens
+tokens, err := exchangeCodeForTokens(code)`
+						}
+					},
+					{
+						title: 'Verify c_hash Claim',
+						description: 'Validate that id_token c_hash matches authorization code.',
+						code: {
+							javascript: `// Verify c_hash claim in ID token - JavaScript
+async function verifyCodeHash(code, cHash) {
+  // Hash the authorization code with SHA-256
+  const encoder = new TextEncoder();
+  const data = encoder.encode(code);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  
+  // Take left-most half of hash
+  const hashArray = new Uint8Array(hashBuffer);
+  const leftHalf = hashArray.slice(0, hashArray.length / 2);
+  
+  // Base64url encode
+  const base64 = btoa(String.fromCharCode(...leftHalf))
+    .replace(/\\+/g, '-')
+    .replace(/\\//g, '_')
+    .replace(/=/g, '');
+  
+  // Compare with c_hash from ID token
+  return base64 === cHash;
+}
+
+// Usage
+const isValid = await verifyCodeHash(code, payload.c_hash);
+if (!isValid) {
+  throw new Error('c_hash validation failed');
+}`,
+							dotnet: `// Verify c_hash claim in ID token - C# (.NET)
+using System.Security.Cryptography;
+using System.Text;
+
+bool VerifyCodeHash(string code, string cHash)
+{
+    // Hash the authorization code with SHA-256
+    using var sha256 = SHA256.Create();
+    var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(code));
+    
+    // Take left-most half of hash
+    var leftHalf = new byte[hashBytes.Length / 2];
+    Array.Copy(hashBytes, leftHalf, leftHalf.Length);
+    
+    // Base64url encode
+    var base64 = Convert.ToBase64String(leftHalf)
+        .Replace("+", "-")
+        .Replace("/", "_")
+        .Replace("=", "");
+    
+    // Compare with c_hash from ID token
+    return base64 == cHash;
+}
+
+// Usage
+var isValid = VerifyCodeHash(code, payload.c_hash);
+if (!isValid)
+{
+    throw new Exception("c_hash validation failed");
+}`,
+							go: `// Verify c_hash claim in ID token - Go
+import (
+	"crypto/sha256"
+	"encoding/base64"
+	"errors"
+)
+
+func verifyCodeHash(code, cHash string) (bool, error) {
+	// Hash the authorization code with SHA-256
+	hash := sha256.Sum256([]byte(code))
+	
+	// Take left-most half of hash
+	leftHalf := hash[:len(hash)/2]
+	
+	// Base64url encode
+	encoded := base64.RawURLEncoding.EncodeToString(leftHalf)
+	
+	// Compare with c_hash from ID token
+	return encoded == cHash, nil
+}
+
+// Usage
+isValid, err := verifyCodeHash(code, claims["c_hash"].(string))
+if err != nil || !isValid {
+	return errors.New("c_hash validation failed")
+}`
+						}
+					},
+					{
+						title: 'Exchange Code for Tokens (Back-Channel)',
+						description: 'Exchange authorization code for access token and refresh token.',
+						code: {
+							javascript: `// Exchange code for tokens via back-channel - JavaScript
+async function exchangeCodeForTokens(code) {
+  const tokenResponse = await fetch('https://auth.example.com/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: 'https://yourapp.com/callback',
+      client_id: 'your-client-id',
+      client_secret: 'your-client-secret'
+    })
+  });
+
+  if (!tokenResponse.ok) {
+    throw new Error(\`Token exchange failed: \${tokenResponse.status}\`);
+  }
+
+  const tokens = await tokenResponse.json();
+  
+  // Tokens object contains:
+  // - access_token: for API calls
+  // - id_token: user identity (validate this too)
+  // - refresh_token: for getting new access tokens
+  // - expires_in: token lifetime in seconds
+  
+  return tokens;
+}`,
+							dotnet: `// Exchange code for tokens via back-channel - C# (.NET)
+async Task<TokenResponse> ExchangeCodeForTokens(string code)
+{
+    var client = new HttpClient();
+    var content = new FormUrlEncodedContent(new Dictionary<string, string>
+    {
+        { "grant_type", "authorization_code" },
+        { "code", code },
+        { "redirect_uri", "https://yourapp.com/callback" },
+        { "client_id", "your-client-id" },
+        { "client_secret", "your-client-secret" }
+    });
+
+    var response = await client.PostAsync(
+        "https://auth.pingone.com/{environmentId}/as/token",
+        content
+    );
+
+    if (!response.IsSuccessStatusCode)
+    {
+        throw new Exception($"Token exchange failed: {response.StatusCode}");
+    }
+
+    var json = await response.Content.ReadAsStringAsync();
+    var tokens = JsonSerializer.Deserialize<TokenResponse>(json);
+    
+    // Tokens object contains:
+    // - AccessToken: for API calls
+    // - IdToken: user identity (validate this too)
+    // - RefreshToken: for getting new access tokens
+    // - ExpiresIn: token lifetime in seconds
+    
+    return tokens;
+}`,
+							go: `// Exchange code for tokens via back-channel - Go
+func exchangeCodeForTokens(code string) (map[string]interface{}, error) {
+	data := url.Values{}
+	data.Set("grant_type", "authorization_code")
+	data.Set("code", code)
+	data.Set("redirect_uri", "https://yourapp.com/callback")
+	data.Set("client_id", "your-client-id")
+	data.Set("client_secret", "your-client-secret")
+
+	resp, err := http.Post(
+		"https://auth.pingone.com/{environmentId}/as/token",
+		"application/x-www-form-urlencoded",
+		strings.NewReader(data.Encode()),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("token exchange failed: %d", resp.StatusCode)
+	}
+
+	var tokens map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&tokens)
+	
+	// Tokens object contains:
+	// - access_token: for API calls
+	// - id_token: user identity (validate this too)
+	// - refresh_token: for getting new access tokens
+	// - expires_in: token lifetime in seconds
+	
+	return tokens, nil
+}`
+						}
+					}
+				]}
+			/>
 		</div>
 	);
 };

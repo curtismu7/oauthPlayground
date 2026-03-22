@@ -2,6 +2,7 @@
  * RetryManager Tests
  */
 
+import { vi } from 'vitest';
 import { RetryManager, RetryError } from '../../src/utils/RetryManager';
 
 describe('RetryManager', () => {
@@ -19,7 +20,7 @@ describe('RetryManager', () => {
 
   describe('successful execution', () => {
     it('should execute successful function without retries', async () => {
-      const mockFn = jest.fn().mockResolvedValue('success');
+      const mockFn = vi.fn().mockResolvedValue('success');
       
       const result = await retryManager.execute(mockFn);
       
@@ -30,7 +31,7 @@ describe('RetryManager', () => {
 
   describe('retry logic', () => {
     it('should retry on retryable errors', async () => {
-      const mockFn = jest.fn()
+      const mockFn = vi.fn()
         .mockRejectedValueOnce(new Error('Network Error'))
         .mockRejectedValueOnce(new Error('ECONNREFUSED'))
         .mockResolvedValue('success');
@@ -42,8 +43,8 @@ describe('RetryManager', () => {
     });
 
     it('should not retry on non-retryable errors', async () => {
-      const mockFn = jest.fn().mockRejectedValue(new Error('Validation Error'));
-      const shouldRetry = jest.fn().mockReturnValue(false);
+      const mockFn = vi.fn().mockRejectedValue(new Error('Validation Error'));
+      const shouldRetry = vi.fn().mockReturnValue(false);
       
       await expect(retryManager.execute(mockFn, shouldRetry))
         .rejects.toThrow('Validation Error');
@@ -54,7 +55,7 @@ describe('RetryManager', () => {
 
     it('should exhaust all retries and throw RetryError', async () => {
       const persistentError = new Error('Network Error'); // Use retryable error
-      const mockFn = jest.fn().mockRejectedValue(persistentError);
+      const mockFn = vi.fn().mockRejectedValue(persistentError);
       
       await expect(retryManager.execute(mockFn))
         .rejects.toThrow(RetryError);
@@ -64,7 +65,7 @@ describe('RetryManager', () => {
 
     it('should include retry statistics in RetryError', async () => {
       const persistentError = new Error('Network Error'); // Use retryable error
-      const mockFn = jest.fn().mockRejectedValue(persistentError);
+      const mockFn = vi.fn().mockRejectedValue(persistentError);
       
       try {
         await retryManager.execute(mockFn);
@@ -141,7 +142,7 @@ describe('RetryManager', () => {
       ];
 
       for (const error of networkErrors) {
-        const mockFn = jest.fn()
+        const mockFn = vi.fn()
           .mockRejectedValueOnce(error)
           .mockResolvedValue('success');
         
@@ -165,7 +166,7 @@ describe('RetryManager', () => {
         const error = new Error(errorData.message);
         (error as any).statusCode = errorData.statusCode;
         
-        const mockFn = jest.fn()
+        const mockFn = vi.fn()
           .mockRejectedValueOnce(error)
           .mockResolvedValue('success');
         
@@ -181,7 +182,7 @@ describe('RetryManager', () => {
       const rateLimitError = new Error('Too Many Requests');
       (rateLimitError as any).statusCode = 429;
       
-      const mockFn = jest.fn()
+      const mockFn = vi.fn()
         .mockRejectedValueOnce(rateLimitError)
         .mockResolvedValue('success');
       
@@ -202,7 +203,7 @@ describe('RetryManager', () => {
         const error = new Error(errorData.message);
         (error as any).statusCode = errorData.statusCode;
         
-        const mockFn = jest.fn().mockRejectedValue(error);
+        const mockFn = vi.fn().mockRejectedValue(error);
         
         await expect(retryManager.execute(mockFn))
           .rejects.toThrow(errorData.message);
