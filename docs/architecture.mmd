@@ -1,0 +1,49 @@
+%% MasterFlow + Banking Demo — System Architecture & Key Flows
+%% Generated: 2026-03-21
+
+%%─────────────────────────────────────────────────────────────
+%% DIAGRAM 1: System Component Overview
+%%─────────────────────────────────────────────────────────────
+
+graph TB
+    subgraph "User Browser"
+        UI["MasterFlow UI\n(React / Vite)"]
+    end
+
+    subgraph "OAuth Playground (Vercel)"
+        direction TB
+        EXP["Express\nserver.js\n/api/*"]
+        VFN["Vercel Serverless\napi/token-exchange.js"]
+    end
+
+    subgraph "Banking Demo (Vercel)"
+        direction TB
+        BAPI["Banking API Server\n(Express)"]
+        BUIS["Banking UI\n(React)"]
+    end
+
+    subgraph "Banking MCP Cluster"
+        direction TB
+        BMCP["Banking MCP Server\n(TypeScript / WebSocket)"]
+        AGENT["LangChain Agent\n(Python / FastAPI)"]
+    end
+
+    subgraph "PingOne"
+        P1_AUTH["Authorization\nEndpoint"]
+        P1_TOK["Token\nEndpoint"]
+        P1_INT["Introspect\nEndpoint"]
+        P1_MGMT["Management\nAPI"]
+    end
+
+    UI -->|"OAuth flows\nvia BFF"| EXP
+    EXP -->|"token exchange\nrfc 8693"| P1_TOK
+    VFN -->|"token exchange"| P1_TOK
+    UI -->|"token-exchange\nrequest"| VFN
+
+    BUIS -->|"banking requests"| BAPI
+    BAPI -->|"validate token"| P1_INT
+
+    AGENT -->|"WS + Authorization: Bearer"| BMCP
+    BMCP -->|"introspect agent token"| P1_INT
+    AGENT -->|"CC token + resource indicator"| P1_TOK
+    AGENT -->|"user delegated request"| P1_AUTH

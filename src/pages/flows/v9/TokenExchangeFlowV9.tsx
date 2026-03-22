@@ -97,6 +97,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 	const [exchangedToken, setExchangedToken] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
+	const [actorToken, setActorToken] = useState('');
 
 	const [exchangeParams, setExchangeParams] = useState<TokenExchangeParams>({
 		grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
@@ -335,6 +336,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 		setCurrentStep(0);
 		setSelectedScenario('audience-restriction');
 		setSubjectToken('');
+		setActorToken('');
 		setExchangedToken('');
 		setIsLoading(false);
 		setSelectedScopes([]);
@@ -412,6 +414,8 @@ const TokenExchangeFlowV9: React.FC = () => {
 					scope: scopeParam,
 					environment_id: exchangeParams.environmentId,
 					client_auth_method: 'client_secret_post',
+					// RFC 8693 delegation: include actor_token when present
+					...(actorToken.trim() ? { actor_token: actorToken.trim() } : {}),
 				}),
 			});
 
@@ -445,6 +449,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 		}
 	}, [
 		subjectToken,
+		actorToken,
 		exchangeParams.clientId,
 		exchangeParams.clientSecret,
 		exchangeParams.subjectTokenType,
@@ -937,6 +942,58 @@ const TokenExchangeFlowV9: React.FC = () => {
 						>
 							<strong>Current scenario:</strong> {scenarios[selectedScenario].title}
 						</div>
+						{/* Actor token — required for delegation scenarios (RFC 8693 §2.1)  */}
+						{selectedScenario === 'delegation' && (
+							<div
+								style={{
+									marginTop: '1.25rem',
+									padding: '1rem',
+									border: '1px solid #3b82f6',
+									borderRadius: '0.5rem',
+									background: '#eff6ff',
+								}}
+							>
+								<label
+									htmlFor="actor-token-textarea"
+									style={{
+										display: 'block',
+										marginBottom: '0.375rem',
+										fontWeight: 600,
+										color: '#1e40af',
+										fontSize: '0.875rem',
+									}}
+								>
+									Actor Token (optional — required for delegation)
+								</label>
+								<p style={{ margin: '0 0 0.5rem 0', fontSize: '0.8125rem', color: '#3b82f6' }}>
+									The subject token must contain a{' '}
+									<code style={{ fontFamily: 'monospace', background: '#dbeafe', padding: '0 2px' }}>
+										may_act
+									</code>{' '}
+									claim that matches this actor&apos;s identity. All present fields (
+									<code style={{ fontFamily: 'monospace' }}>client_id</code>,{' '}
+									<code style={{ fontFamily: 'monospace' }}>sub</code>,{' '}
+									<code style={{ fontFamily: 'monospace' }}>iss</code>) must match (AND semantics).
+								</p>
+								<textarea
+									id="actor-token-textarea"
+									value={actorToken}
+									onChange={(e) => setActorToken(e.target.value)}
+									placeholder="Paste actor JWT / access token here..."
+									rows={4}
+									style={{
+										width: '100%',
+										padding: '0.75rem',
+										border: '1px solid #93c5fd',
+										borderRadius: '0.375rem',
+										fontSize: '0.875rem',
+										fontFamily: 'monospace',
+										resize: 'vertical',
+										background: '#ffffff',
+									}}
+								/>
+							</div>
+						)}
 					</div>
 				);
 

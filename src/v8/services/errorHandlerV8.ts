@@ -287,6 +287,80 @@ export class ErrorHandlerV8 implements IErrorHandlerService {
 		if (ErrorHandlerV8.isAuthenticationError(error)) return 'authentication';
 		return 'unknown';
 	}
+
+	/**
+	 * Categorize an error into a structured object with type, code, and user message.
+	 */
+	static categorizeError(error: Error | string): {
+		type: 'auth' | 'network' | 'config' | 'validation' | 'unknown';
+		code: string;
+		userMessage: string;
+	} {
+		const msg = ErrorHandlerV8.getErrorMessage(error).toLowerCase();
+
+		if (msg.includes('invalid_grant') || msg.includes('token') && msg.includes('expire')) {
+			return { type: 'auth', code: 'INVALID_GRANT', userMessage: 'The authorization code is invalid or expired. Please try again.' };
+		}
+		if (msg.includes('access_denied')) {
+			return { type: 'auth', code: 'ACCESS_DENIED', userMessage: 'You denied access to the application.' };
+		}
+		if (msg.includes('invalid_client')) {
+			return { type: 'auth', code: 'INVALID_CLIENT', userMessage: 'Client authentication failed. Check your client credentials.' };
+		}
+		if (msg.includes('redirect_uri')) {
+			return { type: 'config', code: 'REDIRECT_URI_MISMATCH', userMessage: 'The redirect URI is not registered in PingOne.' };
+		}
+		if (msg.includes('cors')) {
+			return { type: 'network', code: 'CORS_ERROR', userMessage: 'Cross-origin request was blocked. HTTPS is required.' };
+		}
+		if (ErrorHandlerV8.isNetworkError(error)) {
+			return { type: 'network', code: 'NETWORK_ERROR', userMessage: 'Network request failed. Check your connection.' };
+		}
+		if (ErrorHandlerV8.isValidationError(error)) {
+			return { type: 'validation', code: 'REQUIRED_FIELD_MISSING', userMessage: 'A required field is missing or invalid.' };
+		}
+		return { type: 'unknown', code: 'UNKNOWN_ERROR', userMessage: 'An unexpected error occurred. Please try again.' };
+	}
+
+	/** Returns a user-friendly message for an error. */
+	static getUserMessage(error: Error | string): string {
+		return ErrorHandlerV8.categorizeError(error).userMessage;
+	}
+
+	/** Returns a technical (developer) message for an error. */
+	static getTechnicalMessage(error: Error | string): string {
+		const msg = ErrorHandlerV8.getErrorMessage(error).toLowerCase();
+		if (msg.includes('invalid_grant')) return 'Token endpoint returned invalid_grant. The authorization code may have expired or already been used.';
+		if (msg.includes('access_denied')) return 'Authorization server returned access_denied.';
+		if (msg.includes('invalid_client')) return 'Token endpoint returned invalid_client. Verify client_id and client_secret.';
+		if (msg.includes('redirect_uri')) return 'redirect_uri_mismatch: The supplied redirect URI does not match any registered URIs.';
+		return ErrorHandlerV8.getErrorMessage(error);
+	}
+
+	/** Returns recovery suggestions for an error. */
+	static getRecoverySuggestions(error: Error | string): string[] {
+		const msg = ErrorHandlerV8.getErrorMessage(error).toLowerCase();
+		if (msg.includes('invalid_grant')) return ['Authorization codes expire quickly — retry the flow', 'Ensure the code has not already been used'];
+		if (msg.includes('access_denied')) return ['Request only the permission scopes you need', 'Check with your administrator about required permissions'];
+		if (msg.includes('invalid_client')) return ['Verify the client_id is correct', 'Confirm the client_secret has not been rotated'];
+		if (ErrorHandlerV8.isNetworkError(error)) return ['Check your internet connection', 'Verify PingOne services are reachable'];
+		if (ErrorHandlerV8.isValidationError(error)) return ['Ensure all required fields are filled in'];
+		return ['Retry the operation', 'Contact support if the problem persists'];
+	}
+
+	/** Returns whether the error is recoverable by the user. */
+	static isRecoverable(error: Error | string): boolean {
+		const cat = ErrorHandlerV8.categorizeError(error);
+		return cat.type !== 'config' && cat.code !== 'INVALID_CLIENT';
+	}
+
+	/** Returns the severity level of an error. */
+	static getSeverity(error: Error | string): 'error' | 'warning' | 'info' {
+		const cat = ErrorHandlerV8.categorizeError(error);
+		if (cat.type === 'network' || cat.type === 'auth') return 'error';
+		if (cat.type === 'validation') return 'warning';
+		return 'error';
+	}
 }
 
 export default ErrorHandlerV8;

@@ -6,16 +6,11 @@ const spin = keyframes`
   100% { transform: rotate(360deg); }
 `;
 
-const SpinnerWrapper = styled.div<{ size?: number; color?: string }>`
+const SpinnerWrapper = styled.div`
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	animation: ${spin} 1s linear infinite;
-
-	svg {
-		font-size: ${({ size }) => size || 16}px;
-		color: ${({ color, theme }) => color || theme?.colors?.primary || '#0070CC'};
-	}
 `;
 
 interface SpinnerProps {
@@ -23,10 +18,17 @@ interface SpinnerProps {
 	color?: string;
 }
 
-const Spinner: React.FC<SpinnerProps> = ({ size = 16, color }) => {
+const Spinner: React.FC<SpinnerProps> = ({ size = 16, color = '#0070CC' }) => {
 	return (
-		<SpinnerWrapper size={size} color={color}>
-			<i className="bi bi-question-circle"></i>
+		<SpinnerWrapper
+			style={{ animation: `${spin} 1s linear infinite` }}
+		>
+			<i
+				className="bi bi-question-circle"
+				role="img"
+				aria-label="Loading"
+				style={{ fontSize: `${size}px`, color }}
+			/>
 		</SpinnerWrapper>
 	);
 };

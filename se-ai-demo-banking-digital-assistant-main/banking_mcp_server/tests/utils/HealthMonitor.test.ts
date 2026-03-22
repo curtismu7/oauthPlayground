@@ -2,6 +2,7 @@
  * Unit tests for HealthMonitor utility
  */
 
+import { vi } from 'vitest';
 import { 
   HealthMonitor, 
   HealthStatus, 
@@ -13,40 +14,40 @@ import { ErrorHandler, ErrorSeverity } from '../../src/utils/ErrorHandler';
 
 describe('HealthMonitor', () => {
   let healthMonitor: HealthMonitor;
-  let mockLogger: jest.Mocked<Logger>;
-  let mockErrorHandler: jest.Mocked<ErrorHandler>;
-  let consoleSpy: jest.SpyInstance;
+  let mockLogger: vi.Mocked<Logger>;
+  let mockErrorHandler: vi.Mocked<ErrorHandler>;
+  let consoleSpy: vi.SpyInstance;
 
   beforeEach(() => {
     mockLogger = {
-      error: jest.fn(),
-      warn: jest.fn(),
-      info: jest.fn(),
-      debug: jest.fn(),
-      logAuthenticationEvent: jest.fn(),
-      logBankingOperation: jest.fn(),
-      logSecurityEvent: jest.fn()
+      error: vi.fn(),
+      warn: vi.fn(),
+      info: vi.fn(),
+      debug: vi.fn(),
+      logAuthenticationEvent: vi.fn(),
+      logBankingOperation: vi.fn(),
+      logSecurityEvent: vi.fn()
     } as any;
 
     mockErrorHandler = {
-      handleError: jest.fn(),
-      createErrorResponse: jest.fn(),
-      isRetryable: jest.fn(),
-      getErrorStats: jest.fn()
+      handleError: vi.fn(),
+      createErrorResponse: vi.fn(),
+      isRetryable: vi.fn(),
+      getErrorStats: vi.fn()
     } as any;
 
     healthMonitor = new HealthMonitor(mockLogger, mockErrorHandler);
-    consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    consoleSpy = vi.spyOn(console, 'log').mockImplementation();
 
     // Clear any existing intervals
-    jest.clearAllTimers();
-    jest.useFakeTimers();
+    vi.clearAllTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
     consoleSpy.mockRestore();
     healthMonitor.shutdown();
-    jest.useRealTimers();
+    vi.useRealTimers();
     // Reset singleton instance for clean tests
     (HealthMonitor as any).instance = undefined;
   });
@@ -66,7 +67,7 @@ describe('HealthMonitor', () => {
 
   describe('Health Check Management', () => {
     it('should add custom health check', () => {
-      const mockCheck = jest.fn().mockResolvedValue({
+      const mockCheck = vi.fn().mockResolvedValue({
         name: 'custom_check',
         status: HealthStatus.HEALTHY,
         message: 'All good',
@@ -94,7 +95,7 @@ describe('HealthMonitor', () => {
     });
 
     it('should remove health check', () => {
-      const mockCheck = jest.fn().mockResolvedValue({
+      const mockCheck = vi.fn().mockResolvedValue({
         name: 'test_check',
         status: HealthStatus.HEALTHY,
         message: 'Test',
@@ -122,7 +123,7 @@ describe('HealthMonitor', () => {
     });
 
     it('should not start disabled health checks', () => {
-      const mockCheck = jest.fn();
+      const mockCheck = vi.fn();
 
       const config: HealthCheckConfig = {
         name: 'disabled_check',
@@ -135,7 +136,7 @@ describe('HealthMonitor', () => {
       healthMonitor.addHealthCheck(config);
 
       // Fast forward time
-      jest.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(2000);
 
       expect(mockCheck).not.toHaveBeenCalled();
     });
@@ -179,7 +180,7 @@ describe('HealthMonitor', () => {
 
   describe('Health Check Execution', () => {
     it('should handle successful health check', () => {
-      const mockCheck = jest.fn().mockResolvedValue({
+      const mockCheck = vi.fn().mockResolvedValue({
         name: 'success_check',
         status: HealthStatus.HEALTHY,
         message: 'Everything is fine',
@@ -205,7 +206,7 @@ describe('HealthMonitor', () => {
     });
 
     it('should handle health check configuration', () => {
-      const mockCheck = jest.fn();
+      const mockCheck = vi.fn();
 
       const config: HealthCheckConfig = {
         name: 'test_check',
@@ -375,7 +376,7 @@ describe('HealthMonitor', () => {
 
   describe('Shutdown and Cleanup', () => {
     it('should shutdown cleanly', () => {
-      const mockCheck = jest.fn().mockResolvedValue({
+      const mockCheck = vi.fn().mockResolvedValue({
         name: 'test_check',
         status: HealthStatus.HEALTHY,
         message: 'Test',
@@ -400,7 +401,7 @@ describe('HealthMonitor', () => {
       );
 
       // Verify intervals are cleared
-      jest.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(2000);
       expect(mockCheck).toHaveBeenCalledTimes(1); // Only initial call
     });
 
@@ -423,7 +424,7 @@ describe('HealthMonitor', () => {
 
   describe('Health Check Response Times', () => {
     it('should support response time tracking', () => {
-      const mockCheck = jest.fn().mockResolvedValue({
+      const mockCheck = vi.fn().mockResolvedValue({
         name: 'test_check',
         status: HealthStatus.HEALTHY,
         message: 'Test check',

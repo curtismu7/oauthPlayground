@@ -1,0 +1,8 @@
+
+> masterflow-api@9.16.23 type-check
+> NODE_OPTIONS='--max-old-space-size=8192' tsc --noEmit
+
+src/components/__tests__/lazyLoading.test.tsx(14,2): error TS1128: Declaration or statement expected.
+src/components/__tests__/lazyLoading.test.tsx(14,3): error TS1128: Declaration or statement expected.
+src/components/__tests__/lazyLoading.test.tsx(99,1): error TS1128: Declaration or statement expected.
+src/components/__tests__/lazyLoading.test.tsx(99,2): error TS1128: Declaration or statement expected.

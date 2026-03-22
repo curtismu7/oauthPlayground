@@ -3,6 +3,7 @@
  * Unit tests for MCP protocol message handling
  */
 
+import { vi } from 'vitest';
 import { MCPMessageHandler, MessageHandlerContext } from '../../src/server/MCPMessageHandler';
 import { BankingAuthenticationManager } from '../../src/auth/BankingAuthenticationManager';
 import { BankingSessionManager, BankingSession } from '../../src/storage/BankingSessionManager';
@@ -17,15 +18,15 @@ import { PingOneConfig, AgentTokenInfo } from '../../src/interfaces/auth';
 import { BankingToolDefinition } from '../../src/tools/BankingToolRegistry';
 
 // Mock dependencies
-jest.mock('../../src/auth/BankingAuthenticationManager');
-jest.mock('../../src/storage/BankingSessionManager');
-jest.mock('../../src/tools/BankingToolProvider');
+vi.mock('../../src/auth/BankingAuthenticationManager');
+vi.mock('../../src/storage/BankingSessionManager');
+vi.mock('../../src/tools/BankingToolProvider');
 
 describe('MCPMessageHandler', () => {
   let handler: MCPMessageHandler;
-  let mockAuthManager: jest.Mocked<BankingAuthenticationManager>;
-  let mockSessionManager: jest.Mocked<BankingSessionManager>;
-  let mockToolProvider: jest.Mocked<BankingToolProvider>;
+  let mockAuthManager: vi.Mocked<BankingAuthenticationManager>;
+  let mockSessionManager: vi.Mocked<BankingSessionManager>;
+  let mockToolProvider: vi.Mocked<BankingToolProvider>;
   let mockContext: MessageHandlerContext;
 
   beforeEach(() => {
@@ -39,25 +40,25 @@ describe('MCPMessageHandler', () => {
       tokenEndpoint: 'https://openam-dna.forgeblocks.com:443/am/oauth2/realms/root/realms/alpha/access_token'
     };
 
-    mockAuthManager = new BankingAuthenticationManager(mockPingOneConfig) as jest.Mocked<BankingAuthenticationManager>;
-    mockSessionManager = new BankingSessionManager('test-path', 'test-key') as jest.Mocked<BankingSessionManager>;
-    mockToolProvider = {} as jest.Mocked<BankingToolProvider>;
+    mockAuthManager = new BankingAuthenticationManager(mockPingOneConfig) as vi.Mocked<BankingAuthenticationManager>;
+    mockSessionManager = new BankingSessionManager('test-path', 'test-key') as vi.Mocked<BankingSessionManager>;
+    mockToolProvider = {} as vi.Mocked<BankingToolProvider>;
 
     // Set up default mocks
-    mockToolProvider.getAvailableTools = jest.fn().mockReturnValue([]);
-    mockToolProvider.executeTool = jest.fn();
-    mockToolProvider.handleAuthorizationCode = jest.fn();
+    mockToolProvider.getAvailableTools = vi.fn().mockReturnValue([]);
+    mockToolProvider.executeTool = vi.fn();
+    mockToolProvider.handleAuthorizationCode = vi.fn();
 
     // Mock AuthenticationIntegration methods
-    mockAuthManager.validateAgentToken = jest.fn();
-    mockAuthManager.generateAuthorizationRequest = jest.fn();
-    mockAuthManager.validateAuthorizationState = jest.fn();
-    mockAuthManager.exchangeAuthorizationCode = jest.fn();
-    mockAuthManager.completeAuthorizationRequest = jest.fn();
-    mockSessionManager.validateSession = jest.fn();
-    mockSessionManager.createSession = jest.fn();
-    mockSessionManager.getSessionByAgentToken = jest.fn();
-    mockSessionManager.updateSessionActivity = jest.fn();
+    mockAuthManager.validateAgentToken = vi.fn();
+    mockAuthManager.generateAuthorizationRequest = vi.fn();
+    mockAuthManager.validateAuthorizationState = vi.fn();
+    mockAuthManager.exchangeAuthorizationCode = vi.fn();
+    mockAuthManager.completeAuthorizationRequest = vi.fn();
+    mockSessionManager.validateSession = vi.fn();
+    mockSessionManager.createSession = vi.fn();
+    mockSessionManager.getSessionByAgentToken = vi.fn();
+    mockSessionManager.updateSessionActivity = vi.fn();
 
     handler = new MCPMessageHandler(mockAuthManager, mockSessionManager, mockToolProvider);
 

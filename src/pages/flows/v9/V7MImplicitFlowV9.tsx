@@ -1,6 +1,7 @@
 // src/pages/flows/v9/V7MImplicitFlowV9.tsx
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
 import { ColoredJsonDisplay } from '../../../components/ColoredJsonDisplay';
 import ColoredUrlDisplay from '../../../components/ColoredUrlDisplay';
 import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
@@ -781,6 +782,182 @@ token=<access_token>`}
 						</pre>
 					</div>
 				}
+			/>
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'Implicit Flow Authorization Request',
+						description:
+							'Build authorization URL for implicit flow (deprecated - use Authorization Code with PKCE).',
+						code: {
+							javascript: `// Implicit Flow - JavaScript (DEPRECATED - Use Authorization Code with PKCE instead)
+const authUrl = new URL('https://auth.pingone.com/{environmentId}/as/authorize');
+authUrl.searchParams.append('client_id', 'your-client-id');
+authUrl.searchParams.append('redirect_uri', 'https://yourapp.com/callback');
+authUrl.searchParams.append('response_type', 'token id_token'); // or just 'token'
+authUrl.searchParams.append('scope', 'openid profile email');
+authUrl.searchParams.append('state', crypto.randomUUID());
+authUrl.searchParams.append('nonce', crypto.randomUUID());
+
+// Store state and nonce for validation
+sessionStorage.setItem('oauth_state', authUrl.searchParams.get('state'));
+sessionStorage.setItem('oauth_nonce', authUrl.searchParams.get('nonce'));
+
+// Redirect user
+window.location.href = authUrl.toString();`,
+							dotnet: `// Implicit Flow - C# (.NET) (DEPRECATED - Use Authorization Code with PKCE instead)
+using System.Web;
+
+var authUrl = new UriBuilder("https://auth.pingone.com/{environmentId}/as/authorize");
+var query = HttpUtility.ParseQueryString(string.Empty);
+query["client_id"] = "your-client-id";
+query["redirect_uri"] = "https://yourapp.com/callback";
+query["response_type"] = "token id_token"; // or just "token"
+query["scope"] = "openid profile email";
+query["state"] = Guid.NewGuid().ToString();
+query["nonce"] = Guid.NewGuid().ToString();
+authUrl.Query = query.ToString();
+
+// Store state and nonce in session
+HttpContext.Session.SetString("oauth_state", query["state"]);
+HttpContext.Session.SetString("oauth_nonce", query["nonce"]);
+
+// Redirect user
+Response.Redirect(authUrl.ToString());`,
+							go: `// Implicit Flow - Go (DEPRECATED - Use Authorization Code with PKCE instead)
+package main
+
+import (
+	"fmt"
+	"net/url"
+)
+
+func main() {
+	baseURL := "https://auth.pingone.com/{environmentId}/as/authorize"
+	params := url.Values{}
+	params.Add("client_id", "your-client-id")
+	params.Add("redirect_uri", "https://yourapp.com/callback")
+	params.Add("response_type", "token id_token") // or just "token"
+	params.Add("scope", "openid profile email")
+	params.Add("state", generateRandomState())
+	params.Add("nonce", generateRandomNonce())
+
+	// Store state and nonce in session
+	// storeInSession("oauth_state", params.Get("state"))
+	// storeInSession("oauth_nonce", params.Get("nonce"))
+
+	authURL := baseURL + "?" + params.Encode()
+	fmt.Println("Redirect to:", authURL)
+}`,
+						},
+					},
+					{
+						title: 'Parse Implicit Flow Callback',
+						description: 'Extract tokens from URL fragment after redirect.',
+						code: {
+							javascript: `// Parse tokens from URL fragment - JavaScript
+const fragment = new URLSearchParams(window.location.hash.substring(1));
+const accessToken = fragment.get('access_token');
+const idToken = fragment.get('id_token');
+const state = fragment.get('state');
+
+// Validate state
+const storedState = sessionStorage.getItem('oauth_state');
+if (state !== storedState) {
+  throw new Error('State mismatch - possible CSRF attack');
+}
+
+// Validate nonce in ID token (decode JWT and check nonce claim)
+const idTokenPayload = JSON.parse(atob(idToken.split('.')[1]));
+const storedNonce = sessionStorage.getItem('oauth_nonce');
+if (idTokenPayload.nonce !== storedNonce) {
+  throw new Error('Nonce mismatch');
+}
+
+// Clean up
+sessionStorage.removeItem('oauth_state');
+sessionStorage.removeItem('oauth_nonce');
+
+console.log('Access Token:', accessToken);
+console.log('ID Token:', idToken);`,
+							dotnet: `// Parse tokens from URL fragment - C# (.NET)
+// Note: Fragment is client-side only, use JavaScript to extract and send to server
+// This example shows server-side validation after receiving tokens
+
+using System.IdentityModel.Tokens.Jwt;
+
+public class TokenValidation
+{
+    public void ValidateTokens(string accessToken, string idToken, string state)
+    {
+        // Validate state
+        var storedState = HttpContext.Session.GetString("oauth_state");
+        if (state != storedState)
+        {
+            throw new Exception("State mismatch - possible CSRF attack");
+        }
+
+        // Decode and validate ID token
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(idToken);
+        
+        // Validate nonce
+        var nonce = jwtToken.Claims.FirstOrDefault(c => c.Type == "nonce")?.Value;
+        var storedNonce = HttpContext.Session.GetString("oauth_nonce");
+        if (nonce != storedNonce)
+        {
+            throw new Exception("Nonce mismatch");
+        }
+
+        // Clean up session
+        HttpContext.Session.Remove("oauth_state");
+        HttpContext.Session.Remove("oauth_nonce");
+    }
+}`,
+							go: `// Parse tokens from URL fragment - Go
+// Note: Fragment is client-side only, use JavaScript to extract
+// This example shows validation after receiving tokens
+
+package main
+
+import (
+	"encoding/base64"
+	"encoding/json"
+	"errors"
+	"strings"
+)
+
+func validateTokens(accessToken, idToken, state string, session map[string]string) error {
+	// Validate state
+	storedState := session["oauth_state"]
+	if state != storedState {
+		return errors.New("state mismatch")
+	}
+
+	// Decode ID token (simple decode, no signature verification)
+	parts := strings.Split(idToken, ".")
+	payload, _ := base64.RawURLEncoding.DecodeString(parts[1])
+	
+	var claims map[string]interface{}
+	json.Unmarshal(payload, &claims)
+	
+	// Validate nonce
+	nonce := claims["nonce"].(string)
+	storedNonce := session["oauth_nonce"]
+	if nonce != storedNonce {
+		return errors.New("nonce mismatch")
+	}
+
+	// Clean up session
+	delete(session, "oauth_state")
+	delete(session, "oauth_nonce")
+	
+	return nil
+}`,
+						},
+					},
+				]}
 			/>
 		</div>
 	);

@@ -3,6 +3,7 @@
  * Unit tests for authentication integration into MCP message processing
  */
 
+import { vi } from 'vitest';
 import { AuthenticationIntegration } from '../../src/server/AuthenticationIntegration';
 import { BankingAuthenticationManager } from '../../src/auth/BankingAuthenticationManager';
 import { BankingSessionManager, BankingSession, UserTokens } from '../../src/storage/BankingSessionManager';
@@ -10,13 +11,13 @@ import { PingOneConfig, AgentTokenInfo, AuthenticationError, AuthErrorCodes } fr
 import { AuthorizationRequest } from '../../src/interfaces/mcp';
 
 // Mock dependencies
-jest.mock('../../src/auth/BankingAuthenticationManager');
-jest.mock('../../src/storage/BankingSessionManager');
+vi.mock('../../src/auth/BankingAuthenticationManager');
+vi.mock('../../src/storage/BankingSessionManager');
 
 describe('AuthenticationIntegration', () => {
   let authIntegration: AuthenticationIntegration;
-  let mockAuthManager: jest.Mocked<BankingAuthenticationManager>;
-  let mockSessionManager: jest.Mocked<BankingSessionManager>;
+  let mockAuthManager: vi.Mocked<BankingAuthenticationManager>;
+  let mockSessionManager: vi.Mocked<BankingSessionManager>;
 
   beforeEach(() => {
     const mockPingOneConfig: PingOneConfig = {
@@ -28,25 +29,25 @@ describe('AuthenticationIntegration', () => {
       tokenEndpoint: 'https://openam-dna.forgeblocks.com:443/am/oauth2/realms/root/realms/alpha/access_token'
     };
 
-    mockAuthManager = new BankingAuthenticationManager(mockPingOneConfig) as jest.Mocked<BankingAuthenticationManager>;
-    mockSessionManager = new BankingSessionManager('test-path', 'test-key') as jest.Mocked<BankingSessionManager>;
+    mockAuthManager = new BankingAuthenticationManager(mockPingOneConfig) as vi.Mocked<BankingAuthenticationManager>;
+    mockSessionManager = new BankingSessionManager('test-path', 'test-key') as vi.Mocked<BankingSessionManager>;
 
     // Set up default mocks
-    mockAuthManager.validateAgentToken = jest.fn();
-    mockAuthManager.generateAuthorizationRequest = jest.fn();
-    mockAuthManager.validateBankingScopes = jest.fn();
-    mockAuthManager.isTokenExpired = jest.fn();
-    mockAuthManager.refreshUserToken = jest.fn();
-    mockAuthManager.validateAuthorizationState = jest.fn();
-    mockAuthManager.exchangeAuthorizationCode = jest.fn();
-    mockAuthManager.completeAuthorizationRequest = jest.fn();
-    mockAuthManager.getTokenLifetime = jest.fn();
+    mockAuthManager.validateAgentToken = vi.fn();
+    mockAuthManager.generateAuthorizationRequest = vi.fn();
+    mockAuthManager.validateBankingScopes = vi.fn();
+    mockAuthManager.isTokenExpired = vi.fn();
+    mockAuthManager.refreshUserToken = vi.fn();
+    mockAuthManager.validateAuthorizationState = vi.fn();
+    mockAuthManager.exchangeAuthorizationCode = vi.fn();
+    mockAuthManager.completeAuthorizationRequest = vi.fn();
+    mockAuthManager.getTokenLifetime = vi.fn();
 
-    mockSessionManager.getSessionByAgentToken = jest.fn();
-    mockSessionManager.createSession = jest.fn();
-    mockSessionManager.validateSession = jest.fn();
-    mockSessionManager.associateUserTokens = jest.fn();
-    mockSessionManager.getSession = jest.fn();
+    mockSessionManager.getSessionByAgentToken = vi.fn();
+    mockSessionManager.createSession = vi.fn();
+    mockSessionManager.validateSession = vi.fn();
+    mockSessionManager.associateUserTokens = vi.fn();
+    mockSessionManager.getSession = vi.fn();
 
     authIntegration = new AuthenticationIntegration(mockAuthManager, mockSessionManager);
   });

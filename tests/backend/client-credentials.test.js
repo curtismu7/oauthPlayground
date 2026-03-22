@@ -35,6 +35,7 @@ describe('API Client Credentials Endpoint', () => {
 			ok: true,
 			status: 200,
 			json: () => Promise.resolve(mockPingOneResponse),
+			text: () => Promise.resolve(JSON.stringify(mockPingOneResponse)),
 			headers: new Map([['content-type', 'application/json']]),
 		});
 
@@ -84,6 +85,7 @@ describe('API Client Credentials Endpoint', () => {
 			ok: false,
 			status: 401,
 			json: () => Promise.resolve(pingOneError),
+			text: () => Promise.resolve(JSON.stringify(pingOneError)),
 			headers: new Map([['content-type', 'application/json']]),
 		});
 

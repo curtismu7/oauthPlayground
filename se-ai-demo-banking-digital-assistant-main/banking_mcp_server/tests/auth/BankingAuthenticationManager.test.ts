@@ -2,13 +2,14 @@
  * Unit tests for BankingAuthenticationManager
  */
 
+import { vi } from 'vitest';
 import { BankingAuthenticationManager } from '../../src/auth/BankingAuthenticationManager';
 import { PingOneConfig } from '../../src/interfaces/auth';
 
 // Mock the individual components
-jest.mock('../../src/auth/TokenIntrospector');
-jest.mock('../../src/auth/AuthorizationManager');
-jest.mock('../../src/auth/AuthorizationRequestGenerator');
+vi.mock('../../src/auth/TokenIntrospector');
+vi.mock('../../src/auth/AuthorizationManager');
+vi.mock('../../src/auth/AuthorizationRequestGenerator');
 
 describe('BankingAuthenticationManager', () => {
   let authManager: BankingAuthenticationManager;

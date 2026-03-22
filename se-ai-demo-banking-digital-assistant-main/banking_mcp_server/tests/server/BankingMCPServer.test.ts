@@ -3,6 +3,7 @@
  * Unit tests for WebSocket server and connection handling
  */
 
+import { vi } from 'vitest';
 import WebSocket from 'ws';
 import { BankingMCPServer, ServerConfig } from '../../src/server/BankingMCPServer';
 import { BankingAuthenticationManager } from '../../src/auth/BankingAuthenticationManager';
@@ -11,15 +12,15 @@ import { BankingToolProvider } from '../../src/tools/BankingToolProvider';
 import { PingOneConfig } from '../../src/interfaces/auth';
 
 // Mock dependencies
-jest.mock('../../src/auth/BankingAuthenticationManager');
-jest.mock('../../src/storage/BankingSessionManager');
-jest.mock('../../src/tools/BankingToolProvider');
+vi.mock('../../src/auth/BankingAuthenticationManager');
+vi.mock('../../src/storage/BankingSessionManager');
+vi.mock('../../src/tools/BankingToolProvider');
 
 describe('BankingMCPServer', () => {
   let server: BankingMCPServer;
-  let mockAuthManager: jest.Mocked<BankingAuthenticationManager>;
-  let mockSessionManager: jest.Mocked<BankingSessionManager>;
-  let mockToolProvider: jest.Mocked<BankingToolProvider>;
+  let mockAuthManager: vi.Mocked<BankingAuthenticationManager>;
+  let mockSessionManager: vi.Mocked<BankingSessionManager>;
+  let mockToolProvider: vi.Mocked<BankingToolProvider>;
   let config: ServerConfig;
 
   beforeEach(() => {
@@ -33,9 +34,9 @@ describe('BankingMCPServer', () => {
       tokenEndpoint: 'https://openam-dna.forgeblocks.com:443/am/oauth2/realms/root/realms/alpha/access_token'
     };
 
-    mockAuthManager = new BankingAuthenticationManager(mockPingOneConfig) as jest.Mocked<BankingAuthenticationManager>;
-    mockSessionManager = new BankingSessionManager('test-path', 'test-key') as jest.Mocked<BankingSessionManager>;
-    mockToolProvider = {} as jest.Mocked<BankingToolProvider>;
+    mockAuthManager = new BankingAuthenticationManager(mockPingOneConfig) as vi.Mocked<BankingAuthenticationManager>;
+    mockSessionManager = new BankingSessionManager('test-path', 'test-key') as vi.Mocked<BankingSessionManager>;
+    mockToolProvider = {} as vi.Mocked<BankingToolProvider>;
 
     config = {
       host: 'localhost',

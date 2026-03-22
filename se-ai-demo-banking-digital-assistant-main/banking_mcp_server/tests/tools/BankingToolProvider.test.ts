@@ -2,6 +2,7 @@
  * Banking Tool Provider Tests
  */
 
+import { vi } from 'vitest';
 import { BankingToolProvider } from '../../src/tools/BankingToolProvider';
 import { BankingAPIClient } from '../../src/banking/BankingAPIClient';
 import { BankingAuthenticationManager } from '../../src/auth/BankingAuthenticationManager';
@@ -10,26 +11,26 @@ import { Session, UserTokens, AuthErrorCodes, AuthenticationError } from '../../
 import { Account, Transaction, TransactionResponse, BankingAPIError } from '../../src/interfaces/banking';
 
 // Mock dependencies
-jest.mock('../../src/banking/BankingAPIClient');
-jest.mock('../../src/auth/BankingAuthenticationManager');
-jest.mock('../../src/storage/BankingSessionManager');
+vi.mock('../../src/banking/BankingAPIClient');
+vi.mock('../../src/auth/BankingAuthenticationManager');
+vi.mock('../../src/storage/BankingSessionManager');
 
 describe('BankingToolProvider', () => {
   let provider: BankingToolProvider;
-  let mockApiClient: jest.Mocked<BankingAPIClient>;
-  let mockAuthManager: jest.Mocked<BankingAuthenticationManager>;
-  let mockSessionManager: jest.Mocked<BankingSessionManager>;
+  let mockApiClient: vi.Mocked<BankingAPIClient>;
+  let mockAuthManager: vi.Mocked<BankingAuthenticationManager>;
+  let mockSessionManager: vi.Mocked<BankingSessionManager>;
   let mockSession: Session;
 
   beforeEach(() => {
-    mockApiClient = new BankingAPIClient() as jest.Mocked<BankingAPIClient>;
-    mockAuthManager = new BankingAuthenticationManager({} as any) as jest.Mocked<BankingAuthenticationManager>;
-    mockSessionManager = new BankingSessionManager('test', 'test-key') as jest.Mocked<BankingSessionManager>;
+    mockApiClient = new BankingAPIClient() as vi.Mocked<BankingAPIClient>;
+    mockAuthManager = new BankingAuthenticationManager({} as any) as vi.Mocked<BankingAuthenticationManager>;
+    mockSessionManager = new BankingSessionManager('test', 'test-key') as vi.Mocked<BankingSessionManager>;
     
     // Set up default mocks for AuthenticationManager
-    mockAuthManager.generateAuthorizationRequest = jest.fn();
-    mockAuthManager.isTokenExpired = jest.fn();
-    mockAuthManager.validateBankingScopes = jest.fn();
+    mockAuthManager.generateAuthorizationRequest = vi.fn();
+    mockAuthManager.isTokenExpired = vi.fn();
+    mockAuthManager.validateBankingScopes = vi.fn();
     
     provider = new BankingToolProvider(mockApiClient, mockAuthManager, mockSessionManager);
 
@@ -54,7 +55,7 @@ describe('BankingToolProvider', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // Helper function to mock successful authorization

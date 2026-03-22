@@ -4,6 +4,7 @@
  * and token correlation with session management
  */
 
+import { vi } from 'vitest';
 import { BankingAuthenticationManager } from '../../src/auth/BankingAuthenticationManager';
 import { BankingSessionManager } from '../../src/storage/BankingSessionManager';
 import { PingOneConfig, UserTokens, AuthorizationRequest } from '../../src/interfaces/auth';
@@ -13,8 +14,8 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 
 // Mock axios for PingOne API calls
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+vi.mock('axios');
+const mockedAxios = axios as vi.Mocked<typeof axios>;
 
 describe('Authentication Flows Integration Tests', () => {
   let authManager: BankingAuthenticationManager;
@@ -70,7 +71,7 @@ describe('Authentication Flows Integration Tests', () => {
 
   beforeEach(() => {
     // Reset mocks before each test
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Complete Agent Authentication Flow', () => {

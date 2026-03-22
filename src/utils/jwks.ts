@@ -455,8 +455,8 @@ export function isJWKS(text: string): boolean {
  * Build JWKS URI from issuer
  */
 export function buildJWKSUri(issuer: string): string {
-	// For PingOne, JWKS is typically at /as/jwks
-	return `${issuer.replace(/\/$/, '')}/as/jwks`;
+	// JWKS is at /jwks relative to the issuer base (e.g. .../as/jwks)
+	return `${issuer.replace(/\/$/, '')}/jwks`;
 }
 
 /**

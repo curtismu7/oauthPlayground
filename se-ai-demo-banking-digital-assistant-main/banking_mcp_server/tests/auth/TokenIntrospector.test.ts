@@ -2,18 +2,19 @@
  * Unit tests for TokenIntrospector
  */
 
+import { vi } from 'vitest';
 import axios from 'axios';
 import { TokenIntrospector } from '../../src/auth/TokenIntrospector';
 import { PingOneConfig, TokenInfo, AuthenticationError, AuthErrorCodes } from '../../src/interfaces/auth';
 
 // Mock axios
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+vi.mock('axios');
+const mockedAxios = axios as vi.Mocked<typeof axios>;
 
 describe('TokenIntrospector', () => {
   let tokenIntrospector: TokenIntrospector;
   let mockConfig: PingOneConfig;
-  let mockAxiosInstance: jest.Mocked<any>;
+  let mockAxiosInstance: vi.Mocked<any>;
 
   beforeEach(() => {
     mockConfig = {
@@ -26,11 +27,11 @@ describe('TokenIntrospector', () => {
     };
 
     mockAxiosInstance = {
-      post: jest.fn(),
-      get: jest.fn(),
-      put: jest.fn(),
-      delete: jest.fn(),
-      patch: jest.fn()
+      post: vi.fn(),
+      get: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn(),
+      patch: vi.fn()
     };
 
     mockedAxios.create.mockReturnValue(mockAxiosInstance);
@@ -38,7 +39,7 @@ describe('TokenIntrospector', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('introspectToken', () => {

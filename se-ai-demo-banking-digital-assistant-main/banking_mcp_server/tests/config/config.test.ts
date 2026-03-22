@@ -3,6 +3,7 @@
  * Tests for configuration loading and validation
  */
 
+import { vi } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 import { 
@@ -22,7 +23,7 @@ describe('Configuration', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     process.env = { ...originalEnv };
   });
 
