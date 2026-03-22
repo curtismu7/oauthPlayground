@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 /**
  * Integration Test Runner
  * Simple test to verify integration test infrastructure is working
@@ -29,8 +30,8 @@ describe('Integration Test Infrastructure', () => {
 
   it('should be able to mock axios', () => {
     const axios = require('axios');
-    jest.mock('axios');
-    const mockedAxios = axios as jest.Mocked<typeof axios>;
+    vi.mock('axios');
+    const mockedAxios = axios as vi.Mocked<typeof axios>;
     
     expect(mockedAxios).toBeDefined();
   });

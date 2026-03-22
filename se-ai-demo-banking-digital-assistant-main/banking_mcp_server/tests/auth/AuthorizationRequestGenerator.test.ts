@@ -2,6 +2,7 @@
  * Unit tests for AuthorizationRequestGenerator
  */
 
+import { vi } from 'vitest';
 import { AuthorizationRequestGenerator, AuthorizationRequestOptions } from '../../src/auth/AuthorizationRequestGenerator';
 import { PingOneConfig } from '../../src/interfaces/auth';
 
@@ -32,7 +33,7 @@ describe('AuthorizationRequestGenerator', () => {
 
   afterAll(() => {
     // Ensure all timers are cleared
-    jest.clearAllTimers();
+    vi.clearAllTimers();
   });
 
   describe('generateAuthorizationRequest', () => {
