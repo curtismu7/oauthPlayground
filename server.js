@@ -3373,21 +3373,29 @@ app.get('/favicon.ico', (_req, res) => {
 });
 
 // Environment variables endpoint (for frontend to load default credentials)
-// NOTE: client_secret is NEVER returned to the browser — only a boolean flag.
+// NOTE: client_secret is NEVER returned to the browser — only boolean flags.
 // The actual secret is used server-side in the token-exchange proxy.
 app.get('/api/env-config', (_req, res) => {
 	console.log('🔧 [Server] Environment config requested');
 
 	const rawSecret =
 		process.env.PINGONE_CLIENT_SECRET || process.env.VITE_PINGONE_CLIENT_SECRET || '';
+	const resolvedClientId =
+		process.env.PINGONE_CLIENT_ID || process.env.VITE_PINGONE_CLIENT_ID || '';
+
+	// preConfigured = true when the Vercel deployment has both clientId and clientSecret
+	// baked in as env vars. In this mode users don't need to enter credentials at all.
+	const preConfigured = resolvedClientId.length > 0 && rawSecret.length > 0;
 
 	const envConfig = {
 		environmentId:
 			process.env.PINGONE_ENVIRONMENT_ID || process.env.VITE_PINGONE_ENVIRONMENT_ID || '',
-		clientId: process.env.PINGONE_CLIENT_ID || process.env.VITE_PINGONE_CLIENT_ID || '',
-		// Never expose the secret — consumers use hasClientSecret to show "pre-configured" UI
+		clientId: resolvedClientId,
+		// Never expose the secret — consumers use hasClientSecret / preConfigured flags
 		clientSecret: '',
 		hasClientSecret: rawSecret.length > 0,
+		// preConfigured = both clientId + clientSecret are set server-side (shared Vercel deployment)
+		preConfigured,
 		redirectUri:
 			process.env.PINGONE_REDIRECT_URI ||
 			process.env.VITE_PINGONE_REDIRECT_URI ||
@@ -3401,6 +3409,7 @@ app.get('/api/env-config', (_req, res) => {
 		hasEnvironmentId: !!envConfig.environmentId,
 		hasClientId: !!envConfig.clientId,
 		hasClientSecret: envConfig.hasClientSecret,
+		preConfigured: envConfig.preConfigured,
 		redirectUri: envConfig.redirectUri,
 	});
 
