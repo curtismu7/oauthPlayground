@@ -263,6 +263,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 	} | null>(null);
 	const [hasBeenSaved, setHasBeenSaved] = useState(false);
 	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+	// True when PINGONE_CLIENT_SECRET is set server-side (Vercel env var) — user doesn't need to enter it
+	const [serverHasSecret, setServerHasSecret] = useState(false);
 	const [originalFormData, setOriginalFormData] = useState<typeof formData | null>(null);
 
 	// Handle escape key to close modal
@@ -293,13 +295,22 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			}
 
 			const envConfig = await response.json();
-			logger.info(' [CredentialSetupModal] Loaded from environment config:', envConfig);
+			logger.info(' [CredentialSetupModal] Loaded from environment config:', {
+				hasEnvironmentId: !!envConfig.environmentId,
+				hasClientId: !!envConfig.clientId,
+				hasClientSecret: !!envConfig.hasClientSecret,
+			});
 
-			// Pre-populate form with environment variables
+			// If server has the secret pre-configured, mark it and leave the field blank
+			if (envConfig.hasClientSecret) {
+				setServerHasSecret(true);
+			}
+
+			// Pre-populate form with environment variables (never expose the secret value)
 			const newFormData = {
 				environmentId: envConfig.environmentId || '',
 				clientId: envConfig.clientId || '',
-				clientSecret: envConfig.clientSecret || '', // Pre-populate client secret from .env
+				clientSecret: '', // Never populate from server — secret stays server-side only
 				redirectUri: envConfig.redirectUri || `${window.location.origin}/authz-callback`,
 				region: 'us' as 'us' | 'eu' | 'ap' | 'ca' | 'au' | 'sg',
 				customDomain: '',
@@ -691,7 +702,11 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 	const handleExport = () => {
 		try {
-			if (!formData.environmentId || !formData.clientId || !formData.clientSecret) {
+			if (
+				!formData.environmentId ||
+				!formData.clientId ||
+				(!formData.clientSecret && !serverHasSecret)
+			) {
 				setSaveStatus({
 					type: 'danger',
 					title: 'Export failed',
@@ -906,31 +921,80 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 						<FormGroup>
 							<label htmlFor="clientSecret">Client Secret</label>
-							<SecretInputContainer>
-								<input
-									type={showSecret ? 'text' : 'password'}
-									id="clientSecret"
-									name="clientSecret"
-									value={formData.clientSecret}
-									onChange={handleChange}
-									placeholder="Enter your application's Client Secret (optional)"
-									disabled={isLoading}
-								/>
-								<button
-									type="button"
-									className="toggle-button"
-									onClick={() => setShowSecret(!showSecret)}
-									disabled={isLoading}
-									aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
-									title={showSecret ? 'Hide client secret' : 'Show client secret'}
-								>
-									{showSecret ? (
-										<span style={{ fontSize: '18px' }}>🙈</span>
-									) : (
-										<span style={{ fontSize: '18px' }}>👁️</span>
-									)}
-								</button>
-							</SecretInputContainer>
+							{serverHasSecret && !formData.clientSecret ? (
+								<>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+											padding: '8px 12px',
+											borderRadius: '6px',
+											background: 'var(--color-success-subtle, #d1fae5)',
+											border: '1px solid var(--color-success-muted, #6ee7b7)',
+											color: 'var(--color-success-fg, #065f46)',
+											fontSize: '14px',
+										}}
+									>
+										<span>🔒</span>
+										<span>
+											<strong>Pre-configured</strong> — stored securely as a server environment
+											variable. You can override it below if needed.
+										</span>
+									</div>
+									<SecretInputContainer style={{ marginTop: '8px' }}>
+										<input
+											type={showSecret ? 'text' : 'password'}
+											id="clientSecret"
+											name="clientSecret"
+											value={formData.clientSecret}
+											onChange={handleChange}
+											placeholder="Leave blank to use the pre-configured server secret"
+											disabled={isLoading}
+										/>
+										<button
+											type="button"
+											className="toggle-button"
+											onClick={() => setShowSecret(!showSecret)}
+											disabled={isLoading}
+											aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
+											title={showSecret ? 'Hide client secret' : 'Show client secret'}
+										>
+											{showSecret ? (
+												<span style={{ fontSize: '18px' }}>🙈</span>
+											) : (
+												<span style={{ fontSize: '18px' }}>👁️</span>
+											)}
+										</button>
+									</SecretInputContainer>
+								</>
+							) : (
+								<SecretInputContainer>
+									<input
+										type={showSecret ? 'text' : 'password'}
+										id="clientSecret"
+										name="clientSecret"
+										value={formData.clientSecret}
+										onChange={handleChange}
+										placeholder="Enter your application's Client Secret (optional)"
+										disabled={isLoading}
+									/>
+									<button
+										type="button"
+										className="toggle-button"
+										onClick={() => setShowSecret(!showSecret)}
+										disabled={isLoading}
+										aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
+										title={showSecret ? 'Hide client secret' : 'Show client secret'}
+									>
+										{showSecret ? (
+											<span style={{ fontSize: '18px' }}>🙈</span>
+										) : (
+											<span style={{ fontSize: '18px' }}>👁️</span>
+										)}
+									</button>
+								</SecretInputContainer>
+							)}
 							<div className="form-text">Only required for confidential clients</div>
 						</FormGroup>
 
