@@ -1,6 +1,21 @@
 // api/token-exchange.js
 // Vercel Serverless Function for OAuth token exchange
 
+/**
+ * Decode a JWT payload without verifying the signature.
+ * Used only for may_act / act claim inspection — not for trust decisions.
+ */
+function decodeJwtPayload(token) {
+	try {
+		const parts = String(token).split('.');
+		if (parts.length < 2) return null;
+		const padded = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+		return JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
+	} catch {
+		return null;
+	}
+}
+
 export default async function handler(req, res) {
 	// Set CORS headers
 	res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -32,6 +47,14 @@ export default async function handler(req, res) {
 			device_code,
 			username,
 			password,
+			// RFC 8693 token-exchange fields
+			subject_token,
+			subject_token_type,
+			actor_token,
+			actor_token_type,
+			requested_token_type,
+			audience,
+			resource,
 		} = req.body;
 
 		// Validate required fields based on grant type
@@ -44,7 +67,59 @@ export default async function handler(req, res) {
 		// Build request body based on grant type
 		const params = new URLSearchParams();
 
-		if (grant_type === 'refresh_token') {
+		// Track actor sub for act claim injection
+		let actorSub = null;
+
+		if (grant_type === 'urn:ietf:params:oauth:grant-type:token-exchange') {
+			// RFC 8693 Token Exchange
+			if (!subject_token) {
+				return res
+					.status(400)
+					.json({ error: 'subject_token is required for token-exchange grant' });
+			}
+
+			// may_act validation: if an actor_token is supplied, confirm the actor's sub
+			// is listed in the subject token's may_act claim before forwarding to PingOne.
+			if (actor_token) {
+				const actorPayload = decodeJwtPayload(actor_token);
+				actorSub = actorPayload?.sub ?? null;
+				if (actorSub) {
+					const subjectPayload = decodeJwtPayload(subject_token);
+					const mayActClaim = subjectPayload?.may_act;
+					if (mayActClaim) {
+						const actorList = Array.isArray(mayActClaim) ? mayActClaim : [mayActClaim];
+						const isAllowed = actorList.some(
+							(a) => (typeof a === 'object' && a !== null ? a.sub : a) === actorSub
+						);
+						if (!isAllowed) {
+							return res.status(403).json({
+								error: 'access_denied',
+								error_description: `Actor sub (${actorSub}) is not listed in the subject token's may_act claim`,
+							});
+						}
+					}
+				}
+			}
+
+			params.append('grant_type', 'urn:ietf:params:oauth:grant-type:token-exchange');
+			params.append('subject_token', subject_token);
+			params.append(
+				'subject_token_type',
+				subject_token_type || 'urn:ietf:params:oauth:token-type:access_token'
+			);
+			if (actor_token && actorSub) {
+				params.append('actor_token', actor_token);
+				params.append(
+					'actor_token_type',
+					actor_token_type || 'urn:ietf:params:oauth:token-type:access_token'
+				);
+			}
+			if (requested_token_type) params.append('requested_token_type', requested_token_type);
+			if (audience) params.append('audience', audience);
+			if (resource) params.append('resource', resource);
+			if (scope) params.append('scope', scope);
+			if (client_id) params.append('client_id', client_id);
+		} else if (grant_type === 'refresh_token') {
 			params.append('grant_type', 'refresh_token');
 			params.append('refresh_token', refresh_token);
 			if (client_id) params.append('client_id', client_id);
@@ -96,6 +171,11 @@ export default async function handler(req, res) {
 
 		if (!response.ok) {
 			return res.status(response.status).json(data);
+		}
+
+		// RFC 8693 §4.4: inject act claim to represent the delegation chain
+		if (actorSub) {
+			data.act = { sub: actorSub };
 		}
 
 		return res.status(200).json(data);
