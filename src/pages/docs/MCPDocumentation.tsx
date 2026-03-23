@@ -3,9 +3,10 @@
 
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import DocumentationHeader from '../../components/DocumentationHeader';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import DocumentationHeader from '../../components/DocumentationHeader';
+import PageLayoutService from '../../services/pageLayoutService';
 import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const pageConfig = {
@@ -17,8 +18,7 @@ const pageConfig = {
 	responsive: true,
 };
 
-const { PageContainer, ContentWrapper, PageHeader } =
-	PageLayoutService.createPageLayout(pageConfig);
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
 const MDIIcon: React.FC<{ icon: string; size?: number }> = ({ icon, size = 16 }) => {
 	const iconMap: Record<string, string> = {
@@ -230,473 +230,362 @@ const MCPDocumentation: React.FC = () => {
 
 				<div style={{ marginBottom: '24px' }}>
 					<CollapsibleHeader
-						title="Protocol Communication (MCP Spec 2025-11-25)"
-						subtitle="JSON-RPC 2.0 between Hosts, Clients, and Servers"
-						icon={<MDIIcon icon="FiCode" />}
-						defaultCollapsed={false}
-						theme="ping"
-					>
-						<p>
-							Per the{' '}
-							<SpecLink
-								href="https://modelcontextprotocol.io/specification/2025-11-25"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								MCP Specification 2025-11-25
-								<MDIIcon icon="FiExternalLink" size={14} />
-							</SpecLink>
-							, the protocol uses <strong>JSON-RPC 2.0</strong> messages to establish communication
-							between:
-						</p>
-						<ul style={{ marginTop: '0.75rem', paddingLeft: '1.25rem', lineHeight: 1.8 }}>
-							<li>
-								<strong>Hosts</strong> — LLM applications that initiate connections. The MasterFlow
-								API web app is the Host when it embeds the AI Assistant.
-							</li>
-							<li>
-								<strong>Clients</strong> — Connectors within the host application. The MasterFlow
-								Agent acts as a Client when it sends MCP-style requests to the backend or
-								pingone-mcp-server.
-							</li>
-							<li>
-								<strong>Servers</strong> — Services that provide context and capabilities. The{' '}
-								<code>pingone-mcp-server</code> and our backend <code>/api/mcp/query</code> proxy
-								both act as MCP servers, exposing PingOne tools.
-							</li>
-						</ul>
-						<p style={{ marginTop: '1rem', color: V9_COLORS.TEXT.GRAY_MEDIUM }}>
-							MCP takes inspiration from the Language Server Protocol. In the same way LSP
-							standardizes programming language support across tools, MCP standardizes how AI
-							applications integrate context and tools.
-						</p>
-					</CollapsibleHeader>
-				</div>
-
-				<div style={{ marginBottom: '24px' }}>
-					<CollapsibleHeader
-						title="Tokens in Host, Client, Agent, and MCP Apps"
-						subtitle="How tokens flow between components for authentication"
-						icon={<MDIIcon icon="FiShield" />}
-						defaultCollapsed={false}
-						theme="ping"
-					>
-						<p>
-							MCP does not define authentication. Each component handles tokens and credentials as
-							needed for the underlying APIs. In MasterFlow API, tokens flow as follows:
-						</p>
-
-						<h3 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>Token types</h3>
-						<ul style={{ marginBottom: '1rem', paddingLeft: '1.25rem', lineHeight: 1.8 }}>
-							<li>
-								<strong>Worker token</strong> — Obtained via client credentials grant from PingOne{' '}
-								<code>/as/token</code>. Used for Management API operations (users, groups,
-								applications, etc.). Most MCP tools require this.
-							</li>
-							<li>
-								<strong>User token</strong> — Obtained via Authorization Code or Token Exchange (RFC
-								8693). Used for user-context operations (e.g. UserInfo, delegated scopes). Planned:
-								Token Exchange command in AI Assistant.
-							</li>
-							<li>
-								<strong>Credentials</strong> — <code>environmentId</code>, <code>clientId</code>,{' '}
-								<code>clientSecret</code>, <code>apiUrl</code>. Stored in{' '}
-								<code>~/.pingone-playground/credentials/mcp-config.json</code>. The MCP server loads
-								these to obtain worker tokens or call PingOne.
-							</li>
-						</ul>
-
-						<h3 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
-							Who stores and passes what
-						</h3>
-						<table
-							style={{
-								width: '100%',
-								borderCollapse: 'collapse',
-								fontSize: '0.9rem',
-								marginBottom: '1rem',
-							}}
-						>
-							<thead>
-								<tr style={{ borderBottom: `2px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}` }}>
-									<th style={{ padding: '0.5rem 0.75rem', textAlign: 'left' }}>Component</th>
-									<th style={{ padding: '0.5rem 0.75rem', textAlign: 'left' }}>Role with tokens</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr style={{ borderBottom: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}` }}>
-									<td style={{ padding: '0.5rem 0.75rem' }}>
-										<strong>Host</strong>
-									</td>
-									<td style={{ padding: '0.5rem 0.75rem' }}>
-										Stores worker token (modal, SQLite, localStorage, IndexedDB). Syncs credentials
-										to mcp-config.json so the MCP server can obtain tokens. Manages configuration.
-									</td>
-								</tr>
-								<tr style={{ borderBottom: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}` }}>
-									<td style={{ padding: '0.5rem 0.75rem' }}>
-										<strong>Client</strong>
-									</td>
-									<td style={{ padding: '0.5rem 0.75rem' }}>
-										Sends tool calls to the MCP server. Passes worker token and environmentId in
-										requests (e.g. <code>POST /api/mcp/query</code>). Host provides the token to the
-										Client.
-									</td>
-								</tr>
-								<tr style={{ borderBottom: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}` }}>
-									<td style={{ padding: '0.5rem 0.75rem' }}>
-										<strong>Agent</strong>
-									</td>
-									<td style={{ padding: '0.5rem 0.75rem' }}>
-										Gets worker token from Host via <code>unifiedWorkerTokenService</code>. Includes
-										it when calling MCP tools. For user-context tools (e.g. UserInfo), may pass user
-										access token as a tool argument.
-									</td>
-								</tr>
-								<tr style={{ borderBottom: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}` }}>
-									<td style={{ padding: '0.5rem 0.75rem' }}>
-										<strong>MCP Server</strong>
-									</td>
-									<td style={{ padding: '0.5rem 0.75rem' }}>
-										Loads credentials from mcp-config.json (or env). Uses worker token from the
-										request, or obtains one via <code>pingone.workerToken.issue</code> when
-										credentials are present. Calls PingOne APIs with the token.
-									</td>
-								</tr>
-							</tbody>
-						</table>
-
-						<h3 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>Flow summary</h3>
-						<ol style={{ marginBottom: '1rem', paddingLeft: '1.25rem', lineHeight: 1.8 }}>
-							<li>
-								User saves credentials via Worker Token modal → Host stores them (SQLite,
-								mcp-config.json).
-							</li>
-							<li>
-								User requests worker token → Host obtains it (client credentials grant) and stores
-								it.
-							</li>
-							<li>
-								Agent receives query → gets worker token from Host → calls{' '}
-								<code>POST /api/mcp/query</code> with token + environmentId.
-							</li>
-							<li>Backend or MCP server uses the token to call PingOne Management API.</li>
-							<li>
-								For user-context tools (UserInfo, Token Exchange): Agent may need a user access
-								token, obtained via Auth Code or Token Exchange.
-							</li>
-						</ol>
-
-						<p style={{ marginTop: '1rem', color: V9_COLORS.TEXT.GRAY_MEDIUM }}>
-							Per MCP spec, Hosts must obtain explicit user consent before invoking tools. Our Agent
-							shows results only after the user sends a query, and credentials are stored with user
-							approval.
-						</p>
-					</CollapsibleHeader>
-				</div>
-
-				<div style={{ marginBottom: '24px' }}>
-					<CollapsibleHeader
-						title="AI Assistant Flow: How MCP, Host, and Agent Interact"
-						subtitle="User → Host → Agent → MCP → PingOne"
-						icon={<MDIIcon icon="FiCode" />}
-						defaultCollapsed={false}
-						theme="ping"
-					>
-						<p>
-							When you use the <strong>MasterFlow Agent</strong> (AI Assistant), several components
-							work together. Understanding this flow helps you see how natural-language queries
-							become PingOne API calls.
-						</p>
-
-						<h3 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>Components</h3>
-						<ul style={{ marginBottom: '1rem', paddingLeft: '1.25rem' }}>
-							<li>
-								<strong>User</strong> — Types a natural-language query (e.g. &quot;List all
-								users&quot;, &quot;Get worker token&quot;) in the chat.
-							</li>
-							<li>
-								<strong>Host</strong> — The MasterFlow API web app (React) that embeds the AI
-								Assistant UI and handles routing, configuration, and worker token storage.
-							</li>
-							<li>
-								<strong>Agent</strong> — The AI Assistant component. It classifies the query (worker
-								token, help, list tools, userinfo, or general MCP), sends MCP-style requests to the
-								backend, and renders responses (including McpResultCard for live data).
-							</li>
-							<li>
-								<strong>MCP client (backend)</strong> — The <code>POST /api/mcp/query</code>{' '}
-								endpoint. It matches the query to a tool intent (MCP_INTENTS), calls the PingOne API
-								directly, and returns structured data (tool name, API call, result, explanation).
-							</li>
-							<li>
-								<strong>pingone-mcp-server</strong> — The standalone MCP server (stdio) that
-								implements the same tools. Used by MCP Inspector, Cursor, and other MCP clients. The
-								web backend replicates this tool semantics for browser use.
-							</li>
-							<li>
-								<strong>PingOne APIs</strong> — Management API, OIDC, Auth, etc. The source of real
-								identity data.
-							</li>
-						</ul>
-
-						<h3 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>Flow (with Live MCP ON)</h3>
-						<ol style={{ marginBottom: '1rem', paddingLeft: '1.25rem' }}>
-							<li>User types a query in the AI Assistant.</li>
-							<li>
-								Agent checks: worker token? help? list tools? userinfo? Or a general MCP query (when
-								Live toggle is on).
-							</li>
-							<li>
-								Agent calls <code>callMcpQuery(query)</code> → <code>POST /api/mcp/query</code> with
-								worker token and environment ID.
-							</li>
-							<li>
-								Backend matches query to MCP_INTENTS, selects the PingOne tool/operation, and calls
-								the PingOne API.
-							</li>
-							<li>
-								Backend returns <code>McpQueryResult</code> (success, tool name, API path, data,
-								howItWorks).
-							</li>
-							<li>Agent renders McpResultCard with the tool, API call, and result for learning.</li>
-						</ol>
-
-						<p style={{ marginTop: '1rem', color: V9_COLORS.TEXT.GRAY_MEDIUM }}>
-							For conversational answers (no Live data), the Agent uses Groq. When Live is ON and
-							the query matches a PingOne operation, it goes through the MCP path above.
-						</p>
-						<p style={{ marginTop: '0.5rem' }}>
-							<Link to="/ai-assistant">Open MasterFlow Agent</Link> to try it.
-						</p>
-					</CollapsibleHeader>
-				</div>
-
-				<div style={{ marginBottom: '24px' }}>
-					<CollapsibleHeader
-						title="Token Exchange &amp; Mock Agent Flow"
-						subtitle="PingOne Token Exchange and educational mock flow"
-						icon={<MDIIcon icon="FiShield" />}
-						defaultCollapsed={false}
-						theme="ping"
-					>
-						<p>
-							<strong>Token Exchange command</strong> (planned): The AI Assistant will support a
-							dedicated &quot;Token exchange&quot; command that prompts for username/password, runs
-							Authorization Code flow with PingOne (<code>response_mode=pi.flow</code>), then uses
-							PingOne Token Exchange (RFC 8693) to obtain a new token with broader scope for
-							additional MCP operations.
-						</p>
-						<p style={{ marginTop: '1rem' }}>
-							<strong>Mock Agent flow</strong> (planned): An educational flow will simulate an
-							Agent, MCP server, and Token Exchange to demonstrate how MCP, tokens, and token
-							exchange work together per the spec.
-						</p>
-						<p style={{ marginTop: '1rem' }}>
-							Full implementation plan: <code>docs/MCP_TOKEN_EXCHANGE_AND_MOCK_FLOW_PLAN.md</code>{' '}
-							(Token Exchange command flow, Mock Agent+MCP+Token Exchange design).
-						</p>
-					</CollapsibleHeader>
-				</div>
-
-				<div style={{ marginBottom: '24px' }}>
-					<CollapsibleHeader
-						title="PingOne MCP Tools"
-						subtitle="70+ tools exposed by pingone-mcp-server (collapse to browse by category)"
+						title="PingOne MCP Tools - Complete List"
+						subtitle="73 tools exposed by pingone-mcp-server"
 						icon={<MDIIcon icon="FiTool" />}
-						defaultCollapsed={true}
+						defaultCollapsed={false}
 						theme="ping"
 					>
-						<p style={{ marginBottom: '1rem' }}>
-							The <code>pingone-mcp-server</code> exposes these PingOne operations as MCP tools. The
-							backend <code>/api/mcp/query</code> uses the same tool semantics for the web AI
-							Assistant.
+						<p style={{ marginBottom: '1.5rem' }}>
+							The <code>pingone-mcp-server</code> exposes <strong>73 PingOne operations</strong> as
+							MCP tools. The backend <code>/api/mcp/query</code> uses the same tool semantics for
+							the web AI Assistant. All tools follow MCP specification patterns with proper input
+							schemas and error handling.
 						</p>
 
 						<CollapsibleHeader
-							title="Worker &amp; Auth"
-							subtitle="Token and session management"
+							title="Worker Token & Auth (6 tools)"
+							subtitle="Token issuance and authentication flows"
 							defaultCollapsed={true}
 							theme="ping"
 						>
 							<ToolList>
 								<ToolRow>
-									<ToolName>pingone_get_worker_token</ToolName> /{' '}
 									<ToolName>pingone.workerToken.issue</ToolName> — Exchange client credentials for
-									worker token.
+									worker token
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone.applications.list</ToolName> — List applications (worker token
-									or client credentials).
+									<ToolName>pingone_get_worker_token</ToolName> — Get worker token (legacy alias)
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone.auth.*</ToolName> — Login, logout, refresh, userinfo (auth
-									flows).
+									<ToolName>pingone.auth.login</ToolName> — Initiate user login flow
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.auth.logout</ToolName> — End user session
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.auth.refresh</ToolName> — Refresh access token
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.auth.userinfo</ToolName> — Get authenticated user info
 								</ToolRow>
 							</ToolList>
 						</CollapsibleHeader>
 
 						<CollapsibleHeader
-							title="Users"
-							subtitle="Get, list, lookup users"
+							title="Users - Read (6 tools)"
+							subtitle="Get, list, and lookup user information"
 							defaultCollapsed={true}
 							theme="ping"
 						>
 							<ToolList>
 								<ToolRow>
-									<ToolName>pingone_get_user</ToolName> — Get user profile by ID.
+									<ToolName>pingone_get_user</ToolName> — Get user profile by ID
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_list_users</ToolName> — List users with optional SCIM filter +
-									pagination.
+									<ToolName>pingone_list_users</ToolName> — List users with SCIM filter and
+									pagination
 								</ToolRow>
 								<ToolRow>
 									<ToolName>pingone_lookup_users</ToolName> — Look up users by UUID or
-									username/email.
+									username/email
 								</ToolRow>
 								<ToolRow>
 									<ToolName>pingone_get_user_groups</ToolName> — Get groups for a user
-									(memberOfGroups).
+									(memberOfGroups)
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_get_user_roles</ToolName> — Get role assignments for a user.
+									<ToolName>pingone_get_user_roles</ToolName> — Get role assignments for a user
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_get_user_consents</ToolName> — Get user consent grants
 								</ToolRow>
 							</ToolList>
 						</CollapsibleHeader>
 
 						<CollapsibleHeader
-							title="User CRUD"
-							subtitle="Create, update, delete users"
+							title="Users - Write (6 tools)"
+							subtitle="Create, update, delete users and manage group membership"
 							defaultCollapsed={true}
 							theme="ping"
 						>
 							<ToolList>
 								<ToolRow>
 									<ToolName>pingone_create_user</ToolName> — Create user (requires username +
-									population.id).
+									population.id)
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_update_user</ToolName> — Update user (PATCH).
+									<ToolName>pingone_update_user</ToolName> — Update user profile (PATCH)
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_delete_user</ToolName> — Delete user (irreversible).
+									<ToolName>pingone_delete_user</ToolName> — Delete user (irreversible)
 								</ToolRow>
 								<ToolRow>
 									<ToolName>pingone_add_user_to_group</ToolName> — Add user to group (supports name
-									lookup).
+									lookup)
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_remove_user_from_group</ToolName> — Remove user from group.
+									<ToolName>pingone_remove_user_from_group</ToolName> — Remove user from group
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_check_username_password</ToolName> — Validate credentials in
+									flow context
 								</ToolRow>
 							</ToolList>
 						</CollapsibleHeader>
 
 						<CollapsibleHeader
-							title="Groups"
+							title="Groups (5 tools)"
 							subtitle="List and manage groups"
 							defaultCollapsed={true}
 							theme="ping"
 						>
 							<ToolList>
 								<ToolRow>
-									<ToolName>pingone_list_groups</ToolName> — List groups (SCIM filter + limit).
+									<ToolName>pingone_list_groups</ToolName> — List groups (SCIM filter + limit)
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_get_group</ToolName> — Get group by ID.
+									<ToolName>pingone_get_group</ToolName> — Get group by ID
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_create_group</ToolName>,{' '}
-									<ToolName>pingone_update_group</ToolName>,{' '}
-									<ToolName>pingone_delete_group</ToolName> — CRUD.
+									<ToolName>pingone_create_group</ToolName> — Create new group
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_update_group</ToolName> — Update group properties
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_delete_group</ToolName> — Delete group
 								</ToolRow>
 							</ToolList>
 						</CollapsibleHeader>
 
 						<CollapsibleHeader
-							title="Applications"
-							subtitle="Get and manage applications"
+							title="Applications (8 tools)"
+							subtitle="Manage OAuth/OIDC applications"
 							defaultCollapsed={true}
 							theme="ping"
 						>
 							<ToolList>
 								<ToolRow>
-									<ToolName>pingone_get_application</ToolName> — Get application by ID.
+									<ToolName>pingone.applications.list</ToolName> — List all applications
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_get_application</ToolName> — Get application by ID
 								</ToolRow>
 								<ToolRow>
 									<ToolName>pingone_get_application_resources</ToolName> — Get resource (scopes)
-									config.
+									config
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_get_application_secret</ToolName>,{' '}
-									<ToolName>pingone_rotate_application_secret</ToolName> — Secrets.
+									<ToolName>pingone_get_application_secret</ToolName> — Get application client
+									secret
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_create_application</ToolName>,{' '}
-									<ToolName>pingone_update_application</ToolName>,{' '}
-									<ToolName>pingone_delete_application</ToolName> — CRUD.
+									<ToolName>pingone_rotate_application_secret</ToolName> — Rotate client secret
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_create_application</ToolName> — Create new application
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_update_application</ToolName> — Update application config
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_delete_application</ToolName> — Delete application
 								</ToolRow>
 							</ToolList>
 						</CollapsibleHeader>
 
 						<CollapsibleHeader
-							title="OIDC &amp; OAuth"
-							subtitle="Discovery and tokens"
+							title="OIDC & OAuth (7 tools)"
+							subtitle="Discovery, tokens, and JWT utilities"
 							defaultCollapsed={true}
 							theme="ping"
 						>
 							<ToolList>
 								<ToolRow>
 									<ToolName>pingone_oidc_config</ToolName> — OIDC discovery for environment (no
-									auth).
+									auth)
 								</ToolRow>
 								<ToolRow>
 									<ToolName>pingone_oidc_discovery</ToolName> — OIDC discovery from arbitrary issuer
-									URL.
+									URL
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_introspect_token</ToolName> — Token introspection (RFC 7662).
+									<ToolName>pingone_introspect_token</ToolName> — Token introspection (RFC 7662)
 								</ToolRow>
 								<ToolRow>
 									<ToolName>pingone_device_authorization</ToolName> — Device authorization (RFC
-									8628).
+									8628)
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_token_exchange</ToolName> — Exchange auth code (or other grant)
-									for tokens.
+									<ToolName>pingone_token_exchange</ToolName> — Token exchange (RFC 8693)
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_userinfo</ToolName> — UserInfo with token.
+									<ToolName>pingone_userinfo</ToolName> — UserInfo endpoint with token
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_decode_jwt</ToolName> — Decode and inspect JWT tokens
 								</ToolRow>
 							</ToolList>
 						</CollapsibleHeader>
 
 						<CollapsibleHeader
-							title="Directory &amp; Other"
-							subtitle="Populations, passwords, MFA, redirectless"
+							title="MFA Devices (15 tools)"
+							subtitle="Multi-factor authentication device management"
 							defaultCollapsed={true}
 							theme="ping"
 						>
 							<ToolList>
 								<ToolRow>
-									<ToolName>pingone_get_population</ToolName>,{' '}
-									<ToolName>pingone_list_populations</ToolName> — Populations.
+									<ToolName>pingone.mfa.devices.list</ToolName> — List user's MFA devices
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_password_state</ToolName>,{' '}
-									<ToolName>pingone_password_send_recovery_code</ToolName> — Password ops.
+									<ToolName>pingone.mfa.devices.register</ToolName> — Register new MFA device
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone.mfa.*</ToolName> — MFA devices, policies, challenges.
+									<ToolName>pingone.mfa.devices.activate</ToolName> — Activate MFA device
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone.redirectless.*</ToolName> — Redirectless flows.
+									<ToolName>pingone.mfa.devices.delete</ToolName> — Delete MFA device
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_get_organization_licenses</ToolName> — Show org licenses.
+									<ToolName>pingone.mfa.devices.block</ToolName> — Block MFA device
 								</ToolRow>
 								<ToolRow>
-									<ToolName>pingone_check_username_password</ToolName> — Validate credentials in
-									flow context.
+									<ToolName>pingone.mfa.devices.unblock</ToolName> — Unblock MFA device
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.mfa.devices.unlock</ToolName> — Unlock MFA device
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.mfa.devices.nickname</ToolName> — Set device nickname
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.mfa.devices.reorder</ToolName> — Reorder MFA devices
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.mfa.devices.reorder.remove</ToolName> — Remove from device order
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.mfa.devices.otp</ToolName> — Generate OTP for device
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.mfa.challenge.send</ToolName> — Send MFA challenge
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.mfa.challenge.validate</ToolName> — Validate MFA challenge
+									response
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.mfa.bypass.check</ToolName> — Check MFA bypass status
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.mfa.bypass.allow</ToolName> — Allow MFA bypass
+								</ToolRow>
+							</ToolList>
+						</CollapsibleHeader>
+
+						<CollapsibleHeader
+							title="MFA Policies (4 tools)"
+							subtitle="Manage MFA policies"
+							defaultCollapsed={true}
+							theme="ping"
+						>
+							<ToolList>
+								<ToolRow>
+									<ToolName>pingone.mfa.policy.list</ToolName> — List MFA policies
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.mfa.policy.get</ToolName> — Get MFA policy by ID
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.mfa.policy.create</ToolName> — Create MFA policy
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.mfa.policy.update</ToolName> — Update MFA policy
+								</ToolRow>
+							</ToolList>
+						</CollapsibleHeader>
+
+						<CollapsibleHeader
+							title="Redirectless Flows (3 tools)"
+							subtitle="Headless authentication flows"
+							defaultCollapsed={true}
+							theme="ping"
+						>
+							<ToolList>
+								<ToolRow>
+									<ToolName>pingone.redirectless.start</ToolName> — Start redirectless flow
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.redirectless.poll</ToolName> — Poll flow status
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone.redirectless.complete</ToolName> — Complete redirectless flow
+								</ToolRow>
+							</ToolList>
+						</CollapsibleHeader>
+
+						<CollapsibleHeader
+							title="Populations & Passwords (4 tools)"
+							subtitle="User populations and password management"
+							defaultCollapsed={true}
+							theme="ping"
+						>
+							<ToolList>
+								<ToolRow>
+									<ToolName>pingone_list_populations</ToolName> — List populations
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_get_population</ToolName> — Get population by ID
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_password_state</ToolName> — Get password state for user
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_password_send_recovery_code</ToolName> — Send password recovery
+									code
+								</ToolRow>
+							</ToolList>
+						</CollapsibleHeader>
+
+						<CollapsibleHeader
+							title="Subscriptions & Risk (6 tools)"
+							subtitle="Webhook subscriptions and risk evaluation"
+							defaultCollapsed={true}
+							theme="ping"
+						>
+							<ToolList>
+								<ToolRow>
+									<ToolName>pingone_list_subscriptions</ToolName> — List webhook subscriptions
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_get_subscription</ToolName> — Get subscription by ID
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_create_subscription</ToolName> — Create webhook subscription
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_update_subscription</ToolName> — Update subscription
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_delete_subscription</ToolName> — Delete subscription
+								</ToolRow>
+								<ToolRow>
+									<ToolName>pingone_risk_evaluation</ToolName> — Evaluate authentication risk
+								</ToolRow>
+							</ToolList>
+						</CollapsibleHeader>
+
+						<CollapsibleHeader
+							title="Organization (1 tool)"
+							subtitle="Organization-level operations"
+							defaultCollapsed={true}
+							theme="ping"
+						>
+							<ToolList>
+								<ToolRow>
+									<ToolName>pingone_get_organization_licenses</ToolName> — Get organization licenses
 								</ToolRow>
 							</ToolList>
 						</CollapsibleHeader>
@@ -712,8 +601,8 @@ const MCPDocumentation: React.FC = () => {
 						theme="ping"
 					>
 						<p>
-							The <strong>pingone-mcp-server</strong> in this repo implements MCP to expose 70+
-							PingOne identity operations as tools. It uses the official{' '}
+							The <strong>pingone-mcp-server</strong> in this repo implements MCP to expose{' '}
+							<strong>73 PingOne identity operations</strong> as tools. It uses the official{' '}
 							<ExternalLink
 								href="https://www.npmjs.com/package/@modelcontextprotocol/sdk"
 								target="_blank"
@@ -744,7 +633,7 @@ const MCPDocumentation: React.FC = () => {
 									<tr>
 										<td>Tools</td>
 										<td>✅</td>
-										<td>70+ tools with name, description, inputSchema</td>
+										<td>73 tools with name, description, inputSchema</td>
 									</tr>
 									<tr>
 										<td>Resources</td>
