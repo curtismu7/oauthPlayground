@@ -4,6 +4,7 @@
 
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
 import { getButtonStyles } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
@@ -967,7 +968,9 @@ const TokenExchangeFlowV9: React.FC = () => {
 								</label>
 								<p style={{ margin: '0 0 0.5rem 0', fontSize: '0.8125rem', color: '#3b82f6' }}>
 									The subject token must contain a{' '}
-									<code style={{ fontFamily: 'monospace', background: '#dbeafe', padding: '0 2px' }}>
+									<code
+										style={{ fontFamily: 'monospace', background: '#dbeafe', padding: '0 2px' }}
+									>
 										may_act
 									</code>{' '}
 									claim that matches this actor&apos;s identity. All present fields (
@@ -1258,6 +1261,311 @@ const TokenExchangeFlowV9: React.FC = () => {
 					</button>
 				</div>
 			</div>
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'Token Exchange - Delegation',
+						description:
+							'Exchange an access token for a new token with delegated permissions (RFC 8693)',
+						code: {
+							javascript: `// Token Exchange - Delegation Pattern
+async function exchangeTokenDelegation(subjectToken, audience, scopes) {
+  const tokenEndpoint = 'https://auth.pingone.com/{environmentId}/as/token';
+
+  const response = await fetch(tokenEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + btoa('client-id:client-secret')
+    },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+      subject_token: subjectToken,
+      subject_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+      requested_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+      audience: audience,
+      scope: scopes.join(' ')
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(\`Token exchange failed: \${error.error_description}\`);
+  }
+
+  const tokenData = await response.json();
+  console.log('Exchanged token:', tokenData.access_token);
+  console.log('Token type:', tokenData.token_type);
+  console.log('Issued token type:', tokenData.issued_token_type);
+  
+  return tokenData;
+}
+
+// Usage
+const newToken = await exchangeTokenDelegation(
+  originalAccessToken,
+  'https://api.example.com',
+  ['read', 'write']
+);`,
+							dotnet: `using System;
+using System.Net.Http;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+
+public async Task<TokenResponse> ExchangeTokenDelegation(
+    string subjectToken,
+    string audience,
+    string[] scopes)
+{
+    var tokenEndpoint = "https://auth.pingone.com/{environmentId}/as/token";
+    
+    using var client = new HttpClient();
+    var credentials = Convert.ToBase64String(
+        Encoding.UTF8.GetBytes("client-id:client-secret"));
+    client.DefaultRequestHeaders.Add("Authorization", $"Basic {credentials}");
+    
+    var formData = new Dictionary<string, string>
+    {
+        { "grant_type", "urn:ietf:params:oauth:grant-type:token-exchange" },
+        { "subject_token", subjectToken },
+        { "subject_token_type", "urn:ietf:params:oauth:token-type:access_token" },
+        { "requested_token_type", "urn:ietf:params:oauth:token-type:access_token" },
+        { "audience", audience },
+        { "scope", string.Join(" ", scopes) }
+    };
+    
+    var response = await client.PostAsync(
+        tokenEndpoint,
+        new FormUrlEncodedContent(formData));
+    
+    if (!response.IsSuccessStatusCode)
+    {
+        var error = await response.Content.ReadAsStringAsync();
+        throw new Exception($"Token exchange failed: {error}");
+    }
+    
+    var tokenData = await response.Content.ReadFromJsonAsync<TokenResponse>();
+    Console.WriteLine($"Exchanged token: {tokenData.AccessToken}");
+    Console.WriteLine($"Token type: {tokenData.TokenType}");
+    Console.WriteLine($"Issued token type: {tokenData.IssuedTokenType}");
+    
+    return tokenData;
+}`,
+							go: `package main
+
+import (
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
+)
+
+func exchangeTokenDelegation(subjectToken, audience string, scopes []string) (*TokenResponse, error) {
+	tokenEndpoint := "https://auth.pingone.com/{environmentId}/as/token"
+
+	formData := url.Values{
+		"grant_type":            {"urn:ietf:params:oauth:grant-type:token-exchange"},
+		"subject_token":         {subjectToken},
+		"subject_token_type":    {"urn:ietf:params:oauth:token-type:access_token"},
+		"requested_token_type":  {"urn:ietf:params:oauth:token-type:access_token"},
+		"audience":              {audience},
+		"scope":                 {strings.Join(scopes, " ")},
+	}
+
+	req, err := http.NewRequest("POST", tokenEndpoint, strings.NewReader(formData.Encode()))
+	if err != nil {
+		return nil, err
+	}
+
+	credentials := base64.StdEncoding.EncodeToString([]byte("client-id:client-secret"))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Authorization", "Basic "+credentials)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("token exchange failed: %s", string(body))
+	}
+
+	var tokenData TokenResponse
+	if err := json.NewDecoder(resp.Body).Decode(&tokenData); err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("Exchanged token: %s\\n", tokenData.AccessToken)
+	fmt.Printf("Token type: %s\\n", tokenData.TokenType)
+	fmt.Printf("Issued token type: %s\\n", tokenData.IssuedTokenType)
+
+	return &tokenData, nil
+}`,
+						},
+					},
+					{
+						title: 'Token Exchange - Impersonation',
+						description: 'Exchange tokens with actor claims for impersonation scenarios',
+						code: {
+							javascript: `// Token Exchange - Impersonation Pattern
+async function exchangeTokenImpersonation(subjectToken, actorToken, audience) {
+  const tokenEndpoint = 'https://auth.pingone.com/{environmentId}/as/token';
+
+  const response = await fetch(tokenEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + btoa('client-id:client-secret')
+    },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+      subject_token: subjectToken,
+      subject_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+      actor_token: actorToken,
+      actor_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+      requested_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+      audience: audience
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(\`Impersonation failed: \${error.error_description}\`);
+  }
+
+  const tokenData = await response.json();
+  
+  // Decode to verify actor claim
+  const payload = JSON.parse(atob(tokenData.access_token.split('.')[1]));
+  console.log('Subject:', payload.sub);
+  console.log('Actor:', payload.act);
+  
+  return tokenData;
+}`,
+							dotnet: `using System;
+using System.Net.Http;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+public async Task<TokenResponse> ExchangeTokenImpersonation(
+    string subjectToken,
+    string actorToken,
+    string audience)
+{
+    var tokenEndpoint = "https://auth.pingone.com/{environmentId}/as/token";
+    
+    using var client = new HttpClient();
+    var credentials = Convert.ToBase64String(
+        Encoding.UTF8.GetBytes("client-id:client-secret"));
+    client.DefaultRequestHeaders.Add("Authorization", $"Basic {credentials}");
+    
+    var formData = new Dictionary<string, string>
+    {
+        { "grant_type", "urn:ietf:params:oauth:grant-type:token-exchange" },
+        { "subject_token", subjectToken },
+        { "subject_token_type", "urn:ietf:params:oauth:token-type:access_token" },
+        { "actor_token", actorToken },
+        { "actor_token_type", "urn:ietf:params:oauth:token-type:access_token" },
+        { "requested_token_type", "urn:ietf:params:oauth:token-type:access_token" },
+        { "audience", audience }
+    };
+    
+    var response = await client.PostAsync(
+        tokenEndpoint,
+        new FormUrlEncodedContent(formData));
+    
+    if (!response.IsSuccessStatusCode)
+    {
+        var error = await response.Content.ReadAsStringAsync();
+        throw new Exception($"Impersonation failed: {error}");
+    }
+    
+    var tokenData = await response.Content.ReadFromJsonAsync<TokenResponse>();
+    
+    // Decode to verify actor claim
+    var parts = tokenData.AccessToken.Split('.');
+    var payload = Encoding.UTF8.GetString(Convert.FromBase64String(parts[1]));
+    var claims = JsonSerializer.Deserialize<Dictionary<string, object>>(payload);
+    Console.WriteLine($"Subject: {claims["sub"]}");
+    Console.WriteLine($"Actor: {claims["act"]}");
+    
+    return tokenData;
+}`,
+							go: `package main
+
+import (
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
+)
+
+func exchangeTokenImpersonation(subjectToken, actorToken, audience string) (*TokenResponse, error) {
+	tokenEndpoint := "https://auth.pingone.com/{environmentId}/as/token"
+
+	formData := url.Values{
+		"grant_type":            {"urn:ietf:params:oauth:grant-type:token-exchange"},
+		"subject_token":         {subjectToken},
+		"subject_token_type":    {"urn:ietf:params:oauth:token-type:access_token"},
+		"actor_token":           {actorToken},
+		"actor_token_type":      {"urn:ietf:params:oauth:token-type:access_token"},
+		"requested_token_type":  {"urn:ietf:params:oauth:token-type:access_token"},
+		"audience":              {audience},
+	}
+
+	req, err := http.NewRequest("POST", tokenEndpoint, strings.NewReader(formData.Encode()))
+	if err != nil {
+		return nil, err
+	}
+
+	credentials := base64.StdEncoding.EncodeToString([]byte("client-id:client-secret"))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Authorization", "Basic "+credentials)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("impersonation failed: %s", string(body))
+	}
+
+	var tokenData TokenResponse
+	if err := json.NewDecoder(resp.Body).Decode(&tokenData); err != nil {
+		return nil, err
+	}
+
+	// Decode to verify actor claim
+	parts := strings.Split(tokenData.AccessToken, ".")
+	payloadBytes, _ := base64.RawURLEncoding.DecodeString(parts[1])
+	var claims map[string]interface{}
+	json.Unmarshal(payloadBytes, &claims)
+	fmt.Printf("Subject: %v\\n", claims["sub"])
+	fmt.Printf("Actor: %v\\n", claims["act"])
+
+	return &tokenData, nil
+}`,
+						},
+					},
+				]}
+			/>
 		</div>
 	);
 };
