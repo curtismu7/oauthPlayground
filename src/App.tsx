@@ -29,6 +29,7 @@ const AIAssistantPopoutPage = lazy(() =>
 import LoadingFallback from './components/LoadingFallback';
 import { StandardModalSpinner } from './components/ui/StandardSpinner';
 import { V9ModernMessagingProvider } from './components/v9/V9ModernMessagingComponents';
+
 // Lazy-loaded route-only components (not needed until navigated to)
 const CleanlinessDashboardWorking = lazy(() =>
 	import('./components/CleanlinessDashboardWorking').then((m) => ({
@@ -48,6 +49,7 @@ const EnhancedFloatingLogViewer = lazy(() =>
 		default: m.EnhancedFloatingLogViewer,
 	}))
 );
+
 import { AI_ASSISTANT_NAVIGATE, isAIAssistantPopout } from './utils/aiAssistantPopoutHelper';
 
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
@@ -81,6 +83,7 @@ const AutoDiscover = lazy(() => import('./pages/AutoDiscover'));
 const AIIdentityArchitectures = lazy(() => import('./pages/AIIdentityArchitecturesV9'));
 const McpServerConfigFlowV9 = lazy(() => import('./pages/flows/v9/McpServerConfigFlowV9'));
 const OAuthCodeGeneratorHub = lazy(() => import('./pages/OAuthCodeGeneratorHub'));
+const OAuthPlaygroundHub = lazy(() => import('./pages/OAuthPlaygroundHub'));
 const OAuthFlowsNew = lazy(() => import('./pages/OAuthFlowsNew'));
 const WIMSEFlow = lazy(() => import('./pages/flows/v9/WIMSEFlow'));
 const AttestationClientAuthFlow = lazy(() => import('./pages/flows/v9/AttestationClientAuthFlow'));
@@ -92,8 +95,10 @@ const TokenIntrospectionFlowV1 = lazy(() => import('./pages/flows/v9/TokenIntros
 
 // Layout shell — must be eager
 import Navbar from './components/Navbar';
+
 const DeviceMockFlow = lazy(() => import('./components/DeviceMockFlow'));
 const FlowHeaderDemo = lazy(() => import('./components/FlowHeaderDemo'));
+
 import { RouteRestorer } from './components/RouteRestorer';
 import Sidebar from './components/Sidebar';
 import {
@@ -105,10 +110,12 @@ import {
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import { usePromptsShortcut } from './hooks/usePromptsShortcut';
+
 const Callback = lazy(() => import('./pages/Callback'));
 const Configuration = lazy(() => import('./pages/Configuration'));
 const Documentation = lazy(() => import('./pages/Documentation'));
 const Login = lazy(() => import('./pages/Login'));
+
 import { ApiRequestModalProvider } from './services/apiRequestModalService';
 import {
 	AuthorizationUrlValidationModal,
@@ -144,6 +151,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import GlobalErrorDisplay from './components/GlobalErrorDisplay';
 import ServerStatusProvider from './components/ServerStatusProvider';
 import { StartupWrapper } from './components/StartupWrapper';
+
 // Callback routes — lazy since they only activate after an OAuth redirect
 const AuthzCallback = lazy(() => import('./components/callbacks/AuthzCallback'));
 const DashboardCallback = lazy(() => import('./components/callbacks/DashboardCallback'));
@@ -1621,6 +1629,7 @@ const AppRoutes: React.FC = () => {
 									<Route path="/application-generator" element={<ApplicationGenerator />} />
 									<Route path="/code-editor-demo" element={<CodeEditorDemo />} />
 									<Route path="/oauth-code-generator-hub" element={<OAuthCodeGeneratorHub />} />
+									<Route path="/oauth-playground-hub" element={<OAuthPlaygroundHub />} />
 									<Route path="/configuration" element={<Configuration />} />
 									<Route path="/documentation" element={<Documentation />} />
 									<Route path="/ping-ai-resources" element={<PingAIResources />} />
