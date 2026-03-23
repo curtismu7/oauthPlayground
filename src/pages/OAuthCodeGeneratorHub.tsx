@@ -14,49 +14,22 @@ import LiveRFCExplorer from '../components/LiveRFCExplorer';
 import RealWorldScenarioBuilder from '../components/RealWorldScenarioBuilder';
 import SecurityThreatTheater from '../components/SecurityThreatTheater';
 import { FlowHeader } from '../services/flowHeaderService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
 	min-height: 100vh;
-	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	background: linear-gradient(
+		135deg,
+		${V9_COLORS.BG.GRAY_LIGHT} 0%,
+		${V9_COLORS.TEXT.GRAY_LIGHTER} 100%
+	);
 `;
 
 const HeroSection = styled.div`
-	background: linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
+	background: linear-gradient(135deg, #1e293b 0%, ${V9_COLORS.TEXT.GRAY_DARK} 100%);
 	padding: 4rem 2rem;
 	text-align: center;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-`;
-
-const _HeroTitle = styled.h1`
-	color: V9_COLORS.BG.GRAY_MEDIUM;
-	font-size: 3rem;
-	font-weight: 800;
-	margin: 0 0 1rem 0;
-	background: linear-gradient(
-		135deg,
-		V9_COLORS.PRIMARY.BLUE_LIGHT 0%,
-		V9_COLORS.PRIMARY.BLUE 50%,
-		#f472b6 100%
-	);
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
-	background-clip: text;
-
-	@media (max-width: 768px) {
-		font-size: 2rem;
-	}
-`;
-
-const _HeroSubtitle = styled.p`
-	color: #cbd5e1;
-	font-size: 1.3rem;
-	max-width: 800px;
-	margin: 0 auto 2rem;
-	line-height: 1.6;
-
-	@media (max-width: 768px) {
-		font-size: 1.1rem;
-	}
 `;
 
 const FeatureGrid = styled.div`
@@ -106,7 +79,7 @@ const FeatureTitle = styled.div`
 `;
 
 const FeatureDescription = styled.div`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 	font-size: 0.9rem;
 	line-height: 1.5;
 `;
@@ -143,14 +116,18 @@ const StatItem = styled.div`
 const StatNumber = styled.div`
 	font-size: 2.5rem;
 	font-weight: 800;
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.BLUE 100%);
+	background: linear-gradient(
+		135deg,
+		${V9_COLORS.PRIMARY.GREEN} 0%,
+		${V9_COLORS.PRIMARY.BLUE} 100%
+	);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
 `;
 
 const StatLabel = styled.div`
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 	font-weight: 600;
 	margin-top: 0.5rem;
 `;
@@ -161,8 +138,10 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 			<FlowHeader flowId="oauth-code-generator-hub" />
 			<HeroSection>
 				<FeatureGrid>
-					<FeatureCard color="V9_COLORS.PRIMARY.GREEN">
-						<FeatureIcon color="linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)">
+					<FeatureCard color={V9_COLORS.PRIMARY.GREEN}>
+						<FeatureIcon
+							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN} 0%, ${V9_COLORS.PRIMARY.GREEN_DARK} 100%)`}
+						>
 							<span>⚡</span>
 						</FeatureIcon>
 						<FeatureTitle>Real-World Scenarios</FeatureTitle>
@@ -171,8 +150,10 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 						</FeatureDescription>
 					</FeatureCard>
 
-					<FeatureCard color="V9_COLORS.PRIMARY.BLUE_DARK">
-						<FeatureIcon color="linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)">
+					<FeatureCard color={V9_COLORS.PRIMARY.BLUE_DARK}>
+						<FeatureIcon
+							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE_DARK} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%)`}
+						>
 							<span>📖</span>
 						</FeatureIcon>
 						<FeatureTitle>Live RFC Explorer</FeatureTitle>
@@ -181,8 +162,10 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 						</FeatureDescription>
 					</FeatureCard>
 
-					<FeatureCard color="V9_COLORS.PRIMARY.RED">
-						<FeatureIcon color="linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)">
+					<FeatureCard color={V9_COLORS.PRIMARY.RED}>
+						<FeatureIcon
+							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.RED} 0%, ${V9_COLORS.PRIMARY.RED_DARK} 100%)`}
+						>
 							<span>🛡️</span>
 						</FeatureIcon>
 						<FeatureTitle>Security Theater</FeatureTitle>
@@ -192,13 +175,15 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 						</FeatureDescription>
 					</FeatureCard>
 
-					<FeatureCard color="V9_COLORS.PRIMARY.BLUE">
-						<FeatureIcon color="linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)">
-							<i className="bi bi-question-circle"></i>
+					<FeatureCard color={V9_COLORS.PRIMARY.BLUE}>
+						<FeatureIcon
+							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%)`}
+						>
+							<i className="bi bi-code-square"></i>
 						</FeatureIcon>
 						<FeatureTitle>Multi-Language Code</FeatureTitle>
 						<FeatureDescription>
-							JavaScript, Python, Java, C# — copy-paste production code for any platform
+							JavaScript, .NET, Go — copy-paste production code for any platform
 						</FeatureDescription>
 					</FeatureCard>
 				</FeatureGrid>
@@ -215,7 +200,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 						<StatLabel>RFC Specifications</StatLabel>
 					</StatItem>
 					<StatItem>
-						<StatNumber>4</StatNumber>
+						<StatNumber>3</StatNumber>
 						<StatLabel>Programming Languages</StatLabel>
 					</StatItem>
 					<StatItem>
@@ -244,7 +229,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 						background: 'white',
 						borderRadius: '1rem',
 						textAlign: 'center',
-						border: '3px solid V9_COLORS.PRIMARY.GREEN',
+						border: `3px solid ${V9_COLORS.PRIMARY.GREEN}`,
 					}}
 				>
 					<h2
@@ -276,8 +261,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 							rel="noopener noreferrer"
 							style={{
 								padding: '1rem 2rem',
-								background:
-									'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
+								background: `linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN} 0%, ${V9_COLORS.PRIMARY.GREEN_DARK} 100%)`,
 								color: 'white',
 								borderRadius: '0.75rem',
 								textDecoration: 'none',
@@ -294,12 +278,12 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 							PingOne Documentation
 						</a>
 						<a
-							href="/flows/oauth-authorization-code-v7"
+							href="/flows/v9/oauth-authorization-code"
 							style={{
 								padding: '1rem 2rem',
 								background: 'white',
 								color: '#059669',
-								border: '2px solid V9_COLORS.PRIMARY.GREEN',
+								border: `2px solid ${V9_COLORS.PRIMARY.GREEN}`,
 								borderRadius: '0.75rem',
 								textDecoration: 'none',
 								fontWeight: 700,
