@@ -1,5 +1,6 @@
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
+import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
@@ -739,6 +740,304 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 					</div>
 				</div>
 			</div>
+
+			<CodeExamplesSection
+				examples={[
+					{
+						title: 'Generate DPoP Proof JWT',
+						description: 'Create a DPoP proof JWT for token requests',
+						code: {
+							javascript: `// Generate DPoP proof JWT for token request
+async function generateDPoPProof(privateKey, publicKeyJwk, htm, htu, nonce) {
+  const header = {
+    typ: 'dpop+jwt',
+    alg: 'RS256',
+    jwk: publicKeyJwk
+  };
+
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    jti: crypto.randomUUID(),
+    htm: htm,
+    htu: htu,
+    iat: now,
+    nonce: nonce
+  };
+
+  // Base64url encode header and payload
+  const headerB64 = btoa(JSON.stringify(header))
+    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');
+  const payloadB64 = btoa(JSON.stringify(payload))
+    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');
+
+  const message = \`\${headerB64}.\${payloadB64}\`;
+
+  // Sign with private key
+  const signature = await crypto.subtle.sign(
+    { name: 'RSASSA-PKCS1-v1_5' },
+    privateKey,
+    new TextEncoder().encode(message)
+  );
+
+  const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
+    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');
+
+  return \`\${message}.\${signatureB64}\`;
+}
+
+// Usage
+const dpopProof = await generateDPoPProof(
+  privateKey,
+  publicKeyJwk,
+  'POST',
+  'https://auth.pingone.com/{environmentId}/as/token',
+  'server-nonce-12345'
+);`,
+							dotnet: `using System;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+
+public class DPoPProofGenerator
+{
+    public static string GenerateDPoPProof(
+        RSA privateKey,
+        object publicKeyJwk,
+        string htm,
+        string htu,
+        string nonce)
+    {
+        var header = new
+        {
+            typ = "dpop+jwt",
+            alg = "RS256",
+            jwk = publicKeyJwk
+        };
+
+        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var payload = new
+        {
+            jti = Guid.NewGuid().ToString(),
+            htm = htm,
+            htu = htu,
+            iat = now,
+            nonce = nonce
+        };
+
+        // Base64url encode
+        var headerJson = JsonSerializer.Serialize(header);
+        var payloadJson = JsonSerializer.Serialize(payload);
+        var headerB64 = Base64UrlEncode(Encoding.UTF8.GetBytes(headerJson));
+        var payloadB64 = Base64UrlEncode(Encoding.UTF8.GetBytes(payloadJson));
+
+        var message = $"{headerB64}.{payloadB64}";
+
+        // Sign
+        var signature = privateKey.SignData(
+            Encoding.UTF8.GetBytes(message),
+            HashAlgorithmName.SHA256,
+            RSASignaturePadding.Pkcs1);
+
+        var signatureB64 = Base64UrlEncode(signature);
+        return $"{message}.{signatureB64}";
+    }
+
+    private static string Base64UrlEncode(byte[] input)
+    {
+        return Convert.ToBase64String(input)
+            .Replace('+', '-').Replace('/', '_').TrimEnd('=');
+    }
+}`,
+							go: `package main
+
+import (
+	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/google/uuid"
+)
+
+func generateDPoPProof(privateKey *rsa.PrivateKey, publicKeyJwk map[string]interface{}, htm, htu, nonce string) (string, error) {
+	header := map[string]interface{}{
+		"typ": "dpop+jwt",
+		"alg": "RS256",
+		"jwk": publicKeyJwk,
+	}
+
+	now := time.Now().Unix()
+	payload := map[string]interface{}{
+		"jti":   uuid.New().String(),
+		"htm":   htm,
+		"htu":   htu,
+		"iat":   now,
+		"nonce": nonce,
+	}
+
+	// Base64url encode
+	headerJSON, _ := json.Marshal(header)
+	payloadJSON, _ := json.Marshal(payload)
+	headerB64 := base64URLEncode(headerJSON)
+	payloadB64 := base64URLEncode(payloadJSON)
+
+	message := fmt.Sprintf("%s.%s", headerB64, payloadB64)
+
+	// Sign
+	hashed := sha256.Sum256([]byte(message))
+	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashed[:])
+	if err != nil {
+		return "", err
+	}
+
+	signatureB64 := base64URLEncode(signature)
+	return fmt.Sprintf("%s.%s", message, signatureB64), nil
+}
+
+func base64URLEncode(data []byte) string {
+	encoded := base64.StdEncoding.EncodeToString(data)
+	encoded = strings.ReplaceAll(encoded, "+", "-")
+	encoded = strings.ReplaceAll(encoded, "/", "_")
+	return strings.TrimRight(encoded, "=")
+}`,
+						},
+					},
+					{
+						title: 'Request Token with DPoP',
+						description: 'Exchange authorization code for access token with DPoP binding',
+						code: {
+							javascript: `// Request access token with DPoP proof
+async function requestTokenWithDPoP(code, dpopProof, clientId, redirectUri) {
+  const tokenEndpoint = 'https://auth.pingone.com/{environmentId}/as/token';
+
+  const response = await fetch(tokenEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'DPoP': dpopProof
+    },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      code: code,
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      code_verifier: 'your-code-verifier'
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(\`Token request failed: \${error.error_description}\`);
+  }
+
+  const tokenData = await response.json();
+  console.log('Access token (DPoP-bound):', tokenData.access_token);
+  console.log('Token type:', tokenData.token_type); // Should be "DPoP"
+  
+  return tokenData;
+}`,
+							dotnet: `using System;
+using System.Net.Http;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+public async Task<TokenResponse> RequestTokenWithDPoP(
+    string code,
+    string dpopProof,
+    string clientId,
+    string redirectUri)
+{
+    var tokenEndpoint = "https://auth.pingone.com/{environmentId}/as/token";
+    
+    using var client = new HttpClient();
+    client.DefaultRequestHeaders.Add("DPoP", dpopProof);
+    
+    var formData = new Dictionary<string, string>
+    {
+        { "grant_type", "authorization_code" },
+        { "code", code },
+        { "client_id", clientId },
+        { "redirect_uri", redirectUri },
+        { "code_verifier", "your-code-verifier" }
+    };
+    
+    var response = await client.PostAsync(
+        tokenEndpoint,
+        new FormUrlEncodedContent(formData));
+    
+    if (!response.IsSuccessStatusCode)
+    {
+        var error = await response.Content.ReadAsStringAsync();
+        throw new Exception($"Token request failed: {error}");
+    }
+    
+    var tokenData = await response.Content.ReadFromJsonAsync<TokenResponse>();
+    Console.WriteLine($"Access token (DPoP-bound): {tokenData.AccessToken}");
+    Console.WriteLine($"Token type: {tokenData.TokenType}"); // Should be "DPoP"
+    
+    return tokenData;
+}`,
+							go: `package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
+)
+
+func requestTokenWithDPoP(code, dpopProof, clientID, redirectURI string) (*TokenResponse, error) {
+	tokenEndpoint := "https://auth.pingone.com/{environmentId}/as/token"
+
+	formData := url.Values{
+		"grant_type":    {"authorization_code"},
+		"code":          {code},
+		"client_id":     {clientID},
+		"redirect_uri":  {redirectURI},
+		"code_verifier": {"your-code-verifier"},
+	}
+
+	req, err := http.NewRequest("POST", tokenEndpoint, strings.NewReader(formData.Encode()))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("DPoP", dpopProof)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("token request failed: %s", string(body))
+	}
+
+	var tokenData TokenResponse
+	if err := json.NewDecoder(resp.Body).Decode(&tokenData); err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("Access token (DPoP-bound): %s\\n", tokenData.AccessToken)
+	fmt.Printf("Token type: %s\\n", tokenData.TokenType) // Should be "DPoP"
+
+	return &tokenData, nil
+}`,
+						},
+					},
+				]}
+			/>
 		</Container>
 	);
 };
