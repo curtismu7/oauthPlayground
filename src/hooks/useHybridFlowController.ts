@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FlowCredentialService } from '../services/flowCredentialService';
+import { StateValidationService } from '../services/stateValidationService';
 import {
 	HybridFlowConfig,
 	HybridFlowCredentialsSync,
@@ -369,7 +370,10 @@ export const useHybridFlowController = (
 
 	// Generate state parameter
 	const generateState = useCallback(() => {
-		const newState = generateRandomString(32);
+		// Crypto-random state stored for CSRF validation on the hybrid callback
+		// (RFC 6819). flowId = persistKey. The legacy `${persistKey}-state`
+		// write is kept for any code still reading it directly.
+		const newState = StateValidationService.generateState(persistKey);
 		setState(newState);
 		sessionStorage.setItem(`${persistKey}-state`, newState);
 		logger.info('State parameter generated', 'Logger info');
@@ -424,6 +428,10 @@ export const useHybridFlowController = (
 			const url = `${authEndpoint}?${params.toString()}`;
 
 			setAuthorizationUrl(url);
+
+			// Persist flow identity so HybridCallback's state gate can resolve
+			// the flowId (must equal the persistKey passed to generateState).
+			sessionStorage.setItem('active_oauth_flow', persistKey);
 
 			// ✅ CRITICAL: Store the EXACT redirect_uri from the URL for token exchange
 			storeRedirectUriFromAuthUrl(url, flowKey);

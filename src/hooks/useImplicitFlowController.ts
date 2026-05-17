@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { ImplicitFlowSharedService } from '../services/implicitFlowSharedService';
+import { StateValidationService } from '../services/stateValidationService';
 import type { OAuthTokenResponse } from '../types/storage';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
@@ -417,13 +418,14 @@ export const useImplicitFlowController = (
 
 	// Generate state
 	const generateState = useCallback(() => {
-		const newState =
-			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		// Crypto-random state stored for CSRF validation on the implicit callback
+		// (RFC 6819). flowId = persistKey, recovered by the callback.
+		const newState = StateValidationService.generateState(persistKey);
 		setState(newState);
 		logger.info('🔐 [useImplicitFlowController] State generated', 'Logger info');
 		saveStepResult('generate-state', { state: newState, timestamp: Date.now() });
 		return newState;
-	}, [saveStepResult]);
+	}, [saveStepResult, persistKey]);
 
 	// Generate authorization URL for Implicit flow
 	const generateAuthorizationUrl = useCallback(async () => {
@@ -565,9 +567,13 @@ export const useImplicitFlowController = (
 			timestamp: Date.now(),
 		});
 
+		// Persist flow identity so ImplicitCallback's state gate can resolve
+		// the flowId (must equal the persistKey passed to generateState).
+		sessionStorage.setItem('active_oauth_flow', persistKey);
+
 		logger.info('🔄 [useImplicitFlowController] Redirecting to authorization URL', 'Logger info');
 		window.location.href = authUrl;
-	}, [authUrl, flowKey, flowVariant, saveStepResult]);
+	}, [authUrl, flowKey, flowVariant, saveStepResult, persistKey]);
 
 	// Parse tokens from URL fragment
 	const setTokensFromFragment = useCallback(

@@ -35,6 +35,7 @@ import {
 import type { FlowConfig } from '../components/FlowConfiguration';
 import type { PKCECodes, StepCredentials } from '../components/steps/CommonSteps';
 import { FlowCredentialService } from '../services/flowCredentialService';
+import { StateValidationService } from '../services/stateValidationService';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { applyClientAuthentication } from '../utils/clientAuthentication';
@@ -834,8 +835,9 @@ export const useAuthorizationCodeFlowController = (
 			codeChallengeMethod: pkceCodes.codeChallengeMethod,
 		});
 
-		const state =
-			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		// Crypto-random state stored for CSRF validation on callback (RFC 6819).
+		// flowId = persistKey, recovered by the callback via flowContext.flow.
+		const state = StateValidationService.generateState(persistKey);
 
 		// Load PingOne application configuration for PAR and other advanced settings
 		let pingOneConfig = null;

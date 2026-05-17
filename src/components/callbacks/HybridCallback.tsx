@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { FiLoader } from '../../icons';
 import { logger } from '../../utils/logger';
+import { gateState } from '../../utils/stateValidationGate';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
 const CallbackContainer = styled.div`
@@ -162,6 +163,22 @@ const HybridCallback: React.FC = () => {
 				const error = fragmentParams?.get('error') || urlParams.get('error');
 				const errorDescription =
 					fragmentParams?.get('error_description') || urlParams.get('error_description');
+
+				// State validation gate (CSRF, RFC 6819). Flag-gated: default WARN
+				// validates + logs but ALLOWS so existing flows do not regress;
+				// only VITE_ENFORCE_STATE_VALIDATION=true hard-fails here.
+				const hybridGate = gateState(state || null);
+				if (!hybridGate.ok) {
+					const reason = hybridGate.reason || 'State validation failed';
+					logger.error('HybridCallback', 'State validation gate blocked callback', {
+						reason,
+					});
+					setStatus('error');
+					setMessage(
+						`Security error: ${reason}. This may indicate a CSRF attack. Please restart the hybrid flow.`
+					);
+					return;
+				}
 
 				// #region agent log
 				// #endregion
