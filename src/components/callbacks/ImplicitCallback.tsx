@@ -5,6 +5,7 @@ import { FiLoader } from '../../icons';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 
 import { logger } from '../../utils/logger';
+import { gateState } from '../../utils/stateValidationGate';
 
 const CallbackContainer = styled.div`
 	display: flex;
@@ -154,6 +155,26 @@ const ImplicitCallback: React.FC = () => {
 						url: window.location.href,
 						hash: window.location.hash?.substring(0, 200), // Limit hash length for logging
 					});
+					return;
+				}
+
+				// State validation gate (CSRF, RFC 6819). Flag-gated: default WARN
+				// validates + logs but ALLOWS so existing flows (incl. V8U unified,
+				// which uses its own state scheme) do not regress; only
+				// VITE_ENFORCE_STATE_VALIDATION=true hard-fails here.
+				const implicitGate = gateState(
+					hashParams.get('state') || queryParams.get('state') || null
+				);
+				if (!implicitGate.ok) {
+					const reason = implicitGate.reason || 'State validation failed';
+					logger.error('ImplicitCallback', 'State validation gate blocked callback', {
+						reason,
+					});
+					setStatus('error');
+					setMessage('Implicit grant failed');
+					setError(
+						`Security error: ${reason}. This may indicate a CSRF attack. Please restart the implicit flow.`
+					);
 					return;
 				}
 

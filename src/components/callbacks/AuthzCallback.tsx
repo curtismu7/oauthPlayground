@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { FiLoader } from '../../icons';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 import { logger } from '../../utils/logger';
+import { gateState } from '../../utils/stateValidationGate';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
 const CallbackContainer = styled.div`
@@ -166,6 +167,39 @@ const AuthzCallback: React.FC = () => {
 						},
 						{ replace: true }
 					);
+					return;
+				}
+
+				// State validation gate (CSRF, RFC 6819). Single choke-point before
+				// the popup/V3/V5 branch fan-out. Flag-gated: default WARN mode
+				// validates + logs but ALLOWS (gate.ok stays true) so existing
+				// flows do not regress; only VITE_ENFORCE_STATE_VALIDATION=true
+				// hard-fails here.
+				const callbackState =
+					queryParams.get('state') || hashParams.get('state') || null;
+				const gate = gateState(callbackState);
+				if (!gate.ok) {
+					const reason = gate.reason || 'State validation failed';
+					logger.error('AuthzCallback', 'State validation gate blocked callback', {
+						reason,
+					});
+					setStatus('error');
+					setMessage(
+						`Security error: ${reason}. This may indicate a CSRF attack. Please restart the authorization flow.`
+					);
+					if (window.opener && !window.opener.closed) {
+						window.opener.postMessage(
+							{
+								type: 'oauth-callback',
+								error: 'invalid_state',
+								error_description: reason,
+							},
+							window.location.origin
+						);
+						setTimeout(() => {
+							window.close();
+						}, 2000);
+					}
 					return;
 				}
 
