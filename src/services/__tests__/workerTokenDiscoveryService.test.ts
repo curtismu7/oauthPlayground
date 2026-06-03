@@ -61,10 +61,11 @@ describe('WorkerTokenDiscoveryService', () => {
 			const result = await workerTokenDiscoveryService.discover(config);
 
 			expect(result.success).toBe(true);
-			expect(result.environmentId).toBe('test-env-id-123');
-			expect(result.issuerUrl).toBe('https://auth.pingone.com/test-env-id-123/as');
-			expect(result.tokenEndpoint).toBe('https://auth.pingone.com/test-env-id-123/as/token');
-			expect(result.scopes).toEqual([
+			if (!result.success) return; // narrow to the success branch (ServiceResult)
+			expect(result.data.environmentId).toBe('test-env-id-123');
+			expect(result.data.issuerUrl).toBe('https://auth.pingone.com/test-env-id-123/as');
+			expect(result.data.tokenEndpoint).toBe('https://auth.pingone.com/test-env-id-123/as/token');
+			expect(result.data.scopes).toEqual([
 				'p1:read:user',
 				'p1:update:user',
 				'p1:read:device',
@@ -89,7 +90,9 @@ describe('WorkerTokenDiscoveryService', () => {
 			const result = await workerTokenDiscoveryService.discover(config);
 
 			expect(result.success).toBe(false);
-			expect(result.error).toBe('Discovery failed');
+			if (result.success) return; // narrow to the failure branch (ServiceResult)
+			expect(result.error.message).toBe('Discovery failed');
+			expect(result.error.code).toBe('WORKER_TOKEN_DISCOVERY_FAILED');
 		});
 
 		it('should use cached results when available', async () => {
@@ -111,19 +114,19 @@ describe('WorkerTokenDiscoveryService', () => {
 				cached: false,
 			};
 
-			spyOnComprehensiveDiscovery().mockReturnValue({
-				discover: vi.fn().mockResolvedValue(mockResult),
-			});
+			const discoverFn = vi.fn().mockResolvedValue(mockResult);
+			spyOnComprehensiveDiscovery().mockReturnValue({ discover: discoverFn });
 
-			// First call
+			// First call — performs discovery and caches the result
 			const result1 = await workerTokenDiscoveryService.discover(config);
 			expect(result1.success).toBe(true);
-			expect(result1.cached).toBe(false);
+			if (!result1.success) return;
+			expect(result1.data.cached).toBe(false);
 
-			// Second call - should use cache
+			// Second call — served from cache: underlying discovery must NOT run again
 			const result2 = await workerTokenDiscoveryService.discover(config);
 			expect(result2.success).toBe(true);
-			expect(result2.cached).toBe(true);
+			expect(discoverFn).toHaveBeenCalledTimes(1);
 		});
 
 		it('should extract worker token scopes correctly', async () => {
@@ -160,7 +163,8 @@ describe('WorkerTokenDiscoveryService', () => {
 			const result = await workerTokenDiscoveryService.discover(config);
 
 			expect(result.success).toBe(true);
-			expect(result.scopes).toEqual([
+			if (!result.success) return;
+			expect(result.data.scopes).toEqual([
 				'p1:read:user',
 				'p1:update:user',
 				'p1:read:device',
@@ -194,7 +198,8 @@ describe('WorkerTokenDiscoveryService', () => {
 			const result = await workerTokenDiscoveryService.discover(config);
 
 			expect(result.success).toBe(true);
-			expect(result.scopes).toEqual([
+			if (!result.success) return;
+			expect(result.data.scopes).toEqual([
 				'p1:read:user',
 				'p1:update:user',
 				'p1:read:device',
