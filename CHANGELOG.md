@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Deleted dead `src/locked/` (519 files of stale feature-branch snapshots — 0 imports from live code) and unused `src/v7m/` (orphaned route module). Verified no static or dynamic references; `npm run build` exits 0. `src/v7/` is retained (it's a live shared component library imported by 17 V9 flow pages).
 
+### Fixed
+- `Spinner` crashed on every render: it interpolated a `keyframes` object into an untagged inline `style` string (unsupported since styled-components v4). Removed the redundant inline style — the `SpinnerWrapper` already applies the animation via its tagged template. Fixes 7 Spinner tests.
+- `workerTokenDiscoveryService` tests asserted the old flat/string return shape; updated them to the current `ServiceResult<T>` contract (`result.data.*` on success, `result.error.{code,message}` on failure). The cache test now verifies caching by asserting discovery runs once, not a non-existent `cached:true` flag.
+
+### Changed
+- Scoped the Vitest unit suite to exclude the vendored sample app (`se-ai-demo-banking-digital-assistant-main/`) and Playwright e2e specs, which were being picked up and failing.
+
 ## [9.17.0] - 2026-03-12
 
 ### 🔧 Backend Credential API & Password Reset Fixes

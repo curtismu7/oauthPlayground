@@ -20,9 +20,7 @@ interface SpinnerProps {
 
 const Spinner: React.FC<SpinnerProps> = ({ size = 16, color = '#0070CC' }) => {
 	return (
-		<SpinnerWrapper
-			style={{ animation: `${spin} 1s linear infinite` }}
-		>
+		<SpinnerWrapper>
 			<i
 				className="bi bi-question-circle"
 				role="img"
