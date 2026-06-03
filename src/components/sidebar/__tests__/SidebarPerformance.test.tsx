@@ -3,12 +3,13 @@
  * Tests to validate the performance optimizations in Phase 1
  */
 
+import { vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import SidebarOptimized from '../SidebarOptimized';
 
 // Mock performance.now for consistent testing
-const mockPerformanceNow = jest.fn();
+const mockPerformanceNow = vi.fn();
 Object.defineProperty(global, 'performance', {
 	value: {
 		now: mockPerformanceNow,
@@ -18,10 +19,10 @@ Object.defineProperty(global, 'performance', {
 
 // Mock localStorage
 const mockLocalStorage = {
-	getItem: jest.fn(),
-	setItem: jest.fn(),
-	removeItem: jest.fn(),
-	clear: jest.fn(),
+	getItem: vi.fn(),
+	setItem: vi.fn(),
+	removeItem: vi.fn(),
+	clear: vi.fn(),
 };
 Object.defineProperty(window, 'localStorage', {
 	value: mockLocalStorage,
@@ -34,7 +35,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('Sidebar Performance Tests', () => {
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 		mockPerformanceNow.mockReturnValue(0);
 	});
 
@@ -65,7 +66,7 @@ describe('Sidebar Performance Tests', () => {
 				.mockReturnValueOnce(0) // Start time
 				.mockReturnValueOnce(20); // End time
 
-			const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+			const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
 
 			render(
 				<TestWrapper>
@@ -117,7 +118,7 @@ describe('Sidebar Performance Tests', () => {
 				.mockReturnValueOnce(0) // Start time
 				.mockReturnValueOnce(150); // End time
 
-			const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+			const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
 
 			render(
 				<TestWrapper>
@@ -258,7 +259,7 @@ describe('Sidebar Performance Tests', () => {
 				throw new Error('Storage error');
 			});
 
-			const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+			const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
 
 			render(
 				<TestWrapper>

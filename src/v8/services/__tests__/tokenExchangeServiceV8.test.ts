@@ -1,6 +1,7 @@
 // src/v8/services/__tests__/tokenExchangeServiceV8.test.ts
 // Token Exchange Phase 1 - Service Tests
 
+import { vi } from 'vitest';
 import { TokenExchangeParams } from '../../types/tokenExchangeTypesV8';
 import { TokenExchangeConfigServiceV8 } from '../tokenExchangeConfigServiceV8';
 import { TokenExchangeServiceV8 } from '../tokenExchangeServiceV8';
@@ -13,7 +14,7 @@ describe('TokenExchangeServiceV8', () => {
 	describe('exchangeToken', () => {
 		it('should fail when Token Exchange is disabled', async () => {
 			// Mock disabled config
-			jest.spyOn(TokenExchangeConfigServiceV8, 'isEnabled').mockResolvedValue(false);
+			vi.spyOn(TokenExchangeConfigServiceV8, 'isEnabled').mockResolvedValue(false);
 
 			const params: TokenExchangeParams = {
 				subject_token: mockSubjectToken,
@@ -29,7 +30,7 @@ describe('TokenExchangeServiceV8', () => {
 
 		it('should fail with invalid token', async () => {
 			// Mock enabled config
-			jest.spyOn(TokenExchangeConfigServiceV8, 'isEnabled').mockResolvedValue(true);
+			vi.spyOn(TokenExchangeConfigServiceV8, 'isEnabled').mockResolvedValue(true);
 
 			const params: TokenExchangeParams = {
 				subject_token: 'invalid-token',
@@ -44,7 +45,7 @@ describe('TokenExchangeServiceV8', () => {
 
 		it('should fail with wrong environment token', async () => {
 			// Mock enabled config
-			jest.spyOn(TokenExchangeConfigServiceV8, 'isEnabled').mockResolvedValue(true);
+			vi.spyOn(TokenExchangeConfigServiceV8, 'isEnabled').mockResolvedValue(true);
 
 			const wrongEnvToken =
 				'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjk5OTk5OTk5OTksImVudl9pZCI6ImRpZmZlcmVudC1lbnYifQ.mock-signature';
@@ -62,8 +63,8 @@ describe('TokenExchangeServiceV8', () => {
 
 		it('should succeed with valid parameters', async () => {
 			// Mock enabled config and scope validation
-			jest.spyOn(TokenExchangeConfigServiceV8, 'isEnabled').mockResolvedValue(true);
-			jest.spyOn(TokenExchangeConfigServiceV8, 'validateScopes').mockResolvedValue(true);
+			vi.spyOn(TokenExchangeConfigServiceV8, 'isEnabled').mockResolvedValue(true);
+			vi.spyOn(TokenExchangeConfigServiceV8, 'validateScopes').mockResolvedValue(true);
 
 			const params: TokenExchangeParams = {
 				subject_token: mockSubjectToken,

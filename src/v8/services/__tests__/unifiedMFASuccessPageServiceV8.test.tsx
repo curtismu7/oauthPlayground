@@ -6,24 +6,24 @@
  * @since 2026-03-06
  */
 
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { vi, beforeEach, describe, expect, it } from 'vitest';
 import type { UnifiedMFASuccessPageProps } from '../unifiedMFASuccessPageServiceV8';
 
 // Mock dependencies
-jest.mock('../../utils/logger', () => ({
+vi.mock('../../utils/logger', () => ({
 	logger: {
-		debug: jest.fn(),
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
+		debug: vi.fn(),
+		info: vi.fn(),
+		warn: vi.fn(),
+		error: vi.fn(),
 	},
 }));
 
-jest.mock('../../services/apiDisplayServiceV8', () => ({
+vi.mock('../../services/apiDisplayServiceV8', () => ({
 	apiDisplayServiceV8: {
-		isVisible: jest.fn(() => true),
-		hide: jest.fn(),
-		show: jest.fn(),
+		isVisible: vi.fn(() => true),
+		hide: vi.fn(),
+		show: vi.fn(),
 	},
 }));
 
@@ -57,12 +57,12 @@ describe('UnifiedMFASuccessPageV8', () => {
 			adminDeviceStatus: 'ACTIVE',
 			tokenType: 'user',
 		},
-		onStartAgain: jest.fn(),
+		onStartAgain: vi.fn(),
 		...overrides,
 	});
 
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 	});
 
 	describe('Validation Insights Logic', () => {
@@ -302,7 +302,7 @@ describe('UnifiedMFASuccessPageV8', () => {
 
 	describe('Callback Functions', () => {
 		it('should provide onStartAgain callback', () => {
-			const mockCallback = jest.fn();
+			const mockCallback = vi.fn();
 			const props = createMockProps({
 				onStartAgain: mockCallback,
 			});

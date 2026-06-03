@@ -1,19 +1,20 @@
 // src/services/__tests__/flowContextService.test.ts
 // Tests for FlowContextService
 
+import { vi } from 'vitest';
 import FlowContextService, { type FlowContext } from '../flowContextService';
 
 // Mock sessionStorage
 const mockSessionStorage = {
 	store: {} as Record<string, string>,
-	getItem: jest.fn((key: string) => mockSessionStorage.store[key] || null),
-	setItem: jest.fn((key: string, value: string) => {
+	getItem: vi.fn((key: string) => mockSessionStorage.store[key] || null),
+	setItem: vi.fn((key: string, value: string) => {
 		mockSessionStorage.store[key] = value;
 	}),
-	removeItem: jest.fn((key: string) => {
+	removeItem: vi.fn((key: string) => {
 		delete mockSessionStorage.store[key];
 	}),
-	clear: jest.fn(() => {
+	clear: vi.fn(() => {
 		mockSessionStorage.store = {};
 	}),
 };
@@ -32,7 +33,7 @@ Object.defineProperty(window, 'navigator', {
 describe('FlowContextService', () => {
 	beforeEach(() => {
 		// Clear mocks and storage
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 		mockSessionStorage.clear();
 	});
 
