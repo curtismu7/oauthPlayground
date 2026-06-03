@@ -1,6 +1,8 @@
 // src/components/__tests__/RARIntegration.test.tsx
 // Integration tests for RAR components with enhanced service
 
+import { vi } from 'vitest';
+import type { Mocked } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import RARService from '../../services/rarService';
@@ -9,13 +11,13 @@ import RARExampleSelector from '../RARExampleSelector';
 import RARValidationDisplay from '../RARValidationDisplay';
 
 // Mock the RARService
-jest.mock('../../services/rarService');
-const mockRARService = RARService as jest.Mocked<typeof RARService>;
+vi.mock('../../services/rarService');
+const mockRARService = RARService as Mocked<typeof RARService>;
 
 describe('RAR Components Integration', () => {
 	beforeEach(() => {
 		// Reset mocks
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 
 		// Setup default mock implementations
 		mockRARService.getExampleAuthorizationDetails.mockReturnValue([
@@ -59,7 +61,7 @@ describe('RAR Components Integration', () => {
 
 	describe('AuthorizationDetailsEditor', () => {
 		it('should render with customer_information example', () => {
-			const mockOnUpdate = jest.fn();
+			const mockOnUpdate = vi.fn();
 			const authorizationDetails = mockRARService.getExampleAuthorizationDetails();
 
 			render(
@@ -75,7 +77,7 @@ describe('RAR Components Integration', () => {
 		});
 
 		it('should validate authorization details using enhanced service', () => {
-			const mockOnUpdate = jest.fn();
+			const mockOnUpdate = vi.fn();
 			const authorizationDetails = mockRARService.getExampleAuthorizationDetails();
 
 			render(
@@ -94,7 +96,7 @@ describe('RAR Components Integration', () => {
 
 	describe('RARExampleSelector', () => {
 		it('should display customer_information example', () => {
-			const mockOnSelectExample = jest.fn();
+			const mockOnSelectExample = vi.fn();
 
 			render(<RARExampleSelector onSelectExample={mockOnSelectExample} />);
 
@@ -104,7 +106,7 @@ describe('RAR Components Integration', () => {
 		});
 
 		it('should call onSelectExample when example is selected', () => {
-			const mockOnSelectExample = jest.fn();
+			const mockOnSelectExample = vi.fn();
 
 			render(<RARExampleSelector onSelectExample={mockOnSelectExample} />);
 
@@ -136,7 +138,7 @@ describe('RAR Components Integration', () => {
 			const authorizationDetails = mockRARService.getExampleAuthorizationDetails();
 			const grantedScopes = ['openid', 'profile', 'email'];
 
-			mockRARService.validateScopeCompliance = jest.fn().mockReturnValue({
+			mockRARService.validateScopeCompliance = vi.fn().mockReturnValue({
 				valid: true,
 				errors: [],
 			});
