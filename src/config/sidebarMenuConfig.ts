@@ -289,6 +289,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		items: items([
 			['/ai-assistant', 'MasterFlow Agent', true],
 			['/mcp-server', 'MCP Server Config', true],
+			['/mcp-tool-discovery', 'MCP Tool Discovery', true],
 			['/documentation/mcp', 'MCP Documentation', true],
 			['/ai-agent-overview', 'AI Agent Overview', true],
 			['/ai-glossary', 'AI Glossary', true],

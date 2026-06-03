@@ -42,6 +42,8 @@ const CleanupHistoryDashboard = lazy(() =>
 	}))
 );
 const CodeExamplesDemo = lazy(() => import('./components/CodeExamplesDemo'));
+// flows2 — clean-core rebuild (real PingOne), routed under /v2/flows/*
+const Flows2ClientCredentials = lazy(() => import('./flows2/flows/clientCredentials.flow'));
 const CombinedTokenPage = lazy(() => import('./pages/CombinedTokenPage'));
 const CredentialSetupModal = lazy(() => import('./components/CredentialSetupModal'));
 const EnhancedFloatingLogViewer = lazy(() =>
@@ -82,6 +84,7 @@ const AutoDiscover = lazy(() => import('./pages/AutoDiscover'));
 // Lazy load AI and advanced pages
 const AIIdentityArchitectures = lazy(() => import('./pages/AIIdentityArchitecturesV9'));
 const McpServerConfigFlowV9 = lazy(() => import('./pages/flows/v9/McpServerConfigFlowV9'));
+const McpToolDiscovery = lazy(() => import('./pages/McpToolDiscovery'));
 const OAuthCodeGeneratorHub = lazy(() => import('./pages/OAuthCodeGeneratorHub'));
 const OAuthPlaygroundHub = lazy(() => import('./pages/OAuthPlaygroundHub'));
 const OAuthFlowsNew = lazy(() => import('./pages/OAuthFlowsNew'));
@@ -1664,6 +1667,8 @@ const AppRoutes: React.FC = () => {
 									<Route path="/auto-discover" element={<AutoDiscover />} />
 									<Route path="/token-management" element={<TokenMonitoringPage />} />
 									<Route path="/token/operations" element={<CombinedTokenPage />} />
+									{/* flows2 — clean-core rebuild (real PingOne) */}
+									<Route path="/v2/flows/client-credentials" element={<Flows2ClientCredentials />} />
 									<Route path="/flows/token-introspection" element={<TokenIntrospectionFlow />} />
 									<Route
 										path="/postman-collection-generator"
@@ -1720,6 +1725,16 @@ const AppRoutes: React.FC = () => {
 												fallback={<LoadingFallback message="Loading MCP Server Config..." />}
 											>
 												<McpServerConfigFlowV9 />
+											</Suspense>
+										}
+									/>
+									<Route
+										path="/mcp-tool-discovery"
+										element={
+											<Suspense
+												fallback={<LoadingFallback message="Loading MCP Tool Discovery..." />}
+											>
+												<McpToolDiscovery />
 											</Suspense>
 										}
 									/>
