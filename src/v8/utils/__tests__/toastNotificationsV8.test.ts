@@ -6,27 +6,28 @@
  * @since 2024-11-16
  */
 
+import { vi } from 'vitest';
 import { v4ToastManager } from '@/utils/v4ToastMessages';
 import { toastV8 } from '../toastNotificationsV8';
 
 // Mock the v4ToastManager
-jest.mock('@/utils/v4ToastMessages', () => ({
+vi.mock('@/utils/v4ToastMessages', () => ({
 	v4ToastManager: {
-		showSuccess: jest.fn(),
-		showError: jest.fn(),
-		showWarning: jest.fn(),
-		showInfo: jest.fn(),
+		showSuccess: vi.fn(),
+		showError: vi.fn(),
+		showWarning: vi.fn(),
+		showInfo: vi.fn(),
 	},
 }));
 
 describe('ToastNotificationsV8', () => {
 	beforeEach(() => {
-		jest.clearAllMocks();
-		jest.spyOn(console, 'log').mockImplementation();
+		vi.clearAllMocks();
+		vi.spyOn(console, 'log').mockImplementation();
 	});
 
 	afterEach(() => {
-		jest.restoreAllMocks();
+		vi.restoreAllMocks();
 	});
 
 	describe('success()', () => {
