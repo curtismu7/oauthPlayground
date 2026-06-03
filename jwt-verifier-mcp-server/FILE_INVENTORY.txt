@@ -1,0 +1,49 @@
+JWT Verifier MCP Server - Complete File Inventory
+===================================================
+
+PROJECT LOCATION: /tmp/oauth-build/jwt-verifier-mcp-server/
+
+Configuration Files:
+  package.json              — NPM package definition with all dependencies
+  tsconfig.json             — TypeScript compiler config (ES2022, strict, NodeNext modules)
+  .env.example              — Environment template (currently empty)
+
+Source Files (TypeScript):
+  src/index.ts              — Main MCP server, StdioServerTransport, tool registry
+  
+  src/services/
+    logger.ts               — Rotating JSON logger (10 MB max, /tmp/jwt-verifier-mcp.log)
+    mcpErrors.ts            — Error handler, buildToolErrorResult() utility
+    jwtVerifierService.ts   — Core JWT logic: decode, verify, validateClaims, JWKS fetch
+  
+  src/actions/
+    jwtDecode.ts            — jwt_decode_full tool (decode without verification)
+    jwtVerify.ts            — jwt_verify_signature & jwt_validate_claims tools
+    jwksTools.ts            — jwt_fetch_jwks & jwt_inspect_key tools
+
+Build Artifacts (compiled to dist/):
+  dist/index.js             — Main server entry point
+  dist/services/            — Compiled logger, mcpErrors, jwtVerifierService
+  dist/actions/             — Compiled tool handlers (3 files)
+  dist/*.d.ts, *.d.ts.map   — TypeScript declaration maps
+
+Documentation:
+  README.md                 — Features, build instructions, architecture
+  FILE_INVENTORY.txt        — This file
+
+Tool Summary (5 total):
+  1. jwt_decode_full        — Decode JWT parts (header/payload/sig) without verification
+  2. jwt_verify_signature   — Verify JWT signature using JWKS URL
+  3. jwt_validate_claims    — Validate specific claims in JWT payload
+  4. jwt_fetch_jwks         — Fetch and inspect JWKS from remote URL
+  5. jwt_inspect_key        — Inspect specific key by kid from JWKS
+
+Build Status:
+  ✅ npm run build          — Compiles all TypeScript to dist/
+  ✅ npm run type-check     — tsc --noEmit (zero errors)
+  ✅ All 5 tools registered in src/index.ts
+  ✅ All dependencies installed (node_modules/)
+
+Execution:
+  npm start                 — Runs node dist/index.js
+  npm run dev              — Watches src/ and rebuilds

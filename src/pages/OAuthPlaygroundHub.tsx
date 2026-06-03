@@ -427,80 +427,47 @@ box - shadow;
 : 0 4px 12px rgba(0, 0, 0, 0.08)
 `;
 
-const CTATitle = styled.h2`;
-color: $;
-{
-	V9_COLORS.PRIMARY.GREEN;
-}
-font - size;
-: 1.75rem
-margin - bottom;
-: 1rem
+const CTATitle = styled.h2`
+	color: ${V9_COLORS.PRIMARY.GREEN};
+	font-size: 1.75rem;
+	margin-bottom: 1rem;
 `;
 
-const CTADescription = styled.p`;
-color: $;
-{
-	V9_COLORS.TEXT.GRAY_MEDIUM;
-}
-font - size;
-: 1.1rem
-line - height;
-: 1.7
-max - width;
-: 700px
-margin: 0;
-auto;
-2rem
+const CTADescription = styled.p`
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+	font-size: 1.1rem;
+	line-height: 1.7;
+	max-width: 700px;
+	margin: 0 auto 2rem;
 `;
 
-const CTAButtons = styled.div`;
-display: flex;
-gap:
-1rem
-justify - content;
-: center
-flex - wrap;
-: wrap
+const CTAButtons = styled.div`
+	display: flex;
+	gap: 1rem;
+	justify-content: center;
+	flex-wrap: wrap;
 `;
 
-const CTAButton = styled.a<{ $primary?: boolean }>`;
-padding:
-1rem 2rem
-background: $;
-{
-	({ $primary }) =>
+const CTAButton = styled.a<{ $primary?: boolean }>`
+	padding: 1rem 2rem;
+	background: ${({ $primary }) =>
 		$primary
 			? `linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN} 0%, ${V9_COLORS.PRIMARY.GREEN_DARK} 100%)`
-			: 'white';
-}
-color: $;
-{
-	({ $primary }) => ($primary ? 'white' : V9_COLORS.PRIMARY.GREEN);
-}
-border: $;
-{
-	({ $primary }) => ($primary ? 'none' : `2px solid ${V9_COLORS.PRIMARY.GREEN}`);
-}
-border - radius;
-: 0.75rem
-text - decoration;
-: none
-font - weight;
-: 700
-display: inline - flex;
-align - items;
-: center
-gap:
-0.5rem
-transition: transform;
-0.2s
-cursor: pointer;
+			: 'white'};
+	color: ${({ $primary }) => ($primary ? 'white' : V9_COLORS.PRIMARY.GREEN)};
+	border: ${({ $primary }) => ($primary ? 'none' : `2px solid ${V9_COLORS.PRIMARY.GREEN}`)};
+	border-radius: 0.75rem;
+	text-decoration: none;
+	font-weight: 700;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: transform 0.2s;
+	cursor: pointer;
 
-&:hover
-{
-	transform: translateY(-2px);
-}
+	&:hover {
+		transform: translateY(-2px);
+	}
 `;
 
 type ActiveTab = 'editor' | 'scenarios' | 'examples' | 'rfc' | 'security';
