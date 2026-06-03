@@ -111,6 +111,26 @@ This directory contains the enhanced Model Context Protocol (MCP) servers that p
 - `test-oauth-flow` - Comprehensive testing
 - `get-fetch-analytics` - Request statistics
 
+### 4. OAuth/OIDC Server (`oauth-oidc-mcp-server`)
+
+**Purpose**: Provider-agnostic execution of **real** OAuth 2.0 / OIDC flows against any OIDC
+issuer, with a PingOne convenience preset. Complements `pingone-mcp-server` (which keeps the
+management APIs) and `oauth-simulator-mcp-server` (which only mocks flow steps).
+
+**Endpoint resolution** (priority): explicit overrides → OIDC discovery (`issuerUrl`) → PingOne
+preset (`pingoneEnvironmentId` + `pingoneRegion`) → env defaults.
+
+**Tools** (18): `oauth_discover`, `oauth_decode_jwt`, `oauth_verify_jwt`, `oauth_password_grant`,
+`oauth_refresh_token`, `oauth_client_credentials`, `oauth_build_authorization_url`,
+`oauth_exchange_authorization_code`, `oauth_token_exchange` (RFC 8693, with `act` delegation),
+`oauth_device_authorization`, `oauth_poll_device_token`, `oauth_backchannel_authentication`,
+`oauth_poll_ciba_token`, `oauth_pushed_authorization_request` (RFC 9126), `oauth_generate_dpop_proof`
+(RFC 9449), `oauth_introspect_token` (RFC 7662), `oauth_revoke_token` (RFC 7009), `oauth_userinfo`.
+
+See the companion skill at `.claude/skills/oauth-oidc-mcp-server/SKILL.md` and the
+authoritative PingOne API reference at https://developer.pingidentity.com/apis.html for
+validating request shapes.
+
 ## 🛠️ Development
 
 ### Building Individual Servers
