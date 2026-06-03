@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `Spinner` crashed on every render: it interpolated a `keyframes` object into an untagged inline `style` string (unsupported since styled-components v4). Removed the redundant inline style — the `SpinnerWrapper` already applies the animation via its tagged template. Fixes 7 Spinner tests.
+- `StepActionButtonsV8`: the "why is Next disabled" tooltip was bound to `onMouseEnter` on the `disabled` button, which never fires (disabled elements receive no mouse events) — so the tooltip could never appear. Moved the hover handlers to the wrapping `<div>`. Fixes the UX and 2 tests.
 - `workerTokenDiscoveryService` tests asserted the old flat/string return shape; updated them to the current `ServiceResult<T>` contract (`result.data.*` on success, `result.error.{code,message}` on failure). The cache test now verifies caching by asserting discovery runs once, not a non-existent `cached:true` flag.
 
 ### Changed
