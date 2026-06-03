@@ -6,6 +6,7 @@
  * @since 2024-11-16
  */
 
+import { vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import useStepNavigationV8 from '../useStepNavigationV8';
 
@@ -304,7 +305,7 @@ describe('useStepNavigationV8', () => {
 
 	describe('Callbacks', () => {
 		it('should call onStepChange when step changes', () => {
-			const onStepChange = jest.fn();
+			const onStepChange = vi.fn();
 			const { result } = renderHook(() => useStepNavigationV8(4, { onStepChange }));
 
 			act(() => {
@@ -315,7 +316,7 @@ describe('useStepNavigationV8', () => {
 		});
 
 		it('should call onValidationChange when errors change', () => {
-			const onValidationChange = jest.fn();
+			const onValidationChange = vi.fn();
 			const { result } = renderHook(() => useStepNavigationV8(4, { onValidationChange }));
 
 			act(() => {
@@ -326,7 +327,7 @@ describe('useStepNavigationV8', () => {
 		});
 
 		it('should call onStepChange on reset', () => {
-			const onStepChange = jest.fn();
+			const onStepChange = vi.fn();
 			const { result } = renderHook(() => useStepNavigationV8(4, { initialStep: 2, onStepChange }));
 
 			act(() => {

@@ -1,17 +1,18 @@
 // src/services/__tests__/qrCodeService.test.ts
 // Tests for QRCodeService
 
+import { vi } from 'vitest';
 import QRCodeService, { type TOTPConfig } from '../qrCodeService';
 
 // Mock crypto and global functions
-global.btoa = jest.fn((str: string) => Buffer.from(str).toString('base64'));
-global.TextEncoder = jest.fn().mockImplementation(() => ({
-	encode: jest.fn((str: string) => new Uint8Array(Buffer.from(str))),
+global.btoa = vi.fn((str: string) => Buffer.from(str).toString('base64'));
+global.TextEncoder = vi.fn().mockImplementation(() => ({
+	encode: vi.fn((str: string) => new Uint8Array(Buffer.from(str))),
 }));
 
 Object.defineProperty(global, 'crypto', {
 	value: {
-		getRandomValues: jest.fn((array: Uint8Array) => {
+		getRandomValues: vi.fn((array: Uint8Array) => {
 			for (let i = 0; i < array.length; i++) {
 				array[i] = Math.floor(Math.random() * 256);
 			}
