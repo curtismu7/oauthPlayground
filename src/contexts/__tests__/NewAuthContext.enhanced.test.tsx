@@ -32,6 +32,25 @@ Object.defineProperty(window, 'sessionStorage', {
 	value: mockSessionStorage,
 });
 
+// Mock localStorage for credential manager fallback
+const mockLocalStorage = {
+	store: {} as Record<string, string>,
+	getItem: vi.fn((key: string) => mockLocalStorage.store[key] || null),
+	setItem: vi.fn((key: string, value: string) => {
+		mockLocalStorage.store[key] = value;
+	}),
+	removeItem: vi.fn((key: string) => {
+		delete mockLocalStorage.store[key];
+	}),
+	clear: vi.fn(() => {
+		mockLocalStorage.store = {};
+	}),
+};
+
+Object.defineProperty(window, 'localStorage', {
+	value: mockLocalStorage,
+});
+
 // Mock window.location
 Object.defineProperty(window, 'location', {
 	value: {
@@ -71,6 +90,7 @@ describe('Enhanced NewAuthContext', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		mockSessionStorage.clear();
+		mockLocalStorage.clear();
 
 		// Setup default mock implementations
 		mockFlowContextUtils.handleOAuthCallback.mockReturnValue({
@@ -136,6 +156,45 @@ describe('Enhanced NewAuthContext', () => {
 	});
 
 	describe('Enhanced Callback Handling', () => {
+		// Shared setup for handleCallback tests: provide credentials and a successful token exchange
+		const mockTokenResponse = {
+			access_token: 'mock-access-token',
+			token_type: 'Bearer',
+			expires_in: 3600,
+		};
+
+		const callbackCredentials = JSON.stringify({
+			clientId: 'test-client-id',
+			environmentId: 'test-env-123',
+			redirectUri: 'https://localhost:3000/authz-callback',
+		});
+
+		beforeEach(() => {
+			// Provide credentials via flowContext so handleCallback can build the token request
+			mockSessionStorage.store['flowContext'] = callbackCredentials;
+			// Also store credentials in localStorage for tests that override flowContext
+			mockLocalStorage.store['pingone_authz_flow_credentials'] = JSON.stringify({
+				clientId: 'test-client-id',
+				environmentId: 'test-env-123',
+				redirectUri: 'https://localhost:3000/authz-callback',
+			});
+			// Mock fetch to return a successful token exchange response
+			vi.stubGlobal(
+				'fetch',
+				vi.fn().mockResolvedValue({
+					ok: true,
+					json: () => Promise.resolve(mockTokenResponse),
+					headers: { entries: () => [] },
+					status: 200,
+					statusText: 'OK',
+				})
+			);
+		});
+
+		afterEach(() => {
+			vi.unstubAllGlobals();
+		});
+
 		it('should use FlowContextUtils for callback handling', async () => {
 			// biome-ignore lint/suspicious/noExplicitAny: test helper captures hook return via component render
 			let authContext: any;
@@ -163,8 +222,8 @@ describe('Enhanced NewAuthContext', () => {
 			expect(mockFlowContextUtils.handleOAuthCallback).toHaveBeenCalledWith({
 				code: 'test-code',
 				state: 'test-state',
-				error: undefined,
-				error_description: undefined,
+				error: null,
+				error_description: null,
 				session_state: null,
 				iss: null,
 			});
@@ -176,10 +235,13 @@ describe('Enhanced NewAuthContext', () => {
 				throw new Error('FlowContextService error');
 			});
 
-			// Mock legacy flow context
+			// Mock legacy flow context — include credentials so token exchange can proceed
 			mockSessionStorage.store['flowContext'] = JSON.stringify({
 				returnPath: '/flows/legacy-flow',
 				flowType: 'legacy',
+				clientId: 'test-client-id',
+				environmentId: 'test-env-123',
+				redirectUri: 'https://localhost:3000/authz-callback',
 			});
 
 			// biome-ignore lint/suspicious/noExplicitAny: test helper captures hook return via component render
@@ -319,6 +381,38 @@ describe('Enhanced NewAuthContext', () => {
 	});
 
 	describe('Security Features', () => {
+		// Security tests override flowContext but still need credentials + token exchange to proceed
+		const mockTokenResponse = {
+			access_token: 'mock-access-token',
+			token_type: 'Bearer',
+			expires_in: 3600,
+		};
+
+		beforeEach(() => {
+			// Store credentials in localStorage so credential manager fallback works
+			// when flowContext is overridden with non-credential content
+			mockLocalStorage.store['pingone_authz_flow_credentials'] = JSON.stringify({
+				clientId: 'test-client-id',
+				environmentId: 'test-env-123',
+				redirectUri: 'https://localhost:3000/authz-callback',
+			});
+			// Mock fetch for token exchange
+			vi.stubGlobal(
+				'fetch',
+				vi.fn().mockResolvedValue({
+					ok: true,
+					json: () => Promise.resolve(mockTokenResponse),
+					headers: { entries: () => [] },
+					status: 200,
+					statusText: 'OK',
+				})
+			);
+		});
+
+		afterEach(() => {
+			vi.unstubAllGlobals();
+		});
+
 		it('should reject dangerous flow context content', async () => {
 			// Mock FlowContextUtils to throw an error to test fallback
 			mockFlowContextUtils.handleOAuthCallback.mockImplementation(() => {
