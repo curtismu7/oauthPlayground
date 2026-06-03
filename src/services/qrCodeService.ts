@@ -1,6 +1,8 @@
 // src/services/qrCodeService.ts
 // QR Code Service for TOTP QR code generation and validation
 
+import { logger } from '../utils/logger';
+
 export interface TOTPConfig {
 	secret: string;
 	issuer: string;
