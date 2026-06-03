@@ -152,7 +152,7 @@ describe('RAR Components Integration', () => {
 			);
 
 			expect(screen.getByText('Scope Compliance')).toBeInTheDocument();
-			expect(screen.getByText('Granted scopes: openid, profile, email')).toBeInTheDocument();
+			expect(screen.getByText('Granted scopes: openid profile email')).toBeInTheDocument();
 		});
 	});
 
