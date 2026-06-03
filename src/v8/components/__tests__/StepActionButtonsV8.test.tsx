@@ -6,17 +6,18 @@
  * @since 2024-11-16
  */
 
+import { vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import StepActionButtonsV8 from '../StepActionButtonsV8';
 
 describe('StepActionButtonsV8', () => {
-	const mockOnPrevious = jest.fn();
-	const mockOnNext = jest.fn();
-	const mockOnFinal = jest.fn();
+	const mockOnPrevious = vi.fn();
+	const mockOnNext = vi.fn();
+	const mockOnFinal = vi.fn();
 
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 	});
 
 	describe('Button States', () => {

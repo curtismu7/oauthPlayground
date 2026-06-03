@@ -1,6 +1,8 @@
 // src/contexts/__tests__/NewAuthContext.enhanced.test.tsx
 // Tests for enhanced NewAuthContext with FlowContextService integration
 
+import { vi } from 'vitest';
+import type { Mocked } from 'vitest';
 import { act, render } from '@testing-library/react';
 import React from 'react';
 import '@testing-library/jest-dom';
@@ -8,20 +10,20 @@ import FlowContextUtils from '../../services/flowContextUtils';
 import { AuthProvider, useAuth } from '../NewAuthContext';
 
 // Mock FlowContextUtils
-jest.mock('../../services/flowContextUtils');
-const mockFlowContextUtils = FlowContextUtils as jest.Mocked<typeof FlowContextUtils>;
+vi.mock('../../services/flowContextUtils');
+const mockFlowContextUtils = FlowContextUtils as Mocked<typeof FlowContextUtils>;
 
 // Mock sessionStorage
 const mockSessionStorage = {
 	store: {} as Record<string, string>,
-	getItem: jest.fn((key: string) => mockSessionStorage.store[key] || null),
-	setItem: jest.fn((key: string, value: string) => {
+	getItem: vi.fn((key: string) => mockSessionStorage.store[key] || null),
+	setItem: vi.fn((key: string, value: string) => {
 		mockSessionStorage.store[key] = value;
 	}),
-	removeItem: jest.fn((key: string) => {
+	removeItem: vi.fn((key: string) => {
 		delete mockSessionStorage.store[key];
 	}),
-	clear: jest.fn(() => {
+	clear: vi.fn(() => {
 		mockSessionStorage.store = {};
 	}),
 };
@@ -67,7 +69,7 @@ const TestComponent: React.FC = () => {
 
 describe('Enhanced NewAuthContext', () => {
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 		mockSessionStorage.clear();
 
 		// Setup default mock implementations
