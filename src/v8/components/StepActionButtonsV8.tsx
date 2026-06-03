@@ -126,7 +126,14 @@ export const StepActionButtonsV8: React.FC<
 					<span className="btn-text">{finalLabel}</span>
 				</button>
 			) : (
-				<div className="next-button-wrapper">
+				<div
+					className="next-button-wrapper"
+					onMouseEnter={() => isNextDisabled && setShowTooltip(true)}
+					onMouseLeave={() => setShowTooltip(false)}
+				>
+					{/* Hover handlers live on this wrapper, not the button: a disabled
+					    button does not fire mouse events, so a tooltip bound to the
+					    button could never appear (in real browsers or userEvent). */}
 					<button
 						type="button"
 						className={`btn btn-next ${isNextDisabled ? 'disabled' : ''}`}
@@ -139,8 +146,6 @@ export const StepActionButtonsV8: React.FC<
 								? `${nextLabel} (disabled: ${nextDisabledReason || 'validation failed'})`
 								: `${nextLabel} (Arrow Right)`
 						}
-						onMouseEnter={() => isNextDisabled && setShowTooltip(true)}
-						onMouseLeave={() => setShowTooltip(false)}
 						onFocus={() => isNextDisabled && setShowTooltip(true)}
 						onBlur={() => setShowTooltip(false)}
 					>
