@@ -1,22 +1,23 @@
 // src/services/__tests__/redirectStateManager.test.ts
 // Tests for RedirectStateManager
 
+import { vi } from 'vitest';
 import RedirectStateManager, { type FlowState } from '../redirectStateManager';
 
 // Mock FlowContextService
-jest.mock('../flowContextService');
+vi.mock('../flowContextService');
 
 // Mock sessionStorage
 const mockSessionStorage = {
 	store: {} as Record<string, string>,
-	getItem: jest.fn((key: string) => mockSessionStorage.store[key] || null),
-	setItem: jest.fn((key: string, value: string) => {
+	getItem: vi.fn((key: string) => mockSessionStorage.store[key] || null),
+	setItem: vi.fn((key: string, value: string) => {
 		mockSessionStorage.store[key] = value;
 	}),
-	removeItem: jest.fn((key: string) => {
+	removeItem: vi.fn((key: string) => {
 		delete mockSessionStorage.store[key];
 	}),
-	clear: jest.fn(() => {
+	clear: vi.fn(() => {
 		mockSessionStorage.store = {};
 	}),
 };
@@ -27,7 +28,7 @@ Object.defineProperty(window, 'sessionStorage', {
 
 describe('RedirectStateManager', () => {
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 		mockSessionStorage.clear();
 	});
 

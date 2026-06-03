@@ -12,33 +12,32 @@
  * - Error normalization
  */
 
+import { vi } from 'vitest';
+import { workerTokenServiceV8 } from '../../workerTokenServiceV8';
+import { WorkerTokenStatusServiceV8 } from '../../workerTokenStatusServiceV8';
 import { TokenGatewayV8 } from '../tokenGatewayV8';
 
-// Mock dependencies
-jest.mock('../../workerTokenServiceV8', () => ({
+// Mock dependencies (hoisted by Vitest above imports)
+vi.mock('../../workerTokenServiceV8', () => ({
 	workerTokenServiceV8: {
-		loadCredentials: jest.fn(),
-		saveToken: jest.fn(),
+		loadCredentials: vi.fn(),
+		saveToken: vi.fn(),
 	},
 }));
 
-jest.mock('../../workerTokenStatusServiceV8', () => ({
+vi.mock('../../workerTokenStatusServiceV8', () => ({
 	WorkerTokenStatusServiceV8: {
-		checkWorkerTokenStatusSync: jest.fn(),
-		checkWorkerTokenStatus: jest.fn(),
+		checkWorkerTokenStatusSync: vi.fn(),
+		checkWorkerTokenStatus: vi.fn(),
 	},
 }));
 
-jest.mock('../../../../services/unifiedWorkerTokenService', () => ({
+vi.mock('../../../../services/unifiedWorkerTokenService', () => ({
 	unifiedWorkerTokenService: {
-		clearToken: jest.fn(),
-		clearCredentials: jest.fn(),
+		clearToken: vi.fn(),
+		clearCredentials: vi.fn(),
 	},
 }));
-
-// Get mocked modules
-const { workerTokenServiceV8 } = jest.requireMock('../../workerTokenServiceV8');
-const { WorkerTokenStatusServiceV8 } = jest.requireMock('../../workerTokenStatusServiceV8');
 
 describe('TokenGatewayV8', () => {
 	let gateway: TokenGatewayV8;
@@ -49,7 +48,7 @@ describe('TokenGatewayV8', () => {
 		gateway = TokenGatewayV8.getInstance();
 
 		// Reset all mocks
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 
 		// Default mock implementations
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync.mockReturnValue({
@@ -65,12 +64,12 @@ describe('TokenGatewayV8', () => {
 		});
 
 		// Mock fetch globally
-		global.fetch = jest.fn();
+		global.fetch = vi.fn();
 	});
 
 	afterEach(() => {
 		gateway.stopAutoRefresh();
-		jest.restoreAllMocks();
+		vi.restoreAllMocks();
 	});
 
 	describe('getInstance', () => {
@@ -136,7 +135,7 @@ describe('TokenGatewayV8', () => {
 				region: 'us',
 			});
 
-			(global.fetch as jest.Mock).mockResolvedValue({
+			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
 				ok: true,
 				json: () =>
 					Promise.resolve({
@@ -165,7 +164,7 @@ describe('TokenGatewayV8', () => {
 			});
 
 			let fetchCallCount = 0;
-			(global.fetch as jest.Mock).mockImplementation(async () => {
+			(global.fetch as ReturnType<typeof vi.fn>).mockImplementation(async () => {
 				fetchCallCount++;
 				// Simulate network delay
 				await new Promise((resolve) => setTimeout(resolve, 100));
@@ -203,7 +202,7 @@ describe('TokenGatewayV8', () => {
 				clientSecret: 'secret-123',
 			});
 
-			(global.fetch as jest.Mock).mockImplementation(
+			(global.fetch as ReturnType<typeof vi.fn>).mockImplementation(
 				() =>
 					new Promise((_, reject) => {
 						// Simulate abort
@@ -234,7 +233,7 @@ describe('TokenGatewayV8', () => {
 			});
 
 			let callCount = 0;
-			(global.fetch as jest.Mock).mockImplementation(async () => {
+			(global.fetch as ReturnType<typeof vi.fn>).mockImplementation(async () => {
 				callCount++;
 				if (callCount < 3) {
 					throw new Error('Network error');
@@ -268,7 +267,7 @@ describe('TokenGatewayV8', () => {
 			});
 
 			let callCount = 0;
-			(global.fetch as jest.Mock).mockImplementation(async () => {
+			(global.fetch as ReturnType<typeof vi.fn>).mockImplementation(async () => {
 				callCount++;
 				return {
 					ok: false,
@@ -292,7 +291,7 @@ describe('TokenGatewayV8', () => {
 
 	describe('subscription', () => {
 		it('should notify subscribers on status changes', async () => {
-			const callback = jest.fn();
+			const callback = vi.fn();
 
 			gateway.subscribe(callback);
 
@@ -301,7 +300,7 @@ describe('TokenGatewayV8', () => {
 		});
 
 		it('should allow unsubscribe', () => {
-			const callback = jest.fn();
+			const callback = vi.fn();
 
 			const unsubscribe = gateway.subscribe(callback);
 			expect(callback).toHaveBeenCalledTimes(1);
@@ -316,11 +315,11 @@ describe('TokenGatewayV8', () => {
 
 	describe('auto-refresh', () => {
 		beforeEach(() => {
-			jest.useFakeTimers();
+			vi.useFakeTimers();
 		});
 
 		afterEach(() => {
-			jest.useRealTimers();
+			vi.useRealTimers();
 		});
 
 		it('should start and stop auto-refresh', () => {

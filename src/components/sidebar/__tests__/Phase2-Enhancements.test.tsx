@@ -3,6 +3,7 @@
  * Tests for keyboard navigation, mobile optimization, and context menus
  */
 
+import { vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
@@ -18,7 +19,7 @@ Object.defineProperty(window, 'innerWidth', {
 Object.defineProperty(navigator, 'vibrate', {
 	writable: true,
 	configurable: true,
-	value: jest.fn(),
+	value: vi.fn(),
 });
 
 // Mock clipboard API
@@ -26,7 +27,7 @@ Object.defineProperty(navigator, 'clipboard', {
 	writable: true,
 	configurable: true,
 	value: {
-		writeText: jest.fn(),
+		writeText: vi.fn(),
 	},
 });
 
@@ -34,7 +35,7 @@ Object.defineProperty(navigator, 'clipboard', {
 Object.defineProperty(window, 'open', {
 	writable: true,
 	configurable: true,
-	value: jest.fn(),
+	value: vi.fn(),
 });
 
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
@@ -43,7 +44,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('Phase 2: Keyboard Navigation', () => {
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 	});
 
 	it('should navigate menu items with arrow keys', async () => {
@@ -71,11 +72,11 @@ describe('Phase 2: Keyboard Navigation', () => {
 	});
 
 	it('should activate menu item with Enter key', async () => {
-		const mockNavigate = jest.fn();
-		jest.mock('react-router-dom', () => ({
-			...jest.requireActual('react-router-dom'),
-			useNavigate: () => mockNavigate,
-		}));
+		const mockNavigate = vi.fn();
+		vi.mock('react-router-dom', async () => {
+			const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+			return { ...actual, useNavigate: () => mockNavigate };
+		});
 
 		render(
 			<TestWrapper>
@@ -94,11 +95,11 @@ describe('Phase 2: Keyboard Navigation', () => {
 	});
 
 	it('should activate menu item with Space key', async () => {
-		const mockNavigate = jest.fn();
-		jest.mock('react-router-dom', () => ({
-			...jest.requireActual('react-router-dom'),
-			useNavigate: () => mockNavigate,
-		}));
+		const mockNavigate = vi.fn();
+		vi.mock('react-router-dom', async () => {
+			const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+			return { ...actual, useNavigate: () => mockNavigate };
+		});
 
 		render(
 			<TestWrapper>
@@ -153,7 +154,7 @@ describe('Phase 2: Keyboard Navigation', () => {
 	});
 
 	it('should close sidebar with Escape key', async () => {
-		const mockOnClose = jest.fn();
+		const mockOnClose = vi.fn();
 		render(
 			<TestWrapper>
 				<SidebarEnhanced isOpen={true} onClose={mockOnClose} />
@@ -243,7 +244,7 @@ describe('Phase 2: Mobile Optimization', () => {
 	});
 
 	it('should handle long press for context menu', async () => {
-		jest.useFakeTimers();
+		vi.useFakeTimers();
 
 		render(
 			<TestWrapper>
@@ -259,16 +260,16 @@ describe('Phase 2: Mobile Optimization', () => {
 		});
 
 		// Advance timer by 500ms (long press threshold)
-		jest.advanceTimersByTime(500);
+		vi.advanceTimersByTime(500);
 
 		// Should trigger haptic feedback
 		expect(navigator.vibrate).toHaveBeenCalledWith(25);
 
-		jest.useRealTimers();
+		vi.useRealTimers();
 	});
 
 	it('should handle swipe left to close', async () => {
-		const mockOnClose = jest.fn();
+		const mockOnClose = vi.fn();
 
 		render(
 			<TestWrapper>

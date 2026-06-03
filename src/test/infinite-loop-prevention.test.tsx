@@ -7,18 +7,19 @@
  * Fix: Use specific credential fields instead of entire object
  */
 
+import { vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { useImplicitFlowController } from '../hooks/useImplicitFlowController';
 
 describe('Infinite Loop Prevention Tests', () => {
 	beforeEach(() => {
 		// Clear any existing timers and state
-		jest.clearAllTimers();
-		jest.useFakeTimers();
+		vi.clearAllTimers();
+		vi.useFakeTimers();
 	});
 
 	afterEach(() => {
-		jest.useRealTimers();
+		vi.useRealTimers();
 	});
 
 	describe('useImplicitFlowController useEffect Stability', () => {
@@ -42,7 +43,7 @@ describe('Infinite Loop Prevention Tests', () => {
 			let renderCount = 0;
 
 			// Mock console.error to capture infinite loop warnings
-			const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+			const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
 			const { result, rerender } = renderHook(
 				({ credentials }) => useImplicitFlowController('implicit-v9', credentials),
@@ -70,7 +71,7 @@ describe('Infinite Loop Prevention Tests', () => {
 
 			// Fast-forward timers to ensure no delayed effects
 			act(() => {
-				jest.advanceTimersByTime(1000);
+				vi.advanceTimersByTime(1000);
 			});
 
 			// Verify no infinite loop occurred (console.error should not be called with "Maximum update depth exceeded")
@@ -103,7 +104,7 @@ describe('Infinite Loop Prevention Tests', () => {
 				userInfoEndpoint: 'https://auth.pingone.com/userinfo',
 			};
 
-			const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+			const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
 			const { rerender } = renderHook(
 				({ credentials }) => useImplicitFlowController('implicit-v9', credentials),
@@ -132,7 +133,7 @@ describe('Infinite Loop Prevention Tests', () => {
 
 				// Fast-forward any timers
 				act(() => {
-					jest.advanceTimersByTime(50);
+					vi.advanceTimersByTime(50);
 				});
 			});
 
@@ -247,7 +248,7 @@ describe('Infinite Loop Prevention Tests', () => {
 				render(
 					React.createElement(FlowCredentials, {
 						flowType: 'implicit',
-						onCredentialsChange: jest.fn(),
+						onCredentialsChange: vi.fn(),
 						credentials,
 					})
 				);
