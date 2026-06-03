@@ -1,6 +1,8 @@
 // src/services/flowContextService.ts
 // Centralized Flow Context Service for managing flow state and redirects
 
+import { logger } from '../utils/logger';
+
 export interface FlowContext {
 	flowType: string;
 	flowVersion?: string;

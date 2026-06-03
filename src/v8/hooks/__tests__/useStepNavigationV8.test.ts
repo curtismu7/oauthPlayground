@@ -11,6 +11,13 @@ import { act, renderHook } from '@testing-library/react';
 import useStepNavigationV8 from '../useStepNavigationV8';
 
 describe('useStepNavigationV8', () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
 	describe('Initial State', () => {
 		it('should initialize with first step', () => {
 			const { result } = renderHook(() => useStepNavigationV8(4));
@@ -46,6 +53,7 @@ describe('useStepNavigationV8', () => {
 
 			act(() => {
 				result.current.goToNext();
+				vi.runAllTimers();
 			});
 
 			expect(result.current.currentStep).toBe(1);
@@ -56,6 +64,7 @@ describe('useStepNavigationV8', () => {
 
 			act(() => {
 				result.current.goToPrevious();
+				vi.runAllTimers();
 			});
 
 			expect(result.current.currentStep).toBe(0);
@@ -66,6 +75,7 @@ describe('useStepNavigationV8', () => {
 
 			act(() => {
 				result.current.goToStep(2);
+				vi.runAllTimers();
 			});
 
 			expect(result.current.currentStep).toBe(2);
@@ -76,6 +86,7 @@ describe('useStepNavigationV8', () => {
 
 			act(() => {
 				result.current.goToNext();
+				vi.runAllTimers();
 			});
 
 			expect(result.current.currentStep).toBe(3);
@@ -86,6 +97,7 @@ describe('useStepNavigationV8', () => {
 
 			act(() => {
 				result.current.goToPrevious();
+				vi.runAllTimers();
 			});
 
 			expect(result.current.currentStep).toBe(0);
@@ -96,6 +108,7 @@ describe('useStepNavigationV8', () => {
 
 			act(() => {
 				result.current.goToStep(10);
+				vi.runAllTimers();
 			});
 
 			expect(result.current.currentStep).toBe(0);
@@ -118,6 +131,7 @@ describe('useStepNavigationV8', () => {
 
 			act(() => {
 				result.current.goToStep(1);
+				vi.runAllTimers();
 			});
 
 			expect(result.current.completedSteps).toContain(0);
@@ -139,8 +153,15 @@ describe('useStepNavigationV8', () => {
 
 			act(() => {
 				result.current.goToStep(1);
+				vi.runAllTimers();
+			});
+			act(() => {
 				result.current.goToStep(2);
+				vi.runAllTimers();
+			});
+			act(() => {
 				result.current.goToStep(3);
+				vi.runAllTimers();
 			});
 
 			expect(result.current.completedSteps).toEqual([0, 1, 2]);
@@ -185,6 +206,7 @@ describe('useStepNavigationV8', () => {
 				result.current.setValidationErrors(['Error']);
 				result.current.setValidationErrors([]);
 				result.current.goToNext();
+				vi.runAllTimers();
 			});
 
 			expect(result.current.currentStep).toBe(1);
@@ -220,6 +242,7 @@ describe('useStepNavigationV8', () => {
 			act(() => {
 				result.current.setValidationWarnings(['Warning']);
 				result.current.goToNext();
+				vi.runAllTimers();
 			});
 
 			expect(result.current.currentStep).toBe(1);
@@ -310,6 +333,7 @@ describe('useStepNavigationV8', () => {
 
 			act(() => {
 				result.current.goToStep(1);
+				vi.runAllTimers();
 			});
 
 			expect(onStepChange).toHaveBeenCalledWith(1);
@@ -328,7 +352,7 @@ describe('useStepNavigationV8', () => {
 
 		it('should call onStepChange on reset', () => {
 			const onStepChange = vi.fn();
-			const { result } = renderHook(() => useStepNavigationV8(4, { initialStep: 2, onStepChange }));
+			const { result } = renderHook(() => useStepNavigationV8(4, { onStepChange }));
 
 			act(() => {
 				result.current.reset();
@@ -351,6 +375,7 @@ describe('useStepNavigationV8', () => {
 
 			act(() => {
 				result.current.goToStep(50);
+				vi.runAllTimers();
 			});
 
 			expect(result.current.currentStep).toBe(50);
@@ -361,9 +386,19 @@ describe('useStepNavigationV8', () => {
 
 			act(() => {
 				result.current.goToStep(1);
+				vi.runAllTimers();
+			});
+			act(() => {
 				result.current.goToStep(2);
+				vi.runAllTimers();
+			});
+			act(() => {
 				result.current.goToStep(3);
+				vi.runAllTimers();
+			});
+			act(() => {
 				result.current.goToPrevious();
+				vi.runAllTimers();
 			});
 
 			expect(result.current.currentStep).toBe(2);

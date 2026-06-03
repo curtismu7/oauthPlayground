@@ -7,16 +7,19 @@
  */
 
 import { vi } from 'vitest';
-import { v4ToastManager } from '@/utils/v4ToastMessages';
 import { toastV8 } from '../toastNotificationsV8';
 
-// Mock the v4ToastManager
-vi.mock('@/utils/v4ToastMessages', () => ({
-	v4ToastManager: {
-		showSuccess: vi.fn(),
-		showError: vi.fn(),
-		showWarning: vi.fn(),
-		showInfo: vi.fn(),
+// Mock the modernMessaging service used by toastNotificationsV8
+// Use vi.hoisted so mock fns are available before vi.mock factory runs
+const { mockShowFooterMessage, mockShowBanner } = vi.hoisted(() => ({
+	mockShowFooterMessage: vi.fn(),
+	mockShowBanner: vi.fn(),
+}));
+
+vi.mock('@/services/v9/V9ModernMessagingService', () => ({
+	modernMessaging: {
+		showFooterMessage: mockShowFooterMessage,
+		showBanner: mockShowBanner,
 	},
 }));
 
@@ -34,21 +37,21 @@ describe('ToastNotificationsV8', () => {
 		it('should show success notification', () => {
 			toastV8.success('Test success message');
 
-			expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-				'Test success message',
-				{},
-				undefined
-			);
+			expect(mockShowFooterMessage).toHaveBeenCalledWith({
+				type: 'info',
+				message: 'Test success message',
+				duration: 3000,
+			});
 		});
 
 		it('should show success notification with custom duration', () => {
 			toastV8.success('Test message', { duration: 5000 });
 
-			expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-				'Test message',
-				{},
-				{ duration: 5000 }
-			);
+			expect(mockShowFooterMessage).toHaveBeenCalledWith({
+				type: 'info',
+				message: 'Test message',
+				duration: 5000,
+			});
 		});
 
 		it('should log success message', () => {
@@ -65,7 +68,12 @@ describe('ToastNotificationsV8', () => {
 		it('should show error notification', () => {
 			toastV8.error('Test error message');
 
-			expect(v4ToastManager.showError).toHaveBeenCalledWith('Test error message');
+			expect(mockShowBanner).toHaveBeenCalledWith({
+				type: 'error',
+				title: 'Error',
+				message: 'Test error message',
+				dismissible: true,
+			});
 		});
 
 		it('should log error message', () => {
@@ -82,7 +90,12 @@ describe('ToastNotificationsV8', () => {
 		it('should show warning notification', () => {
 			toastV8.warning('Test warning message');
 
-			expect(v4ToastManager.showWarning).toHaveBeenCalledWith('Test warning message');
+			expect(mockShowBanner).toHaveBeenCalledWith({
+				type: 'warning',
+				title: 'Warning',
+				message: 'Test warning message',
+				dismissible: true,
+			});
 		});
 
 		it('should log warning message', () => {
@@ -99,7 +112,11 @@ describe('ToastNotificationsV8', () => {
 		it('should show info notification', () => {
 			toastV8.info('Test info message');
 
-			expect(v4ToastManager.showInfo).toHaveBeenCalledWith('Test info message');
+			expect(mockShowFooterMessage).toHaveBeenCalledWith({
+				type: 'info',
+				message: 'Test info message',
+				duration: 3000,
+			});
 		});
 
 		it('should log info message', () => {
@@ -117,11 +134,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show copy success notification', () => {
 				toastV8.copiedToClipboard('Authorization URL');
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'Authorization URL copied to clipboard',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Authorization URL copied to clipboard',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -129,17 +146,23 @@ describe('ToastNotificationsV8', () => {
 			it('should show validation error with single field', () => {
 				toastV8.validationError(['Client ID']);
 
-				expect(v4ToastManager.showError).toHaveBeenCalledWith(
-					'Please fill in required fields: Client ID'
-				);
+				expect(mockShowBanner).toHaveBeenCalledWith({
+					type: 'error',
+					title: 'Error',
+					message: 'Please fill in required fields: Client ID',
+					dismissible: true,
+				});
 			});
 
 			it('should show validation error with multiple fields', () => {
 				toastV8.validationError(['Client ID', 'Redirect URI', 'Scopes']);
 
-				expect(v4ToastManager.showError).toHaveBeenCalledWith(
-					'Please fill in required fields: Client ID, Redirect URI, Scopes'
-				);
+				expect(mockShowBanner).toHaveBeenCalledWith({
+					type: 'error',
+					title: 'Error',
+					message: 'Please fill in required fields: Client ID, Redirect URI, Scopes',
+					dismissible: true,
+				});
 			});
 		});
 
@@ -147,9 +170,12 @@ describe('ToastNotificationsV8', () => {
 			it('should show network error notification', () => {
 				toastV8.networkError('token exchange');
 
-				expect(v4ToastManager.showError).toHaveBeenCalledWith(
-					'Network error during token exchange. Please check your connection.'
-				);
+				expect(mockShowBanner).toHaveBeenCalledWith({
+					type: 'error',
+					title: 'Error',
+					message: 'Network error during token exchange. Please check your connection.',
+					dismissible: true,
+				});
 			});
 		});
 
@@ -157,13 +183,21 @@ describe('ToastNotificationsV8', () => {
 			it('should show step completed notification', () => {
 				toastV8.stepCompleted(1);
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith('Step 1 completed', {}, undefined);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Step 1 completed',
+					duration: 3000,
+				});
 			});
 
 			it('should show step completed for different step numbers', () => {
 				toastV8.stepCompleted(3);
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith('Step 3 completed', {}, undefined);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Step 3 completed',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -171,11 +205,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show flow completed notification with 8 second duration', () => {
 				toastV8.flowCompleted();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'🎉 OAuth Flow Complete!',
-					{},
-					{ duration: 8000 }
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: '🎉 OAuth Flow Complete!',
+					duration: 8000,
+				});
 			});
 		});
 
@@ -183,9 +217,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show processing notification', () => {
 				toastV8.processing('Exchanging authorization code for tokens');
 
-				expect(v4ToastManager.showInfo).toHaveBeenCalledWith(
-					'Exchanging authorization code for tokens...'
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Exchanging authorization code for tokens...',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -193,11 +229,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show credentials saved notification', () => {
 				toastV8.credentialsSaved();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'Credentials saved successfully',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Credentials saved successfully',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -205,11 +241,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show credentials loaded notification', () => {
 				toastV8.credentialsLoaded();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'Credentials loaded successfully',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Credentials loaded successfully',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -217,11 +253,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show PKCE generated notification', () => {
 				toastV8.pkceGenerated();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'PKCE parameters generated successfully',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'PKCE parameters generated successfully',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -229,11 +265,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show auth URL generated notification', () => {
 				toastV8.authUrlGenerated();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'Authorization URL generated successfully',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Authorization URL generated successfully',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -241,11 +277,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show token exchange success notification', () => {
 				toastV8.tokenExchangeSuccess();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'Tokens exchanged successfully',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Tokens exchanged successfully',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -253,11 +289,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show token introspection success notification', () => {
 				toastV8.tokenIntrospectionSuccess();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'Token introspection completed successfully',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Token introspection completed successfully',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -265,11 +301,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show user info fetched notification', () => {
 				toastV8.userInfoFetched();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'User information retrieved successfully',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'User information retrieved successfully',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -277,11 +313,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show app discovery success notification', () => {
 				toastV8.appDiscoverySuccess();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'Application discovered successfully',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Application discovered successfully',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -289,11 +325,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show configuration checked notification', () => {
 				toastV8.configurationChecked();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'Configuration check completed',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Configuration check completed',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -301,11 +337,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show flow reset notification', () => {
 				toastV8.flowReset();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'Flow reset. Tokens cleared, credentials preserved.',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Flow reset. Tokens cleared, credentials preserved.',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -313,9 +349,12 @@ describe('ToastNotificationsV8', () => {
 			it('should show scope required warning', () => {
 				toastV8.scopeRequired('openid');
 
-				expect(v4ToastManager.showWarning).toHaveBeenCalledWith(
-					'Added required "openid" scope for compliance'
-				);
+				expect(mockShowBanner).toHaveBeenCalledWith({
+					type: 'warning',
+					title: 'Warning',
+					message: 'Added required "openid" scope for compliance',
+					dismissible: true,
+				});
 			});
 		});
 
@@ -323,11 +362,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show discovery endpoint loaded notification', () => {
 				toastV8.discoveryEndpointLoaded();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'Discovery endpoint loaded successfully',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Discovery endpoint loaded successfully',
+					duration: 3000,
+				});
 			});
 		});
 
@@ -335,11 +374,11 @@ describe('ToastNotificationsV8', () => {
 			it('should show environment ID extracted notification', () => {
 				toastV8.environmentIdExtracted();
 
-				expect(v4ToastManager.showSuccess).toHaveBeenCalledWith(
-					'Environment ID extracted from discovery',
-					{},
-					undefined
-				);
+				expect(mockShowFooterMessage).toHaveBeenCalledWith({
+					type: 'info',
+					message: 'Environment ID extracted from discovery',
+					duration: 3000,
+				});
 			});
 		});
 	});
