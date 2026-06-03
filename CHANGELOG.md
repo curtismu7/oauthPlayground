@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Scoped the Vitest unit suite to exclude the vendored sample app (`se-ai-demo-banking-digital-assistant-main/`) and Playwright e2e specs, which were being picked up and failing.
+- Migrated 15 test files from Jest APIs to Vitest (`jest.*` → `vi.*`; `jest.Mock/Mocked/MockedFunction` → `vitest` type imports; `jest.requireActual/requireMock` → async `vi.importActual/importMock`). `jest` is undefined under Vitest, so these files were erroring on load. 4 now pass cleanly; the rest reveal pre-existing non-jest failures (missing `@testing-library/user-event` dep, moved/renamed modules, stale assertions) tracked for follow-up.
 
 ## [9.17.0] - 2026-03-12
 

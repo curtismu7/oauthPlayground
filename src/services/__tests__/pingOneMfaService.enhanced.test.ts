@@ -1,16 +1,18 @@
 // src/services/__tests__/pingOneMfaService.enhanced.test.ts
 // Tests for enhanced PingOneMfaService with QR code integration
 
+import { vi } from 'vitest';
+import type { Mocked, MockedFunction } from 'vitest';
 import PingOneMfaService, { type MfaCredentials, type MfaDevice } from '../pingOneMfaService';
 import QRCodeService from '../qrCodeService';
 
 // Mock QRCodeService
-jest.mock('../qrCodeService');
-const mockQRCodeService = QRCodeService as jest.Mocked<typeof QRCodeService>;
+vi.mock('../qrCodeService');
+const mockQRCodeService = QRCodeService as Mocked<typeof QRCodeService>;
 
 // Mock fetch
-global.fetch = jest.fn();
-const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+global.fetch = vi.fn();
+const mockFetch = global.fetch as MockedFunction<typeof fetch>;
 
 describe('Enhanced PingOneMfaService', () => {
 	const mockCredentials: MfaCredentials = {
@@ -29,7 +31,7 @@ describe('Enhanced PingOneMfaService', () => {
 	};
 
 	beforeEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 
 		// Setup QRCodeService mocks
 		mockQRCodeService.generateTOTPQRCode.mockResolvedValue({
