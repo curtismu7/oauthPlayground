@@ -25,6 +25,32 @@
       "command": "npx",
       "args": ["tsx", "fetch-mcp-server/src/index.ts"],
       "env": {}
+    },
+    "jwt-verifier": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "jwt-verifier-mcp-server/src/index.ts"],
+      "env": {}
+    },
+    "oauth-simulator": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "oauth-simulator-mcp-server/src/index.ts"],
+      "env": {}
+    },
+    "security-compliance": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "security-compliance-mcp-server/src/index.ts"],
+      "env": {}
+    },
+    "oauth-oidc": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "oauth-oidc-mcp-server/src/index.ts"],
+      "env": {
+        "MCP_LOG_DIR": "logs"
+      }
     }
   }
 }

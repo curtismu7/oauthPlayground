@@ -37,6 +37,21 @@ import fetch from 'node-fetch';
 
 dotenv.config();
 
+// Unlock secrets.vault (if present) and inject allowlisted secrets into process.env
+// BEFORE any config reads them. Best-effort: never blocks startup when the vault or
+// VAULT_PASSWORD is absent. The vault lib is CommonJS, loaded via createRequire.
+try {
+	const { createRequire } = await import('node:module');
+	const requireCjs = createRequire(import.meta.url);
+	const { loadVaultIntoEnv } = requireCjs('./lib/vault/loader.cjs');
+	const _vaultResult = await loadVaultIntoEnv();
+	if (_vaultResult.loaded) {
+		console.log(`[vault] loaded ${_vaultResult.entries} secret(s) into process.env`);
+	}
+} catch (vaultErr) {
+	console.error('[vault] load skipped:', vaultErr?.message || vaultErr);
+}
+
 // Setup file logging
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
