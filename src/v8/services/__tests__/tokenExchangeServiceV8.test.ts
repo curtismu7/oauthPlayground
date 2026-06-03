@@ -6,10 +6,23 @@ import { TokenExchangeParams } from '../../types/tokenExchangeTypesV8';
 import { TokenExchangeConfigServiceV8 } from '../tokenExchangeConfigServiceV8';
 import { TokenExchangeServiceV8 } from '../tokenExchangeServiceV8';
 
+// Mock GlobalEnvironmentService so executeTokenExchangeWithPingOne can find an environment
+vi.mock('../globalEnvironmentService', () => ({
+	GlobalEnvironmentService: {
+		getInstance: () => ({
+			getEnvironmentId: () => 'test-env-123',
+		}),
+	},
+	globalEnvironmentService: {
+		getEnvironmentId: () => 'test-env-123',
+	},
+}));
+
 describe('TokenExchangeServiceV8', () => {
 	const mockEnvironmentId = 'test-env-123';
+	// Token payload includes client_id so validateToken returns tokenType='access_token'
 	const mockSubjectToken =
-		'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjk5OTk5OTk5OTksImVudl9pZCI6InRlc3QtZW52LTEyMyJ9.mock-signature';
+		'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjk5OTk5OTk5OTksImVudl9pZCI6InRlc3QtZW52LTEyMyIsImNsaWVudF9pZCI6InRlc3QtY2xpZW50LWlkIn0=.mock-signature';
 
 	describe('exchangeToken', () => {
 		it('should fail when Token Exchange is disabled', async () => {

@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `Spinner` crashed on every render: it interpolated a `keyframes` object into an untagged inline `style` string (unsupported since styled-components v4). Removed the redundant inline style — the `SpinnerWrapper` already applies the animation via its tagged template. Fixes 7 Spinner tests.
 - `StepActionButtonsV8`: the "why is Next disabled" tooltip was bound to `onMouseEnter` on the `disabled` button, which never fires (disabled elements receive no mouse events) — so the tooltip could never appear. Moved the hover handlers to the wrapping `<div>`. Fixes the UX and 2 tests.
+- `qrCodeService` and `flowContextService` referenced a `logger` they never imported — a runtime "logger is not defined" crash on those code paths. Added the missing `import { logger } from '../utils/logger'`.
+- `useStepNavigationV8`: `markStepComplete` had a stale-closure dedup check that could drop/duplicate completed steps; moved the guard inside the `setCompletedSteps` functional updater.
+- Repaired the remaining migrated tests (`NewAuthContext`, `toastNotificationsV8`, `useStepNavigationV8`, `tokenExchangeServiceV8`, `RARIntegration`, `infinite-loop-prevention`): updated stale assertions to current behavior, added missing test setup (env/credential mocks, fake-timer flushing), and replaced ESM-incompatible `require()` + missing Router context with static imports wrapped in `MemoryRouter`. All previously-failing unit files now pass.
 - `workerTokenDiscoveryService` tests asserted the old flat/string return shape; updated them to the current `ServiceResult<T>` contract (`result.data.*` on success, `result.error.{code,message}` on failure). The cache test now verifies caching by asserting discovery runs once, not a non-existent `cached:true` flag.
 
 ### Changed

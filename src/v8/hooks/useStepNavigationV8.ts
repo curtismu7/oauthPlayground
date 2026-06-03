@@ -171,11 +171,8 @@ export const useStepNavigationV8 = (
 
 	// Mark current step as completed
 	const markStepComplete = useCallback(() => {
-		if (!completedSteps.includes(currentStep)) {
-			// Removed verbose logging
-			setCompletedSteps((prev) => [...prev, currentStep]);
-		}
-	}, [currentStep, completedSteps]);
+		setCompletedSteps((prev) => (prev.includes(currentStep) ? prev : [...prev, currentStep]));
+	}, [currentStep]);
 
 	// Set validation errors
 	const setValidationErrors = useCallback(
