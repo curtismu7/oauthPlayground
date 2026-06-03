@@ -56,7 +56,8 @@
       "Skill(update-config:*)"
     ],
     "additionalDirectories": [
-      "/tmp"
+      "/tmp",
+      "/Users/curtismuir/Development/oauthPlayground"
     ]
   }
 }
