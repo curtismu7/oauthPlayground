@@ -96,3 +96,9 @@ pingone-api.log
 *.dmg
 *.iso
 *.pkg
+
+# vault
+secrets.vault
+secrets.vault.tmp
+secrets.vault.audit.log
+secrets.vault.pre-*
