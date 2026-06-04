@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- flows2 Client Credentials flow: retrofitted onto the shared UI primitives (FieldGroup / ResultCard / JsonView / ExplanationPanel / tokens) for visual parity with the Authorization Code flow, and added a 3rd **Inspect** step — RFC 7662 introspection of the worker token (real via BFF, mock decodes locally). Verified by `clientCredentialsService.test.ts`. Plan: `docs/CLIENT_CREDENTIALS_FLOW_PLAN.md`.
 - flows2 Authorization Code + PKCE flow at `/v2/flows/authorization-code` — runs **real PingOne or mock** via a `mode` toggle, with OAuth 2.0/2.1 and OIDC toggles. ~300 LOC (vs the 1,268-LOC legacy monolith). Mock path verified end-to-end (PKCE → authorize → exchange → tokens) by `authorizationCodeService.test.ts`. Real mode uses a clean redirect round-trip via a new `/v2/flows/authz-callback` receiver (registered in PingOne).
 - 5 reusable, version-free flows2 UI primitives: `FieldGroup`, `CodeBlock`/`JsonView`, `ResultCard`, `ExplanationPanel`, and a `tokens` design-token module — so every future flow gets a consistent, decluttered UI.
 
