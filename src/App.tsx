@@ -44,6 +44,8 @@ const CleanupHistoryDashboard = lazy(() =>
 const CodeExamplesDemo = lazy(() => import('./components/CodeExamplesDemo'));
 // flows2 — clean-core rebuild (real PingOne), routed under /v2/flows/*
 const Flows2ClientCredentials = lazy(() => import('./flows2/flows/clientCredentials.flow'));
+const Flows2AuthorizationCode = lazy(() => import('./flows2/flows/authorizationCode.flow'));
+const Flows2AuthCallback = lazy(() => import('./flows2/flows/AuthCallback'));
 const CombinedTokenPage = lazy(() => import('./pages/CombinedTokenPage'));
 const CredentialSetupModal = lazy(() => import('./components/CredentialSetupModal'));
 const EnhancedFloatingLogViewer = lazy(() =>
@@ -1669,6 +1671,8 @@ const AppRoutes: React.FC = () => {
 									<Route path="/token/operations" element={<CombinedTokenPage />} />
 									{/* flows2 — clean-core rebuild (real PingOne) */}
 									<Route path="/v2/flows/client-credentials" element={<Flows2ClientCredentials />} />
+									<Route path="/v2/flows/authorization-code" element={<Flows2AuthorizationCode />} />
+									<Route path="/v2/flows/authz-callback" element={<Flows2AuthCallback />} />
 									<Route path="/flows/token-introspection" element={<TokenIntrospectionFlow />} />
 									<Route
 										path="/postman-collection-generator"
