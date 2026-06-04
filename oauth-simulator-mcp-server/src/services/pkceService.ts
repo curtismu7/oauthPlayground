@@ -22,7 +22,7 @@ export function generateVerifier(length: number = DEFAULT_VERIFIER_LENGTH): stri
   const unreserved = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
   
   let verifier = '';
-  const bytes = randomBytes(Math.ceil((length * 6) / 8)); // 6 bits per character
+  const bytes = randomBytes(length); // one byte consumed per character below
 
   for (let i = 0; i < length; i++) {
     verifier += unreserved[bytes[i] % unreserved.length];
