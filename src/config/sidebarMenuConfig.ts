@@ -180,8 +180,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 				items: items(
 					[
 						['/flows/device-authorization-v9', 'Device Authorization', true, true],
-						['/flows/client-credentials-v9', 'Client Credentials', true, true],
-						['/flows/client-credentials-standardized', '✨ Client Credentials (Standardized)', true, true],
+						['/v2/flows/client-credentials', 'Client Credentials', true, true],
 						['/flows/implicit-v9', 'Implicit Flow', true, true],
 						['/flows/jwt-bearer-token-v9', 'JWT Bearer Token', true, true],
 						['/flows/saml-bearer-assertion-v9', 'SAML Bearer Assertion', true, true],
