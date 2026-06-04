@@ -160,15 +160,15 @@ export default defineConfig(({ mode }) => {
 		],
 		server: {
 			port: 3000,
-			// Open the custom domain by default (FRONTEND_HOST is set to api.pingdemo.com by run.sh)
-			open: `https://${process.env.FRONTEND_HOST || 'api.pingdemo.com'}:3000`,
+			// Open the custom domain by default (FRONTEND_HOST is set to api.ping.demo by run.sh)
+			open: `https://${process.env.FRONTEND_HOST || 'api.ping.demo'}:3000`,
 			host: true,
 			// Use custom cert (run-config-ssl) when SSL_CERT_PATH/SSL_KEY_PATH set; else basicSsl plugin
 			...(httpsOptions && { https: httpsOptions }),
 			// In production, Vercel will handle HTTPS
 			// With custom domain + self-signed cert, browser often rejects wss:// so HMR fails.
 			// Disable HMR when using custom HTTPS cert, VITE_HMR_HOST (set by run.sh), or VITE_DISABLE_HMR,
-			// to avoid "WebSocket connection to wss://api.pingdemo.com:3000 failed" console errors.
+			// to avoid "WebSocket connection to wss://api.ping.demo:3000 failed" console errors.
 			// The app works fine without HMR; hot reload only available on localhost without custom cert.
 			hmr:
 				httpsOptions ||
@@ -181,7 +181,7 @@ export default defineConfig(({ mode }) => {
 			// Disable certificate verification for localhost development
 			proxy: {
 				'/api': {
-					target: env.BACKEND_URL || env.VITE_BACKEND_URL || 'https://api.pingdemo.com:3001',
+					target: env.BACKEND_URL || env.VITE_BACKEND_URL || 'https://api.ping.demo:3001',
 					changeOrigin: true,
 					secure: false, // Allow self-signed certificates
 					timeout: 30000, // Long enough for /api/environments (PingOne upstream can be slow)

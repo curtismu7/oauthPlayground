@@ -35,8 +35,8 @@ NC='\033[0m' # No Color
 # App starts on https://<domain>:3000 (ensure domain resolves to this host, e.g. /etc/hosts).
 FRONTEND_PORT=3000  # Vite dev server (HTTPS)
 BACKEND_PORT=3001   # Express API server (HTTPS only)
-FRONTEND_HOST="${FRONTEND_HOST:-api.pingdemo.com}"
-BACKEND_HOST="${BACKEND_HOST:-api.pingdemo.com}"
+FRONTEND_HOST="${FRONTEND_HOST:-api.ping.demo}"
+BACKEND_HOST="${BACKEND_HOST:-api.ping.demo}"
 FRONTEND_URL="https://${FRONTEND_HOST}:${FRONTEND_PORT}"
 BACKEND_URL="https://${BACKEND_HOST}:${BACKEND_PORT}"
 ASSISTANT_URL="https://${FRONTEND_HOST}:${ASSISTANT_PORT}"
@@ -498,10 +498,10 @@ load_ssl_config() {
         BACKEND_URL="https://${BACKEND_HOST}:${BACKEND_PORT}"
         ASSISTANT_URL="https://${FRONTEND_HOST}:${ASSISTANT_PORT}"
         export FRONTEND_HOST BACKEND_HOST SSL_CERT_PATH SSL_KEY_PATH BACKEND_URL ASSISTANT_URL
-        print_success "Domain: ${FRONTEND_HOST:-api.pingdemo.com}"
+        print_success "Domain: ${FRONTEND_HOST:-api.ping.demo}"
     else
-        print_warning "Could not load SSL config; using default domain ${FRONTEND_HOST:-api.pingdemo.com}"
-        ASSISTANT_URL="https://${FRONTEND_HOST:-api.pingdemo.com}:${ASSISTANT_PORT}"
+        print_warning "Could not load SSL config; using default domain ${FRONTEND_HOST:-api.ping.demo}"
+        ASSISTANT_URL="https://${FRONTEND_HOST:-api.ping.demo}:${ASSISTANT_PORT}"
         export BACKEND_URL ASSISTANT_URL
     fi
 }
@@ -512,7 +512,7 @@ ask_and_update_hosts_file() {
     [ "$QUICK_MODE" = true ] && return 0
     [ "$DEFAULT_MODE" = true ] && return 0
 
-    local domain="${FRONTEND_HOST:-api.pingdemo.com}"
+    local domain="${FRONTEND_HOST:-api.ping.demo}"
     local hosts_file=""
 
     case "$(uname -s)" in
@@ -532,6 +532,12 @@ ask_and_update_hosts_file() {
 
     if grep -qF "127.0.0.1 $domain" "$hosts_file" 2>/dev/null; then
         print_success "Hosts file already has 127.0.0.1 $domain"
+        return 0
+    fi
+
+    # Non-interactive (no TTY): never block on the prompt — skip and assume hosts is set.
+    if [ ! -t 0 ]; then
+        print_info "Non-interactive: skipping hosts-file prompt. Ensure 127.0.0.1 $domain is in $hosts_file."
         return 0
     fi
 
@@ -1228,7 +1234,7 @@ while [ $# -gt 0 ]; do
             echo "        • No user interaction required"
             echo ""
             echo "    -change-domain, --change-domain"
-            echo "        Prompt to change the custom domain (default api.pingdemo.com)."
+            echo "        Prompt to change the custom domain (default api.ping.demo)."
             echo "        Generates a new self-signed certificate for the chosen domain and saves"
             echo "        domain and cert paths in config/run-config.db for the next run."
             echo ""
@@ -1333,7 +1339,7 @@ while [ $# -gt 0 ]; do
             echo "  AI Assistant only (backend + MCP + MCP Inspector + standalone UI):"
             echo "    1. cd to the OAuth Playground directory"
             echo "    2. Run: ./run.sh -assistant"
-            echo "    3. Open: ${ASSISTANT_URL:-https://api.pingdemo.com:3002} (AI Assistant)"
+            echo "    3. Open: ${ASSISTANT_URL:-https://api.ping.demo:3002} (AI Assistant)"
             echo "    4. MCP Inspector: http://localhost:${MCP_INSPECTOR_PORT} (test PingOne MCP tools)"
             echo "    5. Logs: backend.log | mcp-server.log | mcp-inspector.log | assistant.log"
             echo ""
@@ -1341,7 +1347,7 @@ while [ $# -gt 0 ]; do
             echo "    1. cd to the OAuth Playground directory"
             echo "    2. Run: ./run.sh -both"
             echo "    3. OAuth Playground: https://localhost:3000"
-            echo "    4. AI Assistant:     ${ASSISTANT_URL:-https://api.pingdemo.com:3002}"
+            echo "    4. AI Assistant:     ${ASSISTANT_URL:-https://api.ping.demo:3002}"
             echo "    5. MCP Inspector:    http://localhost:${MCP_INSPECTOR_PORT} (test PingOne MCP tools)"
             echo "    6. Logs: backend.log | frontend.log | mcp-server.log | mcp-inspector.log | assistant.log"
             echo ""
@@ -1475,15 +1481,15 @@ start_assistant_frontend() {
         return 1
     fi
 
-    # Use api.pingdemo.com (or FRONTEND_HOST) so assistant is reachable at same domain as main app
-    export BACKEND_URL="${BACKEND_URL:-https://${BACKEND_HOST:-api.pingdemo.com}:${BACKEND_PORT}}"
+    # Use api.ping.demo (or FRONTEND_HOST) so assistant is reachable at same domain as main app
+    export BACKEND_URL="${BACKEND_URL:-https://${BACKEND_HOST:-api.ping.demo}:${BACKEND_PORT}}"
     npx vite AIAssistant --port "$ASSISTANT_PORT" --host > assistant.log 2>&1 &
     local assistant_pid=$!
     echo $assistant_pid > "$ASSISTANT_PID_FILE"
 
-    # Wait for Vite to be ready (up to 20s); check via ASSISTANT_URL (api.pingdemo.com:3002)
+    # Wait for Vite to be ready (up to 20s); check via ASSISTANT_URL (api.ping.demo:3002)
     local attempt=0
-    local assistant_check_url="${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}"
+    local assistant_check_url="${ASSISTANT_URL:-https://api.ping.demo:${ASSISTANT_PORT}}"
     print_info "Waiting for AI Assistant to be ready..."
     while [ $attempt -lt 20 ]; do
         if curl -s -k "$assistant_check_url" >/dev/null 2>&1; then
@@ -1502,7 +1508,7 @@ start_assistant_frontend() {
     echo ""
     # Vite might not respond to curl on HTTPS without certs — check process is alive
     if kill -0 "$assistant_pid" 2>/dev/null; then
-        print_success "AI Assistant started (PID: $assistant_pid) — ${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}"
+        print_success "AI Assistant started (PID: $assistant_pid) — ${ASSISTANT_URL:-https://api.ping.demo:${ASSISTANT_PORT}}"
         return 0
     fi
     print_error "AI Assistant failed to start. Check assistant.log."
@@ -1556,7 +1562,7 @@ run_assistant_mode() {
         echo -e "${CYAN}Optional extras (press Enter to skip each):${NC}"
         echo -e "  1) ${GREEN}memory-mcp${NC}  — user preferences + session context for AI clients"
         echo -n "Start an optional MCP server? [1=memory-mcp, Enter=none]: "
-        read -r mcp_extra
+        { [ -t 0 ] && read -r mcp_extra; } || mcp_extra=""
         case "${mcp_extra:-none}" in
             1) start_memory_mcp_server || print_warning "Memory MCP server failed to start — continuing without it" ;;
             *) print_info "No extra MCP server started." ;;
@@ -1578,7 +1584,7 @@ run_assistant_mode() {
     echo -e "${GREEN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Open in browser:${NC}"
     echo -e "${GREEN}║${NC}   Backend API:   ${BLUE}https://localhost:${BACKEND_PORT}${NC}"
-    echo -e "${GREEN}║${NC}   AI Assistant:  ${BLUE}${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}${NC}"
+    echo -e "${GREEN}║${NC}   AI Assistant:  ${BLUE}${ASSISTANT_URL:-https://api.ping.demo:${ASSISTANT_PORT}}${NC}"
     echo -e "${GREEN}║${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Background:${NC}"
     echo -e "${GREEN}║${NC}   PingOne MCP:  stdio → logs/mcp-server.log"
@@ -1662,7 +1668,7 @@ run_both_mode() {
         echo -e "${CYAN}Optional extras (press Enter to skip each):${NC}"
         echo -e "  1) ${GREEN}memory-mcp${NC}  — user preferences + session context for AI clients"
         echo -n "Start an optional MCP server? [1=memory-mcp, Enter=none]: "
-        read -r mcp_extra
+        { [ -t 0 ] && read -r mcp_extra; } || mcp_extra=""
         case "${mcp_extra:-none}" in
             1) start_memory_mcp_server || print_warning "Memory MCP server failed to start — continuing without it" ;;
             *) print_info "No extra MCP server started." ;;
@@ -1684,7 +1690,7 @@ run_both_mode() {
     echo -e "${GREEN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Open in browser:${NC}"
     echo -e "${GREEN}║${NC}   OAuth Playground: ${BLUE}https://localhost:${FRONTEND_PORT}${NC}"
-    echo -e "${GREEN}║${NC}   AI Assistant:     ${BLUE}${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}${NC}"
+    echo -e "${GREEN}║${NC}   AI Assistant:     ${BLUE}${ASSISTANT_URL:-https://api.ping.demo:${ASSISTANT_PORT}}${NC}"
     echo -e "${GREEN}║${NC}   Backend API:      ${BLUE}https://localhost:${BACKEND_PORT}${NC}"
     echo -e "${GREEN}║${NC}"
     echo -e "${GREEN}║${NC} ${CYAN}Background:${NC}"
@@ -1828,7 +1834,7 @@ main() {
         echo -e "${CYAN}Optional extras (press Enter to skip each):${NC}"
         echo -e "  1) ${GREEN}memory-mcp${NC}      — user preferences + session context for AI clients"
         echo -n "Start an optional MCP server? [1=memory-mcp, Enter=none]: "
-        read -r mcp_extra
+        { [ -t 0 ] && read -r mcp_extra; } || mcp_extra=""
         case "${mcp_extra:-none}" in
             1)
                 start_memory_mcp_server || print_warning "Memory MCP server failed to start — continuing without it"
@@ -2110,7 +2116,7 @@ show_url_banner() {
     echo -e "${PURPLE}║${NC}    API Docs   →  ${GREEN}${BACKEND_URL}/docs${NC}"
     echo -e "${PURPLE}║${NC}"
     echo -e "${PURPLE}║${NC}  ${CYAN}Standalone AI Assistant${NC}"
-    echo -e "${PURPLE}║${NC}    UI         →  ${GREEN}${ASSISTANT_URL:-https://api.pingdemo.com:${ASSISTANT_PORT}}${NC}"
+    echo -e "${PURPLE}║${NC}    UI         →  ${GREEN}${ASSISTANT_URL:-https://api.ping.demo:${ASSISTANT_PORT}}${NC}"
     echo -e "${PURPLE}║${NC}"
     echo -e "${PURPLE}║${NC}  ${CYAN}MCP Inspector${NC} (test PingOne MCP tools)"
     echo -e "${PURPLE}║${NC}    UI         →  ${GREEN}http://localhost:${MCP_INSPECTOR_PORT}${NC}"
@@ -2166,7 +2172,7 @@ run_mcp_only_mode() {
     echo -e "${CYAN}Optional extras:${NC}"
     echo -e "  1) ${GREEN}memory-mcp${NC}  — user preferences + session context for AI clients"
     echo -n "Start an optional MCP server? [1=memory-mcp, Enter=none]: "
-    read -r mcp_extra
+    { [ -t 0 ] && read -r mcp_extra; } || mcp_extra=""
     case "${mcp_extra:-none}" in
         1)
             start_memory_mcp_server || print_warning "Memory MCP server failed to start — continuing without it"

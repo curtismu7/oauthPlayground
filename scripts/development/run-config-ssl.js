@@ -17,7 +17,7 @@ const configDir = path.join(projectRoot, 'config');
 const certDir = path.join(projectRoot, 'certs');
 const dbPath = path.join(configDir, 'run-config.db');
 
-const DEFAULT_DOMAIN = 'api.pingdemo.com';
+const DEFAULT_DOMAIN = 'api.ping.demo';
 const PROMPT_FLAG = '--prompt';
 
 function log(...args) {
@@ -33,7 +33,10 @@ function sanitizeDomain(domain) {
 	return (domain || '').replace(/[^a-zA-Z0-9.-]/g, '_').replace(/^_+|_+$/g, '') || 'custom';
 }
 
-/** Generate self-signed cert for domain; returns { certPath, keyPath }. */
+/** Generate a cert for the domain; returns { certPath, keyPath }.
+ *  Prefers mkcert (its local CA is trusted → no browser prompts) and includes
+ *  localhost + 127.0.0.1 in the SAN. Falls back to an openssl self-signed cert
+ *  (untrusted — browser will prompt) only if mkcert is unavailable. */
 function generateCert(domain) {
 	if (!fs.existsSync(certDir)) {
 		fs.mkdirSync(certDir, { recursive: true });
@@ -41,12 +44,35 @@ function generateCert(domain) {
 	const base = sanitizeDomain(domain);
 	const keyPath = path.join(certDir, `${base}.key`);
 	const certPath = path.join(certDir, `${base}.crt`);
-	const subj = `/C=US/ST=State/L=City/O=OAuth Playground/CN=${domain}`;
+
+	// Reuse an existing valid cert if present (mkcert certs are long-lived).
+	if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+		return { certPath, keyPath };
+	}
+
+	const hasMkcert = (() => {
+		try {
+			execSync('command -v mkcert', { stdio: 'ignore' });
+			return true;
+		} catch {
+			return false;
+		}
+	})();
+
 	try {
-		execSync(
-			`openssl req -x509 -newkey rsa:4096 -keyout "${keyPath}" -out "${certPath}" -days 365 -nodes -subj "${subj}"`,
-			{ stdio: ['inherit', 'inherit', 'ignore'], cwd: projectRoot }
-		);
+		if (hasMkcert) {
+			execSync(
+				`mkcert -cert-file "${certPath}" -key-file "${keyPath}" ${domain} localhost 127.0.0.1`,
+				{ stdio: ['inherit', 'inherit', 'ignore'], cwd: projectRoot }
+			);
+		} else {
+			log('mkcert not found — falling back to an untrusted self-signed cert (browser will prompt). Install mkcert + run `mkcert -install` for trusted certs.');
+			const subj = `/C=US/ST=State/L=City/O=OAuth Playground/CN=${domain}`;
+			execSync(
+				`openssl req -x509 -newkey rsa:4096 -keyout "${keyPath}" -out "${certPath}" -days 365 -nodes -subj "${subj}"`,
+				{ stdio: ['inherit', 'inherit', 'ignore'], cwd: projectRoot }
+			);
+		}
 		return { certPath, keyPath };
 	} catch (err) {
 		log('Failed to generate certificate:', err.message);
@@ -54,9 +80,13 @@ function generateCert(domain) {
 	}
 }
 
-/** Prompt for domain (default api.pingdemo.com). */
+/** Prompt for domain (default api.ping.demo). Non-interactive (no TTY) → use the default. */
 function promptDomain() {
 	return new Promise((resolve) => {
+		if (!process.stdin.isTTY) {
+			resolve(DEFAULT_DOMAIN);
+			return;
+		}
 		const rl = createInterface({ input: process.stdin, output: process.stderr });
 		rl.question(`Custom domain [${DEFAULT_DOMAIN}]: `, (answer) => {
 			rl.close();
