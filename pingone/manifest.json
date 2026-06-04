@@ -1,0 +1,107 @@
+{
+  "$comment": "Declarative source of truth for the PingOne entities oauthPlayground needs. A bootstrap script provisions exactly this against a user's environment (idempotent, lookup-by-name). Client IDs/secrets are NOT stored here — they are written to .env after creation. Mirrors the pattern of AI-Demo's scope-topology.json + pingoneProvisionService.js.",
+  "version": 1,
+  "environment": {
+    "idEnvKey": "VITE_PINGONE_ENVIRONMENT_ID",
+    "regionEnvKey": "VITE_PINGONE_REGION",
+    "regionDefault": "com"
+  },
+  "hosts": [
+    "https://localhost:3000",
+    "https://api.ping.demo:3000"
+  ],
+  "resources": [
+    {
+      "name": "OAuth Playground API",
+      "description": "Demo resource server so the playground can show scoped access tokens, introspection, and token exchange against a real audience.",
+      "audience": "oauthplayground.api",
+      "scopes": [
+        { "name": "read", "description": "Read access (demo scope)" },
+        { "name": "write", "description": "Write access (demo scope)" }
+      ]
+    }
+  ],
+  "apps": [
+    {
+      "key": "user",
+      "name": "OAuth Playground — User App",
+      "description": "User-facing confidential web app exercising the interactive grants (authorization code + PKCE, refresh, device, CIBA, token exchange).",
+      "type": "WEB_APP",
+      "protocol": "OPENID_CONNECT",
+      "grantTypes": [
+        "authorization_code",
+        "refresh_token",
+        "urn:ietf:params:oauth:grant-type:device_code",
+        "urn:ietf:params:oauth:grant-type:token-exchange",
+        "urn:openid:params:oauth:grant-type:ciba"
+      ],
+      "responseTypes": ["CODE"],
+      "tokenEndpointAuthMethod": "CLIENT_SECRET_POST",
+      "pkceEnforcement": "S256_REQUIRED",
+      "refreshToken": { "rotating": true, "reuseTokens": false },
+      "redirectUriPaths": [
+        "/v2/flows/authz-callback",
+        "/authz-callback",
+        "/callback",
+        "/pingone-callback",
+        "/dashboard-callback",
+        "/worker-token-callback"
+      ],
+      "postLogoutRedirectUriPaths": ["/", "/logout"],
+      "grantedScopes": {
+        "OAuth Playground API": ["read", "write"]
+      },
+      "oidcScopes": ["openid", "profile", "email"],
+      "envKeys": {
+        "id": "VITE_PINGONE_USER_CLIENT_ID",
+        "secret": "VITE_PINGONE_USER_CLIENT_SECRET"
+      }
+    },
+    {
+      "key": "spa",
+      "name": "OAuth Playground — SPA (public, PKCE no secret)",
+      "description": "Optional public single-page-app client for demonstrating PKCE without a client secret (token_endpoint_auth_method NONE). Same callbacks as the user app.",
+      "type": "SINGLE_PAGE_APP",
+      "protocol": "OPENID_CONNECT",
+      "grantTypes": ["authorization_code", "refresh_token"],
+      "responseTypes": ["CODE"],
+      "tokenEndpointAuthMethod": "NONE",
+      "pkceEnforcement": "S256_REQUIRED",
+      "redirectUriPaths": ["/v2/flows/authz-callback", "/authz-callback", "/callback"],
+      "grantedScopes": { "OAuth Playground API": ["read"] },
+      "oidcScopes": ["openid", "profile", "email"],
+      "optional": true,
+      "envKeys": {
+        "id": "VITE_PINGONE_SPA_CLIENT_ID",
+        "secret": null
+      }
+    },
+    {
+      "key": "worker",
+      "name": "OAuth Playground — Worker App",
+      "description": "Worker app for the Client Credentials / Worker-Token flow AND the bootstrap's own Management-API calls. Uses client_secret_basic. Authorizes via assigned ROLES, not scope grants.",
+      "type": "WORKER",
+      "grantTypes": ["client_credentials"],
+      "tokenEndpointAuthMethod": "CLIENT_SECRET_BASIC",
+      "roles": ["Identity Data Admin"],
+      "envKeys": {
+        "id": "VITE_PINGONE_WORKER_CLIENT_ID",
+        "secret": "VITE_PINGONE_WORKER_CLIENT_SECRET"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "demoUser",
+      "name": { "given": "Demo", "family": "User" },
+      "email": "demoUser@oauthplayground.local",
+      "passwordEnvKey": "DEMO_USER_PASSWORD"
+    }
+  ],
+  "notes": [
+    "redirectUris are the cross product of hosts × redirectUriPaths (localhost:3000 + api.ping.demo:3000).",
+    "PingOne may reject some grant combos on a single app; the bootstrap should create per the manifest and report per-app which grants applied, splitting into extra apps only if validation fails.",
+    "Implicit / Hybrid / ROPC are deliberately omitted from the default user app (deprecated in OAuth 2.1). Add a separate 'legacy' app entry if those flows must run against real PingOne.",
+    "WORKER apps cannot hold scope grants — they authorize via assigned admin roles (set in the PingOne console or via role-assignment API)."
+  ]
+}
