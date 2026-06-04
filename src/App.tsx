@@ -222,7 +222,6 @@ const RARFlowV9 = lazy(() => import('./pages/flows/v9/RARFlowV9'));
 const ResourcesAPIFlowV9 = lazy(() => import('./pages/flows/v9/ResourcesAPIFlowV9'));
 const SAMLBearerAssertionFlowV9 = lazy(() => import('./pages/flows/v9/SAMLBearerAssertionFlowV9'));
 const TokenExchangeFlowV9 = lazy(() => import('./pages/flows/v9/TokenExchangeFlowV9'));
-const WorkerTokenFlowV9 = lazy(() => import('./pages/flows/v9/WorkerTokenFlowV9'));
 // import InteractiveTutorials from './pages/InteractiveTutorials'; // Removed - unused tutorial feature
 const JWKSTroubleshooting = lazy(() => import('./pages/JWKSTroubleshooting'));
 const ResponseModesLearnPage = lazy(() => import('./pages/learn/ResponseModesLearnPage'));
@@ -382,8 +381,6 @@ const V7MDeviceAuthorizationV9 = lazy(() => import('./pages/flows/v9/V7MDeviceAu
 const DeviceAuthorizationVerifyPage = lazy(
 	() => import('./pages/flows/v9/DeviceAuthorizationVerifyPage')
 );
-const V7MClientCredentialsV9 = lazy(() => import('./pages/flows/v9/V7MClientCredentialsV9'));
-const ClientCredentialsV9 = lazy(() => import('./pages/flows/v9/ClientCredentialsV9'));
 const V7MImplicitFlowV9 = lazy(() => import('./pages/flows/v9/V7MImplicitFlowV9'));
 const V7MROPCV9 = lazy(() => import('./pages/flows/v9/V7MROPCV9'));
 const V7MSettingsV9 = lazy(() => import('./v7/pages/V7MSettingsV9'));
@@ -1408,7 +1405,7 @@ const AppRoutes: React.FC = () => {
 										element={<Navigate to="/flows/worker-token-v9" replace />}
 									/>
 									{/* V9 Worker Token Flow */}
-									<Route path="/flows/worker-token-v9" element={<WorkerTokenFlowV9 />} />
+									<Route path="/flows/worker-token-v9" element={<Navigate to="/v2/flows/client-credentials" replace />} />
 									{/* Legacy V6 routes - redirect to V9 */}
 									<Route
 										path="/flows/worker-token-v6"
@@ -1419,21 +1416,14 @@ const AppRoutes: React.FC = () => {
 										path="/flows/client-credentials-v7"
 										element={<Navigate to="/v8u/unified" replace />}
 									/>
+									{/* Legacy mock client-credentials flows consolidated into flows2 */}
 									<Route
 										path="/flows/client-credentials-v9"
-										element={
-											<Suspense fallback={<div>Loading...</div>}>
-												<V7MClientCredentialsV9 />
-											</Suspense>
-										}
+										element={<Navigate to="/v2/flows/client-credentials" replace />}
 									/>
 									<Route
 										path="/flows/client-credentials-standardized"
-										element={
-											<Suspense fallback={<div>Loading...</div>}>
-												<ClientCredentialsV9 />
-											</Suspense>
-										}
+										element={<Navigate to="/v2/flows/client-credentials" replace />}
 									/>
 									<Route
 										path="/flows/client-credentials-v6"
