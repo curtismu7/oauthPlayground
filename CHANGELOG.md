@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 5 reusable, version-free flows2 UI primitives: `FieldGroup`, `CodeBlock`/`JsonView`, `ResultCard`, `ExplanationPanel`, and a `tokens` design-token module — so every future flow gets a consistent, decluttered UI.
 
 ### Removed
+- Consolidated Client Credentials: deleted the 3 legacy variants — `ClientCredentialsV9`, `V7MClientCredentialsV9` (mock), and `WorkerTokenFlowV9` (real, 705 LOC) — ~1,748 LOC. Their routes (`/flows/client-credentials-v9`, `/flows/client-credentials-standardized`, `/flows/worker-token-v9`) now redirect to the single flows2 flow at `/v2/flows/client-credentials`, which reached parity (real+mock, introspection, discovery, scopes, RFC 8707).
 - Deleted dead `src/locked/` (519 files of stale feature-branch snapshots — 0 imports from live code) and unused `src/v7m/` (orphaned route module). Verified no static or dynamic references; `npm run build` exits 0. `src/v7/` is retained (it's a live shared component library imported by 17 V9 flow pages).
 
 ### Fixed
