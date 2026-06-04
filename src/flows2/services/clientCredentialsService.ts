@@ -8,7 +8,20 @@ import type { FlowCredentials, FlowMode, TokenResult } from '../framework/types'
 
 export interface ClientCredentialsParams {
 	credentials: FlowCredentials;
+	/** RFC 8707 resource indicator(s) — narrow the token to a target. */
+	audience?: string;
+	resource?: string;
 }
+
+function pingoneHost(region?: string): string {
+	const r = (region || 'com').toLowerCase().trim();
+	if (r === 'eu') return 'auth.pingone.eu';
+	if (r === 'ca') return 'auth.pingone.ca';
+	if (r === 'ap' || r === 'asia') return 'auth.pingone.asia';
+	return 'auth.pingone.com';
+}
+
+const DEFAULT_WORKER_SCOPES = ['p1:read:user', 'p1:update:user', 'p1:read:device', 'p1:update:device'];
 
 /** Decode a JWT payload without verification (for the mock introspection view). */
 function decodeJwtPayload(token?: string): Record<string, unknown> | null {
@@ -23,9 +36,14 @@ function decodeJwtPayload(token?: string): Record<string, unknown> | null {
 }
 
 /** Build the url-encoded token-request body the BFF forwards verbatim to PingOne. */
-function buildBody(creds: FlowCredentials): { body: string; headers?: Record<string, string> } {
+function buildBody(
+	creds: FlowCredentials,
+	opts?: { audience?: string; resource?: string }
+): { body: string; headers?: Record<string, string> } {
 	const params = new URLSearchParams({ grant_type: 'client_credentials' });
 	if (creds.scope && creds.scope.trim()) params.set('scope', creds.scope.trim());
+	if (opts?.audience && opts.audience.trim()) params.set('audience', opts.audience.trim());
+	if (opts?.resource && opts.resource.trim()) params.set('resource', opts.resource.trim());
 
 	const method = creds.authMethod ?? 'client_secret_post';
 	if (method === 'client_secret_basic') {
@@ -86,9 +104,25 @@ async function introspect(
 	return (await res.json().catch(() => ({}))) as Record<string, unknown>;
 }
 
+/** Discover the scopes a worker app may request. real → OIDC discovery; mock → PingOne defaults. */
+async function discover(credentials: FlowCredentials, mode: FlowMode): Promise<string[]> {
+	if (mode === 'mock') return DEFAULT_WORKER_SCOPES;
+	const issuerUrl = `https://${pingoneHost(credentials.region)}/${credentials.environmentId}/as`;
+	const res = await fetch('/api/pingone/oidc-discovery', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ issuerUrl }),
+	});
+	const data = (await res.json().catch(() => ({}))) as { scopes_supported?: unknown };
+	return Array.isArray(data.scopes_supported)
+		? (data.scopes_supported as string[]).filter((s) => typeof s === 'string')
+		: [];
+}
+
 export const clientCredentialsService = {
 	introspect,
-	async run({ credentials }: ClientCredentialsParams, mode: FlowMode): Promise<TokenResult> {
+	discover,
+	async run({ credentials, audience, resource }: ClientCredentialsParams, mode: FlowMode): Promise<TokenResult> {
 		if (mode === 'mock') {
 			const now = Math.floor(Date.now() / 1000);
 			const fakeClaims = {
@@ -112,7 +146,7 @@ export const clientCredentialsService = {
 			return toTokenResult(data);
 		}
 
-		const { body, headers } = buildBody(credentials);
+		const { body, headers } = buildBody(credentials, { audience, resource });
 		const res = await fetch('/api/pingone/token', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
