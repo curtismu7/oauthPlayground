@@ -74,6 +74,23 @@ const Action = styled.button`
 	}
 `;
 
+const Chip = styled.button<{ $on: boolean }>`
+	font-size: 0.74rem;
+	font-weight: 600;
+	padding: 0.22rem 0.6rem;
+	border-radius: 999px;
+	cursor: pointer;
+	border: 1px solid ${({ $on }) => ($on ? tokens.color.primary : tokens.color.border)};
+	background: ${({ $on }) => ($on ? tokens.color.primarySubtle : '#fff')};
+	color: ${({ $on }) => ($on ? tokens.color.primary : tokens.color.textMuted)};
+`;
+
+const Hint = styled.div`
+	font-size: 0.78rem;
+	color: ${tokens.color.textMuted};
+	margin-bottom: 0.3rem;
+`;
+
 const ClientCredentialsFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
@@ -86,6 +103,9 @@ const ClientCredentialsFlow: React.FC = () => {
 		// PingOne worker apps default to Basic auth at the token endpoint.
 		authMethod: 'client_secret_basic',
 	});
+	const [audience, setAudience] = useState('');
+	const [resource, setResource] = useState('');
+	const [discoveredScopes, setDiscoveredScopes] = useState<string[]>([]);
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
@@ -94,13 +114,24 @@ const ClientCredentialsFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
+	const discover = useCallback(async () => {
+		setDiscoveredScopes(await clientCredentialsService.discover(creds, mode));
+	}, [creds, mode]);
+
+	const toggleScope = (scope: string) =>
+		setCreds((c) => {
+			const have = (c.scope || '').split(/\s+/).filter(Boolean);
+			const next = have.includes(scope) ? have.filter((s) => s !== scope) : [...have, scope];
+			return { ...c, scope: next.join(' ') };
+		});
+
 	const run = useCallback(async () => {
 		setLoading(true);
 		setError(null);
 		setResult(null);
 		setIntrospectData(null);
 		try {
-			const r = await clientCredentialsService.run({ credentials: creds }, mode);
+			const r = await clientCredentialsService.run({ credentials: creds, audience, resource }, mode);
 			setResult(r);
 			engine.markComplete('request');
 		} catch (err) {
@@ -108,7 +139,7 @@ const ClientCredentialsFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, mode, engine]);
+	}, [creds, audience, resource, mode, engine]);
 
 	const inspect = useCallback(async () => {
 		if (!result?.accessToken) return;
@@ -157,7 +188,20 @@ const ClientCredentialsFlow: React.FC = () => {
 						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} placeholder="worker client id" />
 						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} placeholder="worker client secret" />
 						<FieldGroup label="Scope (optional)" value={creds.scope ?? ''} onChange={set('scope')} placeholder="e.g. p1:read:user" />
+						<FieldGroup label="Audience (optional, RFC 8707)" value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="target resource" />
+						<FieldGroup label="Resource (optional, RFC 8707)" value={resource} onChange={(e) => setResource(e.target.value)} placeholder="resource URI" />
 					</Grid>
+					<div>
+						<Hint>Discover the scopes this environment advertises, then click to add them:</Hint>
+						<Toggle>
+							<Pill $active={false} onClick={discover}>Discover scopes</Pill>
+							{discoveredScopes.map((s) => (
+								<Chip key={s} $on={(creds.scope || '').split(/\s+/).includes(s)} onClick={() => toggleScope(s)}>
+									{s}
+								</Chip>
+							))}
+						</Toggle>
+					</div>
 					<ExplanationPanel title="When to use Client Credentials">
 						The client authenticates as itself — there is no user and no redirect. Use it for
 						service-to-service / machine-to-machine calls. (User identity and delegation belong to
