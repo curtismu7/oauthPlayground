@@ -26,10 +26,17 @@ import {
   handleJwtInspectKey,
 } from "./actions/jwksTools.js";
 
-const server = new Server({
-  name: "jwt-verifier-mcp-server",
-  version: "1.0.0",
-});
+const server = new Server(
+  {
+    name: "jwt-verifier-mcp-server",
+    version: "1.0.0",
+  },
+  {
+    // Declaring the tools capability is required before registering
+    // tools/list + tools/call handlers, or the SDK throws on startup.
+    capabilities: { tools: {} },
+  },
+);
 
 // Tool registry
 const tools = [
