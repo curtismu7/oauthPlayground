@@ -179,7 +179,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 				label: 'OAuth 2.0',
 				items: items(
 					[
-						['/flows/device-authorization-v9', 'Device Authorization', true, true],
+						['/v2/flows/device-authorization', 'Device Authorization', true, true],
 						['/v2/flows/client-credentials', 'Client Credentials', true, true],
 						['/flows/implicit-v9', 'Implicit Flow', true, true],
 						['/flows/jwt-bearer-token-v9', 'JWT Bearer Token', true, true],
