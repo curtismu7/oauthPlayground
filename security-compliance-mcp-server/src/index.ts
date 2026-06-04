@@ -16,10 +16,17 @@ import { generateComplianceReport } from './actions/reporter.js';
 import { logger } from './services/logger.js';
 import { handleError } from './services/mcpErrors.js';
 
-const server = new Server({
-  name: 'security-compliance-mcp-server',
-  version: '1.0.0',
-});
+const server = new Server(
+  {
+    name: 'security-compliance-mcp-server',
+    version: '1.0.0',
+  },
+  {
+    // tools capability must be declared before registering tools/list +
+    // tools/call handlers, or the SDK throws on startup.
+    capabilities: { tools: {} },
+  },
+);
 
 // Define all 6 tools
 const tools: Tool[] = [
