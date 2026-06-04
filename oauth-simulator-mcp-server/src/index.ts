@@ -41,7 +41,9 @@ class OAuthSimulatorServer {
         version: '1.0.0',
       },
       {
-        capabilities: {},
+        // tools capability must be declared before registering tools/list +
+        // tools/call handlers, or the SDK throws on startup.
+        capabilities: { tools: {} },
       }
     );
 
