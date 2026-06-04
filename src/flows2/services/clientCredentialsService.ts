@@ -4,10 +4,22 @@
 // real mode → POST the BFF /api/pingone/token proxy (server forwards to PingOne).
 // mock mode → return a deterministic fake token (no network), for offline teaching.
 
-import type { FlowCredentials, OAuthFlowService, TokenResult } from '../framework/types';
+import type { FlowCredentials, FlowMode, TokenResult } from '../framework/types';
 
 export interface ClientCredentialsParams {
 	credentials: FlowCredentials;
+}
+
+/** Decode a JWT payload without verification (for the mock introspection view). */
+function decodeJwtPayload(token?: string): Record<string, unknown> | null {
+	if (!token) return null;
+	const parts = token.split('.');
+	if (parts.length < 2) return null;
+	try {
+		return JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))) as Record<string, unknown>;
+	} catch {
+		return null;
+	}
 }
 
 /** Build the url-encoded token-request body the BFF forwards verbatim to PingOne. */
@@ -36,8 +48,47 @@ function toTokenResult(data: Record<string, unknown>): TokenResult {
 	};
 }
 
-export const clientCredentialsService: OAuthFlowService<ClientCredentialsParams, TokenResult> = {
-	async run({ credentials }, mode) {
+/** RFC 7662 introspection of the worker access token. mock → decode locally; real → BFF. */
+async function introspect(
+	accessToken: string,
+	credentials: FlowCredentials,
+	mode: FlowMode
+): Promise<Record<string, unknown>> {
+	if (mode === 'mock') {
+		const claims = decodeJwtPayload(accessToken) || {};
+		const now = Math.floor(Date.now() / 1000);
+		const exp = typeof claims.exp === 'number' ? claims.exp : now + 3600;
+		return {
+			active: exp > now,
+			scope: claims.scope,
+			client_id: claims.sub,
+			token_type: 'Bearer',
+			exp,
+			iat: claims.iat,
+			sub: claims.sub,
+			aud: claims.aud,
+			iss: claims.iss,
+			_mock: true,
+		};
+	}
+	const res = await fetch('/api/introspect-token', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			environment_id: credentials.environmentId,
+			region: credentials.region,
+			token: accessToken,
+			client_id: credentials.clientId,
+			client_secret: credentials.clientSecret,
+			auth_method: credentials.authMethod ?? 'client_secret_post',
+		}),
+	});
+	return (await res.json().catch(() => ({}))) as Record<string, unknown>;
+}
+
+export const clientCredentialsService = {
+	introspect,
+	async run({ credentials }: ClientCredentialsParams, mode: FlowMode): Promise<TokenResult> {
 		if (mode === 'mock') {
 			const now = Math.floor(Date.now() / 1000);
 			const fakeClaims = {
