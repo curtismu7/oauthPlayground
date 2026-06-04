@@ -102,3 +102,4 @@ secrets.vault
 secrets.vault.tmp
 secrets.vault.audit.log
 secrets.vault.pre-*
+.certs/
