@@ -252,7 +252,9 @@ export function registerWorkerTools(server: McpServer, logger: Logger) {
 		{
 			description: 'Get a single PingOne application by ID (worker token or client credentials).',
 			inputSchema: getAppInputShape,
-			outputSchema: getAppOutputSchema,
+			// registerTool expects a ZodRawShape, not a ZodObject — pass .shape
+			// (getAppOutputSchema stays a ZodObject for .parse below).
+			outputSchema: getAppOutputSchema.shape,
 		},
 		async (args) => {
 			logger.info('Getting PingOne application', {
@@ -293,7 +295,8 @@ export function registerWorkerTools(server: McpServer, logger: Logger) {
 		{
 			description: 'Get resource (scopes) configuration for a PingOne application. Uses worker token or client credentials.',
 			inputSchema: getAppResourcesInputShape,
-			outputSchema: getAppResourcesOutputSchema,
+			// registerTool expects a ZodRawShape, not a ZodObject — pass .shape.
+			outputSchema: getAppResourcesOutputSchema.shape,
 		},
 		async (args) => {
 			logger.info('Getting application resources', {
