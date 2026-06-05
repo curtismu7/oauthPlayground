@@ -61,7 +61,9 @@ export async function checkUsernamePassword(
 		});
 
 		const data = response.data as Record<string, unknown> | undefined;
-		if (!response.ok) {
+		// axios responses have no `.ok` (that's fetch); with validateStatus:()=>true
+		// every status resolves, so check the status range explicitly.
+		if (response.status < 200 || response.status >= 300) {
 			return {
 				success: false,
 				response: data,
