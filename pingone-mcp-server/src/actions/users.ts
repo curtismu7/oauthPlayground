@@ -457,7 +457,7 @@ export function registerUserTools(server: McpServer, logger: Logger): void {
 					: `Failed to create user: ${result.error?.message ?? 'Unknown error'}`;
 				return {
 					content: [{ type: 'text' as const, text }],
-					structuredContent: result as Record<string, unknown>,
+					structuredContent: result as unknown as Record<string, unknown>,
 				};
 			} catch (error) {
 				logger.error('MCP.CreateUser – failed', { error });
@@ -490,7 +490,7 @@ export function registerUserTools(server: McpServer, logger: Logger): void {
 					: `Failed to update user: ${result.error?.message ?? 'Unknown error'}`;
 				return {
 					content: [{ type: 'text' as const, text }],
-					structuredContent: result as Record<string, unknown>,
+					structuredContent: result as unknown as Record<string, unknown>,
 				};
 			} catch (error) {
 				logger.error('MCP.UpdateUser – failed', { error });
@@ -522,7 +522,7 @@ export function registerUserTools(server: McpServer, logger: Logger): void {
 					: `Failed to delete user: ${result.error?.message ?? 'Unknown error'}`;
 				return {
 					content: [{ type: 'text' as const, text }],
-					structuredContent: result as Record<string, unknown>,
+					structuredContent: result as unknown as Record<string, unknown>,
 				};
 			} catch (error) {
 				logger.error('MCP.DeleteUser – failed', { error });
@@ -565,7 +565,7 @@ export function registerUserTools(server: McpServer, logger: Logger): void {
 					: `Failed to add user to group: ${result.error?.message ?? 'Unknown error'}`;
 				return {
 					content: [{ type: 'text' as const, text }],
-					structuredContent: result as Record<string, unknown>,
+					structuredContent: result as unknown as Record<string, unknown>,
 				};
 			} catch (error) {
 				logger.error('MCP.AddUserToGroup – failed', { error });
@@ -594,7 +594,7 @@ export function registerUserTools(server: McpServer, logger: Logger): void {
 					: `Failed to remove user from group: ${result.error?.message ?? 'Unknown error'}`;
 				return {
 					content: [{ type: 'text' as const, text }],
-					structuredContent: result as Record<string, unknown>,
+					structuredContent: result as unknown as Record<string, unknown>,
 				};
 			} catch (error) {
 				logger.error('MCP.RemoveUserFromGroup – failed', { error });
