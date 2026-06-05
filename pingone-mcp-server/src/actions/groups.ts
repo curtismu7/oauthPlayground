@@ -83,11 +83,11 @@ export function registerGroupTools(server: McpServer, logger: Logger) {
 							? [{ type: 'text' as const, text: JSON.stringify(result.groups, null, 2) }]
 							: []),
 					],
-					structuredContent: result as Record<string, unknown>,
+					structuredContent: result as unknown as Record<string, unknown>,
 				};
 			} catch (error) {
 				logger.error('MCP.ListGroups – failed', { error });
-				return buildToolErrorResult(error, 'PingOne list groups');
+				return buildToolErrorResult('PingOne list groups', error);
 			}
 		}
 	);
@@ -117,11 +117,11 @@ export function registerGroupTools(server: McpServer, logger: Logger) {
 								: `Failed: ${result.error?.message}`,
 						},
 					],
-					structuredContent: result as Record<string, unknown>,
+					structuredContent: result as unknown as Record<string, unknown>,
 				};
 			} catch (error) {
 				logger.error('MCP.GetGroup – failed', { error });
-				return buildToolErrorResult(error, 'PingOne get group');
+				return buildToolErrorResult('PingOne get group', error);
 			}
 		}
 	);
@@ -153,11 +153,11 @@ export function registerGroupTools(server: McpServer, logger: Logger) {
 								: `Failed: ${result.error?.message}`,
 						},
 					],
-					structuredContent: result as Record<string, unknown>,
+					structuredContent: result as unknown as Record<string, unknown>,
 				};
 			} catch (error) {
 				logger.error('MCP.CreateGroup – failed', { error });
-				return buildToolErrorResult(error, 'PingOne create group');
+				return buildToolErrorResult('PingOne create group', error);
 			}
 		}
 	);
@@ -190,11 +190,11 @@ export function registerGroupTools(server: McpServer, logger: Logger) {
 								: `Failed: ${result.error?.message}`,
 						},
 					],
-					structuredContent: result as Record<string, unknown>,
+					structuredContent: result as unknown as Record<string, unknown>,
 				};
 			} catch (error) {
 				logger.error('MCP.UpdateGroup – failed', { error });
-				return buildToolErrorResult(error, 'PingOne update group');
+				return buildToolErrorResult('PingOne update group', error);
 			}
 		}
 	);
@@ -224,11 +224,11 @@ export function registerGroupTools(server: McpServer, logger: Logger) {
 								: `Failed: ${result.error?.message}`,
 						},
 					],
-					structuredContent: result as Record<string, unknown>,
+					structuredContent: result as unknown as Record<string, unknown>,
 				};
 			} catch (error) {
 				logger.error('MCP.DeleteGroup – failed', { error });
-				return buildToolErrorResult(error, 'PingOne delete group');
+				return buildToolErrorResult('PingOne delete group', error);
 			}
 		}
 	);
