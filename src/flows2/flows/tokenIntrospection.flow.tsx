@@ -5,7 +5,7 @@
 // answer, unlike a local JWT decode (which cannot see revocation and fails on opaque
 // tokens). Uses the shared flows2 primitives for visual parity with the other flows.
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowStep } from '../framework/FlowStep';
@@ -22,6 +22,7 @@ import type {
 	FlowMode,
 	StepDefinition,
 } from '../framework/types';
+import { decodeJwtPayload } from '../services/pingone';
 import {
 	introspectionEndpointFor,
 	tokenIntrospectionService as svc,
@@ -97,7 +98,7 @@ const TokenIntrospectionFlow: React.FC = () => {
 		authMethod: 'client_secret_post',
 	});
 	const [token, setToken] = useState('');
-	const [hint, setHint] = useState<TokenTypeHint | ''>('');
+	const [hint, setHint] = useState<TokenTypeHint | undefined>(undefined);
 	const [result, setResult] = useState<IntrospectionResponse | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
@@ -110,10 +111,7 @@ const TokenIntrospectionFlow: React.FC = () => {
 		setError(null);
 		setResult(null);
 		try {
-			const r = await svc.run(
-				{ credentials: creds, token, tokenTypeHint: hint || undefined },
-				mode
-			);
+			const r = await svc.run({ credentials: creds, token, tokenTypeHint: hint }, mode);
 			setResult(r);
 			engine.markComplete('introspect');
 		} catch (err) {
@@ -124,7 +122,7 @@ const TokenIntrospectionFlow: React.FC = () => {
 	}, [creds, token, hint, mode, engine]);
 
 	const configured = Boolean(creds.environmentId && creds.clientId && token);
-	const localClaims = token ? svc.decodeLocally(token) : null;
+	const localClaims = useMemo(() => (token ? decodeJwtPayload(token) : null), [token]);
 	const cur = engine.current.id;
 
 	return (
@@ -173,7 +171,7 @@ const TokenIntrospectionFlow: React.FC = () => {
 						placeholder="paste an access or refresh token (e.g. from the Authorization Code flow)"
 					/>
 					<Toggle>
-						{([['', 'no hint'], ['access_token', 'access_token'], ['refresh_token', 'refresh_token']] as const).map(([v, label]) => (
+						{([[undefined, 'no hint'], ['access_token', 'access_token'], ['refresh_token', 'refresh_token']] as const).map(([v, label]) => (
 							<Pill key={label} $active={hint === v} onClick={() => setHint(v)}>
 								{label}
 							</Pill>
@@ -230,16 +228,13 @@ const TokenIntrospectionFlow: React.FC = () => {
 							<JsonView data={result} />
 						</ResultCard>
 					)}
-					{localClaims ? (
-						<ResultCard title="Local decode (NOT authoritative)" tone="info">
+					<ResultCard title="Local decode (NOT authoritative)" tone="info">
+						{localClaims ? (
 							<JsonView data={localClaims} />
-						</ResultCard>
-					) : (
-						<ResultCard title="Local decode (NOT authoritative)" tone="info">
-							This token is opaque (or not a JWT) — there is nothing to decode locally.
-							Introspection is the only way to learn its state.
-						</ResultCard>
-					)}
+						) : (
+							'This token is opaque (or not a JWT) — there is nothing to decode locally. Introspection is the only way to learn its state.'
+						)}
+					</ResultCard>
 					<ExplanationPanel title="Why both exist">
 						JWT validation (signature + exp, offline) scales — no network hop per request — but a token
 						stays "valid" until it expires even if it was revoked. Introspection trades a network call
