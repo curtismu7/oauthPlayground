@@ -7,6 +7,7 @@
 //             the active/claims semantics offline.
 
 import type { FlowCredentials, FlowMode } from '../framework/types';
+import { decodeJwtPayload, pingoneHost } from './pingone';
 
 /** RFC 7662 §2.1 token_type_hint values PingOne accepts. */
 export type TokenTypeHint = 'access_token' | 'refresh_token';
@@ -25,20 +26,9 @@ export interface IntrospectionResponse {
 	[claim: string]: unknown;
 }
 
-function decodeJwtPayload(token?: string): Record<string, unknown> | null {
-	if (!token) return null;
-	const parts = token.split('.');
-	if (parts.length < 2) return null;
-	try {
-		return JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))) as Record<string, unknown>;
-	} catch {
-		return null;
-	}
-}
-
 /** PingOne introspection endpoint for the configured environment. */
 export function introspectionEndpointFor(credentials: FlowCredentials): string {
-	return `https://auth.pingone.${credentials.region}/${credentials.environmentId}/as/introspect`;
+	return `https://${pingoneHost(credentials.region)}/${credentials.environmentId}/as/introspect`;
 }
 
 export const tokenIntrospectionService = {
@@ -59,14 +49,14 @@ export const tokenIntrospectionService = {
 			return {
 				active: true,
 				scope: claims.scope,
-				client_id: claims.client_id ?? claims.azp ?? claims.aud,
+				client_id: claims.client_id ?? claims.azp ?? claims.sub,
 				token_type: 'Bearer',
-				exp: exp ?? now + 3600,
+				exp: exp ?? undefined,
 				iat: claims.iat,
 				sub: claims.sub,
 				aud: claims.aud,
 				iss: claims.iss,
-				...(claims.act ? { act: claims.act } : {}),
+				act: claims.act,
 				_mock: true,
 			};
 		}
@@ -80,7 +70,7 @@ export const tokenIntrospectionService = {
 				client_secret: credentials.clientSecret,
 				introspection_endpoint: introspectionEndpointFor(credentials),
 				token_auth_method: credentials.authMethod ?? 'client_secret_post',
-				...(tokenTypeHint ? { token_type_hint: tokenTypeHint } : {}),
+				token_type_hint: tokenTypeHint,
 			}),
 		});
 		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
@@ -93,10 +83,5 @@ export const tokenIntrospectionService = {
 			};
 		}
 		return data as IntrospectionResponse;
-	},
-
-	/** Local (non-authoritative) JWT payload decode — null for opaque/garbled tokens. */
-	decodeLocally(token: string): Record<string, unknown> | null {
-		return decodeJwtPayload(token);
 	},
 };

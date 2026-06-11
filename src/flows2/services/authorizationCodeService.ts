@@ -11,6 +11,8 @@ import { computePkceS256, tokenExchangeAuthorizationCode } from '../../services/
 import { getUserInfoFromAccessToken } from '../../services/v9/mock/V9MockUserInfoService';
 import { introspectToken } from '../../services/v9/mock/V9MockIntrospectionService';
 import type { FlowCredentials, FlowMode, TokenResult } from '../framework/types';
+import { pingoneHost } from './pingone';
+import { tokenIntrospectionService } from './tokenIntrospectionService';
 
 export interface PkcePair {
 	codeVerifier: string;
@@ -40,14 +42,6 @@ export interface ExchangeParams {
 	code: string;
 	codeVerifier: string;
 	oidc?: boolean;
-}
-
-function pingoneHost(region?: string): string {
-	const r = (region || 'com').toLowerCase().trim();
-	if (r === 'eu') return 'auth.pingone.eu';
-	if (r === 'ca') return 'auth.pingone.ca';
-	if (r === 'ap' || r === 'asia') return 'auth.pingone.asia';
-	return 'auth.pingone.com';
 }
 
 function authorizeEndpoint(c: FlowCredentials): string {
@@ -212,19 +206,11 @@ export async function introspect(
 	if (mode === 'mock') {
 		return introspectToken(token) as unknown as Record<string, unknown>;
 	}
-	const res = await fetch('/api/introspect-token', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			environment_id: credentials.environmentId,
-			region: credentials.region,
-			token,
-			client_id: credentials.clientId,
-			client_secret: credentials.clientSecret,
-			auth_method: 'client_secret_post',
-		}),
-	});
-	return (await res.json().catch(() => ({}))) as Record<string, unknown>;
+	// Delegates to the introspection service; errors come back as data — the
+	// inspect step renders the JSON either way.
+	return tokenIntrospectionService
+		.run({ credentials, token }, mode)
+		.catch((e) => e as Record<string, unknown>);
 }
 
 export const authorizationCodeService = {
