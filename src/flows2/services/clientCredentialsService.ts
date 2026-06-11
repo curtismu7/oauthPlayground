@@ -5,6 +5,8 @@
 // mock mode → return a deterministic fake token (no network), for offline teaching.
 
 import type { FlowCredentials, FlowMode, TokenResult } from '../framework/types';
+import { pingoneHost } from './pingone';
+import { tokenIntrospectionService } from './tokenIntrospectionService';
 
 export interface ClientCredentialsParams {
 	credentials: FlowCredentials;
@@ -13,27 +15,7 @@ export interface ClientCredentialsParams {
 	resource?: string;
 }
 
-function pingoneHost(region?: string): string {
-	const r = (region || 'com').toLowerCase().trim();
-	if (r === 'eu') return 'auth.pingone.eu';
-	if (r === 'ca') return 'auth.pingone.ca';
-	if (r === 'ap' || r === 'asia') return 'auth.pingone.asia';
-	return 'auth.pingone.com';
-}
-
 const DEFAULT_WORKER_SCOPES = ['p1:read:user', 'p1:update:user', 'p1:read:device', 'p1:update:device'];
-
-/** Decode a JWT payload without verification (for the mock introspection view). */
-function decodeJwtPayload(token?: string): Record<string, unknown> | null {
-	if (!token) return null;
-	const parts = token.split('.');
-	if (parts.length < 2) return null;
-	try {
-		return JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))) as Record<string, unknown>;
-	} catch {
-		return null;
-	}
-}
 
 /** Build the url-encoded token-request body the BFF forwards verbatim to PingOne. */
 function buildBody(
@@ -66,42 +48,16 @@ function toTokenResult(data: Record<string, unknown>): TokenResult {
 	};
 }
 
-/** RFC 7662 introspection of the worker access token. mock → decode locally; real → BFF. */
+/** RFC 7662 introspection of the worker access token — delegates to the introspection service.
+ *  Errors come back as data: the inspect step renders the JSON either way. */
 async function introspect(
 	accessToken: string,
 	credentials: FlowCredentials,
 	mode: FlowMode
 ): Promise<Record<string, unknown>> {
-	if (mode === 'mock') {
-		const claims = decodeJwtPayload(accessToken) || {};
-		const now = Math.floor(Date.now() / 1000);
-		const exp = typeof claims.exp === 'number' ? claims.exp : now + 3600;
-		return {
-			active: exp > now,
-			scope: claims.scope,
-			client_id: claims.sub,
-			token_type: 'Bearer',
-			exp,
-			iat: claims.iat,
-			sub: claims.sub,
-			aud: claims.aud,
-			iss: claims.iss,
-			_mock: true,
-		};
-	}
-	const res = await fetch('/api/introspect-token', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			environment_id: credentials.environmentId,
-			region: credentials.region,
-			token: accessToken,
-			client_id: credentials.clientId,
-			client_secret: credentials.clientSecret,
-			auth_method: credentials.authMethod ?? 'client_secret_post',
-		}),
-	});
-	return (await res.json().catch(() => ({}))) as Record<string, unknown>;
+	return tokenIntrospectionService
+		.run({ credentials, token: accessToken }, mode)
+		.catch((e) => e as Record<string, unknown>);
 }
 
 /** Discover the scopes a worker app may request. real → OIDC discovery; mock → PingOne defaults. */
