@@ -7,6 +7,7 @@
 //             subject/actor + act-claim mechanics without live tokens.
 
 import type { FlowCredentials, FlowMode, TokenResult } from '../framework/types';
+import { decodeJwtPayload } from './pingone';
 import { tokenIntrospectionService } from './tokenIntrospectionService';
 
 export interface TokenExchangeParams {
@@ -28,17 +29,6 @@ export interface MayActResult {
 	error?: string;
 	errorDescription?: string;
 	diagnostics?: Record<string, unknown>;
-}
-
-function decodeJwtPayload(token?: string): Record<string, unknown> | null {
-	if (!token) return null;
-	const parts = token.split('.');
-	if (parts.length < 2) return null;
-	try {
-		return JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))) as Record<string, unknown>;
-	} catch {
-		return null;
-	}
 }
 
 function toTokenResult(data: Record<string, unknown>): TokenResult {
@@ -159,8 +149,11 @@ export const tokenExchangeService = {
 		};
 	},
 
-	/** RFC 7662 introspection of the exchanged token — delegates to the introspection service. */
+	/** RFC 7662 introspection of the exchanged token — delegates to the introspection service.
+	 *  Errors come back as data: the inspect step renders the JSON either way. */
 	async introspect(accessToken: string, credentials: FlowCredentials, mode: FlowMode): Promise<Record<string, unknown>> {
-		return tokenIntrospectionService.run({ credentials, token: accessToken }, mode);
+		return tokenIntrospectionService
+			.run({ credentials, token: accessToken }, mode)
+			.catch((e) => e as Record<string, unknown>);
 	},
 };
