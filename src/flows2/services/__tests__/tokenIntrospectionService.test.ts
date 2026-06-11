@@ -4,6 +4,7 @@ import {
 	introspectionEndpointFor,
 	tokenIntrospectionService,
 } from '../tokenIntrospectionService';
+import { decodeJwtPayload } from '../pingone';
 import type { FlowCredentials } from '../../framework/types';
 
 const creds: FlowCredentials = {
@@ -53,13 +54,16 @@ describe('tokenIntrospectionService — mock path (offline)', () => {
 
 	it('decodes a JWT locally and returns null for opaque tokens', () => {
 		const token = jwt({ sub: 'user-1' });
-		expect(tokenIntrospectionService.decodeLocally(token)?.sub).toBe('user-1');
-		expect(tokenIntrospectionService.decodeLocally('opaque')).toBeNull();
+		expect(decodeJwtPayload(token)?.sub).toBe('user-1');
+		expect(decodeJwtPayload('opaque')).toBeNull();
 	});
 
-	it('builds the PingOne introspection endpoint from credentials', () => {
+	it('builds the PingOne introspection endpoint with a normalized region', () => {
 		expect(introspectionEndpointFor(creds)).toBe(
 			'https://auth.pingone.com/test-env-123/as/introspect'
+		);
+		expect(introspectionEndpointFor({ ...creds, region: 'AP ' })).toBe(
+			'https://auth.pingone.asia/test-env-123/as/introspect'
 		);
 	});
 });
