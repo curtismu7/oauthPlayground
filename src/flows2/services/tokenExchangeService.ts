@@ -7,6 +7,7 @@
 //             subject/actor + act-claim mechanics without live tokens.
 
 import type { FlowCredentials, FlowMode, TokenResult } from '../framework/types';
+import { tokenIntrospectionService } from './tokenIntrospectionService';
 
 export interface TokenExchangeParams {
 	credentials: FlowCredentials;
@@ -158,36 +159,8 @@ export const tokenExchangeService = {
 		};
 	},
 
-	/** RFC 7662 introspection of the exchanged token. mock → decode locally; real → BFF proxy. */
+	/** RFC 7662 introspection of the exchanged token — delegates to the introspection service. */
 	async introspect(accessToken: string, credentials: FlowCredentials, mode: FlowMode): Promise<Record<string, unknown>> {
-		if (mode === 'mock') {
-			const claims = decodeJwtPayload(accessToken) || {};
-			const now = Math.floor(Date.now() / 1000);
-			const exp = typeof claims.exp === 'number' ? claims.exp : now + 3600;
-			return {
-				active: exp > now,
-				scope: claims.scope,
-				client_id: claims.aud,
-				token_type: 'Bearer',
-				exp,
-				iat: claims.iat,
-				sub: claims.sub,
-				act: claims.act,
-				_mock: true,
-			};
-		}
-		const res = await fetch('/api/introspect-token', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				environment_id: credentials.environmentId,
-				region: credentials.region,
-				token: accessToken,
-				client_id: credentials.clientId,
-				client_secret: credentials.clientSecret,
-				auth_method: credentials.authMethod ?? 'client_secret_post',
-			}),
-		});
-		return (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		return tokenIntrospectionService.run({ credentials, token: accessToken }, mode);
 	},
 };
