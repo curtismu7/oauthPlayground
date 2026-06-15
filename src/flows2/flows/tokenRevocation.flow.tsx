@@ -129,7 +129,8 @@ const TokenRevocationFlow: React.FC = () => {
 		setVerifyError(null);
 		setVerifyResult(null);
 		try {
-			const r = await intSvc.run({ credentials: creds, token, tokenTypeHint: hint }, mode);
+			// No hint — let the AS determine the token type on its own.
+			const r = await intSvc.run({ credentials: creds, token, tokenTypeHint: undefined }, mode);
 			setVerifyResult(r);
 			engine.markComplete('verify');
 		} catch (err) {
@@ -137,7 +138,7 @@ const TokenRevocationFlow: React.FC = () => {
 		} finally {
 			setVerifyLoading(false);
 		}
-	}, [creds, token, hint, mode, engine]);
+	}, [creds, token, mode, engine]);
 
 	const configured = Boolean(creds.environmentId && creds.clientId && token);
 	const cur = engine.current.id;
@@ -187,6 +188,12 @@ const TokenRevocationFlow: React.FC = () => {
 						The hint is optional and only affects server-side lookup order — it helps the AS search
 						the right token store first. The AS will still find and revoke the token even if the hint
 						is wrong or absent. It is not a security boundary.
+					</ExplanationPanel>
+					<ExplanationPanel title="Client authentication method">
+						This flow sends client credentials in the request body (<code>client_secret_post</code>,
+						RFC 6749 §2.3.1). The Authorization Server can also support{' '}
+						<code>client_secret_basic</code> (HTTP Basic auth header). The choice is server policy;
+						PingOne accepts <code>client_secret_post</code> for revocation.
 					</ExplanationPanel>
 				</FlowStep>
 			)}
