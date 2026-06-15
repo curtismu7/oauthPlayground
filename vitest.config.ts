@@ -14,6 +14,8 @@ export default defineConfig({
 		exclude: [
 			...configDefaults.exclude,
 			'se-ai-demo-banking-digital-assistant-main/**',
+			'.claude/**',
+			'.claude/worktrees/**',
 			'e2e/**',
 			'tests/e2e/**',
 		],
