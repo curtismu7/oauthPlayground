@@ -170,6 +170,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/flows/oidc-authorization-code-v9', 'Authorization Code', true, true],
 						['/flows/oidc-hybrid-v9', 'Hybrid Flow', true, true],
 						['/flows/ciba-v9', 'CIBA (Backchannel)', true, true],
+						['/v2/flows/userinfo', 'UserInfo (OIDC)', true, true],
 					],
 					'oidc-mock'
 				),
