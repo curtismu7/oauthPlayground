@@ -105,7 +105,7 @@ const UserInfoFlow: React.FC = () => {
 		}
 	}, [environmentId, region, accessToken, mode, engine]);
 
-	const configured = Boolean(environmentId && accessToken);
+	const configured = mode === 'mock' ? Boolean(environmentId) : Boolean(environmentId && accessToken);
 	// Decode the access token locally — works only if it's a JWT; null for opaque tokens.
 	const localClaims = useMemo(
 		() => (accessToken ? decodeJwtPayload(accessToken) : null),
