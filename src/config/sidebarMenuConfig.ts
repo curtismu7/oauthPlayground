@@ -184,6 +184,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/v2/flows/client-credentials', 'Client Credentials', true, true],
 						['/v2/flows/token-exchange', 'Token Exchange', true, true],
 						['/v2/flows/token-introspection', 'Token Introspection', true, true],
+						['/v2/flows/token-revocation', 'Token Revocation', true, true],
 						['/flows/implicit-v9', 'Implicit Flow', true, true],
 						['/flows/jwt-bearer-token-v9', 'JWT Bearer Token', true, true],
 						['/flows/saml-bearer-assertion-v9', 'SAML Bearer Assertion', true, true],
