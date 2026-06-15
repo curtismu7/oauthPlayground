@@ -24693,6 +24693,37 @@ app.post('/api/introspection/introspect', (req, res) => {
 	}
 });
 
+// Token Revocation Endpoint (RFC 7009) — proxy to PingOne
+app.post('/api/pingone/revoke', async (req, res) => {
+  try {
+    const { environment_id, region, client_id, client_secret, token, token_type_hint } = req.body;
+    if (!environment_id || !client_id || !client_secret || !token) {
+      return res.status(400).json({ error: 'invalid_request', error_description: 'Missing required parameters' });
+    }
+    const r = (region || 'com').toLowerCase().trim();
+    const host = r === 'eu' ? 'auth.pingone.eu' : r === 'ca' ? 'auth.pingone.ca' : r === 'ap' || r === 'asia' ? 'auth.pingone.asia' : 'auth.pingone.com';
+    const revokeEndpoint = `https://${host}/${environment_id}/as/revoke`;
+    const body = new URLSearchParams({ client_id, client_secret, token });
+    if (token_type_hint) body.set('token_type_hint', token_type_hint);
+    const response = await global.fetch(revokeEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    });
+    // RFC 7009 §2.2: server should return 200 for valid requests
+    console.log(`[TokenRevoke] Revoke response: ${response.status}`);
+    if (!response.ok) {
+      let data = {};
+      try { data = await response.json(); } catch {}
+      return res.status(response.status).json(data);
+    }
+    res.status(200).json({ revoked: true });
+  } catch (error) {
+    console.error('[TokenRevoke] Server error:', error);
+    res.status(500).json({ error: 'server_error', error_description: 'Internal server error during token revocation' });
+  }
+});
+
 // POST /api/introspection/revoke — RFC 7009 token revocation (pairs naturally with introspection)
 app.post('/api/introspection/revoke', (req, res) => {
 	const { token } = req.body;
