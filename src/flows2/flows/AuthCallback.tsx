@@ -28,6 +28,7 @@ const FLOW_ROUTE = '/v2/flows/authorization-code';
 const AuthCallback: React.FC = () => {
 	const navigate = useNavigate();
 	const [error, setError] = useState<string | null>(null);
+	const [returnTo, setReturnTo] = useState<string | undefined>(undefined);
 
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search);
@@ -37,6 +38,7 @@ const AuthCallback: React.FC = () => {
 		const errDesc = params.get('error_description');
 
 		const stash = loadStash();
+		const dest = stash?.returnTo || FLOW_ROUTE;
 
 		if (err) {
 			if (stash) {
@@ -44,8 +46,9 @@ const AuthCallback: React.FC = () => {
 				stash.errorDescription = errDesc || undefined;
 				saveStash(stash);
 			}
+			setReturnTo(dest);
 			setError(`${err}${errDesc ? `: ${errDesc}` : ''}`);
-			const t = setTimeout(() => navigate(FLOW_ROUTE), 1500);
+			const t = setTimeout(() => navigate(dest), 1500);
 			return () => clearTimeout(t);
 		}
 
@@ -59,8 +62,9 @@ const AuthCallback: React.FC = () => {
 			stash.error = 'state_mismatch';
 			stash.errorDescription = 'Returned state did not match the request state (possible CSRF).';
 			saveStash(stash);
+			setReturnTo(dest);
 			setError('State mismatch — authorization rejected.');
-			const t = setTimeout(() => navigate(FLOW_ROUTE), 1500);
+			const t = setTimeout(() => navigate(dest), 1500);
 			return () => clearTimeout(t);
 		}
 
@@ -71,7 +75,7 @@ const AuthCallback: React.FC = () => {
 
 		stash.code = code;
 		saveStash(stash);
-		navigate(FLOW_ROUTE);
+		navigate(stash.returnTo || FLOW_ROUTE);
 	}, [navigate]);
 
 	return (
@@ -83,7 +87,7 @@ const AuthCallback: React.FC = () => {
 				<Msg>Validating the authorization code and returning to the flow.</Msg>
 			)}
 			{error && (
-				<button type="button" onClick={() => { clearStash(); navigate(FLOW_ROUTE); }}>
+				<button type="button" onClick={() => { clearStash(); navigate(returnTo || FLOW_ROUTE); }}>
 					Back to flow
 				</button>
 			)}
