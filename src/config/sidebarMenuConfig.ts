@@ -216,7 +216,6 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/flows/gnap-v1', 'GNAP (RFC 9635)', true, true],
 						['/flows/jar-jarm-v1', 'JAR + JARM (FAPI 2.0)', true, true],
 						['/flows/step-up-auth-v1', 'Step-Up Authentication', true, true],
-						['/flows/token-introspection-v1', 'Token Introspection', true, true],
 					],
 					'unsupported'
 				),
