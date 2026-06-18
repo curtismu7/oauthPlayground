@@ -13,6 +13,7 @@ import { introspectToken } from '../../services/v9/mock/V9MockIntrospectionServi
 import type { FlowCredentials, FlowMode, TokenResult } from '../framework/types';
 import { pingoneHost } from './pingone';
 import { tokenIntrospectionService } from './tokenIntrospectionService';
+import { userInfoService } from './userInfoService';
 
 export interface PkcePair {
 	codeVerifier: string;
@@ -185,16 +186,12 @@ export async function userInfo(
 	if (mode === 'mock') {
 		return getUserInfoFromAccessToken(accessToken) as unknown as Record<string, unknown>;
 	}
-	const res = await fetch('/api/userinfo', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			environment_id: credentials.environmentId,
-			region: credentials.region,
-			access_token: accessToken,
-		}),
-	});
-	return (await res.json().catch(() => ({}))) as Record<string, unknown>;
+	// Delegate to the shared userInfoService (GET /api/userinfo) — the BFF only serves the
+	// GET variant, so the previous inline POST hit a 404/405. Errors come back as data; the
+	// inspect step renders the JSON either way.
+	return userInfoService
+		.run({ environmentId: credentials.environmentId, region: credentials.region, accessToken }, mode)
+		.catch((e) => e as Record<string, unknown>);
 }
 
 /** RFC 7662 token introspection. real → BFF; mock → V9Mock. */
