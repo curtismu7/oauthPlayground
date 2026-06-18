@@ -70,6 +70,8 @@ services:
       # Polling is required for inotify to work across Docker volume mounts
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: "300"
+      # Suppress "spawn xdg-open ENOENT" — no browser to open inside a container
+      BROWSER: "none"
     env_file:
       - path: .env
         required: false
