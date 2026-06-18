@@ -1,0 +1,89 @@
+# OAuth Playground — Docker Compose
+#
+# Runs alongside AI-Demo without port conflicts.
+# AI-Demo uses: 3001 (BFF), 4000 (UI), 8080–8895, 9001, 3005, 3009, 3016, 3036
+# This stack uses:  3011 (backend, maps 3011→3001), 3000 (frontend, no conflict)
+#
+# Prerequisites:
+#   1. mkcert certs must exist in ./certs/ (api.ping.demo.crt / api.ping.demo.key)
+#      Run: mkcert api.ping.demo  from the oauthPlayground directory
+#   2. Add to /etc/hosts if not already there:
+#        127.0.0.1  api.ping.demo
+#   3. Copy .env.example → .env and fill in PingOne credentials (if not done)
+#
+# Usage:
+#   docker compose up --build      # first run or after code changes
+#   docker compose up              # subsequent runs
+#   docker compose down            # stop and remove containers
+#
+# Access:
+#   Frontend:  https://api.ping.demo:3000
+#   Backend:   https://api.ping.demo:3011/api/health
+#
+# Logs:
+#   docker compose logs -f oauth-backend
+#   docker compose logs -f oauth-frontend
+
+services:
+
+  # ── Express backend (server.js) ───────────────────────────────────────────
+  oauth-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      args:
+        GIT_SHA: ${GIT_SHA:-unknown}
+    container_name: oauth-playground-backend
+    ports:
+      - "3011:3001"   # 3001 is taken by AI-Demo BFF; use 3011 on the host
+    environment:
+      NODE_ENV: production
+      BACKEND_PORT: "3001"
+      # Explicitly point to the mounted cert files so server.js uses them
+      # instead of auto-generating a new self-signed cert on every start.
+      SSL_CERT_PATH: "/app/certs/server.crt"
+      SSL_KEY_PATH:  "/app/certs/server.key"
+    env_file:
+      - path: .env
+        required: false   # graceful if .env is absent (fallback to .env.example values)
+    volumes:
+      - ./certs:/app/certs:ro
+      # Persist the SQLite user database across restarts
+      - oauth-data:/app/src/server/data
+    networks:
+      - oauth-playground
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "--no-check-certificate", "https://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  # ── Nginx frontend (Vite build) ───────────────────────────────────────────
+  oauth-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        GIT_SHA: ${GIT_SHA:-unknown}
+    container_name: oauth-playground-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+    networks:
+      - oauth-playground
+    depends_on:
+      oauth-backend:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  oauth-data:
+    name: oauth-playground-data
+
+networks:
+  oauth-playground:
+    driver: bridge
+    name: oauth-playground
