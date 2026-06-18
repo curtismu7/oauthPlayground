@@ -9,7 +9,7 @@
 // user's password, defeating MFA, consent screens, and federation. Only implement
 // for legacy first-party migration. Prefer Authorization Code + PKCE.
 
-import type { FlowCredentials, FlowError, FlowMode } from '../framework/types';
+import type { FlowCredentials, FlowError, FlowMode, TokenResult } from '../framework/types';
 import { applyClientAuth, toTokenResult } from './pingone';
 
 /** Build the url-encoded password-grant body + optional Basic auth header. */
