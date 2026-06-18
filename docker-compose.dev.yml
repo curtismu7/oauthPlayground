@@ -1,0 +1,103 @@
+# OAuth Playground — Docker Compose (DEV / hot-reload)
+#
+# Runs alongside AI-Demo without port conflicts.
+# AI-Demo uses: 3001 (BFF), 3005 (gateway), 3009, 3016, 3036
+# This stack uses:
+#   3010 → Vite dev server (hot-reload, HTTPS via basicSsl)
+#   3012 → Express backend
+#
+# Prerequisites:
+#   Same as docker-compose.yml except no mkcert certs needed —
+#   Vite uses basicSsl (auto self-signed). Browser will prompt "trust cert".
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yml up --build   # first run
+#   docker compose -f docker-compose.dev.yml up           # subsequent runs (node_modules cached)
+#   docker compose -f docker-compose.dev.yml down
+#
+# Access:
+#   Frontend:  https://localhost:3010   (Vite dev, full HMR)
+#   Backend:   https://localhost:3012/api/health
+#   Playwright baseURL for dev: https://localhost:3010
+
+services:
+
+  # ── Express backend ───────────────────────────────────────────────────────
+  oauth-backend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: oauth-playground-backend-dev
+    ports:
+      - "3012:3001"
+    environment:
+      NODE_ENV: development
+      BACKEND_PORT: "3001"
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      # Live-reload server.js edits
+      - ./server.js:/app/server.js:ro
+      - ./src/server:/app/src/server:ro
+      - ./src/api:/app/src/api:ro
+      - ./lib:/app/lib:ro
+      # Persist SQLite data across restarts
+      - oauth-data-dev:/app/src/server/data
+    networks:
+      - oauth-playground-dev
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('https').get({hostname:'localhost',port:3001,path:'/api/health',rejectUnauthorized:false},r=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  # ── Vite dev server (hot-reload) ──────────────────────────────────────────
+  oauth-frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: oauth-playground-frontend-dev
+    ports:
+      - "3010:3000"    # Vite listens on 3000 inside; browser hits 3010
+    environment:
+      NODE_ENV: development
+      BACKEND_URL: "https://oauth-backend-dev:3001"
+      # Tell the browser's HMR WebSocket to connect to the *host* port
+      VITE_HMR_CLIENT_PORT: "3010"
+      # Polling is required for inotify to work across Docker volume mounts
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "300"
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      # Hot-reload: mount source so Vite watches changes from the Mac
+      - ./src:/app/src
+      - ./public:/app/public:ro
+      - ./index.html:/app/index.html:ro
+      - ./vite.config.ts:/app/vite.config.ts:ro
+      - ./tsconfig.json:/app/tsconfig.json:ro
+      - ./tsconfig.node.json:/app/tsconfig.node.json:ro
+      # node_modules lives in the container (not on the host mount)
+      # so native binaries are correct for Linux
+      - oauth-nm-dev:/app/node_modules
+    networks:
+      - oauth-playground-dev
+    depends_on:
+      oauth-backend-dev:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  oauth-data-dev:
+    name: oauth-playground-data-dev
+  oauth-nm-dev:
+    name: oauth-playground-nm-dev
+
+networks:
+  oauth-playground-dev:
+    driver: bridge
+    name: oauth-playground-dev

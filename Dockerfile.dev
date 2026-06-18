@@ -1,0 +1,29 @@
+# OAuth Playground — Frontend dev server (Vite HMR)
+#
+# Source is volume-mounted from the Mac; node_modules lives in the container
+# so Linux binaries don't mix with macOS binaries.
+#
+# CHOKIDAR_USEPOLLING=true (set in docker-compose.dev.yml) enables file-watch
+# across the volume mount. VITE_HMR_CLIENT_PORT tells the browser which host
+# port to connect its HMR WebSocket to (the Docker-mapped port, not 3000).
+
+FROM node:20-alpine
+
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /app
+
+# Install deps into the container's node_modules (volume-isolated from host)
+COPY package.json package-lock.json* pnpm-lock.yaml* ./
+RUN npm install --legacy-peer-deps
+
+# Source files are mounted at runtime via docker-compose.dev.yml volumes.
+# Copy only what Vite needs at startup that isn't volume-mounted.
+COPY public/ ./public/
+COPY index.html ./
+COPY vite.config.ts tsconfig.json tsconfig.node.json ./
+
+EXPOSE 3000
+
+# --host=0.0.0.0 binds Vite to all interfaces so Docker can reach it
+CMD ["npx", "vite", "--host=0.0.0.0"]
