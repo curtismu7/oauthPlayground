@@ -152,7 +152,7 @@ class AIAgentService {
 				{
 					name: 'Token Introspection',
 					description: 'Validate and inspect OAuth tokens to check their status and claims.',
-					path: '/flows/token-introspection',
+					path: '/v2/flows/token-introspection',
 					keywords: ['introspection', 'validate', 'check', 'token', 'active', 'claims'],
 				},
 				{
