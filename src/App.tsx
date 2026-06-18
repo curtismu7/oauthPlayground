@@ -109,7 +109,6 @@ const MtlsClientAuthFlow = lazy(() => import('./pages/flows/v9/MtlsClientAuthFlo
 const GnapFlow = lazy(() => import('./pages/flows/v9/GnapFlow'));
 const JarJarmFlow = lazy(() => import('./pages/flows/v9/JarJarmFlow'));
 const StepUpAuthFlow = lazy(() => import('./pages/flows/v9/StepUpAuthFlow'));
-const TokenIntrospectionFlowV1 = lazy(() => import('./pages/flows/v9/TokenIntrospectionFlow'));
 
 // Layout shell — must be eager
 import Navbar from './components/Navbar';
@@ -218,7 +217,6 @@ const OAuthImplicitFlowCompletion = lazy(() => import('./pages/flows/OAuthImplic
 // PARFlowV7 archived — route redirects to pingone-par-v9
 const RedirectlessFlowV9_Real = lazy(() => import('./pages/flows/RedirectlessFlowV9_Real'));
 const SAMLServiceProviderFlowV9 = lazy(() => import('./pages/flows/v9/SAMLServiceProviderFlowV9'));
-const TokenIntrospectionFlow = lazy(() => import('./pages/flows/TokenIntrospectionFlow'));
 const TokenRevocationFlow = lazy(() => import('./pages/flows/TokenRevocationFlow'));
 const UserInfoFlow = lazy(() => import('./pages/flows/UserInfoFlow'));
 const UserInfoPostFlow = lazy(() => import('./pages/flows/UserInfoPostFlow'));
@@ -1326,20 +1324,10 @@ const AppRoutes: React.FC = () => {
 											</Suspense>
 										}
 									/>
+									{/* Legacy introspection pages consolidated into the flows2 /v2 flow */}
 									<Route
 										path="/flows/token-introspection-v1"
-										element={
-											<Suspense
-												fallback={
-													<ComponentLoader
-														message="Loading Introspection Flow..."
-														subtext="Preparing token introspection demo"
-													/>
-												}
-											>
-												<TokenIntrospectionFlowV1 />
-											</Suspense>
-										}
+										element={<Navigate to="/v2/flows/token-introspection" replace />}
 									/>
 									{/* Device Authorization — v9 mock flow (canonical); v7 → unified */}
 									<Route
@@ -1689,7 +1677,7 @@ const AppRoutes: React.FC = () => {
 									<Route path="/v2/flows/implicit-hybrid" element={<Flows2ImplicitHybrid />} />
 									<Route path="/v2/flows/implicit-hybrid-callback" element={<Flows2ImplicitHybridCallback />} />
 									<Route path="/v2/flows/ropc" element={<Flows2Ropc />} />
-									<Route path="/flows/token-introspection" element={<TokenIntrospectionFlow />} />
+									<Route path="/flows/token-introspection" element={<Navigate to="/v2/flows/token-introspection" replace />} />
 									<Route
 										path="/postman-collection-generator"
 										element={<PostmanCollectionGenerator />}

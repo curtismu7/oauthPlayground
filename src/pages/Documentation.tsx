@@ -425,7 +425,7 @@ const Documentation = () => {
 								<h3>Step-Up Authentication</h3>
 								<p>Re-authenticate with elevated assurance (MFA) mid-session on demand.</p>
 							</DocCard>
-							<DocCard to="/flows/token-introspection-v1">
+							<DocCard to="/v2/flows/token-introspection">
 								<h3>Token Introspection (RFC 7662)</h3>
 								<p>Inspect opaque tokens at the AS introspection endpoint.</p>
 							</DocCard>

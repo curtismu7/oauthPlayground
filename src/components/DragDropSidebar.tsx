@@ -1049,7 +1049,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					},
 					{
 						id: 'token-introspection',
-						path: '/flows/token-introspection',
+						path: '/v2/flows/token-introspection',
 						label: 'Token Introspection',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
