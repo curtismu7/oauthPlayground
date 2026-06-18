@@ -1,0 +1,40 @@
+# OAuth Playground — Backend (Express / server.js)
+#
+# Native modules (sqlite3, argon2) are compiled from source inside the
+# container so the binaries match Linux/x86-64, not macOS.
+#
+# Certs: mount ./certs as a read-only volume so server.js auto-detects
+# certs/server.key + certs/server.crt and starts HTTPS.
+#
+# Persistent data: mount a volume over /app/src/server/data so the SQLite
+# user database survives container restarts.
+
+FROM node:20-alpine AS production
+
+# Build tools required for sqlite3 and argon2 native compilation
+RUN apk add --no-cache python3 make g++ openssl
+
+WORKDIR /app
+
+# Install deps first (own layer — only rebuilds when package files change)
+COPY package.json package-lock.json* pnpm-lock.yaml* ./
+RUN npm install --legacy-peer-deps
+
+# Copy server entrypoint and all server-side source
+# (src/server/data/ is excluded by .dockerignore — mount as a volume)
+COPY server.js ./
+COPY lib/ ./lib/
+COPY src/server/ ./src/server/
+COPY src/api/ ./src/api/
+
+# Ensure the data directory exists so SQLite can create DB files there
+RUN mkdir -p src/server/data
+
+ARG GIT_SHA=unknown
+ENV GIT_SHA=$GIT_SHA
+ENV BACKEND_PORT=3001
+ENV NODE_ENV=production
+
+EXPOSE 3001
+
+CMD ["node", "server.js"]
