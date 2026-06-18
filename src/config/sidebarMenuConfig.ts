@@ -171,6 +171,8 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/flows/oidc-hybrid-v9', 'Hybrid Flow', true, true],
 						['/flows/ciba-v9', 'CIBA (Backchannel)', true, true],
 						['/v2/flows/userinfo', 'UserInfo (OIDC)', true, true],
+						['/v2/flows/oidc-discovery', 'OIDC Discovery / JWKS', true, true],
+						['/v2/flows/redirectless', 'Redirectless (pi.flow)', true, true],
 					],
 					'oidc-mock'
 				),
@@ -185,6 +187,8 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/v2/flows/token-exchange', 'Token Exchange', true, true],
 						['/v2/flows/token-introspection', 'Token Introspection', true, true],
 						['/v2/flows/token-revocation', 'Token Revocation', true, true],
+						['/v2/flows/refresh-token', 'Refresh Token + Rotation', true, true],
+						['/v2/flows/implicit-hybrid', 'Implicit / Hybrid', true, true],
 						['/flows/implicit-v9', 'Implicit Flow', true, true],
 						['/flows/jwt-bearer-token-v9', 'JWT Bearer Token', true, true],
 						['/flows/saml-bearer-assertion-v9', 'SAML Bearer Assertion', true, true],
@@ -197,6 +201,9 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 				label: 'Unsupported OAuth Flows',
 				items: items(
 					[
+						['/v2/flows/par', 'PAR (RFC 9126)', true, true],
+						['/v2/flows/dpop', 'DPoP (RFC 9449)', true, true],
+						['/v2/flows/ropc', 'ROPC (Password Grant)', true, true],
 						['/flows/oauth-ropc-v9', 'Resource Owner Password (ROPC)', true, true],
 						['/flows/dpop', 'DPoP (Proof of Possession)', true, true],
 						['/flows/rar-v9', 'Rich Authorization Requests (RAR)', true, true],
