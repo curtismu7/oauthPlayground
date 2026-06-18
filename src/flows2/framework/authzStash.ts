@@ -19,6 +19,9 @@ export interface AuthzStash {
 	clientId: string;
 	redirectUri: string;
 	scope?: string;
+	// flows2 route to resume at after the callback (defaults to the Authorization Code flow).
+	// PAR reuses this same code-in-query callback but resumes its own page.
+	returnTo?: string;
 	// filled in by the callback receiver
 	code?: string;
 	error?: string;
