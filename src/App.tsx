@@ -51,6 +51,14 @@ const Flows2TokenExchange = lazy(() => import('./flows2/flows/tokenExchange.flow
 const Flows2TokenIntrospection = lazy(() => import('./flows2/flows/tokenIntrospection.flow'));
 const Flows2UserInfo = lazy(() => import('./flows2/flows/userInfo.flow'));
 const Flows2TokenRevocation = lazy(() => import('./flows2/flows/tokenRevocation.flow'));
+const Flows2Par = lazy(() => import('./flows2/flows/par.flow'));
+const Flows2RefreshToken = lazy(() => import('./flows2/flows/refreshToken.flow'));
+const Flows2OidcDiscovery = lazy(() => import('./flows2/flows/oidcDiscovery.flow'));
+const Flows2Dpop = lazy(() => import('./flows2/flows/dpop.flow'));
+const Flows2Redirectless = lazy(() => import('./flows2/flows/redirectless.flow'));
+const Flows2ImplicitHybrid = lazy(() => import('./flows2/flows/implicitHybrid.flow'));
+const Flows2ImplicitHybridCallback = lazy(() => import('./flows2/flows/ImplicitHybridCallback'));
+const Flows2Ropc = lazy(() => import('./flows2/flows/ropc.flow'));
 const CombinedTokenPage = lazy(() => import('./pages/CombinedTokenPage'));
 const CredentialSetupModal = lazy(() => import('./components/CredentialSetupModal'));
 const EnhancedFloatingLogViewer = lazy(() =>
@@ -1673,6 +1681,14 @@ const AppRoutes: React.FC = () => {
 									<Route path="/v2/flows/token-introspection" element={<Flows2TokenIntrospection />} />
 									<Route path="/v2/flows/userinfo" element={<Flows2UserInfo />} />
 									<Route path="/v2/flows/token-revocation" element={<Flows2TokenRevocation />} />
+									<Route path="/v2/flows/par" element={<Flows2Par />} />
+									<Route path="/v2/flows/refresh-token" element={<Flows2RefreshToken />} />
+									<Route path="/v2/flows/oidc-discovery" element={<Flows2OidcDiscovery />} />
+									<Route path="/v2/flows/dpop" element={<Flows2Dpop />} />
+									<Route path="/v2/flows/redirectless" element={<Flows2Redirectless />} />
+									<Route path="/v2/flows/implicit-hybrid" element={<Flows2ImplicitHybrid />} />
+									<Route path="/v2/flows/implicit-hybrid-callback" element={<Flows2ImplicitHybridCallback />} />
+									<Route path="/v2/flows/ropc" element={<Flows2Ropc />} />
 									<Route path="/flows/token-introspection" element={<TokenIntrospectionFlow />} />
 									<Route
 										path="/postman-collection-generator"
