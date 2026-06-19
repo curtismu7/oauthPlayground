@@ -140,8 +140,8 @@ const DeviceAuthorizationFlow: React.FC = () => {
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
-		clientId: env.VITE_PINGONE_USER_CLIENT_ID || '',
-		clientSecret: env.VITE_PINGONE_USER_CLIENT_SECRET || '',
+		clientId: env.VITE_PINGONE_DEVICE_CLIENT_ID || env.VITE_PINGONE_USER_CLIENT_ID || '',
+		clientSecret: env.VITE_PINGONE_DEVICE_CLIENT_SECRET || '',
 		scope: 'openid profile email',
 		authMethod: 'client_secret_post',
 	});
