@@ -1364,13 +1364,9 @@ const AppRoutes: React.FC = () => {
 										path="/flows/v9/saml-sp-dynamic-acs"
 										element={<SAMLServiceProviderFlowV9 />}
 									/>
-									{/* Legacy V6 routes - redirect to V7 (latest version) */}
+									{/* Legacy V6 route - redirect to V9 (v7 redirect already defined above) */}
 									<Route
 										path="/flows/saml-bearer-assertion-v6"
-										element={<Navigate to="/flows/saml-bearer-assertion-v9" replace />}
-									/>
-									<Route
-										path="/flows/saml-bearer-assertion-v7"
 										element={<Navigate to="/flows/saml-bearer-assertion-v9" replace />}
 									/>
 									{/* V7 Worker Token Flow — redirect to V9 */}
