@@ -108,7 +108,10 @@ const DPoPFlow: React.FC = () => {
 		clientId: env.VITE_PINGONE_WORKER_CLIENT_ID || '',
 		clientSecret: env.VITE_PINGONE_WORKER_CLIENT_SECRET || '',
 		scope: '',
-		authMethod: 'client_secret_post',
+		// The default worker app is registered for client_secret_basic only; sending
+		// client_secret_post makes PingOne reject the token request with
+		// "Unsupported authentication method". Users can still toggle to post.
+		authMethod: 'client_secret_basic',
 	});
 	const [keyPairResult, setKeyPairResult] = useState<DPoPKeyPairResult | null>(null);
 	const [proofResult, setProofResult] = useState<DPoPProofResult | null>(null);

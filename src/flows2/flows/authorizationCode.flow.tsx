@@ -91,7 +91,9 @@ const AuthorizationCodeFlow: React.FC = () => {
 		region: env.VITE_PINGONE_REGION || 'com',
 		clientId: env.VITE_PINGONE_USER_CLIENT_ID || '',
 		clientSecret: env.VITE_PINGONE_USER_CLIENT_SECRET || '',
-		scope: '',
+		// Request offline_access so PingOne issues a refresh_token, which the
+		// Refresh Token flow needs as its input. Users can edit this freely.
+		scope: 'openid profile email offline_access',
 	});
 	const [redirectUri, setRedirectUri] = useState(defaultRedirectUri());
 	const [pkce, setPkce] = useState<{ codeVerifier: string; codeChallenge: string } | null>(null);

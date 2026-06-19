@@ -117,10 +117,13 @@ const RedirectlessFlow: React.FC = () => {
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
-		clientId: env.VITE_PINGONE_USER_CLIENT_ID || '',
-		clientSecret: env.VITE_PINGONE_USER_CLIENT_SECRET || '',
+		// pi.flow here requests response_type=token id_token, which the CODE-only
+		// user app rejects ("Unsupported response type"). Default to the SPA app,
+		// which is registered for TOKEN/ID_TOKEN and is a public client.
+		clientId: env.VITE_PINGONE_IMPLICIT_CLIENT_ID || env.VITE_PINGONE_USER_CLIENT_ID || '',
+		clientSecret: env.VITE_PINGONE_IMPLICIT_CLIENT_SECRET || '',
 		scope: 'openid profile email',
-		authMethod: 'client_secret_post',
+		authMethod: 'client_secret_basic',
 	});
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
