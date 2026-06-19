@@ -302,7 +302,7 @@ header,
 nav,
 .header,
 .navigation {
-	background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+	background: #ffffff;
 }
 
 /* Exception: Buttons inside headers should remain visible - SOLID STYLE */
@@ -322,12 +322,12 @@ nav [class*="button"],
 [class*="Header"] button,
 [class*="nav"] button,
 [class*="Nav"] button {
-	background: white;
+	background: #ffffff;
 	color: var(--color-primary);
-	border: 2px solid white;
+	border: 1px solid #e4e5e9;
 	text-decoration: none;
-	font-weight: 700;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	font-weight: 600;
+	box-shadow: none;
 }
 
 header button:hover,
