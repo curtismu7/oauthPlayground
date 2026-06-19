@@ -93,7 +93,9 @@ const TokenExchangeFlow: React.FC = () => {
 	});
 	const [subjectToken, setSubjectToken] = useState('');
 	const [actorToken, setActorToken] = useState('');
-	const [requestedScopes, setRequestedScopes] = useState('');
+	// PingOne token exchange only issues tokens for custom resources, so default the
+	// requested scope to the OAuth Playground custom-resource scope.
+	const [requestedScopes, setRequestedScopes] = useState(env.VITE_PINGONE_TOKEN_EXCHANGE_SCOPE || 'access');
 	const [audience, setAudience] = useState('');
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
