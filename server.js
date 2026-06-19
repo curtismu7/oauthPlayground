@@ -6751,7 +6751,7 @@ app.get('/api/device-userinfo', async (req, res) => {
 // PAR (Pushed Authorization Request) Endpoint (proxy to PingOne)
 app.post('/api/par', async (req, res) => {
 	try {
-		const { environment_id, client_id, client_secret, ...parParams } = req.body;
+		const { environment_id, client_id, client_secret, auth_method, ...parParams } = req.body;
 
 		if (!environment_id || !client_id) {
 			return res.status(400).json({
@@ -6783,18 +6783,20 @@ app.post('/api/par', async (req, res) => {
 			Accept: 'application/json',
 		};
 
-		// Add client authentication based on PingOne configuration
-		// For "Client Secret Basic" method, use Authorization header AND include client_id in form data
-		if (client_secret) {
+		// Add client authentication honoring the app's configured token-endpoint auth method.
+		// PingOne's PAR endpoint enforces the registered method, so a Basic header against a
+		// CLIENT_SECRET_POST app is rejected with "Unsupported authentication method".
+		formData.append('client_id', client_id);
+		if (client_secret && auth_method === 'client_secret_basic') {
 			const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
 			headers['Authorization'] = `Basic ${credentials}`;
-			// PingOne still requires client_id in the form data even with Basic auth
-			formData.append('client_id', client_id);
-			console.log(`[PAR] Using Basic authentication for client: ${client_id}`);
+			console.log(`[PAR] Using client_secret_basic for client: ${client_id}`);
+		} else if (client_secret) {
+			// client_secret_post (default): credentials in the form body, no Basic header
+			formData.append('client_secret', client_secret);
+			console.log(`[PAR] Using client_secret_post for client: ${client_id}`);
 		} else {
-			// Fallback to client_secret_post method if no client_secret provided
-			formData.append('client_id', client_id);
-			console.log(`[PAR] Using client_secret_post method for client: ${client_id}`);
+			console.log(`[PAR] Public client (no secret) for client: ${client_id}`);
 		}
 
 		console.log(`[PAR] Sending to PingOne:`, {

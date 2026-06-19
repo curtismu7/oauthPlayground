@@ -87,7 +87,8 @@ export async function pushAuthorizationRequest(
 	const scope = resolveScope(p.credentials, p.scope);
 
 	// POST to /api/par — BFF spreads all top-level fields except environment_id,
-	// client_id, client_secret into the PAR form body and adds Basic auth.
+	// client_id, client_secret, auth_method into the PAR form body, and applies
+	// client auth per auth_method (post = secret in body, basic = Authorization header).
 	const res = await fetch('/api/par', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
@@ -95,6 +96,7 @@ export async function pushAuthorizationRequest(
 			environment_id: p.credentials.environmentId,
 			client_id: p.credentials.clientId,
 			client_secret: p.credentials.clientSecret,
+			auth_method: p.credentials.authMethod ?? 'client_secret_post',
 			// These become the PAR form body params:
 			response_type: 'code',
 			redirect_uri: p.redirectUri,
