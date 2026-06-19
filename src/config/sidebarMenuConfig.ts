@@ -189,7 +189,6 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/v2/flows/token-revocation', 'Token Revocation', true, true],
 						['/v2/flows/refresh-token', 'Refresh Token + Rotation', true, true],
 						['/v2/flows/implicit-hybrid', 'Implicit / Hybrid', true, true],
-						['/flows/implicit-v9', 'Implicit Flow', true, true],
 						['/flows/jwt-bearer-token-v9', 'JWT Bearer Token', true, true],
 						['/flows/saml-bearer-assertion-v9', 'SAML Bearer Assertion', true, true],
 					],
@@ -204,10 +203,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/v2/flows/par', 'PAR (RFC 9126)', true, true],
 						['/v2/flows/dpop', 'DPoP (RFC 9449)', true, true],
 						['/v2/flows/ropc', 'ROPC (Password Grant)', true, true],
-						['/flows/oauth-ropc-v9', 'Resource Owner Password (ROPC)', true, true],
-						['/flows/dpop', 'DPoP (Proof of Possession)', true, true],
 						['/flows/rar-v9', 'Rich Authorization Requests (RAR)', true, true],
-						['/flows/par-v9', 'Pushed Authorization Requests (PAR)', true, true],
 						['/flows/saml-sp-dynamic-acs-v1', 'SAML SP Dynamic ACS', true, true],
 						['/flows/spiffe-spire-v9', 'SPIFFE/SPIRE', true, true],
 						['/flows/wimse-v1', 'WIMSE Workload Identity', true, true],
@@ -262,9 +258,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		items: items([
 			['/flows/worker-token-v9', 'Worker Token', true],
 			['/token/operations', 'Token Operations', true],
-			['/flows/userinfo', 'UserInfo Flow', true],
 			['/flows/pingone-logout', 'PingOne Logout', true],
-			['/flows/redirectless-v9-real', 'Redirectless Login Modal', true],
 		]),
 	},
 	{
