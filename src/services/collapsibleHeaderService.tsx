@@ -154,12 +154,13 @@ const HeaderButton = styled.button<{ $variant: string; $theme: string }>`
         `;
 			case 'ping':
 				return `
-          background: ${PING_RED};
+          background: #ffffff;
+          border-bottom: 1px solid #e4e5e9;
           &:hover {
-            background: #c40024;
+            background: #f9fafb;
           }
           &:focus {
-            outline: 2px solid #ffb3c1;
+            outline: 2px solid #c7d7f5;
             outline-offset: 2px;
           }
         `;
@@ -176,7 +177,7 @@ const HeaderButton = styled.button<{ $variant: string; $theme: string }>`
         `;
 		}
 	}}
-  color: white;
+  color: ${({ $theme }) => ($theme === 'ping' ? '#23242a' : 'white')};
   border: none;
   cursor: pointer;
   display: flex;
