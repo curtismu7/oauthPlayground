@@ -37,7 +37,7 @@ const SidebarContainer = styled.div<{
 	max-width: ${(props) => props.$maxWidth ?? 600}px;
 	height: 100vh;
 	background: white;
-	border-right: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-right: 1px solid #e4e5e9;
 	transition: width 0.2s ease;
 	display: flex;
 	flex-direction: column;
@@ -65,24 +65,24 @@ const ResizeHandle = styled.div`
 		right: 2px;
 		width: 2px;
 		height: 100%;
-		background: V9_COLORS.TEXT.GRAY_LIGHTER;
+		background: #e4e5e9;
 		transition: background 0.2s ease;
 	}
 
 	&:hover {
-		background: rgba(59, 130, 246, 0.1);
+		background: rgba(39, 103, 210, 0.1);
 
 		&::after {
-			background: V9_COLORS.PRIMARY.BLUE;
+			background: #2767d2;
 			width: 3px;
 		}
 	}
 
 	&:active {
-		background: rgba(59, 130, 246, 0.2);
+		background: rgba(39, 103, 210, 0.2);
 
 		&::after {
-			background: V9_COLORS.PRIMARY.BLUE_DARK;
+			background: #1e4fa3;
 			width: 4px;
 		}
 	}
@@ -91,14 +91,14 @@ const ResizeHandle = styled.div`
 // Header section
 const SidebarHeader = styled.div`
 	padding: 16px;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid #e4e5e9;
 	background: #f9fafb;
 `;
 
 // Footer section
 const SidebarFooter = styled.div`
 	padding: 16px;
-	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-top: 1px solid #e4e5e9;
 	background: #f9fafb;
 `;
 
@@ -108,7 +108,7 @@ const DragModeToggle = styled.button<{ $isActive?: boolean }>`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem 1rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid #e4e5e9;
 	border-radius: 0.375rem;
 	background: ${(props) => (props.$isActive ? '#dbeafe' : 'white')};
 	color: ${(props) => (props.$isActive ? '#2563eb' : '#1f2937')};
@@ -119,11 +119,11 @@ const DragModeToggle = styled.button<{ $isActive?: boolean }>`
 
 	&:hover {
 		background: ${(props) => (props.$isActive ? '#e5e7eb' : '#f9fafb')};
-		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
+		border-color: #c9cdd5;
 	}
 
 	&:focus {
-		outline: 2px solid V9_COLORS.PRIMARY.BLUE;
+		outline: 2px solid #2767d2;
 		outline-offset: 2px;
 	}
 `;
@@ -135,21 +135,21 @@ const CloseButton = styled.button`
 	justify-content: center;
 	width: 2.5rem;
 	height: 2.5rem;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid #e4e5e9;
 	border-radius: 0.375rem;
 	background: white;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: #4b4c55;
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
 		background: #f9fafb;
-		border-color: V9_COLORS.TEXT.GRAY_LIGHT;
-		color: V9_COLORS.TEXT.GRAY_DARK;
+		border-color: #c9cdd5;
+		color: #23242a;
 	}
 
 	&:focus {
-		outline: 2px solid V9_COLORS.PRIMARY.BLUE;
+		outline: 2px solid #2767d2;
 		outline-offset: 2px;
 	}
 `;
@@ -272,7 +272,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			style={{
 				userSelect: isResizing ? 'none' : 'auto',
 				transition: isResizing ? 'none' : 'width 0.2s ease',
-				background: isAdmin ? '#1e293b' : undefined,
+				background: '#ffffff',
+				borderRight: '1px solid #e4e5e9',
 			}}
 		>
 			<ResizeHandle onMouseDown={handleResizeStart} title="Drag to resize sidebar" />

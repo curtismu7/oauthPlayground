@@ -10,10 +10,10 @@ import { autoApplyVersionBadge } from '../components/VersionBadgeService';
 export const USE_PING_MENU = true;
 
 /** Default sidebar width when USE_PING_MENU is true (px). Resizable between min and max. */
-export const SIDEBAR_PING_WIDTH = 520;
+export const SIDEBAR_PING_WIDTH = 310;
 /** Min/max width for Ping sidebar when resizing (px). */
-export const SIDEBAR_PING_MIN_WIDTH = 220;
-export const SIDEBAR_PING_MAX_WIDTH = 700;
+export const SIDEBAR_PING_MIN_WIDTH = 180;
+export const SIDEBAR_PING_MAX_WIDTH = 520;
 
 export interface SidebarMenuItem {
 	id: string;
