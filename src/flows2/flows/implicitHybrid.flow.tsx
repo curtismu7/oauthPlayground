@@ -123,8 +123,8 @@ const ImplicitHybridFlow: React.FC = () => {
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
-		clientId: env.VITE_PINGONE_USER_CLIENT_ID || '',
-		clientSecret: env.VITE_PINGONE_USER_CLIENT_SECRET || '',
+		clientId: env.VITE_PINGONE_IMPLICIT_CLIENT_ID || env.VITE_PINGONE_USER_CLIENT_ID || '',
+		clientSecret: env.VITE_PINGONE_IMPLICIT_CLIENT_SECRET || '',
 		scope: '',
 	});
 	const [redirectUri, setRedirectUri] = useState(defaultRedirectUri());
