@@ -1,7 +1,6 @@
 // src/pages/flows/v9/JWTBearerTokenFlowV9.tsx
 // OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V9 Service Architecture
 
-import type React from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Card, CardBody, CardHeader } from '../../../components/Card';
 import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
