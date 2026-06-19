@@ -24698,18 +24698,29 @@ app.post('/api/introspection/introspect', (req, res) => {
 // Token Revocation Endpoint (RFC 7009) — proxy to PingOne
 app.post('/api/pingone/revoke', async (req, res) => {
   try {
-    const { environment_id, region, client_id, client_secret, token, token_type_hint } = req.body;
+    const { environment_id, region, client_id, client_secret, token, token_type_hint, token_auth_method } = req.body;
     if (!environment_id || !client_id || !client_secret || !token) {
       return res.status(400).json({ error: 'invalid_request', error_description: 'Missing required parameters' });
     }
     const r = (region || 'com').toLowerCase().trim();
     const host = r === 'eu' ? 'auth.pingone.eu' : r === 'ca' ? 'auth.pingone.ca' : r === 'ap' || r === 'asia' ? 'auth.pingone.asia' : 'auth.pingone.com';
     const revokeEndpoint = `https://${host}/${environment_id}/as/revoke`;
-    const body = new URLSearchParams({ client_id, client_secret, token });
+    // Honor the client's registered auth method. Sending the secret in the body
+    // (client_secret_post) against a basic-only client makes PingOne reject the
+    // request with "Unsupported authentication method"; default to basic (header).
+    const authMethod = token_auth_method || 'client_secret_basic';
+    const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    const body = new URLSearchParams({ token });
+    if (authMethod === 'client_secret_basic') {
+      headers.Authorization = `Basic ${Buffer.from(`${client_id}:${client_secret}`).toString('base64')}`;
+    } else {
+      body.set('client_id', client_id);
+      body.set('client_secret', client_secret);
+    }
     if (token_type_hint) body.set('token_type_hint', token_type_hint);
     const response = await global.fetch(revokeEndpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers,
       body: body.toString(),
     });
     // RFC 7009 §2.2: server should return 200 for valid requests
