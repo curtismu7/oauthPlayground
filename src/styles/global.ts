@@ -12,6 +12,7 @@ export const theme = {
 		info: '#17a2b8',
 		light: '#ffffff',
 		dark: '#000000',
+		appBg: '#f7f7f5',
 		gray100: '#ffffff',
 		gray200: '#f5f5f5',
 		gray300: '#e0e0e0',
@@ -26,15 +27,13 @@ export const theme = {
 	},
 	fonts: {
 		body: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-		heading:
-			'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-		monospace:
-			'SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+		heading: '"Fraunces", Georgia, serif',
+		monospace: '"IBM Plex Mono", ui-monospace, monospace',
 	},
 	shadows: {
-		sm: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-		md: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
-		lg: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
+		sm: '0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04)',
+		md: '0 4px 16px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.04)',
+		lg: '0 8px 32px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.08)',
 	},
 	breakpoints: {
 		sm: '640px',
@@ -56,6 +55,16 @@ export const GlobalStyle = createGlobalStyle`
     --card-radius: 12px;
     --card-padding: 16px;
     --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    /* Ping2026 shared vars */
+    --pp-bg: #f7f7f5;
+    --pp-surface: #ffffff;
+    --pp-accent: #2767d2;
+    --pp-accent-tint: #e8edfc;
+    --pp-line: #e4e5e9;
+    --pp-ink: #23242a;
+    --pp-ink-2: #4b4c55;
+    --pp-ink-3: #8c8c88;
+    --pp-brand-red: #b3282d;
   }
 
   /* Dark mode - Keep accessible contrast */
@@ -81,7 +90,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    background-color: ${({ theme }) => theme.colors.gray100};
+    background-color: ${({ theme }) => theme.colors.appBg};
     color: ${({ theme }) => theme.colors.gray900};
     line-height: 1.6;
   }
@@ -112,6 +121,10 @@ export const GlobalStyle = createGlobalStyle`
     font-weight: 600;
     line-height: 1.2;
     color: ${({ theme }) => theme.colors.gray900};
+  }
+
+  h1, h2, h3 {
+    font-family: ${({ theme }) => theme.fonts.heading};
   }
 
   h1 { font-size: 2.5rem; }
