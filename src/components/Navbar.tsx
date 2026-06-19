@@ -32,15 +32,15 @@ const NavbarContainer = styled.nav<{ $sidebarOpen?: boolean; $sidebarWidth?: num
 	top: 0;
 	left: 0;
 	right: 0;
-	height: 80px;
-	background-color: ${({ theme }) => theme.colors.primary};
-	color: white;
+	height: 64px;
+	background-color: #ffffff;
+	border-bottom: 1px solid #e4e5e9;
+	color: #23242a;
 	display: flex;
 	align-items: center;
 	padding: 0 1.5rem;
 	/* App chrome; EnhancedFloatingLogViewer (10100) opens above when open */
 	z-index: 10050;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	transition: left 0.3s ease;
 
 	/* On desktop (768px+), adjust for sidebar if it's open */
@@ -130,8 +130,8 @@ const NavItems = styled.div`
 	button,
 	a {
 		background: white;
-		border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
-		color: black;
+		border: 1px solid #e4e5e9;
+		color: #23242a;
 		font-size: 1.25rem;
 		cursor: pointer;
 		padding: 0.5rem;
@@ -142,7 +142,7 @@ const NavItems = styled.div`
 		transition: all 0.2s;
 
 		&:hover {
-			background-color: V9_COLORS.BG.GRAY_LIGHT;
+			background-color: #f3f4f6;
 			transform: translateY(-1px);
 			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 		}
@@ -207,22 +207,22 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 `;
 
 const ModalContent = styled.div`
-	background: V9_COLORS.TEXT.WHITE;
+	background: #ffffff;
 	border-radius: 12px;
 	box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
 	width: 100%;
 	max-width: 500px;
 	position: relative;
-	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border: 1px solid #e4e5e9;
 `;
 
 const ModalHeader = styled.div`
 	padding: 1.5rem 2rem;
-	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
+	border-bottom: 1px solid #e4e5e9;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+	background: linear-gradient(135deg, #2767d2 0%, #1e4fa3 100%);
 	border-radius: 12px 12px 0 0;
 	color: white;
 `;
@@ -259,7 +259,7 @@ const ModalBody = styled.div`
 
 const ModalMessage = styled.p`
 	margin: 0 0 1.5rem 0;
-	color: V9_COLORS.TEXT.GRAY_MEDIUM;
+	color: #4b4c55;
 	line-height: 1.6;
 	font-size: 0.95rem;
 `;
@@ -285,24 +285,24 @@ const ExportButton = styled.button<{ $variant: 'markdown' | 'pdf' }>`
 	${({ $variant }) => {
 		if ($variant === 'markdown') {
 			return `
-        background-color: V9_COLORS.PRIMARY.BLUE;
-        color: V9_COLORS.TEXT.WHITE;
-        border-color: V9_COLORS.PRIMARY.BLUE_DARK;
-        
+        background-color: #2767d2;
+        color: #ffffff;
+        border-color: #1e4fa3;
+
         &:hover {
-          background-color: V9_COLORS.PRIMARY.BLUE_DARK;
-          border-color: V9_COLORS.PRIMARY.BLUE_DARK;
+          background-color: #1e4fa3;
+          border-color: #1e4fa3;
         }
       `;
 		} else {
 			return `
-        background-color: V9_COLORS.PRIMARY.RED_DARK;
-        color: V9_COLORS.TEXT.WHITE;
-        border-color: V9_COLORS.PRIMARY.RED_DARK;
-        
+        background-color: #b3282d;
+        color: #ffffff;
+        border-color: #b3282d;
+
         &:hover {
-          background-color: V9_COLORS.PRIMARY.RED_DARK;
-          border-color: V9_COLORS.PRIMARY.RED_DARK;
+          background-color: #8f2023;
+          border-color: #8f2023;
         }
       `;
 		}
@@ -428,14 +428,35 @@ const Navbar: React.FC<NavbarProps> = ({
 				</MenuButton>
 
 				<Logo>
-					<img src="/images/ping-identity-logo.png" alt="Ping Identity" />
+					<div
+						aria-hidden="true"
+						style={{
+							width: 22,
+							height: 22,
+							background: '#b3282d',
+							borderRadius: 3,
+							flexShrink: 0,
+						}}
+					/>
 					<div>
-						<span>PingOne MasterFlow API</span>
-						<div className="user-info" aria-live="polite">
+						<span style={{ color: '#23242a', fontSize: 17, fontWeight: 700 }}>PingOne MasterFlow API</span>
+						<div
+							className="user-info"
+							aria-live="polite"
+							style={{
+								background: '#fdeaea',
+								color: '#b3282d',
+								borderRadius: 4,
+								padding: '1px 6px',
+								fontSize: '0.7rem',
+								display: 'inline-block',
+								marginTop: 2,
+							}}
+						>
 							Version {APP_VERSION}
 						</div>
 						{isAuthenticated && user && (
-							<div className="user-info" aria-live="polite">
+							<div className="user-info" aria-live="polite" style={{ color: '#4b4c55' }}>
 								Welcome, {user.name || user.email}
 							</div>
 						)}

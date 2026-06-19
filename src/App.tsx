@@ -401,7 +401,7 @@ const AppContainer = styled.div`
 	height: 100vh;
 	min-height: 100vh;
 	overflow: hidden;
-	background-color: ${({ theme }) => theme.colors.gray100};
+	background-color: ${({ theme }) => theme.colors.appBg};
 	text-align: left;
 	direction: ltr;
 `;
@@ -421,10 +421,10 @@ const MainContent = styled.main<{ $sidebarWidth: number }>`
 	flex: 1;
 	min-height: 0; /* Allow flex child to shrink so overflow-y: auto can scroll */
 	padding: 1.5rem 2rem;
-	padding-top: calc(80px + 1.5rem); /* Account for fixed navbar (80px) + normal top padding */
+	padding-top: calc(64px + 1.5rem); /* Account for fixed navbar (64px) + normal top padding */
 	max-width: 100%; /* Use full content column width; no extra margin so area next to sidebar scrolls */
 	width: 100%;
-	background-color: ${({ theme }) => theme.colors.white};
+	background-color: ${({ theme }) => theme.colors.appBg};
 	text-align: left;
 	direction: ltr;
 	overflow-y: auto; /* Enable scrolling for main content only */
@@ -1859,6 +1859,7 @@ declare module 'styled-components' {
 			info: string;
 			light: string;
 			dark: string;
+			appBg: string;
 			gray100: string;
 			gray200: string;
 			gray300: string;
