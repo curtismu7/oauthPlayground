@@ -77,11 +77,14 @@ const HeaderContainer = styled.div<{
 			return baseColors[$flowType] || baseColors.default;
 		}
 	}};
-	color: white !important;
+	/* Flat AI-Demo (ping2026) look: clean white header overrides the gradient above */
+	background: #ffffff;
+	color: #23242a;
+	border: 1px solid #e4e5e9;
 	padding: 0.75rem 1.5rem;
 	border-radius: 12px;
 	margin-bottom: 1.5rem;
-	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
 	position: relative;
 	overflow: hidden;
 	display: flex;
@@ -128,7 +131,7 @@ const HeaderBadge = styled.div<{
 		} else if (hasSecurityFeatures) {
 			return 'rgba(34, 197, 94, 0.3)'; // Green for security features
 		} else {
-			return 'rgba(255, 255, 255, 0.2)'; // Default white
+			return 'rgba(39, 103, 210, 0.12)'; // Default accent tint
 		}
 	}};
 	backdrop-filter: blur(10px);
@@ -139,8 +142,8 @@ const HeaderBadge = styled.div<{
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	margin-bottom: 0.25rem;
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	color: #ffffff !important;
+	border: 1px solid #d3e0fb;
+	color: #2767d2 !important;
 `;
 
 const StatusBadge = styled.span<{ $type: 'experimental' | 'deprecated' }>`
@@ -165,8 +168,7 @@ const HeaderTitle = styled.h1`
 	font-weight: 700;
 	margin: 0;
 	line-height: 1.2;
-	color: #ffffff !important;
-	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+	color: #23242a;
 
 	@media (max-width: 768px) {
 		font-size: 1.25rem;
@@ -176,10 +178,9 @@ const HeaderTitle = styled.h1`
 const HeaderSubtitle = styled.p`
 	font-size: 0.9rem;
 	margin: 0;
-	color: rgba(255, 255, 255, 0.95) !important;
+	color: #4b4c55;
 	line-height: 1.5;
 	max-width: 800px;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
 	@media (max-width: 768px) {
 		font-size: 0.8rem;
@@ -190,9 +191,9 @@ const VersionDisplay = styled.div`
 	text-align: center;
 	margin-top: 0.5rem;
 	padding-top: 0.5rem;
-	border-top: 1px solid rgba(255, 255, 255, 0.2);
+	border-top: 1px solid #e4e5e9;
 	font-size: 0.8rem;
-	color: rgba(255, 255, 255, 0.9) !important;
+	color: #8c8c88 !important;
 	font-weight: 500;
 `;
 
