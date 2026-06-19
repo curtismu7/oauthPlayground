@@ -87,8 +87,8 @@ const TokenExchangeFlow: React.FC = () => {
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
-		clientId: env.VITE_PINGONE_WORKER_CLIENT_ID || '',
-		clientSecret: env.VITE_PINGONE_WORKER_CLIENT_SECRET || '',
+		clientId: env.VITE_PINGONE_TOKEN_EXCHANGE_CLIENT_ID || env.VITE_PINGONE_WORKER_CLIENT_ID || '',
+		clientSecret: env.VITE_PINGONE_TOKEN_EXCHANGE_CLIENT_SECRET || env.VITE_PINGONE_WORKER_CLIENT_SECRET || '',
 		authMethod: 'client_secret_post',
 	});
 	const [subjectToken, setSubjectToken] = useState('');
