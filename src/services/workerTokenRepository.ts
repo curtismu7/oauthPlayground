@@ -159,7 +159,7 @@ export class WorkerTokenRepository {
 		logger.info('WorkerTokenRepository', `${MODULE_TAG} Saving token...`);
 
 		// DEBUG: Log the token being saved
-		logger.info('WorkerTokenRepository', `${MODULE_TAG} 🔍 DEBUG - Saving token:`, {
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} DEBUG - Saving token:`, {
 			arg0: {
 				hasToken: !!token,
 				tokenLength: token?.length || 0,
@@ -224,7 +224,7 @@ export class WorkerTokenRepository {
 		const expiresAtMs = data.expiresAt != null ? new Date(data.expiresAt).getTime() : NaN;
 		const expiresAtLabel =
 			Number.isNaN(expiresAtMs) || expiresAtMs <= 0 ? 'none' : new Date(expiresAtMs).toISOString();
-		logger.info('WorkerTokenRepository', `${MODULE_TAG} 🔍 DEBUG - Retrieved token:`, {
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} DEBUG - Retrieved token:`, {
 			arg0: {
 				hasToken: !!data.token,
 				tokenLength: data.token?.length || 0,
@@ -353,7 +353,7 @@ export class WorkerTokenRepository {
 
 				if (stored) {
 					const legacyData = JSON.parse(stored);
-					logger.info('WorkerTokenRepository', `${MODULE_TAG} 📦 Found legacy data in ${key}:`, {
+					logger.info('WorkerTokenRepository', `${MODULE_TAG} Found legacy data in ${key}:`, {
 						arg0: {
 							hasEnvironmentId: !!legacyData.environmentId || !!legacyData.environment_id,
 							hasClientId: !!legacyData.clientId || !!legacyData.client_id,
@@ -404,7 +404,7 @@ export class WorkerTokenRepository {
 
 					logger.info(
 						'WorkerTokenRepository',
-						`${MODULE_TAG} 🔄 Successfully migrated credentials from legacy key: ${key}`,
+						`${MODULE_TAG} Successfully migrated credentials from legacy key: ${key}`,
 						{
 							arg0: {
 								environmentId: `${unifiedCredentials.environmentId?.substring(0, 8)}...`,

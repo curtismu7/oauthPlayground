@@ -140,7 +140,7 @@ const SDKDocumentation: React.FC = () => {
 			<BackButton to="/sdk-examples">← Back to SDK Examples</BackButton>
 
 			<DocumentationHeader
-				emoji="📖"
+				emoji=""
 				title="SDK Documentation"
 				description="Comprehensive documentation for PingOne SDKs, including usage guides, examples, and best practices for integrating PingOne services into your applications."
 			/>

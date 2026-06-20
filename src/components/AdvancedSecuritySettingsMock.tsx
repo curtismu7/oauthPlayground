@@ -370,7 +370,7 @@ const AdvancedSecuritySettingsMock: React.FC = () => {
 	return (
 		<Container>
 			<Header>
-				<span style={{ fontSize: '24px' }}>🌐</span>
+				<span style={{ fontSize: '24px' }}></span>
 				<div>
 					<Title>Advanced Security Settings</Title>
 					<Description>
@@ -383,7 +383,7 @@ const AdvancedSecuritySettingsMock: React.FC = () => {
 			{assessment && (
 				<SecurityAssessment level={assessment.overall}>
 					<AssessmentHeader>
-						<span style={{ fontSize: '20px' }}>🛡️</span>
+						<span style={{ fontSize: '20px' }}></span>
 						<AssessmentTitle>Security Assessment</AssessmentTitle>
 						<SecurityBadge level={assessment.overall}>
 							{assessment.overall.toUpperCase()}
@@ -491,11 +491,11 @@ const AdvancedSecuritySettingsMock: React.FC = () => {
 
 			<ActionBar>
 				<ActionButton onClick={handleReset}>
-					<span style={{ fontSize: '16px' }}>🔄</span>
+					<span style={{ fontSize: '16px' }}></span>
 					Reset to Defaults
 				</ActionButton>
 				<ActionButton onClick={handleExport}>
-					<span style={{ fontSize: '16px' }}>📥</span>
+					<span style={{ fontSize: '16px' }}></span>
 					Export Settings
 				</ActionButton>
 				<ActionButton variant="primary">

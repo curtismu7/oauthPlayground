@@ -45,7 +45,7 @@ export interface UseWorkerTokenReturn {
 	showTokenOnly: boolean;
 }
 
-const MODULE_TAG = '[🔐 USE-WORKER-TOKEN]';
+const MODULE_TAG = '[ USE-WORKER-TOKEN]';
 
 /**
  * Custom hook for managing worker token state and operations

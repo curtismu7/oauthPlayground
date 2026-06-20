@@ -22,7 +22,7 @@
 import { logger } from '../../utils/logger';
 import { STORAGE_KEYS, StorageServiceV8 } from './storageServiceV8';
 
-const MODULE_TAG = '[🔄 FLOW-RESET-V8]';
+const MODULE_TAG = '[ FLOW-RESET-V8]';
 
 // ============================================================================
 // TYPES
@@ -417,7 +417,7 @@ export class FlowResetServiceV8 {
 		if (summary.credentials) items.push('✓ Keep credentials');
 		if (summary.workerToken) items.push('✓ Keep worker token');
 
-		return `🔄 Reset Flow?\n\nThis will:\n${items.join('\n')}\n\nContinue?`;
+		return ` Reset Flow?\n\nThis will:\n${items.join('\n')}\n\nContinue?`;
 	}
 }
 

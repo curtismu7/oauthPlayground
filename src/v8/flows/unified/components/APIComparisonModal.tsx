@@ -333,7 +333,7 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 											color: '#374151',
 										}}
 									>
-										📝 Notes
+										 Notes
 									</h4>
 									<p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: '1.5' }}>
 										{flow.notes}
@@ -360,7 +360,7 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 									color: '#111827',
 								}}
 							>
-								🔑 Key Differences
+								 Key Differences
 							</h3>
 							<ul
 								style={{

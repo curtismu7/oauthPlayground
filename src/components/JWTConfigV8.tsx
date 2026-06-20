@@ -21,7 +21,7 @@ import {
 } from '../utils/keyGeneration';
 import { logger } from '../utils/logger';
 
-const MODULE_TAG = '[🔐 JWT-CONFIG-V8]';
+const MODULE_TAG = '[ JWT-CONFIG-V8]';
 
 interface JWTConfigV8Props {
 	type: 'client_secret_jwt' | 'private_key_jwt';
@@ -469,9 +469,9 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 							aria-label={showSecret ? 'Hide secret' : 'Show secret'}
 						>
 							{showSecret ? (
-								<span style={{ fontSize: '16px' }}>🙈</span>
+								<span style={{ fontSize: '16px' }}></span>
 							) : (
-								<span style={{ fontSize: '16px' }}>👁️</span>
+								<span style={{ fontSize: '16px' }}></span>
 							)}
 						</button>
 					</PasswordInputWrapper>
@@ -486,7 +486,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 								padding: '0.5rem 0.75rem',
 							}}
 						>
-							<span style={{ fontSize: '14px' }}>🔄</span>
+							<span style={{ fontSize: '14px' }}></span>
 							{isGeneratingKey ? 'Generating...' : 'Generate Secret'}
 						</Button>
 					</ButtonGroup>
@@ -513,7 +513,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 									padding: '0.5rem 0.75rem',
 								}}
 							>
-								<span style={{ fontSize: '14px' }}>🔄</span>
+								<span style={{ fontSize: '14px' }}></span>
 								{isGeneratingKey ? 'Generating...' : 'Generate Key Pair'}
 							</Button>
 						</ButtonGroup>
@@ -565,7 +565,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 
 			<ButtonGroup>
 				<Button onClick={handleGenerate} disabled={isGenerating}>
-					<span style={{ fontSize: '16px' }}>🔑</span>
+					<span style={{ fontSize: '16px' }}></span>
 					{isGenerating ? 'Generating...' : 'Generate JWT'}
 				</Button>
 			</ButtonGroup>
@@ -599,7 +599,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 							<JWTDisplay>{result.jwt}</JWTDisplay>
 							<ButtonGroup>
 								<CopyButton onClick={handleCopyJWT}>
-									<span style={{ fontSize: '14px' }}>📋</span>
+									<span style={{ fontSize: '14px' }}></span>
 									Copy JWT
 								</CopyButton>
 							</ButtonGroup>

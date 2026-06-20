@@ -308,7 +308,7 @@ export const PerformanceMonitor: React.FC = () => {
 		<MonitorContainer>
 			<MonitorHeader>
 				<MonitorIcon>
-					<span>🔄</span>
+					<span></span>
 				</MonitorIcon>
 				<MonitorTitle>Performance Monitor</MonitorTitle>
 			</MonitorHeader>
@@ -318,7 +318,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Load Time</MetricLabel>
 						<MetricIcon trend={metrics.loadTime < 1000 ? 'up' : 'down'}>
-							<span>🕐</span>
+							<span></span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -332,7 +332,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Render Time</MetricLabel>
 						<MetricIcon trend={metrics.renderTime < 500 ? 'up' : 'down'}>
-							<span>⚡</span>
+							<span></span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -346,7 +346,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Memory Usage</MetricLabel>
 						<MetricIcon>
-							<span>🔄</span>
+							<span></span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -360,7 +360,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Bundle Size</MetricLabel>
 						<MetricIcon>
-							<span>📥</span>
+							<span></span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -374,7 +374,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Chunk Count</MetricLabel>
 						<MetricIcon>
-							<span>📈</span>
+							<span></span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{metrics.chunkCount}</MetricValue>
@@ -385,7 +385,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Cache Hit Rate</MetricLabel>
 						<MetricIcon trend={metrics.cacheHitRate > 80 ? 'up' : 'down'}>
-							<span>📈</span>
+							<span></span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -399,7 +399,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Error Rate</MetricLabel>
 						<MetricIcon trend={metrics.errorRate < 5 ? 'up' : 'down'}>
-							<span>📉</span>
+							<span></span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>
@@ -413,7 +413,7 @@ export const PerformanceMonitor: React.FC = () => {
 					<MetricHeader>
 						<MetricLabel>Loaded Components</MetricLabel>
 						<MetricIcon>
-							<span>⚡</span>
+							<span></span>
 						</MetricIcon>
 					</MetricHeader>
 					<MetricValue>{lazyLoadingMetrics.loadedComponents}</MetricValue>

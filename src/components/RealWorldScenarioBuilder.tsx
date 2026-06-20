@@ -288,7 +288,7 @@ interface ScenarioConfig {
 const scenarios: ScenarioConfig[] = [
 	{
 		id: 'banking-mfa',
-		icon: <span>💵</span>,
+		icon: <span></span>,
 		iconColor:
 			'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
 		title: 'Banking App with MFA',
@@ -308,7 +308,7 @@ const scenarios: ScenarioConfig[] = [
 		whyItMatters:
 			'Financial apps MUST force fresh authentication (max_age=300 = 5 min), require MFA (acr_values), and use PKCE for mobile apps. PCI-DSS compliance requires these security measures.',
 		industryExample:
-			'💳 Chase, Bank of America, and Wells Fargo use these exact parameters for their mobile banking apps.',
+			' Chase, Bank of America, and Wells Fargo use these exact parameters for their mobile banking apps.',
 		codeExamples: {
 			javascript: `// Banking App OAuth Configuration
 import crypto from 'crypto';
@@ -487,7 +487,7 @@ public class BankingOAuthConfig
 	},
 	{
 		id: 'saas-multi-tenant',
-		icon: <span>🌐</span>,
+		icon: <span></span>,
 		iconColor:
 			'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 		title: 'Multi-Tenant SaaS Platform',
@@ -503,7 +503,7 @@ public class BankingOAuthConfig
 		whyItMatters:
 			"Multi-tenant SaaS apps need resource indicators (RFC 8707) to limit token scope. If CustomerA's token is stolen, it can't access CustomerB's data.",
 		industryExample:
-			'☁️ Salesforce, HubSpot, and Zendesk use resource indicators to isolate customer data.',
+			' Salesforce, HubSpot, and Zendesk use resource indicators to isolate customer data.',
 		codeExamples: {
 			javascript: `// Multi-Tenant SaaS OAuth
 import crypto from 'crypto';
@@ -727,7 +727,7 @@ public class SaaSMultiTenantOAuth
 	},
 	{
 		id: 'mobile-ecommerce',
-		icon: <span>🛒</span>,
+		icon: <span></span>,
 		iconColor:
 			'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)',
 		title: 'Mobile E-Commerce App',
@@ -744,7 +744,7 @@ public class SaaSMultiTenantOAuth
 		whyItMatters:
 			'Mobile apps CANNOT securely store client secrets. PKCE is MANDATORY. offline_access scope provides refresh tokens for persistent login.',
 		industryExample:
-			'🛒 Amazon, eBay, and Shopify mobile apps use PKCE + offline_access for seamless shopping.',
+			' Amazon, eBay, and Shopify mobile apps use PKCE + offline_access for seamless shopping.',
 		codeExamples: {
 			javascript: `// Mobile E-Commerce OAuth (React Native)
 import * as Crypto from 'expo-crypto';
@@ -1109,7 +1109,7 @@ public class MobileOAuthManager
 	},
 	{
 		id: 'iot-device',
-		icon: <span>📱</span>,
+		icon: <span></span>,
 		iconColor:
 			'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 		title: 'IoT Device / Smart TV',
@@ -1123,7 +1123,7 @@ public class MobileOAuthManager
 		whyItMatters:
 			'Devices without browsers (Smart TVs, IoT sensors, CLI tools) use Device Authorization Flow. User authenticates on their phone/computer, device polls for completion.',
 		industryExample:
-			'📺 Netflix, YouTube, and Spotify on Smart TVs use Device Flow for easy login.',
+			' Netflix, YouTube, and Spotify on Smart TVs use Device Flow for easy login.',
 		codeExamples: {
 			javascript: `// IoT Device / Smart TV OAuth (Device Flow)
 import fetch from 'node-fetch';
@@ -1145,7 +1145,7 @@ async function deviceFlowAuth() {
   const deviceData = await deviceResponse.json();
   
   // Display to user
-  logger.info(\`\\n🔐 To activate this device:\`, "Logger info");
+  logger.info(\`\\n To activate this device:\`, "Logger info");
   logger.info(\`\\n   1. Visit: \${deviceData.verification_uri}\`, "Logger info");
   logger.info(\`   2. Enter code: \${deviceData.user_code}\`, "Logger info");
   logger.info(\`\\n   Waiting for authorization...\\n\`, "Logger info");
@@ -1236,7 +1236,7 @@ class DeviceFlowAuth:
         device_data = device_response.json()
         
         # Display to user
-        print(f"\\n🔐 To activate this device:")
+        print(f"\\n To activate this device:")
         print(f"\\n   1. Visit: {device_data['verification_uri']}")
         print(f"   2. Enter code: {device_data['user_code']}")
         print(f"\\n   Waiting for authorization...\\n")
@@ -1337,7 +1337,7 @@ public class DeviceFlowAuth {
         );
         
         // Display to user
-        System.out.println("\\n🔐 To activate this device:");
+        System.out.println("\\n To activate this device:");
         System.out.println("\\n   1. Visit: " + deviceData.verificationUri);
         System.out.println("   2. Enter code: " + deviceData.userCode);
         System.out.println("\\n   Waiting for authorization...\\n");
@@ -1439,7 +1439,7 @@ public class DeviceFlowAuth
         var deviceData = JsonSerializer.Deserialize<DeviceCodeResponse>(deviceJson);
         
         // Display to user
-        Console.WriteLine($"\\n🔐 To activate this device:");
+        Console.WriteLine($"\\n To activate this device:");
         Console.WriteLine($"\\n   1. Visit: {deviceData.VerificationUri}");
         Console.WriteLine($"   2. Enter code: {deviceData.UserCode}");
         Console.WriteLine($"\\n   Waiting for authorization...\\n");
@@ -1521,11 +1521,11 @@ const RealWorldScenarioBuilder: React.FC = () => {
 	return (
 		<BuilderContainer>
 			<Title>
-				<span style={{ fontSize: '32px' }}>🌐</span>
+				<span style={{ fontSize: '32px' }}></span>
 				Real-World Scenario Builder
 			</Title>
 			<Subtitle>
-				🎯 Choose your use case, get pre-configured OAuth parameters and production-ready code in
+				 Choose your use case, get pre-configured OAuth parameters and production-ready code in
 				your language. No guesswork!
 			</Subtitle>
 
@@ -1567,7 +1567,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 
 							<WhyBox>
 								<WhyTitle>
-									<span>🔒</span>
+									<span></span>
 									Why These Parameters Matter
 								</WhyTitle>
 								<WhyText>{scenario.whyItMatters}</WhyText>
@@ -1629,7 +1629,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 
 						<CodeBlock>
 							<CopyButton onClick={() => copyCode(scenario.codeExamples[selectedLanguage])}>
-								<span>📋</span>
+								<span></span>
 								Copy Code
 							</CopyButton>
 							{scenario.codeExamples[selectedLanguage]}
@@ -1637,11 +1637,11 @@ const RealWorldScenarioBuilder: React.FC = () => {
 
 						<ActionButtons>
 							<ActionButton onClick={() => copyCode(scenario.codeExamples[selectedLanguage])}>
-								<span>📋</span>
+								<span></span>
 								Copy to Clipboard
 							</ActionButton>
 							<ActionButton variant="secondary" onClick={() => setSelectedScenario(null)}>
-								<span>🌐</span>
+								<span></span>
 								Choose Different Scenario
 							</ActionButton>
 						</ActionButtons>
@@ -1658,7 +1658,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 						fontSize: '1.1rem',
 					}}
 				>
-					👆 Select a scenario above to see pre-configured OAuth parameters and production code
+					 Select a scenario above to see pre-configured OAuth parameters and production code
 				</div>
 			)}
 		</BuilderContainer>

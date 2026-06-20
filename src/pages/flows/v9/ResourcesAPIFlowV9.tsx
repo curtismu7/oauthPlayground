@@ -322,7 +322,7 @@ logger.info('Access control check completed:', accessResult);`,
 				<FlowHeader flowType="resources-api-v9" customConfig={{ flowType: 'pingone' }} />
 
 				<Header>
-					<Title>📚 PingOne Resources API</Title>
+					<Title> PingOne Resources API</Title>
 					<Subtitle>
 						Master OAuth 2.0 resource management with PingOne Resources API. Learn to register
 						resources, manage scopes, and implement fine-grained access control.
@@ -330,7 +330,7 @@ logger.info('Access control check completed:', accessResult);`,
 				</Header>
 
 				<DocLinksSection>
-					<DocLinksTitle>📖 PingOne Resources – Find documentation</DocLinksTitle>
+					<DocLinksTitle> PingOne Resources – Find documentation</DocLinksTitle>
 					<DocLinksList>
 						<li>
 							<DocLink

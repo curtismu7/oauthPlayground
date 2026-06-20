@@ -30,7 +30,7 @@ declare global {
 	}
 }
 
-const MODULE_TAG = '[🔑 UNIFIED-WORKER-TOKEN]';
+const MODULE_TAG = '[ UNIFIED-WORKER-TOKEN]';
 
 // Storage key for fast sync access (cache only; SQLite is source of truth for credentials)
 const BROWSER_STORAGE_KEY = 'unified_worker_token';

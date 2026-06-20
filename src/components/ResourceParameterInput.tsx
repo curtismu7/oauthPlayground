@@ -430,7 +430,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 		<Container>
 			<EducationalHeader>
 				<EducationalTitle>
-					<span>🖥️</span>
+					<span></span>
 					Resources
 				</EducationalTitle>
 				<EducationalContent>
@@ -493,7 +493,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 							color: '#3b82f6',
 						}}
 					>
-						💡 <strong>Tip:</strong> If you're unsure, use the PingOne base URL (shown in blue
+						 <strong>Tip:</strong> If you're unsure, use the PingOne base URL (shown in blue
 						below) as your resource. This tells the authorization server to issue a token for your
 						specific PingOne environment.
 					</p>
@@ -502,7 +502,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 
 			<Label>
 				<LabelIcon>
-					<span>🖥️</span>
+					<span></span>
 				</LabelIcon>
 				Add Resources (Optional)
 			</Label>
@@ -518,7 +518,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 								disabled={disabled}
 								title="Remove resource"
 							>
-								<span style={{ fontSize: '16px' }}>🗑️</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</RemoveButton>
 						</ResourceItem>
 					))}

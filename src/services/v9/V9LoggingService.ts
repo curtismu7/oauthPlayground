@@ -7,7 +7,7 @@
 
 import { logger as baseLogger } from '@/utils/logger';
 
-const MODULE_TAG = '[📊 V9-LOGGING]';
+const MODULE_TAG = '[ V9-LOGGING]';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'success';
 
@@ -65,7 +65,7 @@ function sanitizeContext(ctx: LogContext): LogContext {
 
 function formatMessage(level: LogLevel, message: string, context: LogContext): string {
 	const emoji: Record<LogLevel, string> = {
-		debug: '🔍',
+		debug: '',
 		info: 'ℹ️',
 		warn: '⚠️',
 		error: '❌',

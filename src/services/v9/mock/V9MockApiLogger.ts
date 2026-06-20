@@ -10,7 +10,7 @@
 
 import { logger } from '../../../utils/logger';
 
-const MODULE_TAG = '[🎭 V7M-MOCK-API]';
+const MODULE_TAG = '[ V7M-MOCK-API]';
 
 // ============================================================================
 // INTERFACES
@@ -138,39 +138,39 @@ class V9MockApiLogger {
 			'',
 			'************************************************************************************',
 			'******************************************************************                  *                                                                                   ',
-			`*  🌐 MOCK PINGONE API CALL: ${endpoint}`,
-			`*  📅 Timestamp: ${new Date().toISOString()}`,
-			`*  🕐 Local Time: ${new Date().toLocaleString()}`,
+			`* MOCK PINGONE API CALL: ${endpoint}`,
+			`* Timestamp: ${new Date().toISOString()}`,
+			`* Local Time: ${new Date().toLocaleString()}`,
 			'*                                                                                   ',
 			'************************************************************************************',
 			'******************************************************************                  ',
 			'═══════════════════════════════════════════════════════════════════════════════',
-			'📤 REQUEST',
+			' REQUEST',
 			'═══════════════════════════════════════════════════════════════════════════════',
-			`📍 URL: ${url}`,
-			`🔧 METHOD: ${method}`,
+			` URL: ${url}`,
+			` METHOD: ${method}`,
 		];
 
 		// Add headers
 		if (headers && Object.keys(headers).length > 0) {
-			mockLogEntries.push(`📋 REQUEST HEADERS: ${JSON.stringify(headers, null, 2)}`);
+			mockLogEntries.push(` REQUEST HEADERS: ${JSON.stringify(headers, null, 2)}`);
 		}
 
 		// Add query parameters
 		if (queryParams && Object.keys(queryParams).length > 0) {
-			mockLogEntries.push(`🔍 QUERY PARAMETERS: ${JSON.stringify(queryParams, null, 2)}`);
+			mockLogEntries.push(` QUERY PARAMETERS: ${JSON.stringify(queryParams, null, 2)}`);
 		}
 
 		// Add body
 		if (body) {
 			const bodyStr = typeof body === 'string' ? body : JSON.stringify(body, null, 2);
-			mockLogEntries.push(`📦 REQUEST BODY (JSON): ${bodyStr}`);
+			mockLogEntries.push(` REQUEST BODY (JSON): ${bodyStr}`);
 		}
 
 		// Add flow context
 		if (flowType || step || environmentId || clientId) {
 			mockLogEntries.push(
-				'🏷️  FLOW CONTEXT: ' +
+				' FLOW CONTEXT: ' +
 					JSON.stringify(
 						{
 							flowType,
@@ -187,7 +187,7 @@ class V9MockApiLogger {
 		// Add mock note
 		mockLogEntries.push(
 			'',
-			'🎭 MOCK NOTE: This is a simulated API call for educational purposes.',
+			' MOCK NOTE: This is a simulated API call for educational purposes.',
 			'   In a real implementation, this would make an actual HTTP request to PingOne.',
 			''
 		);
@@ -217,7 +217,7 @@ class V9MockApiLogger {
 		const mockLogEntries = [
 			'',
 			'═══════════════════════════════════════════════════════════════════════════════',
-			'📥 RESPONSE',
+			' RESPONSE',
 			'═══════════════════════════════════════════════════════════════════════════════',
 			`✅ STATUS: ${responseStatus} ${V9MockApiLogger.getStatusText(responseStatus)}`,
 			`⏱️  DURATION: ${duration}ms`,
@@ -227,13 +227,13 @@ class V9MockApiLogger {
 		if (responseData) {
 			const dataStr =
 				typeof responseData === 'string' ? responseData : JSON.stringify(responseData, null, 2);
-			mockLogEntries.push(`📦 RESPONSE BODY (JSON): ${dataStr}`);
+			mockLogEntries.push(` RESPONSE BODY (JSON): ${dataStr}`);
 		}
 
 		// Add flow context
 		if (flowType || step) {
 			mockLogEntries.push(
-				'🏷️  FLOW CONTEXT: ' +
+				' FLOW CONTEXT: ' +
 					JSON.stringify(
 						{
 							flowType,
@@ -248,7 +248,7 @@ class V9MockApiLogger {
 
 		mockLogEntries.push(
 			'',
-			'🎭 MOCK NOTE: Mock response generated successfully for educational purposes.',
+			' MOCK NOTE: Mock response generated successfully for educational purposes.',
 			'',
 			'************************************************************************************',
 			'******************************************************************                  *                                                                                   ',
@@ -280,17 +280,17 @@ class V9MockApiLogger {
 		const mockLogEntries = [
 			'',
 			'═══════════════════════════════════════════════════════════════════════════════',
-			'📥 RESPONSE',
+			' RESPONSE',
 			'═══════════════════════════════════════════════════════════════════════════════',
 			`❌ STATUS: ${responseStatus} ${V9MockApiLogger.getStatusText(responseStatus)}`,
 			`⏱️  DURATION: ${duration}ms`,
-			`🚨 ERROR: ${responseError}`,
+			` ERROR: ${responseError}`,
 		];
 
 		// Add flow context
 		if (flowType || step) {
 			mockLogEntries.push(
-				'🏷️  FLOW CONTEXT: ' +
+				' FLOW CONTEXT: ' +
 					JSON.stringify(
 						{
 							flowType,
@@ -306,7 +306,7 @@ class V9MockApiLogger {
 
 		mockLogEntries.push(
 			'',
-			'🎭 MOCK NOTE: Mock error generated for educational purposes.',
+			' MOCK NOTE: Mock error generated for educational purposes.',
 			'',
 			'************************************************************************************',
 			'******************************************************************                  *                                                                                   ',

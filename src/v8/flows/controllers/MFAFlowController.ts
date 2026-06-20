@@ -14,7 +14,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { logger } from '../../../utils/logger';
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
 
-const MODULE_TAG = '[🎮 MFA-CONTROLLER]';
+const MODULE_TAG = '[ MFA-CONTROLLER]';
 
 export interface OTPState {
 	otpSent: boolean;

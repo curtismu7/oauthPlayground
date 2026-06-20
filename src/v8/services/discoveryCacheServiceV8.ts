@@ -11,7 +11,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[💾 DISCOVERY-CACHE-V8]';
+const MODULE_TAG = '[ DISCOVERY-CACHE-V8]';
 
 export interface CachedDiscoveryDocument {
 	issuer: string;

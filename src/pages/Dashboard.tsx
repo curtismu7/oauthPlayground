@@ -106,18 +106,18 @@ const Dashboard = () => {
 
 			logger.debug('Dashboard', '[Credential Check]');
 			logger.info('✅ hasSavedCredentials:', hasCredentials);
-			logger.info('🗄️  Unified Storage (IndexedDB/SQLite):', unifiedCreds || '❌ none');
-			logger.info('📋 Config Credentials:', {
+			logger.info(' Unified Storage (IndexedDB/SQLite):', unifiedCreds || '❌ none');
+			logger.info(' Config Credentials:', {
 				environmentId: configCreds?.environmentId || '(empty)',
 				clientId: configCreds?.clientId || '(empty)',
 				hasClientSecret: !!configCreds?.clientSecret,
 			});
-			logger.info('🔑 Authz Credentials:', {
+			logger.info(' Authz Credentials:', {
 				environmentId: authzCreds?.environmentId || '(empty)',
 				clientId: authzCreds?.clientId || '(empty)',
 				hasClientSecret: !!authzCreds?.clientSecret,
 			});
-			logger.info('💾 LocalStorage Keys:', {
+			logger.info(' LocalStorage Keys:', {
 				oauth_config: localStorageCreds ? '✅ present' : '❌ missing',
 				pingone_config_credentials: pingoneCreds ? '✅ present' : '❌ missing',
 			});

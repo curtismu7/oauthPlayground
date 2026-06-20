@@ -110,24 +110,24 @@ const DEVICE_FLAG_MAP: Record<DeviceConfigKey, MFAFeatureFlag> = {
 };
 
 const DEVICE_TYPES: { key: DeviceConfigKey; icon: string; name: string; description: string }[] = [
-	{ key: 'SMS', icon: '📱', name: 'SMS', description: 'Receive OTP codes via text message' },
+	{ key: 'SMS', icon: '', name: 'SMS', description: 'Receive OTP codes via text message' },
 	{ key: 'EMAIL', icon: '✉️', name: 'Email', description: 'Receive OTP codes via email' },
 	{
 		key: 'TOTP',
-		icon: '🔐',
+		icon: '',
 		name: 'Authenticator App (TOTP)',
 		description: 'Use Google Authenticator, Authy, or similar',
 	},
 	{
 		key: 'MOBILE',
-		icon: '📲',
+		icon: '',
 		name: 'Mobile Push',
 		description: 'Receive push notifications on your phone',
 	},
-	{ key: 'WHATSAPP', icon: '💬', name: 'WhatsApp', description: 'Receive OTP codes via WhatsApp' },
+	{ key: 'WHATSAPP', icon: '', name: 'WhatsApp', description: 'Receive OTP codes via WhatsApp' },
 	{
 		key: 'FIDO2',
-		icon: '🔑',
+		icon: '',
 		name: 'Security Key (FIDO2)',
 		description: 'Use a hardware security key or passkey',
 	},
@@ -516,7 +516,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					<h1
 						style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}
 					>
-						🔐 MFA Unified Flow
+						 MFA Unified Flow
 					</h1>
 					<p
 						style={{
@@ -559,7 +559,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							textAlign: 'left',
 						}}
 					>
-						<span>🔧 Configuration</span>
+						<span> Configuration</span>
 						<span
 							style={{
 								transform: isConfigCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
@@ -799,7 +799,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 												justifyContent: 'space-between',
 											}}
 										>
-											<span>📋 Policy Details</span>
+											<span> Policy Details</span>
 											<span
 												style={{
 													transform: isPolicyDetailsCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
@@ -839,7 +839,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 																fontSize: '12px',
 															}}
 														>
-															📱 SMS
+															 SMS
 														</span>
 													)}
 													{selectedPolicy.email?.enabled && (
@@ -865,7 +865,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 																fontSize: '12px',
 															}}
 														>
-															🔐 TOTP
+															 TOTP
 														</span>
 													)}
 													{selectedPolicy.fido2?.enabled && (
@@ -878,7 +878,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 																fontSize: '12px',
 															}}
 														>
-															🔑 FIDO2
+															 FIDO2
 														</span>
 													)}
 													{selectedPolicy.mobile?.enabled && (
@@ -891,7 +891,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 																fontSize: '12px',
 															}}
 														>
-															📲 Mobile
+															 Mobile
 														</span>
 													)}
 													{selectedPolicy.voice?.enabled && (
@@ -904,7 +904,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 																fontSize: '12px',
 															}}
 														>
-															📞 Voice
+															 Voice
 														</span>
 													)}
 												</div>
@@ -959,7 +959,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 												marginBottom: '8px',
 											}}
 										>
-											<span style={{ fontSize: '20px' }}>👤</span>
+											<span style={{ fontSize: '20px' }}></span>
 											<strong style={{ color: '#047857', fontSize: '16px' }}>
 												User Token Active
 											</strong>
@@ -1049,7 +1049,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-							<span style={{ fontSize: '48px', lineHeight: 1 }}>🔓</span>
+							<span style={{ fontSize: '48px', lineHeight: 1 }}></span>
 							<div>
 								<h2
 									style={{
@@ -1110,7 +1110,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					<h1
 						style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}
 					>
-						🔓 Device Authentication
+						 Device Authentication
 					</h1>
 					<p style={{ margin: 0, fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)' }}>
 						{selectedAuthDevice && !showOTPModal
@@ -1213,7 +1213,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 										boxShadow: '0 10px 25px rgba(102, 126, 234, 0.3)',
 									}}
 								>
-									🔐
+									
 								</div>
 							</div>
 
@@ -2059,7 +2059,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 				// ========== DEBUG: TOTP QR CODE DATA ==========
 				if (selectedDeviceType === 'TOTP') {
-					logger.debug('UnifiedMFARegistrationFlowV8', '🔍 Registration result for TOTP:', {
+					logger.debug('UnifiedMFARegistrationFlowV8', ' Registration result for TOTP:', {
 						deviceId: result.deviceId,
 						status: result.status,
 						qrCode: registrationResult.qrCode,
@@ -2114,7 +2114,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 					// ========== DEBUG: TOTP MFA STATE UPDATE ==========
 					if (selectedDeviceType === 'TOTP') {
-						logger.debug('UnifiedMFARegistrationFlowV8', '🔍 Updated mfaState:', {
+						logger.debug('UnifiedMFARegistrationFlowV8', ' Updated mfaState:', {
 							qrCodeUrl: newState.qrCodeUrl,
 							totpSecret: newState.totpSecret,
 							showQr: newState.showQr,
@@ -2373,7 +2373,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				modernMessaging.showFooterMessage({
 					type: 'info',
 					message:
-						'🔐 User Flow requires PingOne authentication. Please complete the login to continue with device registration.',
+						' User Flow requires PingOne authentication. Please complete the login to continue with device registration.',
 					duration: 3000,
 				});
 				return;
@@ -2766,7 +2766,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 												width: '100%',
 											}}
 										>
-											📋 Copy Username
+											 Copy Username
 										</button>
 									</>
 								)}
@@ -2821,7 +2821,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 									width: '100%',
 								}}
 							>
-								📋 Copy Token
+								 Copy Token
 							</button>
 						</div>
 

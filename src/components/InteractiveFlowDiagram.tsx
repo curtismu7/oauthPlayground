@@ -918,34 +918,34 @@ const InteractiveFlowDiagram: React.FC = () => {
 	const getActorIcon = (actor: string) => {
 		switch (actor) {
 			case 'user':
-				return <span>👤</span>;
+				return <span></span>;
 			case 'client':
 				return <i className="bi bi-question-circle"></i>;
 			case 'auth-server':
 				return <PingOneIcon />;
 			case 'server':
-				return <span>🖥️</span>;
+				return <span></span>;
 			default:
-				return <span>👤</span>;
+				return <span></span>;
 		}
 	};
 
 	const getFlowIcon = (flowId: string) => {
 		switch (flowId) {
 			case 'authorization-code':
-				return <span>🔑</span>;
+				return <span></span>;
 			case 'implicit':
 				return <span>➡️</span>;
 			case 'client-credentials':
 				return <i className="bi bi-question-circle"></i>;
 			case 'device-code':
-				return <span>🖥️</span>;
+				return <span></span>;
 			case 'resource-owner-password':
-				return <span>🛡️</span>;
+				return <span></span>;
 			case 'par':
 				return <span>ℹ️</span>;
 			default:
-				return <span>🔑</span>;
+				return <span></span>;
 		}
 	};
 

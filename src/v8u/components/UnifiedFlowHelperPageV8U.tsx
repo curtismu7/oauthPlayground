@@ -20,7 +20,7 @@ import {
 	PageHeaderV8,
 } from '@/v8/components/shared/PageHeaderV8';
 
-const _MODULE_TAG = '[📚 UNIFIED-FLOW-HELPER-V8U]';
+const _MODULE_TAG = '[ UNIFIED-FLOW-HELPER-V8U]';
 
 const PageContainer = styled.div`
 	max-width: 1400px;
@@ -177,7 +177,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				subtitle="Comprehensive reference comparing specification versions and flow types, including PingOne-specific requirements and implementations."
 				gradient={PageHeaderGradients.unifiedOAuth}
 				textColor={PageHeaderTextColors.white}
-				icon={<span style={{ fontSize: '32px' }}>📖</span>}
+				icon={<span style={{ fontSize: '32px' }}></span>}
 			/>
 
 			{/* Specification Versions Comparison */}
@@ -307,7 +307,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 			{/* Flow Types Comparison */}
 			<Section>
 				<SectionTitle>
-					<span style={{ fontSize: '24px' }}>🛡️</span>
+					<span style={{ fontSize: '24px' }}></span>
 					Flow Types Comparison
 				</SectionTitle>
 
@@ -444,11 +444,11 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 							<TableCell>
 								<strong>Security Level</strong>
 							</TableCell>
-							<TableCell>⭐⭐⭐⭐⭐ Highest (with PKCE)</TableCell>
-							<TableCell>⭐⭐⭐⭐ High (with PKCE)</TableCell>
-							<TableCell>⭐⭐ Low (deprecated)</TableCell>
-							<TableCell>⭐⭐⭐⭐ High (server-to-server)</TableCell>
-							<TableCell>⭐⭐⭐⭐ High (device isolation)</TableCell>
+							<TableCell> Highest (with PKCE)</TableCell>
+							<TableCell> High (with PKCE)</TableCell>
+							<TableCell> Low (deprecated)</TableCell>
+							<TableCell> High (server-to-server)</TableCell>
+							<TableCell> High (device isolation)</TableCell>
 						</TableRow>
 						<TableRow>
 							<TableCell>
@@ -496,7 +496,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 			{/* PingOne-Specific Requirements */}
 			<Section>
 				<SectionTitle>
-					<span style={{ fontSize: '24px' }}>🛡️</span>
+					<span style={{ fontSize: '24px' }}></span>
 					PingOne-Specific Requirements & Best Practices
 				</SectionTitle>
 

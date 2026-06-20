@@ -16,7 +16,7 @@
 import React, { useState } from 'react';
 import { type DecodedJWT, TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 
-const _MODULE_TAG = '[🎫 TOKEN-DISPLAY-V8U]';
+const _MODULE_TAG = '[ TOKEN-DISPLAY-V8U]';
 
 export interface TokenDisplayV8UProps {
 	tokens: {
@@ -123,7 +123,7 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 							color: '#1e40af',
 						}}
 					>
-						<span style={{ fontSize: '16px' }}>🔑</span>
+						<span style={{ fontSize: '16px' }}></span>
 						<span>{label}</span>
 						{isJWT && (
 							<span
@@ -208,7 +208,7 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 								{isCopied ? (
 									<span style={{ fontSize: '14px' }}>✅</span>
 								) : (
-									<span style={{ fontSize: '14px' }}>📋</span>
+									<span style={{ fontSize: '14px' }}></span>
 								)}
 								{isCopied ? 'Copied!' : 'Copy'}
 							</button>
@@ -335,7 +335,7 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 					color: '#1f2937',
 				}}
 			>
-				🎫 Tokens Received
+				 Tokens Received
 			</h2>
 			<p
 				style={{

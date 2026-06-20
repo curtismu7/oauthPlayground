@@ -136,7 +136,7 @@ const MCPDocumentation: React.FC = () => {
 	return (
 		<PageContainer>
 			<DocumentationHeader
-				emoji="🤖"
+				emoji=""
 				title="Model Context Protocol (MCP)"
 				description="Open-source standard for connecting AI applications to external systems"
 			/>

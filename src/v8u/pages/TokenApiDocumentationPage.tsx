@@ -439,29 +439,29 @@ export const TokenApiDocumentationPage: React.FC = () => {
 	const getTypeIcon = (type: string) => {
 		switch (type) {
 			case 'oauth_revoke':
-				return '🔄';
+				return '';
 			case 'sso_signoff':
-				return '🚪';
+				return '';
 			case 'session_delete':
-				return '👥';
+				return '';
 			case 'introspect':
-				return '🔍';
+				return '';
 			case 'worker_refresh':
-				return '🏭';
+				return '';
 			case 'preflight-validation':
 				return '✈️';
 			case 'token_exchange':
-				return '🔄';
+				return '';
 			case 'userinfo':
-				return '👤';
+				return '';
 			case 'par':
-				return '📤';
+				return '';
 			case 'resume':
 				return '▶️';
 			case 'device_auth':
-				return '📱';
+				return '';
 			default:
-				return '📡';
+				return '';
 		}
 	};
 
@@ -508,7 +508,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 	return (
 		<PageContainer>
 			<PageHeader>
-				<PageTitle>📡 OAuth Flow Documentation</PageTitle>
+				<PageTitle> OAuth Flow Documentation</PageTitle>
 				<PageSubtitle>
 					Complete OAuth flow visualization: Front-channel redirects and back-channel API calls
 				</PageSubtitle>
@@ -540,7 +540,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 			<ControlsContainer>
 				<SearchBox>
 					<SearchIcon>
-						<span>🔍</span>
+						<span></span>
 					</SearchIcon>
 					<SearchInput
 						placeholder="Search by URL, method, or type..."
@@ -566,7 +566,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 				</FilterSelect>
 
 				<ActionButton onClick={() => window.location.reload()}>
-					<span>🔄</span>
+					<span></span>
 					Refresh
 				</ActionButton>
 			</ControlsContainer>
@@ -586,7 +586,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<span>🔗</span>
+							<span></span>
 							Front-Channel Redirects (Browser Navigation)
 						</h3>
 						<p style={{ color: '#64748b', marginBottom: '1rem' }}>
@@ -613,7 +613,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 								<RedirectCard key={`redirect-${index}`}>
 									<RedirectHeader>
 										<RedirectTitle>
-											<span>🔗</span> {redirectTitle}
+											<span></span> {redirectTitle}
 										</RedirectTitle>
 										<RedirectInteractionType>Front-Channel</RedirectInteractionType>
 									</RedirectHeader>
@@ -632,7 +632,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 										This happens in the user's browser (front-channel).
 									</RedirectDescription>
 									<Timestamp>
-										<span>🕐</span>
+										<span></span>
 										{redirect.timestamp
 											? new Date(redirect.timestamp).toLocaleString()
 											: 'Unknown time'}
@@ -659,7 +659,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 								marginBottom: '0.5rem',
 							}}
 						>
-							🔄 Complete OAuth Flow Sequence
+							 Complete OAuth Flow Sequence
 						</h4>
 						<div style={{ fontSize: '0.875rem', color: '#64748b', lineHeight: '1.5' }}>
 							<div style={{ marginBottom: '0.5rem' }}>
@@ -694,7 +694,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 								</div>
 							</div>
 							<Timestamp>
-								<span>🕐</span>
+								<span></span>
 								{formatTimestamp(call.timestamp)}
 							</Timestamp>
 						</ApiCallHeader>
@@ -753,7 +753,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 											{copiedId === `${call.id}-response-headers` ? (
 												<span>✅</span>
 											) : (
-												<span>📋</span>
+												<span></span>
 											)}
 										</CopyButton>
 									</div>
@@ -775,7 +775,7 @@ export const TokenApiDocumentationPage: React.FC = () => {
 													{copiedId === `${call.id}-response-body` ? (
 														<span>✅</span>
 													) : (
-														<span>📋</span>
+														<span></span>
 													)}
 												</CopyButton>
 											</div>

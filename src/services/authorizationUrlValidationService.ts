@@ -178,7 +178,7 @@ class AuthorizationUrlValidationService {
 		if (responseMode === 'pi.flow') {
 			logger.info(
 				'AuthorizationUrlValidationService',
-				'🔍 [URL Validation] Detected PingOne redirectless flow (response_mode=pi.flow)'
+				' [URL Validation] Detected PingOne redirectless flow (response_mode=pi.flow)'
 			);
 			return 'authorization-code'; // Still authorization code flow, just redirectless mode
 		}
@@ -252,7 +252,7 @@ class AuthorizationUrlValidationService {
 		if (isRedirectlessFlow) {
 			logger.info(
 				'AuthorizationUrlValidationService',
-				'🔍 [URL Validation] Redirectless flow detected (response_mode=pi.flow), redirect_uri not required'
+				' [URL Validation] Redirectless flow detected (response_mode=pi.flow), redirect_uri not required'
 			);
 			result.warnings.push(
 				'INFO: Using PingOne redirectless flow (response_mode=pi.flow). Tokens will be returned directly without redirect.'
@@ -502,7 +502,7 @@ class AuthorizationUrlValidationService {
 			`Flow Type: ${flowType}`,
 			...errors.map((error) => `❌ ${error}`),
 			...warnings.map((warning) => `⚠️ ${warning}`),
-			...suggestions.map((suggestion) => `💡 ${suggestion}`),
+			...suggestions.map((suggestion) => ` ${suggestion}`),
 		];
 
 		return { title, message, details, canProceed };

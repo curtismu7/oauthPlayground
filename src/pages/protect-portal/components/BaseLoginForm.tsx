@@ -277,7 +277,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 			}
 
 			try {
-				logger.info('[🔐 BASE-LOGIN] Starting PingOne authentication', 'Logger info');
+				logger.info('[ BASE-LOGIN] Starting PingOne authentication', 'Logger info');
 
 				// Step 1: Initialize embedded login flow
 				const flowResponse = await PingOneLoginService.initializeEmbeddedLogin(
@@ -293,7 +293,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 				}
 
 				const { flowId } = flowResponse.data;
-				logger.info('[🔐 BASE-LOGIN] Flow started:', `${flowId.substring(0, 8)}...`);
+				logger.info('[ BASE-LOGIN] Flow started:', `${flowId.substring(0, 8)}...`);
 
 				// Step 2: Submit credentials
 				const credsResponse = await PingOneLoginService.submitCredentials(
@@ -304,7 +304,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 
 				if (!credsResponse.success) {
 					const errorDetails = credsResponse.error?.details || {};
-					logger.error('BaseLoginForm', '[🔐 BASE-LOGIN] Credential submission failed:', {
+					logger.error('BaseLoginForm', '[ BASE-LOGIN] Credential submission failed:', {
 						errorDetails,
 					});
 
@@ -315,7 +315,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 					} else if (credsResponse.error?.code === 'ACCOUNT_LOCKED') {
 						throw new Error('Your account has been locked. Please contact your administrator.');
 					} else if (credsResponse.error?.code === 'MFA_REQUIRED') {
-						logger.info('[🔐 BASE-LOGIN] MFA required, proceeding to MFA flow');
+						logger.info('[ BASE-LOGIN] MFA required, proceeding to MFA flow');
 					}
 
 					throw new Error(
@@ -324,7 +324,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 				}
 
 				// Step 3: Prepare user and login context from successful authentication
-				logger.info('[🔐 BASE-LOGIN] Authentication successful', 'Logger info');
+				logger.info('[ BASE-LOGIN] Authentication successful', 'Logger info');
 
 				// Prepare user context using actual UserContext type
 				const userContext: UserContext = {
@@ -351,7 +351,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 			} catch (err) {
 				logger.error(
 					'BaseLoginForm',
-					'[🔐 BASE-LOGIN] Authentication error:',
+					'[ BASE-LOGIN] Authentication error:',
 					undefined,
 					err as Error
 				);
@@ -443,7 +443,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 							disabled={isLoading}
 							aria-label={showPassword ? 'Hide password' : 'Show password'}
 						>
-							{showPassword ? <span>🙈</span> : <span>👁️</span>}
+							{showPassword ? <span></span> : <span></span>}
 						</PasswordToggle>
 					</InputWrapper>
 				</InputGroup>

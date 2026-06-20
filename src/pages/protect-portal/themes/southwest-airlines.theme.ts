@@ -182,9 +182,9 @@ export const southwestAirlinesTheme: BrandTheme = {
 		xl: '0 20px 25px -5px rgba(46, 75, 177, 0.1), 0 10px 10px -5px rgba(46, 75, 177, 0.04)',
 	},
 	brandSpecific: {
-		logo: '❤️',
+		logo: '',
 		logoUrl: 'https://www.southwest.com/favicon.ico',
-		iconSet: ['❤️', '✈️', '🛫', '🎫', '☀️'],
+		iconSet: ['', '✈️', '', '', ''],
 		messaging: {
 			welcome: 'Welcome to Southwest Airlines Secure Portal',
 			security: 'Transfarency in everything we do',

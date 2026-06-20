@@ -701,7 +701,7 @@ const FlowComparisonTool: React.FC = () => {
 										</UseCasesList>
 									</ComparisonSection>
 
-									<ActionButton to={generateFlowUrl(flow)}>🔗 Try This Flow</ActionButton>
+									<ActionButton to={generateFlowUrl(flow)}> Try This Flow</ActionButton>
 								</CardBody>
 							</ComparisonCard>
 						))}

@@ -23,7 +23,7 @@ import type {
 // SERVICE CONFIGURATION
 // ============================================================================
 
-const MODULE_TAG = '[🔐 MFA-AUTHENTICATION]';
+const MODULE_TAG = '[ MFA-AUTHENTICATION]';
 const PROXY_BASE_URL = '/api/pingone' as const;
 
 // ============================================================================

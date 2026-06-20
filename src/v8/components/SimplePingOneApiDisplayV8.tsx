@@ -19,7 +19,7 @@ import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[📡 SIMPLE-API-DISPLAY-V8]';
+const MODULE_TAG = '[ SIMPLE-API-DISPLAY-V8]';
 
 interface ApiCall {
 	id: string;
@@ -112,7 +112,7 @@ export const SimplePingOneApiDisplayV8: React.FC = () => {
 				}}
 			>
 				<div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '14px' }}>
-					📡 PingOne API Calls ({apiCalls.length})
+					 PingOne API Calls ({apiCalls.length})
 				</div>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 					<button

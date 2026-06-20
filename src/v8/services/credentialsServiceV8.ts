@@ -25,7 +25,7 @@
  * CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
  */
 
-const MODULE_TAG = '[💾 CREDENTIALS-SERVICE-V8-MIGRATED]';
+const MODULE_TAG = '[ CREDENTIALS-SERVICE-V8-MIGRATED]';
 const ENABLE_CREDENTIALS_DEBUG_LOGGING = false;
 
 import { safeAnalyticsFetch } from '@/v8/utils/analyticsServerCheckV8';

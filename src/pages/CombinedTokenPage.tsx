@@ -209,7 +209,7 @@ const CombinedTokenPage: React.FC = () => {
 								fontWeight: 600,
 							}}
 						>
-							🔄 Auto-refresh Enabled
+							 Auto-refresh Enabled
 						</h4>
 						<p
 							style={{
@@ -256,7 +256,7 @@ const CombinedTokenPage: React.FC = () => {
 							gap: '0.5rem',
 						}}
 					>
-						<span>🔄</span>
+						<span></span>
 						Refresh Now
 					</button>
 				</div>
@@ -300,7 +300,7 @@ const CombinedTokenPage: React.FC = () => {
 	return (
 		<Container>
 			<DocumentationHeader
-				emoji="🔑"
+				emoji=""
 				title="Token Operations"
 				description="Comprehensive token management including introspection, revocation, and monitoring capabilities"
 			/>

@@ -65,7 +65,7 @@ class AdvancedSecuritySettingsService {
 				id: 'authentication',
 				name: 'Authentication Security',
 				description: 'Configure authentication methods and security requirements',
-				icon: '🔐',
+				icon: '',
 				settings: [
 					{
 						id: 'requestParameterSignature',
@@ -120,7 +120,7 @@ class AdvancedSecuritySettingsService {
 				id: 'authorization',
 				name: 'Authorization & Scopes',
 				description: 'Manage authorization flows and scope permissions',
-				icon: '🛡️',
+				icon: '',
 				settings: [
 					{
 						id: 'requestScopesForMultipleResources',
@@ -147,7 +147,7 @@ class AdvancedSecuritySettingsService {
 				id: 'session',
 				name: 'Session Management',
 				description: 'Configure user session handling and security',
-				icon: '👤',
+				icon: '',
 				settings: [
 					{
 						id: 'openIdConnectSessionManagement',
@@ -175,7 +175,7 @@ class AdvancedSecuritySettingsService {
 				id: 'token',
 				name: 'Token Security',
 				description: 'Configure token security and lifecycle management',
-				icon: '🎫',
+				icon: '',
 				settings: [
 					{
 						id: 'additionalRefreshTokenReplayProtection',
@@ -202,7 +202,7 @@ class AdvancedSecuritySettingsService {
 				id: 'request',
 				name: 'Request Security',
 				description: 'Configure request-level security features',
-				icon: '📡',
+				icon: '',
 				settings: [
 					{
 						id: 'requirePushedAuthorizationRequests',
