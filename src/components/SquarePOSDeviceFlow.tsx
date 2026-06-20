@@ -515,9 +515,9 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 
 				{/* Card Reader */}
 				<CardReader>
-					<span>💳</span>
+					<span></span>
 					<CardReaderSlot>
-						<span>💳</span>
+						<span></span>
 					</CardReaderSlot>
 					<span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>Card Reader Ready</span>
 				</CardReader>
@@ -563,10 +563,10 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 					</QRCodeContainer>
 					<ActionButtons>
 						<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-							<span>📋</span> Copy Code
+							<span></span> Copy Code
 						</ActionButton>
 						<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<span>🔗</span> Open App
+							<span></span> Open App
 						</ActionButton>
 					</ActionButtons>
 				</QRCodeSection>

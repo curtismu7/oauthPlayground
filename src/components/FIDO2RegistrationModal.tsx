@@ -87,7 +87,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 				},
 			};
 
-			logger.info('🔐 [FIDO2 Registration] Starting credential registration', {
+			logger.info(' [FIDO2 Registration] Starting credential registration', {
 				userId,
 				deviceName,
 				authenticatorType: selectedAuthenticatorType,
@@ -185,7 +185,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 								color: 'white',
 							}}
 						>
-							<span style={{ fontSize: '20px' }}>🛡️</span>
+							<span style={{ fontSize: '20px' }}></span>
 						</div>
 						<div>
 							<h2
@@ -368,7 +368,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 													gap: '0.75rem',
 												}}
 											>
-												<span style={{ fontSize: 20, color: '#3b82f6' }}>🖥️</span>
+												<span style={{ fontSize: 20, color: '#3b82f6' }}></span>
 												<div>
 													<div
 														style={{
@@ -426,7 +426,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 													gap: '0.75rem',
 												}}
 											>
-												<span style={{ fontSize: 20, color: '#10b981' }}>🔑</span>
+												<span style={{ fontSize: 20, color: '#10b981' }}></span>
 												<div>
 													<div
 														style={{
@@ -482,7 +482,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 												gap: '0.75rem',
 											}}
 										>
-											<span style={{ fontSize: 20, color: '#6b7280' }}>🛡️</span>
+											<span style={{ fontSize: 20, color: '#6b7280' }}></span>
 											<div>
 												<div
 													style={{
@@ -526,7 +526,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 										color: '#3b82f6',
 									}}
 								>
-									📋 Setup Instructions
+									 Setup Instructions
 								</h4>
 								<ol
 									style={{
@@ -563,7 +563,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 									color: '#d97706',
 								}}
 							>
-								📋 Account Information
+								 Account Information
 							</h4>
 							<div
 								style={{
@@ -660,7 +660,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 							</>
 						) : (
 							<>
-								<span style={{ fontSize: '16px' }}>🛡️</span>
+								<span style={{ fontSize: '16px' }}></span>
 								Register Passkey
 							</>
 						)}

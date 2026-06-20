@@ -17,7 +17,7 @@ import { IDTokenValidationServiceV8 } from '@/v8/services/idTokenValidationServi
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔐 ID-TOKEN-VALIDATION-MODAL-V8U]';
+const MODULE_TAG = '[ ID-TOKEN-VALIDATION-MODAL-V8U]';
 
 export interface IDTokenValidationModalV8UProps {
 	isOpen: boolean;
@@ -143,7 +143,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 				>
 					<div>
 						<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
-							🔐 ID Token Local Validation
+							 ID Token Local Validation
 						</h2>
 						<p style={{ margin: '4px 0 0 0', fontSize: '13px', opacity: 0.9 }}>
 							Comprehensive JWT signature and claims validation
@@ -424,7 +424,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 										marginBottom: '8px',
 									}}
 								>
-									📚 Learn More
+									 Learn More
 								</div>
 								<div style={{ fontSize: '12px', color: '#0c4a6e', lineHeight: '1.6' }}>
 									ID token validation follows the OIDC Core 1.0 specification. For more details:
@@ -443,7 +443,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 										}}
 									>
 										OIDC ID Token Validation Spec
-										<span style={{ fontSize: '12px' }}>🔗</span>
+										<span style={{ fontSize: '12px' }}></span>
 									</a>
 								</div>
 							</div>

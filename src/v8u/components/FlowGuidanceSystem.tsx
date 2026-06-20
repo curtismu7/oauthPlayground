@@ -160,7 +160,7 @@ const useCases: UseCase[] = [
 		title: 'Web Application Login',
 		description:
 			'Secure user authentication for traditional web applications with redirect-based flow',
-		icon: <span>👥</span>,
+		icon: <span></span>,
 		recommendedFlow: 'oauth-authz',
 		recommendedSpec: 'oidc',
 		scenarios: ['User login', 'Single Sign-On', 'Profile access'],
@@ -169,7 +169,7 @@ const useCases: UseCase[] = [
 		id: 'mobile-app',
 		title: 'Mobile App Authentication',
 		description: 'Authentication for mobile apps using PKCE for enhanced security',
-		icon: <span>⚡</span>,
+		icon: <span></span>,
 		recommendedFlow: 'oauth-authz',
 		recommendedSpec: 'oauth2.1',
 		scenarios: ['Native mobile apps', 'PKCE security', 'No client secret'],
@@ -178,7 +178,7 @@ const useCases: UseCase[] = [
 		id: 'server-api',
 		title: 'Server-to-API Communication',
 		description: 'Machine-to-machine communication between backend services',
-		icon: <span>🔒</span>,
+		icon: <span></span>,
 		recommendedFlow: 'client-credentials',
 		recommendedSpec: 'oauth2.1',
 		scenarios: ['Backend services', 'API access', 'No user interaction'],
@@ -187,7 +187,7 @@ const useCases: UseCase[] = [
 		id: 'device-auth',
 		title: 'Device Authorization',
 		description: 'Authentication for devices with limited input capabilities',
-		icon: <span>📖</span>,
+		icon: <span></span>,
 		recommendedFlow: 'device-code',
 		recommendedSpec: 'oauth2.1',
 		scenarios: ['IoT devices', 'Smart TVs', 'CLI applications'],
@@ -338,7 +338,7 @@ export const FlowGuidanceSystem: React.FC<FlowGuidanceSystemProps> = ({
 					{selectedUseCase && (
 						<div style={{ marginTop: '1rem', textAlign: 'center' }}>
 							<small style={{ color: '#64748b' }}>
-								💡 Need help understanding the differences?
+								 Need help understanding the differences?
 								<a
 									href="/v8u/unified/helper"
 									style={{ color: '#3b82f6', textDecoration: 'none', marginLeft: '0.25rem' }}

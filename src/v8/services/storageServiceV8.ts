@@ -19,7 +19,7 @@
  * const exported = StorageServiceV8.exportAll();
  */
 
-const MODULE_TAG = '[💾 STORAGE-V8-MIGRATED]';
+const MODULE_TAG = '[ STORAGE-V8-MIGRATED]';
 
 // ============================================================================
 // IMPORTS

@@ -16,7 +16,7 @@ import { logger } from '../../utils/logger';
  * - Change tracking and validation
  */
 
-const MODULE_TAG = '[🔧 PINGONE-CLIENT-V8U]';
+const MODULE_TAG = '[ PINGONE-CLIENT-V8U]';
 
 // Feature configuration mappings
 export interface FeatureConfiguration {

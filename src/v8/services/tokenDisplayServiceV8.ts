@@ -27,7 +27,7 @@ import { logger } from '../../utils/logger';
  * await TokenDisplayServiceV8.copyToClipboard(token, 'Access Token');
  */
 
-const MODULE_TAG = '[🎫 TOKEN-DISPLAY-V8]';
+const MODULE_TAG = '[ TOKEN-DISPLAY-V8]';
 
 // ============================================================================
 // TYPES

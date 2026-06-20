@@ -241,7 +241,7 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 			section.title.toLowerCase().includes('security') ||
 			section.title.toLowerCase().includes('consideration')
 		) {
-			return <span style={{ fontSize: '16px' }}>🛡️</span>;
+			return <span style={{ fontSize: '16px' }}></span>;
 		}
 		if (
 			section.title.toLowerCase().includes('overview') ||
@@ -249,7 +249,7 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 		) {
 			return <span style={{ fontSize: '16px' }}>ℹ️</span>;
 		}
-		return <span style={{ fontSize: '16px' }}>📖</span>;
+		return <span style={{ fontSize: '16px' }}></span>;
 	};
 
 	// Hidden mode - show nothing
@@ -292,7 +292,7 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 		<MasterSectionContainer className={className}>
 			<SectionHeader onClick={toggleSection}>
 				<HeaderContent>
-					<span style={{ fontSize: '20px' }}>📖</span>
+					<span style={{ fontSize: '20px' }}></span>
 					<span>Educational Content</span>
 				</HeaderContent>
 				<ToggleIcon $isExpanded={isExpanded}>

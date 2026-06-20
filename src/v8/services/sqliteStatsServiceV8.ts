@@ -20,7 +20,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[📊 SQLITE-STATS-V8]';
+const MODULE_TAG = '[ SQLITE-STATS-V8]';
 
 // Connection monitoring and rate limiting
 const CONNECTION_LIMIT = 10; // Max concurrent connections

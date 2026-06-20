@@ -496,7 +496,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 					aria-expanded={!collapsedSections.completionDetails}
 				>
 					<CollapsibleTitle>
-						<span>🛡️</span> Next Steps & Resources
+						<span></span> Next Steps & Resources
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.completionDetails ?? false}>
 						<span>⬇️</span>
@@ -506,7 +506,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 					<CollapsibleContent>
 						<CalloutCard style={{ marginTop: '1.5rem' }}>
 							<InfoTitle>
-								<span>🛡️</span> Next Steps
+								<span></span> Next Steps
 							</InfoTitle>
 							<NextSteps steps={nextSteps} />
 						</CalloutCard>
@@ -522,7 +522,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 						aria-expanded={!collapsedSections.introspectionDetails}
 					>
 						<CollapsibleTitle>
-							<span>👁️</span> Token Introspection
+							<span></span> Token Introspection
 						</CollapsibleTitle>
 						<CollapsibleToggleIcon $collapsed={collapsedSections.introspectionDetails ?? false}>
 							<span>⬇️</span>
@@ -532,7 +532,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 						<CollapsibleContent>
 							<ResultsSection>
 								<ResultsHeading>
-									<span>👁️</span> Access Token Introspection
+									<span></span> Access Token Introspection
 								</ResultsHeading>
 								<HelperText>
 									Introspect your access token to see detailed information about its validity,
@@ -545,7 +545,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 										$priority="primary"
 										disabled={isIntrospecting || !onIntrospectToken}
 									>
-										<span>👁️</span>{' '}
+										<span></span>{' '}
 										{isIntrospecting ? 'Introspecting...' : 'Introspect Access Token'}
 									</HighlightedActionButton>
 								</ActionRow>
@@ -638,7 +638,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 													}
 													$variant="outline"
 												>
-													<span>📋</span> Copy Results
+													<span></span> Copy Results
 												</Button>
 											</ActionRow>
 										</GeneratedContentBox>
@@ -650,7 +650,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 												aria-expanded={!collapsedSections.rawJson}
 											>
 												<CollapsibleTitle>
-													<span>🔑</span> Raw JSON Response
+													<span></span> Raw JSON Response
 												</CollapsibleTitle>
 												<CollapsibleToggleIcon $collapsed={collapsedSections.rawJson ?? false}>
 													<span>⬇️</span>
@@ -659,7 +659,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 											{!collapsedSections.rawJson && (
 												<CollapsibleContent>
 													<InfoBox $variant="info">
-														<span style={{ fontSize: '20px' }}>🔑</span>
+														<span style={{ fontSize: '20px' }}></span>
 														<div>
 															<InfoTitle>Raw JSON Response</InfoTitle>
 															<InfoText>
@@ -699,7 +699,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 																}
 																$variant="outline"
 															>
-																<span>📋</span> Copy Raw JSON
+																<span></span> Copy Raw JSON
 															</Button>
 														</ActionRow>
 													</GeneratedContentBox>
@@ -722,7 +722,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 						aria-expanded={!collapsedSections.userInfo}
 					>
 						<CollapsibleTitle>
-							<span>👤</span> User Information
+							<span></span> User Information
 						</CollapsibleTitle>
 						<CollapsibleToggleIcon $collapsed={collapsedSections.userInfo ?? false}>
 							<span>⬇️</span>
@@ -732,7 +732,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 						<CollapsibleContent>
 							<ResultsSection>
 								<ResultsHeading>
-									<span>👤</span> User Information
+									<span></span> User Information
 								</ResultsHeading>
 								<HelperText>
 									Retrieve and display user information from the userinfo endpoint.
@@ -760,7 +760,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 											boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
 										}}
 									>
-										<span>👤</span>{' '}
+										<span></span>{' '}
 										{isFetchingUserInfo ? 'Fetching User Info...' : 'Fetch User Information'}
 									</HighlightedActionButton>
 								</ActionRow>
@@ -791,7 +791,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 												}
 												$variant="outline"
 											>
-												<span>📋</span> Copy User Info
+												<span></span> Copy User Info
 											</Button>
 										</ActionRow>
 									</GeneratedContentBox>

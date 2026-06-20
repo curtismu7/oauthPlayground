@@ -628,7 +628,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				// Use configured redirect URI from credentials, fallback to callback type logic
 				// Per OIDC Spec 3.1.2.1: redirect_uri in token request MUST match authorization request
 				const configuredRedirectUri = config?.redirectUri;
-				logger.info('🔍 [NewAuthContext] REDIRECT URI SELECTION DEBUG:', {
+				logger.info(' [NewAuthContext] REDIRECT URI SELECTION DEBUG:', {
 					configRedirectUri: config?.redirectUri,
 					hasConfigRedirectUri: !!config?.redirectUri,
 					callbackType,
@@ -643,7 +643,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 						? `${window.location.origin}/dashboard-callback`
 						: configuredRedirectUri || `${window.location.origin}/authz-callback`;
 
-				logger.info('🔍 [NewAuthContext] FINAL REDIRECT URI DECISION:', {
+				logger.info(' [NewAuthContext] FINAL REDIRECT URI DECISION:', {
 					configuredRedirectUri,
 					callbackType,
 					finalRedirectUri: redirectUri,
@@ -781,8 +781,8 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				});
 
 				// CRITICAL DEBUG: Log the exact URL being sent to PingOne
-				logger.info('🔍 [NewAuthContext] EXACT URL BEING SENT TO PINGONE:', authUrl.toString());
-				logger.info('🔍 [NewAuthContext] URL BREAKDOWN:', {
+				logger.info(' [NewAuthContext] EXACT URL BEING SENT TO PINGONE:', authUrl.toString());
+				logger.info(' [NewAuthContext] URL BREAKDOWN:', {
 					base: authEndpoint,
 					queryParams: Object.fromEntries(authUrl.searchParams),
 					redirectUri: authUrl.searchParams.get('redirect_uri'),
@@ -792,7 +792,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				});
 
 				// CRITICAL DEBUG: Log redirect URI details
-				logger.info('🔍 [NewAuthContext] REDIRECT URI BEING SENT:', {
+				logger.info(' [NewAuthContext] REDIRECT URI BEING SENT:', {
 					redirectUri: authUrl.searchParams.get('redirect_uri'),
 					clientId: authUrl.searchParams.get('client_id'),
 					fullUrl: authUrl.toString(),
@@ -881,11 +881,11 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 				// Check for V6 flow BEFORE state validation - V6 flows handle their own validation
 				const flowContextRaw = sessionStorage.getItem('flowContext');
-				logger.info('🔍 [NewAuthContext] Checking for V6 flow, flowContextRaw:', flowContextRaw);
+				logger.info(' [NewAuthContext] Checking for V6 flow, flowContextRaw:', flowContextRaw);
 				if (flowContextRaw) {
 					try {
 						const parsed = safeJsonParse(flowContextRaw);
-						logger.info('🔍 [NewAuthContext] Parsed flow context:', parsed);
+						logger.info(' [NewAuthContext] Parsed flow context:', parsed);
 						const isV6Flow =
 							parsed?.flow === 'oidc-authorization-code-v6' ||
 							parsed?.flow === 'oauth-authorization-code-v6';
@@ -897,7 +897,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							parsed?.flow === 'oauth-authorization-code-v7-2';
 
 						logger.info(
-							'🔍 [NewAuthContext] Is V6 flow?',
+							' [NewAuthContext] Is V6 flow?',
 							isV6Flow,
 							'Is V7 flow?',
 							isV7Flow,
@@ -919,7 +919,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 								const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
 								sessionStorage.setItem(authCodeKey, code);
 								logger.info(
-									`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey}`,
+									` [NewAuthContext] Stored auth code with key: ${authCodeKey}`,
 									'Logger info'
 								);
 							}
@@ -942,7 +942,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 								returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v6';
 							}
 							logger.info(
-								'🚀 [NewAuthContext] V6/V7 FLOW REDIRECT - About to redirect to:',
+								' [NewAuthContext] V6/V7 FLOW REDIRECT - About to redirect to:',
 								returnPath
 							);
 							logger.info('NewAuthContext', 'V6 flow detected - redirecting to flow page', {
@@ -1351,7 +1351,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 								const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
 								sessionStorage.setItem(authCodeKey, code);
 								logger.info(
-									`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey} for flow: ${parsed?.flow}`,
+									` [NewAuthContext] Stored auth code with key: ${authCodeKey} for flow: ${parsed?.flow}`,
 									'Logger info'
 								);
 							}
@@ -1455,7 +1455,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						sessionStorage.setItem(authCodeKey, code);
 						sessionStorage.setItem(`${activeOAuthFlow}-authCode`, code);
 						logger.info(
-							`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey} for active flow: ${activeOAuthFlow}`,
+							` [NewAuthContext] Stored auth code with key: ${authCodeKey} for active flow: ${activeOAuthFlow}`,
 							'Logger info'
 						);
 					}

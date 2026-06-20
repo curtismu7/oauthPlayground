@@ -38,8 +38,8 @@ const MODE_LIBRARY: Record<ResponseMode, ResponseModeDefinition> = {
 		attackWindow: 'Medium if HTTPS enforced; watch for open redirect vulnerabilities.',
 		notes: [
 			'✅ Works with Authorization Code and PKCE flows.',
-			'🚫 Do not use with implicit token responses (exposes tokens).',
-			'🧾 Sanitize server logs so codes do not linger in plaintext.',
+			' Do not use with implicit token responses (exposes tokens).',
+			' Sanitize server logs so codes do not linger in plaintext.',
 		],
 		timeline: [
 			{
@@ -75,8 +75,8 @@ const MODE_LIBRARY: Record<ResponseMode, ResponseModeDefinition> = {
 		attackWindow: 'High. Tokens exposed to XSS, extensions, history snapshots.',
 		notes: [
 			'⚠️ Deprecated for production apps. Use Authorization Code + PKCE instead.',
-			'🚫 Tokens never reach server unless manually forwarded.',
-			'🧯 Hard to rotate tokens; refresh tokens forbidden in this mode.',
+			' Tokens never reach server unless manually forwarded.',
+			' Hard to rotate tokens; refresh tokens forbidden in this mode.',
 		],
 		timeline: [
 			{
@@ -114,8 +114,8 @@ const MODE_LIBRARY: Record<ResponseMode, ResponseModeDefinition> = {
 		attackWindow: 'Low if CSRF state check enforced. Resilient to URL logging.',
 		notes: [
 			'✅ Ideal when returning large ID Tokens or signed request objects.',
-			'🛡️ Reduces leakage because query params never hit browser history.',
-			'🧪 Ensure callback can handle POST and validate anti-CSRF state.',
+			' Reduces leakage because query params never hit browser history.',
+			' Ensure callback can handle POST and validate anti-CSRF state.',
 		],
 		timeline: [
 			{
@@ -151,8 +151,8 @@ const MODE_LIBRARY: Record<ResponseMode, ResponseModeDefinition> = {
 		attackWindow: 'Low when resume URL handled correctly. Requires secure storage of resume data.',
 		notes: [
 			'✅ Redirectless: PingOne returns JSON with resumeUrl + code back to SPA.',
-			'🔁 Your app must POST to resume endpoint to finalize tokens.',
-			'🛡️ State, nonce, PKCE still mandatory. Store resume values securely.',
+			' Your app must POST to resume endpoint to finalize tokens.',
+			' State, nonce, PKCE still mandatory. Store resume values securely.',
 		],
 		timeline: [
 			{
@@ -443,17 +443,17 @@ const ResponseModeSandbox: React.FC = () => {
 	const definition = MODE_LIBRARY[mode];
 
 	const riskSummary = useMemo(() => {
-		if (mode === 'fragment') return '🚫 High exposure — avoid for new builds.';
+		if (mode === 'fragment') return ' High exposure — avoid for new builds.';
 		if (mode === 'query') return '⚠️ Protect logs and enforce HTTPS everywhere.';
-		if (mode === 'form_post') return '🛡️ Strong choice when returning large payloads.';
-		return '🔐 Secure when resume handler stored safely and PKCE enforced.';
+		if (mode === 'form_post') return ' Strong choice when returning large payloads.';
+		return ' Secure when resume handler stored safely and PKCE enforced.';
 	}, [mode]);
 
 	return (
 		<SandboxContainer>
 			<Header>
 				<Title>
-					<span style={{ fontSize: '28px' }}>🔗</span>
+					<span style={{ fontSize: '28px' }}></span>
 					response_mode Sandbox
 				</Title>
 				<Intro>
@@ -491,11 +491,11 @@ const ResponseModeSandbox: React.FC = () => {
 						{definition.timeline.map((step, index) => (
 							<TimelineItem key={`${step.actor}-${index}`}>
 								<TimelineActor $actor={step.actor}>
-									{step.actor === 'browser' && <span style={{ fontSize: '16px' }}>🧭</span>}
+									{step.actor === 'browser' && <span style={{ fontSize: '16px' }}></span>}
 									{step.actor === 'authorizationServer' && (
-										<span style={{ fontSize: '16px' }}>🔗</span>
+										<span style={{ fontSize: '16px' }}></span>
 									)}
-									{step.actor === 'application' && <span style={{ fontSize: '16px' }}>🔄</span>}
+									{step.actor === 'application' && <span style={{ fontSize: '16px' }}></span>}
 									{step.actor === 'pingone' && <span style={{ fontSize: '16px' }}>ℹ️</span>}
 									{step.actor}
 								</TimelineActor>

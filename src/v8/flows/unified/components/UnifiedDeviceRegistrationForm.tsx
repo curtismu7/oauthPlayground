@@ -28,7 +28,7 @@ import { APIComparisonModal } from './APIComparisonModal';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
 import '../UnifiedMFAFlow.css';
 
-const MODULE_TAG = '[📝 UNIFIED-DEVICE-REG-FORM]';
+const MODULE_TAG = '[ UNIFIED-DEVICE-REG-FORM]';
 
 interface DeviceTypeTab {
 	key: DeviceConfigKey;
@@ -38,12 +38,12 @@ interface DeviceTypeTab {
 }
 
 const DEVICE_TABS: DeviceTypeTab[] = [
-	{ key: 'SMS', icon: '📱', label: 'SMS', description: 'Text message verification' },
+	{ key: 'SMS', icon: '', label: 'SMS', description: 'Text message verification' },
 	{ key: 'EMAIL', icon: '✉️', label: 'Email', description: 'Email verification' },
-	{ key: 'TOTP', icon: '🔐', label: 'Authenticator', description: 'App-based codes' },
-	{ key: 'MOBILE', icon: '📲', label: 'Mobile Push', description: 'Push notifications' },
-	{ key: 'WHATSAPP', icon: '💬', label: 'WhatsApp', description: 'WhatsApp messages' },
-	{ key: 'FIDO2', icon: '🔑', label: 'Security Key / FIDO2', description: 'Hardware key/passkey' },
+	{ key: 'TOTP', icon: '', label: 'Authenticator', description: 'App-based codes' },
+	{ key: 'MOBILE', icon: '', label: 'Mobile Push', description: 'Push notifications' },
+	{ key: 'WHATSAPP', icon: '', label: 'WhatsApp', description: 'WhatsApp messages' },
+	{ key: 'FIDO2', icon: '', label: 'Security Key / FIDO2', description: 'Hardware key/passkey' },
 ];
 
 type FlowType = 'admin-active' | 'admin-activation' | 'user';
@@ -121,14 +121,14 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 
 	// Debug logging for flowType changes
 	useEffect(() => {
-		logger.info('🔍 [FLOW TYPE DEBUG] flowType state changed:', flowType);
+		logger.info(' [FLOW TYPE DEBUG] flowType state changed:', flowType);
 	}, [flowType]);
 
 	// Debug logging on mount
 	useEffect(() => {
-		logger.info('🔍 [FLOW TYPE DEBUG] UnifiedDeviceRegistrationForm mounted', 'Logger info');
-		logger.info('🔍 [FLOW TYPE DEBUG] Initial flowType:', flowType);
-		logger.info('🔍 [FLOW TYPE DEBUG] Initial selectedTab:', selectedTab);
+		logger.info(' [FLOW TYPE DEBUG] UnifiedDeviceRegistrationForm mounted', 'Logger info');
+		logger.info(' [FLOW TYPE DEBUG] Initial flowType:', flowType);
+		logger.info(' [FLOW TYPE DEBUG] Initial selectedTab:', selectedTab);
 	}, [flowType, selectedTab]);
 
 	const [deviceFields, setDeviceFields] = useState<Record<DeviceConfigKey, Record<string, string>>>(
@@ -195,7 +195,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 		const fields = deviceFields[selectedTab];
 
 		// ========== DEBUG: FORM SUBMISSION ==========
-		logger.info('🔍 [FORM DEBUG] Submit handler called:', {
+		logger.info(' [FORM DEBUG] Submit handler called:', {
 			selectedTab,
 			flowType,
 			fields,
@@ -212,7 +212,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 				message: 'Worker token is invalid or expired. Please refresh the worker token.',
 				dismissible: true,
 			});
-			logger.info('🔍 [FORM DEBUG] Token invalid, blocking submission');
+			logger.info(' [FORM DEBUG] Token invalid, blocking submission');
 			return;
 		}
 
@@ -228,11 +228,11 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 
 		if (Object.keys(newErrors).length > 0) {
 			setErrors(newErrors);
-			logger.info('🔍 [FORM DEBUG] Validation errors:', newErrors);
+			logger.info(' [FORM DEBUG] Validation errors:', newErrors);
 			return;
 		}
 
-		logger.info('🔍 [FORM DEBUG] Calling onSubmit callback', 'Logger info');
+		logger.info(' [FORM DEBUG] Calling onSubmit callback', 'Logger info');
 
 		// Special handling for FIDO2
 		if (selectedTab === 'FIDO2') {
@@ -294,7 +294,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 							onClick={() => setShowApiModal(true)}
 							style={{ fontSize: '12px', padding: '8px 12px' }}
 						>
-							🔍 API Comparison
+							 API Comparison
 						</Button>
 					</div>
 				</div>
@@ -340,8 +340,8 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								value="admin-active"
 								checked={flowType === 'admin-active'}
 								onChange={(e) => {
-									logger.info('🔍 [FLOW TYPE DEBUG] Admin Flow radio selected', 'Logger info');
-									logger.info('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
+									logger.info(' [FLOW TYPE DEBUG] Admin Flow radio selected', 'Logger info');
+									logger.info(' [FLOW TYPE DEBUG] New value:', e.target.value);
 									setFlowType(e.target.value as FlowType);
 								}}
 								style={{ marginTop: '2px', cursor: 'pointer' }}
@@ -378,10 +378,10 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 									checked={flowType === 'admin-activation'}
 									onChange={(e) => {
 										logger.info(
-											'🔍 [FLOW TYPE DEBUG] Admin ACTIVATION_REQUIRED radio selected',
+											' [FLOW TYPE DEBUG] Admin ACTIVATION_REQUIRED radio selected',
 											'Logger info'
 										);
-										logger.info('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
+										logger.info(' [FLOW TYPE DEBUG] New value:', e.target.value);
 										setFlowType(e.target.value as FlowType);
 									}}
 									style={{ marginTop: '2px', cursor: 'pointer' }}
@@ -418,8 +418,8 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								value="user"
 								checked={flowType === 'user'}
 								onChange={(e) => {
-									logger.info('🔍 [FLOW TYPE DEBUG] User Flow radio selected', 'Logger info');
-									logger.info('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
+									logger.info(' [FLOW TYPE DEBUG] User Flow radio selected', 'Logger info');
+									logger.info(' [FLOW TYPE DEBUG] New value:', e.target.value);
 									setFlowType(e.target.value as FlowType);
 								}}
 								style={{ marginTop: '2px', cursor: 'pointer' }}
@@ -614,7 +614,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 										textAlign: 'center',
 									}}
 								>
-									<p style={{ fontSize: '48px', margin: `0 0 ${spacing[3]}` }}>🔑</p>
+									<p style={{ fontSize: '48px', margin: `0 0 ${spacing[3]}` }}></p>
 									<h3
 										style={{
 											margin: `0 0 ${spacing[2]}`,
@@ -730,7 +730,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 										fontWeight: '600',
 									}}
 								>
-									💡 Need to manage your devices?
+									 Need to manage your devices?
 								</p>
 								<a
 									href="/v8/delete-all-devices"
@@ -812,7 +812,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 										);
 
 										logger.info(
-											'[UNIFIED-FLOW] 🎯 Stored flow context for registration fallback',
+											'[UNIFIED-FLOW] Stored flow context for registration fallback',
 											'Logger info'
 										);
 

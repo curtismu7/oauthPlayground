@@ -45,7 +45,7 @@ const QUESTIONS: Question[] = [
 		title: 'What type of application are you configuring?',
 		description:
 			'Pinpoint the OAuth client profile so we can lock down flows, secrets, and redirect handling.',
-		icon: <span>👥</span>,
+		icon: <span></span>,
 		options: [
 			{
 				value: 'browser',
@@ -69,7 +69,7 @@ const QUESTIONS: Question[] = [
 		title: 'What sensitivity level best matches the data this app touches?',
 		description:
 			'Higher sensitivity requires stricter token lifetimes, MFA, and risk-based controls.',
-		icon: <span>🛡️</span>,
+		icon: <span></span>,
 		options: [
 			{
 				value: 'never',
@@ -92,7 +92,7 @@ const QUESTIONS: Question[] = [
 		id: 'mfaRequirement',
 		title: 'Do you require MFA for sign-in or step-up?',
 		description: 'We will map to PingOne MFA policies and factors automatically.',
-		icon: <span>📶</span>,
+		icon: <span></span>,
 		options: [
 			{
 				value: 'never',
@@ -115,7 +115,7 @@ const QUESTIONS: Question[] = [
 		id: 'apiUsage',
 		title: 'Will this app call PingOne Management APIs or other resource APIs?',
 		description: 'Determines if we issue worker tokens, SCIM access, and refresh semantics.',
-		icon: <span>📈</span>,
+		icon: <span></span>,
 		options: [
 			{
 				value: 'no',
@@ -388,7 +388,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 	if (answers.clientType === 'browser' || answers.clientType === 'native') {
 		items.push({
 			title: 'Require PKCE & Proof-of-Possession',
-			icon: <span>🛡️</span>,
+			icon: <span></span>,
 			description:
 				'Public clients must enable Proof Key for Code Exchange and avoid client secrets. Enable token binding where possible.',
 			actions: [
@@ -432,7 +432,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 	if (answers.mfaRequirement === 'optional' || answers.mfaRequirement === 'required') {
 		items.push({
 			title: 'PingOne MFA Policy Mapping',
-			icon: <span>📶</span>,
+			icon: <span></span>,
 			description: 'Create dynamic MFA policies to match risk and user experience needs.',
 			actions: [
 				'Configure PingOne MFA policy with primary factors (Push, TOTP, SMS fallback).',
@@ -446,7 +446,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 	if (answers.apiUsage === 'optional' || answers.apiUsage === 'required') {
 		items.push({
 			title: 'Scoped Worker Tokens & Least Privilege',
-			icon: <span>📈</span>,
+			icon: <span></span>,
 			description: 'Issue worker tokens with limited scopes and rotate credentials automatically.',
 			actions: [
 				'Create PingOne worker app and restrict scopes to exact API needs.',
@@ -460,7 +460,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 	if (answers.apiUsage === 'required' && answers.dataSensitivity === 'required') {
 		items.push({
 			title: 'Segregate Duties with Environments',
-			icon: <span>👥</span>,
+			icon: <span></span>,
 			description:
 				'Separate automation apps per environment (prod vs. sandbox) and enforce approvals.',
 			actions: [

@@ -702,16 +702,16 @@ export class EnhancedApiCallDisplayService {
 			? EnhancedApiCallDisplayService.formatTimingInfo(apiCall.duration)
 			: undefined;
 
-		let display = '🚀 API Call Details\n';
+		let display = ' API Call Details\n';
 		display += `${'='.repeat(50)}\n\n`;
 
-		display += '📤 Request:\n';
+		display += ' Request:\n';
 		display += `${formattedCall}\n\n`;
 
-		display += '💻 cURL Command:\n';
+		display += ' cURL Command:\n';
 		display += `${curlCommand}\n\n`;
 
-		display += '📥 Response:\n';
+		display += ' Response:\n';
 		display += `${responseSummary}\n`;
 
 		if (timingInfo) {
@@ -719,7 +719,7 @@ export class EnhancedApiCallDisplayService {
 		}
 
 		if (apiCall.educationalNotes && apiCall.educationalNotes.length > 0) {
-			display += '\n📚 Educational Notes:\n';
+			display += '\n Educational Notes:\n';
 			apiCall.educationalNotes.forEach((note, index) => {
 				display += `${index + 1}. ${note}\n`;
 			});

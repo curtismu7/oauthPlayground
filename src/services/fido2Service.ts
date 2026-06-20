@@ -103,7 +103,7 @@ export class FIDO2Service {
 				};
 			}
 
-			logger.info('Fido2Service', '🔐 [FIDO2] Starting credential registration', {
+			logger.info('Fido2Service', ' [FIDO2] Starting credential registration', {
 				arg0: {
 					rpId: config.rpId,
 					rpName: config.rpName,
@@ -271,7 +271,7 @@ export class FIDO2Service {
 				};
 			}
 
-			logger.info('Fido2Service', '🔐 [FIDO2] Starting credential authentication', {
+			logger.info('Fido2Service', ' [FIDO2] Starting credential authentication', {
 				arg0: {
 					credentialId: `${credentialId.substring(0, 20)}...`,
 					rpId: rpId || FIDO2Service.DEFAULT_RP_ID,

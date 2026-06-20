@@ -22,7 +22,7 @@ import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[⚡ SUPER-SIMPLE-API-V8]';
+const MODULE_TAG = '[ SUPER-SIMPLE-API-V8]';
 
 // Debug gate + lightweight dedupe for console noise
 const getApiDisplayDebug = (): boolean => {
@@ -194,18 +194,18 @@ const createPopOutWindow = (
 		const isProxy = call.isProxy || (call.actualPingOneUrl && url.includes('/pingone-auth/'));
 
 		if (isProxy) {
-			return { icon: '🔗', label: 'PingOne API (Proxy)' };
+			return { icon: '', label: 'PingOne API (Proxy)' };
 		}
 
 		if (url.includes('/pingone-auth/')) {
-			return { icon: '🔐', label: 'PingOne Auth API' };
+			return { icon: '', label: 'PingOne Auth API' };
 		}
 
 		if (url.includes('/pingone/')) {
-			return { icon: '⚡', label: 'PingOne API' };
+			return { icon: '', label: 'PingOne API' };
 		}
 
-		return { icon: '🌐', label: 'External API' };
+		return { icon: '', label: 'External API' };
 	};
 
 	const processedCalls = processApiCallsForDisplay(apiCalls, getApiTypeIcon);
@@ -264,8 +264,8 @@ const createPopOutWindow = (
 
 			function getStatusDot(status) {
 				if (!status) return '⚪';
-				if (status >= 200 && status < 300) return '🟢';
-				return '🔴';
+				if (status >= 200 && status < 300) return '';
+				return '';
 			}
 
 			function getStatusLabel(status) {
@@ -349,9 +349,9 @@ const createPopOutWindow = (
 
 			// Helper functions for display
 			function getStatusDot(status) {
-				if (status >= 200 && status < 300) return '🟢';
-				if (status >= 400) return '🔴';
-				return '🟡';
+				if (status >= 200 && status < 300) return '';
+				if (status >= 400) return '';
+				return '';
 			}
 
 			function getStatusLabel(status) {
@@ -698,7 +698,7 @@ export const ApiDisplayCheckbox: React.FC = () => {
 				}}
 			/>
 			<span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-				⚡ API ({callCount})
+				 API ({callCount})
 			</span>
 		</label>
 	);
@@ -832,13 +832,13 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		// Different icons for proxy vs direct calls
 		if (isProxy) {
 			return isAdminApi
-				? { icon: '🔀', label: 'Proxy Admin API (Worker Token)', color: '#f59e0b' }
-				: { icon: '🔄', label: 'Proxy User API', color: '#3b82f6' };
+				? { icon: '', label: 'Proxy Admin API (Worker Token)', color: '#f59e0b' }
+				: { icon: '', label: 'Proxy User API', color: '#3b82f6' };
 		}
 
 		return isAdminApi
-			? { icon: '🔑', label: 'Admin API (Worker Token)', color: '#f59e0b' }
-			: { icon: '👤', label: 'User API', color: '#3b82f6' };
+			? { icon: '', label: 'Admin API (Worker Token)', color: '#f59e0b' }
+			: { icon: '', label: 'User API', color: '#3b82f6' };
 	};
 
 	// Handle pop-out window close and sync API calls via postMessage
@@ -1070,7 +1070,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					const operationName = (call as { operationName?: string }).operationName;
 
 					// Debug: Log ALL calls being processed
-					debugLog('🔍 API DISPLAY: Processing call', {
+					debugLog(' API DISPLAY: Processing call', {
 						url,
 						actualPingOneUrl,
 						step,
@@ -1270,9 +1270,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			return '⚪'; // Pending
 		}
 		if (status >= 200 && status < 300) {
-			return '🟢'; // Success
+			return ''; // Success
 		}
-		return '🔴'; // Error
+		return ''; // Error
 	};
 
 	const getStatusLabel = (status?: number): string => {
@@ -1549,7 +1549,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 							}}
 						>
 							<div style={{ color: '#10b981', fontWeight: 'bold', fontSize: `${fontSize}px` }}>
-								⚡ API Calls ({apiCalls.length})
+								 API Calls ({apiCalls.length})
 							</div>
 							<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
 								{/* Font Size Controls */}
@@ -1640,7 +1640,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 									}}
 									title="Open API display in new window"
 								>
-									🔲 Pop Out
+									 Pop Out
 								</button>
 								{popoutBlocked && (
 									<div style={{ marginTop: 8, color: '#b91c1c', fontSize: 12 }} role="alert">
@@ -1663,7 +1663,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 													: 'Show only P1 calls (filter proxy)'
 											}
 										>
-											{showP1Only ? '🔍 P1 Only' : '📋 All Calls'}
+											{showP1Only ? ' P1 Only' : ' All Calls'}
 										</button>
 										<button
 											type="button"
@@ -1834,7 +1834,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											>
 												<div style={{ color: '#9ca3af', fontSize: `${fontSize + 2}px` }}>
 													<div style={{ fontSize: `${fontSize * 2.5}px`, marginBottom: '12px' }}>
-														⚡
+														
 													</div>
 													<div
 														style={{
@@ -2066,7 +2066,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			>
 																				{copiedField === `apiCall-${call.id}`
 																					? '✓ Copied'
-																					: '📋 Copy API Call'}
+																					: ' Copy API Call'}
 																			</button>
 																		</div>
 																		<div
@@ -2152,7 +2152,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																				}}
 																				title="Copy full URL"
 																			>
-																				{copiedField === `url-${call.id}` ? '✓ Copied' : '📋 Copy'}
+																				{copiedField === `url-${call.id}` ? '✓ Copied' : ' Copy'}
 																			</button>
 																		</div>
 																		<div
@@ -2226,7 +2226,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																					>
 																						{copiedField === `headers-${call.id}`
 																							? '✓ Copied'
-																							: '📋 Copy'}
+																							: ' Copy'}
 																					</button>
 																				</div>
 																				<div
@@ -2295,7 +2295,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																							fontWeight: '700',
 																						}}
 																					>
-																						🎯 CONFIGURED SCOPES:
+																						 CONFIGURED SCOPES:
 																					</div>
 																					<button
 																						type="button"
@@ -2320,7 +2320,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																					>
 																						{copiedField === `scopes-${call.id}`
 																							? '✓ Copied'
-																							: '📋 Copy'}
+																							: ' Copy'}
 																					</button>
 																				</div>
 																				<div
@@ -2448,7 +2448,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																							>
 																								{copiedField === `body-json-${call.id}`
 																									? '✓ JSON Copied'
-																									: '📋 Copy JSON'}
+																									: ' Copy JSON'}
 																							</button>
 																						)}
 																						<button
@@ -2474,7 +2474,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																						>
 																							{copiedField === `body-${call.id}`
 																								? '✓ Copied'
-																								: '📋 Copy Body'}
+																								: ' Copy Body'}
 																						</button>
 																					</div>
 																				</div>
@@ -2626,7 +2626,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																					>
 																						{copiedField === `response-${call.id}`
 																							? '✓ Copied'
-																							: '📋 Copy Response'}
+																							: ' Copy Response'}
 																					</button>
 																				</div>
 																				<div
@@ -2730,7 +2730,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																							gap: '6px',
 																						}}
 																					>
-																						🔧 SCOPE CONFIGURATION ERROR
+																						 SCOPE CONFIGURATION ERROR
 																					</div>
 																				</div>
 
@@ -2845,7 +2845,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																							}}
 																							title="Open PingOne Admin Console"
 																						>
-																							🔧 PingOne Admin
+																							 PingOne Admin
 																						</button>
 																						<button
 																							type="button"
@@ -2868,7 +2868,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																							}}
 																							title="Copy current scopes"
 																						>
-																							📋 Copy Scopes
+																							 Copy Scopes
 																						</button>
 																					</div>
 																				</div>

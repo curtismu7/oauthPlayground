@@ -754,7 +754,7 @@ const JWTBearerFlow: React.FC = () => {
 													onClick={handleGenerateJWT}
 													disabled={isLoading}
 												>
-													<span>🔑</span>Generate JWT Assertion
+													<span></span>Generate JWT Assertion
 												</ActionButton>
 											</ButtonGroup>
 											{jwtToken && (
@@ -772,7 +772,7 @@ const JWTBearerFlow: React.FC = () => {
 															$variant="outline"
 															onClick={() => copyToClipboard(jwtToken, 'JWT assertion')}
 														>
-															<span>📋</span>Copy
+															<span></span>Copy
 														</ActionButton>
 													</div>
 													<TokenDisplay>{maskToken(jwtToken)}</TokenDisplay>
@@ -789,7 +789,7 @@ const JWTBearerFlow: React.FC = () => {
 													onClick={handleRequestToken}
 													disabled={isLoading || !jwtToken}
 												>
-													<span>🔄</span>Request Access Token
+													<span></span>Request Access Token
 												</ActionButton>
 											</ButtonGroup>
 											{tokenResponse && (
@@ -808,7 +808,7 @@ const JWTBearerFlow: React.FC = () => {
 													onClick={handleValidateToken}
 													disabled={isLoading || !accessToken}
 												>
-													<span>🛡️</span>Validate Token
+													<span></span>Validate Token
 												</ActionButton>
 											</ButtonGroup>
 											{accessToken && (
@@ -826,7 +826,7 @@ const JWTBearerFlow: React.FC = () => {
 															$variant="outline"
 															onClick={() => copyToClipboard(accessToken, 'access token')}
 														>
-															<span>📋</span>Copy
+															<span></span>Copy
 														</ActionButton>
 													</div>
 													<TokenDisplay>{maskToken(accessToken)}</TokenDisplay>
@@ -843,7 +843,7 @@ const JWTBearerFlow: React.FC = () => {
 													onClick={handleUseToken}
 													disabled={isLoading || !accessToken}
 												>
-													<span>👤</span>Use Token (Call UserInfo)
+													<span></span>Use Token (Call UserInfo)
 												</ActionButton>
 											</ButtonGroup>
 										</div>
@@ -855,7 +855,7 @@ const JWTBearerFlow: React.FC = () => {
 
 					<ButtonGroup>
 						<ActionButton $variant="danger" onClick={resetFlow}>
-							<span>🔄</span>Reset Flow
+							<span></span>Reset Flow
 						</ActionButton>
 					</ButtonGroup>
 				</CardBody>

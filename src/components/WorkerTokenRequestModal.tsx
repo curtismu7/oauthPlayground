@@ -545,7 +545,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 				<ModalHeader>
 					<HeaderContent>
 						<HeaderIcon>
-							<span style={{ fontSize: '24' }}>🔑</span>
+							<span style={{ fontSize: '24' }}></span>
 						</HeaderIcon>
 						<HeaderText>
 							<ModalTitle>Worker Token API Request</ModalTitle>
@@ -561,7 +561,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 					{isTokenStep ? (
 						<Section>
 							<SectionTitle>
-								<span style={{ fontSize: '14' }}>🔑</span>
+								<span style={{ fontSize: '14' }}></span>
 								Generated Access Token
 							</SectionTitle>
 							<InfoBox>
@@ -588,9 +588,9 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 										title={showToken ? 'Hide token' : 'Show token'}
 									>
 										{showToken ? (
-											<span style={{ fontSize: '16' }}>🙈</span>
+											<span style={{ fontSize: '16' }}></span>
 										) : (
-											<span style={{ fontSize: '16' }}>👁️</span>
+											<span style={{ fontSize: '16' }}></span>
 										)}
 									</PasswordToggle>
 								</div>
@@ -606,7 +606,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 								</CodeBlock>
 								<ButtonGroup>
 									<ActionButton $variant="secondary" onClick={handleCopyToken} size="small">
-										<span style={{ fontSize: '12' }}>📋</span>
+										<span style={{ fontSize: '12' }}></span>
 										Copy Token
 									</ActionButton>
 								</ButtonGroup>
@@ -626,7 +626,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 
 							<Section>
 								<SectionTitle>
-									<span style={{ fontSize: '14' }}>🛡️</span>
+									<span style={{ fontSize: '14' }}></span>
 									Token Endpoint URL
 								</SectionTitle>
 								<ColoredUrlDisplay
@@ -671,9 +671,9 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 											title={showSecret ? 'Hide secret' : 'Show secret'}
 										>
 											{showSecret ? (
-												<span style={{ fontSize: '16' }}>🙈</span>
+												<span style={{ fontSize: '16' }}></span>
 											) : (
-												<span style={{ fontSize: '16' }}>👁️</span>
+												<span style={{ fontSize: '16' }}></span>
 											)}
 										</ToggleSecretButton>
 									</ParameterValue>
@@ -696,7 +696,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 
 							<Section>
 								<SectionTitle>
-									<span style={{ fontSize: '14' }}>🔑</span>
+									<span style={{ fontSize: '14' }}></span>
 									cURL Command
 								</SectionTitle>
 								<CodeBlock>{generateCurlCommand()}</CodeBlock>
@@ -704,7 +704,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 									{copiedCurl ? (
 										<span style={{ fontSize: '12' }}>✅</span>
 									) : (
-										<span style={{ fontSize: '12' }}>📋</span>
+										<span style={{ fontSize: '12' }}></span>
 									)}
 									{copiedCurl ? 'Copied!' : 'Copy cURL'}
 								</CopyButton>
@@ -750,7 +750,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 							</>
 						) : (
 							<>
-								<span style={{ fontSize: '14' }}>🔑</span>
+								<span style={{ fontSize: '14' }}></span>
 								Send Request
 							</>
 						)}

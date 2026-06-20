@@ -221,7 +221,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-						<span style={{ fontSize: 20, color: '#3b82f6' }}>👤</span>
+						<span style={{ fontSize: 20, color: '#3b82f6' }}></span>
 						<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1e40af' }}>
 							User Information
 						</h2>
@@ -302,7 +302,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-						<span style={{ fontSize: 20, color: '#10b981' }}>🛡️</span>
+						<span style={{ fontSize: 20, color: '#10b981' }}></span>
 						<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#065f46' }}>
 							PingOne Session
 						</h2>
@@ -328,7 +328,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 									marginBottom: '12px',
 								}}
 							>
-								<strong style={{ color: '#374151', fontSize: '14px' }}>🔑 Access Token</strong>
+								<strong style={{ color: '#374151', fontSize: '14px' }}> Access Token</strong>
 								<button
 									type="button"
 									onClick={async () => {
@@ -378,7 +378,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 										}
 									}}
 								>
-									<span style={{ fontSize: '14px' }}>📋</span>
+									<span style={{ fontSize: '14px' }}></span>
 									{tokenCopied ? '✓ Copied!' : 'Copy Token'}
 								</button>
 							</div>
@@ -428,7 +428,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 										fontWeight: '600',
 									}}
 								>
-									🔍 Decode Token
+									 Decode Token
 								</button>
 							)}
 						</div>
@@ -555,7 +555,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
 						>
-							<span style={{ fontSize: 20, color: '#3b82f6' }}>🛡️</span>
+							<span style={{ fontSize: 20, color: '#3b82f6' }}></span>
 							<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1e40af' }}>
 								ID Token (OIDC)
 							</h2>
@@ -577,7 +577,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 									marginBottom: '12px',
 								}}
 							>
-								<strong style={{ color: '#374151', fontSize: '14px' }}>🆔 ID Token</strong>
+								<strong style={{ color: '#374151', fontSize: '14px' }}> ID Token</strong>
 								<button
 									type="button"
 									onClick={async () => {
@@ -621,7 +621,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 										e.currentTarget.style.background = '#3b82f6';
 									}}
 								>
-									<span style={{ fontSize: '14px' }}>📋</span>
+									<span style={{ fontSize: '14px' }}></span>
 									Copy Token
 								</button>
 							</div>
@@ -671,7 +671,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 										fontWeight: '600',
 									}}
 								>
-									🔍 Decode Token
+									 Decode Token
 								</button>
 							)}
 						</div>

@@ -22,7 +22,7 @@ import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { logger } from '../../utils/logger';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 
-const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
+const MODULE_TAG = '[ CALLBACK-HANDLER-V8U]';
 const AUTHZ_REDIRECT_LOG_ENDPOINT = '/api/logs/authz-redirect';
 
 const extractStepFromPath = (path: string): string | null => {
@@ -196,7 +196,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 			return;
 		}
 
-		logger.info(`${MODULE_TAG} 🔍 CHECKING CALLBACK PATH:`, {
+		logger.info(`${MODULE_TAG} CHECKING CALLBACK PATH:`, {
 			currentPath,
 			isUserLoginCallback,
 			searchParams: window.location.search,
@@ -279,7 +279,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 			const flowContextKey = 'mfa_flow_callback_context';
 			const storedContext = sessionStorage.getItem(flowContextKey);
 
-			logger.info(`${MODULE_TAG} 🔍 Checking for stored flow context:`, {
+			logger.info(`${MODULE_TAG} Checking for stored flow context:`, {
 				hasContext: !!storedContext,
 				contextKey: flowContextKey,
 			});
@@ -300,7 +300,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 					}
 				);
 
-				logger.info(`${MODULE_TAG} 🎯 Found MFA return target:`, mfaReturnTarget);
+				logger.info(`${MODULE_TAG} Found MFA return target:`, mfaReturnTarget);
 
 				// Preserve callback parameters
 				const callbackParams = new URLSearchParams(window.location.search);
@@ -331,7 +331,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 				);
 
 				logger.info(
-					`${MODULE_TAG} 🚀 Redirecting to MFA flow using return target: ${redirectUrl}`,
+					`${MODULE_TAG} Redirecting to MFA flow using return target: ${redirectUrl}`,
 					'Logger info'
 				);
 				navigate(redirectUrl);
@@ -348,7 +348,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 						timestamp: number;
 					};
 
-					logger.info(`${MODULE_TAG} 🎯 Found stored flow context:`, context);
+					logger.info(`${MODULE_TAG} Found stored flow context:`, context);
 
 					// Validate context age (should be recent, within 10 minutes)
 					const contextAge = Date.now() - context.timestamp;
@@ -385,7 +385,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 						sessionStorage.removeItem(flowContextKey);
 
 						logger.info(
-							`${MODULE_TAG} 🚀 Redirecting to ${context.flowType} flow: ${redirectUrl}`,
+							`${MODULE_TAG} Redirecting to ${context.flowType} flow: ${redirectUrl}`,
 							'Logger info'
 						);
 
@@ -411,7 +411,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 			}
 
 			// IMPROVED FALLBACK: Use path-based detection with better logic
-			logger.info(`${MODULE_TAG} 🔍 No valid stored context, using path-based detection`);
+			logger.info(`${MODULE_TAG} No valid stored context, using path-based detection`);
 
 			// Use V9MFARedirectUriService so fallback routes stay in sync with the service mapping.
 			let fallbackPath = `${MFARedirectUriServiceV8.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // Default: return to device selection
@@ -445,7 +445,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 				}
 			}
 
-			logger.info(`${MODULE_TAG} 🔄 Using fallback redirect:`, {
+			logger.info(`${MODULE_TAG} Using fallback redirect:`, {
 				path: fallbackPath,
 				reason: fallbackReason,
 				currentPath,
@@ -614,7 +614,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 		if (clientId && environmentId && code) {
 			// Note: This would require admin access token to validate
 			// For now, we'll log the validation attempt
-			logger.info(`${MODULE_TAG} 🔍 OIDC redirect URI validation:`, {
+			logger.info(`${MODULE_TAG} OIDC redirect URI validation:`, {
 				redirectUri: currentRedirectUri,
 				clientId: `${clientId.substring(0, 8)}...`,
 				environmentId,
@@ -665,7 +665,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 		let flowType = 'oauth-authz'; // Default
 		let detectedStep = 3; // Default to step 3 (callback handling)
 
-		logger.info(`${MODULE_TAG} 🔍 Analyzing state parameter`, {
+		logger.info(`${MODULE_TAG} Analyzing state parameter`, {
 			state,
 			stateLength: state?.length,
 			startsWithV8u: state?.startsWith('v8u-'),
@@ -674,9 +674,9 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 		if (state?.startsWith('v8u-')) {
 			const parts = state.split('-');
-			logger.info(`${MODULE_TAG} 🔍 State parts (split by hyphen):`, parts);
+			logger.info(`${MODULE_TAG} State parts (split by hyphen):`, parts);
 			logger.info(
-				`${MODULE_TAG} 🔍 parts[0]="${parts[0]}", parts[1]="${parts[1]}", parts.length=${parts.length}`
+				`${MODULE_TAG} parts[0]="${parts[0]}", parts[1]="${parts[1]}", parts.length=${parts.length}`
 			);
 
 			if (parts.length >= 2) {
@@ -700,7 +700,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 					if (knownFlowTypes.includes(twoPartFlowType)) {
 						detectedFlowType = twoPartFlowType;
 						logger.info(
-							`${MODULE_TAG} 🔍 Detected two-part flow type: "${detectedFlowType}"`,
+							`${MODULE_TAG} Detected two-part flow type: "${detectedFlowType}"`,
 							'Logger info'
 						);
 					}
@@ -712,7 +712,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 					if (knownFlowTypes.includes(singlePartFlowType)) {
 						detectedFlowType = singlePartFlowType;
 						logger.info(
-							`${MODULE_TAG} 🔍 Detected single-part flow type: "${detectedFlowType}"`,
+							`${MODULE_TAG} Detected single-part flow type: "${detectedFlowType}"`,
 							'Logger info'
 						);
 					}
@@ -744,7 +744,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 		// For hybrid flow, both code and tokens come, so redirect to step 3 (parse callback)
 		if (hasFragment) {
 			logger.info(
-				`${MODULE_TAG} 🔍 Fragment detected, determining step based on flow type "${flowType}"`
+				`${MODULE_TAG} Fragment detected, determining step based on flow type "${flowType}"`
 			);
 			if (flowType === 'implicit') {
 				detectedStep = 2; // Parse fragment step for implicit
@@ -799,23 +799,23 @@ export const CallbackHandlerV8U: React.FC = () => {
 			hasFragment,
 		});
 
-		logger.info(`${MODULE_TAG} 🚀 ========== REDIRECTING TO FLOW ==========`, 'Logger info');
-		logger.info(`${MODULE_TAG} 🚀 Flow Type: "${flowType}"`, 'Logger info');
-		logger.info(`${MODULE_TAG} 🚀 Step: ${detectedStep}`, 'Logger info');
-		logger.info(`${MODULE_TAG} 🚀 Redirect Path: ${redirectPath}`, 'Logger info');
-		logger.info(`${MODULE_TAG} 🚀 Redirect URL: ${redirectUrl}`, 'Logger info');
-		logger.info(`${MODULE_TAG} 🚀 Has Fragment: ${hasFragment}`, 'Logger info');
-		logger.info(`${MODULE_TAG} 🚀 Will Preserve Fragment: ${hasFragment}`, 'Logger info');
-		logger.info(`${MODULE_TAG} 🚀 State Used for Detection: "${state}"`, 'Logger info');
-		logger.info(`${MODULE_TAG} 🚀 ========================================`, 'Logger info');
+		logger.info(`${MODULE_TAG} ========== REDIRECTING TO FLOW ==========`, 'Logger info');
+		logger.info(`${MODULE_TAG} Flow Type: "${flowType}"`, 'Logger info');
+		logger.info(`${MODULE_TAG} Step: ${detectedStep}`, 'Logger info');
+		logger.info(`${MODULE_TAG} Redirect Path: ${redirectPath}`, 'Logger info');
+		logger.info(`${MODULE_TAG} Redirect URL: ${redirectUrl}`, 'Logger info');
+		logger.info(`${MODULE_TAG} Has Fragment: ${hasFragment}`, 'Logger info');
+		logger.info(`${MODULE_TAG} Will Preserve Fragment: ${hasFragment}`, 'Logger info');
+		logger.info(`${MODULE_TAG} State Used for Detection: "${state}"`, 'Logger info');
+		logger.info(`${MODULE_TAG} ========================================`, 'Logger info');
 
 		// Use window.location.replace to preserve the fragment
 		// React Router's navigate() doesn't preserve fragments reliably
 		if (hasFragment) {
-			logger.info(`${MODULE_TAG} 🚀 Using window.location.replace() to preserve fragment`);
+			logger.info(`${MODULE_TAG} Using window.location.replace() to preserve fragment`);
 			window.location.replace(redirectUrl);
 		} else {
-			logger.info(`${MODULE_TAG} 🚀 Using React Router navigate()`);
+			logger.info(`${MODULE_TAG} Using React Router navigate()`);
 			navigate(redirectPath, { replace: true });
 		}
 	}, [searchParams, navigate]);

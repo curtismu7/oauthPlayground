@@ -20,7 +20,7 @@
 import { logger } from '../../utils/logger';
 import { type FlowType, type SpecVersion } from './specVersionServiceV8';
 
-const MODULE_TAG = '[🔐 TOKEN-ENDPOINT-AUTH-METHOD-V8]';
+const MODULE_TAG = '[ TOKEN-ENDPOINT-AUTH-METHOD-V8]';
 
 export type TokenEndpointAuthMethod =
 	| 'none'

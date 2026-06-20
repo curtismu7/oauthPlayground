@@ -429,7 +429,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 				{/* Export Section */}
 				<ActionSection>
 					<ActionTitle>
-						<span>📥</span>
+						<span></span>
 						Export Configuration
 					</ActionTitle>
 					<ActionDescription>
@@ -438,7 +438,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 					</ActionDescription>
 
 					<Button variant="primary" onClick={handleExport} disabled={!canExport}>
-						<span>📥</span>
+						<span></span>
 						Export as JSON
 					</Button>
 
@@ -462,7 +462,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 				{/* Import Section */}
 				<ActionSection>
 					<ActionTitle>
-						<span>📤</span>
+						<span></span>
 						Import Configuration
 					</ActionTitle>
 					<ActionDescription>
@@ -482,7 +482,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 							) : dropError ? (
 								<span>❌</span>
 							) : (
-								<span>📤</span>
+								<span></span>
 							)}
 						</DropZoneIcon>
 

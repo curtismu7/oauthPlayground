@@ -134,7 +134,7 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 
 			<Header>
 				<h1>
-					<span>🛡️</span> SPIFFE → PingOne Token Viewer
+					<span></span> SPIFFE → PingOne Token Viewer
 				</h1>
 				<p>
 					View and explore the OAuth/OIDC tokens issued after exchanging a SPIFFE SVID. Decode JWTs,
@@ -155,7 +155,7 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 							marginBottom: '0.75rem',
 						}}
 					>
-						<span style={{ fontSize: 18, color: '#1f2937' }}>🔑</span>
+						<span style={{ fontSize: 18, color: '#1f2937' }}></span>
 						<span style={{ fontWeight: 600, fontSize: '0.95rem', color: '#1f2937' }}>
 							Tokens issued for your SPIFFE-identified workload
 						</span>

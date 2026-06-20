@@ -1287,7 +1287,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 										cursor: 'pointer',
 									}}
 								>
-									<span style={{ fontSize: '16px' }}>🔄</span>
+									<span style={{ fontSize: '16px' }}></span>
 									Reset to Defaults
 								</button>
 							</div>

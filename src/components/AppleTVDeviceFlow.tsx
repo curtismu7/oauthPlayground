@@ -629,13 +629,13 @@ const AppleTVDeviceFlow: React.FC<AppleTVDeviceFlowProps> = ({
 						{/* Control Buttons */}
 						<ControlButtons>
 							<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-								<span style={{ fontSize: '12px' }}>🔗</span> Open in Browser
+								<span style={{ fontSize: '12px' }}></span> Open in Browser
 							</ControlButton>
 							<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-								<span style={{ fontSize: '12px' }}>📋</span> Copy Code
+								<span style={{ fontSize: '12px' }}></span> Copy Code
 							</ControlButton>
 							<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-								<span style={{ fontSize: '12px' }}>📋</span> Copy URI
+								<span style={{ fontSize: '12px' }}></span> Copy URI
 							</ControlButton>
 						</ControlButtons>
 

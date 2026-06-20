@@ -813,7 +813,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			<ModalContent>
 				<ModalHeader>
 					<h2>
-						<span>{preConfigured && !showOverrideForm ? '✅' : '🔒'}</span>
+						<span>{preConfigured && !showOverrideForm ? '✅' : ''}</span>
 						{preConfigured && !showOverrideForm ? 'Ready to Use' : 'Setup PingOne Credentials'}
 					</h2>
 					<p>
@@ -878,7 +878,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 									</div>
 									<div>
 										<strong>Client Secret:</strong>{' '}
-										<span style={{ color: '#22c55e' }}>🔒 Server-configured (hidden)</span>
+										<span style={{ color: '#22c55e' }}> Server-configured (hidden)</span>
 									</div>
 								</div>
 							)}
@@ -1024,7 +1024,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 													fontSize: '14px',
 												}}
 											>
-												<span>🔒</span>
+												<span></span>
 												<span>
 													<strong>Pre-configured</strong> — stored securely as a server environment
 													variable. You can override it below if needed.
@@ -1049,9 +1049,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 													title={showSecret ? 'Hide client secret' : 'Show client secret'}
 												>
 													{showSecret ? (
-														<span style={{ fontSize: '18px' }}>🙈</span>
+														<span style={{ fontSize: '18px' }}></span>
 													) : (
-														<span style={{ fontSize: '18px' }}>👁️</span>
+														<span style={{ fontSize: '18px' }}></span>
 													)}
 												</button>
 											</SecretInputContainer>
@@ -1076,9 +1076,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 												title={showSecret ? 'Hide client secret' : 'Show client secret'}
 											>
 												{showSecret ? (
-													<span style={{ fontSize: '18px' }}>🙈</span>
+													<span style={{ fontSize: '18px' }}></span>
 												) : (
-													<span style={{ fontSize: '18px' }}>👁️</span>
+													<span style={{ fontSize: '18px' }}></span>
 												)}
 											</button>
 										</SecretInputContainer>
@@ -1290,7 +1290,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 										}}
 										title="Export credentials to JSON file"
 									>
-										<span>📥</span>
+										<span></span>
 										Export
 									</button>
 									<button
@@ -1314,7 +1314,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 										}}
 										title="Import credentials from JSON file"
 									>
-										<span>📤</span>
+										<span></span>
 										Import
 									</button>
 								</div>

@@ -37,7 +37,7 @@ import { logger } from '../../utils/logger';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
-const MODULE_TAG = '[📱 MFA-SERVICE-V8]';
+const MODULE_TAG = '[ MFA-SERVICE-V8]';
 
 export interface MFACredentials {
 	environmentId: string;
@@ -940,7 +940,7 @@ export class MFAServiceV8 {
 					// Log policy for TOTP devices to ensure it's being sent
 					if (params.type === 'TOTP') {
 						logger.info(
-							`${MODULE_TAG} 🔍 TOTP device registration - Policy included:`,
+							`${MODULE_TAG} TOTP device registration - Policy included:`,
 							'TOTP device policy configuration verified',
 							{
 								policyId: typeof params.policy === 'object' ? params.policy.id : params.policy,
@@ -1191,7 +1191,7 @@ export class MFAServiceV8 {
 					if (tokenExpired) {
 						enhancedMessage += ` (Token has expired)`;
 					} else if (tokenType === 'user') {
-						enhancedMessage += `\n\n🔍 Troubleshooting for User Flow:\n`;
+						enhancedMessage += `\n\n Troubleshooting for User Flow:\n`;
 						enhancedMessage += `• Your access token is missing the required "p1:create:device" scope.\n`;
 						enhancedMessage += `• When logging in, ensure you request: "openid profile email p1:create:device"\n`;
 						enhancedMessage += `• The token exchange response should include "p1:create:device" in the scope field\n`;
@@ -1316,7 +1316,7 @@ export class MFAServiceV8 {
 			// Log raw device data structure for TOTP devices to debug missing properties
 			if (dd.type === 'TOTP') {
 				logger.error(
-					`${MODULE_TAG} 🔍 TOTP device raw response structure (FULL DETAILS):`,
+					`${MODULE_TAG} TOTP device raw response structure (FULL DETAILS):`,
 					'TOTP device response structure analysis',
 					{
 						deviceId: dd.id,
@@ -1417,7 +1417,7 @@ export class MFAServiceV8 {
 				const resultSecret = (result as { secret?: string }).secret;
 				const resultKeyUri = (result as { keyUri?: string }).keyUri;
 				logger.info(
-					`${MODULE_TAG} 🔍 TOTP result check (after extraction):`,
+					`${MODULE_TAG} TOTP result check (after extraction):`,
 					'TOTP credentials extraction verification',
 					{
 						hasSecretInResult: !!resultSecret,
@@ -1447,17 +1447,17 @@ export class MFAServiceV8 {
 				resultObject: result,
 			};
 			logger.info(
-				`${MODULE_TAG} 🔍 FINAL RESULT CHECK before return:`,
+				`${MODULE_TAG} FINAL RESULT CHECK before return:`,
 				'Final verification of device registration result',
 				finalCheck
 			);
 			logger.info(
-				`${MODULE_TAG} 🔍 FULL RESULT OBJECT:`,
+				`${MODULE_TAG} FULL RESULT OBJECT:`,
 				'Complete device registration result object',
 				result
 			);
 			logger.info(
-				`${MODULE_TAG} 🔍 RESULT.publicKeyCredentialCreationOptions:`,
+				`${MODULE_TAG} RESULT.publicKeyCredentialCreationOptions:`,
 				'WebAuthn registration options in final result',
 				result.publicKeyCredentialCreationOptions
 			);
@@ -2155,7 +2155,7 @@ export class MFAServiceV8 {
 
 			// Log all devices with user information to verify they belong to the correct user
 			logger.info(
-				`${MODULE_TAG} 📋 All devices retrieved from PingOne API:`,
+				`${MODULE_TAG} All devices retrieved from PingOne API:`,
 				'Complete device list retrieved from API',
 				{
 					username: params.username,
@@ -3781,7 +3781,7 @@ export class MFAServiceV8 {
 						: 'Worker token is missing or invalid. Please generate a new worker token to continue.';
 
 				const helpMessage =
-					'\n\n🔑 To fix this:\n1. Go to the MFA Hub page\n2. Click "Manage Token" or "Add Token"\n3. Generate a new worker token\n4. Try registering your FIDO2 device again';
+					'\n\n To fix this:\n1. Go to the MFA Hub page\n2. Click "Manage Token" or "Add Token"\n3. Generate a new worker token\n4. Try registering your FIDO2 device again';
 
 				logger.error(
 					`${MODULE_TAG} ❌ Token validation failed before FIDO2 activation:`,
@@ -3951,7 +3951,7 @@ export class MFAServiceV8 {
 						try {
 							const tokenStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 							if (tokenStatus.status === 'expired' || !tokenStatus.isValid) {
-								tokenStatusMessage = '\n\n🔑 Your worker token has expired or is invalid.';
+								tokenStatusMessage = '\n\n Your worker token has expired or is invalid.';
 								tokenStatusMessage += '\n\nTo fix this:';
 								tokenStatusMessage += '\n1. Go to the MFA Hub page';
 								tokenStatusMessage += '\n2. Click "Manage Token" or "Add Token"';

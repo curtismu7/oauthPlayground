@@ -97,7 +97,7 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 					gap: '6px',
 				}}
 			>
-				<span style={{ fontSize: '14px' }}>🗄️</span>
+				<span style={{ fontSize: '14px' }}></span>
 				<span>{stats.totalUsers.toLocaleString()} users in SQLite</span>
 				{metadata?.lastSyncedAt && (
 					<span style={{ color: '#6b7280', fontSize: '11px' }}>
@@ -136,7 +136,7 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 						gap: '6px',
 					}}
 				>
-					<span style={{ fontSize: '16px' }}>🗄️</span>
+					<span style={{ fontSize: '16px' }}></span>
 					SQLite Database
 				</div>
 				{showRefreshButton && (
@@ -158,7 +158,7 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 							gap: '4px',
 						}}
 					>
-						<span style={{ fontSize: '12px' }}>🔄</span>
+						<span style={{ fontSize: '12px' }}></span>
 						Refresh
 					</button>
 				)}
@@ -190,7 +190,7 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 							)}
 							{metadata.isSyncing && (
 								<div style={{ color: '#3b82f6', fontWeight: 500, marginTop: '4px' }}>
-									🔄 Sync in progress...
+									 Sync in progress...
 								</div>
 							)}
 							{metadata.lastError && (

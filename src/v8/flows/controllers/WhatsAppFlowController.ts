@@ -121,7 +121,7 @@ export class WhatsAppFlowController extends MFAFlowController {
 			const policyId = credentials.deviceAuthenticationPolicyId.trim();
 			params.policy = { id: policyId };
 			logger.info(
-				'[📲 WHATSAPP-CONTROLLER] ✅ Policy included in registration params (from dropdown selection):',
+				'[ WHATSAPP-CONTROLLER] ✅ Policy included in registration params (from dropdown selection):',
 				{
 					policyId: policyId,
 					policyObject: params.policy,
@@ -132,7 +132,7 @@ export class WhatsAppFlowController extends MFAFlowController {
 			);
 		} else {
 			logger.warn(
-				'[📲 WHATSAPP-CONTROLLER] ⚠️ Policy not included - deviceAuthenticationPolicyId is missing:',
+				'[ WHATSAPP-CONTROLLER] ⚠️ Policy not included - deviceAuthenticationPolicyId is missing:',
 				{
 					hasDeviceAuthenticationPolicyId: !!credentials.deviceAuthenticationPolicyId,
 					deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId || 'MISSING',
@@ -142,7 +142,7 @@ export class WhatsAppFlowController extends MFAFlowController {
 		}
 
 		// Log final params for debugging
-		logger.info('[📲 WHATSAPP-CONTROLLER] Final registration params:', {
+		logger.info('[ WHATSAPP-CONTROLLER] Final registration params:', {
 			hasType: false, // Type is added by base controller
 			hasPhone: !!params.phone,
 			phone: params.phone,

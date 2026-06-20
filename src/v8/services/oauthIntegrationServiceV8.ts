@@ -20,7 +20,7 @@ import { pingOneFetch } from '@/utils/pingOneFetch';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔐 OAUTH-INTEGRATION-V8]';
+const MODULE_TAG = '[ OAUTH-INTEGRATION-V8]';
 
 /**
  * Extended Error type for password change requirements.
@@ -181,7 +181,7 @@ export class OAuthIntegrationServiceV8 {
 		if (requiresJAR) {
 			// Generate JAR request object
 			logger.info(
-				`${MODULE_TAG} 🔐 JAR required - generating signed request object...`,
+				`${MODULE_TAG} JAR required - generating signed request object...`,
 				'Logger info'
 			);
 
@@ -221,7 +221,7 @@ export class OAuthIntegrationServiceV8 {
 					if (finalScopes.includes('openid')) {
 						(jarRequestParams as Record<string, unknown>).login_hint = credentials.username;
 						logger.info(
-							`${MODULE_TAG} 🔑 Added OIDC login_hint to JAR request: ${credentials.username}`,
+							`${MODULE_TAG} Added OIDC login_hint to JAR request: ${credentials.username}`,
 							'Logger info'
 						);
 					} else {
@@ -333,7 +333,7 @@ export class OAuthIntegrationServiceV8 {
 			if (finalScopes.includes('openid')) {
 				params.append('login_hint', credentials.username);
 				logger.info(
-					`${MODULE_TAG} 🔑 Added OIDC login_hint: ${credentials.username}`,
+					`${MODULE_TAG} Added OIDC login_hint: ${credentials.username}`,
 					'Logger info'
 				);
 			} else {
@@ -401,8 +401,8 @@ export class OAuthIntegrationServiceV8 {
 		expectedState: string
 	): { code: string; state: string } {
 		try {
-			logger.info(`[🔐 OAUTH-INTEGRATION-V8] Parsing callback URL:`, callbackUrl);
-			logger.info(`[🔐 OAUTH-INTEGRATION-V8] Expected state:`, expectedState);
+			logger.info(`[ OAUTH-INTEGRATION-V8] Parsing callback URL:`, callbackUrl);
+			logger.info(`[ OAUTH-INTEGRATION-V8] Expected state:`, expectedState);
 
 			const url = new URL(callbackUrl);
 			const code = url.searchParams.get('code');
@@ -410,7 +410,7 @@ export class OAuthIntegrationServiceV8 {
 			const error = url.searchParams.get('error');
 			const errorDescription = url.searchParams.get('error_description');
 
-			logger.info(`[🔐 OAUTH-INTEGRATION-V8] URL params extracted:`, {
+			logger.info(`[ OAUTH-INTEGRATION-V8] URL params extracted:`, {
 				code: code ? '***REDACTED***' : null,
 				state,
 				error,
@@ -428,7 +428,7 @@ export class OAuthIntegrationServiceV8 {
 				url.searchParams.forEach((value, key) => {
 					allParams[key] = value;
 				});
-				logger.info(`[🔐 OAUTH-INTEGRATION-V8] All URL params:`, allParams);
+				logger.info(`[ OAUTH-INTEGRATION-V8] All URL params:`, allParams);
 				throw new Error('Authorization code not found in callback URL');
 			}
 
@@ -441,10 +441,10 @@ export class OAuthIntegrationServiceV8 {
 				throw new Error('State parameter mismatch - possible CSRF attack');
 			}
 
-			logger.info(`[🔐 OAUTH-INTEGRATION-V8] Successfully parsed callback URL`, 'Logger info');
+			logger.info(`[ OAUTH-INTEGRATION-V8] Successfully parsed callback URL`, 'Logger info');
 			return { code, state };
 		} catch (error) {
-			logger.error(`[🔐 OAUTH-INTEGRATION-V8] Error parsing callback URL`, error);
+			logger.error(`[ OAUTH-INTEGRATION-V8] Error parsing callback URL`, error);
 			throw error;
 		}
 	}
@@ -656,7 +656,7 @@ export class OAuthIntegrationServiceV8 {
 					(errorData.error_description as string)?.toLowerCase().includes('must change password');
 
 				if (requiresPasswordChange) {
-					logger.info(`${MODULE_TAG} 🔐 Password change required detected`, 'Logger info');
+					logger.info(`${MODULE_TAG} Password change required detected`, 'Logger info');
 					const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;
 					passwordChangeError.code = 'MUST_CHANGE_PASSWORD';
 					passwordChangeError.requiresPasswordChange = true;
@@ -699,7 +699,7 @@ export class OAuthIntegrationServiceV8 {
 							const workerToken = await workerTokenServiceV8.getToken();
 							if (workerToken) {
 								logger.info(
-									`${MODULE_TAG} 🔍 Fetching PingOne app config for error comparison...`,
+									`${MODULE_TAG} Fetching PingOne app config for error comparison...`,
 									'Logger info'
 								);
 								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
@@ -714,7 +714,7 @@ export class OAuthIntegrationServiceV8 {
 										const { appDiscoveryServiceV8 } = await import(
 											'@/v8/services/appDiscoveryServiceV8'
 										);
-										logger.info(`${MODULE_TAG} 🔍 Attempting to fetch application with secret...`, {
+										logger.info(`${MODULE_TAG} Attempting to fetch application with secret...`, {
 											environmentId: credentials.environmentId,
 											clientId: credentials.clientId,
 											hasWorkerToken: !!workerToken,
@@ -726,7 +726,7 @@ export class OAuthIntegrationServiceV8 {
 											workerToken
 										);
 
-										logger.info(`${MODULE_TAG} 📦 Application with secret response:`, {
+										logger.info(`${MODULE_TAG} Application with secret response:`, {
 											hasAppWithSecret: !!appWithSecret,
 											hasClientSecret: !!appWithSecret?.clientSecret,
 											clientSecretType: typeof appWithSecret?.clientSecret,
@@ -783,7 +783,7 @@ export class OAuthIntegrationServiceV8 {
 					}
 
 					// ALWAYS build comparison section - show what we have vs what PingOne has (or error fetching)
-					let comparisonSection = `\n🔍 Configuration Comparison:
+					let comparisonSection = `\n Configuration Comparison:
 
 ┌─────────────────────────────────────────────────────────────┐
 │                    Your App Config                          │
@@ -842,7 +842,7 @@ ${credentials.clientSecret && !pingOneConfig.clientSecret ? '⚠️  Client Secr
 ⚠️  Could not compare with PingOne configuration:
    ${pingOneConfigError || 'Unknown error'}
 
-💡 To see the comparison:
+ To see the comparison:
    1. Ensure you have a valid worker token
    2. Verify your Environment ID and Client ID are correct
    3. Check that the application exists in PingOne
@@ -852,15 +852,15 @@ ${credentials.clientSecret && !pingOneConfig.clientSecret ? '⚠️  Client Secr
 
 					const enhancedMessage = `Token exchange failed: invalid_client - ${errorDescription}
 
-📋 Root Cause:
+ Root Cause:
 The client credentials (client_id or client_secret) are invalid, or the authentication method doesn't match your PingOne application configuration.
 
-🔍 Diagnostic Information:
+ Diagnostic Information:
 • Client ID: ${clientIdPreview}
 • Authentication Method Used: ${authMethod}
 • Correlation ID: ${correlationId || 'Not provided'}${comparisonSection}
 
-🔧 How to Fix:
+ How to Fix:
 
 1. Verify Client ID and Client Secret:
    • Go to PingOne Admin Console: https://admin.pingone.com
@@ -887,13 +887,13 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
    • Ensure the application is enabled in PingOne
    • Check that the application hasn't been deleted or disabled
 
-💡 Common Issues:
+ Common Issues:
 • Client Secret may have been regenerated in PingOne (old secret is invalid)
 • Copy/paste errors in Client ID or Client Secret
 • Authentication method changed in PingOne but not updated in your configuration
 • Application was deleted and recreated with a new Client ID
 
-📚 Documentation:
+ Documentation:
 • PingOne Applications: https://apidocs.pingidentity.com/pingone/main/v1/api/#applications
 • OAuth 2.0 Client Authentication: https://tools.ietf.org/html/rfc6749#section-2.3`;
 
@@ -924,7 +924,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 						if (passwordState === 'MUST_CHANGE_PASSWORD') {
 							logger.info(
-								`${MODULE_TAG} 🔐 Password change required detected in ID token`,
+								`${MODULE_TAG} Password change required detected in ID token`,
 								'Logger info'
 							);
 							const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;
@@ -940,7 +940,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 					// If parsing fails, check response metadata
 					if (requiresPasswordChange) {
 						logger.info(
-							`${MODULE_TAG} 🔐 Password change required detected in response metadata`,
+							`${MODULE_TAG} Password change required detected in response metadata`,
 							'Logger info'
 						);
 						const passwordChangeError = new Error('MUST_CHANGE_PASSWORD') as PasswordChangeError;

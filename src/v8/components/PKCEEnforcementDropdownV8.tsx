@@ -17,7 +17,7 @@ import { FiChevronDown } from '../../icons';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔐 PKCE-ENFORCEMENT-V8]';
+const MODULE_TAG = '[ PKCE-ENFORCEMENT-V8]';
 
 export type PKCEEnforcement = 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';
 
@@ -42,7 +42,7 @@ const PKCE_ENFORCEMENT_OPTIONS: Record<PKCEEnforcement, PKCEEnforcementOption> =
 	OPTIONAL: {
 		value: 'OPTIONAL',
 		label: 'OPTIONAL - PKCE is optional (can proceed without codes)',
-		icon: '🔓',
+		icon: '',
 		description: 'PKCE codes are optional. Your application can proceed with or without PKCE.',
 		security: 'Lower - No PKCE protection required',
 		useCase: 'Legacy applications, testing, or when PKCE is not supported',
@@ -50,7 +50,7 @@ const PKCE_ENFORCEMENT_OPTIONS: Record<PKCEEnforcement, PKCEEnforcementOption> =
 	REQUIRED: {
 		value: 'REQUIRED',
 		label: 'REQUIRED - PKCE must be used (allows S256 or plain)',
-		icon: '🔐',
+		icon: '',
 		description:
 			'PKCE codes are required. Your application must use PKCE, but can use either S256 (SHA-256) or plain code challenge method.',
 		security: 'High - PKCE protection required',
@@ -60,7 +60,7 @@ const PKCE_ENFORCEMENT_OPTIONS: Record<PKCEEnforcement, PKCEEnforcementOption> =
 	S256_REQUIRED: {
 		value: 'S256_REQUIRED',
 		label: 'S256_REQUIRED - PKCE required with S256 only (most secure)',
-		icon: '🔒',
+		icon: '',
 		description:
 			'PKCE codes are required and must use S256 (SHA-256) code challenge method. Plain method is not allowed.',
 		security: 'Highest - PKCE with S256 only (most secure)',
@@ -101,7 +101,7 @@ export const PKCEEnforcementDropdownV8: React.FC<PKCEEnforcementDropdownV8Props>
 						color: '#1f2937', // Dark text on light background
 					}}
 				>
-					🔐 PKCE Enforcement
+					 PKCE Enforcement
 				</label>
 				<button
 					type="button"
@@ -243,7 +243,7 @@ export const PKCEEnforcementDropdownV8: React.FC<PKCEEnforcementDropdownV8Props>
 							borderRadius: '6px',
 						}}
 					>
-						<span style={{ fontSize: '18px' }}>📚</span>
+						<span style={{ fontSize: '18px' }}></span>
 						<h4
 							style={{
 								fontSize: '14px',
@@ -349,7 +349,7 @@ export const PKCEEnforcementDropdownV8: React.FC<PKCEEnforcementDropdownV8Props>
 												gap: '6px',
 											}}
 										>
-											<span>🔒</span>
+											<span></span>
 											<span>
 												<strong>Security:</strong> {option.security}
 											</span>
@@ -392,7 +392,7 @@ export const PKCEEnforcementDropdownV8: React.FC<PKCEEnforcementDropdownV8Props>
 								marginBottom: '8px',
 							}}
 						>
-							<strong>🔐 What is PKCE?</strong>
+							<strong> What is PKCE?</strong>
 						</div>
 						<div
 							style={{
@@ -449,7 +449,7 @@ export const PKCEEnforcementDropdownV8: React.FC<PKCEEnforcementDropdownV8Props>
 							gap: '8px',
 						}}
 					>
-						<span style={{ fontSize: '16px' }}>💡</span>
+						<span style={{ fontSize: '16px' }}></span>
 						<span
 							style={{
 								fontSize: '12px',

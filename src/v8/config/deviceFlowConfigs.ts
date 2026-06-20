@@ -121,14 +121,14 @@ const _noValidation: ValidationFunction = (): ValidationResult => {
 const SMS_CONFIG: DeviceFlowConfig = {
 	deviceType: 'SMS',
 	displayName: 'SMS OTP',
-	icon: '📱',
+	icon: '',
 	description: 'Enhanced SMS OTP with database persistence and production-grade debugging',
 	educationalContent: `
 ## SMS One-Time Password (OTP) - Unified Registration Flow
 
 SMS OTP sends temporary verification codes to mobile phones for multi-factor authentication. This unified implementation supports multiple registration flows with comprehensive API documentation.
 
-### 🔄 Registration Flow Options
+### Registration Flow Options
 
 #### **Option 1: Admin Flow (Immediate Activation)**
 - **Token**: Worker token (service account)
@@ -154,7 +154,7 @@ SMS OTP sends temporary verification codes to mobile phones for multi-factor aut
 - **Steps**: Direct to Activate (OTP) → API Docs → Success (4 steps)
 - **Use Case**: Resume interrupted registration
 
-### 📋 Flow Steps Overview
+### Flow Steps Overview
 
 **Step 1: Registration**
 - Enter phone number and select flow type
@@ -175,7 +175,7 @@ SMS OTP sends temporary verification codes to mobile phones for multi-factor aut
 - Device ready for MFA use
 - Confirmation and next steps
 
-### 🔧 Technical Implementation
+### Technical Implementation
 
 #### **Device Status Logic**
 \`\`\`typescript
@@ -200,7 +200,7 @@ else {
 - **OTP Validation**: \`POST /environments/{envId}/devices/{deviceId}/activate\`
 - **User Lookup**: \`GET /environments/{envId}/users/{userId}\`
 
-### 🛡️ Security Features
+### Security Features
 
 #### **OTP Security**
 - **6-digit codes** with 10-minute expiration
@@ -214,7 +214,7 @@ else {
 - **Token validation** before each API call
 - **Secure storage** with dual persistence
 
-### 📊 API Documentation Features
+### API Documentation Features
 
 #### **Comprehensive Reference**
 - **Request/Response examples** for each flow type
@@ -228,7 +228,7 @@ else {
 - **User flow**: OAuth + registration + activation sequence
 - **Recovery flow**: Existing device activation
 
-### 🔍 Debugging & Monitoring
+### Debugging & Monitoring
 
 #### **Enhanced Logging**
 - **Request/Response logging** for all API calls
@@ -242,7 +242,7 @@ else {
 - **State synchronization** between storage layers
 - **Production alignment** with V8U apps
 
-### 📱 SMS Delivery Details
+### SMS Delivery Details
 
 #### **Message Format**
 - **6-digit numeric code** (e.g., "123456")
@@ -256,7 +256,7 @@ else {
 - **Retry logic** with exponential backoff
 - **Fallback mechanisms** for delivery failures
 
-### 🚀 Best Practices
+### Best Practices
 
 #### **For Admins**
 - **Use ACTIVE flow** for immediate device provisioning
@@ -276,7 +276,7 @@ else {
 - **Implement proper error handling** for each step
 - **Use API documentation** for implementation reference
 
-### ⚡ Performance Optimizations
+### Performance Optimizations
 
 #### **Flow Efficiency**
 - **Conditional OTP** - only sent when required
@@ -323,7 +323,7 @@ This unified SMS OTP implementation provides maximum flexibility while maintaini
 const EMAIL_CONFIG: DeviceFlowConfig = {
 	deviceType: 'EMAIL',
 	displayName: 'Email OTP',
-	icon: '📧',
+	icon: '',
 	description: 'Receive verification codes via email',
 	educationalContent: `
 ## Email One-Time Password (OTP)
@@ -419,7 +419,7 @@ Content-Type: application/vnd.pingidentity.device.activate+json
 const MOBILE_CONFIG: DeviceFlowConfig = {
 	deviceType: 'MOBILE',
 	displayName: 'Mobile Push',
-	icon: '📲',
+	icon: '',
 	description: 'Receive push notifications on your mobile device',
 	educationalContent: `
 ## Mobile Push Notifications
@@ -505,7 +505,7 @@ Once paired, the device status changes to ACTIVE.
 const WHATSAPP_CONFIG: DeviceFlowConfig = {
 	deviceType: 'WHATSAPP',
 	displayName: 'WhatsApp OTP',
-	icon: '💬',
+	icon: '',
 	description: 'Receive verification codes via WhatsApp',
 	educationalContent: `
 ## WhatsApp One-Time Password (OTP)
@@ -610,7 +610,7 @@ Content-Type: application/vnd.pingidentity.device.activate+json
 const TOTP_CONFIG: DeviceFlowConfig = {
 	deviceType: 'TOTP',
 	displayName: 'Authenticator App (TOTP)',
-	icon: '🔐',
+	icon: '',
 	description: 'Use an authenticator app like Google Authenticator or Authy',
 	educationalContent: `
 ## Time-Based One-Time Password (TOTP)
@@ -715,7 +715,7 @@ The device becomes ACTIVE once the correct TOTP code is validated.
 const FIDO2_CONFIG: DeviceFlowConfig = {
 	deviceType: 'FIDO2',
 	displayName: 'Security Key / Biometric',
-	icon: '🔑',
+	icon: '',
 	description: 'Use a hardware security key or biometric authentication (fingerprint, Face ID)',
 	educationalContent: `
 ## FIDO2 / WebAuthn Authentication

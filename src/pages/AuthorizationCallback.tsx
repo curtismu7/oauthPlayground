@@ -142,9 +142,9 @@ const AuthorizationCallback: React.FC = () => {
 				openerClosed: window.opener ? window.opener.closed : 'N/A',
 			};
 
-			logger.info('🔄 [AuthCallback] ===== STARTING CALLBACK PROCESSING =====', 'Logger info');
-			logger.info('🔄 [AuthCallback] Current URL:', window.location.href);
-			logger.info('🔄 [AuthCallback] Is popup?', debugInfo.isPopup);
+			logger.info(' [AuthCallback] ===== STARTING CALLBACK PROCESSING =====', 'Logger info');
+			logger.info(' [AuthCallback] Current URL:', window.location.href);
+			logger.info(' [AuthCallback] Is popup?', debugInfo.isPopup);
 
 			// Get URL parameters
 			const urlParams = new URLSearchParams(window.location.search);
@@ -173,24 +173,24 @@ const AuthorizationCallback: React.FC = () => {
 				);
 			}
 
-			logger.info('🔄 [AuthCallback] ===== URL PARAMETER ANALYSIS =====', 'Logger info');
-			logger.info('🔄 [AuthCallback] URL search params:', window.location.search);
-			logger.info('🔄 [AuthCallback] All URL params:', Object.fromEntries(urlParams.entries()));
+			logger.info(' [AuthCallback] ===== URL PARAMETER ANALYSIS =====', 'Logger info');
+			logger.info(' [AuthCallback] URL search params:', window.location.search);
+			logger.info(' [AuthCallback] All URL params:', Object.fromEntries(urlParams.entries()));
 			logger.info(
-				'🔄 [AuthCallback] Code parameter:',
+				' [AuthCallback] Code parameter:',
 				code ? `${code.substring(0, 10)}...` : 'NULL'
 			);
-			logger.info('🔄 [AuthCallback] State parameter:', state || 'NULL');
-			logger.info('🔄 [AuthCallback] Error parameter:', errorParam || 'NULL');
-			logger.info('🔄 [AuthCallback] Error description:', errorDescription || 'NULL');
+			logger.info(' [AuthCallback] State parameter:', state || 'NULL');
+			logger.info(' [AuthCallback] Error parameter:', errorParam || 'NULL');
+			logger.info(' [AuthCallback] Error description:', errorDescription || 'NULL');
 
 			// Check sessionStorage before processing
-			logger.info('🔄 [AuthCallback] ===== SESSION STORAGE BEFORE PROCESSING =====', 'Logger info');
+			logger.info(' [AuthCallback] ===== SESSION STORAGE BEFORE PROCESSING =====', 'Logger info');
 			const allSessionKeys = Object.keys(sessionStorage);
-			logger.info('🔄 [AuthCallback] All sessionStorage keys:', allSessionKeys);
+			logger.info(' [AuthCallback] All sessionStorage keys:', allSessionKeys);
 			allSessionKeys.forEach((key) => {
 				if (key.includes('oidc') || key.includes('auth')) {
-					logger.info(`🔄 [AuthCallback] ${key}:`, sessionStorage.getItem(key));
+					logger.info(` [AuthCallback] ${key}:`, sessionStorage.getItem(key));
 				}
 			});
 
@@ -298,9 +298,9 @@ const AuthorizationCallback: React.FC = () => {
 					);
 
 					// DEBUG MODE: Don't auto-close so we can see logs
-					logger.info('🐛 [AuthCallback] DEBUG MODE: Popup will NOT auto-close', 'Logger info');
+					logger.info(' [AuthCallback] DEBUG MODE: Popup will NOT auto-close', 'Logger info');
 					logger.info(
-						'🐛 [AuthCallback] Please close this popup manually after reviewing logs',
+						' [AuthCallback] Please close this popup manually after reviewing logs',
 						'Logger info'
 					);
 					// Auto-close popup after 2 seconds
@@ -462,7 +462,7 @@ const AuthorizationCallback: React.FC = () => {
 
 						{!redirecting && (
 							<RedirectingMessage>
-								🐛 DEBUG MODE: Popup will stay open so you can review the console logs. Close this
+								 DEBUG MODE: Popup will stay open so you can review the console logs. Close this
 								window manually when done.
 							</RedirectingMessage>
 						)}

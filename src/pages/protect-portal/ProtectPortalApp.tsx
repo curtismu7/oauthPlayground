@@ -590,17 +590,17 @@ interface ProtectPortalAppProps {
 // ─── Feature card data ────────────────────────────────────────────────────────
 const FEATURES = [
 	{
-		icon: '📦',
+		icon: '',
 		title: 'Track & Trace',
 		desc: 'Real-time visibility on all your packages and freight worldwide. Get proactive delivery notifications.',
 	},
 	{
-		icon: '🚚',
+		icon: '',
 		title: 'Schedule a Pickup',
 		desc: 'Request pickups and manage shipping schedules from any location at any time.',
 	},
 	{
-		icon: '📊',
+		icon: '',
 		title: 'Account Management',
 		desc: 'Review invoices, manage billing preferences, and monitor account activity in one place.',
 	},
@@ -789,7 +789,7 @@ const FedExPortalContent: React.FC<Omit<ProtectPortalAppProps, 'initialStep'>> =
 										? '✓ Low Risk'
 										: riskLevel === 'MEDIUM'
 											? '⚠️ Medium Risk'
-											: '🛑 High Risk'}
+											: ' High Risk'}
 								</RiskBadge>
 							</div>
 						)}
@@ -831,7 +831,7 @@ const FedExPortalContent: React.FC<Omit<ProtectPortalAppProps, 'initialStep'>> =
 			case 'blocked':
 				return (
 					<div style={{ textAlign: 'center' }}>
-						<BlockedIconBox>🛑</BlockedIconBox>
+						<BlockedIconBox></BlockedIconBox>
 						<ModalTitle style={{ color: FX.error }}>Access Blocked</ModalTitle>
 						<p
 							style={{
@@ -847,7 +847,7 @@ const FedExPortalContent: React.FC<Omit<ProtectPortalAppProps, 'initialStep'>> =
 						</p>
 						{riskResult?.result?.score !== undefined && (
 							<div style={{ marginBottom: '1.25rem' }}>
-								<RiskBadge $level="HIGH">🛑 High Risk — Score: {riskResult.result.score}</RiskBadge>
+								<RiskBadge $level="HIGH"> High Risk — Score: {riskResult.result.score}</RiskBadge>
 							</div>
 						)}
 						<OrangeBtn onClick={closeModal} style={{ background: FX.error }}>
@@ -910,7 +910,7 @@ const FedExPortalContent: React.FC<Omit<ProtectPortalAppProps, 'initialStep'>> =
 
 			{/* Hero */}
 			<Hero>
-				<HeroTag>🛡️ PingOne Protect Demo</HeroTag>
+				<HeroTag> PingOne Protect Demo</HeroTag>
 				<HeroTitle>The World on Time</HeroTitle>
 				<HeroSub>
 					Securely access your FedEx account to track shipments, schedule pickups, and manage your

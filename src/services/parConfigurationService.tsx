@@ -264,7 +264,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 							cursor: 'pointer',
 						}}
 					>
-						📝 Basic Profile
+						 Basic Profile
 					</ButtonSpinner>
 					<ButtonSpinner
 						loading={false}
@@ -291,7 +291,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 							cursor: 'pointer',
 						}}
 					>
-						🔒 High Security
+						 High Security
 					</ButtonSpinner>
 					<ButtonSpinner
 						loading={false}
@@ -321,7 +321,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 							cursor: 'pointer',
 						}}
 					>
-						📋 Complete Profile
+						 Complete Profile
 					</ButtonSpinner>
 					<ButtonSpinner
 						loading={false}
@@ -347,7 +347,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 							cursor: 'pointer',
 						}}
 					>
-						⚡ Minimal
+						 Minimal
 					</ButtonSpinner>
 				</div>
 

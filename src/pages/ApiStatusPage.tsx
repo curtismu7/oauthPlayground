@@ -164,7 +164,7 @@ const ApiStatusPage: React.FC = () => {
 			<FlowHeader flowId="api-status" />
 			<RefreshBar>
 				<RefreshButton onClick={fetchHealthData} disabled={loading}>
-					<span>🔄</span>
+					<span></span>
 					{loading ? 'Refreshing...' : 'Refresh'}
 				</RefreshButton>
 				{lastRefresh && (
@@ -187,7 +187,7 @@ const ApiStatusPage: React.FC = () => {
 											: '#f59e0b'
 								}
 							>
-								<span>🖥️</span>
+								<span></span>
 							</CardIcon>
 							<CardTitle>{server.name}</CardTitle>
 							<StatusBadge $status={server.status}>

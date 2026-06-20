@@ -135,10 +135,10 @@ export const DebugLogViewerV8: React.FC = () => {
 		{
 			value: 'localStorage',
 			label: 'localStorage',
-			icon: <span style={{ fontSize: '16px' }}>🗄️</span>,
+			icon: <span style={{ fontSize: '16px' }}></span>,
 		},
-		{ value: 'indexedDB', label: 'IndexedDB', icon: <span style={{ fontSize: '16px' }}>🗄️</span> },
-		{ value: 'sqlite', label: 'SQLite', icon: <span style={{ fontSize: '16px' }}>🗄️</span> },
+		{ value: 'indexedDB', label: 'IndexedDB', icon: <span style={{ fontSize: '16px' }}></span> },
+		{ value: 'sqlite', label: 'SQLite', icon: <span style={{ fontSize: '16px' }}></span> },
 		{
 			value: 'file',
 			label: 'File',
@@ -147,7 +147,7 @@ export const DebugLogViewerV8: React.FC = () => {
 		{
 			value: 'callback-debug',
 			label: 'Callback Debug',
-			icon: <span style={{ fontSize: '16px' }}>👁️</span>,
+			icon: <span style={{ fontSize: '16px' }}></span>,
 		},
 	];
 
@@ -1031,12 +1031,12 @@ export const DebugLogViewerV8: React.FC = () => {
 	);
 
 	const categoryLabels: Record<string, string> = {
-		server: '📁 Server Logs',
-		api: '📊 API Logs',
-		frontend: '🎨 Frontend Logs',
-		mfa: '📱 MFA Device Logs',
-		oauth: '🔗 OAuth Logs',
-		other: '📄 Other Logs',
+		server: ' Server Logs',
+		api: ' API Logs',
+		frontend: ' Frontend Logs',
+		mfa: ' MFA Device Logs',
+		oauth: ' OAuth Logs',
+		other: ' Other Logs',
 	};
 
 	return (
@@ -1411,7 +1411,7 @@ export const DebugLogViewerV8: React.FC = () => {
 							cursor: isLoading ? 'not-allowed' : 'pointer',
 						}}
 					>
-						<span style={{ fontSize: '16px' }}>🔄</span>
+						<span style={{ fontSize: '16px' }}></span>
 						{isLoading ? 'Loading...' : 'Refresh'}
 					</button>
 
@@ -1452,7 +1452,7 @@ export const DebugLogViewerV8: React.FC = () => {
 							cursor: 'pointer',
 						}}
 					>
-						<span style={{ fontSize: '16px' }}>🗑️</span>
+						<span style={{ fontSize: '16px' }}></span>
 						Clear
 					</button>
 
@@ -1473,7 +1473,7 @@ export const DebugLogViewerV8: React.FC = () => {
 							cursor: 'pointer',
 						}}
 					>
-						<span style={{ fontSize: '16px' }}>📥</span>
+						<span style={{ fontSize: '16px' }}></span>
 						Export
 					</button>
 
@@ -1496,7 +1496,7 @@ export const DebugLogViewerV8: React.FC = () => {
 							}}
 							title="Open in new window (stays on top of other apps)"
 						>
-							<span style={{ fontSize: '16px' }}>🔗</span>
+							<span style={{ fontSize: '16px' }}></span>
 							Popout
 						</button>
 					)}
@@ -1717,9 +1717,9 @@ export const DebugLogViewerV8: React.FC = () => {
 													title={isExpanded ? 'Hide details' : 'Show details'}
 												>
 													{isExpanded ? (
-														<span style={{ fontSize: '14px' }}>🙈</span>
+														<span style={{ fontSize: '14px' }}></span>
 													) : (
-														<span style={{ fontSize: '14px' }}>👁️</span>
+														<span style={{ fontSize: '14px' }}></span>
 													)}
 												</button>
 											)}
@@ -1864,7 +1864,7 @@ export const DebugLogViewerV8: React.FC = () => {
 					color: '#1e40af',
 				}}
 			>
-				<strong>💡 Tip:</strong>{' '}
+				<strong> Tip:</strong>{' '}
 				{logSource === 'localStorage'
 					? 'These logs persist across page redirects and refreshes. Use the dropdown to switch between all detected localStorage log keys.'
 					: logSource === 'indexedDB'

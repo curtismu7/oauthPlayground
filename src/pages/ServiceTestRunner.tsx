@@ -304,19 +304,19 @@ export const ServiceTestRunner: React.FC = () => {
 							<LoadingSpinner /> Running Tests...
 						</>
 					) : (
-						'🚀 Run All Tests'
+						' Run All Tests'
 					)}
 				</TestButton>
 
 				<TestButton variant="secondary" onClick={clearResults} disabled={isRunning}>
-					🧹 Clear Results
+					 Clear Results
 				</TestButton>
 			</TestControls>
 
 			{testResults && (
 				<TestResultsContainer>
 					<TestResultsHeader>
-						<TestResultsTitle>📊 Test Results</TestResultsTitle>
+						<TestResultsTitle> Test Results</TestResultsTitle>
 						<TestStats>
 							<StatItem type="total">
 								<StatNumber>{testResults.total}</StatNumber>
@@ -351,7 +351,7 @@ export const ServiceTestRunner: React.FC = () => {
 
 			{consoleOutput.length > 0 && (
 				<ConsoleOutput>
-					<div style={{ marginBottom: '10px', fontWeight: 'bold' }}>📝 Console Output:</div>
+					<div style={{ marginBottom: '10px', fontWeight: 'bold' }}> Console Output:</div>
 					{consoleOutput.map((line, index) => (
 						<div key={index}>{line}</div>
 					))}
