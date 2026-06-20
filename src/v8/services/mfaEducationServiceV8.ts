@@ -11,7 +11,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[📚 MFA-EDUCATION-V8]';
+const MODULE_TAG = '[ MFA-EDUCATION-V8]';
 
 export interface MFAEducationContent {
 	title: string;
@@ -829,11 +829,11 @@ All passkeys use WebAuthn, but not all WebAuthn credentials are passkeys. Tradit
 	static getSecurityLevelIcon(level?: 'high' | 'medium' | 'low'): string {
 		switch (level) {
 			case 'high':
-				return '🛡️'; // Shield - high security
+				return ''; // Shield - high security
 			case 'medium':
 				return '⚠️'; // Warning - medium security
 			case 'low':
-				return '⚡'; // Lightning - low security
+				return ''; // Lightning - low security
 			default:
 				return 'ℹ️'; // Info - no security level
 		}

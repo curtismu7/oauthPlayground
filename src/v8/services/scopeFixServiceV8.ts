@@ -133,7 +133,7 @@ export class ScopeFixServiceV8 {
 	): string {
 		let instructions = '';
 
-		instructions += '🔧 Quick Fix: Configure Resource Server Scopes in PingOne\n\n';
+		instructions += ' Quick Fix: Configure Resource Server Scopes in PingOne\n\n';
 		instructions += 'Step 1: Create Resource Server\n';
 		instructions += '1. Go to https://admin.pingone.com\n';
 		instructions += '2. Navigate to: Resources → Resource Servers\n';

@@ -2641,7 +2641,7 @@ export { changePassword, handleChangePassword };`;
 
 				<StatusBar>
 					<StatusItem>
-						<span>🔑</span>
+						<span></span>
 						<span>
 							Environment:{' '}
 							{environmentId ? `${environmentId.substring(0, 8)}...` : 'Not configured'}
@@ -2706,7 +2706,7 @@ export { changePassword, handleChangePassword };`;
 							$variant={globalTokenStatus.isValid ? 'success' : 'danger'}
 							onClick={handleGetWorkerToken}
 						>
-							<span>🔑</span>
+							<span></span>
 							{globalTokenStatus.isValid ? 'Worker Token Ready' : 'Get Worker Token'}
 						</Button>
 						{globalTokenStatus.isValid && (
@@ -2727,7 +2727,7 @@ export { changePassword, handleChangePassword };`;
 							}
 							onClick={() => setShowAuthzConfigModal(true)}
 						>
-							<span>🔑</span>
+							<span></span>
 							Configure Auth Code Client
 						</Button>
 
@@ -2737,7 +2737,7 @@ export { changePassword, handleChangePassword };`;
 							onClick={handleExportConfig}
 							title="Export auth config as JSON"
 						>
-							<span>📥</span>
+							<span></span>
 							Export Config
 						</Button>
 						<Button
@@ -2745,7 +2745,7 @@ export { changePassword, handleChangePassword };`;
 							onClick={() => importConfigRef.current?.click()}
 							title="Import auth config from JSON file"
 						>
-							<span>📤</span>
+							<span></span>
 							Import Config
 						</Button>
 						<input
@@ -2821,7 +2821,7 @@ export { changePassword, handleChangePassword };`;
 						<div style={{ display: 'grid', gap: '1.5rem' }}>
 							<div>
 								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>
-									🔐 Recover Password
+									 Recover Password
 								</h3>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
 									<strong>Requires:</strong> Recovery code (sent via email/SMS) + New password
@@ -2848,15 +2848,15 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<span>📖</span>
+									<span></span>
 									View API Documentation
-									<span style={{ fontSize: '14px' }}>🔗</span>
+									<span style={{ fontSize: '14px' }}></span>
 								</DocumentationLink>
 							</div>
 
 							<div>
 								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>
-									🔒 Force Password Change
+									 Force Password Change
 								</h3>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
 									<strong>Requires:</strong> Worker token (admin operation)
@@ -2894,9 +2894,9 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<span>📖</span>
+									<span></span>
 									View API Documentation
-									<span style={{ fontSize: '14px' }}>🔗</span>
+									<span style={{ fontSize: '14px' }}></span>
 								</DocumentationLink>
 							</div>
 
@@ -2929,9 +2929,9 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<span>📖</span>
+									<span></span>
 									View API Documentation
-									<span style={{ fontSize: '14px' }}>🔗</span>
+									<span style={{ fontSize: '14px' }}></span>
 								</DocumentationLink>
 							</div>
 
@@ -2975,15 +2975,15 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<span>📖</span>
+									<span></span>
 									View API Documentation
-									<span style={{ fontSize: '14px' }}>🔗</span>
+									<span style={{ fontSize: '14px' }}></span>
 								</DocumentationLink>
 							</div>
 
 							<div>
 								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>
-									🔍 Check Password
+									 Check Password
 								</h3>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
 									<strong>Requires:</strong> Worker token + Password to verify
@@ -3010,15 +3010,15 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<span>📖</span>
+									<span></span>
 									View API Documentation
-									<span style={{ fontSize: '14px' }}>🔗</span>
+									<span style={{ fontSize: '14px' }}></span>
 								</DocumentationLink>
 							</div>
 
 							<div>
 								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>
-									🔓 Unlock Password
+									 Unlock Password
 								</h3>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
 									<strong>Requires:</strong> Worker token
@@ -3045,15 +3045,15 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<span>📖</span>
+									<span></span>
 									View API Documentation
-									<span style={{ fontSize: '14px' }}>🔗</span>
+									<span style={{ fontSize: '14px' }}></span>
 								</DocumentationLink>
 							</div>
 
 							<div>
 								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>
-									📊 Read Password State
+									 Read Password State
 								</h3>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
 									<strong>Requires:</strong> Worker token
@@ -3070,9 +3070,9 @@ export { changePassword, handleChangePassword };`;
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									<span>📖</span>
+									<span></span>
 									View API Documentation
-									<span style={{ fontSize: '14px' }}>🔗</span>
+									<span style={{ fontSize: '14px' }}></span>
 								</DocumentationLink>
 							</div>
 						</div>
@@ -3116,10 +3116,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<span>📖</span>
+								<span></span>
 								PingOne API: Password Recovery (Content-Type:
 								application/vnd.pingidentity.password.recover+json)
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -3162,7 +3162,7 @@ export { changePassword, handleChangePassword };`;
 											onClick={handleSendRecoveryCode}
 											disabled={recoverLoading || !persistedIdentifier}
 										>
-											{recoverLoading ? <SpinningIcon /> : <span>📧</span>}
+											{recoverLoading ? <SpinningIcon /> : <span></span>}
 											{recoverLoading ? 'Sending...' : 'Send Recovery Code'}
 										</Button>
 									</div>
@@ -3219,7 +3219,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showNewPassword ? <span>🙈</span> : <span>👁️</span>}
+											{showNewPassword ? <span></span> : <span></span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -3282,7 +3282,7 @@ export { changePassword, handleChangePassword };`;
 									)}
 									<CodeActions>
 										<CodeButton onClick={() => handleCopyCode(generatedCode)}>
-											<span>📋</span>
+											<span></span>
 											{copied ? 'Copied!' : 'Copy Code'}
 										</CodeButton>
 										<CodeButton onClick={() => setShowCodeGenerator(false)}>Hide Code</CodeButton>
@@ -3334,10 +3334,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<span>📖</span>
+								<span></span>
 								PingOne API: Force Password Change (Content-Type:
 								application/vnd.pingidentity.password.forceChange+json)
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -3363,7 +3363,7 @@ export { changePassword, handleChangePassword };`;
 									onChange={(e) => setPersistedIdentifier(e.target.value)}
 								/>
 								<Button onClick={handleForceResetLookup}>
-									<span>🔍</span>
+									<span></span>
 									Lookup
 								</Button>
 							</div>
@@ -3399,7 +3399,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleForcePasswordReset}
 									disabled={forceResetLoading}
 								>
-									{forceResetLoading ? <SpinningIcon /> : <span>🔒</span>}
+									{forceResetLoading ? <SpinningIcon /> : <span></span>}
 									{forceResetLoading ? 'Processing...' : 'Force Password Change'}
 								</Button>
 							</>
@@ -3439,7 +3439,7 @@ export { changePassword, handleChangePassword };`;
 									)}
 									<CodeActions>
 										<CodeButton onClick={() => handleCopyCode(generatedCode)}>
-											<span>📋</span>
+											<span></span>
 											{copied ? 'Copied!' : 'Copy Code'}
 										</CodeButton>
 										<CodeButton onClick={() => setShowCodeGenerator(false)}>Hide Code</CodeButton>
@@ -3525,10 +3525,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<span>📖</span>
+								<span></span>
 								PingOne API: Change Password (Content-Type:
 								application/vnd.pingidentity.password.change+json)
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -3571,7 +3571,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showOldPassword ? <span>🙈</span> : <span>👁️</span>}
+											{showOldPassword ? <span></span> : <span></span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -3601,7 +3601,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showChangeNewPassword ? <span>🙈</span> : <span>👁️</span>}
+											{showChangeNewPassword ? <span></span> : <span></span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -3662,7 +3662,7 @@ export { changePassword, handleChangePassword };`;
 									)}
 									<CodeActions>
 										<CodeButton onClick={() => handleCopyCode(generatedCode)}>
-											<span>📋</span>
+											<span></span>
 											{copied ? 'Copied!' : 'Copy Code'}
 										</CodeButton>
 										<CodeButton onClick={() => setShowCodeGenerator(false)}>Hide Code</CodeButton>
@@ -3710,10 +3710,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<span>📖</span>
+								<span></span>
 								PingOne API: Check Password (Content-Type:
 								application/vnd.pingidentity.password.check+json)
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -3730,7 +3730,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleCheckPasswordLookup}
 									disabled={checkPasswordLoading || !persistedIdentifier}
 								>
-									{checkPasswordLoading ? <SpinningIcon /> : <span>🔍</span>}
+									{checkPasswordLoading ? <SpinningIcon /> : <span></span>}
 									Lookup
 								</Button>
 							</div>
@@ -3775,7 +3775,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showCheckPassword ? <span>🙈</span> : <span>👁️</span>}
+											{showCheckPassword ? <span></span> : <span></span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -3800,7 +3800,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleCheckPassword}
 									disabled={checkPasswordLoading || !checkPasswordValue}
 								>
-									{checkPasswordLoading ? <SpinningIcon /> : <span>🔑</span>}
+									{checkPasswordLoading ? <SpinningIcon /> : <span></span>}
 									{checkPasswordLoading ? 'Checking...' : 'Check Password'}
 								</Button>
 							</>
@@ -3845,9 +3845,9 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<span>📖</span>
+								<span></span>
 								PingOne API: Unlock Password (Content-Type: application/json)
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -3876,7 +3876,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleUnlockLookup}
 									disabled={unlockLoading || !persistedIdentifier}
 								>
-									{unlockLoading ? <SpinningIcon /> : <span>🔍</span>}
+									{unlockLoading ? <SpinningIcon /> : <span></span>}
 									Lookup
 								</Button>
 							</div>
@@ -3894,7 +3894,7 @@ export { changePassword, handleChangePassword };`;
 									</div>
 								</UserInfo>
 								<Button $variant="danger" onClick={handleUnlockPassword} disabled={unlockLoading}>
-									{unlockLoading ? <SpinningIcon /> : <span>🔑</span>}
+									{unlockLoading ? <SpinningIcon /> : <span></span>}
 									{unlockLoading ? 'Unlocking...' : 'Unlock Password'}
 								</Button>
 							</UserCard>
@@ -3929,9 +3929,9 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<span>📖</span>
+								<span></span>
 								PingOne API: Read Password State (GET method)
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -3945,7 +3945,7 @@ export { changePassword, handleChangePassword };`;
 									onChange={(e) => setPersistedIdentifier(e.target.value)}
 								/>
 								<Button onClick={handleStateLookup} disabled={stateLoading || !persistedIdentifier}>
-									{stateLoading ? <SpinningIcon /> : <span>🔍</span>}
+									{stateLoading ? <SpinningIcon /> : <span></span>}
 									Lookup
 								</Button>
 							</div>
@@ -3964,7 +3964,7 @@ export { changePassword, handleChangePassword };`;
 										</div>
 									</UserInfo>
 									<Button onClick={handleReadPasswordState} disabled={stateLoading}>
-										{stateLoading ? <SpinningIcon /> : <span>🔄</span>}
+										{stateLoading ? <SpinningIcon /> : <span></span>}
 										{stateLoading ? 'Reading...' : 'Read Password State'}
 									</Button>
 								</UserCard>
@@ -4022,10 +4022,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<span>📖</span>
+								<span></span>
 								PingOne API: Admin Set Password (Content-Type:
 								application/vnd.pingidentity.password.set+json)
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -4052,7 +4052,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleAdminSetLookup}
 									disabled={adminSetLoading || !persistedIdentifier}
 								>
-									{adminSetLoading ? <SpinningIcon /> : <span>🔍</span>}
+									{adminSetLoading ? <SpinningIcon /> : <span></span>}
 									Lookup
 								</Button>
 							</div>
@@ -4097,7 +4097,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showAdminSetPassword ? <span>🙈</span> : <span>👁️</span>}
+											{showAdminSetPassword ? <span></span> : <span></span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -4167,7 +4167,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleAdminSetPassword}
 									disabled={adminSetLoading || !adminSetPassword}
 								>
-									{adminSetLoading ? <SpinningIcon /> : <span>🔑</span>}
+									{adminSetLoading ? <SpinningIcon /> : <span></span>}
 									{adminSetLoading ? 'Setting...' : 'Set Password'}
 								</Button>
 							</>
@@ -4211,10 +4211,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<span>📖</span>
+								<span></span>
 								PingOne API: Set Password (Content-Type:
 								application/vnd.pingidentity.password.set+json)
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -4241,7 +4241,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleSetPasswordLookup}
 									disabled={setPasswordLoading || !persistedIdentifier}
 								>
-									{setPasswordLoading ? <SpinningIcon /> : <span>🔍</span>}
+									{setPasswordLoading ? <SpinningIcon /> : <span></span>}
 									Lookup
 								</Button>
 							</div>
@@ -4286,7 +4286,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showSetPassword ? <span>🙈</span> : <span>👁️</span>}
+											{showSetPassword ? <span></span> : <span></span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -4356,7 +4356,7 @@ export { changePassword, handleChangePassword };`;
 									onClick={handleSetPassword}
 									disabled={setPasswordLoading || !setPasswordValue}
 								>
-									{setPasswordLoading ? <SpinningIcon /> : <span>🔑</span>}
+									{setPasswordLoading ? <SpinningIcon /> : <span></span>}
 									{setPasswordLoading ? 'Setting...' : 'Set Password'}
 								</Button>
 							</>
@@ -4409,10 +4409,10 @@ export { changePassword, handleChangePassword };`;
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								<span>📖</span>
+								<span></span>
 								PingOne API: Set Password via LDAP Gateway (Content-Type:
 								application/vnd.pingidentity.password.ldapGateway+json)
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 							</DocumentationLink>
 						</DocumentationSection>
 
@@ -4438,7 +4438,7 @@ export { changePassword, handleChangePassword };`;
 									onChange={(e) => setPersistedIdentifier(e.target.value)}
 								/>
 								<Button onClick={handleLdapLookup} disabled={ldapLoading || !persistedIdentifier}>
-									{ldapLoading ? <SpinningIcon /> : <span>🔍</span>}
+									{ldapLoading ? <SpinningIcon /> : <span></span>}
 									Lookup
 								</Button>
 							</div>
@@ -4493,7 +4493,7 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-											{showLdapPassword ? <span>🙈</span> : <span>👁️</span>}
+											{showLdapPassword ? <span></span> : <span></span>}
 										</button>
 									</div>
 								</FormGroup>
@@ -4560,7 +4560,7 @@ export { changePassword, handleChangePassword };`;
 								</FormGroup>
 
 								<Button onClick={handleSetPasswordLdap} disabled={ldapLoading || !ldapPassword}>
-									{ldapLoading ? <SpinningIcon /> : <span>🔑</span>}
+									{ldapLoading ? <SpinningIcon /> : <span></span>}
 									{ldapLoading ? 'Setting...' : 'Set Password via LDAP Gateway'}
 								</Button>
 							</>
@@ -4759,7 +4759,7 @@ export { changePassword, handleChangePassword };`;
 											padding: '0.25rem',
 										}}
 									>
-										{showLoginPassword ? <span>🙈</span> : <span>👁️</span>}
+										{showLoginPassword ? <span></span> : <span></span>}
 									</button>
 								</div>
 							</FormGroup>

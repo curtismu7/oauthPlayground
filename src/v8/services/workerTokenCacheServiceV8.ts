@@ -13,7 +13,7 @@ import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenServ
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔑 WORKER-TOKEN-CACHE-V8]';
+const MODULE_TAG = '[ WORKER-TOKEN-CACHE-V8]';
 
 interface CachedWorkerToken {
 	token: string;

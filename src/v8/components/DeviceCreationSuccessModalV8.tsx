@@ -239,21 +239,21 @@ export const DeviceCreationSuccessModalV8: React.FC<DeviceCreationSuccessModalV8
 	const getDeviceIcon = (deviceType: DeviceType) => {
 		switch (deviceType) {
 			case 'EMAIL':
-				return <span>📧</span>;
+				return <span></span>;
 			case 'SMS':
 			case 'VOICE':
-				return <span>📞</span>;
+				return <span></span>;
 			case 'TOTP':
-				return <span>🔑</span>;
+				return <span></span>;
 			case 'FIDO2':
-				return <span>🛡️</span>;
+				return <span></span>;
 			case 'WHATSAPP':
 				return <i className="bi bi-question-circle"></i>;
 			case 'MOBILE':
 			case 'OATH_TOKEN':
-				return <span>📱</span>;
+				return <span></span>;
 			default:
-				return <span>🛡️</span>;
+				return <span></span>;
 		}
 	};
 

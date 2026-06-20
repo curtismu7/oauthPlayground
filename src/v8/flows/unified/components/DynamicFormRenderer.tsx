@@ -31,7 +31,7 @@ import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 
 import { logger } from '../../../../utils/logger';
 
-const MODULE_TAG = '[📋 DYNAMIC-FORM-RENDERER]';
+const MODULE_TAG = '[ DYNAMIC-FORM-RENDERER]';
 
 // ============================================================================
 // PROPS INTERFACE

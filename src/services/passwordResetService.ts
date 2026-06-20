@@ -60,7 +60,7 @@ export async function sendRecoveryCode(
 	request: SendRecoveryCodeRequest
 ): Promise<SendRecoveryCodeResponse> {
 	try {
-		logger.info('[🔐 PASSWORD] Sending recovery code...', {
+		logger.info('[ PASSWORD] Sending recovery code...', {
 			environmentId: `${request.environmentId?.substring(0, 20)}...`,
 			userId: `${request.userId?.substring(0, 20)}...`,
 		});
@@ -87,7 +87,7 @@ export async function sendRecoveryCode(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Recovery code sent successfully', 'Logger info');
+		logger.info('[ PASSWORD] ✅ Recovery code sent successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Recovery code sent successfully',
@@ -114,7 +114,7 @@ export async function recoverPassword(
 	region?: string
 ): Promise<PasswordOperationResponse> {
 	try {
-		logger.info('[🔐 PASSWORD] Recovering password...', {
+		logger.info('[ PASSWORD] Recovering password...', {
 			environmentId: `${environmentId?.substring(0, 20)}...`,
 			userId: `${userId?.substring(0, 20)}...`,
 		});
@@ -148,7 +148,7 @@ export async function recoverPassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password recovered successfully', 'Logger info');
+		logger.info('[ PASSWORD] ✅ Password recovered successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password recovered successfully',
@@ -175,7 +175,7 @@ export async function forcePasswordChange(
 	region?: string
 ): Promise<PasswordOperationResponse> {
 	try {
-		logger.info('[🔐 PASSWORD] Forcing password change...', {
+		logger.info('[ PASSWORD] Forcing password change...', {
 			environmentId: `${environmentId?.substring(0, 20)}...`,
 			userId: `${userId?.substring(0, 20)}...`,
 		});
@@ -207,7 +207,7 @@ export async function forcePasswordChange(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password change forced successfully', 'Logger info');
+		logger.info('[ PASSWORD] ✅ Password change forced successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'User will be required to change password on next sign-on',
@@ -241,7 +241,7 @@ export async function changePassword(
 	region?: string
 ): Promise<PasswordOperationResponse> {
 	try {
-		logger.info('[🔐 PASSWORD] Changing password...', {
+		logger.info('[ PASSWORD] Changing password...', {
 			environmentId: `${environmentId?.substring(0, 20)}...`,
 			userId: `${userId?.substring(0, 20)}...`,
 		});
@@ -275,7 +275,7 @@ export async function changePassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password changed successfully', 'Logger info');
+		logger.info('[ PASSWORD] ✅ Password changed successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password changed successfully',
@@ -303,7 +303,7 @@ export async function checkPassword(
 	region?: string
 ): Promise<PasswordOperationResponse> {
 	try {
-		logger.info('[🔐 PASSWORD] Checking password...', {
+		logger.info('[ PASSWORD] Checking password...', {
 			environmentId: `${environmentId?.substring(0, 20)}...`,
 			userId: `${userId?.substring(0, 20)}...`,
 		});
@@ -336,7 +336,7 @@ export async function checkPassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password check successful', 'Logger info');
+		logger.info('[ PASSWORD] ✅ Password check successful', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password check successful',
@@ -362,7 +362,7 @@ export async function unlockPassword(
 	region?: string
 ): Promise<PasswordOperationResponse> {
 	try {
-		logger.info('[🔐 PASSWORD] Unlocking password...', {
+		logger.info('[ PASSWORD] Unlocking password...', {
 			environmentId: `${environmentId?.substring(0, 20)}...`,
 			userId: `${userId?.substring(0, 20)}...`,
 		});
@@ -394,7 +394,7 @@ export async function unlockPassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password unlocked successfully', 'Logger info');
+		logger.info('[ PASSWORD] ✅ Password unlocked successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password unlocked successfully',
@@ -426,7 +426,7 @@ export async function readPasswordState(
 	errorDescription?: string;
 }> {
 	try {
-		logger.info('[🔐 PASSWORD] Reading password state...', {
+		logger.info('[ PASSWORD] Reading password state...', {
 			environmentId: `${environmentId?.substring(0, 20)}...`,
 			userId: `${userId?.substring(0, 20)}...`,
 		});
@@ -454,7 +454,7 @@ export async function readPasswordState(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password state read successfully', 'Logger info');
+		logger.info('[ PASSWORD] ✅ Password state read successfully', 'Logger info');
 		return {
 			success: true,
 			passwordState: data.passwordState,
@@ -480,7 +480,7 @@ export async function setPasswordAdmin(
 	options?: { forceChange?: boolean; bypassPasswordPolicy?: boolean; region?: string }
 ): Promise<PasswordOperationResponse> {
 	try {
-		logger.info('[🔐 PASSWORD] Setting password (admin)...', {
+		logger.info('[ PASSWORD] Setting password (admin)...', {
 			environmentId: `${environmentId?.substring(0, 20)}...`,
 			userId: `${userId?.substring(0, 20)}...`,
 		});
@@ -515,7 +515,7 @@ export async function setPasswordAdmin(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password set successfully (admin)');
+		logger.info('[ PASSWORD] ✅ Password set successfully (admin)');
 		return {
 			success: true,
 			message: data.message || 'Password set successfully',
@@ -548,7 +548,7 @@ export async function setPassword(
 	options?: { forceChange?: boolean; bypassPasswordPolicy?: boolean; region?: string }
 ): Promise<PasswordOperationResponse> {
 	try {
-		logger.info('[🔐 PASSWORD] Setting password...', {
+		logger.info('[ PASSWORD] Setting password...', {
 			environmentId: `${environmentId?.substring(0, 20)}...`,
 			userId: `${userId?.substring(0, 20)}...`,
 		});
@@ -583,7 +583,7 @@ export async function setPassword(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password set successfully', 'Logger info');
+		logger.info('[ PASSWORD] ✅ Password set successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password set successfully',
@@ -611,7 +611,7 @@ export async function setPasswordValue(
 	options?: { forceChange?: boolean; bypassPasswordPolicy?: boolean; region?: string }
 ): Promise<PasswordOperationResponse> {
 	try {
-		logger.info('[🔐 PASSWORD] Setting password value...', {
+		logger.info('[ PASSWORD] Setting password value...', {
 			environmentId: `${environmentId?.substring(0, 20)}...`,
 			userId: `${userId?.substring(0, 20)}...`,
 		});
@@ -646,7 +646,7 @@ export async function setPasswordValue(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password value set successfully', 'Logger info');
+		logger.info('[ PASSWORD] ✅ Password value set successfully', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password value set successfully',
@@ -675,7 +675,7 @@ export async function setPasswordLdapGateway(
 	options?: { forceChange?: boolean; bypassPasswordPolicy?: boolean; region?: string }
 ): Promise<PasswordOperationResponse> {
 	try {
-		logger.info('[🔐 PASSWORD] Setting password via LDAP Gateway...', {
+		logger.info('[ PASSWORD] Setting password via LDAP Gateway...', {
 			environmentId: `${environmentId?.substring(0, 20)}...`,
 			userId: `${userId?.substring(0, 20)}...`,
 		});
@@ -712,7 +712,7 @@ export async function setPasswordLdapGateway(
 			};
 		}
 
-		logger.info('[🔐 PASSWORD] ✅ Password set successfully via LDAP Gateway', 'Logger info');
+		logger.info('[ PASSWORD] ✅ Password set successfully via LDAP Gateway', 'Logger info');
 		return {
 			success: true,
 			message: data.message || 'Password set successfully via LDAP Gateway',

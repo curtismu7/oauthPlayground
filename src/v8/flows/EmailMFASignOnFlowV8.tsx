@@ -30,7 +30,7 @@ import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[📧 EMAIL-MFA-SIGNON-FLOW-V8]';
+const MODULE_TAG = '[ EMAIL-MFA-SIGNON-FLOW-V8]';
 
 // Styled Components
 const Container = styled.div`
@@ -1042,7 +1042,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="blue">
 						<StepTitle>
-							<span>📤</span> Step 1: Create Sign-On Policy with Email MFA Action
+							<span></span> Step 1: Create Sign-On Policy with Email MFA Action
 						</StepTitle>
 						{renderStepStatus(1)}
 					</StepHeader>
@@ -1080,7 +1080,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="yellow">
 						<StepTitle>
-							<span>👤</span> Step 2: Create User and Enable MFA
+							<span></span> Step 2: Create User and Enable MFA
 						</StepTitle>
 						{renderStepStatus(2)}
 					</StepHeader>
@@ -1138,7 +1138,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="green">
 						<StepTitle>
-							<span>🛡️</span> Step 3: Create Device Auth Policy and Register Email Device
+							<span></span> Step 3: Create Device Auth Policy and Register Email Device
 						</StepTitle>
 						{renderStepStatus(3)}
 					</StepHeader>
@@ -1184,7 +1184,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="blue">
 						<StepTitle>
-							<span>🔑</span> Step 4: Initiate Authorization Request
+							<span></span> Step 4: Initiate Authorization Request
 						</StepTitle>
 						{renderStepStatus(4)}
 					</StepHeader>
@@ -1222,7 +1222,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="yellow">
 						<StepTitle>
-							<span>📧</span> Step 5: Complete MFA Action (User Lookup + OTP)
+							<span></span> Step 5: Complete MFA Action (User Lookup + OTP)
 						</StepTitle>
 						{renderStepStatus(5)}
 					</StepHeader>
@@ -1269,7 +1269,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				<StepSection>
 					<StepHeader $theme="green">
 						<StepTitle>
-							<span>📦</span> Step 6: Resume Flow and Exchange Code for Token
+							<span></span> Step 6: Resume Flow and Exchange Code for Token
 						</StepTitle>
 						{renderStepStatus(6)}
 					</StepHeader>

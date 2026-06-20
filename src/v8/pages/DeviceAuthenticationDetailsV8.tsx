@@ -25,7 +25,7 @@ interface DeviceAuthenticationRecord {
 	[key: string]: unknown;
 }
 
-const MODULE_TAG = '[📱 MFA-DEVICE-AUTH-DETAILS-V8]';
+const MODULE_TAG = '[ MFA-DEVICE-AUTH-DETAILS-V8]';
 const DEFAULT_REGION = 'na';
 
 const escapeHtml = (value: string): string =>
@@ -90,7 +90,7 @@ const getStatusBadge = (
 				label: 'OTP Required',
 				color: '#1d4ed8',
 				background: '#dbeafe',
-				icon: <span>🛡️</span>,
+				icon: <span></span>,
 			};
 		case 'SELECTION_REQUIRED':
 			return {
@@ -104,7 +104,7 @@ const getStatusBadge = (
 				label: normalized,
 				color: '#0f172a',
 				background: '#e2e8f0',
-				icon: <span>🛡️</span>,
+				icon: <span></span>,
 			};
 	}
 };
@@ -469,7 +469,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 									</>
 								) : (
 									<>
-										<span>🔄</span>
+										<span></span>
 										Fetch Record
 									</>
 								)}
@@ -489,7 +489,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 										textDecoration: 'none',
 									}}
 								>
-									<span>🔗</span>
+									<span></span>
 									Reference: Read Device Authentication
 								</a>
 							)}
@@ -757,7 +757,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 								color: '#4b5563',
 							}}
 						>
-							<span>🛡️</span>
+							<span></span>
 							<span>Run a lookup to view the current device authentication status.</span>
 						</div>
 					)}

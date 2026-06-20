@@ -455,13 +455,13 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 				{/* Vehicle Control Panel */}
 				<VehicleControlPanel>
 					<VehicleControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<span>📋</span> Copy Code
+						<span></span> Copy Code
 					</VehicleControlButton>
 					<VehicleControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<span>📋</span> Copy URI
+						<span></span> Copy URI
 					</VehicleControlButton>
 					<VehicleControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<span>🔗</span> Open in Browser
+						<span></span> Open in Browser
 					</VehicleControlButton>
 				</VehicleControlPanel>
 
@@ -510,7 +510,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 										fontSize: '1.25rem',
 									}}
 								>
-									🚗
+									
 								</div>
 								<div>
 									<div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'white' }}>
@@ -554,7 +554,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									border: '1px solid V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
-								<div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔋</div>
+								<div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}></div>
 								<div
 									style={{
 										fontSize: '1.5rem',
@@ -625,7 +625,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									border: '1px solid V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
-								<div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🌡️</div>
+								<div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}></div>
 								<div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3b82f6' }}>72°F</div>
 								<div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Outside</div>
 								<div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.25rem' }}>
@@ -659,7 +659,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 										marginBottom: '0.75rem',
 									}}
 								>
-									<div style={{ fontSize: '1.25rem' }}>🧭</div>
+									<div style={{ fontSize: '1.25rem' }}></div>
 									<h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600' }}>Navigation</h3>
 								</div>
 								<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
@@ -686,7 +686,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 										marginBottom: '0.75rem',
 									}}
 								>
-									<div style={{ fontSize: '1.25rem' }}>🎵</div>
+									<div style={{ fontSize: '1.25rem' }}></div>
 									<h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600' }}>Media</h3>
 								</div>
 								<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
@@ -723,7 +723,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<span>🧭</span> Navigate
+								<span></span> Navigate
 							</button>
 							<button
 								type="button"
@@ -743,7 +743,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<span>🎵</span> Media
+								<span></span> Media
 							</button>
 							<button
 								type="button"

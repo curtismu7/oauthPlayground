@@ -85,7 +85,7 @@ export const MFAUserDisplayV8: React.FC<MFAUserDisplayV8Props> = ({
 			</UsernameLabel>
 			{showChangeButton && onUsernameChange && (
 				<ChangeButton type="button" onClick={onUsernameChange} title="Change to a different user">
-					🔄 Change User
+					 Change User
 				</ChangeButton>
 			)}
 		</Container>

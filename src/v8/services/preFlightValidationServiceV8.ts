@@ -107,7 +107,7 @@ export const PreFlightValidationServiceV8 = {
 				passed: true, // Can't validate, but don't block
 				error: `⚠️ Cannot Validate Redirect URI
 
-🔍 Pre-flight validation skipped because Environment ID or Client ID is missing.
+ Pre-flight validation skipped because Environment ID or Client ID is missing.
 
 To enable redirect URI validation:
 1. Go to Step 0 (Configuration)
@@ -125,7 +125,7 @@ You can still proceed, but the authorization request may fail if there's a misma
 				passed: true, // Can't validate, but don't block
 				error: `⚠️ Cannot Validate Redirect URI
 
-🔍 Pre-flight validation skipped because worker token is not available.
+ Pre-flight validation skipped because worker token is not available.
 
 To enable redirect URI validation:
 1. Go to Step 0 (Configuration)
@@ -162,7 +162,7 @@ You can still proceed, but the authorization request may fail if there's a misma
 			if (!uriMatches) {
 				const comparisonMessage = `⚠️ Redirect URI Mismatch Detected
 
-🔍 Configuration Comparison:
+ Configuration Comparison:
 
 ┌─────────────────────────────────────────────────────────────┐
 │                    Your App Config                          │
@@ -184,7 +184,7 @@ You can still proceed, but the authorization request may fail if there's a misma
 
 ❌ Redirect URI mismatch - Your redirect URI does not match any of the registered URIs in PingOne.
 
-🔧 How to Fix:
+ How to Fix:
 
 1. Update Your Redirect URI:
    • Go to Step 0 (Configuration)
@@ -196,7 +196,7 @@ You can still proceed, but the authorization request may fail if there's a misma
    • Add your redirect URI to the "Redirect URIs" list
    • Save the changes
 
-💡 Note: Redirect URIs must match exactly (including protocol, domain, path, and trailing slashes).
+ Note: Redirect URIs must match exactly (including protocol, domain, path, and trailing slashes).
 
 ⚠️ WARNING: If you proceed, the authorization request will fail with "invalid_redirect_uri" error.`;
 
@@ -217,7 +217,7 @@ You can still proceed, but the authorization request may fail if there's a misma
 				passed: true, // Allow to proceed on error
 				error: `⚠️ Redirect URI Validation Failed
 
-🔍 Pre-flight validation encountered an error:
+ Pre-flight validation encountered an error:
 
 ${error instanceof Error ? error.message : String(error)}
 
@@ -314,13 +314,13 @@ You can still proceed, but the authorization request may fail if there's a misma
 					errors.push(
 						`❌ JAR (JWT-secured Authorization Request) Required - Missing Credentials
 
-🚫 PROBLEM DETECTED:
+ PROBLEM DETECTED:
 Your PingOne application has "Request Parameter Signature Requirement" set to "Require signed request parameter" or "Default". The OAuth Playground now supports JAR (JWT-secured Authorization Requests), but you need to provide signing credentials.
 
-📋 WHAT IS JAR?
+ WHAT IS JAR?
 JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) that requires authorization request parameters to be sent as a signed JWT instead of plain query parameters. This provides additional security.
 
-🔧 QUICK FIX - Provide Signing Credentials:
+ QUICK FIX - Provide Signing Credentials:
 1. For HS256 signing: Provide your Client Secret in the credentials form
 2. For RS256 signing: Provide your Private Key (PKCS#8 format) in the credentials form
 3. The OAuth Playground will automatically generate a signed request object when generating the authorization URL
@@ -331,7 +331,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 ✓ Automatic JAR request object generation
 ✓ RFC 9101-compliant request objects
 
-🔗 Need more information? See the "JAR (JWT-secured Authorization Request)" section in Advanced Options for detailed documentation.`
+ Need more information? See the "JAR (JWT-secured Authorization Request)" section in Advanced Options for detailed documentation.`
 					);
 				} else {
 					// JAR is required and we have credentials - show informational message
@@ -340,9 +340,9 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 
 ✅ Your PingOne application requires signed request objects (JAR), and you have provided the necessary signing credentials. The OAuth Playground will automatically generate a signed JWT request object when you generate the authorization URL.
 
-📋 Signing Method: ${hasRS256Credentials ? 'RS256 (Private Key)' : 'HS256 (Client Secret)'}
+ Signing Method: ${hasRS256Credentials ? 'RS256 (Private Key)' : 'HS256 (Client Secret)'}
 
-🔗 For more information about JAR, see the "JAR (JWT-secured Authorization Request)" section in Advanced Options.`
+ For more information about JAR, see the "JAR (JWT-secured Authorization Request)" section in Advanced Options.`
 					);
 				}
 			}
@@ -592,7 +592,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 							// Auto-clear the problematic PKCE codes
 							await PKCEStorageServiceV8U.clearPKCECodes(flowKey);
 							logger.info(
-								`${MODULE_TAG} 🗑️ Auto-cleared PKCE codes with 'plain' method for flow: ${flowKey}`,
+								`${MODULE_TAG} Auto-cleared PKCE codes with 'plain' method for flow: ${flowKey}`,
 								'Logger info'
 							);
 						} else if (storedPKCE.codeChallengeMethod !== 'S256') {

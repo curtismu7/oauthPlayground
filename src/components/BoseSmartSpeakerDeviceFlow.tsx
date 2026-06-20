@@ -372,13 +372,13 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
 
 	// Bose music apps
 	const musicApps = [
-		{ label: 'Spotify', icon: '🎵', color: '#1db954' },
-		{ label: 'Apple Music', icon: '🎶', color: '#fa243c' },
-		{ label: 'Amazon Music', icon: '🎧', color: '#ff9900' },
-		{ label: 'Pandora', icon: '📻', color: '#005483' },
-		{ label: 'YouTube Music', icon: '🎤', color: '#ff0000' },
-		{ label: 'Bose Music', icon: '🔊', color: '#000000' },
-		{ label: 'TuneIn', icon: '🌐', color: '#14d9c4' },
+		{ label: 'Spotify', icon: '', color: '#1db954' },
+		{ label: 'Apple Music', icon: '', color: '#fa243c' },
+		{ label: 'Amazon Music', icon: '', color: '#ff9900' },
+		{ label: 'Pandora', icon: '', color: '#005483' },
+		{ label: 'YouTube Music', icon: '', color: '#ff0000' },
+		{ label: 'Bose Music', icon: '', color: '#000000' },
+		{ label: 'TuneIn', icon: '', color: '#14d9c4' },
 		{ label: 'Settings', icon: '⚙️', color: '#6b7280' },
 	];
 
@@ -460,10 +460,10 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
 					</QRCodeContainer>
 					<ActionButtons>
 						<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-							<span>📋</span> Copy Code
+							<span></span> Copy Code
 						</ActionButton>
 						<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<span>🔗</span> Open App
+							<span></span> Open App
 						</ActionButton>
 					</ActionButtons>
 				</QRCodeSection>

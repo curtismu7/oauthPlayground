@@ -484,7 +484,7 @@ logger.info('ID token is valid!', "Logger info");`,
 	return (
 		<Container>
 			<PageTitle
-				title={<>🛡️ OpenID Connect ID Tokens</>}
+				title={<> OpenID Connect ID Tokens</>}
 				subtitle="Learn how to handle and validate OpenID Connect ID tokens with real JWT parsing and cryptographic verification."
 			/>
 
@@ -548,7 +548,7 @@ logger.info('ID token is valid!', "Logger info");`,
 					</FlowDescription>
 
 					<SecurityHighlight>
-						🔑
+						
 						<div>
 							<h3>Security First</h3>
 							<p>

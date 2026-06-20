@@ -376,7 +376,7 @@ class CredentialManager {
 			if (!stored && variant) {
 				stored = localStorage.getItem(this.IMPLICIT_FLOW_CREDENTIALS_KEY);
 				logger.info(
-					'📥 [CredentialManager] Falling back to generic implicit credentials key for variant:',
+					' [CredentialManager] Falling back to generic implicit credentials key for variant:',
 					variant
 				);
 			}
@@ -400,7 +400,7 @@ class CredentialManager {
 					tokenAuthMethod: credentials.tokenAuthMethod,
 				};
 
-				logger.info('📥 [CredentialManager] Loaded implicit flow credentials:', {
+				logger.info(' [CredentialManager] Loaded implicit flow credentials:', {
 					key: storageKey,
 					variant: variant || 'generic',
 					hasRedirectUri: !!credentials.redirectUri,
@@ -1087,9 +1087,9 @@ class CredentialManager {
 	saveAllCredentials(credentials: Partial<AllCredentials>): boolean {
 		// 🔍 INSTRUMENTATION: Track global credential contamination
 		logger.warn('credentialManager', '[CREDENTIAL CONTAMINATION] saveAllCredentials called');
-		logger.info(`📋 Credentials being saved globally:`, credentials);
+		logger.info(` Credentials being saved globally:`, credentials);
 		logger.info(
-			`📋 This will overwrite pingone_permanent_credentials for ALL flows!`,
+			` This will overwrite pingone_permanent_credentials for ALL flows!`,
 			'Logger info'
 		);
 
@@ -1110,9 +1110,9 @@ class CredentialManager {
 			clientSecret: credentials.clientSecret,
 		});
 
-		logger.info(`📋 Permanent Save Success:`, permanentSuccess);
-		logger.info(`📋 Session Save Success:`, sessionSuccess);
-		logger.info(`🚨 GLOBAL CREDENTIAL CONTAMINATION COMPLETE!`, 'Logger info');
+		logger.info(` Permanent Save Success:`, permanentSuccess);
+		logger.info(` Session Save Success:`, sessionSuccess);
+		logger.info(` GLOBAL CREDENTIAL CONTAMINATION COMPLETE!`, 'Logger info');
 
 		return permanentSuccess && sessionSuccess;
 	}

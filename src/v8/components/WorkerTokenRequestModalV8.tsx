@@ -284,7 +284,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									color: '#92400e',
 								}}
 							>
-								{isTokenStep ? '🔑 Generated Worker Token' : '📡 Worker Token API Request'}
+								{isTokenStep ? ' Generated Worker Token' : ' Worker Token API Request'}
 							</h2>
 							<p style={{ margin: 0, fontSize: '13px', color: '#78350f' }}>
 								{isTokenStep
@@ -391,7 +391,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 										gap: '6px',
 									}}
 								>
-									💾 Save Token
+									 Save Token
 								</button>
 								<button
 									type="button"
@@ -442,7 +442,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									}}
 								>
 									<h3 style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#374151' }}>
-										🌐 Token Endpoint
+										 Token Endpoint
 									</h3>
 									<button
 										type="button"
@@ -458,7 +458,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 											fontWeight: '600',
 										}}
 									>
-										{copiedField === 'endpoint' ? '✓ Copied' : '📋 Copy'}
+										{copiedField === 'endpoint' ? '✓ Copied' : ' Copy'}
 									</button>
 								</div>
 								<div
@@ -488,7 +488,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 										color: '#374151',
 									}}
 								>
-									📝 Request Parameters
+									 Request Parameters
 								</h3>
 								<div
 									style={{
@@ -581,7 +581,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 													marginLeft: '8px',
 												}}
 											>
-												{copiedField === 'clientId' ? '✓' : '📋'}
+												{copiedField === 'clientId' ? '✓' : ''}
 											</button>
 										</div>
 									</div>
@@ -632,7 +632,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 														fontSize: '12px',
 													}}
 												>
-													{showSecret ? '👁️' : '👁️‍🗨️'}
+													{showSecret ? '' : ''}
 												</button>
 												<button
 													type="button"
@@ -648,7 +648,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 														fontSize: '12px',
 													}}
 												>
-													{copiedField === 'clientSecret' ? '✓' : '📋'}
+													{copiedField === 'clientSecret' ? '✓' : ''}
 												</button>
 											</div>
 										</div>
@@ -704,7 +704,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 													marginLeft: '8px',
 												}}
 											>
-												{copiedField === 'scope' ? '✓' : '📋'}
+												{copiedField === 'scope' ? '✓' : ''}
 											</button>
 										</div>
 									</div>
@@ -721,7 +721,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 										color: '#374151',
 									}}
 								>
-									🔐 Authentication Method
+									 Authentication Method
 								</h3>
 								<div
 									style={{
@@ -750,7 +750,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 										color: '#374151',
 									}}
 								>
-									📬 HTTP Headers
+									 HTTP Headers
 								</h3>
 								<div
 									style={{
@@ -799,7 +799,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 										color: '#374151',
 									}}
 								>
-									📦 Request Body (application/x-www-form-urlencoded)
+									 Request Body (application/x-www-form-urlencoded)
 								</h3>
 								<pre
 									style={{
@@ -867,7 +867,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 										cursor: isExecuting ? 'not-allowed' : 'pointer',
 									}}
 								>
-									{isExecuting ? '🔄 Executing...' : '▶️ Execute Request'}
+									{isExecuting ? ' Executing...' : '▶️ Execute Request'}
 								</button>
 							</div>
 						</>

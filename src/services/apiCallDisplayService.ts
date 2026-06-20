@@ -193,13 +193,13 @@ export const createFullDisplay = (
 ): string => {
 	const result = formatApiCall(apiCall, options);
 
-	let display = '🚀 API Call Details\n';
+	let display = ' API Call Details\n';
 	display += `${'='.repeat(50)}\n\n`;
-	display += '📤 Request:\n';
+	display += ' Request:\n';
 	display += `${result.formattedCall}\n\n`;
-	display += '💻 cURL Command:\n';
+	display += ' cURL Command:\n';
 	display += `${result.curlCommand}\n\n`;
-	display += '📥 Response:\n';
+	display += ' Response:\n';
 	display += `${result.responseSummary}\n`;
 
 	if (result.timingInfo) {

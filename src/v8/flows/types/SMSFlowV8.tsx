@@ -33,7 +33,7 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
-const MODULE_TAG = '[📱 SMS-FLOW-V8]';
+const MODULE_TAG = '[ SMS-FLOW-V8]';
 
 type DeviceSelectionState = {
 	existingDevices: Record<string, unknown>[];
@@ -1822,7 +1822,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 								cursor: 'pointer',
 							}}
 						>
-							🔄 Start Again
+							 Start Again
 						</button>
 					</div>
 				);
@@ -2050,9 +2050,9 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 										cursor: 'pointer',
 									}}
 								>
-									<option value="SMS">📱 SMS (Text Message)</option>
-									<option value="VOICE">📞 Voice Call</option>
-									<option value="EMAIL">📧 Email</option>
+									<option value="SMS"> SMS (Text Message)</option>
+									<option value="VOICE"> Voice Call</option>
+									<option value="EMAIL"> Email</option>
 								</select>
 								<small
 									style={{ display: 'block', marginTop: '4px', fontSize: '11px', color: '#6b7280' }}
@@ -2143,7 +2143,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 													marginBottom: '2px',
 												}}
 											>
-												📋 Phone Number Preview:
+												 Phone Number Preview:
 											</div>
 											<div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#1f2937' }}>
 												<strong>Will send to:</strong> {getFullPhoneNumber(credentials)}
@@ -2228,7 +2228,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 													marginBottom: '2px',
 												}}
 											>
-												📧 Email Preview:
+												 Email Preview:
 											</div>
 											<div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#1f2937' }}>
 												<strong>Will send to:</strong> {credentials.email}
@@ -2458,7 +2458,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 										flex: 1,
 									}}
 								>
-									<span>📡</span>
+									<span></span>
 									<span>Show API Display</span>
 								</label>
 							</div>
@@ -2529,7 +2529,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 								}}
 							>
 								{isLoading ? (
-									<>🔄 Registering...</>
+									<> Registering...</>
 								) : (
 									<>Register {currentDeviceType === 'SMS' ? 'SMS' : 'Email'} Device →</>
 								)}
@@ -3066,7 +3066,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 										transition: 'all 0.2s ease',
 									}}
 								>
-									{isLoading ? '🔄 Validating...' : 'Validate OTP'}
+									{isLoading ? ' Validating...' : 'Validate OTP'}
 								</button>
 
 								<button
@@ -3176,7 +3176,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 										gap: '6px',
 									}}
 								>
-									<span>🔄</span>
+									<span></span>
 									<span>
 										{isLoading
 											? 'Sending...'

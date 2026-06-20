@@ -265,7 +265,7 @@ export const PingOneApiCallDisplay: React.FC<PingOneApiCallProps> = ({
 
 				{/* Request Section */}
 				<Section>
-					<SectionTitle>📤 Request</SectionTitle>
+					<SectionTitle> Request</SectionTitle>
 
 					{Object.keys(headers).length > 0 && (
 						<div style={{ marginBottom: '1rem' }}>
@@ -295,7 +295,7 @@ export const PingOneApiCallDisplay: React.FC<PingOneApiCallProps> = ({
 
 				{/* Response Section */}
 				<Section>
-					<SectionTitle>📥 Response</SectionTitle>
+					<SectionTitle> Response</SectionTitle>
 
 					<div
 						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}
@@ -325,7 +325,7 @@ export const PingOneApiCallDisplay: React.FC<PingOneApiCallProps> = ({
 				{educationalNotes.length > 0 && (
 					<Section>
 						<EducationalNote>
-							<strong>📚 Educational Notes:</strong>
+							<strong> Educational Notes:</strong>
 							<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
 								{educationalNotes.map((note, index) => (
 									<li key={index} style={{ marginBottom: '0.25rem' }}>
@@ -341,7 +341,7 @@ export const PingOneApiCallDisplay: React.FC<PingOneApiCallProps> = ({
 										rel="noopener noreferrer"
 										style={{ color: '#1e40af', textDecoration: 'underline' }}
 									>
-										📖 Learn more in PingOne documentation
+										 Learn more in PingOne documentation
 									</a>
 								</div>
 							)}

@@ -469,13 +469,13 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 				{/* POS Control Panel */}
 				<POSControlPanel>
 					<POSControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<span>📋</span> Copy Code
+						<span></span> Copy Code
 					</POSControlButton>
 					<POSControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<span>📋</span> Copy URI
+						<span></span> Copy URI
 					</POSControlButton>
 					<POSControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<span>🔗</span> Open in Browser
+						<span></span> Open in Browser
 					</POSControlButton>
 				</POSControlPanel>
 
@@ -525,7 +525,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										fontSize: '1.25rem',
 									}}
 								>
-									💳
+									
 								</div>
 								<div>
 									<div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>
@@ -569,7 +569,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 									marginBottom: '1rem',
 								}}
 							>
-								<div style={{ fontSize: '1.25rem' }}>🛒</div>
+								<div style={{ fontSize: '1.25rem' }}></div>
 								<h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600' }}>Current Sale</h3>
 							</div>
 
@@ -705,7 +705,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 									boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
 								}}
 							>
-								<div style={{ fontSize: '2rem' }}>💳</div>
+								<div style={{ fontSize: '2rem' }}></div>
 								<div>Card Payment</div>
 							</button>
 
@@ -728,7 +728,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 									boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
 								}}
 							>
-								<div style={{ fontSize: '2rem' }}>📱</div>
+								<div style={{ fontSize: '2rem' }}></div>
 								<div>Mobile Pay</div>
 							</button>
 						</div>
@@ -798,7 +798,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<span>📄</span> Receipt
+								<span></span> Receipt
 							</button>
 						</div>
 					</div>

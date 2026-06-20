@@ -34,7 +34,7 @@ import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔧 DEVICE-MGMT-FLOW-V8]';
+const MODULE_TAG = '[ DEVICE-MGMT-FLOW-V8]';
 const FLOW_KEY = 'mfa-device-mgmt-v8';
 
 interface Credentials {
@@ -409,7 +409,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 										gap: '8px',
 									}}
 								>
-									<span>🔑</span>
+									<span></span>
 									Get worker token
 								</ButtonSpinner>
 

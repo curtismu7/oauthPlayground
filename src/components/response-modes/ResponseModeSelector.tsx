@@ -55,7 +55,7 @@ const RESPONSE_MODES: Record<ResponseMode, ResponseModeInfo> = {
 		description:
 			'Authorization response parameters are encoded in the query string added to the redirect_uri when redirecting back to the application.',
 		bestFor: 'Traditional web applications with server-side handling',
-		icon: '🔗',
+		icon: '',
 	},
 	fragment: {
 		mode: 'fragment',
@@ -63,7 +63,7 @@ const RESPONSE_MODES: Record<ResponseMode, ResponseModeInfo> = {
 		description:
 			'Authorization response parameters are encoded in the fragment added to the redirect_uri when redirecting back to the application.',
 		bestFor: 'Single Page Applications (SPAs) and client-side applications',
-		icon: '🧩',
+		icon: '',
 	},
 	form_post: {
 		mode: 'form_post',
@@ -71,7 +71,7 @@ const RESPONSE_MODES: Record<ResponseMode, ResponseModeInfo> = {
 		description:
 			'Authorization response parameters are encoded as HTML form values that are auto-submitted in the browser, transmitted through HTTP POST to the application.',
 		bestFor: 'Applications requiring secure parameter transmission without URL exposure',
-		icon: '📝',
+		icon: '',
 	},
 	'pi.flow': {
 		mode: 'pi.flow',
@@ -79,7 +79,7 @@ const RESPONSE_MODES: Record<ResponseMode, ResponseModeInfo> = {
 		description:
 			'PingOne proprietary redirectless flow that returns a flow object instead of redirecting. Enables embedded authentication without browser redirects.',
 		bestFor: 'Embedded authentication, mobile apps, headless applications, IoT devices',
-		icon: '⚡',
+		icon: '',
 	},
 };
 
@@ -373,7 +373,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 	const savePreference = useCallback(
 		(mode: ResponseMode) => {
 			localStorage.setItem(`response_mode:${flowKey}`, mode);
-			logger.info(`[🪪 RESPONSE-MODE] changed to ${mode} for ${flowKey}`, 'Logger info');
+			logger.info(`[ RESPONSE-MODE] changed to ${mode} for ${flowKey}`, 'Logger info');
 		},
 		[flowKey]
 	);
@@ -382,7 +382,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 	const handleModeChange = useCallback(
 		(mode: ResponseMode) => {
 			logger.info(
-				`[🪪 RESPONSE-MODE] Mode changing from ${selectedMode} to ${mode}`,
+				`[ RESPONSE-MODE] Mode changing from ${selectedMode} to ${mode}`,
 				'Logger info'
 			);
 			setSelectedMode(mode);
@@ -395,7 +395,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 	// Build authorization URL
 	const buildAuthUrl = useCallback(
 		(mode: ResponseMode) => {
-			logger.info(`[🪪 RESPONSE-MODE] Building URL for mode: ${mode}`, 'Logger info');
+			logger.info(`[ RESPONSE-MODE] Building URL for mode: ${mode}`, 'Logger info');
 			const params = new URLSearchParams({
 				client_id: clientId,
 				redirect_uri: redirectUri,
@@ -407,7 +407,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 
 			// Always add response_mode parameter for clarity
 			params.set('response_mode', mode);
-			logger.info(`[🪪 RESPONSE-MODE] Added response_mode=${mode} to URL`, 'Logger info');
+			logger.info(`[ RESPONSE-MODE] Added response_mode=${mode} to URL`, 'Logger info');
 
 			// Add nonce for OIDC flows with id_token
 			if (responseType.includes('id_token') && nonce) {
@@ -415,7 +415,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 			}
 
 			const url = `https://auth.pingone.com/{envID}/as/authorize?${params.toString()}`;
-			logger.info(`[🪪 RESPONSE-MODE] Generated URL:`, url);
+			logger.info(`[ RESPONSE-MODE] Generated URL:`, url);
 			return url;
 		},
 		[clientId, redirectUri, responseType, scope, state, nonce, extraParams]

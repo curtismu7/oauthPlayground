@@ -122,7 +122,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 							boxShadow: currentPage === 'hub' ? '0 0 0 3px rgba(59, 130, 246, 0.3)' : 'none',
 						}}
 					>
-						🏠 {isUnifiedFlow ? 'Restart Flow' : 'MFA Hub'}
+						 {isUnifiedFlow ? 'Restart Flow' : 'MFA Hub'}
 					</button>
 					<button
 						type="button"
@@ -139,7 +139,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 								currentPage === 'management' ? '0 0 0 3px rgba(16, 185, 129, 0.3)' : 'none',
 						}}
 					>
-						🔧 Device Management
+						 Device Management
 					</button>
 					<button
 						type="button"
@@ -155,7 +155,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 							boxShadow: currentPage === 'ordering' ? '0 0 0 3px rgba(245, 158, 11, 0.3)' : 'none',
 						}}
 					>
-						📋 Device Ordering
+						 Device Ordering
 					</button>
 					<button
 						type="button"
@@ -171,7 +171,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 							boxShadow: currentPage === 'reporting' ? '0 0 0 3px rgba(139, 92, 246, 0.3)' : 'none',
 						}}
 					>
-						📊 Reporting
+						 Reporting
 					</button>
 					<button
 						type="button"
@@ -201,7 +201,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 							color: 'white',
 						}}
 					>
-						📚 Docs
+						 Docs
 					</button>
 					{showRestartFlow && (
 						<button
@@ -214,7 +214,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 								flex: 1,
 							}}
 						>
-							🔄 Restart Flow
+							 Restart Flow
 						</button>
 					)}
 					{showBackToMain && !isUnifiedFlow && (
@@ -231,7 +231,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 								border: '2px solid #3b82f6',
 							}}
 						>
-							🏠 {isUnifiedFlow ? 'Restart Flow' : 'Back to Main'}
+							 {isUnifiedFlow ? 'Restart Flow' : 'Back to Main'}
 						</button>
 					)}
 					<div

@@ -33,7 +33,7 @@ import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { logger } from '../../../../utils/logger';
 import { UnifiedOTPActivationTemplate } from './UnifiedOTPActivationTemplate';
 
-const MODULE_TAG = '[🔐 UNIFIED-ACTIVATION-STEP]';
+const MODULE_TAG = '[ UNIFIED-ACTIVATION-STEP]';
 
 // ============================================================================
 // PROPS INTERFACE
@@ -104,7 +104,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	 */
 	useEffect(() => {
 		if (config.deviceType === 'TOTP' && (mfaState.qrCodeUrl || mfaState.totpSecret)) {
-			logger.info('🔍 [TOTP DEBUG] Scrolling to top - QR code data available', 'Logger info');
+			logger.info(' [TOTP DEBUG] Scrolling to top - QR code data available', 'Logger info');
 
 			const scrollToTop = () => {
 				// Scroll main window
@@ -380,7 +380,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		if (config.requiresOTP) {
 			// ========== DEBUG: TOTP ACTIVATION STATE ==========
 			if (config.deviceType === 'TOTP') {
-				logger.info('🔍 [TOTP DEBUG] Activation step rendering:', {
+				logger.info(' [TOTP DEBUG] Activation step rendering:', {
 					qrCodeUrl: mfaState.qrCodeUrl,
 					totpSecret: mfaState.totpSecret,
 					showQr: mfaState.showQr,
@@ -406,7 +406,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 							}}
 						>
 							<h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: 600 }}>
-								📱 Scan QR Code
+								 Scan QR Code
 							</h3>
 
 							{mfaState.qrCodeUrl && (
@@ -480,7 +480,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 												cursor: 'pointer',
 											}}
 										>
-											📋 Copy Secret
+											 Copy Secret
 										</button>
 									</div>
 								</details>
@@ -657,7 +657,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 						opacity: isLoading ? 0.5 : 1,
 					}}
 				>
-					🔄 Restart Flow
+					 Restart Flow
 				</button>
 			</div>
 
@@ -700,7 +700,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 							e.currentTarget.style.background = '#2563eb';
 						}}
 					>
-						🔄 Refresh Worker Token
+						 Refresh Worker Token
 					</button>
 				</div>
 			)}

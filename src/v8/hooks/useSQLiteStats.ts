@@ -16,7 +16,7 @@ import {
 } from '@/v8/services/sqliteStatsServiceV8';
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔄 USE-SQLITE-STATS]';
+const MODULE_TAG = '[ USE-SQLITE-STATS]';
 
 export interface UseSQLiteStatsOptions {
 	/** Environment ID to fetch stats for */

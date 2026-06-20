@@ -489,7 +489,7 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 		await this.runTest('Special Characters', async () => {
 			const specialCredentials: FlowSpecificCredentials = {
 				clientId: 'test-client-with-special-chars-!@#$%^&*()',
-				clientSecret: 'test-secret-with-unicode-🚀-emoji',
+				clientSecret: 'test-secret-with-unicode--emoji',
 				redirectUri: 'https://test.com/callback?param=value&other=test',
 				scopes: ['openid', 'profile with spaces', 'email-with-dashes'],
 				logoutUrl: 'https://test.com/logout?param=value&other=test',
@@ -527,7 +527,7 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 	 */
 	private async runTest(testName: string, testFn: () => Promise<unknown>): Promise<void> {
 		try {
-			logger.info(`🧪 Running: ${testName}`, 'Logger info');
+			logger.info(` Running: ${testName}`, 'Logger info');
 			const result = await testFn();
 			this.testResults.push({
 				testName,
@@ -551,7 +551,7 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 	private clearAllTestData(): void {
 		comprehensiveFlowDataService.clearAllFlowData();
 		comprehensiveFlowDataService.clearAllSharedData();
-		logger.info('🧹 Cleared all test data', 'Logger info');
+		logger.info(' Cleared all test data', 'Logger info');
 	}
 
 	/**
@@ -564,10 +564,10 @@ ENV_TEST_FLOW_CUSTOMPARAM2=${credentials.additionalParams?.customParam2}`;
 		const failed = this.testResults.filter((r) => !r.passed).length;
 		const total = this.testResults.length;
 
-		logger.info(`📈 Total Tests: ${total}`, 'Logger info');
+		logger.info(` Total Tests: ${total}`, 'Logger info');
 		logger.info(`✅ Passed: ${passed}`, 'Logger info');
 		logger.info(`❌ Failed: ${failed}`, 'Logger info');
-		logger.info(`📊 Success Rate: ${((passed / total) * 100).toFixed(1)}%`);
+		logger.info(` Success Rate: ${((passed / total) * 100).toFixed(1)}%`);
 
 		if (failed > 0) {
 			console.group('❌ Failed Tests:');

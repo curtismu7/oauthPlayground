@@ -38,7 +38,7 @@ import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsSer
 import { UnifiedFlowErrorHandler } from './unifiedFlowErrorHandlerV8U';
 import { logger } from './unifiedFlowLoggerServiceV8U';
 
-const _MODULE_TAG = '[🔗 UNIFIED-FLOW-INTEGRATION-V8U]';
+const _MODULE_TAG = '[ UNIFIED-FLOW-INTEGRATION-V8U]';
 
 export interface UnifiedFlowCredentials {
 	environmentId: string;
@@ -195,7 +195,7 @@ export class UnifiedFlowIntegrationV8U {
 		},
 		appConfig?: { requireSignedRequestObject?: boolean }
 	) {
-		logger.debug(`🔍 Generating authorization URL`, {
+		logger.debug(` Generating authorization URL`, {
 			specVersion,
 			flowType,
 			flowTypeType: typeof flowType,
@@ -282,7 +282,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Add login_hint parameter if specified
 			if (credentials.loginHint) {
 				params.set('login_hint', credentials.loginHint);
-				logger.debug(`👤 Added login_hint: ${credentials.loginHint}`, 'Logger debug');
+				logger.debug(` Added login_hint: ${credentials.loginHint}`, 'Logger debug');
 			}
 
 			// Add max_age parameter if specified
@@ -294,7 +294,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Add display parameter if specified
 			if (credentials.display) {
 				params.set('display', credentials.display);
-				logger.debug(`🖥️ Added display: ${credentials.display}`, 'Logger debug');
+				logger.debug(` Added display: ${credentials.display}`, 'Logger debug');
 			}
 
 			// Add response_mode parameter (supports query, fragment, form_post, pi.flow)
@@ -330,7 +330,7 @@ export class UnifiedFlowIntegrationV8U {
 				},
 				Date.now() - startTime
 			);
-			logger.debug(`🔗 Response mode set to: ${responseMode}`, 'Logger debug');
+			logger.debug(` Response mode set to: ${responseMode}`, 'Logger debug');
 
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
@@ -341,8 +341,8 @@ export class UnifiedFlowIntegrationV8U {
 				authUrlPreview: authorizationUrl.substring(0, 200),
 				responseMode: responseMode,
 			});
-			logger.debug(`🔑 STATE FOR IMPLICIT FLOW: "${prefixedState}"`, 'Logger debug');
-			logger.debug(`🔑 This prefixed state is now in the authorization URL`, 'Logger debug');
+			logger.debug(` STATE FOR IMPLICIT FLOW: "${prefixedState}"`, 'Logger debug');
+			logger.debug(` This prefixed state is now in the authorization URL`, 'Logger debug');
 
 			return {
 				authorizationUrl,
@@ -382,7 +382,7 @@ export class UnifiedFlowIntegrationV8U {
 
 			// If PAR is enabled, push PAR request and use request_uri in authorization URL
 			if (credentials.usePAR) {
-				logger.debug(`📤 PAR enabled - pushing authorization request first`, {
+				logger.debug(` PAR enabled - pushing authorization request first`, {
 					usePAR: credentials.usePAR,
 					clientId: credentials.clientId,
 					hasClientSecret: !!credentials.clientSecret,
@@ -406,7 +406,7 @@ export class UnifiedFlowIntegrationV8U {
 						pkceCodes
 					);
 
-					logger.debug(`📋 PAR request built`, {
+					logger.debug(` PAR request built`, {
 						hasClientSecret: !!parRequest.clientSecret,
 						redirectUri: parRequest.redirectUri,
 						scope: parRequest.scope,
@@ -422,7 +422,7 @@ export class UnifiedFlowIntegrationV8U {
 							? credentials.clientAuthMethod
 							: 'client_secret_post';
 
-					logger.debug(`🔐 Using PAR auth method: ${parAuthMethod}`, 'Logger debug');
+					logger.debug(` Using PAR auth method: ${parAuthMethod}`, 'Logger debug');
 
 					// Push PAR request
 					const parResponse = await PARRARIntegrationServiceV8U.pushPARRequest(
@@ -567,7 +567,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Add login_hint parameter if specified
 			if (credentials.loginHint) {
 				params.set('login_hint', credentials.loginHint);
-				logger.debug(`👤 Added login_hint: ${credentials.loginHint}`, 'Logger debug');
+				logger.debug(` Added login_hint: ${credentials.loginHint}`, 'Logger debug');
 			}
 
 			// Add max_age parameter if specified
@@ -579,7 +579,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Add display parameter if specified
 			if (credentials.display) {
 				params.set('display', credentials.display);
-				logger.debug(`🖥️ Added display: ${credentials.display}`, 'Logger debug');
+				logger.debug(` Added display: ${credentials.display}`, 'Logger debug');
 			}
 
 			// Add PKCE parameters if provided
@@ -592,16 +592,16 @@ export class UnifiedFlowIntegrationV8U {
 			const responseModeOAuth =
 				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'query');
 			params.set('response_mode', responseModeOAuth);
-			logger.debug(`🔗 Response mode set to: ${responseModeOAuth}`, 'Logger debug');
+			logger.debug(` Response mode set to: ${responseModeOAuth}`, 'Logger debug');
 
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
 			// Track authorization URL generation for API documentation
 			logger.info(
-				`${_MODULE_TAG} 🔄 TRACKING: About to track authorization URL generation`,
+				`${_MODULE_TAG} TRACKING: About to track authorization URL generation`,
 				'Logger info'
 			);
-			logger.info(`${_MODULE_TAG} 📍 TRACKING DEBUG:`, {
+			logger.info(`${_MODULE_TAG} TRACKING DEBUG:`, {
 				authorizationEndpoint,
 				authorizationUrl: `${authorizationUrl.substring(0, 100)}...`,
 				step: 'unified-authorization-url',
@@ -611,7 +611,7 @@ export class UnifiedFlowIntegrationV8U {
 			const startTime = Date.now();
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 
-			logger.info(`${_MODULE_TAG} 🔄 TRACKING: apiCallTrackerService imported`, 'Logger info');
+			logger.info(`${_MODULE_TAG} TRACKING: apiCallTrackerService imported`, 'Logger info');
 
 			const apiCallId = apiCallTrackerService.trackApiCall({
 				method: 'GET',
@@ -629,7 +629,7 @@ export class UnifiedFlowIntegrationV8U {
 			});
 
 			logger.info(
-				`${_MODULE_TAG} 🔄 TRACKING: API call tracked with ID: ${apiCallId}`,
+				`${_MODULE_TAG} TRACKING: API call tracked with ID: ${apiCallId}`,
 				'Logger info'
 			);
 
@@ -650,7 +650,7 @@ export class UnifiedFlowIntegrationV8U {
 				Date.now() - startTime
 			);
 
-			logger.info(`${_MODULE_TAG} 🔄 TRACKING: API call response updated`, 'Logger info');
+			logger.info(`${_MODULE_TAG} TRACKING: API call response updated`, 'Logger info');
 
 			logger.debug(`✅ OAuth authz URL generated with prefixed state`, {
 				prefixedState: prefixedStateRegular,
@@ -740,7 +740,7 @@ export class UnifiedFlowIntegrationV8U {
 			const responseModeHybrid =
 				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'fragment');
 			params.set('response_mode', responseModeHybrid);
-			logger.debug(`🔗 Response mode set to: ${responseModeHybrid}`, 'Logger debug');
+			logger.debug(` Response mode set to: ${responseModeHybrid}`, 'Logger debug');
 
 			// Add prompt parameter if specified
 			if (credentials.prompt) {
@@ -750,7 +750,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Add login_hint parameter if specified
 			if (credentials.loginHint) {
 				params.set('login_hint', credentials.loginHint);
-				logger.debug(`👤 Added login_hint: ${credentials.loginHint}`, 'Logger debug');
+				logger.debug(` Added login_hint: ${credentials.loginHint}`, 'Logger debug');
 			}
 
 			// Add max_age parameter if specified
@@ -762,7 +762,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Add display parameter if specified
 			if (credentials.display) {
 				params.set('display', credentials.display);
-				logger.debug(`🖥️ Added display: ${credentials.display}`, 'Logger debug');
+				logger.debug(` Added display: ${credentials.display}`, 'Logger debug');
 			}
 
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
@@ -1265,7 +1265,7 @@ export class UnifiedFlowIntegrationV8U {
 
 			// Track token exchange API call for unified flow visibility
 			logger.info(
-				`${_MODULE_TAG} 🔄 TRACKING: About to track token exchange API call`,
+				`${_MODULE_TAG} TRACKING: About to track token exchange API call`,
 				'Logger info'
 			);
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
@@ -1292,7 +1292,7 @@ export class UnifiedFlowIntegrationV8U {
 				step: 'unified-token-exchange',
 			});
 
-			logger.debug(`🚀 Calling OAuthIntegrationServiceV8.exchangeCodeForTokens...`, 'Logger debug');
+			logger.debug(` Calling OAuthIntegrationServiceV8.exchangeCodeForTokens...`, 'Logger debug');
 			logger.debug(`Parameters:`, {
 				hasCredentials: !!oauthCredentials,
 				codeLength: code.length,

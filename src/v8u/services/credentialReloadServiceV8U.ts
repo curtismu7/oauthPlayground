@@ -23,7 +23,7 @@ import { SharedCredentialsServiceV8 } from '@/v8/services/sharedCredentialsServi
 import type { UnifiedFlowCredentials } from '@/v8u/services/unifiedFlowIntegrationV8U';
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔄 CREDENTIAL-RELOAD-V8U]';
+const MODULE_TAG = '[ CREDENTIAL-RELOAD-V8U]';
 
 /**
  * Helper function to merge ALL credential fields from flow-specific and shared storage
@@ -197,7 +197,7 @@ export async function reloadCredentialsAfterReset(
 		const rawStored = localStorage.getItem(storageKey);
 		if (rawStored) {
 			const parsedStored = JSON.parse(rawStored);
-			logger.info(`${MODULE_TAG} 🔍 DEBUG: Raw localStorage data for flowKey`, {
+			logger.info(`${MODULE_TAG} DEBUG: Raw localStorage data for flowKey`, {
 				flowKey,
 				storageKey,
 				hasRedirectUri: !!parsedStored.redirectUri,
@@ -266,7 +266,7 @@ export async function reloadCredentialsAfterReset(
 		}
 
 		// Debug: Log what was loaded to verify redirectUri and clientAuthMethod are present
-		logger.info(`${MODULE_TAG} 🔍 Loaded flow-specific credentials`, {
+		logger.info(`${MODULE_TAG} Loaded flow-specific credentials`, {
 			flowKey,
 			hasRedirectUri: !!flowSpecific.redirectUri,
 			redirectUri: flowSpecific.redirectUri,

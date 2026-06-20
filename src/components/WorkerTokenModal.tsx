@@ -290,7 +290,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 	const [workerCredentials, setWorkerCredentials] = useState(() => {
 		// If prefillCredentials provided, use them (these are the CURRENT credentials)
 		if (prefillCredentials) {
-			logger.info('[WorkerTokenModal] 🎯 Using prefillCredentials (CURRENT form values):', {
+			logger.info('[WorkerTokenModal] Using prefillCredentials (CURRENT form values):', {
 				environmentId: `${prefillCredentials.environmentId?.substring(0, 20)}...`,
 				clientId: `${prefillCredentials.clientId?.substring(0, 20)}...`,
 				clientSecretLength: prefillCredentials.clientSecret?.length || 0,
@@ -353,7 +353,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 
 						if (isValidEnvId) {
 							logger.info(
-								'[WorkerTokenModal] 🔄 Initial state: Using saved credentials from flow-specific storage',
+								'[WorkerTokenModal] Initial state: Using saved credentials from flow-specific storage',
 								'Logger info'
 							);
 							setWorkerCredentials({
@@ -403,7 +403,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 
 			// If prefillCredentials are provided, use them (they are the current form values)
 			if (prefillCredentials) {
-				logger.info('[WorkerTokenModal] 🔍 Modal opened, using prefillCredentials:', {
+				logger.info('[WorkerTokenModal] Modal opened, using prefillCredentials:', {
 					prefillEnvironmentId: prefillCredentials.environmentId || 'missing',
 					propEnvironmentId: environmentId || 'missing',
 					prefillClientIdLength: prefillCredentials.clientId?.length || 0,
@@ -463,7 +463,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 							const isValidEnvId = savedEnvId && uuidRegex.test(savedEnvId);
 
 							logger.info(
-								'[WorkerTokenModal] 🔄 Loading saved credentials from flow-specific storage:',
+								'[WorkerTokenModal] Loading saved credentials from flow-specific storage:',
 								{
 									flowType,
 									savedEnvironmentId: savedEnvId ? `${savedEnvId.substring(0, 20)}...` : 'MISSING',
@@ -616,7 +616,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 					savedCredentials.clientSecret
 				) {
 					logger.info(
-						'[WorkerTokenModal] 🔄 Modal opened - reloading saved credentials from global storage',
+						'[WorkerTokenModal] Modal opened - reloading saved credentials from global storage',
 						'Logger info'
 					);
 					const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -873,13 +873,13 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		if (prefillCredentials?.environmentId?.trim()) {
 			effectiveEnvironmentId = prefillCredentials.environmentId.trim();
 			logger.info(
-				'[WorkerTokenModal] 🎯 Using environmentId from prefillCredentials:',
+				'[WorkerTokenModal] Using environmentId from prefillCredentials:',
 				`${effectiveEnvironmentId.substring(0, 20)}...`
 			);
 		} else if (environmentId?.trim()) {
 			effectiveEnvironmentId = environmentId.trim();
 			logger.info(
-				'[WorkerTokenModal] 🎯 Using environmentId from prop:',
+				'[WorkerTokenModal] Using environmentId from prop:',
 				`${effectiveEnvironmentId.substring(0, 20)}...`
 			);
 		} else {
@@ -958,10 +958,10 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		}
 
 		logger.info(
-			'[WorkerTokenModal] 📝 REMINDER: Worker token authorization is based on ROLES (e.g., Identity Data Admin), not scopes. Scopes are optional and do not grant permissions.'
+			'[WorkerTokenModal] REMINDER: Worker token authorization is based on ROLES (e.g., Identity Data Admin), not scopes. Scopes are optional and do not grant permissions.'
 		);
 
-		logger.info('[WorkerTokenModal] 🔍 SCOPES DEBUG - Token Request:', {
+		logger.info('[WorkerTokenModal] SCOPES DEBUG - Token Request:', {
 			original: workerCredentials.scopes,
 			afterProcessing: finalScopes,
 			willIncludeInRequest: finalScopes !== '',
@@ -980,7 +980,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			return;
 		}
 
-		logger.info('[WorkerTokenModal] 🔍 CREDENTIALS BEING USED FOR REQUEST:', {
+		logger.info('[WorkerTokenModal] CREDENTIALS BEING USED FOR REQUEST:', {
 			clientIdLength: trimmedClientId.length,
 			clientIdPreview: `${trimmedClientId.substring(0, 20)}...`,
 			clientSecretLength: trimmedClientSecret.length,
@@ -1022,7 +1022,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		}
 
 		// Store request details and show educational modal
-		logger.info('[WorkerTokenModal] 🎯 Showing educational modal with request details:', {
+		logger.info('[WorkerTokenModal] Showing educational modal with request details:', {
 			tokenEndpoint,
 			clientIdLength: trimmedClientId.length,
 			clientSecretLength: trimmedClientSecret.length,
@@ -1305,7 +1305,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				}
 			} else {
 				logger.debug(
-					'[WorkerTokenModal] 📝 Could not verify granted scopes (token may be opaque). If you encounter 403 errors, check roles in PingOne.'
+					'[WorkerTokenModal] Could not verify granted scopes (token may be opaque). If you encounter 403 errors, check roles in PingOne.'
 				);
 			}
 
@@ -1691,7 +1691,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 											lineHeight: '1.3',
 										}}
 									>
-										💡 Use "Client Secret Post" for most PingOne applications.
+										 Use "Client Secret Post" for most PingOne applications.
 									</div>
 								</FormField>
 
@@ -1752,7 +1752,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 										onClick={handleClearSavedCredentials}
 										disabled={isGenerating}
 									>
-										🗑️ Clear Saved Credentials
+										 Clear Saved Credentials
 									</ActionButton>
 									<ActionButton $variant="secondary" onClick={() => setShowForm(false)}>
 										Cancel

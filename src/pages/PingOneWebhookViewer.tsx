@@ -1575,7 +1575,7 @@ const PingOneWebhookViewer: React.FC = () => {
 					<div style={styles.headerCard}>
 						<div style={styles.titleRow}>
 							<div style={styles.titleLeft}>
-								<span style={{ fontSize: '28px' }}>🖥️</span>
+								<span style={{ fontSize: '28px' }}></span>
 								<h1 style={styles.title}>PingOne Webhook Management</h1>
 							</div>
 							{!isPopoutWindow() && (
@@ -1608,7 +1608,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									}}
 									title="Open in popout window to monitor while using the app"
 								>
-									<span style={{ fontSize: '14px' }}>🔗</span>
+									<span style={{ fontSize: '14px' }}></span>
 									Popout
 								</button>
 							)}
@@ -1700,7 +1700,7 @@ const PingOneWebhookViewer: React.FC = () => {
 						}}
 					>
 						<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: '#1e40af' }}>
-							📡 Getting webhooks on localhost (Mac)
+							 Getting webhooks on localhost (Mac)
 						</h3>
 						<p
 							style={{
@@ -1765,7 +1765,7 @@ const PingOneWebhookViewer: React.FC = () => {
 
 					<div style={styles.header}>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-							<span style={{ fontSize: '24px' }}>🖥️</span>
+							<span style={{ fontSize: '24px' }}></span>
 							<h1 style={{ ...styles.title, fontSize: '1.5rem', margin: 0 }}>Webhook Management</h1>
 						</div>
 						<div style={styles.actionButtons}>
@@ -1798,7 +1798,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										onClick={fetchSubscriptions}
 										disabled={!hasWorkerToken || !environmentId || isLoadingSubscriptions}
 									>
-										<span>🔄</span>
+										<span></span>
 										Refresh
 									</button>
 								</>
@@ -1811,7 +1811,7 @@ const PingOneWebhookViewer: React.FC = () => {
 											style={styles.button('primary')}
 											onClick={handleStartMonitoring}
 										>
-											<span>🔄</span>
+											<span></span>
 											Start Monitoring
 										</button>
 									) : (
@@ -1820,7 +1820,7 @@ const PingOneWebhookViewer: React.FC = () => {
 											style={styles.button('danger')}
 											onClick={handleStopMonitoring}
 										>
-											<span>🔄</span>
+											<span></span>
 											Stop Monitoring
 										</button>
 									)}
@@ -1830,7 +1830,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										onClick={handleClearWebhooks}
 										disabled={webhooks.length === 0}
 									>
-										<span>🗑️</span>
+										<span></span>
 										Clear History
 									</button>
 									<button
@@ -1839,7 +1839,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										onClick={handleExportWebhooks}
 										disabled={webhooks.length === 0}
 									>
-										<span>📥</span>
+										<span></span>
 										Export
 									</button>
 								</>
@@ -2072,7 +2072,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										<p style={{ color: '#6b7280' }}>Loading subscriptions...</p>
 									) : subscriptions.length === 0 ? (
 										<div style={styles.emptyState}>
-											<span style={{ fontSize: '48px' }}>🖥️</span>
+											<span style={{ fontSize: '48px' }}></span>
 											<h3>No webhook subscriptions</h3>
 											<p>Create your first webhook subscription to start receiving events.</p>
 										</div>
@@ -2121,7 +2121,7 @@ const PingOneWebhookViewer: React.FC = () => {
 															style={styles.button('danger')}
 															onClick={() => handleDeleteSubscription(subscription.id)}
 														>
-															<span>🗑️</span>
+															<span></span>
 														</button>
 													</div>
 												</div>
@@ -2198,7 +2198,7 @@ const PingOneWebhookViewer: React.FC = () => {
 											cursor: 'pointer',
 										}}
 									>
-										<span>📋</span>
+										<span></span>
 										Copy URL
 									</button>
 								</div>
@@ -2229,7 +2229,7 @@ const PingOneWebhookViewer: React.FC = () => {
 
 							{webhooks.length > 0 && (
 								<div style={styles.filterBar}>
-									<span style={{ fontSize: 20, color: '#6b7280' }}>🔽</span>
+									<span style={{ fontSize: 20, color: '#6b7280' }}></span>
 									<label style={styles.filterLabel}>
 										Status:
 										<select
@@ -2250,7 +2250,7 @@ const PingOneWebhookViewer: React.FC = () => {
 										</select>
 									</label>
 									<label style={styles.filterLabel}>
-										<span>📅</span>
+										<span></span>
 										Time:
 										<select
 											style={styles.filterSelect}
@@ -2312,7 +2312,7 @@ const PingOneWebhookViewer: React.FC = () => {
 							<div style={styles.webhookContainer}>
 								{filteredWebhooks.length === 0 ? (
 									<div style={styles.emptyState}>
-										<span style={{ fontSize: '48px' }}>🖥️</span>
+										<span style={{ fontSize: '48px' }}></span>
 										<h3>
 											{webhooks.length === 0 ? 'No webhooks yet' : 'No webhooks match your filters'}
 										</h3>
@@ -2336,7 +2336,7 @@ const PingOneWebhookViewer: React.FC = () => {
 													<span>{webhook.type}</span>
 												</div>
 												<div style={styles.webhookMeta}>
-													<span style={{ fontSize: '16px' }}>🕐</span>
+													<span style={{ fontSize: '16px' }}></span>
 													{formatTimestamp(webhook.timestamp)}
 													<i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>
 													{webhook.source}

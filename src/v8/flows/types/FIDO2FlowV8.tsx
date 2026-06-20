@@ -41,7 +41,7 @@ import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBas
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 
-const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
+const MODULE_TAG = '[ FIDO2-FLOW-V8]';
 
 const PUBLIC_KEY_OPTION_KEYS = [
 	'publicKeyCredentialRequestOptions',
@@ -819,7 +819,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 					{webAuthnCapabilities && (
 						<div className="info-box" style={{ marginBottom: '20px' }}>
-							<h4 style={{ margin: '0 0 8px 0', fontSize: '15px' }}>🔐 WebAuthn Capabilities</h4>
+							<h4 style={{ margin: '0 0 8px 0', fontSize: '15px' }}> WebAuthn Capabilities</h4>
 							<ul style={{ margin: '0', paddingLeft: '20px' }}>
 								<li>WebAuthn Supported: ✅</li>
 								{webAuthnCapabilities.platformAuthenticator && (
@@ -908,7 +908,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										: '0 2px 4px rgba(59, 130, 246, 0.2)';
 								}}
 							>
-								<span>🔑</span>
+								<span></span>
 								<span>Get Worker Token</span>
 							</button>
 
@@ -2171,14 +2171,14 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 									cursor: 'pointer',
 								}}
 							>
-								<option value="SMS">📱 SMS (Text Message)</option>
-								<option value="EMAIL">📧 Email</option>
-								<option value="TOTP">🔐 TOTP (Authenticator App)</option>
-								<option value="FIDO2">🔑 FIDO2 (Security Key / Passkey)</option>
-								<option value="MOBILE">📲 Mobile (PingID)</option>
-								<option value="OATH_TOKEN">🎫 OATH Token (PingID)</option>
-								<option value="VOICE">📞 Voice</option>
-								<option value="WHATSAPP">💬 WhatsApp</option>
+								<option value="SMS"> SMS (Text Message)</option>
+								<option value="EMAIL"> Email</option>
+								<option value="TOTP"> TOTP (Authenticator App)</option>
+								<option value="FIDO2"> FIDO2 (Security Key / Passkey)</option>
+								<option value="MOBILE"> Mobile (PingID)</option>
+								<option value="OATH_TOKEN"> OATH Token (PingID)</option>
+								<option value="VOICE"> Voice</option>
+								<option value="WHATSAPP"> WhatsApp</option>
 							</select>
 							<small>Select the type of MFA device you want to register</small>
 						</div>
@@ -2234,7 +2234,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								}}
 							>
 								<h4 style={{ margin: '0', fontSize: '15px', color: '#1e40af' }}>
-									🔐 FIDO2 Activation Flow
+									 FIDO2 Activation Flow
 								</h4>
 								<MFAInfoButtonV8 contentKey="fido2.activation" displayMode="modal" />
 							</div>
@@ -2297,7 +2297,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								<strong>Button disabled because:</strong>
 								<ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
 									{isLoading && <li>⏳ Currently loading...</li>}
-									{isRegistering && <li>🔐 Currently registering...</li>}
+									{isRegistering && <li> Currently registering...</li>}
 									{!credentials.deviceName?.trim() && <li>❌ Device name is required</li>}
 									{!credentials.username?.trim() && <li>❌ Username is required</li>}
 									{!credentials.environmentId?.trim() && <li>❌ Environment ID is required</li>}
@@ -2383,9 +2383,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								}}
 							>
 								{isRegistering
-									? '🔐 Registering with WebAuthn...'
+									? ' Registering with WebAuthn...'
 									: isLoading
-										? '🔄 Registering...'
+										? ' Registering...'
 										: 'Register FIDO2 Device'}
 							</button>
 							{isLoading && !isRegistering && (
@@ -2550,7 +2550,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 					if (platformPreference.prefer) {
 						logger.info(
-							`[🔑 FIDO2-FLOW-V8] Using FIDO2 platform device preference: ${platformPreference.reason}`,
+							`[ FIDO2-FLOW-V8] Using FIDO2 platform device preference: ${platformPreference.reason}`,
 							'Logger info'
 						);
 					}
@@ -2685,7 +2685,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								fontWeight: '600',
 							}}
 						>
-							{isAuthenticating ? '🔐 Authenticating...' : '🔑 Authenticate with Passkey'}
+							{isAuthenticating ? ' Authenticating...' : ' Authenticate with Passkey'}
 						</button>
 					</div>
 				);
@@ -2776,7 +2776,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										cursor: 'pointer',
 									}}
 								>
-									<span>🛡️</span>
+									<span></span>
 									View Session Details
 								</button>
 							</div>
@@ -2795,7 +2795,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 							prompted to use your security key, Touch ID, Face ID, or Windows Hello.
 						</p>
 						<p style={{ marginTop: '8px', fontSize: '13px', color: '#6b7280' }}>
-							💡 <strong>Tip:</strong> FIDO2 authentication uses WebAuthn, which provides strong
+							 <strong>Tip:</strong> FIDO2 authentication uses WebAuthn, which provides strong
 							security without requiring codes.
 						</p>
 					</div>

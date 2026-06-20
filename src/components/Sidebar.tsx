@@ -10,7 +10,6 @@ import { useComponentTracker } from '../utils/componentTracker';
 import DragDropSidebar from './DragDropSidebar';
 import SidebarMenuPing from './SidebarMenuPing';
 import SidebarSearch from './SidebarSearch';
-import { VersionBadge } from './VersionBadge';
 import '../styles/sidebar-ping-theme.css';
 import '../styles/sidebar-ping-admin-theme.css';
 
@@ -23,7 +22,6 @@ function getSavedTheme(): SidebarTheme {
 }
 
 // App version from package.json
-const APP_VERSION = '9.11.76';
 
 // Sidebar container with resize handle (min/max depend on Ping vs legacy)
 const SidebarContainer = styled.div<{
@@ -403,7 +401,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							PingOne MasterFlow API
 						</h2>
 						<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-							<VersionBadge version={APP_VERSION} variant="sidebar" />
 							{USE_PING_MENU && (
 								<button
 									type="button"
@@ -419,7 +416,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 										color: '#6b7280',
 									}}
 								>
-									🎨 Theme
+									 Theme
 								</button>
 							)}
 							<CloseButton onClick={onClose} title="Close sidebar">

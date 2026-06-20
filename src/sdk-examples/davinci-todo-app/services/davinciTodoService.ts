@@ -398,7 +398,7 @@ export class DavinciTodoService {
 			}
 
 			// In production, this would save to PingOne user attributes or external database
-			logger.info('[DavinciTodoService] 💾 Saving todos:', todos);
+			logger.info('[DavinciTodoService] Saving todos:', todos);
 
 			// Example: Update user custom attributes
 			const response = await fetch(
@@ -499,7 +499,7 @@ export class DavinciTodoService {
 			DavinciTodoService.accessToken = null;
 
 			// In production, you might want to revoke the token with PingOne
-			logger.info('[DavinciTodoService] 👋 Logged out successfully', 'Logger info');
+			logger.info('[DavinciTodoService] Logged out successfully', 'Logger info');
 		} catch (error) {
 			logger.error('DavinciTodoService', ' Logout failed:', undefined, error);
 			throw error;
@@ -518,7 +518,7 @@ export class DavinciTodoService {
 	 */
 	static setCurrentUser(user: { id: string; email: string; name: string }): void {
 		DavinciTodoService.currentUser = user;
-		logger.info('[DavinciTodoService] 👤 User set:', user);
+		logger.info('[DavinciTodoService] User set:', user);
 	}
 
 	/**
@@ -526,7 +526,7 @@ export class DavinciTodoService {
 	 */
 	static clearCurrentUser(): void {
 		DavinciTodoService.currentUser = null;
-		logger.info('[DavinciTodoService] 👤 User cleared', 'Logger info');
+		logger.info('[DavinciTodoService] User cleared', 'Logger info');
 	}
 
 	/**

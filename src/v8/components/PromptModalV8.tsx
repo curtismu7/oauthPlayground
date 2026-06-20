@@ -20,7 +20,7 @@ import { type PromptOptions, uiNotificationServiceV8 } from '@/v8/services/uiNot
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[📝 PROMPT-MODAL-V8]';
+const MODULE_TAG = '[ PROMPT-MODAL-V8]';
 
 export const PromptModalV8: React.FC = () => {
 	const [isOpen, setIsOpen] = useState(false);

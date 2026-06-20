@@ -105,7 +105,7 @@ const DeviceCodeStatus: React.FC = () => {
 			case 'error':
 				return <span>❌</span>;
 			case 'pending':
-				return <span>🕐</span>;
+				return <span></span>;
 			default:
 				return <span>ℹ️</span>;
 		}

@@ -228,7 +228,7 @@ const OAuthForAIV9: React.FC = () => {
 
 				<Header>
 					<h1>
-						<span>🔗</span>
+						<span></span>
 						OAuth for AI
 					</h1>
 					<p>
@@ -244,11 +244,11 @@ const OAuthForAIV9: React.FC = () => {
 					<MainCard>
 						<Section>
 							<h2>
-								<span>🤖</span>
+								<span></span>
 								AI Agent Authorization
 							</h2>
 							<InfoBox $variant="info">
-								<span>📋</span>
+								<span></span>
 								<div>
 									<strong>Pattern:</strong> AI agents use OAuth 2.0 Assertion Grant with JWT assertions
 									for secure, scalable authorization to backend services and APIs.
@@ -272,7 +272,7 @@ const OAuthForAIV9: React.FC = () => {
 
 						<Section>
 							<h2>
-								<span>🏢</span>
+								<span></span>
 								PingOne OAuth Integration
 							</h2>
 							<InfoBox $variant="success">
@@ -324,7 +324,7 @@ const OAuthForAIV9: React.FC = () => {
 					<MainCard>
 						<Section>
 							<h2>
-								<span>🔧</span>
+								<span></span>
 								Enhanced Security for AI
 							</h2>
 							<InfoBox $variant="warning">
@@ -365,11 +365,11 @@ const OAuthForAIV9: React.FC = () => {
 					<MainCard>
 						<Section>
 							<h2>
-								<span>💻</span>
+								<span></span>
 								Code Examples
 							</h2>
 							<InfoBox $variant="info">
-								<span>📋</span>
+								<span></span>
 								<div>
 									<strong>Implementation:</strong> See the{' '}
 									<SpecLink href="/flows/v9/saml-sp-dynamic-acs" target="_blank" rel="noopener noreferrer">

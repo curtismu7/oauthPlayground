@@ -44,7 +44,7 @@ class FieldEditingDiagnostic {
 		let nonEditableFields = 0;
 
 		allInputs.forEach((input, index) => {
-			logger.info(`\n📝 Analyzing field ${index + 1}:`, {
+			logger.info(`\n Analyzing field ${index + 1}:`, {
 				tagName: input.tagName,
 				type: input.type,
 				id: input.id,
@@ -274,7 +274,7 @@ class FieldEditingDiagnostic {
 		});
 
 		logger.info(
-			`\n🎉 Fixed ${fixedCount} fields out of ${allInputs.length} total fields`,
+			`\n Fixed ${fixedCount} fields out of ${allInputs.length} total fields`,
 			'Logger info'
 		);
 	}
@@ -283,7 +283,7 @@ class FieldEditingDiagnostic {
 	 * Monitor field editing in real-time
 	 */
 	startMonitoring(): void {
-		logger.info('👀 [FIELD EDITING MONITOR] Starting real-time monitoring...', 'Logger info');
+		logger.info(' [FIELD EDITING MONITOR] Starting real-time monitoring...', 'Logger info');
 
 		const observer = new MutationObserver((mutations) => {
 			mutations.forEach((mutation) => {
@@ -295,7 +295,7 @@ class FieldEditingDiagnostic {
 						target.tagName === 'SELECT'
 					) {
 						if (mutation.attributeName === 'disabled' || mutation.attributeName === 'readonly') {
-							logger.warn('🚨 Field editing state changed:', {
+							logger.warn(' Field editing state changed:', {
 								element: target,
 								attribute: mutation.attributeName,
 								newValue: target.getAttribute(mutation.attributeName!),

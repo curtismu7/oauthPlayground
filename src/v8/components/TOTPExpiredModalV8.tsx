@@ -284,7 +284,7 @@ export const TOTPExpiredModalV8: React.FC<TOTPExpiredModalV8Props> = ({
 						Go Back
 					</SecondaryButton>
 					<PrimaryButton type="button" onClick={onRegenerate}>
-						<span style={{ fontSize: '18px' }}>🔄</span>
+						<span style={{ fontSize: '18px' }}></span>
 						Regenerate QR Code
 					</PrimaryButton>
 				</ModalFooter>

@@ -94,7 +94,7 @@ const TokenResponseBoxes: React.FC<TokenResponseBoxesProps> = ({ tokens }) => {
 							<TokenHeader>
 								<TokenTitle>{name}</TokenTitle>
 								<CopyButton onClick={() => handleCopy(value, name)} title={`Copy ${name}`}>
-									<span>📋</span>
+									<span></span>
 								</CopyButton>
 							</TokenHeader>
 							<TokenValue>{value}</TokenValue>

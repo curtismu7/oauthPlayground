@@ -561,12 +561,12 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 				<ControlPanel>
 					{/* Left Panel - Transaction Options */}
 					<LeftPanel>
-						<TransactionButton $active={state.status === 'pending'}>📱 QR Code</TransactionButton>
+						<TransactionButton $active={state.status === 'pending'}> QR Code</TransactionButton>
 						<TransactionButton $active={state.status === 'authorized'}>
 							<span>✅</span> Complete
 						</TransactionButton>
 						<TransactionButton>
-							<span>🔄</span> Refresh
+							<span></span> Refresh
 						</TransactionButton>
 					</LeftPanel>
 
@@ -575,7 +575,7 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 						<UserCodeLabel>Enter this code on your device</UserCodeLabel>
 						<UserCodeDisplay>{deviceFlowService.formatUserCode(state.userCode)}</UserCodeDisplay>
 						<CopyCodeButton onClick={handleCopyUserCode}>
-							<span>📋</span> Copy Code
+							<span></span> Copy Code
 						</CopyCodeButton>
 					</CenterPanel>
 
@@ -666,10 +666,10 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 				{/* Verification Section */}
 				<VerificationSection>
 					<VerificationButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<span>📋</span> Copy URI
+						<span></span> Copy URI
 					</VerificationButton>
 					<VerificationButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<span>🔗</span> Open Authorization
+						<span></span> Open Authorization
 					</VerificationButton>
 				</VerificationSection>
 
@@ -701,7 +701,7 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 
 				{/* Brand Logo */}
 				<BrandArea>
-					<BrandLogo>🔐 OAuth</BrandLogo>
+					<BrandLogo> OAuth</BrandLogo>
 				</BrandArea>
 			</GasPumpContainer>
 

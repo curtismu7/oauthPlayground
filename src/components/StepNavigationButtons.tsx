@@ -441,7 +441,7 @@ export const StepNavigationButtons = ({
 					$compact={isCompact}
 					title="Complete reset: clear everything and expand all sections"
 				>
-					<span>🗑️</span> {!isCompact && 'Reset Flow'}
+					<span></span> {!isCompact && 'Reset Flow'}
 				</NavButton>
 				{showCompleteActionButton && onCompleteAction && (
 					<NavButton

@@ -252,7 +252,7 @@ const CompactAppPickerDemo: React.FC = () => {
 		<PageContainer>
 			<HeaderCard>
 				<TitleRow>
-					🔑<Title>Compact Application Picker Demo</Title>
+					<Title>Compact Application Picker Demo</Title>
 				</TitleRow>
 				<Subtitle>
 					Test the compact application picker component with real PingOne data. This picker fetches
@@ -273,7 +273,7 @@ const CompactAppPickerDemo: React.FC = () => {
 			</HeaderCard>
 
 			<Card>
-				<SectionTitle>🔑 Authentication</SectionTitle>
+				<SectionTitle> Authentication</SectionTitle>
 
 				{hasWorkerToken ? (
 					<WorkerTokenDetectedBanner token={workerToken} tokenExpiryKey="worker_token_expires_at" />
@@ -295,7 +295,7 @@ const CompactAppPickerDemo: React.FC = () => {
 						type="button"
 						style={{ background: hasWorkerToken ? '#10b981' : undefined }}
 					>
-						{hasWorkerToken ? <>✅ Worker Token Ready</> : <>🔑 Get Worker Token</>}
+						{hasWorkerToken ? <>✅ Worker Token Ready</> : <> Get Worker Token</>}
 					</PrimaryButton>
 					{hasWorkerToken && (
 						<DangerButton onClick={handleClearWorkerToken} type="button">

@@ -741,7 +741,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			case 'valid':
 				return <span>✅</span>;
 			case 'warning':
-				return <span>🕐</span>;
+				return <span></span>;
 			default:
 				return <span>⚠️</span>;
 		}
@@ -1028,11 +1028,11 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 									<span className="tooltip">Configure OAuth Settings</span>
 								</ConfigButton>
 								<ConfigButton onClick={handleOpenConfigModal}>
-									<span>🔒</span>
+									<span></span>
 									<span className="tooltip">PKCE Settings</span>
 								</ConfigButton>
 								<ConfigButton onClick={handleOpenConfigModal}>
-									<span>🗄️</span>
+									<span></span>
 									<span className="tooltip">Token Storage</span>
 								</ConfigButton>
 							</>

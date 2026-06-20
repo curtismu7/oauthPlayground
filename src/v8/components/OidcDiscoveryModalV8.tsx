@@ -124,7 +124,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 						id="oidc-discovery-title"
 						style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '700', color: '#1f2937' }}
 					>
-						🔍 OIDC Discovery Results
+						 OIDC Discovery Results
 					</h2>
 					<p style={{ margin: 0, fontSize: '13px', color: '#666' }}>
 						Configuration discovered from OIDC metadata
@@ -160,7 +160,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 									fontWeight: '600',
 								}}
 							>
-								{copiedField === 'issuer' ? '✓ Copied' : '📋 Copy'}
+								{copiedField === 'issuer' ? '✓ Copied' : ' Copy'}
 							</button>
 						</div>
 						<div
@@ -218,7 +218,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 													cursor: 'pointer',
 												}}
 											>
-												{copiedField === 'authz' ? '✓' : '📋'}
+												{copiedField === 'authz' ? '✓' : ''}
 											</button>
 										</div>
 										<div
@@ -261,7 +261,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 													cursor: 'pointer',
 												}}
 											>
-												{copiedField === 'token' ? '✓' : '📋'}
+												{copiedField === 'token' ? '✓' : ''}
 											</button>
 										</div>
 										<div
@@ -304,7 +304,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 													cursor: 'pointer',
 												}}
 											>
-												{copiedField === 'userinfo' ? '✓' : '📋'}
+												{copiedField === 'userinfo' ? '✓' : ''}
 											</button>
 										</div>
 										<div
@@ -355,7 +355,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 										fontWeight: '600',
 									}}
 								>
-									{copiedField === 'scopes' ? '✓ Copied' : '📋 Copy'}
+									{copiedField === 'scopes' ? '✓ Copied' : ' Copy'}
 								</button>
 							</div>
 							<div
@@ -406,7 +406,7 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 										fontWeight: '600',
 									}}
 								>
-									{copiedField === 'responseTypes' ? '✓ Copied' : '📋 Copy'}
+									{copiedField === 'responseTypes' ? '✓ Copied' : ' Copy'}
 								</button>
 							</div>
 							<div

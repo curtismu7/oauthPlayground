@@ -26,7 +26,7 @@ import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV
 import { logger } from '../../utils/logger';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
-const MODULE_TAG = '[🔐 MFA-AUTHENTICATION-SERVICE-V8]';
+const MODULE_TAG = '[ MFA-AUTHENTICATION-SERVICE-V8]';
 
 export interface AuthenticationCredentials {
 	environmentId: string;

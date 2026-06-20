@@ -160,14 +160,14 @@ export function getActiveRiskThresholds(environment?: string): RiskThresholds {
 	// Try environment variables first
 	const envThresholds = getEnvironmentRiskThresholds();
 	if (envThresholds) {
-		logger.info('[🔧 RISK-CONFIG] Using environment variable thresholds', 'Logger info');
+		logger.info('[ RISK-CONFIG] Using environment variable thresholds', 'Logger info');
 		return envThresholds;
 	}
 
 	// Fall back to environment-specific configuration
 	const configThresholds = getRiskThresholds(environment);
 	logger.info(
-		`[🔧 RISK-CONFIG] Using ${environment || 'default'} environment thresholds`,
+		`[ RISK-CONFIG] Using ${environment || 'default'} environment thresholds`,
 		'Logger info'
 	);
 	return configThresholds;
@@ -225,7 +225,7 @@ export function validateRiskThresholds(thresholds: RiskThresholds): boolean {
 	} catch (error) {
 		logger.error(
 			'riskPolicies',
-			'[🔧 RISK-CONFIG] Threshold validation failed:',
+			'[ RISK-CONFIG] Threshold validation failed:',
 			undefined,
 			error as Error
 		);

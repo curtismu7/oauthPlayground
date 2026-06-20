@@ -33,7 +33,7 @@ export class ApiCallTypeDetector {
 			return {
 				type: 'frontend',
 				displayName: 'Frontend Client-Side',
-				icon: '💻',
+				icon: '',
 				description: 'Client-side operation (no network request)',
 			};
 		}
@@ -53,7 +53,7 @@ export class ApiCallTypeDetector {
 			return {
 				type: 'pingone',
 				displayName: 'PingOne Backend API',
-				icon: '🌐',
+				icon: '',
 				description: 'Real HTTP request to PingOne servers',
 			};
 		}
@@ -69,7 +69,7 @@ export class ApiCallTypeDetector {
 			return {
 				type: 'pingone',
 				displayName: 'PingOne Backend API',
-				icon: '🌐',
+				icon: '',
 				description: 'PingOne API call routed through the playground backend',
 			};
 		}
@@ -78,7 +78,7 @@ export class ApiCallTypeDetector {
 		return {
 			type: 'internal',
 			displayName: 'Application Service',
-			icon: '🔄',
+			icon: '',
 			description: 'Internal playground service or utility request',
 		};
 	}
@@ -125,19 +125,19 @@ export class ApiCallTypeDetector {
 			{
 				type: 'pingone',
 				displayName: 'PingOne Backend API',
-				icon: '🌐',
+				icon: '',
 				description: 'Real HTTP request to PingOne servers',
 			},
 			{
 				type: 'frontend',
 				displayName: 'Frontend Client-Side',
-				icon: '💻',
+				icon: '',
 				description: 'Client-side operation (no network request)',
 			},
 			{
 				type: 'internal',
 				displayName: 'Application Service',
-				icon: '🔄',
+				icon: '',
 				description: 'Internal playground service or utility request',
 			},
 		];

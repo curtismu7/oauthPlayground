@@ -83,21 +83,21 @@ export const DEVICE_TYPES: DeviceType[] = [
 		label: 'Apple TV',
 		description: 'Authentic Apple TV interface with tvOS design',
 		icon: () => <MDIIcon icon="FaTv" size={20} />,
-		emoji: '📺',
+		emoji: '',
 	},
 	{
 		value: 'tesla-car',
 		label: 'Tesla Car Display',
 		description: 'Realistic Tesla infotainment screen interface',
 		icon: () => <MDIIcon icon="FaCar" size={20} />,
-		emoji: '🚗',
+		emoji: '',
 	},
 	{
 		value: 'amazon-echo-show',
 		label: 'Amazon Echo Show',
 		description: 'Authentic Amazon Echo Show with Alexa interface',
 		icon: () => <MDIIcon icon="Speaker" size={20} />,
-		emoji: '🔊',
+		emoji: '',
 	},
 ];
 

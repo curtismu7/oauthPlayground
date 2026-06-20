@@ -111,7 +111,7 @@ const VERSION_BADGE_CONFIG = {
 	ai: {
 		color: '#ffffff',
 		bgColor: 'rgba(124, 58, 237, 0.9)', // Indigo-violet
-		label: '🤖 AI',
+		label: ' AI',
 		description: 'AI & Identity',
 	},
 	tools: {
@@ -281,9 +281,9 @@ export const autoApplyVersionBadge = (
 /**
  * Version badge renderer for sidebar menu items
  */
-export const renderVersionBadge = (item: VersionedMenuItem): React.ReactNode => {
-	if (!item.versionBadge?.showBadge) return null;
-	return createVersionBadge(item.versionBadge);
+export const renderVersionBadge = (_item: VersionedMenuItem): React.ReactNode => {
+	// Version badges are intentionally not shown in the side-nav menu.
+	return null;
 };
 
 /**

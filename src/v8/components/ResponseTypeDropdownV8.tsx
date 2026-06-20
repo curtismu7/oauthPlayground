@@ -19,7 +19,7 @@ import { FiChevronDown } from '../../icons';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🎯 RESPONSE-TYPE-V8]';
+const MODULE_TAG = '[ RESPONSE-TYPE-V8]';
 
 export interface ResponseTypeDropdownV8Props {
 	value: string;
@@ -53,7 +53,7 @@ const RESPONSE_TYPE_OPTIONS: Record<string, ResponseTypeOption> = {
 	code: {
 		value: 'code',
 		label: 'code',
-		icon: '🔐',
+		icon: '',
 		shortDescription: 'Authorization code only',
 		fullDescription:
 			'Returns an authorization code that must be exchanged for tokens at the token endpoint. Most secure option.',
@@ -68,7 +68,7 @@ const RESPONSE_TYPE_OPTIONS: Record<string, ResponseTypeOption> = {
 	token: {
 		value: 'token',
 		label: 'token',
-		icon: '⚡',
+		icon: '',
 		shortDescription: 'Access token directly (OAuth 2.0)',
 		fullDescription:
 			'Returns access token directly in URL fragment. No token endpoint call needed. OAuth 2.0 only.',
@@ -83,7 +83,7 @@ const RESPONSE_TYPE_OPTIONS: Record<string, ResponseTypeOption> = {
 	id_token: {
 		value: 'id_token',
 		label: 'id_token',
-		icon: '🪪',
+		icon: '',
 		shortDescription: 'ID token only (OIDC)',
 		fullDescription:
 			'Returns ID token directly in URL fragment. Used for authentication only, not API access.',
@@ -96,7 +96,7 @@ const RESPONSE_TYPE_OPTIONS: Record<string, ResponseTypeOption> = {
 	'id_token token': {
 		value: 'id_token token',
 		label: 'id_token token',
-		icon: '🪪⚡',
+		icon: '',
 		shortDescription: 'ID token + access token (OIDC Implicit)',
 		fullDescription: 'Returns both ID token and access token in URL fragment. OIDC Implicit Flow.',
 		returns: ['id_token', 'access_token', 'token_type', 'expires_in'],
@@ -110,7 +110,7 @@ const RESPONSE_TYPE_OPTIONS: Record<string, ResponseTypeOption> = {
 	'code id_token': {
 		value: 'code id_token',
 		label: 'code id_token',
-		icon: '🔐🪪',
+		icon: '',
 		shortDescription: 'Code + ID token (OIDC Hybrid)',
 		fullDescription:
 			'Returns authorization code and ID token. Code is exchanged for access token at token endpoint.',
@@ -123,7 +123,7 @@ const RESPONSE_TYPE_OPTIONS: Record<string, ResponseTypeOption> = {
 	'code token': {
 		value: 'code token',
 		label: 'code token',
-		icon: '🔐⚡',
+		icon: '',
 		shortDescription: 'Code + access token (OIDC Hybrid)',
 		fullDescription:
 			'Returns authorization code and access token. Code can be exchanged for refresh token.',
@@ -136,7 +136,7 @@ const RESPONSE_TYPE_OPTIONS: Record<string, ResponseTypeOption> = {
 	'code id_token token': {
 		value: 'code id_token token',
 		label: 'code id_token token',
-		icon: '🔐🪪⚡',
+		icon: '',
 		shortDescription: 'Code + ID token + access token (OIDC Hybrid)',
 		fullDescription:
 			'Returns authorization code, ID token, and access token. Maximum flexibility but complex.',
@@ -385,7 +385,7 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 							marginBottom: '12px',
 						}}
 					>
-						📚 Response Type Guide
+						 Response Type Guide
 					</h4>
 					<p
 						style={{
@@ -421,7 +421,7 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 								marginBottom: '8px',
 							}}
 						>
-							🎯 Current Flow:{' '}
+							 Current Flow:{' '}
 							{flowType === 'oauth-authz'
 								? 'Authorization Code'
 								: flowType === 'implicit'
@@ -590,7 +590,7 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 								lineHeight: '1.6',
 							}}
 						>
-							<strong>💡 Key Concepts:</strong>
+							<strong> Key Concepts:</strong>
 							<ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
 								<li>
 									<strong>code</strong> = Authorization code (must be exchanged)
@@ -623,7 +623,7 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>🔐 Security Best Practice:</strong> Always use{' '}
+							<strong> Security Best Practice:</strong> Always use{' '}
 							<code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>
 								code
 							</code>{' '}

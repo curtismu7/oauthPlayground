@@ -43,7 +43,7 @@ const KioskContainer = styled.div`
   
   /* Simulated camera lens at top */
   &::after {
-    content: '📷';
+    content: '';
     position: absolute;
     top: 1rem;
     left: 50%;
@@ -572,12 +572,12 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 					{/* CLEAR Branding Bar */}
 					<CLEARBrandBar>
 						<CLEARLogo>
-							<span style={{ fontSize: '2rem' }}>👁️</span>
+							<span style={{ fontSize: '2rem' }}></span>
 							<CLEARLogoText>CLEAR</CLEARLogoText>
 						</CLEARLogo>
 						<div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
 							<TSABadge>
-								<span>👤</span>
+								<span></span>
 								TSA PreCheck®
 							</TSABadge>
 							<KioskStatusBadge $status={state.status}>
@@ -590,7 +590,7 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 					{/* Biometric Scanner (like CLEAR iris scanner) */}
 					<BiometricScanner>
 						<ScannerIcon>
-							<span>📷</span>
+							<span></span>
 						</ScannerIcon>
 						<ScannerLabel>Iris Scanner</ScannerLabel>
 					</BiometricScanner>
@@ -663,10 +663,10 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
 							</QRCodeContainer>
 							<ActionButtons>
 								<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-									<span>📋</span> Copy Code
+									<span></span> Copy Code
 								</ActionButton>
 								<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-									<span>🔗</span> Open on This Device
+									<span></span> Open on This Device
 								</ActionButton>
 							</ActionButtons>
 						</QRSection>

@@ -16,7 +16,7 @@ import { logger } from '../utils/logger';
 import { apiKeyBackupService } from './apiKeyBackupService';
 import { UnifiedTokenStorageService } from './unifiedTokenStorageService';
 
-const MODULE_TAG = '[🔑 API-KEY-SERVICE]';
+const MODULE_TAG = '[ API-KEY-SERVICE]';
 
 // Create singleton instance
 const unifiedTokenStorageService = UnifiedTokenStorageService.getInstance();

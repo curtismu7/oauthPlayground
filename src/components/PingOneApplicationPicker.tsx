@@ -452,7 +452,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 													onClick={() => handleCopy(selectedApp.clientId, 'Client ID')}
 													title="Copy Client ID"
 												>
-													<span style={{ fontSize: '14px' }}>📋</span>
+													<span style={{ fontSize: '14px' }}></span>
 												</CopyButton>
 											</TableCell>
 										</TableRow>
@@ -483,16 +483,16 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 															onClick={() => handleCopy(selectedApp.clientSecret!, 'Client Secret')}
 															title="Copy Client Secret"
 														>
-															<span style={{ fontSize: '14px' }}>📋</span>
+															<span style={{ fontSize: '14px' }}></span>
 														</CopyButton>
 														<CopyButton
 															onClick={() => setShowClientSecret(!showClientSecret)}
 															title={showClientSecret ? 'Hide' : 'Show'}
 														>
 															{showClientSecret ? (
-																<span style={{ fontSize: '14px' }}>🙈</span>
+																<span style={{ fontSize: '14px' }}></span>
 															) : (
-																<span style={{ fontSize: '14px' }}>👁️</span>
+																<span style={{ fontSize: '14px' }}></span>
 															)}
 														</CopyButton>
 													</div>
@@ -514,7 +514,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 														}
 														title="Copy Grant Types"
 													>
-														<span style={{ fontSize: '14px' }}>📋</span>
+														<span style={{ fontSize: '14px' }}></span>
 													</CopyButton>
 												)}
 											</TableCell>
@@ -559,7 +559,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 																		}
 																		title="Copy Post-Logout URIs"
 																	>
-																		<span style={{ fontSize: '14px' }}>📋</span>
+																		<span style={{ fontSize: '14px' }}></span>
 																	</CopyButton>
 																)}
 														</TableCell>
@@ -579,7 +579,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 														onClick={() => handleCopy(selectedApp.scopes!.join(', '), 'Scopes')}
 														title="Copy Scopes"
 													>
-														<span style={{ fontSize: '14px' }}>📋</span>
+														<span style={{ fontSize: '14px' }}></span>
 													</CopyButton>
 												)}
 											</TableCell>
@@ -603,7 +603,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 													}
 													title="Copy Token Auth Method"
 												>
-													<span style={{ fontSize: '14px' }}>📋</span>
+													<span style={{ fontSize: '14px' }}></span>
 												</CopyButton>
 											</TableCell>
 										</TableRow>
@@ -622,7 +622,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 														}
 														title="Copy PKCE Enforcement"
 													>
-														<span style={{ fontSize: '14px' }}>📋</span>
+														<span style={{ fontSize: '14px' }}></span>
 													</CopyButton>
 												</TableCell>
 											</TableRow>
@@ -644,7 +644,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 										Apply Configuration
 									</ApplyButton>
 									<RefreshButton onClick={fetchApplications} disabled={loading || disabled}>
-										<span style={{ fontSize: '14px' }}>🔄</span>
+										<span style={{ fontSize: '14px' }}></span>
 										{loading ? 'Loading...' : 'Refresh Applications'}
 									</RefreshButton>
 								</ButtonContainer>
@@ -656,7 +656,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 
 			{!selectedAppId && (
 				<RefreshButton onClick={fetchApplications} disabled={loading || disabled}>
-					<span style={{ fontSize: '14px' }}>🔄</span>
+					<span style={{ fontSize: '14px' }}></span>
 					{loading ? 'Loading...' : 'Refresh Applications'}
 				</RefreshButton>
 			)}

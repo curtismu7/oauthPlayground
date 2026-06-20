@@ -35,7 +35,7 @@ import {
 import { logger } from '../../../../utils/logger';
 import { UnifiedOTPActivationTemplate } from './UnifiedOTPActivationTemplate';
 
-const MODULE_TAG = '[🔐 UNIFIED-ACTIVATION-MODERN]';
+const MODULE_TAG = '[ UNIFIED-ACTIVATION-MODERN]';
 
 // ============================================================================
 // PROPS
@@ -330,7 +330,7 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 						color: colors.neutral[900],
 					}}
 				>
-					📱 Scan QR Code
+					 Scan QR Code
 				</h3>
 
 				{mfaState.qrCodeUrl && (
@@ -402,7 +402,7 @@ export const UnifiedActivationStepModern: React.FC<UnifiedActivationStepModernPr
 									});
 								}}
 							>
-								📋 Copy Secret
+								 Copy Secret
 							</Button>
 						</div>
 					</details>

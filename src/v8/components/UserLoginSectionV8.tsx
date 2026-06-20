@@ -17,7 +17,7 @@ import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV
 import { FiRefreshCw } from '../../icons';
 import { UserLoginModalV8 } from './UserLoginModalV8';
 
-const MODULE_TAG = '[👤 USER-LOGIN-SECTION-V8]';
+const MODULE_TAG = '[ USER-LOGIN-SECTION-V8]';
 
 interface UserLoginSectionV8Props {
 	onTokenUpdated?: (token: string) => void;
@@ -107,7 +107,7 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 			<div style={sectionStyle}>
 				{/* Header */}
 				<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-					<span style={{ fontSize: 20, color: '#10b981' }}>👤</span>
+					<span style={{ fontSize: 20, color: '#10b981' }}></span>
 					<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
 						User Token (User Flow)
 					</h3>
@@ -258,7 +258,7 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 									e.currentTarget.style.transform = 'translateY(0)';
 								}}
 							>
-								<span style={{ fontSize: '16px' }}>👤</span>
+								<span style={{ fontSize: '16px' }}></span>
 								Update Token
 							</button>
 							<button

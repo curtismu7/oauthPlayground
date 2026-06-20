@@ -270,7 +270,7 @@ export const CompactApplicationPicker: React.FC<CompactApplicationPickerProps> =
 					{error}
 				</ErrorState>
 				<RefreshButton onClick={loadApplications}>
-					<span style={{ fontSize: '14px' }}>🔄</span>
+					<span style={{ fontSize: '14px' }}></span>
 					Retry
 				</RefreshButton>
 			</Container>
@@ -282,7 +282,7 @@ export const CompactApplicationPicker: React.FC<CompactApplicationPickerProps> =
 			<Header>
 				<Title>Select Application</Title>
 				<RefreshButton onClick={loadApplications} disabled={loading}>
-					<span style={{ fontSize: '14px' }}>🔄</span>
+					<span style={{ fontSize: '14px' }}></span>
 					Refresh
 				</RefreshButton>
 			</Header>

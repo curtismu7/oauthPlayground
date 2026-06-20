@@ -21,7 +21,7 @@ import {
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[📋 DEVICE-ORDER-FLOW-V8]';
+const MODULE_TAG = '[ DEVICE-ORDER-FLOW-V8]';
 const FLOW_KEY = 'mfa-device-order-v8';
 
 interface Credentials {
@@ -595,7 +595,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 										gap: '8px',
 									}}
 								>
-									<span>🔑</span>
+									<span></span>
 									Get worker token
 								</ButtonSpinner>
 								<div

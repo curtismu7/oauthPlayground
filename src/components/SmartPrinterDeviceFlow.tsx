@@ -507,7 +507,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 						<span>⬅️</span>
 					</ToolbarButton>
 					<ToolbarButton $variant="delete" title="Delete">
-						<span>🗑️</span>
+						<span></span>
 					</ToolbarButton>
 					<ToolbarButton $variant="forward" title="Forward">
 						<span>➡️</span>
@@ -568,7 +568,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 								boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
 							}}
 						>
-							<span style={{ fontSize: '18px' }}>🔗</span> Open in Browser
+							<span style={{ fontSize: '18px' }}></span> Open in Browser
 						</PrinterControlButton>
 					</div>
 				)}
@@ -576,10 +576,10 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 				{/* Printer Control Panel */}
 				<PrinterControlPanel>
 					<PrinterControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<span>📋</span> Copy Code
+						<span></span> Copy Code
 					</PrinterControlButton>
 					<PrinterControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<span>📋</span> Copy URI
+						<span></span> Copy URI
 					</PrinterControlButton>
 				</PrinterControlPanel>
 
@@ -628,7 +628,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 										fontSize: '1.25rem',
 									}}
 								>
-									🖨️
+									
 								</div>
 								<div>
 									<div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>
@@ -671,7 +671,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 									textAlign: 'center',
 								}}
 							>
-								<div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📄</div>
+								<div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}></div>
 								<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 									Paper
 								</div>
@@ -686,7 +686,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 									textAlign: 'center',
 								}}
 							>
-								<div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>🖨️</div>
+								<div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}></div>
 								<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>Ink</div>
 								<div style={{ fontSize: '0.75rem', color: '#10b981' }}>85%</div>
 							</div>
@@ -699,7 +699,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 									textAlign: 'center',
 								}}
 							>
-								<div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📶</div>
+								<div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}></div>
 								<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 									WiFi
 								</div>
@@ -756,7 +756,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								>
-									<div style={{ fontSize: '1.25rem' }}>📄</div>
+									<div style={{ fontSize: '1.25rem' }}></div>
 									<div style={{ flex: 1 }}>
 										<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 											Q4_Report_Final.pdf
@@ -790,7 +790,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								>
-									<div style={{ fontSize: '1.25rem' }}>📊</div>
+									<div style={{ fontSize: '1.25rem' }}></div>
 									<div style={{ flex: 1 }}>
 										<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 											Sales_Presentation.pptx
@@ -840,7 +840,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<span>📄</span> Scan Document
+								<span></span> Scan Document
 							</button>
 							<button
 								type="button"
@@ -859,7 +859,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<span>🖨️</span> Print Test Page
+								<span></span> Print Test Page
 							</button>
 						</div>
 					</div>

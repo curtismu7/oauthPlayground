@@ -53,10 +53,10 @@ const APP_LABELS = {
 };
 
 const APP_ICONS = {
-	app: '📦',
-	mfa: '🛡️',
-	unified: '📚',
-	protect: '⚡',
+	app: '',
+	mfa: '',
+	unified: '',
+	protect: '',
 };
 
 export const AppVersionBadge: React.FC<AppVersionBadgeProps> = ({ type, showIcon = true }) => {

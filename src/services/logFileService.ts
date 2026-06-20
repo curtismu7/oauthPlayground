@@ -7,7 +7,7 @@
 
 import { logger } from '../utils/logger';
 
-const MODULE_TAG = '[📁 LOG-FILE-SERVICE]';
+const MODULE_TAG = '[ LOG-FILE-SERVICE]';
 
 /**
  * Base URL for log API. In dev we use relative /api/logs so the Vite proxy is used (avoids

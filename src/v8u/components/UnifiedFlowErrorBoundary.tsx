@@ -124,7 +124,7 @@ export class UnifiedFlowErrorBoundary extends Component<UnifiedFlowErrorBoundary
 								marginBottom: '1rem',
 							}}
 						>
-							🚨 Unified Flow Error
+							 Unified Flow Error
 						</h2>
 
 						<p
@@ -193,7 +193,7 @@ export class UnifiedFlowErrorBoundary extends Component<UnifiedFlowErrorBoundary
 
 						<div style={{ marginTop: '1rem', textAlign: 'center' }}>
 							<small style={{ color: '#9ca3af' }}>
-								💡 Tip: Your credentials and flow settings are automatically saved. Try refreshing
+								 Tip: Your credentials and flow settings are automatically saved. Try refreshing
 								the page or selecting a different recovery option.
 							</small>
 						</div>

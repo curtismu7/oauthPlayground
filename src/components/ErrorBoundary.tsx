@@ -271,8 +271,8 @@ class ErrorBoundary extends Component<Props, State> {
 											marginBottom: '0.5rem',
 										}}
 									>
-										{option.id === 'retry' && <span>🔄</span>}
-										{option.id === 'contact-support' && <span>📧</span>}
+										{option.id === 'retry' && <span></span>}
+										{option.id === 'contact-support' && <span></span>}
 										{option.id === 'check-connection' && <span>⚙️</span>}
 										{option.label}
 									</ActionButton>

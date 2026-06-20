@@ -66,14 +66,14 @@ const ScrollToTop: React.FC = () => {
 		];
 
 		if (skipAutoScroll.some((path) => pathname.includes(path))) {
-			logger.info('🌍 [ScrollToTop] Skipping auto-scroll for:', pathname);
+			logger.info(' [ScrollToTop] Skipping auto-scroll for:', pathname);
 			return;
 		}
 
 		// Also check for data attribute on the page
 		const noScrollElement = document.querySelector('[data-no-auto-scroll="true"]');
 		if (noScrollElement) {
-			logger.info('🌍 [ScrollToTop] Found no-auto-scroll element, skipping scroll');
+			logger.info(' [ScrollToTop] Found no-auto-scroll element, skipping scroll');
 			return;
 		}
 
@@ -92,7 +92,7 @@ const ScrollToTop: React.FC = () => {
 			const noScrollElementDelayed = document.querySelector('[data-no-auto-scroll="true"]');
 			if (noScrollElementDelayed) {
 				logger.info(
-					'🌍 [ScrollToTop] Found no-auto-scroll element during delayed scroll, aborting'
+					' [ScrollToTop] Found no-auto-scroll element during delayed scroll, aborting'
 				);
 				return;
 			}

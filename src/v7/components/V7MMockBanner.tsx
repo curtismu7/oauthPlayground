@@ -26,7 +26,7 @@ export function V7MMockBanner({
 }: V7MMockBannerProps): React.ReactElement {
 	return (
 		<div style={MOCK_FLOW_BANNER_STYLE}>
-			<strong>📚 Educational Mock Mode</strong>
+			<strong> Educational Mock Mode</strong>
 			<p style={MOCK_FLOW_BANNER_DESC_STYLE}>{description}</p>
 			{deprecation && (
 				<p style={{ ...MOCK_FLOW_BANNER_DESC_STYLE, marginTop: 8 }}>

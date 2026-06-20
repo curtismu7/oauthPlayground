@@ -445,7 +445,7 @@ const AdvancedConfiguration = () => {
 	const CodeBlockWithCopy = ({ children, label }: { children: string; label: string }) => (
 		<CodeBlock>
 			<CopyButton onClick={() => copyToClipboard(children, label)}>
-				<span>📋</span>
+				<span></span>
 				{copiedText === label ? 'Copied!' : 'Copy'}
 			</CopyButton>
 			{children}
@@ -717,7 +717,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 								onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
 								onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#3b82f6')}
 							>
-								<span>💾</span>
+								<span></span>
 								Save Defaults
 							</button>
 
@@ -745,7 +745,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 				<CollapsibleHeader
 					title="Default OAuth Scopes"
 					subtitle="Select the default scopes that will be requested in all OAuth and OIDC flows"
-					icon={<span>🛡️</span>}
+					icon={<span></span>}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>
@@ -754,7 +754,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 							<ConfigSection>
 								<CardHeader>
 									<h2>
-										<span>🛡️</span>
+										<span></span>
 										OAuth Scopes
 									</h2>
 									<p>Configure the permissions your application requests</p>
@@ -837,7 +837,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 							<ConfigSection>
 								<CardHeader>
 									<h2>
-										<span>👁️</span>
+										<span></span>
 										OpenID Connect Claims
 									</h2>
 									<p>Configure the user information your application receives</p>
@@ -913,14 +913,14 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 				<CollapsibleHeader
 					title="Configuration Preview"
 					subtitle="Review your default configuration and copy the JSON for use in your applications"
-					icon={<span>💾</span>}
+					icon={<span></span>}
 					defaultCollapsed={true}
 				>
 					<div style={{ padding: '1.5rem' }}>
 						<PreviewSection>
 							<CardHeader>
 								<h2>
-									<span>💾</span>
+									<span></span>
 									Configuration Preview
 								</h2>
 								<p>Review your configuration and generate code snippets for your application</p>
@@ -980,7 +980,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 
 								<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
 									<SaveButton onClick={saveConfiguration}>
-										<span>💾</span>
+										<span></span>
 										{saved ? 'Configuration Saved!' : 'Save Configuration'}
 									</SaveButton>
 									<button

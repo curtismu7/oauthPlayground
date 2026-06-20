@@ -118,7 +118,7 @@ export const StepValidationFeedbackV8: React.FC<StepValidationFeedbackProps> = (
 						aria-expanded={expandedErrors}
 						aria-controls={`${errorsId}-content`}
 					>
-						<span className="section-icon">🚨</span>
+						<span className="section-icon"></span>
 						<span className="section-title">
 							{errors.length} {errors.length === 1 ? 'Error' : 'Errors'}
 						</span>
@@ -167,7 +167,7 @@ export const StepValidationFeedbackV8: React.FC<StepValidationFeedbackProps> = (
 											</>
 										) : (
 											<>
-												<span>🔧</span>
+												<span></span>
 												<span>Fix Issues</span>
 											</>
 										)}

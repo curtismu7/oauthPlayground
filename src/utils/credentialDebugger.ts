@@ -32,14 +32,14 @@ export class CredentialDebugger {
 				key.includes('credential')
 		);
 
-		logger.info(`📋 All relevant storage keys:`, allKeys);
+		logger.info(` All relevant storage keys:`, allKeys);
 
 		// Check flow-specific storage
 		const flowSpecificKey = flowKey;
 		const flowSpecificData = localStorage.getItem(flowSpecificKey);
 		const hasFlowSpecificCredentials = !!flowSpecificData;
 
-		logger.info(`📋 Flow-specific key (${flowSpecificKey}):`, flowSpecificData);
+		logger.info(` Flow-specific key (${flowSpecificKey}):`, flowSpecificData);
 
 		// Check shared credential storage
 		const sharedKeys = [
@@ -63,7 +63,7 @@ export class CredentialDebugger {
 			}
 		});
 
-		logger.info(`📋 Shared credential data:`, sharedData);
+		logger.info(` Shared credential data:`, sharedData);
 
 		// Determine credential source
 		let credentialSource: 'flow-specific' | 'shared-fallback' | 'none' = 'none';
@@ -73,7 +73,7 @@ export class CredentialDebugger {
 			credentialSource = 'shared-fallback';
 		}
 
-		logger.info(`📋 Credential source: ${credentialSource}`, 'Logger info');
+		logger.info(` Credential source: ${credentialSource}`, 'Logger info');
 
 		return {
 			flowKey,
@@ -116,8 +116,8 @@ export class CredentialDebugger {
 			.map(([flowKey, _]) => flowKey);
 
 		if (flowsUsingSharedCredentials.length > 0) {
-			logger.warn(`🚨 POTENTIAL CREDENTIAL BLEEDING DETECTED!`, 'Logger warning');
-			logger.warn(`📋 Flows using shared credentials:`, flowsUsingSharedCredentials);
+			logger.warn(` POTENTIAL CREDENTIAL BLEEDING DETECTED!`, 'Logger warning');
+			logger.warn(` Flows using shared credentials:`, flowsUsingSharedCredentials);
 		}
 
 		return results;
@@ -135,7 +135,7 @@ export class CredentialDebugger {
 
 		keysToRemove.forEach((key) => {
 			localStorage.removeItem(key);
-			logger.info(`🗑️ Removed: ${key}`, 'Logger info');
+			logger.info(` Removed: ${key}`, 'Logger info');
 		});
 
 		// Also clear session storage
@@ -145,7 +145,7 @@ export class CredentialDebugger {
 
 		sessionKeysToRemove.forEach((key) => {
 			sessionStorage.removeItem(key);
-			logger.info(`🗑️ Removed from session: ${key}`, 'Logger info');
+			logger.info(` Removed from session: ${key}`, 'Logger info');
 		});
 
 		logger.info(
@@ -160,19 +160,19 @@ export class CredentialDebugger {
 	static dumpAllStorage(): void {
 		logger.info('credentialDebugger', '[CREDENTIAL DEBUGGER] Dumping all credential storage');
 
-		logger.info(`📋 localStorage keys:`, Object.keys(localStorage));
-		logger.info(`📋 sessionStorage keys:`, Object.keys(sessionStorage));
+		logger.info(` localStorage keys:`, Object.keys(localStorage));
+		logger.info(` sessionStorage keys:`, Object.keys(sessionStorage));
 
 		// Dump all PingOne-related data
 		const pingoneKeys = Object.keys(localStorage).filter((key) => key.includes('pingone'));
-		logger.info(`📋 PingOne localStorage data:`, 'Logger info');
+		logger.info(` PingOne localStorage data:`, 'Logger info');
 		pingoneKeys.forEach((key) => {
 			const data = localStorage.getItem(key);
 			logger.info(`  ${key}:`, data);
 		});
 
 		const pingoneSessionKeys = Object.keys(sessionStorage).filter((key) => key.includes('pingone'));
-		logger.info(`📋 PingOne sessionStorage data:`, 'Logger info');
+		logger.info(` PingOne sessionStorage data:`, 'Logger info');
 		pingoneSessionKeys.forEach((key) => {
 			const data = sessionStorage.getItem(key);
 			logger.info(`  ${key}:`, data);
@@ -204,7 +204,7 @@ export class CredentialDebugger {
 			})
 		);
 
-		logger.info(`📋 Set credentials for ${flow1Key}:`, flow1Credentials);
+		logger.info(` Set credentials for ${flow1Key}:`, flow1Credentials);
 
 		// Set credentials for flow 2
 		const flow2Credentials = {
@@ -222,14 +222,14 @@ export class CredentialDebugger {
 			})
 		);
 
-		logger.info(`📋 Set credentials for ${flow2Key}:`, flow2Credentials);
+		logger.info(` Set credentials for ${flow2Key}:`, flow2Credentials);
 
 		// Test loading
 		const flow1Result = CredentialDebugger.auditFlowCredentials(flow1Key);
 		const flow2Result = CredentialDebugger.auditFlowCredentials(flow2Key);
 
-		logger.info(`📋 Flow 1 result:`, flow1Result);
-		logger.info(`📋 Flow 2 result:`, flow2Result);
+		logger.info(` Flow 1 result:`, flow1Result);
+		logger.info(` Flow 2 result:`, flow2Result);
 
 		// Check for isolation
 		const flow1Isolated =

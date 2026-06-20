@@ -16,7 +16,7 @@ import { FiSearch } from '../../icons';
 
 import { logger } from '../../utils/logger';
 
-const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
+const _MODULE_TAG = '[ COMPACT-APP-PICKER-V8U]';
 
 interface CompactAppPickerV8UProps {
 	environmentId?: string;
@@ -235,7 +235,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 						title="Search and select PingOne application to auto-fill credentials"
 						aria-label="Search and select PingOne application to auto-fill credentials"
 					>
-						{isLoading ? '🔄' : <span style={{ fontSize: '16px' }}>🔍</span>}
+						{isLoading ? '' : <span style={{ fontSize: '16px' }}></span>}
 					</button>
 					{/* Tooltip on hover */}
 					<div

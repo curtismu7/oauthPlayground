@@ -66,7 +66,7 @@ export const lookupPingOneUser = async ({
 	// but we show the base users endpoint to represent the PingOne Users API
 	const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users`;
 
-	logger.info('PingOneUserProfileService', '[lookupPingOneUser] 📤 Sending user lookup request:', {
+	logger.info('PingOneUserProfileService', '[lookupPingOneUser] Sending user lookup request:', {
 		arg0: {
 			environmentId: `${environmentId.substring(0, 20)}...`,
 			accessToken: `${accessToken.substring(0, 20)}...`,

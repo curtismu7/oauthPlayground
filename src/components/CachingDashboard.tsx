@@ -431,7 +431,7 @@ export const CachingDashboard: React.FC = () => {
 		<DashboardContainer>
 			<DashboardHeader>
 				<DashboardIcon>
-					<span>🗄️</span>
+					<span></span>
 				</DashboardIcon>
 				<div>
 					<DashboardTitle>Caching Dashboard</DashboardTitle>
@@ -461,7 +461,7 @@ export const CachingDashboard: React.FC = () => {
 					<StatusHeader>
 						<StatusLabel>Cache Storage</StatusLabel>
 						<StatusIcon $status={cacheNames.length > 0 ? 'active' : 'inactive'}>
-							<span>🗄️</span>
+							<span></span>
 						</StatusIcon>
 					</StatusHeader>
 					<StatusValue>{cacheNames.length}</StatusValue>
@@ -474,7 +474,7 @@ export const CachingDashboard: React.FC = () => {
 					<StatusHeader>
 						<StatusLabel>Cache Size</StatusLabel>
 						<StatusIcon $status={cacheSize.totalSize > 0 ? 'active' : 'inactive'}>
-							<span>📥</span>
+							<span></span>
 						</StatusIcon>
 					</StatusHeader>
 					<StatusValue>{getCacheSizeFormatted()}</StatusValue>
@@ -485,7 +485,7 @@ export const CachingDashboard: React.FC = () => {
 					<StatusHeader>
 						<StatusLabel>Updates</StatusLabel>
 						<StatusIcon $status={updateAvailable ? 'active' : 'inactive'}>
-							<span>🔄</span>
+							<span></span>
 						</StatusIcon>
 					</StatusHeader>
 					<StatusValue>{updateAvailable ? 'Available' : 'Up to Date'}</StatusValue>
@@ -537,13 +537,13 @@ export const CachingDashboard: React.FC = () => {
 					onClick={handleUpdate}
 					disabled={isLoading || !isRegistered}
 				>
-					<span>🔄</span>
+					<span></span>
 					Check for Updates
 				</ActionButton>
 
 				{updateAvailable && (
 					<ActionButton variant="primary" onClick={handleSkipWaiting} disabled={isLoading}>
-						<span>🔄</span>
+						<span></span>
 						Activate Update
 					</ActionButton>
 				)}
@@ -553,12 +553,12 @@ export const CachingDashboard: React.FC = () => {
 					onClick={handleClearCaches}
 					disabled={isLoading || cacheNames.length === 0}
 				>
-					<span>🗑️</span>
+					<span></span>
 					Clear All Caches
 				</ActionButton>
 
 				<ActionButton variant="secondary" onClick={handleRefresh} disabled={isLoading}>
-					<span>🔄</span>
+					<span></span>
 					Refresh Status
 				</ActionButton>
 			</Actions>

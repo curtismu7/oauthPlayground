@@ -210,7 +210,7 @@ const TokenStatusPageV8U: React.FC = () => {
 				<TokenStatusCard>
 					<TokenStatusHeader>
 						<TokenStatusTitle>
-							<span>🛡️</span>
+							<span></span>
 							Worker Token Status
 						</TokenStatusTitle>
 					</TokenStatusHeader>
@@ -222,7 +222,7 @@ const TokenStatusPageV8U: React.FC = () => {
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 						<div style={{ display: 'flex', gap: '8px' }}>
 							<ActionButton onClick={handleGetWorkerToken}>
-								<span>🛡️</span>
+								<span></span>
 								Get Worker Token
 							</ActionButton>
 						</div>

@@ -29,7 +29,7 @@ import type { MFACredentials, MFAState } from '@/v8/flows/shared/MFATypes';
 
 import { logger } from '../../../../utils/logger';
 
-const MODULE_TAG = '[🎨 DEVICE-COMPONENT-REGISTRY]';
+const MODULE_TAG = '[ DEVICE-COMPONENT-REGISTRY]';
 
 // ============================================================================
 // SHARED PROPS INTERFACE
@@ -257,7 +257,7 @@ export const TOTPRegistrationComponent: React.FC<DeviceComponentProps> = ({
 									className="copy-button"
 									aria-label="Copy secret to clipboard"
 								>
-									{copied ? '✓ Copied' : '📋 Copy'}
+									{copied ? '✓ Copied' : ' Copy'}
 								</button>
 							</div>
 							<p className="secret-hint">
@@ -452,12 +452,12 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 						}
 						className="webauthn-register-button"
 					>
-						{isRegistering ? '🔐 Authenticating...' : '🔐 Complete Biometric Registration'}
+						{isRegistering ? ' Authenticating...' : ' Complete Biometric Registration'}
 					</button>
 
 					{isRegistering && (
 						<p className="registration-hint">
-							🔐 Follow the prompts from your browser to use your security key or biometric
+							 Follow the prompts from your browser to use your security key or biometric
 							(TouchID/FaceID)...
 						</p>
 					)}
@@ -596,7 +596,7 @@ export const MobileRegistrationComponent: React.FC<DeviceComponentProps> = ({
 							className="copy-button"
 							aria-label="Copy pairing key to clipboard"
 						>
-							{copied ? '✓ Copied' : '📋 Copy'}
+							{copied ? '✓ Copied' : ' Copy'}
 						</button>
 					</div>
 				</div>
@@ -613,7 +613,7 @@ export const MobileRegistrationComponent: React.FC<DeviceComponentProps> = ({
 						rel="noopener noreferrer"
 						className="app-store-link"
 					>
-						📱 Download for iOS
+						 Download for iOS
 					</a>
 					<a
 						href="https://play.google.com/store/apps/details?id=com.pingidentity.pingone"
@@ -621,7 +621,7 @@ export const MobileRegistrationComponent: React.FC<DeviceComponentProps> = ({
 						rel="noopener noreferrer"
 						className="app-store-link"
 					>
-						🤖 Download for Android
+						 Download for Android
 					</a>
 				</div>
 			</div>

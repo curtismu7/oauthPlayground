@@ -342,7 +342,7 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 				if (globalEnvId) {
 					environmentId = globalEnvId;
 					logger.info(
-						'🔧 Applied global environment ID fallback for PingOneIdentityMetrics executeApiCall',
+						' Applied global environment ID fallback for PingOneIdentityMetrics executeApiCall',
 						'Logger info'
 					);
 				}
@@ -354,8 +354,8 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 		setLoading(true);
 		setError(null);
 
-		logger.info('[Identity Metrics] 🌍 Making API request with region:', region);
-		logger.info('[Identity Metrics] 📦 Environment ID:', environmentId.trim());
+		logger.info('[Identity Metrics] Making API request with region:', region);
+		logger.info('[Identity Metrics] Environment ID:', environmentId.trim());
 
 		try {
 			// Active Identity Counts - uses GET with query parameters
@@ -441,7 +441,7 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 				if (globalEnvId) {
 					environmentId = globalEnvId;
 					logger.info(
-						'🔧 Applied global environment ID fallback for PingOneIdentityMetrics handleFetch',
+						' Applied global environment ID fallback for PingOneIdentityMetrics handleFetch',
 						'Logger info'
 					);
 				}
@@ -457,7 +457,7 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 
 		const effectiveWorkerToken = workerToken || '';
 
-		logger.info('[Identity Metrics] 🔍 Using token for API call:', {
+		logger.info('[Identity Metrics] Using token for API call:', {
 			hasToken: !!effectiveWorkerToken,
 			tokenPreview: effectiveWorkerToken ? `${effectiveWorkerToken.substring(0, 20)}...` : 'none',
 			environmentId: `${environmentId.substring(0, 20)}...`,
@@ -620,7 +620,7 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 				<div style={styles.layoutGrid}>
 					<div style={styles.card}>
 						<h2 style={styles.sectionTitle}>
-							<span>🛡️</span>Authentication & Worker Token
+							<span></span>Authentication & Worker Token
 						</h2>
 
 						<WorkerTokenSectionV8 compact />
@@ -774,7 +774,7 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 							>
 								{loading ? (
 									<>
-										<span>🔄</span>Fetching…
+										<span></span>Fetching…
 									</>
 								) : (
 									<>
@@ -1090,11 +1090,11 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 									fontSize: '0.7rem',
 								}}
 							>
-								💡 <strong>Tip:</strong> After assigning a role, you must generate a{' '}
+								 <strong>Tip:</strong> After assigning a role, you must generate a{' '}
 								<strong>NEW</strong> worker token to pick up the permissions.
 							</p>
 							<div style={styles.permissionsModalInstructions}>
-								<strong>🔧 Fix in PingOne Admin Console:</strong>
+								<strong> Fix in PingOne Admin Console:</strong>
 								<ol style={{ marginLeft: '1.25rem', marginTop: '0.35rem' }}>
 									<li>
 										Applications → Your Worker App → <strong>Roles</strong> tab

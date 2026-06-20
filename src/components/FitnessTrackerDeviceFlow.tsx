@@ -376,10 +376,10 @@ const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
 				{/* Control Buttons */}
 				<ControlButtons>
 					<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<span>📋</span> Copy
+						<span></span> Copy
 					</ControlButton>
 					<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<span>🔗</span> Open
+						<span></span> Open
 					</ControlButton>
 				</ControlButtons>
 

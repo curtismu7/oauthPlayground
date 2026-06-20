@@ -25,7 +25,7 @@ import { FiRefreshCw } from '../../icons';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
 
-const MODULE_TAG = '[🔑 WORKER-TOKEN-SECTION-V8]';
+const MODULE_TAG = '[ WORKER-TOKEN-SECTION-V8]';
 
 interface WorkerTokenSectionV8Props {
 	environmentId?: string;
@@ -346,7 +346,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 		<>
 			<SectionRoot $compact={compact}>
 				<SectionHeader>
-					<HeaderIcon>🔑</HeaderIcon>
+					<HeaderIcon></HeaderIcon>
 					<SectionTitle>Worker Token (Admin Flow)</SectionTitle>
 					{!compact && <ServiceBadge>Service Account</ServiceBadge>}
 				</SectionHeader>
@@ -388,13 +388,13 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 				<ButtonRow>
 					{!tokenStatus.isValid ? (
 						<GetTokenButton type="button" onClick={handleGetToken}>
-							<span style={{ fontSize: 16 }}>🔑</span>
+							<span style={{ fontSize: 16 }}></span>
 							Get Worker Token
 						</GetTokenButton>
 					) : (
 						<>
 							<UpdateTokenButton type="button" onClick={handleGetToken}>
-								<span style={{ fontSize: 16 }}>🔑</span>
+								<span style={{ fontSize: 16 }}></span>
 								Update Token
 							</UpdateTokenButton>
 							<ClearTokenButton type="button" onClick={handleClearToken}>

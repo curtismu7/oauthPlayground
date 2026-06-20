@@ -141,7 +141,7 @@ export const ApiCallList: React.FC<ApiCallListProps> = ({
 					<CallCount>{apiCalls.length}</CallCount>
 				</Title>
 				<ClearButton onClick={handleClearAll} disabled={apiCalls.length === 0}>
-					🗑️ Clear All
+					 Clear All
 				</ClearButton>
 			</Header>
 
@@ -149,7 +149,7 @@ export const ApiCallList: React.FC<ApiCallListProps> = ({
 
 			{apiCalls.length === 0 ? (
 				<EmptyState>
-					<div style={{ fontSize: '48px', marginBottom: '16px' }}>📡</div>
+					<div style={{ fontSize: '48px', marginBottom: '16px' }}></div>
 					<div
 						style={{
 							fontSize: '16px',

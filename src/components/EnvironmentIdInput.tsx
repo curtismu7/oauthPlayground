@@ -695,7 +695,7 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 	return (
 		<Container className={className}>
 			<Header>
-				<span>🌐</span>
+				<span></span>
 				<Title>PingOne Environment Configuration</Title>
 			</Header>
 
@@ -734,7 +734,7 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 							isLoading={isDiscovering}
 							title="Discover OIDC endpoints"
 						>
-							{isDiscovering ? <FiLoader className="animate-spin" /> : <span>🔍</span>}
+							{isDiscovering ? <FiLoader className="animate-spin" /> : <span></span>}
 						</DiscoverButton>
 					)}
 				</InputGroup>
@@ -751,7 +751,7 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 							{copied ? (
 								<span style={{ fontSize: '12px' }}>✅</span>
 							) : (
-								<span style={{ fontSize: '12px' }}>📋</span>
+								<span style={{ fontSize: '12px' }}></span>
 							)}
 							{copied ? 'Copied!' : 'Copy'}
 						</CopyButton>
@@ -768,7 +768,7 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 							aria-expanded={!isDiscoveryResultsCollapsed}
 						>
 							<DiscoveryResultsHeaderLeft>
-								<span style={{ fontSize: '18px' }}>🌐</span>
+								<span style={{ fontSize: '18px' }}></span>
 								<span>OIDC Discovery Results</span>
 							</DiscoveryResultsHeaderLeft>
 							<DiscoveryResultsToggleIcon $collapsed={isDiscoveryResultsCollapsed}>
@@ -807,12 +807,12 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 
 					<ButtonGroup>
 						<ResetButton onClick={handleReset} disabled={isApplying}>
-							<span style={{ fontSize: '16px' }}>🔄</span>
+							<span style={{ fontSize: '16px' }}></span>
 							Reset
 						</ResetButton>
 
 						<SaveButton onClick={handleSave} $isSaved={isSaved} disabled={isSaved || isApplying}>
-							<span style={{ fontSize: '16px' }}>💾</span>
+							<span style={{ fontSize: '16px' }}></span>
 							{isSaved ? 'Configuration Saved!' : 'Save Only'}
 						</SaveButton>
 

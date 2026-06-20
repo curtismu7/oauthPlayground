@@ -232,7 +232,7 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 				>
 					{value === 0 ? (
 						<>
-							🔒 <strong>Force fresh login:</strong> User must authenticate every time
+							 <strong>Force fresh login:</strong> User must authenticate every time
 						</>
 					) : (
 						<>
@@ -262,7 +262,7 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 							marginBottom: '12px',
 						}}
 					>
-						📚 Max Age Guide
+						 Max Age Guide
 					</h4>
 					<p
 						style={{
@@ -298,7 +298,7 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 									marginBottom: '6px',
 								}}
 							>
-								🔒 When to Use
+								 When to Use
 							</div>
 							<ul
 								style={{
@@ -393,7 +393,7 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 									marginBottom: '6px',
 								}}
 							>
-								📝 Common Values
+								 Common Values
 							</div>
 							<div
 								style={{
@@ -433,7 +433,7 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 									lineHeight: '1.5',
 								}}
 							>
-								<strong>🔐 Security:</strong> Setting{' '}
+								<strong> Security:</strong> Setting{' '}
 								<code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>
 									max_age=0
 								</code>{' '}

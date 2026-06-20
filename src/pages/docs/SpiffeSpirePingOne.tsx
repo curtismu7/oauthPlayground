@@ -194,7 +194,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					title: 'SPIFFE & SPIRE with PingOne SSO',
 					subtitle:
 						'Learn how to integrate SPIFFE (Secure Production Identity Framework for Everyone) and SPIRE (SPIFFE Runtime Environment) with PingOne for secure workload authentication and Single Sign-On.',
-					icon: '🛡️',
+					icon: '',
 				}}
 			/>
 
@@ -218,7 +218,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>🔑</span>
+								<span></span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -250,7 +250,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>🛡️</span>
+								<span></span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -272,7 +272,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.YELLOW">
-								<span>🌐</span>
+								<span></span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -295,7 +295,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<span>🖥️</span>
+					<span></span>
 					What is SPIRE?
 				</SectionTitle>
 				<InfoCard $color="V9_COLORS.PRIMARY.GREEN">
@@ -313,7 +313,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>⚡</span>
+								<span></span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -335,7 +335,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>🖥️</span>
+								<span></span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -358,7 +358,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.YELLOW">
-								<span>🔒</span>
+								<span></span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -381,7 +381,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<span>👥</span>
+					<span></span>
 					Why Integrate SPIFFE/SPIRE with PingOne?
 				</SectionTitle>
 				<Alert $type="info">
@@ -484,7 +484,7 @@ const SpiffeSpirePingOne: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<span>🔑</span>
+					<span></span>
 					Implementation Steps
 				</SectionTitle>
 				<StepList>
@@ -585,7 +585,7 @@ POST /v1/environments/{envId}/serviceAccounts
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>🔒</span>
+								<span></span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -607,7 +607,7 @@ POST /v1/environments/{envId}/serviceAccounts
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>🛡️</span>
+								<span></span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -629,7 +629,7 @@ POST /v1/environments/{envId}/serviceAccounts
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="V9_COLORS.PRIMARY.YELLOW">
-								<span>🖥️</span>
+								<span></span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -651,7 +651,7 @@ POST /v1/environments/{envId}/serviceAccounts
 					<FeatureCard>
 						<CardBody>
 							<FeatureIcon $color="#8b5cf6">
-								<span>🌐</span>
+								<span></span>
 							</FeatureIcon>
 							<h3
 								style={{
@@ -674,7 +674,7 @@ POST /v1/environments/{envId}/serviceAccounts
 
 			<Section>
 				<SectionTitle>
-					<span>🔗</span>
+					<span></span>
 					Additional Resources
 				</SectionTitle>
 				<InfoCard $color="V9_COLORS.PRIMARY.BLUE">
@@ -688,7 +688,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									gap: '0.5rem',
 								}}
 							>
-								<span>🔗</span>
+								<span></span>
 								<Link href="https://spiffe.io/" target="_blank" rel="noopener noreferrer">
 									SPIFFE Official Documentation
 								</Link>
@@ -701,7 +701,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									gap: '0.5rem',
 								}}
 							>
-								<span>🔗</span>
+								<span></span>
 								<Link
 									href="https://spiffe.io/docs/latest/spire/"
 									target="_blank"
@@ -718,7 +718,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									gap: '0.5rem',
 								}}
 							>
-								<span>🔗</span>
+								<span></span>
 								<Link
 									href="https://spiffe.io/docs/latest/architecture/federation/"
 									target="_blank"
@@ -735,7 +735,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									gap: '0.5rem',
 								}}
 							>
-								<span>🔗</span>
+								<span></span>
 								<Link
 									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/"
 									target="_blank"
@@ -752,7 +752,7 @@ POST /v1/environments/{envId}/serviceAccounts
 									gap: '0.5rem',
 								}}
 							>
-								<span>🔗</span>
+								<span></span>
 								<Link
 									href="https://github.com/spiffe/spire"
 									target="_blank"

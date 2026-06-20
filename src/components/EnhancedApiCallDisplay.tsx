@@ -439,9 +439,9 @@ const MaskedRevealValue: React.FC<{ value: string; fieldKey: string }> = ({ valu
 				aria-label={revealed ? `Mask ${fieldKey}` : `Reveal ${fieldKey}`}
 			>
 				{revealed ? (
-					<span style={{ fontSize: '13px' }}>🙈</span>
+					<span style={{ fontSize: '13px' }}></span>
 				) : (
-					<span style={{ fontSize: '13px' }}>👁️</span>
+					<span style={{ fontSize: '13px' }}></span>
 				)}
 				{revealed ? 'mask' : 'reveal'}
 			</RevealToggleBtn>
@@ -464,7 +464,7 @@ const CredentialMaskedValue: React.FC = () => (
 				gap: '0.2rem',
 			}}
 		>
-			<span style={{ fontSize: '11px' }}>🔒</span> credential
+			<span style={{ fontSize: '11px' }}></span> credential
 		</span>
 	</span>
 );
@@ -484,7 +484,7 @@ const TokenMaskedNoReveal: React.FC = () => (
 				gap: '0.2rem',
 			}}
 		>
-			<span style={{ fontSize: '11px' }}>🔒</span> token
+			<span style={{ fontSize: '11px' }}></span> token
 		</span>
 	</span>
 );
@@ -622,7 +622,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 			{/* Request Section */}
 			<CollapsibleSection>
 				<SectionHeader $sectionType="request" onClick={() => toggleSection('request')}>
-					<SectionTitle>📤 Request</SectionTitle>
+					<SectionTitle> Request</SectionTitle>
 					<FiChevronDown
 						style={{
 							transform: expandedSections.has('request') ? 'rotate(0deg)' : 'rotate(-90deg)',
@@ -789,7 +789,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 			{apiCall.response && (
 				<CollapsibleSection>
 					<SectionHeader $sectionType="response" onClick={() => toggleSection('response')}>
-						<SectionTitle>📥 Response</SectionTitle>
+						<SectionTitle> Response</SectionTitle>
 						<FiChevronDown
 							style={{
 								transform: expandedSections.has('response') ? 'rotate(0deg)' : 'rotate(-90deg)',
@@ -880,7 +880,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 			{/* Tools Section */}
 			<CollapsibleSection>
 				<SectionHeader $sectionType="tools" onClick={() => toggleSection('tools')}>
-					<SectionTitle>🛠️ Tools</SectionTitle>
+					<SectionTitle> Tools</SectionTitle>
 					<FiChevronDown
 						style={{
 							transform: expandedSections.has('tools') ? 'rotate(0deg)' : 'rotate(-90deg)',
@@ -907,11 +907,11 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 								$variant="primary"
 								onClick={() => handleCopy(curlCommand, 'cURL command')}
 							>
-								<span style={{ fontSize: '14px' }}>📋</span>
+								<span style={{ fontSize: '14px' }}></span>
 								Copy cURL
 							</ActionButton>
 							<ActionButton $variant="secondary" onClick={() => window.open(apiCall.url, '_blank')}>
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 								Open URL
 							</ActionButton>
 						</div>
@@ -1087,7 +1087,7 @@ logger.info('PingOne Response:', data);`,
 										)
 									}
 								>
-									<span style={{ fontSize: '14px' }}>📋</span>
+									<span style={{ fontSize: '14px' }}></span>
 									Copy JavaScript
 								</ActionButton>
 							</ActionButtons>
@@ -1111,7 +1111,7 @@ logger.info('PingOne Response:', data);`,
 										color: '#1f2937',
 									}}
 								>
-									📮 Postman Collection Example
+									 Postman Collection Example
 								</h5>
 								<ActionButton
 									onClick={() => {
@@ -1168,7 +1168,7 @@ ${
 										handleCopy(postmanCollection, 'Postman Collection');
 									}}
 								>
-									<span style={{ fontSize: '14px' }}>📋</span>
+									<span style={{ fontSize: '14px' }}></span>
 									Copy Postman Collection
 								</ActionButton>
 							</div>
@@ -1283,7 +1283,7 @@ ${
 										)
 									}
 								>
-									<span style={{ fontSize: '14px' }}>📋</span>
+									<span style={{ fontSize: '14px' }}></span>
 									Copy Postman Collection
 								</ActionButton>
 							</ActionButtons>
@@ -1299,7 +1299,7 @@ ${
 									color: '#1f2937',
 								}}
 							>
-								📚 Official Documentation & Examples
+								 Official Documentation & Examples
 							</h5>
 							<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 								<ActionButton
@@ -1312,7 +1312,7 @@ ${
 									}
 									style={{ justifyContent: 'flex-start', textAlign: 'left' }}
 								>
-									<span style={{ fontSize: '16px' }}>🔗</span>
+									<span style={{ fontSize: '16px' }}></span>
 									PingOne API Documentation
 								</ActionButton>
 								<ActionButton
@@ -1325,7 +1325,7 @@ ${
 									}
 									style={{ justifyContent: 'flex-start', textAlign: 'left' }}
 								>
-									<span style={{ fontSize: '16px' }}>🔗</span>
+									<span style={{ fontSize: '16px' }}></span>
 									PingOne Postman Collection
 								</ActionButton>
 							</div>
@@ -1340,7 +1340,7 @@ ${
 									color: '#6b7280',
 								}}
 							>
-								💡 <strong>Tip:</strong> Copy the Postman Collection JSON above and import it into
+								 <strong>Tip:</strong> Copy the Postman Collection JSON above and import it into
 								Postman, or use the official PingOne Postman collection for ready-to-use examples.
 							</div>
 						</div>
@@ -1380,7 +1380,7 @@ ${
 										)
 									}
 								>
-									<span style={{ fontSize: '14px' }}>📋</span>
+									<span style={{ fontSize: '14px' }}></span>
 									Copy Real cURL
 								</ActionButton>
 							</ActionButtons>

@@ -350,7 +350,7 @@ export const RARExampleSelector: React.FC<RARExampleSelectorProps> = ({
 				<ExampleContent>
 					<ViewToggle>
 						<ViewButton active={viewMode === 'formatted'} onClick={() => toggleViewMode(config.id)}>
-							<span style={{ fontSize: '12px' }}>👁️</span>
+							<span style={{ fontSize: '12px' }}></span>
 							Formatted
 						</ViewButton>
 						<ViewButton active={viewMode === 'json'} onClick={() => toggleViewMode(config.id)}>
@@ -367,7 +367,7 @@ export const RARExampleSelector: React.FC<RARExampleSelectorProps> = ({
 
 					<ActionButtons>
 						<ActionButton onClick={() => copyToClipboard(config.details)}>
-							<span style={{ fontSize: '12px' }}>📋</span>
+							<span style={{ fontSize: '12px' }}></span>
 							Copy
 						</ActionButton>
 						<ActionButton className="primary" onClick={() => onSelectExample(config.details)}>

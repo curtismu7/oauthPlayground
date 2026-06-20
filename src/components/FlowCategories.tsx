@@ -324,7 +324,7 @@ const flowCategories: FlowCategory[] = [
 		id: 'essential',
 		title: 'Essential Flows',
 		description: 'The most commonly used OAuth flows for modern applications',
-		icon: <span>⭐</span>,
+		icon: <span></span>,
 		difficulty: 'beginner',
 		useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'Server-to-Server'],
 		color: '#10b981',
@@ -334,7 +334,7 @@ const flowCategories: FlowCategory[] = [
 				title: 'Authorization Code (PKCE)',
 				description:
 					'Full OAuth/OIDC authorization code flow with PKCE — the recommended choice for all modern apps',
-				icon: <span>⭐</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'medium',
@@ -346,7 +346,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'client-credentials-v9',
 				title: 'Client Credentials',
 				description: 'Machine-to-machine authentication — no user involved',
-				icon: <span>👤</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'low',
@@ -358,7 +358,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'device-authorization-v9',
 				title: 'Device Authorization',
 				description: 'For devices with limited input capabilities',
-				icon: <span>🕐</span>,
+				icon: <span></span>,
 				security: 'medium',
 				recommended: true,
 				complexity: 'medium',
@@ -370,7 +370,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'worker-token-v9',
 				title: 'Worker Token',
 				description: 'PingOne admin-level machine-to-machine access',
-				icon: <span>🔑</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'medium',
@@ -384,7 +384,7 @@ const flowCategories: FlowCategory[] = [
 		id: 'advanced',
 		title: 'Advanced Flows',
 		description: 'Specialized flows for high-security and enterprise use cases',
-		icon: <span>🔒</span>,
+		icon: <span></span>,
 		difficulty: 'intermediate',
 		useCases: ['High Security', 'Enterprise', 'Financial APIs'],
 		color: '#3b82f6',
@@ -393,7 +393,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'dpop-v9',
 				title: 'DPoP (Proof-of-Possession)',
 				description: 'Authorization Code with sender-constrained tokens via DPoP (RFC 9449)',
-				icon: <span>🛡️</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'high',
@@ -405,7 +405,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'par-v9',
 				title: 'PAR (Pushed Authorization)',
 				description: 'Pushed Authorization Requests — send auth params server-to-server (RFC 9126)',
-				icon: <span>📤</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'high',
@@ -418,7 +418,7 @@ const flowCategories: FlowCategory[] = [
 				title: 'CIBA (Backchannel Auth)',
 				description:
 					'Client-Initiated Backchannel Authentication — decouple consumption and authentication devices',
-				icon: <span>📲</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'high',
@@ -431,7 +431,7 @@ const flowCategories: FlowCategory[] = [
 				title: 'OIDC Hybrid Flow',
 				description:
 					'Combines authorization code and implicit — returns tokens from the authorization endpoint',
-				icon: <span>🔄</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'high',
@@ -443,7 +443,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'jwt-bearer-v9',
 				title: 'JWT Bearer',
 				description: 'Uses a JWT assertion to obtain tokens — no user redirect needed (RFC 7523)',
-				icon: <span>🛡️</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'high',
@@ -455,7 +455,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'saml-bearer-v9',
 				title: 'SAML Bearer Assertion',
 				description: 'Exchange a SAML assertion for OAuth tokens (RFC 7522)',
-				icon: <span>🔐</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'high',
@@ -467,7 +467,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'token-exchange-v9',
 				title: 'Token Exchange',
 				description: 'Exchange one token for another — delegation and impersonation (RFC 8693)',
-				icon: <span>🔁</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'high',
@@ -493,7 +493,7 @@ const flowCategories: FlowCategory[] = [
 		id: 'example',
 		title: 'Example Flows',
 		description: 'Illustrative flows showing extension specs and real-world patterns',
-		icon: <span>📖</span>,
+		icon: <span></span>,
 		difficulty: 'intermediate',
 		useCases: ['Learning', 'Rich Authorization', 'API Extensions'],
 		color: '#f59e0b',
@@ -502,7 +502,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'rar-v9',
 				title: 'RAR (Rich Authorization Requests)',
 				description: 'Fine-grained authorization using structured authorization_details (RFC 9396)',
-				icon: <span>📋</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'high',
@@ -539,7 +539,7 @@ const flowCategories: FlowCategory[] = [
 		id: 'mock',
 		title: 'Mock Flows',
 		description: 'Simulated flows — no real credentials needed, great for demos and learning',
-		icon: <span>🎭</span>,
+		icon: <span></span>,
 		difficulty: 'beginner',
 		useCases: ['Learning', 'Demos', 'No Credentials'],
 		color: '#6366f1',
@@ -548,7 +548,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'mock-oauth-authcode',
 				title: 'OAuth Authorization Code (Mock)',
 				description: 'Simulated OAuth authorization code flow — no PingOne app required',
-				icon: <span>🎭</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'low',
@@ -560,7 +560,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'mock-oidc-authcode',
 				title: 'OIDC Authorization Code (Mock)',
 				description: 'Simulated OIDC authorization code flow with ID token',
-				icon: <span>🎭</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'low',
@@ -572,7 +572,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'mock-device',
 				title: 'Device Authorization (Mock)',
 				description: 'Simulated device code flow',
-				icon: <span>🎭</span>,
+				icon: <span></span>,
 				security: 'medium',
 				recommended: false,
 				complexity: 'low',
@@ -584,7 +584,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'mock-client-credentials',
 				title: 'Client Credentials (Mock)',
 				description: 'Simulated machine-to-machine flow',
-				icon: <span>🎭</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'low',
@@ -596,7 +596,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'mock-implicit',
 				title: 'Implicit Flow (Mock)',
 				description: 'Simulated implicit grant',
-				icon: <span>🎭</span>,
+				icon: <span></span>,
 				security: 'low',
 				recommended: false,
 				complexity: 'low',
@@ -608,7 +608,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'mock-ropc',
 				title: 'ROPC (Mock)',
 				description: 'Simulated resource owner password credentials flow',
-				icon: <span>🎭</span>,
+				icon: <span></span>,
 				security: 'medium',
 				recommended: false,
 				complexity: 'low',
@@ -622,7 +622,7 @@ const flowCategories: FlowCategory[] = [
 		id: 'utilities',
 		title: 'Utilities',
 		description: 'Token management and utility flows',
-		icon: <span>🔧</span>,
+		icon: <span></span>,
 		difficulty: 'intermediate',
 		useCases: ['Token Validation', 'Session Management', 'Security Auditing'],
 		color: '#10b981',
@@ -631,7 +631,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'userinfo',
 				title: 'UserInfo',
 				description: 'Retrieve user claims using an access token',
-				icon: <span>👤</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'low',
@@ -643,7 +643,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'token-management',
 				title: 'Token Management',
 				description: 'Inspect, revoke, and manage OAuth tokens',
-				icon: <span>🛡️</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'low',
@@ -655,7 +655,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'pingone-logout',
 				title: 'PingOne Logout',
 				description: 'End session and revoke tokens via PingOne logout endpoint',
-				icon: <span>🚪</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: false,
 				complexity: 'low',
@@ -669,7 +669,7 @@ const flowCategories: FlowCategory[] = [
 		id: 'pingone',
 		title: 'PingOne MFA',
 		description: 'PingOne Multi-Factor Authentication flows',
-		icon: <span>🛡️</span>,
+		icon: <span></span>,
 		difficulty: 'intermediate',
 		useCases: ['MFA Authentication', 'PingOne Integration', 'Enhanced Security'],
 		color: '#8b5cf6',
@@ -678,7 +678,7 @@ const flowCategories: FlowCategory[] = [
 				id: 'mfa-v8',
 				title: 'PingOne MFA',
 				description: 'Multi-Factor Authentication with SMS, TOTP, Email, FIDO2, and Push',
-				icon: <span>🛡️</span>,
+				icon: <span></span>,
 				security: 'high',
 				recommended: true,
 				complexity: 'medium',
@@ -723,7 +723,7 @@ const FlowCategories: React.FC = () => {
 				</p>
 				<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
 					<Link to="/flows/oauth-authorization-code-v9" className="quick-start-button">
-						<span>⭐</span>
+						<span></span>
 						Authorization Code (Live)
 					</Link>
 					<Link
@@ -734,7 +734,7 @@ const FlowCategories: React.FC = () => {
 							border: '1px solid rgba(255, 255, 255, 0.3)',
 						}}
 					>
-						<span>🎭</span>
+						<span></span>
 						Try a Mock Flow
 					</Link>
 					<Link
@@ -745,7 +745,7 @@ const FlowCategories: React.FC = () => {
 							border: '1px solid rgba(255, 255, 255, 0.3)',
 						}}
 					>
-						<span>🔄</span>
+						<span></span>
 						Compare Flows
 					</Link>
 				</div>
@@ -762,7 +762,7 @@ const FlowCategories: React.FC = () => {
 
 							<DifficultyBadge $level={category.difficulty}>
 								{category.difficulty === 'beginner' && <span>✅</span>}
-								{category.difficulty === 'intermediate' && <span>🕐</span>}
+								{category.difficulty === 'intermediate' && <span></span>}
 								{category.difficulty === 'advanced' && <span>⚠️</span>}
 								{category.difficulty}
 							</DifficultyBadge>
@@ -822,7 +822,7 @@ const FlowCategories: React.FC = () => {
 													</SecurityBadge>
 													{flow.recommended && (
 														<RecommendedBadge>
-															<span>⭐</span>
+															<span></span>
 															Recommended
 														</RecommendedBadge>
 													)}

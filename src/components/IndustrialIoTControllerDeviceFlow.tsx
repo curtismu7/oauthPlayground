@@ -389,13 +389,13 @@ const IndustrialIoTControllerDeviceFlow: React.FC<IndustrialIoTControllerDeviceF
 				{/* Control Buttons */}
 				<ControlButtons>
 					<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<span>📋</span> Copy Code
+						<span></span> Copy Code
 					</ControlButton>
 					<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<span>📋</span> Copy URI
+						<span></span> Copy URI
 					</ControlButton>
 					<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<span>🔗</span> Open Auth
+						<span></span> Open Auth
 					</ControlButton>
 				</ControlButtons>
 

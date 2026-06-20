@@ -16,7 +16,7 @@ import React, { useState } from 'react';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔓 CLIENT-TYPE-V8]';
+const MODULE_TAG = '[ CLIENT-TYPE-V8]';
 
 export type ClientType = 'public' | 'confidential';
 
@@ -43,7 +43,7 @@ const CLIENT_TYPE_OPTIONS: Record<ClientType, ClientTypeOption> = {
 	public: {
 		value: 'public',
 		label: 'Public Client',
-		icon: <span style={{ fontSize: '18px' }}>🔓</span>,
+		icon: <span style={{ fontSize: '18px' }}></span>,
 		shortDescription: 'Cannot securely store secrets',
 		fullDescription:
 			'Public clients run in environments where the source code or binary can be inspected (browser, mobile app, desktop app). They cannot keep secrets.',
@@ -60,7 +60,7 @@ const CLIENT_TYPE_OPTIONS: Record<ClientType, ClientTypeOption> = {
 	confidential: {
 		value: 'confidential',
 		label: 'Confidential Client',
-		icon: <span style={{ fontSize: '18px' }}>🔒</span>,
+		icon: <span style={{ fontSize: '18px' }}></span>,
 		shortDescription: 'Can securely store secrets',
 		fullDescription:
 			'Confidential clients run on secure servers where the source code cannot be accessed by end users. They can safely store and use client secrets.',
@@ -273,7 +273,7 @@ export const ClientTypeRadioV8: React.FC<ClientTypeRadioV8Props> = ({
 							marginBottom: '12px',
 						}}
 					>
-						📚 Client Type Guide
+						 Client Type Guide
 					</h4>
 					<p
 						style={{
@@ -388,7 +388,7 @@ export const ClientTypeRadioV8: React.FC<ClientTypeRadioV8Props> = ({
 								lineHeight: '1.6',
 							}}
 						>
-							<strong>🎯 How to Choose:</strong>
+							<strong> How to Choose:</strong>
 							<ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
 								<li>
 									<strong>Public:</strong> If your code runs in a browser, mobile app, or desktop
@@ -418,7 +418,7 @@ export const ClientTypeRadioV8: React.FC<ClientTypeRadioV8Props> = ({
 								lineHeight: '1.6',
 							}}
 						>
-							<strong>🔑 Key Differences:</strong>
+							<strong> Key Differences:</strong>
 							<ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
 								<li>
 									<strong>Public clients</strong> MUST use PKCE (OAuth 2.1 requirement)

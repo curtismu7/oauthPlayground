@@ -472,7 +472,7 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 			});
 			await loadFlowCredentials();
 			logger.info(
-				`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credentials cleared successfully. Count: ${clearedCount}`
+				`[${new Date().toISOString()}] [ UI-NOTIFICATIONS] All credentials cleared successfully. Count: ${clearedCount}`
 			);
 		} catch (error) {
 			logger.error(
@@ -648,7 +648,7 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 			{!embedded && (
 				<div style={styles.pageHeader}>
 					<h1 style={styles.pageTitle}>
-						<span>🔑</span> Credential Management
+						<span></span> Credential Management
 					</h1>
 					<p style={styles.pageSubtitle}>Manage PingOne credentials and validate worker tokens</p>
 					<WorkerTokenSectionV8 compact />
@@ -674,7 +674,7 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 					}}
 					onClick={() => setActiveTab('credentials')}
 				>
-					<span style={{ fontSize: '15px' }}>🗄️</span> Flow Credentials
+					<span style={{ fontSize: '15px' }}></span> Flow Credentials
 				</button>
 				<button
 					type="button"
@@ -694,14 +694,14 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 					}}
 					onClick={() => setActiveTab('tester')}
 				>
-					<span style={{ fontSize: '15px' }}>🛡️</span> Token Tester
+					<span style={{ fontSize: '15px' }}></span> Token Tester
 				</button>
 			</div>
 
 			{activeTab === 'tester' ? (
 				<div style={styles.card}>
 					<h2 style={styles.title}>
-						<span>🛡️</span> Worker Token Tester
+						<span></span> Worker Token Tester
 					</h2>
 					<p style={styles.description}>
 						Paste a PingOne worker token to decode and validate it against the PingOne API.
@@ -767,7 +767,7 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 							>
 								{[
 									{
-										icon: <span>🕐</span>,
+										icon: <span></span>,
 										label: 'Status',
 										value: testerIsExpired ? 'EXPIRED' : 'VALID',
 										color: testerIsExpired ? '#dc2626' : '#059669',
@@ -778,21 +778,21 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 												: undefined,
 									},
 									{
-										icon: <span>🔑</span>,
+										icon: <span></span>,
 										label: 'Client ID',
 										value: testerPayload.client_id ?? 'N/A',
 										color: '#2563eb',
 										detail: 'OAuth Client',
 									},
 									{
-										icon: <span>🌐</span>,
+										icon: <span></span>,
 										label: 'Environment ID',
 										value: testerPayload.env ?? 'N/A',
 										color: '#2563eb',
 										detail: 'PingOne Environment',
 									},
 									{
-										icon: <span>👤</span>,
+										icon: <span></span>,
 										label: 'Organization',
 										value: testerPayload.org ?? 'N/A',
 										color: '#2563eb',
@@ -986,7 +986,7 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 								onClick={runTesterTests}
 								disabled={testerIsTesting || testerIsExpired}
 							>
-								<span>🛡️</span> {testerIsTesting ? 'Testing...' : 'Test Token Against PingOne API'}
+								<span></span> {testerIsTesting ? 'Testing...' : 'Test Token Against PingOne API'}
 							</button>
 							{testerResults.length > 0 && (
 								<div
@@ -1064,7 +1064,7 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 			) : (
 				<div style={styles.card}>
 					<h2 style={styles.title}>
-						<span>🗄️</span>
+						<span></span>
 						Flow Credentials
 					</h2>
 					<p style={styles.description}>
@@ -1074,17 +1074,17 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 
 					<div style={styles.buttonRow}>
 						<button type="button" style={styles.refreshButton} onClick={loadFlowCredentials}>
-							<span>🔄</span>
+							<span></span>
 							Refresh Status
 						</button>
 
 						<button type="button" style={styles.exportButton} onClick={handleExportCredentials}>
-							<span>📥</span>
+							<span></span>
 							Export All Credentials
 						</button>
 
 						<label style={styles.importLabel}>
-							<span>📤</span>
+							<span></span>
 							Import Credentials
 							<input
 								type="file"
@@ -1099,7 +1099,7 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 							style={styles.clearButton}
 							onClick={() => setShowClearAllModal(true)}
 						>
-							<span>🗑️</span>
+							<span></span>
 							Clear All Credentials
 						</button>
 					</div>
@@ -1180,9 +1180,9 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 														}}
 													>
 														{flow.source === 'browser' && (
-															<span style={{ fontSize: '12px' }}>💾</span>
+															<span style={{ fontSize: '12px' }}></span>
 														)}
-														{flow.source === 'file' && <span style={{ fontSize: '12px' }}>🗄️</span>}
+														{flow.source === 'file' && <span style={{ fontSize: '12px' }}></span>}
 														{flow.source.toUpperCase()}
 													</span>
 												</div>
@@ -1206,7 +1206,7 @@ export const CredentialManagement: React.FC<CredentialManagementProps> = ({ embe
 											}
 										}}
 									>
-										<span>🔗</span>
+										<span></span>
 										Open Flow
 									</div>
 								</button>
