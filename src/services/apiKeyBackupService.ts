@@ -16,7 +16,7 @@
 import { logger } from '../utils/logger';
 import { apiKeyService } from './apiKeyService';
 
-const MODULE_TAG = '[🔄 API-KEY-BACKUP-SERVICE]';
+const MODULE_TAG = '[ API-KEY-BACKUP-SERVICE]';
 
 // Backup storage locations
 const BACKUP_LOCATIONS = {

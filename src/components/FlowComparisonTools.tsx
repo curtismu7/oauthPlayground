@@ -589,7 +589,7 @@ export const FlowComparisonTools: React.FC = () => {
 									<MetricsGrid>
 										<MetricItem>
 											<MetricIcon $metric="security">
-												<span>🛡️</span>
+												<span></span>
 											</MetricIcon>
 											<MetricContent>
 												<div className="metric-label">Security</div>
@@ -599,7 +599,7 @@ export const FlowComparisonTools: React.FC = () => {
 
 										<MetricItem>
 											<MetricIcon $metric="complexity">
-												<span>📈</span>
+												<span></span>
 											</MetricIcon>
 											<MetricContent>
 												<div className="metric-label">Complexity</div>
@@ -609,7 +609,7 @@ export const FlowComparisonTools: React.FC = () => {
 
 										<MetricItem>
 											<MetricIcon $metric="performance">
-												<span>🕐</span>
+												<span></span>
 											</MetricIcon>
 											<MetricContent>
 												<div className="metric-label">Performance</div>
@@ -619,7 +619,7 @@ export const FlowComparisonTools: React.FC = () => {
 
 										<MetricItem>
 											<MetricIcon $metric="usability">
-												<span>👥</span>
+												<span></span>
 											</MetricIcon>
 											<MetricContent>
 												<div className="metric-label">Usability</div>
@@ -709,7 +709,7 @@ export const FlowComparisonTools: React.FC = () => {
 							}
 							aria-label={`Switch to ${comparisonMode === 'side-by-side' ? 'table' : 'side-by-side'} view`}
 						>
-							<span>👁️</span>
+							<span></span>
 							{comparisonMode === 'side-by-side' ? 'Table View' : 'Side-by-Side View'}
 						</ActionButton>
 
@@ -718,7 +718,7 @@ export const FlowComparisonTools: React.FC = () => {
 							onClick={exportComparison}
 							aria-label="Export comparison data as JSON"
 						>
-							<span>📥</span>
+							<span></span>
 							Export Data
 						</ActionButton>
 
@@ -727,7 +727,7 @@ export const FlowComparisonTools: React.FC = () => {
 							onClick={shareComparison}
 							aria-label="Share comparison with others"
 						>
-							<span>🔗</span>
+							<span></span>
 							Share Comparison
 						</ActionButton>
 					</ComparisonActions>

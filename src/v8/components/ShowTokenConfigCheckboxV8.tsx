@@ -12,7 +12,7 @@
 import React, { useId } from 'react';
 import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 
-const _MODULE_TAG = '[👁️ SHOW-TOKEN-CONFIG-V8]';
+const _MODULE_TAG = '[ SHOW-TOKEN-CONFIG-V8]';
 
 export interface ShowTokenConfigCheckboxV8Props {
 	/** Custom className for styling */

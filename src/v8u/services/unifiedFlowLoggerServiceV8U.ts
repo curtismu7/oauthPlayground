@@ -17,7 +17,7 @@ import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { logger as baseLogger } from '../../utils/logger';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 
-const MODULE_TAG = '[📊 UNIFIED-FLOW-LOGGER-V8U]';
+const MODULE_TAG = '[ UNIFIED-FLOW-LOGGER-V8U]';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'success';
 
@@ -113,7 +113,7 @@ export const unifiedFlowLoggerService = {
 
 		// Add level indicator
 		const levelEmoji: Record<LogLevel, string> = {
-			debug: '🔍',
+			debug: '',
 			info: 'ℹ️',
 			warn: '⚠️',
 			error: '❌',

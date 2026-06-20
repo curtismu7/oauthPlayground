@@ -333,7 +333,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				const serializable = createSerializableGroups(groups);
 				localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
 				localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
-				logger.info('💾 Menu layout saved to localStorage:', serializable);
+				logger.info(' Menu layout saved to localStorage:', serializable);
 
 				// Update save button state
 				setSaveButtonState('saved');
@@ -359,16 +359,16 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			{
 				id: 'v8-flows-new',
 				label: 'Production',
-				icon: <span>⚡</span>,
+				icon: <span></span>,
 				isOpen: true,
 				items: [
 					{
 						id: 'api-status-page',
 						path: '/api-status',
-						label: '🔍 API Status',
+						label: ' API Status',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>🔄</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -399,7 +399,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Resources API Tutorial',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>📖</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -414,7 +414,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'SPIFFE/SPIRE Mock',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>🛡️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -431,7 +431,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Postman Collection Generator',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>📦</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -446,7 +446,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					{
 						id: 'new-unified-mfa-v8',
 						path: '/v8/unified-mfa',
-						label: '🔥 New Unified MFA',
+						label: ' New Unified MFA',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
 								<i className="bi bi-question-circle"></i>
@@ -467,7 +467,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Unified OAuth & OIDC',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>⚡</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -486,7 +486,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Delete All Devices',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
-								<span>🗑️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -499,7 +499,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Protect Portal App',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.RED_DARK">
-								<span>🛡️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -517,7 +517,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Environment Management',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>🖥️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -529,7 +529,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					{
 						id: 'create-company',
 						path: '/admin/create-company',
-						label: '🏢 Create Company',
+						label: ' Create Company',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
 								<span>⚙️</span>
@@ -577,7 +577,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Token Exchange (V8M)',
 						icon: (
 							<ColoredIcon $color="#7c3aed">
-								<span>🔄</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -591,13 +591,13 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			{
 				id: 'v8-flows',
 				label: 'Production (Legacy)',
-				icon: <span>⚡</span>,
+				icon: <span></span>,
 				isOpen: true,
 				items: [
 					{
 						id: 'unified-mfa-v8',
 						path: '/v8/unified-mfa',
-						label: '🔥 New Unified MFA',
+						label: ' New Unified MFA',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
 								<i className="bi bi-question-circle"></i>
@@ -615,7 +615,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'DPoP Authorization Code (V8)',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<span>🛡️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -630,7 +630,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Authorization Code (V8)',
 						icon: (
 							<ColoredIcon $color="#06b6d4">
-								<span>🔑</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -645,7 +645,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Implicit Flow (V8)',
 						icon: (
 							<ColoredIcon $color="#7c3aed">
-								<span>⚡</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -675,7 +675,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'PAR Flow Test',
 						icon: (
 							<ColoredIcon $color="#ea580c">
-								<span>🔒</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -690,7 +690,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'CIBA Flow (V9)',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>🛡️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -709,7 +709,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				label: 'Reference Materials',
 				icon: (
 					<ColoredIcon $color="#6366f1">
-						<span>📖</span>
+						<span></span>
 					</ColoredIcon>
 				),
 				isOpen: true,
@@ -720,7 +720,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Ping AI Resources',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>🖥️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -736,7 +736,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				label: 'OAuth 2.0 Flows',
 				icon: (
 					<ColoredIcon $color="V9_COLORS.PRIMARY.RED">
-						<span>🛡️</span>
+						<span></span>
 					</ColoredIcon>
 				),
 				isOpen: true,
@@ -747,7 +747,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Authorization Code',
 						icon: (
 							<ColoredIcon $color="#06b6d4">
-								<span>🔑</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -762,7 +762,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Implicit Flow (V7)',
 						icon: (
 							<ColoredIcon $color="#7c3aed">
-								<span>⚡</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -777,7 +777,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Device Authorization (V7)',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
-								<span>📱</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -792,7 +792,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Client Credentials (V7)',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>🔑</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -808,7 +808,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				label: 'OpenID Connect',
 				icon: (
 					<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-						<span>👤</span>
+						<span></span>
 					</ColoredIcon>
 				),
 				isOpen: true,
@@ -819,7 +819,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Authorization Code',
 						icon: (
 							<ColoredIcon $color="#06b6d4">
-								<span>🔑</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -834,7 +834,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Implicit Flow (V7)',
 						icon: (
 							<ColoredIcon $color="#7c3aed">
-								<span>⚡</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -849,7 +849,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Device Authorization (V7 – OIDC)',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
-								<span>📱</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -880,7 +880,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				label: 'PingOne Flows',
 				icon: (
 					<ColoredIcon $color="#f97316">
-						<span>🔑</span>
+						<span></span>
 					</ColoredIcon>
 				),
 				isOpen: true,
@@ -891,7 +891,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Pushed Authorization Request (V7)',
 						icon: (
 							<ColoredIcon $color="#ea580c">
-								<span>🔒</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -906,7 +906,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'PingOne MFA (V7)',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
-								<span>🛡️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -921,7 +921,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'PingOne MFA Workflow Library (V7)',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
-								<span>🛡️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -936,7 +936,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Kroger Grocery Store MFA',
 						icon: (
 							<ColoredIcon $color="#e4002b">
-								<span>🛒</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -951,7 +951,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'PingOne Authentication',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
-								<span>🛡️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -966,7 +966,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Redirectless Flow (V7)',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<span>⚡</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -981,7 +981,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'PAR Flow',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>🔒</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -997,7 +997,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				label: 'Token Apps',
 				icon: (
 					<ColoredIcon $color="#8b5cf6">
-						<span>🔑</span>
+						<span></span>
 					</ColoredIcon>
 				),
 				isOpen: true,
@@ -1008,7 +1008,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Worker Token (V7)',
 						icon: (
 							<ColoredIcon $color="#fb923c">
-								<span>🔑</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1023,7 +1023,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Worker Token Check',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
-								<span>🔑</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1038,7 +1038,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Token Management',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<span>🔑</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1053,7 +1053,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Token Introspection',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>👁️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1083,7 +1083,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'UserInfo Flow',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>👥</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1125,7 +1125,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'V7M Interactive Mocks',
 						icon: (
 							<ColoredIcon $color="#6366f1">
-								<span>⚡</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						isOpen: false,
@@ -1136,12 +1136,12 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'OAuth Auth Code (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
-										<span>🔑</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
 									<MigrationBadge title="Mock: OAuth 2.0 Authorization Code with PKCE — no real API calls">
-										<span>⚡</span>
+										<span></span>
 									</MigrationBadge>
 								),
 							},
@@ -1151,12 +1151,12 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'OIDC Auth Code (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
-										<span>🔑</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
 									<MigrationBadge title="Mock: OIDC Authorization Code with ID token — no real API calls">
-										<span>⚡</span>
+										<span></span>
 									</MigrationBadge>
 								),
 							},
@@ -1166,12 +1166,12 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'OAuth Implicit (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
-										<span>⚡</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
 									<MigrationBadge title="Mock: OAuth 2.0 Implicit Flow (deprecated) — no real API calls">
-										<span>⚡</span>
+										<span></span>
 									</MigrationBadge>
 								),
 							},
@@ -1181,12 +1181,12 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'OIDC Implicit (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
-										<span>⚡</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
 									<MigrationBadge title="Mock: OIDC Implicit Flow with ID token — no real API calls">
-										<span>⚡</span>
+										<span></span>
 									</MigrationBadge>
 								),
 							},
@@ -1196,12 +1196,12 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'Device Authorization (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
-										<span>📱</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
 									<MigrationBadge title="Mock: Device Authorization Flow (RFC 8628) — no real API calls">
-										<span>⚡</span>
+										<span></span>
 									</MigrationBadge>
 								),
 							},
@@ -1211,12 +1211,12 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'Client Credentials (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
-										<span>🖥️</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
 									<MigrationBadge title="Mock: Client Credentials Flow — no real API calls">
-										<span>⚡</span>
+										<span></span>
 									</MigrationBadge>
 								),
 							},
@@ -1226,12 +1226,12 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'OAuth ROPC (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
-										<span>🔒</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
 									<MigrationBadge title="Mock: Resource Owner Password Credentials (deprecated) — no real API calls">
-										<span>⚡</span>
+										<span></span>
 									</MigrationBadge>
 								),
 							},
@@ -1241,12 +1241,12 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'OIDC ROPC (Mock)',
 								icon: (
 									<ColoredIcon $color="#6366f1">
-										<span>🔒</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
 									<MigrationBadge title="Mock: OIDC Resource Owner Password Credentials with ID token — no real API calls">
-										<span>⚡</span>
+										<span></span>
 									</MigrationBadge>
 								),
 							},
@@ -1268,7 +1268,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'JWT Bearer Token (V7)',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
-										<span>🔑</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1283,7 +1283,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'SAML Bearer Assertion (V7)',
 								icon: (
 									<ColoredIcon $color="#8b5cf6">
-										<span>🛡️</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1298,7 +1298,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'Resource Owner Password (V7)',
 								icon: (
 									<ColoredIcon $color="#8b5cf6">
-										<span>🔒</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1313,7 +1313,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'OAuth2 ROPC (Legacy)',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
-										<span>🔒</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1343,7 +1343,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'Mock OIDC ROPC',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
-										<span>🔒</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1358,7 +1358,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'Auth Code Condensed (Mock)',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.YELLOW">
-										<span>🔑</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1400,7 +1400,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'DPoP (Educational/Mock)',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
-										<span>🛡️</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1415,7 +1415,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'RAR Flow (V7)',
 								icon: (
 									<ColoredIcon $color="#8b5cf6">
-										<span>📄</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1430,7 +1430,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'SAML Service Provider (V9)',
 								icon: (
 									<ColoredIcon $color="#8b5cf6">
-										<span>🛡️</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1459,7 +1459,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'PingOne User & Identity',
 						icon: (
 							<ColoredIcon $color="#06b6d4">
-								<span>👤</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						isOpen: true,
@@ -1470,7 +1470,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'User Profile',
 								icon: (
 									<ColoredIcon $color="#06b6d4">
-										<span>👤</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1500,7 +1500,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'Password Reset',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.RED_DARK">
-										<span>🔒</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1527,7 +1527,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'Webhook Viewer',
 								icon: (
 									<ColoredIcon $color="#06b6d4">
-										<span>🖥️</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1542,7 +1542,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'Organization Licensing',
 								icon: (
 									<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-										<span>🛡️</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1582,7 +1582,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'OIDC Discovery',
 								icon: (
 									<ColoredIcon $color="#06b6d4">
-										<span>🔍</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1669,7 +1669,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								label: 'Client Generator',
 								icon: (
 									<ColoredIcon $color="#6366f1">
-										<span>🔑</span>
+										<span></span>
 									</ColoredIcon>
 								),
 								badge: (
@@ -1717,7 +1717,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				label: 'Security Guides',
 				icon: (
 					<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-						<span>🛡️</span>
+						<span></span>
 					</ColoredIcon>
 				),
 				isOpen: false,
@@ -1728,7 +1728,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'OAuth 2.1',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>🛡️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1743,7 +1743,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'OIDC Session Management',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>👤</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1758,7 +1758,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'PingOne Sessions API',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>🗄️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1774,7 +1774,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				label: 'Reference Materials',
 				icon: (
 					<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
-						<span>📖</span>
+						<span></span>
 					</ColoredIcon>
 				),
 				isOpen: false,
@@ -1785,7 +1785,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'RAR vs PAR and DPoP Guide',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
-								<span>📖</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1800,7 +1800,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'CIBA vs Device Authorization Guide',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<span>📖</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1830,7 +1830,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'OAuth Scopes Reference',
 						icon: (
 							<ColoredIcon $color="#6366f1">
-								<span>📖</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1845,7 +1845,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Ping AI Resources',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN">
-								<span>🖥️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1861,7 +1861,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				label: 'OAuth/OIDC Documentation',
 				icon: (
 					<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-						<span>📄</span>
+						<span></span>
 					</ColoredIcon>
 				),
 				isOpen: false,
@@ -1872,7 +1872,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'OIDC Overview',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
-								<span>📖</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1902,7 +1902,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'OAuth 2.0 Security Best Practices',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.RED_DARK">
-								<span>🛡️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1917,7 +1917,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'SPIFFE/SPIRE with PingOne',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<span>🛡️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1933,7 +1933,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				label: 'AI Documentation',
 				icon: (
 					<ColoredIcon $color="#8b5cf6">
-						<span>🖥️</span>
+						<span></span>
 					</ColoredIcon>
 				),
 				isOpen: false,
@@ -1944,7 +1944,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'AI Identity Architectures',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<span>🖥️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1959,7 +1959,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'OIDC for AI',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<span>🖥️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1974,7 +1974,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'OAuth for AI',
 						icon: (
 							<ColoredIcon $color="#f97316">
-								<span>🖥️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -1989,7 +1989,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'PingOne AI Perspective',
 						icon: (
 							<ColoredIcon $color="V9_COLORS.PRIMARY.GREEN_DARK">
-								<span>🛡️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 						badge: (
@@ -2037,7 +2037,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Ultimate Token Display',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<span>🗄️</span>
+								<span></span>
 							</ColoredIcon>
 						),
 					},
@@ -2061,7 +2061,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		if (savedOrder) {
 			try {
 				const serializedGroups = JSON.parse(savedOrder);
-				logger.info('DragDropSidebar', '🔄 Restoring menu layout from localStorage');
+				logger.info('DragDropSidebar', ' Restoring menu layout from localStorage');
 				return restoreMenuGroups(serializedGroups, defaultGroups);
 			} catch (error) {
 				logger.warn('DragDropSidebar', 'Failed to parse saved menu order:', { error });
@@ -2080,7 +2080,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			const serializable = createSerializableGroups(menuGroups);
 			localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
 			localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
-			logger.info('💾 Menu layout saved to localStorage:', serializable);
+			logger.info(' Menu layout saved to localStorage:', serializable);
 
 			setSaveButtonState('saved');
 
@@ -2688,7 +2688,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				>
 					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 						<div>
-							<strong style={{ color: '#10b981' }}>🎯 Drag & Drop Mode Active:</strong>
+							<strong style={{ color: '#10b981' }}> Drag & Drop Mode Active:</strong>
 							<div
 								style={{
 									fontSize: '0.875rem',
@@ -2744,7 +2744,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									? '✅ Saved!'
 									: saveButtonState === 'saving'
 										? '⏳ Saving...'
-										: '💾 Save Layout'}
+										: ' Save Layout'}
 							</button>
 							<button
 								type="button"
@@ -2763,7 +2763,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								}}
 								title="Reset menu to default layout"
 							>
-								🔄 Reset Layout
+								 Reset Layout
 							</button>
 						</div>
 					</div>
@@ -3179,7 +3179,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 																			'transparent';
 																	}}
 																>
-																	<span style={{ fontSize: '12px' }}>🔗</span>
+																	<span style={{ fontSize: '12px' }}></span>
 																</button>
 															)}
 														</div>
@@ -3523,7 +3523,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 														(e.currentTarget as HTMLButtonElement).style.background = 'transparent';
 													}}
 												>
-													<span style={{ fontSize: '12px' }}>🔗</span>
+													<span style={{ fontSize: '12px' }}></span>
 												</button>
 											)}
 										</div>
@@ -3630,7 +3630,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 										handleDropOnGroup(e, group.id);
 									}}
 								>
-									📥 Drop items here
+									 Drop items here
 								</div>
 							)}
 						</div>

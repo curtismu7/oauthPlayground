@@ -428,13 +428,13 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
 				{/* Server Control Panel */}
 				<ServerControlPanel>
 					<ServerControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<span>📋</span> Copy Token
+						<span></span> Copy Token
 					</ServerControlButton>
 					<ServerControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<span>📋</span> Copy URI
+						<span></span> Copy URI
 					</ServerControlButton>
 					<ServerControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<span>🔗</span> Open in Browser
+						<span></span> Open in Browser
 					</ServerControlButton>
 				</ServerControlPanel>
 

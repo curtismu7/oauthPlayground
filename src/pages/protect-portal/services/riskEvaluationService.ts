@@ -23,7 +23,7 @@ import type {
 } from '../types/protectPortal.types';
 import { PingOneSignalsService } from './pingOneSignalsService';
 
-const MODULE_TAG = '[🛡️ RISK-EVALUATION-SERVICE]';
+const MODULE_TAG = '[ RISK-EVALUATION-SERVICE]';
 
 // ============================================================================
 // RISK EVALUATION SERVICE
@@ -355,7 +355,7 @@ export class RiskEvaluationService {
 					title: 'High Risk',
 					description: 'This login attempt shows suspicious patterns and has been blocked.',
 					color: '#ef4444', // Red
-					icon: '🚫',
+					icon: '',
 				};
 			default:
 				return {

@@ -336,7 +336,7 @@ export const useV7CredentialValidation = ({
 				setShowMissingCredentialsModal(true);
 				logger.warn(
 					'V7CredentialValidationService',
-					`🚫 [${config.flowName}] Blocked navigation due to missing required credentials:`,
+					` [${config.flowName}] Blocked navigation due to missing required credentials:`,
 					{ missingFields }
 				);
 				onValidationFailure?.(missingFields);

@@ -191,7 +191,7 @@ const ResponseModeExamples: React.FC<ResponseModeExamplesProps> = ({
 						<ExampleHeader>
 							<ExampleTitle>{example.title}</ExampleTitle>
 							<ExampleIcon>
-								<span style={{ fontSize: '14px' }}>📋</span>
+								<span style={{ fontSize: '14px' }}></span>
 							</ExampleIcon>
 						</ExampleHeader>
 						<ExampleDescription>{example.description}</ExampleDescription>

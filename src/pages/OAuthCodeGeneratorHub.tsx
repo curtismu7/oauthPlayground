@@ -142,7 +142,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 						<FeatureIcon
 							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN} 0%, ${V9_COLORS.PRIMARY.GREEN_DARK} 100%)`}
 						>
-							<span>⚡</span>
+							<span></span>
 						</FeatureIcon>
 						<FeatureTitle>Real-World Scenarios</FeatureTitle>
 						<FeatureDescription>
@@ -154,7 +154,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 						<FeatureIcon
 							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE_DARK} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%)`}
 						>
-							<span>📖</span>
+							<span></span>
 						</FeatureIcon>
 						<FeatureTitle>Live RFC Explorer</FeatureTitle>
 						<FeatureDescription>
@@ -166,7 +166,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 						<FeatureIcon
 							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.RED} 0%, ${V9_COLORS.PRIMARY.RED_DARK} 100%)`}
 						>
-							<span>🛡️</span>
+							<span></span>
 						</FeatureIcon>
 						<FeatureTitle>Security Theater</FeatureTitle>
 						<FeatureDescription>
@@ -239,7 +239,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 							marginBottom: '1rem',
 						}}
 					>
-						🎓 Ready to Implement OAuth?
+						 Ready to Implement OAuth?
 					</h2>
 					<p
 						style={{
@@ -274,7 +274,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 							onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
 							onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
 						>
-							<span>📖</span>
+							<span></span>
 							PingOne Documentation
 						</a>
 						<a

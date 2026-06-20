@@ -39,7 +39,7 @@ import {
 	UserAuthenticationSuccessPageV8,
 } from './UserAuthenticationSuccessPageV8';
 
-const MODULE_TAG = '[👤 USER-LOGIN-MODAL-V8]';
+const MODULE_TAG = '[ USER-LOGIN-MODAL-V8]';
 
 interface UserLoginModalV8Props {
 	isOpen: boolean;
@@ -74,7 +74,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				if (loginHint) {
 					setUsername(loginHint);
 					logger.info(
-						`${MODULE_TAG} 🔑 Auto-populated login_hint with current user: ${loginHint}`,
+						`${MODULE_TAG} Auto-populated login_hint with current user: ${loginHint}`,
 						'Auto-populated login_hint',
 						{ loginHint }
 					);
@@ -97,7 +97,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			: `${protocol}://${window.location.host}/user-login-callback`;
 
 		// DEBUG: Log initial state
-		logger.info('🔍 [REDIRECT-URI-DEBUG] Initial state', 'Initial redirect URI state', {
+		logger.info(' [REDIRECT-URI-DEBUG] Initial state', 'Initial redirect URI state', {
 			isMfaFlow,
 			currentPath: location.pathname,
 			initialUri: uri,
@@ -236,7 +236,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		}
 
 		// DEBUG: Log current redirect URI
-		logger.info('🔍 [REDIRECT-URI-DEBUG] Pre-flight validation:', {
+		logger.info(' [REDIRECT-URI-DEBUG] Pre-flight validation:', {
 			currentRedirectUri: redirectUri,
 			isMfaFlow,
 			currentPath: location.pathname,
@@ -297,7 +297,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				errors.push('No redirect URIs configured');
 			} else if (!appConfig.redirectUris.includes(redirectUri)) {
 				// DEBUG: Log redirect URI comparison
-				logger.info('🔍 [REDIRECT-URI-DEBUG] URI Mismatch:', {
+				logger.info(' [REDIRECT-URI-DEBUG] URI Mismatch:', {
 					yourUri: redirectUri,
 					registeredUris: appConfig.redirectUris,
 					isMfaFlow,
@@ -429,7 +429,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			// FOOLPROOF: Migrate credentials if they have old redirect URI
 			if (isMfaFlow && MFARedirectUriServiceV8.needsMigration(saved.redirectUri)) {
 				logger.warn(
-					'[🔐 USER-LOGIN-MODAL-V8] MIGRATION: Updating to unified MFA callback URI',
+					'[ USER-LOGIN-MODAL-V8] MIGRATION: Updating to unified MFA callback URI',
 					'Logger warning'
 				);
 				const migrated = MFARedirectUriServiceV8.migrateCredentials(saved, 'unified-mfa-v8');
@@ -454,7 +454,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				const initialRedirectUri = saved.redirectUri || defaultRedirectUri;
 
 				// DEBUG: Log redirect URI values
-				logger.info('🔍 [REDIRECT-URI-DEBUG] Credentials loading:', {
+				logger.info(' [REDIRECT-URI-DEBUG] Credentials loading:', {
 					isMfaFlow,
 					savedRedirectUri: saved.redirectUri,
 					defaultRedirectUri,
@@ -685,7 +685,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					if (credentials.redirectUri) {
 						const routing = routeToCorrectStep(credentials.redirectUri);
 
-						logger.info(`${MODULE_TAG} 🎯 Redirect URI Routing Applied`, {
+						logger.info(`${MODULE_TAG} Redirect URI Routing Applied`, {
 							originalUri: routing.originalUri,
 							targetStep: routing.targetStep,
 							flowType: routing.flowType,
@@ -1631,7 +1631,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 				sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
 
-				logger.info(`${MODULE_TAG} 🎯 Stored flow context for ${flowType}:`, {
+				logger.info(`${MODULE_TAG} Stored flow context for ${flowType}:`, {
 					returnPath: currentPath,
 					returnStep: step,
 					flowType,
@@ -1834,7 +1834,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 										color: '#ffffff',
 									}}
 								>
-									👤 User Login
+									 User Login
 								</h2>
 								<p style={{ margin: 0, fontSize: '13px', color: '#dbeafe' }}>
 									Authenticate with PingOne to get access token
@@ -2081,7 +2081,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 												whiteSpace: 'nowrap',
 											}}
 										>
-											🔍 or click to lookup app
+											 or click to lookup app
 										</small>
 									</div>
 								)}
@@ -2156,9 +2156,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
 								>
 									{showClientSecret ? (
-										<span style={{ fontSize: '18px' }}>🙈</span>
+										<span style={{ fontSize: '18px' }}></span>
 									) : (
-										<span style={{ fontSize: '18px' }}>👁️</span>
+										<span style={{ fontSize: '18px' }}></span>
 									)}
 								</button>
 							</div>
@@ -2326,7 +2326,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									transition: 'all 0.2s ease',
 								}}
 							>
-								{isValidating ? '🔄 Validating...' : '✈️ Run Pre-flight Validation'}
+								{isValidating ? ' Validating...' : '✈️ Run Pre-flight Validation'}
 							</button>
 							<small
 								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
@@ -2608,7 +2608,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							}}
 							title="Export configuration to JSON file"
 						>
-							<span style={{ fontSize: '14px' }}>📥</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Export
 						</button>
 
@@ -2633,7 +2633,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							}}
 							title="Import configuration from JSON file"
 						>
-							<span style={{ fontSize: '14px' }}>📤</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Import
 						</button>
 
@@ -2705,7 +2705,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								</>
 							) : (
 								<>
-									<span>💾</span>
+									<span></span>
 									<span>Save</span>
 								</>
 							)}
@@ -2763,7 +2763,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								</>
 							) : (
 								<>
-									<span>🔐</span>
+									<span></span>
 									<span>Login</span>
 								</>
 							)}
@@ -2810,7 +2810,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									justifyContent: 'space-between',
 								}}
 							>
-								<span>🔍 Debug Information</span>
+								<span> Debug Information</span>
 								<span>{showDebugSection ? '▼' : '▶'}</span>
 							</button>
 
@@ -2859,7 +2859,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 												cursor: 'pointer',
 											}}
 										>
-											📋
+											
 										</button>
 									</div>
 
@@ -2923,7 +2923,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 												cursor: 'pointer',
 											}}
 										>
-											📋
+											
 										</button>
 									</div>
 								</div>

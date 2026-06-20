@@ -242,7 +242,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			id: 'ping-identity',
 			name: 'Ping Identity',
 			tagline: 'Enterprise Identity & Access Management',
-			icon: '🏆',
+			icon: '',
 			color: '#3b82f6',
 			rating: 4.5,
 			reviews: 222,
@@ -273,7 +273,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			id: 'okta',
 			name: 'Okta',
 			tagline: 'Enterprise-Grade Identity Management',
-			icon: '🔐',
+			icon: '',
 			color: '#0070f3',
 			rating: 4.5,
 			reviews: 1550,
@@ -304,7 +304,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			id: 'auth0',
 			name: 'Auth0',
 			tagline: 'Flexible Authentication & Authorization',
-			icon: '🔑',
+			icon: '',
 			color: '#eb5424',
 			rating: 4.3,
 			reviews: 67,
@@ -335,7 +335,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			id: 'microsoft-entra',
 			name: 'Microsoft Entra ID',
 			tagline: 'Cloud-Based Identity & Access Management',
-			icon: '☁️',
+			icon: '',
 			color: '#0078d4',
 			rating: 4.3,
 			reviews: 440,
@@ -366,7 +366,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			id: 'google-identity',
 			name: 'Google Identity Platform',
 			tagline: 'Google Cloud Identity Solutions',
-			icon: '🌐',
+			icon: '',
 			color: '#4285f4',
 			rating: 4.4,
 			reviews: 180,
@@ -397,7 +397,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			id: 'aws-iam',
 			name: 'AWS Identity & Access Management',
 			tagline: 'AWS Cloud Identity Management',
-			icon: '☁️',
+			icon: '',
 			color: '#ff9900',
 			rating: 4.6,
 			reviews: 133,
@@ -541,7 +541,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			<CollapsibleHeader
 				title="Provider Overview"
 				subtitle="Detailed comparison of major IAM providers"
-				icon={<span>👥</span>}
+				icon={<span></span>}
 				defaultCollapsed={false}
 			>
 				<div style={styles.comparisonGrid}>
@@ -585,7 +585,7 @@ const CompetitiveAnalysis: React.FC = () => {
 							<div style={styles.prosConsContainer}>
 								<div style={styles.prosConsSection('pros')}>
 									<h4 style={styles.prosConsTitle('pros')}>
-										<span style={{ fontSize: '14px' }}>📈</span>
+										<span style={{ fontSize: '14px' }}></span>
 										Pros
 									</h4>
 									<ul style={styles.prosConsList}>
@@ -599,7 +599,7 @@ const CompetitiveAnalysis: React.FC = () => {
 
 								<div style={styles.prosConsSection('cons')}>
 									<h4 style={styles.prosConsTitle('cons')}>
-										<span style={{ fontSize: '14px' }}>⚡</span>
+										<span style={{ fontSize: '14px' }}></span>
 										Cons
 									</h4>
 									<ul style={styles.prosConsList}>
@@ -618,7 +618,7 @@ const CompetitiveAnalysis: React.FC = () => {
 									size="sm"
 									onClick={() => window.open(provider.website, '_blank')}
 								>
-									<span>🔗</span>
+									<span></span>
 									Visit Website
 								</Button>
 								<Button
@@ -626,7 +626,7 @@ const CompetitiveAnalysis: React.FC = () => {
 									size="sm"
 									onClick={() => setSelectedProvider(provider.id)}
 								>
-									<span style={{ fontSize: '14px' }}>🛡️</span>
+									<span style={{ fontSize: '14px' }}></span>
 									Learn More
 								</Button>
 							</div>
@@ -718,7 +718,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			<CollapsibleHeader
 				title="Use Case Recommendations"
 				subtitle="Which provider is best for different scenarios"
-				icon={<span>🌐</span>}
+				icon={<span></span>}
 				defaultCollapsed={false}
 			>
 				<div style={{ display: 'grid', gap: '2rem' }}>
@@ -739,7 +739,7 @@ const CompetitiveAnalysis: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<span>👥</span>
+							<span></span>
 							Enterprise Organizations
 						</h3>
 						<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
@@ -769,7 +769,7 @@ const CompetitiveAnalysis: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<span>⚡</span>
+							<span></span>
 							Startups & SMBs
 						</h3>
 						<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
@@ -799,7 +799,7 @@ const CompetitiveAnalysis: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<span>🌐</span>
+							<span></span>
 							Cloud-Native Applications
 						</h3>
 						<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
@@ -817,7 +817,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			<CollapsibleHeader
 				title="Pricing Analysis"
 				subtitle="Cost comparison and value analysis"
-				icon={<span>💵</span>}
+				icon={<span></span>}
 				defaultCollapsed={false}
 			>
 				<div style={{ display: 'grid', gap: '1.5rem' }}>

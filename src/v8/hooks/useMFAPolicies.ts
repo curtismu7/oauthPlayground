@@ -51,7 +51,7 @@ export interface UseMFAPoliciesReturn {
 	defaultPolicy: DeviceAuthenticationPolicy | null;
 }
 
-const MODULE_TAG = '[🔐 USE-MFA-POLICIES]';
+const MODULE_TAG = '[ USE-MFA-POLICIES]';
 
 /**
  * Custom hook for managing MFA device authentication policies

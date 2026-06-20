@@ -673,7 +673,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 			duration: 4000,
 		});
 		logger.info(
-			`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] Code reset to original in InteractiveCodeEditor`
+			`[${new Date().toISOString()}] [ UI-NOTIFICATIONS] Code reset to original in InteractiveCodeEditor`
 		);
 		setShowResetModal(false);
 	};
@@ -825,7 +825,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 					<Divider />
 
 					<UpdateIndicator $visible={codeUpdated}>
-						<span style={{ fontSize: '14px' }}>🔄</span>
+						<span style={{ fontSize: '14px' }}></span>
 						Code Updated
 					</UpdateIndicator>
 
@@ -907,12 +907,12 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 							{copied ? (
 								<span style={{ fontSize: '14px' }}>✅</span>
 							) : (
-								<span style={{ fontSize: '14px' }}>📋</span>
+								<span style={{ fontSize: '14px' }}></span>
 							)}
 							{copied ? 'Copied!' : 'Copy Code'}
 						</ToolbarButton>
 						<ToolbarButton onClick={handleDownload}>
-							<span style={{ fontSize: '14px' }}>📥</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Download
 						</ToolbarButton>
 						<ToolbarButton onClick={handleFormat}>
@@ -920,16 +920,16 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 							Format
 						</ToolbarButton>
 						<ToolbarButton onClick={handleReset}>
-							<span style={{ fontSize: '14px' }}>🔄</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Reset
 						</ToolbarButton>
 					</ToolbarLeft>
 					<ToolbarRight>
 						<ThemeToggle $isDark={theme === 'vs-dark'} onClick={toggleTheme}>
 							{theme === 'vs-dark' ? (
-								<span style={{ fontSize: '14px' }}>☀️</span>
+								<span style={{ fontSize: '14px' }}></span>
 							) : (
-								<span style={{ fontSize: '14px' }}>🌙</span>
+								<span style={{ fontSize: '14px' }}></span>
 							)}
 							{theme === 'vs-dark' ? 'Light' : 'Dark'}
 						</ThemeToggle>

@@ -502,7 +502,7 @@ const OrganizationLicensingV2: React.FC = () => {
 				<CollapsibleHeader
 					title="Worker Token Status"
 					subtitle="Unified worker token service with real-time status and management"
-					icon={<span>🔑</span>}
+					icon={<span></span>}
 					defaultCollapsed={false}
 				>
 					<div style={styles.stepContent}>
@@ -546,7 +546,7 @@ const OrganizationLicensingV2: React.FC = () => {
 									cursor: 'pointer',
 								}}
 							>
-								<span>🔑</span>
+								<span></span>
 								Get Worker Token
 							</button>
 						</div>{' '}
@@ -565,7 +565,7 @@ const OrganizationLicensingV2: React.FC = () => {
 							gap: '0.5rem',
 						}}
 					>
-						<span>🛡️</span> Get License Information
+						<span></span> Get License Information
 					</h3>
 					<p style={{ margin: '0 0 1rem 0', color: '#6b7280', fontSize: '0.875rem' }}>
 						Enter your Organization ID to fetch organization information including region and number
@@ -638,7 +638,7 @@ const OrganizationLicensingV2: React.FC = () => {
 					</CollapsibleHeader>
 				)}
 				{orgInfo && (
-					<CollapsibleHeader title="Applied License" icon={<span>🛡️</span>} theme="green">
+					<CollapsibleHeader title="Applied License" icon={<span></span>} theme="green">
 						<div style={styles.licenseCard('#10b981')}>
 							<div style={styles.infoRow}>
 								<span style={styles.infoLabel}>License Name:</span>
@@ -777,7 +777,7 @@ const OrganizationLicensingV2: React.FC = () => {
 				{allLicenses.length > 0 && (
 					<CollapsibleHeader
 						title={`All Licenses (${allLicenses.length})`}
-						icon={<span>🛡️</span>}
+						icon={<span></span>}
 						theme="green"
 					>
 						<div style={styles.licenseGrid}>
@@ -850,7 +850,7 @@ const OrganizationLicensingV2: React.FC = () => {
 						}}
 					>
 						<h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
-							📊 Organization Licensing
+							 Organization Licensing
 						</h2>
 						<p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', opacity: 0.9 }}>
 							View your PingOne organization licensing information, usage statistics, and available

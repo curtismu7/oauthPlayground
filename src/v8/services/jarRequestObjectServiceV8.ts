@@ -12,7 +12,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔐 JAR-REQUEST-OBJECT-V8]';
+const MODULE_TAG = '[ JAR-REQUEST-OBJECT-V8]';
 
 /**
  * OAuth authorization request parameters

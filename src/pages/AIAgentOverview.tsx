@@ -871,7 +871,7 @@ const AIAgentOverview = () => {
 					<V6CollapsibleHeader
 						title="Key OAuth/OIDC Features for AI Agents"
 						subtitle="Advanced features required for secure AI agent authentication and authorization"
-						icon={<span>🛡️</span>}
+						icon={<span></span>}
 						defaultCollapsed={false}
 					>
 						<FeatureGrid>
@@ -936,7 +936,7 @@ const AIAgentOverview = () => {
 					<V6CollapsibleHeader
 						title="Identity Provider Comparison for AI Agents"
 						subtitle="Comparing PingOne, PingFederate, and PingOne Advanced Services for AI agent authentication"
-						icon={<span>🖥️</span>}
+						icon={<span></span>}
 						defaultCollapsed={false}
 					>
 						<ComparisonSection>
@@ -964,7 +964,7 @@ const AIAgentOverview = () => {
 												gap: '0.75rem',
 											}}
 										>
-											<span>🖥️</span>
+											<span></span>
 											Ping Identity Product Comparison
 										</h3>
 									</CollapsibleHeader>
@@ -1592,7 +1592,7 @@ const AIAgentOverview = () => {
 					<V6CollapsibleHeader
 						title="MCP Servers: The Future of AI Agent Integration"
 						subtitle="Understanding Model Context Protocol and its integration with OAuth 2.0 for AI agents"
-						icon={<span>🖥️</span>}
+						icon={<span></span>}
 						defaultCollapsed={false}
 					>
 						<Card>

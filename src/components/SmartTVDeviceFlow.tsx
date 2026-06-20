@@ -418,7 +418,7 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
 									boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
 								}}
 							>
-								<span style={{ fontSize: '18px' }}>🔗</span> Open in Browser
+								<span style={{ fontSize: '18px' }}></span> Open in Browser
 							</ControlButton>
 						</div>
 					)}
@@ -426,10 +426,10 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
 					{/* Control Buttons */}
 					<ControlButtons>
 						<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-							<span>📋</span> Copy Code
+							<span></span> Copy Code
 						</ControlButton>
 						<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-							<span>📋</span> Copy URI
+							<span></span> Copy URI
 						</ControlButton>
 					</ControlButtons>
 

@@ -29,7 +29,7 @@ import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsSer
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🎨 UNIFIED-UI-MOCKUP-V8]';
+const MODULE_TAG = '[ UNIFIED-UI-MOCKUP-V8]';
 
 export const UnifiedCredentialsMockupV8: React.FC = () => {
 	const [specVersion, setSpecVersion] = useState<SpecVersion>('oauth2.0');
@@ -114,7 +114,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 				{/* Spec Version Selection */}
 				<div className="form-section">
 					<div className="section-header">
-						<h3>📋 Specification Version</h3>
+						<h3> Specification Version</h3>
 					</div>
 					<div className="section-content">
 						<div className="spec-selector">
@@ -140,7 +140,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 				{/* Flow Type Selection */}
 				<div className="form-section">
 					<div className="section-header">
-						<h3>🔄 Flow Type</h3>
+						<h3> Flow Type</h3>
 					</div>
 					<div className="section-content">
 						<div className="form-group">
@@ -181,7 +181,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 				{/* Basic Credentials */}
 				<div className="form-section">
 					<div className="section-header">
-						<h3>🔐 Basic Authentication</h3>
+						<h3> Basic Authentication</h3>
 					</div>
 					<div className="section-content">
 						{fieldVisibility.showEnvironmentId && (
@@ -228,7 +228,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 				{fieldVisibility.showRedirectUri && (
 					<div className="form-section">
 						<div className="section-header">
-							<h3>🔄 Redirect Configuration</h3>
+							<h3> Redirect Configuration</h3>
 						</div>
 						<div className="section-content">
 							<div className="form-group">
@@ -268,7 +268,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 				{fieldVisibility.showPostLogoutRedirectUri && (
 					<div className="form-section">
 						<div className="section-header">
-							<h3>🚪 Logout Configuration</h3>
+							<h3> Logout Configuration</h3>
 						</div>
 						<div className="section-content">
 							<div className="form-group">
@@ -287,7 +287,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 				{fieldVisibility.showScopes && (
 					<div className="form-section">
 						<div className="section-header">
-							<h3>🔐 Permissions</h3>
+							<h3> Permissions</h3>
 						</div>
 						<div className="section-content">
 							<div className="form-group">
@@ -359,7 +359,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 										onChange={(e) => setUsePKCE(e.target.checked)}
 									/>
 									<span>
-										🔐 Use PKCE (Proof Key for Code Exchange)
+										 Use PKCE (Proof Key for Code Exchange)
 										{checkboxAvailability.pkceRequired && (
 											<span className="required-badge">Required</span>
 										)}
@@ -388,7 +388,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 										checked={useRefreshToken}
 										onChange={(e) => setUseRefreshToken(e.target.checked)}
 									/>
-									<span>🔄 Enable Refresh Token</span>
+									<span> Enable Refresh Token</span>
 								</label>
 								<small>Allow users to refresh access tokens without re-authenticating</small>
 							</div>
@@ -420,7 +420,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 				{/* Action Buttons */}
 				<div className="form-actions">
 					<button type="button" className="btn btn-primary">
-						💾 Save Configuration
+						 Save Configuration
 					</button>
 					<button type="button" className="btn btn-secondary">
 						Reset

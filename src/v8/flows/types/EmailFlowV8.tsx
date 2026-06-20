@@ -1613,7 +1613,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 								cursor: 'pointer',
 							}}
 						>
-							🔄 Start Again
+							 Start Again
 						</button>
 					</div>
 				);
@@ -1840,7 +1840,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 												marginBottom: '2px',
 											}}
 										>
-											📧 Email Preview:
+											 Email Preview:
 										</div>
 										<div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#1f2937' }}>
 											<strong>Will send to:</strong> {credentials.email}
@@ -2064,7 +2064,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 										flex: 1,
 									}}
 								>
-									<span>📡</span>
+									<span></span>
 									<span>Show API Display</span>
 								</label>
 							</div>
@@ -2158,7 +2158,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 									}
 								}}
 							>
-								{isLoading ? <>🔄 Registering...</> : <>Register Email Device →</>}
+								{isLoading ? <> Registering...</> : <>Register Email Device →</>}
 							</button>
 						</div>
 					</div>
@@ -2725,7 +2725,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 										transition: 'all 0.2s ease',
 									}}
 								>
-									{isLoading ? '🔄 Validating...' : 'Validate OTP'}
+									{isLoading ? ' Validating...' : 'Validate OTP'}
 								</button>
 
 								{/* Resend OTP button - works for both registration and authentication flows */}
@@ -2833,10 +2833,10 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 									}}
 								>
 									{isLoading
-										? '🔄 Sending...'
+										? ' Sending...'
 										: otpState.canResend
-											? '🔄 Resend OTP Code'
-											: `🔄 Resend available in ${otpState.resendCooldown}s`}
+											? ' Resend OTP Code'
+											: ` Resend available in ${otpState.resendCooldown}s`}
 								</button>
 							</div>
 

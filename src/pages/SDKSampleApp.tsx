@@ -373,7 +373,7 @@ app.get('/callback', async (req, res) => {
 						<Card>
 							<CardHeader>
 								<h2>
-									<span>🐙</span>
+									<span></span>
 									Available SDKs
 								</h2>
 								<p>Official PingOne SDKs for popular programming languages and frameworks.</p>
@@ -412,7 +412,7 @@ app.get('/callback', async (req, res) => {
 												rel="noopener noreferrer"
 												$variant="primary"
 											>
-												<span>🔗</span>
+												<span></span>
 												Documentation
 											</ActionButton>
 											<ActionButton
@@ -421,7 +421,7 @@ app.get('/callback', async (req, res) => {
 												rel="noopener noreferrer"
 												$variant="secondary"
 											>
-												<span>🐙</span>
+												<span></span>
 												GitHub
 											</ActionButton>
 										</SdkActions>
@@ -435,14 +435,14 @@ app.get('/callback', async (req, res) => {
 				<CollapsibleHeader
 					title="Sample Applications"
 					subtitle="Download and run complete sample applications that demonstrate OAuth 2.0 and OpenID Connect integration patterns."
-					icon={<span>📥</span>}
+					icon={<span></span>}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>
 						<Card>
 							<CardHeader>
 								<h2>
-									<span>📥</span>
+									<span></span>
 									Sample Applications
 								</h2>
 								<p>
@@ -474,7 +474,7 @@ app.get('/callback', async (req, res) => {
 										rel="noopener noreferrer"
 										$variant="primary"
 									>
-										<span>🐙</span>
+										<span></span>
 										View on GitHub
 									</ActionButton>
 								</div>
@@ -500,7 +500,7 @@ app.get('/callback', async (req, res) => {
 										rel="noopener noreferrer"
 										$variant="primary"
 									>
-										<span>🔗</span>
+										<span></span>
 										View Samples
 									</ActionButton>
 								</div>

@@ -63,7 +63,7 @@ export class IDTokenValidationServiceV8 {
 			issuedAtValid: false,
 		};
 
-		logger.info(`${MODULE_TAG} 🔍 Starting ID token validation with:`, {
+		logger.info(`${MODULE_TAG} Starting ID token validation with:`, {
 			hasIdToken: !!idToken,
 			idTokenLength: idToken?.length,
 			clientId,
@@ -215,7 +215,7 @@ export class IDTokenValidationServiceV8 {
 
 			// Step 5: Validate claims
 			// 5.1: Issuer (iss)
-			logger.info(`${MODULE_TAG} 🔍 Validating issuer:`, {
+			logger.info(`${MODULE_TAG} Validating issuer:`, {
 				expected: issuer,
 				actual: decoded.iss,
 				match: decoded.iss === issuer,
@@ -230,7 +230,7 @@ export class IDTokenValidationServiceV8 {
 
 			// 5.2: Audience (aud)
 			const audience = Array.isArray(decoded.aud) ? decoded.aud : [decoded.aud];
-			logger.info(`${MODULE_TAG} 🔍 Validating audience:`, {
+			logger.info(`${MODULE_TAG} Validating audience:`, {
 				expected: clientId,
 				actual: audience,
 				isArray: Array.isArray(decoded.aud),
@@ -246,7 +246,7 @@ export class IDTokenValidationServiceV8 {
 
 			// 5.3: Expiration (exp)
 			const now = Math.floor(Date.now() / 1000);
-			logger.info(`${MODULE_TAG} 🔍 Validating expiration:`, {
+			logger.info(`${MODULE_TAG} Validating expiration:`, {
 				exp: decoded.exp,
 				now,
 				expDate: decoded.exp ? new Date(decoded.exp * 1000).toISOString() : 'missing',
@@ -278,7 +278,7 @@ export class IDTokenValidationServiceV8 {
 
 			// 5.5: Nonce (if provided)
 			if (nonce) {
-				logger.info(`${MODULE_TAG} 🔍 Validating nonce:`, {
+				logger.info(`${MODULE_TAG} Validating nonce:`, {
 					expected: nonce,
 					actual: decoded.nonce,
 					match: decoded.nonce === nonce,
@@ -291,7 +291,7 @@ export class IDTokenValidationServiceV8 {
 					validationDetails.nonceValid = true;
 				}
 			} else {
-				logger.info(`${MODULE_TAG} 🔍 No nonce provided for validation`, 'Logger info');
+				logger.info(`${MODULE_TAG} No nonce provided for validation`, 'Logger info');
 			}
 
 			// 5.6: Authorized Party (azp) - if multiple audiences
@@ -311,7 +311,7 @@ export class IDTokenValidationServiceV8 {
 
 			const valid = errors.length === 0;
 
-			logger.info(`${MODULE_TAG} 📊 Validation summary:`, {
+			logger.info(`${MODULE_TAG} Validation summary:`, {
 				valid,
 				errorCount: errors.length,
 				warningCount: warnings.length,

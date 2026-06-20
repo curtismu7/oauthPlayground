@@ -189,7 +189,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 						},
 						{
 							title: 'Verify Scope Format',
-							icon: <span>🛡️</span>,
+							icon: <span></span>,
 							description: 'Ensure scopes are properly formatted in your authorization request.',
 							steps: [
 								'Check that scopes are space-separated',
@@ -200,7 +200,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 						},
 						{
 							title: 'Check Application Permissions',
-							icon: <span>🌐</span>,
+							icon: <span></span>,
 							description:
 								'Verify your application has the necessary permissions for the requested scopes.',
 							steps: [
@@ -229,7 +229,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 						},
 						{
 							title: 'Check Application Status',
-							icon: <span>🛡️</span>,
+							icon: <span></span>,
 							description: 'Ensure your application is active and properly configured.',
 							steps: [
 								'Verify application is enabled',
@@ -267,7 +267,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 					solutions: [
 						{
 							title: 'User Consent Required',
-							icon: <span>🛡️</span>,
+							icon: <span></span>,
 							description: 'The user needs to grant permission for the requested scopes.',
 							steps: [
 								'User must click "Allow" or "Authorize"',
@@ -378,7 +378,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 									<CodeBlock>
 										{solution.codeExample}
 										<CopyButton onClick={() => copyToClipboard(solution.codeExample!)}>
-											<span style={{ fontSize: '12px' }}>📋</span>
+											<span style={{ fontSize: '12px' }}></span>
 											Copy
 										</CopyButton>
 									</CodeBlock>
@@ -396,7 +396,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 			<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
 				{onRetry && (
 					<ActionButton onClick={onRetry}>
-						<span style={{ fontSize: '16px' }}>🔄</span>
+						<span style={{ fontSize: '16px' }}></span>
 						Try Again
 					</ActionButton>
 				)}
@@ -416,7 +416,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 						)
 					}
 				>
-					<span style={{ fontSize: '16px' }}>🔗</span>
+					<span style={{ fontSize: '16px' }}></span>
 					PingOne Documentation
 				</ActionButton>
 

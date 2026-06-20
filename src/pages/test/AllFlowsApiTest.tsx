@@ -490,7 +490,7 @@ const AllFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing URL Generation for:', config.flowType);
+			logger.info(' Testing URL Generation for:', config.flowType);
 
 			// Generate state and nonce
 			const state = config.state || generateState();
@@ -587,7 +587,7 @@ const AllFlowsApiTest: React.FC = () => {
 			const startTime = Date.now();
 
 			try {
-				logger.info('🧪 Testing Token Exchange...', 'Logger info');
+				logger.info(' Testing Token Exchange...', 'Logger info');
 
 				const codeVerifier = config.usePkce ? generateCodeVerifier() : undefined;
 
@@ -669,7 +669,7 @@ const AllFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Client Credentials Flow...', 'Logger info');
+			logger.info(' Testing Client Credentials Flow...', 'Logger info');
 
 			const requestBody = {
 				grant_type: 'client_credentials',
@@ -740,7 +740,7 @@ const AllFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Device Code Flow...', 'Logger info');
+			logger.info(' Testing Device Code Flow...', 'Logger info');
 
 			const requestBody = {
 				client_id: config.clientId,
@@ -810,7 +810,7 @@ const AllFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing MFA Device Registration for:', config.deviceType);
+			logger.info(' Testing MFA Device Registration for:', config.deviceType);
 
 			if (!config.username || !config.deviceType) {
 				throw new Error('Username and device type are required for MFA registration');
@@ -869,7 +869,7 @@ const AllFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing MFA Authentication for:', config.deviceType);
+			logger.info(' Testing MFA Authentication for:', config.deviceType);
 
 			if (!config.username || !config.deviceType) {
 				throw new Error('Username and device type are required for MFA authentication');
@@ -946,7 +946,7 @@ const AllFlowsApiTest: React.FC = () => {
 		setResults([]);
 
 		try {
-			logger.info('🚀 Starting API Tests for:', config.flowType);
+			logger.info(' Starting API Tests for:', config.flowType);
 
 			// Test URL generation for all flows except client credentials
 			if (config.flowType !== 'client_credentials') {

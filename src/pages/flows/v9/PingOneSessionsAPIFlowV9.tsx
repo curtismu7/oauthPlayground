@@ -640,7 +640,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 		if (credentialsType === 'worker' && workerTokenStatus.hasToken) {
 			return (
 				<CredentialsTypeIndicator type="worker">
-					<span>🔑</span>
+					<span></span>
 					Using Worker Token Credentials
 					{workerTokenStatus.environmentId && (
 						<span style={{ fontSize: '0.75rem', opacity: 0.8 }}>
@@ -654,7 +654,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 		if (credentialsType === 'authz') {
 			return (
 				<CredentialsTypeIndicator type="authz">
-					<span>🔐</span>
+					<span></span>
 					Using Authorization Code Flow Credentials
 				</CredentialsTypeIndicator>
 			);
@@ -687,7 +687,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 					<FeatureGrid>
 						<FeatureCard>
 							<CardBody>
-								<h4>📋 Read All Sessions</h4>
+								<h4> Read All Sessions</h4>
 								<p>
 									Retrieve all active sessions for a specific user across all devices and
 									applications.
@@ -698,7 +698,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 
 						<FeatureCard>
 							<CardBody>
-								<h4>🔍 Read Single Session</h4>
+								<h4> Read Single Session</h4>
 								<p>
 									Get detailed information about a specific session, including device and
 									application details.
@@ -709,7 +709,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 
 						<FeatureCard>
 							<CardBody>
-								<h4>🗑️ Revoke Session</h4>
+								<h4> Revoke Session</h4>
 								<p>Revoke a specific session to immediately terminate access for that session.</p>
 								<CodeBlock>{`DELETE /v1/environments/{envId}/users/{userId}/sessions/{sessionId}`}</CodeBlock>
 							</CardBody>
@@ -717,7 +717,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 
 						<FeatureCard>
 							<CardBody>
-								<h4>🚫 Revoke All Sessions</h4>
+								<h4> Revoke All Sessions</h4>
 								<p>
 									Revoke all active sessions for a user, forcing them to re-authenticate on next
 									access.
@@ -753,7 +753,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 							</>
 						) : (
 							<>
-								<span>🌐</span>
+								<span></span>
 								Load Environment Sessions
 							</>
 						)}
@@ -825,7 +825,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 					{workerTokenStatus.hasToken && (
 						<div style={{ marginBottom: '1rem' }}>
 							<Button variant="secondary" onClick={getWorkerToken} disabled={isLoading}>
-								<span>🔑</span>
+								<span></span>
 								Use Worker Token Credentials
 							</Button>
 						</div>
@@ -915,7 +915,7 @@ const PingOneSessionsAPIFlowV9: React.FC = () => {
 							</>
 						) : (
 							<>
-								<span>🚀</span>
+								<span></span>
 								Execute API Call
 							</>
 						)}

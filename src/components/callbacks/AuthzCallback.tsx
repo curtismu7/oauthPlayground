@@ -73,7 +73,7 @@ const StatusMessage = styled.p`
 `;
 
 const AuthzCallback: React.FC = () => {
-	logger.info('🎯 [AuthzCallback] Component loaded!', {
+	logger.info(' [AuthzCallback] Component loaded!', {
 		url: window.location.href,
 		search: window.location.search,
 		timestamp: new Date().toISOString(),

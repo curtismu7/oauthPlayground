@@ -626,7 +626,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 						gap: '8px',
 					}}
 				>
-					<span>📄</span>
+					<span></span>
 					Download Markdown
 				</button>
 				<button
@@ -646,7 +646,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 						gap: '8px',
 					}}
 				>
-					<span>📥</span>
+					<span></span>
 					Download PDF
 				</button>
 				<button
@@ -666,7 +666,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 						gap: '8px',
 					}}
 				>
-					<span>📦</span>
+					<span></span>
 					Download Postman Collection
 				</button>
 				<button
@@ -686,7 +686,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 						gap: '8px',
 					}}
 				>
-					<span>🏠</span>
+					<span></span>
 					Back to Flows
 				</button>
 			</div>
@@ -765,7 +765,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 										marginBottom: '4px',
 									}}
 								>
-									🔐 Management API
+									 Management API
 								</div>
 								<div style={{ fontSize: '24px', fontWeight: '700', color: '#78350f' }}>
 									{groupedCalls.managementApi.length}
@@ -792,7 +792,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 										marginBottom: '4px',
 									}}
 								>
-									📋 OIDC Metadata
+									 OIDC Metadata
 								</div>
 								<div style={{ fontSize: '24px', fontWeight: '700', color: '#1e3a8a' }}>
 									{groupedCalls.oidcMetadata.length}
@@ -846,7 +846,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 										marginBottom: '4px',
 									}}
 								>
-									🔄 OAuth Flow
+									 OAuth Flow
 								</div>
 								<div style={{ fontSize: '24px', fontWeight: '700', color: '#6b21a8' }}>
 									{groupedCalls.oauthFlow.length}
@@ -866,7 +866,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 					<h3
 						style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
 					>
-						🔄 OAuth Flow API Calls
+						 OAuth Flow API Calls
 					</h3>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 						{groupedCalls.oauthFlow.map((call, index) => {

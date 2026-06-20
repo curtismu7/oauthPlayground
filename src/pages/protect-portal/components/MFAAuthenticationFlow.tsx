@@ -330,7 +330,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 		setError(null);
 
 		try {
-			logger.info('[🔐 MFA-AUTHENTICATION] Loading MFA devices for user:', userContext.id);
+			logger.info('[ MFA-AUTHENTICATION] Loading MFA devices for user:', userContext.id);
 
 			// Use real MFA service to get available devices
 			const devicesResponse = await MFAAuthenticationService.getAvailableDevices(
@@ -347,17 +347,17 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 			// If no devices found, show registration option
 			if (devicesResponse.data.devices.length === 0) {
 				logger.info(
-					'[🔐 MFA-AUTHENTICATION] No MFA devices found - user needs to register device',
+					'[ MFA-AUTHENTICATION] No MFA devices found - user needs to register device',
 					'Logger info'
 				);
 				setError('No MFA devices registered. Please register an MFA device first.');
 			} else {
-				logger.info('[🔐 MFA-AUTHENTICATION] Loaded devices:', devicesResponse.data.devices.length);
+				logger.info('[ MFA-AUTHENTICATION] Loaded devices:', devicesResponse.data.devices.length);
 			}
 		} catch (err) {
 			logger.error(
 				'MFAAuthenticationFlow',
-				'[🔐 MFA-AUTHENTICATION] Failed to load devices:',
+				'[ MFA-AUTHENTICATION] Failed to load devices:',
 				undefined,
 				err as Error
 			);
@@ -398,7 +398,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 		setError(null);
 
 		try {
-			logger.info('[🔐 MFA-AUTHENTICATION] Submitting OTP code for device:', selectedDevice.id);
+			logger.info('[ MFA-AUTHENTICATION] Submitting OTP code for device:', selectedDevice.id);
 
 			const completeResponse = await MFAAuthenticationService.completeAuthentication(
 				userContext,
@@ -441,7 +441,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 
 		try {
 			logger.info(
-				'[🔐 MFA-AUTHENTICATION] Starting authentication with device:',
+				'[ MFA-AUTHENTICATION] Starting authentication with device:',
 				selectedDevice.id
 			);
 
@@ -465,7 +465,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 
 			if (authData.requiresChallenge && authData.challengeData) {
 				// Handle challenge-based authentication (OTP, Push, Biometric)
-				logger.info('[🔐 MFA-AUTHENTICATION] Challenge required:', authData.challengeData.type);
+				logger.info('[ MFA-AUTHENTICATION] Challenge required:', authData.challengeData.type);
 
 				// Set challenge data to show OTP input UI
 				setChallengeData({
@@ -482,7 +482,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 		} catch (err) {
 			logger.error(
 				'MFAAuthenticationFlow',
-				'[🔐 MFA-AUTHENTICATION] Authentication failed:',
+				'[ MFA-AUTHENTICATION] Authentication failed:',
 				undefined,
 				err as Error
 			);
@@ -512,15 +512,15 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 	const getDeviceIcon = (deviceType: string) => {
 		switch (deviceType) {
 			case 'SMS':
-				return <span>📱</span>;
+				return <span></span>;
 			case 'EMAIL':
-				return <span>📧</span>;
+				return <span></span>;
 			case 'TOTP':
-				return <span>🔑</span>;
+				return <span></span>;
 			case 'FIDO2':
-				return <span>🔒</span>;
+				return <span></span>;
 			default:
-				return <span>🛡️</span>;
+				return <span></span>;
 		}
 	};
 
@@ -529,7 +529,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 	// ============================================================================
 
 	useEffect(() => {
-		logger.info('[🔐 MFA-AUTHENTICATION] MFA flow initialized', {
+		logger.info('[ MFA-AUTHENTICATION] MFA flow initialized', {
 			userId: userContext.id,
 			riskLevel: riskEvaluation.result.level,
 			mfaCredentials: !!mfaCredentials,
@@ -667,7 +667,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 									</>
 								) : (
 									<>
-										<span>🔒</span>
+										<span></span>
 										Authenticate
 									</>
 								)}
@@ -703,7 +703,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 							registration page to set up your authentication method.
 						</p>
 						<ActionButton onClick={handleStartRegistration}>
-							<span>🛡️</span>
+							<span></span>
 							Register MFA Device
 						</ActionButton>
 					</div>
@@ -766,7 +766,7 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 			<EducationalSection>
 				<EducationalHeader>
 					<EducationalTitle>
-						<span>📖</span>
+						<span></span>
 						Multi-Factor Authentication
 					</EducationalTitle>
 				</EducationalHeader>

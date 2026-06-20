@@ -350,7 +350,7 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
 								{resolvedJwksUrl || 'Provide environment details to compute JWKS URL'}
 							</UrlCode>
 							<CopyButton type="button" onClick={handleCopyJwksUrl} title="Copy JWKS Endpoint URL">
-								<span style={{ fontSize: '14px' }}>📋</span>
+								<span style={{ fontSize: '14px' }}></span>
 								{copyButtonLabel}
 							</CopyButton>
 						</JwksUrlBox>
@@ -374,7 +374,7 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
 								</>
 							) : (
 								<>
-									<span style={{ fontSize: '14px' }}>🔑</span>
+									<span style={{ fontSize: '14px' }}></span>
 									{generateKeyLabel}
 								</>
 							)}
@@ -398,9 +398,9 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
 							title={showPrivateKey ? 'Hide private key' : 'Show private key'}
 						>
 							{showPrivateKey ? (
-								<span style={{ fontSize: '16px' }}>🙈</span>
+								<span style={{ fontSize: '16px' }}></span>
 							) : (
-								<span style={{ fontSize: '16px' }}>👁️</span>
+								<span style={{ fontSize: '16px' }}></span>
 							)}
 						</ToggleSecretButton>
 						{onCopyPrivateKey && privateKey && (
@@ -409,7 +409,7 @@ const JwksKeySourceSelector: React.FC<JwksKeySourceSelectorProps> = ({
 								onClick={onCopyPrivateKey}
 								title="Copy Private Key"
 							>
-								<span style={{ fontSize: '16px' }}>📋</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</CopyPrivateKeyButton>
 						)}
 					</PrivateKeyWrapper>

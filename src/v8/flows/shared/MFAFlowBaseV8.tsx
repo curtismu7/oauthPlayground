@@ -35,7 +35,7 @@ import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV
 import { logger } from '../../../utils/logger';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 
-const MODULE_TAG = '[📱 MFA-FLOW-BASE-V8]';
+const MODULE_TAG = '[ MFA-FLOW-BASE-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
 
 export interface MFAFlowBaseProps {
@@ -167,7 +167,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		// ENFORCE INVARIANT: Step 0 is forbidden for redirect resumes
 		if (resolutionResult.step === 0) {
 			logger.error(
-				`${MODULE_TAG} 🚨 INVARIANT VIOLATION: Step resolver returned Step 0 for redirect resume`,
+				`${MODULE_TAG} INVARIANT VIOLATION: Step resolver returned Step 0 for redirect resume`,
 				'Logger error'
 			);
 			// Force fallback to Step 2
@@ -178,7 +178,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		// Apply the resolved step
 		if (resolutionResult.step >= 0 && resolutionResult.step < totalSteps) {
 			logger.info(
-				`${MODULE_TAG} 🔄 FOOL-PROOF step advancement: ${resolutionResult.step} from ${resolutionResult.source} (${resolutionResult.correlationId})`
+				`${MODULE_TAG} FOOL-PROOF step advancement: ${resolutionResult.step} from ${resolutionResult.source} (${resolutionResult.correlationId})`
 			);
 			nav.goToStep(resolutionResult.step);
 		}
@@ -230,14 +230,14 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			try {
 				// Access localStorage directly to avoid async issues in useState initializer
 				const globalEnvId = localStorage.getItem('v8:global_environment_id');
-				logger.info(`${MODULE_TAG} 🔍 DEBUG: Checking global environment ID fallback`, {
+				logger.info(`${MODULE_TAG} DEBUG: Checking global environment ID fallback`, {
 					storedEnvId: stored.environmentId,
 					globalEnvId: globalEnvId ? `${globalEnvId.substring(0, 8)}...` : 'MISSING',
 					willApplyFallback: !!globalEnvId,
 				});
 				if (globalEnvId) {
 					stored.environmentId = globalEnvId;
-					logger.info(`${MODULE_TAG} 🔧 Applied global environment ID fallback for MFA flow`, {
+					logger.info(`${MODULE_TAG} Applied global environment ID fallback for MFA flow`, {
 						globalEnvId: `${globalEnvId.substring(0, 8)}...`,
 					});
 				}
@@ -248,7 +248,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				);
 			}
 		} else {
-			logger.info(`${MODULE_TAG} 🔍 DEBUG: Environment ID already exists in storage`, {
+			logger.info(`${MODULE_TAG} DEBUG: Environment ID already exists in storage`, {
 				storedEnvId: `${stored.environmentId.substring(0, 8)}...`,
 			});
 		}
@@ -272,7 +272,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	});
 
 	// Debug: Log what credentials were loaded
-	logger.info(`${MODULE_TAG} 📋 Initial credentials loaded:`, {
+	logger.info(`${MODULE_TAG} Initial credentials loaded:`, {
 		environmentId: credentials.environmentId
 			? `${credentials.environmentId.substring(0, 8)}...`
 			: '❌ EMPTY',
@@ -443,7 +443,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				if (userLoginCreds?.userToken && userLoginCreds?.tokenType === 'user') {
 					if (!credentials.userToken || credentials.userToken !== userLoginCreds.userToken) {
 						logger.info(
-							`${MODULE_TAG} 🔄 Backup sync: Syncing user token from user-login-v8 to mfa-flow-v8`,
+							`${MODULE_TAG} Backup sync: Syncing user token from user-login-v8 to mfa-flow-v8`,
 							'Logger info'
 						);
 						setCredentials((prev) => ({
@@ -672,7 +672,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 				sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
 
-				logger.info(`${MODULE_TAG} 🎯 Stored flow context for authentication:`, {
+				logger.info(`${MODULE_TAG} Stored flow context for authentication:`, {
 					path: fullPath,
 					step: nav.currentStep + 1,
 				});
@@ -687,7 +687,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		if (isOAuthCallbackReturn && credentials.userToken?.trim()) {
 			modernMessaging.showFooterMessage({
 				type: 'info',
-				message: '🔄 Returning to Device Selection after authentication...',
+				message: ' Returning to Device Selection after authentication...',
 				duration: 3000,
 			});
 
@@ -1282,7 +1282,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 									sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
 
-									logger.info(`${MODULE_TAG} 🎯 Stored flow context for authentication:`, {
+									logger.info(`${MODULE_TAG} Stored flow context for authentication:`, {
 										path: fullPath,
 										step: nav.currentStep + 1,
 									});
@@ -1390,7 +1390,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						onClick={handleRestartFlow}
 						title="Restart the flow from the beginning"
 					>
-						🔄 Restart Flow
+						 Restart Flow
 					</button>
 				</StepActionButtonsV8>
 			</div>

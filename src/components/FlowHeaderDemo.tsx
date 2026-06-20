@@ -133,7 +133,7 @@ const FlowHeaderDemo: React.FC = () => {
 							}}
 						>
 							<div>{'<Header>'}</div>
-							<div>{'  <Badge>🔑 Client Credentials Flow V5</Badge>'}</div>
+							<div>{' <Badge> Client Credentials Flow V5</Badge>'}</div>
 							<div>{'  <MainTitle>'}</div>
 							<div>{'    <FiLock />'}</div>
 							<div>{'    Client Credentials Flow'}</div>

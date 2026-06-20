@@ -982,7 +982,7 @@ const Configuration: React.FC = () => {
 			{/* PingOne Region Configuration */}
 			<div style={styles.card}>
 				<div style={styles.stepHeader}>
-					<span style={{ fontSize: '24px' }}>🌍</span>
+					<span style={{ fontSize: '24px' }}></span>
 					<h2 style={{ margin: 0, color: '#1f2937' }}>PingOne Region</h2>
 				</div>
 
@@ -1118,7 +1118,7 @@ const Configuration: React.FC = () => {
 					<div
 						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}
 					>
-						<span style={{ fontSize: '20px' }}>🔧</span>
+						<span style={{ fontSize: '20px' }}></span>
 						<strong style={{ color: '#1e40af', fontSize: '0.9375rem' }}>Worker Token</strong>
 						<span
 							style={{
@@ -1168,7 +1168,7 @@ const Configuration: React.FC = () => {
 					<div
 						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}
 					>
-						<span style={{ fontSize: '20px' }}>👤</span>
+						<span style={{ fontSize: '20px' }}></span>
 						<strong style={{ color: '#15803d', fontSize: '0.9375rem' }}>
 							Authorization Client
 						</strong>

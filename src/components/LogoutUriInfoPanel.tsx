@@ -193,7 +193,7 @@ const LogoutUriInfoPanel: React.FC<LogoutUriInfoPanelProps> = ({
 	return (
 		<PanelContainer className={className} $compact={compact}>
 			<Header $compact={compact}>
-				<Icon $compact={compact}>🚪</Icon>
+				<Icon $compact={compact}></Icon>
 				<Title $compact={compact}>{uriInfo.description} Logout URI</Title>
 			</Header>
 
@@ -202,7 +202,7 @@ const LogoutUriInfoPanel: React.FC<LogoutUriInfoPanelProps> = ({
 				<UriCode $compact={compact}>{uriInfo.logoutUri}</UriCode>
 				{showCopyButton && (
 					<CopyButton onClick={handleCopy}>
-						{copied ? <span>✅</span> : <span>📋</span>}
+						{copied ? <span>✅</span> : <span></span>}
 						{copied ? 'Copied!' : 'Copy URI'}
 					</CopyButton>
 				)}
@@ -226,7 +226,7 @@ const LogoutUriInfoPanel: React.FC<LogoutUriInfoPanelProps> = ({
 
 			<DocBox $compact={compact}>
 				<DocHeader $compact={compact}>
-					<DocIcon $compact={compact}>📖</DocIcon>
+					<DocIcon $compact={compact}></DocIcon>
 					<DocTitle $compact={compact}>Documentation</DocTitle>
 				</DocHeader>
 				<DocText $compact={compact}>

@@ -138,7 +138,7 @@ const ImplicitCallback: React.FC = () => {
 					setError(errorMsg);
 
 					// DEBUG: Enhanced error logging with full URL details
-					logger.error('ImplicitCallback', '🔴 [ImplicitCallback] Implicit grant error:', {
+					logger.error('ImplicitCallback', ' [ImplicitCallback] Implicit grant error:', {
 						error,
 						errorDescription,
 						fullUrl: window.location.href,

@@ -29,7 +29,7 @@ import { DynamicFormRenderer } from './DynamicFormRenderer';
 
 export { computeDeviceStatus } from './UnifiedRegistrationStep';
 
-const MODULE_TAG = '[📝 UNIFIED-REGISTRATION-MODERN]';
+const MODULE_TAG = '[ UNIFIED-REGISTRATION-MODERN]';
 
 // ============================================================================
 // PROPS

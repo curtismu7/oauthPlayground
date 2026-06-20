@@ -162,7 +162,7 @@ const AIPersonalAgentOAuth = () => {
 								rel="noopener noreferrer"
 							>
 								Evolving OAuth Client Registration in MCP
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</ExternalLink>
 							<ExternalLink
 								href="https://www.ietf.org/archive/id/draft-parecki-oauth-client-id-metadata-document-03.html"
@@ -170,7 +170,7 @@ const AIPersonalAgentOAuth = () => {
 								rel="noopener noreferrer"
 							>
 								OAuth Client ID Metadata Document
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</ExternalLink>
 							<ExternalLink
 								href="https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/"
@@ -178,7 +178,7 @@ const AIPersonalAgentOAuth = () => {
 								rel="noopener noreferrer"
 							>
 								Identity Assertion Authorization Grant
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</ExternalLink>
 							<ExternalLink
 								href="https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-chaining/"
@@ -186,7 +186,7 @@ const AIPersonalAgentOAuth = () => {
 								rel="noopener noreferrer"
 							>
 								Identity Chaining Draft
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</ExternalLink>
 						</LinkGroup>
 					</IntroCard>
@@ -257,7 +257,7 @@ const AIPersonalAgentOAuth = () => {
 					<CollapsibleHeader
 						title="Identity Assertions Build End-to-End Trust"
 						subtitle="Moving beyond registration into delegated identity guarantees"
-						icon={<span>📈</span>}
+						icon={<span></span>}
 						defaultCollapsed={false}
 					>
 						<SectionText>
@@ -286,7 +286,7 @@ const AIPersonalAgentOAuth = () => {
 										rel="noopener noreferrer"
 									>
 										Draft overview
-										<span style={{ fontSize: '16px' }}>🔗</span>
+										<span style={{ fontSize: '16px' }}></span>
 									</ExternalLink>
 								</CardBody>
 							</RoadmapCard>
@@ -308,7 +308,7 @@ const AIPersonalAgentOAuth = () => {
 										rel="noopener noreferrer"
 									>
 										Draft overview
-										<span style={{ fontSize: '16px' }}>🔗</span>
+										<span style={{ fontSize: '16px' }}></span>
 									</ExternalLink>
 								</CardBody>
 							</RoadmapCard>

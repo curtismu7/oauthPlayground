@@ -1479,7 +1479,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						marginBottom: '12px',
 					}}
 				>
-					<span style={{ fontSize: 32, color: '#E31837' }}>📖</span>
+					<span style={{ fontSize: 32, color: '#E31837' }}></span>
 					<h1 style={{ margin: 0, fontSize: '28px', fontWeight: '700', color: '#1f2937' }}>
 						Ping Identity
 					</h1>
@@ -1568,7 +1568,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 							boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
 						}}
 					>
-						<span style={{ fontSize: '18px' }}>📄</span>
+						<span style={{ fontSize: '18px' }}></span>
 						Download as Markdown
 					</button>
 					<button
@@ -1589,7 +1589,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 							boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
 						}}
 					>
-						<span style={{ fontSize: '18px' }}>📥</span>
+						<span style={{ fontSize: '18px' }}></span>
 						Download as PDF
 					</button>
 					<button
@@ -1610,7 +1610,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 							boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
 						}}
 					>
-						<span style={{ fontSize: '18px' }}>📦</span>
+						<span style={{ fontSize: '18px' }}></span>
 						Download Postman Collection
 					</button>
 				</div>
@@ -1630,7 +1630,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						cursor: 'pointer',
 					}}
 				>
-					🔄 Restart Flow
+					 Restart Flow
 				</button>
 			</div>
 
@@ -1746,7 +1746,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 										marginBottom: '4px',
 									}}
 								>
-									🔐 Management API
+									 Management API
 								</div>
 								<div style={{ fontSize: '24px', fontWeight: '700', color: '#78350f' }}>
 									{groupedCalls.managementApi.length}
@@ -1773,7 +1773,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 										marginBottom: '4px',
 									}}
 								>
-									📋 OIDC Metadata
+									 OIDC Metadata
 								</div>
 								<div style={{ fontSize: '24px', fontWeight: '700', color: '#1e3a8a' }}>
 									{groupedCalls.oidcMetadata.length}
@@ -1827,7 +1827,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 										marginBottom: '4px',
 									}}
 								>
-									🔐 MFA Flow
+									 MFA Flow
 								</div>
 								<div style={{ fontSize: '24px', fontWeight: '700', color: '#6b21a8' }}>
 									{groupedCalls.mfaFlow.length}
@@ -1847,7 +1847,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 					<h3
 						style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
 					>
-						🔐 MFA Flow API Calls
+						 MFA Flow API Calls
 					</h3>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 						{groupedCalls.mfaFlow.map((call, index) => {
@@ -2250,7 +2250,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						gap: '8px',
 					}}
 				>
-					<span style={{ fontSize: 20, color: '#10b981' }}>📖</span>
+					<span style={{ fontSize: 20, color: '#10b981' }}></span>
 					API References
 				</h3>
 				<ul style={{ margin: 0, paddingLeft: '20px', color: '#065f46', fontSize: '14px' }}>

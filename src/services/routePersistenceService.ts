@@ -55,13 +55,13 @@ export class RoutePersistenceService {
 	static saveCurrentRoute(path: string): void {
 		// Don't save excluded routes
 		if (RoutePersistenceService.isExcludedRoute(path)) {
-			logger.info(`🚫 [RoutePersistence] Not saving excluded route: ${path}`, 'Logger info');
+			logger.info(` [RoutePersistence] Not saving excluded route: ${path}`, 'Logger info');
 			return;
 		}
 
 		// Don't save the root path
 		if (path === '/' || path === '') {
-			logger.info(`🚫 [RoutePersistence] Not saving root path`, 'Logger info');
+			logger.info(` [RoutePersistence] Not saving root path`, 'Logger info');
 			return;
 		}
 
@@ -82,7 +82,7 @@ export class RoutePersistenceService {
 			const timestamp = localStorage.getItem(LAST_ROUTE_TIMESTAMP_KEY);
 
 			if (!savedRoute || !timestamp) {
-				logger.info(`📍 [RoutePersistence] No saved route, using default: ${DEFAULT_ROUTE}`);
+				logger.info(` [RoutePersistence] No saved route, using default: ${DEFAULT_ROUTE}`);
 				return DEFAULT_ROUTE;
 			}
 
@@ -109,7 +109,7 @@ export class RoutePersistenceService {
 		try {
 			localStorage.removeItem(LAST_ROUTE_KEY);
 			localStorage.removeItem(LAST_ROUTE_TIMESTAMP_KEY);
-			logger.info(`🗑️ [RoutePersistence] Cleared saved route`, 'Logger info');
+			logger.info(` [RoutePersistence] Cleared saved route`, 'Logger info');
 		} catch (error) {
 			logger.warn('[RoutePersistence] Failed to clear saved route:', error as Error);
 		}
