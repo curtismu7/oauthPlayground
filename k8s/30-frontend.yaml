@@ -1,0 +1,58 @@
+# Frontend (nginx serving the Vite build, HTTPS :3000, proxies /api/ to the
+# oauth-backend Service). Stateless — safe to scale, but kept at 1 for parity.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth-frontend
+  namespace: oauth-playground
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oauth-frontend
+  template:
+    metadata:
+      labels:
+        app: oauth-frontend
+    spec:
+      containers:
+        - name: oauth-frontend
+          image: oauthplayground-oauth-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: certs
+              mountPath: /etc/nginx/certs
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+      volumes:
+        - name: certs
+          secret:
+            secretName: oauth-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth-frontend
+  namespace: oauth-playground
+spec:
+  type: LoadBalancer # exposes the app; on orbstack/docker-desktop this binds localhost
+  selector:
+    app: oauth-frontend
+  ports:
+    - name: https
+      port: 3000
+      targetPort: 3000
