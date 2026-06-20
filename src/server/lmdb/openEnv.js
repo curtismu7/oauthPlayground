@@ -28,7 +28,10 @@ export function openEnv() {
 	_env = open({
 		path: LMDB_PATH,
 		maxDbs: 8,
-		mapSize: 64 * 1024 * 1024, // 64 MB — credential/token data is tiny
+		// 64 MB — credential/token data is tiny. If this is ever exhausted, puts
+		// throw MDB_MAP_FULL; raising it requires closing + reopening the env with
+		// a larger mapSize (LMDB cannot grow the map of an open env here).
+		mapSize: 64 * 1024 * 1024,
 		noSync: false,
 	});
 	return _env;

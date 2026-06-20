@@ -1014,7 +1014,6 @@ let credentialStore = {
 	exportAll: () => ({}),
 	importAll: () => 0,
 	purgeExpired: () => 0,
-	hasAnyData: () => false,
 	_isNoop: true,
 };
 
@@ -3930,7 +3929,7 @@ app.delete('/api/tokens/worker', express.json(), (req, res) => {
 });
 
 // One-time import of the legacy JSON token/credential files into LMDB. Guarded by
-// hasAnyData() so it runs at most once and never overwrites live LMDB data.
+// a meta flag so it runs at most once and never overwrites live LMDB data.
 function migrateJsonFilesToLmdb() {
 	if (credentialStore._isNoop) return;
 	try {
