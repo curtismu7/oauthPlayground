@@ -987,6 +987,27 @@ let settingsDB = {
 	},
 	async set() {},
 };
+// Central LMDB store for worker tokens + all credentials (the single source of
+// truth). No-op fallback so Vercel/CI without the native addon stays functional.
+let credentialStore = {
+	saveWorkerToken: () => false,
+	getWorkerToken: () => null,
+	deleteWorkerToken: () => false,
+	getAllWorkerTokens: () => ({}),
+	saveCredentials: () => false,
+	getCredentials: () => null,
+	deleteCredentials: () => false,
+	getAllCredentials: () => ({}),
+	saveFlowCredentials: () => false,
+	getFlowCredentials: () => null,
+	deleteFlowCredentials: () => false,
+	getAllFlowCredentials: () => ({}),
+	kvGet: () => null,
+	kvSet: () => false,
+	kvDelete: () => false,
+	hasAnyData: () => false,
+	_isNoop: true,
+};
 
 if (!process.env.VERCEL) {
 	try {
@@ -1036,6 +1057,17 @@ if (!process.env.VERCEL) {
 			'⚠️ SQLite credentials API unavailable (SQLite native module missing):',
 			err.message
 		);
+	}
+
+	// Central LMDB store for worker tokens + all credentials (the project's own
+	// LMDB). Top-level await here completes before any route handler runs, so the
+	// endpoints below can close over `credentialStore`. The boot migration that
+	// imports the legacy JSON files is run later, after the file constants exist.
+	try {
+		credentialStore = await import('./src/server/lmdb/credentialStore.js');
+		console.log('💾 LMDB credential store initialized');
+	} catch (err) {
+		console.warn('⚠️ LMDB credential store unavailable (native module missing):', err.message);
 	}
 }
 
@@ -3682,10 +3714,14 @@ app.post('/api/credentials/sqlite/save', express.json(), (req, res) => {
 	if (!environmentId || !credentials) {
 		return res.status(400).json({ success: false, error: 'Missing environmentId or credentials' });
 	}
-	const store = _readSqliteStore();
-	store[environmentId] = { credentials, savedAt: timestamp ?? new Date().toISOString() };
-	_writeSqliteStore(store);
-	console.log(`📁 [SQLite Store] Saved credentials for key: ${environmentId}`);
+	if (!credentialStore._isNoop) {
+		credentialStore.saveCredentials(environmentId, credentials);
+	} else {
+		const store = _readSqliteStore();
+		store[environmentId] = { credentials, savedAt: timestamp ?? new Date().toISOString() };
+		_writeSqliteStore(store);
+	}
+	console.log(`📁 [Credential Store] Saved credentials for key: ${environmentId}`);
 	res.json({ success: true });
 });
 
@@ -3694,8 +3730,9 @@ app.get('/api/credentials/sqlite/load', (req, res) => {
 	if (!environmentId) {
 		return res.status(400).json({ success: false, error: 'Missing environmentId' });
 	}
-	const store = _readSqliteStore();
-	const entry = store[String(environmentId)];
+	const entry = credentialStore._isNoop
+		? _readSqliteStore()[String(environmentId)]
+		: credentialStore.getCredentials(String(environmentId));
 	res.json({ credentials: entry?.credentials ?? null });
 });
 
@@ -3704,10 +3741,14 @@ app.delete('/api/credentials/sqlite/delete', express.json(), (req, res) => {
 	if (!environmentId) {
 		return res.status(400).json({ success: false, error: 'Missing environmentId' });
 	}
-	const store = _readSqliteStore();
-	delete store[environmentId];
-	_writeSqliteStore(store);
-	console.log(`📁 [SQLite Store] Deleted credentials for key: ${environmentId}`);
+	if (!credentialStore._isNoop) {
+		credentialStore.deleteCredentials(environmentId);
+	} else {
+		const store = _readSqliteStore();
+		delete store[environmentId];
+		_writeSqliteStore(store);
+	}
+	console.log(`📁 [Credential Store] Deleted credentials for key: ${environmentId}`);
 	res.json({ success: true });
 });
 
@@ -3778,15 +3819,16 @@ app.post('/api/tokens/worker', express.json(), (req, res) => {
 		return res.status(400).json({ success: false, error: 'Missing environmentId or accessToken' });
 	}
 	const exp = typeof expiresAt === 'number' ? expiresAt : Date.now() + 3600 * 1000;
-	const payload = { accessToken, expiresAt: exp, savedAt: Date.now() };
 
-	// Write to worker-tokens.json
-	const store = _readWorkerTokensStore();
-	store[String(environmentId)] = payload;
-	_writeWorkerTokensStore(store);
-
-	// Also write to SQLite (sqlite-store.json)
-	_writeWorkerTokenToSqlite(environmentId, accessToken, exp);
+	if (!credentialStore._isNoop) {
+		credentialStore.saveWorkerToken(String(environmentId), accessToken, exp);
+	} else {
+		const payload = { accessToken, expiresAt: exp, savedAt: Date.now() };
+		const store = _readWorkerTokensStore();
+		store[String(environmentId)] = payload;
+		_writeWorkerTokensStore(store);
+		_writeWorkerTokenToSqlite(environmentId, accessToken, exp);
+	}
 
 	console.log(`🔑 [Tokens] Saved worker token for environment: ${environmentId}`);
 	res.json({ success: true });
@@ -3799,6 +3841,18 @@ app.get('/api/tokens/worker', (req, res) => {
 	}
 	const envId = String(environmentId);
 	const now = Date.now();
+
+	if (!credentialStore._isNoop) {
+		const e = credentialStore.getWorkerToken(envId);
+		if (!e || !e.accessToken) return res.json({ token: null });
+		if (e.expiresAt && e.expiresAt < now) {
+			credentialStore.deleteWorkerToken(envId);
+			return res.json({ token: null });
+		}
+		return res.json({
+			token: { accessToken: e.accessToken, expiresAt: e.expiresAt, environmentId: envId },
+		});
+	}
 
 	// 1) Try SQLite first (sqlite-store.json)
 	let entry = _readWorkerTokenFromSqlite(envId);
@@ -3843,17 +3897,61 @@ app.delete('/api/tokens/worker', express.json(), (req, res) => {
 	}
 	const envId = String(environmentId);
 
-	// Remove from worker-tokens.json
-	const store = _readWorkerTokensStore();
-	delete store[envId];
-	_writeWorkerTokensStore(store);
-
-	// Remove from SQLite
-	_deleteWorkerTokenFromSqlite(envId);
+	if (!credentialStore._isNoop) {
+		credentialStore.deleteWorkerToken(envId);
+	} else {
+		const store = _readWorkerTokensStore();
+		delete store[envId];
+		_writeWorkerTokensStore(store);
+		_deleteWorkerTokenFromSqlite(envId);
+	}
 
 	console.log(`🔑 [Tokens] Cleared worker token for environment: ${environmentId}`);
 	res.json({ success: true });
 });
+
+// One-time import of the legacy JSON token/credential files into LMDB. Guarded by
+// hasAnyData() so it runs at most once and never overwrites live LMDB data.
+function migrateJsonFilesToLmdb() {
+	if (credentialStore._isNoop) return;
+	try {
+		if (credentialStore.hasAnyData()) return;
+		let migrated = 0;
+		try {
+			const wt = _readWorkerTokensStore();
+			for (const [envId, v] of Object.entries(wt || {})) {
+				if (v?.accessToken) {
+					credentialStore.saveWorkerToken(envId, v.accessToken, v.expiresAt);
+					migrated++;
+				}
+			}
+		} catch {}
+		try {
+			const ss = _readSqliteStore();
+			for (const [key, v] of Object.entries(ss || {})) {
+				if (key.startsWith(WORKER_TOKEN_SQLITE_KEY_PREFIX)) {
+					if (v?.accessToken) {
+						credentialStore.saveWorkerToken(
+							key.slice(WORKER_TOKEN_SQLITE_KEY_PREFIX.length),
+							v.accessToken,
+							v.expiresAt
+						);
+						migrated++;
+					}
+				} else if (v?.credentials) {
+					credentialStore.saveCredentials(key, v.credentials);
+					migrated++;
+				}
+			}
+		} catch {}
+		if (migrated) {
+			console.log(`💾 [LMDB migration] Imported ${migrated} legacy token/credential record(s)`);
+		}
+	} catch (e) {
+		console.warn('[LMDB migration] failed:', e?.message);
+	}
+}
+migrateJsonFilesToLmdb();
 
 // OAuth Token Exchange Endpoint
 app.post('/api/token-exchange', async (req, res) => {
@@ -19161,11 +19259,22 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
  */
 app.get('/api/tokens/query', async (req, res) => {
 	try {
-		const { type, source } = req.query;
+		const { type, source, flowKey } = req.query;
 
 		// Only log when DEBUG_TOKEN_QUERY is set — endpoint is polled frequently
 		if (process.env.DEBUG_TOKEN_QUERY) {
 			console.log('[Token Query] Querying tokens:', source ? { type, source } : { type });
+		}
+
+		// Per-flow credential read from the central LMDB store.
+		if (!credentialStore._isNoop && flowKey) {
+			const entry = credentialStore.getFlowCredentials(String(flowKey));
+			return res.json({
+				tokens: entry ? [entry] : [],
+				count: entry ? 1 : 0,
+				flowKey,
+				...(type ? { type } : {}),
+			});
 		}
 
 		res.json({
@@ -19202,11 +19311,14 @@ app.post('/api/tokens/store', async (req, res) => {
 			console.log('[Token Store] Storing token:', { flowKey, dataType: typeof data });
 		}
 
-		// For now, return success since we're using IndexedDB as primary storage
-		// SQLite is backup/fallback only
+		// Persist per-flow credentials to the central LMDB store (IndexedDB stays
+		// the frontend's fast cache; LMDB is the durable source of truth).
+		if (!credentialStore._isNoop) {
+			credentialStore.saveFlowCredentials(String(flowKey), data);
+		}
 		res.status(200).json({
 			success: true,
-			message: 'Token storage acknowledged (using IndexedDB as primary)',
+			message: 'Token stored',
 			flowKey,
 		});
 	} catch (error) {
