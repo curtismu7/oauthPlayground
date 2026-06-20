@@ -1108,142 +1108,34 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							{/* Info Box and Form - Only show if not in token-only mode */}
 							{!showTokenOnly && (
 								<>
-									{/* Info Box */}
-									<div
+									{/* Compact help (collapsed by default) */}
+									<details
 										style={{
-											padding: '12px',
-											background: '#dbeafe',
-											borderRadius: '6px',
-											border: '1px solid #93c5fd',
 											marginBottom: '16px',
-											fontSize: '13px',
-											color: '#1e40af',
-											lineHeight: '1.5',
-										}}
-									>
-										<div style={{ marginBottom: '8px' }}>
-											<strong>ℹ️ What is a Worker Token?</strong>
-										</div>
-										<div style={{ marginBottom: '8px' }}>
-											Worker tokens are used for server-to-server API calls to discover applications
-											and access PingOne management APIs.
-										</div>
-										<div style={{ marginBottom: '8px' }}>
-											<strong>Requirements:</strong> A Worker application in PingOne with
-											appropriate roles (e.g., "Identity Data Read Only" or "Environment Admin").
-										</div>
-										<div
-											style={{
-												marginTop: '8px',
-												padding: '8px',
-												background: '#fef3c7',
-												borderRadius: '4px',
-												border: '1px solid #fcd34d',
-												color: '#92400e',
-											}}
-										>
-											<strong>⏰ Token Validity:</strong> Worker tokens are valid for{' '}
-											<strong>1 hour</strong> after generation. You will need to generate a new
-											token after it expires.
-										</div>
-										{(() => {
-											try {
-												const config = MFAConfigurationServiceV8.loadConfiguration();
-												const autoRenewal = config.workerToken.autoRenewal;
-												const renewalThreshold = config.workerToken.renewalThreshold;
-
-												return (
-													<div
-														style={{
-															marginTop: '8px',
-															padding: '8px',
-															background: autoRenewal ? '#d1fae5' : '#fee2e2',
-															borderRadius: '4px',
-															border: `1px solid ${autoRenewal ? '#86efac' : '#fca5a5'}`,
-															color: autoRenewal ? '#065f46' : '#991b1b',
-														}}
-													>
-														<strong> Auto-Renewal:</strong>{' '}
-														{autoRenewal ? (
-															<>
-																<strong>Enabled</strong> - Tokens will automatically renew{' '}
-																{renewalThreshold} seconds before expiry during MFA flows.
-															</>
-														) : (
-															<>
-																<strong>Disabled</strong> - You will need to manually generate new
-																tokens when they expire.
-															</>
-														)}{' '}
-														<a
-															href="/v8/mfa-config"
-															onClick={(e) => {
-																e.preventDefault();
-																window.location.href = '/v8/mfa-config';
-															}}
-															style={{
-																color: 'inherit',
-																textDecoration: 'underline',
-																fontWeight: '600',
-															}}
-														>
-															Configure in MFA Settings
-														</a>
-													</div>
-												);
-											} catch {
-												return null;
-											}
-										})()}
-										<div
-											style={{
-												marginTop: '8px',
-												padding: '8px',
-												background: '#fff7ed',
-												borderRadius: '4px',
-												border: '1px solid #fdba74',
-												color: '#9a3412',
-											}}
-										>
-											<strong>✅ Recommended MFA scopes:</strong>
-											<div style={{ marginTop: '6px', fontFamily: 'monospace', fontSize: '12px' }}>
-												{PINGONE_WORKER_MFA_SCOPE_STRING}
-											</div>
-											<p style={{ marginTop: '6px', fontSize: '12px' }}>
-												You can adjust the scope list below to match your PingOne Worker
-												application.
-											</p>
-										</div>
-									</div>
-
-									{/* How to Get Credentials */}
-									<div
-										style={{
-											padding: '12px',
-											background: '#f0fdf4',
+											padding: '10px 12px',
+											background: '#dbeafe',
+											border: '1px solid #93c5fd',
 											borderRadius: '6px',
-											border: '1px solid #86efac',
-											marginBottom: '20px',
 											fontSize: '12px',
-											color: '#166534',
-											lineHeight: '1.5',
+											color: '#1e40af',
 										}}
 									>
-										<div style={{ marginBottom: '6px', fontWeight: '600' }}>
-											 How to get these credentials:
+										<summary style={{ cursor: 'pointer', fontWeight: 600 }}>
+											ℹ️ About worker tokens & how to get credentials
+										</summary>
+										<div style={{ marginTop: '8px', lineHeight: 1.5 }}>
+											Worker tokens authorize server-to-server PingOne management API calls and are
+											valid for <strong>1 hour</strong> after generation. They require a Worker
+											application with appropriate roles (e.g., "Identity Data Read Only" or
+											"Environment Admin"). Recommended scopes:{' '}
+											<code style={{ fontFamily: 'monospace' }}>
+												{PINGONE_WORKER_MFA_SCOPE_STRING}
+											</code>
+											. To get credentials, open PingOne Console → Connections → Applications,
+											create or select a Worker app, and copy the Environment ID, Client ID, and
+											Client Secret.
 										</div>
-										<ol style={{ margin: '0', paddingLeft: '20px' }}>
-											<li>Go to PingOne Console → Connections → Applications</li>
-											<li>Create or select a Worker application</li>
-											<li>Copy the Environment ID, Client ID, and Client Secret</li>
-											<li>Ensure the app has required roles assigned</li>
-											<li>
-												Set <strong>Token Endpoint Auth Method</strong> to match your Worker app. If
-												you see “client authentication failed”, try switching between{' '}
-												<em>Client Secret Post</em> and <em>Client Secret Basic</em>.
-											</li>
-										</ol>
-									</div>
+									</details>
 
 									{/* Form Fields */}
 									<form
@@ -1407,7 +1299,27 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											</small>
 										</div>
 
-										{/* Region */}
+										{/* Advanced options (collapsed by default) */}
+										<details>
+											<summary
+												style={{
+													cursor: 'pointer',
+													fontWeight: 600,
+													fontSize: '13px',
+													color: '#374151',
+												}}
+											>
+												Advanced options
+											</summary>
+											<div
+												style={{
+													display: 'flex',
+													flexDirection: 'column',
+													gap: '16px',
+													marginTop: '16px',
+												}}
+											>
+											{/* Region */}
 										<div>
 											<label
 												htmlFor="region"
@@ -1558,6 +1470,8 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												</div>
 											)}
 										</div>
+									</div>
+										</details>
 									</form>
 
 									{/* Save Credentials Checkbox */}
