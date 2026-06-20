@@ -69,7 +69,7 @@ function warnKeyMismatch() {
 }
 
 export function isEnvelope(v) {
-	return !!v && typeof v === 'object' && v.__enc === 1 && v.iv && v.tag && v.ct;
+	return Boolean(v && typeof v === 'object' && v.__enc === 1 && v.iv && v.tag && v.ct);
 }
 
 export function encryptField(plaintext) {
