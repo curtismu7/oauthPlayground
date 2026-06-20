@@ -58,9 +58,9 @@ class FlowCredentialIsolationService {
 				'FlowCredentialIsolationService',
 				`[CREDENTIAL ISOLATION] Saving credentials for flow: ${flowKey}`
 			);
-			logger.info(`📋 Flow Key: ${flowKey}`, 'Logger info');
-			logger.info(`📋 Credentials:`, credentials);
-			logger.info(`📋 Use Shared Fallback: ${options.useSharedFallback}`, 'Logger info');
+			logger.info(` Flow Key: ${flowKey}`, 'Logger info');
+			logger.info(` Credentials:`, credentials);
+			logger.info(` Use Shared Fallback: ${options.useSharedFallback}`, 'Logger info');
 
 			// Save to flow-specific storage (ALWAYS)
 			const flowStorageKey = this.getFlowStorageKey(flowKey);
@@ -76,16 +76,16 @@ class FlowCredentialIsolationService {
 
 			// Optionally save to shared storage (OPT-IN ONLY)
 			if (options.useSharedFallback) {
-				logger.info(`📋 Saving to shared storage (opt-in)`);
+				logger.info(` Saving to shared storage (opt-in)`);
 				localStorage.setItem(this.SHARED_STORAGE_KEY, JSON.stringify(credentials));
 				logger.info(`✅ Saved to shared storage: ${this.SHARED_STORAGE_KEY}`, 'Logger info');
 			} else {
-				logger.info(`🔒 NOT saving to shared storage (isolation mode)`);
+				logger.info(` NOT saving to shared storage (isolation mode)`);
 			}
 
 			// Verify the save
 			const savedData = localStorage.getItem(flowStorageKey);
-			logger.info(`📋 Verification - Flow data saved:`, !!savedData);
+			logger.info(` Verification - Flow data saved:`, !!savedData);
 
 			if (options.showToast) {
 				showGlobalSuccess(`Credentials saved for ${flowKey} (isolated)`);
@@ -188,7 +188,7 @@ class FlowCredentialIsolationService {
 			const flowStorageKey = this.getFlowStorageKey(flowKey);
 			localStorage.removeItem(flowStorageKey);
 			logger.info(
-				`🗑️ [CREDENTIAL ISOLATION] Cleared credentials for flow: ${flowKey}`,
+				` [CREDENTIAL ISOLATION] Cleared credentials for flow: ${flowKey}`,
 				'Logger info'
 			);
 			return true;
@@ -215,13 +215,13 @@ class FlowCredentialIsolationService {
 
 			const sharedData = localStorage.getItem(this.SHARED_STORAGE_KEY);
 			if (!sharedData) {
-				logger.info(`📋 No shared credentials to migrate`, 'Logger info');
+				logger.info(` No shared credentials to migrate`, 'Logger info');
 				return false;
 			}
 
 			const parsed = JSON.parse(sharedData);
 			if (!parsed.environmentId && !parsed.clientId) {
-				logger.info(`📋 Shared credentials are empty, nothing to migrate`);
+				logger.info(` Shared credentials are empty, nothing to migrate`);
 				return false;
 			}
 
@@ -230,7 +230,7 @@ class FlowCredentialIsolationService {
 			const existingFlowData = localStorage.getItem(flowStorageKey);
 
 			if (existingFlowData) {
-				logger.info(`📋 Flow-specific credentials already exist, skipping migration`);
+				logger.info(` Flow-specific credentials already exist, skipping migration`);
 				return false;
 			}
 
@@ -320,7 +320,7 @@ class FlowCredentialIsolationService {
 		const flowKeys = this.getAllFlowStorageKeys();
 		flowKeys.forEach((key) => {
 			localStorage.removeItem(key);
-			logger.info(`🗑️ Cleared: ${key}`, 'Logger info');
+			logger.info(` Cleared: ${key}`, 'Logger info');
 		});
 		logger.info(`✅ Cleared ${flowKeys.length} flow-specific credential stores`, 'Logger info');
 	}

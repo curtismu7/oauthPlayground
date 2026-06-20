@@ -184,7 +184,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 						}}
 					>
 						<strong style={{ color: V9_COLORS.PRIMARY.BLUE_DARK }}>
-							📚 Choosing a Specification Version
+							 Choosing a Specification Version
 						</strong>
 						<button
 							type="button"
@@ -255,7 +255,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 						}}
 					>
 						<strong style={{ color: V9_COLORS.TEXT.GRAY_DARK }}>
-							📖 {SpecVersionServiceV8.getSpecLabel(selectedGuidance)} Guidance
+							 {SpecVersionServiceV8.getSpecLabel(selectedGuidance)} Guidance
 						</strong>
 						<button
 							type="button"

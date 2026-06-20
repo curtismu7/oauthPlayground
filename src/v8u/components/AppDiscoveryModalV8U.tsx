@@ -17,7 +17,7 @@ import {
 } from '@/v8/services/appDiscoveryServiceV8';
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
+const MODULE_TAG = '[ APP-DISCOVERY-MODAL-V8U]';
 
 interface AppDiscoveryModalV8UProps {
 	isOpen: boolean;
@@ -328,7 +328,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								color: '#1f2937',
 							}}
 						>
-							📱 Discover Applications
+							 Discover Applications
 						</h2>
 						<button
 							onClick={onClose}
@@ -478,7 +478,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								transition: 'background 0.2s ease',
 							}}
 						>
-							{isLoading ? '🔄 Discovering...' : '🔍 Discover Apps'}
+							{isLoading ? ' Discovering...' : ' Discover Apps'}
 						</button>
 
 						{/* Search Field */}
@@ -516,7 +516,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 									fontSize: '13px',
 								}}
 							>
-								🔄 Discovering applications...
+								 Discovering applications...
 							</div>
 						)}
 

@@ -329,7 +329,7 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 									fontWeight: '500',
 								}}
 							>
-								🔒 {content.securityNote}
+								 {content.securityNote}
 							</p>
 						</div>
 					)}
@@ -351,7 +351,7 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 							}}
 						>
 							<span>Learn more in PingOne docs</span>
-							<span style={{ fontSize: '12px' }}>🔗</span>
+							<span style={{ fontSize: '12px' }}></span>
 						</a>
 					)}
 				</div>
@@ -502,7 +502,7 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 										lineHeight: '1.6',
 									}}
 								>
-									🔒 <strong>Security Note:</strong> {content.securityNote}
+									 <strong>Security Note:</strong> {content.securityNote}
 								</p>
 							</div>
 						)}
@@ -537,8 +537,8 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 										(e.currentTarget as HTMLElement).style.background = '#eff6ff';
 									}}
 								>
-									<span>📚 Learn more in PingOne documentation</span>
-									<span style={{ fontSize: '14px' }}>🔗</span>
+									<span> Learn more in PingOne documentation</span>
+									<span style={{ fontSize: '14px' }}></span>
 								</a>
 							</div>
 						)}

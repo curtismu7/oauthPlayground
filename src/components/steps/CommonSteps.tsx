@@ -305,9 +305,9 @@ export const createCredentialsStep = (
 							title={showSecret ? 'Hide client secret' : 'Show client secret'}
 						>
 							{showSecret ? (
-								<span style={{ fontSize: '16px' }}>🙈</span>
+								<span style={{ fontSize: '16px' }}></span>
 							) : (
-								<span style={{ fontSize: '16px' }}>👁️</span>
+								<span style={{ fontSize: '16px' }}></span>
 							)}
 						</button>
 					)}
@@ -481,7 +481,7 @@ export const createPKCEStep = (
 	title: 'Generate PKCE Codes',
 	description:
 		'PKCE (Proof Key for Code Exchange) adds security by preventing authorization code interception attacks. This step is optional but recommended for enhanced security.',
-	icon: <span>🛡️</span>,
+	icon: <span></span>,
 	category: 'security',
 	content: (
 		<div>
@@ -497,7 +497,7 @@ export const createPKCEStep = (
 							gap: '0.5rem',
 						}}
 					>
-						<span>🛡️</span>
+						<span></span>
 						What is PKCE and Why Use It?
 					</h4>
 
@@ -581,7 +581,7 @@ export const createPKCEStep = (
 						>
 							<FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Code Verifier:</FormLabel>
 							<CopyButton onClick={() => copyToClipboard(pkceCodes.codeVerifier, 'Code Verifier')}>
-								<span>📋</span> Copy
+								<span></span> Copy
 							</CopyButton>
 						</div>
 						<TokenDisplay>{maskToken(pkceCodes.codeVerifier)}</TokenDisplay>
@@ -600,7 +600,7 @@ export const createPKCEStep = (
 							<CopyButton
 								onClick={() => copyToClipboard(pkceCodes.codeChallenge, 'Code Challenge')}
 							>
-								<span>📋</span> Copy
+								<span></span> Copy
 							</CopyButton>
 						</div>
 						<TokenDisplay>{maskToken(pkceCodes.codeChallenge)}</TokenDisplay>
@@ -634,7 +634,7 @@ export const createAuthUrlStep = (
 		id: 'build-auth-url',
 		title: 'Build Authorization URL',
 		description: 'Construct the complete authorization URL with all required OAuth parameters.',
-		icon: <span>🌐</span>,
+		icon: <span></span>,
 		category: 'authorization',
 		content: (
 			<div>
@@ -650,7 +650,7 @@ export const createAuthUrlStep = (
 								gap: '0.5rem',
 							}}
 						>
-							<span>🌐</span>
+							<span></span>
 							What is the Authorization URL?
 						</h4>
 
@@ -753,7 +753,7 @@ export const createAuthUrlStep = (
 								Generated Authorization URL:
 							</FormLabel>
 							<CopyButton onClick={() => copyToClipboard(authUrl, 'Authorization URL')}>
-								<span>📋</span> Copy
+								<span></span> Copy
 							</CopyButton>
 							<CopyButton
 								onClick={() => setShowExplainer?.(true)}
@@ -807,12 +807,12 @@ export const createTokenExchangeStep = (
 		flowVariant === 'oauth'
 			? 'Exchange the authorization code for OAuth access and refresh tokens (no ID token in pure OAuth 2.0).'
 			: 'Exchange the authorization code for OIDC tokens: access token, refresh token, and ID token.',
-	icon: <span>🔑</span>,
+	icon: <span></span>,
 	category: 'token-exchange',
 	content: (
 		<div>
 			<InfoBox type="info">
-				<span>🔑</span>
+				<span></span>
 				<div>
 					<strong>Token Exchange - Authorization Code Flow Step 4</strong>
 					<br />
@@ -949,7 +949,7 @@ export const createTokenExchangeStep = (
 							>
 								<FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Access Token:</FormLabel>
 								<CopyButton onClick={() => copyToClipboard(tokens.access_token, 'Access Token')}>
-									<span>📋</span> Copy
+									<span></span> Copy
 								</CopyButton>
 							</div>
 							<TokenDisplay>{maskToken(tokens.access_token)}</TokenDisplay>
@@ -968,7 +968,7 @@ export const createTokenExchangeStep = (
 							>
 								<FormLabel style={{ margin: 0, fontWeight: 'bold' }}>Refresh Token:</FormLabel>
 								<CopyButton onClick={() => copyToClipboard(tokens.refresh_token, 'Refresh Token')}>
-									<span>📋</span> Copy
+									<span></span> Copy
 								</CopyButton>
 							</div>
 							<TokenDisplay>{maskToken(tokens.refresh_token)}</TokenDisplay>
@@ -987,7 +987,7 @@ export const createTokenExchangeStep = (
 							>
 								<FormLabel style={{ margin: 0, fontWeight: 'bold' }}>ID Token:</FormLabel>
 								<CopyButton onClick={() => copyToClipboard(tokens.id_token, 'ID Token')}>
-									<span>📋</span> Copy
+									<span></span> Copy
 								</CopyButton>
 							</div>
 							<TokenDisplay>{maskToken(tokens.id_token)}</TokenDisplay>
@@ -1008,7 +1008,7 @@ export const createTokenExchangeStep = (
 					>
 						<h4 style={{ margin: 0 }}>Authorization Code:</h4>
 						<CopyButton onClick={() => copyToClipboard(authCode, 'Authorization Code')}>
-							<span>📋</span> Copy
+							<span></span> Copy
 						</CopyButton>
 					</div>
 					<FormField>
@@ -1049,12 +1049,12 @@ export const createUserInfoStep = (
 	title: 'Validate Tokens',
 	description:
 		"Use the access token to call the UserInfo endpoint and retrieve the authenticated user's profile.",
-	icon: <span>👤</span>,
+	icon: <span></span>,
 	category: 'validation',
 	content: (
 		<div>
 			<InfoBox type="info">
-				<span>👤</span>
+				<span></span>
 				<div>
 					<strong>UserInfo Endpoint</strong>
 					<br />
@@ -1104,12 +1104,12 @@ export const createUserAuthorizationStep = (
 	title: 'User Authorization & Authorization Code',
 	description:
 		'Redirect the user to PingOne to authenticate and obtain an authorization code for secure token exchange.',
-	icon: <span>🌐</span>,
+	icon: <span></span>,
 	category: 'authorization',
 	content: (
 		<div>
 			<InfoBox type="info">
-				<span>🌐</span>
+				<span></span>
 				<div>
 					<strong>Authorization Code Flow - Step 3</strong>
 					<br />
@@ -1315,7 +1315,7 @@ export const createCallbackHandlingStep = (
 					>
 						<h4 style={{ margin: 0 }}>Authorization Code:</h4>
 						<CopyButton onClick={() => copyToClipboard(authCode, 'Authorization Code')}>
-							<span>📋</span> Copy
+							<span></span> Copy
 						</CopyButton>
 					</div>
 					<FormField>
@@ -1354,12 +1354,12 @@ export const createTokenValidationStep = (
 	title: 'Validate Tokens & Get User Info',
 	description:
 		'Validate the received tokens and call the UserInfo endpoint to retrieve user profile information.',
-	icon: <span>🛡️</span>,
+	icon: <span></span>,
 	category: 'validation',
 	content: (
 		<div>
 			<InfoBox type="info">
-				<span>🛡️</span>
+				<span></span>
 				<div>
 					<strong>Token Validation</strong>
 					<br />
@@ -1389,7 +1389,7 @@ export const createTokenValidationStep = (
 
 			{userInfo && (
 				<InfoBox type="success">
-					<span>👤</span>
+					<span></span>
 					<div>
 						<strong> User Information Retrieved!</strong>
 						<br />
@@ -1476,7 +1476,7 @@ export const createTokenValidationStep = (
 						<CopyButton
 							onClick={() => copyToClipboard(JSON.stringify(userInfo, null, 2), 'User Info')}
 						>
-							<span>📋</span> Copy
+							<span></span> Copy
 						</CopyButton>
 					</div>
 					<FormField>
@@ -1495,7 +1495,7 @@ export const createTokenValidationStep = (
 							opacity: isValidating ? 0.5 : 1,
 						}}
 					>
-						<span>👤</span> Get User Info
+						<span></span> Get User Info
 					</ActionButton>
 				</div>
 			)}
@@ -1533,7 +1533,7 @@ export const createRefreshTokenStep = (
 	content: (
 		<div>
 			<InfoBox type="info">
-				<span>🔑</span>
+				<span></span>
 				<div>
 					<strong>Refresh Token Usage - Extending Token Lifetime</strong>
 					<br />

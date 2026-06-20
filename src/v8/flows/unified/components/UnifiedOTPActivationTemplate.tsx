@@ -38,7 +38,7 @@ import { colors, spacing } from '@/v8/styles/designTokens';
 
 import { logger } from '../../../../utils/logger';
 
-const MODULE_TAG = '[🔐 UNIFIED-OTP-TEMPLATE]';
+const MODULE_TAG = '[ UNIFIED-OTP-TEMPLATE]';
 
 // ============================================================================
 // TYPES
@@ -83,7 +83,7 @@ export interface UnifiedOTPActivationTemplateProps {
 
 const DEVICE_CONFIGS = {
 	SMS: {
-		icon: '📱',
+		icon: '',
 		color: colors.primary,
 		instructions: 'Enter the 6-digit code sent to your mobile phone via SMS',
 		contextText:
@@ -91,28 +91,28 @@ const DEVICE_CONFIGS = {
 		resendText: 'Resend SMS',
 	},
 	EMAIL: {
-		icon: '📧',
+		icon: '',
 		color: colors.success,
 		instructions: 'Enter the 6-digit code sent to your email address',
 		contextText: "Check your spam folder if you don't see the email in your inbox.",
 		resendText: 'Resend Email',
 	},
 	WHATSAPP: {
-		icon: '💬',
+		icon: '',
 		color: colors.success,
 		instructions: 'Enter the 6-digit code sent via WhatsApp',
 		contextText: 'Make sure WhatsApp is installed and you have internet connectivity.',
 		resendText: 'Resend WhatsApp',
 	},
 	VOICE: {
-		icon: '📞',
+		icon: '',
 		color: colors.warning,
 		instructions: 'Enter the 6-digit code from the voice call',
 		contextText: 'Listen carefully and have a pen ready. The code will be read twice.',
 		resendText: 'Call Again',
 	},
 	TOTP: {
-		icon: '🔐',
+		icon: '',
 		color: colors.info,
 		instructions: 'Enter the current 6-digit code from your authenticator app',
 		contextText: 'Codes refresh every 30 seconds. Wait for a new code if time is running out.',
@@ -295,7 +295,7 @@ export const UnifiedOTPActivationTemplate: React.FC<UnifiedOTPActivationTemplate
 							fontStyle: 'italic',
 						}}
 					>
-						💡 {contextText}
+						 {contextText}
 					</p>
 				)}
 			</div>

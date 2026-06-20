@@ -227,7 +227,7 @@ export const FlowSequenceDisplay: React.FC<FlowSequenceDisplayProps> = ({ flowTy
 				$collapsed={isCollapsed}
 			>
 				<CollapsibleTitle>
-					<span>⚡</span>
+					<span></span>
 					{sequence.title}
 				</CollapsibleTitle>
 				<CollapsibleToggleIcon $collapsed={isCollapsed}>

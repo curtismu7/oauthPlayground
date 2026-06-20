@@ -50,7 +50,7 @@ import { logger } from '../../utils/logger';
 import { MFAFlowComponentFactory } from './factories/MFAFlowComponentFactory';
 import type { DeviceType } from './shared/MFATypes';
 
-const MODULE_TAG = '[📱 MFA-FLOW-V8]';
+const MODULE_TAG = '[ MFA-FLOW-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
 
 // Lazy load unified flow for code splitting
@@ -132,7 +132,7 @@ export const MFAFlowV8: React.FC = () => {
 
 	// Route to unified flow or legacy flow based on feature flag
 	if (useUnifiedFlow) {
-		logger.info(`${MODULE_TAG} ✨ Using UNIFIED flow for ${deviceType}`, 'Logger info');
+		logger.info(`${MODULE_TAG} Using UNIFIED flow for ${deviceType}`, 'Logger info');
 		return (
 			<MFAErrorBoundary>
 				<Suspense fallback={<MFAFlowSkeleton />}>
@@ -143,7 +143,7 @@ export const MFAFlowV8: React.FC = () => {
 	}
 
 	// Use factory to create the appropriate legacy component
-	logger.info(`${MODULE_TAG} 📱 Using LEGACY flow for ${deviceType}`, 'Logger info');
+	logger.info(`${MODULE_TAG} Using LEGACY flow for ${deviceType}`, 'Logger info');
 	const FlowComponent = MFAFlowComponentFactory.create(deviceType);
 
 	return (

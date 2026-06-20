@@ -13,7 +13,7 @@ import { FIDO2Service } from '@/services/fido2Service';
 import { logger } from '../../utils/logger';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
-const MODULE_TAG = '[🔐 WEBAUTHN-AUTHN-SERVICE-V8]';
+const MODULE_TAG = '[ WEBAUTHN-AUTHN-SERVICE-V8]';
 
 export interface WebAuthnAuthenticationParams {
 	challengeId?: string; // Optional if publicKeyOptions is provided
@@ -260,7 +260,7 @@ export class WebAuthnAuthenticationServiceV8 {
 
 				// CRITICAL: Log right before the WebAuthn call
 				logger.info(
-					`${MODULE_TAG} 🔐 ABOUT TO CALL navigator.credentials.get() - Browser prompt should appear NOW!`,
+					`${MODULE_TAG} ABOUT TO CALL navigator.credentials.get() - Browser prompt should appear NOW!`,
 					{
 						timestamp: new Date().toISOString(),
 						options: {
@@ -416,7 +416,7 @@ export class WebAuthnAuthenticationServiceV8 {
 
 			// CRITICAL: Log right before the WebAuthn call
 			logger.info(
-				`${MODULE_TAG} 🔐 ABOUT TO CALL navigator.credentials.get() (fallback path) - Browser prompt should appear NOW!`,
+				`${MODULE_TAG} ABOUT TO CALL navigator.credentials.get() (fallback path) - Browser prompt should appear NOW!`,
 				{
 					timestamp: new Date().toISOString(),
 					options: {

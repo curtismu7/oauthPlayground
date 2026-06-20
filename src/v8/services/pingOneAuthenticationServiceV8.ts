@@ -14,7 +14,7 @@ import { hasPingOneSessionCookie } from '@/v8/services/fido2SessionCookieService
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔐 PINGONE-AUTH-V8]';
+const MODULE_TAG = '[ PINGONE-AUTH-V8]';
 
 export interface PingOneAuthResult {
 	isAuthenticated: boolean;
@@ -29,7 +29,7 @@ export interface PingOneAuthResult {
  * Always provides success message for user feedback
  */
 export function checkPingOneAuthentication(): PingOneAuthResult {
-	logger.info(`${MODULE_TAG} 🔍 Checking PingOne authentication status...`, 'Logger info');
+	logger.info(`${MODULE_TAG} Checking PingOne authentication status...`, 'Logger info');
 
 	// Check for session cookies first (most reliable indicator)
 	const hasSessionCookie = hasPingOneSessionCookie();
@@ -131,7 +131,7 @@ export function checkPingOneAuthentication(): PingOneAuthResult {
 			details: 'OAuth state parameter present - likely authenticated',
 		};
 
-		logger.info(`${MODULE_TAG} 🔍 OAuth state detected:`, result);
+		logger.info(`${MODULE_TAG} OAuth state detected:`, result);
 		showAuthenticationSuccess(result);
 		return result;
 	}
@@ -145,7 +145,7 @@ export function checkPingOneAuthentication(): PingOneAuthResult {
 		details: 'No clear authentication indicators, assuming authenticated for user experience',
 	};
 
-	logger.info(`${MODULE_TAG} 🤔 Default authentication assumption:`, result);
+	logger.info(`${MODULE_TAG} Default authentication assumption:`, result);
 	showAuthenticationSuccess(result);
 	return result;
 }
@@ -158,7 +158,7 @@ function showAuthenticationSuccess(result: PingOneAuthResult): void {
 		case 'session_cookie':
 			modernMessaging.showFooterMessage({
 				type: 'info',
-				message: '🔐 PingOne session detected! You are authenticated.',
+				message: ' PingOne session detected! You are authenticated.',
 				duration: 5000,
 			});
 			break;
@@ -172,21 +172,21 @@ function showAuthenticationSuccess(result: PingOneAuthResult): void {
 		case 'implicit':
 			modernMessaging.showFooterMessage({
 				type: 'info',
-				message: '🎉 PingOne implicit authentication successful!',
+				message: ' PingOne implicit authentication successful!',
 				duration: 5000,
 			});
 			break;
 		default:
 			modernMessaging.showFooterMessage({
 				type: 'info',
-				message: '🔓 PingOne authentication completed!',
+				message: ' PingOne authentication completed!',
 				duration: 5000,
 			});
 			break;
 	}
 
 	// Log detailed authentication info for debugging
-	logger.info(`${MODULE_TAG} 📊 Authentication Summary:`, {
+	logger.info(`${MODULE_TAG} Authentication Summary:`, {
 		method: result.method,
 		confidence: result.confidence,
 		hasSessionCookie: result.hasSessionCookie,
@@ -249,7 +249,7 @@ export function performDetailedAuthenticationCheck(): {
 		storageKeys,
 	};
 
-	logger.info(`${MODULE_TAG} 🔬 Detailed Authentication Diagnostics:`, {
+	logger.info(`${MODULE_TAG} Detailed Authentication Diagnostics:`, {
 		result,
 		diagnostics,
 	});
@@ -291,7 +291,7 @@ export function shouldRedirectToPingOne(): boolean {
 	}
 
 	// Otherwise, recommend redirect
-	logger.info(`${MODULE_TAG} 🔄 Recommend redirect to PingOne for authentication`, 'Logger info');
+	logger.info(`${MODULE_TAG} Recommend redirect to PingOne for authentication`, 'Logger info');
 	return true;
 }
 

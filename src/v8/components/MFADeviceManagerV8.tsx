@@ -27,7 +27,7 @@ import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/St
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔧 DEVICE-MANAGER-V8]';
+const MODULE_TAG = '[ DEVICE-MANAGER-V8]';
 
 interface MFADeviceManagerV8Props {
 	environmentId: string;
@@ -603,15 +603,15 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	const getDeviceIcon = (type: string) => {
 		switch (type) {
 			case 'SMS':
-				return '📱';
+				return '';
 			case 'EMAIL':
-				return '📧';
+				return '';
 			case 'TOTP':
-				return '🔐';
+				return '';
 			case 'VOICE':
-				return '📞';
+				return '';
 			default:
-				return '🔒';
+				return '';
 		}
 	};
 
@@ -708,7 +708,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 									}}
 									title="Change to a different user"
 								>
-									🔄 Change User
+									 Change User
 								</button>
 							)}
 						</div>
@@ -788,7 +788,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 									}}
 									title="Check MFA bypass status for this user"
 								>
-									🔍 Check Bypass
+									 Check Bypass
 								</button>
 								<button
 									type="button"
@@ -832,7 +832,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 									cursor: 'pointer',
 								}}
 							>
-								🔄 Refresh
+								 Refresh
 							</button>
 						</div>
 					</div>
@@ -918,7 +918,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 							border: '1px solid #e5e7eb',
 						}}
 					>
-						<div style={{ fontSize: '48px', marginBottom: '16px' }}>📱</div>
+						<div style={{ fontSize: '48px', marginBottom: '16px' }}></div>
 						<h3 style={{ margin: '0 0 8px 0', color: '#1f2937' }}>No Devices Found</h3>
 						<p style={{ margin: 0, color: '#6b7280' }}>
 							This user doesn't have any MFA devices registered yet.
@@ -1342,7 +1342,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 															: 'Unlock device - Device is not locked'
 												}
 											>
-												{isProcessing ? '⏳ Unlocking...' : '🔓 Unlock'}
+												{isProcessing ? '⏳ Unlocking...' : ' Unlock'}
 											</button>
 
 											{/* Block Device Button - Always visible */}
@@ -1391,7 +1391,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 															: 'Block device - Current status: ACTIVE'
 												}
 											>
-												{isProcessing ? '' : '🚫 Block'}
+												{isProcessing ? '' : ' Block'}
 											</ButtonSpinner>
 
 											{/* Unblock Device Button - Always visible */}
@@ -1471,7 +1471,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 															: 'Admin Activate - Activate device without user OTP (requires admin privileges)'
 													}
 												>
-													{isProcessing ? '' : '👑 Admin Activate'}
+													{isProcessing ? '' : ' Admin Activate'}
 												</ButtonSpinner>
 											)}
 
@@ -1490,7 +1490,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 												}}
 												title="Delete device"
 											>
-												🗑️ Delete
+												 Delete
 											</button>
 										</div>
 									)}

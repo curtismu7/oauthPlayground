@@ -10,7 +10,7 @@ import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[📧 EMAIL-MFA-SIGNON-SERVICE-V8]';
+const MODULE_TAG = '[ EMAIL-MFA-SIGNON-SERVICE-V8]';
 
 export interface CreateApplicationParams {
 	environmentId: string;

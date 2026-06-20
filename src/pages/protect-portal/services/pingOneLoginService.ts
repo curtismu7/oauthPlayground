@@ -12,7 +12,7 @@
 import { logger } from '../../../utils/logger';
 import type { PortalError, ServiceResponse, UserContext } from '../types/protectPortal.types';
 
-const MODULE_TAG = '[🔐 PINGONE-LOGIN-SERVICE]';
+const MODULE_TAG = '[ PINGONE-LOGIN-SERVICE]';
 
 // ============================================================================
 // PINGONE LOGIN SERVICE

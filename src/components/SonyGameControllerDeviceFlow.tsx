@@ -462,10 +462,10 @@ const SonyGameControllerDeviceFlow: React.FC<SonyGameControllerDeviceFlowProps> 
 					</QRCodeContainer>
 					<ActionButtons>
 						<UIActionButton $variant="secondary" onClick={handleCopyUserCode}>
-							<span>📋</span> Copy Code
+							<span></span> Copy Code
 						</UIActionButton>
 						<UIActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<span>🔗</span> Open App
+							<span></span> Open App
 						</UIActionButton>
 					</ActionButtons>
 				</QRCodeSection>

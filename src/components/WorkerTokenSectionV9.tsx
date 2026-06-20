@@ -252,7 +252,7 @@ export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
 		<>
 			<Section $compact={compact}>
 				<Header>
-					<span style={{ fontSize: 20, color: '#2563eb' }}>🔑</span>
+					<span style={{ fontSize: 20, color: '#2563eb' }}></span>
 					<Title>Worker Token (Admin Flow)</Title>
 					{!compact && <Badge>Service Account</Badge>}
 				</Header>
@@ -302,13 +302,13 @@ export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
 				<Actions>
 					{!tokenStatus.isValid ? (
 						<Btn type="button" $variant="primary" onClick={() => setShowModal(true)}>
-							<span style={{ fontSize: '14px' }}>🔑</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Get Worker Token
 						</Btn>
 					) : (
 						<>
 							<Btn type="button" $variant="success" onClick={() => setShowModal(true)}>
-								<span style={{ fontSize: '14px' }}>🔑</span>
+								<span style={{ fontSize: '14px' }}></span>
 								Update Token
 							</Btn>
 							<Btn type="button" $variant="danger" onClick={() => void handleClear()}>

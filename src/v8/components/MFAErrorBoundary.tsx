@@ -156,7 +156,7 @@ export class MFAErrorBoundary extends Component<Props, State> {
 									cursor: 'pointer',
 								}}
 							>
-								<span style={{ fontSize: '18px' }}>🔄</span>
+								<span style={{ fontSize: '18px' }}></span>
 								Try Again
 							</button>
 							<button
@@ -176,7 +176,7 @@ export class MFAErrorBoundary extends Component<Props, State> {
 									cursor: 'pointer',
 								}}
 							>
-								<span style={{ fontSize: '18px' }}>🏠</span>
+								<span style={{ fontSize: '18px' }}></span>
 								Go to MFA Hub
 							</button>
 						</div>

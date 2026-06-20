@@ -305,7 +305,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing OTP Registration...', 'Logger info');
+			logger.info(' Testing OTP Registration...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for OTP registration test');
@@ -372,7 +372,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing OTP Verification...', 'Logger info');
+			logger.info(' Testing OTP Verification...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for OTP verification test');
@@ -437,7 +437,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing TOTP Registration...', 'Logger info');
+			logger.info(' Testing TOTP Registration...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for TOTP registration test');
@@ -502,7 +502,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing TOTP Verification...', 'Logger info');
+			logger.info(' Testing TOTP Verification...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for TOTP verification test');
@@ -567,7 +567,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing FIDO2 Registration...', 'Logger info');
+			logger.info(' Testing FIDO2 Registration...', 'Logger info');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for FIDO2 registration test');
@@ -634,7 +634,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Admin Authentication (Activation Required)...');
+			logger.info(' Testing Admin Authentication (Activation Required)...');
 
 			if (!hasWorkerToken) {
 				throw new Error('Worker token required for admin authentication test');
@@ -709,7 +709,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		setResults([]);
 
 		try {
-			logger.info('🚀 Starting MFA Flow Tests...', 'Logger info');
+			logger.info(' Starting MFA Flow Tests...', 'Logger info');
 
 			// Test 1: OTP Registration
 			await testOTPRegistration();
@@ -746,7 +746,7 @@ const MFAFlowsApiTest: React.FC = () => {
 		setResults([]);
 
 		try {
-			logger.info('🚀 Starting Admin Authentication Tests...', 'Logger info');
+			logger.info(' Starting Admin Authentication Tests...', 'Logger info');
 
 			// Test 1: Admin Authentication - Activation Required
 			await testAdminAuthActivationRequired();
@@ -767,7 +767,7 @@ const MFAFlowsApiTest: React.FC = () => {
 	return (
 		<Container>
 			<Header>
-				<Title>🔐 MFA Flows API Test Suite</Title>
+				<Title> MFA Flows API Test Suite</Title>
 				<Subtitle>
 					Test PingOne MFA flows: OTP, TOTP, FIDO2 registration, and Admin Authentication with
 					activation scenarios
@@ -777,7 +777,7 @@ const MFAFlowsApiTest: React.FC = () => {
 						variant={hasWorkerToken ? 'secondary' : 'primary'}
 						onClick={() => setShowWorkerTokenModal(true)}
 					>
-						<span>🔑</span>
+						<span></span>
 						{hasWorkerToken ? '✓ Worker Token Set' : 'Get Worker Token'}
 					</Button>
 					<Button
@@ -786,7 +786,7 @@ const MFAFlowsApiTest: React.FC = () => {
 							window.location.reload();
 						}}
 					>
-						<span>🔄</span>
+						<span></span>
 						Refresh Apps
 					</Button>
 				</ButtonGroup>
@@ -794,7 +794,7 @@ const MFAFlowsApiTest: React.FC = () => {
 
 			{/* MFA Registration & Verification Tests */}
 			<TestSection>
-				<SectionTitle>📱 MFA Registration & Verification Tests</SectionTitle>
+				<SectionTitle> MFA Registration & Verification Tests</SectionTitle>
 				<Form>
 					<FormRow>
 						<FormGroup>
@@ -914,11 +914,11 @@ const MFAFlowsApiTest: React.FC = () => {
 
 					<ButtonGroup>
 						<Button variant="primary" onClick={runMFATests} disabled={isRunning}>
-							<span>📱</span>
+							<span></span>
 							{isRunning ? 'Running MFA Tests...' : 'Run MFA Tests'}
 						</Button>
 						<Button variant="secondary" onClick={() => setResults([])}>
-							<span>🔄</span>
+							<span></span>
 							Clear Results
 						</Button>
 					</ButtonGroup>
@@ -927,7 +927,7 @@ const MFAFlowsApiTest: React.FC = () => {
 
 			{/* Admin Authentication Tests */}
 			<TestSection>
-				<SectionTitle>👤 Admin Authentication Tests</SectionTitle>
+				<SectionTitle> Admin Authentication Tests</SectionTitle>
 				<Form>
 					<FormRow>
 						<FormGroup>
@@ -953,11 +953,11 @@ const MFAFlowsApiTest: React.FC = () => {
 
 					<ButtonGroup>
 						<Button variant="primary" onClick={runAdminAuthTests} disabled={isRunning}>
-							<span>👤</span>
+							<span></span>
 							{isRunning ? 'Running Admin Tests...' : 'Run Admin Tests'}
 						</Button>
 						<Button variant="secondary" onClick={() => setResults([])}>
-							<span>🔄</span>
+							<span></span>
 							Clear Results
 						</Button>
 					</ButtonGroup>

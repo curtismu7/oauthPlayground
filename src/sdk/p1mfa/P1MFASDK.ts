@@ -35,7 +35,7 @@ import type {
 	P1MFAConfig,
 } from './types';
 
-const MODULE_TAG = '[📦 P1MFA-SDK]';
+const MODULE_TAG = '[ P1MFA-SDK]';
 
 /**
  * PingOne MFA SDK

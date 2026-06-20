@@ -148,7 +148,7 @@ const AIAssistantSidePanel: React.FC<AIAssistantSidePanelProps> = ({
 							title="Clear chat and start fresh"
 							aria-label="Clear chat"
 						>
-							🗑 Clear
+							 Clear
 						</ClearChatButton>
 					)}
 					<CloseButton onClick={onClose}>×</CloseButton>
@@ -1487,7 +1487,7 @@ const McpQueryContent: React.FC<{ history: McpQueryRecord[] }> = ({ history }) =
 			<ContentSection>
 				<SectionTitle>MCP Query Log</SectionTitle>
 				<EmptyState>
-					<EmptyIcon>🔌</EmptyIcon>
+					<EmptyIcon></EmptyIcon>
 					<EmptyText>No MCP queries yet.</EmptyText>
 					<EmptyHint>
 						Ask the assistant something like "List all users" or "Get worker token" to see live API

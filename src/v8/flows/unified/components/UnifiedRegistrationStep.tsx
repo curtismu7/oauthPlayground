@@ -37,7 +37,7 @@ import { logger } from '../../../../utils/logger';
 import { type DeviceComponentProps, DeviceComponentRegistry } from './DeviceComponentRegistry';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
 
-const MODULE_TAG = '[📝 UNIFIED-REGISTRATION-STEP]';
+const MODULE_TAG = '[ UNIFIED-REGISTRATION-STEP]';
 
 // Exported helper to determine final device status after registration
 export function computeDeviceStatus(

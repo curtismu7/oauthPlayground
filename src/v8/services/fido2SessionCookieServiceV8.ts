@@ -12,7 +12,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔐 FIDO2-SESSION-COOKIE-V8]';
+const MODULE_TAG = '[ FIDO2-SESSION-COOKIE-V8]';
 
 /**
  * PingOne session cookie names to check for

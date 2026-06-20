@@ -16,7 +16,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔍 TOKEN-OPERATIONS-V8]';
+const MODULE_TAG = '[ TOKEN-OPERATIONS-V8]';
 
 export interface TokenOperationRules {
 	// Introspection

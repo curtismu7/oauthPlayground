@@ -428,7 +428,7 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 	return (
 		<Container className={className}>
 			<Header>
-				<Title>🔑 API Keys Configuration</Title>
+				<Title> API Keys Configuration</Title>
 			</Header>
 
 			<Description>
@@ -482,7 +482,7 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 										title={showKeys[config.service] ? 'Hide key' : 'Show key'}
 										aria-label={showKeys[config.service] ? 'Hide key' : 'Show key'}
 									>
-										{showKeys[config.service] ? '🙈' : '👁️'}
+										{showKeys[config.service] ? '' : ''}
 									</button>
 									{apiKeyInfo.lastUsedAt && (
 										<span style={{ marginLeft: '8px', fontFamily: 'sans-serif' }}>
@@ -513,7 +513,7 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 											title={showInputKey ? 'Hide' : 'Show'}
 											aria-label={showInputKey ? 'Hide key' : 'Show key'}
 										>
-											{showInputKey ? '🙈' : '👁️'}
+											{showInputKey ? '' : ''}
 										</EyeButton>
 									</InputWrapper>
 									<Button
@@ -538,14 +538,14 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 									{hasKey ? (
 										<>
 											<Button onClick={() => setEditingService(config.service)} disabled={loading}>
-												🔄 Update
+												 Update
 											</Button>
 											<Button
 												$variant="danger"
 												onClick={() => handleDeleteApiKey(config.service)}
 												disabled={loading}
 											>
-												🗑️ Delete
+												 Delete
 											</Button>
 										</>
 									) : (
@@ -567,7 +567,7 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 			{/* Backup Section */}
 			<BackupSection>
 				<BackupHeader>
-					<BackupTitle>🔄 API Key Backup</BackupTitle>
+					<BackupTitle> API Key Backup</BackupTitle>
 				</BackupHeader>
 
 				<BackupStatusStyled>
@@ -591,10 +591,10 @@ export const ApiKeyConfiguration: React.FC<ApiKeyConfigurationProps> = ({ classN
 
 				<BackupActions>
 					<Button onClick={handleCreateBackup} disabled={loadingBackup} $variant="primary">
-						💾 Create Backup
+						 Create Backup
 					</Button>
 					<Button onClick={handleRestoreBackup} disabled={loadingBackup}>
-						🔄 Restore from Backup
+						 Restore from Backup
 					</Button>
 				</BackupActions>
 			</BackupSection>

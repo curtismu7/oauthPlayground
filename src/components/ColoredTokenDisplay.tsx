@@ -385,7 +385,7 @@ export const ColoredTokenDisplay: React.FC<ColoredTokenDisplayProps> = ({
 					)}
 					{showOpenButton && (
 						<ActionButton onClick={handleOpen} $variant="secondary">
-							<span style={{ fontSize: '14px' }}>🔗</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Open
 						</ActionButton>
 					)}

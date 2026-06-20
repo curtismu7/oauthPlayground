@@ -131,7 +131,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 	useEffect(() => {
 		if (isOpen) {
 			logger.info(
-				`[AuthorizationCodeConfigModal] 🔄 Modal opened - loading saved credentials for flowType: ${flowType}`,
+				`[AuthorizationCodeConfigModal] Modal opened - loading saved credentials for flowType: ${flowType}`,
 				'Logger info'
 			);
 
@@ -454,7 +454,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					}}
 					title="Export credentials to JSON file"
 				>
-					<span style={{ fontSize: '14px' }}>📥</span>
+					<span style={{ fontSize: '14px' }}></span>
 					Export
 				</button>
 				<button
@@ -491,7 +491,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					}}
 					title="Import credentials from JSON file"
 				>
-					<span style={{ fontSize: '14px' }}>📤</span>
+					<span style={{ fontSize: '14px' }}></span>
 					Import
 				</button>
 			</div>
@@ -501,7 +501,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					Cancel
 				</ActionButton>
 				<ActionButton onClick={handleSave} disabled={isSaving}>
-					<span>💾</span>
+					<span></span>
 					{isSaving ? 'Saving...' : 'Save Credentials'}
 				</ActionButton>
 			</ButtonGroup>

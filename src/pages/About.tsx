@@ -179,14 +179,14 @@ export default function About() {
 					flowType: 'pingone',
 					title: 'OAuth Playground — About',
 					subtitle: 'Everything the PingOne MasterFlow API playground does',
-					icon: '📚',
+					icon: '',
 				}}
 			/>
 
 			{/* Header */}
 			<Section>
 				<div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-					<div style={{ fontSize: '3rem', lineHeight: 1 }}>📚</div>
+					<div style={{ fontSize: '3rem', lineHeight: 1 }}></div>
 					<div>
 						<h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#1f2937', margin: 0 }}>
 							PingOne MasterFlow API Playground

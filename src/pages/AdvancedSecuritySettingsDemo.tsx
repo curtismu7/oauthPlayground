@@ -50,7 +50,7 @@ const AdvancedSecuritySettingsDemo: React.FC = () => {
 			<ContentArea>
 				<InfoCard>
 					<InfoTitle>
-						<span style={{ fontSize: '18px' }}>🔗</span>
+						<span style={{ fontSize: '18px' }}></span>
 						Service Implementation Complete
 					</InfoTitle>
 					<InfoText>

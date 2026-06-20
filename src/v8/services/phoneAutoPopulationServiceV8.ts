@@ -8,7 +8,7 @@
 import { logger } from '../../utils/logger';
 import { MFAServiceV8, type UserLookupResult } from './mfaServiceV8';
 
-const MODULE_TAG = '[📞 PHONE-AUTO-POPULATION-V8]';
+const MODULE_TAG = '[ PHONE-AUTO-POPULATION-V8]';
 
 /**
  * Extract phone number from PingOne user object

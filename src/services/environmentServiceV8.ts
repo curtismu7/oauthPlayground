@@ -116,7 +116,7 @@ const EnvironmentServiceV8 = {
 		accessToken?: string,
 		region?: string
 	): Promise<EnvironmentListResponse> {
-		logger.info('EnvironmentServiceV8', '[EnvironmentServiceV8] 🚀 getEnvironments called with:', {
+		logger.info('EnvironmentServiceV8', '[EnvironmentServiceV8] getEnvironments called with:', {
 			arg0: {
 				filters,
 				hasAccessToken: !!accessToken,
@@ -161,7 +161,7 @@ const EnvironmentServiceV8 = {
 		}
 
 		const url = `${EnvironmentServiceV8.BASE_PATH}?${params.toString()}`;
-		logger.info('EnvironmentServiceV8', '[EnvironmentServiceV8] 📡 Making fetch request to:', {
+		logger.info('EnvironmentServiceV8', '[EnvironmentServiceV8] Making fetch request to:', {
 			arg0: {
 				url: url.replace(/accessToken=[^&]+/, 'accessToken=***REDACTED***'),
 				method: 'GET',
@@ -170,7 +170,7 @@ const EnvironmentServiceV8 = {
 
 		try {
 			const response = await pingOneFetch(url);
-			logger.info('EnvironmentServiceV8', '[EnvironmentServiceV8] 📦 Received response:', {
+			logger.info('EnvironmentServiceV8', '[EnvironmentServiceV8] Received response:', {
 				arg0: {
 					status: response.status,
 					statusText: response.statusText,
@@ -180,7 +180,7 @@ const EnvironmentServiceV8 = {
 			});
 
 			const data = await response.json();
-			logger.info('EnvironmentServiceV8', '[EnvironmentServiceV8] 📊 Parsed response data:', {
+			logger.info('EnvironmentServiceV8', '[EnvironmentServiceV8] Parsed response data:', {
 				arg0: {
 					hasData: !!data,
 					hasEnvironments: !!data?.environments,
@@ -195,12 +195,12 @@ const EnvironmentServiceV8 = {
 
 			logger.info(
 				'EnvironmentServiceV8',
-				'[EnvironmentServiceV8] 📈 getEnvironments completed successfully'
+				'[EnvironmentServiceV8] getEnvironments completed successfully'
 			);
 
 			return data as EnvironmentListResponse;
 		} catch (error) {
-			logger.error('EnvironmentServiceV8', '[EnvironmentServiceV8] 💥 Error in getEnvironments:', {
+			logger.error('EnvironmentServiceV8', '[EnvironmentServiceV8] Error in getEnvironments:', {
 				arg0: {
 					error,
 					message: error instanceof Error ? error.message : 'Unknown error',

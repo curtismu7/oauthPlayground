@@ -192,7 +192,7 @@ const Documentation = () => {
 		<PageContainer>
 			{PageHeader ? (
 				<PageHeader>
-					<h1>📚 Documentation Hub</h1>
+					<h1> Documentation Hub</h1>
 					<p>Internal guides, OAuth/OIDC specs, RFC references, and PingOne platform docs</p>
 				</PageHeader>
 			) : null}
@@ -509,7 +509,7 @@ const Documentation = () => {
 							</DocCard>
 							<DocCard to="/docs/prompts/prompt-all">
 								<h3>
-									🚀 Complete Prompts Guide <MDIIcon icon="FiExternalLink" size={14} />
+									 Complete Prompts Guide <MDIIcon icon="FiExternalLink" size={14} />
 								</h3>
 								<p>
 									Prompt engineering guide for working with MasterFlow Agent and this playground.{' '}

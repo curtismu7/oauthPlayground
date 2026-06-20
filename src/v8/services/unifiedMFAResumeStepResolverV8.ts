@@ -21,7 +21,7 @@ import { V9MFARedirectUriService as MFARedirectUriServiceV8 } from '@/services/v
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔄 UNIFIED-MFA-STEP-RESOLVER-V8]';
+const MODULE_TAG = '[ UNIFIED-MFA-STEP-RESOLVER-V8]';
 const RESOLVER_VERSION = '1.0.0';
 
 // Step resolution precedence (highest to lowest priority)
@@ -510,7 +510,7 @@ export class UnifiedMFAResumeStepResolverV8 {
 
 		const endTime = Date.now();
 		logger.info(
-			`${MODULE_TAG} 🔒 FOOL-PROOF fallback in ${endTime - startTime}ms: Step 2 (${correlationId})`
+			`${MODULE_TAG} FOOL-PROOF fallback in ${endTime - startTime}ms: Step 2 (${correlationId})`
 		);
 
 		return fallbackResult;

@@ -481,8 +481,8 @@ export const CredentialsInput = ({
 							<>
 								<EnvironmentSection>
 									<EnvironmentHeader>
-										<span style={{ fontSize: '20px' }}>🌐</span>
-										<EnvironmentTitle>🌍 PingOne Environment Configuration</EnvironmentTitle>
+										<span style={{ fontSize: '20px' }}></span>
+										<EnvironmentTitle> PingOne Environment Configuration</EnvironmentTitle>
 									</EnvironmentHeader>
 
 									<EnvironmentIdInput
@@ -722,9 +722,9 @@ export const CredentialsInput = ({
 											title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
 										>
 											{showClientSecretValue ? (
-												<span style={{ fontSize: '16px' }}>🙈</span>
+												<span style={{ fontSize: '16px' }}></span>
 											) : (
-												<span style={{ fontSize: '16px' }}>👁️</span>
+												<span style={{ fontSize: '16px' }}></span>
 											)}
 										</SecretToggleButton>
 									</SecretInputWrapper>
@@ -804,7 +804,7 @@ export const CredentialsInput = ({
 										}}
 									>
 										<strong>
-											📋{' '}
+											{' '}
 											{
 												callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code')
 													.description
@@ -996,7 +996,7 @@ export const CredentialsInput = ({
 							{showPostLogoutRedirectUri && (
 								<FormField style={{ gridColumn: '1 / -1' }}>
 									<FormLabel>
-										🚪 Post-Logout Redirect URI{' '}
+										 Post-Logout Redirect URI{' '}
 										<span style={{ color: '#6b7280', fontSize: '0.75rem' }}>
 											(Required for Logout)
 										</span>

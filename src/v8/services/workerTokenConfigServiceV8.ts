@@ -138,14 +138,14 @@ class WorkerTokenConfigService {
 					this.config.silentApiRetrieval =
 						customEvent.detail.workerToken.silentApiRetrieval ?? false;
 					logger.info(
-						`${MODULE_TAG} 🔄 Silent API retrieval updated:`,
+						`${MODULE_TAG} Silent API retrieval updated:`,
 						this.config.silentApiRetrieval
 					);
 				}
 
 				if (showTokenChanged) {
 					this.config.showTokenAtEnd = customEvent.detail.workerToken.showTokenAtEnd ?? false;
-					logger.info(`${MODULE_TAG} 🔄 Show token at end updated:`, this.config.showTokenAtEnd);
+					logger.info(`${MODULE_TAG} Show token at end updated:`, this.config.showTokenAtEnd);
 				}
 
 				// Only notify if config actually changed
@@ -181,7 +181,7 @@ class WorkerTokenConfigService {
 				};
 
 				MFAConfigurationServiceV8.saveConfiguration(mfaConfig);
-				logger.info(`${MODULE_TAG} 🔄 Synced back to MFA service:`, this.config);
+				logger.info(`${MODULE_TAG} Synced back to MFA service:`, this.config);
 			}
 		} catch (error) {
 			logger.error(`${MODULE_TAG} Failed to sync back to MFA service:`, error);

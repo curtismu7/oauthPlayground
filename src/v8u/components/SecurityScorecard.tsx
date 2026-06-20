@@ -631,7 +631,7 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
 
 						<div style={{ marginTop: '1rem', textAlign: 'center' }}>
 							<small style={{ color: '#64748b' }}>
-								🔒 Security score based on OAuth 2.0/2.1 and OpenID Connect best practices
+								 Security score based on OAuth 2.0/2.1 and OpenID Connect best practices
 							</small>
 						</div>
 					</UnifiedFlowCollapsibleContent>

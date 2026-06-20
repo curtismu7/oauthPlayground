@@ -12,7 +12,7 @@ import { logger } from '../../utils/logger';
  * (what screen/step to resume after callback).
  */
 
-const MODULE_TAG = '[🎯 RETURN-TARGET-SERVICE-V8U]';
+const MODULE_TAG = '[ RETURN-TARGET-SERVICE-V8U]';
 
 export type ReturnTargetKind =
 	| 'mfa_device_registration'

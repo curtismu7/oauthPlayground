@@ -24,7 +24,7 @@ import {
 import { FiChevronDown } from '../../icons';
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔐 TOKEN-AUTH-METHOD-V8]';
+const MODULE_TAG = '[ TOKEN-AUTH-METHOD-V8]';
 
 export interface TokenEndpointAuthMethodDropdownV8Props {
 	value: TokenEndpointAuthMethod;
@@ -51,7 +51,7 @@ const AUTH_METHOD_OPTIONS: Record<TokenEndpointAuthMethod, AuthMethodOption> = {
 	none: {
 		value: 'none',
 		label: 'None (Public Client)',
-		icon: '🌐',
+		icon: '',
 		description:
 			'No client authentication. Used for public clients (SPAs, mobile apps) when using PKCE.',
 		security: 'Medium - Requires PKCE for security',
@@ -61,7 +61,7 @@ const AUTH_METHOD_OPTIONS: Record<TokenEndpointAuthMethod, AuthMethodOption> = {
 	client_secret_basic: {
 		value: 'client_secret_basic',
 		label: 'Client Secret Basic (HTTP Basic)',
-		icon: '🔐',
+		icon: '',
 		description:
 			'Client authenticates using HTTP Basic authentication with client_id and client_secret in the Authorization header.',
 		security: 'High - Credentials in HTTP header',
@@ -72,7 +72,7 @@ const AUTH_METHOD_OPTIONS: Record<TokenEndpointAuthMethod, AuthMethodOption> = {
 	client_secret_post: {
 		value: 'client_secret_post',
 		label: 'Client Secret Post (Form Body)',
-		icon: '📝',
+		icon: '',
 		description:
 			'Client authenticates by including client_id and client_secret in the request body as form parameters.',
 		security: 'High - Credentials in request body',
@@ -83,7 +83,7 @@ const AUTH_METHOD_OPTIONS: Record<TokenEndpointAuthMethod, AuthMethodOption> = {
 	client_secret_jwt: {
 		value: 'client_secret_jwt',
 		label: 'Client Secret JWT',
-		icon: '🎫',
+		icon: '',
 		description:
 			'Client authenticates using a JWT signed with a symmetric key (client_secret) using HMAC-SHA256.',
 		security: 'Very High - JWT signed with secret',
@@ -93,7 +93,7 @@ const AUTH_METHOD_OPTIONS: Record<TokenEndpointAuthMethod, AuthMethodOption> = {
 	private_key_jwt: {
 		value: 'private_key_jwt',
 		label: 'Private Key JWT',
-		icon: '🔑',
+		icon: '',
 		description:
 			'Client authenticates using a JWT signed with an asymmetric private key. Most secure method.',
 		security: 'Highest - Asymmetric cryptography, no shared secrets',
@@ -311,7 +311,7 @@ export const TokenEndpointAuthMethodDropdownV8: React.FC<
 							marginBottom: '12px',
 						}}
 					>
-						📚 Token Endpoint Authentication Method Guide
+						 Token Endpoint Authentication Method Guide
 					</h4>
 					<p
 						style={{
@@ -458,7 +458,7 @@ export const TokenEndpointAuthMethodDropdownV8: React.FC<
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>💡 Quick Tip:</strong> Use <strong>Client Secret Post</strong> for most web
+							<strong> Quick Tip:</strong> Use <strong>Client Secret Post</strong> for most web
 							applications, <strong>None</strong> for public clients with PKCE, or{' '}
 							<strong>Private Key JWT</strong> for the highest security requirements.
 						</div>

@@ -607,7 +607,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 			<Panel onClick={(e) => e.stopPropagation()}>
 				<Header>
 					<Title>
-						<span>🌐</span>
+						<span></span>
 						PingOne Discovery
 					</Title>
 					<CloseButton onClick={onClose}>
@@ -659,7 +659,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 							}}
 							disabled={isLoading || !environmentId.trim()}
 						>
-							{isLoading ? <FiRefreshCw className="animate-spin" /> : <span>🔍</span>}
+							{isLoading ? <FiRefreshCw className="animate-spin" /> : <span></span>}
 							{isLoading ? 'Discovering...' : 'Discover Configuration'}
 						</Button>
 					</div>
@@ -698,7 +698,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 										size="small"
 										onClick={() => setViewMode('formatted')}
 									>
-										<span style={{ fontSize: '14px' }}>👁️</span>
+										<span style={{ fontSize: '14px' }}></span>
 										Formatted
 									</Button>
 									<Button
@@ -850,7 +850,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 											});
 										}}
 									>
-										<span>🔄</span>
+										<span></span>
 										Clear Configuration
 									</Button>
 								) : null}

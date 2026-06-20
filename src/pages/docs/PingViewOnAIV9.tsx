@@ -231,7 +231,7 @@ const PingViewOnAIV9: React.FC = () => {
 
 				<Header>
 					<h1>
-						<span>🛡️</span>
+						<span></span>
 						PingOne AI Perspective
 					</h1>
 					<p>
@@ -247,7 +247,7 @@ const PingViewOnAIV9: React.FC = () => {
 					<MainCard>
 						<Section>
 							<h2>
-								<span>🎯</span>
+								<span></span>
 								Enterprise AI Identity Framework
 							</h2>
 							<InfoBox $variant="success">
@@ -260,7 +260,7 @@ const PingViewOnAIV9: React.FC = () => {
 							<FeatureGrid>
 								<FeatureCard>
 									<h3>
-										<span>🔐</span>
+										<span></span>
 										AI Workload Identity
 									</h3>
 									<p>
@@ -277,7 +277,7 @@ const PingViewOnAIV9: React.FC = () => {
 
 								<FeatureCard>
 									<h3>
-										<span>🏢</span>
+										<span></span>
 										Federated AI Trust
 									</h3>
 									<p>
@@ -294,7 +294,7 @@ const PingViewOnAIV9: React.FC = () => {
 
 								<FeatureCard>
 									<h3>
-										<span>🛡️</span>
+										<span></span>
 										Zero Trust AI Security
 									</h3>
 									<p>
@@ -320,11 +320,11 @@ const PingViewOnAIV9: React.FC = () => {
 					<MainCard>
 						<Section>
 							<h2>
-								<span>🚀</span>
+								<span></span>
 								AI-Specific Capabilities
 							</h2>
 							<InfoBox $variant="info">
-								<span>📋</span>
+								<span></span>
 								<div>
 									<strong>Product Integration:</strong> PingOne provides specialized features
 									for AI systems including workload identity, advanced authentication, and compliance.
@@ -361,7 +361,7 @@ const PingViewOnAIV9: React.FC = () => {
 					<MainCard>
 						<Section>
 							<h2>
-								<span>🔒</span>
+								<span></span>
 								AI Security Framework
 							</h2>
 							<InfoBox $variant="warning">
@@ -374,7 +374,7 @@ const PingViewOnAIV9: React.FC = () => {
 							<FeatureGrid>
 								<FeatureCard>
 									<h3>
-										<span>🔍</span>
+										<span></span>
 										Model Integrity
 									</h3>
 									<p>
@@ -385,7 +385,7 @@ const PingViewOnAIV9: React.FC = () => {
 
 								<FeatureCard>
 									<h3>
-										<span>📊</span>
+										<span></span>
 										Data Privacy
 									</h3>
 									<p>
@@ -396,7 +396,7 @@ const PingViewOnAIV9: React.FC = () => {
 
 								<FeatureCard>
 									<h3>
-										<span>🚨</span>
+										<span></span>
 										Threat Detection
 									</h3>
 									<p>
@@ -416,11 +416,11 @@ const PingViewOnAIV9: React.FC = () => {
 					<MainCard>
 						<Section>
 							<h2>
-								<span>💻</span>
+								<span></span>
 								Code Examples & Documentation
 							</h2>
 							<InfoBox $variant="info">
-								<span>📋</span>
+								<span></span>
 								<div>
 									<strong>Implementation:</strong> See the{' '}
 									<SpecLink href="/flows/v9/saml-sp-dynamic-acs" target="_blank" rel="noopener noreferrer">

@@ -23,7 +23,7 @@
  * const config = AppDiscoveryServiceV8.getAppConfig(app);
  */
 
-const MODULE_TAG = '[🔎 APP-DISCOVERY-V8]';
+const MODULE_TAG = '[ APP-DISCOVERY-V8]';
 
 // ============================================================================
 // TYPES
@@ -94,7 +94,7 @@ export class AppDiscoveryServiceV8 {
 		// Prompt user
 		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
 		const token = await uiNotificationServiceV8.prompt({
-			title: '🔑 Worker Token Required',
+			title: ' Worker Token Required',
 			message:
 				'Enter your PingOne worker token to discover applications.\n' +
 				'This will be stored securely in your browser.\n\n' +

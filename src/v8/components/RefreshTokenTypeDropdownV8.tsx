@@ -24,7 +24,7 @@ import styled from 'styled-components';
 import { logger } from '../../utils/logger';
 import { TooltipV8 } from './TooltipV8';
 
-const MODULE_TAG = '[🔄 REFRESH-TOKEN-TYPE-DROPDOWN-V8]';
+const MODULE_TAG = '[ REFRESH-TOKEN-TYPE-DROPDOWN-V8]';
 
 export type RefreshTokenType = 'JWT' | 'OPAQUE';
 

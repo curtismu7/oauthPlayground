@@ -19,7 +19,7 @@
 import { logger } from '../../utils/logger';
 import { type FlowType, type SpecVersion } from './specVersionServiceV8';
 
-const MODULE_TAG = '[📋 RESPONSE-TYPE-V8]';
+const MODULE_TAG = '[ RESPONSE-TYPE-V8]';
 
 export type ResponseType =
 	| 'code'

@@ -18,7 +18,7 @@ import { FiAlertTriangle, FiChevronDown } from '../../icons';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔐 PKCE-V8]';
+const MODULE_TAG = '[ PKCE-V8]';
 
 export type PKCEMode = 'DISABLED' | 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';
 
@@ -55,7 +55,7 @@ const PKCE_OPTIONS: Record<PKCEMode, PKCEModeOption> = {
 	OPTIONAL: {
 		value: 'OPTIONAL',
 		label: 'Optional',
-		icon: '🟡',
+		icon: '',
 		description: 'PKCE can be used but is not required',
 		security: 'Medium - Allows flows without PKCE',
 		useCase: 'Legacy apps transitioning to PKCE',
@@ -63,7 +63,7 @@ const PKCE_OPTIONS: Record<PKCEMode, PKCEModeOption> = {
 	REQUIRED: {
 		value: 'REQUIRED',
 		label: 'Required (Any Method)',
-		icon: '🟢',
+		icon: '',
 		description: 'PKCE is required, allows plain or S256',
 		security: 'High - PKCE always used',
 		useCase: 'Modern apps with PKCE support',
@@ -72,7 +72,7 @@ const PKCE_OPTIONS: Record<PKCEMode, PKCEModeOption> = {
 	S256_REQUIRED: {
 		value: 'S256_REQUIRED',
 		label: 'Required (S256 Only)',
-		icon: '🔒',
+		icon: '',
 		description: 'PKCE required with S256 method only',
 		security: 'Highest - Only secure S256 method',
 		useCase: 'Production apps, OAuth 2.1 compliance',
@@ -276,7 +276,7 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 							marginBottom: '12px',
 						}}
 					>
-						📚 PKCE Guide
+						 PKCE Guide
 					</h4>
 					<p
 						style={{
@@ -309,7 +309,7 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 								marginBottom: '8px',
 							}}
 						>
-							🔐 How PKCE Works
+							 How PKCE Works
 						</div>
 						<ol
 							style={{
@@ -398,7 +398,7 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 								marginBottom: '8px',
 							}}
 						>
-							🛡️ Why PKCE Matters
+							 Why PKCE Matters
 						</div>
 						<div
 							style={{
@@ -480,7 +480,7 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 								marginBottom: '8px',
 							}}
 						>
-							🔒 PKCE Methods
+							 PKCE Methods
 						</div>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 							<div>
@@ -533,7 +533,7 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>📜 OAuth 2.1 Requirement:</strong> PKCE is <strong>mandatory</strong> for all
+							<strong> OAuth 2.1 Requirement:</strong> PKCE is <strong>mandatory</strong> for all
 							clients (public and confidential) in OAuth 2.1. The implicit flow is removed, and PKCE
 							makes authorization code flow secure for all client types.
 						</div>

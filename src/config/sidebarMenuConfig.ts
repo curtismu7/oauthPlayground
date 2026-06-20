@@ -296,7 +296,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/documentation/mcp', 'MCP Documentation', true],
 			['/ai-agent-overview', 'AI Agent Overview', true],
 			['/ai-glossary', 'AI Glossary', true],
-			['/docs/prompts/prompt-all', '🚀 Complete Prompts Guide', true],
+			['/docs/prompts/prompt-all', ' Complete Prompts Guide', true],
 			['/docs/migration/migrate-vscode', 'VSCode Migration Guide', true],
 		]),
 		subGroups: [

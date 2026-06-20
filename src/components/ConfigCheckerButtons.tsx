@@ -1440,7 +1440,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							fontWeight: '600',
 						}}
 					>
-						<span>🔑</span>
+						<span></span>
 						Get New Worker Token
 					</Button>
 				</div>
@@ -1487,7 +1487,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								height: '48px',
 							}}
 						>
-							<span style={{ fontSize: '24px' }}>🔑</span>
+							<span style={{ fontSize: '24px' }}></span>
 						</div>
 						<div style={{ flex: 1, minWidth: 0 }}>
 							<div
@@ -1531,7 +1531,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								fontSize: '0.8125rem',
 							}}
 						>
-							<span style={{ fontSize: '14px' }}>📋</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Copy
 						</Button>
 					</div>
@@ -1862,7 +1862,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									fontWeight: '600',
 								}}
 							>
-								<span>📋</span> Copy JSON
+								<span></span> Copy JSON
 							</Button>
 							{onImportConfig && diffs && (
 								<Button
@@ -1875,7 +1875,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										fontWeight: '600',
 									}}
 								>
-									<span>📥</span> Import Config
+									<span></span> Import Config
 								</Button>
 							)}
 							{diffs?.hasDiffs && (
@@ -1890,7 +1890,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									}}
 								>
 									{isUpdating && <FiLoader className="spinner" />}
-									<span>📥</span> Export Config
+									<span></span> Export Config
 								</Button>
 							)}
 						</div>
@@ -1973,7 +1973,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									}}
 								>
 									{isUpdating && <FiLoader className="spinner" />}
-									<span>🖥️</span> Update Our App ({selectedDiffs.size} selected)
+									<span></span> Update Our App ({selectedDiffs.size} selected)
 								</Button>
 								{/* Option 1: Limited Update PingOne (current implementation) */}
 								<Button
@@ -1990,7 +1990,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									}}
 								>
 									{isUpdating && <FiLoader className="spinner" />}
-									<span>💾</span> Update PingOne (Safe Fields Only) ({selectedDiffs.size} selected)
+									<span></span> Update PingOne (Safe Fields Only) ({selectedDiffs.size} selected)
 								</Button>
 
 								{/* Option 2: Completely remove Update PingOne button - uncomment to use this approach instead:
@@ -2002,7 +2002,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
                       textAlign: 'center'
                     }}>
                       <p style={{ margin: '0', fontSize: '0.875rem', color: '#dc2626', fontWeight: '600' }}>
-                        🔒 PingOne updates disabled for safety
+                         PingOne updates disabled for safety
                       </p>
                       <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: '#dc2626' }}>
                         Use "Update Our App" to sync your local configuration instead
@@ -2502,7 +2502,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							}}
 						>
 							{loading === 'create' && <FiLoader className="spinner" />}
-							<span>💾</span> Create Application
+							<span></span> Create Application
 						</Button>
 						<Button
 							$variant="secondary"

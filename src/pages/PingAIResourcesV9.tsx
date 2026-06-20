@@ -171,7 +171,7 @@ const PingAIResourcesV9: React.FC = () => {
 
 				<Header>
 					<h1>
-						<span>🖥️</span>
+						<span></span>
 						Ping AI Resources
 					</h1>
 					<p>
@@ -192,18 +192,18 @@ const PingAIResourcesV9: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>🤖</span>
+									<span></span>
 								</div>
 								<h3>
 									Types of AI Agents
-									<span>🔗</span>
+									<span></span>
 								</h3>
 								<p>
 									Comprehensive overview of different AI agent types, their characteristics,
 									and identity requirements for enterprise implementations.
 								</p>
 								<span className="external-link">
-									Learn More <span>🔗</span>
+									Learn More <span></span>
 								</span>
 							</ResourceCard>
 
@@ -213,18 +213,18 @@ const PingAIResourcesV9: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>🏗️</span>
+									<span></span>
 								</div>
 								<h3>
 									AI Identity Architecture
-									<span>🔗</span>
+									<span></span>
 								</h3>
 								<p>
 									Visual architecture diagram showing AI identity system components, flows, and
 									integration patterns in enterprise environments.
 								</p>
 								<span className="external-link">
-									View Diagram <span>🔗</span>
+									View Diagram <span></span>
 								</span>
 							</ResourceCard>
 
@@ -234,18 +234,18 @@ const PingAIResourcesV9: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>🔐</span>
+									<span></span>
 								</div>
 								<h3>
 									AI Identity Patterns
-									<span>🔗</span>
+									<span></span>
 								</h3>
 								<p>
 									Detailed implementation patterns and best practices for AI identity
 									management, authentication, and authorization.
 								</p>
 								<span className="external-link">
-									View Patterns <span>🔗</span>
+									View Patterns <span></span>
 								</span>
 							</ResourceCard>
 						</ResourceGrid>
@@ -264,18 +264,18 @@ const PingAIResourcesV9: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>🛡️</span>
+									<span></span>
 								</div>
 								<h3>
 									Adaptive Authentication
-									<span>🔗</span>
+									<span></span>
 								</h3>
 								<p>
 									Learn how PingOne uses AI and machine learning to provide adaptive authentication,
 									dynamically adjusting security measures based on risk assessment.
 								</p>
 								<span className="external-link">
-									View Documentation <span>🔗</span>
+									View Documentation <span></span>
 								</span>
 							</ResourceCard>
 
@@ -285,18 +285,18 @@ const PingAIResourcesV9: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>🎯</span>
+									<span></span>
 								</div>
 								<h3>
 									PingOne AI Perspective
-									<span>🔗</span>
+									<span></span>
 								</h3>
 								<p>
 									PingOne's comprehensive approach to AI identity, authentication, and security
 									for enterprise AI systems and workloads.
 								</p>
 								<span className="external-link">
-									View Perspective <span>🔗</span>
+									View Perspective <span></span>
 								</span>
 							</ResourceCard>
 
@@ -306,18 +306,18 @@ const PingAIResourcesV9: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>🔒</span>
+									<span></span>
 								</div>
 								<h3>
 									AI Identity Security
-									<span>🔗</span>
+									<span></span>
 								</h3>
 								<p>
 									Security best practices and guidelines for implementing identity solutions in
 									AI-powered applications and protecting AI systems from identity-based attacks.
 								</p>
 								<span className="external-link">
-									Read Article <span>🔗</span>
+									Read Article <span></span>
 								</span>
 							</ResourceCard>
 						</ResourceGrid>
@@ -336,18 +336,18 @@ const PingAIResourcesV9: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>🧠</span>
+									<span></span>
 								</div>
 								<h3>
 									Understanding Agentic AI
-									<span>🔗</span>
+									<span></span>
 								</h3>
 								<p>
 									Comprehensive guide to agentic AI systems, their identity requirements,
 									and implementation considerations for enterprise environments.
 								</p>
 								<span className="external-link">
-									Learn More <span>🔗</span>
+									Learn More <span></span>
 								</span>
 							</ResourceCard>
 
@@ -357,18 +357,18 @@ const PingAIResourcesV9: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>🔗</span>
+									<span></span>
 								</div>
 								<h3>
 									OAuth for AI Systems
-									<span>🔗</span>
+									<span></span>
 								</h3>
 								<p>
 									OAuth 2.0 patterns and implementations specifically designed for AI systems,
 									including assertion grants and workload identity.
 								</p>
 								<span className="external-link">
-									View Guide <span>🔗</span>
+									View Guide <span></span>
 								</span>
 							</ResourceCard>
 
@@ -378,18 +378,18 @@ const PingAIResourcesV9: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>🔑</span>
+									<span></span>
 								</div>
 								<h3>
 									OIDC for AI Applications
-									<span>🔗</span>
+									<span></span>
 								</h3>
 								<p>
 									OpenID Connect implementations for AI applications, including authentication
 									flows and identity management for AI agents.
 								</p>
 								<span className="external-link">
-									View Implementation <span>🔗</span>
+									View Implementation <span></span>
 								</span>
 							</ResourceCard>
 						</ResourceGrid>
@@ -408,18 +408,18 @@ const PingAIResourcesV9: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>📚</span>
+									<span></span>
 								</div>
 								<h3>
 									PingOne Platform API
-									<span>🔗</span>
+									<span></span>
 								</h3>
 								<p>
 									Complete API documentation for PingOne Platform services, including AI workload
 									identity and authentication endpoints.
 								</p>
 								<span className="external-link">
-									View API Docs <span>🔗</span>
+									View API Docs <span></span>
 								</span>
 							</ResourceCard>
 
@@ -433,14 +433,14 @@ const PingAIResourcesV9: React.FC = () => {
 								</div>
 								<h3>
 									OAuth 2.0 Configuration Guide
-									<span>🔗</span>
+									<span></span>
 								</h3>
 								<p>
 									Step-by-step configuration guide for setting up OAuth 2.0 and OpenID Connect in
 									PingOne for AI applications and workloads.
 								</p>
 								<span className="external-link">
-									View Guide <span>🔗</span>
+									View Guide <span></span>
 								</span>
 							</ResourceCard>
 
@@ -450,18 +450,18 @@ const PingAIResourcesV9: React.FC = () => {
 								rel="noopener noreferrer"
 							>
 								<div className="icon">
-									<span>💬</span>
+									<span></span>
 								</div>
 								<h3>
 									Ping Identity Support
-									<span>🔗</span>
+									<span></span>
 								</h3>
 								<p>
 									Access Ping Identity's support portal for technical assistance, knowledge base
 									articles, community forums, and AI-specific support.
 								</p>
 								<span className="external-link">
-									Get Support <span>🔗</span>
+									Get Support <span></span>
 								</span>
 							</ResourceCard>
 						</ResourceGrid>
@@ -469,7 +469,7 @@ const PingAIResourcesV9: React.FC = () => {
 				</CollapsibleHeader>
 
 				<InfoBox $variant="info">
-					<span>🚀</span>
+					<span></span>
 					<div>
 						<strong>Getting Started:</strong> Begin with the "Types of AI Agents" document to
 						understand different AI agent architectures. Then explore the PingOne AI-powered

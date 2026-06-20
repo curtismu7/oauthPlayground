@@ -179,9 +179,9 @@ export const pingidentityTheme: BrandTheme = {
 		xl: '0 20px 25px -5px rgba(0, 102, 204, 0.1), 0 10px 10px -5px rgba(0, 102, 204, 0.04)',
 	},
 	brandSpecific: {
-		logo: '🔐',
+		logo: '',
 		logoUrl: 'https://www.pingidentity.com/favicon.ico',
-		iconSet: ['🔐', '🛡️', '🔑', '🔒', '🏢', '🌐'],
+		iconSet: ['', '', '', '', '', ''],
 		messaging: {
 			welcome: 'Welcome to PingIdentity Secure Portal',
 			security: 'Enterprise-grade identity security',

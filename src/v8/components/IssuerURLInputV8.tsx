@@ -17,7 +17,7 @@ import React, { useState } from 'react';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🌐 ISSUER-URL-V8]';
+const MODULE_TAG = '[ ISSUER-URL-V8]';
 
 export interface IssuerURLInputV8Props {
 	value: string;
@@ -151,7 +151,7 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 							borderRadius: '6px',
 						}}
 					>
-						<span style={{ fontSize: '18px' }}>📚</span>
+						<span style={{ fontSize: '18px' }}></span>
 						<h4
 							style={{
 								fontSize: '14px',
@@ -195,7 +195,7 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 									marginBottom: '8px',
 								}}
 							>
-								<span style={{ fontSize: '16px' }}>🔍</span>
+								<span style={{ fontSize: '16px' }}></span>
 								<span
 									style={{
 										fontSize: '13px',
@@ -265,7 +265,7 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 									marginBottom: '8px',
 								}}
 							>
-								<span style={{ fontSize: '16px' }}>🔐</span>
+								<span style={{ fontSize: '16px' }}></span>
 								<span
 									style={{
 										fontSize: '13px',
@@ -298,7 +298,7 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 									gap: '6px',
 								}}
 							>
-								<span>🔒</span>
+								<span></span>
 								<span>Ensures tokens were issued by the correct provider</span>
 							</div>
 						</div>
@@ -320,7 +320,7 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 									marginBottom: '8px',
 								}}
 							>
-								<span style={{ fontSize: '16px' }}>🌐</span>
+								<span style={{ fontSize: '16px' }}></span>
 								<span
 									style={{
 										fontSize: '13px',
@@ -363,7 +363,7 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 									gap: '6px',
 								}}
 							>
-								<span>💡</span>
+								<span></span>
 								<span>If you provide an Environment ID, the issuer URL can be auto-generated</span>
 							</div>
 						</div>
@@ -386,7 +386,7 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>💡 Note:</strong> The issuer URL is <strong>optional</strong>. If not
+							<strong> Note:</strong> The issuer URL is <strong>optional</strong>. If not
 							provided, the application will use the Environment ID to construct the issuer URL
 							automatically. However, providing it explicitly can be useful for:
 						</div>
@@ -417,7 +417,7 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 							gap: '8px',
 						}}
 					>
-						<span style={{ fontSize: '16px' }}>💡</span>
+						<span style={{ fontSize: '16px' }}></span>
 						<span
 							style={{
 								fontSize: '12px',

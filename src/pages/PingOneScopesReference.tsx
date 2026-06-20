@@ -197,12 +197,12 @@ const PingOneScopesReference: React.FC = () => {
 					title: 'PingOne OAuth 2.0 & OIDC Scopes Reference',
 					subtitle:
 						'A guide to understanding and using the most common scopes in PingOne SSO and Management API. Scopes control what data and permissions an application receives when authenticating.',
-					icon: '📚',
+					icon: '',
 				}}
 			/>
 			<HeaderCard>
 				<TitleRow>
-					<span>📚</span>
+					<span></span>
 					<Title>PingOne OAuth 2.0 & OIDC Scopes Reference</Title>
 				</TitleRow>
 				<Subtitle>
@@ -220,7 +220,7 @@ const PingOneScopesReference: React.FC = () => {
 						<span>ℹ️</span>
 					</InfoIcon>
 					<InfoText style={{ color: '#2563eb' }}>
-						<strong>📖 Complete Scope Documentation:</strong> For the full list of all PingOne
+						<strong> Complete Scope Documentation:</strong> For the full list of all PingOne
 						Management API scopes and detailed permissions, see the official{' '}
 						<a
 							href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#pingone-role-permissions"
@@ -237,7 +237,7 @@ const PingOneScopesReference: React.FC = () => {
 
 			<InfoBox>
 				<InfoIcon>
-					<span>🛡️</span>
+					<span></span>
 				</InfoIcon>
 				<InfoText>
 					<strong>What are scopes?</strong> Scopes are permissions that an application requests
@@ -254,7 +254,7 @@ const PingOneScopesReference: React.FC = () => {
 				<ScopeCategory>
 					<CategoryHeader>
 						<CategoryTitle>
-							<span>🔒</span>Standard OpenID Connect (OIDC) Scopes
+							<span></span>Standard OpenID Connect (OIDC) Scopes
 						</CategoryTitle>
 					</CategoryHeader>
 					<CategoryDescription style={{ padding: '0 1.5rem', marginTop: '1rem' }}>
@@ -285,7 +285,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#8b5cf6">
 							<ScopeIcon color="#8b5cf6">
-								<span>👤</span>
+								<span></span>
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>profile</ScopeName>
@@ -363,7 +363,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#06b6d4">
 							<ScopeIcon color="#06b6d4">
-								<span>🔄</span>
+								<span></span>
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>offline_access</ScopeName>
@@ -392,7 +392,7 @@ const PingOneScopesReference: React.FC = () => {
 						<br />
 						<br />
 						<strong>
-							📚 See the{' '}
+							 See the{' '}
 							<a
 								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#pingone-role-permissions"
 								target="_blank"
@@ -407,7 +407,7 @@ const PingOneScopesReference: React.FC = () => {
 					<ScopeList>
 						<ScopeItem color="V9_COLORS.PRIMARY.BLUE">
 							<ScopeIcon color="V9_COLORS.PRIMARY.BLUE">
-								<span>👤</span>
+								<span></span>
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:users</ScopeName>
@@ -419,7 +419,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="V9_COLORS.PRIMARY.BLUE">
 							<ScopeIcon color="V9_COLORS.PRIMARY.BLUE">
-								<span>👤</span>
+								<span></span>
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:update:users</ScopeName>
@@ -477,7 +477,7 @@ const PingOneScopesReference: React.FC = () => {
 
 						<ScopeItem color="#6366f1">
 							<ScopeIcon color="#6366f1">
-								<span>🛡️</span>
+								<span></span>
 							</ScopeIcon>
 							<ScopeDetails>
 								<ScopeName>p1:read:roles</ScopeName>
@@ -503,7 +503,7 @@ const PingOneScopesReference: React.FC = () => {
 				<ScopeCategory>
 					<CategoryHeader>
 						<CategoryTitle>
-							<span>🛡️</span>How to Configure Scopes & Permissions in PingOne
+							<span></span>How to Configure Scopes & Permissions in PingOne
 						</CategoryTitle>
 					</CategoryHeader>
 					<CategoryDescription style={{ padding: '0 1.5rem', marginTop: '1rem' }}>
@@ -521,7 +521,7 @@ const PingOneScopesReference: React.FC = () => {
 										color: '#1f2937',
 									}}
 								>
-									🔑 For Worker Apps (Machine-to-Machine)
+									 For Worker Apps (Machine-to-Machine)
 								</h3>
 								<InfoBox style={{ margin: '0 0 1rem 0' }}>
 									<InfoIcon>
@@ -566,7 +566,7 @@ const PingOneScopesReference: React.FC = () => {
 											Click <strong>"Grant Roles"</strong> button
 										</li>
 										<li>
-											🚨 <strong style={{ color: '#dc2626' }}>CRITICAL:</strong> Select{' '}
+											 <strong style={{ color: '#dc2626' }}>CRITICAL:</strong> Select{' '}
 											<strong>"Environment"</strong> from the level dropdown (NOT "Organization")
 										</li>
 										<li>Select the environment you want the app to access</li>
@@ -652,7 +652,7 @@ const PingOneScopesReference: React.FC = () => {
 										color: '#1f2937',
 									}}
 								>
-									🎯 For User-Facing Apps (OIDC SSO)
+									 For User-Facing Apps (OIDC SSO)
 								</h3>
 
 								<div
@@ -711,7 +711,7 @@ const PingOneScopesReference: React.FC = () => {
 										color: '#1f2937',
 									}}
 								>
-									🛠️ Creating Custom Resources & Scopes
+									 Creating Custom Resources & Scopes
 								</h3>
 								<InfoBox style={{ margin: '0 0 1rem 0' }}>
 									<InfoIcon>
@@ -839,7 +839,7 @@ const PingOneScopesReference: React.FC = () => {
 								}}
 							>
 								<InfoIcon>
-									<span>🛡️</span>
+									<span></span>
 								</InfoIcon>
 								<InfoText style={{ color: '#9a3412' }}>
 									<strong>Security Best Practice:</strong> Only grant scopes that an application
@@ -856,7 +856,7 @@ const PingOneScopesReference: React.FC = () => {
 				<ScopeCategory>
 					<CategoryHeader>
 						<CategoryTitle>
-							<span>🛡️</span>Best Practices
+							<span></span>Best Practices
 						</CategoryTitle>
 					</CategoryHeader>
 					<ScopeList>

@@ -574,13 +574,13 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	}, []);
 
 	const fetchEnvironments = useCallback(async () => {
-		logger.info('[EnvironmentManagementPageV8] 🚀 Starting fetchEnvironments...', 'Logger info');
+		logger.info('[EnvironmentManagementPageV8] Starting fetchEnvironments...', 'Logger info');
 
 		try {
 			setLoading(true);
 			setEnvError(null);
 
-			logger.info('[EnvironmentManagementPageV8] 📊 Fetching environments - Token status:', {
+			logger.info('[EnvironmentManagementPageV8] Fetching environments - Token status:', {
 				isLoading: globalTokenStatus.isLoading,
 				isValid: globalTokenStatus.isValid,
 				hasToken: !!globalTokenStatus.token,
@@ -644,7 +644,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				filters.pageSize = pageSize;
 			}
 
-			logger.info('[EnvironmentManagementPageV8] 🔍 Fetching with filters:', {
+			logger.info('[EnvironmentManagementPageV8] Fetching with filters:', {
 				filters,
 				selectedApiRegion,
 				currentPage,
@@ -666,7 +666,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			});
 
 			logger.info(
-				'[EnvironmentManagementPageV8] 📡 Making API call to EnvironmentServiceV8.getEnvironments',
+				'[EnvironmentManagementPageV8] Making API call to EnvironmentServiceV8.getEnvironments',
 				'Logger info'
 			);
 
@@ -676,7 +676,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				selectedApiRegion // Use selected API region
 			);
 
-			logger.info('[EnvironmentManagementPageV8] 📦 Received response:', {
+			logger.info('[EnvironmentManagementPageV8] Received response:', {
 				response,
 				environmentsCount: response?.environments?.length,
 				totalCount: response?.totalCount,
@@ -695,7 +695,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 			// CRITICAL FIX: Ensure environments is always an array, never undefined
 			const envs = response?.environments ?? [];
-			logger.info('[EnvironmentManagementPageV8] 📝 Setting environments:', {
+			logger.info('[EnvironmentManagementPageV8] Setting environments:', {
 				count: envs.length,
 				firstEnv: envs[0] || 'No environments',
 			});
@@ -710,7 +710,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		} catch (err) {
 			logger.error(
 				'EnvironmentManagementPageV8',
-				'[EnvironmentManagementPageV8] 💥 Failed to fetch environments:',
+				'[EnvironmentManagementPageV8] Failed to fetch environments:',
 				{
 					error: err,
 					message: err instanceof Error ? err.message : 'Unknown error',
@@ -725,7 +725,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			setEnvironments([]);
 			setTotalPages(1);
 		} finally {
-			logger.info('[EnvironmentManagementPageV8] 🏁 Fetch environments completed', 'Logger info');
+			logger.info('[EnvironmentManagementPageV8] Fetch environments completed', 'Logger info');
 			setLoading(false);
 		}
 	}, [
@@ -760,7 +760,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newRegion = e.target.value;
-		logger.info('[EnvironmentManagementPageV8] 🌍 Region changing to:', newRegion);
+		logger.info('[EnvironmentManagementPageV8] Region changing to:', newRegion);
 		setIsChangingRegion(true);
 		setSelectedApiRegion(newRegion);
 		// Reset to first page when changing region
@@ -1125,7 +1125,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						</div>
 						<div style={styles.educationalCard}>
 							<h3 style={styles.educationalCardTitle}>
-								<span>🛡️</span>Production-Ready Environment Types
+								<span></span>Production-Ready Environment Types
 							</h3>
 							<div style={styles.educationalCardText}>
 								<strong>PRODUCTION:</strong> Mission-critical environments for live business
@@ -1214,14 +1214,14 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				</div>
 
 				<DocumentationHeader
-					emoji="🌍"
+					emoji=""
 					title="Environment Management"
 					description="Manage your PingOne environments with comprehensive tools for monitoring, configuration, and API integration"
 				/>
 
 				<div style={styles.actions}>
 					<button type="button" style={styles.button()} onClick={handleRefresh}>
-						<span>🔄</span>Refresh
+						<span></span>Refresh
 					</button>
 					<button
 						type="button"
@@ -1482,7 +1482,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								disabled={!EnvironmentServiceV8.canEditEnvironment(environment)}
 								title={environment.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
 							>
-								<span>🔄</span>
+								<span></span>
 							</button>
 							<button
 								type="button"
@@ -1500,7 +1500,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								disabled={!EnvironmentServiceV8.canDeleteEnvironment(environment)}
 								title="Delete"
 							>
-								<span>🗑️</span>
+								<span></span>
 							</button>
 						</div>
 					</div>

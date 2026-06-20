@@ -452,7 +452,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 					/>
 					<ActionButtons>
 						<ActionButton onClick={handleSave} $variant="primary">
-							<span style={{ fontSize: '14px' }}>💾</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Save
 						</ActionButton>
 						<ActionButton onClick={handleCancel} $variant="secondary">
@@ -482,13 +482,13 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 							{isDecoded ? (
 								<i className="bi bi-question-circle" style={{ fontSize: '14px' }}></i>
 							) : (
-								<span style={{ fontSize: '14px' }}>👁️</span>
+								<span style={{ fontSize: '14px' }}></span>
 							)}
 							{isDecoded ? 'Encode' : 'Decode'}
 						</ActionButton>
 						{showOpenButton && (
 							<ActionButton onClick={handleOpen} $variant="secondary">
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 								Open
 							</ActionButton>
 						)}
