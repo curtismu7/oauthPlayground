@@ -67,7 +67,7 @@ export class WorkerTokenManager {
 	 * @throws Error if credentials not configured or fetch fails
 	 */
 	async getWorkerToken(): Promise<string> {
-		logger.info('WorkerTokenManager', `🎫 [WorkerTokenManager] Getting worker token...`);
+		logger.info('WorkerTokenManager', ` [WorkerTokenManager] Getting worker token...`);
 
 		// Check if we have a valid cached token
 		if (this.tokenCache && this.isTokenValid(this.tokenCache)) {
@@ -86,7 +86,7 @@ export class WorkerTokenManager {
 		}
 
 		// Need to fetch a new token
-		logger.info('WorkerTokenManager', `🔄 Token expired or missing, fetching new token...`);
+		logger.info('WorkerTokenManager', ` Token expired or missing, fetching new token...`);
 		return await this.fetchNewToken();
 	}
 
@@ -114,7 +114,7 @@ export class WorkerTokenManager {
 	 * @param credentials - Worker Token credentials to save
 	 */
 	async saveCredentials(credentials: WorkerTokenCredentials): Promise<void> {
-		logger.info('WorkerTokenManager', `💾 [WorkerTokenManager] Saving Worker Token credentials`);
+		logger.info('WorkerTokenManager', ` [WorkerTokenManager] Saving Worker Token credentials`);
 
 		await workerTokenRepository.saveCredentials(credentials);
 
@@ -151,7 +151,7 @@ export class WorkerTokenManager {
 	 * @returns New access token string
 	 */
 	async refreshToken(): Promise<string> {
-		logger.info('WorkerTokenManager', `🔄 [WorkerTokenManager] Manual token refresh requested`);
+		logger.info('WorkerTokenManager', ` [WorkerTokenManager] Manual token refresh requested`);
 		this.tokenCache = null;
 		return await this.fetchNewToken();
 	}
@@ -160,7 +160,7 @@ export class WorkerTokenManager {
 	 * Invalidate the current token
 	 */
 	invalidateToken(): void {
-		logger.info('WorkerTokenManager', `🗑️ [WorkerTokenManager] Invalidating token`);
+		logger.info('WorkerTokenManager', ` [WorkerTokenManager] Invalidating token`);
 		this.tokenCache = null;
 	}
 
@@ -168,7 +168,7 @@ export class WorkerTokenManager {
 	 * Clear Worker Token credentials and token
 	 */
 	async clearAll(): Promise<void> {
-		logger.info('WorkerTokenManager', `🗑️ [WorkerTokenManager] Clearing all Worker Token data`);
+		logger.info('WorkerTokenManager', ` [WorkerTokenManager] Clearing all Worker Token data`);
 		this.tokenCache = null;
 		await workerTokenRepository.clearCredentials();
 		logger.info('WorkerTokenManager', `✅ Cleared all Worker Token data`);
@@ -213,7 +213,7 @@ export class WorkerTokenManager {
 
 		for (let attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
-				logger.info('WorkerTokenManager', `🔄 Token fetch attempt ${attempt}/${maxRetries}`);
+				logger.info('WorkerTokenManager', ` Token fetch attempt ${attempt}/${maxRetries}`);
 
 				const scopeString = normalizeScopesToScopeString(credentials.scopes);
 				const bodyParams: Record<string, string> = {

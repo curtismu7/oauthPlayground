@@ -7,7 +7,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔌 BACKEND-CONNECTIVITY]';
+const MODULE_TAG = '[ BACKEND-CONNECTIVITY]';
 
 interface BackendConnectivityState {
 	isConnected: boolean;

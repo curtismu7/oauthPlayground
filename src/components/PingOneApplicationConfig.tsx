@@ -364,7 +364,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 				!flowType?.includes('device-authorization') && (
 					<Section>
 						<SectionTitle>
-							<span>🛡️</span> Pushed Authorization Request (PAR)
+							<span></span> Pushed Authorization Request (PAR)
 						</SectionTitle>
 						<Grid>
 							<Field style={{ gridColumn: '1 / -1', width: '100%' }}>
@@ -401,7 +401,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											fontWeight: '600',
 										}}
 									>
-										🔄 PAR Flow Process
+										 PAR Flow Process
 									</h4>
 									<ol
 										style={{
@@ -522,7 +522,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 													fontWeight: '600',
 												}}
 											>
-												📋 Show Complete PAR Request Body
+												 Show Complete PAR Request Body
 											</summary>
 											<div
 												style={{
@@ -607,7 +607,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 					flowType?.includes('jwt-bearer')) && ( // JWT Bearer flows are mock implementations
 					<Section>
 						<SectionTitle>
-							<span>🛡️</span> DPoP (Demonstration of Proof of Possession)
+							<span></span> DPoP (Demonstration of Proof of Possession)
 						</SectionTitle>
 						<Grid>
 							<Field style={{ gridColumn: '1 / -1', width: '100%' }}>
@@ -798,7 +798,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 								type="text"
 								value={value.keyId || ''}
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-									logger.info('🔧 PingOne Key ID input changed:', e.target.value);
+									logger.info(' PingOne Key ID input changed:', e.target.value);
 									update({ keyId: e.target.value });
 								}}
 								placeholder="my-key-id"
@@ -813,7 +813,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 
 			<Section>
 				<SectionTitle>
-					<span>🔑</span> JSON Web Key Set (JWKS)
+					<span></span> JSON Web Key Set (JWKS)
 				</SectionTitle>
 				<Grid>
 					<Field style={{ gridColumn: '1 / -1' }}>
@@ -829,7 +829,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<span />
 						</Toggle>
 						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							🔧 Enable JWKS to configure JWT signature validation features
+							 Enable JWKS to configure JWT signature validation features
 						</Helper>
 					</Field>
 
@@ -860,7 +860,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 									</RadioLabel>
 								</RadioGroup>
 								<Helper style={{ color: '#059669', fontWeight: '500' }}>
-									🔧 Choose how to provide your JSON Web Key Set
+									 Choose how to provide your JSON Web Key Set
 								</Helper>
 							</Field>
 
@@ -890,7 +890,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										placeholder='{"keys": [...]}'
 									/>
 									<Helper style={{ color: '#059669', fontWeight: '500' }}>
-										🔧 Enter your JSON Web Key Set as JSON
+										 Enter your JSON Web Key Set as JSON
 									</Helper>
 								</Field>
 							)}
@@ -901,7 +901,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 
 			<Section>
 				<SectionTitle>
-					<span>🌐</span> Advanced Security Settings
+					<span></span> Advanced Security Settings
 				</SectionTitle>
 				<Grid>
 					<Field>
@@ -1056,7 +1056,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							</>
 						) : hasActualUnsavedChanges ? (
 							<>
-								<span>💾</span>
+								<span></span>
 								Save Configuration
 							</>
 						) : (

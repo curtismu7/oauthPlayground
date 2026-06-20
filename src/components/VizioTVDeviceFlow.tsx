@@ -367,13 +367,13 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 
 	// VIZIO SmartCast apps
 	const smartCastApps = [
-		{ label: 'Netflix', icon: '🎬', color: '#e50914' },
-		{ label: 'Disney+', icon: '🏰', color: '#113ccf' },
-		{ label: 'Hulu', icon: '📺', color: '#1ce783' },
-		{ label: 'Prime Video', icon: '📹', color: '#00a8e1' },
-		{ label: 'YouTube TV', icon: '📺', color: '#ff0000' },
-		{ label: 'Apple TV+', icon: '🍎', color: '#000000' },
-		{ label: 'HBO Max', icon: '🎭', color: '#673ab7' },
+		{ label: 'Netflix', icon: '', color: '#e50914' },
+		{ label: 'Disney+', icon: '', color: '#113ccf' },
+		{ label: 'Hulu', icon: '', color: '#1ce783' },
+		{ label: 'Prime Video', icon: '', color: '#00a8e1' },
+		{ label: 'YouTube TV', icon: '', color: '#ff0000' },
+		{ label: 'Apple TV+', icon: '', color: '#000000' },
+		{ label: 'HBO Max', icon: '', color: '#673ab7' },
 		{ label: 'SmartCast', icon: '⚙️', color: '#6b7280' },
 	];
 
@@ -441,10 +441,10 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 						</QRCodeContainer>
 						<ActionButtons>
 							<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-								<span>📋</span> Copy Code
+								<span></span> Copy Code
 							</ActionButton>
 							<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-								<span>🔗</span> Open App
+								<span></span> Open App
 							</ActionButton>
 						</ActionButtons>
 					</QRCodeSection>

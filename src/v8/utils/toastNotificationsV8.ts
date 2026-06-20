@@ -32,7 +32,7 @@ import { logger } from '../../utils/logger';
  * Wrapper around modernMessaging for consistent V8 messaging
  */
 export class ToastNotificationsV8 {
-	private static readonly MODULE_TAG = '[🔔 TOAST-V8]';
+	private static readonly MODULE_TAG = '[ TOAST-V8]';
 
 	/**
 	 * Show success notification
@@ -166,7 +166,7 @@ export class ToastNotificationsV8 {
 	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Flow completed successfully', duration: 3000 });
 	 */
 	static flowCompleted(): void {
-		ToastNotificationsV8.success('🎉 OAuth Flow Complete!', { duration: 8000 });
+		ToastNotificationsV8.success(' OAuth Flow Complete!', { duration: 8000 });
 	}
 
 	/**

@@ -556,7 +556,7 @@ const ClientGenerator: React.FC = () => {
 								</>
 							) : (
 								<>
-									<span>🔑</span> Save & Get Worker Token
+									<span></span> Save & Get Worker Token
 								</>
 							)}
 						</ActionButton>
@@ -678,7 +678,7 @@ const ClientGenerator: React.FC = () => {
 								fontWeight: 600,
 							}}
 						>
-							<span style={{ fontSize: '20px' }}>🔑</span>
+							<span style={{ fontSize: '20px' }}></span>
 							Worker Token Response (OAuth 2.0 Token)
 						</div>
 						<div style={{ fontSize: '0.875rem', color: '#10b981', marginBottom: '1rem' }}>
@@ -755,9 +755,9 @@ const ClientGenerator: React.FC = () => {
 									}
 								>
 									{tokenDecodeStates['worker-token-response'] ? (
-										<span style={{ fontSize: '16px' }}>🙈</span>
+										<span style={{ fontSize: '16px' }}></span>
 									) : (
-										<span style={{ fontSize: '16px' }}>👁️</span>
+										<span style={{ fontSize: '16px' }}></span>
 									)}
 								</button>
 							</div>
@@ -815,9 +815,9 @@ const ClientGenerator: React.FC = () => {
 									}
 								>
 									{tokenDecodeStates['auth-header'] ? (
-										<span style={{ fontSize: '16px' }}>🙈</span>
+										<span style={{ fontSize: '16px' }}></span>
 									) : (
-										<span style={{ fontSize: '16px' }}>👁️</span>
+										<span style={{ fontSize: '16px' }}></span>
 									)}
 								</button>
 							</div>
@@ -884,7 +884,7 @@ const ClientGenerator: React.FC = () => {
 									fontWeight: 600,
 								}}
 							>
-								<span style={{ fontSize: '20px' }}>🛡️</span>
+								<span style={{ fontSize: '20px' }}></span>
 								Token Analysis (TokenDisplayService)
 							</div>
 							<div style={{ fontSize: '0.875rem', color: '#1f2937', marginBottom: '1rem' }}>
@@ -1100,7 +1100,7 @@ const ClientGenerator: React.FC = () => {
 								fontWeight: 600,
 							}}
 						>
-							<span style={{ fontSize: '20px' }}>🔑</span>
+							<span style={{ fontSize: '20px' }}></span>
 							Worker Token Request (OAuth 2.0 Client Credentials) - Client Secret Post
 						</div>
 						<div style={{ fontSize: '0.875rem', color: '#10b981', marginBottom: '1rem' }}>
@@ -1136,7 +1136,7 @@ const ClientGenerator: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<span style={{ fontSize: '16px' }}>🔑</span>
+								<span style={{ fontSize: '16px' }}></span>
 								Authentication Method:{' '}
 								{workerTokenRequest.authMethod === 'client_secret_basic'
 									? 'Client Secret Basic'

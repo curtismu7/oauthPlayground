@@ -799,7 +799,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 		return (
 			<div style={{ fontSize: '14px' }}>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-					<span>👤</span>
+					<span></span>
 					<strong>User Tokens:</strong>
 					{showRefresh && (
 						<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
@@ -836,7 +836,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 		<div>
 			<SectionHeader>
 				<SectionTitle>
-					<span>👤</span>
+					<span></span>
 					User Token Monitoring
 				</SectionTitle>
 				{showRefresh && (
@@ -930,11 +930,11 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 									}}
 								>
 									{token.type === 'access_token' ? (
-										<span>🔑</span>
+										<span></span>
 									) : token.type === 'id_token' ? (
-										<span>👤</span>
+										<span></span>
 									) : (
-										<span>🔄</span>
+										<span></span>
 									)}
 								</div>
 								<TokenText>
@@ -998,15 +998,15 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 									setShowTokens((prev) => ({ ...prev, [token.token]: !prev[token.token] }))
 								}
 							>
-								{showTokens[token.token] ? <span>🙈</span> : <span>👁️</span>}
+								{showTokens[token.token] ? <span></span> : <span></span>}
 								{showTokens[token.token] ? 'Hide' : 'Show'}
 							</ActionButton>
 							<ActionButton onClick={() => copyToken(token.token, token.type)}>
-								<span>📋</span>
+								<span></span>
 								Copy
 							</ActionButton>
 							<ActionButton $variant="danger" onClick={() => clearToken(token.type)}>
-								<span>🗑️</span>
+								<span></span>
 								Clear
 							</ActionButton>
 						</TokenActions>

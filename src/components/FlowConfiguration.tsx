@@ -1203,7 +1203,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 										$copied={copiedField === 'scopes'}
 										onClick={() => copyToClipboard(normalizedConfig.scopes.join(' '), 'scopes')}
 									>
-										{copiedField === 'scopes' ? <span>✅</span> : <span>📋</span>}
+										{copiedField === 'scopes' ? <span>✅</span> : <span></span>}
 										{copiedField === 'scopes' ? 'Copied!' : 'Copy'}
 									</CopyButton>
 								</div>
@@ -1313,7 +1313,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 							</>
 						) : (
 							<>
-								<span>💾</span>
+								<span></span>
 								{isConfigured ? 'Complete' : 'Save Configuration'}
 							</>
 						)}

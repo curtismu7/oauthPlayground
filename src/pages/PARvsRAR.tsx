@@ -240,7 +240,7 @@ const PARvsRAR: React.FC = () => {
 					title: 'RAR vs PAR and DPoP Guide',
 					subtitle:
 						'Understanding Pushed Authorization Requests (PAR), Rich Authorization Requests (RAR), and Demonstration of Proof-of-Possession (DPoP) with comprehensive examples and use cases.',
-					icon: '🛡️',
+					icon: '',
 				}}
 			/>
 
@@ -289,21 +289,21 @@ const PARvsRAR: React.FC = () => {
 						<h3>Benefits of PAR:</h3>
 						<ul>
 							<li>
-								🔒 <strong>Enhanced Security:</strong> Sensitive parameters never appear in browser
+								 <strong>Enhanced Security:</strong> Sensitive parameters never appear in browser
 								URLs, logs, or referrer headers
 							</li>
 							<li>
-								🛡️ <strong>Parameter Tampering Protection:</strong> Request parameters are validated
+								 <strong>Parameter Tampering Protection:</strong> Request parameters are validated
 								server-side before user interaction
 							</li>
 							<li>
 								✅ <strong>Early Validation:</strong> Errors are caught before redirecting users
 							</li>
 							<li>
-								📏 <strong>URL Length:</strong> Avoids URL length limitations with complex requests
+								 <strong>URL Length:</strong> Avoids URL length limitations with complex requests
 							</li>
 							<li>
-								🔍 <strong>Audit Trail:</strong> All requests are logged server-side with
+								 <strong>Audit Trail:</strong> All requests are logged server-side with
 								authentication
 							</li>
 						</ul>
@@ -344,7 +344,7 @@ nonce=random_nonce_string`,
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -383,7 +383,7 @@ nonce=random_nonce_string`}</CodeBlock>
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -412,7 +412,7 @@ nonce=random_nonce_string`}</CodeBlock>
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -507,7 +507,7 @@ pushAuthorizationRequest(config)
 										)
 									}
 								>
-									<span style={{ fontSize: '12px' }}>📋</span>
+									<span style={{ fontSize: '12px' }}></span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -592,7 +592,7 @@ pushAuthorizationRequest(config)
 			<CollapsibleHeader
 				title="What is RAR (Rich Authorization Requests)?"
 				theme="ping"
-				icon={<span>📖</span>}
+				icon={<span></span>}
 				defaultExpanded={true}
 			>
 				<Card>
@@ -605,23 +605,23 @@ pushAuthorizationRequest(config)
 						<h3>Benefits of RAR:</h3>
 						<ul>
 							<li>
-								🎯 <strong>Fine-Grained Permissions:</strong> Specify exact resources, actions, and
+								 <strong>Fine-Grained Permissions:</strong> Specify exact resources, actions, and
 								constraints
 							</li>
 							<li>
-								📊 <strong>Structured Data:</strong> Use JSON objects instead of overloaded scope
+								 <strong>Structured Data:</strong> Use JSON objects instead of overloaded scope
 								strings
 							</li>
 							<li>
-								👥 <strong>Better User Consent:</strong> Clear, human-readable permission
+								 <strong>Better User Consent:</strong> Clear, human-readable permission
 								descriptions
 							</li>
 							<li>
-								🔒 <strong>Contextual Security:</strong> Request specific permissions with explicit
+								 <strong>Contextual Security:</strong> Request specific permissions with explicit
 								limits
 							</li>
 							<li>
-								📝 <strong>Rich Auditing:</strong> Detailed authorization logs for compliance
+								 <strong>Rich Auditing:</strong> Detailed authorization logs for compliance
 							</li>
 						</ul>
 
@@ -672,7 +672,7 @@ pushAuthorizationRequest(config)
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -721,7 +721,7 @@ pushAuthorizationRequest(config)
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -802,7 +802,7 @@ logger.info('RAR Authorization URL:', authUrl);`,
 										)
 									}
 								>
-									<span style={{ fontSize: '12px' }}>📋</span>
+									<span style={{ fontSize: '12px' }}></span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -932,7 +932,7 @@ logger.info('RAR Authorization URL:', authUrl);`}</CodeBlock>
 			<CollapsibleHeader
 				title="PAR vs RAR: Key Differences"
 				theme="ping"
-				icon={<span>📤</span>}
+				icon={<span></span>}
 				defaultExpanded={true}
 			>
 				<Card>
@@ -1076,7 +1076,7 @@ code_challenge_method=S256`,
 										)
 									}
 								>
-									<span style={{ fontSize: '12px' }}>📋</span>
+									<span style={{ fontSize: '12px' }}></span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -1116,7 +1116,7 @@ code_challenge_method=S256`}</CodeBlock>
 										)
 									}
 								>
-									<span style={{ fontSize: '12px' }}>📋</span>
+									<span style={{ fontSize: '12px' }}></span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -1145,7 +1145,7 @@ code_challenge_method=S256`}</CodeBlock>
 										)
 									}
 								>
-									<span style={{ fontSize: '12px' }}>📋</span>
+									<span style={{ fontSize: '12px' }}></span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -1254,7 +1254,7 @@ pushPARWithRAR(config, rarDetails)
 										)
 									}
 								>
-									<span style={{ fontSize: '12px' }}>📋</span>
+									<span style={{ fontSize: '12px' }}></span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -1427,7 +1427,7 @@ pushPARWithRAR(config, rarDetails)
 			<CollapsibleHeader
 				title="OAuth 2.1 JWT & DPoP Advancements (RFC 9449 / RFC 9448)"
 				theme="ping"
-				icon={<span>🛡️</span>}
+				icon={<span></span>}
 				defaultExpanded={false}
 			>
 				<Card>
@@ -1447,11 +1447,11 @@ pushPARWithRAR(config, rarDetails)
 						</p>
 						<ul>
 							<li>
-								🔐 <strong>No Shared Secrets:</strong> Eliminates the need to store client secrets,
+								 <strong>No Shared Secrets:</strong> Eliminates the need to store client secrets,
 								reducing security risks
 							</li>
 							<li>
-								🎯 <strong>Asymmetric Cryptography:</strong> Uses public/private key pairs for
+								 <strong>Asymmetric Cryptography:</strong> Uses public/private key pairs for
 								stronger authentication
 							</li>
 							<li>
@@ -1459,11 +1459,11 @@ pushPARWithRAR(config, rarDetails)
 								exposure window
 							</li>
 							<li>
-								🔍 <strong>Audit Trail:</strong> JWT claims provide rich context for authentication
+								 <strong>Audit Trail:</strong> JWT claims provide rich context for authentication
 								events
 							</li>
 							<li>
-								📦 <strong>Self-Contained:</strong> All authentication information is in the JWT
+								 <strong>Self-Contained:</strong> All authentication information is in the JWT
 								itself
 							</li>
 						</ul>
@@ -1505,7 +1505,7 @@ pushPARWithRAR(config, rarDetails)
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -1553,7 +1553,7 @@ client_assertion=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImNsaWVudC1rZXktaWQ
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -1577,15 +1577,15 @@ client_assertion=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImNsaWVudC1rZXktaWQ
 						</p>
 						<ul>
 							<li>
-								🛡️ <strong>Token Binding:</strong> Binds access tokens to specific HTTP requests and
+								 <strong>Token Binding:</strong> Binds access tokens to specific HTTP requests and
 								methods
 							</li>
 							<li>
-								🚫 <strong>Replay Protection:</strong> Each proof includes a unique jti (JWT ID)
+								 <strong>Replay Protection:</strong> Each proof includes a unique jti (JWT ID)
 								preventing replay attacks
 							</li>
 							<li>
-								🔗 <strong>Request Binding:</strong> Proof includes HTTP method and URI, ensuring
+								 <strong>Request Binding:</strong> Proof includes HTTP method and URI, ensuring
 								token is used for intended request
 							</li>
 							<li>
@@ -1593,7 +1593,7 @@ client_assertion=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImNsaWVudC1rZXktaWQ
 								validation
 							</li>
 							<li>
-								🔐 <strong>Key Possession:</strong> Proves client controls the private key, not just
+								 <strong>Key Possession:</strong> Proves client controls the private key, not just
 								the token
 							</li>
 						</ul>
@@ -1633,7 +1633,7 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`,
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -1688,7 +1688,7 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -1734,7 +1734,7 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`,
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -1837,7 +1837,7 @@ const apiResponse = await fetch('https://api.bank.com/payments', {
 										)
 									}
 								>
-									<span style={{ fontSize: '12px' }}>📋</span>
+									<span style={{ fontSize: '12px' }}></span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>

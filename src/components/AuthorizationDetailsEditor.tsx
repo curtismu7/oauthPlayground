@@ -370,7 +370,7 @@ export const AuthorizationDetailsEditor: React.FC<AuthorizationDetailsEditorProp
 					<DetailHeader>
 						<DetailType>{detail.type || 'Untitled Authorization Detail'}</DetailType>
 						<RemoveButton onClick={() => removeDetail(index)}>
-							<span style={{ fontSize: '14px' }}>🗑️</span>
+							<span style={{ fontSize: '14px' }}></span>
 						</RemoveButton>
 					</DetailHeader>
 

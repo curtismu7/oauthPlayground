@@ -310,13 +310,13 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 
 			<Section>
 				<SectionTitle>
-					<span>👤</span>
+					<span></span>
 					User Information & Credentials
 				</SectionTitle>
 				<GridContainer>
 					<InfoCard>
 						<InfoCardTitle>
-							<span>🔑</span>
+							<span></span>
 							Credentials Used
 						</InfoCardTitle>
 						<InfoCardContent>
@@ -337,7 +337,7 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 
 					<InfoCard>
 						<InfoCardTitle>
-							<span>🛡️</span>
+							<span></span>
 							Security Features
 						</InfoCardTitle>
 						<InfoCardContent>
@@ -390,7 +390,7 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 				{tokens && (
 					<div style={{ marginTop: '2rem' }}>
 						<SectionTitle>
-							<span>🔑</span>
+							<span></span>
 							Received Tokens
 						</SectionTitle>
 						<TokenDisplayV8U tokens={tokens} flowType={flowType} specVersion={specVersion} />
@@ -400,12 +400,12 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 
 			<Section>
 				<SectionTitle>
-					<span>📖</span>
+					<span></span>
 					What You Learned
 				</SectionTitle>
 				<LearningSection>
 					<LearningTitle>
-						<span>📖</span>
+						<span></span>
 						Key Concepts Mastered
 					</LearningTitle>
 					<LearningContent>
@@ -418,7 +418,7 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 				<GridContainer style={{ marginTop: '2rem' }}>
 					<InfoCard>
 						<InfoCardTitle>
-							<span>🕐</span>
+							<span></span>
 							Next Steps
 						</InfoCardTitle>
 						<InfoCardContent>
@@ -437,7 +437,7 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 
 					<InfoCard>
 						<InfoCardTitle>
-							<span>🔗</span>
+							<span></span>
 							Additional Resources
 						</InfoCardTitle>
 						<InfoCardContent>
@@ -458,11 +458,11 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 
 			<ActionButtonsContainer>
 				<ActionButton onClick={handleExportData}>
-					<span>📥</span>
+					<span></span>
 					Export Flow Data
 				</ActionButton>
 				<ActionButton $variant="secondary" onClick={onFlowReset}>
-					<span>🔄</span>
+					<span></span>
 					Start New Flow
 				</ActionButton>
 			</ActionButtonsContainer>

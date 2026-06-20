@@ -24,7 +24,7 @@ const LegendTitle = styled.h4`
 	gap: 0.5rem;
 
 	&::before {
-		content: '🎨';
+		content: '';
 		font-size: 1.25rem;
 	}
 `;

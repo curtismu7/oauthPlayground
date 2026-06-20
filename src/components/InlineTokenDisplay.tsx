@@ -233,13 +233,13 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 	const getTokenIcon = () => {
 		switch (tokenType) {
 			case 'access':
-				return <span style={{ fontSize: '16px' }}>🔑</span>;
+				return <span style={{ fontSize: '16px' }}></span>;
 			case 'id':
-				return <span style={{ fontSize: '16px' }}>🛡️</span>;
+				return <span style={{ fontSize: '16px' }}></span>;
 			case 'refresh':
-				return <span style={{ fontSize: '16px' }}>🛡️</span>;
+				return <span style={{ fontSize: '16px' }}></span>;
 			default:
-				return <span style={{ fontSize: '16px' }}>🛡️</span>;
+				return <span style={{ fontSize: '16px' }}></span>;
 		}
 	};
 
@@ -320,7 +320,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 						onClick={handleToggleDecode}
 						title={showDecoded ? 'Hide decoded content' : 'Show decoded content'}
 					>
-						<span style={{ fontSize: '14px' }}>🔑</span>
+						<span style={{ fontSize: '14px' }}></span>
 						{showDecoded ? 'Hide Decode' : 'Decode'}
 					</ActionButton>
 					<ActionButton
@@ -329,7 +329,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 						$variant="primary"
 						disabled={!token}
 					>
-						<span style={{ fontSize: '14px' }}>📋</span>
+						<span style={{ fontSize: '14px' }}></span>
 						Copy
 					</ActionButton>
 					<ActionButton
@@ -338,7 +338,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 						$variant="management"
 						disabled={!token}
 					>
-						<span style={{ fontSize: '14px' }}>🔗</span>
+						<span style={{ fontSize: '14px' }}></span>
 						Token Management
 					</ActionButton>
 				</ActionButtons>
@@ -350,7 +350,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 					<div>
 						{isOpaque ? (
 							<OpaqueMessage>
-								<span style={{ fontSize: '20px' }}>🛡️</span>
+								<span style={{ fontSize: '20px' }}></span>
 								{TokenDisplayService.getOpaqueTokenMessage(tokenType)}
 							</OpaqueMessage>
 						) : decodedContent ? (
@@ -380,7 +380,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 							</div>
 						) : (
 							<OpaqueMessage>
-								<span style={{ fontSize: '20px' }}>🛡️</span>
+								<span style={{ fontSize: '20px' }}></span>
 								Unable to decode token content.
 							</OpaqueMessage>
 						)}

@@ -39,7 +39,7 @@ import { FiAlertCircle, FiLoader } from '../../icons';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
+const MODULE_TAG = '[ DELETE-DEVICES-V8]';
 
 type DeviceType = 'ALL' | 'SMS' | 'EMAIL' | 'FIDO2' | 'TOTP' | 'WHATSAPP' | 'VOICE' | 'OATH';
 type DeviceStatus =
@@ -624,7 +624,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				}}
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-					<span style={{ fontSize: 32, color: 'white' }}>🗑️</span>
+					<span style={{ fontSize: 32, color: 'white' }}></span>
 					<div>
 						<h1 style={{ margin: 0, fontSize: '28px', fontWeight: '700', color: 'white' }}>
 							Delete All Devices Utility
@@ -649,7 +649,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
 						<span style={{ fontSize: '16px', fontWeight: '600', color: '#1e40af' }}>
-							📋 MFA Settings for Environment
+							 MFA Settings for Environment
 						</span>
 						<span style={{ fontSize: '14px', color: '#64748b', fontFamily: 'monospace' }}>
 							{environmentId}
@@ -706,7 +706,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					<h3
 						style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}
 					>
-						📊 Device Usage Information
+						 Device Usage Information
 					</h3>
 
 					{/* Device Count and Limits */}
@@ -824,7 +824,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							{devices.length > 40 ? (
 								<span style={{ color: '#dc2626' }}>⚠️ Approaching device limit</span>
 							) : devices.length > 25 ? (
-								<span style={{ color: '#d97706' }}>⚡ Moderate device usage</span>
+								<span style={{ color: '#d97706' }}> Moderate device usage</span>
 							) : (
 								<span style={{ color: '#059669' }}>✅ Healthy device usage</span>
 							)}
@@ -1088,7 +1088,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 								Loading Devices...
 							</>
 						) : (
-							<>🔍 Get Devices</>
+							<> Get Devices</>
 						)}
 					</button>
 				</div>
@@ -1216,7 +1216,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 									</>
 								) : (
 									<>
-										<span>🗑️</span>
+										<span></span>
 										Delete Selected ({selectedCount})
 									</>
 								)}
@@ -1381,7 +1381,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					color: '#1e40af',
 				}}
 			>
-				<strong>💡 Note:</strong> This utility uses the PingOne MFA API to delete devices. Make sure
+				<strong> Note:</strong> This utility uses the PingOne MFA API to delete devices. Make sure
 				you have the appropriate permissions and that the worker token has the necessary scopes.
 				Deleted devices cannot be recovered.
 			</div>

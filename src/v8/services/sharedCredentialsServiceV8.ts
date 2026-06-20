@@ -19,7 +19,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔗 SHARED-CREDENTIALS-V8]';
+const MODULE_TAG = '[ SHARED-CREDENTIALS-V8]';
 
 const BROWSER_STORAGE_KEY = 'v8_shared_credentials';
 

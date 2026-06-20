@@ -22,7 +22,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔍 CONFIG-CHECKER-V8]';
+const MODULE_TAG = '[ CONFIG-CHECKER-V8]';
 
 // ============================================================================
 // TYPES

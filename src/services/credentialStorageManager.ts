@@ -73,7 +73,7 @@ export class CredentialStorageManager {
 	async loadFlowCredentials(flowKey: string): Promise<StorageResult<FlowCredentials>> {
 		logger.debug(
 			'CredentialStorageManager',
-			`🔍 [CredentialStorageManager] Loading credentials for: ${flowKey}`
+			` [CredentialStorageManager] Loading credentials for: ${flowKey}`
 		);
 
 		try {
@@ -162,7 +162,7 @@ export class CredentialStorageManager {
 	): Promise<StorageResult<void>> {
 		logger.debug(
 			'CredentialStorageManager',
-			`💾 [CredentialStorageManager] Saving credentials for: ${flowKey}`
+			` [CredentialStorageManager] Saving credentials for: ${flowKey}`
 		);
 
 		const results = {
@@ -224,7 +224,7 @@ export class CredentialStorageManager {
 		}
 
 		const success = results.browser || results.file;
-		logger.info('CredentialStorageManager', `📊 Save results:`, { data: results });
+		logger.info('CredentialStorageManager', ` Save results:`, { data: results });
 
 		return {
 			success,
@@ -242,7 +242,7 @@ export class CredentialStorageManager {
 	async clearFlowCredentials(flowKey: string): Promise<void> {
 		logger.info(
 			'CredentialStorageManager',
-			`🗑️ [CredentialStorageManager] Clearing credentials for: ${flowKey}`
+			` [CredentialStorageManager] Clearing credentials for: ${flowKey}`
 		);
 
 		// Clear from memory
@@ -406,7 +406,7 @@ export class CredentialStorageManager {
 	private saveToBrowser(flowKey: string, credentials: Record<string, unknown>): void {
 		const key = `flow_credentials_${flowKey}`;
 		const sanitized = this.sanitizeForLogging(credentials);
-		logger.info('CredentialStorageManager', `💾 Saving to browser storage:`, {
+		logger.info('CredentialStorageManager', ` Saving to browser storage:`, {
 			data: { key, credentials: sanitized },
 		});
 		localStorage.setItem(key, JSON.stringify(credentials));
@@ -736,7 +736,7 @@ export class CredentialStorageManager {
 	async clearAllFlowData(flowKey: string): Promise<void> {
 		logger.info(
 			'CredentialStorageManager',
-			`🗑️ [CredentialStorageManager] Clearing all data for ${flowKey}`
+			` [CredentialStorageManager] Clearing all data for ${flowKey}`
 		);
 
 		// Clear credentials
@@ -776,7 +776,7 @@ export class CredentialStorageManager {
 
 			// Filter for credential-related keys
 			if (this.isCredentialKey(event.key)) {
-				logger.info('CredentialStorageManager', `🔄 [CrossTabSync] Storage change detected:`, {
+				logger.info('CredentialStorageManager', ` [CrossTabSync] Storage change detected:`, {
 					data: {
 						key: event.key,
 						oldValue: event.oldValue ? 'exists' : 'null',
@@ -833,7 +833,7 @@ export class CredentialStorageManager {
 					this.memoryCache.delete(flowKey);
 					logger.info(
 						'CredentialStorageManager',
-						`🗑️ [CrossTabSync] Cleared memory cache for ${flowKey}`
+						` [CrossTabSync] Cleared memory cache for ${flowKey}`
 					);
 
 					// Notify listeners
@@ -881,7 +881,7 @@ export class CredentialStorageManager {
 		}
 
 		this.syncListeners.get(flowKey)!.add(callback);
-		logger.info('CredentialStorageManager', `📡 [CrossTabSync] Added listener for ${flowKey}`);
+		logger.info('CredentialStorageManager', ` [CrossTabSync] Added listener for ${flowKey}`);
 
 		// Return unsubscribe function
 		return () => {
@@ -892,7 +892,7 @@ export class CredentialStorageManager {
 					this.syncListeners.delete(flowKey);
 				}
 			}
-			logger.info('CredentialStorageManager', `📡 [CrossTabSync] Removed listener for ${flowKey}`);
+			logger.info('CredentialStorageManager', ` [CrossTabSync] Removed listener for ${flowKey}`);
 		};
 	}
 
@@ -904,7 +904,7 @@ export class CredentialStorageManager {
 		if (listeners && listeners.size > 0) {
 			logger.info(
 				'CredentialStorageManager',
-				`📢 [CrossTabSync] Notifying ${listeners.size} listeners for ${flowKey}`
+				` [CrossTabSync] Notifying ${listeners.size} listeners for ${flowKey}`
 			);
 			listeners.forEach((callback) => {
 				try {
@@ -927,7 +927,7 @@ export class CredentialStorageManager {
 	broadcastChange(flowKey: string, _data: Record<string, unknown>): void {
 		// The storage event will automatically fire in other tabs when we write to localStorage
 		// This method is here for explicit broadcasting if needed
-		logger.info('CredentialStorageManager', `📡 [CrossTabSync] Broadcasting change for ${flowKey}`);
+		logger.info('CredentialStorageManager', ` [CrossTabSync] Broadcasting change for ${flowKey}`);
 	}
 
 	/**
@@ -939,7 +939,7 @@ export class CredentialStorageManager {
 			this.storageEventHandler = null;
 		}
 		this.syncListeners.clear();
-		logger.info('CredentialStorageManager', '🧹 [CrossTabSync] Cleaned up storage event listener');
+		logger.info('CredentialStorageManager', ' [CrossTabSync] Cleaned up storage event listener');
 	}
 }
 

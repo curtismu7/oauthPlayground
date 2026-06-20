@@ -149,7 +149,7 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 					</ActionButton>
 
 					<ActionButton onClick={handleCopyEnvContent}>
-						<span style={{ fontSize: '12px' }}>💾</span>
+						<span style={{ fontSize: '12px' }}></span>
 						Copy .env Content
 					</ActionButton>
 
@@ -159,7 +159,7 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 					</ActionButton>
 
 					<ActionButton onClick={handleClearPersistence}>
-						<span style={{ fontSize: '12px' }}>🔄</span>
+						<span style={{ fontSize: '12px' }}></span>
 						Clear Storage
 					</ActionButton>
 				</div>

@@ -591,7 +591,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 					disabled={isLoading || !input.trim()}
 					$loading={isLoading}
 				>
-					{isLoading ? <FiSearch className="animate-spin" /> : <span>🔍</span>}
+					{isLoading ? <FiSearch className="animate-spin" /> : <span></span>}
 					{isLoading ? 'Discovering...' : 'OIDC Discovery'}
 				</SearchButton>
 			</InputGroup>
@@ -670,9 +670,9 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 				<ResultsToggleContainer>
 					<ResultsToggleButton onClick={() => setShowResults(!showResults)}>
 						{showResults ? (
-							<span style={{ fontSize: '16px' }}>🙈</span>
+							<span style={{ fontSize: '16px' }}></span>
 						) : (
-							<span style={{ fontSize: '16px' }}>👁️</span>
+							<span style={{ fontSize: '16px' }}></span>
 						)}
 						{showResults ? 'Hide Results' : 'Show Results'}
 					</ResultsToggleButton>

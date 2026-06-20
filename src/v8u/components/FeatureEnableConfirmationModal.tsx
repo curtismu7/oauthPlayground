@@ -257,7 +257,7 @@ export const FeatureEnableConfirmationModal: React.FC<FeatureEnableConfirmationM
 
 					<Section>
 						<SectionTitle>
-							<span>🌐</span>
+							<span></span>
 							PingOne Client Changes
 						</SectionTitle>
 						<ChangeList>

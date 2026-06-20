@@ -116,10 +116,10 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 	const { deviceType, configPageRoute } = options;
 	const MODULE_TAG =
 		deviceType === 'SMS'
-			? '[📱 SMS-FLOW-V8]'
+			? '[ SMS-FLOW-V8]'
 			: deviceType === 'WHATSAPP'
-				? '[📲 WHATSAPP-MFA]'
-				: '[📧 EMAIL-FLOW-V8]';
+				? '[ WHATSAPP-MFA]'
+				: '[ EMAIL-FLOW-V8]';
 	const location = useLocation();
 	const navigate = useNavigate();
 	const isConfigured = (location.state as { configured?: boolean })?.configured === true;

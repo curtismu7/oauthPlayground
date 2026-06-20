@@ -270,7 +270,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 			<ModalContainer onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
 					<IconContainer>
-						<span>🔒</span>
+						<span></span>
 					</IconContainer>
 					<Title>Password Change Required</Title>
 					<CloseButton onClick={handleClose} disabled={isLoading}>
@@ -305,7 +305,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 								onClick={() => setShowOldPassword(!showOldPassword)}
 								disabled={isLoading}
 							>
-								{showOldPassword ? <span>🙈</span> : <span>👁️</span>}
+								{showOldPassword ? <span></span> : <span></span>}
 							</PasswordToggle>
 						</InputContainer>
 					</FormGroup>
@@ -326,7 +326,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 								onClick={() => setShowNewPassword(!showNewPassword)}
 								disabled={isLoading}
 							>
-								{showNewPassword ? <span>🙈</span> : <span>👁️</span>}
+								{showNewPassword ? <span></span> : <span></span>}
 							</PasswordToggle>
 						</InputContainer>
 					</FormGroup>
@@ -347,7 +347,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 								onClick={() => setShowConfirmPassword(!showConfirmPassword)}
 								disabled={isLoading}
 							>
-								{showConfirmPassword ? <span>🙈</span> : <span>👁️</span>}
+								{showConfirmPassword ? <span></span> : <span></span>}
 							</PasswordToggle>
 						</InputContainer>
 					</FormGroup>

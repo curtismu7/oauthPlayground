@@ -226,7 +226,7 @@ const UseCaseItem = styled.div`
 	margin-bottom: 0.5rem;
 	
 	&::before {
-		content: '"✨"';
+		content: '""';
 		flex-shrink: 0;
 		font-size: 0.875rem;
 	}
@@ -323,7 +323,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 				<InfoGrid>
 					<InfoSection>
 						<SectionTitle>
-							<span style={{ fontSize: '14px' }}>⚡</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Tokens Returned
 						</SectionTitle>
 						<SectionContent>{flowInfoCard.keyDetails.tokensReturned}</SectionContent>
@@ -339,7 +339,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 
 					<InfoSection>
 						<SectionTitle>
-							<span style={{ fontSize: '14px' }}>🔗</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Spec Layer
 						</SectionTitle>
 						<SectionContent>{flowInfoCard.keyDetails.specLayer}</SectionContent>
@@ -347,7 +347,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 
 					<InfoSection>
 						<SectionTitle>
-							<span style={{ fontSize: '14px' }}>🛡️</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Nonce Requirement
 						</SectionTitle>
 						<SectionContent>{flowInfoCard.keyDetails.nonceRequirement}</SectionContent>
@@ -355,7 +355,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 
 					<InfoSection style={{ gridColumn: 'span 2' }}>
 						<SectionTitle>
-							<span style={{ fontSize: '14px' }}>🛡️</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Validation
 						</SectionTitle>
 						<SectionContent>{flowInfoCard.keyDetails.validation}</SectionContent>
@@ -364,7 +364,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 					{flowInfoCard.securityNotes && flowInfoCard.securityNotes.length > 0 && (
 						<InfoSection style={{ gridColumn: '1 / -1' }}>
 							<SectionTitle>
-								<span style={{ fontSize: '14px' }}>🛡️</span>
+								<span style={{ fontSize: '14px' }}></span>
 								Security Notes
 							</SectionTitle>
 							<SectionContent>
@@ -380,7 +380,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 					{flowInfoCard.useCases && flowInfoCard.useCases.length > 0 && (
 						<InfoSection style={{ gridColumn: '1 / -1' }}>
 							<SectionTitle>
-								<span style={{ fontSize: '14px' }}>👥</span>
+								<span style={{ fontSize: '14px' }}></span>
 								Best Use Cases
 							</SectionTitle>
 							<SectionContent>
@@ -437,7 +437,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 					{showDocumentation && (
 						<InfoSection style={{ gridColumn: '1 / -1' }}>
 							<SectionTitle>
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 								Documentation
 							</SectionTitle>
 							<SectionContent>
@@ -445,7 +445,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 									<div key={index} style={{ marginBottom: '0.5rem' }}>
 										<DocumentationLink href={link.url} target="_blank" rel="noopener noreferrer">
 											{link.title}
-											<span style={{ fontSize: '12px' }}>🔗</span>
+											<span style={{ fontSize: '12px' }}></span>
 										</DocumentationLink>
 									</div>
 								))}
@@ -481,7 +481,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 					{showImplementationNotes && (
 						<InfoSection style={{ gridColumn: '1 / -1' }}>
 							<SectionTitle>
-								<span style={{ fontSize: '14px' }}>🖥️</span>
+								<span style={{ fontSize: '14px' }}></span>
 								Implementation Notes
 							</SectionTitle>
 							<SectionContent>

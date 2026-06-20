@@ -363,7 +363,7 @@ const ResponseModesLearnPage: React.FC = () => {
 
 					<Section>
 						<SectionTitle>
-							<span style={{ fontSize: '20px' }}>🛡️</span>
+							<span style={{ fontSize: '20px' }}></span>
 							Compatibility Matrix
 						</SectionTitle>
 						<SectionDescription>

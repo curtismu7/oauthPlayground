@@ -48,7 +48,7 @@ export const P1MFASamples: React.FC = () => {
 				}}
 			>
 				<div style={{ padding: '1.5rem', border: '2px solid #8b5cf6', borderRadius: '8px' }}>
-					<h3 style={{ marginBottom: '1rem' }}>🔗 Integrated Sample</h3>
+					<h3 style={{ marginBottom: '1rem' }}> Integrated Sample</h3>
 					<p style={{ marginBottom: '1rem', color: '#6c757d' }}>
 						Complete end-to-end flow: OIDC Sign-in → MFA Enrollment → MFA Authentication.
 						Demonstrates both policy-driven and step-up authentication patterns.

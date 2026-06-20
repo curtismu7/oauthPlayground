@@ -285,14 +285,14 @@ const wizardSteps: WizardStep[] = [
 				id: 'mobile-app',
 				label: 'Mobile Application',
 				description: 'Native mobile app (iOS, Android)',
-				icon: <span>👤</span>,
+				icon: <span></span>,
 				value: 'mobile-app',
 			},
 			{
 				id: 'server-app',
 				label: 'Server Application',
 				description: 'Backend service or API',
-				icon: <span>🛡️</span>,
+				icon: <span></span>,
 				value: 'server-app',
 			},
 		],
@@ -306,7 +306,7 @@ const wizardSteps: WizardStep[] = [
 				id: 'has-backend',
 				label: 'Yes, I have a backend',
 				description: 'My app can securely store client secrets',
-				icon: <span>🛡️</span>,
+				icon: <span></span>,
 				value: 'has-backend',
 			},
 			{
@@ -327,14 +327,14 @@ const wizardSteps: WizardStep[] = [
 				id: 'standard',
 				label: 'Standard Security',
 				description: 'Good security for most applications',
-				icon: <span>🛡️</span>,
+				icon: <span></span>,
 				value: 'standard',
 			},
 			{
 				id: 'high',
 				label: 'High Security',
 				description: 'Maximum security for sensitive applications',
-				icon: <span>🛡️</span>,
+				icon: <span></span>,
 				value: 'high',
 			},
 		],
@@ -348,14 +348,14 @@ const wizardSteps: WizardStep[] = [
 				id: 'user-interaction',
 				label: 'Yes, users will log in',
 				description: 'Users need to authenticate and access their data',
-				icon: <span>👤</span>,
+				icon: <span></span>,
 				value: 'user-interaction',
 			},
 			{
 				id: 'no-user-interaction',
 				label: 'No user interaction',
 				description: 'Machine-to-machine or automated service',
-				icon: <span>🛡️</span>,
+				icon: <span></span>,
 				value: 'no-user-interaction',
 			},
 		],
@@ -371,7 +371,7 @@ const getRecommendations = (answers: Record<string, string>): FlowRecommendation
 			id: 'client-credentials',
 			title: 'Client Credentials Flow',
 			description: 'Perfect for machine-to-machine authentication without user interaction',
-			icon: <span>🛡️</span>,
+			icon: <span></span>,
 			security: 'high',
 			complexity: 'low',
 			implementationTime: '1-2 hours',
@@ -384,7 +384,7 @@ const getRecommendations = (answers: Record<string, string>): FlowRecommendation
 			id: 'pkce',
 			title: 'PKCE Flow',
 			description: 'Authorization Code flow with enhanced security for public clients',
-			icon: <span>🛡️</span>,
+			icon: <span></span>,
 			security: 'high',
 			complexity: 'medium',
 			implementationTime: '2-4 hours',
@@ -504,15 +504,15 @@ const FlowRecommendationWizard: React.FC<{ onClose?: () => void }> = ({ onClose 
 
 									<div className="recommendation-meta">
 										<div className="meta-item">
-											<span>🛡️</span>
+											<span></span>
 											{rec.security} security
 										</div>
 										<div className="meta-item">
-											<span>🕐</span>
+											<span></span>
 											{rec.implementationTime}
 										</div>
 										<div className="meta-item">
-											<span>⭐</span>
+											<span></span>
 											{rec.complexity} complexity
 										</div>
 									</div>

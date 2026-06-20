@@ -394,7 +394,7 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 					)}
 					{environmentId && username && deviceId && (
 						<DangerButton type="button" onClick={handleDeleteDevice} disabled={isDeleting}>
-							<span style={{ fontSize: '16px' }}>🗑️</span>
+							<span style={{ fontSize: '16px' }}></span>
 							{isDeleting ? 'Deleting...' : 'Delete Device'}
 						</DangerButton>
 					)}

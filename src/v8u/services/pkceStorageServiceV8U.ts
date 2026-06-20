@@ -9,7 +9,7 @@
  * All existing API methods are preserved for backward compatibility.
  */
 
-const MODULE_TAG = '[🔐 PKCE-STORAGE-V8U-MIGRATED]';
+const MODULE_TAG = '[ PKCE-STORAGE-V8U-MIGRATED]';
 
 import type { V8UPKCECodes } from '../../services/unifiedTokenStorageService';
 import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
@@ -81,7 +81,7 @@ export async function savePKCECodes(
 		memoryCache.set(flowKey, pkceData);
 		logger.info(`${MODULE_TAG} ✅ Saved to memory cache`, { flowKey });
 
-		logger.info(`${MODULE_TAG} 🎯 PKCE codes saved with QUADRUPLE redundancy`, {
+		logger.info(`${MODULE_TAG} PKCE codes saved with QUADRUPLE redundancy`, {
 			flowKey,
 			verifierLength: codes.codeVerifier.length,
 			challengeLength: codes.codeChallenge.length,
@@ -99,7 +99,7 @@ export async function savePKCECodes(
  * Tries: memory → sessionStorage → localStorage → unified storage
  */
 export async function loadPKCECodesAsync(flowKey: string): Promise<PKCECodes | null> {
-	logger.info(`${MODULE_TAG} 🔍 Loading PKCE codes (async)`, { flowKey });
+	logger.info(`${MODULE_TAG} Loading PKCE codes (async)`, { flowKey });
 
 	// 1. Try memory cache first (fastest)
 	const memoryData = memoryCache.get(flowKey);
@@ -165,7 +165,7 @@ export async function loadPKCECodesAsync(flowKey: string): Promise<PKCECodes | n
  * Synchronous load (tries memory, sessionStorage, localStorage only)
  */
 export function loadPKCECodes(flowKey: string): PKCECodes | null {
-	logger.info(`${MODULE_TAG} 🔍 Loading PKCE codes (sync)`, { flowKey });
+	logger.info(`${MODULE_TAG} Loading PKCE codes (sync)`, { flowKey });
 
 	// 1. Try memory cache
 	const memoryData = memoryCache.get(flowKey);
@@ -216,7 +216,7 @@ export function loadPKCECodes(flowKey: string): PKCECodes | null {
  * Clear PKCE codes from all storage locations
  */
 export async function clearPKCECodes(flowKey: string): Promise<void> {
-	logger.info(`${MODULE_TAG} 🗑️ Clearing PKCE codes`, { flowKey });
+	logger.info(`${MODULE_TAG} Clearing PKCE codes`, { flowKey });
 
 	// Clear from all locations
 	memoryCache.delete(flowKey);

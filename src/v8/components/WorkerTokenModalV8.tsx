@@ -32,7 +32,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 
-const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
+const MODULE_TAG = '[ WORKER-TOKEN-MODAL-V8]';
 
 interface WorkerTokenModalV8Props {
 	isOpen: boolean;
@@ -266,13 +266,13 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				// If we have a valid token, use it for validation
 				if (tokenValidation?.isValid) {
 					logger.debug(
-						`${MODULE_TAG} 🔑 Using existing token for validation`,
+						`${MODULE_TAG} Using existing token for validation`,
 						'Using existing token',
 						{ tokenValidation }
 					);
 				} else {
 					logger.debug(
-						`${MODULE_TAG} 🔑 No valid token found, proceeding with validation`,
+						`${MODULE_TAG} No valid token found, proceeding with validation`,
 						'No valid token found',
 						{}
 					);
@@ -373,19 +373,19 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				};
 
 				logger.debug(
-					`${MODULE_TAG} 🔍 Debug - Auth method:`,
+					`${MODULE_TAG} Debug - Auth method:`,
 					JSON.stringify(authMethod),
 					'Auth method debug'
 				);
-				logger.debug(`${MODULE_TAG} 🔍 Debug - Client ID:`, clientId.trim());
+				logger.debug(`${MODULE_TAG} Debug - Client ID:`, clientId.trim());
 
 				if (authMethod === 'client_secret_post') {
 					params.set('client_secret', clientSecret.trim());
-					logger.debug(`${MODULE_TAG} 🔍 Using client_secret_post method`, 'Logger debug');
+					logger.debug(`${MODULE_TAG} Using client_secret_post method`, 'Logger debug');
 				} else if (authMethod === 'client_secret_basic') {
 					const basicAuth = btoa(`${clientId.trim()}:${clientSecret.trim()}`);
 					headers.Authorization = `Basic ${basicAuth}`;
-					logger.debug(`${MODULE_TAG} 🔍 Using client_secret_basic method`, 'Logger debug');
+					logger.debug(`${MODULE_TAG} Using client_secret_basic method`, 'Logger debug');
 				} else {
 					logger.warn(`${MODULE_TAG} ⚠️ Unknown auth method:`, authMethod);
 				}
@@ -476,7 +476,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 			// Track the API call
 			const startTime = Date.now();
-			logger.debug(`${MODULE_TAG} 🚀 Making token request`, 'Making token request', {
+			logger.debug(`${MODULE_TAG} Making token request`, 'Making token request', {
 				tokenEndpoint: requestDetails.tokenEndpoint,
 				authMethod: requestDetails.authMethod,
 				hasClientSecret: !!requestDetails.requestParams.client_secret,
@@ -503,7 +503,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				body: requestDetails.resolvedBody,
 			});
 
-			logger.debug(`${MODULE_TAG} 📡 Token response`, 'Token response', {
+			logger.debug(`${MODULE_TAG} Token response`, 'Token response', {
 				status: response.status,
 				statusText: response.statusText,
 				ok: response.ok,
@@ -513,11 +513,11 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			let responseData: unknown;
 			try {
 				responseData = await response.json();
-				logger.debug(`${MODULE_TAG} 📄 Response data`, 'Response data', { responseData });
+				logger.debug(`${MODULE_TAG} Response data`, 'Response data', { responseData });
 			} catch {
 				const raw = await response.text();
 				responseData = raw ? { raw } : null;
-				logger.debug(`${MODULE_TAG} 📄 Raw response`, raw || 'empty', { raw });
+				logger.debug(`${MODULE_TAG} Raw response`, raw || 'empty', { raw });
 			}
 
 			// Update API call tracking
@@ -549,7 +549,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							? ('client_secret_post' as const)
 							: ('client_secret_basic' as const);
 					logger.debug(
-						`${MODULE_TAG} 🔄 Auth method mismatch — retrying with ${fallbackMethod}`,
+						`${MODULE_TAG} Auth method mismatch — retrying with ${fallbackMethod}`,
 						'Logger debug'
 					);
 
@@ -665,9 +665,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// Dispatch event for status update
-			logger.debug(`${MODULE_TAG} 🔑 Dispatching workerTokenUpdated event`, 'Logger debug');
+			logger.debug(`${MODULE_TAG} Dispatching workerTokenUpdated event`, 'Logger debug');
 			window.dispatchEvent(new Event('workerTokenUpdated'));
-			logger.debug(`${MODULE_TAG} 🔑 workerTokenUpdated event dispatched`, 'Logger debug');
+			logger.debug(`${MODULE_TAG} workerTokenUpdated event dispatched`, 'Logger debug');
 
 			modernMessaging.showFooterMessage({
 				type: 'info',
@@ -853,7 +853,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 										color: '#92400e',
 									}}
 								>
-									🔑 Worker Token Credentials
+									 Worker Token Credentials
 								</h2>
 								<p style={{ margin: 0, fontSize: '13px', color: '#78350f' }}>
 									Generate a worker token for API access
@@ -957,7 +957,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												gap: '6px',
 											}}
 										>
-											💾 Save Token
+											 Save Token
 										</button>
 										<button
 											type="button"
@@ -1044,7 +1044,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 													color: krpCompliance.compliant ? '#1e40af' : '#92400e',
 												}}
 											>
-												🔑 Key Rotation Policy (KRP)
+												 Key Rotation Policy (KRP)
 											</div>
 											{krpCompliance.compliant ? (
 												<div style={{ color: '#1e40af' }}>✅ Compliant - Application uses KRP</div>
@@ -1163,7 +1163,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 															color: autoRenewal ? '#065f46' : '#991b1b',
 														}}
 													>
-														<strong>🔄 Auto-Renewal:</strong>{' '}
+														<strong> Auto-Renewal:</strong>{' '}
 														{autoRenewal ? (
 															<>
 																<strong>Enabled</strong> - Tokens will automatically renew{' '}
@@ -1230,7 +1230,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 										}}
 									>
 										<div style={{ marginBottom: '6px', fontWeight: '600' }}>
-											📝 How to get these credentials:
+											 How to get these credentials:
 										</div>
 										<ol style={{ margin: '0', paddingLeft: '20px' }}>
 											<li>Go to PingOne Console → Connections → Applications</li>
@@ -1361,7 +1361,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 														fontSize: '18px',
 													}}
 												>
-													{showSecret ? '👁️' : '👁️‍🗨️'}
+													{showSecret ? '' : ''}
 												</button>
 											</div>
 										</div>
@@ -1585,7 +1585,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												style={{ cursor: 'pointer' }}
 											/>
 											<span style={{ fontSize: '13px', color: '#374151' }}>
-												💾 Save credentials for next time
+												 Save credentials for next time
 											</span>
 										</label>
 										<small
@@ -1688,7 +1688,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												}}
 												title="Export credentials to JSON file"
 											>
-												<span style={{ fontSize: '14px' }}>📥</span>
+												<span style={{ fontSize: '14px' }}></span>
 												Export
 											</button>
 											<button
@@ -1783,7 +1783,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												}}
 												title="Import credentials from JSON file"
 											>
-												<span style={{ fontSize: '14px' }}>📤</span>
+												<span style={{ fontSize: '14px' }}></span>
 												Import
 											</button>
 										</div>
@@ -1841,7 +1841,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 													cursor: isGenerating ? 'not-allowed' : 'pointer',
 												}}
 											>
-												{isGenerating ? '🔄 Generating...' : '🔑 Generate Token'}
+												{isGenerating ? ' Generating...' : ' Generate Token'}
 											</button>
 										</div>
 									</div>

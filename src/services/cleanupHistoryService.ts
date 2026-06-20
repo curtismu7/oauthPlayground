@@ -53,35 +53,35 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 		name: 'V8 to V9 Migration',
 		description: 'Migrated 45 V8 services to V9 with full compatibility',
 		color: '#0066CC',
-		icon: '🔄',
+		icon: '',
 	},
 	{
 		id: 'ping-ui-migration',
 		name: 'Ping UI Migration',
 		description: 'Migrated components to Ping UI design system',
 		color: '#28A745',
-		icon: '🎨',
+		icon: '',
 	},
 	{
 		id: 'code-cleanup',
 		name: 'Code Cleanup',
 		description: 'Removed unused code, fixed lint errors, improved structure',
 		color: '#FFC107',
-		icon: '🧹',
+		icon: '',
 	},
 	{
 		id: 'bug-fixes',
 		name: 'Bug Fixes',
 		description: 'Fixed critical errors and improved stability',
 		color: '#DC3545',
-		icon: '🐛',
+		icon: '',
 	},
 	{
 		id: 'documentation',
 		name: 'Documentation',
 		description: 'Created comprehensive documentation and guides',
 		color: '#6F42C1',
-		icon: '📚',
+		icon: '',
 	},
 	{
 		id: 'testing',
@@ -95,14 +95,14 @@ export const CLEANUP_CATEGORIES: CleanupCategory[] = [
 		name: 'Performance',
 		description: 'Optimized performance and reduced bundle size',
 		color: '#FD7E14',
-		icon: '⚡',
+		icon: '',
 	},
 	{
 		id: 'security',
 		name: 'Security',
 		description: 'Enhanced security measures and validation',
 		color: '#E83E8C',
-		icon: '🔒',
+		icon: '',
 	},
 ];
 
@@ -188,9 +188,9 @@ class CleanupHistoryService {
 		const { metrics } = this.history;
 
 		return `
-# 🧹 100+ Hours Cleanup Report
+# 100+ Hours Cleanup Report
 
-## 📊 Overall Metrics
+## Overall Metrics
 - **Total Hours**: ${metrics.totalHours}h
 - **Total Sessions**: ${metrics.totalSessions}
 - **Files Modified**: ${metrics.filesModified}
@@ -200,7 +200,7 @@ class CleanupHistoryService {
 - **Average Session**: ${metrics.averageSessionDuration.toFixed(1)}h
 - **Completion**: ${metrics.completionPercentage.toFixed(1)}%
 
-## 🏆 Major Achievements
+## Major Achievements
 ${this.history.sessions
 	.map(
 		(session) => `
@@ -214,7 +214,7 @@ ${session.achievements.map((achievement) => `- ✅ ${achievement}`).join('\n')}
 	)
 	.join('\n')}
 
-## 📈 Category Breakdown
+## Category Breakdown
 ${this.history.categories
 	.map((category) => {
 		const sessions = this.getSessionsByCategory(category.id);

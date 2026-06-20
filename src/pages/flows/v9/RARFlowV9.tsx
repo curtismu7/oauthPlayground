@@ -607,7 +607,7 @@ const RARFlowV9: React.FC = () => {
 					<CollapsibleSection>
 						<CollapsibleHeaderButton onClick={() => toggleSection('authorization')}>
 							<CollapsibleTitle>
-								<span>🔑</span>Generate Authorization Request
+								<span></span>Generate Authorization Request
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon collapsed={!collapsedSections.authorization} />
 						</CollapsibleHeaderButton>
@@ -679,7 +679,7 @@ const RARFlowV9: React.FC = () => {
 					<CollapsibleSection>
 						<CollapsibleHeaderButton onClick={() => toggleSection('tokenExchange')}>
 							<CollapsibleTitle>
-								<span>🔄</span>Token Exchange
+								<span></span>Token Exchange
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon collapsed={!collapsedSections.tokenExchange} />
 						</CollapsibleHeaderButton>
@@ -701,7 +701,7 @@ const RARFlowV9: React.FC = () => {
 										'Exchanging Token...'
 									) : (
 										<>
-											<span>🔄</span>Exchange Authorization Code for Tokens
+											<span></span>Exchange Authorization Code for Tokens
 										</>
 									)}
 								</Button>
@@ -988,7 +988,7 @@ const RARFlowV9: React.FC = () => {
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-							<span>🔑</span>
+							<span></span>
 							<span style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
 								Worker Token Status
 							</span>
@@ -1001,7 +1001,7 @@ const RARFlowV9: React.FC = () => {
 								transition: 'all 0.3s ease',
 							}}
 						>
-							🔽
+							
 						</span>
 					</button>
 

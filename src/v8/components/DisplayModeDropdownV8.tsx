@@ -17,7 +17,7 @@ import { FiChevronDown } from '../../icons';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🖥️ DISPLAY-MODE-V8]';
+const MODULE_TAG = '[ DISPLAY-MODE-V8]';
 
 export type DisplayMode = 'page' | 'popup' | 'touch' | 'wap';
 
@@ -41,7 +41,7 @@ const DISPLAY_MODE_OPTIONS: Record<DisplayMode, DisplayModeOption> = {
 	page: {
 		value: 'page',
 		label: 'Page (Full Redirect)',
-		icon: '🖥️',
+		icon: '',
 		description: 'Full page redirect to login screen',
 		useCase: 'Standard web applications',
 		recommended: true,
@@ -49,21 +49,21 @@ const DISPLAY_MODE_OPTIONS: Record<DisplayMode, DisplayModeOption> = {
 	popup: {
 		value: 'popup',
 		label: 'Popup Window',
-		icon: '🪟',
+		icon: '',
 		description: 'Login in popup window',
 		useCase: 'Embedded authentication, SPAs',
 	},
 	touch: {
 		value: 'touch',
 		label: 'Touch Interface',
-		icon: '📱',
+		icon: '',
 		description: 'Touch-optimized mobile interface',
 		useCase: 'Mobile apps, tablets',
 	},
 	wap: {
 		value: 'wap',
 		label: 'WAP Interface',
-		icon: '📟',
+		icon: '',
 		description: 'WAP-optimized interface (legacy)',
 		useCase: 'Legacy mobile browsers',
 	},
@@ -222,7 +222,7 @@ export const DisplayModeDropdownV8: React.FC<DisplayModeDropdownV8Props> = ({
 							marginBottom: '12px',
 						}}
 					>
-						📚 Display Mode Guide
+						 Display Mode Guide
 					</h4>
 					<p
 						style={{
@@ -338,7 +338,7 @@ export const DisplayModeDropdownV8: React.FC<DisplayModeDropdownV8Props> = ({
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>💡 Quick Tip:</strong> Use <strong>page</strong> for standard web apps,{' '}
+							<strong> Quick Tip:</strong> Use <strong>page</strong> for standard web apps,{' '}
 							<strong>popup</strong> for embedded authentication in SPAs, <strong>touch</strong> for
 							mobile apps. The <strong>wap</strong> mode is legacy and rarely used today.
 						</div>

@@ -18,7 +18,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
+const MODULE_TAG = '[ IMPLICIT-FLOW-V8]';
 
 export interface ImplicitFlowCredentials {
 	environmentId: string;
@@ -109,7 +109,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 		if (requiresJAR) {
 			// Generate JAR request object
 			logger.info(
-				`${MODULE_TAG} 🔐 JAR required - generating signed request object...`,
+				`${MODULE_TAG} JAR required - generating signed request object...`,
 				'Logger info'
 			);
 

@@ -809,7 +809,7 @@ const SAMLServiceProviderFlowV9: React.FC = () => {
 					}}
 				>
 					<Button onClick={handleSaveConfiguration} $variant="primary" disabled={isSaving}>
-						{isSaving ? <span>🔄</span> : <i className="bi bi-floppy" />}
+						{isSaving ? <span></span> : <i className="bi bi-floppy" />}
 						{isSaving ? 'Saving...' : 'Save Configuration'}
 					</Button>
 					{hasSavedConfig && lastSavedAt && (
@@ -825,7 +825,7 @@ const SAMLServiceProviderFlowV9: React.FC = () => {
 	const renderPingOneSetup = () => (
 		<CollapsibleHeader
 			title="Optional: PingOne Console Setup (real credentials)"
-			icon={<span>🛡️</span>}
+			icon={<span></span>}
 			defaultCollapsed={collapsedSections.pingoneSetup}
 			showArrow={true}
 		>
@@ -899,7 +899,7 @@ const SAMLServiceProviderFlowV9: React.FC = () => {
 			<Button onClick={handleSavePingOneAdmin} $variant="primary" disabled={isSavingAdmin}>
 				{isSavingAdmin ? (
 					<>
-						<span>🔄</span>Saving…
+						<span></span>Saving…
 					</>
 				) : (
 					<>
@@ -944,11 +944,11 @@ const SAMLServiceProviderFlowV9: React.FC = () => {
 				>
 					{isFetchingPingOneApp ? (
 						<>
-							<span>🔄</span>Loading…
+							<span></span>Loading…
 						</>
 					) : (
 						<>
-							<span>🌐</span>Load Application
+							<span></span>Load Application
 						</>
 					)}
 				</Button>
@@ -959,7 +959,7 @@ const SAMLServiceProviderFlowV9: React.FC = () => {
 				>
 					{isSyncingPingOne ? (
 						<>
-							<span>🔄</span>Updating…
+							<span></span>Updating…
 						</>
 					) : (
 						<>
@@ -1004,7 +1004,7 @@ const SAMLServiceProviderFlowV9: React.FC = () => {
 				showArrow={true}
 			>
 				<InfoBox $variant="info">
-					<span>🌐</span>
+					<span></span>
 					<div>
 						<InfoTitle>SAML AuthnRequest with Dynamic ACS URL</InfoTitle>
 						<InfoText>
@@ -1026,14 +1026,14 @@ const SAMLServiceProviderFlowV9: React.FC = () => {
 
 				<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
 					<Button onClick={generateSampleAuthnRequest} $variant="secondary">
-						<span>🔄</span>Generate Sample AuthnRequest
+						<span></span>Generate Sample AuthnRequest
 					</Button>
 					<Button
 						onClick={processAuthnRequest}
 						$variant="primary"
 						disabled={!authnRequestXml.trim() || isProcessing}
 					>
-						{isProcessing ? <span>🔄</span> : <span>➡️</span>}
+						{isProcessing ? <span></span> : <span>➡️</span>}
 						{isProcessing ? 'Processing...' : 'Process AuthnRequest'}
 					</Button>
 				</div>
@@ -1079,7 +1079,7 @@ const SAMLServiceProviderFlowV9: React.FC = () => {
 			{validationResult && (
 				<CollapsibleHeader
 					title="ACS URL Validation"
-					icon={<span>🛡️</span>}
+					icon={<span></span>}
 					theme={validationResult.isValid ? 'green' : 'orange'}
 					defaultCollapsed={collapsedSections.validation}
 					showArrow={true}
@@ -1173,12 +1173,12 @@ const SAMLServiceProviderFlowV9: React.FC = () => {
 			{validationResult?.isValid && (
 				<CollapsibleHeader
 					title="Generate SAML Response"
-					icon={<span>📦</span>}
+					icon={<span></span>}
 					defaultCollapsed={collapsedSections.response}
 					showArrow={true}
 				>
 					<InfoBox $variant="info">
-						<span>📦</span>
+						<span></span>
 						<div>
 							<InfoTitle>SAML Response Generation</InfoTitle>
 							<InfoText>
@@ -1190,7 +1190,7 @@ const SAMLServiceProviderFlowV9: React.FC = () => {
 
 					<div style={{ marginBottom: '1rem' }}>
 						<Button onClick={generateSamlResponse} $variant="success">
-							<span>📦</span>Generate SAML Response
+							<span></span>Generate SAML Response
 						</Button>
 					</div>
 
@@ -1226,7 +1226,7 @@ const SAMLServiceProviderFlowV9: React.FC = () => {
 									$variant="secondary"
 									style={{ fontSize: '0.75rem' }}
 								>
-									<span>📋</span>Copy Response
+									<span></span>Copy Response
 								</Button>
 							</div>
 						</GeneratedContentBox>

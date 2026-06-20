@@ -239,7 +239,7 @@ export const deltaTheme: BrandTheme = {
 	brandSpecific: {
 		logo: '✈️',
 		logoUrl: 'https://www.delta.com/favicon.ico',
-		iconSet: ['✈️', '🛫', '🌍', '🎫', '🛃'],
+		iconSet: ['✈️', '', '', '', ''],
 		messaging: {
 			welcome: 'Welcome to Delta Air Lines Secure Portal',
 			security: 'Your security is our top priority',

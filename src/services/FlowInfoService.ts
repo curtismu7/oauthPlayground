@@ -1100,10 +1100,10 @@ const flowConfigs: Record<string, DetailedFlowInfo> = {
 			},
 		],
 		securityNotes: [
-			'📚 Comprehensive OIDC flow comparison',
-			'🎯 Best practice recommendations',
-			'🔒 Security level explanations',
-			'⚡ Interactive flow navigation',
+			' Comprehensive OIDC flow comparison',
+			' Best practice recommendations',
+			' Security level explanations',
+			' Interactive flow navigation',
 		],
 		useCases: [
 			'Learning OIDC concepts',
@@ -1300,15 +1300,15 @@ const getCategoryBadge = (category: DetailedFlowInfo['flowCategory']): string =>
 
 const getFlowIcon = (flowName: string): string => {
 	const iconMap: Record<string, string> = {
-		'Authorization Code Flow': '🔐',
-		'Client Credentials Flow': '🤖',
-		'Device Authorization Flow': '📱',
-		'OIDC CIBA Flow': '🔗',
-		'OpenID Connect Overview': '📚',
-		'Pushed Authorization Request (PAR)': '📤',
-		'Redirectless Flow': '⚡',
+		'Authorization Code Flow': '',
+		'Client Credentials Flow': '',
+		'Device Authorization Flow': '',
+		'OIDC CIBA Flow': '',
+		'OpenID Connect Overview': '',
+		'Pushed Authorization Request (PAR)': '',
+		'Redirectless Flow': '',
 	};
-	return iconMap[flowName] || '🔑';
+	return iconMap[flowName] || '';
 };
 
 const getComplexityLabel = (complexity: DetailedFlowInfo['complexity']): string => {

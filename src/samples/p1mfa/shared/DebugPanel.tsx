@@ -78,7 +78,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 				fontSize: '0.875rem',
 			}}
 		>
-			<h3 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 'bold' }}>🔍 Debug Panel</h3>
+			<h3 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 'bold' }}> Debug Panel</h3>
 
 			{/* State Machine Status */}
 			{stateMachineStatus && (

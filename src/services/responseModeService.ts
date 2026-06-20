@@ -99,7 +99,7 @@ export const RESPONSE_MODE_CONFIG: Record<ResponseMode, ResponseModeInfo> = {
 			'PingOne proprietary redirectless flow that returns a flow object instead of redirecting. Enables embedded authentication without browser redirects.',
 		useCase: 'Embedded authentication, mobile apps, headless applications, IoT devices',
 		securityNotes: [
-			'🔒 PingOne proprietary response mode',
+			' PingOne proprietary response mode',
 			'No browser redirects required',
 			'Requires PingOne-specific implementation',
 			'Flow object contains authentication UI details',
@@ -265,10 +265,10 @@ export class ResponseModeService {
 		}
 
 		const displayMap: Record<ResponseMode, { icon: string; color: string }> = {
-			query: { icon: '🔗', color: '#3b82f6' },
-			fragment: { icon: '🧩', color: '#8b5cf6' },
-			form_post: { icon: '📝', color: '#10b981' },
-			'pi.flow': { icon: '⚡', color: '#f59e0b' },
+			query: { icon: '', color: '#3b82f6' },
+			fragment: { icon: '', color: '#8b5cf6' },
+			form_post: { icon: '', color: '#10b981' },
+			'pi.flow': { icon: '', color: '#f59e0b' },
 		};
 
 		const display = displayMap[mode] || { icon: '?', color: '#6b7280' };

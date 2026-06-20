@@ -757,7 +757,7 @@ if (tokenResponse.ok) {
 			</FlowDescription>
 
 			<WarningContainer>
-				<h4>🔐 PingOne MFA API Integration</h4>
+				<h4> PingOne MFA API Integration</h4>
 				<p>
 					This flow uses the PingOne MFA API to enforce MFA completion before token issuance. Users
 					must select and verify their preferred MFA method (SMS, Email, TOTP, Push, or Voice) using

@@ -64,7 +64,7 @@ export interface PingOneSignalsResult {
 // ============================================================================
 
 export class PingOneSignalsService {
-	private static readonly MODULE_TAG = '[🛡️ PINGONE-SIGNALS-SERVICE]';
+	private static readonly MODULE_TAG = '[ PINGONE-SIGNALS-SERVICE]';
 	private static readonly DEFAULT_TIMEOUT = 10000; // 10 seconds instead of 2.5
 	private static readonly SDK_URL =
 		'https://cdn.pingone.com/pingone-protect/sdks/web/v2/pingone-protect.min.js';

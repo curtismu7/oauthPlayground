@@ -14,7 +14,7 @@
 
 import { logger } from '../utils/logger';
 
-const MODULE_TAG = '[🔑 UNIFIED-TOKEN-STORAGE]';
+const MODULE_TAG = '[ UNIFIED-TOKEN-STORAGE]';
 const INDEXEDDB_NAME = 'OAuthPlaygroundTokenStorage';
 const INDEXEDDB_VERSION = 1;
 const TOKEN_STORE_NAME = 'tokens';

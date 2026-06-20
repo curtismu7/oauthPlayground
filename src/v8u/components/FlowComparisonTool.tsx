@@ -259,7 +259,7 @@ const MatrixCell = styled.td<{ $rating?: 'excellent' | 'good' | 'fair' | 'poor' 
 const FlowMetrics = {
 	'oauth-authz': {
 		name: 'Authorization Code',
-		icon: <span>🛡️</span>,
+		icon: <span></span>,
 		description: 'Most secure flow for web applications',
 		security: 'excellent',
 		complexity: 'fair',
@@ -282,7 +282,7 @@ const FlowMetrics = {
 	},
 	implicit: {
 		name: 'Implicit',
-		icon: <span>⚡</span>,
+		icon: <span></span>,
 		description: 'Fast but less secure for single-page apps',
 		security: 'poor',
 		complexity: 'excellent',
@@ -306,7 +306,7 @@ const FlowMetrics = {
 	},
 	'client-credentials': {
 		name: 'Client Credentials',
-		icon: <span>🗄️</span>,
+		icon: <span></span>,
 		description: 'Machine-to-machine communication',
 		security: 'excellent',
 		complexity: 'excellent',
@@ -325,7 +325,7 @@ const FlowMetrics = {
 	},
 	'device-code': {
 		name: 'Device Code',
-		icon: <span>👥</span>,
+		icon: <span></span>,
 		description: 'For devices with limited input capabilities',
 		security: 'excellent',
 		complexity: 'fair',
@@ -373,7 +373,7 @@ const FlowMetrics = {
 	},
 	ropc: {
 		name: 'Resource Owner Password',
-		icon: <span>🔒</span>,
+		icon: <span></span>,
 		description: 'Direct username/password authentication',
 		security: 'poor',
 		complexity: 'excellent',
@@ -603,7 +603,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 
 								<MetricRow>
 									<MetricLabel>
-										<span>🛡️</span> Security
+										<span></span> Security
 									</MetricLabel>
 									<MetricValue $rating={metrics.security}>
 										<RatingBadge $rating={metrics.security}>{metrics.security}</RatingBadge>
@@ -612,7 +612,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 
 								<MetricRow>
 									<MetricLabel>
-										<span>🕐</span> Performance
+										<span></span> Performance
 									</MetricLabel>
 									<MetricValue $rating={metrics.performance}>
 										<RatingBadge $rating={metrics.performance}>{metrics.performance}</RatingBadge>
@@ -621,7 +621,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 
 								<MetricRow>
 									<MetricLabel>
-										<span>🗄️</span> Complexity
+										<span></span> Complexity
 									</MetricLabel>
 									<MetricValue $rating={metrics.complexity}>
 										<RatingBadge $rating={metrics.complexity}>{metrics.complexity}</RatingBadge>
@@ -630,7 +630,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 
 								<MetricRow>
 									<MetricLabel>
-										<span>👥</span> User Experience
+										<span></span> User Experience
 									</MetricLabel>
 									<MetricValue $rating={metrics.userExperience}>
 										<RatingBadge $rating={metrics.userExperience}>
@@ -641,7 +641,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 
 								<MetricRow>
 									<MetricLabel>
-										<span>🔒</span> Token Security
+										<span></span> Token Security
 									</MetricLabel>
 									<MetricValue $rating={metrics.tokenSecurity}>
 										<RatingBadge $rating={metrics.tokenSecurity}>

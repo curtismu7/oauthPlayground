@@ -31,10 +31,10 @@ export interface MFADeviceSelectorProps {
 }
 
 const DEVICE_ICONS: Record<DeviceType, string> = {
-	SMS: '📱',
-	EMAIL: '📧',
-	TOTP: '🔐',
-	FIDO2: '🔑',
+	SMS: '',
+	EMAIL: '',
+	TOTP: '',
+	FIDO2: '',
 };
 
 export const MFADeviceSelector: React.FC<MFADeviceSelectorProps> = ({
@@ -50,7 +50,7 @@ export const MFADeviceSelector: React.FC<MFADeviceSelectorProps> = ({
 	if (loading) {
 		return (
 			<div className="info-box" style={{ textAlign: 'center', padding: '10px' }}>
-				<p>🔄 Loading existing devices...</p>
+				<p> Loading existing devices...</p>
 			</div>
 		);
 	}

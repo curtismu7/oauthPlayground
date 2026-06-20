@@ -590,7 +590,7 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 						marginBottom: '0.375rem',
 					}}
 				>
-					🔍 Code Audit Results
+					 Code Audit Results
 				</h3>
 				<p style={{ color: '#6C757D', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
 					Findings from V7, V8, and V9 standardization — A-Migration / docs/updates-to-apps (March
@@ -670,7 +670,7 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 							gap: '0.625rem',
 						}}
 					>
-						<span style={{ fontSize: '1.125rem' }}>📄</span>
+						<span style={{ fontSize: '1.125rem' }}></span>
 						<span style={{ fontWeight: 600, fontSize: '1rem', color: '#212529' }}>
 							V7 / V7M Flows
 						</span>
@@ -755,7 +755,7 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 							gap: '0.625rem',
 						}}
 					>
-						<span style={{ fontSize: '1.125rem' }}>🏗️</span>
+						<span style={{ fontSize: '1.125rem' }}></span>
 						<span style={{ fontWeight: 600, fontSize: '1rem', color: '#212529' }}>
 							V8 Apps &amp; Services
 						</span>
@@ -928,7 +928,7 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 						marginBottom: '1rem',
 					}}
 				>
-					⚡ Runtime: Top Components
+					 Runtime: Top Components
 				</h3>
 				{components.map((component) => (
 					<div
@@ -997,7 +997,7 @@ export const CleanlinessDashboardWorking: React.FC = () => {
 						marginBottom: '1rem',
 					}}
 				>
-					📖 How to Use
+					 How to Use
 				</h3>
 				<div
 					style={{

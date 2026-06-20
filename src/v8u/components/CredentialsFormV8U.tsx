@@ -78,7 +78,7 @@ import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 type ClientType = 'public' | 'confidential';
 type AppType = 'web' | 'spa' | 'mobile' | 'desktop' | 'cli' | 'm2m' | 'backend';
 
-const MODULE_TAG = '[📋 CREDENTIALS-FORM-V8]';
+const MODULE_TAG = '[ CREDENTIALS-FORM-V8]';
 
 export interface CredentialsFormV8UProps {
 	flowKey: string;
@@ -982,7 +982,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	useEffect(() => {
 		const recommendedAppType = getRecommendedAppType(effectiveFlowType);
 		if (recommendedAppType !== appType) {
-			logger.info(`${MODULE_TAG} 🔄 Auto-selecting recommended app type for flow`, {
+			logger.info(`${MODULE_TAG} Auto-selecting recommended app type for flow`, {
 				flowType: effectiveFlowType,
 				from: appType,
 				to: recommendedAppType,
@@ -1148,7 +1148,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			// Only update if state is out of sync
 			if (hasOfflineAccess !== enableRefreshToken) {
 				logger.info(
-					`${MODULE_TAG} 🔄 Syncing refresh token checkbox with scopes: ${hasOfflineAccess}`,
+					`${MODULE_TAG} Syncing refresh token checkbox with scopes: ${hasOfflineAccess}`,
 					'Logger info'
 				);
 				setEnableRefreshToken(hasOfflineAccess);
@@ -1452,7 +1452,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			// Base descriptions for each app type
 			const baseDescriptions: Record<AppType, { icon: string; title: string; base: string }> = {
 				web: {
-					icon: '🌐',
+					icon: '',
 					title: 'Web Application',
 					base: 'Server-side web application running on a secure backend.',
 				},
@@ -1461,9 +1461,9 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					title: 'Single Page Application (SPA)',
 					base: 'Browser-based JavaScript application (React, Angular, Vue).',
 				},
-				mobile: { icon: '📱', title: 'Mobile Application', base: 'iOS or Android application.' },
+				mobile: { icon: '', title: 'Mobile Application', base: 'iOS or Android application.' },
 				desktop: {
-					icon: '🖥️',
+					icon: '',
 					title: 'Desktop Application',
 					base: 'Native desktop application (Windows, macOS, Linux).',
 				},
@@ -1473,11 +1473,11 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					base: 'Command-line tool or script.',
 				},
 				m2m: {
-					icon: '🤖',
+					icon: '',
 					title: 'Machine-to-Machine (M2M)',
 					base: 'Service-to-service communication without user interaction.',
 				},
-				backend: { icon: '🔧', title: 'Backend Service', base: 'Backend API or microservice.' },
+				backend: { icon: '', title: 'Backend Service', base: 'Backend API or microservice.' },
 			};
 
 			const base = baseDescriptions[appType];
@@ -2044,7 +2044,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										width: '100%',
 									}}
 								>
-									<h3>⚡ General</h3>
+									<h3> General</h3>
 									<span
 										style={{
 											fontSize: '18px',
@@ -2259,7 +2259,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													minWidth: '140px',
 												}}
 											>
-												{tokenStatus.isValid ? '🔑 Manage Token' : '🔑 Get Worker Token'}
+												{tokenStatus.isValid ? ' Manage Token' : ' Get Worker Token'}
 											</button>
 											<button
 												type="button"
@@ -2275,7 +2275,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													minWidth: '140px',
 												}}
 											>
-												{hasDiscoveredApps ? '🔍 Discover Apps AGAIN' : '🔍 Discover Apps'}
+												{hasDiscoveredApps ? ' Discover Apps AGAIN' : ' Discover Apps'}
 											</button>
 										</div>
 
@@ -2507,9 +2507,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 													}}
 												>
 													{showClientSecret ? (
-														<span style={{ fontSize: '18px' }}>🙈</span>
+														<span style={{ fontSize: '18px' }}></span>
 													) : (
-														<span style={{ fontSize: '18px' }}>👁️</span>
+														<span style={{ fontSize: '18px' }}></span>
 													)}
 												</button>
 											</div>
@@ -2600,7 +2600,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 												}}
 											>
 												<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-													<span>📚</span>
+													<span></span>
 													<span>When Do I Get What Tokens</span>
 												</div>
 												{showRefreshTokenRules ? (
@@ -2810,7 +2810,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										width: '100%',
 									}}
 								>
-									<h3>🔍 OIDC Discovery (Optional)</h3>
+									<h3> OIDC Discovery (Optional)</h3>
 									<button
 										type="button"
 										onClick={() => setShowDiscoveryInfo(!showDiscoveryInfo)}
@@ -2863,7 +2863,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 												borderRadius: '6px',
 											}}
 										>
-											<span style={{ fontSize: '18px' }}>📚</span>
+											<span style={{ fontSize: '18px' }}></span>
 											<h4
 												style={{
 													fontSize: '14px',
@@ -2946,7 +2946,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 															<strong>Environment ID</strong>
 														</li>
 														<li>
-															Click <strong>"🔍 OIDC Discovery"</strong> to fetch configuration
+															Click <strong>" OIDC Discovery"</strong> to fetch configuration
 														</li>
 														<li>
 															The system queries{' '}
@@ -2984,7 +2984,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														marginBottom: '8px',
 													}}
 												>
-													<span style={{ fontSize: '16px' }}>🔍</span>
+													<span style={{ fontSize: '16px' }}></span>
 													<span
 														style={{
 															fontSize: '13px',
@@ -3061,7 +3061,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														marginBottom: '8px',
 													}}
 												>
-													<span style={{ fontSize: '16px' }}>🌐</span>
+													<span style={{ fontSize: '16px' }}></span>
 													<span
 														style={{
 															fontSize: '13px',
@@ -3129,7 +3129,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														gap: '6px',
 													}}
 												>
-													<span>💡</span>
+													<span></span>
 													<span>
 														If you provide an Environment ID, the issuer URL will be auto-generated
 													</span>
@@ -3154,7 +3154,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													lineHeight: '1.5',
 												}}
 											>
-												<strong>📖 RFC Reference:</strong> OIDC Discovery is defined in{' '}
+												<strong> RFC Reference:</strong> OIDC Discovery is defined in{' '}
 												<strong>OpenID Connect Discovery 1.0</strong> (OIDC Discovery). The
 												well-known configuration endpoint provides a standardized way to discover
 												OAuth/OIDC provider capabilities.
@@ -3222,7 +3222,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 												}
 											}}
 										>
-											{isDiscovering ? '🔄 Discovering...' : '🔍 OIDC Discovery'}
+											{isDiscovering ? ' Discovering...' : ' OIDC Discovery'}
 										</button>
 									</div>
 									<small>
@@ -3329,7 +3329,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																e.currentTarget.style.borderColor = '#3b82f6';
 															}}
 														>
-															🔧 Configure Client Secret JWT
+															 Configure Client Secret JWT
 														</button>
 													</>
 												)}
@@ -3370,7 +3370,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																e.currentTarget.style.borderColor = '#3b82f6';
 															}}
 														>
-															🔧 Configure Private Key JWT
+															 Configure Private Key JWT
 														</button>
 													</>
 												)}
@@ -3445,7 +3445,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 												</small>
 											)}
 										<small style={{ display: 'block', marginTop: '8px' }}>
-											💡{' '}
+											{' '}
 											<a
 												href="/configuration#redirect-uri-catalog-v8u-unified"
 												style={{
@@ -3689,7 +3689,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																				marginBottom: '6px',
 																			}}
 																		>
-																			📚 About OpenID Connect Scopes:
+																			 About OpenID Connect Scopes:
 																		</strong>
 																		<p
 																			style={{
@@ -3729,7 +3729,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																			color: '#92400e',
 																		}}
 																	>
-																		💡 <strong>Recommended scopes:</strong> openid profile email
+																		 <strong>Recommended scopes:</strong> openid profile email
 																		offline_access
 																	</p>
 																</div>
@@ -4362,7 +4362,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										}}
 									>
 										<div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-											<span style={{ fontSize: '18px', flexShrink: 0 }}>🔄</span>
+											<span style={{ fontSize: '18px', flexShrink: 0 }}></span>
 											<div style={{ flex: 1 }}>
 												<strong style={{ display: 'block', marginBottom: '6px', color: '#0c4a6e' }}>
 													Understanding the{' '}
@@ -4506,7 +4506,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														fontStyle: 'italic',
 													}}
 												>
-													💡 <strong>Note:</strong> Even if you include{' '}
+													 <strong>Note:</strong> Even if you include{' '}
 													<code
 														style={{
 															background: '#fef3c7',
@@ -4648,7 +4648,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														setTimeout(() => {
 															isUpdatingFromCheckbox.current = false;
 															logger.info(
-																`${MODULE_TAG} 🔓 Checkbox update flag cleared`,
+																`${MODULE_TAG} Checkbox update flag cleared`,
 																'Logger info'
 															);
 														}, 300); // Increased from 100ms to 300ms for more safety
@@ -4656,7 +4656,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													style={{ cursor: 'pointer' }}
 												/>
 												<span style={{ fontWeight: '600', color: '#0c4a6e' }}>
-													🔄 Enable Refresh Token
+													 Enable Refresh Token
 												</span>
 											</label>
 											<small
@@ -4757,7 +4757,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										width: '100%',
 									}}
 								>
-									<h3>🔧 Advanced Options</h3>
+									<h3> Advanced Options</h3>
 									<span
 										style={{
 											fontSize: '18px',
@@ -5031,7 +5031,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 						{flowOptions.supportsLoginHint && (
 							<div className="form-section" data-section="additional">
 								<div className="section-header">
-									<h3>📋 Additional Options</h3>
+									<h3> Additional Options</h3>
 								</div>
 								<div className="section-content">
 									{/* Login Hint Input - Using Username Dropdown Service */}
@@ -5225,7 +5225,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									logger.info(`${MODULE_TAG} Credentials saved`, { flowKey });
 								}}
 							>
-								💾 Save Credentials
+								 Save Credentials
 							</button>
 						</div>
 					</form>
@@ -5395,7 +5395,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											color: '#166534',
 										}}
 									>
-										🔒 Security Benefits
+										 Security Benefits
 									</h3>
 									<ul
 										style={{ margin: 0, paddingLeft: '20px', color: '#15803d', lineHeight: '1.8' }}
@@ -5435,7 +5435,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											color: '#1f2937',
 										}}
 									>
-										📋 How PAR Works
+										 How PAR Works
 									</h3>
 									<ol
 										style={{ margin: 0, paddingLeft: '20px', color: '#6b7280', lineHeight: '1.8' }}
@@ -5521,7 +5521,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											color: '#1f2937',
 										}}
 									>
-										💡 Real-World Example
+										 Real-World Example
 									</h3>
 									<p
 										style={{
@@ -5686,7 +5686,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											color: '#1e40af',
 										}}
 									>
-										📚 RFC Reference
+										 RFC Reference
 									</h3>
 									<p style={{ margin: 0, color: '#1e3a8a', lineHeight: '1.6' }}>
 										PAR is defined in{' '}
@@ -5754,7 +5754,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											color: '#1e40af',
 										}}
 									>
-										🔐 What is JAR (JWT-secured Authorization Request)?
+										 What is JAR (JWT-secured Authorization Request)?
 									</h3>
 									<p style={{ margin: 0, color: '#1e3a8a', lineHeight: '1.6' }}>
 										<strong>JAR</strong> is an OAuth 2.0 extension (RFC 9101) that requires
@@ -5770,7 +5770,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											rel="noopener noreferrer"
 											style={{ textDecoration: 'underline' }}
 										>
-											📖 View RFC 9101 Specification →
+											 View RFC 9101 Specification →
 										</a>
 									</p>
 								</div>
@@ -5801,7 +5801,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										complexity without substantial educational value for most OAuth flows.
 									</p>
 									<p style={{ margin: 0, fontSize: '14px', color: '#92400e', fontWeight: '500' }}>
-										💡 <strong>Solution:</strong> Configure your PingOne application to{' '}
+										 <strong>Solution:</strong> Configure your PingOne application to{' '}
 										<strong>"Allow unsigned request parameter"</strong>
 										to use the OAuth Playground. See the configuration guide below.
 									</p>
@@ -5990,7 +5990,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										}}
 									>
 										<p style={{ margin: 0, fontSize: '13px', color: '#1e40af', lineHeight: '1.6' }}>
-											💡 <strong>Recommendation:</strong> Use{' '}
+											 <strong>Recommendation:</strong> Use{' '}
 											<strong>"Allow unsigned request parameter"</strong>
 											when using the OAuth Playground. This provides maximum flexibility and
 											compatibility.
@@ -6015,7 +6015,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											color: '#1f2937',
 										}}
 									>
-										🔧 How to Configure in PingOne
+										 How to Configure in PingOne
 									</h3>
 									<ol
 										style={{ margin: 0, paddingLeft: '20px', color: '#6b7280', lineHeight: '1.8' }}
@@ -6110,7 +6110,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											color: '#1e40af',
 										}}
 									>
-										🏢 When Would You Use JAR in Production?
+										 When Would You Use JAR in Production?
 									</h3>
 									<p style={{ margin: 0, color: '#1e3a8a', lineHeight: '1.6' }}>
 										JAR is typically used in high-security environments where:
@@ -6162,7 +6162,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											color: '#1f2937',
 										}}
 									>
-										📚 RFC Reference
+										 RFC Reference
 									</h3>
 									<p style={{ margin: 0, color: '#6b7280', lineHeight: '1.6' }}>
 										JAR is defined in{' '}

@@ -639,7 +639,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 							</ul>
 						</div>
 						<div style={{ marginTop: '0.75rem' }}>
-							<strong>💡 Example JSON:</strong>
+							<strong> Example JSON:</strong>
 							<pre
 								style={{
 									background: '#1e293b',
@@ -700,7 +700,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 									{isEssential ? 'Essential' : 'Voluntary'}
 								</EssentialToggle>
 								<DeleteButton onClick={() => deleteClaim(activeTab, name)}>
-									<span>🗑️</span>
+									<span></span>
 								</DeleteButton>
 							</ClaimRow>
 						);

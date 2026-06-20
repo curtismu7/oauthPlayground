@@ -10,7 +10,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[📝 CREATE-POLICY-MODAL-V8]';
+const MODULE_TAG = '[ CREATE-POLICY-MODAL-V8]';
 
 interface CreatePolicyModalV8Props {
 	isOpen: boolean;

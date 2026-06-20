@@ -402,7 +402,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
 					}}
 				>
-					<span>🏠</span>
+					<span></span>
 					Back to MFA Hub
 				</button>
 				<ApiDisplayCheckbox />
@@ -422,7 +422,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 					boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
 				}}
 			>
-				<div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
+				<div style={{ fontSize: '64px', marginBottom: '16px' }}></div>
 				<h1
 					style={{
 						margin: '0 0 12px 0',
@@ -575,12 +575,12 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 									marginBottom: '8px',
 								}}
 							>
-								🔐 Registration Method
+								 Registration Method
 							</div>
 							<div
 								style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
 							>
-								<span style={{ fontSize: 16, color: '#f59e0b' }}>🛡️</span>
+								<span style={{ fontSize: 16, color: '#f59e0b' }}></span>
 								<span style={{ fontSize: '14px', color: '#78350f', fontWeight: '500' }}>
 									{registrationFlowType === 'admin' ? 'ADMIN FLOW' : 'USER FLOW'}
 								</span>
@@ -643,7 +643,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 										marginBottom: '8px',
 									}}
 								>
-									📱 Device Status
+									 Device Status
 								</div>
 								<div
 									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
@@ -695,15 +695,15 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 									marginBottom: '8px',
 								}}
 							>
-								🔑 Authentication Method
+								 Authentication Method
 							</div>
 							<div
 								style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
 							>
 								{tokenType === 'worker' ? (
-									<span style={{ fontSize: 16, color: '#f59e0b' }}>🛡️</span>
+									<span style={{ fontSize: 16, color: '#f59e0b' }}></span>
 								) : (
-									<span style={{ fontSize: 16, color: '#f59e0b' }}>👤</span>
+									<span style={{ fontSize: 16, color: '#f59e0b' }}></span>
 								)}
 								<span style={{ fontSize: '14px', color: '#78350f', fontWeight: '500' }}>
 									{tokenType === 'worker' ? 'Worker Token' : 'User Token'} Authentication
@@ -742,7 +742,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-						<span style={{ fontSize: 24, color: '#3b82f6' }}>👤</span>
+						<span style={{ fontSize: 24, color: '#3b82f6' }}></span>
 						<h3 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#1e40af' }}>
 							User Information
 						</h3>
@@ -987,9 +987,9 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-						<span style={{ fontSize: 24, color: '#10b981' }}>🛡️</span>
+						<span style={{ fontSize: 24, color: '#10b981' }}></span>
 						<h3 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#065f46' }}>
-							🔑 Access Token
+							 Access Token
 						</h3>
 					</div>
 					<div style={{ display: 'grid', gap: '12px' }}>
@@ -1039,7 +1039,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 										}
 									}}
 								>
-									<span style={{ fontSize: '14px' }}>📋</span>
+									<span style={{ fontSize: '14px' }}></span>
 									{tokenCopied ? '✓ Copied!' : 'Copy Token'}
 								</button>
 							</div>
@@ -1089,7 +1089,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 										fontWeight: '600',
 									}}
 								>
-									🔍 Decode Token
+									 Decode Token
 								</button>
 							)}
 						</div>
@@ -1153,7 +1153,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 							gap: '8px',
 						}}
 					>
-						👤 {flowType === 'authentication' ? 'Authentication Details' : 'Registration Details'}
+						 {flowType === 'authentication' ? 'Authentication Details' : 'Registration Details'}
 					</h4>
 					<div
 						style={{
@@ -1369,7 +1369,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 							gap: '8px',
 						}}
 					>
-						📋 Transaction Details
+						 Transaction Details
 					</h4>
 					<div
 						style={{
@@ -1595,7 +1595,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 								gap: '8px',
 							}}
 						>
-							📄 Response Data (JSON)
+							 Response Data (JSON)
 						</h4>
 						{jsonExpanded ? (
 							<span style={{ fontSize: '20px' }}>⬆️</span>
@@ -1731,7 +1731,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
 					}}
 				>
-					<span>🏠</span>
+					<span></span>
 					Back to MFA Hub
 				</button>
 				{/* Show Documentation button for registration flows and FIDO2 authentication flows */}
@@ -1753,7 +1753,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 							gap: '8px',
 						}}
 					>
-						<span>📖</span>
+						<span></span>
 						View Documentation
 					</button>
 				)}
@@ -1776,7 +1776,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 							gap: '8px',
 						}}
 					>
-						<span>🛡️</span>
+						<span></span>
 						Authentication
 					</button>
 				)}
@@ -1800,7 +1800,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						fontWeight: 600,
 					}}
 				>
-					🎉 MFA {flowType === 'registration' ? 'Registration' : 'Authentication'} Flow Complete
+					 MFA {flowType === 'registration' ? 'Registration' : 'Authentication'} Flow Complete
 				</h3>
 				<div
 					style={{

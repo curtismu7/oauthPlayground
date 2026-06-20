@@ -19,7 +19,7 @@ import {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-HELPER-V8]';
+const MODULE_TAG = '[ WORKER-TOKEN-MODAL-HELPER-V8]';
 
 /**
  * Attempts to silently retrieve worker token if silentApiRetrieval is enabled
@@ -184,7 +184,7 @@ export async function handleShowWorkerTokenModal(
 	// Priority 1: Explicit overrides (highest priority)
 	if (overrideSilentApiRetrieval !== undefined) {
 		silentApiRetrieval = overrideSilentApiRetrieval;
-		logger.info(`${MODULE_TAG} 🎯 Using override silentApiRetrieval:`, silentApiRetrieval);
+		logger.info(`${MODULE_TAG} Using override silentApiRetrieval:`, silentApiRetrieval);
 	} else {
 		// Priority 2: Centralized service (recommended)
 		try {
@@ -206,7 +206,7 @@ export async function handleShowWorkerTokenModal(
 				const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 				silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
 				logger.info(
-					`${MODULE_TAG} 🔄 Using MFAConfigurationServiceV8 fallback silentApiRetrieval:`,
+					`${MODULE_TAG} Using MFAConfigurationServiceV8 fallback silentApiRetrieval:`,
 					silentApiRetrieval
 				);
 			} catch (fallbackError) {
@@ -219,7 +219,7 @@ export async function handleShowWorkerTokenModal(
 	// Priority 1: Explicit overrides (highest priority)
 	if (overrideShowTokenAtEnd !== undefined) {
 		showTokenAtEnd = overrideShowTokenAtEnd;
-		logger.info(`${MODULE_TAG} 🎯 Using override showTokenAtEnd:`, showTokenAtEnd);
+		logger.info(`${MODULE_TAG} Using override showTokenAtEnd:`, showTokenAtEnd);
 	} else {
 		// Priority 2: Centralized service (recommended)
 		try {
@@ -241,7 +241,7 @@ export async function handleShowWorkerTokenModal(
 				const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 				showTokenAtEnd = mfaConfig.workerToken?.showTokenAtEnd ?? false;
 				logger.info(
-					`${MODULE_TAG} 🔄 Using MFAConfigurationServiceV8 fallback showTokenAtEnd:`,
+					`${MODULE_TAG} Using MFAConfigurationServiceV8 fallback showTokenAtEnd:`,
 					showTokenAtEnd
 				);
 			} catch (fallbackError) {
@@ -252,7 +252,7 @@ export async function handleShowWorkerTokenModal(
 	}
 
 	// Log final configuration for debugging
-	logger.info(`${MODULE_TAG} 📋 Final configuration:`, {
+	logger.info(`${MODULE_TAG} Final configuration:`, {
 		silentApiRetrieval,
 		showTokenAtEnd,
 		forceShowModal,

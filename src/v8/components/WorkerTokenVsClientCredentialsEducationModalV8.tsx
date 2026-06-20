@@ -243,7 +243,7 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 			>
 				<ModalHeader>
 					<ModalTitle id="education-modal-title">
-						<span style={{ fontSize: '28px' }}>🛡️</span>
+						<span style={{ fontSize: '28px' }}></span>
 						Worker Tokens vs Client Credentials
 					</ModalTitle>
 					<CloseButton onClick={onClose} aria-label="Close">
@@ -264,7 +264,7 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 							</p>
 							<ConceptBox variant="worker">
 								<ConceptTitle>
-									<span style={{ fontSize: '18px' }}>🛡️</span>
+									<span style={{ fontSize: '18px' }}></span>
 									1. Worker Token (PingOne Admin)
 								</ConceptTitle>
 								<ConceptList>
@@ -287,7 +287,7 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 
 							<ConceptBox variant="client">
 								<ConceptTitle>
-									<span style={{ fontSize: '18px' }}>🔒</span>
+									<span style={{ fontSize: '18px' }}></span>
 									2. Client Credentials Token (Standard OAuth)
 								</ConceptTitle>
 								<ConceptList>

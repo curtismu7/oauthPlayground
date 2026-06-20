@@ -405,7 +405,7 @@ const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
 				{/* Ring Camera Lens */}
 				<RingCameraLens>
 					<CameraIcon>
-						<span>📷</span>
+						<span></span>
 					</CameraIcon>
 				</RingCameraLens>
 
@@ -465,10 +465,10 @@ const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
 					</QRCodeContainer>
 					<ActionButtons>
 						<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-							<span>📋</span> Copy Code
+							<span></span> Copy Code
 						</ActionButton>
 						<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<span>🔗</span> Open App
+							<span></span> Open App
 						</ActionButton>
 					</ActionButtons>
 				</QRCodeSection>

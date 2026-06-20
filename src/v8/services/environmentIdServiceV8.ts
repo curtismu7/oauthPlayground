@@ -11,7 +11,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🌍 ENVIRONMENT-ID-SERVICE-V8]';
+const MODULE_TAG = '[ ENVIRONMENT-ID-SERVICE-V8]';
 const STORAGE_KEY = 'v8:global_environment_id';
 
 declare global {
@@ -58,7 +58,7 @@ export class EnvironmentIdServiceV8 {
 		if (typeof window !== 'undefined') {
 			window.resetEnvironmentIdLogging = () => {
 				EnvironmentIdServiceV8.resetLoggingState();
-				logger.info('🔧 Environment ID logging state reset', 'Logger info');
+				logger.info(' Environment ID logging state reset', 'Logger info');
 			};
 		}
 	}

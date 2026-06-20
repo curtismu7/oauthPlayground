@@ -73,7 +73,7 @@ import {
 	UnifiedOAuthCredentialsServiceV8U,
 } from '../services/unifiedOAuthCredentialsServiceV8U';
 
-const _MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
+const _MODULE_TAG = '[ UNIFIED-OAUTH-FLOW-V8U]';
 
 /**
  * Safe analytics helper - prevents connection errors when analytics server is unavailable
@@ -853,8 +853,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Listen for worker token updates
 	useEffect(() => {
 		const handleWorkerTokenUpdate = () => {
-			logger.debug(`🔑 Worker token updated event received!`, 'Logger debug');
-			logger.debug(`🔑 Current credentials:`, {
+			logger.debug(` Worker token updated event received!`, 'Logger debug');
+			logger.debug(` Current credentials:`, {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				environmentId: credentials.environmentId,
@@ -869,21 +869,21 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 			// Re-fetch app configuration to reflect worker token status
 			if (credentials.environmentId && credentials.clientId) {
-				logger.debug(`🔑 Clearing app config to trigger re-fetch`, 'Logger debug');
+				logger.debug(` Clearing app config to trigger re-fetch`, 'Logger debug');
 				setAppConfig(null); // Clear current config to trigger re-fetch
 			} else {
 				logger.debug(`⚠️ Cannot refresh app config - missing credentials`, 'Logger debug');
 			}
 		};
 
-		logger.debug(`🔑 Setting up worker token event listener`, 'Logger debug');
+		logger.debug(` Setting up worker token event listener`, 'Logger debug');
 		window.addEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 
 		// Test if event listener is working
-		logger.debug(`🔑 Worker token listener setup complete`, 'Logger debug');
+		logger.debug(` Worker token listener setup complete`, 'Logger debug');
 
 		return () => {
-			logger.debug(`🔑 Cleaning up worker token event listener`, 'Logger debug');
+			logger.debug(` Cleaning up worker token event listener`, 'Logger debug');
 			window.removeEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 		};
 	}, [credentials.environmentId, credentials.clientId]);
@@ -1830,7 +1830,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
 						<span style={{ fontSize: '20px' }}>
-							{workerTokenWarning.status === 'expiring-soon' ? '⚠️' : '🔴'}
+							{workerTokenWarning.status === 'expiring-soon' ? '⚠️' : ''}
 						</span>
 						<div>
 							<div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>
@@ -1886,7 +1886,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								whiteSpace: 'nowrap',
 							}}
 						>
-							🔑 Fix Token
+							 Fix Token
 						</button>
 						<button
 							type="button"
@@ -1967,7 +1967,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						}}
 						title="View comprehensive comparison guide for OAuth/OIDC specifications and flow types"
 					>
-						<span style={{ fontSize: '16px' }}>📖</span>📚 Flow & Spec Comparison Guide
+						<span style={{ fontSize: '16px' }}></span> Flow & Spec Comparison Guide
 					</button>
 					<button
 						type="button"
@@ -2016,7 +2016,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						}}
 						title="Download comprehensive Postman collection for all Unified flows (Authorization Code, Implicit, Client Credentials, Device Code, Hybrid) grouped by Registration and Authentication"
 					>
-						<span style={{ fontSize: '16px' }}>📦</span>
+						<span style={{ fontSize: '16px' }}></span>
 						Postman Unified Flows
 					</button>
 					<button
@@ -2076,7 +2076,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						}}
 						title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
 					>
-						<span style={{ fontSize: '16px' }}>📦</span>
+						<span style={{ fontSize: '16px' }}></span>
 						Postman Complete (Unified + MFA)
 					</button>
 				</div>
@@ -2088,12 +2088,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			{/* Master Education Section */}
 			<MasterEducationSection
 				flowType="unified_oauth"
-				title="📚 OAuth & OIDC Education"
+				title=" OAuth & OIDC Education"
 				sections={[
 					{
 						id: 'unified-overview',
 						title: 'Unified Flow Overview',
-						icon: <span>📖</span>,
+						icon: <span></span>,
 						summary: 'Single UI for all OAuth 2.0, OAuth 2.1/OIDC 2.1, and OIDC Core 1.0 flows',
 						content: (
 							<div>
@@ -2128,7 +2128,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					{
 						id: 'spec-versions',
 						title: 'Specification Versions',
-						icon: <span>📦</span>,
+						icon: <span></span>,
 						summary: 'Support for OAuth 2.0, OAuth 2.1/OIDC 2.1, and OIDC Core 1.0 specifications',
 						content: (
 							<div>
@@ -2214,7 +2214,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							gap: '8px',
 						}}
 					>
-						<span>📖</span>
+						<span></span>
 						<span>
 							<strong>API Documentation:</strong>{' '}
 							<a
@@ -2279,7 +2279,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										marginBottom: '6px',
 									}}
 								>
-									<span>📋</span>
+									<span></span>
 									<span>
 										<strong>Specification:</strong>{' '}
 										<a
@@ -2352,7 +2352,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							gap: '8px',
 						}}
 					>
-						<span>🚫</span>
+						<span></span>
 						<span>OAuth 2.1 / OIDC 2.1 Compliance Error</span>
 					</div>
 					{complianceErrors.map((error, index) => (
@@ -2415,7 +2415,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					currentFlowType={effectiveFlowType}
 					currentSpecVersion={specVersion}
 					onFlowSelect={(selectedFlowType, selectedSpecVersion) => {
-						logger.debug(`🎯 User selected recommended flow`, {
+						logger.debug(` User selected recommended flow`, {
 							selectedFlowType,
 							selectedSpecVersion,
 						});
@@ -2458,7 +2458,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					specVersion={specVersion}
 					enabledFeatures={advancedFeatures}
 					onFeatureToggle={(featureId, enabled) => {
-						logger.debug(`🔧 Advanced feature toggled`, { featureId, enabled });
+						logger.debug(` Advanced feature toggled`, { featureId, enabled });
 
 						// Update advanced features state
 						if (enabled) {
@@ -2485,7 +2485,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							logger.debug(`🔄 Toggling credentials collapse`, {
+							logger.debug(` Toggling credentials collapse`, {
 								from: isCredentialsCollapsed,
 								to: !isCredentialsCollapsed,
 							});
@@ -2524,7 +2524,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-							<span style={{ fontSize: '20px' }}>🔧</span>
+							<span style={{ fontSize: '20px' }}></span>
 							<span style={{ fontSize: '1.2rem', fontWeight: '700' }}>
 								Configuration & Credentials
 							</span>
@@ -2728,7 +2728,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								color: '#3b82f6',
 							}}
 						>
-							🔧
+							
 						</span>
 						<span>Worker Token Status</span>
 					</div>
@@ -2795,7 +2795,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.3)';
 								}}
 							>
-								<span style={{ fontSize: '16px' }}>🔑</span>
+								<span style={{ fontSize: '16px' }}></span>
 								<span>Get Worker Token</span>
 							</button>
 
@@ -2861,7 +2861,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						onFlowReset={() => {
 							// Flow reset - preserve credentials, spec version, and flow type
 							logger.debug(
-								`🔄 Flow reset detected - preserving credentials, spec version, and flow type`,
+								` Flow reset detected - preserving credentials, spec version, and flow type`,
 								{
 									specVersion,
 									flowType: effectiveFlowType,

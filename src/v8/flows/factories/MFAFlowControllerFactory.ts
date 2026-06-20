@@ -21,7 +21,7 @@ import { TOTPFlowController } from '../controllers/TOTPFlowController';
 import { WhatsAppFlowController } from '../controllers/WhatsAppFlowController';
 import type { DeviceType } from '../shared/MFATypes';
 
-const MODULE_TAG = '[🏭 MFA-CONTROLLER-FACTORY]';
+const MODULE_TAG = '[ MFA-CONTROLLER-FACTORY]';
 
 export interface ControllerFactoryConfig {
 	deviceType: DeviceType;

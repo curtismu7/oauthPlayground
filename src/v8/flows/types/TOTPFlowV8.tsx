@@ -45,7 +45,7 @@ import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBas
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 
-const MODULE_TAG = '[🔐 TOTP-FLOW-V8]';
+const MODULE_TAG = '[ TOTP-FLOW-V8]';
 
 interface TOTPConfigureStepProps extends MFAFlowBaseRenderProps {
 	registrationFlowType?: 'admin' | 'user';
@@ -1436,7 +1436,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								deviceId: result.deviceId,
 							} as SendOTPParams);
 
-							logger.info(`${MODULE_TAG} 📋 Full device details response:`, {
+							logger.info(`${MODULE_TAG} Full device details response:`, {
 								deviceId: (deviceDetails as { id?: string }).id,
 								status: (deviceDetails as { status?: string }).status,
 								hasProperties: !!(deviceDetails as { properties?: unknown }).properties,
@@ -1665,7 +1665,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								cursor: 'pointer',
 							}}
 						>
-							🔄 Start Again
+							 Start Again
 						</button>
 					</div>
 				);
@@ -2048,7 +2048,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										transition: 'all 0.2s ease',
 									}}
 								>
-									{isLoading ? '🔄 Registering...' : 'Register TOTP Device →'}
+									{isLoading ? ' Registering...' : 'Register TOTP Device →'}
 								</button>
 							</div>
 						</div>
@@ -2575,7 +2575,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												color: '#374151',
 											}}
 										>
-											🔑 Secret Key (for manual entry):
+											 Secret Key (for manual entry):
 										</p>
 										<p
 											style={{
@@ -2647,7 +2647,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 													transition: 'all 0.2s',
 												}}
 											>
-												{secretCopied ? '✓' : '📋'}
+												{secretCopied ? '✓' : ''}
 											</button>
 										</div>
 										<div style={{ marginTop: '8px', fontSize: '10px', color: '#6b7280' }}>
@@ -2693,7 +2693,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
 											}}
 										>
-											🔐 Activate Device with OTP
+											 Activate Device with OTP
 										</button>
 										<p
 											style={{
@@ -2717,7 +2717,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										textAlign: 'center',
 									}}
 								>
-									💡 QR code expires after ~30 minutes
+									 QR code expires after ~30 minutes
 								</p>
 
 								{/* Stuck Device Warning - Show when device is in ACTIVATION_REQUIRED status and missing QR data */}
@@ -2774,7 +2774,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 															fontStyle: 'italic',
 														}}
 													>
-														💡 <strong>Tip:</strong> If you need to delete multiple devices, use the
+														 <strong>Tip:</strong> If you need to delete multiple devices, use the
 														"Delete All Devices" button below.
 													</p>
 												</div>
@@ -2899,7 +2899,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 															Deleting...
 														</>
 													) : (
-														<>🗑️ Delete Device</>
+														<> Delete Device</>
 													)}
 												</button>
 												<button
@@ -2932,7 +2932,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 														gap: '6px',
 													}}
 												>
-													🗑️ Delete All Devices
+													 Delete All Devices
 												</button>
 											</div>
 											<style>
@@ -3463,7 +3463,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										transition: 'all 0.2s ease',
 									}}
 								>
-									{isLoading ? '🔄 Validating...' : 'Validate OTP'}
+									{isLoading ? ' Validating...' : 'Validate OTP'}
 								</button>
 							</div>
 
@@ -3865,7 +3865,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									gap: '8px',
 								}}
 							>
-								<span style={{ fontSize: '18px' }}>💡</span>
+								<span style={{ fontSize: '18px' }}></span>
 								Look for the <strong>"Next Step"</strong> button below to proceed
 							</p>
 						</div>
@@ -4200,7 +4200,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 											lineHeight: '1.5',
 										}}
 									>
-										💡 <strong>Tip:</strong> Open your authenticator app (Google Authenticator,
+										 <strong>Tip:</strong> Open your authenticator app (Google Authenticator,
 										Authy, etc.) and enter the 6-digit code shown there.
 									</p>
 								</div>
@@ -4262,7 +4262,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												: 'none',
 									}}
 								>
-									{isActivating ? '🔄 Activating...' : 'Activate Device →'}
+									{isActivating ? ' Activating...' : 'Activate Device →'}
 								</button>
 							</div>
 						</div>

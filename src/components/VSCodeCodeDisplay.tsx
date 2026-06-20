@@ -279,12 +279,12 @@ const getLanguageDisplayName = (language: SupportedLanguage): string => {
 
 const getLanguageIcon = (language: SupportedLanguage): string => {
 	const icons: Record<SupportedLanguage, string> = {
-		javascript: '🟨',
-		typescript: '🔷',
-		go: '🐹',
-		ruby: '💎',
-		python: '🐍',
-		'ping-sdk': '🔐',
+		javascript: '',
+		typescript: '',
+		go: '',
+		ruby: '',
+		python: '',
+		'ping-sdk': '',
 	};
 	return icons[language];
 };
@@ -408,7 +408,7 @@ export const VSCodeCodeDisplay: React.FC<VSCodeCodeDisplayProps> = ({
 		<Container className={className}>
 			<Header>
 				<Title>
-					<span>📋</span>
+					<span></span>
 					{stepData.stepName} - VS Code Style Code Examples
 				</Title>
 				<LanguageSelector>
@@ -435,11 +435,11 @@ export const VSCodeCodeDisplay: React.FC<VSCodeCodeDisplayProps> = ({
 					</CodeTitle>
 					<CodeActions>
 						<ActionButton onClick={() => handleCopyCode(currentExample.code)}>
-							{copiedCode === currentExample.code ? <span>✅</span> : <span>📋</span>}
+							{copiedCode === currentExample.code ? <span>✅</span> : <span></span>}
 							{copiedCode === currentExample.code ? 'Copied!' : 'Copy'}
 						</ActionButton>
 						<ActionButton onClick={() => handleDownloadCode(currentExample)}>
-							<span>📥</span>
+							<span></span>
 							Download
 						</ActionButton>
 					</CodeActions>

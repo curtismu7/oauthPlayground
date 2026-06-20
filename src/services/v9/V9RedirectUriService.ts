@@ -18,7 +18,7 @@
 import { getCachedDomain } from '@/services/customDomainService';
 import { logger } from '@/utils/logger';
 
-const MODULE_TAG = '[🔗 V9-REDIRECT-URI]';
+const MODULE_TAG = '[ V9-REDIRECT-URI]';
 
 export interface V9FlowRedirectUriConfig {
 	/** The flow type identifier (e.g. 'oauth-authz-v8u') */

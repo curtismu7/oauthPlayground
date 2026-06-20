@@ -26,7 +26,7 @@ import {
 import { FiSearch } from '../icons';
 import { logger } from '../utils/logger';
 
-const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V9]';
+const _MODULE_TAG = '[ COMPACT-APP-PICKER-V9]';
 
 interface CompactAppPickerV9Props {
 	environmentId: string;
@@ -335,7 +335,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 						title="Search and select PingOne application to auto-fill credentials"
 						aria-label="Search and select PingOne application to auto-fill credentials"
 					>
-						{isLoading ? '🔄' : <span style={{ fontSize: compact ? 14 : 16 }}>🔍</span>}
+						{isLoading ? '' : <span style={{ fontSize: compact ? 14 : 16 }}></span>}
 					</button>
 
 					{/* Tooltip on hover */}

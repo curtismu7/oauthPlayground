@@ -14,7 +14,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiAlertTriangle, FiCheck, FiX } from '../../icons';
 
-const _MODULE_TAG = '[🔗 REDIRECT-URI-VALIDATOR-V8]';
+const _MODULE_TAG = '[ REDIRECT-URI-VALIDATOR-V8]';
 
 export interface RedirectUriValidatorV8Props {
 	/** Current redirect URI value */
@@ -233,7 +233,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 							{copiedUri === currentUri ? (
 								<span style={{ fontSize: '14px' }}>✅</span>
 							) : (
-								<span style={{ fontSize: '14px' }}>📋</span>
+								<span style={{ fontSize: '14px' }}></span>
 							)}
 							{copiedUri === currentUri ? 'Copied!' : 'Copy'}
 						</button>
@@ -338,7 +338,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 									{copiedUri === suggestedUri ? (
 										<span style={{ fontSize: '12px' }}>✅</span>
 									) : (
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 									)}
 									Copy
 								</button>
@@ -403,7 +403,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 												color: '#6b7280',
 											}}
 										>
-											<span style={{ fontSize: '10px' }}>📋</span>
+											<span style={{ fontSize: '10px' }}></span>
 										</button>
 									</div>
 								))}
@@ -426,7 +426,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 								fontSize: '13px',
 							}}
 						>
-							<span style={{ fontSize: '14px' }}>🔗</span>
+							<span style={{ fontSize: '14px' }}></span>
 							Learn more about redirect URIs in PingOne
 						</a>
 					</div>

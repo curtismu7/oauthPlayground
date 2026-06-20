@@ -34,7 +34,7 @@ import { logger } from '../../../utils/logger';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
-const MODULE_TAG = '[📱 MOBILE-OTP-CONFIG-V8]';
+const MODULE_TAG = '[ MOBILE-OTP-CONFIG-V8]';
 
 export const MobileOTPConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
@@ -146,7 +146,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 		// 3. We don't already have a user token in credentials
 		// Removed restriction on registrationFlowType/tokenType - always sync if token exists and credentials don't have it
 		if (isAuthenticated && authToken && !hasAutoPopulatedRef.current && !credentials.userToken) {
-			logger.info(`[📱 SMS-CONFIG-PAGE-V8] ✅ Auto-populating user token from auth context`, {
+			logger.info(`[ SMS-CONFIG-PAGE-V8] ✅ Auto-populating user token from auth context`, {
 				hasToken: !!authToken,
 				tokenLength: authToken.length,
 				tokenPreview: `${authToken.substring(0, 20)}...`,
@@ -167,7 +167,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 				duration: 3000,
 			});
 		} else if (isAuthenticated && authToken && !credentials.userToken) {
-			logger.info(`[📱 SMS-CONFIG-PAGE-V8] ⚠️ Auth token available but not populating`, {
+			logger.info(`[ SMS-CONFIG-PAGE-V8] ⚠️ Auth token available but not populating`, {
 				hasAutoPopulated: hasAutoPopulatedRef.current,
 				hasUserToken: !!credentials.userToken,
 				registrationFlowType,
@@ -273,7 +273,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					});
 					// #endregion
 					logger.warn(
-						`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`,
+						`[ SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`,
 						'Logger warning'
 					);
 					modernMessaging.showBanner({
@@ -368,7 +368,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					window.history.replaceState({}, document.title, window.location.pathname);
 
 					// Update credentials - mark OAuth as completed (we don't need to store the token itself)
-					logger.info(`[📱 SMS-CONFIG-PAGE-V8] ✅ OAuth token exchange successful`, 'Logger info');
+					logger.info(`[ SMS-CONFIG-PAGE-V8] ✅ OAuth token exchange successful`, 'Logger info');
 					setCredentials((prev) => {
 						const updated = {
 							...prev,
@@ -410,7 +410,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					});
 					// #endregion
 
-					logger.error(`[📱 SMS-CONFIG-PAGE-V8] Failed to exchange code for tokens`, error);
+					logger.error(`[ SMS-CONFIG-PAGE-V8] Failed to exchange code for tokens`, error);
 					const errorMessage =
 						error instanceof Error
 							? error.message
@@ -455,7 +455,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 		if (registrationFlowType === 'user' && credentials.tokenType !== 'user') {
 			// User selected "User Flow" - sync to tokenType dropdown
 			logger.info(
-				`[📱 SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'user' - syncing tokenType dropdown`,
+				`[ SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'user' - syncing tokenType dropdown`,
 				{
 					currentTokenType: credentials.tokenType,
 					hasUserToken: !!credentials.userToken,
@@ -470,7 +470,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					// CRITICAL: Preserve existing userToken when switching to user flow (don't clear it)
 					userToken: prev.userToken || '',
 				};
-				logger.info(`[📱 SMS-CONFIG-PAGE-V8] ✅ Updated credentials with preserved token`, {
+				logger.info(`[ SMS-CONFIG-PAGE-V8] ✅ Updated credentials with preserved token`, {
 					tokenType: updated.tokenType,
 					hasUserToken: !!updated.userToken,
 					userTokenLength: updated.userToken?.length || 0,
@@ -484,7 +484,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 		} else if (registrationFlowType === 'admin' && credentials.tokenType !== 'worker') {
 			// User selected "Admin Flow" - sync to tokenType dropdown
 			logger.info(
-				`[📱 SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'admin' - syncing tokenType dropdown`,
+				`[ SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'admin' - syncing tokenType dropdown`,
 				'Logger info'
 			);
 			isSyncingRef.current = true;
@@ -508,7 +508,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 		if (credentials.tokenType === 'user' && registrationFlowType !== 'user') {
 			// User changed dropdown to "User Token" - sync to Registration Flow Type
 			logger.info(
-				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'user' - syncing Registration Flow Type`,
+				`[ SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'user' - syncing Registration Flow Type`,
 				'Logger info'
 			);
 			isSyncingRef.current = true;
@@ -520,7 +520,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 		} else if (credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
 			logger.info(
-				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'worker' - syncing Registration Flow Type`,
+				`[ SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'worker' - syncing Registration Flow Type`,
 				'Logger info'
 			);
 			isSyncingRef.current = true;
@@ -1129,7 +1129,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-						<span style={{ fontSize: 24, color: '#3b82f6' }}>📖</span>
+						<span style={{ fontSize: 24, color: '#3b82f6' }}></span>
 						<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#1f2937' }}>
 							About Mobile / OTP Authentication
 						</h2>

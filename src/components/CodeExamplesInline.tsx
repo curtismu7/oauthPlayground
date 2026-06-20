@@ -153,12 +153,12 @@ const getLanguageDisplayName = (language: SupportedLanguage): string => {
 
 const getLanguageIcon = (language: SupportedLanguage): string => {
 	const icons: Record<SupportedLanguage, string> = {
-		javascript: '🟨',
-		typescript: '🔷',
-		go: '🐹',
-		ruby: '💎',
-		python: '🐍',
-		'ping-sdk': '🔐',
+		javascript: '',
+		typescript: '',
+		go: '',
+		ruby: '',
+		python: '',
+		'ping-sdk': '',
 	};
 	return icons[language];
 };
@@ -254,7 +254,7 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 								)
 							}
 						>
-							{copiedCode ? <span>✅</span> : <span>📋</span>}
+							{copiedCode ? <span>✅</span> : <span></span>}
 							{copiedCode ? 'Copied!' : 'Copy'}
 						</CopyButton>
 						<pre>

@@ -477,7 +477,7 @@ const McpServerConfigFlowV9: React.FC = () => {
 			{/* Documentation Link */}
 			<div style={{ marginBottom: '2rem', textAlign: 'center' }}>
 				<DocumentationLink href="/documentation/mcp">
-					<span>📚</span>
+					<span></span>
 					View MCP Documentation
 					<span style={{ fontSize: '0.75rem', opacity: 0.8 }}>→</span>
 				</DocumentationLink>
@@ -488,10 +488,10 @@ const McpServerConfigFlowV9: React.FC = () => {
 					<Tab key={t} $active={activeTab === t} onClick={() => setActiveTab(t)}>
 						{
 							{
-								status: '🟢 Status',
-								credentials: '🔑 Credentials',
-								tools: '🧰 Tools',
-								connect: '🔌 Connect',
+								status: ' Status',
+								credentials: ' Credentials',
+								tools: ' Tools',
+								connect: ' Connect',
 							}[t]
 						}
 					</Tab>
@@ -502,7 +502,7 @@ const McpServerConfigFlowV9: React.FC = () => {
 			{activeTab === 'status' && (
 				<Card>
 					<CardBody>
-						<CardTitle>🟢 MCP Server Status</CardTitle>
+						<CardTitle> MCP Server Status</CardTitle>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 							<CheckRow $ok={status.running}>
 								{status.running ? '✅' : '⚠️'} Server{' '}
@@ -533,7 +533,7 @@ const McpServerConfigFlowV9: React.FC = () => {
 			{activeTab === 'credentials' && (
 				<Card>
 					<CardBody>
-						<CardTitle>🔑 MCP Server Credentials</CardTitle>
+						<CardTitle> MCP Server Credentials</CardTitle>
 
 						<p
 							style={{
@@ -607,7 +607,7 @@ const McpServerConfigFlowV9: React.FC = () => {
 							</FormGroup>
 						</FormGrid>
 						<SaveBtn $variant="primary" onClick={() => void saveCreds()}>
-							💾 Save Credentials
+							 Save Credentials
 						</SaveBtn>
 						{credsMsg && <Alert $type={credsMsg.type}>{credsMsg.text}</Alert>}
 					</CardBody>
@@ -618,7 +618,7 @@ const McpServerConfigFlowV9: React.FC = () => {
 			{activeTab === 'tools' && (
 				<Card>
 					<CardBody>
-						<CardTitle>🧰 Available MCP Tools</CardTitle>
+						<CardTitle> Available MCP Tools</CardTitle>
 						<p style={{ fontSize: 13, color: V9_COLORS.TEXT.GRAY_MEDIUM, marginBottom: 20 }}>
 							{TOOL_CATALOG.length} tools exposed by the PingOne MCP server
 						</p>
@@ -631,7 +631,7 @@ const McpServerConfigFlowV9: React.FC = () => {
 			{activeTab === 'connect' && (
 				<Card>
 					<CardBody>
-						<CardTitle>🔌 Connect MCP Clients</CardTitle>
+						<CardTitle> Connect MCP Clients</CardTitle>
 						<p style={{ fontSize: 13, color: V9_COLORS.TEXT.GRAY_MEDIUM, marginBottom: 20 }}>
 							Connect your MCP client (Cursor, Claude, etc.) to the PingOne MCP server
 						</p>

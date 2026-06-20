@@ -36,7 +36,7 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
-const MODULE_TAG = '[📲 WHATSAPP-MFA]';
+const MODULE_TAG = '[ WHATSAPP-MFA]';
 
 // Device Selection Step Component (identical to SMS, but for WhatsApp)
 interface DeviceSelectionStepProps extends MFAFlowBaseRenderProps {
@@ -1544,7 +1544,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						<p
 							style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: '600', color: '#92400e' }}
 						>
-							📋 Phone Number Preview:
+							 Phone Number Preview:
 						</p>
 						<p style={{ margin: '0', fontSize: '14px', fontFamily: 'monospace', color: '#1f2937' }}>
 							<strong>Will register:</strong> {getContactDisplay(credentials)}
@@ -1579,7 +1579,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 								boxShadow: isLoading || !isValidForm ? 'none' : '0 2px 8px rgba(16, 185, 129, 0.3)',
 							}}
 						>
-							{isLoading ? '🔄 Registering...' : 'Register WhatsApp Device'}
+							{isLoading ? ' Registering...' : 'Register WhatsApp Device'}
 						</button>
 					</div>
 
@@ -2083,7 +2083,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 											// Per rightOTP.md: Use device.activate URI for device activation during registration
 											// For ACTIVATION_REQUIRED devices, always use activateDevice (even if URI not in state)
 											const isActivationRequired = mfaState.deviceStatus === 'ACTIVATION_REQUIRED';
-											logger.info(`${MODULE_TAG} 🔍 OTP Validation Check:`, {
+											logger.info(`${MODULE_TAG} OTP Validation Check:`, {
 												hasDeviceActivateUri: !!mfaState.deviceActivateUri,
 												deviceActivateUri: mfaState.deviceActivateUri || 'NOT SET',
 												deviceStatus: mfaState.deviceStatus,
@@ -2224,7 +2224,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 										transition: 'all 0.2s ease',
 									}}
 								>
-									{isLoading ? '🔄 Validating...' : 'Validate OTP'}
+									{isLoading ? ' Validating...' : 'Validate OTP'}
 								</button>
 
 								{/* Resend OTP button - works for both registration and authentication flows */}
@@ -2332,10 +2332,10 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 									}}
 								>
 									{isLoading
-										? '🔄 Sending...'
+										? ' Sending...'
 										: otpState.canResend
-											? '🔄 Resend OTP Code'
-											: `🔄 Resend in ${otpState.resendCooldown}s`}
+											? ' Resend OTP Code'
+											: ` Resend in ${otpState.resendCooldown}s`}
 								</button>
 							</div>
 

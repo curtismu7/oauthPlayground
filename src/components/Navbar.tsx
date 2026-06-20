@@ -471,7 +471,7 @@ const Navbar: React.FC<NavbarProps> = ({
 						<FiMessageCircle aria-hidden="true" />
 						<span>Assistant</span>
 					</Link>
-					<Link to="/docs/prompts/prompt-all" title="🚀 AI Development Prompts">
+					<Link to="/docs/prompts/prompt-all" title=" AI Development Prompts">
 						<FiActivity aria-hidden="true" />
 						<span>AI Prompts</span>
 					</Link>
@@ -534,7 +534,7 @@ const Navbar: React.FC<NavbarProps> = ({
 				<ModalContent onClick={(e) => e.stopPropagation()}>
 					<ModalHeader>
 						<ModalTitle>
-							<span>📥</span>
+							<span></span>
 							Export All Unified Flow Use Cases
 						</ModalTitle>
 						<CloseButton onClick={handleCloseExportModal} aria-label="Close modal">
@@ -548,11 +548,11 @@ const Navbar: React.FC<NavbarProps> = ({
 						</ModalMessage>
 						<ButtonGroup>
 							<ExportButton $variant="markdown" onClick={handleExportMarkdown}>
-								<span>📄</span>
+								<span></span>
 								Export as Markdown
 							</ExportButton>
 							<ExportButton $variant="pdf" onClick={handleExportPDF}>
-								<span>📥</span>
+								<span></span>
 								Export as PDF
 							</ExportButton>
 						</ButtonGroup>

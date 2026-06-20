@@ -303,7 +303,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 						textDecoration: 'none',
 					}}
 				>
-					📚 View API Docs
+					 View API Docs
 				</a>
 
 				<button

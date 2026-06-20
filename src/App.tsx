@@ -605,7 +605,7 @@ const AppRoutes: React.FC = () => {
 		];
 
 		if (skipAutoScroll.some((path) => location.pathname.includes(path))) {
-			logger.info('🌍 [GlobalScroll] Skipping auto-scroll for:', location.pathname);
+			logger.info(' [GlobalScroll] Skipping auto-scroll for:', location.pathname);
 			return;
 		}
 
@@ -2185,7 +2185,7 @@ function AppContent() {
 						}}
 						title="Open Debug Log Viewer"
 					>
-						📋
+						
 					</button>
 				)}
 

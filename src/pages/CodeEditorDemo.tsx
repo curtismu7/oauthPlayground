@@ -177,14 +177,14 @@ const CodeEditorDemo: React.FC = () => {
 			<FlowHeader
 				flowType="pingone"
 				customConfig={{
-					title: '🚀 Interactive Code Editor Demo',
+					title: ' Interactive Code Editor Demo',
 					subtitle: 'Test the Monaco Editor with real-time editing, syntax highlighting, and more',
 				}}
 			/>
 
 			<ContentWrapper>
 				<DemoSection>
-					<SectionTitle>✨ Features</SectionTitle>
+					<SectionTitle> Features</SectionTitle>
 					<SectionDescription>
 						This interactive code editor is powered by Monaco Editor (the same editor used in VS
 						Code). Try editing the code, changing configuration values, and using the toolbar
@@ -200,35 +200,35 @@ const CodeEditorDemo: React.FC = () => {
 						</FeatureCard>
 
 						<FeatureCard>
-							<FeatureTitle>🎨 Syntax Highlighting</FeatureTitle>
+							<FeatureTitle> Syntax Highlighting</FeatureTitle>
 							<FeatureDescription>
 								TypeScript/JavaScript syntax highlighting with VS Code color scheme
 							</FeatureDescription>
 						</FeatureCard>
 
 						<FeatureCard>
-							<FeatureTitle>🔧 Live Config</FeatureTitle>
+							<FeatureTitle> Live Config</FeatureTitle>
 							<FeatureDescription>
 								Update configuration values and see code change in real-time
 							</FeatureDescription>
 						</FeatureCard>
 
 						<FeatureCard>
-							<FeatureTitle>📋 Copy & Download</FeatureTitle>
+							<FeatureTitle> Copy & Download</FeatureTitle>
 							<FeatureDescription>
 								One-click copy to clipboard or download as TypeScript file
 							</FeatureDescription>
 						</FeatureCard>
 
 						<FeatureCard>
-							<FeatureTitle>🎭 Theme Toggle</FeatureTitle>
+							<FeatureTitle> Theme Toggle</FeatureTitle>
 							<FeatureDescription>
 								Switch between light and dark themes for comfortable viewing
 							</FeatureDescription>
 						</FeatureCard>
 
 						<FeatureCard>
-							<FeatureTitle>🔄 Reset & Format</FeatureTitle>
+							<FeatureTitle> Reset & Format</FeatureTitle>
 							<FeatureDescription>
 								Reset to original code or auto-format with Prettier-style formatting
 							</FeatureDescription>
@@ -246,7 +246,7 @@ const CodeEditorDemo: React.FC = () => {
 				/>
 
 				<DemoSection style={{ marginTop: '32px' }}>
-					<SectionTitle>🎯 How to Use</SectionTitle>
+					<SectionTitle> How to Use</SectionTitle>
 					<FeatureGrid>
 						<FeatureCard>
 							<FeatureTitle>1️⃣ Edit Configuration</FeatureTitle>

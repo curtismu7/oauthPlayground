@@ -738,7 +738,7 @@ const Login = () => {
 			<div style={{ marginBottom: '24px' }}>
 				<CollapsibleSection
 					title="PingOne Configuration Required"
-					icon="🔧"
+					icon=""
 					defaultCollapsed={true}
 				>
 					<p>To use this OAuth Playground, you need to configure your PingOne environment:</p>
@@ -978,7 +978,7 @@ const Login = () => {
 			<div style={{ marginBottom: '24px' }}>
 				<CollapsibleSection
 					title="Enter Your Credentials"
-					icon="📝"
+					icon=""
 					defaultCollapsed={hasExistingCredentials}
 					headerActions={
 						hasExistingCredentials && (

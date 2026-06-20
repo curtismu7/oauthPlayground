@@ -211,14 +211,14 @@ export const WorkerTokenDetectedBanner: React.FC<WorkerTokenDetectedBannerProps>
 							: '#059669',
 				}}
 			>
-				<span style={{ fontSize: '14px' }}>🗄️</span> Token cached • {token.substring(0, 16)}…
+				<span style={{ fontSize: '14px' }}></span> Token cached • {token.substring(0, 16)}…
 			</TokenBadge>
 			{expiryInfo && (
 				<ExpiryMessage
 					$isExpired={expiryInfo.isExpired}
 					$isExpiringSoon={expiryInfo.isExpiringSoon}
 				>
-					<span style={{ fontSize: '14px' }}>🕐</span>
+					<span style={{ fontSize: '14px' }}></span>
 					<strong>{expiryInfo.timeRemaining}</strong>
 					{expiryInfo.expiryTime && !expiryInfo.isExpired && (
 						<span style={{ fontSize: '0.75rem', opacity: 0.8 }}> ({expiryInfo.expiryTime})</span>
