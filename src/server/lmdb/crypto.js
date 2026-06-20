@@ -50,12 +50,22 @@ function getKey() {
 		_key = gen;
 		return _key;
 	} catch (e) {
-		// Last resort: a process-stable key so the server still runs (data won't
-		// survive a restart, but that's strictly better than crashing).
-		console.warn('⚠️ Could not persist an encryption key:', e?.message);
-		_key = crypto.createHash('sha256').update('oauthplayground-ephemeral').digest();
+		// Last resort: a RANDOM per-process key so the server still runs. Data
+		// sealed under it won't survive a restart, but it is never a predictable
+		// constant (which would let anyone with the source decrypt secrets).
+		console.warn('⚠️ Could not persist an encryption key — using a random per-process key:', e?.message);
+		_key = crypto.randomBytes(32);
 		return _key;
 	}
+}
+
+let _warnedKeyMismatch = false;
+function warnKeyMismatch() {
+	if (_warnedKeyMismatch) return;
+	_warnedKeyMismatch = true;
+	console.warn(
+		'⚠️ Could not decrypt a stored secret — PLAYGROUND_ENC_KEY likely changed. Affected fields read as null until re-saved.'
+	);
 }
 
 export function isEnvelope(v) {
@@ -116,7 +126,15 @@ export function openFields(obj, paths) {
 	const clone = structuredClone(obj);
 	for (const p of paths) {
 		const v = getPath(clone, p);
-		if (isEnvelope(v)) setPath(clone, p, decryptField(v));
+		if (isEnvelope(v)) {
+			try {
+				setPath(clone, p, decryptField(v));
+			} catch {
+				// Wrong/rotated key — degrade to null rather than 500 on every read.
+				setPath(clone, p, null);
+				warnKeyMismatch();
+			}
+		}
 	}
 	return clone;
 }

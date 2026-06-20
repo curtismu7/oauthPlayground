@@ -26,9 +26,17 @@ const meta = () => getDb('meta');
 const now = () => Date.now();
 
 const SECRET = {
-	worker_tokens: ['accessToken'],
+	worker_tokens: ['accessToken', 'refreshToken'],
 	credentials: ['credentials.clientSecret'],
-	flow_credentials: ['credentials.clientSecret'],
+	// Per-flow records carry the actual OAuth tokens (UnifiedToken.value) plus the
+	// client secret — seal all token-bearing fields, not just the secret.
+	flow_credentials: [
+		'credentials.clientSecret',
+		'credentials.value',
+		'credentials.accessToken',
+		'credentials.refreshToken',
+		'credentials.idToken',
+	],
 	apikeys: ['key'],
 };
 
@@ -173,9 +181,12 @@ export function exportAll() {
 export function importAll(dump) {
 	let count = 0;
 	for (const name of ALL_DBS) {
-		if (!dump?.[name]) continue;
+		const section = dump?.[name];
+		if (!section || typeof section !== 'object' || Array.isArray(section)) continue;
 		const db = getDb(name);
-		for (const [key, value] of Object.entries(dump[name])) {
+		for (const [key, value] of Object.entries(section)) {
+			// Only restore plain-object/scalar values under string keys.
+			if (typeof key !== 'string' || value === undefined) continue;
 			db.putSync(key, value);
 			count++;
 		}
