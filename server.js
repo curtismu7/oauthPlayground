@@ -1057,15 +1057,12 @@ if (!process.env.VERCEL) {
 		console.warn('⚠️ Backup API routes unavailable (SQLite native module missing):', err.message);
 	}
 
-	// Setup enhanced credentials SQLite API (dynamic import — SQLite native addon; skipped on Vercel)
+	// Setup enhanced credentials API (now LMDB-backed; dynamic import for the native addon)
 	try {
 		const { credentialsSqliteApi } = await import('./src/api/credentialsSqliteApi.js');
 		credentialsSqliteApi(app);
 	} catch (err) {
-		console.warn(
-			'⚠️ SQLite credentials API unavailable (SQLite native module missing):',
-			err.message
-		);
+		console.warn('⚠️ Credentials API unavailable (LMDB native module missing):', err.message);
 	}
 
 	// Central LMDB store for worker tokens + all credentials (the project's own
@@ -3934,7 +3931,9 @@ app.delete('/api/tokens/worker', express.json(), (req, res) => {
 function migrateJsonFilesToLmdb() {
 	if (credentialStore._isNoop) return;
 	try {
-		if (credentialStore.hasAnyData()) return;
+		// Guard on a dedicated flag (not hasAnyData, which ignores apikeys/kv and
+		// could re-import stale JSON over live data written API-keys-first).
+		if (credentialStore.metaGet('migrated_json_v1')) return;
 		let migrated = 0;
 		try {
 			const wt = _readWorkerTokensStore();
@@ -3970,6 +3969,7 @@ function migrateJsonFilesToLmdb() {
 				}
 			}
 		} catch {}
+		credentialStore.metaSet('migrated_json_v1', new Date().toISOString());
 		if (migrated) {
 			console.log(`💾 [LMDB migration] Imported ${migrated} legacy token/credential record(s)`);
 		}
@@ -3994,9 +3994,34 @@ if (!credentialStore._isNoop) {
 }
 
 // Portable backup/restore of the whole LMDB store. Secret fields stay sealed
-// (encrypted) in the dump, so it is safe to copy.
-app.get('/api/store/backup', (_req, res) => {
-	if (credentialStore._isNoop) return res.status(503).json({ error: 'Store unavailable' });
+// (encrypted) in the dump, so it is safe to copy. Both endpoints are gated to
+// same-origin requests (block cross-site), and additionally require an
+// x-store-admin header matching STORE_ADMIN_SECRET when that env var is set.
+function storeAdminBlocked(req, res) {
+	if (credentialStore._isNoop) {
+		res.status(503).json({ error: 'Store unavailable' });
+		return true;
+	}
+	const origin = req.headers.origin;
+	if (origin) {
+		try {
+			if (new URL(origin).host !== req.headers.host) {
+				res.status(403).json({ error: 'Cross-origin request blocked' });
+				return true;
+			}
+		} catch {
+			res.status(403).json({ error: 'Bad origin' });
+			return true;
+		}
+	}
+	if (process.env.STORE_ADMIN_SECRET && req.headers['x-store-admin'] !== process.env.STORE_ADMIN_SECRET) {
+		res.status(403).json({ error: 'Forbidden' });
+		return true;
+	}
+	return false;
+}
+app.get('/api/store/backup', (req, res) => {
+	if (storeAdminBlocked(req, res)) return;
 	res.setHeader('Content-Disposition', 'attachment; filename="oauthplayground-store-backup.json"');
 	res.json({
 		schema_version: credentialStore.metaGet('schema_version') || 1,
@@ -4005,10 +4030,10 @@ app.get('/api/store/backup', (_req, res) => {
 	});
 });
 app.post('/api/store/restore', express.json({ limit: '50mb' }), (req, res) => {
-	if (credentialStore._isNoop) return res.status(503).json({ error: 'Store unavailable' });
+	if (storeAdminBlocked(req, res)) return;
 	const dump = req.body?.data ?? req.body;
-	if (!dump || typeof dump !== 'object') {
-		return res.status(400).json({ error: 'Missing backup data' });
+	if (!dump || typeof dump !== 'object' || Array.isArray(dump)) {
+		return res.status(400).json({ error: 'Missing or invalid backup data' });
 	}
 	const count = credentialStore.importAll(dump);
 	console.log(`♻️ [LMDB] restored ${count} record(s) from backup`);
