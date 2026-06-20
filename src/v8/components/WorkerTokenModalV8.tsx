@@ -81,6 +81,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	const [currentToken, setCurrentToken] = useState<string | null>(null);
 	const [showTokenDisplay, setShowTokenDisplay] = useState(false);
 	const [authMethodError, setAuthMethodError] = useState<string | null>(null);
+	// Prominent, persistent in-modal error shown when a token request fails
+	// (e.g. 401) or required credentials are missing.
+	const [tokenError, setTokenError] = useState<string | null>(null);
 	const [krpCompliance, setKrpCompliance] = useState<{
 		compliant: boolean;
 		daysUntilDeadline: number;
@@ -133,6 +136,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			setCurrentToken(null);
 			setShowTokenDisplay(false);
 			setKrpCompliance(null);
+			setTokenError(null);
 		}
 	}, [isOpen, showTokenOnly]);
 
@@ -169,16 +173,19 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			unifiedWorkerTokenService
 				.loadCredentials()
 				.then((result) => {
-					if (result.success) {
+					if (result.success && result.data?.clientId && result.data?.clientSecret) {
 						const creds = result.data;
 						setEnvironmentId(creds.environmentId || propEnvironmentId);
 						setClientId(creds.clientId || '');
 						setClientSecret(creds.clientSecret || '');
+						// scopes is typed string[] | undefined, but tolerate a string at
+						// runtime (legacy stored values) without a dead never-branch.
+						const rawScopes = creds.scopes as string | string[] | undefined;
 						const scopeDisplay =
-							typeof creds.scopes === 'string'
-								? creds.scopes.trim()
-								: Array.isArray(creds.scopes) && creds.scopes.length
-									? creds.scopes.join(' ')
+							typeof rawScopes === 'string'
+								? rawScopes.trim()
+								: Array.isArray(rawScopes) && rawScopes.length
+									? rawScopes.join(' ')
 									: '';
 						setScopeInput(scopeDisplay);
 						setRegion(creds.region || 'us');
@@ -189,7 +196,30 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							'Logger debug'
 						);
 					} else {
-						logger.debug(`${MODULE_TAG} No credentials found in unified storage`, 'Logger debug');
+						// No stored credentials — pre-fill from the baked .env worker
+						// config (consistent with the V9 flows that read these vars).
+						// Fields only; nothing is persisted until the user acts.
+						const env = import.meta.env as Record<string, string | undefined>;
+						const envClientId = env.VITE_PINGONE_WORKER_CLIENT_ID || '';
+						const envClientSecret = env.VITE_PINGONE_WORKER_CLIENT_SECRET || '';
+						if (envClientId || envClientSecret) {
+							setEnvironmentId(env.VITE_PINGONE_ENVIRONMENT_ID || propEnvironmentId);
+							setClientId(envClientId);
+							setClientSecret(envClientSecret);
+							const envRegion = (env.VITE_PINGONE_REGION || '').toLowerCase();
+							if (envRegion === 'eu' || envRegion === 'ap' || envRegion === 'ca') {
+								setRegion(envRegion);
+							}
+							logger.debug(
+								`${MODULE_TAG} Pre-filled worker credentials from .env (no stored creds)`,
+								'Logger debug'
+							);
+						} else {
+							logger.debug(
+								`${MODULE_TAG} No credentials found in unified storage or .env`,
+								'Logger debug'
+							);
+						}
 					}
 				})
 				.catch((error) => {
@@ -456,6 +486,16 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	const handleExecuteRequest = async (): Promise<string | null> => {
 		if (!requestDetails) return null;
 
+		// Clear any prior failure banner and guard against missing credentials
+		// before hitting PingOne (an empty client id/secret always yields a 401).
+		setTokenError(null);
+		if (!clientId.trim() || !clientSecret.trim()) {
+			setTokenError(
+				'Worker credentials are missing. Enter the Worker app Client ID and Client Secret (these can be pre-filled from your .env VITE_PINGONE_WORKER_* values), then try again.'
+			);
+			return null;
+		}
+
 		setIsGenerating(true);
 		try {
 			const scopeList = requestDetails.requestParams.scope
@@ -718,12 +758,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				}
 			}
 
-			// Use footer message instead of full-page banner so the message does not span the whole page
-			modernMessaging.showFooterMessage({
-				type: 'info',
-				message: displayMessage,
-				duration: 8000,
-			});
+			// Surface a prominent, persistent banner inside the modal (where the
+			// user acted) explaining exactly why the request failed.
+			setTokenError(displayMessage);
 			return null;
 		} finally {
 			setIsGenerating(false);
@@ -853,7 +890,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 										color: '#92400e',
 									}}
 								>
-									 Worker Token Credentials
+									Worker Token Credentials
 								</h2>
 								<p style={{ margin: 0, fontSize: '13px', color: '#78350f' }}>
 									Generate a worker token for API access
@@ -880,6 +917,49 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 				{/* Content */}
 				<div style={{ padding: '24px' }}>
+					{/* Prominent failure banner — shown when a token request fails
+					    (e.g. 401) or required credentials are missing. */}
+					{tokenError && (
+						<div
+							role="alert"
+							style={{
+								marginBottom: '16px',
+								padding: '14px 16px',
+								background: '#fef2f2',
+								border: '1px solid #fca5a5',
+								borderRadius: '8px',
+								color: '#991b1b',
+								fontSize: '13px',
+								lineHeight: '1.5',
+								display: 'flex',
+								alignItems: 'flex-start',
+								gap: '10px',
+							}}
+						>
+							<span style={{ fontSize: '16px', lineHeight: '1.2' }}>⚠️</span>
+							<div style={{ flex: 1 }}>
+								<strong>Worker token request failed</strong>
+								<br />
+								{tokenError}
+							</div>
+							<button
+								type="button"
+								onClick={() => setTokenError(null)}
+								aria-label="Dismiss error"
+								style={{
+									color: '#991b1b',
+									background: 'none',
+									border: 'none',
+									cursor: 'pointer',
+									fontSize: '16px',
+									lineHeight: 1,
+									padding: 0,
+								}}
+							>
+								✕
+							</button>
+						</div>
+					)}
 					{/* Token Only Mode - Show only token display, skip credential form */}
 					{showTokenOnly ? (
 						<div>
@@ -957,7 +1037,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												gap: '6px',
 											}}
 										>
-											 Save Token
+											Save Token
 										</button>
 										<button
 											type="button"
@@ -1044,7 +1124,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 													color: krpCompliance.compliant ? '#1e40af' : '#92400e',
 												}}
 											>
-												 Key Rotation Policy (KRP)
+												Key Rotation Policy (KRP)
 											</div>
 											{krpCompliance.compliant ? (
 												<div style={{ color: '#1e40af' }}>✅ Compliant - Application uses KRP</div>
@@ -1230,7 +1310,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 										}}
 									>
 										<div style={{ marginBottom: '6px', fontWeight: '600' }}>
-											 How to get these credentials:
+											How to get these credentials:
 										</div>
 										<ol style={{ margin: '0', paddingLeft: '20px' }}>
 											<li>Go to PingOne Console → Connections → Applications</li>
@@ -1585,7 +1665,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												style={{ cursor: 'pointer' }}
 											/>
 											<span style={{ fontSize: '13px', color: '#374151' }}>
-												 Save credentials for next time
+												Save credentials for next time
 											</span>
 										</label>
 										<small
