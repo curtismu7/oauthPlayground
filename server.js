@@ -1002,9 +1002,18 @@ let credentialStore = {
 	getFlowCredentials: () => null,
 	deleteFlowCredentials: () => false,
 	getAllFlowCredentials: () => ({}),
+	saveApiKey: () => false,
+	getApiKey: () => null,
+	deleteApiKey: () => false,
+	getAllApiKeys: () => ({}),
 	kvGet: () => null,
 	kvSet: () => false,
 	kvDelete: () => false,
+	metaGet: () => null,
+	metaSet: () => false,
+	exportAll: () => ({}),
+	importAll: () => 0,
+	purgeExpired: () => 0,
 	hasAnyData: () => false,
 	_isNoop: true,
 };
@@ -3006,6 +3015,7 @@ app.get('/api/version', (_req, res) => {
 
 // ─── API key SQLite-store helpers ────────────────────────────────────────────
 function _readApiKeyStore() {
+	if (!credentialStore._isNoop) return credentialStore.getAllApiKeys();
 	try {
 		const store = JSON.parse(fs.readFileSync(SQLITE_STORE_FILE, 'utf8'));
 		return store.__api_keys__?.credentials ?? {};
@@ -3014,6 +3024,11 @@ function _readApiKeyStore() {
 	}
 }
 function _writeApiKeyStore(service, apiKey) {
+	if (!credentialStore._isNoop) {
+		credentialStore.saveApiKey(service, apiKey);
+		console.log(`[API-KEY-STORAGE] Key for '${service}' written to LMDB`);
+		return;
+	}
 	try {
 		let store = {};
 		try {
@@ -3032,6 +3047,10 @@ function _writeApiKeyStore(service, apiKey) {
 	}
 }
 function _deleteApiKeyStore(service) {
+	if (!credentialStore._isNoop) {
+		credentialStore.deleteApiKey(service);
+		return;
+	}
 	try {
 		let store = {};
 		try {
@@ -3929,7 +3948,14 @@ function migrateJsonFilesToLmdb() {
 		try {
 			const ss = _readSqliteStore();
 			for (const [key, v] of Object.entries(ss || {})) {
-				if (key.startsWith(WORKER_TOKEN_SQLITE_KEY_PREFIX)) {
+				if (key === '__api_keys__') {
+					for (const [service, apiKey] of Object.entries(v?.credentials || {})) {
+						if (apiKey) {
+							credentialStore.saveApiKey(service, apiKey);
+							migrated++;
+						}
+					}
+				} else if (key.startsWith(WORKER_TOKEN_SQLITE_KEY_PREFIX)) {
 					if (v?.accessToken) {
 						credentialStore.saveWorkerToken(
 							key.slice(WORKER_TOKEN_SQLITE_KEY_PREFIX.length),
@@ -3952,6 +3978,42 @@ function migrateJsonFilesToLmdb() {
 	}
 }
 migrateJsonFilesToLmdb();
+
+// Schema version + hourly TTL sweep of expired token records.
+if (!credentialStore._isNoop) {
+	try {
+		if (!credentialStore.metaGet('schema_version')) credentialStore.metaSet('schema_version', 1);
+	} catch {}
+	const _ttlSweep = setInterval(() => {
+		try {
+			const n = credentialStore.purgeExpired();
+			if (n) console.log(`🧹 [LMDB] purged ${n} expired token record(s)`);
+		} catch {}
+	}, 60 * 60 * 1000);
+	if (_ttlSweep.unref) _ttlSweep.unref();
+}
+
+// Portable backup/restore of the whole LMDB store. Secret fields stay sealed
+// (encrypted) in the dump, so it is safe to copy.
+app.get('/api/store/backup', (_req, res) => {
+	if (credentialStore._isNoop) return res.status(503).json({ error: 'Store unavailable' });
+	res.setHeader('Content-Disposition', 'attachment; filename="oauthplayground-store-backup.json"');
+	res.json({
+		schema_version: credentialStore.metaGet('schema_version') || 1,
+		exportedAt: new Date().toISOString(),
+		data: credentialStore.exportAll(),
+	});
+});
+app.post('/api/store/restore', express.json({ limit: '50mb' }), (req, res) => {
+	if (credentialStore._isNoop) return res.status(503).json({ error: 'Store unavailable' });
+	const dump = req.body?.data ?? req.body;
+	if (!dump || typeof dump !== 'object') {
+		return res.status(400).json({ error: 'Missing backup data' });
+	}
+	const count = credentialStore.importAll(dump);
+	console.log(`♻️ [LMDB] restored ${count} record(s) from backup`);
+	res.json({ success: true, restored: count });
+});
 
 // OAuth Token Exchange Endpoint
 app.post('/api/token-exchange', async (req, res) => {
