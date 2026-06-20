@@ -56,7 +56,7 @@ try {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // On Vercel (read-only bundle filesystem), redirect logs to /tmp which is writable.
-const logsDir = process.env.VERCEL ? path.join('/tmp', 'logs') : path.join(__dirname, 'logs');
+const logsDir = path.join(__dirname, 'logs');
 const logFile = path.join(logsDir, 'server.log');
 const clientLogFile = path.join(logsDir, 'client.log');
 
@@ -1018,7 +1018,10 @@ let credentialStore = {
 	_isNoop: true,
 };
 
-if (!process.env.VERCEL) {
+// Native-addon-backed services (LMDB, SQLite user/settings/backup DBs) load here.
+// Each is wrapped in try/catch so a missing native binary degrades to the no-op
+// fallback rather than crashing the server.
+{
 	try {
 		const userMod = await import('./src/server/services/userDatabaseService.js');
 		userDatabaseService = userMod.userDatabaseService;
@@ -26152,7 +26155,7 @@ if (httpsServer) {
 
 // Start the servers — skip in test and Vercel serverless contexts (Vercel invokes the
 // exported Express `app` directly; it does not need a listening HTTP/HTTPS server).
-if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+if (process.env.NODE_ENV !== 'test') {
 	startServers().catch((error) => {
 		console.error('❌ Failed to start servers:', error);
 		process.exit(1);
