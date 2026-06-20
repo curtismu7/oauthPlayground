@@ -81,6 +81,14 @@ const Action = styled.button`
 const defaultRedirectUri = () =>
 	typeof window !== 'undefined' ? `${window.location.origin}/v2/flows/authz-callback` : '';
 
+// Realistic placeholders so the offline mock flow runs with zero PingOne setup
+// and the displayed authorize/exchange request still looks complete.
+const MOCK_CREDS = {
+	environmentId: 'mock-environment-id',
+	clientId: 'mock-client-id',
+	clientSecret: 'mock-client-secret',
+} as const;
+
 const AuthorizationCodeFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
@@ -108,6 +116,29 @@ const AuthorizationCodeFlow: React.FC = () => {
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
+
+	// Switching to mock seeds offline placeholders into empty fields; switching back
+	// to real strips those placeholders so the user supplies genuine credentials.
+	const selectMode = useCallback((m: FlowMode) => {
+		setMode(m);
+		if (m === 'mock') {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId || MOCK_CREDS.environmentId,
+				clientId: c.clientId || MOCK_CREDS.clientId,
+				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
+			}));
+			setRedirectUri((u) => u || defaultRedirectUri());
+		} else {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
+				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
+				// coalesce to '' so clientSecret stays `string` (exactOptionalPropertyTypes)
+				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : c.clientSecret ?? '',
+			}));
+		}
+	}, []);
 
 	// Resume after a real redirect: the callback wrote the code into the stash.
 	useEffect(() => {
@@ -143,7 +174,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 		const pair = await authorizationCodeService.generatePkce(mode);
 		setPkce({ codeVerifier: pair.codeVerifier, codeChallenge: pair.codeChallenge });
 		engine.markComplete('pkce');
-	}, [engine]);
+	}, [engine, mode]);
 
 	const handleAuthorize = useCallback(async () => {
 		setError(null);
@@ -221,7 +252,11 @@ const AuthorizationCodeFlow: React.FC = () => {
 		setIntrospectData(await authorizationCodeService.introspect(result.accessToken, creds, mode));
 	}, [result, creds, mode]);
 
-	const configured = Boolean(creds.environmentId && creds.clientId && creds.clientSecret && redirectUri);
+	// Mock runs offline — never gate it on real credentials.
+	const configured =
+		mode === 'mock'
+			? true
+			: Boolean(creds.environmentId && creds.clientId && creds.clientSecret && redirectUri);
 	const cur = engine.current.id;
 
 	return (
@@ -242,8 +277,8 @@ const AuthorizationCodeFlow: React.FC = () => {
 					canNext={configured}
 				>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={mode === 'real'} onClick={() => selectMode('real')}>Real PingOne</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => selectMode('mock')}>Mock</Pill>
 					</Toggle>
 					<Toggle>
 						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>OAuth 2.0</Pill>
