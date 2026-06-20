@@ -475,9 +475,16 @@ export class UnifiedTokenStorageService {
 				throw new Error(`Invalid token type: ${token.type}`);
 			}
 
+			// Honor an id already carried on the token object (callers such as
+			// tokenMonitoringService.saveTokensToStorage round-trip tokens with a
+			// stable id in the object, not via options). Falling through to
+			// generateTokenId on every save minted a fresh id each time, turning
+			// each re-save into a brand-new entry and causing a runaway
+			// store→sync→store loop. Precedence: options.id > token.id > generated.
+			const incomingId = (token as Partial<UnifiedStorageItem>).id;
 			const unifiedToken: UnifiedStorageItem = {
 				...token,
-				id: options?.id ?? this.generateTokenId(token),
+				id: options?.id ?? incomingId ?? this.generateTokenId(token),
 				createdAt: Date.now(),
 				updatedAt: Date.now(),
 				...options,
