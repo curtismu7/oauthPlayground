@@ -11,8 +11,9 @@
  *   Styling is inlined/scoped under `.wtc-root` because oauthPlayground does not
  *   load AI-Demo's controls.css / v2-global-theme.css.
  */
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import {
 	type WorkerTokenCredentials as WorkerTokenCredentialsPayload,
 	exportWorkerTokenCredentials,
@@ -149,7 +150,6 @@ const CredentialsBody: React.FC<{
 	const [customDomain, setCustomDomain] = useState('');
 	const [redirectUri, setRedirectUri] = useState(redirectUriSeed);
 	const [showSecret, setShowSecret] = useState(false);
-	const [saveCreds, setSaveCreds] = useState(true);
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [currentToken, setCurrentToken] = useState<string | null>(null);
 
@@ -166,7 +166,9 @@ const CredentialsBody: React.FC<{
 			});
 			return;
 		}
-		const scopes = scopeInput.split(/\s+/).map((s) => s.trim()).filter(Boolean);
+		const parsedScopes = scopeInput.split(/\s+/).map((s) => s.trim()).filter(Boolean);
+		// Help text promises defaults when left empty — honor it instead of erroring.
+		const scopes = parsedScopes.length > 0 ? parsedScopes : [PINGONE_WORKER_MFA_SCOPE_STRING];
 		setIsGenerating(true);
 		try {
 			const result = await acquireWorkerToken({
@@ -273,8 +275,6 @@ const CredentialsBody: React.FC<{
 			}
 		});
 	};
-
-	void saveCreds; // Persisted automatically by acquireWorkerToken; toggle reserved for future opt-out.
 
 	return (
 		<div className={`wtc-content${size === 'compact' ? ' wtc-content--compact' : ''}`}>
@@ -433,19 +433,6 @@ const CredentialsBody: React.FC<{
 				</details>
 			</div>
 
-			<div className="wtc-save">
-				<label className="wtc-switch">
-					<input
-						type="checkbox"
-						checked={saveCreds}
-						onChange={(e) => setSaveCreds(e.target.checked)}
-					/>
-					<span className="wtc-switch-track" />
-					<span className="wtc-switch-text">Save credentials for next time</span>
-				</label>
-				<small>Credentials are stored securely in your browser's local storage.</small>
-			</div>
-
 			<div className="wtc-actions">
 				<div className="wtc-io">
 					<button type="button" className="wtc-btn-tertiary" onClick={handleExport}>
@@ -482,7 +469,16 @@ const Dialog: React.FC<{
 	redirectUri?: string | undefined;
 	onClose: () => void;
 	onTokenGenerated?: ((token: string) => void) | undefined;
-}> = ({ size, environmentId, grantType, redirectUri, onClose, onTokenGenerated }) => (
+}> = ({ size, environmentId, grantType, redirectUri, onClose, onTokenGenerated }) => {
+	useEffect(() => {
+		const onKey = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') onClose();
+		};
+		document.addEventListener('keydown', onKey);
+		return () => document.removeEventListener('keydown', onKey);
+	}, [onClose]);
+
+	return (
 	<div className="wtc-root">
 		<style>{SCOPED_CSS}</style>
 		<div className="wtc-overlay" onClick={onClose}>
@@ -507,7 +503,8 @@ const Dialog: React.FC<{
 			</div>
 		</div>
 	</div>
-);
+	);
+};
 
 export const WorkerTokenCredentials: React.FC<WorkerTokenCredentialsProps> = ({
 	variant = 'modal',
@@ -520,6 +517,20 @@ export const WorkerTokenCredentials: React.FC<WorkerTokenCredentialsProps> = ({
 	onTokenGenerated,
 }) => {
 	const [inlineOpen, setInlineOpen] = useState(false);
+	const [hasToken, setHasToken] = useState<boolean | null>(null);
+
+	const refreshTokenStatus = useCallback(async () => {
+		try {
+			const token = await unifiedWorkerTokenService.getToken();
+			setHasToken(!!token);
+		} catch {
+			setHasToken(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		if (variant === 'inline') void refreshTokenStatus();
+	}, [variant, refreshTokenStatus]);
 
 	if (variant === 'inline') {
 		return (
@@ -528,10 +539,16 @@ export const WorkerTokenCredentials: React.FC<WorkerTokenCredentialsProps> = ({
 				<div className={`wtc-inline-launch${size === 'compact' ? ' compact' : ''}`}>
 					<div>
 						<h3>Worker Token</h3>
-						<p>Generate a worker token for PingOne management API access.</p>
+						<p>
+							{hasToken === null
+								? 'Checking token status…'
+								: hasToken
+									? '● Active — a valid worker token is stored.'
+									: '○ Not set — generate a worker token for PingOne management API access.'}
+						</p>
 					</div>
 					<button type="button" className="wtc-btn-primary" onClick={() => setInlineOpen(true)}>
-						Get Worker Token
+						{hasToken ? 'Manage Worker Token' : 'Get Worker Token'}
 					</button>
 				</div>
 				{inlineOpen && (
@@ -541,7 +558,10 @@ export const WorkerTokenCredentials: React.FC<WorkerTokenCredentialsProps> = ({
 						grantType={grantType}
 						redirectUri={redirectUri}
 						onClose={() => setInlineOpen(false)}
-						onTokenGenerated={onTokenGenerated}
+						onTokenGenerated={(t) => {
+							void refreshTokenStatus();
+							onTokenGenerated?.(t);
+						}}
 					/>
 				)}
 			</div>
