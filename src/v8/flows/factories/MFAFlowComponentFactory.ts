@@ -15,7 +15,7 @@ import React, { ComponentType, lazy } from 'react';
 import { logger } from '../../../utils/logger';
 import type { DeviceType } from '../shared/MFATypes';
 
-const MODULE_TAG = '[🏭 MFA-COMPONENT-FACTORY]';
+const MODULE_TAG = '[ MFA-COMPONENT-FACTORY]';
 
 // Lazy load flow components for code splitting
 const SMSFlowV8 = lazy(() => import('../types/SMSFlowV8').then((m) => ({ default: m.SMSFlowV8 })));

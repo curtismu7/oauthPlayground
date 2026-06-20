@@ -182,9 +182,9 @@ export const americanAirlinesTheme: BrandTheme = {
 		xl: '0 20px 25px -5px rgba(0, 51, 160, 0.1), 0 10px 10px -5px rgba(0, 51, 160, 0.04)',
 	},
 	brandSpecific: {
-		logo: '🦅',
+		logo: '',
 		logoUrl: 'https://www.aa.com/favicon.ico',
-		iconSet: ['✈️', '🦅', '🌍', '🎫', '🛫'],
+		iconSet: ['✈️', '', '', '', ''],
 		messaging: {
 			welcome: 'Welcome to American Airlines Secure Portal',
 			security: 'Your flight security is our top priority',

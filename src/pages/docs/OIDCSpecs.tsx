@@ -88,7 +88,7 @@ const OIDCSpecs = () => {
 		<PageContainer>
 			<ContentWrapper>
 				<DocumentationHeader
-					emoji="📋"
+					emoji=""
 					title="OpenID Connect Specifications"
 					description="Official OpenID Connect specifications and related standards from the OpenID Foundation"
 				/>
@@ -96,7 +96,7 @@ const OIDCSpecs = () => {
 				<CollapsibleHeader
 					title="Core Specifications"
 					subtitle="Essential OAuth 2.0 and OpenID Connect specifications"
-					icon={<span>🛡️</span>}
+					icon={<span></span>}
 					defaultCollapsed={false}
 					theme="ping"
 				>
@@ -104,7 +104,7 @@ const OIDCSpecs = () => {
 						<ExternalLink href="https://oauth.net/specs/" target="_blank" rel="noopener noreferrer">
 							<h3>
 								OAuth Working Group Specs
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</h3>
 							<p>
 								Complete index of OAuth 2.0, OAuth 2.1, RFCs, and active drafts from the OAuth
@@ -119,7 +119,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								OpenID Connect Core 1.0
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</h3>
 							<p>
 								The core OpenID Connect specification that defines how to authenticate users using
@@ -134,7 +134,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								OpenID Connect Discovery 1.0
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</h3>
 							<p>
 								Defines how clients can dynamically discover information about OpenID Providers.
@@ -148,7 +148,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								OpenID Connect Session Management 1.0
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</h3>
 							<p>Defines how to manage OpenID Connect sessions, including logout functionality.</p>
 						</ExternalLink>
@@ -170,7 +170,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								Basic Client Implemented 1.0
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</h3>
 							<p>
 								Defines a simple profile for OpenID Connect relying parties using the Authorization
@@ -185,7 +185,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								Implicit Client Implemented 1.0
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</h3>
 							<p>
 								Defines a profile for OpenID Connect relying parties using the Implicit flow
@@ -200,7 +200,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								Messages 1.0
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</h3>
 							<p>
 								Defines the messages used in OpenID Connect, including request and response formats.
@@ -212,7 +212,7 @@ const OIDCSpecs = () => {
 				<CollapsibleHeader
 					title="User Information & Identity"
 					subtitle="User information and identity management specifications"
-					icon={<span>👥</span>}
+					icon={<span></span>}
 					defaultCollapsed={false}
 					theme="ping"
 				>
@@ -224,7 +224,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								Dynamic Client Registration 1.0
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</h3>
 							<p>
 								Defines how OpenID Connect clients can register with OpenID Providers dynamically.
@@ -238,7 +238,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								Federation 1.0
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</h3>
 							<p>
 								Defines how to establish trust between OpenID Providers and Relying Parties in
@@ -253,7 +253,7 @@ const OIDCSpecs = () => {
 						>
 							<h3>
 								Identity Assurance 1.0
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 							</h3>
 							<p>Defines extensions for identity assurance and verification in OpenID Connect.</p>
 						</ExternalLink>
@@ -263,7 +263,7 @@ const OIDCSpecs = () => {
 				<CollapsibleHeader
 					title="Security & Best Practices"
 					subtitle="Security considerations and best practices for OpenID Connect implementation"
-					icon={<span>🛡️</span>}
+					icon={<span></span>}
 					defaultCollapsed={false}
 					theme="ping"
 				>

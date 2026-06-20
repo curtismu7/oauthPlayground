@@ -18,7 +18,7 @@
 
 import { logger } from './unifiedFlowLoggerServiceV8U';
 
-const _MODULE_TAG = '[💾 UNIFIED-OAUTH-BACKUP-V8U]';
+const _MODULE_TAG = '[ UNIFIED-OAUTH-BACKUP-V8U]';
 
 export interface OAuthBackupData {
 	flowType: string;

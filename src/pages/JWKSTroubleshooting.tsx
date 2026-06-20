@@ -604,7 +604,7 @@ const JWKSTroubleshooting: React.FC = () => {
 										{runningCommands.has(fullUrl) ? 'Loading...' : 'Execute'}
 									</Button>
 									<Button $variant="secondary" onClick={() => copyToClipboard(fullUrl, 'URL')}>
-										<span>📋</span>
+										<span></span>
 										Copy URL
 									</Button>
 								</ButtonGroup>
@@ -673,7 +673,7 @@ const JWKSTroubleshooting: React.FC = () => {
 											}}
 											style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
 										>
-											<span>📋</span>
+											<span></span>
 											Copy
 										</Button>
 									</OutputHeader>
@@ -708,7 +708,7 @@ const JWKSTroubleshooting: React.FC = () => {
 
 			<Section>
 				<SectionTitle>
-					<span>🔗</span>
+					<span></span>
 					Additional Resources
 				</SectionTitle>
 

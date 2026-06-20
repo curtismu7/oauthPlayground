@@ -624,7 +624,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 		} catch (err) {
 			logger.error(
 				'RiskEvaluationDisplay',
-				'[🛡️ RISK-EVALUATION] Evaluation failed:',
+				'[ RISK-EVALUATION] Evaluation failed:',
 				undefined,
 				err as Error
 			);
@@ -664,7 +664,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 	// ============================================================================
 
 	useEffect(() => {
-		logger.info('[🛡️ RISK-EVALUATION] Risk evaluation display initialized', {
+		logger.info('[ RISK-EVALUATION] Risk evaluation display initialized', {
 			userId: userContext.id,
 			protectCredentials: !!protectCredentials,
 		});
@@ -704,7 +704,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 
 	return (
 		<EvaluationContainer>
-			<EvaluationTitle>🛡️ Security Risk Evaluation</EvaluationTitle>
+			<EvaluationTitle> Security Risk Evaluation</EvaluationTitle>
 			<EvaluationDescription>
 				We're evaluating your login attempt using advanced security analysis to determine the
 				appropriate protection level
@@ -722,7 +722,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 					{isEvaluating ? (
 						<>
 							<LoadingSpinner />
-							<ProgressTitle>🔍 Analyzing Security Risk</ProgressTitle>
+							<ProgressTitle> Analyzing Security Risk</ProgressTitle>
 						</>
 					) : result ? (
 						<>
@@ -731,8 +731,8 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						</>
 					) : (
 						<>
-							<span>🛡️</span>
-							<ProgressTitle>🔒 Security Analysis Ready</ProgressTitle>
+							<span></span>
+							<ProgressTitle> Security Analysis Ready</ProgressTitle>
 						</>
 					)}
 				</ProgressHeader>
@@ -785,7 +785,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 
 					{/* Risk Factors */}
 					<RiskFactorsContainer>
-						<RiskFactorsTitle>🔍 Risk Factors Analyzed:</RiskFactorsTitle>
+						<RiskFactorsTitle> Risk Factors Analyzed:</RiskFactorsTitle>
 						<RiskFactorsList>
 							<RiskFactorItem>
 								<FiCheckCircle style={{ color: '#10b981' }} />
@@ -833,7 +833,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 
 					{/* Next Steps Information */}
 					<NextStepsContainer>
-						<NextStepsTitle>📋 What Happens Next:</NextStepsTitle>
+						<NextStepsTitle> What Happens Next:</NextStepsTitle>
 						{result.result.level === 'LOW' && (
 							<NextStepsContent>
 								<NextStepItem>

@@ -1013,7 +1013,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 				{/* Step Content */}
 				<StepContent>
 					<StepHeader>
-						<StepIcon>{currentStep.icon || <span>⚡</span>}</StepIcon>
+						<StepIcon>{currentStep.icon || <span></span>}</StepIcon>
 						<StepTitle>{currentStep.title}</StepTitle>
 					</StepHeader>
 
@@ -1030,7 +1030,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 					{currentStep.code && (
 						<CodeBlock>
 							<CopyButton onClick={() => copyToClipboard(currentStep.code!)}>
-								{copiedText === currentStep.code ? <span>✅</span> : <span>📋</span>}
+								{copiedText === currentStep.code ? <span>✅</span> : <span></span>}
 							</CopyButton>
 							<pre>{currentStep.code}</pre>
 						</CodeBlock>
@@ -1129,15 +1129,15 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 								) : (
 									<>
 										{currentStep.id === 'setup-credentials' ? (
-											<span>💾</span>
+											<span></span>
 										) : currentStep.id === 'generate-pkce' ? (
-											<span>🛡️</span>
+											<span></span>
 										) : currentStep.id === 'build-auth-url' ? (
-											<span>🌐</span>
+											<span></span>
 										) : currentStep.id === 'exchange-tokens' ? (
-											<span>🔑</span>
+											<span></span>
 										) : currentStep.id === 'validate-tokens' ? (
-											<span>👤</span>
+											<span></span>
 										) : (
 											<i className="bi bi-question-circle"></i>
 										)}

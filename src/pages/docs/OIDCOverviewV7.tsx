@@ -455,7 +455,7 @@ const OIDCOverviewV7: React.FC = () => {
 							manner.
 						</p>
 						<HelperText>
-							🎯 <strong>Key Difference:</strong> While OAuth 2.0 handles authorization (what you
+							 <strong>Key Difference:</strong> While OAuth 2.0 handles authorization (what you
 							can do), OIDC adds authentication (who you are) with standardized identity tokens.
 						</HelperText>
 					</div>
@@ -663,7 +663,7 @@ const OIDCOverviewV7: React.FC = () => {
 							</li>
 						</ul>
 						<HelperText>
-							💡 <strong>Pro Tip:</strong> Start with Authorization Code Flow + PKCE for most
+							 <strong>Pro Tip:</strong> Start with Authorization Code Flow + PKCE for most
 							applications. It provides the best security and is supported by all modern OIDC
 							providers.
 						</HelperText>

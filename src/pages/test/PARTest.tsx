@@ -310,7 +310,7 @@ const PARTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing PAR Request...', 'Logger info');
+			logger.info(' Testing PAR Request...', 'Logger info');
 
 			// Generate state and nonce
 			const state = config.state || generateState();
@@ -392,7 +392,7 @@ const PARTest: React.FC = () => {
 			const startTime = Date.now();
 
 			try {
-				logger.info('🧪 Testing Authorization URL Generation with request_uri...', 'Logger info');
+				logger.info(' Testing Authorization URL Generation with request_uri...', 'Logger info');
 
 				const requestUriToUse = requestUri || parRequestUri;
 				if (!requestUriToUse) {
@@ -456,7 +456,7 @@ const PARTest: React.FC = () => {
 		const startTime = Date.now();
 
 		try {
-			logger.info('🧪 Testing Full PAR Flow...', 'Logger info');
+			logger.info(' Testing Full PAR Flow...', 'Logger info');
 
 			// Step 1: PAR Request
 			const requestUri = await testPARRequest();

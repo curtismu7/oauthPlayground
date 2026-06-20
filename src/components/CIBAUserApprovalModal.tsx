@@ -336,7 +336,7 @@ export const CIBAUserApprovalModal: React.FC<CIBAUserApprovalModalProps> = ({
 		<DraggableModal
 			isOpen={isOpen}
 			onClose={handleClose}
-			title="📱 CIBA User Approval Simulation"
+			title=" CIBA User Approval Simulation"
 			width="400px"
 			maxHeight="700px"
 		>
@@ -344,18 +344,18 @@ export const CIBAUserApprovalModal: React.FC<CIBAUserApprovalModalProps> = ({
 				<PhoneScreen>
 					<StatusBar>
 						<span>{formatTime(timeLeft)}</span>
-						<span>🔒 PingOne Secure</span>
+						<span> PingOne Secure</span>
 					</StatusBar>
 
 					<AppContent>
-						<AppLogo>🔐</AppLogo>
+						<AppLogo></AppLogo>
 						<AppTitle>PingOne</AppTitle>
 						<AppSubtitle>Authentication Request</AppSubtitle>
 
 						{approvalState === 'pending' && (
 							<ApprovalCard>
 								<ApprovalTitle>
-									<span>📱</span>
+									<span></span>
 									Authentication Request
 								</ApprovalTitle>
 

@@ -506,8 +506,8 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 		setLoading(true);
 		setError(null);
 
-		logger.info('[Audit Activities] 🌍 Making API request with region:', region);
-		logger.info('[Audit Activities] 📦 Environment ID:', environmentId.trim());
+		logger.info('[Audit Activities] Making API request with region:', region);
+		logger.info('[Audit Activities] Environment ID:', environmentId.trim());
 
 		let callId: string | null = null;
 
@@ -725,7 +725,7 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 
 		const effectiveWorkerToken = workerToken || undefined;
 
-		logger.info('[Audit Activities] 🔍 Using token for API call:', {
+		logger.info('[Audit Activities] Using token for API call:', {
 			hasToken: !!effectiveWorkerToken,
 			tokenPreview: effectiveWorkerToken ? `${effectiveWorkerToken.substring(0, 20)}...` : 'none',
 			environmentId: `${environmentId.substring(0, 20)}...`,
@@ -970,7 +970,7 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 				<div style={styles.layoutGrid}>
 					<div style={styles.card}>
 						<h2 style={styles.sectionTitle}>
-							<span>🛡️</span>Authentication & Configuration
+							<span></span>Authentication & Configuration
 						</h2>
 
 						<div style={styles.fieldGroup}>
@@ -1315,7 +1315,7 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 							>
 								{loading ? (
 									<>
-										<span>🔄</span>Fetching…
+										<span></span>Fetching…
 									</>
 								) : viewMode === 'single' ? (
 									<>
@@ -1599,7 +1599,7 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 																	)}
 																	{activity.actors?.user?.name && (
 																		<span style={styles.detailBadge('#dbeafe')}>
-																			<span>👤</span>
+																			<span></span>
 																			{activity.actors.user.name}
 																		</span>
 																	)}
@@ -1618,7 +1618,7 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 																	)}
 																	{activity.ipAddress && (
 																		<span style={styles.detailBadge()}>
-																			<span>🌐</span>
+																			<span></span>
 																			{activity.ipAddress}
 																		</span>
 																	)}
@@ -1760,7 +1760,7 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 									{selectedActivity.actors && (
 										<div style={styles.detailSection}>
 											<h3 style={styles.detailSectionTitle}>
-												<span>👤</span>Actors
+												<span></span>Actors
 											</h3>
 											<div style={styles.detailGrid}>
 												{selectedActivity.actors.user && (
@@ -1883,7 +1883,7 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 										selectedActivity.correlationId) && (
 										<div style={styles.detailSection}>
 											<h3 style={styles.detailSectionTitle}>
-												<span>🌐</span>Request Context
+												<span></span>Request Context
 											</h3>
 											<div style={styles.detailGrid}>
 												{selectedActivity.ipAddress && (
@@ -1912,7 +1912,7 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 									{(selectedActivity.environment || selectedActivity.organization) && (
 										<div style={styles.detailSection}>
 											<h3 style={styles.detailSectionTitle}>
-												<span>🛡️</span>Context
+												<span></span>Context
 											</h3>
 											<div style={styles.detailGrid}>
 												{selectedActivity.environment && (
@@ -2005,7 +2005,7 @@ const PingOneAuditActivities: React.FC<PingOneAuditActivitiesProps> = ({ embedde
 								</div>
 								<div style={styles.detailModalFooter}>
 									<button type="button" style={styles.copyButton} onClick={handleCopyJson}>
-										{copiedJson ? <i className="bi bi-check-circle" /> : <span>📋</span>}
+										{copiedJson ? <i className="bi bi-check-circle" /> : <span></span>}
 										{copiedJson ? 'Copied!' : 'Copy JSON'}
 									</button>
 									<button

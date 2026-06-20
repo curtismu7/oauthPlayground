@@ -8,7 +8,7 @@
 import type { CommonSpinnerConfig, CommonSpinnerState, SpinnerInstance } from '@/types/spinner';
 import { logger } from '../utils/logger';
 
-const MODULE_TAG = '[🔄 COMMON-SPINNER-SERVICE]';
+const MODULE_TAG = '[ COMMON-SPINNER-SERVICE]';
 
 // Internal state
 const instances = new Map<string, SpinnerInstance>();

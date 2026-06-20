@@ -10,7 +10,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🧹 MFA-FLOW-CLEANUP-V8]';
+const MODULE_TAG = '[ MFA-FLOW-CLEANUP-V8]';
 
 /**
  * SessionStorage keys used for MFA flows that should be cleaned up

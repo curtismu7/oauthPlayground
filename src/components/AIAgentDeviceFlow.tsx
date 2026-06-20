@@ -366,7 +366,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 			case 'denied':
 				return <span>❌</span>;
 			default:
-				return <span>🔄</span>;
+				return <span></span>;
 		}
 	};
 
@@ -395,7 +395,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 				{/* AI Header */}
 				<AIHeader>
 					<AITitle>
-						<span>🔄</span>
+						<span></span>
 						AI Agent Console
 					</AITitle>
 					<AISubtitle>Autonomous AI Agent Authorization System</AISubtitle>
@@ -418,7 +418,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 				{/* QR Code Section */}
 				<QRCodeSection>
 					<QRCodeLabel>
-						<span>🖥️</span>
+						<span></span>
 						Neural Network Scanner
 					</QRCodeLabel>
 					<QRCodeContainer>
@@ -436,13 +436,13 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 				{/* AI Control Panel */}
 				<AIControlPanel>
 					<AIControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<span>📋</span> Copy Token
+						<span></span> Copy Token
 					</AIControlButton>
 					<AIControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<span>📋</span> Copy URI
+						<span></span> Copy URI
 					</AIControlButton>
 					<AIControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<span>🔗</span> Open in Browser
+						<span></span> Open in Browser
 					</AIControlButton>
 				</AIControlPanel>
 
@@ -491,7 +491,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 										fontSize: '1.25rem',
 									}}
 								>
-									🤖
+									
 								</div>
 								<div>
 									<div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'white' }}>
@@ -539,7 +539,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 									borderBottom: '1px solid V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
-								<div style={{ fontSize: '1.25rem' }}>💬</div>
+								<div style={{ fontSize: '1.25rem' }}></div>
 								<h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600' }}>Conversation</h3>
 							</div>
 
@@ -574,7 +574,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 											flexShrink: 0,
 										}}
 									>
-										👤
+										
 									</div>
 									<div
 										style={{
@@ -625,7 +625,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 											flexShrink: 0,
 										}}
 									>
-										🤖
+										
 									</div>
 								</div>
 
@@ -650,7 +650,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 											flexShrink: 0,
 										}}
 									>
-										👤
+										
 									</div>
 									<div
 										style={{
@@ -691,7 +691,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 										fontSize: '0.75rem',
 									}}
 								>
-									🤖
+									
 								</div>
 								<div style={{ fontSize: '0.875rem', color: '#94a3b8' }}>
 									Claude is analyzing your data...
@@ -745,7 +745,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 										marginBottom: '0.75rem',
 									}}
 								>
-									<div style={{ fontSize: '1.25rem' }}>📊</div>
+									<div style={{ fontSize: '1.25rem' }}></div>
 									<h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600' }}>Data Analysis</h3>
 								</div>
 								<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
@@ -782,7 +782,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 										marginBottom: '0.75rem',
 									}}
 								>
-									<div style={{ fontSize: '1.25rem' }}>🔍</div>
+									<div style={{ fontSize: '1.25rem' }}></div>
 									<h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600' }}>Research</h3>
 								</div>
 								<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
@@ -829,7 +829,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<span>💬</span> Chat
+								<span></span> Chat
 							</button>
 							<button
 								type="button"
@@ -849,7 +849,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<span>📤</span> Upload
+								<span></span> Upload
 							</button>
 							<button
 								type="button"

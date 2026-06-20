@@ -911,7 +911,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								cursor: !canGenerateSAML() ? 'not-allowed' : 'pointer',
 							}}
 						>
-							<span>👥</span> Generate SAML Assertion
+							<span></span> Generate SAML Assertion
 						</Button>
 					</div>
 					{!canGenerateSAML() && (
@@ -992,7 +992,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 										style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
 										disabled={!generatedSAML}
 									>
-										<span>📋</span> Copy XML
+										<span></span> Copy XML
 									</Button>
 								</div>
 							</div>
@@ -1039,7 +1039,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 										style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
 										disabled={!base64SAML}
 									>
-										<span>📋</span> Copy Base64
+										<span></span> Copy Base64
 									</Button>
 								</div>
 							</div>
@@ -1078,14 +1078,14 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								$variant="secondary"
 								disabled={!generatedSAML}
 							>
-								<span>📋</span> Copy XML SAML
+								<span></span> Copy XML SAML
 							</Button>
 							<Button
 								onClick={() => copyToClipboard(base64SAML, 'Base64 SAML assertion')}
 								$variant="secondary"
 								disabled={!base64SAML}
 							>
-								<span>📋</span> Copy Base64 SAML
+								<span></span> Copy Base64 SAML
 							</Button>
 							<Button
 								onClick={() => {
@@ -1106,7 +1106,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								$variant="secondary"
 								disabled={!base64SAML}
 							>
-								{showDecodedSAML ? <span>🙈</span> : <span>👁️</span>}{' '}
+								{showDecodedSAML ? <span></span> : <span></span>}{' '}
 								{showDecodedSAML ? 'Hide Decode' : 'Decode Base64'}
 							</Button>
 						</div>
@@ -1120,7 +1120,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		<>
 			<CollapsibleHeader
 				title="Token Request"
-				icon={<span>📤</span>}
+				icon={<span></span>}
 				theme="blue"
 				defaultCollapsed={collapsedSections.tokenRequest}
 				showArrow={true}
@@ -1128,7 +1128,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				<InfoBox $variant="error">
 					<span style={{ fontSize: '20px' }}>⚠️</span>
 					<div>
-						<InfoTitle>🎓 Mock SAML Bearer Token Request</InfoTitle>
+						<InfoTitle> Mock SAML Bearer Token Request</InfoTitle>
 						<InfoText>
 							The SAML Bearer Assertion flow enables OAuth clients to authenticate using SAML
 							assertions from an identity provider. This is commonly used in enterprise environments
@@ -1214,7 +1214,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						$variant="success"
 						disabled={!generatedSAML || isLoading}
 					>
-						{isLoading ? <FiRefreshCw className="animate-spin" /> : <span>🔗</span>}
+						{isLoading ? <FiRefreshCw className="animate-spin" /> : <span></span>}
 						{isLoading ? 'Requesting Token...' : 'Make Token Request'}
 					</Button>
 					{!generatedSAML && (
@@ -1241,7 +1241,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 			{tokenResponse && (
 				<CollapsibleHeader
 					title="Token Response"
-					icon={<span>📦</span>}
+					icon={<span></span>}
 					defaultCollapsed={collapsedSections.tokenResponse}
 					showArrow={true}
 				>
@@ -1254,7 +1254,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								token that can be used to access protected resources.
 							</InfoText>
 							<InfoText style={{ marginTop: '0.75rem', fontStyle: 'italic', color: '#2563eb' }}>
-								<strong>💡 Real-World Behavior:</strong> In production systems, the authorization
+								<strong> Real-World Behavior:</strong> In production systems, the authorization
 								server extracts user attributes from the SAML assertion (email, name, roles, etc.)
 								and includes them in the access token claims. This allows APIs to identify the user
 								and make authorization decisions. Decode the access token above to see how SAML

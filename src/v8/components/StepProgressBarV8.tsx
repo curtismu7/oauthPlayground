@@ -24,7 +24,7 @@ import { StepProgressBarProps } from '@/v8/types/stepNavigation';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[📊 STEP-PROGRESS-V8]';
+const MODULE_TAG = '[ STEP-PROGRESS-V8]';
 
 /**
  * StepProgressBarV8 Component
@@ -101,7 +101,7 @@ export const StepProgressBarV8: React.FC<StepProgressBarProps> = ({
 							) : isAccessible ? (
 								<span className="indicator-number">{index + 1}</span>
 							) : (
-								<span className="indicator-icon">🔒</span>
+								<span className="indicator-icon"></span>
 							)}
 						</div>
 					);

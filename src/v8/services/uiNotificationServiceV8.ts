@@ -26,7 +26,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔔 UI-NOTIFICATION-V8]';
+const MODULE_TAG = '[ UI-NOTIFICATION-V8]';
 
 export type NotificationSeverity = 'success' | 'error' | 'warning' | 'info';
 
@@ -139,7 +139,7 @@ class UINotificationServiceV8 {
 		const confirmOptions: ConfirmOptions =
 			typeof options === 'string' ? { message: options } : options;
 
-		logger.info(`${MODULE_TAG} 🤔 Confirm requested:`, confirmOptions.message);
+		logger.info(`${MODULE_TAG} Confirm requested:`, confirmOptions.message);
 
 		if (!this.confirmCallback) {
 			logger.error(
@@ -170,7 +170,7 @@ class UINotificationServiceV8 {
 		const promptOptions: PromptOptions =
 			typeof options === 'string' ? { message: options } : options;
 
-		logger.info(`${MODULE_TAG} 📝 Prompt requested:`, promptOptions.message);
+		logger.info(`${MODULE_TAG} Prompt requested:`, promptOptions.message);
 
 		if (!this.promptCallback) {
 			logger.error(

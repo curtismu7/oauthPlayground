@@ -12,7 +12,7 @@
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔑 TEST-CREDENTIALS-V8]';
+const MODULE_TAG = '[ TEST-CREDENTIALS-V8]';
 
 export const TEST_CREDENTIALS = {
 	environmentId: 'a4f963ea-0736-456a-be72-b1fa4f63f81f',

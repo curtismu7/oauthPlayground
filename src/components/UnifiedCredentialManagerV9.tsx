@@ -24,7 +24,7 @@ import {
 } from '@/services/v9/V9WorkerTokenStatusService';
 import { logger } from '../utils/logger';
 
-const _MODULE_TAG = '[🔧 UNIFIED-CREDENTIAL-MANAGER-V9]';
+const _MODULE_TAG = '[ UNIFIED-CREDENTIAL-MANAGER-V9]';
 
 // Styled components
 const Container = styled.div`
@@ -343,7 +343,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 		<Container>
 			<Header $isExpanded={isExpanded} onClick={() => setIsExpanded(!isExpanded)}>
 				<HeaderTitle>
-					<span style={{ fontSize: '16px' }}>🔍</span>
+					<span style={{ fontSize: '16px' }}></span>
 					Credential Management
 				</HeaderTitle>
 				<HeaderActions>
@@ -374,7 +374,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 									onClick={handleDiscover}
 									disabled={!canDiscover || isSearching}
 								>
-									<span style={{ fontSize: '14px' }}>🔍</span>
+									<span style={{ fontSize: '14px' }}></span>
 									{isSearching ? 'Discovering...' : 'Discover Apps'}
 								</ActionButton>
 
@@ -429,7 +429,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 									onClick={() => importFileRef.current?.click()}
 									disabled={disabled}
 								>
-									<span style={{ fontSize: '14px' }}>📤</span>
+									<span style={{ fontSize: '14px' }}></span>
 									Import
 								</ActionButton>
 
@@ -438,7 +438,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 									onClick={handleExport}
 									disabled={disabled || !credentials || Object.keys(credentials).length === 0}
 								>
-									<span style={{ fontSize: '14px' }}>📥</span>
+									<span style={{ fontSize: '14px' }}></span>
 									Export
 								</ActionButton>
 							</ButtonGroup>

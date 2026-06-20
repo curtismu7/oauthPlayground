@@ -52,7 +52,7 @@ export interface ImportExportOptions {
 
 class CredentialsImportExportService {
 	private readonly VERSION = '9.0.0';
-	private readonly MODULE_TAG = '[🔐 CREDENTIALS-IMPORT-EXPORT]';
+	private readonly MODULE_TAG = '[ CREDENTIALS-IMPORT-EXPORT]';
 
 	/**
 	 * Export credentials configuration as downloadable JSON file

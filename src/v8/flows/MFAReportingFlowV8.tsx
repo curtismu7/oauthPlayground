@@ -41,7 +41,7 @@ import { FiPackage } from '../../icons';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[📊 MFA-REPORTING-FLOW-V8]';
+const MODULE_TAG = '[ MFA-REPORTING-FLOW-V8]';
 const FLOW_KEY = 'mfa-reporting-v8';
 
 interface Credentials {
@@ -770,7 +770,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 								gap: '8px',
 							}}
 						>
-							<span>🔑</span>
+							<span></span>
 							{tokenStatus.isValid ? 'Manage Token' : 'Add Token'}
 						</ButtonSpinner>
 

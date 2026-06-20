@@ -34,7 +34,7 @@ export const CleanupHistoryDashboard: React.FC<CleanupHistoryDashboardProps> = (
 
 	const getCategoryIcon = (categoryId: string): string => {
 		const category = history.categories.find((c) => c.id === categoryId);
-		return category?.icon || '📋';
+		return category?.icon || '';
 	};
 
 	const exportHistory = () => {
@@ -78,7 +78,7 @@ export const CleanupHistoryDashboard: React.FC<CleanupHistoryDashboardProps> = (
 						letterSpacing: '-0.025em',
 					}}
 				>
-					🧹 100+ Hours Cleanup History
+					 100+ Hours Cleanup History
 				</h1>
 				<p
 					style={{
@@ -112,7 +112,7 @@ export const CleanupHistoryDashboard: React.FC<CleanupHistoryDashboardProps> = (
 							transition: 'all 0.15s ease-in-out',
 						}}
 					>
-						{showReport ? '📊 Hide Report' : '📊 Generate Report'}
+						{showReport ? ' Hide Report' : ' Generate Report'}
 					</button>
 					<button
 						type="button"
@@ -129,7 +129,7 @@ export const CleanupHistoryDashboard: React.FC<CleanupHistoryDashboardProps> = (
 							transition: 'all 0.15s ease-in-out',
 						}}
 					>
-						📥 Export History
+						 Export History
 					</button>
 				</div>
 			</div>
@@ -473,7 +473,7 @@ export const CleanupHistoryDashboard: React.FC<CleanupHistoryDashboardProps> = (
 							}}
 						>
 							<h2 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>
-								📊 Cleanup History Report
+								 Cleanup History Report
 							</h2>
 							<button
 								type="button"

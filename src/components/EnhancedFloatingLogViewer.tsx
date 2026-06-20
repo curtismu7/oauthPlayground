@@ -90,7 +90,7 @@ function getLogLevel(line: string): LogLevel {
 		return 'error';
 	if (/\[WARN\]|⚠️|\(WARN\)|\bWARN\b/i.test(trimmed)) return 'warn';
 	if (/\[INFO\]|ℹ️|\[LOG\]/i.test(trimmed)) return 'info';
-	if (/\[DEBUG\]|🔍|\bDEBUG\b/i.test(trimmed)) return 'debug';
+	if (/\[DEBUG\]||\bDEBUG\b/i.test(trimmed)) return 'debug';
 	return 'none';
 }
 
@@ -128,7 +128,7 @@ function filterLogContentByCategory(content: string, category: LogCategory): str
 		switch (category) {
 			case 'API_CALLS':
 				return (
-					/API CALL START|API CALL END|REQUEST\/RESPONSE SUMMARY|Endpoint:|Method:|🔧 Method|📍 Endpoint|📋 BACKEND/.test(
+					/API CALL START|API CALL END|REQUEST\/RESPONSE SUMMARY|Endpoint:|Method:| Method| Endpoint| BACKEND/.test(
 						l
 					) || /^(GET|POST|PUT|DELETE|PATCH)\s+https?:\/\//i.test(l)
 				);
@@ -141,11 +141,11 @@ function filterLogContentByCategory(content: string, category: LogCategory): str
 				return (
 					/auth|token|Bearer|authorize|oauth|pingone|OAuth|login|signoff|introspect|userinfo/i.test(
 						lc
-					) || /🔐|authorization_endpoint|token_endpoint/.test(l)
+					) || /|authorization_endpoint|token_endpoint/.test(l)
 				);
 			case 'DEBUG':
 				return (
-					/DEBUG|🚀|🏁|START:|END:|───|===|📝 Operation|📊 Metadata|📊 Context/.test(l) ||
+					/DEBUG|||START:|END:|───|===| Operation| Metadata| Context/.test(l) ||
 					/API CALL START|API CALL END/.test(l)
 				);
 			case 'MCP':
@@ -872,18 +872,18 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 		if (!analysis) return '';
 
 		if (analysis.errorCalls > 0) {
-			return `🔍 Debug Tip: You have ${analysis.errorCalls} failed API calls. Check the error messages above to understand what went wrong.`;
+			return ` Debug Tip: You have ${analysis.errorCalls} failed API calls. Check the error messages above to understand what went wrong.`;
 		}
 
 		if (analysis.totalCalls > 0 && analysis.successRate < 100) {
-			return `📊 API Health: ${analysis.successRate.toFixed(1)}% success rate. Consider checking failed requests for patterns.`;
+			return ` API Health: ${analysis.successRate.toFixed(1)}% success rate. Consider checking failed requests for patterns.`;
 		}
 
 		if (analysis.mostActiveEndpoint) {
-			return `🎯 Most Active: ${analysis.mostActiveEndpoint}. This endpoint is being called frequently - monitor for performance.`;
+			return ` Most Active: ${analysis.mostActiveEndpoint}. This endpoint is being called frequently - monitor for performance.`;
 		}
 
-		return '💡 Pro Tip: Use the category filters to focus on specific types of log entries for better debugging.';
+		return ' Pro Tip: Use the category filters to focus on specific types of log entries for better debugging.';
 	};
 
 	if (!isOpen) return null;
@@ -911,7 +911,7 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 					</Title>
 					<Controls>
 						<ControlButton onClick={() => setIsMinimized(false)} title="Expand">
-							📄
+							
 						</ControlButton>
 					</Controls>
 				</Header>
@@ -950,17 +950,17 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 							title="Open log viewer in a new window"
 							$variant="popout"
 						>
-							🔗 Popout
+							 Popout
 						</ControlButton>
 					)}
 					<ControlButton
 						onClick={() => setIsMinimized(!isMinimized)}
 						title={isMinimized ? 'Expand' : 'Minimize'}
 					>
-						{isMinimized ? '📄' : '📋'}
+						{isMinimized ? '' : ''}
 					</ControlButton>
 					<ControlButton onClick={toggleMaximize} title={isMaximized ? 'Restore' : 'Maximize'}>
-						{isMaximized ? '🗗' : '🗖'}
+						{isMaximized ? '' : ''}
 					</ControlButton>
 					<ControlButton $variant="close" onClick={onClose} title="Close">
 						❌
@@ -1070,10 +1070,10 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 						$active={selectedCategory === 'MCP'}
 						onClick={() => setSelectedCategory('MCP')}
 					>
-						🤖 MCP
+						 MCP
 					</FilterChip>
 					<FilterChip $active={selectedCategory === 'AI'} onClick={() => setSelectedCategory('AI')}>
-						✨ AI
+						 AI
 					</FilterChip>
 					<SearchInput
 						type="text"
@@ -1154,7 +1154,7 @@ const FileOptions: React.FC<{ files: LogFile[] }> = ({ files }) => (
 	<>
 		{files.map((file) => (
 			<option key={file.name} value={file.name}>
-				{file.name.includes('api') ? '🔌' : file.name.includes('server') ? '🖥️' : '📄'} {file.name} (
+				{file.name.includes('api') ? '' : file.name.includes('server') ? '' : ''} {file.name} (
 				{(file.size / 1024).toFixed(1)} KB)
 			</option>
 		))}

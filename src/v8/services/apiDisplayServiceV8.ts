@@ -28,7 +28,7 @@ import { logger } from '../../utils/logger';
  * });
  */
 
-const MODULE_TAG = '[🎛️ API-DISPLAY-SERVICE-V8]';
+const MODULE_TAG = '[ API-DISPLAY-SERVICE-V8]';
 
 type VisibilityChangeListener = (isVisible: boolean) => void;
 

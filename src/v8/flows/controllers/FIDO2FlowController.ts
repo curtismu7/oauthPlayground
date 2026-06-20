@@ -15,7 +15,7 @@ import { logger } from '../../../utils/logger';
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
 
-const MODULE_TAG = '[🔑 FIDO2-CONTROLLER]';
+const MODULE_TAG = '[ FIDO2-CONTROLLER]';
 
 /**
  * FIDO2 Flow Controller
@@ -323,7 +323,7 @@ export class FIDO2FlowController extends MFAFlowController {
 		let credential: PublicKeyCredential | null;
 		try {
 			logger.info(
-				`${MODULE_TAG} 🔐 Calling navigator.credentials.create() - TouchID/FaceID should prompt now...`
+				`${MODULE_TAG} Calling navigator.credentials.create() - TouchID/FaceID should prompt now...`
 			);
 			credential = (await navigator.credentials.create({
 				publicKey: creationOptions,

@@ -21,7 +21,7 @@ import { pingOneFetch } from '@/utils/pingOneFetch';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔀 HYBRID-FLOW-V8]';
+const MODULE_TAG = '[ HYBRID-FLOW-V8]';
 
 export interface HybridFlowCredentials {
 	environmentId: string;
@@ -127,7 +127,7 @@ export class HybridFlowIntegrationServiceV8 {
 		if (requiresJAR) {
 			// Generate JAR request object
 			logger.info(
-				`${MODULE_TAG} 🔐 JAR required - generating signed request object...`,
+				`${MODULE_TAG} JAR required - generating signed request object...`,
 				'Logger info'
 			);
 
@@ -434,7 +434,7 @@ export class HybridFlowIntegrationServiceV8 {
 			// Handle client authentication based on method
 			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
 			logger.info(
-				`${MODULE_TAG} 🔐 Using client authentication method: ${authMethod}`,
+				`${MODULE_TAG} Using client authentication method: ${authMethod}`,
 				'Logger info'
 			);
 

@@ -768,7 +768,7 @@ export const TokenMonitoringPage: React.FC = () => {
 			/>
 
 			<PageHeader>
-				<PageTitle>🔐 Token Monitoring</PageTitle>
+				<PageTitle> Token Monitoring</PageTitle>
 				<PageSubtitle>Real-time monitoring and management of OAuth tokens</PageSubtitle>
 				<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
 					{!hasWorkerTokens && (
@@ -778,11 +778,11 @@ export const TokenMonitoringPage: React.FC = () => {
 						</ActionButton>
 					)}
 					<ActionButton onClick={handleManualSync} $variant="secondary">
-						<span>🔄</span>
+						<span></span>
 						Manual Sync
 					</ActionButton>
 					<ActionButton onClick={handleManualCleanup} $variant="secondary">
-						<span>🧹</span>
+						<span></span>
 						Cleanup Old Tokens
 					</ActionButton>
 				</div>
@@ -807,7 +807,7 @@ export const TokenMonitoringPage: React.FC = () => {
 				</StatCard>
 				<StatCard>
 					<StatIcon $color="#f59e0b">
-						<span>🕐</span>
+						<span></span>
 					</StatIcon>
 					<StatValue>{expiringTokens}</StatValue>
 					<StatLabel>Expiring Soon</StatLabel>
@@ -821,7 +821,7 @@ export const TokenMonitoringPage: React.FC = () => {
 				</StatCard>
 				<StatCard>
 					<StatIcon $color="#3b82f6">
-						<span>🗄️</span>
+						<span></span>
 					</StatIcon>
 					<StatValue>{filteredTokens.length}</StatValue>
 					<StatLabel>Total Tokens</StatLabel>
@@ -830,7 +830,7 @@ export const TokenMonitoringPage: React.FC = () => {
 
 			{filteredTokens.length === 0 ? (
 				<EmptyState>
-					<span>🗄️</span>
+					<span></span>
 					<h3>No tokens found</h3>
 					<p>
 						No{' '}
@@ -900,7 +900,7 @@ export const TokenMonitoringPage: React.FC = () => {
 									onClick={() => handleCopyToken(token.value, token.id)}
 									$variant="secondary"
 								>
-									{copiedTokenId === token.id ? <span>✅</span> : <span>📋</span>}
+									{copiedTokenId === token.id ? <span>✅</span> : <span></span>}
 									{copiedTokenId === token.id ? 'Copied!' : 'Copy'}
 								</ActionButton>
 
@@ -913,18 +913,18 @@ export const TokenMonitoringPage: React.FC = () => {
 										}
 										$variant="secondary"
 									>
-										{decodedTokens[token.id] ? <span>🙈</span> : <span>👁️</span>}
+										{decodedTokens[token.id] ? <span></span> : <span></span>}
 										{decodedTokens[token.id] ? 'Hide' : 'Decode'}
 									</ActionButton>
 								)}
 
 								<ActionButton onClick={() => handleRefreshToken(token.id)} $variant="primary">
-									<span>🔄</span>
+									<span></span>
 									Refresh
 								</ActionButton>
 
 								<ActionButton onClick={() => handleRevokeToken(token.id)} $variant="danger">
-									<span>🗑️</span>
+									<span></span>
 									Revoke
 								</ActionButton>
 							</TokenActions>

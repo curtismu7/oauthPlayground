@@ -584,7 +584,7 @@ const DavinciTodoApp: React.FC = () => {
 							<TodoText completed={todo.completed}>{todo.title}</TodoText>
 							<TodoActions>
 								<ActionButton onClick={() => handleDelete(todo.id)}>
-									<span>🗑️</span>
+									<span></span>
 								</ActionButton>
 							</TodoActions>
 						</TodoItem>

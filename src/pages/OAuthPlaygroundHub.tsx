@@ -799,7 +799,7 @@ const OAuthPlaygroundHub: React.FC = () => {
 						<FeatureIcon
 							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN} 0%, ${V9_COLORS.PRIMARY.GREEN_DARK} 100%)`}
 						>
-							<span>⚡</span>
+							<span></span>
 						</FeatureIcon>
 						<FeatureTitle>Real-World Scenarios</FeatureTitle>
 						<FeatureDescription>
@@ -812,7 +812,7 @@ const OAuthPlaygroundHub: React.FC = () => {
 						<FeatureIcon
 							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE_DARK} 0%, ${V9_COLORS.PRIMARY.BLUE_DARK} 100%)`}
 						>
-							<span>💻</span>
+							<span></span>
 						</FeatureIcon>
 						<FeatureTitle>Multi-Language Examples</FeatureTitle>
 						<FeatureDescription>
@@ -836,7 +836,7 @@ const OAuthPlaygroundHub: React.FC = () => {
 						<FeatureIcon
 							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.PURPLE} 0%, #7c3aed 100%)`}
 						>
-							<span>📖</span>
+							<span></span>
 						</FeatureIcon>
 						<FeatureTitle>Live RFC Explorer</FeatureTitle>
 						<FeatureDescription>
@@ -848,7 +848,7 @@ const OAuthPlaygroundHub: React.FC = () => {
 						<FeatureIcon
 							color={`linear-gradient(135deg, ${V9_COLORS.PRIMARY.RED} 0%, ${V9_COLORS.PRIMARY.RED_DARK} 100%)`}
 						>
-							<span>🛡️</span>
+							<span></span>
 						</FeatureIcon>
 						<FeatureTitle>Security Theater</FeatureTitle>
 						<FeatureDescription>
@@ -882,25 +882,25 @@ const OAuthPlaygroundHub: React.FC = () => {
 				<TabContainer>
 					<TabList>
 						<Tab $active={activeTab === 'scenarios'} onClick={() => setActiveTab('scenarios')}>
-							⚡ Scenarios
+							 Scenarios
 						</Tab>
 						<Tab $active={activeTab === 'examples'} onClick={() => setActiveTab('examples')}>
-							💻 Code Examples
+							 Code Examples
 						</Tab>
 						<Tab $active={activeTab === 'editor'} onClick={() => setActiveTab('editor')}>
 							✏️ Editor
 						</Tab>
 						<Tab $active={activeTab === 'rfc'} onClick={() => setActiveTab('rfc')}>
-							📖 RFC Explorer
+							 RFC Explorer
 						</Tab>
 						<Tab $active={activeTab === 'security'} onClick={() => setActiveTab('security')}>
-							🛡️ Security Theater
+							 Security Theater
 						</Tab>
 					</TabList>
 
 					{activeTab === 'scenarios' && (
 						<div>
-							<SectionTitle>⚡ Real-World Scenarios</SectionTitle>
+							<SectionTitle> Real-World Scenarios</SectionTitle>
 							<SectionDescription>
 								Choose from pre-configured industry scenarios. Each scenario provides tailored OAuth
 								parameters, security recommendations, and PingOne-specific configurations.
@@ -913,7 +913,7 @@ const OAuthPlaygroundHub: React.FC = () => {
 
 					{activeTab === 'examples' && (
 						<div>
-							<SectionTitle>💻 Multi-Language Code Examples</SectionTitle>
+							<SectionTitle> Multi-Language Code Examples</SectionTitle>
 							<SectionDescription>
 								Production-ready code snippets in JavaScript, .NET, and Go. Copy-paste and adapt to
 								your application. All examples follow OAuth 2.0 best practices and PingOne
@@ -944,7 +944,7 @@ const OAuthPlaygroundHub: React.FC = () => {
 
 					{activeTab === 'rfc' && (
 						<div>
-							<SectionTitle>📖 Live RFC Explorer</SectionTitle>
+							<SectionTitle> Live RFC Explorer</SectionTitle>
 							<SectionDescription>
 								OAuth 2.0 and OIDC specifications translated into plain English with real-world
 								examples and PingOne implementation notes.
@@ -957,7 +957,7 @@ const OAuthPlaygroundHub: React.FC = () => {
 
 					{activeTab === 'security' && (
 						<div>
-							<SectionTitle>🛡️ Security Threat Theater</SectionTitle>
+							<SectionTitle> Security Threat Theater</SectionTitle>
 							<SectionDescription>
 								Interactive demonstrations of common OAuth attacks including CSRF, replay attacks,
 								and token interception. Learn how proper parameter usage prevents each attack.
@@ -972,7 +972,7 @@ const OAuthPlaygroundHub: React.FC = () => {
 				<SectionDivider />
 
 				<CallToAction>
-					<CTATitle>🎓 Ready to Implement OAuth?</CTATitle>
+					<CTATitle> Ready to Implement OAuth?</CTATitle>
 					<CTADescription>
 						You now have access to production-ready code, security best practices, and real-world
 						scenarios. Choose a scenario or code example above, adapt it to your needs, and start
@@ -985,7 +985,7 @@ const OAuthPlaygroundHub: React.FC = () => {
 							rel="noopener noreferrer"
 							$primary
 						>
-							<span>📖</span>
+							<span></span>
 							PingOne Documentation
 						</CTAButton>
 						<CTAButton href="/flows/v9/oauth-authorization-code">

@@ -185,7 +185,7 @@ const OIDCForAIV9: React.FC = () => {
 
 				<Header>
 					<h1>
-						<span>🔑</span>
+						<span></span>
 						OIDC for AI
 					</h1>
 					<p>
@@ -201,11 +201,11 @@ const OIDCForAIV9: React.FC = () => {
 					<MainCard>
 						<Section>
 							<h2>
-								<span>🤖</span>
+								<span></span>
 								AI Agent Authentication
 							</h2>
 							<InfoBox $variant="info">
-								<span>📋</span>
+								<span></span>
 								<div>
 									<strong>Pattern:</strong> AI agents can authenticate using OAuth 2.0 Assertion Grant
 									with JWT assertions signed by the AI platform or enterprise identity provider.
@@ -229,7 +229,7 @@ const OIDCForAIV9: React.FC = () => {
 
 						<Section>
 							<h2>
-								<span>🏢</span>
+								<span></span>
 								Enterprise AI Integration
 							</h2>
 							<InfoBox $variant="success">
@@ -264,7 +264,7 @@ const OIDCForAIV9: React.FC = () => {
 					<MainCard>
 						<Section>
 							<h2>
-								<span>🛡️</span>
+								<span></span>
 								AI-Specific Security
 							</h2>
 							<InfoBox $variant="warning">
@@ -299,11 +299,11 @@ const OIDCForAIV9: React.FC = () => {
 					<MainCard>
 						<Section>
 							<h2>
-								<span>💻</span>
+								<span></span>
 								Code Examples
 							</h2>
 							<InfoBox $variant="info">
-								<span>📋</span>
+								<span></span>
 								<div>
 									<strong>Implementation:</strong> See the{' '}
 									<SpecLink href="/flows/v9/saml-sp-dynamic-acs" target="_blank" rel="noopener noreferrer">

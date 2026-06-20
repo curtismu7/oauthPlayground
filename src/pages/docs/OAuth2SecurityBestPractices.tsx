@@ -314,14 +314,14 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			/>
 
 			<DocumentationHeader
-				emoji="🔒"
+				emoji=""
 				title="OAuth 2.0 Security Best Practices"
 				description="Essential security practices for OAuth 2.0 client applications based on RFC 9700 and industry standards"
 			/>
 
 			<ReferenceCard>
 				<ReferenceIcon>
-					<span>📖</span>
+					<span></span>
 				</ReferenceIcon>
 				<ReferenceContent>
 					<ReferenceTitle>Official Reference</ReferenceTitle>
@@ -335,7 +335,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<span>🔗</span>
+						<span></span>
 						View RFC 9700 on IETF Datatracker
 					</ReferenceLink>
 				</ReferenceContent>
@@ -344,14 +344,14 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			<CollapsibleHeader
 				title="Client Security"
 				subtitle="Essential security practices for OAuth 2.0 client applications"
-				icon={<span>🔒</span>}
+				icon={<span></span>}
 				defaultCollapsed={false}
 				theme="ping"
 			>
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
-							<span>🔑</span>
+							<span></span>
 						</SubsectionIcon>
 						Client Authentication
 					</SubsectionTitle>
@@ -383,7 +383,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 					<BestPracticeCard $type="important">
 						<PracticeIcon>
-							<span>🛡️</span>
+							<span></span>
 						</PracticeIcon>
 						<PracticeContent>
 							<PracticeTitle>Secure Client Secret Management</PracticeTitle>
@@ -427,7 +427,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
-							<span>🌐</span>
+							<span></span>
 						</SubsectionIcon>
 						Redirect URI Security
 					</SubsectionTitle>
@@ -477,7 +477,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			<CollapsibleHeader
 				title="Authorization Code Flow Security"
 				subtitle="Security considerations for the authorization code flow"
-				icon={<span>🔄</span>}
+				icon={<span></span>}
 				theme="ping"
 				defaultCollapsed={false}
 			>
@@ -543,7 +543,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
-							<span>🛡️</span>
+							<span></span>
 						</SubsectionIcon>
 						State Parameter Security
 					</SubsectionTitle>
@@ -574,14 +574,14 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			<CollapsibleHeader
 				title="Token Security"
 				subtitle="Best practices for secure token handling and storage"
-				icon={<span>👥</span>}
+				icon={<span></span>}
 				theme="ping"
 				defaultCollapsed={false}
 			>
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
-							<span>🔑</span>
+							<span></span>
 						</SubsectionIcon>
 						Access Token Security
 					</SubsectionTitle>
@@ -608,7 +608,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 					<BestPracticeCard $type="important">
 						<PracticeIcon>
-							<span>🛡️</span>
+							<span></span>
 						</PracticeIcon>
 						<PracticeContent>
 							<PracticeTitle>Token Transmission Security</PracticeTitle>
@@ -641,7 +641,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
-							<span>🔄</span>
+							<span></span>
 						</SubsectionIcon>
 						Refresh Token Security
 					</SubsectionTitle>
@@ -674,7 +674,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			<CollapsibleHeader
 				title="Transport Security"
 				subtitle="Network security requirements for OAuth 2.0"
-				icon={<span>🌐</span>}
+				icon={<span></span>}
 				theme="ping"
 				defaultCollapsed={false}
 			>
@@ -698,7 +698,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 				<BestPracticeCard $type="important">
 					<PracticeIcon>
-						<span>🛡️</span>
+						<span></span>
 					</PracticeIcon>
 					<PracticeContent>
 						<PracticeTitle>Implement Security Headers</PracticeTitle>
@@ -724,7 +724,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 			>
 				<BestPracticeCard $type="important">
 					<PracticeIcon>
-						<span>🛡️</span>
+						<span></span>
 					</PracticeIcon>
 					<PracticeContent>
 						<PracticeTitle>Implement Principle of Least Privilege</PracticeTitle>
@@ -744,7 +744,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 				<InfoBox>
 					<InfoIcon>
-						<span>👁️</span>
+						<span></span>
 					</InfoIcon>
 					<InfoContent>
 						<InfoTitle>Scope Examples</InfoTitle>
@@ -796,7 +796,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 				<BestPracticeCard $type="important">
 					<PracticeIcon>
-						<span>🛡️</span>
+						<span></span>
 					</PracticeIcon>
 					<PracticeContent>
 						<PracticeTitle>Prevent Token Leakage</PracticeTitle>
@@ -849,7 +849,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 
 			<ReferenceCard>
 				<ReferenceIcon>
-					<span>📖</span>
+					<span></span>
 				</ReferenceIcon>
 				<ReferenceContent>
 					<ReferenceTitle>Additional Resources</ReferenceTitle>
@@ -865,7 +865,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<span>🔗</span>
+							<span></span>
 							RFC 6749 - OAuth 2.0 Authorization Framework
 						</ReferenceLink>
 						<ReferenceLink
@@ -873,7 +873,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<span>🔗</span>
+							<span></span>
 							RFC 6750 - OAuth 2.0 Bearer Token Usage
 						</ReferenceLink>
 						<ReferenceLink
@@ -881,7 +881,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<span>🔗</span>
+							<span></span>
 							RFC 6819 - OAuth 2.0 Threat Model and Security Considerations
 						</ReferenceLink>
 						<ReferenceLink
@@ -889,7 +889,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<span>🔗</span>
+							<span></span>
 							RFC 7636 - PKCE for OAuth 2.0
 						</ReferenceLink>
 					</div>

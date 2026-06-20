@@ -175,7 +175,7 @@ export const EnhancedPromptSelector: React.FC<EnhancedPromptSelectorProps> = ({
 		<Container>
 			<Label>
 				<LabelIcon>
-					<span>👤</span>
+					<span></span>
 				</LabelIcon>
 				Prompt Parameter (OIDC Authentication Behavior)
 			</Label>
@@ -242,7 +242,7 @@ export const EnhancedPromptSelector: React.FC<EnhancedPromptSelectorProps> = ({
 						</li>
 					</ul>
 					<div style={{ marginTop: '0.5rem', fontSize: '0.8125rem', fontStyle: 'italic' }}>
-						💡 <strong>Note:</strong> Some combinations may not be supported by all authorization
+						 <strong>Note:</strong> Some combinations may not be supported by all authorization
 						servers. Check your provider's documentation.
 					</div>
 				</div>

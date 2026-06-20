@@ -212,13 +212,13 @@ export const EducationModeToggle: React.FC<EducationModeToggleProps> = ({
 	const getModeIcon = (mode: EducationMode) => {
 		switch (mode) {
 			case 'full':
-				return <span style={{ fontSize: '16px' }}>📖</span>;
+				return <span style={{ fontSize: '16px' }}></span>;
 			case 'compact':
 				return <i className="bi bi-question-circle" style={{ fontSize: '16px' }}></i>;
 			case 'hidden':
-				return <span style={{ fontSize: '16px' }}>🙈</span>;
+				return <span style={{ fontSize: '16px' }}></span>;
 			default:
-				return <span style={{ fontSize: '16px' }}>📖</span>;
+				return <span style={{ fontSize: '16px' }}></span>;
 		}
 	};
 
@@ -244,7 +244,7 @@ export const EducationModeToggle: React.FC<EducationModeToggleProps> = ({
 				<ToggleInner>
 					<div>
 						<ToggleLabel>
-							<span style={{ fontSize: '16px' }}>📖</span>
+							<span style={{ fontSize: '16px' }}></span>
 							Education Mode
 						</ToggleLabel>
 						{showDescription && (
@@ -275,7 +275,7 @@ export const EducationModeToggle: React.FC<EducationModeToggleProps> = ({
 			<ToggleInner>
 				<div>
 					<ToggleLabel>
-						<span style={{ fontSize: '16px' }}>📖</span>
+						<span style={{ fontSize: '16px' }}></span>
 						Education Mode
 					</ToggleLabel>
 					{showDescription && (
