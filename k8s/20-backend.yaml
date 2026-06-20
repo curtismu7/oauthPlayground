@@ -1,0 +1,101 @@
+# Backend (Express / server.js, HTTPS :3001). Single replica + Recreate because
+# the LMDB store is a single-writer embedded DB on a ReadWriteOnce volume.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth-backend
+  namespace: oauth-playground
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # never run two pods against the RWO LMDB volume at once
+  selector:
+    matchLabels:
+      app: oauth-backend
+  template:
+    metadata:
+      labels:
+        app: oauth-backend
+    spec:
+      containers:
+        - name: oauth-backend
+          image: oauthplayground-oauth-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3001
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: BACKEND_PORT
+              value: "3001"
+            - name: SSL_CERT_PATH
+              value: "/app/certs/server.crt"
+            - name: SSL_KEY_PATH
+              value: "/app/certs/server.key"
+            # LMDB lives on the mounted PVC (not the per-pod default path).
+            - name: LMDB_PATH
+              value: "/app/src/server/data/lmdb"
+            # Stable encryption key — REQUIRED so secrets sealed by one pod remain
+            # readable after a restart/reschedule. Without it each pod generates a
+            # throwaway key and existing secrets become unreadable.
+            - name: PLAYGROUND_ENC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: oauth-enc
+                  key: PLAYGROUND_ENC_KEY
+            # Optional: protects /api/store/backup|restore beyond same-origin.
+            - name: STORE_ADMIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: oauth-enc
+                  key: STORE_ADMIN_SECRET
+                  optional: true
+          envFrom:
+            - secretRef:
+                name: oauth-env # the app's .env (PingOne client ids/secrets, etc.)
+                optional: true
+          volumeMounts:
+            - name: data
+              mountPath: /app/src/server/data
+            - name: certs
+              mountPath: /app/certs
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+              scheme: HTTPS
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+              scheme: HTTPS
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: oauth-data
+        - name: certs
+          secret:
+            secretName: oauth-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth-backend # nginx.conf proxies /api/ to https://oauth-backend:3001
+  namespace: oauth-playground
+spec:
+  selector:
+    app: oauth-backend
+  ports:
+    - port: 3001
+      targetPort: 3001

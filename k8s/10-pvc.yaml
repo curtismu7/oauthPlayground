@@ -1,0 +1,15 @@
+# Persistent volume for the backend's LMDB store (worker tokens, credentials,
+# api keys, users, settings). ReadWriteOnce because LMDB is a single-writer
+# embedded store — the backend Deployment MUST stay at replicas: 1 with a
+# Recreate strategy so two pods never mount this at once.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: oauth-data
+  namespace: oauth-playground
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
