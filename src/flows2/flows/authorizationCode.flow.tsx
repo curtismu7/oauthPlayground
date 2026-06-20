@@ -24,7 +24,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
-import { authorizationCodeService } from '../services/authorizationCodeService';
+import { authorizationCodeService, MOCK_REGISTERED_SECRET } from '../services/authorizationCodeService';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -78,6 +78,17 @@ const Action = styled.button`
 	}
 `;
 
+const Note = styled.p`
+	margin: 0;
+	font-size: 0.82rem;
+	line-height: 1.4;
+	color: ${tokens.color.text};
+	background: ${tokens.color.bgSubtle};
+	border: 1px solid ${tokens.color.border};
+	border-radius: 8px;
+	padding: 0.55rem 0.8rem;
+`;
+
 const defaultRedirectUri = () =>
 	typeof window !== 'undefined' ? `${window.location.origin}/v2/flows/authz-callback` : '';
 
@@ -86,7 +97,7 @@ const defaultRedirectUri = () =>
 const MOCK_CREDS = {
 	environmentId: 'mock-environment-id',
 	clientId: 'mock-client-id',
-	clientSecret: 'mock-client-secret',
+	clientSecret: MOCK_REGISTERED_SECRET,
 } as const;
 
 const AuthorizationCodeFlow: React.FC = () => {
@@ -312,6 +323,13 @@ const AuthorizationCodeFlow: React.FC = () => {
 							{pkce.codeChallenge && <CodeBlock label="code_challenge (S256)" value={pkce.codeChallenge} />}
 						</>
 					)}
+					{mode === 'mock' && pkce?.codeChallenge && (
+						<Note>
+							Mock mode shows an illustrative S256 stand-in, not a real SHA-256 hash. The offline
+							token exchange verifies the code_verifier against this deterministic value, so the
+							PKCE check still passes end-to-end.
+						</Note>
+					)}
 				</FlowStep>
 			)}
 
@@ -321,7 +339,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 					explanation={mode === 'real'
 						? 'Builds the /as/authorize URL and redirects you to PingOne to sign in. You return to the callback with a one-time code.'
 						: 'Mock mode issues a code in-memory (no redirect, no PingOne).'}
-					nextLabel="Skip"
+					nextLabel="Continue"
 					onPrev={engine.goPrev}
 					onNext={() => engine.goTo(3)}
 					canNext={Boolean(code)}
