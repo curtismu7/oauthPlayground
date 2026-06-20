@@ -158,14 +158,6 @@ export function metaSet(key, value) {
 	return true;
 }
 
-// True once at least one record exists anywhere (used to skip boot migration).
-export function hasAnyData() {
-	for (const _ of workerTokens().getRange()) return true;
-	for (const _ of credentials().getRange()) return true;
-	for (const _ of flowCredentials().getRange()) return true;
-	return false;
-}
-
 // Raw (sealed) export of every sub-DB for portable backup. Secret fields stay
 // encrypted in the dump, so it is safe to copy. importAll writes them back as-is.
 const ALL_DBS = ['worker_tokens', 'credentials', 'flow_credentials', 'apikeys', 'kv', 'meta'];
