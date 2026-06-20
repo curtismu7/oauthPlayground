@@ -45,6 +45,16 @@ function resolveTokenEndpoint(p: AcquireWorkerTokenParams): string {
 	return `https://${domain}/${p.environmentId.trim()}/as/token`;
 }
 
+/** UTF-8-safe base64 — plain btoa() throws on non-Latin1 characters in a secret. */
+function toBase64Utf8(input: string): string {
+	const bytes = new TextEncoder().encode(input);
+	let binary = '';
+	for (const b of bytes) {
+		binary += String.fromCharCode(b);
+	}
+	return btoa(binary);
+}
+
 function buildRequest(
 	p: AcquireWorkerTokenParams,
 	authMethod: WorkerTokenAuthMethod
@@ -60,9 +70,24 @@ function buildRequest(
 	if (authMethod === 'client_secret_post') {
 		params.set('client_secret', p.clientSecret.trim());
 	} else {
-		headers.Authorization = `Basic ${btoa(`${p.clientId.trim()}:${p.clientSecret.trim()}`)}`;
+		headers.Authorization = `Basic ${toBase64Utf8(`${p.clientId.trim()}:${p.clientSecret.trim()}`)}`;
 	}
 	return { headers, body: params.toString() };
+}
+
+function persistCredentials(
+	p: AcquireWorkerTokenParams,
+	authMethod: WorkerTokenAuthMethod
+): Promise<unknown> {
+	return unifiedWorkerTokenService.saveCredentials({
+		environmentId: p.environmentId.trim(),
+		clientId: p.clientId.trim(),
+		clientSecret: p.clientSecret.trim(),
+		scopes: p.scopes,
+		region: p.region,
+		customDomain: p.customDomain?.trim() || '',
+		tokenEndpointAuthMethod: authMethod,
+	});
 }
 
 async function parseResponse(response: Response): Promise<Record<string, unknown> | null> {
@@ -102,15 +127,7 @@ export async function acquireWorkerToken(
 		throw new Error('Please provide at least one scope for the worker token');
 	}
 
-	await unifiedWorkerTokenService.saveCredentials({
-		environmentId: p.environmentId.trim(),
-		clientId: p.clientId.trim(),
-		clientSecret: p.clientSecret.trim(),
-		scopes: p.scopes,
-		region: p.region,
-		customDomain: p.customDomain?.trim() || '',
-		tokenEndpointAuthMethod: p.authMethod,
-	});
+	await persistCredentials(p, p.authMethod);
 
 	const endpoint = resolveTokenEndpoint(p);
 	let authMethodUsed = p.authMethod;
@@ -156,6 +173,12 @@ export async function acquireWorkerToken(
 	const token = (data as { access_token?: string } | null)?.access_token;
 	if (!token) {
 		throw new Error('No access token received in response');
+	}
+
+	// If an auto-retry switched the auth method, re-persist so the stored
+	// credentials record the method that actually works.
+	if (authMethodUsed !== p.authMethod) {
+		await persistCredentials(p, authMethodUsed);
 	}
 
 	const expiresIn = (data as { expires_in?: number } | null)?.expires_in;
