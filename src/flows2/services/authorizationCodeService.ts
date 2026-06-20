@@ -45,6 +45,13 @@ export interface ExchangeParams {
 	oidc?: boolean;
 }
 
+/** Coerce a caught value into a plain object so the inspect step renders clean JSON
+ * (a thrown string/Error would otherwise render oddly through JsonView). */
+function normalizeError(e: unknown): Record<string, unknown> {
+	if (e && typeof e === 'object') return e as Record<string, unknown>;
+	return { error: 'request_failed', error_description: String(e) };
+}
+
 function authorizeEndpoint(c: FlowCredentials): string {
 	return `https://${pingoneHost(c.region)}/${c.environmentId}/as/authorize`;
 }
@@ -126,6 +133,12 @@ export async function authorize(p: AuthorizeParams, mode: FlowMode): Promise<Aut
 	return { url: `${authorizeEndpoint(p.credentials)}?${params.toString()}`, state: p.state };
 }
 
+// The mock client's "registered" secret. Validating the presented secret against
+// this fixed value (rather than against itself) lets the flow demonstrate a real
+// invalid_client failure when a wrong secret is supplied. Must match the flow's
+// MOCK_CREDS.clientSecret so the seeded happy path succeeds.
+export const MOCK_REGISTERED_SECRET = 'mock-client-secret';
+
 /** Exchange the authorization code for tokens. real → BFF proxy; mock → V9Mock token service. */
 export async function exchangeCode(p: ExchangeParams, mode: FlowMode): Promise<TokenResult> {
 	if (mode === 'mock') {
@@ -136,7 +149,7 @@ export async function exchangeCode(p: ExchangeParams, mode: FlowMode): Promise<T
 			client_id: p.credentials.clientId,
 			code_verifier: p.codeVerifier,
 			client_secret: p.credentials.clientSecret,
-			expectedClientSecret: p.credentials.clientSecret,
+			expectedClientSecret: MOCK_REGISTERED_SECRET,
 			scope: p.credentials.scope,
 			includeIdToken: p.oidc,
 		});
@@ -191,7 +204,7 @@ export async function userInfo(
 	// inspect step renders the JSON either way.
 	return userInfoService
 		.run({ environmentId: credentials.environmentId, region: credentials.region, accessToken }, mode)
-		.catch((e) => e as Record<string, unknown>);
+		.catch(normalizeError);
 }
 
 /** RFC 7662 token introspection. real → BFF; mock → V9Mock. */
@@ -205,9 +218,7 @@ export async function introspect(
 	}
 	// Delegates to the introspection service; errors come back as data — the
 	// inspect step renders the JSON either way.
-	return tokenIntrospectionService
-		.run({ credentials, token }, mode)
-		.catch((e) => e as Record<string, unknown>);
+	return tokenIntrospectionService.run({ credentials, token }, mode).catch(normalizeError);
 }
 
 export const authorizationCodeService = {
