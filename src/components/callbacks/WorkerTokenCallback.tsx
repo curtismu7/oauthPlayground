@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { FiLoader } from '../../icons';
 import { logger } from '../../utils/logger';
+import { oauthStorage } from '../../utils/storage';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
 const CallbackContainer = styled.div`
@@ -105,6 +106,32 @@ const WorkerTokenCallback: React.FC = () => {
 					logger.success('WorkerTokenCallback', 'Worker token flow successful', {
 						redirectUrl: result.redirectUrl,
 					});
+
+					// Bridge the exchanged token into the worker-token store. handleCallback
+					// only saves to the user-login session (oauthStorage); the /environments
+					// status panel reads localStorage 'unified_worker_token', so without this
+					// the token "succeeds" but the status shows MISSING.
+					try {
+						const tokens = oauthStorage.getTokens();
+						if (tokens?.access_token) {
+							const expiresAt =
+								tokens.expires_at ??
+								(tokens.expires_in
+									? Date.now() + tokens.expires_in * 1000
+									: Date.now() + 3600 * 1000);
+							localStorage.setItem(
+								'unified_worker_token',
+								JSON.stringify({ token: tokens.access_token, expiresAt })
+							);
+							window.dispatchEvent(new Event('workerTokenUpdated'));
+						}
+					} catch (bridgeErr) {
+						logger.warn(
+							'WorkerTokenCallback',
+							'Failed to bridge token to worker token store',
+							bridgeErr
+						);
+					}
 
 					// Redirect after a short delay
 					setTimeout(() => {
