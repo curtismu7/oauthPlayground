@@ -18,7 +18,7 @@ import { pingOneFetch } from '@/utils/pingOneFetch';
 import { logger } from '../../utils/logger';
 import { ScopeFixServiceV8 } from './scopeFixServiceV8';
 
-const MODULE_TAG = '[🔑 CLIENT-CREDENTIALS-V8]';
+const MODULE_TAG = '[ CLIENT-CREDENTIALS-V8]';
 
 export type ClientAuthMethod =
 	| 'none'
@@ -431,7 +431,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 
 					// Build comprehensive error message
 					let errorMsg = `Invalid Client Credentials Error\n\n`;
-					errorMsg += `🔍 Error Details:\n`;
+					errorMsg += ` Error Details:\n`;
 					errorMsg += `- Error Code: ${errorCode}\n`;
 					errorMsg += `- Message: ${errorMessage}\n`;
 					errorMsg += `- Correlation ID: ${correlationId || 'N/A'}\n\n`;
@@ -440,7 +440,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 						const diag = diagnosticInfo as Record<string, unknown>;
 						if (diag.whatWeSent) {
 							const sent = diag.whatWeSent as Record<string, unknown>;
-							errorMsg += `📤 What We Sent:\n`;
+							errorMsg += ` What We Sent:\n`;
 							errorMsg += `- Client ID: ${sent.clientId || 'N/A'}\n`;
 							errorMsg += `- Auth Method: ${sent.authMethod || 'N/A'}\n`;
 							errorMsg += `- Client Secret Length: ${sent.clientSecretLength || 0} characters\n`;
@@ -449,7 +449,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 
 						if (diag.recommendation) {
 							const rec = diag.recommendation as Record<string, string>;
-							errorMsg += `🔧 How to Fix:\n`;
+							errorMsg += ` How to Fix:\n`;
 							Object.values(rec).forEach((step, idx) => {
 								errorMsg += `${idx + 1}. ${step}\n`;
 							});
@@ -457,7 +457,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 						}
 					} else {
 						// Fallback if no diagnostic info
-						errorMsg += `🔧 How to Fix:\n`;
+						errorMsg += ` How to Fix:\n`;
 						errorMsg += `1. Go to PingOne Admin Console: https://admin.pingone.com\n`;
 						errorMsg += `2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n`;
 						errorMsg += `3. ⚠️ CRITICAL: Check the "Grant Type" - it MUST be "Client Credentials" (not "Implicit", "Authorization Code", etc.)\n`;
@@ -476,8 +476,8 @@ export class ClientCredentialsIntegrationServiceV8 {
 						errorMsg += `8. Try the request again\n\n`;
 					}
 
-					errorMsg += `📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/#client-credentials-flow\n`;
-					errorMsg += `🔍 Correlation ID: ${correlationId || 'N/A'}`;
+					errorMsg += ` Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/#client-credentials-flow\n`;
+					errorMsg += ` Correlation ID: ${correlationId || 'N/A'}`;
 
 					throw new Error(errorMsg);
 				}
@@ -502,30 +502,30 @@ export class ClientCredentialsIntegrationServiceV8 {
 					if (isGrantTypeNotEnabled) {
 						throw new Error(
 							`Grant Type Configuration Error: The "Client Credentials" grant type is not enabled for your application in PingOne.\n\n` +
-								`🔧 How to Fix:\n` +
+								` How to Fix:\n` +
 								`1. Go to PingOne Admin Console: https://admin.pingone.com\n` +
 								`2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n` +
 								`3. Click the "General" tab (or "OIDC Settings" tab)\n` +
 								`4. Under "Grant Types", check the box for "Client Credentials"\n` +
 								`5. Click "Save"\n` +
 								`6. Wait a few seconds for changes to propagate, then try the request again\n\n` +
-								`💡 Note: Your application is currently configured for "${errorMessage.includes('implicit') ? 'Implicit' : 'other'} grant type(s)". ` +
+								` Note: Your application is currently configured for "${errorMessage.includes('implicit') ? 'Implicit' : 'other'} grant type(s)". ` +
 								`You need to enable "Client Credentials" grant type to use this flow.\n\n` +
-								`📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/#client-credentials-flow\n` +
-								`🔍 Correlation ID: ${correlationId || 'N/A'}`
+								` Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/#client-credentials-flow\n` +
+								` Correlation ID: ${correlationId || 'N/A'}`
 						);
 					}
 
 					throw new Error(
 						`Invalid grant type: ${errorMessage}\n\n` +
 							`The "client_credentials" grant type is not enabled or not supported for this application.\n\n` +
-							`🔧 How to Fix:\n` +
+							` How to Fix:\n` +
 							`1. Go to PingOne Admin Console: https://admin.pingone.com\n` +
 							`2. Navigate to: Applications → Your Application\n` +
 							`3. Enable the "Client Credentials" grant type in the application settings\n` +
 							`4. Save the changes and try again\n\n` +
-							`📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/#client-credentials-flow\n` +
-							`🔍 Correlation ID: ${correlationId || 'N/A'}`
+							` Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/#client-credentials-flow\n` +
+							` Correlation ID: ${correlationId || 'N/A'}`
 					);
 				}
 
@@ -554,10 +554,10 @@ export class ClientCredentialsIntegrationServiceV8 {
 					if (isScopeNotGranted) {
 						let errorMsg = `Configuration Error: The scope(s) "${scopesList.join(', ')}" request failed.\n\n`;
 
-						errorMsg += `📋 Root Cause\n\n`;
+						errorMsg += ` Root Cause\n\n`;
 						errorMsg += `The error "At least one scope must be granted" from PingOne indicates that the requested scope(s) are not enabled or granted for your application.\n\n`;
 
-						errorMsg += `💡 Critical: What Scopes Work with Client Credentials?\n\n`;
+						errorMsg += ` Critical: What Scopes Work with Client Credentials?\n\n`;
 						errorMsg += `For Client Credentials flow, you MUST use PingOne resource server scopes.\n\n`;
 						errorMsg += `❌ OIDC scopes (like "openid", "profile", "email") do NOT work with Client Credentials\n`;
 						errorMsg += `❌ Self-management scopes (like "p1:read:user") do NOT work with Client Credentials\n`;
@@ -571,7 +571,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 						errorMsg += `  - "Client Secret Basic (HTTP Basic)" = client_secret_basic\n`;
 						errorMsg += `• If they don't match, either change PingOne or change this app's auth method\n\n`;
 
-						errorMsg += `🔧 How to Fix: Create and Configure Resource Server Scopes\n\n`;
+						errorMsg += ` How to Fix: Create and Configure Resource Server Scopes\n\n`;
 						errorMsg += `Step 1: Create a Resource Server (if you don't have one)\n\n`;
 						errorMsg += `1. Go to PingOne Admin Console:\n`;
 						errorMsg += `   https://admin.pingone.com\n\n`;
@@ -600,7 +600,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 						errorMsg += `2. Example: Enter "ClaimScope" in the Scopes field\n\n`;
 						errorMsg += `3. Wait a few seconds for changes to propagate, then try the request again\n\n`;
 
-						errorMsg += `📝 Example\n\n`;
+						errorMsg += ` Example\n\n`;
 						errorMsg += `Instead of "openid", use a resource server scope like "ClaimScope" or "my-api:read" (whatever is available in your Resources tab under a resource server)\n\n`;
 
 						// Check for OIDC scopes - these don't work with client_credentials
@@ -623,12 +623,12 @@ export class ClientCredentialsIntegrationServiceV8 {
 							errorMsg += `✅ Use resource server scopes instead (like "ClaimScope" or "my-api:read")\n\n`;
 						}
 
-						errorMsg += `📚 Documentation\n\n`;
+						errorMsg += ` Documentation\n\n`;
 						errorMsg += `• Custom Scopes:\n`;
 						errorMsg += `  https://apidocs.pingidentity.com/pingone/main/v1/api/#custom-scopes\n\n`;
 						errorMsg += `• Roles, Scopes, and Permissions:\n`;
 						errorMsg += `  https://apidocs.pingidentity.com/pingone/main/v1/api/#roles-scopes-and-permissions\n\n`;
-						errorMsg += `🔍 Correlation ID: ${correlationId || 'N/A'}`;
+						errorMsg += ` Correlation ID: ${correlationId || 'N/A'}`;
 
 						throw new Error(errorMsg);
 					}
@@ -636,12 +636,12 @@ export class ClientCredentialsIntegrationServiceV8 {
 					throw new Error(
 						`Invalid scopes: ${errorMessage}\n\n` +
 							`The scopes "${credentials.scopes}" are not valid or not enabled for this application.\n\n` +
-							`🔧 How to Fix:\n` +
+							` How to Fix:\n` +
 							`1. Verify the scopes are correct for your resource server\n` +
 							`2. Ensure the scopes are enabled in your PingOne application's Resources tab\n` +
 							`3. Check that the correct resource is enabled (e.g., "PingOne API" for Management API scopes)\n\n` +
-							`📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/#access-services-through-scopes-and-roles\n` +
-							`🔍 Correlation ID: ${correlationId || 'N/A'}`
+							` Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/#access-services-through-scopes-and-roles\n` +
+							` Correlation ID: ${correlationId || 'N/A'}`
 					);
 				}
 

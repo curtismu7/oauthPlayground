@@ -436,7 +436,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 						<CollapsibleHeader
 							title="Token Introspection"
 							subtitle="Inspect your access token to see its metadata, claims, and expiration"
-							icon={<span>🛡️</span>}
+							icon={<span></span>}
 							defaultCollapsed={false}
 							theme="green"
 						>
@@ -459,7 +459,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 					<CollapsibleHeader
 						title="Documentation & Resources"
 						subtitle="Learn more about OAuth 2.0, OpenID Connect, and PingOne authentication"
-						icon={<span>📖</span>}
+						icon={<span></span>}
 						defaultCollapsed={true}
 						theme="yellow"
 					>
@@ -523,7 +523,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 					<CollapsibleHeader
 						title="Flow Requests & Responses (latest session)"
 						subtitle="Detailed requests and responses for the latest run"
-						icon={<span>📦</span>}
+						icon={<span></span>}
 						defaultCollapsed={true}
 						theme="highlight"
 						onToggle={(c) => setFlowLogCollapsed(c)}

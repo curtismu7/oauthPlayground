@@ -28,7 +28,7 @@ import { StepActionButtonsProps } from '@/v8/types/stepNavigation';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔘 STEP-BUTTONS-V8]';
+const MODULE_TAG = '[ STEP-BUTTONS-V8]';
 
 /**
  * StepActionButtonsV8 Component

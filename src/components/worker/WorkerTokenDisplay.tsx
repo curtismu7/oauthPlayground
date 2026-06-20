@@ -392,11 +392,11 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 		<Container>
 			<Header>
 				<h3>
-					<span style={{ fontSize: 20, color: '#3b82f6' }}>🛡️</span>
+					<span style={{ fontSize: 20, color: '#3b82f6' }}></span>
 					Worker Token
 					<StatusIndicator status={tokenStatus}>
 						{tokenStatus === 'active' && <span style={{ fontSize: '12px' }}>✅</span>}
-						{tokenStatus === 'expired' && <span style={{ fontSize: '12px' }}>🕐</span>}
+						{tokenStatus === 'expired' && <span style={{ fontSize: '12px' }}></span>}
 						{tokenStatus === 'invalid' && <span style={{ fontSize: '12px' }}>⚠️</span>}
 						{tokenStatus.toUpperCase()}
 					</StatusIndicator>
@@ -404,15 +404,15 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 				<ButtonGroup>
 					<Button onClick={() => setShowFullToken(!showFullToken)} variant="secondary">
 						{showFullToken ? (
-							<span style={{ fontSize: '16px' }}>🙈</span>
+							<span style={{ fontSize: '16px' }}></span>
 						) : (
-							<span style={{ fontSize: '16px' }}>👁️</span>
+							<span style={{ fontSize: '16px' }}></span>
 						)}
 						{showFullToken ? 'Hide' : 'Show'} Token
 					</Button>
 					{onRefresh && (
 						<Button onClick={onRefresh} variant="secondary">
-							<span style={{ fontSize: '16px' }}>🔄</span>
+							<span style={{ fontSize: '16px' }}></span>
 							Refresh
 						</Button>
 					)}
@@ -426,7 +426,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 						{showFullToken ? token.access_token : maskToken(token.access_token)}
 					</TokenText>
 					<CopyButton onClick={handleCopyToken}>
-						<span style={{ fontSize: '12px' }}>📋</span>
+						<span style={{ fontSize: '12px' }}></span>
 						{copySuccess ? 'Copied!' : 'Copy'}
 					</CopyButton>
 				</TokenContainer>
@@ -488,7 +488,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 			{showJWTDecode && jwtPayload && (
 				<ButtonGroup>
 					<Button onClick={() => setShowJWTModal(true)} variant="secondary">
-						<span style={{ fontSize: '16px' }}>👁️</span>
+						<span style={{ fontSize: '16px' }}></span>
 						View JWT Payload
 					</Button>
 				</ButtonGroup>
@@ -507,7 +507,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 								onClick={() => handleCopyValue(JSON.stringify(jwtPayload, null, 2), 'JWT payload')}
 								variant="secondary"
 							>
-								<span style={{ fontSize: '16px' }}>📋</span>
+								<span style={{ fontSize: '16px' }}></span>
 								Copy Payload
 							</Button>
 						</ButtonGroup>
@@ -526,7 +526,7 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 							}
 							variant="secondary"
 						>
-							<span style={{ fontSize: '16px' }}>📋</span>
+							<span style={{ fontSize: '16px' }}></span>
 							Copy Introspection
 						</Button>
 					</ButtonGroup>

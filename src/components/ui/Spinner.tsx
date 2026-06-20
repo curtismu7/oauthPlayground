@@ -16,11 +16,11 @@ export const Spinner: React.FC<SpinnerProps> = ({
 	const getIcon = () => {
 		switch (variant) {
 			case 'pulse':
-				return <span>🔄</span>;
+				return <span></span>;
 			case 'dots':
 				return <i className="bi bi-question-circle"></i>;
 			default:
-				return <span>🔄</span>;
+				return <span></span>;
 		}
 	};
 

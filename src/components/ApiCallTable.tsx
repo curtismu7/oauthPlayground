@@ -372,7 +372,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 													{call.headers && Object.keys(call.headers).length > 0 && (
 														<Section>
 															<SectionTitle>
-																<span>📄</span> Request Headers
+																<span></span> Request Headers
 															</SectionTitle>
 															<KeyValueList>
 																{Object.entries(call.headers).map(([key, value]) => (
@@ -411,7 +411,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 																Object.keys(call.response.headers).length > 0 && (
 																	<Section>
 																		<SectionTitle>
-																			<span>📄</span> Response Headers
+																			<span></span> Response Headers
 																		</SectionTitle>
 																		<KeyValueList>
 																			{Object.entries(call.response.headers).map(([key, value]) => (

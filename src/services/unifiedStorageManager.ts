@@ -11,7 +11,7 @@
  * - Retry logic with exponential backoff
  */
 
-const MODULE_TAG = '[🔧 UNIFIED-STORAGE]';
+const MODULE_TAG = '[ UNIFIED-STORAGE]';
 
 // Storage configuration
 const MEMORY_CACHE_TTL = 5 * 60 * 1000; // 5 minutes

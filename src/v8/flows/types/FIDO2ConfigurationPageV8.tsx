@@ -37,7 +37,7 @@ import { FiInfo } from '../../../icons';
 import { logger } from '../../../utils/logger';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
-const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
+const MODULE_TAG = '[ FIDO2-CONFIG-V8]';
 
 export const FIDO2ConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
@@ -498,7 +498,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-						<span style={{ fontSize: 32, color: 'white' }}>🔑</span>
+						<span style={{ fontSize: 32, color: 'white' }}></span>
 						<h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: 'white' }}>
 							{getDeviceTypeDisplayName()} / WebAuthn Configuration
 						</h1>
@@ -802,7 +802,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
 						>
-							<span style={{ fontSize: 20, color: '#3b82f6' }}>📖</span>
+							<span style={{ fontSize: 20, color: '#3b82f6' }}></span>
 							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
 								About FIDO2 & WebAuthn
 							</h2>
@@ -872,7 +872,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 										fontWeight: '500',
 									}}
 								>
-									🔒 {publicKeyContent.securityNote}
+									 {publicKeyContent.securityNote}
 								</p>
 							)}
 						</div>
@@ -921,7 +921,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								}}
 							>
 								<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-									<span style={{ fontSize: '18px' }}>📖</span>
+									<span style={{ fontSize: '18px' }}></span>
 									Advanced Concepts: Passkeys, Device Binding & Biometrics
 								</span>
 								{collapsedSections.advancedConcepts ? (
@@ -1073,7 +1073,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								}}
 							>
 								<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-									<span style={{ fontSize: '18px' }}>🛡️</span>
+									<span style={{ fontSize: '18px' }}></span>
 									WebAuthn vs Device Binding/JWS Verification Comparison
 								</span>
 								{collapsedSections.comparisonTable ? (
@@ -1468,7 +1468,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
 						>
-							<span style={{ fontSize: 20, color: '#3b82f6' }}>🛡️</span>
+							<span style={{ fontSize: 20, color: '#3b82f6' }}></span>
 							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
 								Device Authentication Policy
 							</h2>

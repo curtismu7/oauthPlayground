@@ -448,13 +448,13 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 				{/* Speaker Control Panel */}
 				<SpeakerControlPanel>
 					<SpeakerControlButton $variant="secondary" onClick={handleCopyUserCode}>
-						<span>📋</span> Copy Code
+						<span></span> Copy Code
 					</SpeakerControlButton>
 					<SpeakerControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<span>📋</span> Copy URI
+						<span></span> Copy URI
 					</SpeakerControlButton>
 					<SpeakerControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<span>🔗</span> Open in Browser
+						<span></span> Open in Browser
 					</SpeakerControlButton>
 				</SpeakerControlPanel>
 
@@ -503,7 +503,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 										fontSize: '1.25rem',
 									}}
 								>
-									🔊
+									
 								</div>
 								<div>
 									<div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'white' }}>
@@ -559,7 +559,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 										fontSize: '1.5rem',
 									}}
 								>
-									🎵
+									
 								</div>
 								<div style={{ flex: 1 }}>
 									<div
@@ -655,7 +655,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 										marginBottom: '0.75rem',
 									}}
 								>
-									<div style={{ fontSize: '1.25rem' }}>💡</div>
+									<div style={{ fontSize: '1.25rem' }}></div>
 									<h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600' }}>Living Room</h3>
 								</div>
 								<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
@@ -692,7 +692,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 										marginBottom: '0.75rem',
 									}}
 								>
-									<div style={{ fontSize: '1.25rem' }}>🌡️</div>
+									<div style={{ fontSize: '1.25rem' }}></div>
 									<h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600' }}>Thermostat</h3>
 								</div>
 								<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
@@ -732,7 +732,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 									marginBottom: '1rem',
 								}}
 							>
-								<div style={{ fontSize: '1.25rem' }}>🎤</div>
+								<div style={{ fontSize: '1.25rem' }}></div>
 								<h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600' }}>Recent Commands</h3>
 							</div>
 
@@ -747,7 +747,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 										borderRadius: '0.5rem',
 									}}
 								>
-									<div style={{ fontSize: '1rem' }}>🎵</div>
+									<div style={{ fontSize: '1rem' }}></div>
 									<div style={{ flex: 1, fontSize: '0.875rem', color: '#e5e7eb' }}>
 										"Play relaxing music"
 									</div>
@@ -764,7 +764,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 										borderRadius: '0.5rem',
 									}}
 								>
-									<div style={{ fontSize: '1rem' }}>💡</div>
+									<div style={{ fontSize: '1rem' }}></div>
 									<div style={{ flex: 1, fontSize: '0.875rem', color: '#e5e7eb' }}>
 										"Turn off bedroom lights"
 									</div>
@@ -798,7 +798,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<span>🔊</span> Volume
+								<span></span> Volume
 							</button>
 							<button
 								type="button"
@@ -818,7 +818,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
 									gap: '0.5rem',
 								}}
 							>
-								<span>🏠</span> Smart Home
+								<span></span> Smart Home
 							</button>
 							<button
 								type="button"

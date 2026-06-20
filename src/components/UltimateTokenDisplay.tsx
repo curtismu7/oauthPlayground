@@ -455,13 +455,13 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 	const getTokenIcon = (tokenType: TokenType) => {
 		switch (tokenType) {
 			case 'access':
-				return <span style={{ fontSize: '16px' }}>🔑</span>;
+				return <span style={{ fontSize: '16px' }}></span>;
 			case 'id':
-				return <span style={{ fontSize: '16px' }}>🛡️</span>;
+				return <span style={{ fontSize: '16px' }}></span>;
 			case 'refresh':
-				return <span style={{ fontSize: '16px' }}>⚡</span>;
+				return <span style={{ fontSize: '16px' }}></span>;
 			default:
-				return <span style={{ fontSize: '16px' }}>🔒</span>;
+				return <span style={{ fontSize: '16px' }}></span>;
 		}
 	};
 
@@ -581,7 +581,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 								{isCopied ? (
 									<span style={{ fontSize: '14px' }}>✅</span>
 								) : (
-									<span style={{ fontSize: '14px' }}>📋</span>
+									<span style={{ fontSize: '14px' }}></span>
 								)}
 								{isCopied ? 'Copied!' : 'Copy'}
 							</ActionButton>
@@ -593,7 +593,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 								title="Send to Token Management"
 								$variant="success"
 							>
-								<span style={{ fontSize: '14px' }}>🔗</span>
+								<span style={{ fontSize: '14px' }}></span>
 								Analyze
 							</ActionButton>
 						)}
@@ -603,7 +603,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 								onClick={() => onTokenAnalyze(tokenType, token)}
 								title="Custom analysis"
 							>
-								<span style={{ fontSize: '14px' }}>⚡</span>
+								<span style={{ fontSize: '14px' }}></span>
 								Analyze
 							</ActionButton>
 						)}
@@ -625,13 +625,13 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 							) : decodedContent ? (
 								<>
 									<DecodedTitle>
-										<span style={{ fontSize: '16px' }}>🔑</span>
+										<span style={{ fontSize: '16px' }}></span>
 										JWT Header
 									</DecodedTitle>
 									<DecodedContent>{JSON.stringify(decodedContent.header, null, 2)}</DecodedContent>
 
 									<DecodedTitle style={{ marginTop: '1rem' }}>
-										<span style={{ fontSize: '16px' }}>🛡️</span>
+										<span style={{ fontSize: '16px' }}></span>
 										JWT Payload
 									</DecodedTitle>
 									<DecodedContent>{JSON.stringify(decodedContent.payload, null, 2)}</DecodedContent>
@@ -655,7 +655,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 			<Container $mode={displayMode} className={className}>
 				<EmptyState>
 					<EmptyStateIcon>
-						<span>🔒</span>
+						<span></span>
 					</EmptyStateIcon>
 					<EmptyStateText>
 						No tokens available yet. Complete the authentication flow to retrieve tokens.
@@ -683,7 +683,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 				>
 					<div>
 						<Title $mode={displayMode}>
-							<span style={{ fontSize: '20px' }}>🛡️</span>
+							<span style={{ fontSize: '20px' }}></span>
 							{displayTitle}
 						</Title>
 						{subtitle !== false && <Subtitle>{displaySubtitle}</Subtitle>}

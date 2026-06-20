@@ -16,7 +16,7 @@ import {
 	UnifiedOAuthBackupServiceV8U,
 } from './unifiedOAuthBackupServiceV8U';
 
-const _MODULE_TAG = '[🔐 UNIFIED-OAUTH-CREDENTIALS-V8U]';
+const _MODULE_TAG = '[ UNIFIED-OAUTH-CREDENTIALS-V8U]';
 
 export interface UnifiedOAuthCredentials {
 	// Flow-specific credentials
@@ -437,7 +437,7 @@ export class UnifiedOAuthCredentialsServiceV8U {
 					// Only update if backup is newer
 					if (backupData.timestamp > (localCredentials.updatedAt || 0)) {
 						localStorage.setItem(storageKey, JSON.stringify(backupData.credentials));
-						logger.debug(`${_MODULE_TAG} 🔄 Refreshed from backup`, { flowKey });
+						logger.debug(`${_MODULE_TAG} Refreshed from backup`, { flowKey });
 					}
 				}
 			}
@@ -466,7 +466,7 @@ export class UnifiedOAuthCredentialsServiceV8U {
 					// Only update if backup is newer
 					if (backupData.timestamp > (localCredentials.updatedAt || 0)) {
 						localStorage.setItem(storageKey, JSON.stringify(backupData.sharedCredentials));
-						logger.debug(`${_MODULE_TAG} 🔄 Refreshed shared from backup`, 'Logger debug');
+						logger.debug(`${_MODULE_TAG} Refreshed shared from backup`, 'Logger debug');
 					}
 				}
 			}

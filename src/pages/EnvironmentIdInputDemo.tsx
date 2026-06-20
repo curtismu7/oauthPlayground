@@ -179,7 +179,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 			<FlowHeader flowId="environment-id-demo" />
 
 			<Header>
-				<h1>🌐 Environment ID Input Component Demo</h1>
+				<h1> Environment ID Input Component Demo</h1>
 				<p>
 					A simplified approach to PingOne configuration. Just enter your environment ID, select
 					your region, and we'll handle the rest!
@@ -267,7 +267,7 @@ const EnvironmentIdInputDemo: React.FC = () => {
 
 			<DemoSection>
 				<SectionHeader>
-					<h2>🌐 Usage Examples</h2>
+					<h2> Usage Examples</h2>
 					<p>Here are some example environment IDs you can try (these are examples only):</p>
 				</SectionHeader>
 

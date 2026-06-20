@@ -261,7 +261,7 @@ export const WhatsAppNotEnabledModalV8: React.FC<WhatsAppNotEnabledModalV8Props>
 								rel="noopener noreferrer"
 								onClick={(e) => e.stopPropagation()}
 							>
-								<span style={{ fontSize: '16px' }}>🔗</span>
+								<span style={{ fontSize: '16px' }}></span>
 								Open PingOne Admin Console - MFA Settings
 							</LinkButton>
 						</InfoContent>
@@ -284,7 +284,7 @@ export const WhatsAppNotEnabledModalV8: React.FC<WhatsAppNotEnabledModalV8Props>
 								fontSize: '0.9rem',
 							}}
 						>
-							💡 Note:
+							 Note:
 						</p>
 						<p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
 							WhatsApp MFA requires a WhatsApp Business API account and proper configuration in

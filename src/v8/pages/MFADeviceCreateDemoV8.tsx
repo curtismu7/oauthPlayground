@@ -384,7 +384,7 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 										</>
 									) : (
 										<>
-											<span>👤</span>
+											<span></span>
 											<span style={{ marginLeft: '6px' }}>Lookup</span>
 										</>
 									)}
@@ -472,7 +472,7 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 					{[
 						{
 							title: 'Create SMS Device',
-							icon: <span>📞</span>,
+							icon: <span></span>,
 							body: smsBody,
 							setBody: setSmsBody,
 							type: 'SMS' as const,
@@ -480,7 +480,7 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 						},
 						{
 							title: 'Create Email Device',
-							icon: <span>📧</span>,
+							icon: <span></span>,
 							body: emailBody,
 							setBody: setEmailBody,
 							type: 'EMAIL' as const,

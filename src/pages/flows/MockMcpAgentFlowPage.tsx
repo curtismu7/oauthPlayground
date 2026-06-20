@@ -106,7 +106,7 @@ const MockMcpAgentFlowPage: React.FC = () => {
 			<CollapsibleHeader
 				title="Secure AI Agent Authentication"
 				subtitle="Token storage, exchange, and MCP consent — read before building your own Agent"
-				icon={<span>🔐</span>}
+				icon={<span></span>}
 				defaultCollapsed={false}
 				theme="ping"
 			>

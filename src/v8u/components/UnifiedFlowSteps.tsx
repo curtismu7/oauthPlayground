@@ -65,7 +65,7 @@ import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 
-const MODULE_TAG = '[🔄 UNIFIED-FLOW-STEPS-V8U]';
+const MODULE_TAG = '[ UNIFIED-FLOW-STEPS-V8U]';
 
 // Styled components for educational content
 const CollapsibleSection = styled.section`
@@ -987,7 +987,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (specVersion === 'oauth2.0' || specVersion === 'oauth2.1') {
 				if (tokens.id_token) {
 					logger.info(
-						`${MODULE_TAG} 🔒 SPEC COMPLIANCE: Filtering out id_token for ${specVersion}. ` +
+						`${MODULE_TAG} SPEC COMPLIANCE: Filtering out id_token for ${specVersion}. ` +
 							`OAuth 2.0 Authorization Framework (RFC 6749) / OAuth 2.1 Authorization Framework (draft) only returns access_token and refresh_token when used without OpenID Connect. ` +
 							`ID tokens are only part of OpenID Connect Core 1.0.`
 					);
@@ -2389,7 +2389,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				});
 
 				// Show success modal with token details
-				logger.info(`${MODULE_TAG} 🎉 SHOWING SUCCESS MODAL`, {
+				logger.info(`${MODULE_TAG} SHOWING SUCCESS MODAL`, {
 					hasCallbackDetails: !!callbackDetails,
 					allParamsKeys: Object.keys(allParams),
 					accessToken: allParams.access_token
@@ -2543,7 +2543,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Check if fragment contains tokens
 			if (fragment && (fragment.includes('access_token') || fragment.includes('id_token'))) {
-				logger.info(`${MODULE_TAG} 🎯 Fragment detected in URL - auto-parsing tokens`, {
+				logger.info(`${MODULE_TAG} Fragment detected in URL - auto-parsing tokens`, {
 					fragmentLength: fragment.length,
 					fragmentPreview: `${fragment.substring(0, 100)}...`,
 					currentStep,
@@ -2880,18 +2880,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			switch (flowType) {
 				case 'oauth-authz':
 					return isOIDCMode
-						? '🎯 User authentication + API authorization with ID token and access token'
-						: '🔑 API authorization with access token (PingOne requires openid scope)';
+						? ' User authentication + API authorization with ID token and access token'
+						: ' API authorization with access token (PingOne requires openid scope)';
 				case 'implicit':
-					return '🔑 Access token + ID token returned directly in URL fragment (legacy flow)';
+					return ' Access token + ID token returned directly in URL fragment (legacy flow)';
 				case 'client-credentials':
-					return '🔑 Machine-to-machine access token (no user interaction)';
+					return ' Machine-to-machine access token (no user interaction)';
 				case 'device-code':
-					return '🔑 Access token via device code and user verification (for TVs, IoT, CLI)';
+					return ' Access token via device code and user verification (for TVs, IoT, CLI)';
 				case 'hybrid':
-					return '🎯 Authorization code + ID token (some tokens in front channel, others via back channel)';
+					return ' Authorization code + ID token (some tokens in front channel, others via back channel)';
 				default:
-					return '🔑 Access token for API authorization';
+					return ' Access token for API authorization';
 			}
 		};
 
@@ -2934,7 +2934,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!isQuickStartCollapsed}
 						>
 							<CollapsibleTitle>
-								<span>📖</span>
+								<span></span>
 								<span>
 									Quick Start & Overview -{' '}
 									{flowType === 'oauth-authz'
@@ -3214,7 +3214,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											? '⚠️'
 											: '✅'}
 								</span>
-								🔍 Pre-flight Validation Results
+								 Pre-flight Validation Results
 								{preFlightValidationResult.errors.length > 0 && (
 									<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
 										({preFlightValidationResult.errors.length} error
@@ -3285,7 +3285,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													marginBottom: '12px',
 												}}
 											>
-												🔍 Pre-flight Validation Results
+												 Pre-flight Validation Results
 											</strong>
 
 											{/* Summary */}
@@ -3356,7 +3356,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																onClick={async () => {
 																	try {
 																		setIsLoading(true);
-																		setLoadingMessage('🔧 Fixing errors...');
+																		setLoadingMessage(' Fixing errors...');
 
 																		const { uiNotificationServiceV8 } = await import(
 																			'@/v8/services/uiNotificationServiceV8'
@@ -3384,7 +3384,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																		message += `Would you like to automatically fix all fixable errors?`;
 
 																		const confirmed = await uiNotificationServiceV8.confirm({
-																			title: '🔧 Fix All Errors?',
+																			title: ' Fix All Errors?',
 																			message: message,
 																			confirmText: 'Yes, Fix All',
 																			cancelText: "No, I'll Fix Manually",
@@ -3496,7 +3496,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																			});
 
 																			// Re-run validation
-																			setLoadingMessage('🔍 Re-validating configuration...');
+																			setLoadingMessage(' Re-validating configuration...');
 																			const workerToken = await workerTokenServiceV8.getToken();
 																			const newValidationResult =
 																				await PreFlightValidationServiceV8.validateBeforeAuthUrl({
@@ -3580,7 +3580,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																	gap: '6px',
 																}}
 															>
-																🔧 Fix All Errors
+																 Fix All Errors
 															</button>
 														)}
 												</div>
@@ -3701,7 +3701,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					};
 
 		const handlePKCEChange = (codes: PKCECodes) => {
-			logger.info(`${MODULE_TAG} 🔑 handlePKCEChange called`, {
+			logger.info(`${MODULE_TAG} handlePKCEChange called`, {
 				hasVerifier: !!codes.codeVerifier,
 				hasChallenge: !!codes.codeChallenge,
 				verifierLength: codes.codeVerifier?.length,
@@ -3758,7 +3758,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!pkceOverviewCollapsed}
 						>
 							<CollapsibleTitle>
-								<span>📖</span> What is PKCE?
+								<span></span> What is PKCE?
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={pkceOverviewCollapsed}>
 								<span>⬇️</span>
@@ -3767,7 +3767,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						{!pkceOverviewCollapsed && (
 							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<span style={{ fontSize: '20px' }}>🛡️</span>
+									<span style={{ fontSize: '20px' }}></span>
 									<div>
 										<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
 										<InfoText>
@@ -3802,7 +3802,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!pkceDetailsCollapsed}
 						>
 							<CollapsibleTitle>
-								<span>📖</span> Understanding Code Verifier & Code Challenge
+								<span></span> Understanding Code Verifier & Code Challenge
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={pkceDetailsCollapsed}>
 								<span>⬇️</span>
@@ -3812,7 +3812,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							<CollapsibleContent>
 								<ParameterGrid>
 									<InfoBox $variant="success">
-										<span style={{ fontSize: '20px' }}>🔑</span>
+										<span style={{ fontSize: '20px' }}></span>
 										<div>
 											<InfoTitle>Code Verifier</InfoTitle>
 											<InfoText>
@@ -3830,7 +3830,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="info">
-										<span style={{ fontSize: '20px' }}>🛡️</span>
+										<span style={{ fontSize: '20px' }}></span>
 										<div>
 											<InfoTitle>Code Challenge</InfoTitle>
 											<InfoText>
@@ -3942,7 +3942,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					throw new Error('Session ID not found. Please restart the flow.');
 				}
 
-				logger.info(`${MODULE_TAG} 🔌 Resuming redirectless flow`, {
+				logger.info(`${MODULE_TAG} Resuming redirectless flow`, {
 					flowId,
 					hasSessionId: !!sessionId,
 					resumeUrl: `${resumeUrl.substring(0, 100)}...`,
@@ -4019,7 +4019,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				const resumeData = responseData as Record<string, unknown>;
-				logger.info(`${MODULE_TAG} 🔌 Resume response:`, resumeData);
+				logger.info(`${MODULE_TAG} Resume response:`, resumeData);
 
 				// Try to extract code from various possible locations
 				// PingOne might return code directly, or nested in a flow object, or in authorizeResponse
@@ -4076,7 +4076,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				// Store authorization code in flow state for display (similar to callback parsing)
-				logger.info(`${MODULE_TAG} 🔌 Authorization code received from resume`, {
+				logger.info(`${MODULE_TAG} Authorization code received from resume`, {
 					code: `${authCode.substring(0, 20)}...`,
 				});
 
@@ -4121,7 +4121,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// For oauth-authz and hybrid: Step 2 is callback (PKCE is in Advanced Options, not a separate step)
 				const callbackStepIndex = 2; // Step 2 for oauth-authz and hybrid
 
-				logger.info(`${MODULE_TAG} 🔌 Navigating to callback step to display authorization code`, {
+				logger.info(`${MODULE_TAG} Navigating to callback step to display authorization code`, {
 					callbackStepIndex,
 					flowType,
 					usePKCE: isPKCERequired,
@@ -4163,11 +4163,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const handleRedirectlessTokenExchange = useCallback(
 		async (authCode: string, codeVerifier: string) => {
 			setIsLoading(true);
-			setLoadingMessage('🔄 Exchanging Authorization Code for Tokens...');
+			setLoadingMessage(' Exchanging Authorization Code for Tokens...');
 			setError(null);
 
 			try {
-				logger.info(`${MODULE_TAG} 🔌 Exchanging authorization code for tokens`, 'Logger info');
+				logger.info(`${MODULE_TAG} Exchanging authorization code for tokens`, 'Logger info');
 
 				// Use relative URL to go through Vite proxy (avoids certificate issues)
 				// In development: Vite proxy routes /api/* to https://localhost:3002
@@ -4235,7 +4235,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				const tokenData = responseData as Record<string, unknown>;
-				logger.info(`${MODULE_TAG} 🔌 Token exchange successful`, 'Logger info');
+				logger.info(`${MODULE_TAG} Token exchange successful`, 'Logger info');
 
 				// Store tokens in flow state (conditionally include optional properties)
 				const updatedState: FlowState = {
@@ -4306,7 +4306,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					throw new Error('Flow state not found. Please restart the flow.');
 				}
 
-				logger.info(`${MODULE_TAG} 🔌 Submitting credentials to PingOne Flow API`, {
+				logger.info(`${MODULE_TAG} Submitting credentials to PingOne Flow API`, {
 					flowId,
 					username,
 					hasSessionId: !!sessionId,
@@ -4388,14 +4388,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				const credentialsData = responseData2 as Record<string, unknown>;
-				logger.info(`${MODULE_TAG} 🔌 Credentials response:`, credentialsData);
+				logger.info(`${MODULE_TAG} Credentials response:`, credentialsData);
 
 				// Extract and update sessionId from credentials response
 				const updatedSessionId = credentialsData._sessionId as string | undefined;
 				if (updatedSessionId) {
 					sessionStorage.setItem(`${flowKey}-redirectless-sessionId`, updatedSessionId);
 					logger.info(
-						`${MODULE_TAG} 🔌 Updated sessionId from credentials response`,
+						`${MODULE_TAG} Updated sessionId from credentials response`,
 						'Logger info'
 					);
 				}
@@ -4405,7 +4405,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				// Handle MUST_CHANGE_PASSWORD status
 				if (status === 'MUST_CHANGE_PASSWORD') {
-					logger.info(`${MODULE_TAG} 🔌 Password change required detected`, 'Logger info');
+					logger.info(`${MODULE_TAG} Password change required detected`, 'Logger info');
 
 					// Extract userId from response if available, otherwise we'll need to look it up
 					const credentialsDataTyped = credentialsData as {
@@ -4499,7 +4499,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				} else if (status === 'COMPLETED') {
 					// Flow completed immediately - check for authorization code or tokens
 					// Log full response structure for debugging
-					logger.info(`${MODULE_TAG} 🔌 COMPLETED flow response structure:`, {
+					logger.info(`${MODULE_TAG} COMPLETED flow response structure:`, {
 						hasAuthorizeResponse: !!credentialsData.authorizeResponse,
 						hasCode: !!credentialsData.code,
 						keys: Object.keys(credentialsData),
@@ -4521,7 +4521,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						(authorizeResponse as Record<string, unknown>)?.accessToken ||
 						credentialsData.accessToken) as string | undefined;
 
-					logger.info(`${MODULE_TAG} 🔌 Extracted from COMPLETED flow:`, {
+					logger.info(`${MODULE_TAG} Extracted from COMPLETED flow:`, {
 						hasAuthCode: !!authCode,
 						hasAccessToken: !!accessToken,
 						authCodePreview: authCode ? `${authCode.substring(0, 20)}...` : 'none',
@@ -4530,7 +4530,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					if (accessToken) {
 						// Tokens received directly - store them and navigate to tokens step
 						logger.info(
-							`${MODULE_TAG} 🔌 Tokens received directly from COMPLETED flow`,
+							`${MODULE_TAG} Tokens received directly from COMPLETED flow`,
 							'Logger info'
 						);
 						const updatedState: FlowState = {
@@ -4570,7 +4570,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					} else if (authCode) {
 						// Authorization code received - proceed to token exchange
 						logger.info(
-							`${MODULE_TAG} 🔌 Authorization code received from COMPLETED flow`,
+							`${MODULE_TAG} Authorization code received from COMPLETED flow`,
 							'Logger info'
 						);
 						const codeVerifier = sessionStorage.getItem(`${flowKey}-redirectless-codeVerifier`);
@@ -4606,7 +4606,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						const resumeUrl = credentialsData.resumeUrl as string | undefined;
 						if (resumeUrl) {
 							logger.info(
-								`${MODULE_TAG} 🔌 COMPLETED status but resumeUrl present - attempting resume`,
+								`${MODULE_TAG} COMPLETED status but resumeUrl present - attempting resume`,
 								'Logger info'
 							);
 							sessionStorage.setItem(`${flowKey}-redirectless-resumeUrl`, resumeUrl);
@@ -4832,7 +4832,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		try {
 			// Redirectless mode (pi.flow): Make POST request to PingOne Flow API
 			logger.info(
-				`${MODULE_TAG} 🔌 Redirectless mode (response_mode=pi.flow) enabled - making POST request to PingOne Flow API`
+				`${MODULE_TAG} Redirectless mode (response_mode=pi.flow) enabled - making POST request to PingOne Flow API`
 			);
 
 			// If PAR is enabled, check if request_uri is already in the authorization URL
@@ -4844,7 +4844,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					parRequestUri = url.searchParams.get('request_uri') || undefined;
 					if (parRequestUri) {
 						logger.info(
-							`${MODULE_TAG} 🔌 PAR request_uri found in authorization URL (already pushed):`,
+							`${MODULE_TAG} PAR request_uri found in authorization URL (already pushed):`,
 							`${parRequestUri.substring(0, 50)}...`
 						);
 					} else {
@@ -4871,7 +4871,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				backendRequestBody.requestUri = parRequestUri;
 				backendRequestBody.state = pendingPingOneRequest.body.state as string;
 				logger.info(
-					`${MODULE_TAG} 🔌 Using PAR request_uri for redirectless authorize`,
+					`${MODULE_TAG} Using PAR request_uri for redirectless authorize`,
 					'Logger info'
 				);
 			} else {
@@ -4966,13 +4966,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			const flowData = responseData3 as Record<string, unknown>;
-			logger.info(`${MODULE_TAG} 🔌 Redirectless flow response:`, flowData);
+			logger.info(`${MODULE_TAG} Redirectless flow response:`, flowData);
 
 			const flowId = flowData.id as string | undefined;
 			const flowStatus = (flowData.status as string | undefined)?.toUpperCase();
 			const sessionId = flowData._sessionId as string | undefined;
 
-			logger.info(`${MODULE_TAG} 🔌 Redirectless flow status check:`, {
+			logger.info(`${MODULE_TAG} Redirectless flow status check:`, {
 				flowId,
 				flowStatus,
 				hasSessionId: !!sessionId,
@@ -4992,7 +4992,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 			if (sessionId) {
 				sessionStorage.setItem(`${flowKey}-redirectless-sessionId`, sessionId);
-				logger.info(`${MODULE_TAG} 🔌 Stored sessionId from authorize response`, 'Logger info');
+				logger.info(`${MODULE_TAG} Stored sessionId from authorize response`, 'Logger info');
 			}
 
 			// Store flow state first
@@ -5007,23 +5007,23 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			if (flowStatus === 'USERNAME_PASSWORD_REQUIRED' || flowStatus === 'IN_PROGRESS') {
 				// Show login modal - user needs to enter credentials
-				logger.info(`${MODULE_TAG} 🔌 Credentials required - showing login modal`, 'Logger info');
-				logger.info(`${MODULE_TAG} 🔌 Modal state before:`, { showRedirectlessModal });
+				logger.info(`${MODULE_TAG} Credentials required - showing login modal`, 'Logger info');
+				logger.info(`${MODULE_TAG} Modal state before:`, { showRedirectlessModal });
 
 				// Set modal state - ensure it's visible
 				setShowRedirectlessModal(true);
 				setIsLoading(false);
 
 				logger.info(
-					`${MODULE_TAG} 🔌 Modal state after setShowRedirectlessModal(true) - modal should now be visible`
+					`${MODULE_TAG} Modal state after setShowRedirectlessModal(true) - modal should now be visible`
 				);
-				logger.info(`${MODULE_TAG} 🔌 Flow ID stored:`, flowId);
-				logger.info(`${MODULE_TAG} 🔌 Flow Status:`, flowStatus);
+				logger.info(`${MODULE_TAG} Flow ID stored:`, flowId);
+				logger.info(`${MODULE_TAG} Flow Status:`, flowStatus);
 
 				// Force re-render check
 				setTimeout(() => {
 					logger.info(
-						`${MODULE_TAG} 🔌 Modal visibility check after timeout - showRedirectlessModal should be true`,
+						`${MODULE_TAG} Modal visibility check after timeout - showRedirectlessModal should be true`,
 						'Logger info'
 					);
 				}, 100);
@@ -5034,7 +5034,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (flowStatus === 'READY_TO_RESUME' || flowData.resumeUrl) {
 				// Flow is ready to resume - proceed directly (skip modal)
 				const resumeUrl = flowData.resumeUrl as string | undefined;
-				logger.info(`${MODULE_TAG} 🔌 Flow ready to resume - skipping modal, resuming directly`);
+				logger.info(`${MODULE_TAG} Flow ready to resume - skipping modal, resuming directly`);
 				await handleResumeRedirectlessFlow(flowId || '', stateValue, resumeUrl);
 				return;
 			}
@@ -5166,11 +5166,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Pre-flight validation: Use service to validate before generating authorization URL
 			setIsPreFlightValidating(true);
-			setPreFlightStatus('🔍 Starting pre-flight validation...');
+			setPreFlightStatus(' Starting pre-flight validation...');
 			setError(null);
 			modernMessaging.showFooterMessage({
 				type: 'info',
-				message: '🔍 Starting pre-flight validation...',
+				message: ' Starting pre-flight validation...',
 				duration: 3000,
 			});
 
@@ -5207,7 +5207,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				);
 				const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 
-				setPreFlightStatus('🔑 Retrieving worker token...');
+				setPreFlightStatus(' Retrieving worker token...');
 				let workerToken = await workerTokenServiceV8.getToken();
 
 				// If no worker token, respect Silent API Retrieval checkbox: if ON try silent first; if OFF don't
@@ -5302,7 +5302,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							message += `Would you like to automatically fix all fixable errors?`;
 
 							const confirmed = await uiNotificationServiceV8.confirm({
-								title: '🔧 Fix All Errors?',
+								title: ' Fix All Errors?',
 								message: message,
 								confirmText: 'Yes, Fix All',
 								cancelText: "No, I'll Fix Manually",
@@ -5397,10 +5397,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								});
 
 								// Re-run validation with updated credentials
-								setPreFlightStatus('🔍 Re-validating configuration...');
+								setPreFlightStatus(' Re-validating configuration...');
 								modernMessaging.showFooterMessage({
 									type: 'info',
-									message: '🔍 Re-validating after fixes...',
+									message: ' Re-validating after fixes...',
 									duration: 3000,
 								});
 								const newValidationResult =
@@ -5425,12 +5425,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								// Update validation results
 								if (newValidationResult.errors.length > 0) {
 									const errorMessage = [
-										'🔍 Pre-flight Validation Results:',
+										' Pre-flight Validation Results:',
 										'',
 										'❌ ERRORS (must be fixed before proceeding):',
 										...newValidationResult.errors.map((err) => `  ${err}`),
 										'',
-										'🔧 How to Fix:',
+										' How to Fix:',
 										'1. Go to Step 0 (Configuration)',
 										'2. Review and fix the errors listed above',
 										'3. Try generating the authorization URL again',
@@ -5465,7 +5465,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									return;
 								} else if (newValidationResult.warnings.length > 0) {
 									const warningMessage = [
-										'🔍 Pre-flight Validation Results:',
+										' Pre-flight Validation Results:',
 										'',
 										'⚠️ WARNINGS (you can still proceed):',
 										...newValidationResult.warnings.map((warn) => `  ${warn}`),
@@ -5499,12 +5499,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							} else {
 								// User declined auto-fix, show error as normal
 								const errorMessage = [
-									'🔍 Pre-flight Validation Results:',
+									' Pre-flight Validation Results:',
 									'',
 									'❌ ERRORS (must be fixed before proceeding):',
 									...validationResult.errors.map((err) => `  ${err}`),
 									'',
-									'🔧 How to Fix:',
+									' How to Fix:',
 									'1. Go to Step 0 (Configuration)',
 									'2. Review and fix the errors listed above',
 									'3. Try generating the authorization URL again',
@@ -5550,12 +5550,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						} else {
 							// Regular error handling (not redirect URI mismatch or no registered URIs available)
 							const errorMessage = [
-								'🔍 Pre-flight Validation Results:',
+								' Pre-flight Validation Results:',
 								'',
 								'❌ ERRORS (must be fixed before proceeding):',
 								...validationResult.errors.map((err) => `  ${err}`),
 								'',
-								'🔧 How to Fix:',
+								' How to Fix:',
 								'1. Go to Step 0 (Configuration)',
 								'2. Review and fix the errors listed above',
 								'3. Try generating the authorization URL again',
@@ -5603,7 +5603,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// Warnings only: Allow continuation, show with orange background
 					if (validationResult.warnings.length > 0) {
 						const warningMessage = [
-							'🔍 Pre-flight Validation Results:',
+							' Pre-flight Validation Results:',
 							'',
 							'⚠️ WARNINGS (you can still proceed):',
 							...validationResult.warnings.map((warn) => `  ${warn}`),
@@ -5709,7 +5709,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 			}
 
-			setLoadingMessage('🔗 Generating Authorization URL...');
+			setLoadingMessage(' Generating Authorization URL...');
 
 			try {
 				// For redirectless mode, first generate the authorization URL to show the user
@@ -5751,7 +5751,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					setFlowState(updatedStateWithUrl);
 
 					logger.info(
-						`${MODULE_TAG} 🔌 Authorization URL generated for redirectless flow (display only):`,
+						`${MODULE_TAG} Authorization URL generated for redirectless flow (display only):`,
 						{
 							url: `${urlResult.authorizationUrl.substring(0, 100)}...`,
 							hasState: !!urlResult.state,
@@ -5896,7 +5896,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								/>
 							)}
 							<span style={{ fontSize: '20px', flexShrink: 0 }}>
-								{isPreFlightValidating ? '🔍' : '✅'}
+								{isPreFlightValidating ? '' : '✅'}
 							</span>
 							<div style={{ flex: 1 }}>
 								<strong
@@ -5976,7 +5976,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											onClick={async () => {
 												try {
 													setIsLoading(true);
-													setLoadingMessage('🔑 Retrieving Worker Token...');
+													setLoadingMessage(' Retrieving Worker Token...');
 
 													// Import worker token modal helper
 													const { handleShowWorkerTokenModal } = await import(
@@ -6007,7 +6007,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														});
 
 														// Re-run pre-flight validation
-														setLoadingMessage('🔍 Re-validating Configuration...');
+														setLoadingMessage(' Re-validating Configuration...');
 														const { PreFlightValidationServiceV8 } = await import(
 															'@/v8/services/preFlightValidationServiceV8'
 														);
@@ -6038,12 +6038,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														// Update validation results
 														if (newValidationResult.errors.length > 0) {
 															const errorMessage = [
-																'🔍 Pre-flight Validation Results:',
+																' Pre-flight Validation Results:',
 																'',
 																'❌ ERRORS (must be fixed before proceeding):',
 																...newValidationResult.errors.map((err) => `  ${err}`),
 																'',
-																'🔧 How to Fix:',
+																' How to Fix:',
 																'1. Go to Step 0 (Configuration)',
 																'2. Review and fix the errors listed above',
 																'3. Try generating the authorization URL again',
@@ -6061,7 +6061,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 															});
 														} else if (newValidationResult.warnings.length > 0) {
 															const warningMessage = [
-																'🔍 Pre-flight Validation Results:',
+																' Pre-flight Validation Results:',
 																'',
 																'⚠️ WARNINGS (you can still proceed):',
 																...newValidationResult.warnings.map((warn) => `  ${warn}`),
@@ -6142,7 +6142,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												</>
 											) : (
 												<>
-													<span>🔑</span>
+													<span></span>
 													<span>Get Worker Token</span>
 												</>
 											)}
@@ -6174,7 +6174,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!implicitOverviewCollapsed}
 							>
 								<CollapsibleTitle>
-									<span>📖</span> What is Implicit Flow?
+									<span></span> What is Implicit Flow?
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={implicitOverviewCollapsed}>
 									<span>⬇️</span>
@@ -6224,7 +6224,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!implicitDetailsCollapsed}
 							>
 								<CollapsibleTitle>
-									<span>📖</span> Security Considerations & Modern Alternatives
+									<span></span> Security Considerations & Modern Alternatives
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={implicitDetailsCollapsed}>
 									<span>⬇️</span>
@@ -6369,7 +6369,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!authzCodeOverviewCollapsed}
 							>
 								<CollapsibleTitle>
-									<span>📖</span> What is Authorization Code Flow?
+									<span></span> What is Authorization Code Flow?
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={authzCodeOverviewCollapsed}>
 									<span>⬇️</span>
@@ -6425,7 +6425,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!authzCodeDetailsCollapsed}
 							>
 								<CollapsibleTitle>
-									<span>📖</span> Security Features & Best Practices
+									<span></span> Security Features & Best Practices
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={authzCodeDetailsCollapsed}>
 									<span>⬇️</span>
@@ -6434,7 +6434,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							{!authzCodeDetailsCollapsed && (
 								<CollapsibleContent>
 									<InfoBox $variant="success">
-										<span style={{ fontSize: '20px' }}>🛡️</span>
+										<span style={{ fontSize: '20px' }}></span>
 										<div>
 											<InfoTitle>Why Authorization Code Flow is Secure</InfoTitle>
 											<InfoList>
@@ -6502,7 +6502,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!hybridOverviewCollapsed}
 							>
 								<CollapsibleTitle>
-									<span>📖</span> What is Hybrid Flow?
+									<span></span> What is Hybrid Flow?
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={hybridOverviewCollapsed}>
 									<span>⬇️</span>
@@ -6564,7 +6564,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!hybridDetailsCollapsed}
 							>
 								<CollapsibleTitle>
-									<span>📖</span> Hybrid Flow vs Authorization Code Flow
+									<span></span> Hybrid Flow vs Authorization Code Flow
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={hybridDetailsCollapsed}>
 									<span>⬇️</span>
@@ -6624,7 +6624,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="success">
-										<span style={{ fontSize: '20px' }}>🛡️</span>
+										<span style={{ fontSize: '20px' }}></span>
 										<div>
 											<InfoTitle>When to Use Hybrid Flow</InfoTitle>
 											<InfoList>
@@ -6662,7 +6662,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!authRequestOverviewCollapsed}
 						>
 							<CollapsibleTitle>
-								<span>📖</span> Understanding Authorization Requests
+								<span></span> Understanding Authorization Requests
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={authRequestOverviewCollapsed}>
 								<span>⬇️</span>
@@ -6733,7 +6733,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!authRequestDetailsCollapsed}
 						>
 							<CollapsibleTitle>
-								<span>📖</span> Authorization URL Parameters Deep Dive
+								<span></span> Authorization URL Parameters Deep Dive
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={authRequestDetailsCollapsed}>
 								<span>⬇️</span>
@@ -6743,7 +6743,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							<CollapsibleContent>
 								<ParameterGrid>
 									<InfoBox $variant="info">
-										<span style={{ fontSize: '20px' }}>🔑</span>
+										<span style={{ fontSize: '20px' }}></span>
 										<div>
 											<InfoTitle>Required Parameters</InfoTitle>
 											<InfoList>
@@ -6772,7 +6772,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</InfoBox>
 
 									<InfoBox $variant="success">
-										<span style={{ fontSize: '20px' }}>🛡️</span>
+										<span style={{ fontSize: '20px' }}></span>
 										<div>
 											<InfoTitle>Security Parameters</InfoTitle>
 											<InfoList>
@@ -6848,7 +6848,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								gap: '8px',
 							}}
 						>
-							<span style={{ fontSize: '20px' }}>🔐</span>
+							<span style={{ fontSize: '20px' }}></span>
 							<div>
 								<strong style={{ color: '#1e40af' }}>PKCE protection enabled</strong>
 								<p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#1e3a8a' }}>
@@ -6887,7 +6887,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											? '⚠️'
 											: '✅'}
 								</span>
-								🔍 Pre-flight Validation Results
+								 Pre-flight Validation Results
 								{preFlightValidationResult.errors.length > 0 && (
 									<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
 										({preFlightValidationResult.errors.length} error
@@ -6958,7 +6958,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											onClick={async () => {
 												try {
 													setIsLoading(true);
-													setLoadingMessage('🔧 Fixing errors...');
+													setLoadingMessage(' Fixing errors...');
 
 													const { uiNotificationServiceV8 } = await import(
 														'@/v8/services/uiNotificationServiceV8'
@@ -6977,7 +6977,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													const fixableCount = fixableErrors.length;
 
 													const confirmed = await uiNotificationServiceV8.confirm({
-														title: '🔧 Fix All Errors?',
+														title: ' Fix All Errors?',
 														message: `Found ${fixableCount} fixable error(s).\n\nThe following will be fixed:\n  • ${fixDescriptions}\n\nWould you like to automatically fix all fixable errors?`,
 														confirmText: 'Yes, Fix All',
 														cancelText: "No, I'll Fix Manually",
@@ -7095,7 +7095,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												gap: '8px',
 											}}
 										>
-											<span>🔧</span>
+											<span></span>
 											<span>Fix All Errors Automatically</span>
 										</button>
 									)}
@@ -7122,7 +7122,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}}
 				>
 					<div style={{ marginBottom: '16px' }}>
-						<div style={{ fontSize: '48px', marginBottom: '8px' }}>🔗</div>
+						<div style={{ fontSize: '48px', marginBottom: '8px' }}></div>
 						<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
 							Ready to Generate Authorization URL
 						</h3>
@@ -7141,7 +7141,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									color: '#92400e',
 								}}
 							>
-								<strong>📤 PAR Enabled:</strong> This will push authorization parameters to PingOne
+								<strong> PAR Enabled:</strong> This will push authorization parameters to PingOne
 								via PAR request first, then generate the authorization URL with{' '}
 								<code>request_uri</code>.
 							</div>
@@ -7200,12 +7200,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}}
 						>
 							{isPreFlightValidating ? (
-								<span>🔍</span>
+								<span></span>
 							) : isGeneratingAuthUrl ? (
-								<span>🔗</span>
+								<span></span>
 							) : (
 								<>
-									<span>🔗</span>
+									<span></span>
 									<span>Generate Authorization URL</span>
 								</>
 							)}
@@ -7231,7 +7231,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										fontSize: '14px',
 									}}
 								>
-									🔍
+									
 								</span>
 								<span>{preFlightStatus}</span>
 							</div>
@@ -7260,7 +7260,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										marginBottom: '12px',
 									}}
 								>
-									<span style={{ fontSize: '20px' }}>📤</span>
+									<span style={{ fontSize: '20px' }}></span>
 									<strong style={{ color: '#065f46', fontSize: '15px' }}>
 										PAR Request Completed
 									</strong>
@@ -7297,8 +7297,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</div>
 								)}
 								<div style={{ marginTop: '8px', fontSize: '12px', color: '#059669' }}>
-									💡 The authorization URL below uses this <code>request_uri</code> instead of
-									individual parameters. Check the <strong>⚡ Show API Calls</strong> section to see
+									 The authorization URL below uses this <code>request_uri</code> instead of
+									individual parameters. Check the <strong> Show API Calls</strong> section to see
 									the full PAR request details.
 								</div>
 							</div>
@@ -7372,7 +7372,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										</>
 									) : (
 										<>
-											<span>🚀</span>
+											<span></span>
 											<span>Start Redirectless Authentication</span>
 										</>
 									)}
@@ -7424,7 +7424,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										gap: '8px',
 									}}
 								>
-									<span style={{ fontSize: '20px' }}>🔐</span>
+									<span style={{ fontSize: '20px' }}></span>
 									<span>Authenticate on PingOne</span>
 									<span style={{ fontSize: '16px' }}>→</span>
 								</button>
@@ -7521,7 +7521,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!deviceCodeOverviewCollapsed}
 						>
 							<CollapsibleTitle>
-								<span>📖</span> What is Device Authorization Flow?
+								<span></span> What is Device Authorization Flow?
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={deviceCodeOverviewCollapsed}>
 								<span>⬇️</span>
@@ -7574,7 +7574,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							aria-expanded={!deviceCodeDetailsCollapsed}
 						>
 							<CollapsibleTitle>
-								<span>📖</span> Device Code vs Authorization Code & Use Cases
+								<span></span> Device Code vs Authorization Code & Use Cases
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={deviceCodeDetailsCollapsed}>
 								<span>⬇️</span>
@@ -7726,7 +7726,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								color: '#1f2937',
 							}}
 						>
-							📡 Device Authorization Request
+							 Device Authorization Request
 						</h3>
 						<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
 							This is the POST request that was sent to request device authorization:
@@ -8037,7 +8037,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		const handleParseCallback = () => {
 			logger.info(`${MODULE_TAG} Parsing callback URL`, { flowType });
 			setIsLoading(true);
-			setLoadingMessage('📋 Parsing Callback URL...');
+			setLoadingMessage(' Parsing Callback URL...');
 			setError(null);
 
 			try {
@@ -8331,7 +8331,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												fontWeight: '600',
 											}}
 										>
-											🔧 Troubleshooting Steps (Configuration looks correct):
+											 Troubleshooting Steps (Configuration looks correct):
 										</p>
 										<p
 											style={{
@@ -8409,7 +8409,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													fontWeight: '600',
 												}}
 											>
-												🔍 Request Details (for debugging):
+												 Request Details (for debugging):
 											</p>
 											<ul
 												style={{
@@ -8473,7 +8473,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-							<span style={{ fontSize: '24px', flexShrink: 0 }}>📚</span>
+							<span style={{ fontSize: '24px', flexShrink: 0 }}></span>
 							<div>
 								<h3
 									style={{
@@ -8513,7 +8513,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													borderRadius: '4px',
 												}}
 											>
-												<strong>🔒 Why this way?</strong> The authorization code is useless by
+												<strong> Why this way?</strong> The authorization code is useless by
 												itself - it can only be exchanged for tokens by your app using the client
 												secret. This prevents token theft if the callback URL is intercepted.
 											</p>
@@ -8546,7 +8546,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													borderRadius: '4px',
 												}}
 											>
-												<strong>🔒 Why this way?</strong> Hybrid flow provides immediate tokens
+												<strong> Why this way?</strong> Hybrid flow provides immediate tokens
 												(like implicit) while also allowing secure token exchange (like
 												authorization code).
 											</p>
@@ -8614,7 +8614,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												marginBottom: '6px',
 											}}
 										>
-											<span style={{ fontSize: '16px' }}>🔑</span>
+											<span style={{ fontSize: '16px' }}></span>
 											<strong style={{ color: '#166534', fontSize: '13px' }}>
 												Authorization Code:
 											</strong>
@@ -8655,7 +8655,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												marginBottom: '6px',
 											}}
 										>
-											<span style={{ fontSize: '16px' }}>🔐</span>
+											<span style={{ fontSize: '16px' }}></span>
 											<strong style={{ color: '#166534', fontSize: '13px' }}>
 												State (validated):
 											</strong>
@@ -8696,7 +8696,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												marginBottom: '6px',
 											}}
 										>
-											<span style={{ fontSize: '16px' }}>🎫</span>
+											<span style={{ fontSize: '16px' }}></span>
 											<strong style={{ color: '#166534', fontSize: '13px' }}>Tokens:</strong>
 										</div>
 										<div style={{ fontSize: '13px', color: '#166534' }}>
@@ -8725,7 +8725,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												marginBottom: '6px',
 											}}
 										>
-											<span style={{ fontSize: '16px' }}>🌐</span>
+											<span style={{ fontSize: '16px' }}></span>
 											<strong style={{ color: '#1e40af', fontSize: '13px' }}>
 												Callback URL (parsed):
 											</strong>
@@ -8793,7 +8793,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-							<span style={{ fontSize: '24px', flexShrink: 0 }}>📋</span>
+							<span style={{ fontSize: '24px', flexShrink: 0 }}></span>
 							<div style={{ flex: 1 }}>
 								<h3
 									style={{
@@ -8843,7 +8843,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									in the field below.
 								</p>
 								<p style={{ margin: '0', fontSize: '13px', color: '#64748b', lineHeight: '1.6' }}>
-									💡 <strong>Tip:</strong> Make sure your PingOne application's redirect URI is set
+									 <strong>Tip:</strong> Make sure your PingOne application's redirect URI is set
 									to:{' '}
 									<code style={{ background: '#e0f2fe', padding: '2px 6px', borderRadius: '3px' }}>
 										{redirectUri}
@@ -8859,7 +8859,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					<div style={{ marginTop: '24px' }}>
 						<ColoredUrlDisplay
 							url={callbackDetails.url}
-							label="🌐 Full Callback URL"
+							label=" Full Callback URL"
 							showCopyButton={true}
 							showInfoButton={true}
 							showOpenButton={false}
@@ -9173,11 +9173,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 		// Pre-flight validation for device code flow
 		setIsPreFlightValidating(true);
-		setPreFlightStatus('🔍 Starting pre-flight validation...');
+		setPreFlightStatus(' Starting pre-flight validation...');
 		setError(null);
 		modernMessaging.showFooterMessage({
 			type: 'info',
-			message: '🔍 Starting pre-flight validation...',
+			message: ' Starting pre-flight validation...',
 			duration: 3000,
 		});
 
@@ -9203,7 +9203,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			);
 			const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 
-			setPreFlightStatus('🔑 Retrieving worker token...');
+			setPreFlightStatus(' Retrieving worker token...');
 			const workerToken = await workerTokenServiceV8.getToken();
 
 			setPreFlightStatus('✅ Validating configuration against PingOne...');
@@ -9259,7 +9259,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					message += `Would you like to automatically fix all fixable errors?`;
 
 					const confirmed = await uiNotificationServiceV8.confirm({
-						title: '🔧 Fix All Errors?',
+						title: ' Fix All Errors?',
 						message: message,
 						confirmText: 'Yes, Fix All',
 						cancelText: "No, I'll Fix Manually",
@@ -9297,7 +9297,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						});
 
 						// Re-run validation
-						setPreFlightStatus('🔍 Re-validating configuration...');
+						setPreFlightStatus(' Re-validating configuration...');
 						const newOAuthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
 							specVersion,
 							flowType,
@@ -9455,7 +9455,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		}
 
 		setIsLoading(true);
-		setLoadingMessage('📱 Requesting Device Authorization...');
+		setLoadingMessage(' Requesting Device Authorization...');
 		setError(null);
 
 		try {
@@ -10142,7 +10142,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 
 					logger.info(
-						`${MODULE_TAG} 🔄 Polling attempt ${attempt + 1}/${maxAttempts}`,
+						`${MODULE_TAG} Polling attempt ${attempt + 1}/${maxAttempts}`,
 						'Logger info'
 					);
 					logger.info(
@@ -10180,7 +10180,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							pollingTimeoutRef.current = null;
 						}
 
-						logger.info(`${MODULE_TAG} 🎉 AUTHORIZATION COMPLETE! Tokens received:`, {
+						logger.info(`${MODULE_TAG} AUTHORIZATION COMPLETE! Tokens received:`, {
 							hasAccessToken: !!tokens.access_token,
 							hasIdToken: !!tokens.id_token,
 							hasRefreshToken: !!tokens.refresh_token,
@@ -10424,7 +10424,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-							<span style={{ fontSize: '20px' }}>🌐</span>
+							<span style={{ fontSize: '20px' }}></span>
 							<div style={{ flex: 1, minWidth: '200px' }}>
 								<strong
 									style={{
@@ -10467,7 +10467,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									e.currentTarget.style.background = '#f59e0b';
 								}}
 							>
-								<span>🔗</span>
+								<span></span>
 								<span>Open Authorization Page</span>
 							</a>
 						</div>
@@ -10664,7 +10664,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									}}
 									title="Copy user code"
 								>
-									<span style={{ fontSize: '16px' }}>📋</span>
+									<span style={{ fontSize: '16px' }}></span>
 									Copy
 								</button>
 							</div>
@@ -10815,7 +10815,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										borderTop: '1px solid #bfdbfe',
 									}}
 								>
-									💡 Make sure you've authorized the device on the verification page
+									 Make sure you've authorized the device on the verification page
 								</div>
 
 								{/* Action Buttons */}
@@ -10853,7 +10853,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											fontWeight: '600',
 										}}
 									>
-										{isLoading ? '⏳ Requesting...' : '🔄 Request New Code'}
+										{isLoading ? '⏳ Requesting...' : ' Request New Code'}
 									</button>
 								</div>
 							</div>
@@ -10892,7 +10892,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										width: '100%',
 									}}
 								>
-									{isLoading ? '⏳ Requesting New Code...' : '🔄 Request New Device Code & QR Code'}
+									{isLoading ? '⏳ Requesting New Code...' : ' Request New Device Code & QR Code'}
 								</button>
 							</div>
 						)}
@@ -10952,11 +10952,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Pre-flight validation for client credentials flow
 			if (flowType === 'client-credentials') {
 				setIsPreFlightValidating(true);
-				setPreFlightStatus('🔍 Starting pre-flight validation...');
+				setPreFlightStatus(' Starting pre-flight validation...');
 				setError(null);
 				modernMessaging.showFooterMessage({
 					type: 'info',
-					message: '🔍 Starting pre-flight validation...',
+					message: ' Starting pre-flight validation...',
 					duration: 3000,
 				});
 
@@ -10986,7 +10986,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					);
 					const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 
-					setPreFlightStatus('🔑 Retrieving worker token...');
+					setPreFlightStatus(' Retrieving worker token...');
 					const workerToken = await workerTokenServiceV8.getToken();
 
 					setPreFlightStatus('✅ Validating configuration against PingOne...');
@@ -11080,7 +11080,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							message += `Would you like to automatically fix all fixable errors?`;
 
 							const confirmed = await uiNotificationServiceV8.confirm({
-								title: '🔧 Fix All Errors?',
+								title: ' Fix All Errors?',
 								message: message,
 								confirmText: 'Yes, Fix All',
 								cancelText: "No, I'll Fix Manually",
@@ -11129,7 +11129,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								});
 
 								// Re-run validation
-								setPreFlightStatus('🔍 Re-validating configuration...');
+								setPreFlightStatus(' Re-validating configuration...');
 								const newOAuthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig(
 									{
 										specVersion,
@@ -11310,7 +11310,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			logger.info(`${MODULE_TAG} Requesting token`, { flowType });
 			setIsLoading(true);
-			setLoadingMessage('🔑 Requesting Access Token...');
+			setLoadingMessage(' Requesting Access Token...');
 			setError(null);
 
 			try {
@@ -11413,7 +11413,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!clientCredentialsOverviewCollapsed}
 							>
 								<CollapsibleTitle>
-									<span>📖</span> What is Client Credentials Flow?
+									<span></span> What is Client Credentials Flow?
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={clientCredentialsOverviewCollapsed}>
 									<span>⬇️</span>
@@ -11466,7 +11466,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								aria-expanded={!clientCredentialsDetailsCollapsed}
 							>
 								<CollapsibleTitle>
-									<span>📖</span> Client Credentials vs User Flows & Resource Server Scopes
+									<span></span> Client Credentials vs User Flows & Resource Server Scopes
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={clientCredentialsDetailsCollapsed}>
 									<span>⬇️</span>
@@ -11687,7 +11687,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								color: '#1f2937',
 							}}
 						>
-							📡 Token Request Details
+							 Token Request Details
 						</h3>
 						<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
 							This is the POST request that will be sent to PingOne to request an access token:
@@ -11813,7 +11813,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			let storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
 
 			if (!storedPKCE) {
-				logger.info(`${MODULE_TAG} 🔄 Sync load failed, trying async load (IndexedDB)...`);
+				logger.info(`${MODULE_TAG} Sync load failed, trying async load (IndexedDB)...`);
 				storedPKCE = await PKCEStorageServiceV8U.loadPKCECodesAsync(flowKey);
 			}
 
@@ -11844,7 +11844,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					flowState.codeVerifier !== effectiveCodeVerifier ||
 					flowState.codeChallenge !== effectiveCodeChallenge
 				) {
-					logger.info(`${MODULE_TAG} 🔄 Syncing flowState with storage`, 'Logger info');
+					logger.info(`${MODULE_TAG} Syncing flowState with storage`, 'Logger info');
 					setFlowState((prev) => ({
 						...prev,
 						...(effectiveCodeVerifier ? { codeVerifier: effectiveCodeVerifier } : {}),
@@ -12014,7 +12014,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					if (workerToken) {
 						logger.info(
-							`${MODULE_TAG} 🔍 Final check: Fetching app config to ensure correct auth method...`,
+							`${MODULE_TAG} Final check: Fetching app config to ensure correct auth method...`,
 							'Logger info'
 						);
 						const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
@@ -12062,15 +12062,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			try {
 				logger.info(
-					`${MODULE_TAG} 🚀 Calling UnifiedFlowIntegrationV8U.exchangeCodeForTokens...`,
+					`${MODULE_TAG} Calling UnifiedFlowIntegrationV8U.exchangeCodeForTokens...`,
 					'Logger info'
 				);
-				logger.info(`${MODULE_TAG} 🔑 Using code verifier:`, {
+				logger.info(`${MODULE_TAG} Using code verifier:`, {
 					hasCodeVerifier: !!effectiveCodeVerifier,
 					codeVerifierLength: effectiveCodeVerifier?.length,
 					codeVerifierPreview: `${effectiveCodeVerifier?.substring(0, 20)}...`,
 				});
-				logger.info(`${MODULE_TAG} 🔐 Using auth method:`, {
+				logger.info(`${MODULE_TAG} Using auth method:`, {
 					clientAuthMethod: effectiveCredentials.clientAuthMethod || 'client_secret_post (default)',
 					source:
 						effectiveCredentials.clientAuthMethod !== credentials.clientAuthMethod
@@ -12214,7 +12214,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						const storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
 						if (storedPKCE?.codeChallengeMethod === 'plain') {
 							logger.info(
-								`${MODULE_TAG} 🗑️ Clearing old PKCE codes with 'plain' method...`,
+								`${MODULE_TAG} Clearing old PKCE codes with 'plain' method...`,
 								'Logger info'
 							);
 							await PKCEStorageServiceV8U.clearPKCECodes(flowKey);
@@ -12238,7 +12238,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						);
 					}
 
-					const enhancedMessage = `${message}\n\n🔧 FIX: Your authorization URL was generated with old PKCE codes using 'plain' method.\n\nPlease:\n1. Go back to Step 1 (Generate PKCE Parameters)\n2. Click "Generate PKCE Parameters" to create new codes with 'S256' method\n3. Go to Step 2 and click "Generate Authorization URL" again\n4. Complete authentication and try token exchange again\n\nNote: Old PKCE codes have been automatically cleared.`;
+					const enhancedMessage = `${message}\n\n FIX: Your authorization URL was generated with old PKCE codes using 'plain' method.\n\nPlease:\n1. Go back to Step 1 (Generate PKCE Parameters)\n2. Click "Generate PKCE Parameters" to create new codes with 'S256' method\n3. Go to Step 2 and click "Generate Authorization URL" again\n4. Complete authentication and try token exchange again\n\nNote: Old PKCE codes have been automatically cleared.`;
 					setError(enhancedMessage);
 					setValidationErrors([enhancedMessage]);
 					modernMessaging.showBanner({
@@ -12248,7 +12248,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						dismissible: true,
 					});
 				} else if (message.includes('code_verifier') || message.includes('PKCE')) {
-					const enhancedMessage = `${message}\n\n💡 This error means your PingOne application requires PKCE. Please:\n1. Go back to Step 0 (Configuration)\n2. Open Advanced Options\n3. Generate PKCE parameters\n4. Start the flow again from Step 1`;
+					const enhancedMessage = `${message}\n\n This error means your PingOne application requires PKCE. Please:\n1. Go back to Step 0 (Configuration)\n2. Open Advanced Options\n3. Generate PKCE parameters\n4. Start the flow again from Step 1`;
 					setError(enhancedMessage);
 					setValidationErrors([enhancedMessage]);
 					modernMessaging.showBanner({
@@ -12327,7 +12327,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						className="btn btn-next"
 						style={{ marginBottom: '24px' }}
 					>
-						{isExchangingTokens ? '' : '🔄 Exchange Code for Tokens'}
+						{isExchangingTokens ? '' : ' Exchange Code for Tokens'}
 					</ButtonSpinner>
 				) : (
 					<div
@@ -12860,7 +12860,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-							<span style={{ fontSize: '20px', flexShrink: 0 }}>📋</span>
+							<span style={{ fontSize: '20px', flexShrink: 0 }}></span>
 							<div>
 								<strong style={{ color: '#92400e', fontSize: '14px' }}>
 									Spec Compliance Notice
@@ -12935,7 +12935,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-							<span style={{ fontSize: '20px', flexShrink: 0 }}>🔐</span>
+							<span style={{ fontSize: '20px', flexShrink: 0 }}></span>
 							<div>
 								<strong style={{ color: '#1e40af', fontSize: '14px' }}>OIDC Token Set</strong>
 								<p
@@ -13103,7 +13103,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-						<span style={{ fontSize: '24px' }}>👤</span>
+						<span style={{ fontSize: '24px' }}></span>
 						<h3
 							style={{
 								margin: 0,
@@ -13277,7 +13277,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-						<span style={{ fontSize: '24px' }}>🔍</span>
+						<span style={{ fontSize: '24px' }}></span>
 						<h3
 							style={{
 								margin: 0,
@@ -13341,7 +13341,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								{operationRules.introspectionExplanation}
 								{!hasAccessToken && (
 									<div style={{ marginTop: '8px', fontWeight: '600' }}>
-										💡 Complete Step 3 (Exchange Code for Tokens) to receive an access token.
+										 Complete Step 3 (Exchange Code for Tokens) to receive an access token.
 									</div>
 								)}
 							</div>
@@ -13422,7 +13422,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 															alignSelf: 'flex-start',
 														}}
 													>
-														🔐 Validate ID Token Locally
+														 Validate ID Token Locally
 													</button>
 													<a
 														href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation"
@@ -13435,7 +13435,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 															fontSize: '13px',
 														}}
 													>
-														📖 Learn more: OIDC ID Token Validation Spec →
+														 Learn more: OIDC ID Token Validation Spec →
 													</a>
 												</div>
 											</div>
@@ -13598,7 +13598,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										fontSize: '13px',
 									}}
 								>
-									💡 Showing introspection for{' '}
+									 Showing introspection for{' '}
 									{introspectionTokenType === 'access'
 										? 'Access Token'
 										: introspectionTokenType === 'refresh'
@@ -13730,7 +13730,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
 						>
-							<span style={{ fontSize: '24px' }}>🔄</span>
+							<span style={{ fontSize: '24px' }}></span>
 							<h3
 								style={{
 									margin: 0,
@@ -13858,7 +13858,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										color: '#1e3a8a',
 									}}
 								>
-									<strong>💡 Token Refresh Lifecycle:</strong>
+									<strong> Token Refresh Lifecycle:</strong>
 									<ul style={{ margin: '8px 0 0 0', paddingLeft: '20px', lineHeight: '1.6' }}>
 										<li>Access tokens expire (typically 1 hour) and need to be refreshed</li>
 										<li>Refresh tokens are long-lived and used to obtain new access tokens</li>
@@ -13914,7 +13914,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											: 'Refresh access token using refresh token'
 								}
 							>
-								{refreshLoading ? '🔄 Refreshing...' : '🔄 Refresh Access Token'}
+								{refreshLoading ? ' Refreshing...' : ' Refresh Access Token'}
 							</button>
 						)}
 					</div>
@@ -14003,7 +14003,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							e.currentTarget.style.boxShadow = 'none';
 						}}
 					>
-						<span style={{ fontSize: '18px' }}>📖</span>
+						<span style={{ fontSize: '18px' }}></span>
 						<span>View API Documentation</span>
 					</button>
 				</div>
@@ -14299,7 +14299,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								marginBottom: '12px',
 							}}
 						>
-							🎉 Access Token Received
+							 Access Token Received
 						</div>
 						<div
 							style={{
@@ -14440,7 +14440,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							<div
 								style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}
 							>
-								<span style={{ fontSize: '18px' }}>🎉</span>
+								<span style={{ fontSize: '18px' }}></span>
 								<strong style={{ color: '#065f46', fontSize: '14px' }}>Callback Processed</strong>
 							</div>
 							<ul
@@ -14495,7 +14495,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														flexShrink: 0,
 													}}
 												>
-													👤
+													
 												</div>
 												<div style={{ flex: 1, minWidth: 0 }}>
 													<div
@@ -14506,7 +14506,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 															marginBottom: '2px',
 														}}
 													>
-														👋 USERNAME
+														 USERNAME
 													</div>
 													<div
 														style={{
@@ -14553,7 +14553,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}}
 						>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-								<span>💡</span>
+								<span></span>
 								<span>View and decode tokens on the next step</span>
 							</div>
 						</div>
@@ -14606,7 +14606,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 															fontSize: '20px',
 														}}
 													>
-														👤
+														
 													</div>
 													<div style={{ flex: 1 }}>
 														<div
@@ -14615,10 +14615,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 															{String(name || 'User')}
 														</div>
 														{email && (
-															<div style={{ fontSize: '12px', opacity: 0.9 }}>📧 {email}</div>
+															<div style={{ fontSize: '12px', opacity: 0.9 }}> {email}</div>
 														)}
 														{username && username !== email && (
-															<div style={{ fontSize: '12px', opacity: 0.9 }}>🔑 {username}</div>
+															<div style={{ fontSize: '12px', opacity: 0.9 }}> {username}</div>
 														)}
 													</div>
 												</div>
@@ -14638,7 +14638,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														borderRadius: '4px',
 													}}
 												>
-													🔍 View All Claims
+													 View All Claims
 												</summary>
 												<div
 													style={{
@@ -14695,7 +14695,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												fontSize: '14px',
 											}}
 										>
-											📋 Additional Parameters
+											 Additional Parameters
 										</div>
 										<div
 											style={{
@@ -15222,7 +15222,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}}
 						title="Clear OAuth tokens and flow state (credentials and worker token will be preserved)"
 					>
-						<span>🔄</span>
+						<span></span>
 						<span>Restart Flow</span>
 					</button>
 
@@ -15588,7 +15588,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						if (tokenStatus.isValid) {
 							// Re-run pre-flight validation
 							setIsLoading(true);
-							setLoadingMessage('🔍 Re-validating Configuration...');
+							setLoadingMessage(' Re-validating Configuration...');
 							try {
 								const { PreFlightValidationServiceV8 } = await import(
 									'@/v8/services/preFlightValidationServiceV8'
@@ -15607,12 +15607,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								// Update validation results
 								if (newValidationResult.errors.length > 0) {
 									const errorMessage = [
-										'🔍 Pre-flight Validation Results:',
+										' Pre-flight Validation Results:',
 										'',
 										'❌ ERRORS (must be fixed before proceeding):',
 										...newValidationResult.errors.map((err) => `  ${err}`),
 										'',
-										'🔧 How to Fix:',
+										' How to Fix:',
 										'1. Go to Step 0 (Configuration)',
 										'2. Review and fix the errors listed above',
 										'3. Try generating the authorization URL again',
@@ -15640,7 +15640,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									});
 								} else if (newValidationResult.warnings.length > 0) {
 									const warningMessage = [
-										'🔍 Pre-flight Validation Results:',
+										' Pre-flight Validation Results:',
 										'',
 										'⚠️ WARNINGS (you can still proceed):',
 										...newValidationResult.warnings.map((warn) => `  ${warn}`),

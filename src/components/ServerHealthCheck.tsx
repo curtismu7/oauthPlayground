@@ -268,7 +268,7 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 		switch (status) {
 			case 'checking':
 				return {
-					icon: <span>🔄</span>,
+					icon: <span></span>,
 					title: 'Checking Server Status...',
 					message: 'Verifying connection to backend server...',
 				};
@@ -307,7 +307,7 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 					<ModalBody>{statusInfo.message}</ModalBody>
 					<ModalActions>
 						<HealthButton type="button" onClick={handleRetry}>
-							<span>🔄</span>
+							<span></span>
 							Retry
 						</HealthButton>
 						<DismissButton type="button" onClick={handleDismiss}>
@@ -340,7 +340,7 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 				)}
 				<HealthActions>
 					<HealthButton type="button" onClick={handleRetry} disabled={status === 'checking'}>
-						<span>🔄</span>
+						<span></span>
 						Retry
 					</HealthButton>
 					{status === 'online' && (

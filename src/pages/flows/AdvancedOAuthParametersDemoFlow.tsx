@@ -266,7 +266,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 				<span>⚠️</span>
 				<div>
 					<h3 style={{ margin: '0 0 1rem 0', color: '#2563eb', fontSize: '1.25rem' }}>
-						🎭 Educational Demo Flow
+						 Educational Demo Flow
 					</h3>
 					<p style={{ margin: '0 0 0.5rem 0', lineHeight: '1.6' }}>
 						This is a <strong>mock/demonstration flow</strong> showing advanced OAuth 2.0 and OIDC
@@ -426,7 +426,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 				</ParameterSection>
 
 				<MockButton onClick={handleGenerateMockUrl}>
-					<span>🔗</span>Generate Mock Authorization URL
+					<span></span>Generate Mock Authorization URL
 				</MockButton>
 			</CollapsibleHeader>
 
@@ -434,7 +434,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 			{mockAuthUrl && (
 				<CollapsibleHeader
 					title="Step 2: Generated Authorization URL"
-					icon={<span>🔗</span>}
+					icon={<span></span>}
 					theme="ping"
 					defaultCollapsed={false}
 				>
@@ -445,13 +445,13 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 
 					<UrlDisplay>
 						<CopyButton onClick={() => navigator.clipboard.writeText(mockAuthUrl)}>
-							<span>📋</span>Copy URL
+							<span></span>Copy URL
 						</CopyButton>
 						{mockAuthUrl}
 					</UrlDisplay>
 
 					<InfoBox>
-						<strong>📖 What happens next:</strong> In a real flow, clicking this URL would redirect
+						<strong> What happens next:</strong> In a real flow, clicking this URL would redirect
 						the user to the authorization server, which would process all these parameters.
 					</InfoBox>
 
@@ -465,19 +465,19 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 			{mockTokens && (
 				<CollapsibleHeader
 					title="Step 3: Mock Token Response"
-					icon={<span>📦</span>}
+					icon={<span></span>}
 					theme="ping"
 					defaultCollapsed={false}
 				>
 					<InfoBox $variant="success">
-						<strong>🎉 Mock Tokens Generated!</strong> These tokens demonstrate how your configured
+						<strong> Mock Tokens Generated!</strong> These tokens demonstrate how your configured
 						parameters would be reflected in the token response.
 					</InfoBox>
 
 					{UnifiedTokenDisplayService.showTokens(mockTokens, 'oauth', 'advanced-oauth-params-demo')}
 
 					<InfoBox>
-						<strong>🔍 Key Observations:</strong>
+						<strong> Key Observations:</strong>
 						<ul>
 							{resources.length > 0 && (
 								<li>
@@ -508,7 +508,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 			{/* Educational Content - Why These Don't Work with PingOne */}
 			<CollapsibleHeader
 				title="Why These Parameters May Not Work with PingOne"
-				icon={<span>📚</span>}
+				icon={<span></span>}
 				theme="ping"
 				defaultCollapsed={true}
 			>

@@ -703,7 +703,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										{copiedField === 'Environment ID' ? (
 											<span style={{ fontSize: '16px' }}>✅</span>
 										) : (
-											<span style={{ fontSize: '16px' }}>📋</span>
+											<span style={{ fontSize: '16px' }}></span>
 										)}
 									</Button>
 								</div>
@@ -733,7 +733,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										{copiedField === 'Client ID' ? (
 											<span style={{ fontSize: '16px' }}>✅</span>
 										) : (
-											<span style={{ fontSize: '16px' }}>📋</span>
+											<span style={{ fontSize: '16px' }}></span>
 										)}
 									</Button>
 								</div>
@@ -811,9 +811,9 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 											title={showSecret ? 'Hide client secret' : 'Show client secret'}
 										>
 											{showSecret ? (
-												<span style={{ fontSize: '16px' }}>🙈</span>
+												<span style={{ fontSize: '16px' }}></span>
 											) : (
-												<span style={{ fontSize: '16px' }}>👁️</span>
+												<span style={{ fontSize: '16px' }}></span>
 											)}
 										</Button>
 										<Button
@@ -828,7 +828,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 											{copiedField === 'Client Secret' ? (
 												<span style={{ fontSize: '16px' }}>✅</span>
 											) : (
-												<span style={{ fontSize: '16px' }}>📋</span>
+												<span style={{ fontSize: '16px' }}></span>
 											)}
 										</Button>
 									</div>
@@ -861,7 +861,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 											{copiedField === 'Redirect URI' ? (
 												<span style={{ fontSize: '16px' }}>✅</span>
 											) : (
-												<span style={{ fontSize: '16px' }}>📋</span>
+												<span style={{ fontSize: '16px' }}></span>
 											)}
 										</Button>
 									</div>
@@ -894,7 +894,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										{copiedField === 'Additional Scopes' ? (
 											<span style={{ fontSize: '16px' }}>✅</span>
 										) : (
-											<span style={{ fontSize: '16px' }}>📋</span>
+											<span style={{ fontSize: '16px' }}></span>
 										)}
 									</Button>
 								</div>
@@ -930,7 +930,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										color: '#6b7280',
 									}}
 								>
-									💡 Must match your PingOne application's Token Endpoint Authentication Method
+									 Must match your PingOne application's Token Endpoint Authentication Method
 								</div>
 							</div>
 						)}

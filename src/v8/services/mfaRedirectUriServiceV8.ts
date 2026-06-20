@@ -16,7 +16,7 @@ import {
 import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔗 MFA-REDIRECT-URI-SERVICE-V8]';
+const MODULE_TAG = '[ MFA-REDIRECT-URI-SERVICE-V8]';
 
 // Debug configuration
 const DEBUG_MODE = true; // Set to false in production
@@ -210,11 +210,11 @@ const MFARedirectUriDebugger = {
 		if (!DEBUG_MODE) return;
 
 		logger.info('mfaRedirectUriServiceV8', `[Redirect URI Analysis] ${flowType}`);
-		logger.info('📍 Flow Type:', flowType);
-		logger.info('🔗 Generated Redirect URI:', redirectUri);
-		logger.info('🌐 Current Origin:', window.location.origin);
-		logger.info('🏠 Current Host:', window.location.host);
-		logger.info('🛣️ Current Pathname:', window.location.pathname);
+		logger.info(' Flow Type:', flowType);
+		logger.info(' Generated Redirect URI:', redirectUri);
+		logger.info(' Current Origin:', window.location.origin);
+		logger.info(' Current Host:', window.location.host);
+		logger.info(' Current Pathname:', window.location.pathname);
 
 		if (fallback) {
 			logger.info('⚠️ Fallback URI Used:', fallback);
@@ -224,7 +224,7 @@ const MFARedirectUriDebugger = {
 		// Check if URI is HTTPS
 		if (redirectUri) {
 			const isHttps = redirectUri.startsWith('https://');
-			logger.info('🔒 HTTPS Protocol:', isHttps ? '✅ Yes' : '❌ No');
+			logger.info(' HTTPS Protocol:', isHttps ? '✅ Yes' : '❌ No');
 
 			if (!isHttps) {
 				logger.warn('⚠️ SECURITY WARNING: Redirect URI is not using HTTPS!', 'Logger warning');
@@ -234,7 +234,7 @@ const MFARedirectUriDebugger = {
 		// Get flow configuration details
 		const config = getFlowRedirectUriConfig(flowType);
 		if (config) {
-			logger.info('📋 Flow Config:', {
+			logger.info(' Flow Config:', {
 				requiresRedirectUri: config.requiresRedirectUri,
 				callbackPath: config.callbackPath,
 				description: config.description,
@@ -252,9 +252,9 @@ const MFARedirectUriDebugger = {
 		if (!DEBUG_MODE) return;
 
 		logger.info('mfaRedirectUriServiceV8', '[URI Migration]');
-		logger.info('🔄 Flow Type:', flowType);
-		logger.info('📤 Old URI:', oldUri || 'None');
-		logger.info('📥 New URI:', newUri);
+		logger.info(' Flow Type:', flowType);
+		logger.info(' Old URI:', oldUri || 'None');
+		logger.info(' New URI:', newUri);
 		logger.info(
 			`✅ Migration Status: ${oldUri !== newUri ? 'Changed' : 'No change needed'}`,
 			'Logger info'
@@ -285,7 +285,7 @@ const MFARedirectUriDebugger = {
 		}
 
 		logger.info('mfaRedirectUriServiceV8', `[URI Validation] ${flowType}`);
-		logger.info('🔗 URI:', uri);
+		logger.info(' URI:', uri);
 
 		if (issues.length > 0) {
 			logger.warn('⚠️ Issues Found:', 'Logger warning');
@@ -306,10 +306,10 @@ const MFARedirectUriDebugger = {
 		const allConfigs = getAllFlowRedirectUriConfigs();
 
 		logger.info('mfaRedirectUriServiceV8', '[All Flow Mappings]');
-		logger.info('📊 Total flows configured:', allConfigs.length);
+		logger.info(' Total flows configured:', allConfigs.length);
 
 		allConfigs.forEach((config) => {
-			logger.info(`🔄 ${config.flowType}:`, {
+			logger.info(` ${config.flowType}:`, {
 				path: config.callbackPath,
 				requiresUri: config.requiresRedirectUri,
 				description: config.description,

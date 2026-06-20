@@ -66,7 +66,7 @@ export interface UseMFAAuthenticationReturn {
 	hasActiveChallenge: boolean;
 }
 
-const MODULE_TAG = '[🔐 USE-MFA-AUTHENTICATION]';
+const MODULE_TAG = '[ USE-MFA-AUTHENTICATION]';
 
 const INITIAL_AUTH_STATE: AuthenticationState = {
 	isLoading: false,

@@ -15,7 +15,7 @@ import { logger } from '../../../utils/logger';
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
 
-const MODULE_TAG = '[📲 MOBILE-CONTROLLER]';
+const MODULE_TAG = '[ MOBILE-CONTROLLER]';
 
 /**
  * Mobile Flow Controller

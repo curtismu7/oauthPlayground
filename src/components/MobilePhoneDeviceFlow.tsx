@@ -438,10 +438,10 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({ state }) 
 					{/* Touch Buttons */}
 					<TouchButtons>
 						<TouchButton $variant="secondary" onClick={handleCopyUserCode}>
-							<span>📋</span> Copy
+							<span></span> Copy
 						</TouchButton>
 						<TouchButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<span>🔗</span> Open
+							<span></span> Open
 						</TouchButton>
 					</TouchButtons>
 
@@ -481,7 +481,7 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({ state }) 
 				</PhoneScreen>
 
 				{/* Home Button */}
-				<HomeButton>🏠</HomeButton>
+				<HomeButton></HomeButton>
 			</MobilePhoneContainer>
 
 			{/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}

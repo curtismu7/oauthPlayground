@@ -216,7 +216,7 @@ const FlowInfoCard: React.FC<FlowInfoCardProps> = ({ flowInfo }) => {
 
 					{flowInfo.useCases && flowInfo.useCases.length > 0 && (
 						<InfoSection style={{ gridColumn: '1 / -1' }}>
-							<SectionTitle>✨ Best Use Cases</SectionTitle>
+							<SectionTitle> Best Use Cases</SectionTitle>
 							<SectionContent>
 								<ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
 									{flowInfo.useCases.map((useCase, index) => (

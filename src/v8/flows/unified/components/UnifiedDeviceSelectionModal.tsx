@@ -43,13 +43,13 @@ interface UnifiedDeviceSelectionModalProps {
 }
 
 const DEVICE_ICONS = {
-	SMS: '📱',
-	EMAIL: '📧',
-	TOTP: '🔐',
-	VOICE: '📞',
-	FIDO2: '🔑',
-	MOBILE: '📲',
-	WHATSAPP: '💬',
+	SMS: '',
+	EMAIL: '',
+	TOTP: '',
+	VOICE: '',
+	FIDO2: '',
+	MOBILE: '',
+	WHATSAPP: '',
 };
 
 const DEVICE_COLORS = {
@@ -216,7 +216,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 						}}
 					>
 						<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '700', color: colors.gray[900] }}>
-							🔓 Select Authentication Device
+							 Select Authentication Device
 						</h2>
 						<button
 							type="button"
@@ -280,7 +280,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 						</div>
 					) : availableDevices.length === 0 ? (
 						<div style={{ textAlign: 'center', padding: spacing[8] }}>
-							<div style={{ fontSize: '48px', marginBottom: spacing[4] }}>📱</div>
+							<div style={{ fontSize: '48px', marginBottom: spacing[4] }}></div>
 							<h3 style={{ color: colors.gray[800], margin: `0 0 ${spacing[3]} 0` }}>
 								No MFA Devices Found
 							</h3>
@@ -354,7 +354,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 												e.currentTarget.style.background = colors.primary[600];
 											}}
 										>
-											📱 Register SMS
+											 Register SMS
 										</button>
 
 										<button

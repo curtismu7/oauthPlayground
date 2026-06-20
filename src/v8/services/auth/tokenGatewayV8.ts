@@ -24,7 +24,7 @@ import { workerTokenServiceV8 } from '../workerTokenServiceV8';
 import type { TokenStatusInfo } from '../workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from '../workerTokenStatusServiceV8';
 
-const MODULE_TAG = '[🔐 TOKEN-GATEWAY-V8]';
+const MODULE_TAG = '[ TOKEN-GATEWAY-V8]';
 
 // ============================================================================
 // TYPES

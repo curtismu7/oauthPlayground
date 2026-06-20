@@ -746,7 +746,7 @@ const ScopeImpactPlayground: React.FC = () => {
 							setSelectedScopes([]);
 						}}
 					>
-						<span>🛡️</span>
+						<span></span>
 						{item.label}
 					</ProviderButton>
 				))}
@@ -826,7 +826,7 @@ const ScopeImpactPlayground: React.FC = () => {
 							<BundleScopes>
 								{recommendedBundle.scopes.map((scope) => (
 									<BundleBadge key={scope}>
-										<span style={{ fontSize: '14px' }}>🛡️</span>
+										<span style={{ fontSize: '14px' }}></span>
 										{scope}
 									</BundleBadge>
 								))}
@@ -837,7 +837,7 @@ const ScopeImpactPlayground: React.FC = () => {
 					{scopeDetails.map((scope) => (
 						<ScopeDetailCard key={scope.name}>
 							<ScopeHeading>
-								<span>🖥️</span>
+								<span></span>
 								{scope.name}
 							</ScopeHeading>
 							<ScopeDescription>{scope.description}</ScopeDescription>

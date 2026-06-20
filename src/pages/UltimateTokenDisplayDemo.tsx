@@ -315,7 +315,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 
 					<div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
 						<Button onClick={generateNewTokens}>
-							<span style={{ fontSize: '16px' }}>🔄</span>
+							<span style={{ fontSize: '16px' }}></span>
 							Generate New Tokens
 						</Button>
 					</div>
@@ -323,7 +323,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 
 				<DemoSection>
 					<SectionTitle>
-						<span style={{ fontSize: '20px' }}>⚡</span>
+						<span style={{ fontSize: '20px' }}></span>
 						Live Demo
 					</SectionTitle>
 
@@ -362,7 +362,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 							}}
 						>
-							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>🎨 Visual Features</h3>
+							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}> Visual Features</h3>
 							<ul style={{ color: '#6b7280', lineHeight: '1.6' }}>
 								<li>Color-coded token types with gradients</li>
 								<li>Responsive design with hover effects</li>
@@ -380,7 +380,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 							}}
 						>
-							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>🔧 Functional Features</h3>
+							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}> Functional Features</h3>
 							<ul style={{ color: '#6b7280', lineHeight: '1.6' }}>
 								<li>JWT decoding with header/payload separation</li>
 								<li>Token masking/unmasking</li>
@@ -398,7 +398,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 							}}
 						>
-							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>📊 Metadata Features</h3>
+							<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}> Metadata Features</h3>
 							<ul style={{ color: '#6b7280', lineHeight: '1.6' }}>
 								<li>Token expiry formatting</li>
 								<li>Scope display</li>

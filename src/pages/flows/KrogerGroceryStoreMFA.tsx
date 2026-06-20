@@ -265,12 +265,12 @@ const FLOW_KEY = 'kroger-grocery-store-mfa';
 
 // Mock products for the store
 const MOCK_PRODUCTS = [
-	{ id: 1, name: 'Fresh Organic Bananas', price: '$2.99', image: '🍌' },
-	{ id: 2, name: 'Kroger Premium Chicken Breast', price: '$8.99', image: '🍗' },
-	{ id: 3, name: 'Kroger Organic Milk', price: '$4.49', image: '🥛' },
-	{ id: 4, name: 'Fresh Strawberries', price: '$3.99', image: '🍓' },
-	{ id: 5, name: 'Kroger Artisan Bread', price: '$3.49', image: '🍞' },
-	{ id: 6, name: 'Organic Eggs (12 count)', price: '$5.99', image: '🥚' },
+	{ id: 1, name: 'Fresh Organic Bananas', price: '$2.99', image: '' },
+	{ id: 2, name: 'Kroger Premium Chicken Breast', price: '$8.99', image: '' },
+	{ id: 3, name: 'Kroger Organic Milk', price: '$4.49', image: '' },
+	{ id: 4, name: 'Fresh Strawberries', price: '$3.99', image: '' },
+	{ id: 5, name: 'Kroger Artisan Bread', price: '$3.49', image: '' },
+	{ id: 6, name: 'Organic Eggs (12 count)', price: '$5.99', image: '' },
 ];
 
 interface MfaDevice {

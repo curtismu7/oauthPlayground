@@ -1472,7 +1472,7 @@ const McpToolDiscovery: React.FC = () => {
 										)}
 										{tool.readOnly !== undefined && (
 											<ToolMeta style={{ marginTop: '0.5rem' }}>
-												<span>{tool.readOnly ? '📖 Read-only' : '✏️ Modifying'}</span>
+												<span>{tool.readOnly ? ' Read-only' : '✏️ Modifying'}</span>
 											</ToolMeta>
 										)}
 									</ToolCard>

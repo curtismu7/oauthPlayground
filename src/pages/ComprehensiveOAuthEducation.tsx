@@ -165,7 +165,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 	const educationTopics = [
 		{
 			title: 'OAuth 2.0 Fundamentals',
-			icon: <span>🛡️</span>,
+			icon: <span></span>,
 			topics: [
 				'Authorization vs Authentication',
 				'OAuth 2.0 Roles & Actors',
@@ -178,7 +178,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 		},
 		{
 			title: 'OpenID Connect (OIDC)',
-			icon: <span>🔑</span>,
+			icon: <span></span>,
 			topics: [
 				'OIDC vs OAuth 2.0',
 				'ID Tokens & Claims',
@@ -191,7 +191,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 		},
 		{
 			title: 'Security Best Practices',
-			icon: <span>🛡️</span>,
+			icon: <span></span>,
 			topics: [
 				'PKCE (Proof Key for Code Exchange)',
 				'State Parameter Validation',
@@ -204,7 +204,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 		},
 		{
 			title: 'Modern Standards',
-			icon: <span>🌐</span>,
+			icon: <span></span>,
 			topics: [
 				'OAuth 2.1 Updates',
 				'Pushed Authorization Requests (PAR)',
@@ -217,7 +217,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 		},
 		{
 			title: 'Custom Resources & Scopes',
-			icon: <span>👥</span>,
+			icon: <span></span>,
 			topics: [
 				'Custom Resource Configuration',
 				'Attribute Mapping Limitations',
@@ -280,7 +280,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 
 			<Header>
 				<h1>
-					<span>📚</span>Comprehensive OAuth Education
+					<span></span>Comprehensive OAuth Education
 				</h1>
 				<p>
 					Master OAuth 2.0 and OpenID Connect fundamentals, flows, security best practices, and
@@ -317,7 +317,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 			<FlowSection>
 				<CardHeader>
 					<h2>
-						<span>👥</span>Interactive Flow Demonstrations
+						<span></span>Interactive Flow Demonstrations
 					</h2>
 					<p>
 						Experience each OAuth 2.0 and OpenID Connect flow with real-time demonstrations,
@@ -341,7 +341,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 			<EducationCard>
 				<CardHeader>
 					<h2>
-						<span>👥</span>Custom Resource Attribute Mapping
+						<span></span>Custom Resource Attribute Mapping
 					</h2>
 					<p>
 						Understanding current limitations and best practices for mapping custom resource
@@ -381,7 +381,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 				>
 					<CardHeader>
 						<h3 style={{ color: '#d97706', fontSize: '1.125rem' }}>
-							<span>🛡️</span>Security Considerations
+							<span></span>Security Considerations
 						</h3>
 					</CardHeader>
 					<TopicList>
@@ -402,7 +402,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 				>
 					<CardHeader>
 						<h3 style={{ color: '#075985', fontSize: '1.125rem' }}>
-							<span>📚</span>Configuration Examples
+							<span></span>Configuration Examples
 						</h3>
 					</CardHeader>
 					<TopicList>
@@ -437,7 +437,7 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 			<EducationCard>
 				<CardHeader>
 					<h2>
-						<span>🛡️</span>Getting Started
+						<span></span>Getting Started
 					</h2>
 					<p>
 						New to OAuth 2.0 and OpenID Connect? Start here with our beginner-friendly resources.

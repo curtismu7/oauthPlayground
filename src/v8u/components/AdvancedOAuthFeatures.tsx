@@ -201,7 +201,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 				id: 'par',
 				name: 'Pushed Authorization Request (PAR)',
 				description: 'Secure authorization requests by pushing them to the authorization server',
-				icon: <span>🔑</span>,
+				icon: <span></span>,
 				enabled: enabledFeatures.includes('par'),
 				supported: specVersion === 'oauth2.1' || specVersion === 'oidc',
 				requirements: [
@@ -223,7 +223,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 				name: 'JWT Secured Authorization Request (JAR)',
 				description:
 					'Secure authorization requests using signed JWTs to prevent parameter tampering',
-				icon: <span>🔑</span>,
+				icon: <span></span>,
 				enabled: enabledFeatures.includes('jar'),
 				supported: specVersion === 'oauth2.1' || specVersion === 'oidc',
 				requirements: [
@@ -246,7 +246,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 				name: 'Mutual TLS (mTLS)',
 				description:
 					'Use client certificates for mutual authentication between client and authorization server',
-				icon: <span>🔒</span>,
+				icon: <span></span>,
 				enabled: enabledFeatures.includes('mtls'),
 				supported: true, // mTLS can be supported across all versions
 				requirements: [
@@ -269,7 +269,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 				id: 'dpop',
 				name: 'Demonstration of Proof-of-Possession (DPoP)',
 				description: 'Bind tokens to a specific client using proof-of-possession keys',
-				icon: <span>🖥️</span>,
+				icon: <span></span>,
 				enabled: enabledFeatures.includes('dpop'),
 				supported: specVersion === 'oauth2.1' || specVersion === 'oidc',
 				requirements: [
@@ -506,7 +506,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 
 						<div style={{ marginTop: '1rem', textAlign: 'center' }}>
 							<small style={{ color: '#64748b' }}>
-								🔧 Advanced features require authorization server support and additional
+								 Advanced features require authorization server support and additional
 								configuration.
 								<br />
 								Current flow: <strong>{flowType}</strong> | Spec: <strong>{specVersion}</strong>

@@ -456,7 +456,7 @@ const OIDCSessionManagement = () => {
 					<CollapsibleHeader
 						title="What is OpenID Connect Session Management?"
 						subtitle="OpenID Connect Session Management 1.0 is a specification that defines how to manage sessions for OpenID Connect, including when to log out the End-User."
-						icon={<span>👥</span>}
+						icon={<span></span>}
 						defaultCollapsed={false}
 						theme="ping"
 					>
@@ -711,7 +711,7 @@ const OIDCSessionManagement = () => {
 												e.currentTarget.style.transform = 'translateY(0)';
 											}}
 										>
-											<span>🔗</span>
+											<span></span>
 											OpenID Connect Session Management 1.0
 										</a>
 										<a
@@ -739,7 +739,7 @@ const OIDCSessionManagement = () => {
 												e.currentTarget.style.transform = 'translateY(0)';
 											}}
 										>
-											<span>🔗</span>
+											<span></span>
 											Front-Channel Logout 1.0
 										</a>
 										<a
@@ -767,7 +767,7 @@ const OIDCSessionManagement = () => {
 												e.currentTarget.style.transform = 'translateY(0)';
 											}}
 										>
-											<span>🔗</span>
+											<span></span>
 											Back-Channel Logout 1.0
 										</a>
 										<a
@@ -795,7 +795,7 @@ const OIDCSessionManagement = () => {
 												e.currentTarget.style.transform = 'translateY(0)';
 											}}
 										>
-											<span>🔗</span>
+											<span></span>
 											PingOne API Documentation
 										</a>
 									</div>
@@ -817,7 +817,7 @@ const OIDCSessionManagement = () => {
 								<FlowCard>
 									<CardBody>
 										<FlowIcon>
-											<span>👥</span>
+											<span></span>
 										</FlowIcon>
 										<FlowTitle>
 											Creating and Updating Sessions
@@ -830,8 +830,8 @@ const OIDCSessionManagement = () => {
 										</FlowDescription>
 
 										{renderFlowDiagram([
-											{ name: 'User', role: 'End User', icon: <span>👥</span> },
-											{ name: 'RP', role: 'Relying Party', icon: <span>🖥️</span> },
+											{ name: 'User', role: 'End User', icon: <span></span> },
+											{ name: 'RP', role: 'Relying Party', icon: <span></span> },
 											{
 												name: 'PingOne',
 												role: 'OpenID Provider',
@@ -949,7 +949,7 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 								<FlowCard>
 									<CardBody>
 										<FlowIcon>
-											<span>🖥️</span>
+											<span></span>
 										</FlowIcon>
 										<FlowTitle>Session Status Change Notification</FlowTitle>
 										<FlowDescription>
@@ -1026,8 +1026,8 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
 										</div>
 
 										{renderFlowDiagram([
-											{ name: 'RP', role: 'Relying Party', icon: <span>🖥️</span> },
-											{ name: 'OP iframe', role: 'Session Monitor', icon: <span>🛡️</span> },
+											{ name: 'RP', role: 'Relying Party', icon: <span></span> },
+											{ name: 'OP iframe', role: 'Session Monitor', icon: <span></span> },
 											{
 												name: 'OP',
 												role: 'OpenID Provider',
@@ -1146,7 +1146,7 @@ window.addEventListener('message', function(event) {
         style="display:none">
 </iframe>`}</CodeBlock>
 										<SecurityNote>
-											<span>🛡️</span>
+											<span></span>
 											<div>
 												<h4>Security Consideration</h4>
 												<p>
@@ -1172,8 +1172,8 @@ window.addEventListener('message', function(event) {
 										</FlowDescription>
 
 										{renderFlowDiagram([
-											{ name: 'RP', role: 'Relying Party', icon: <span>🖥️</span> },
-											{ name: 'User', role: 'End User', icon: <span>👥</span> },
+											{ name: 'RP', role: 'Relying Party', icon: <span></span> },
+											{ name: 'User', role: 'End User', icon: <span></span> },
 											{
 												name: 'OP',
 												role: 'OpenID Provider',
@@ -1308,7 +1308,7 @@ GET /endsession?
 								<FlowCard>
 									<CardBody>
 										<FlowIcon>
-											<span>🔄</span>
+											<span></span>
 										</FlowIcon>
 										<FlowTitle>Front-Channel Logout</FlowTitle>
 										<FlowDescription>
@@ -1337,8 +1337,8 @@ GET /endsession?
 													</div>
 												),
 											},
-											{ name: 'User Agent', role: 'Browser', icon: <span>🖥️</span> },
-											{ name: 'RP', role: 'Relying Party', icon: <span>🖥️</span> },
+											{ name: 'User Agent', role: 'Browser', icon: <span></span> },
+											{ name: 'RP', role: 'Relying Party', icon: <span></span> },
 										])}
 
 										<DemoButton
@@ -1478,7 +1478,7 @@ GET /logout?
 								<FlowCard>
 									<CardBody>
 										<FlowIcon>
-											<span>🛡️</span>
+											<span></span>
 										</FlowIcon>
 										<FlowTitle>Back-Channel Logout</FlowTitle>
 										<FlowDescription>
@@ -1507,8 +1507,8 @@ GET /logout?
 													</div>
 												),
 											},
-											{ name: 'RP1', role: 'Relying Party 1', icon: <span>🖥️</span> },
-											{ name: 'RP2', role: 'Relying Party 2', icon: <span>🖥️</span> },
+											{ name: 'RP1', role: 'Relying Party 1', icon: <span></span> },
+											{ name: 'RP2', role: 'Relying Party 2', icon: <span></span> },
 										])}
 
 										<DemoButton
@@ -1662,7 +1662,7 @@ Content-Type: application/json
 										</FlowDescription>
 
 										{renderFlowDiagram([
-											{ name: 'RP', role: 'Relying Party', icon: <span>🖥️</span> },
+											{ name: 'RP', role: 'Relying Party', icon: <span></span> },
 											{ name: 'Session State', role: 'Validation', icon: <span>✅</span> },
 											{
 												name: 'OP',
@@ -1806,7 +1806,7 @@ if (sessionState !== expectedSessionState) {
   redirectToLogin();
 }`}</CodeBlock>
 										<SecurityNote>
-											<span>🛡️</span>
+											<span></span>
 											<div>
 												<h4>Security Note</h4>
 												<p>
@@ -2675,7 +2675,7 @@ app.get('/logout', (req, res) => {
 											'front-channel-logout-implementation'
 										)}
 										<SecurityNote>
-											<span>🛡️</span>
+											<span></span>
 											<div>
 												<h4>Security Considerations</h4>
 												<p>
@@ -3050,7 +3050,7 @@ setInterval(checkSessionState, 30000);`,
 											'session-monitoring-implementation'
 										)}
 										<SecurityNote>
-											<span>🛡️</span>
+											<span></span>
 											<div>
 												<h4>Browser Limitations</h4>
 												<p>
@@ -3748,7 +3748,7 @@ setInterval(checkSessionState, 30000);`,
 									</div>
 
 									<SecurityNote>
-										<span>🛡️</span>
+										<span></span>
 										<div>
 											<h4>Security Warning</h4>
 											<p>

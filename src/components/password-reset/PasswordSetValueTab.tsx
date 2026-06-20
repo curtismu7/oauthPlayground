@@ -385,10 +385,10 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					<span>📖</span>
+					<span></span>
 					PingOne API: Update Password (Set Value) - Content-Type:
 					application/vnd.pingidentity.password.setValue+json
-					<span style={{ fontSize: '14px' }}>🔗</span>
+					<span style={{ fontSize: '14px' }}></span>
 				</DocumentationLink>
 			</DocumentationSection>
 
@@ -415,7 +415,7 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 						onChange={(e) => setIdentifier(e.target.value)}
 					/>
 					<Button onClick={handleLookup} disabled={lookupLoading || loading || !identifier}>
-						{lookupLoading ? <SpinningIcon /> : <span>🔍</span>}
+						{lookupLoading ? <SpinningIcon /> : <span></span>}
 						{lookupLoading ? 'Looking up...' : 'Lookup'}
 					</Button>
 				</div>
@@ -464,7 +464,7 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 									padding: '0.25rem',
 								}}
 							>
-								{showPassword ? <span>🙈</span> : <span>👁️</span>}
+								{showPassword ? <span></span> : <span></span>}
 							</button>
 						</div>
 					</FormGroup>

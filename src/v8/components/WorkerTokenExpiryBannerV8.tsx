@@ -155,7 +155,7 @@ export const WorkerTokenExpiryBannerV8: React.FC<WorkerTokenExpiryBannerV8Props>
 						boxShadow: '0 1px 4px rgba(59,130,246,0.4)',
 					}}
 				>
-					🔑 Fix Token
+					 Fix Token
 				</button>
 				<button
 					type="button"

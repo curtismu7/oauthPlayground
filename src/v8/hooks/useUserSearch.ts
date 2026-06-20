@@ -15,7 +15,7 @@ import type { User } from '@/v8/services/userServiceV8';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔍 USE-USER-SEARCH]';
+const MODULE_TAG = '[ USE-USER-SEARCH]';
 
 export interface UseUserSearchOptions {
 	/** Environment ID to fetch users from */

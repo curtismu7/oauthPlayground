@@ -260,7 +260,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 													letterSpacing: '0.5px',
 												}}
 											>
-												<span style={{ fontSize: '14px' }}>👤</span>
+												<span style={{ fontSize: '14px' }}></span>
 												Full Name
 											</div>
 											<div
@@ -290,7 +290,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 													letterSpacing: '0.5px',
 												}}
 											>
-												<span style={{ fontSize: '14px' }}>📧</span>
+												<span style={{ fontSize: '14px' }}></span>
 												Email
 											</div>
 											<div
@@ -319,7 +319,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 													letterSpacing: '0.5px',
 												}}
 											>
-												<span style={{ fontSize: '14px' }}>👤</span>
+												<span style={{ fontSize: '14px' }}></span>
 												Username
 											</div>
 											<div

@@ -39,27 +39,27 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 	const flowTypeLabels: Partial<Record<FlowType, { label: string; icon: string; path: string }>> = {
 		'oauth-authz': {
 			label: 'Authorization Code',
-			icon: '🔐',
+			icon: '',
 			path: '/v8u/unified/oauth-authz/0',
 		},
 		implicit: {
 			label: 'Implicit',
-			icon: '⚡',
+			icon: '',
 			path: '/v8u/unified/implicit/0',
 		},
 		'client-credentials': {
 			label: 'Client Credentials',
-			icon: '🔑',
+			icon: '',
 			path: '/v8u/unified/client-credentials/0',
 		},
 		'device-code': {
 			label: 'Device Code',
-			icon: '📱',
+			icon: '',
 			path: '/v8u/unified/device-code/0',
 		},
 		hybrid: {
 			label: 'Hybrid',
-			icon: '🔀',
+			icon: '',
 			path: '/v8u/unified/hybrid/0',
 		},
 	};
@@ -123,7 +123,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 			localStorage.removeItem('worker-apps-cache');
 
 			logger.debug(
-				'🔄 [UnifiedNavigationV8U] Clearing flow state: cleared ConfigChecker and pre-flight cache data',
+				' [UnifiedNavigationV8U] Clearing flow state: cleared ConfigChecker and pre-flight cache data',
 				'Logger debug'
 			);
 		} catch (error) {
@@ -192,7 +192,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 								border: '2px solid #3b82f6',
 							}}
 						>
-							🏠 Unified Hub
+							 Unified Hub
 						</button>
 					)}
 					<button
@@ -205,7 +205,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 							flex: 1,
 						}}
 					>
-						🔐 Authorization Code
+						 Authorization Code
 					</button>
 					<button
 						type="button"
@@ -217,7 +217,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 							flex: 1,
 						}}
 					>
-						⚡ Implicit
+						 Implicit
 					</button>
 					<button
 						type="button"
@@ -229,7 +229,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 							flex: 1,
 						}}
 					>
-						🔑 Client Credentials
+						 Client Credentials
 					</button>
 					<button
 						type="button"
@@ -241,7 +241,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 							flex: 1,
 						}}
 					>
-						📱 Device Code
+						 Device Code
 					</button>
 					<button
 						type="button"
@@ -253,7 +253,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 							flex: 1,
 						}}
 					>
-						🔀 Hybrid
+						 Hybrid
 					</button>
 					<button
 						type="button"
@@ -268,7 +268,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 							border: '2px solid #fbbf24',
 						}}
 					>
-						📚 Docs
+						 Docs
 					</button>
 					{showBackToMain && currentFlowType && (
 						<button
@@ -284,7 +284,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 								border: '2px solid #3b82f6',
 							}}
 						>
-							🏠 Back to Main
+							 Back to Main
 						</button>
 					)}
 					<div

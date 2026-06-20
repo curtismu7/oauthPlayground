@@ -511,7 +511,7 @@ const ApplicationGenerator: React.FC = () => {
 
 	// Clear all tokens and reset to step 1 on component mount
 	useEffect(() => {
-		logger.info('🧹 [App Generator] Clearing all tokens and resetting to step 1', 'Logger info');
+		logger.info(' [App Generator] Clearing all tokens and resetting to step 1', 'Logger info');
 		clearAllTokens();
 		setCurrentStep(1);
 		setCreationResult(null);
@@ -575,7 +575,7 @@ const ApplicationGenerator: React.FC = () => {
 			if (result.clearedCount > 0) {
 				modernMessaging.showFooterMessage({
 					type: 'status',
-					message: `🧹 Cleared ${result.clearedCount} tokens for fresh start`,
+					message: ` Cleared ${result.clearedCount} tokens for fresh start`,
 					duration: 4000,
 				});
 			} else {
@@ -678,14 +678,14 @@ const ApplicationGenerator: React.FC = () => {
 	}[] = [
 		{
 			type: 'OIDC_WEB_APP',
-			icon: <span>🌐</span>,
+			icon: <span></span>,
 			title: 'OIDC Web App',
 			description:
 				'Traditional web applications using authorization code flow with server-side processing.',
 		},
 		{
 			type: 'OIDC_NATIVE_APP',
-			icon: <span>📱</span>,
+			icon: <span></span>,
 			title: 'OIDC Native App',
 			description: 'Mobile and desktop applications using OAuth 2.0 and OpenID Connect.',
 		},
@@ -697,19 +697,19 @@ const ApplicationGenerator: React.FC = () => {
 		},
 		{
 			type: 'WORKER',
-			icon: <span>🖥️</span>,
+			icon: <span></span>,
 			title: 'Worker App',
 			description: 'Server-to-server applications using client credentials flow.',
 		},
 		{
 			type: 'SERVICE',
-			icon: <span>☁️</span>,
+			icon: <span></span>,
 			title: 'Service App',
 			description: 'Machine-to-machine applications with automated authentication.',
 		},
 		{
 			type: 'SAML_APP',
-			icon: <span>🛡️</span>,
+			icon: <span></span>,
 			title: 'SAML App',
 			description: 'SAML-based applications for enterprise SSO and federated authentication.',
 		},

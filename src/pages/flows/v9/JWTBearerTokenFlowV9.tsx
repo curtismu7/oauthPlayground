@@ -530,7 +530,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 									}
 								}}
 							>
-								<h3 style={{ margin: 0 }}>📋 Overview</h3>
+								<h3 style={{ margin: 0 }}> Overview</h3>
 								<span style={{ fontSize: '1.25rem' }}>
 									{collapsedSections.overview ? '▶' : '▼'}
 								</span>
@@ -583,7 +583,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 									}
 								}}
 							>
-								<h3 style={{ margin: 0 }}>🔐 Credentials Configuration</h3>
+								<h3 style={{ margin: 0 }}> Credentials Configuration</h3>
 								<span style={{ fontSize: '1.25rem' }}>
 									{collapsedSections.credentials ? '▶' : '▼'}
 								</span>
@@ -650,7 +650,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 									}
 								}}
 							>
-								<h3 style={{ margin: 0 }}>🌐 Token Endpoint Configuration</h3>
+								<h3 style={{ margin: 0 }}> Token Endpoint Configuration</h3>
 								<span style={{ fontSize: '1.25rem' }}>
 									{collapsedSections.endpoint ? '▶' : '▼'}
 								</span>
@@ -733,7 +733,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 									}
 								}}
 							>
-								<h3 style={{ margin: 0 }}>🔑 JWT Configuration</h3>
+								<h3 style={{ margin: 0 }}> JWT Configuration</h3>
 								<span style={{ fontSize: '1.25rem' }}>
 									{collapsedSections.jwtBuilder ? '▶' : '▼'}
 								</span>
@@ -846,7 +846,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<h3 style={{ margin: '0 0 1rem 0' }}>🔧 JWT Generation</h3>
+							<h3 style={{ margin: '0 0 1rem 0' }}> JWT Generation</h3>
 							<p style={{ color: '#1f2937', marginBottom: '1rem' }}>
 								Generate a signed JWT assertion for the OAuth 2.0 token request.
 							</p>
@@ -956,7 +956,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 									border: '1px solid #0ea5e9',
 								}}
 							>
-								<h3 style={{ margin: '0 0 1rem 0' }}>🎯 Generated JWT</h3>
+								<h3 style={{ margin: '0 0 1rem 0' }}> Generated JWT</h3>
 								<div
 									style={{
 										background: '#1e293b',
@@ -1041,7 +1041,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<h3 style={{ margin: '0 0 1rem 0' }}>🚀 Token Request</h3>
+							<h3 style={{ margin: '0 0 1rem 0' }}> Token Request</h3>
 							<p style={{ color: '#1f2937', marginBottom: '1rem' }}>
 								Send the JWT assertion to the token endpoint to obtain an access token.
 							</p>
@@ -1094,7 +1094,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
-							<h3 style={{ margin: '0 0 1rem 0' }}>📋 Token Response</h3>
+							<h3 style={{ margin: '0 0 1rem 0' }}> Token Response</h3>
 							{tokenResponse &&
 							typeof tokenResponse === 'object' &&
 							'access_token' in tokenResponse ? (
@@ -1398,7 +1398,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 							fontWeight: 600,
 						}}
 					>
-						🎉 Flow Completion Summary
+						 Flow Completion Summary
 					</h3>
 					<p style={{ margin: '0 0 1rem 0', color: '#047857', fontSize: '0.875rem' }}>
 						Review “Why use this flow?” and “Why it's secure?” above. Use your access token for API

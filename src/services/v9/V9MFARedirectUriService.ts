@@ -16,7 +16,7 @@
 import { V9LoggingService } from './V9LoggingService';
 import { V9RedirectUriService } from './V9RedirectUriService';
 
-const MODULE_TAG = '[🔗 V9-MFA-REDIRECT-URI]';
+const MODULE_TAG = '[ V9-MFA-REDIRECT-URI]';
 
 export const V9MFARedirectUriService = {
 	/**

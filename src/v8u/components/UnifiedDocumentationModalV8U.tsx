@@ -418,7 +418,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-						<span style={{ fontSize: 24, color: '#fbbf24' }}>📖</span>
+						<span style={{ fontSize: 24, color: '#fbbf24' }}></span>
 						<h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#1f2937' }}>
 							Download Unified Flow Documentation
 						</h2>
@@ -653,7 +653,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 							gap: '8px',
 						}}
 					>
-						<span style={{ fontSize: '18px' }}>📥</span>
+						<span style={{ fontSize: '18px' }}></span>
 						Download ({selectedUseCases.size} use case{selectedUseCases.size !== 1 ? 's' : ''})
 					</button>
 				</div>

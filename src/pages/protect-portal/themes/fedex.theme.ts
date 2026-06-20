@@ -182,9 +182,9 @@ export const fedexTheme: BrandTheme = {
 		xl: '0 20px 25px -5px rgba(77, 20, 140, 0.1), 0 10px 10px -5px rgba(77, 20, 140, 0.04)',
 	},
 	brandSpecific: {
-		logo: '📦',
+		logo: '',
 		logoUrl: 'https://www.fedex.com/favicon.ico',
-		iconSet: ['📦', '🚚', '✈️', '📬', '🚁'],
+		iconSet: ['', '', '✈️', '', ''],
 		messaging: {
 			welcome: 'Welcome to FedEx Secure Portal',
 			security: 'Your shipment security is our priority',

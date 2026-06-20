@@ -190,7 +190,7 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
 		<SearchContainer data-search-container>
 			<SearchInputWrapper>
 				<SearchIcon>
-					<span style={{ fontSize: '14px' }}>🔍</span>
+					<span style={{ fontSize: '14px' }}></span>
 				</SearchIcon>
 				<SearchInput
 					ref={inputRef}
@@ -208,7 +208,7 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
 				/>
 				{displayQuery && displayQuery !== activeQuery ? (
 					<SearchButton onClick={triggerSearch} title="Search (Enter)">
-						<span style={{ fontSize: '14px' }}>🔍</span>
+						<span style={{ fontSize: '14px' }}></span>
 					</SearchButton>
 				) : displayQuery || activeQuery ? (
 					<ClearButton onClick={clearSearch} title="Clear search">

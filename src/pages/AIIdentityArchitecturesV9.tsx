@@ -177,7 +177,7 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 				<FlowHeader flowId="ai-identity-architectures" />
 
 				<DocumentationHeader
-					emoji="🤖"
+					emoji=""
 					title="AI Identity Architectures"
 					description="Comprehensive patterns and architectures for AI identity management, security, and integration with enterprise identity systems."
 				/>
@@ -187,7 +187,7 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 						<MainCard>
 							<ArchitectureCard>
 								<h3>
-									<span>🔐</span>
+									<span></span>
 									OAuth Assertion Grant
 								</h3>
 								<p>
@@ -201,7 +201,7 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 									<li>Eliminates need for per-service credential management</li>
 								</ul>
 								<InfoBox $variant="info">
-									<span>📋</span>
+									<span></span>
 									<div>
 										<strong>Specification:</strong>{' '}
 										<SpecLink
@@ -219,7 +219,7 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 						<MainCard>
 							<ArchitectureCard>
 								<h3>
-									<span>🛡️</span>
+									<span></span>
 									Zero Trust Architecture
 								</h3>
 								<p>
@@ -249,7 +249,7 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 						<MainCard>
 							<ArchitectureCard>
 								<h3>
-									<span>🏢</span>
+									<span></span>
 									PingOne Integration
 								</h3>
 								<p>
@@ -275,7 +275,7 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 						<MainCard>
 							<ArchitectureCard>
 								<h3>
-									<span>🔄</span>
+									<span></span>
 									Federated Identity
 								</h3>
 								<p>
@@ -289,7 +289,7 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 									<li>Standards-based federation protocols</li>
 								</ul>
 								<InfoBox $variant="info">
-									<span>📋</span>
+									<span></span>
 									<div>
 										<strong>Specifications:</strong>{' '}
 										<SpecLink
@@ -310,7 +310,7 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 					<MainCard>
 						<ArchitectureCard>
 							<h3>
-								<span>🔒</span>
+								<span></span>
 								AI Security Framework
 							</h3>
 							<p>
@@ -339,14 +339,14 @@ const AIIdentityArchitecturesV9: React.FC = () => {
 					<MainCard>
 						<ArchitectureCard>
 							<h3>
-								<span>💻</span>
+								<span></span>
 								Agent Authentication Flow
 							</h3>
 							<p>
 								<strong>Implementation Pattern</strong> for secure AI agent authentication.
 							</p>
 							<InfoBox $variant="info">
-								<span>📋</span>
+								<span></span>
 								<div>
 									<strong>Code Example:</strong> See the{' '}
 									<SpecLink

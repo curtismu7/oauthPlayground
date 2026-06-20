@@ -20,7 +20,7 @@ import { pingOneFetch } from '@/utils/pingOneFetch';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[📱 DEVICE-CODE-V8]';
+const MODULE_TAG = '[ DEVICE-CODE-V8]';
 
 export interface DeviceCodeCredentials {
 	environmentId: string;
@@ -283,15 +283,15 @@ export class DeviceCodeIntegrationServiceV8 {
 					let helpfulMessage = `403 Forbidden: ${errorMessage}\n\n`;
 
 					if (!hasClientSecret && authMethod !== 'none') {
-						helpfulMessage += `🔐 Client Authentication Issue:\n`;
+						helpfulMessage += ` Client Authentication Issue:\n`;
 						helpfulMessage += `Your PingOne application appears to require client authentication, but no client secret was provided.\n\n`;
-						helpfulMessage += `🔧 How to Fix:\n`;
+						helpfulMessage += ` How to Fix:\n`;
 						helpfulMessage += `1. Check if your application requires client authentication\n`;
 						helpfulMessage += `2. If yes, enter your Client Secret in the configuration section above\n`;
 						helpfulMessage += `3. If your application is a public client, set Client Auth Method to "None"\n\n`;
 					}
 
-					helpfulMessage += `📋 Grant Type Configuration:\n`;
+					helpfulMessage += ` Grant Type Configuration:\n`;
 					helpfulMessage += `1. Go to PingOne Admin Console: https://admin.pingone.com\n`;
 					helpfulMessage += `2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n`;
 					helpfulMessage += `3. Click the "Configuration" tab\n`;
@@ -299,8 +299,8 @@ export class DeviceCodeIntegrationServiceV8 {
 					helpfulMessage += `5. Under "Token Endpoint Authentication Method", verify it matches your selection\n`;
 					helpfulMessage += `6. Click "Save"\n`;
 					helpfulMessage += `7. Try the request again\n\n`;
-					helpfulMessage += `📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/\n`;
-					helpfulMessage += `🔍 Correlation ID: ${correlationId || 'N/A'}`;
+					helpfulMessage += ` Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/\n`;
+					helpfulMessage += ` Correlation ID: ${correlationId || 'N/A'}`;
 
 					throw new Error(helpfulMessage);
 				}
@@ -314,15 +314,15 @@ export class DeviceCodeIntegrationServiceV8 {
 					});
 					throw new Error(
 						`Grant Type Configuration Error: Your PingOne application is missing the DEVICE_CODE grant type.\n\n` +
-							`🔧 How to Fix:\n` +
+							` How to Fix:\n` +
 							`1. Go to PingOne Admin Console: https://admin.pingone.com\n` +
 							`2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n` +
 							`3. Click the "Configuration" tab\n` +
 							`4. Under "Grant Types", check the box for "Device Code" (or "DEVICE_CODE")\n` +
 							`5. Click "Save"\n` +
 							`6. Try the request again\n\n` +
-							`📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/\n` +
-							`🔍 Correlation ID: ${correlationId || 'N/A'}`
+							` Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/\n` +
+							` Correlation ID: ${correlationId || 'N/A'}`
 					);
 				}
 

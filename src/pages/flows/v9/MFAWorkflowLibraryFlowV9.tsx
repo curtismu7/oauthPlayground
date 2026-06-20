@@ -701,7 +701,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 
 						<CollapsibleHeader
 							title="Step 11: Register/Select Mobile Phone"
-							icon={<span>📱</span>}
+							icon={<span></span>}
 							theme="blue"
 							defaultCollapsed={false}
 						>
@@ -742,7 +742,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 											color: '#ffffff',
 										}}
 									>
-										{workerToken ? <span>✅</span> : <span>🔑</span>}
+										{workerToken ? <span>✅</span> : <span></span>}
 										{workerToken ? 'Worker Token Active ✓' : 'Get Worker Token →'}
 									</Button>
 								</ParameterValue>
@@ -755,7 +755,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 										disabled={isLoadingDevices}
 										style={{ marginTop: '1rem', marginBottom: '1rem' }}
 									>
-										<span>🔄</span>
+										<span></span>
 										{isLoadingDevices ? 'Loading...' : 'Refresh Devices'}
 									</Button>
 
@@ -783,7 +783,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 													}}
 												>
 													<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-														<span>📱</span>
+														<span></span>
 														<div style={{ flex: 1 }}>
 															<div style={{ fontWeight: 600 }}>
 																{device.phone || device.phoneNumber || device.name || 'SMS Device'}
@@ -839,7 +839,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 												onClick={handleRegisterMobilePhone}
 												disabled={isLoading || !phoneNumber}
 											>
-												{isLoading ? <span>🔄</span> : <span>📱</span>}
+												{isLoading ? <span></span> : <span></span>}
 												Register Mobile Phone
 											</Button>
 										</>
@@ -882,7 +882,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Step 11b: Enable User MFA"
-						icon={<span>🛡️</span>}
+						icon={<span></span>}
 						theme="blue"
 						defaultCollapsed={false}
 					>
@@ -917,7 +917,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</ParameterValue>
 						</ParameterGrid>
 						<Button onClick={handleEnableUserMFA} disabled={isLoading || !isStepValid(1)}>
-							{isLoading ? <span>🔄</span> : <span>🛡️</span>}
+							{isLoading ? <span></span> : <span></span>}
 							Enable MFA Device
 						</Button>
 						{(apiResponses[11] as Record<string, unknown>)?.enabled && (
@@ -954,7 +954,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</div>
 						</InfoBox>
 						<Button onClick={handleSendAuthorizeRequest} disabled={isLoading}>
-							{isLoading ? <span>🔄</span> : <span>➡️</span>}
+							{isLoading ? <span></span> : <span>➡️</span>}
 							Send Authorize Request
 						</Button>
 						{apiResponses[12] && (
@@ -979,7 +979,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Step 13: Get the Flow"
-						icon={<span>📦</span>}
+						icon={<span></span>}
 						theme="highlight"
 						defaultCollapsed={false}
 					>
@@ -993,7 +993,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</div>
 						</InfoBox>
 						<Button onClick={handleGetFlow} disabled={isLoading}>
-							{isLoading ? <span>🔄</span> : <span>📦</span>}
+							{isLoading ? <span></span> : <span></span>}
 							Get Flow
 						</Button>
 						{apiResponses[13] && (
@@ -1009,7 +1009,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Step 14: Submit Login Credentials"
-						icon={<span>👤</span>}
+						icon={<span></span>}
 						theme="blue"
 						defaultCollapsed={false}
 					>
@@ -1048,7 +1048,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							onClick={handleSubmitLoginCredentials}
 							disabled={isLoading || !username || !password}
 						>
-							{isLoading ? <span>🔄</span> : <span>👤</span>}
+							{isLoading ? <span></span> : <span></span>}
 							Submit Login Credentials
 						</Button>
 						{apiResponses[14] && (
@@ -1064,7 +1064,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Step 15: Submit MFA Credentials"
-						icon={<span>📱</span>}
+						icon={<span></span>}
 						theme="blue"
 						defaultCollapsed={false}
 					>
@@ -1088,7 +1088,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</ParameterValue>
 						</ParameterGrid>
 						<Button onClick={handleSubmitMFACredentials} disabled={isLoading || !mfaCode}>
-							{isLoading ? <span>🔄</span> : <span>📱</span>}
+							{isLoading ? <span></span> : <span></span>}
 							Submit MFA Credentials
 						</Button>
 						{apiResponses[15] && (
@@ -1119,7 +1119,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</div>
 						</InfoBox>
 						<Button onClick={handleCallResumeEndpoint} disabled={isLoading}>
-							{isLoading ? <span>🔄</span> : <span>✅</span>}
+							{isLoading ? <span></span> : <span>✅</span>}
 							Call Resume Endpoint
 						</Button>
 						{apiResponses[16] && (
@@ -1144,7 +1144,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				return (
 					<CollapsibleHeader
 						title="Step 17: Generate Access Token"
-						icon={<span>🔑</span>}
+						icon={<span></span>}
 						theme="blue"
 						defaultCollapsed={false}
 					>
@@ -1158,7 +1158,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							</div>
 						</InfoBox>
 						<Button onClick={handleGenerateAccessToken} disabled={isLoading}>
-							{isLoading ? <span>🔄</span> : <span>🔑</span>}
+							{isLoading ? <span></span> : <span></span>}
 							Generate Access Token
 						</Button>
 						{apiResponses[17] && (

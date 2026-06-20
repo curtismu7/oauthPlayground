@@ -20,7 +20,7 @@ import { FiChevronDown } from '../../icons';
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔗 RESPONSE-MODE-V8]';
+const MODULE_TAG = '[ RESPONSE-MODE-V8]';
 
 export interface ResponseModeDropdownV8Props {
 	value: ResponseMode;
@@ -44,28 +44,28 @@ const RESPONSE_MODE_OPTIONS: Record<ResponseMode, ResponseModeOption> = {
 	query: {
 		value: 'query',
 		label: 'Query String',
-		icon: '🔗',
+		icon: '',
 		description: 'Code/tokens in URL query string (?code=abc)',
 		useCase: 'Traditional web apps with server-side handling',
 	},
 	fragment: {
 		value: 'fragment',
 		label: 'URL Fragment',
-		icon: '🧩',
+		icon: '',
 		description: 'Code/tokens in URL fragment (#access_token=xyz)',
 		useCase: 'SPAs and client-side apps',
 	},
 	form_post: {
 		value: 'form_post',
 		label: 'Form POST',
-		icon: '📝',
+		icon: '',
 		description: 'Code/tokens via HTTP POST (not in URL)',
 		useCase: 'Secure transmission without URL exposure',
 	},
 	'pi.flow': {
 		value: 'pi.flow',
 		label: 'Redirectless (PingOne)',
-		icon: '⚡',
+		icon: '',
 		description: 'PingOne pi.flow - no redirect, returns flow object via POST',
 		useCase:
 			'For companies who want to control the UI themselves. Perfect for embedded auth, mobile apps, and headless flows where you need full control over the authentication user experience.',
@@ -263,7 +263,7 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 							borderRadius: '6px',
 						}}
 					>
-						<span style={{ fontSize: '18px' }}>📚</span>
+						<span style={{ fontSize: '18px' }}></span>
 						<h4
 							style={{
 								fontSize: '14px',
@@ -304,24 +304,24 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 								example = 'https://app.com/callback#access_token=xyz&token_type=Bearer';
 								usageInfo = [
 									{ icon: '✅', text: 'Used by: Implicit Flow (required), Hybrid Flow (default)' },
-									{ icon: '🔒', text: 'More secure - fragment never sent to server' },
+									{ icon: '', text: 'More secure - fragment never sent to server' },
 								];
 							} else if (mode === 'form_post') {
 								example = 'POST /callback HTTP/1.1\ncode=abc123&state=xyz';
 								usageInfo = [
 									{ icon: '⚙️', text: 'Advanced option - requires server-side handling' },
-									{ icon: '🔒', text: 'Most secure - no data in URL at all' },
+									{ icon: '', text: 'Most secure - no data in URL at all' },
 								];
 							} else if (mode === 'pi.flow') {
 								example =
 									'POST /flows\n{"status": "USERNAME_PASSWORD_REQUIRED", "resumeUrl": "..."}';
 								usageInfo = [
-									{ icon: '🎨', text: 'For companies who want to control the UI themselves' },
+									{ icon: '', text: 'For companies who want to control the UI themselves' },
 									{
 										icon: '✅',
 										text: 'Perfect for embedded auth, mobile apps, and headless flows',
 									},
-									{ icon: '🔒', text: 'No redirect - returns flow object via POST' },
+									{ icon: '', text: 'No redirect - returns flow object via POST' },
 								];
 							}
 
@@ -429,7 +429,7 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 							gap: '8px',
 						}}
 					>
-						<span style={{ fontSize: '16px' }}>💡</span>
+						<span style={{ fontSize: '16px' }}></span>
 						<span
 							style={{
 								fontSize: '12px',

@@ -479,7 +479,7 @@ export const RARValidationDisplay: React.FC<RARValidationDisplayProps> = ({
 				{showScopeValidation && (
 					<ValidationSection>
 						<SectionTitle>
-							<span style={{ fontSize: '16px' }}>🛡️</span>
+							<span style={{ fontSize: '16px' }}></span>
 							Scope Compliance
 						</SectionTitle>
 						<MessageList>

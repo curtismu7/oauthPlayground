@@ -222,7 +222,7 @@ const AIGlossary: React.FC = () => {
 	const glossaryData: GlossaryCategory[] = [
 		{
 			category: 'Core AI Concepts',
-			icon: '🧠',
+			icon: '',
 			terms: [
 				{
 					term: 'Artificial Intelligence (AI)',
@@ -262,7 +262,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'Model Types & Architectures',
-			icon: '🏗️',
+			icon: '',
 			terms: [
 				{
 					term: 'Large Language Model (LLM)',
@@ -309,7 +309,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'Training & Fine-Tuning',
-			icon: '🎯',
+			icon: '',
 			terms: [
 				{
 					term: 'Training',
@@ -366,7 +366,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'Model Behavior & Capabilities',
-			icon: '⚡',
+			icon: '',
 			terms: [
 				{
 					term: 'Inference',
@@ -427,7 +427,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'AI Agents & Applications',
-			icon: '🤖',
+			icon: '',
 			terms: [
 				{
 					term: 'AI Agent',
@@ -479,7 +479,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'Performance & Evaluation',
-			icon: '📊',
+			icon: '',
 			terms: [
 				{
 					term: 'Benchmark',
@@ -512,7 +512,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'Safety & Ethics',
-			icon: '🛡️',
+			icon: '',
 			terms: [
 				{
 					term: 'Alignment',
@@ -590,7 +590,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'Emerging Concepts',
-			icon: '🚀',
+			icon: '',
 			terms: [
 				{
 					term: 'Mixture of Experts (MoE)',
@@ -630,7 +630,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'Specific Applications',
-			icon: '💡',
+			icon: '',
 			terms: [
 				{
 					term: 'Computer Vision',
@@ -664,7 +664,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'OAuth & Authentication Protocols',
-			icon: '🔐',
+			icon: '',
 			terms: [
 				{
 					term: 'OAuth 2.0',
@@ -808,7 +808,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'Agentic Frameworks & Tools',
-			icon: '🔧',
+			icon: '',
 			terms: [
 				{
 					term: 'OpenAI Swarm',
@@ -943,7 +943,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'Apple AI/ML Frameworks',
-			icon: '🍎',
+			icon: '',
 			terms: [
 				{
 					term: 'Core ML',
@@ -1023,7 +1023,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'Enhanced AI Terms',
-			icon: '🚀',
+			icon: '',
 			terms: [
 				{
 					term: 'Agentic AI',
@@ -1259,7 +1259,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'Enhanced Professional Edition',
-			icon: '📋',
+			icon: '',
 			terms: [
 				{
 					term: 'AI (Artificial Intelligence)',
@@ -1370,7 +1370,7 @@ const AIGlossary: React.FC = () => {
 		},
 		{
 			category: 'Emerging Standards',
-			icon: '🔐',
+			icon: '',
 			terms: [
 				{
 					term: 'Dynamic Client Registration (DCR)',

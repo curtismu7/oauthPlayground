@@ -15,7 +15,7 @@ import { logger } from '../../utils/logger';
 import { ConfirmModalV8 } from './ConfirmModalV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 
-const MODULE_TAG = '[🎯 APP-PICKER-V8]';
+const MODULE_TAG = '[ APP-PICKER-V8]';
 
 export interface DiscoveredApp {
 	id: string;
@@ -251,7 +251,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 							transition: 'background 0.2s ease',
 						}}
 					>
-						{isLoading ? '🔄 Discovering...' : '🔍 Discover Apps'}
+						{isLoading ? ' Discovering...' : ' Discover Apps'}
 					</button>
 					<style>{`
 						.discover-button:not(:disabled):hover {
@@ -282,7 +282,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 								: 'No worker token - click to add'
 						}
 					>
-						{tokenStatus.isValid ? '🔑 Manage Token' : '🔑 Add Token'}
+						{tokenStatus.isValid ? ' Manage Token' : ' Add Token'}
 					</button>
 					<style>{`
 						.token-button:hover {

@@ -36,7 +36,7 @@ import {
 import { FlowHeader } from '../services/flowHeaderService';
 import { logger } from '../utils/logger';
 
-const MODULE_TAG = '[📦 POSTMAN-COLLECTION-GENERATOR]';
+const MODULE_TAG = '[ POSTMAN-COLLECTION-GENERATOR]';
 
 type DeviceType = 'SMS' | 'EMAIL' | 'WHATSAPP' | 'TOTP' | 'FIDO2' | 'MOBILE';
 
@@ -1751,7 +1751,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						}}
 					>
 						<strong style={{ display: 'block', marginBottom: '6px' }}>
-							📚 Understanding Protocol Names:
+							 Understanding Protocol Names:
 						</strong>
 						<ul style={{ margin: '0 0 0 20px', padding: 0, lineHeight: '1.6' }}>
 							<li>
@@ -2296,7 +2296,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						</>
 					) : (
 						<>
-							<span style={{ fontSize: '20px' }}>📥</span>
+							<span style={{ fontSize: '20px' }}></span>
 							Download Collection + Variables
 						</>
 					)}
@@ -2350,7 +2350,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						</>
 					) : (
 						<>
-							<span style={{ fontSize: '20px' }}>📦</span>
+							<span style={{ fontSize: '20px' }}></span>
 							Download Collection Only
 						</>
 					)}
@@ -2404,7 +2404,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						</>
 					) : (
 						<>
-							<span style={{ fontSize: '20px' }}>📦</span>
+							<span style={{ fontSize: '20px' }}></span>
 							Download Variables Only
 						</>
 					)}
@@ -2483,7 +2483,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						}
 					}}
 				>
-					<span style={{ fontSize: '20px' }}>📦</span>
+					<span style={{ fontSize: '20px' }}></span>
 					Download All MFA Flows Postman Collection
 				</button>
 				<button
@@ -2518,7 +2518,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						}
 					}}
 				>
-					<span style={{ fontSize: '20px' }}>📦</span>
+					<span style={{ fontSize: '20px' }}></span>
 					Download Complete Collection (Unified + MFA)
 				</button>
 			</div>

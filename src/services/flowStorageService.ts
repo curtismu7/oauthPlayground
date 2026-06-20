@@ -275,7 +275,7 @@ export class AuthCodeStorage {
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem(StorageKeys.authCode(flowId), JSON.stringify(data));
-		logger.info('FlowStorageService', `🔑 [FlowStorage] Stored auth code for ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Stored auth code for ${flowId}`);
 	}
 
 	/**
@@ -327,7 +327,7 @@ export class AuthCodeStorage {
 	 */
 	static remove(flowId: FlowId): void {
 		sessionStorage.removeItem(StorageKeys.authCode(flowId));
-		logger.info('FlowStorageService', `🗑️ [FlowStorage] Removed auth code for ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Removed auth code for ${flowId}`);
 	}
 
 	/**
@@ -366,7 +366,7 @@ export class DeviceCodeStorage {
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem(StorageKeys.deviceCode(flowId), JSON.stringify(dataWithTimestamp));
-		logger.info('FlowStorageService', `📱 [FlowStorage] Stored device code for ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Stored device code for ${flowId}`);
 	}
 
 	/**
@@ -397,7 +397,7 @@ export class DeviceCodeStorage {
 	 */
 	static remove(flowId: FlowId): void {
 		sessionStorage.removeItem(StorageKeys.deviceCode(flowId));
-		logger.info('FlowStorageService', `🗑️ [FlowStorage] Removed device code for ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Removed device code for ${flowId}`);
 	}
 
 	/**
@@ -435,7 +435,7 @@ export class StateStorage {
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem(StorageKeys.state(flowId), JSON.stringify(data));
-		logger.info('FlowStorageService', `🎲 [FlowStorage] Stored state for ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Stored state for ${flowId}`);
 	}
 
 	/**
@@ -467,7 +467,7 @@ export class StateStorage {
 	 */
 	static remove(flowId: FlowId): void {
 		sessionStorage.removeItem(StorageKeys.state(flowId));
-		logger.info('FlowStorageService', `🗑️ [FlowStorage] Removed state for ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Removed state for ${flowId}`);
 	}
 }
 
@@ -490,7 +490,7 @@ export class PKCEStorage {
 		sessionStorage.setItem(StorageKeys.pkceVerifier(flowId), pkce.codeVerifier);
 		sessionStorage.setItem(StorageKeys.pkceChallenge(flowId), pkce.codeChallenge);
 		sessionStorage.setItem(StorageKeys.pkceMethod(flowId), pkce.codeChallengeMethod);
-		logger.info('FlowStorageService', `🔐 [FlowStorage] Stored PKCE for ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Stored PKCE for ${flowId}`);
 	}
 
 	/**
@@ -523,7 +523,7 @@ export class PKCEStorage {
 		sessionStorage.removeItem(StorageKeys.pkceVerifier(flowId));
 		sessionStorage.removeItem(StorageKeys.pkceChallenge(flowId));
 		sessionStorage.removeItem(StorageKeys.pkceMethod(flowId));
-		logger.info('FlowStorageService', `🗑️ [FlowStorage] Removed PKCE for ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Removed PKCE for ${flowId}`);
 	}
 }
 
@@ -544,7 +544,7 @@ export class FlowStateStorage {
 	 */
 	static setCurrentStep(flowId: FlowId, step: number): void {
 		sessionStorage.setItem(StorageKeys.currentStep(flowId), step.toString());
-		logger.info('FlowStorageService', `📍 [FlowStorage] Set current step for ${flowId}: ${step}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Set current step for ${flowId}: ${step}`);
 	}
 
 	/**
@@ -565,7 +565,7 @@ export class FlowStateStorage {
 	 */
 	static removeCurrentStep(flowId: FlowId): void {
 		sessionStorage.removeItem(StorageKeys.currentStep(flowId));
-		logger.info('FlowStorageService', `🗑️ [FlowStorage] Removed current step for ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Removed current step for ${flowId}`);
 	}
 }
 
@@ -591,7 +591,7 @@ export class CredentialsStorage {
 			await CredentialsServiceV8.saveCredentials(flowId, credentials);
 			logger.info(
 				'FlowStorageService',
-				`💾 [FlowStorage] Saved credentials for ${flowId} to unified storage`
+				` [FlowStorage] Saved credentials for ${flowId} to unified storage`
 			);
 		} catch (error) {
 			logger.error(
@@ -604,7 +604,7 @@ export class CredentialsStorage {
 			localStorage.setItem(StorageKeys.credentials(flowId), JSON.stringify(credentials));
 			logger.info(
 				'FlowStorageService',
-				`💾 [FlowStorage] Saved credentials for ${flowId} to localStorage (fallback)`
+				` [FlowStorage] Saved credentials for ${flowId} to localStorage (fallback)`
 			);
 		}
 	}
@@ -632,7 +632,7 @@ export class CredentialsStorage {
 			if (credentials) {
 				logger.info(
 					'FlowStorageService',
-					`💾 [FlowStorage] Retrieved credentials for ${flowId} from unified storage`
+					` [FlowStorage] Retrieved credentials for ${flowId} from unified storage`
 				);
 				return credentials as CredentialsData;
 			}
@@ -668,7 +668,7 @@ export class CredentialsStorage {
 	 */
 	static remove(flowId: FlowId): void {
 		localStorage.removeItem(StorageKeys.credentials(flowId));
-		logger.info('FlowStorageService', `🗑️ [FlowStorage] Removed credentials for ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Removed credentials for ${flowId}`);
 	}
 }
 
@@ -688,7 +688,7 @@ export class TokenStorage {
 	 */
 	static set(tokens: TokenData): void {
 		sessionStorage.setItem(StorageKeys.tokens(), JSON.stringify(tokens));
-		logger.info('FlowStorageService', `🎫 [FlowStorage] Stored tokens securely`);
+		logger.info('FlowStorageService', ` [FlowStorage] Stored tokens securely`);
 	}
 
 	/**
@@ -717,7 +717,7 @@ export class TokenStorage {
 	 */
 	static remove(): void {
 		sessionStorage.removeItem(StorageKeys.tokens());
-		logger.info('FlowStorageService', `🗑️ [FlowStorage] Removed tokens`);
+		logger.info('FlowStorageService', ` [FlowStorage] Removed tokens`);
 	}
 
 	/**
@@ -750,7 +750,7 @@ export class NavigationStorage {
 	 */
 	static setFlowContext(context: FlowNavigationData): void {
 		sessionStorage.setItem(StorageKeys.flowContext(), JSON.stringify(context));
-		logger.info('FlowStorageService', `🧭 [FlowStorage] Set flow context: ${context.flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Set flow context: ${context.flowId}`);
 	}
 
 	/**
@@ -779,7 +779,7 @@ export class NavigationStorage {
 	 */
 	static removeFlowContext(): void {
 		sessionStorage.removeItem(StorageKeys.flowContext());
-		logger.info('FlowStorageService', `🗑️ [FlowStorage] Removed flow context`);
+		logger.info('FlowStorageService', ` [FlowStorage] Removed flow context`);
 	}
 
 	/**
@@ -788,7 +788,7 @@ export class NavigationStorage {
 	 */
 	static setRestoreStep(step: number): void {
 		sessionStorage.setItem(StorageKeys.restoreStep(), step.toString());
-		logger.info('FlowStorageService', `📍 [FlowStorage] Set restore step: ${step}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Set restore step: ${step}`);
 	}
 
 	/**
@@ -807,7 +807,7 @@ export class NavigationStorage {
 	 */
 	static removeRestoreStep(): void {
 		sessionStorage.removeItem(StorageKeys.restoreStep());
-		logger.info('FlowStorageService', `🗑️ [FlowStorage] Removed restore step`);
+		logger.info('FlowStorageService', ` [FlowStorage] Removed restore step`);
 	}
 }
 
@@ -826,7 +826,7 @@ export class StorageCleanup {
 	 * @param flowId - The flow identifier
 	 */
 	static clearFlow(flowId: FlowId): void {
-		logger.info('FlowStorageService', `🧹 [FlowStorage] Clearing session data for ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Clearing session data for ${flowId}`);
 
 		AuthCodeStorage.remove(flowId);
 		DeviceCodeStorage.remove(flowId);
@@ -842,7 +842,7 @@ export class StorageCleanup {
 	 * @param flowId - The flow identifier
 	 */
 	static clearFlowCompletely(flowId: FlowId): void {
-		logger.info('FlowStorageService', `🧹 [FlowStorage] Completely clearing ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Completely clearing ${flowId}`);
 
 		StorageCleanup.clearFlow(flowId);
 		CredentialsStorage.remove(flowId);
@@ -854,7 +854,7 @@ export class StorageCleanup {
 	 * Clear all navigation data
 	 */
 	static clearNavigation(): void {
-		logger.info('FlowStorageService', `🧹 [FlowStorage] Clearing navigation data`);
+		logger.info('FlowStorageService', ` [FlowStorage] Clearing navigation data`);
 		NavigationStorage.removeFlowContext();
 		NavigationStorage.removeRestoreStep();
 		logger.info('FlowStorageService', `✅ [FlowStorage] Cleared navigation data`);
@@ -893,7 +893,7 @@ export class AdvancedParametersStorage {
 			localStorage.setItem(StorageKeys.advancedParameters(flowId), JSON.stringify(params));
 			logger.info(
 				'FlowStorageService',
-				`💾 [FlowStorage] Saved advanced parameters for ${flowId}:`,
+				` [FlowStorage] Saved advanced parameters for ${flowId}:`,
 				{ data: params }
 			);
 		} catch (error) {
@@ -919,7 +919,7 @@ export class AdvancedParametersStorage {
 			const params: AdvancedParametersData = JSON.parse(stored);
 			logger.info(
 				'FlowStorageService',
-				`📖 [FlowStorage] Loaded advanced parameters for ${flowId}:`,
+				` [FlowStorage] Loaded advanced parameters for ${flowId}:`,
 				{ data: params }
 			);
 			return params;
@@ -951,7 +951,7 @@ export class AdvancedParametersStorage {
 	 */
 	static clear(flowId: FlowId): void {
 		localStorage.removeItem(StorageKeys.advancedParameters(flowId));
-		logger.info('FlowStorageService', `🗑️ [FlowStorage] Cleared advanced parameters for ${flowId}`);
+		logger.info('FlowStorageService', ` [FlowStorage] Cleared advanced parameters for ${flowId}`);
 	}
 
 	/**

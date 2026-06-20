@@ -71,7 +71,7 @@ class TokenDisplayService {
 		} catch (error) {
 			logger.error(
 				'TokenDisplayService',
-				'[🔐 TOKEN-DISPLAY-V6][ERROR] Failed to decode JWT:',
+				'[ TOKEN-DISPLAY-V6][ERROR] Failed to decode JWT:',
 				undefined,
 				error as Error
 			);
@@ -89,7 +89,7 @@ class TokenDisplayService {
 		} catch (error) {
 			logger.error(
 				'TokenDisplayService',
-				'[🔐 TOKEN-DISPLAY-V6][ERROR] Failed to copy to clipboard:',
+				'[ TOKEN-DISPLAY-V6][ERROR] Failed to copy to clipboard:',
 				undefined,
 				error as Error
 			);
@@ -108,7 +108,7 @@ class TokenDisplayService {
 				document.body.removeChild(textArea);
 				return successful;
 			} catch (fallbackError) {
-				logger.error('TokenDisplayService', '[🔐 TOKEN-DISPLAY-V6][ERROR] Fallback copy failed:', {
+				logger.error('TokenDisplayService', '[ TOKEN-DISPLAY-V6][ERROR] Fallback copy failed:', {
 					arg0: fallbackError,
 				});
 				return false;
@@ -154,7 +154,7 @@ class TokenDisplayService {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 		logger.info(
 			'TokenDisplayService',
-			`[${timestamp}][🔐 TOKEN-DISPLAY-V6][INFO] Rendered ${tokenInfo.type} Token panel (length=${tokenInfo.length}, isJWT=${tokenInfo.isJWT}, flow=${tokenInfo.flow || 'unknown'})`
+			`[${timestamp}][ TOKEN-DISPLAY-V6][INFO] Rendered ${tokenInfo.type} Token panel (length=${tokenInfo.length}, isJWT=${tokenInfo.isJWT}, flow=${tokenInfo.flow || 'unknown'})`
 		);
 	}
 
@@ -165,7 +165,7 @@ class TokenDisplayService {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 		logger.info(
 			'TokenDisplayService',
-			`[${timestamp}][🔐 TOKEN-DISPLAY-V6][INFO] Copied ${tokenInfo.type} Token (length=${tokenInfo.length}, flow=${tokenInfo.flow || 'unknown'})`
+			`[${timestamp}][ TOKEN-DISPLAY-V6][INFO] Copied ${tokenInfo.type} Token (length=${tokenInfo.length}, flow=${tokenInfo.flow || 'unknown'})`
 		);
 	}
 
@@ -177,7 +177,7 @@ class TokenDisplayService {
 		const level = success ? 'INFO' : 'WARN';
 		logger.info(
 			'TokenDisplayService',
-			`[${timestamp}][🔐 TOKEN-DISPLAY-V6][${level}] Decode ${tokenInfo.type} Token (length=${tokenInfo.length}, isJWT=${tokenInfo.isJWT}, success=${success}, flow=${tokenInfo.flow || 'unknown'})`
+			`[${timestamp}][ TOKEN-DISPLAY-V6][${level}] Decode ${tokenInfo.type} Token (length=${tokenInfo.length}, isJWT=${tokenInfo.isJWT}, success=${success}, flow=${tokenInfo.flow || 'unknown'})`
 		);
 	}
 

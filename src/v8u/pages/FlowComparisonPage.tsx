@@ -494,7 +494,7 @@ export const FlowComparisonPage: React.FC = () => {
 			<V9FlowHeader flowId="flow-comparison-v8u" customConfig={{ flowType: 'pingone' }} />
 			<PageContainer>
 				<PageHeader>
-					<PageTitle>📊 Flow Comparison Tool</PageTitle>
+					<PageTitle> Flow Comparison Tool</PageTitle>
 					<PageSubtitle>
 						Compare different OAuth flows to understand their security implications, performance
 						characteristics, and best use cases
@@ -552,7 +552,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 					<StatCard>
 						<StatIcon $color="#f59e0b">
-							<span>🛡️</span>
+							<span></span>
 						</StatIcon>
 						<StatValue>{stats.avgSecurity.toFixed(1)}</StatValue>
 						<StatLabel>Avg Security</StatLabel>
@@ -560,7 +560,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 					<StatCard>
 						<StatIcon $color="#8b5cf6">
-							<span>🕐</span>
+							<span></span>
 						</StatIcon>
 						<StatValue>{stats.avgComplexity.toFixed(1)}</StatValue>
 						<StatLabel>Avg Complexity</StatLabel>
@@ -571,7 +571,7 @@ export const FlowComparisonPage: React.FC = () => {
 				<SectionContainer>
 					<SectionHeader>
 						<SectionIcon>
-							<span>📋</span>
+							<span></span>
 						</SectionIcon>
 						<SectionTitle>Spec / Standard</SectionTitle>
 					</SectionHeader>
@@ -612,7 +612,7 @@ export const FlowComparisonPage: React.FC = () => {
 				<SectionContainer>
 					<SectionHeader>
 						<SectionIcon>
-							<span>🗄️</span>
+							<span></span>
 						</SectionIcon>
 						<SectionTitle>Comparison Features</SectionTitle>
 					</SectionHeader>
@@ -620,7 +620,7 @@ export const FlowComparisonPage: React.FC = () => {
 					<FeatureList>
 						<FeatureItem>
 							<FeatureIcon $color="#10b981">
-								<span>🛡️</span>
+								<span></span>
 							</FeatureIcon>
 							<FeatureText>Comprehensive security analysis with detailed ratings</FeatureText>
 							<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -636,7 +636,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 						<FeatureItem>
 							<FeatureIcon $color="#8b5cf6">
-								<span>👥</span>
+								<span></span>
 							</FeatureIcon>
 							<FeatureText>User experience evaluation and recommendations</FeatureText>
 							<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -644,7 +644,7 @@ export const FlowComparisonPage: React.FC = () => {
 
 						<FeatureItem>
 							<FeatureIcon $color="#10b981">
-								<span>🗄️</span>
+								<span></span>
 							</FeatureIcon>
 							<FeatureText>Detailed pros and cons for each flow type</FeatureText>
 							<FeatureStatus $enabled={true}>Active</FeatureStatus>
@@ -703,12 +703,12 @@ export const FlowComparisonPage: React.FC = () => {
 				{/* Export Actions */}
 				<ActionButtons>
 					<ActionButton onClick={handleExportComparison}>
-						<span>📥</span> Export Comparison
+						<span></span> Export Comparison
 					</ActionButton>
 					<ActionButton
 						onClick={() => setComparisonMode(comparisonMode === 'detailed' ? 'matrix' : 'detailed')}
 					>
-						<span>🔄</span> Switch to {comparisonMode === 'detailed' ? 'Matrix' : 'Detailed'} View
+						<span></span> Switch to {comparisonMode === 'detailed' ? 'Matrix' : 'Detailed'} View
 					</ActionButton>
 				</ActionButtons>
 			</PageContainer>

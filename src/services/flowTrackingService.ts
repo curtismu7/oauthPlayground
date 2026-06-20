@@ -50,8 +50,8 @@ class FlowTrackingService {
 	 */
 	setCurrentFlow(context: FlowContext): boolean {
 		try {
-			logger.debug('FlowTrackingService', `🔄 [FlowTracking] Setting current flow`);
-			logger.info('FlowTrackingService', `📋 Flow Context:`, { arg0: context });
+			logger.debug('FlowTrackingService', ` [FlowTracking] Setting current flow`);
+			logger.info('FlowTrackingService', ` Flow Context:`, { arg0: context });
 
 			// Store current flow
 			sessionStorage.setItem(this.CURRENT_FLOW_KEY, JSON.stringify(context));
@@ -85,7 +85,7 @@ class FlowTrackingService {
 			if (!stored) return null;
 
 			const context = JSON.parse(stored);
-			logger.info('FlowTrackingService', `🔍 [FlowTracking] Current flow:`, { arg0: context });
+			logger.info('FlowTrackingService', ` [FlowTracking] Current flow:`, { arg0: context });
 			return context;
 		} catch (error) {
 			logger.error(
@@ -104,7 +104,7 @@ class FlowTrackingService {
 	clearCurrentFlow(): boolean {
 		try {
 			sessionStorage.removeItem(this.CURRENT_FLOW_KEY);
-			logger.info('FlowTrackingService', `🧹 [FlowTracking] Current flow cleared`);
+			logger.info('FlowTrackingService', ` [FlowTracking] Current flow cleared`);
 			return true;
 		} catch (error) {
 			logger.error(
@@ -122,8 +122,8 @@ class FlowTrackingService {
 	 */
 	trackFlowError(errorContext: FlowErrorContext): boolean {
 		try {
-			logger.debug('FlowTrackingService', `🚨 [FlowTracking] Tracking flow error`);
-			logger.info('FlowTrackingService', `📋 Error Context:`, { arg0: errorContext });
+			logger.debug('FlowTrackingService', ` [FlowTracking] Tracking flow error`);
+			logger.info('FlowTrackingService', ` Error Context:`, { arg0: errorContext });
 
 			// Store error context
 			const errorKey = `pingone_flow_error_${Date.now()}`;
@@ -174,7 +174,7 @@ class FlowTrackingService {
 				returnUrl += `?step=${currentFlow.currentStep}`;
 			}
 
-			logger.info('FlowTrackingService', `🔗 [FlowTracking] Return URL: ${returnUrl}`);
+			logger.info('FlowTrackingService', ` [FlowTracking] Return URL: ${returnUrl}`);
 			return returnUrl;
 		} catch (error) {
 			logger.error(
@@ -198,7 +198,7 @@ class FlowTrackingService {
 				return false;
 			}
 
-			logger.info('FlowTrackingService', `🔄 [FlowTracking] Returning to flow: ${returnUrl}`);
+			logger.info('FlowTrackingService', ` [FlowTracking] Returning to flow: ${returnUrl}`);
 			window.location.href = returnUrl;
 			return true;
 		} catch (error) {
@@ -256,7 +256,7 @@ class FlowTrackingService {
 	clearFlowHistory(): boolean {
 		try {
 			sessionStorage.removeItem(this.FLOW_HISTORY_KEY);
-			logger.info('FlowTrackingService', `🧹 [FlowTracking] Flow history cleared`);
+			logger.info('FlowTrackingService', ` [FlowTracking] Flow history cleared`);
 			return true;
 		} catch (error) {
 			logger.error(

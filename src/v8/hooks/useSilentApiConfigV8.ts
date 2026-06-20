@@ -22,7 +22,7 @@ import { WorkerTokenConfigServiceV8 } from '@/v8/services/workerTokenConfigServi
 
 import { logger } from '../../utils/logger';
 
-const MODULE_TAG = '[🔕 SILENT-API-CONFIG-V8]';
+const MODULE_TAG = '[ SILENT-API-CONFIG-V8]';
 
 export interface WorkerTokenConfig {
 	silentApiRetrieval: boolean;
@@ -89,7 +89,7 @@ export const useWorkerTokenConfigV8 = () => {
 		window.addEventListener('workerTokenConfigUpdated', handleConfigUpdate);
 
 		// Add debugging for event registration
-		logger.info(`${MODULE_TAG} 📡 Event listeners registered`, {
+		logger.info(`${MODULE_TAG} Event listeners registered`, {
 			mfaConfigListener: true,
 			workerTokenConfigListener: true,
 			timestamp: Date.now(),
@@ -98,7 +98,7 @@ export const useWorkerTokenConfigV8 = () => {
 		return () => {
 			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
 			window.removeEventListener('workerTokenConfigUpdated', handleConfigUpdate);
-			logger.info(`${MODULE_TAG} 📡 Event listeners cleaned up`, {
+			logger.info(`${MODULE_TAG} Event listeners cleaned up`, {
 				timestamp: Date.now(),
 			});
 		};

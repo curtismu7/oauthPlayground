@@ -103,7 +103,7 @@ interface RiskPolicy {
 	updatedAt: string;
 }
 
-const MODULE_TAG = '[🛡️ PROTECT-FLOW-V8]';
+const MODULE_TAG = '[ PROTECT-FLOW-V8]';
 const FLOW_KEY = 'protect-flow-v8';
 
 // Risk level colors and actions
@@ -752,7 +752,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const renderStep2 = () => (
 		<div style={{ padding: '24px' }}>
 			<h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-				🗄️ Risk Policies
+				 Risk Policies
 			</h3>
 
 			<div style={{ marginBottom: '24px' }}>
@@ -828,7 +828,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const renderStep3 = () => (
 		<div style={{ padding: '24px' }}>
 			<h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-				📊 Risk Evaluation
+				 Risk Evaluation
 			</h3>
 
 			<div style={{ display: 'grid', gap: '20px', maxWidth: '800px' }}>
@@ -1186,7 +1186,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const renderStep4 = () => (
 		<div style={{ padding: '24px' }}>
 			<h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-				📈 Integration Patterns
+				 Integration Patterns
 			</h3>
 
 			<div style={{ display: 'grid', gap: '24px' }}>

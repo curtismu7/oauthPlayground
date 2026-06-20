@@ -430,16 +430,16 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
 				{/* Controller Buttons */}
 				<ControllerButtons>
 					<ControllerButton $variant="secondary" onClick={handleCopyUserCode}>
-						<span>📋</span> Copy
+						<span></span> Copy
 					</ControllerButton>
 					<ControllerButton $variant="secondary" onClick={handleCopyVerificationUri}>
-						<span>📋</span> URI
+						<span></span> URI
 					</ControllerButton>
 					<ControllerButton $variant="primary" onClick={handleOpenVerificationUri}>
-						<span>🔗</span> Open
+						<span></span> Open
 					</ControllerButton>
 					<ControllerButton $variant="success" onClick={() => window.location.reload()}>
-						<span>🔄</span> Reset
+						<span></span> Reset
 					</ControllerButton>
 				</ControllerButtons>
 

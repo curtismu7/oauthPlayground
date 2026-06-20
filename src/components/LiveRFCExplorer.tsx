@@ -400,9 +400,9 @@ const RFC_SPECS: RFCSpec[] = [
 		summary:
 			'RFC 6749 is THE OAuth 2.0 specification. It defines how applications can obtain limited access to user accounts on an HTTP service. Instead of sharing passwords, OAuth uses access tokens to grant access.',
 		keyPoints: [
-			'🔑 Defines 4 grant types: Authorization Code, Implicit, Client Credentials, Resource Owner Password',
-			'🎯 Separates resource owner, client, authorization server, and resource server roles',
-			'🔒 Access tokens provide limited, time-bound access without exposing passwords',
+			' Defines 4 grant types: Authorization Code, Implicit, Client Credentials, Resource Owner Password',
+			' Separates resource owner, client, authorization server, and resource server roles',
+			' Access tokens provide limited, time-bound access without exposing passwords',
 			'♻️ Refresh tokens enable long-lived access without re-authentication',
 			'⚠️ Deprecated: Implicit flow is now considered insecure for SPAs (use Authorization Code + PKCE)',
 		],
@@ -506,11 +506,11 @@ const apiResponse = await fetch('https://api.example.com/data', {
 		summary:
 			'PKCE prevents authorization code interception attacks in mobile and single-page apps that cannot securely store client secrets. It uses cryptographic proof that the same client that requested the code is exchanging it.',
 		keyPoints: [
-			'🔒 MANDATORY for public clients (mobile apps, SPAs) - RFC 8252 requires it',
-			'🎯 Prevents authorization code interception even if attacker has code',
-			'💻 Works by generating code_verifier (random) and code_challenge (hashed)',
+			' MANDATORY for public clients (mobile apps, SPAs) - RFC 8252 requires it',
+			' Prevents authorization code interception even if attacker has code',
+			' Works by generating code_verifier (random) and code_challenge (hashed)',
 			'✅ Should also be used for confidential clients as defense-in-depth',
-			'⚡ Uses SHA-256 hashing (S256 method recommended over plain)',
+			' Uses SHA-256 hashing (S256 method recommended over plain)',
 		],
 		examples: [
 			{
@@ -594,11 +594,11 @@ const tokenResponse = await fetch(tokenEndpoint, {
 		summary:
 			'Resource indicators let you request tokens scoped to specific APIs. Instead of one token for "everything," you get audience-limited tokens. If stolen, the blast radius is contained.',
 		keyPoints: [
-			'🎯 Limits access token to specific resource servers (APIs)',
-			'🔒 Reduces blast radius if token is compromised',
-			'☁️ Essential for multi-tenant SaaS platforms',
+			' Limits access token to specific resource servers (APIs)',
+			' Reduces blast radius if token is compromised',
+			' Essential for multi-tenant SaaS platforms',
 			'✅ Access token includes "aud" (audience) claim with resource URL',
-			'📋 Can request multiple resources in single authorization request',
+			' Can request multiple resources in single authorization request',
 		],
 		examples: [
 			{
@@ -681,11 +681,11 @@ function validateTokenForAPI(token, apiUrl) {
 		summary:
 			'OpenID Connect (OIDC) extends OAuth 2.0 with identity. While OAuth answers "Can I access this API?", OIDC answers "Who is this user?". It adds ID tokens (JWT) with user identity claims.',
 		keyPoints: [
-			'👤 Adds authentication (user identity) to OAuth 2.0 authorization',
-			'🎫 Introduces ID Token (JWT) containing user profile claims',
-			'🔍 Provides UserInfo endpoint for additional user data',
+			' Adds authentication (user identity) to OAuth 2.0 authorization',
+			' Introduces ID Token (JWT) containing user profile claims',
+			' Provides UserInfo endpoint for additional user data',
 			'✅ Requires "openid" scope to activate OIDC features',
-			'🔒 ID tokens are signed JWTs - validate signature before trusting',
+			' ID tokens are signed JWTs - validate signature before trusting',
 		],
 		examples: [
 			{
@@ -794,11 +794,11 @@ const userInfo = await userInfoResponse.json();
 		summary:
 			'Device Flow enables OAuth on input-constrained devices like Smart TVs, game consoles, and IoT sensors. User authenticates on their phone/computer while the device polls for completion.',
 		keyPoints: [
-			'📺 Designed for devices without browsers or limited input (Smart TVs, CLI tools)',
-			'📱 User authenticates on secondary device (phone/computer)',
-			'🔄 Device polls token endpoint until user completes authorization',
+			' Designed for devices without browsers or limited input (Smart TVs, CLI tools)',
+			' User authenticates on secondary device (phone/computer)',
+			' Device polls token endpoint until user completes authorization',
 			'⏱️ Includes rate limiting to prevent excessive polling',
-			'🎯 Perfect for IoT, Smart TVs, streaming devices, developer CLIs',
+			' Perfect for IoT, Smart TVs, streaming devices, developer CLIs',
 		],
 		examples: [
 			{
@@ -827,7 +827,7 @@ const deviceData = await deviceResponse.json();
 // }
 
 // Step 2: Display to user
-logger.info(\`\\n📺 To activate this device:\`, "Logger info");
+logger.info(\`\\n To activate this device:\`, "Logger info");
 logger.info(\`   1. Visit: \${deviceData.verification_uri}\`, "Logger info");
 logger.info(\`   2. Enter code: \${deviceData.user_code}\\n\`, "Logger info");
 
@@ -926,18 +926,18 @@ const LiveRFCExplorer: React.FC = () => {
 	return (
 		<ExplorerContainer>
 			<Title>
-				<span style={{ fontSize: '32px' }}>📖</span>
+				<span style={{ fontSize: '32px' }}></span>
 				Live RFC Explorer
 			</Title>
 			<Subtitle>
-				📚 OAuth/OIDC specifications decoded. Real examples, plain English, PingOne compatibility
+				 OAuth/OIDC specifications decoded. Real examples, plain English, PingOne compatibility
 				notes.
 			</Subtitle>
 
 			<ToggleRow>
 				<SearchBox>
 					<SearchIcon>
-						<span style={{ fontSize: '20px' }}>🔍</span>
+						<span style={{ fontSize: '20px' }}></span>
 					</SearchIcon>
 					<SearchInput
 						type="text"
@@ -977,7 +977,7 @@ const LiveRFCExplorer: React.FC = () => {
 			{rfc && (
 				<ContentPanel>
 					<SectionTitle>
-						<span>📖</span>
+						<span></span>
 						{rfc.number}: {rfc.title}
 					</SectionTitle>
 
@@ -991,21 +991,21 @@ const LiveRFCExplorer: React.FC = () => {
 							{rfc.year}
 						</MetaItem>
 						<MetaItem>
-							<span style={{ fontSize: '14px' }}>🔗</span>
+							<span style={{ fontSize: '14px' }}></span>
 							<LinkButton href={rfc.url} target="_blank" rel="noopener noreferrer">
 								View Official Spec
-								<span>🔗</span>
+								<span></span>
 							</LinkButton>
 						</MetaItem>
 					</RFCMeta>
 
 					<ContentSection>
-						<SubsectionTitle>📖 What Is It?</SubsectionTitle>
+						<SubsectionTitle> What Is It?</SubsectionTitle>
 						<ContentText>{rfc.summary}</ContentText>
 					</ContentSection>
 
 					<ContentSection>
-						<SubsectionTitle>🎯 Key Points</SubsectionTitle>
+						<SubsectionTitle> Key Points</SubsectionTitle>
 						{rfc.keyPoints.map((point, index) => (
 							<ContentText key={index}>• {point}</ContentText>
 						))}
@@ -1023,7 +1023,7 @@ const LiveRFCExplorer: React.FC = () => {
 								</ContentText>
 								<ExampleBox>
 									<CopyButton onClick={() => copyCode(example.code)}>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 									<pre style={{ margin: 0 }}>{example.code}</pre>
@@ -1092,7 +1092,7 @@ const LiveRFCExplorer: React.FC = () => {
 						fontSize: '1.1rem',
 					}}
 				>
-					👆 Select a specification above to explore OAuth/OIDC standards with real examples
+					 Select a specification above to explore OAuth/OIDC standards with real examples
 				</div>
 			)}
 		</ExplorerContainer>

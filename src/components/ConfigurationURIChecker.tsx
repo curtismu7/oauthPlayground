@@ -430,7 +430,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 								{redirectUri || 'Not configured'}
 								{redirectUri && (
 									<CopyButton onClick={() => handleCopy(redirectUri, 'Redirect URI')}>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 									</CopyButton>
 								)}
 							</URICell>
@@ -484,7 +484,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 									<CopyButton
 										onClick={() => handleCopy(postLogoutRedirectUri, 'Post-Logout Redirect URI')}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 									</CopyButton>
 								)}
 							</URICell>
@@ -594,7 +594,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 											handleCopy(flowInfo.redirectUri, `${flowInfo.description} Redirect URI`)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 									</CopyButton>
 								</URICell>
 								<URICell>
@@ -604,7 +604,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 											handleCopy(flowInfo.logoutUri, `${flowInfo.description} Logout URI`)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 									</CopyButton>
 								</URICell>
 								<TableCell style={{ textAlign: 'center' }}>
@@ -623,7 +623,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			<ActionBar>
 				{!effectiveWorkerToken ? (
 					<ActionButton onClick={() => setShowWorkerTokenModal(true)}>
-						<span style={{ fontSize: '16px' }}>🔑</span>
+						<span style={{ fontSize: '16px' }}></span>
 						Get Worker Token
 					</ActionButton>
 				) : (
@@ -637,7 +637,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 							logoutURIStatus.isChecking
 						}
 					>
-						<span style={{ fontSize: '16px' }}>🔄</span>
+						<span style={{ fontSize: '16px' }}></span>
 						Check URIs Against PingOne
 					</ActionButton>
 				)}

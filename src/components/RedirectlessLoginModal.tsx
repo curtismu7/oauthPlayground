@@ -382,7 +382,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 						<span>❌</span>
 					</ButtonSpinner>
 					<IconBadge>
-						<span>🛡️</span>
+						<span></span>
 					</IconBadge>
 					<h2>{title}</h2>
 					<p>{subtitle}</p>
@@ -392,7 +392,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 					<ModalBody>
 						<FormGroup>
 							<label htmlFor="username">
-								<span style={{ fontSize: '14px' }}>👤</span>
+								<span style={{ fontSize: '14px' }}></span>
 								Username
 							</label>
 							<InputContainer>
@@ -414,7 +414,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 
 						<FormGroup>
 							<label htmlFor="password">
-								<span style={{ fontSize: '14px' }}>🔒</span>
+								<span style={{ fontSize: '14px' }}></span>
 								Password
 							</label>
 							<InputContainer>
@@ -441,9 +441,9 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 									className="toggle-password"
 								>
 									{showPassword ? (
-										<span style={{ fontSize: '16px' }}>🙈</span>
+										<span style={{ fontSize: '16px' }}></span>
 									) : (
-										<span style={{ fontSize: '16px' }}>👁️</span>
+										<span style={{ fontSize: '16px' }}></span>
 									)}
 								</ButtonSpinner>
 							</InputContainer>
@@ -457,7 +457,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 						)}
 
 						<SecurityNote>
-							<span style={{ fontSize: '14px' }}>🛡️</span>
+							<span style={{ fontSize: '14px' }}></span>
 							<span>
 								Your credentials are sent securely to PingOne via HTTPS. This app does not store
 								your password.
@@ -477,7 +477,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 								</>
 							) : (
 								<>
-									<span>🛡️</span>
+									<span></span>
 									Sign In
 								</>
 							)}

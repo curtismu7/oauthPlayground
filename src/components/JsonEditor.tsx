@@ -279,7 +279,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 						{copied ? (
 							<span style={{ fontSize: '12px' }}>✅</span>
 						) : (
-							<span style={{ fontSize: '12px' }}>📋</span>
+							<span style={{ fontSize: '12px' }}></span>
 						)}
 						{copied ? 'Copied!' : 'Copy'}
 					</CopyButton>

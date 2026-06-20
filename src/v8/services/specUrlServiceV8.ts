@@ -12,7 +12,7 @@
 import { logger } from '../../utils/logger';
 import type { FlowType, SpecVersion } from './specVersionServiceV8';
 
-const MODULE_TAG = '[📚 SPEC-URL-V8]';
+const MODULE_TAG = '[ SPEC-URL-V8]';
 
 /**
  * Official specification URLs

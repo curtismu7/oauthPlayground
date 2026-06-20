@@ -111,7 +111,7 @@ export const CredentialsImportExport: React.FC<CredentialsImportExportProps> = (
 				style={exportButtonStyle}
 				title={`Export ${options.appName || options.flowType} credentials as JSON`}
 			>
-				<span style={{ fontSize: compact ? 12 : 13 }}>📥</span>
+				<span style={{ fontSize: compact ? 12 : 13 }}></span>
 				{showLabels && 'Export'}
 			</button>
 
@@ -122,7 +122,7 @@ export const CredentialsImportExport: React.FC<CredentialsImportExportProps> = (
 				style={importButtonStyle}
 				title={`Import ${options.appName || options.flowType} credentials from JSON file`}
 			>
-				<span style={{ fontSize: compact ? 12 : 13 }}>📤</span>
+				<span style={{ fontSize: compact ? 12 : 13 }}></span>
 				{showLabels && 'Import'}
 			</button>
 

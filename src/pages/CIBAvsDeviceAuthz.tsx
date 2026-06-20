@@ -219,7 +219,7 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 						title: 'CIBA vs Device Authorization Guide',
 						subtitle:
 							'Understanding when to use Client-Initiated Backchannel Authentication (CIBA) versus Device Authorization Grant, with comprehensive examples and use cases.',
-						icon: '🔐',
+						icon: '',
 					}}
 				/>
 
@@ -280,8 +280,8 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 										<td>
 											<strong>User Experience</strong>
 										</td>
-										<td>🔔 Push notification to user's device</td>
-										<td>📝 Manual code entry on separate device</td>
+										<td> Push notification to user's device</td>
+										<td> Manual code entry on separate device</td>
 									</tr>
 									<tr>
 										<td>
@@ -349,7 +349,7 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 					<ComparisonCard $type="ciba">
 						<CardHeader>
 							<h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-								<span>📱</span>
+								<span></span>
 								CIBA (Client-Initiated Backchannel Authentication)
 							</h2>
 						</CardHeader>
@@ -368,17 +368,17 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 									✅ <strong>Known User:</strong> Requires user identifier (login_hint)
 								</li>
 								<li>
-									🔔 <strong>Push Notification:</strong> User receives notification on trusted
+									 <strong>Push Notification:</strong> User receives notification on trusted
 									device
 								</li>
 								<li>
-									📱 <strong>Mobile-Centric:</strong> Designed for mobile authenticator apps
+									 <strong>Mobile-Centric:</strong> Designed for mobile authenticator apps
 								</li>
 								<li>
-									🔒 <strong>High Security:</strong> User approves on their trusted device
+									 <strong>High Security:</strong> User approves on their trusted device
 								</li>
 								<li>
-									⚡ <strong>Seamless UX:</strong> No manual code entry required
+									 <strong>Seamless UX:</strong> No manual code entry required
 								</li>
 							</ul>
 
@@ -397,7 +397,7 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 					<ComparisonCard $type="device">
 						<CardHeader>
 							<h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-								<span>🖥️</span>
+								<span></span>
 								Device Authorization Grant
 							</h2>
 						</CardHeader>
@@ -416,13 +416,13 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 									identifier required
 								</li>
 								<li>
-									📝 <strong>Manual Code Entry:</strong> User must enter code on separate device
+									 <strong>Manual Code Entry:</strong> User must enter code on separate device
 								</li>
 								<li>
-									🖥️ <strong>Device-Centric:</strong> Designed for constrained devices
+									 <strong>Device-Centric:</strong> Designed for constrained devices
 								</li>
 								<li>
-									🌐 <strong>Browser Required:</strong> User needs browser on separate device
+									 <strong>Browser Required:</strong> User needs browser on separate device
 								</li>
 								<li>
 									⏱️ <strong>Polling:</strong> Device polls until user completes authorization
@@ -445,7 +445,7 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 				<CollapsibleHeader
 					title="CIBA Flow Example"
 					theme="ping"
-					icon={<span>📱</span>}
+					icon={<span></span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -484,7 +484,7 @@ requested_expiry=600`,
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -547,7 +547,7 @@ requested_expiry=600`}</CodeBlock>
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -582,7 +582,7 @@ auth_req_id=550e8400-e29b-41d4-a716-446655440000`,
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -605,7 +605,7 @@ auth_req_id=550e8400-e29b-41d4-a716-446655440000`}</CodeBlock>
 								</FlowStepDescription>
 								<InfoBox>
 									<InfoIcon>
-										<span>📱</span>
+										<span></span>
 									</InfoIcon>
 									<InfoContent>
 										<h4>User Experience</h4>
@@ -644,7 +644,7 @@ auth_req_id=550e8400-e29b-41d4-a716-446655440000`}</CodeBlock>
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -664,7 +664,7 @@ auth_req_id=550e8400-e29b-41d4-a716-446655440000`}</CodeBlock>
 				<CollapsibleHeader
 					title="Device Authorization Flow Example"
 					theme="ping"
-					icon={<span>🖥️</span>}
+					icon={<span></span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -698,7 +698,7 @@ scope=openid profile email`,
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -735,7 +735,7 @@ scope=openid profile email`}</CodeBlock>
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -760,7 +760,7 @@ scope=openid profile email`}</CodeBlock>
 								</FlowStepDescription>
 								<InfoBox>
 									<InfoIcon>
-										<span>🖥️</span>
+										<span></span>
 									</InfoIcon>
 									<InfoContent>
 										<h4>User Code Display</h4>
@@ -821,7 +821,7 @@ client_id=your_client_id`,
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -833,7 +833,7 @@ device_code=GmRhmhcxhwAzkoEqiMEg_DnyEysNkuNhszIySk9eS&
 client_id=your_client_id`}</CodeBlock>
 								<InfoBox>
 									<InfoIcon>
-										<span>🕐</span>
+										<span></span>
 									</InfoIcon>
 									<InfoContent>
 										<h4>Polling Behavior</h4>
@@ -897,7 +897,7 @@ client_id=your_client_id`}</CodeBlock>
 											)
 										}
 									>
-										<span style={{ fontSize: '12px' }}>📋</span>
+										<span style={{ fontSize: '12px' }}></span>
 										Copy
 									</CopyButton>
 								</CodeBlockHeader>
@@ -917,7 +917,7 @@ client_id=your_client_id`}</CodeBlock>
 				<CollapsibleHeader
 					title="When to Use Which?"
 					theme="ping"
-					icon={<span>📖</span>}
+					icon={<span></span>}
 					defaultCollapsed={false}
 				>
 					<Card>
@@ -927,7 +927,7 @@ client_id=your_client_id`}</CodeBlock>
 							<UseCaseCard>
 								<CardHeader>
 									<h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-										<span>📱</span>
+										<span></span>
 										Use CIBA When:
 									</h3>
 								</CardHeader>
@@ -984,7 +984,7 @@ client_id=your_client_id`}</CodeBlock>
 							<UseCaseCard>
 								<CardHeader>
 									<h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-										<span>🖥️</span>
+										<span></span>
 										Use Device Authorization When:
 									</h3>
 								</CardHeader>
@@ -1119,7 +1119,7 @@ function sleep(ms) {
 										)
 									}
 								>
-									<span style={{ fontSize: '12px' }}>📋</span>
+									<span style={{ fontSize: '12px' }}></span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
@@ -1268,7 +1268,7 @@ function sleep(ms) {
 										)
 									}
 								>
-									<span style={{ fontSize: '12px' }}>📋</span>
+									<span style={{ fontSize: '12px' }}></span>
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>

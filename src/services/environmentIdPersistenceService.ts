@@ -55,7 +55,7 @@ class EnvironmentIdPersistenceService {
 			localStorage.setItem(this.STORAGE_KEY, JSON.stringify(config));
 			logger.info(
 				'EnvironmentIdPersistenceService',
-				`🔧 [EnvironmentIdPersistence] Saved Environment ID: ${environmentId} (source: ${source})`
+				` [EnvironmentIdPersistence] Saved Environment ID: ${environmentId} (source: ${source})`
 			);
 		} catch (error) {
 			logger.error(
@@ -81,7 +81,7 @@ class EnvironmentIdPersistenceService {
 				const config: EnvironmentIdConfig = JSON.parse(stored);
 				logger.info(
 					'EnvironmentIdPersistenceService',
-					`🔧 [EnvironmentIdPersistence] Loaded Environment ID from localStorage: ${config.environmentId}`
+					` [EnvironmentIdPersistence] Loaded Environment ID from localStorage: ${config.environmentId}`
 				);
 				return config.environmentId;
 			}
@@ -99,7 +99,7 @@ class EnvironmentIdPersistenceService {
 		if (envId) {
 			logger.info(
 				'EnvironmentIdPersistenceService',
-				`🔧 [EnvironmentIdPersistence] Loaded Environment ID from .env: ${envId}`
+				` [EnvironmentIdPersistence] Loaded Environment ID from .env: ${envId}`
 			);
 			// Save to localStorage for consistency
 			this.saveEnvironmentId(envId, 'env_file');
@@ -146,7 +146,7 @@ class EnvironmentIdPersistenceService {
 	 */
 	private showEnvUpdateInstructions(environmentId: string): void {
 		const instructions = `
-🔧 Environment ID Update Required
+ Environment ID Update Required
 
 The Environment ID has been updated to: ${environmentId}
 

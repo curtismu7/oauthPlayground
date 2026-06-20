@@ -235,7 +235,7 @@ const INITIAL_MESSAGES: Message[] = [
 		id: '1',
 		type: 'assistant',
 		content:
-			"Hi! I'm your MasterFlow AI assistant — connected to your PingOne environment via the **Model Context Protocol (MCP)**.\n\n**Live commands** (enable the Live toggle):\n- `List all users` · `Find user john@acme.com` · `Create user` · `Delete user`\n- `Show all apps` · `Get app secret` · `Rotate secret`\n- `List groups` · `List MFA policies` · `List subscriptions`\n- `Introspect token` · `Get userinfo` · `Show org licenses`\n\n**Always available** (no credentials needed):\n- `What is MCP?` · `What is an agent?` · `How does this agent work?`\n- `Decode JWT <paste-token>` · `Show my token` · `Last MCP tool`\n- `Admin login` · `User login` (side panel 👤)\n\nType any command or click **📋** for the full Prompt Reference guide.",
+			"Hi! I'm your MasterFlow AI assistant — connected to your PingOne environment via the **Model Context Protocol (MCP)**.\n\n**Live commands** (enable the Live toggle):\n- `List all users` · `Find user john@acme.com` · `Create user` · `Delete user`\n- `Show all apps` · `Get app secret` · `Rotate secret`\n- `List groups` · `List MFA policies` · `List subscriptions`\n- `Introspect token` · `Get userinfo` · `Show org licenses`\n\n**Always available** (no credentials needed):\n- `What is MCP?` · `What is an agent?` · `How does this agent work?`\n- `Decode JWT <paste-token>` · `Show my token` · `Last MCP tool`\n- `Admin login` · `User login` (side panel )\n\nType any command or click **** for the full Prompt Reference guide.",
 		timestamp: new Date(),
 	},
 ];
@@ -718,7 +718,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 						const header = decodeJwtHeader(userAccessToken);
 						const payload = decodeJwtPayload(userAccessToken);
 						const parts: string[] = [
-							`## 🔑 User Access Token\n\n\`\`\`\n${userAccessToken}\n\`\`\``,
+							`## User Access Token\n\n\`\`\`\n${userAccessToken}\n\`\`\``,
 						];
 						if (header)
 							parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
@@ -742,7 +742,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 						const header = decodeJwtHeader(fallbackToken);
 						const payload = decodeJwtPayload(fallbackToken);
 						const parts: string[] = [
-							`## 🔐 ${label}\n_(No user access token — showing ${label.toLowerCase()} instead)_\n\n\`\`\`\n${fallbackToken}\n\`\`\``,
+							`## ${label}\n_(No user access token — showing ${label.toLowerCase()} instead)_\n\n\`\`\`\n${fallbackToken}\n\`\`\``,
 						];
 						if (header)
 							parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
@@ -771,7 +771,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					}
 					const header = decodeJwtHeader(idToken);
 					const payload = decodeJwtPayload(idToken);
-					const parts: string[] = [`## 🪪 ID Token\n\n\`\`\`\n${idToken}\n\`\`\``];
+					const parts: string[] = [`## ID Token\n\n\`\`\`\n${idToken}\n\`\`\``];
 					if (header)
 						parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
 					if (payload)
@@ -805,7 +805,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					}
 					const header = decodeJwtHeader(token);
 					const payload = decodeJwtPayload(token);
-					const parts: string[] = [`## 🔐 ${label}\n\n\`\`\`\n${token}\n\`\`\``];
+					const parts: string[] = [`## ${label}\n\n\`\`\`\n${token}\n\`\`\``];
 					if (header)
 						parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
 					if (payload)
@@ -837,7 +837,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					const payload = decodeJwtPayload(tokenToDecode);
 					const truncated =
 						tokenToDecode.length > 80 ? `${tokenToDecode.slice(0, 80)}…` : tokenToDecode;
-					const parts: string[] = [`## 🔬 Decoded Token\n\n\`\`\`\n${truncated}\n\`\`\``];
+					const parts: string[] = [`## Decoded Token\n\n\`\`\`\n${truncated}\n\`\`\``];
 					if (header)
 						parts.push(`### Header\n\`\`\`json\n${JSON.stringify(header, null, 2)}\n\`\`\``);
 					if (payload)
@@ -866,7 +866,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 						return 'No API calls recorded yet. Execute a live MCP command (e.g. **List all users**) first.';
 					}
 					const records = [...apiCallHistory].reverse().slice(0, 5);
-					const parts: string[] = ['## 📡 Recent API Calls'];
+					const parts: string[] = ['## Recent API Calls'];
 					records.forEach((rec, i) => {
 						parts.push(`### ${i + 1}. ${rec.mcpTool ?? 'Unknown tool'}\n**Query:** ${rec.query}`);
 						if (rec.apiCall)
@@ -920,7 +920,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 						DELETE: 'Removes a resource permanently.',
 					};
 					const lines: string[] = [
-						`## 🔌 Last MCP Tool: \`${toolName}\``,
+						`## Last MCP Tool: \`${toolName}\``,
 						'',
 						`**Your query:** "${last.query}"`,
 						`**When:** ${last.timestamp.toLocaleTimeString()}`,
@@ -981,7 +981,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					lines.push(
 						'',
 						'---',
-						'> 💡 **Related commands:** `show api calls` (last 5 with full data) · `decode jwt` (paste a token to inspect claims) · `what is mcp` (learn the protocol)'
+						'> **Related commands:** `show api calls` (last 5 with full data) · `decode jwt` (paste a token to inspect claims) · `what is mcp` (learn the protocol)'
 					);
 					return lines.join('\n');
 				})();
@@ -1007,7 +1007,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 						id: crypto.randomUUID(),
 						type: 'assistant',
 						content:
-							'🗑️ **Tokens cleared.** User access token, ID token, and admin token have been removed from memory and localStorage.\n\n> Note: The worker token (managed in Configuration) is not affected.',
+							' **Tokens cleared.** User access token, ID token, and admin token have been removed from memory and localStorage.\n\n> Note: The worker token (managed in Configuration) is not affected.',
 						timestamp: new Date(),
 					},
 				]);
@@ -1020,7 +1020,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 
 			if (isAgentEducationQuery(query)) {
 				const msg = [
-					'## What is an AI Agent? 🤖',
+					'## What is an AI Agent? ',
 					'',
 					'An **AI agent** is a system that can *perceive*, *reason*, and *act* — going beyond simple question-answering.',
 					'',
@@ -1036,14 +1036,14 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'1. Classifies it as an MCP query (`isMcpQuery()` → `true`)',
 					"2. Checks the Live toggle (won't simulate data)",
 					'3. POSTs to `/api/mcp/query` → calls PingOne → real user list returned',
-					'4. Displays the 🔌 MCP card with method, path, and raw data',
+					'4. Displays the MCP card with method, path, and raw data',
 					'',
 					'### Why agents matter',
 					'Agents can chain tool calls autonomously. This agent handles 71 MCP tools: users, groups, MFA, tokens, OIDC, decode JWT, and more.',
 					'',
-					'💡 Try: **"What is MCP?"** — the standard that connects agents to tools.',
-					'💡 Try: **"How does this agent work?"** — see the full implementation.',
-					'💡 Try: **"List all users"** — watch the agent make a real API call.',
+					' Try: **"What is MCP?"** — the standard that connects agents to tools.',
+					' Try: **"How does this agent work?"** — see the full implementation.',
+					' Try: **"List all users"** — watch the agent make a real API call.',
 				].join('\n');
 				setMessages((prev) => [
 					...prev,
@@ -1056,7 +1056,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 
 			if (isMcpExplainQuery(query)) {
 				const msg = [
-					'## Model Context Protocol (MCP) 🔌',
+					'## Model Context Protocol (MCP) ',
 					'',
 					'MCP is an **open standard** (Anthropic, Nov 2024) that lets AI applications connect to external tools and data sources in a standardized way.',
 					'',
@@ -1087,9 +1087,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'- Features: tools, resources, prompts, sampling',
 					'- SDK: `@modelcontextprotocol/sdk` (npm)',
 					'',
-					'💡 Try: **"List MCP tools"** — calls the actual MCP server right now.',
-					'💡 Try: **"Explain MCP host, client, server"** — the three roles.',
-					'💡 Try: **"What is a tool call?"** — see the JSON-RPC message format.',
+					' Try: **"List MCP tools"** — calls the actual MCP server right now.',
+					' Try: **"Explain MCP host, client, server"** — the three roles.',
+					' Try: **"What is a tool call?"** — see the JSON-RPC message format.',
 				].join('\n');
 				setMessages((prev) => [
 					...prev,
@@ -1102,11 +1102,11 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 
 			if (isMcpRolesQuery(query)) {
 				const msg = [
-					'## MCP: Host, Client, Server 🏗️',
+					'## MCP: Host, Client, Server ',
 					'',
 					'The Model Context Protocol defines three distinct roles in every AI integration.',
 					'',
-					'### 🖥️ Host',
+					'### Host',
 					'The **host** is the application that runs the AI and manages MCP server connections.',
 					'',
 					'Examples: Claude Desktop, VS Code (with Copilot + MCP extensions)',
@@ -1114,7 +1114,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'',
 					'The host decides: which servers to spawn, when to invoke tools, what to show the user.',
 					'',
-					'### 🔗 Client',
+					'### Client',
 					'The **client** is the MCP connection embedded in the host — one connection per server.',
 					'',
 					'In our code:',
@@ -1122,7 +1122,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'- It spawns `pingone-mcp-server` as a child stdio process',
 					'- It sends `tools/list` and `tools/call` JSON-RPC messages via stdin',
 					'',
-					'### 🔧 Server',
+					'### Server',
 					'The **server** exposes tools, resources, and prompts to the client.',
 					'',
 					'Ours: `pingone-mcp-server/` (TypeScript, stdio transport)',
@@ -1140,8 +1140,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'User → React UI → POST /api/mcp/query → client → server → PingOne',
 					'```',
 					'',
-					'💡 MCP spec: https://modelcontextprotocol.io',
-					'💡 Try: **"What is JSON-RPC?"** — the protocol that connects client and server.',
+					' MCP spec: https://modelcontextprotocol.io',
+					' Try: **"What is JSON-RPC?"** — the protocol that connects client and server.',
 				].join('\n');
 				setMessages((prev) => [
 					...prev,
@@ -1154,7 +1154,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 
 			if (isThisAgentExplainQuery(query)) {
 				const msg = [
-					'## How This Agent Works 🤖➡️🔌➡️🌐',
+					'## How This Agent Works ➡️➡️',
 					'',
 					'Here is the exact flow when you send a message:',
 					'',
@@ -1174,7 +1174,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'  ↓ calls the right PingOne REST API endpoint',
 					'  ↓ returns { answer, mcpTool, apiCall, howItWorks, data }',
 					'```',
-					'The 🔌 MCP card in responses shows: tool name, HTTP method+path, and raw data.',
+					'The MCP card in responses shows: tool name, HTTP method+path, and raw data.',
 					'',
 					'### 3. Groq LLM (for AI / knowledge questions)',
 					'- Provider: `api.groq.com`',
@@ -1196,8 +1196,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'| `pingone-mcp-server/src/index.ts` | MCP tool registration |',
 					'| `pingone-mcp-server/src/actions/` | PingOne API implementations |',
 					'',
-					'💡 Try: **"Show agent architecture"** — see the full stack diagram.',
-					'💡 Try: **"List all users"** — watch a real API call happen.',
+					' Try: **"Show agent architecture"** — see the full stack diagram.',
+					' Try: **"List all users"** — watch a real API call happen.',
 				].join('\n');
 				setMessages((prev) => [
 					...prev,
@@ -1210,7 +1210,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 
 			if (/\bshow\s+agent\s+architecture\b/i.test(query.trim())) {
 				const msg = [
-					'## Agent Architecture 🏗️',
+					'## Agent Architecture ',
 					'',
 					'```',
 					'┌──────────────────────────────────────────────────────┐',
@@ -1272,7 +1272,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 
 			if (isMcpToolExplainQuery(query)) {
 				const msg = [
-					'## What is an MCP Tool Call? 🔧',
+					'## What is an MCP Tool Call? ',
 					'',
 					'A **tool call** is how an AI agent executes a specific action — like calling a REST API.',
 					'',
@@ -1313,8 +1313,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'└── oidc.ts         ← pingone_oidc_config, pingone_oidc_discovery',
 					'```',
 					'',
-					'💡 Try: **"List MCP tools"** — retrieves all 71 available tools from the server.',
-					'💡 Try: **"List all users"** — executes a real `tools/call` right now.',
+					' Try: **"List MCP tools"** — retrieves all 71 available tools from the server.',
+					' Try: **"List all users"** — executes a real `tools/call` right now.',
 				].join('\n');
 				setMessages((prev) => [
 					...prev,
@@ -1327,7 +1327,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 
 			if (isJsonRpcExplainQuery(query)) {
 				const msg = [
-					'## What is JSON-RPC 2.0? 📡',
+					'## What is JSON-RPC 2.0? ',
 					'',
 					'**JSON-RPC 2.0** is the wire protocol MCP uses between the host/client and the server.',
 					'',
@@ -1392,7 +1392,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 
 			if (isGroqExplainQuery(query)) {
 				const msg = [
-					'## How Does Groq Fit In? ⚡',
+					'## How Does Groq Fit In? ',
 					'',
 					"**Groq** is the LLM inference provider powering this agent's natural language understanding.",
 					'',
@@ -1420,8 +1420,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 					'### Without Groq',
 					'If Groq is not configured, the agent still handles 100% of MCP/PingOne operations. Groq is only needed for open-ended AI/knowledge questions.',
 					'',
-					'💡 The **⚡ Groq** status dot in the header shows connection state.',
-					'💡 Add your key in **Configuration → AI Keys**.',
+					' The ** Groq** status dot in the header shows connection state.',
+					' Add your key in **Configuration → AI Keys**.',
 				].join('\n');
 				setMessages((prev) => [
 					...prev,
@@ -1447,7 +1447,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 						id: crypto.randomUUID(),
 						type: 'assistant',
 						content:
-							"🔌 **Live MCP is off.**\n\nTurn on the **Live** toggle in the header to execute this command against your real PingOne environment.\n\nI won't guess or simulate PingOne data — only the MCP tool can return real results.",
+							" **Live MCP is off.**\n\nTurn on the **Live** toggle in the header to execute this command against your real PingOne environment.\n\nI won't guess or simulate PingOne data — only the MCP tool can return real results.",
 						timestamp: new Date(),
 					},
 				]);
@@ -1668,11 +1668,11 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 
 	const promptCategories = [
 		{
-			label: '🔑 Auth',
+			label: ' Auth',
 			prompts: ['Get worker token', 'Admin login', 'User login', 'List MCP tools'],
 		},
 		{
-			label: '📱 Applications',
+			label: ' Applications',
 			prompts: [
 				'Show all apps',
 				'Find app named MyApp',
@@ -1683,7 +1683,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 			],
 		},
 		{
-			label: '👤 Users',
+			label: ' Users',
 			prompts: [
 				'List all users',
 				'Find user john@acme.com',
@@ -1692,7 +1692,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 			],
 		},
 		{
-			label: '👥 Groups',
+			label: ' Groups',
 			prompts: [
 				'List groups',
 				'Find group named Admins',
@@ -1704,15 +1704,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 			],
 		},
 		{
-			label: '🏘️ Populations',
+			label: ' Populations',
 			prompts: ['List populations'],
 		},
 		{
-			label: '🔐 MFA',
+			label: ' MFA',
 			prompts: ['List MFA policies', 'List MFA devices for user <user-uuid>'],
 		},
 		{
-			label: '📡 Webhooks',
+			label: ' Webhooks',
 			prompts: ['List subscriptions', 'Delete subscription <sub-uuid>'],
 		},
 		{
@@ -1727,7 +1727,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 			],
 		},
 		{
-			label: '🔍 Token Inspector',
+			label: ' Token Inspector',
 			prompts: [
 				'Show my token',
 				'Show id token',
@@ -1740,7 +1740,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 			],
 		},
 		{
-			label: '🤖 Agent & MCP',
+			label: ' Agent & MCP',
 			prompts: [
 				'What is an agent?',
 				'What is MCP?',
@@ -1793,7 +1793,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 				<PageResultHeader>
 					<span>Agent Results</span>
 					<PageResultClearBtn type="button" onClick={handleClear} title="Clear chat and results">
-						🗑 Clear
+						 Clear
 					</PageResultClearBtn>
 				</PageResultHeader>
 				<PageResultContent>
@@ -1804,13 +1804,13 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 								<MessageContent>{renderMessageText(msg.content)}</MessageContent>
 								{msg.groqUsed && (
 									<GroqBadgeRow>
-										<GroqBadge>⚡ Groq · Llama 3.3 70B</GroqBadge>
+										<GroqBadge> Groq · Llama 3.3 70B</GroqBadge>
 									</GroqBadgeRow>
 								)}
 								{msg.mcpResult && (
 									<McpResultCard $isSuccess={!!msg.mcpResult.success}>
 										<McpResultHeader>
-											<McpBadge>🔌 MCP</McpBadge>
+											<McpBadge> MCP</McpBadge>
 											<McpToolName>{msg.mcpResult.mcpTool ?? 'PingOne MCP'}</McpToolName>
 											{!!msg.mcpResult.success && (
 												<McpSuccessBadge>
@@ -1861,7 +1861,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 																)
 															}
 														>
-															{msg.mcpResult.rawJson ? '📋 Formatted' : '{ } JSON'}
+															{msg.mcpResult.rawJson ? ' Formatted' : '{ } JSON'}
 														</McpJsonToggle>
 													</McpDataLabel>
 													{msg.mcpResult.rawJson || !Array.isArray(msg.mcpResult.data) ? (
@@ -1882,7 +1882,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 									(msg.webResult.data as BraveResult[]).length > 0 && (
 										<BraveResultCard>
 											<BraveResultHeader>
-												<BraveBadge>🌐 Brave</BraveBadge>
+												<BraveBadge> Brave</BraveBadge>
 												<BraveToolName>brave_web_search</BraveToolName>
 											</BraveResultHeader>
 											<BraveResultsList>
@@ -1908,17 +1908,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 												onClick={() => handleLinkClick(link.path, link.external)}
 											>
 												<LinkIcon $type={link.type}>
-													{link.type === 'flow' && '🔄'}
-													{link.type === 'feature' && '⚡'}
-													{link.type === 'doc' && '📖'}
-													{link.type === 'api' && '🔌'}
-													{link.type === 'spec' && '📋'}
-													{link.type === 'workflow' && '🔀'}
-													{link.type === 'guide' && '📚'}
-													{link.type === 'web' && '🌐'}
+													{link.type === 'flow' && ''}
+													{link.type === 'feature' && ''}
+													{link.type === 'doc' && ''}
+													{link.type === 'api' && ''}
+													{link.type === 'spec' && ''}
+													{link.type === 'workflow' && ''}
+													{link.type === 'guide' && ''}
+													{link.type === 'web' && ''}
 												</LinkIcon>
 												<LinkText>{link.title}</LinkText>
-												<span style={{ fontSize: '14px' }}>🔗</span>
+												<span style={{ fontSize: '14px' }}></span>
 											</LinkItem>
 										))}
 									</LinksContainer>
@@ -1937,7 +1937,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 			{/* Floating Button - only show when not in fullPage, chat closed, and page visible (hide when tab/window hidden) */}
 			{!fullPage && !isOpen && isPageVisible && (
 				<FloatingButton onClick={() => setIsOpen(true)} aria-label="Open MasterFlow Agent">
-					<span style={{ fontSize: '24px' }}>💬</span>
+					<span style={{ fontSize: '24px' }}></span>
 					<Pulse />
 				</FloatingButton>
 			)}
@@ -1990,7 +1990,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 							>
 								<ChatHeader>
 									<HeaderContent>
-										<AssistantIcon>🤖</AssistantIcon>
+										<AssistantIcon></AssistantIcon>
 										<HeaderText>
 											<HeaderTitle>MasterFlow Agent</HeaderTitle>
 											<StatusRow>
@@ -2018,7 +2018,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 													}
 													style={{ cursor: groqAvailable === false ? 'pointer' : 'default' }}
 												>
-													⚡ Groq
+													 Groq
 												</StatusDot>
 												<StatusDot
 													$state={
@@ -2044,7 +2044,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 													}
 													style={{ cursor: braveAvailable === false ? 'pointer' : 'default' }}
 												>
-													🌐 Brave
+													 Brave
 												</StatusDot>
 												<StatusDot
 													$state={
@@ -2067,7 +2067,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 																	? 'MCP disabled — turn on Live toggle'
 																	: !_workerTokenStatus.hasCredentials
 																		? 'MCP not configured — save worker credentials in Configuration'
-																		: 'MCP needs refresh — click 🔑 to get worker token'
+																		: 'MCP needs refresh — click to get worker token'
 													}
 													onClick={
 														(!includeLive || !_workerTokenStatus?.hasCredentials) &&
@@ -2089,7 +2089,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 																: 'default',
 													}}
 												>
-													🔌 MCP
+													 MCP
 												</StatusDot>
 											</StatusRow>
 										</HeaderText>
@@ -2215,7 +2215,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 											aria-label="Refresh worker token (requires confirmation)"
 											title="Get a new worker token using saved credentials (you will be asked to confirm)"
 										>
-											🔑
+											
 										</RefreshTokenButton>
 										<RefreshTokenButton
 											type="button"
@@ -2223,7 +2223,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 											aria-label="Open log viewer to see MCP calls"
 											title="Open log viewer — see MCP calls, API requests, and server logs"
 										>
-											📋
+											
 										</RefreshTokenButton>
 										<CollapseButton
 											type="button"
@@ -2258,7 +2258,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 												aria-label="Open in popout window"
 												title="Open in popout window — move outside host page, still communicates with it"
 											>
-												<span style={{ fontSize: '16px' }}>🔗</span>
+												<span style={{ fontSize: '16px' }}></span>
 											</ExpandButton>
 										)}
 										<ClearButton
@@ -2267,7 +2267,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 											aria-label="Clear chat"
 											title="Clear chat and start fresh"
 										>
-											<span style={{ fontSize: '16px' }}>🗑</span>
+											<span style={{ fontSize: '16px' }}></span>
 											Clear
 										</ClearButton>
 										<CloseButton
@@ -2305,14 +2305,14 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 														{/* Groq badge — shown when the LLM answered */}
 														{message.groqUsed && (
 															<GroqBadgeRow>
-																<GroqBadge>⚡ Groq · Llama 3.3 70B</GroqBadge>
+																<GroqBadge> Groq · Llama 3.3 70B</GroqBadge>
 															</GroqBadgeRow>
 														)}
 														{/* MCP Live result card */}
 														{message.mcpResult && (
 															<McpResultCard $isSuccess={!!message.mcpResult.success}>
 																<McpResultHeader>
-																	<McpBadge>🔌 MCP</McpBadge>
+																	<McpBadge> MCP</McpBadge>
 																	<McpToolName>
 																		{message.mcpResult.mcpTool ?? 'PingOne MCP'}
 																	</McpToolName>
@@ -2367,7 +2367,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 																						)
 																					}
 																				>
-																					{message.mcpResult.rawJson ? '📋 Formatted' : '{ } JSON'}
+																					{message.mcpResult.rawJson ? ' Formatted' : '{ } JSON'}
 																				</McpJsonToggle>
 																			</McpDataLabel>
 																			{message.mcpResult.rawJson ||
@@ -2389,12 +2389,12 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 														{message.webResult && (
 															<BraveResultCard>
 																<BraveResultHeader>
-																	<BraveBadge>🌐 Brave</BraveBadge>
+																	<BraveBadge> Brave</BraveBadge>
 																	<BraveToolName>brave_web_search</BraveToolName>
 																</BraveResultHeader>
 																{message.webResult.credentialsRequired && (
 																	<McpCredentialHint>
-																		💡 Add your Brave Search API key in the Configuration page to
+																		 Add your Brave Search API key in the Configuration page to
 																		enable web search.
 																	</McpCredentialHint>
 																)}
@@ -2429,17 +2429,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 																		onClick={() => handleLinkClick(link.path, link.external)}
 																	>
 																		<LinkIcon $type={link.type}>
-																			{link.type === 'flow' && '🔄'}
-																			{link.type === 'feature' && '⚡'}
-																			{link.type === 'doc' && '📖'}
-																			{link.type === 'api' && '🔌'}
-																			{link.type === 'spec' && '📋'}
-																			{link.type === 'workflow' && '🔀'}
-																			{link.type === 'guide' && '📚'}
-																			{link.type === 'web' && '🌐'}
+																			{link.type === 'flow' && ''}
+																			{link.type === 'feature' && ''}
+																			{link.type === 'doc' && ''}
+																			{link.type === 'api' && ''}
+																			{link.type === 'spec' && ''}
+																			{link.type === 'workflow' && ''}
+																			{link.type === 'guide' && ''}
+																			{link.type === 'web' && ''}
 																		</LinkIcon>
 																		<LinkText>{link.title}</LinkText>
-																		<span style={{ fontSize: '14px' }}>🔗</span>
+																		<span style={{ fontSize: '14px' }}></span>
 																	</LinkItem>
 																))}
 															</LinksContainer>
@@ -2484,7 +2484,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 										{showPromptsGuide && (
 											<PromptsGuidePanel>
 												<PromptsGuideHeader>
-													<PromptsGuideTitle>📋 Prompt Reference</PromptsGuideTitle>
+													<PromptsGuideTitle> Prompt Reference</PromptsGuideTitle>
 													<PromptsGuideClose
 														type="button"
 														onClick={() => setShowPromptsGuide(false)}
@@ -2530,7 +2530,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 												aria-label="Show prompt guide"
 												title="Browse all available prompts"
 											>
-												📋
+												
 											</PromptsToggleButton>
 											<Input
 												value={input}
@@ -2569,7 +2569,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 						>
 							<ChatHeader $draggable onMouseDown={handleAssistantHeaderMouseDown}>
 								<HeaderContent>
-									<AssistantIcon>🤖</AssistantIcon>
+									<AssistantIcon></AssistantIcon>
 									<HeaderText>
 										<HeaderTitle>MasterFlow Agent</HeaderTitle>
 										<StatusRow>
@@ -2595,7 +2595,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 												}
 												style={{ cursor: groqAvailable === false ? 'pointer' : 'default' }}
 											>
-												⚡ Groq
+												 Groq
 											</StatusDot>
 											<StatusDot
 												$state={
@@ -2621,7 +2621,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 												}
 												style={{ cursor: braveAvailable === false ? 'pointer' : 'default' }}
 											>
-												🌐 Brave
+												 Brave
 											</StatusDot>
 											<StatusDot
 												$state={
@@ -2644,7 +2644,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 																? 'MCP disabled — turn on Live toggle'
 																: !_workerTokenStatus.hasCredentials
 																	? 'MCP not configured — save worker credentials in Configuration'
-																	: 'MCP needs refresh — click 🔑 to get worker token'
+																	: 'MCP needs refresh — click to get worker token'
 												}
 												onClick={
 													(!includeLive || !_workerTokenStatus?.hasCredentials) &&
@@ -2666,7 +2666,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 															: 'default',
 												}}
 											>
-												🔌 MCP
+												 MCP
 											</StatusDot>
 										</StatusRow>
 									</HeaderText>
@@ -2792,7 +2792,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 										aria-label="Open log viewer to see MCP calls"
 										title="Open log viewer — see MCP calls, API requests, and server logs"
 									>
-										📋
+										
 									</RefreshTokenButton>
 									<ClearButton
 										type="button"
@@ -2800,7 +2800,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 										aria-label="Clear chat"
 										title="Clear chat and start fresh"
 									>
-										<span style={{ fontSize: '16px' }}>🗑</span>
+										<span style={{ fontSize: '16px' }}></span>
 										Clear
 									</ClearButton>
 									<CloseButton
@@ -2830,13 +2830,13 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 													<MessageContent>{renderMessageText(message.content)}</MessageContent>
 													{message.groqUsed && (
 														<GroqBadgeRow>
-															<GroqBadge>⚡ Groq · Llama 3.3 70B</GroqBadge>
+															<GroqBadge> Groq · Llama 3.3 70B</GroqBadge>
 														</GroqBadgeRow>
 													)}
 													{message.mcpResult && (
 														<McpResultCard $isSuccess={!!message.mcpResult.success}>
 															<McpResultHeader>
-																<McpBadge>🔌 MCP</McpBadge>
+																<McpBadge> MCP</McpBadge>
 																<McpToolName>
 																	{message.mcpResult.mcpTool ?? 'PingOne MCP'}
 																</McpToolName>
@@ -2890,7 +2890,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 																					)
 																				}
 																			>
-																				{message.mcpResult.rawJson ? '📋 Formatted' : '{ } JSON'}
+																				{message.mcpResult.rawJson ? ' Formatted' : '{ } JSON'}
 																			</McpJsonToggle>
 																		</McpDataLabel>
 																		{message.mcpResult.rawJson ||
@@ -2914,7 +2914,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 														(message.webResult.data as BraveResult[]).length > 0 && (
 															<BraveResultCard>
 																<BraveResultHeader>
-																	<BraveBadge>🌐 Brave</BraveBadge>
+																	<BraveBadge> Brave</BraveBadge>
 																	<BraveToolName>brave_web_search</BraveToolName>
 																</BraveResultHeader>
 																<BraveResultsList>
@@ -2944,17 +2944,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 																	onClick={() => handleLinkClick(link.path, link.external)}
 																>
 																	<LinkIcon $type={link.type}>
-																		{link.type === 'flow' && '🔄'}
-																		{link.type === 'feature' && '⚡'}
-																		{link.type === 'doc' && '📖'}
-																		{link.type === 'api' && '🔌'}
-																		{link.type === 'spec' && '📋'}
-																		{link.type === 'workflow' && '🔀'}
-																		{link.type === 'guide' && '📚'}
-																		{link.type === 'web' && '🌐'}
+																		{link.type === 'flow' && ''}
+																		{link.type === 'feature' && ''}
+																		{link.type === 'doc' && ''}
+																		{link.type === 'api' && ''}
+																		{link.type === 'spec' && ''}
+																		{link.type === 'workflow' && ''}
+																		{link.type === 'guide' && ''}
+																		{link.type === 'web' && ''}
 																	</LinkIcon>
 																	<LinkText>{link.title}</LinkText>
-																	<span style={{ fontSize: '14px' }}>🔗</span>
+																	<span style={{ fontSize: '14px' }}></span>
 																</LinkItem>
 															))}
 														</LinksContainer>
@@ -3005,7 +3005,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 											aria-label="Show prompt guide"
 											title="Browse all available prompts"
 										>
-											📋
+											
 										</PromptsToggleButton>
 										<Input
 											value={input}

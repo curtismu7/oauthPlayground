@@ -896,7 +896,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		if (flowSpecificUri && redirectUri !== flowSpecificUri) {
 			logger.debug(
 				'ComprehensiveCredentialsService',
-				'🔧 [ComprehensiveCredentialsService] Flow type changed - updating redirect URI:',
+				' [ComprehensiveCredentialsService] Flow type changed - updating redirect URI:',
 				{ flowType, from: redirectUri, to: flowSpecificUri }
 			);
 
@@ -967,7 +967,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			if (actualRedirectUri?.trim()) {
 				logger.debug(
 					'ComprehensiveCredentialsService',
-					'🔧 [ComprehensiveCredentialsService] Initializing redirect URI with default:',
+					' [ComprehensiveCredentialsService] Initializing redirect URI with default:',
 					actualRedirectUri
 				);
 
@@ -1073,7 +1073,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				if (isValidUUID) {
 					logger.debug(
 						'ComprehensiveCredentialsService',
-						`🔧 [EnvironmentIdPersistence] Environment ID changed: ${resolvedCredentials.environmentId} → ${updates.environmentId}`
+						` [EnvironmentIdPersistence] Environment ID changed: ${resolvedCredentials.environmentId} → ${updates.environmentId}`
 					);
 					// Use debounced save to avoid excessive saves
 					// Clear any existing timeout
@@ -1379,7 +1379,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				if (environmentIdToApply && environmentIdToApply.trim() !== '') {
 					logger.debug(
 						'ComprehensiveCredentialsService',
-						`🔧 [EnvironmentIdPersistence] OIDC Discovery found Environment ID: ${environmentIdToApply}`
+						` [EnvironmentIdPersistence] OIDC Discovery found Environment ID: ${environmentIdToApply}`
 					);
 					try {
 						environmentIdPersistenceService.saveEnvironmentId(
@@ -1426,7 +1426,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						};
 						logger.debug(
 							'ComprehensiveCredentialsService',
-							`🔧 [ComprehensiveCredentialsService] Direct update via onCredentialsChange (safeguard)`
+							` [ComprehensiveCredentialsService] Direct update via onCredentialsChange (safeguard)`
 						);
 						onCredentialsChange(mergedCredentials);
 						logger.debug(
@@ -1448,7 +1448,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					try {
 						logger.debug(
 							'ComprehensiveCredentialsService',
-							`🔧 [ComprehensiveCredentialsService] Direct update via onEnvironmentIdChange (final safeguard)`
+							` [ComprehensiveCredentialsService] Direct update via onEnvironmentIdChange (final safeguard)`
 						);
 						onEnvironmentIdChange(environmentIdToApply.trim());
 						logger.debug(
@@ -1546,7 +1546,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								}}
 							>
 								<p style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', color: '#495057' }}>
-									<strong>🔧 How it works:</strong> Get a worker token using the Client Credentials
+									<strong> How it works:</strong> Get a worker token using the Client Credentials
 									grant (no redirect URI or response type needed). Then select an application from
 									your PingOne environment to auto-fill all configuration fields.
 								</p>
@@ -1927,7 +1927,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									color: '#1e40af',
 								}}
 							>
-								🚫 Redirect URI (Callback URI)
+								 Redirect URI (Callback URI)
 							</p>
 							<p
 								style={{
@@ -1949,7 +1949,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									color: '#1e40af',
 								}}
 							>
-								🚫 Logout URI (Post-Logout Redirect URI)
+								 Logout URI (Post-Logout Redirect URI)
 							</p>
 							<p style={{ margin: '0', fontSize: '0.875rem', lineHeight: '1.6', color: '#1e3a8a' }}>
 								Only relevant when there's a session for an end-user (typically OIDC with ID tokens
@@ -2082,7 +2082,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 											}}
 										>
 											<div style={{ fontWeight: '600', color: '#0c4a6e', marginBottom: '0.5rem' }}>
-												📋 What "{responseType}" means:
+												 What "{responseType}" means:
 											</div>
 											{(() => {
 												const explanations: Record<string, string> = {
@@ -2118,7 +2118,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 																	marginTop: '0.25rem',
 																}}
 															>
-																🔐 This requires OpenID Connect mode and will include user identity
+																 This requires OpenID Connect mode and will include user identity
 																information.
 															</div>
 														)}
@@ -2191,7 +2191,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								marginBottom: '0.75rem',
 							}}
 						>
-							🔑 Worker Token Required for Config Checker
+							 Worker Token Required for Config Checker
 						</div>
 						<div
 							style={{

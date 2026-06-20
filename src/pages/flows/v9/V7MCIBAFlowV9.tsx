@@ -481,7 +481,7 @@ export const V7MCIBAFlowV9: React.FC = () => {
 							)}
 							{status === 'denied' && (
 								<span>
-									🚫 User denied. Next poll returns <code>access_denied</code> (CIBA Core 1.0
+									 User denied. Next poll returns <code>access_denied</code> (CIBA Core 1.0
 									§10.3.2). Start a new request.
 								</span>
 							)}
@@ -491,7 +491,7 @@ export const V7MCIBAFlowV9: React.FC = () => {
 									request.
 								</span>
 							)}
-							{status === 'done' && <span>🎉 Tokens issued successfully.</span>}
+							{status === 'done' && <span> Tokens issued successfully.</span>}
 						</div>
 
 						{status !== 'expired' && status !== 'done' && status !== 'denied' && (
@@ -504,7 +504,7 @@ export const V7MCIBAFlowV9: React.FC = () => {
 										status === 'approved' ? { ...MOCK_PRIMARY_BTN, opacity: 0.5 } : MOCK_PRIMARY_BTN
 									}
 								>
-									📱 Simulate User Approval (Out-of-Band)
+									 Simulate User Approval (Out-of-Band)
 								</button>
 								{deliveryMode === 'poll' && (
 									<button type="button" onClick={handlePollToken} style={MOCK_SECONDARY_BTN}>
@@ -519,12 +519,12 @@ export const V7MCIBAFlowV9: React.FC = () => {
 								)}
 								{deliveryMode === 'ping' && status === 'approved' && (
 									<button type="button" onClick={handlePollToken} style={MOCK_PRIMARY_BTN}>
-										📥 Fetch Token (Ping Callback Received)
+										 Fetch Token (Ping Callback Received)
 									</button>
 								)}
 								{deliveryMode === 'push' && status === 'approved' && (
 									<button type="button" onClick={handlePollToken} style={MOCK_PRIMARY_BTN}>
-										🚀 Receive Pushed Token
+										 Receive Pushed Token
 									</button>
 								)}
 							</div>

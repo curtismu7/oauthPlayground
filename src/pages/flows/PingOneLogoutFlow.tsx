@@ -558,7 +558,7 @@ if (idToken) {
 
 	return (
 		<FlowContainer>
-			<FlowTitle>🚪 PingOne Logout Flow</FlowTitle>
+			<FlowTitle> PingOne Logout Flow</FlowTitle>
 			<FlowDescription>
 				This flow demonstrates how to implement logout with PingOne SSO. Learn how to build logout
 				URLs, initiate session termination, and handle post-logout redirects.
@@ -599,7 +599,7 @@ if (idToken) {
 			</WarningContainer>
 
 			<FormContainer>
-				<h3 style={{ marginTop: 0 }}>🔑 Worker Token & App Lookup</h3>
+				<h3 style={{ marginTop: 0 }}> Worker Token & App Lookup</h3>
 				<p style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
 					Get a worker token and/or pick an app to fill credentials below without typing them in.
 				</p>
@@ -626,7 +626,7 @@ if (idToken) {
 							gap: '0.5rem',
 						}}
 					>
-						<span>🔑</span>
+						<span></span>
 						Get Worker Token
 					</button>
 				</div>
@@ -683,7 +683,7 @@ if (idToken) {
 
 			{logoutUrl && (
 				<LogoutUrlContainer>
-					<LogoutUrlTitle>🚪 Generated Logout URL</LogoutUrlTitle>
+					<LogoutUrlTitle> Generated Logout URL</LogoutUrlTitle>
 					<ColoredUrlDisplay
 						url={logoutUrl}
 						label="Logout URL"
@@ -694,10 +694,10 @@ if (idToken) {
 					/>
 					<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
 						<Button $variant="primary" onClick={handleInitiateLogout}>
-							🔗 Initiate Logout
+							 Initiate Logout
 						</Button>
 						<Button $variant="secondary" onClick={handleCopyUrl}>
-							📋 Copy URL
+							 Copy URL
 						</Button>
 					</div>
 				</LogoutUrlContainer>
@@ -744,7 +744,7 @@ if (idToken) {
 						placeholder="Paste your ID token here (from authentication response)"
 					/>
 					<small style={{ color: '#6b7280', display: 'block', marginTop: '0.5rem' }}>
-						💡 Get this from your authentication flow's token response
+						 Get this from your authentication flow's token response
 					</small>
 				</FormGroup>
 
@@ -772,12 +772,12 @@ if (idToken) {
 						placeholder="Random state value"
 					/>
 					<small style={{ color: '#6b7280', display: 'block', marginTop: '0.5rem' }}>
-						💡 Store this in sessionStorage and verify on redirect
+						 Store this in sessionStorage and verify on redirect
 					</small>
 				</FormGroup>
 
 				<Button $variant="primary" onClick={handleBuildLogoutUrl}>
-					🚪 Generate Logout URL
+					 Generate Logout URL
 				</Button>
 			</FormContainer>
 

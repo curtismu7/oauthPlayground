@@ -433,7 +433,7 @@ const AmazonEchoShowDeviceFlow: React.FC<AmazonEchoShowDeviceFlowProps> = ({
 				<EchoScreen>
 					{/* Weather Display */}
 					<WeatherDisplay>
-						<WeatherIcon>☀️</WeatherIcon>
+						<WeatherIcon></WeatherIcon>
 						<WeatherTemp>72°</WeatherTemp>
 						<WeatherCondition>Sunny</WeatherCondition>
 					</WeatherDisplay>
@@ -473,10 +473,10 @@ const AmazonEchoShowDeviceFlow: React.FC<AmazonEchoShowDeviceFlowProps> = ({
 					{/* Control Buttons */}
 					<ControlButtons>
 						<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-							<span style={{ fontSize: '12px' }}>📋</span> Copy Code
+							<span style={{ fontSize: '12px' }}></span> Copy Code
 						</ControlButton>
 						<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-							<span style={{ fontSize: '12px' }}>📋</span> Copy URI
+							<span style={{ fontSize: '12px' }}></span> Copy URI
 						</ControlButton>
 					</ControlButtons>
 
@@ -545,10 +545,10 @@ const AmazonEchoShowDeviceFlow: React.FC<AmazonEchoShowDeviceFlowProps> = ({
 						}}
 					>
 						<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-							<span style={{ fontSize: '12px' }}>🔗</span> Open in Browser
+							<span style={{ fontSize: '12px' }}></span> Open in Browser
 						</ControlButton>
 						<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-							<span style={{ fontSize: '12px' }}>📋</span> Copy URI
+							<span style={{ fontSize: '12px' }}></span> Copy URI
 						</ControlButton>
 					</div>
 				</QRCodeSection>

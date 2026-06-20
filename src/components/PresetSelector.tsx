@@ -427,7 +427,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 				Object.entries(groupedPresets).map(([category, categoryPresets]) => (
 					<CategorySection key={category}>
 						<CategoryTitle>
-							{category === 'built-in' ? <span>⭐</span> : <span>👤</span>}
+							{category === 'built-in' ? <span></span> : <span></span>}
 							{category === 'built-in' ? 'Built-in Presets' : 'Custom Presets'}
 							<span style={{ color: '#6b7280', fontWeight: 'normal' }}>
 								({categoryPresets.length})
@@ -446,9 +446,9 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 										<PresetName>{preset.name}</PresetName>
 										<PresetBadge category={preset.category}>
 											{preset.category === 'built-in' ? (
-												<span style={{ fontSize: '12px' }}>⭐</span>
+												<span style={{ fontSize: '12px' }}></span>
 											) : (
-												<span style={{ fontSize: '12px' }}>👤</span>
+												<span style={{ fontSize: '12px' }}></span>
 											)}
 											{preset.category === 'built-in' ? 'Built-in' : 'Custom'}
 										</PresetBadge>

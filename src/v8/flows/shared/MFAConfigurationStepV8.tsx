@@ -483,7 +483,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 						if (!credentials.userToken && userToken && tokenType === 'user') {
 							// If after delay still no token in credentials but we have one locally, restore it
 							logger.info(
-								`[⚙️ MFA-CONFIG-STEP-V8] 🔄 Restoring userToken to credentials after delay`,
+								`[⚙️ MFA-CONFIG-STEP-V8] Restoring userToken to credentials after delay`,
 								'Logger info'
 							);
 							setCredentials((prev) => ({
@@ -909,7 +909,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										: '0 2px 4px rgba(59, 130, 246, 0.2)';
 								}}
 							>
-								<span>🔑</span>
+								<span></span>
 								<span>Get Worker Token</span>
 							</button>
 						</div>
@@ -1027,7 +1027,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 													e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
 												}}
 											>
-												<span>🔐</span>
+												<span></span>
 												<span>Login with PingOne (Get New Token)</span>
 											</button>
 										)}
@@ -1116,7 +1116,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 													e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
 												}}
 											>
-												<span>🔐</span>
+												<span></span>
 												<span>Login with PingOne</span>
 											</button>
 										)}
@@ -1164,7 +1164,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 													e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
 												}}
 											>
-												<span>🔐</span>
+												<span></span>
 												<span>Login with PingOne</span>
 											</button>
 										</>
@@ -1255,7 +1255,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 									</>
 								) : (
 									<>
-										<span>🔑</span>
+										<span></span>
 										<span>
 											{tokenStatus.isValid ? 'Worker Token' : 'Add Worker Token (Optional)'}
 										</span>
@@ -1649,7 +1649,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										marginBottom: '8px',
 									}}
 								>
-									<strong>💡 Optional:</strong> Add a worker token to load and select device
+									<strong> Optional:</strong> Add a worker token to load and select device
 									authentication policies. You can also enter a policy ID manually, or use the
 									default policy if one is already set.
 								</div>

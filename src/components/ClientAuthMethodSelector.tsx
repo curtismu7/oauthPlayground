@@ -162,7 +162,7 @@ const ClientAuthMethodSelector: React.FC<ClientAuthMethodSelectorProps> = ({
 	return (
 		<Container>
 			<Label>
-				<span>🛡️</span>
+				<span></span>
 				Token Endpoint Authentication Method
 			</Label>
 

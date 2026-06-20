@@ -148,8 +148,8 @@ class ComprehensiveFlowDataService {
 	 */
 	saveSharedEnvironment(data: Partial<SharedEnvironmentData>): boolean {
 		try {
-			logger.debug('ComprehensiveFlowDataService', `🌐 [SHARED DATA] Saving environment data`);
-			logger.debug('ComprehensiveFlowDataService', `📋 Environment Data:`, data);
+			logger.debug('ComprehensiveFlowDataService', ` [SHARED DATA] Saving environment data`);
+			logger.debug('ComprehensiveFlowDataService', ` Environment Data:`, data);
 
 			const existing = this.loadSharedEnvironment();
 			const updated: SharedEnvironmentData = {
@@ -207,8 +207,8 @@ class ComprehensiveFlowDataService {
 	 */
 	saveSharedDiscovery(data: SharedDiscoveryData): boolean {
 		try {
-			logger.debug('ComprehensiveFlowDataService', `🌐 [SHARED DATA] Saving discovery data`);
-			logger.debug('ComprehensiveFlowDataService', `📋 Discovery Data:`, data);
+			logger.debug('ComprehensiveFlowDataService', ` [SHARED DATA] Saving discovery data`);
+			logger.debug('ComprehensiveFlowDataService', ` Discovery Data:`, data);
 
 			localStorage.setItem(this.SHARED_DISCOVERY_KEY, JSON.stringify(data));
 			logger.debug(
@@ -326,10 +326,10 @@ class ComprehensiveFlowDataService {
 		try {
 			logger.debug(
 				'ComprehensiveFlowDataService',
-				`🔒 [FLOW DATA] Saving data for flow: ${flowKey}`
+				` [FLOW DATA] Saving data for flow: ${flowKey}`
 			);
-			logger.debug('ComprehensiveFlowDataService', `📋 Flow Key: ${flowKey}`);
-			logger.debug('ComprehensiveFlowDataService', `📋 Data:`, data);
+			logger.debug('ComprehensiveFlowDataService', ` Flow Key: ${flowKey}`);
+			logger.debug('ComprehensiveFlowDataService', ` Data:`, data);
 
 			const storageKey = this.getFlowStorageKey(flowKey);
 			const existing = this.loadFlowData(flowKey);
@@ -416,14 +416,14 @@ class ComprehensiveFlowDataService {
 
 		logger.debug(
 			'ComprehensiveFlowDataService',
-			`🔍 [COMPREHENSIVE FLOW DATA] Loading data for flow: ${flowKey}`
+			` [COMPREHENSIVE FLOW DATA] Loading data for flow: ${flowKey}`
 		);
-		logger.debug('ComprehensiveFlowDataService', `📋 Flow Key: ${flowKey}`);
+		logger.debug('ComprehensiveFlowDataService', ` Flow Key: ${flowKey}`);
 		logger.debug(
 			'ComprehensiveFlowDataService',
-			`📋 Use Shared Environment: ${useSharedEnvironment}`
+			` Use Shared Environment: ${useSharedEnvironment}`
 		);
-		logger.debug('ComprehensiveFlowDataService', `📋 Use Shared Discovery: ${useSharedDiscovery}`);
+		logger.debug('ComprehensiveFlowDataService', ` Use Shared Discovery: ${useSharedDiscovery}`);
 
 		// Load shared data
 		const sharedEnvironment = useSharedEnvironment ? this.loadSharedEnvironment() : null;
@@ -462,7 +462,7 @@ class ComprehensiveFlowDataService {
 			credentialSource,
 		};
 
-		logger.debug('ComprehensiveFlowDataService', `📋 Result:`, result);
+		logger.debug('ComprehensiveFlowDataService', ` Result:`, result);
 
 		return result;
 	}
@@ -488,10 +488,10 @@ class ComprehensiveFlowDataService {
 		try {
 			logger.debug(
 				'ComprehensiveFlowDataService',
-				`💾 [COMPREHENSIVE FLOW DATA] Saving data for flow: ${flowKey}`
+				` [COMPREHENSIVE FLOW DATA] Saving data for flow: ${flowKey}`
 			);
-			logger.debug('ComprehensiveFlowDataService', `📋 Flow Key: ${flowKey}`);
-			logger.debug('ComprehensiveFlowDataService', `📋 Data:`, data);
+			logger.debug('ComprehensiveFlowDataService', ` Flow Key: ${flowKey}`);
+			logger.debug('ComprehensiveFlowDataService', ` Data:`, data);
 
 			let success = true;
 
@@ -526,7 +526,7 @@ class ComprehensiveFlowDataService {
 				}
 			}
 
-			logger.debug('ComprehensiveFlowDataService', `📋 Overall Success: ${success}`);
+			logger.debug('ComprehensiveFlowDataService', ` Overall Success: ${success}`);
 
 			return success;
 		} catch (error) {
@@ -572,7 +572,7 @@ class ComprehensiveFlowDataService {
 		try {
 			const storageKey = this.getFlowStorageKey(flowKey);
 			localStorage.removeItem(storageKey);
-			logger.debug('ComprehensiveFlowDataService', `🗑️ Cleared flow data for: ${flowKey}`);
+			logger.debug('ComprehensiveFlowDataService', ` Cleared flow data for: ${flowKey}`);
 			return true;
 		} catch (error) {
 			logger.error(
@@ -594,7 +594,7 @@ class ComprehensiveFlowDataService {
 			localStorage.removeItem(this.SHARED_DISCOVERY_KEY);
 			localStorage.removeItem(this.SHARED_GLOBAL_CONFIG_KEY);
 			localStorage.removeItem(this.SHARED_USER_SESSION_KEY);
-			logger.debug('ComprehensiveFlowDataService', `🗑️ Cleared all shared data`);
+			logger.debug('ComprehensiveFlowDataService', ` Cleared all shared data`);
 			return true;
 		} catch (error) {
 			logger.error(
@@ -623,7 +623,7 @@ class ComprehensiveFlowDataService {
 			'pingone-par-flow-v7',
 		];
 
-		logger.debug('ComprehensiveFlowDataService', `🔍 [COMPREHENSIVE AUDIT] Auditing all V7 flows`);
+		logger.debug('ComprehensiveFlowDataService', ` [COMPREHENSIVE AUDIT] Auditing all V7 flows`);
 
 		const results: Record<string, FlowDataResult> = {};
 
@@ -639,7 +639,7 @@ class ComprehensiveFlowDataService {
 		if (flowsUsingSharedEnvironment.length > 0) {
 			logger.debug(
 				'ComprehensiveFlowDataService',
-				`🌐 Flows using shared environment data:`,
+				` Flows using shared environment data:`,
 				flowsUsingSharedEnvironment
 			);
 		}
@@ -651,7 +651,7 @@ class ComprehensiveFlowDataService {
 
 		logger.debug(
 			'ComprehensiveFlowDataService',
-			`🔒 Flows with flow-specific credentials:`,
+			` Flows with flow-specific credentials:`,
 			flowsWithFlowCredentials
 		);
 
@@ -672,7 +672,7 @@ class ComprehensiveFlowDataService {
 		const flowKeys = this.getAllFlowStorageKeys();
 		flowKeys.forEach((key) => {
 			localStorage.removeItem(key);
-			logger.debug('ComprehensiveFlowDataService', `🗑️ Cleared: ${key}`);
+			logger.debug('ComprehensiveFlowDataService', ` Cleared: ${key}`);
 		});
 		logger.debug(
 			'ComprehensiveFlowDataService',
@@ -699,11 +699,11 @@ class ComprehensiveFlowDataService {
 		try {
 			logger.debug(
 				'ComprehensiveFlowDataService',
-				`🔒 [CREDENTIAL ISOLATION] Saving isolated credentials for flow: ${flowKey}`
+				` [CREDENTIAL ISOLATION] Saving isolated credentials for flow: ${flowKey}`
 			);
-			logger.debug('ComprehensiveFlowDataService', `📋 Flow Key: ${flowKey}`);
-			logger.debug('ComprehensiveFlowDataService', `📋 Credentials:`, credentials);
-			logger.debug('ComprehensiveFlowDataService', `📋 Backup to .env: ${options.backupToEnv}`);
+			logger.debug('ComprehensiveFlowDataService', ` Flow Key: ${flowKey}`);
+			logger.debug('ComprehensiveFlowDataService', ` Credentials:`, credentials);
+			logger.debug('ComprehensiveFlowDataService', ` Backup to .env: ${options.backupToEnv}`);
 
 			// Save to flow-specific storage (ALWAYS isolated)
 			const success = this.saveFlowData(
@@ -728,7 +728,7 @@ class ComprehensiveFlowDataService {
 				showGlobalError(`Failed to save credentials for ${flowKey}`);
 			}
 
-			logger.debug('ComprehensiveFlowDataService', `📋 Save Success: ${success}`);
+			logger.debug('ComprehensiveFlowDataService', ` Save Success: ${success}`);
 
 			return success;
 		} catch (error) {
@@ -753,9 +753,9 @@ class ComprehensiveFlowDataService {
 		try {
 			logger.debug(
 				'ComprehensiveFlowDataService',
-				`🔒 [CREDENTIAL ISOLATION] Loading isolated credentials for flow: ${flowKey}`
+				` [CREDENTIAL ISOLATION] Loading isolated credentials for flow: ${flowKey}`
 			);
-			logger.debug('ComprehensiveFlowDataService', `📋 Flow Key: ${flowKey}`);
+			logger.debug('ComprehensiveFlowDataService', ` Flow Key: ${flowKey}`);
 
 			const flowData = this.loadFlowData(flowKey);
 			const credentials = flowData?.credentials || null;
@@ -768,11 +768,11 @@ class ComprehensiveFlowDataService {
 			} else {
 				logger.debug(
 					'ComprehensiveFlowDataService',
-					`📋 No isolated credentials found for ${flowKey}`
+					` No isolated credentials found for ${flowKey}`
 				);
 			}
 
-			logger.debug('ComprehensiveFlowDataService', `📋 Credentials:`, credentials);
+			logger.debug('ComprehensiveFlowDataService', ` Credentials:`, credentials);
 
 			return credentials;
 		} catch (error) {
@@ -793,7 +793,7 @@ class ComprehensiveFlowDataService {
 		try {
 			logger.debug(
 				'ComprehensiveFlowDataService',
-				`💾 [ENV BACKUP] Backing up credentials for flow: ${flowKey}`
+				` [ENV BACKUP] Backing up credentials for flow: ${flowKey}`
 			);
 
 			const envContent = this.generateEnvContent(flowKey, credentials);
@@ -802,7 +802,7 @@ class ComprehensiveFlowDataService {
 			// Users can manually copy this if needed
 			logger.debug(
 				'ComprehensiveFlowDataService',
-				`📋 .env backup content for ${flowKey}:\n\n${envContent}\n`
+				` .env backup content for ${flowKey}:\n\n${envContent}\n`
 			);
 
 			// NOTE: Auto-download disabled to prevent unwanted file downloads on page load
@@ -874,7 +874,7 @@ ${Object.entries(credentials.additionalParams || {})
 		try {
 			logger.debug(
 				'ComprehensiveFlowDataService',
-				`🔄 [ENV RESTORE] Restoring credentials for flow: ${flowKey}`
+				` [ENV RESTORE] Restoring credentials for flow: ${flowKey}`
 			);
 
 			const credentials = this.parseEnvContent(flowKey, envContent);
@@ -885,7 +885,7 @@ ${Object.entries(credentials.additionalParams || {})
 					backupToEnv: false,
 				});
 
-				logger.debug('ComprehensiveFlowDataService', `📋 Restore Success: ${success}`);
+				logger.debug('ComprehensiveFlowDataService', ` Restore Success: ${success}`);
 
 				return success;
 			} else {
@@ -991,7 +991,7 @@ ${Object.entries(credentials.additionalParams || {})
 	testCredentialIsolation(flow1Key: string, flow2Key: string): boolean {
 		logger.debug(
 			'ComprehensiveFlowDataService',
-			`🧪 [ISOLATION TEST] Testing credential isolation between ${flow1Key} and ${flow2Key}`
+			` [ISOLATION TEST] Testing credential isolation between ${flow1Key} and ${flow2Key}`
 		);
 
 		// Load credentials for both flows
@@ -1007,20 +1007,20 @@ ${Object.entries(credentials.additionalParams || {})
 
 		logger.debug(
 			'ComprehensiveFlowDataService',
-			`📋 Flow 1 (${flow1Key}) credentials:`,
+			` Flow 1 (${flow1Key}) credentials:`,
 			flow1Creds
 		);
 		logger.debug(
 			'ComprehensiveFlowDataService',
-			`📋 Flow 2 (${flow2Key}) credentials:`,
+			` Flow 2 (${flow2Key}) credentials:`,
 			flow2Creds
 		);
-		logger.debug('ComprehensiveFlowDataService', `📋 Isolated: ${isIsolated}`);
+		logger.debug('ComprehensiveFlowDataService', ` Isolated: ${isIsolated}`);
 
 		if (!isIsolated) {
 			logger.warn(
 				'ComprehensiveFlowDataService',
-				`🚨 CREDENTIAL BLEEDING DETECTED! Flows are sharing credentials`
+				` CREDENTIAL BLEEDING DETECTED! Flows are sharing credentials`
 			);
 		} else {
 			logger.debug('ComprehensiveFlowDataService', `✅ Credentials are properly isolated`);

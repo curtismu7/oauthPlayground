@@ -94,7 +94,7 @@ export const BackendDownModalV8: React.FC = () => {
 							color: '#dc2626',
 						}}
 					>
-						🔌
+						
 					</div>
 				</div>
 
@@ -211,7 +211,7 @@ export const BackendDownModalV8: React.FC = () => {
 							e.currentTarget.style.background = '#2563eb';
 						}}
 					>
-						🔄 Retry Connection
+						 Retry Connection
 					</button>
 				</div>
 			</div>

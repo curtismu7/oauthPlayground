@@ -230,7 +230,7 @@ export const StandardizedCredentialExportImport: React.FC<
 				disabled={disabled || !credentials}
 				title={`Export ${appName} credentials to a file`}
 			>
-				<span style={{ fontSize: '16px' }}>📥</span>
+				<span style={{ fontSize: '16px' }}></span>
 				{exportButtonText}
 			</ExportButton>
 		);
@@ -255,7 +255,7 @@ export const StandardizedCredentialExportImport: React.FC<
 				disabled={disabled}
 				title={`Import ${appName} credentials from a file`}
 			>
-				<span style={{ fontSize: '16px' }}>📤</span>
+				<span style={{ fontSize: '16px' }}></span>
 				{importButtonText}
 			</ImportButton>
 		);
@@ -269,7 +269,7 @@ export const StandardizedCredentialExportImport: React.FC<
 				disabled={disabled || !credentials}
 				title={`Export ${appName} credentials to a file`}
 			>
-				<span style={{ fontSize: '16px' }}>📥</span>
+				<span style={{ fontSize: '16px' }}></span>
 				{exportButtonText}
 			</ExportButton>
 
@@ -289,7 +289,7 @@ export const StandardizedCredentialExportImport: React.FC<
 				disabled={disabled}
 				title={`Import ${appName} credentials from a file`}
 			>
-				<span style={{ fontSize: '16px' }}>📤</span>
+				<span style={{ fontSize: '16px' }}></span>
 				{importButtonText}
 			</ImportButton>
 		</ButtonContainer>

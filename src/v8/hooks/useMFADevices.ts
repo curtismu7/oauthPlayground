@@ -53,7 +53,7 @@ export interface UseMFADevicesReturn {
 	deviceCount: number;
 }
 
-const MODULE_TAG = '[🔐 USE-MFA-DEVICES]';
+const MODULE_TAG = '[ USE-MFA-DEVICES]';
 
 /**
  * Custom hook for managing MFA device state and operations
