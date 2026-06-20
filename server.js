@@ -22656,7 +22656,7 @@ async function _mcpFetchWorkerToken(creds) {
 		clientId,
 		clientSecret,
 		apiUrl = 'https://auth.pingone.com',
-		tokenAuthMethod = 'CLIENT_SECRET_POST',
+		tokenAuthMethod,
 		scope = 'openid',
 	} = creds;
 	if (!environmentId || !clientId || !clientSecret) {
@@ -22667,30 +22667,45 @@ async function _mcpFetchWorkerToken(creds) {
 	const baseUrl = apiUrl.replace(/\/$/, '');
 	const tokenUrl = `${baseUrl}/${environmentId}/as/token`;
 
-	let headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-	let bodyParams = { grant_type: 'client_credentials', scope };
+	const attempt = async (method) => {
+		const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+		const bodyParams = { grant_type: 'client_credentials', scope };
+		if (method === 'CLIENT_SECRET_BASIC') {
+			headers.Authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
+		} else {
+			bodyParams.client_id = clientId;
+			bodyParams.client_secret = clientSecret;
+		}
+		const resp = await global.fetch(tokenUrl, {
+			method: 'POST',
+			headers,
+			body: new URLSearchParams(bodyParams).toString(),
+		});
+		const data = await resp.json().catch(() => ({ error: resp.statusText }));
+		return { ok: resp.ok, status: resp.status, data };
+	};
 
-	if (tokenAuthMethod === 'CLIENT_SECRET_BASIC') {
-		// Credentials in Basic auth header
-		headers.Authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
-	} else {
-		// CLIENT_SECRET_POST — credentials in request body
-		bodyParams.client_id = clientId;
-		bodyParams.client_secret = clientSecret;
-	}
+	// Default to client_secret_basic (PingOne worker apps are commonly basic-only),
+	// then fall back to the opposite method on a client-auth failure so either
+	// app registration works without manual configuration.
+	const primary = tokenAuthMethod === 'CLIENT_SECRET_POST' ? 'CLIENT_SECRET_POST' : 'CLIENT_SECRET_BASIC';
+	const fallback = primary === 'CLIENT_SECRET_BASIC' ? 'CLIENT_SECRET_POST' : 'CLIENT_SECRET_BASIC';
 
-	const resp = await global.fetch(tokenUrl, {
-		method: 'POST',
-		headers,
-		body: new URLSearchParams(bodyParams).toString(),
-	});
-	if (!resp.ok) {
-		const err = await resp.json().catch(() => ({ error: resp.statusText }));
+	let r = await attempt(primary);
+	const authFailed =
+		!r.ok &&
+		(r.status === 401 ||
+			/invalid_client|unsupported authentication/i.test(
+				String(r.data?.error_description || r.data?.error || '')
+			));
+	if (authFailed) r = await attempt(fallback);
+
+	if (!r.ok) {
 		throw new Error(
-			`Token request failed (${resp.status}): ${err.error_description || err.error || resp.statusText}`
+			`Token request failed (${r.status}): ${r.data?.error_description || r.data?.error || 'request failed'}`
 		);
 	}
-	return resp.json();
+	return r.data;
 }
 
 app.get('/api/mcp/server/status', (req, res) => {
