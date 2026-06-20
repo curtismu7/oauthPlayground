@@ -8,7 +8,9 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+
+const SUB_DBS = ['worker_tokens', 'credentials', 'flow_credentials', 'apikeys', 'kv', 'meta'];
 
 const tmp = path.join(os.tmpdir(), `lmdb-test-${process.pid}-${Date.now()}`);
 
@@ -56,6 +58,11 @@ describe('crypto field encryption', () => {
 });
 
 describe('credentialStore', () => {
+	// Clean slate before each test so they're independent and order-agnostic.
+	beforeEach(() => {
+		for (const name of SUB_DBS) envMod.getDb(name).clearSync();
+	});
+
 	it('seals worker token at rest, decrypts on read', () => {
 		store.saveWorkerToken('e1', 'tok-abc', Date.now() + 3_600_000);
 		const raw = envMod.getDb('worker_tokens').get('e1');
@@ -88,13 +95,14 @@ describe('credentialStore', () => {
 	it('purgeExpired removes only expired worker tokens', () => {
 		store.saveWorkerToken('valid', 'x', Date.now() + 3_600_000);
 		store.saveWorkerToken('expired', 'y', Date.now() - 1);
-		const purged = store.purgeExpired();
-		expect(purged).toBeGreaterThanOrEqual(1);
+		expect(store.purgeExpired()).toBe(1);
 		expect(store.getWorkerToken('expired')).toBeNull();
 		expect(store.getWorkerToken('valid')).not.toBeNull();
 	});
 
 	it('exportAll keeps secrets sealed in the dump', () => {
+		store.saveWorkerToken('e1', 'tok-abc', Date.now() + 3_600_000);
+		store.saveCredentials('e2', { clientId: 'cid', clientSecret: 'sec' });
 		const dump = store.exportAll();
 		expect(dump.worker_tokens.e1.accessToken.__enc).toBe(1);
 		expect(dump.credentials.e2.credentials.clientSecret.__enc).toBe(1);
