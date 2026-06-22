@@ -28,7 +28,7 @@ import V9FlowHeader from '@/services/v9/v9FlowHeaderService';
 import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -2901,7 +2901,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			<SuperSimpleApiDisplayV8 flowFilter="unified" reserveSpace />
 
 			{showWorkerTokenModal && (
-				<WorkerTokenModalV8
+				<WorkerTokenModal
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 				/>
