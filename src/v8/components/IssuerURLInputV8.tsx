@@ -9,7 +9,6 @@
  * <IssuerURLInputV8
  *   value={issuerUrl}
  *   onChange={handleIssuerURLChange}
- *   environmentId={environmentId}
  * />
  */
 

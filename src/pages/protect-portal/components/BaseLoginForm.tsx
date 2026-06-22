@@ -398,7 +398,6 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 					<InputLabel htmlFor="username">Username or Email</InputLabel>
 					<UserSearchDropdownV8
 						id="username"
-						environmentId={environmentId}
 						value={formData.username}
 						onChange={(username) => {
 							setFormData((prev) => ({ ...prev, username }));

@@ -1087,7 +1087,6 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					showStatusDisplay={true}
 					statusSize="large"
 					showRefresh={true}
-					environmentId={credentials.environmentId}
 					onEnvironmentIdUpdate={(envId) => {
 						setCredentials((prev) => ({
 							...prev,
@@ -1246,7 +1245,6 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 								duration: 3000,
 							});
 						}}
-						environmentId={credentials.environmentId}
 					/>
 				)}
 			</div>

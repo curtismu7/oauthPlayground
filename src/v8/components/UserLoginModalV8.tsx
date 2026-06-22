@@ -1982,7 +1982,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								{environmentId.trim() && (
 									<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 										<CompactAppPickerV8U
-											environmentId={environmentId}
 											onAppSelected={async (app: DiscoveredApp) => {
 												try {
 													logger.info(`${MODULE_TAG} App selected:`, {
