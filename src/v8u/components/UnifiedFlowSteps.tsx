@@ -15569,7 +15569,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}}
 					onPasswordChange={handlePasswordChange}
 					userId={passwordChangeUserId}
-					environmentId={credentials.environmentId}
 					message="Your password must be changed before you can continue. Please enter your current password and choose a new one."
 				/>
 			)}
@@ -15693,7 +15692,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				onClose={() => setShowIdTokenValidationModal(false)}
 				idToken={flowState.tokens?.idToken || ''}
 				clientId={credentials.clientId}
-				environmentId={credentials.environmentId}
 				nonce={flowState.nonce}
 			/>
 		</>

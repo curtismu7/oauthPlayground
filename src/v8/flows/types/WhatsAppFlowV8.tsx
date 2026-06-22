@@ -2439,7 +2439,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			<WhatsAppNotEnabledModalV8
 				isOpen={showWhatsAppNotEnabledModal}
 				onClose={() => setShowWhatsAppNotEnabledModal(false)}
-				environmentId={credentialsForModal.environmentId}
 			/>
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 		</div>
