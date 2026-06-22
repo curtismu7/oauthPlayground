@@ -46,7 +46,7 @@ interface WorkerTokenModalV8Props {
 // Enhanced Worker Token Modal with silent API and show token options
 // Cache bust: 2025-02-17-11:42-fixed-duplicate-scopes
 
-const WorkerTokenModalV8: React.FC<WorkerTokenModalV9Props> = ({
+const WorkerTokenModalV8: React.FC<WorkerTokenModalProps> = ({
 	isOpen,
 	onClose,
 	onTokenGenerated,

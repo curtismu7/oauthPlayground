@@ -10,7 +10,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import SimplePingOneApiDisplayV8 from '@/v8/components/SimplePingOneApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV9 } from '@/components/WorkerTokenModalV9';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import deviceCreateDemoServiceV8 from '@/v8/services/deviceCreateDemoServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
@@ -646,7 +646,7 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 			</div>
 
 			<SimplePingOneApiDisplayV8 />
-			<WorkerTokenModalV9
+			<WorkerTokenModal
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 			/>

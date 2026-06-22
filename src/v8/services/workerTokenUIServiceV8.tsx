@@ -544,7 +544,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				</ButtonContainer>
 
 				{/* Worker Token Modal */}
-				<WorkerTokenModalV9
+				<WorkerTokenModal
 					isOpen={showWorkerTokenModal}
 					onClose={() => {
 						setShowWorkerTokenModal(false);
@@ -658,7 +658,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 			/>
 
 			{/* Worker Token Modal */}
-			<WorkerTokenModalV9
+			<WorkerTokenModal
 				isOpen={showWorkerTokenModal}
 				onClose={() => {
 					setShowWorkerTokenModal(false);
