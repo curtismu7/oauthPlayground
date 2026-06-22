@@ -498,6 +498,21 @@ verify_whatsapp_lockdown() {
         "src/v8/lockdown/whatsapp/snapshot"
 }
 
+# Function to build the project
+build_project() {
+    print_status "🔨 Building the project..."
+
+    if ! npm run build > build.log 2>&1; then
+        print_error "Build failed"
+        print_error "Check build.log for details:"
+        tail -20 build.log 2>/dev/null || echo "No log file found"
+        return 1
+    fi
+
+    print_success "Build completed successfully"
+    return 0
+}
+
 # Function to start backend server
 start_backend() {
     print_status "🚀 Starting backend server..."
@@ -965,14 +980,19 @@ show_final_summary() {
     echo ""
 }
 
+# Initialize flags
+SHOULD_BUILD=false
+SHOULD_RESTART=false
+COMMANDS_PROVIDED=false
+
 # Parse command line arguments
 while [ $# -gt 0 ]; do
     case "$1" in
         --help|-h)
-            echo "Usage: $0 [OPTIONS]"
+            echo "Usage: $0 [COMMANDS] [OPTIONS]"
             echo ""
             echo "Purpose:"
-            echo "  Restart the OAuth Playground dev servers (frontend + backend HTTP/HTTPS),"
+            echo "  Build and/or restart the OAuth Playground dev servers (frontend + backend HTTP/HTTPS),"
             echo "  run health checks, print a status report, and optionally tail logs."
             echo ""
             echo "Servers and ports:"
@@ -980,28 +1000,35 @@ while [ $# -gt 0 ]; do
             echo "  Backend:  http://localhost:${BACKEND_HTTP_PORT}   (Express API - HTTP)"
             echo "  Backend:  https://localhost:${BACKEND_HTTPS_PORT}  (Express API - HTTPS)"
             echo ""
+            echo "Commands:"
+            echo "  build"
+            echo "      Build the project (runs npm run build)."
+            echo "  restart"
+            echo "      Restart the servers (default if no commands specified)."
+            echo ""
             echo "Options:"
             echo "  --help, -h"
             echo "      Show this help message and exit."
             echo ""
-            echo "Default behavior (no flags):"
+            echo "Examples:"
+            echo "  $0              # Restart servers (default)"
+            echo "  $0 build        # Build only (no restart)"
+            echo "  $0 restart      # Restart servers (explicit)"
+            echo "  $0 build restart # Build and restart servers"
+            echo "  $0 --help       # Show this help message"
+            echo ""
+            echo "Default behavior (no commands):"
             echo "  1) Locate the OAuth Playground directory:"
             echo "     - If you're not already in it, the script searches common paths."
             echo "     - If still not found, it prompts you for the directory path."
             echo "  2) Verify requirements (node, npm, curl, package.json, server.js)."
-            echo "  3) Verify SMS lockdown integrity (verify:sms-lockdown)."
-            echo "  4) Verify FIDO2 lockdown integrity (verify:fido2-lockdown)."
-            echo "  5) Verify Email lockdown integrity (verify:email-lockdown)."
-            echo "  6) Verify WhatsApp lockdown integrity (verify:whatsapp-lockdown)."
+            echo "  3) Verify lockdown integrity (SMS, FIDO2, Email, WhatsApp)."
             echo "     - If drift is detected, you'll be prompted to restore/approve/abort."
-            echo "  7) Kill existing dev servers and free ports ${FRONTEND_PORT}, ${BACKEND_HTTP_PORT}, ${BACKEND_HTTPS_PORT}."
-            echo "  8) Start backend (both HTTP+HTTPS) and start frontend."
-            echo "  9) Run health checks."
-            echo "  10) Print a final status report and log file locations."
-            echo "  11) Prompt to tail a log file (interactive):"
-            echo "      - Choose from PingOne/API logs, server logs, flow logs, or frontend/backend logs."
-            echo "      - Optionally clear the chosen log before tailing."
-            echo "      - Default to Y for tail prompt and Y for clear prompt."
+            echo "  4) Kill existing dev servers and free ports ${FRONTEND_PORT}, ${BACKEND_HTTP_PORT}, ${BACKEND_HTTPS_PORT}."
+            echo "  5) Start backend (both HTTP+HTTPS) and start frontend."
+            echo "  6) Run health checks."
+            echo "  7) Print a final status report and log file locations."
+            echo "  8) Prompt to tail a log file (interactive)."
             echo ""
             echo "Exit codes:"
             echo "  0   Success (all servers running and healthy)"
@@ -1010,11 +1037,19 @@ while [ $# -gt 0 ]; do
             echo "  3   Unknown/unexpected status"
             echo "  130 Interrupted (Ctrl+C)"
             echo ""
-            echo "Examples:"
-            echo "  $0"
-            echo "  $0 --help"
-            echo "  $0 -h"
             exit 0
+            ;;
+
+        build)
+            SHOULD_BUILD=true
+            COMMANDS_PROVIDED=true
+            shift
+            ;;
+
+        restart)
+            SHOULD_RESTART=true
+            COMMANDS_PROVIDED=true
+            shift
             ;;
 
         *)
@@ -1024,45 +1059,64 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+# If no commands provided, default to restart
+if [ "$COMMANDS_PROVIDED" = false ]; then
+    SHOULD_RESTART=true
+fi
+
 # Main execution
 main() {
     show_banner
-    
+
     # Step 0: Find and change to project directory
     find_project_directory
-    
+
     # Step 1: Check requirements
     check_requirements
 
-    # Step 1b: Verify lock-down integrity (blocks restart on drift)
+    # Step 2: Build if requested
+    if [ "$SHOULD_BUILD" = true ]; then
+        build_project || {
+            print_error "Build failed. Aborting."
+            exit 1
+        }
+    fi
+
+    # If only building (no restart), exit here
+    if [ "$SHOULD_RESTART" = false ]; then
+        print_success "Build completed. Skipping server restart as requested."
+        exit 0
+    fi
+
+    # Step 3: Verify lock-down integrity (blocks restart on drift)
     verify_sms_lockdown
     verify_fido2_lockdown
     verify_email_lockdown
     verify_whatsapp_lockdown
-    
-    # Step 2: Kill all existing servers
+
+    # Step 4: Kill all existing servers
     kill_all_servers
-    
-    # Step 3: Start backend (starts both HTTP and HTTPS servers)
+
+    # Step 5: Start backend (starts both HTTP and HTTPS servers)
     print_status "🔧 Starting servers..."
     start_backend
-    
-    # Step 4: Start frontend
+
+    # Step 6: Start frontend
     start_frontend
-    
-    # Step 5: Run health checks
+
+    # Step 7: Run health checks
     run_health_checks
-    
-    # Step 6: Show final status
+
+    # Step 8: Show final status
     show_final_status
-    
-    # Step 7: Open browser if successful (DISABLED - user requested no auto-open)
+
+    # Step 9: Open browser if successful (DISABLED - user requested no auto-open)
     # open_browser
-    
-    # Step 8: Final success message and server status summary
+
+    # Step 10: Final success message and server status summary
     show_final_summary
-    
-    # Step 9: Ask user if they want to tail a log file (interactive)
+
+    # Step 11: Ask user if they want to tail a log file (interactive)
     if [ "$OVERALL_STATUS" = "success" ] || [ "$OVERALL_STATUS" = "partial" ]; then
         echo ""
         echo -n "Would you like to tail a log file? (Y/n): "
