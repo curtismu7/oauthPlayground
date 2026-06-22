@@ -1497,7 +1497,6 @@ const PingOneUserProfile: React.FC = () => {
 						</div>
 
 						{/* Worker Token Section */}
-						<WorkerTokenSectionV8 compact environmentId={environmentId} />
 
 						{/* Configuration Checkboxes */}
 						<div
@@ -1518,7 +1517,6 @@ const PingOneUserProfile: React.FC = () => {
 								User Identifier *
 							</label>
 							<UserSearchDropdownV8
-								environmentId={environmentId}
 								value={userIdentifier}
 								onChange={(value) => {
 									setUserIdentifier(value);

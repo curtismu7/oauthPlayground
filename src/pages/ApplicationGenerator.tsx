@@ -1241,7 +1241,6 @@ const ApplicationGenerator: React.FC = () => {
 							formData={formData}
 							selectedAppType={selectedAppType}
 							workerToken={workerToken}
-							environmentId={environmentId}
 							region={region}
 							isCreating={isCreating}
 							onCreateApplication={handleCreateApplication}
