@@ -952,7 +952,6 @@ export const MFAReportingFlowV8: React.FC = () => {
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 					onTokenGenerated={handleWorkerTokenGenerated}
-					environmentId={credentials.environmentId}
 				/>
 			</div>
 

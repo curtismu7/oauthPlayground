@@ -1621,14 +1621,12 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							);
 						}
 					}}
-					environmentId={credentials.environmentId}
 				/>
 			)}
 
 			{showSettingsModal && credentials.environmentId && (
 				<MFASettingsModalV8
 					isOpen={showSettingsModal}
-					environmentId={credentials.environmentId}
 					onClose={() => setShowSettingsModal(false)}
 				/>
 			)}
