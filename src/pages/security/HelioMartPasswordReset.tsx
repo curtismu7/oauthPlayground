@@ -4574,7 +4574,7 @@ export { changePassword, handleChangePassword };`;
 
 				{/* Mount only when open so modal hooks never run when closed (avoids hooks-order issues) */}
 				{showWorkerTokenModal && (
-					<WorkerTokenModalV9
+					<WorkerTokenModal
 						isOpen={true}
 						onClose={() => setShowWorkerTokenModal(false)}
 						onTokenGenerated={() => {

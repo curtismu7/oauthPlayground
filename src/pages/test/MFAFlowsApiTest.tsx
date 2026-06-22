@@ -1011,7 +1011,7 @@ const MFAFlowsApiTest: React.FC = () => {
 
 			{/* Worker Token Modal */}
 			{showWorkerTokenModal && (
-				<WorkerTokenModalV9
+				<WorkerTokenModal
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 					onTokenGenerated={(token) => {

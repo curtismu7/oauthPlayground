@@ -905,7 +905,7 @@ cleanupAfterRevocation(revocationResult);`,
 					{activeTab === 'bulk_revocation' ? 'Revoke All Tokens' : 'Revoke Token'}
 				</Button>
 			</FormContainer>
-			<WorkerTokenModalV9
+			<WorkerTokenModal
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 				onTokenGenerated={(token) => {
