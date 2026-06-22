@@ -78,6 +78,35 @@ export const GlobalMFAProvider: React.FC<GlobalMFAProviderProps> = ({ children }
 				setWorkerTokenStatus(status);
 			});
 
+			// Auto-load credentials from .env if none exist
+			try {
+				const existingCreds = await globalWorkerTokenService.loadCredentials();
+				if (!existingCreds) {
+					const envClientId = import.meta.env.VITE_PINGONE_WORKER_CLIENT_ID;
+					const envClientSecret = import.meta.env.VITE_PINGONE_WORKER_CLIENT_SECRET;
+					const envEnvironmentId = import.meta.env.VITE_PINGONE_ENVIRONMENT_ID;
+					const envRegion = import.meta.env.VITE_PINGONE_REGION || 'com';
+
+					if (envClientId && envClientSecret && envEnvironmentId) {
+						logger.info(
+							'[GlobalMFAContext] Auto-loading credentials from .env',
+							'Credentials loaded from environment'
+						);
+						await globalWorkerTokenService.saveCredentials({
+							environmentId: envEnvironmentId,
+							clientId: envClientId,
+							clientSecret: envClientSecret,
+							region: envRegion as 'us' | 'eu' | 'ap' | 'ca' | 'com',
+						});
+					}
+				}
+			} catch (error) {
+				logger.warn(
+					'[GlobalMFAContext] Failed to auto-load credentials from .env:',
+					error
+				);
+			}
+
 			// Load initial worker token status
 			try {
 				const status = await globalWorkerTokenService.getStatus();
