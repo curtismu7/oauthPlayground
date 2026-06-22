@@ -672,7 +672,6 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							defaultCollapsed={false}
 						>
 							<CompactAppPickerV8U
-								environmentId={credentials.environmentId ?? ''}
 								onAppSelected={handleAppSelected}
 							/>
 

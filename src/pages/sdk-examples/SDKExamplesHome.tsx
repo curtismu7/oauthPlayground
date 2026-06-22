@@ -12,7 +12,7 @@ import {
 	ApiDisplayCheckbox,
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { FlowHeader } from '../../services/flowHeaderService';
 
 import { logger } from '../../utils/logger';
