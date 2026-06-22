@@ -22,7 +22,7 @@ import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService'
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EmailMFASignOnFlowServiceV8 } from '@/v8/services/emailMfaSignOnFlowServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
@@ -1303,7 +1303,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 					</StepContent>
 				</StepSection>
 			</Container>
-			<WorkerTokenModalV8
+			<WorkerTokenModal
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 			/>

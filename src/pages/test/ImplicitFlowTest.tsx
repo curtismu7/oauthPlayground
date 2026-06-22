@@ -870,7 +870,7 @@ const ImplicitFlowTest: React.FC = () => {
 				)}
 			</ResultsContainer>
 
-			<WorkerTokenModalV9
+			<WorkerTokenModal
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 			/>
