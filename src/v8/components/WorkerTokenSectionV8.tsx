@@ -445,7 +445,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 				)}
 			</SectionRoot>
 
-			<WorkerTokenModalV8
+			<WorkerTokenModal
 				isOpen={showModal}
 				onClose={() => setShowModal(false)}
 				onTokenGenerated={(token) => {
