@@ -358,7 +358,6 @@ const PingOnePARFlowV9: React.FC = () => {
 
 						{/* Credentials Input */}
 						<CompactAppPickerV8U
-							environmentId={controller.credentials.environmentId ?? ''}
 							onAppSelected={handleParAppSelected}
 						/>
 						<V9FlowCredentialService

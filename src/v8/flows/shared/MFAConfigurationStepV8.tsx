@@ -921,7 +921,6 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 								showStatusDisplay={true}
 								statusSize="small"
 								showRefresh={false}
-								environmentId={credentials.environmentId}
 								context="mfa"
 							/>
 						)}

@@ -54,7 +54,6 @@ describe('TokenExchangeFlowV8', () => {
 	});
 
 	it('renders Token Exchange form when admin is enabled', async () => {
-		render(<TokenExchangeFlowV8 environmentId={mockEnvironmentId} />);
 
 		// Check that the form renders
 		expect(screen.getByText('Token Exchange')).toBeInTheDocument();
@@ -85,7 +84,6 @@ describe('TokenExchangeFlowV8', () => {
 	it('shows disabled state when admin is not enabled', async () => {
 		mockConfigService.isEnabled = vi.fn().mockResolvedValue(false);
 
-		render(<TokenExchangeFlowV8 environmentId={mockEnvironmentId} />);
 
 		// Check that disabled message is shown
 		expect(screen.getByText('Token Exchange Disabled')).toBeInTheDocument();
@@ -103,7 +101,6 @@ describe('TokenExchangeFlowV8', () => {
 
 		render(
 			<TokenExchangeFlowV8
-				environmentId={mockEnvironmentId}
 				onTokenReceived={mockOnTokenReceived}
 			/>
 		);
@@ -158,7 +155,6 @@ describe('TokenExchangeFlowV8', () => {
 
 		mockTokenExchangeService.exchangeToken = vi.fn().mockRejectedValue(mockError);
 
-		render(<TokenExchangeFlowV8 environmentId={mockEnvironmentId} onError={mockOnError} />);
 
 		// Fill in the form
 		const subjectTokenInput = screen.getByLabelText('Subject Token *');
@@ -182,7 +178,6 @@ describe('TokenExchangeFlowV8', () => {
 	});
 
 	it('validates required fields', async () => {
-		render(<TokenExchangeFlowV8 environmentId={mockEnvironmentId} />);
 
 		// Check that exchange button is disabled without subject token
 		const exchangeButton = screen.getByText('Exchange Token');
@@ -205,7 +200,6 @@ describe('TokenExchangeFlowV8', () => {
 			},
 		});
 
-		render(<TokenExchangeFlowV8 environmentId={mockEnvironmentId} />);
 
 		// Fill form and exchange
 		const subjectTokenInput = screen.getByLabelText('Subject Token *');
@@ -230,7 +224,6 @@ describe('TokenExchangeFlowV8', () => {
 	});
 
 	it('clears form correctly', async () => {
-		render(<TokenExchangeFlowV8 environmentId={mockEnvironmentId} />);
 
 		// Fill in the form
 		const subjectTokenInput = screen.getByLabelText('Subject Token *');

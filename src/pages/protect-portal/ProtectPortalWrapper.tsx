@@ -32,7 +32,6 @@ const ProtectPortalWrapper: React.FC = () => {
 
 	return (
 		<ProtectPortalApp
-			environmentId={config.pingone.environmentId}
 			clientId={config.pingone.clientId}
 			clientSecret={config.pingone.clientSecret}
 			redirectUri={redirectUri}
