@@ -1507,7 +1507,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	return (
 		<>
 			{/* Worker Token Modal - moved above main content */}
-			<WorkerTokenModalV9
+			<WorkerTokenModal
 				isOpen={showWorkerTokenModal}
 				onClose={() => {
 					setShowWorkerTokenModal(false);

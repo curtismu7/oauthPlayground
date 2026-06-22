@@ -934,7 +934,7 @@ export const TokenMonitoringPage: React.FC = () => {
 			)}
 
 			{showWorkerTokenModal && (
-				<WorkerTokenModalV9
+				<WorkerTokenModal
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 				/>

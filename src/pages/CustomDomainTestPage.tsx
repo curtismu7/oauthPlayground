@@ -621,7 +621,7 @@ export default function CustomDomainTestPage() {
 			</div>
 
 			{/* Worker Token Modal */}
-			<WorkerTokenModalV9
+			<WorkerTokenModal
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 				onTokenGenerated={async (token) => {
