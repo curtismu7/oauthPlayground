@@ -12,7 +12,7 @@ import { ApiCallTable } from '../../components/ApiCallTable';
 import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
 import { PasswordSetValueTab } from '../../components/password-reset/PasswordSetValueTab';
 import { WorkerTokenDetectedBanner } from '../../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
 import type { ApiCall } from '../../services/apiCallTrackerService';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
@@ -2682,7 +2682,6 @@ export { changePassword, handleChangePassword };`;
 						{/* App Lookup Button */}
 						{/* {environmentId && (
 							<CompactAppPickerV8U
-								environmentId={environmentId}
 								onAppSelected={(app) => {
 									setSelectedApp(app);
 									// App selected - user can manually configure clientId
@@ -4366,7 +4365,6 @@ export { changePassword, handleChangePassword };`;
 
 				{activeTab === 'set-value' && (
 					<PasswordSetValueTab
-						environmentId={environmentId}
 						workerToken={globalTokenStatus.token || ''}
 					/>
 				)}

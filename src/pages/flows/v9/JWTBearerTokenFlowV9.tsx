@@ -591,7 +591,6 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 							{!collapsedSections.credentials && (
 								<div>
 									<CompactAppPickerV8U
-										environmentId={environmentId}
 										onAppSelected={handleJwtAppSelected}
 									/>
 									<div style={{ marginBottom: '1rem' }}>

@@ -633,7 +633,6 @@ if (idToken) {
 				<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
 				<div style={{ marginTop: '1rem' }}>
 					<CompactAppPickerV8U
-						environmentId={formData.environmentId}
 						onAppSelected={handleAppSelected}
 					/>
 				</div>

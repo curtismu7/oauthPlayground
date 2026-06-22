@@ -476,7 +476,6 @@ const ClientGenerator: React.FC = () => {
 					</p>
 
 					<CredentialsInput
-						environmentId={workerCredentials.environmentId}
 						clientId={workerCredentials.clientId}
 						clientSecret={workerCredentials.clientSecret}
 						scopes={workerCredentials.scopes}

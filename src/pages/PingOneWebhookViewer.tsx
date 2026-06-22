@@ -1621,7 +1621,6 @@ const PingOneWebhookViewer: React.FC = () => {
 					</div>
 
 					<WorkerTokenSectionV8
-						environmentId={environmentId}
 						onTokenUpdated={(token) => {
 							setWorkerToken(token);
 							try {
