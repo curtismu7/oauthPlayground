@@ -6,13 +6,13 @@
 echo "🚀 Starting backend server to fix 'Failed to fetch' errors..."
 
 # Check if backend is already running
-if curl -s http://localhost:3001/api/health > /dev/null 2>&1; then
-    echo "✅ Backend server is already running on port 3001"
+if curl -s http://localhost:3002/api/health > /dev/null 2>&1; then
+    echo "✅ Backend server is already running on port 3002"
 else
-    echo "🔧 Starting backend server on port 3001..."
+    echo "🔧 Starting backend server on port 3002..."
     
     # Set environment variables
-    export BACKEND_PORT=3001
+    export BACKEND_PORT=3002
     export NODE_ENV=development
     
     # Start backend server
@@ -23,10 +23,10 @@ else
     sleep 3
     
     # Check if server started successfully
-    if curl -s http://localhost:3001/api/health > /dev/null 2>&1; then
+    if curl -s http://localhost:3002/api/health > /dev/null 2>&1; then
         echo "✅ Backend server started successfully!"
-        echo "📡 Health check: http://localhost:3001/api/health"
-        echo "🔗 Proxy will forward: http://localhost:3000/api/* → http://localhost:3001/api/*"
+        echo "📡 Health check: http://localhost:3002/api/health"
+        echo "🔗 Proxy will forward: http://localhost:3000/api/* → http://localhost:3002/api/*"
     else
         echo "❌ Failed to start backend server"
         echo "🔍 Check for errors in server.js"
@@ -38,4 +38,4 @@ echo ""
 echo "🎯 'Failed to fetch' errors should now be resolved!"
 echo "📊 Test the fix:"
 echo "   curl http://localhost:3000/api/health"
-echo "   curl http://localhost:3001/api/health"
+echo "   curl http://localhost:3002/api/health"
