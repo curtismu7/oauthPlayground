@@ -534,7 +534,7 @@ start_backend() {
     
     # Start backend server (starts both HTTP and HTTPS)
     print_info "Starting backend servers on ports $BACKEND_HTTP_PORT (HTTP) and $BACKEND_HTTPS_PORT (HTTPS)..."
-    BACKEND_PORT=3001 node server.js > backend.log 2>&1 &
+    BACKEND_PORT=3002 node server.js > backend.log 2>&1 &
     local backend_pid=$!
     echo $backend_pid > "$BACKEND_PID_FILE"
     

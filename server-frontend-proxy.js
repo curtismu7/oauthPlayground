@@ -11,7 +11,7 @@
  *
  * Env:
  *   FRONTEND_PORT — port for this proxy (default 3000)
- *   BACKEND_URL   — backend base URL (default https://localhost:3001)
+ *   BACKEND_URL   — backend base URL (default https://localhost:3002)
  */
 
 import fs from 'node:fs';
@@ -23,7 +23,7 @@ import fetch from 'node-fetch';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const FRONTEND_PORT = Number(process.env.FRONTEND_PORT) || 3000;
-const BACKEND_URL = (process.env.BACKEND_URL || 'https://localhost:3001').replace(/\/$/, '');
+const BACKEND_URL = (process.env.BACKEND_URL || 'https://localhost:3002').replace(/\/$/, '');
 const DIST = path.join(__dirname, 'dist');
 
 const app = express();

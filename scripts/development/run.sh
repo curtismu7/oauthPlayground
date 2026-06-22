@@ -34,7 +34,7 @@ NC='\033[0m' # No Color
 # Custom domain and certs are loaded from config/run-config.db (see load_ssl_config); default below.
 # App starts on https://<domain>:3000 (ensure domain resolves to this host, e.g. /etc/hosts).
 FRONTEND_PORT=3000  # Vite dev server (HTTPS)
-BACKEND_PORT=3001   # Express API server (HTTPS only)
+BACKEND_PORT=3002   # Express API server (HTTPS only)
 FRONTEND_HOST="${FRONTEND_HOST:-api.ping.demo}"
 BACKEND_HOST="${BACKEND_HOST:-api.ping.demo}"
 FRONTEND_URL="https://${FRONTEND_HOST}:${FRONTEND_PORT}"
@@ -803,7 +803,7 @@ start_backend() {
     # Start backend server (HTTPS only)
     # Cap Node heap at 2 GB — keeps Express/SQLite well within bounds and prevents OOM
     print_info "Starting backend server on port $BACKEND_PORT (HTTPS)..."
-    BACKEND_PORT=3001 NODE_OPTIONS="--max-old-space-size=2048" node server.js > backend.log 2>&1 &
+    BACKEND_PORT=3002 NODE_OPTIONS="--max-old-space-size=2048" node server.js > backend.log 2>&1 &
     local backend_pid=$!
     echo $backend_pid > "$BACKEND_PID_FILE"
     
