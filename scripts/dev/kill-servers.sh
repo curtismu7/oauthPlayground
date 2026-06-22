@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Configuration - Fixed ports for OAuth Playground
 FRONTEND_PORT=3000
-BACKEND_PORT=3001
+BACKEND_PORT=3002
 
 # PID files for process management
 FRONTEND_PID_FILE=".frontend.pid"

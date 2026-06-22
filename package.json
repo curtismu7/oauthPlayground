@@ -10,7 +10,7 @@
   "scripts": {
     "start": "./scripts/dev/start-full-stack.sh",
     "start:frontend": "vite",
-    "start:backend": "BACKEND_PORT=3001 node server.js",
+    "start:backend": "BACKEND_PORT=3002 node server.js",
     "assistant": "npx vite AIAssistant --port 3002",
     "assistant:build": "npx vite build AIAssistant --outDir ../dist-assistant",
     "start:frontend-proxy": "node server-frontend-proxy.js",
