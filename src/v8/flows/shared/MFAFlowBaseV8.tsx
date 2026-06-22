@@ -18,7 +18,7 @@ import { MFAWaitScreenV8 } from '@/v8/components/MFAWaitScreenV8';
 import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
-import { WorkerTokenModalV9 } from '@/components/WorkerTokenModalV9';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { WorkerTokenPromptModalV8 } from '@/v8/components/WorkerTokenPromptModalV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
@@ -1439,7 +1439,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						const showTokenOnly = config.workerToken.showTokenAtEnd && currentTokenStatus.isValid;
 
 						return (
-							<WorkerTokenModalV9
+							<WorkerTokenModal
 								isOpen={showWorkerTokenModal}
 								onClose={() => setShowWorkerTokenModal(false)}
 								onTokenGenerated={handleWorkerTokenGenerated}
@@ -1448,7 +1448,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						);
 					} catch {
 						return (
-							<WorkerTokenModalV9
+							<WorkerTokenModal
 								isOpen={showWorkerTokenModal}
 								onClose={() => setShowWorkerTokenModal(false)}
 								onTokenGenerated={handleWorkerTokenGenerated}

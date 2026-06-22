@@ -22,7 +22,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV9 } from '@/components/WorkerTokenModalV9';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -948,7 +948,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 					</div>
 				)}
 
-				<WorkerTokenModalV9
+				<WorkerTokenModal
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 					onTokenGenerated={handleWorkerTokenGenerated}
