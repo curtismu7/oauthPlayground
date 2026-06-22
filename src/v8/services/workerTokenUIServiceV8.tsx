@@ -22,7 +22,7 @@ import { FiLoader, FiTrash2 } from '../../icons';
 import { logger } from '../../utils/logger';
 import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U';
 import type { DiscoveredApp } from '../components/AppPickerV8';
-import { WorkerTokenModalV8 } from '../components/WorkerTokenModalV8';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8';
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
@@ -652,7 +652,6 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 			<AppDiscoveryModalV8U
 				isOpen={showAppDiscoveryModal}
 				onClose={() => setShowAppDiscoveryModal(false)}
-				environmentId={environmentId}
 				onEnvironmentIdChange={onEnvironmentIdUpdate}
 				onAppSelected={handleAppSelected}
 			/>

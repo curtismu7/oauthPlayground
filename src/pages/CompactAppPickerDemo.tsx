@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactApplicationPicker } from '../components/CompactApplicationPicker';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { logger } from '../utils/logger';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
@@ -309,7 +309,6 @@ const CompactAppPickerDemo: React.FC = () => {
 				<SectionTitle>✅ Application Picker</SectionTitle>
 
 				<CompactApplicationPicker
-					environmentId={environmentId}
 					workerToken={workerToken}
 					onSelect={handleAppSelect}
 					disabled={!hasWorkerToken}
