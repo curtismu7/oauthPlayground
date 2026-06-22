@@ -31,7 +31,7 @@ NC='\033[0m' # No Color
 # These ports are hardcoded to ensure consistency with OAuth redirect URIs
 # and API endpoint configurations. Do not change these values.
 FRONTEND_PORT=3000  # Vite dev server (HTTPS)
-BACKEND_PORT=3001   # Express API server (HTTPS only)
+BACKEND_PORT=3002   # Express API server (HTTPS only)
 ASSISTANT_PORT=3002  # Standalone AI Assistant (Vite)
 MCP_INSPECTOR_PORT=6274  # MCP Inspector UI (modelcontextprotocol/inspector)
 FRONTEND_URL="https://localhost:${FRONTEND_PORT}"
