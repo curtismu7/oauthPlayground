@@ -40,7 +40,7 @@ import { EnvironmentIdPersistenceStatus } from '../components/EnvironmentIdPersi
 import JwksKeySourceSelector, { JwksKeySource } from '../components/JwksKeySourceSelector';
 import PingOneApplicationPicker from '../components/PingOneApplicationPicker';
 import type { StepCredentials } from '../components/steps/CommonSteps';
-import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { ClientAuthMethod } from '../utils/clientAuthentication';
 import { logger } from '../utils/logger';
@@ -1597,9 +1597,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						)}
 
 						<PingOneApplicationPicker
-							environmentId={
-								resolvedCredentials.environmentId || retrievedWorkerCredentials.environmentId || ''
-							}
+							environmentId={resolvedCredentials.environmentId || retrievedWorkerCredentials.environmentId || ''}
+
 							clientId={resolvedCredentials.clientId || retrievedWorkerCredentials.clientId || ''}
 							clientSecret={
 								resolvedCredentials.clientSecret || retrievedWorkerCredentials.clientSecret || ''
@@ -1631,7 +1630,6 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 					{/* Credential Input Fields */}
 					<CredentialsInput
-						environmentId={resolvedCredentials.environmentId}
 						clientId={resolvedCredentials.clientId}
 						clientSecret={resolvedCredentials.clientSecret}
 						redirectUri={resolvedCredentials.redirectUri}
@@ -1968,7 +1966,6 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				is populated even if fields become non-editable, but field editability is the primary requirement.
 			*/}
 				<CredentialsInput
-					environmentId={resolvedCredentials.environmentId || ''}
 					clientId={resolvedCredentials.clientId || ''}
 					clientSecret={resolvedCredentials.clientSecret || ''}
 					redirectUri={resolvedCredentials.redirectUri}
@@ -2011,7 +2008,6 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				{/* Environment ID Persistence Status */}
 				{resolvedCredentials.environmentId && (
 					<EnvironmentIdPersistenceStatus
-						environmentId={resolvedCredentials.environmentId}
 						onRefresh={() => {
 							// Trigger a re-render to refresh the status
 							window.location.reload();
@@ -2340,7 +2336,6 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								return 'OIDC_WEB_APP';
 							})()}
 							workerToken={effectiveWorkerToken}
-							environmentId={resolvedCredentials.environmentId || ''}
 							region={region}
 							isCreating={isSaving}
 							onGenerateWorkerToken={() => setShowWorkerTokenModal(true)}
@@ -2698,7 +2693,6 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						<JwksKeySourceSelector
 							value={jwksKeySource}
 							jwksUrl={jwksUrl || ''}
-							environmentId={resolvedCredentials.environmentId || ''}
 							issuer={resolvedCredentials.issuerUrl || ''}
 							onCopyJwksUrlSuccess={(url) => {
 								modernMessaging.showFooterMessage({

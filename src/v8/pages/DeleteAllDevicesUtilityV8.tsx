@@ -1043,7 +1043,6 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					</div>
 
 					{/* Worker Token Management */}
-					<WorkerTokenSectionV8 environmentId={environmentId} />
 
 					{/* Load Devices Button */}
 					<button

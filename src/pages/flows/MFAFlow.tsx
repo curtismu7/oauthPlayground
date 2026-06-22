@@ -768,7 +768,6 @@ if (tokenResponse.ok) {
 
 			{/* App Picker for Quick Configuration */}
 			<CompactAppPickerV9
-				environmentId={formData.environmentId ?? ''}
 				onAppSelected={handleAppSelected}
 				grantType="authorization_code"
 			/>

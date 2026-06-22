@@ -694,7 +694,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 								</label>
 								<UserSearchDropdownV8
 									id="username-dropdown"
-									environmentId={environmentId}
 									value={username}
 									onChange={setUsername}
 									placeholder="Search for a user..."
@@ -705,7 +704,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							{environmentId && (
 								<div style={{ marginBottom: '20px' }}>
 									<SQLiteStatsDisplayV8
-										environmentId={environmentId}
 										compact={false}
 										refreshInterval={30}
 										showRefreshButton={true}
@@ -927,7 +925,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							>
 								{/* Worker Token Section — checkboxes inside card, no duplicates above */}
 								<WorkerTokenSectionV8
-									environmentId={environmentId}
 									showStatusCard={false}
 									showSettings={true}
 									silentApiRetrieval={workerTokenConfig.silentApiRetrieval}
@@ -1144,7 +1141,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					}}
 					onDeviceSelect={handleDeviceSelectForAuthentication}
 					username={username}
-					environmentId={environmentId}
 				/>
 				{showOTPModal && (
 					<div
@@ -1537,7 +1533,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				}}
 				onDeviceSelect={handleDeviceSelectForAuthentication}
 				username={username}
-				environmentId={environmentId}
 			/>
 
 			{/* OTP Modal for Authentication */}
@@ -1752,7 +1747,6 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 				<UnifiedMFARegistrationFlowContent
 					{...props}
 					deviceType={selectedDeviceType}
-					environmentId={selectedEnvironmentId}
 					username={selectedUsername}
 					userToken={userToken}
 					setUserToken={setUserToken}
@@ -2641,7 +2635,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					pendingRegistrationRef.current = null;
 				}}
 				onTokenReceived={handleUserTokenReceived}
-				environmentId={envIdForModal}
 			/>
 
 			{/* User Token Success Page - Show token after OAuth login */}

@@ -5019,7 +5019,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 										<IssuerURLInputV8
 											value={credentials.issuerUrl || ''}
 											onChange={(url) => handleChange('issuerUrl', url)}
-											environmentId={credentials.environmentId}
 											placeholder="https://auth.example.com"
 										/>
 									</div>
@@ -5038,7 +5037,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 									{flowOptions.supportsLoginHint && showLoginHint && (
 										<div className="form-group" style={{ marginBottom: '16px' }}>
 											<_UserSearchDropdownV8
-												environmentId={credentials.environmentId || ''}
 												value={loginHint}
 												onChange={(value) => {
 													logger.info(
@@ -5241,7 +5239,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 					<AppDiscoveryModalV8U
 						isOpen={showAppDiscoveryModal}
 						onClose={() => setShowAppDiscoveryModal(false)}
-						environmentId={credentials.environmentId}
 						onAppSelected={handleAppSelected}
 						flowType={flowType}
 						specVersion={specVersion}
