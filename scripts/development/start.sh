@@ -34,7 +34,7 @@ NC='\033[0m' # No Color
 # These ports are hardcoded to ensure consistency with OAuth redirect URIs
 # and API endpoint configurations. Do not change these values.
 FRONTEND_PORT=3000  # Vite dev server (HTTPS)
-BACKEND_PORT=3001   # Express API server (HTTPS only)
+BACKEND_PORT=3002   # Express API server (HTTPS only)
 FRONTEND_URL="https://localhost:${FRONTEND_PORT}"
 BACKEND_URL="https://localhost:${BACKEND_PORT}"
 
@@ -508,7 +508,7 @@ start_backend() {
     
     # Start backend server (HTTPS only)
     print_info "Starting backend server on port $BACKEND_PORT (HTTPS)..."
-    BACKEND_PORT=3001 node server.js > backend.log 2>&1 &
+    BACKEND_PORT=3002 node server.js > backend.log 2>&1 &
     local backend_pid=$!
     echo $backend_pid > "$BACKEND_PID_FILE"
     
