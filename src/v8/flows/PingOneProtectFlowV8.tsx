@@ -22,7 +22,7 @@ import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModalV9 } from '@/components/WorkerTokenModalV9';
 import { type Credentials, CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import uiNotificationServiceV8 from '@/v8/services/uiNotificationServiceV8';
@@ -1531,7 +1531,7 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 							const showTokenOnly = config.workerToken.showTokenAtEnd && currentTokenStatus.isValid;
 
 							return (
-								<WorkerTokenModalV8
+								<WorkerTokenModalV9
 									isOpen={showWorkerTokenModal}
 									onClose={() => {
 										setShowWorkerTokenModal(false);
@@ -1543,7 +1543,7 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 							);
 						} catch {
 							return (
-								<WorkerTokenModalV8
+								<WorkerTokenModalV9
 									isOpen={showWorkerTokenModal}
 									onClose={() => {
 										setShowWorkerTokenModal(false);
