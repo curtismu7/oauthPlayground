@@ -398,7 +398,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 			)}
 
 			{/* Worker Token Modal */}
-			<WorkerTokenModalV8
+			<WorkerTokenModal
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 				onTokenGenerated={handleWorkerTokenGenerated}

@@ -9,7 +9,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
 import { FiAlertTriangle, FiClock } from '../../icons';
@@ -790,7 +790,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 					{renderJson(result?.response)}
 				</section>
 			</div>
-			<WorkerTokenModalV8
+			<WorkerTokenModal
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 			/>

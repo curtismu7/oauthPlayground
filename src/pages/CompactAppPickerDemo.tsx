@@ -356,7 +356,7 @@ const CompactAppPickerDemo: React.FC = () => {
 				</SelectedAppCard>
 			)}
 
-			<WorkerTokenModalV9
+			<WorkerTokenModal
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 				onTokenGenerated={(token) => {

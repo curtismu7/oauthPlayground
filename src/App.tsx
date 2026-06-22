@@ -11,6 +11,7 @@ import { ExternalScriptErrorBoundary, useExternalErrorHandling } from './utils/e
 import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
 import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
 import { PromptModalV8 } from './v8/components/PromptModalV8';
+import { WorkerTokenModalV9 } from './components/WorkerTokenModalV9';
 import { FlowStateProvider } from './v8/contexts/FlowStateContext';
 import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
 import './styles/spec-cards.css';
@@ -2150,7 +2151,7 @@ function AppContent() {
 
 				{/* Global Worker Token Modal — uses Worker Token modal service (WorkerTokenModalV9) */}
 				{showWorkerTokenModal && (
-					<WorkerTokenModalV9
+					<WorkerTokenModal
 						isOpen={showWorkerTokenModal}
 						onClose={() => setShowWorkerTokenModal(false)}
 					/>
