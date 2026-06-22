@@ -662,7 +662,6 @@ const JWTBearerFlow: React.FC = () => {
 				<CardBody>
 					<div style={{ marginBottom: '1rem' }}>
 						<CompactAppPickerV9
-							environmentId={config?.environmentId || ''}
 							onAppSelected={handleAppSelected}
 							grantType="urn:ietf:params:oauth:grant-type:jwt-bearer"
 							compact={false}

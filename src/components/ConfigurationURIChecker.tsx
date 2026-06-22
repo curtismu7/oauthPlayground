@@ -10,7 +10,7 @@ import { fetchApplications } from '../services/pingOneApplicationService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { logger } from '../utils/logger';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
-import { WorkerTokenModalV9 } from './WorkerTokenModalV9';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 export interface ConfigurationURICheckerProps {
 	flowType?: string;
 	environmentId?: string;

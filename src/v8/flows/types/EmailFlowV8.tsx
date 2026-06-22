@@ -2015,7 +2015,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 								showStatusDisplay={true}
 								statusSize="small"
 								showRefresh={false}
-								environmentId={props.credentials.environmentId}
 								context="mfa"
 							/>
 

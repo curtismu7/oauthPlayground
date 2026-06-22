@@ -496,7 +496,6 @@ logger.info('ID token is valid!', "Logger info");`,
 				<CardBody>
 					<div style={{ marginBottom: '1rem' }}>
 						<CompactAppPickerV9
-							environmentId={config?.environmentId || ''}
 							onAppSelected={handleAppSelected}
 							grantType="authorization_code"
 							compact={false}

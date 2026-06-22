@@ -13,7 +13,7 @@ import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { logger } from '../../utils/logger';
 import { ConfirmModalV8 } from './ConfirmModalV8';
-import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 
 const MODULE_TAG = '[ APP-PICKER-V8]';
 
@@ -402,7 +402,6 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 				onTokenGenerated={handleWorkerTokenGenerated}
-				environmentId={environmentId}
 			/>
 
 			{/* Confirm Remove Token Modal */}

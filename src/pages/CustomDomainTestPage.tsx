@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Icon } from '../components/Icon/Icon';
 import { useServerStatus } from '../components/ServerStatusProvider';
-import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { useNotifications } from '../contexts/NotificationSystem';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {

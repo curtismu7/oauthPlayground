@@ -1326,7 +1326,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 							<div style={{ marginTop: '1rem' }}>
 								{/* App Picker for Quick Configuration */}
 								<CompactAppPickerV8U
-									environmentId={credentials.environmentId || ''}
 									onAppSelected={handleAppSelected}
 								/>
 

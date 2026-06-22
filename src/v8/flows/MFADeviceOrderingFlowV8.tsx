@@ -1238,7 +1238,6 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 					}}
 					onTokenGenerated={handleWorkerTokenGenerated}
-					environmentId={credentials.environmentId}
 					showTokenOnly={showTokenOnly}
 				/>
 			) : null}
