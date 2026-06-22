@@ -689,7 +689,6 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 							</ButtonSpinner>
 						</div>
 						<MFADeviceManagerV8
-							environmentId={credentials.environmentId}
 							username={credentials.username}
 							onUsernameChange={() => setIsReady(false)}
 						/>
@@ -707,7 +706,6 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 						setShowWorkerTokenModal((prev) => !prev);
 					}}
 					onTokenGenerated={handleWorkerTokenGenerated}
-					environmentId={credentials.environmentId}
 					showTokenOnly={showTokenOnly}
 				/>
 			)}
