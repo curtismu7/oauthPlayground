@@ -26047,6 +26047,48 @@ app.post('/api/stepup/issue-token', (req, res) => {
 	}
 });
 // ─── End Step-Up Auth Routes ──────────────────────────────────────────────────
+// ─── Test/Debug Endpoints ──────────────────────────────────────────────────────
+// Get test configuration (environment_id, token endpoint, etc.)
+app.get('/api/test/config', (_req, res) => {
+	const defaultEnvId = process.env.PINGONE_ENVIRONMENT_ID || process.env.VITE_PINGONE_ENVIRONMENT_ID;
+	res.json({
+		environment_id: defaultEnvId,
+		issuer: defaultEnvId ? `https://auth.pingone.com/${defaultEnvId}` : null,
+		token_endpoint: defaultEnvId ? `https://auth.pingone.com/${defaultEnvId}/as/token` : null,
+		userinfo_endpoint: defaultEnvId ? `https://auth.pingone.com/${defaultEnvId}/as/userinfo` : null,
+		jwks_uri: defaultEnvId ? `https://auth.pingone.com/${defaultEnvId}/as/jwks` : null,
+		note: 'Use these values for testing API endpoints',
+	});
+});
+
+// Generate a test JWT token (unsigned demo token)
+app.get('/api/test/token', (_req, res) => {
+	const defaultEnvId = process.env.PINGONE_ENVIRONMENT_ID || process.env.VITE_PINGONE_ENVIRONMENT_ID;
+	const now = Math.floor(Date.now() / 1000);
+	const payload = {
+		iss: defaultEnvId ? `https://auth.pingone.com/${defaultEnvId}` : 'https://auth.pingone.com/demo',
+		sub: 'test-user-123',
+		aud: 'test-client',
+		iat: now,
+		exp: now + 3600,
+		scope: 'openid profile email',
+	};
+
+	const header = Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' })).toString('base64url');
+	const payloadStr = Buffer.from(JSON.stringify(payload)).toString('base64url');
+	const testToken = `${header}.${payloadStr}.`;
+
+	res.json({
+		access_token: testToken,
+		token_type: 'Bearer',
+		expires_in: 3600,
+		scope: 'openid profile email',
+		payload,
+		note: 'This is an unsigned demo token for testing. Use with /api/validate-token, /api/userinfo, etc.',
+	});
+});
+
+// ─── End Test/Debug Endpoints ──────────────────────────────────────────────
 
 // API endpoint not found handler - MUST be after all API route definitions
 app.use('/api', (req, res) => {
