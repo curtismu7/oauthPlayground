@@ -1547,7 +1547,6 @@ const Configuration: React.FC = () => {
 			{!!workerToken && credentials.environmentId && credentials.clientId && (
 				<ConfigurationURIChecker
 					flowType="configuration"
-					environmentId={credentials.environmentId}
 					clientId={credentials.clientId}
 					workerToken={workerToken || undefined}
 					redirectUri={credentials.redirectUri || ''}

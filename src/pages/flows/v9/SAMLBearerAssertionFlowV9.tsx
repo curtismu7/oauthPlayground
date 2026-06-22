@@ -758,7 +758,6 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				defaultCollapsed={collapsedSections.credentials}
 				showArrow={true}
 			>
-				<CompactAppPickerV8U environmentId={environmentId} onAppSelected={handleSamlAppSelected} />
 				<FormGroup>
 					<Label>Environment ID *</Label>
 					<Input
