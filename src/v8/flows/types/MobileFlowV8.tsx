@@ -2406,7 +2406,6 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 								showStatusDisplay={true}
 								statusSize="small"
 								showRefresh={false}
-								environmentId={credentials.environmentId}
 								context="mfa"
 							/>
 

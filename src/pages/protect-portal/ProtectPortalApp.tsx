@@ -700,7 +700,6 @@ const FedExPortalContent: React.FC<Omit<ProtectPortalAppProps, 'initialStep'>> =
 						<ModalTitle>Sign In to FedEx</ModalTitle>
 						<ModalSubtitle>Enter your credentials to access your account</ModalSubtitle>
 						<BaseLoginForm
-							environmentId={environmentId}
 							clientId={clientId}
 							redirectUri={redirectUri}
 							region={protectCredentials?.region}
@@ -965,7 +964,6 @@ const FedExPortalContent: React.FC<Omit<ProtectPortalAppProps, 'initialStep'>> =
 
 			{/* Worker token */}
 			<TokenStrip>
-				<WorkerTokenSectionV8 compact environmentId={environmentId} />
 			</TokenStrip>
 
 			{/* Footer */}
