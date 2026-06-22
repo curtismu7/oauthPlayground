@@ -4,7 +4,7 @@ import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/St
 import TokenDisplayService from '../../services/tokenDisplayService';
 import { logger } from '../../utils/logger';
 import { WorkerTokenExpiryBannerV8 } from '../../v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 import {
 	type RevocationMethod,

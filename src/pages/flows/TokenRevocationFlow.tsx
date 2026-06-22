@@ -8,7 +8,7 @@ import { CredentialsImportExport } from '../../components/CredentialsImportExpor
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
-import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { logger } from '../../utils/logger';
 
 const FlowContainer = styled.div`

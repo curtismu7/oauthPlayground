@@ -1128,7 +1128,6 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						showStatusDisplay={true}
 						statusSize="small"
 						showRefresh={false}
-						environmentId={credentials.environmentId}
 						context="mfa"
 					/>
 
@@ -3041,7 +3040,6 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 							showRegisterForm: true,
 						}));
 					}}
-					environmentId={credentialsRef.current?.environmentId}
 					username={credentialsRef.current?.username}
 					deviceId={existingFIDODevice?.id}
 					deviceNickname={existingFIDODevice?.nickname}
