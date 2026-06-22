@@ -22,7 +22,7 @@ import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV9 } from '@/components/WorkerTokenModalV9';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -2219,7 +2219,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
 
 						return (
-							<WorkerTokenModalV9
+							<WorkerTokenModal
 								isOpen={showWorkerTokenModal}
 								onClose={() => {
 									setShowWorkerTokenModal(false);
@@ -2231,7 +2231,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						);
 					} catch {
 						return (
-							<WorkerTokenModalV9
+							<WorkerTokenModal
 								isOpen={showWorkerTokenModal}
 								onClose={() => {
 									setShowWorkerTokenModal(false);
