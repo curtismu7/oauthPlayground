@@ -455,7 +455,6 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 					}
 					window.dispatchEvent(new Event('workerTokenUpdated'));
 				}}
-				environmentId={environmentId || ''}
 			/>
 		</>
 	);

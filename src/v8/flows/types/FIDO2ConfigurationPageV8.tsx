@@ -2256,7 +2256,6 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						}));
 						setShowUserLoginModal(false);
 					}}
-					environmentId={environmentId}
 				/>
 			)}
 		</div>

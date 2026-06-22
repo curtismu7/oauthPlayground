@@ -4,7 +4,7 @@
 
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
 import {
 	V9AppDiscoveryService,

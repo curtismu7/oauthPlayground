@@ -474,7 +474,6 @@ const RARFlowV9: React.FC = () => {
 						{!collapsedSections.configuration && (
 							<CollapsibleContent>
 								<CompactAppPickerV8U
-									environmentId={environmentId}
 									onAppSelected={handleRarAppSelected}
 								/>
 								<ResponsiveFormGrid>
