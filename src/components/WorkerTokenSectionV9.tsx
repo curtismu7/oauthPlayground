@@ -320,7 +320,7 @@ export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
 				</Actions>
 			</Section>
 
-			<WorkerTokenModalV9
+			<WorkerTokenModal
 				isOpen={showModal}
 				onClose={() => setShowModal(false)}
 				onTokenGenerated={(token: string) => {

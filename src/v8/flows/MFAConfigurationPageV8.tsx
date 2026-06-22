@@ -16,7 +16,7 @@ import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { MFAUserDisplayV8 } from '@/v8/components/MFAUserDisplayV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import {
@@ -1603,7 +1603,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				onSave={handleCreatePolicy}
 				isSaving={isCreatingPolicy}
 			/>
-			<WorkerTokenModalV8
+			<WorkerTokenModal
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 			/>

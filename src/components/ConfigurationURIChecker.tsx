@@ -651,7 +651,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			</ActionBar>
 
 			{showWorkerTokenModal && (
-				<WorkerTokenModalV9
+				<WorkerTokenModal
 					isOpen={showWorkerTokenModal}
 					onClose={() => {
 						setShowWorkerTokenModal(false);
