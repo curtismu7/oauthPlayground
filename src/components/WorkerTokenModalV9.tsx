@@ -320,7 +320,7 @@ export interface WorkerTokenModalV9Props {
 // Component
 // ---------------------------------------------------------------------------
 
-const WorkerTokenModalV9: React.FC<WorkerTokenModalV9Props> = ({
+const WorkerTokenModalV9: React.FC<WorkerTokenModalProps> = ({
 	isOpen,
 	onClose,
 	onTokenGenerated,

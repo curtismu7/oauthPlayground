@@ -2151,7 +2151,7 @@ function AppContent() {
 
 				{/* Global Worker Token Modal — uses Worker Token modal service (WorkerTokenModalV9) */}
 				{showWorkerTokenModal && (
-					<WorkerTokenModalV9
+					<WorkerTokenModal
 						isOpen={showWorkerTokenModal}
 						onClose={() => setShowWorkerTokenModal(false)}
 					/>
