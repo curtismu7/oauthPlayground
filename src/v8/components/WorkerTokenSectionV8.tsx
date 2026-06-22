@@ -22,7 +22,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiRefreshCw } from '../../icons';
-import { WorkerTokenModal } from '@/components/WorkerTokenModal'';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
 
 const MODULE_TAG = '[ WORKER-TOKEN-SECTION-V8]';
