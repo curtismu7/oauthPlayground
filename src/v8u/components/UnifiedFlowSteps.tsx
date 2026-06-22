@@ -44,7 +44,7 @@ const _log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
 
 import { ButtonSpinner } from '@/components/ui';
 import { getRedirectUriForUnifiedFlow } from '@/services/v9/V9UnifiedRedirectUriService';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModalV9 } from '@/components/WorkerTokenModalV9';
 import { FiArrowRight } from '../../icons';
 import { logger } from '../../utils/logger';
 import { usePersistedCollapse } from '../hooks/usePersistedCollapse';
@@ -15576,7 +15576,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			{/* Worker Token Modal */}
 			{showWorkerTokenModal && (
-				<WorkerTokenModalV8
+				<WorkerTokenModalV9
 					isOpen={showWorkerTokenModal}
 					onClose={async () => {
 						setShowWorkerTokenModal(false);
