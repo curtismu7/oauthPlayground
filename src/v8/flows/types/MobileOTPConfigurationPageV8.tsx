@@ -18,7 +18,7 @@ import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModalV9 } from '@/components/WorkerTokenModalV9';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -1223,7 +1223,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 
 				{/* Worker Token Modal */}
 				{showWorkerTokenModal && (
-					<WorkerTokenModalV8
+					<WorkerTokenModalV9
 						isOpen={showWorkerTokenModal}
 						onClose={() => {
 							setShowWorkerTokenModal(false);
