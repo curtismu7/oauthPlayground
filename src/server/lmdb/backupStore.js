@@ -50,7 +50,7 @@ export function saveBackup(key, environmentId, dataType, data, expiresAt = null)
 export function getBackup(key, environmentId, dataType) {
 	if (!key || !environmentId || !dataType) return null;
 	const dbKey = `${environmentId}|${dataType}|${key}`;
-	const v = backups().get(dbKey);
+	const v = backups().getSync(dbKey);
 	if (!v) return null;
 	// Check expiry
 	if (v.expires_at && v.expires_at < now()) {
