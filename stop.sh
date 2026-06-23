@@ -1,12 +1,26 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# stop.sh — Stop all OAuth Playground services
 
-###############################################################################
-# Redirect script to actual stop.sh in scripts/development/
-# This allows running ./stop.sh from the project root
-###############################################################################
+echo "🛑 Stopping OAuth Playground services..."
 
-# Get the directory where this script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Kill backend
+if [ -f "/tmp/oauth-backend.pid" ]; then
+  pid=$(cat /tmp/oauth-backend.pid)
+  if kill -0 "$pid" 2>/dev/null; then
+    kill "$pid" 2>/dev/null || true
+    echo "   Backend stopped (PID: $pid)"
+  fi
+  rm -f /tmp/oauth-backend.pid
+fi
 
-# Execute the actual stop.sh script
-exec "${SCRIPT_DIR}/scripts/development/stop.sh" "$@"
+# Kill frontend
+if [ -f "/tmp/oauth-frontend.pid" ]; then
+  pid=$(cat /tmp/oauth-frontend.pid)
+  if kill -0 "$pid" 2>/dev/null; then
+    kill "$pid" 2>/dev/null || true
+    echo "   Frontend stopped (PID: $pid)"
+  fi
+  rm -f /tmp/oauth-frontend.pid
+fi
+
+echo "✅ All services stopped"
