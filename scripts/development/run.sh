@@ -33,8 +33,8 @@ NC='\033[0m' # No Color
 # Configuration - Fixed ports for OAuth Playground
 # Custom domain and certs are loaded from config/run-config.db (see load_ssl_config); default below.
 # App starts on https://<domain>:3000 (ensure domain resolves to this host, e.g. /etc/hosts).
-FRONTEND_PORT=3000  # Vite dev server (HTTPS)
-BACKEND_PORT=3002   # Express API server (HTTPS only)
+FRONTEND_PORT=5000  # Vite dev server (HTTPS)
+BACKEND_PORT=5001   # Express API server (HTTPS only)
 FRONTEND_HOST="${FRONTEND_HOST:-api.ping.demo}"
 BACKEND_HOST="${BACKEND_HOST:-api.ping.demo}"
 FRONTEND_URL="https://${FRONTEND_HOST}:${FRONTEND_PORT}"
@@ -44,7 +44,7 @@ ASSISTANT_URL="https://${FRONTEND_HOST}:${ASSISTANT_PORT}"
 SSL_CERT_PATH="${SSL_CERT_PATH:-}"
 SSL_KEY_PATH="${SSL_KEY_PATH:-}"
 
-ASSISTANT_PORT=3002  # Standalone AI Assistant (Vite)
+ASSISTANT_PORT=5002  # Standalone AI Assistant (Vite)
 MCP_INSPECTOR_PORT=6274  # MCP Inspector UI (modelcontextprotocol/inspector)
 MCP_SERVER_DIR_REL="pingone-mcp-server"  # Relative to project root
 
@@ -284,13 +284,13 @@ show_banner() {
     echo "║                                                                              ║"
     echo "║                    🔄 OAuth Playground Server Restart 🔄                     ║"
     echo "║                                                                              ║"
-    echo "║  Frontend: https://localhost:3000 (Vite Dev Server)                          ║"
-    echo "║  Backend:  https://localhost:3001 (Express API Server - HTTPS only)          ║"
+    echo "║  Frontend: https://localhost:5000 (Vite Dev Server)                          ║"
+    echo "║  Backend:  https://localhost:5001 (Express API Server - HTTPS only)          ║"
     echo "║                                                                              ║"
     echo "║  This script will:                                                           ║"
     echo "║  1. Find and change to OAuth Playground directory                            ║"
     echo "║  2. Kill all existing servers                                                 ║"
-    echo "║  3. Clean up processes and ports 3000 & 3001                                 ║"
+    echo "║  3. Clean up processes and ports 5000 ports 3000 & 3001 5001                                 ║"
     echo "║  4. Clear Vite cache and build artifacts                                    ║"
     echo "║  5. Restart frontend and backend servers                                   ║"
     echo "║  6. Check for errors and report status                                    ║"
@@ -803,7 +803,7 @@ start_backend() {
     # Start backend server (HTTPS only)
     # Cap Node heap at 2 GB — keeps Express/SQLite well within bounds and prevents OOM
     print_info "Starting backend server on port $BACKEND_PORT (HTTPS)..."
-    BACKEND_PORT=3002 NODE_OPTIONS="--max-old-space-size=2048" node server.js > backend.log 2>&1 &
+    BACKEND_PORT=5001 NODE_OPTIONS="--max-old-space-size=2048" node server.js > backend.log 2>&1 &
     local backend_pid=$!
     echo $backend_pid > "$BACKEND_PID_FILE"
     
@@ -1346,7 +1346,7 @@ while [ $# -gt 0 ]; do
             echo "  Full stack + AI Assistant (all services at once):"
             echo "    1. cd to the OAuth Playground directory"
             echo "    2. Run: ./run.sh -both"
-            echo "    3. OAuth Playground: https://localhost:3000"
+            echo "    3. OAuth Playground: https://localhost:5000"
             echo "    4. AI Assistant:     ${ASSISTANT_URL:-https://api.ping.demo:3002}"
             echo "    5. MCP Inspector:    http://localhost:${MCP_INSPECTOR_PORT} (test PingOne MCP tools)"
             echo "    6. Logs: backend.log | frontend.log | mcp-server.log | mcp-inspector.log | assistant.log"
