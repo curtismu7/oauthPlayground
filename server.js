@@ -26187,41 +26187,14 @@ async function startServers() {
 }
 
 // Add error handling for both servers
-if (httpServer) {
-	httpServer.on('error', (err) => {
-		console.error('❌ HTTP Server error:', err);
-	});
-
-	httpServer.on('listening', () => {
-		const addr = httpServer.address();
-		console.log(`🌐 HTTP Server listening on:`, addr);
-	});
-}
-
-if (httpsServer) {
-	httpsServer.on('error', (err) => {
-		console.error('❌ HTTPS Server error:', err);
-	});
-
-	httpsServer.on('listening', () => {
-		const addr = httpsServer.address();
-		console.log(`🌐 HTTPS Server listening on:`, addr);
-	});
-}
-
-// Call startServers to begin accepting connections
-startServers().catch((error) => {
-	console.error("❌ Failed to start servers:", error);
-	process.exit(1);
-});
-
+// Register route handlers before starting servers
 app.post('/api/update-redirect-uri', async (req, res) => {
 	try {
 		const { environmentId, clientId, redirectUri, workerToken } = req.body;
 
 		if (!environmentId || !clientId || !redirectUri) {
-			return res.status(400).json({ 
-				message: 'environmentId, clientId, and redirectUri are required' 
+			return res.status(400).json({
+				message: 'environmentId, clientId, and redirectUri are required'
 			});
 		}
 
@@ -26297,4 +26270,32 @@ app.post('/api/update-redirect-uri', async (req, res) => {
 			message: error instanceof Error ? error.message : 'Failed to update redirect URI',
 		});
 	}
+});
+
+if (httpServer) {
+	httpServer.on('error', (err) => {
+		console.error('❌ HTTP Server error:', err);
+	});
+
+	httpServer.on('listening', () => {
+		const addr = httpServer.address();
+		console.log(`🌐 HTTP Server listening on:`, addr);
+	});
+}
+
+if (httpsServer) {
+	httpsServer.on('error', (err) => {
+		console.error('❌ HTTPS Server error:', err);
+	});
+
+	httpsServer.on('listening', () => {
+		const addr = httpsServer.address();
+		console.log(`🌐 HTTPS Server listening on:`, addr);
+	});
+}
+
+// Call startServers to begin accepting connections
+startServers().catch((error) => {
+	console.error("❌ Failed to start servers:", error);
+	process.exit(1);
 });
