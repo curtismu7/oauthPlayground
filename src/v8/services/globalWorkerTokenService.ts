@@ -59,6 +59,7 @@ export class GlobalWorkerTokenService {
 		try {
 			const token = await workerTokenServiceV8.getToken();
 			if (!token) {
+				window.dispatchEvent(new CustomEvent("worker-token-needed", { detail: { source: "globalWorkerTokenService" } }));
 				throw new Error('Worker token not available');
 			}
 			await this.refreshStatus();

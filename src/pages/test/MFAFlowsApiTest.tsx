@@ -250,6 +250,7 @@ const MFAFlowsApiTest: React.FC = () => {
 	const hasWorkerToken = tokenStatus.isValid;
 
 	const getWorkerToken = useCallback(async (): Promise<string> => {
+		window.dispatchEvent(new CustomEvent("worker-token-needed", { detail: { source: "MFAFlowsApiTest" } }));
 		if (!globalToken.token) throw new Error('Worker token not available');
 		return globalToken.token;
 	}, [globalToken.token]);

@@ -2086,6 +2086,16 @@ function AppContent() {
 		};
 	}, []);
 
+	// Auto-open modal when worker token is needed (error handler will dispatch this)
+	useEffect(() => {
+		const handleWorkerTokenNeeded = () => {
+			window.dispatchEvent(new CustomEvent('open-worker-token-modal', { detail: { source: 'error-handler' } }));
+		};
+
+		window.addEventListener('worker-token-needed', handleWorkerTokenNeeded as EventListener);
+		return () => window.removeEventListener('worker-token-needed', handleWorkerTokenNeeded as EventListener);
+	}, []);
+
 	// Open log viewer when AI Assistant (or any component) requests it — for viewing MCP calls
 	useEffect(() => {
 		const handleOpenLogViewer = () => setIsFloatingDebugLogViewerOpen(true);
