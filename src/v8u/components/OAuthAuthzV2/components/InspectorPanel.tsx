@@ -8,6 +8,7 @@ export const InspectorPanel: React.FC = () => {
   const [currentResponse, setCurrentResponse] = useState<HttpResponse | undefined>();
   const [tokens, setTokens] = useState<Record<string, string> | undefined>(undefined);
   const [copied, setCopied] = useState<string | null>(null);
+  const [expandedToken, setExpandedToken] = useState<string | null>('access');
 
   useEffect(() => {
     const listener: FlowListener = {
@@ -37,146 +38,231 @@ export const InspectorPanel: React.FC = () => {
     }
   };
 
+  const tokenCount = [tokens?.accessToken, tokens?.idToken, tokens?.refreshToken].filter(Boolean).length;
+
   return (
     <div className="oauth-authz-inspector-panel">
       <div className="inspector-title">Live Inspector</div>
 
       {!currentRequest ? (
-        <div
-          style={{
-            fontSize: '0.8rem',
-            color: 'var(--oauth-authz-textSecondary)',
-            paddingTop: '1rem',
-            textAlign: 'center',
-          }}
-        >
+        <div className="inspector-empty-state">
           Requests and responses will appear here once you start the flow
         </div>
       ) : (
         <>
-          {/* Current Request */}
-          <div className="inspector-section">
-            <div className="inspector-section-title">Current Request</div>
-            <div
-              className="code-block"
-              style={{
-                fontSize: '0.65rem',
-                background: 'var(--oauth-authz-codeBg)',
-                color: 'var(--oauth-authz-codeText)',
-              }}
-            >
-              <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
-                {currentRequest.method} {new URL(currentRequest.url).pathname}
-              </div>
-              {currentRequest.headers && (
-                <div>
-                  {Object.entries(currentRequest.headers).map(([key, value]) => (
-                    <div key={key}>
-                      {key}: {value}
-                    </div>
-                  ))}
-                </div>
-              )}
-              {currentRequest.body && (
-                <div style={{ marginTop: '0.25rem', borderTop: '1px solid #334155', paddingTop: '0.25rem' }}>
-                  {Object.entries(currentRequest.body).map(([key, value]) => (
-                    <div key={key}>
-                      {key}={typeof value === 'string' ? truncateToken(value, 30) : value}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button type="button"
-              className="btn-small"
-              onClick={handleCopyAsCurl}
-              style={{
-                background: copied === 'curl' ? 'var(--oauth-authz-accentSuccess)' : 'var(--oauth-authz-bgTertiary)',
-              }}
-            >
-              {copied === 'curl' ? '✓ Copied!' : 'Copy as cURL'}
-            </button>
-          </div>
+          {/* Request/Response Grid */}
+          <div className="inspector-grid">
+            {/* Request Column */}
+            <div className="inspector-column">
+              <div className="column-title">Request</div>
 
-          {/* Latest Response */}
-          {currentResponse && (
-            <div className="inspector-section">
-              <div className="inspector-section-title">Latest Response</div>
-              <div className="token-info">
-                <div className="token-label">Status</div>
-                <div style={{ fontSize: '0.75rem' }}>
+              <div className="detail-section">
+                <div className="detail-label">Headers</div>
+                <div className="detail-content">
+                  {currentRequest.headers ? (
+                    Object.entries(currentRequest.headers).map(([key, value]) => (
+                      <div key={key}>
+                        {key}: {value}
+                      </div>
+                    ))
+                  ) : (
+                    <span style={{ color: 'var(--oauth-authz-textSecondary)' }}>No headers</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="detail-section">
+                <div className="detail-label">Body</div>
+                <div className="detail-content">
+                  {currentRequest.body ? (
+                    Object.entries(currentRequest.body).map(([key, value]) => (
+                      <div key={key}>
+                        {key}: {typeof value === 'string' ? truncateToken(value, 50) : value}
+                      </div>
+                    ))
+                  ) : (
+                    <span style={{ color: 'var(--oauth-authz-textSecondary)' }}>No body</span>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn-small"
+                onClick={handleCopyAsCurl}
+                style={{
+                  background: copied === 'curl' ? 'var(--oauth-authz-accentSuccess)' : 'var(--oauth-authz-bgTertiary)',
+                }}
+              >
+                {copied === 'curl' ? '✓ Copied!' : 'Copy as cURL'}
+              </button>
+            </div>
+
+            {/* Response Column */}
+            {currentResponse && (
+              <div className="inspector-column">
+                <div className="column-title">Response</div>
+
+                <div className="status-badge">
                   {currentResponse.status} {currentResponse.statusText}
                 </div>
-              </div>
-              {currentResponse.body && (
-                <div
-                  className="code-block"
-                  style={{
-                    fontSize: '0.65rem',
-                    background: 'var(--oauth-authz-codeBg)',
-                    color: 'var(--oauth-authz-codeText)',
-                    marginTop: '0.5rem',
-                  }}
-                >
-                  {formatResponseBody(currentResponse.body)}
-                </div>
-              )}
-            </div>
-          )}
 
-          {/* Tokens */}
-          {tokens && (
-            <div className="inspector-section">
-              <div className="inspector-section-title">Tokens Received</div>
-              <div className="token-info">
-                <div className="token-label">Access Token</div>
-                <div style={{ fontSize: '0.65rem', wordBreak: 'break-all', fontFamily: 'monospace' }}>
-                  {truncateToken(tokens.accessToken, 40)}
+                <div className="detail-section">
+                  <div className="detail-label">Headers</div>
+                  <div className="detail-content">
+                    {currentResponse.headers ? (
+                      Object.entries(currentResponse.headers).map(([key, value]) => (
+                        <div key={key}>
+                          {key}: {value}
+                        </div>
+                      ))
+                    ) : (
+                      <span style={{ color: 'var(--oauth-authz-textSecondary)' }}>No headers</span>
+                    )}
+                  </div>
                 </div>
-                <button type="button"
-                  className="btn-small"
-                  onClick={() => handleCopy(tokens.accessToken, 'access')}
-                  style={{
-                    background: copied === 'access' ? 'var(--oauth-authz-accentSuccess)' : 'var(--oauth-authz-bgTertiary)',
-                  }}
-                >
-                  {copied === 'access' ? '✓' : 'Copy'}
-                </button>
+
+                <div className="detail-section">
+                  <div className="detail-label">Body</div>
+                  <div className="detail-content">
+                    {currentResponse.body ? formatResponseBody(currentResponse.body) : 'No body'}
+                  </div>
+                </div>
               </div>
-              {tokens.idToken && (
-                <div className="token-info" style={{ marginTop: '0.5rem' }}>
-                  <div className="token-label">ID Token</div>
-                  <div style={{ fontSize: '0.65rem', wordBreak: 'break-all', fontFamily: 'monospace' }}>
-                    {truncateToken(tokens.idToken, 40)}
-                  </div>
-                  <button type="button"
-                    className="btn-small"
-                    onClick={() => handleCopy(tokens.idToken, 'id')}
-                    style={{
-                      background: copied === 'id' ? 'var(--oauth-authz-accentSuccess)' : 'var(--oauth-authz-bgTertiary)',
-                    }}
+            )}
+          </div>
+
+          {/* Tokens Section */}
+          {tokens && (
+            <div className="tokens-section">
+              <div className="tokens-title">Received Tokens ({tokenCount})</div>
+              <div className="token-list">
+                {tokens.accessToken && (
+                  <div
+                    className="token-item"
+                    onClick={() =>
+                      setExpandedToken(expandedToken === 'access' ? null : 'access')
+                    }
                   >
-                    {copied === 'id' ? '✓' : 'Copy'}
-                  </button>
-                </div>
-              )}
-              {tokens.refreshToken && (
-                <div className="token-info" style={{ marginTop: '0.5rem' }}>
-                  <div className="token-label">Refresh Token</div>
-                  <div style={{ fontSize: '0.65rem', wordBreak: 'break-all', fontFamily: 'monospace' }}>
-                    {truncateToken(tokens.refreshToken, 40)}
+                    <div className="token-header">
+                      <div className="token-name">Access Token</div>
+                      <div className="token-type-badge">Bearer</div>
+                    </div>
+                    <div
+                      className={`token-body ${
+                        expandedToken === 'access' ? 'visible' : ''
+                      }`}
+                    >
+                      <div>
+                        <strong>Type:</strong> Bearer
+                      </div>
+                      <div>
+                        <strong>Value:</strong> {truncateToken(tokens.accessToken, 60)}
+                      </div>
+                      <button
+                        type="button"
+                        className="btn-token-copy"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(tokens.accessToken, 'access');
+                        }}
+                        style={{
+                          background:
+                            copied === 'access'
+                              ? 'var(--oauth-authz-accentSuccess)'
+                              : 'transparent',
+                        }}
+                      >
+                        {copied === 'access' ? '✓ Copied' : 'Copy'}
+                      </button>
+                    </div>
                   </div>
-                  <button type="button"
-                    className="btn-small"
-                    onClick={() => handleCopy(tokens.refreshToken, 'refresh')}
-                    style={{
-                      background: copied === 'refresh' ? 'var(--oauth-authz-accentSuccess)' : 'var(--oauth-authz-bgTertiary)',
-                    }}
+                )}
+
+                {tokens.refreshToken && (
+                  <div
+                    className="token-item"
+                    onClick={() =>
+                      setExpandedToken(expandedToken === 'refresh' ? null : 'refresh')
+                    }
                   >
-                    {copied === 'refresh' ? '✓' : 'Copy'}
-                  </button>
-                </div>
-              )}
+                    <div className="token-header">
+                      <div className="token-name">Refresh Token</div>
+                      <div className="token-type-badge">Refresh</div>
+                    </div>
+                    <div
+                      className={`token-body ${
+                        expandedToken === 'refresh' ? 'visible' : ''
+                      }`}
+                    >
+                      <div>
+                        <strong>Expires:</strong> 30 days
+                      </div>
+                      <div>
+                        <strong>Value:</strong> {truncateToken(tokens.refreshToken, 60)}
+                      </div>
+                      <button
+                        type="button"
+                        className="btn-token-copy"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(tokens.refreshToken, 'refresh');
+                        }}
+                        style={{
+                          background:
+                            copied === 'refresh'
+                              ? 'var(--oauth-authz-accentSuccess)'
+                              : 'transparent',
+                        }}
+                      >
+                        {copied === 'refresh' ? '✓ Copied' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {tokens.idToken && (
+                  <div
+                    className="token-item"
+                    onClick={() =>
+                      setExpandedToken(expandedToken === 'id' ? null : 'id')
+                    }
+                  >
+                    <div className="token-header">
+                      <div className="token-name">ID Token</div>
+                      <div className="token-type-badge">JWT</div>
+                    </div>
+                    <div
+                      className={`token-body ${
+                        expandedToken === 'id' ? 'visible' : ''
+                      }`}
+                    >
+                      <div>
+                        <strong>Format:</strong> JSON Web Token
+                      </div>
+                      <div>
+                        <strong>Value:</strong> {truncateToken(tokens.idToken, 60)}
+                      </div>
+                      <button
+                        type="button"
+                        className="btn-token-copy"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(tokens.idToken, 'id');
+                        }}
+                        style={{
+                          background:
+                            copied === 'id'
+                              ? 'var(--oauth-authz-accentSuccess)'
+                              : 'transparent',
+                        }}
+                      >
+                        {copied === 'id' ? '✓ Copied' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </>
