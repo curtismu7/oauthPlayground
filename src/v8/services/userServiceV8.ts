@@ -91,6 +91,7 @@ export class UserServiceV8 {
 		try {
 			const accessToken = await unifiedWorkerTokenService.getToken();
 			if (!accessToken) {
+				window.dispatchEvent(new CustomEvent("worker-token-needed", { detail: { source: "userServiceV8" } }));
 				throw new Error('Worker token not available. Please authenticate first.');
 			}
 
@@ -338,6 +339,7 @@ export class UserServiceV8 {
 		try {
 			const accessToken = await unifiedWorkerTokenService.getToken();
 			if (!accessToken) {
+				window.dispatchEvent(new CustomEvent("worker-token-needed", { detail: { source: "userServiceV8" } }));
 				throw new Error('Worker token not available. Please authenticate first.');
 			}
 
