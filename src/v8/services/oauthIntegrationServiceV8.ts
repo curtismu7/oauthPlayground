@@ -771,6 +771,7 @@ export class OAuthIntegrationServiceV8 {
 									pingOneConfigError = 'Application not found in PingOne';
 								}
 							} else {
+								window.dispatchEvent(new CustomEvent("worker-token-needed", { detail: { source: "oauthIntegrationServiceV8" } }));
 								pingOneConfigError = 'Worker token not available';
 							}
 						} else {
