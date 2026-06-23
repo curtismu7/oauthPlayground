@@ -159,7 +159,7 @@ export default defineConfig(({ mode }) => {
 			}),
 		],
 		server: {
-			port: 5000,
+			port: 6000,
 			// Open the custom domain by default (FRONTEND_HOST is set to api.ping.demo by run.sh)
 			open: `https://${process.env.FRONTEND_HOST || 'api.ping.demo'}:3000`,
 			host: true,
@@ -176,7 +176,7 @@ export default defineConfig(({ mode }) => {
 				env.VITE_DISABLE_HMR === '1' ||
 				env.VITE_DISABLE_HMR === 'true'
 					? false
-					: { port: 5000, host: 'localhost', clientPort: parseInt(env.VITE_HMR_CLIENT_PORT || '5000', 10) },
+					: { port: 6000, host: 'localhost', clientPort: parseInt(env.VITE_HMR_CLIENT_PORT || '6000', 10) },
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
 			// Disable certificate verification for localhost development
 			proxy: {
