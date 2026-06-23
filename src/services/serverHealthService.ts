@@ -52,20 +52,10 @@ export interface DetailedServerStatus {
 }
 
 /**
- * Backend health URL. In dev (Vite) we always use relative /api/health so the dev proxy
- * is used and the browser never hits the backend directly (avoids ERR_CERT_AUTHORITY_INVALID
- * when the backend uses a self-signed cert). In production, use VITE_BACKEND_URL if set.
+ * Backend health URL. Uses api.ping.demo:8000 as the primary endpoint.
  */
 export function getBackendHealthUrl(): string {
-	if (import.meta.env.DEV) {
-		return '/api/health';
-	}
-	const base = import.meta.env.VITE_BACKEND_URL as string | undefined;
-	if (base) {
-		const normalized = base.replace(/\/$/, '');
-		return `${normalized}/api/health`;
-	}
-	return '/api/health';
+	return 'https://api.ping.demo:8000/api/health';
 }
 
 /** Simple check used by Dashboard: frontend is online if we're in the app; backend from /api/health. */
@@ -118,8 +108,8 @@ const DEFAULT_SERVERS: DetailedServerStatus[] = [
 		lastChecked: null,
 	},
 	{
-		name: 'Backend Server',
-		port: 3001,
+		name: 'Backend Server (api.ping.demo)',
+		port: 8000,
 		protocol: 'HTTPS',
 		status: 'checking',
 		healthData: null,
@@ -163,6 +153,7 @@ export async function fetchDetailedHealth(): Promise<DetailedServerStatus[]> {
 			const url = isFrontend ? '/' : backendUrl;
 			const response = await fetch(url, {
 				method: 'GET',
+				mode: 'cors',
 				signal: AbortSignal.timeout(5000),
 			});
 			if (!response.ok) {
