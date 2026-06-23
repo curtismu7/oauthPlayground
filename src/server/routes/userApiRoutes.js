@@ -125,7 +125,7 @@ export function setupUserApiRoutes(app) {
 			const { environmentId } = req.params;
 
 			// TODO: Add authentication/authorization check
-			userStore.clearEnvironmentData(environmentId);
+			await userStore.clearEnvironmentData(environmentId);
 
 			res.json({
 				message: `Cleared data for environment ${environmentId}`,
