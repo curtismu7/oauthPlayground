@@ -43,15 +43,15 @@ export function setupBackupApiRoutes(app) {
 	// Load backup
 	app.post('/api/backup/load', async (req, res) => {
 		try {
-			const { key, environmentId } = req.body;
+			const { key, environmentId, dataType } = req.body;
 
-			if (!key || !environmentId) {
+			if (!key || !environmentId || !dataType) {
 				return res.status(400).json({
-					error: 'Missing required fields: key, environmentId',
+					error: 'Missing required fields: key, environmentId, dataType',
 				});
 			}
 
-			const backup = await backupStore.getBackup(key, environmentId, req.body.dataType);
+			const backup = await backupStore.getBackup(key, environmentId, dataType);
 
 			if (!backup) {
 				return res.status(404).json({
@@ -72,15 +72,15 @@ export function setupBackupApiRoutes(app) {
 	// Delete backup
 	app.post('/api/backup/delete', async (req, res) => {
 		try {
-			const { key, environmentId } = req.body;
+			const { key, environmentId, dataType } = req.body;
 
-			if (!key || !environmentId) {
+			if (!key || !environmentId || !dataType) {
 				return res.status(400).json({
-					error: 'Missing required fields: key, environmentId',
+					error: 'Missing required fields: key, environmentId, dataType',
 				});
 			}
 
-			await backupStore.deleteBackup(key, environmentId, req.body.dataType);
+			await backupStore.deleteBackup(key, environmentId, dataType);
 
 			res.json({ success: true });
 		} catch (error) {
