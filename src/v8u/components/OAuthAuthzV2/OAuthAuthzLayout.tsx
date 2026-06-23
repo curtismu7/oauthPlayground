@@ -7,21 +7,23 @@ import { Sidebar } from './components/Sidebar';
 import { useTheme } from './ThemeContext';
 import { flowExecutionService, FlowListener } from './services/flowExecutionService';
 import { OAuthConfig } from './types';
+import { useAuthConfig } from '../../../contexts/AuthConfigContext';
 
 export const OAuthAuthzLayout: React.FC = () => {
   const { mode, toggle } = useTheme();
+  const { config: storedConfig } = useAuthConfig();
   const [selectedFlow, setSelectedFlow] = useState<'oauth20' | 'oidc' | 'other'>('oauth20');
   const [flowStarted, setFlowStarted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [config, setConfig] = useState<OAuthConfig>({
-    environmentId: '',
-    clientId: '',
-    clientSecret: '',
-    redirectUri: 'https://localhost:3000/callback',
-    scopes: ['openid', 'profile', 'email'],
+  const [config, setConfig] = useState<OAuthConfig>(() => ({
+    environmentId: storedConfig.environmentId || '',
+    clientId: storedConfig.clientId || '',
+    clientSecret: storedConfig.clientSecret || '',
+    redirectUri: storedConfig.redirectUri || 'https://localhost:3000/callback',
+    scopes: storedConfig.scopes?.length ? storedConfig.scopes : ['openid', 'profile', 'email'],
     responseType: 'code',
     advancedOptions: { pkce: true },
-  });
+  }));
 
   useEffect(() => {
     if (!flowStarted) return;
