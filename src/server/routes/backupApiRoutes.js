@@ -6,7 +6,7 @@
  * @since 2026-02-02
  */
 
-import { backupDatabaseService } from '../services/backupDatabaseService.js';
+import * as backupStore from '../lmdb/backupStore.js';
 
 import { logger } from '../utils/logger.js';
 
@@ -27,25 +27,10 @@ export function setupBackupApiRoutes(app) {
 				});
 			}
 
-			await backupDatabaseService.saveBackup(key, environmentId, dataType, data, expiresAt);
+			await backupStore.saveBackup(key, environmentId, dataType, data, expiresAt);
 
 			res.json({ success: true });
 		} catch (error) {
-			if (error?.code === 'SQLITE_READONLY') {
-				logger.warn(`${MODULE_TAG} Save skipped (read-only database):`, {
-					code: error.code,
-					key: req.body?.key,
-					environmentId: req.body?.environmentId,
-					dataType: req.body?.dataType,
-				});
-
-				return res.json({
-					success: false,
-					nonFatal: true,
-					error: 'Backup database is read-only; skipped persistence',
-					code: error.code,
-				});
-			}
 
 			logger.error(`${MODULE_TAG} Save error:`, error);
 			res.status(500).json({
@@ -58,15 +43,15 @@ export function setupBackupApiRoutes(app) {
 	// Load backup
 	app.post('/api/backup/load', async (req, res) => {
 		try {
-			const { key, environmentId } = req.body;
+			const { key, environmentId, dataType } = req.body;
 
-			if (!key || !environmentId) {
+			if (!key || !environmentId || !dataType) {
 				return res.status(400).json({
-					error: 'Missing required fields: key, environmentId',
+					error: 'Missing required fields: key, environmentId, dataType',
 				});
 			}
 
-			const backup = await backupDatabaseService.loadBackup(key, environmentId);
+			const backup = await backupStore.getBackup(key, environmentId, dataType);
 
 			if (!backup) {
 				return res.status(404).json({
@@ -87,15 +72,15 @@ export function setupBackupApiRoutes(app) {
 	// Delete backup
 	app.post('/api/backup/delete', async (req, res) => {
 		try {
-			const { key, environmentId } = req.body;
+			const { key, environmentId, dataType } = req.body;
 
-			if (!key || !environmentId) {
+			if (!key || !environmentId || !dataType) {
 				return res.status(400).json({
-					error: 'Missing required fields: key, environmentId',
+					error: 'Missing required fields: key, environmentId, dataType',
 				});
 			}
 
-			await backupDatabaseService.deleteBackup(key, environmentId);
+			await backupStore.deleteBackup(key, environmentId, dataType);
 
 			res.json({ success: true });
 		} catch (error) {
@@ -118,7 +103,7 @@ export function setupBackupApiRoutes(app) {
 				});
 			}
 
-			const backups = await backupDatabaseService.listBackups(environmentId, dataType);
+			const backups = await backupStore.listBackups(environmentId, dataType);
 
 			res.json({ backups });
 		} catch (error) {
@@ -141,7 +126,7 @@ export function setupBackupApiRoutes(app) {
 				});
 			}
 
-			const count = await backupDatabaseService.clearEnvironment(environmentId);
+			const count = await backupStore.clearEnvironmentBackups(environmentId);
 
 			res.json({
 				success: true,
@@ -156,37 +141,10 @@ export function setupBackupApiRoutes(app) {
 		}
 	});
 
-	// Get stats (all envs or for a specific environmentId)
-	app.get('/api/backup/stats', async (_req, res) => {
-		try {
-			const stats = await backupDatabaseService.getStats(null);
-			res.json(stats);
-		} catch (error) {
-			logger.error(`${MODULE_TAG} Stats error:`, error);
-			res.status(500).json({
-				error: 'Failed to get stats',
-				details: error.message,
-			});
-		}
-	});
-	app.get('/api/backup/stats/:environmentId', async (req, res) => {
-		try {
-			const { environmentId } = req.params;
-			const stats = await backupDatabaseService.getStats(environmentId);
-			res.json(stats);
-		} catch (error) {
-			logger.error(`${MODULE_TAG} Stats error:`, error);
-			res.status(500).json({
-				error: 'Failed to get stats',
-				details: error.message,
-			});
-		}
-	});
-
 	// Cleanup expired backups (maintenance endpoint)
 	app.post('/api/backup/cleanup', async (_req, res) => {
 		try {
-			const count = await backupDatabaseService.cleanupExpired();
+			const count = await backupStore.deleteExpiredBackups();
 
 			res.json({
 				success: true,
