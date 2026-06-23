@@ -80,8 +80,8 @@ export const GlobalMFAProvider: React.FC<GlobalMFAProviderProps> = ({ children }
 
 			// Auto-load credentials from .env if none exist
 			try {
-				const existingCreds = await globalWorkerTokenService.loadCredentials();
-				if (!existingCreds) {
+				const isAlreadyConfigured = await globalWorkerTokenService.isConfigured();
+				if (!isAlreadyConfigured) {
 					const envClientId = import.meta.env.VITE_PINGONE_WORKER_CLIENT_ID;
 					const envClientSecret = import.meta.env.VITE_PINGONE_WORKER_CLIENT_SECRET;
 					const envEnvironmentId = import.meta.env.VITE_PINGONE_ENVIRONMENT_ID;
