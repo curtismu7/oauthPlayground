@@ -125,6 +125,8 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 
 	// Update token status on events
 	useEffect(() => {
+		let interval: NodeJS.Timeout | null = null;
+
 		const handleTokenUpdate = async () => {
 			// Show immediate loading state for better UX
 			setIsRefreshing(true);
@@ -134,6 +136,19 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(status);
 				logger.info(`${MODULE_TAG} Token status updated:`, status.status);
+
+				// Stop polling if token is valid and not expiring soon (within 5 minutes)
+				if (status.isValid && status.expiresAt) {
+					const expiresIn = status.expiresAt - Date.now();
+					const fiveMinutes = 5 * 60 * 1000;
+					if (expiresIn > fiveMinutes) {
+						if (interval) {
+							clearInterval(interval);
+							interval = null;
+							logger.info(`${MODULE_TAG} Token is valid and not expiring soon, stopping polling`);
+						}
+					}
+				}
 			} catch (error) {
 				logger.error(`${MODULE_TAG} Failed to check token status in event handler:`, error);
 			} finally {
@@ -159,12 +174,12 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		window.addEventListener('storage', handleStorageChange);
-		const interval = setInterval(handleTokenUpdate, refreshInterval);
+		interval = setInterval(handleTokenUpdate, refreshInterval);
 
 		return () => {
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 			window.removeEventListener('storage', handleStorageChange);
-			clearInterval(interval);
+			if (interval) clearInterval(interval);
 		};
 	}, [refreshInterval]);
 
