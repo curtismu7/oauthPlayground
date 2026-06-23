@@ -9,12 +9,15 @@ import { flowExecutionService, FlowListener } from './services/flowExecutionServ
 import { OAuthConfig } from './types';
 import { globalWorkerTokenService } from '../../../v8/services/globalWorkerTokenService';
 
+const STORAGE_KEY = 'oauth-authz-config';
+
 export const OAuthAuthzLayout: React.FC = () => {
   const { mode, toggle } = useTheme();
   const [selectedFlow, setSelectedFlow] = useState<'oauth20' | 'oidc' | 'other'>('oauth20');
   const [flowStarted, setFlowStarted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [updateStatus, setUpdateStatus] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [showWorkerTokenDialog, setShowWorkerTokenDialog] = useState(false);
   const [config, setConfig] = useState<OAuthConfig>({
     environmentId: '',
@@ -26,9 +29,22 @@ export const OAuthAuthzLayout: React.FC = () => {
     advancedOptions: { pkce: true },
   });
 
-  // Load credentials from .env via API on mount
+  // Load config from localStorage and .env on mount
   useEffect(() => {
-    const loadEnvConfig = async () => {
+    const loadConfig = async () => {
+      // Try localStorage first
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const savedConfig = JSON.parse(saved);
+          setConfig(savedConfig);
+          return;
+        } catch (error) {
+          console.error('Failed to parse saved config:', error);
+        }
+      }
+
+      // Fall back to .env config via API
       try {
         const response = await fetch('/api/env-config');
         if (response.ok) {
@@ -46,7 +62,7 @@ export const OAuthAuthzLayout: React.FC = () => {
       }
     };
 
-    loadEnvConfig();
+    loadConfig();
   }, []);
 
   useEffect(() => {
@@ -65,24 +81,50 @@ export const OAuthAuthzLayout: React.FC = () => {
     flowExecutionService.startFlow(config);
   };
 
+  const handleSaveConfig = () => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+      setSaveStatus('✅ Config saved');
+      setTimeout(() => setSaveStatus(null), 2000);
+    } catch (error) {
+      setSaveStatus('❌ Failed to save config');
+      console.error('Failed to save config:', error);
+    }
+  };
+
+  const handleClearConfig = () => {
+    if (confirm('Clear saved configuration?')) {
+      localStorage.removeItem(STORAGE_KEY);
+      setSaveStatus('🗑️ Config cleared');
+      setTimeout(() => setSaveStatus(null), 2000);
+    }
+  };
+
   const handleUpdateRedirectUri = async () => {
     if (!config.environmentId || !config.clientId) {
       setUpdateStatus('❌ Environment ID and Client ID required');
       return;
     }
 
-    setUpdateStatus('⏳ Getting worker token...');
+    setUpdateStatus('⏳ Updating PingOne...');
     
     try {
-      // Get worker token
-      const workerToken = await globalWorkerTokenService.getToken();
-      if (!workerToken) {
+      // Check if worker token is configured, get it silently if available
+      const isConfigured = await globalWorkerTokenService.isConfigured();
+      if (!isConfigured) {
         setShowWorkerTokenDialog(true);
         setUpdateStatus('❌ Worker token required - please configure it');
         return;
       }
 
-      setUpdateStatus('⏳ Updating PingOne...');
+      // Silently get worker token if configured
+      const workerToken = await globalWorkerTokenService.getToken();
+      if (!workerToken) {
+        setShowWorkerTokenDialog(true);
+        setUpdateStatus('❌ Failed to get worker token');
+        return;
+      }
+
       const response = await fetch('/api/update-redirect-uri', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -128,7 +170,10 @@ export const OAuthAuthzLayout: React.FC = () => {
         onConfigChange={setConfig} 
         onStartFlow={handleStartFlow}
         onUpdateRedirectUri={handleUpdateRedirectUri}
+        onSaveConfig={handleSaveConfig}
+        onClearConfig={handleClearConfig}
         updateStatus={updateStatus}
+        saveStatus={saveStatus}
       />
 
       {/* Protocol Panel */}
