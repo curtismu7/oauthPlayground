@@ -1,3 +1,10 @@
+.flow-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 .protocol-block {
   background: var(--oauth-authz-bgTertiary, #ede9fe);
   border: 1px solid var(--oauth-authz-borderColor, #e9d5ff);
@@ -9,12 +16,56 @@
   overflow-x: auto;
   margin-bottom: 0.75rem;
   margin-top: 1rem;
+  line-height: 1.4;
+}
+
+.protocol-line {
+  margin: 0.3rem 0;
+}
+
+.protocol-method {
+  color: var(--oauth-authz-accentError, #dc2626);
+  font-weight: 700;
+}
+
+.protocol-url {
+  color: var(--oauth-authz-accent, #1d4ed8);
+  font-weight: 600;
+}
+
+.protocol-param {
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+.protocol-value {
+  color: var(--oauth-authz-accentSuccess, #059669);
+}
+
+.protocol-comment {
+  color: #9ca3af;
+  font-style: italic;
+  margin-left: 0.25rem;
 }
 
 .flow-step {
   position: relative;
   padding-left: 2.5rem;
   margin-bottom: 1.5rem;
+}
+
+.flow-step::before {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  top: 2rem;
+  bottom: -1.5rem;
+  width: 2px;
+  background: var(--oauth-authz-borderColor, #e9d5ff);
+}
+
+.flow-step:last-child::before {
+  display: none;
 }
 
 .flow-badge {
@@ -24,13 +75,37 @@
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
-  background: var(--oauth-authz-accent, #1d4ed8);
+  background: var(--oauth-authz-textTertiary, #9ca3af);
   color: white;
   font-weight: 700;
   font-size: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.flow-badge-pending {
+  background: var(--oauth-authz-textTertiary, #9ca3af);
+}
+
+.flow-badge-active {
+  background: var(--oauth-authz-accent, #1d4ed8);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.2);
+  animation: pulse-active 2s ease-in-out infinite;
+}
+
+.flow-badge-completed {
+  background: var(--oauth-authz-accentSuccess, #059669);
+}
+
+@keyframes pulse-active {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(29, 78, 216, 0.1);
+  }
 }
 
 .flow-title {
@@ -61,4 +136,5 @@
 .annotation-title {
   font-weight: 700;
   margin-bottom: 0.2rem;
+  color: var(--oauth-authz-textPrimary, #1d2e3f);
 }
