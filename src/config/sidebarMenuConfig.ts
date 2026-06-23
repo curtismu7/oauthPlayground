@@ -231,7 +231,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: "Real PingOne API's & support apps",
 		groupBadgeType: 'pingone',
 		items: items([
-			['/v8u/unified', 'Unified OAuth & OIDC', true],
+			
 			['/v8/unified-mfa', 'Unified MFA', true],
 			// ['/v8u/enhanced-state-management', 'Enhanced State Management (V2)', true],
 			['/protect-portal', 'Protect Portal App', true],
