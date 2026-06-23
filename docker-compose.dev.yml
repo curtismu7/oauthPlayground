@@ -1,7 +1,7 @@
 # OAuth Playground — Docker Compose (DEV / hot-reload)
 #
 # Runs alongside AI-Demo without port conflicts.
-# AI-Demo uses: 3001 (BFF), 3005 (gateway), 3009, 3016, 3036
+# AI-Demo uses: 5001 (BFF), 3005 (gateway), 3009, 3016, 3036
 # This stack uses:
 #   3010 → Vite dev server (hot-reload, HTTPS via basicSsl)
 #   3012 → Express backend
@@ -29,10 +29,10 @@ services:
       dockerfile: Dockerfile.backend
     container_name: oauth-playground-backend-dev
     ports:
-      - "3012:3001"
+      - "5001:5001"
     environment:
       NODE_ENV: development
-      BACKEND_PORT: "3001"
+      BACKEND_PORT: "5001"
     env_file:
       - path: .env
         required: false
@@ -47,7 +47,7 @@ services:
     networks:
       - oauth-playground-dev
     healthcheck:
-      test: ["CMD", "node", "-e", "require('https').get({hostname:'localhost',port:3001,path:'/api/health',rejectUnauthorized:false},r=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "require('https').get({hostname:'localhost',port:5001,path:'/api/health',rejectUnauthorized:false},r=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -61,10 +61,10 @@ services:
       dockerfile: Dockerfile.dev
     container_name: oauth-playground-frontend-dev
     ports:
-      - "3010:3000"    # Vite listens on 3000 inside; browser hits 3010
+      - "5000:5000"    # Vite listens on 5000 inside; browser hits 3010
     environment:
       NODE_ENV: development
-      BACKEND_URL: "https://oauth-backend-dev:3001"
+      BACKEND_URL: "https://oauth-backend-dev:5001"
       # Tell the browser's HMR WebSocket to connect to the *host* port
       VITE_HMR_CLIENT_PORT: "3010"
       # Polling is required for inotify to work across Docker volume mounts

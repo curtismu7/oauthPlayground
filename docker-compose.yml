@@ -1,8 +1,8 @@
 # OAuth Playground — Docker Compose
 #
 # Runs alongside AI-Demo without port conflicts.
-# AI-Demo uses: 3001 (BFF), 4000 (UI), 8080–8895, 9001, 3005, 3009, 3016, 3036
-# This stack uses:  3011 (backend, maps 3011→3001), 3000 (frontend, no conflict)
+# AI-Demo uses: 5001 (BFF), 4000 (UI), 8080–8895, 9001, 3005, 3009, 3016, 3036
+# This stack uses:  3011 (backend, maps 3011→5001), 5000 (frontend, no conflict)
 #
 # Prerequisites:
 #   1. mkcert certs must exist in ./certs/ (api.ping.demo.crt / api.ping.demo.key)
@@ -17,7 +17,7 @@
 #   docker compose down            # stop and remove containers
 #
 # Access:
-#   Frontend:  https://api.ping.demo:3000
+#   Frontend:  https://api.ping.demo:5000
 #   Backend:   https://api.ping.demo:3011/api/health
 #
 # Logs:
@@ -35,10 +35,10 @@ services:
         GIT_SHA: ${GIT_SHA:-unknown}
     container_name: oauth-playground-backend
     ports:
-      - "3011:3001"   # 3001 is taken by AI-Demo BFF; use 3011 on the host
+      - "5001:5001"   # 5001 is taken by AI-Demo BFF; use 3011 on the host
     environment:
       NODE_ENV: production
-      BACKEND_PORT: "3001"
+      BACKEND_PORT: "5001"
       # Explicitly point to the mounted cert files so server.js uses them
       # instead of auto-generating a new self-signed cert on every start.
       SSL_CERT_PATH: "/app/certs/server.crt"
@@ -53,7 +53,7 @@ services:
     networks:
       - oauth-playground
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "--no-check-certificate", "https://localhost:3001/api/health"]
+      test: ["CMD", "wget", "-qO-", "--no-check-certificate", "https://localhost:5001/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -69,7 +69,7 @@ services:
         GIT_SHA: ${GIT_SHA:-unknown}
     container_name: oauth-playground-frontend
     ports:
-      - "3000:3000"
+      - "5000:5000"
     volumes:
       - ./certs:/etc/nginx/certs:ro
     networks:
