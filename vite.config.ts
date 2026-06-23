@@ -176,7 +176,7 @@ export default defineConfig(({ mode }) => {
 				env.VITE_DISABLE_HMR === '1' ||
 				env.VITE_DISABLE_HMR === 'true'
 					? false
-					: { port: 5000, host: 'localhost', clientPort: parseInt(env.VITE_HMR_CLIENT_PORT || .5000', 10) },
+					: { port: 5000, host: 'localhost', clientPort: parseInt(env.VITE_HMR_CLIENT_PORT || '5000', 10) },
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
 			// Disable certificate verification for localhost development
 			proxy: {
