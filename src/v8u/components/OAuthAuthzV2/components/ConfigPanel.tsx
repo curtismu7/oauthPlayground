@@ -8,7 +8,10 @@ interface ConfigPanelProps {
   onConfigChange: (config: OAuthConfig) => void;
   onStartFlow?: () => void;
   onUpdateRedirectUri?: () => void;
+  onSaveConfig?: () => void;
+  onClearConfig?: () => void;
   updateStatus?: string | null;
+  saveStatus?: string | null;
 }
 
 export const ConfigPanel: React.FC<ConfigPanelProps> = ({ 
@@ -16,7 +19,10 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
   onConfigChange, 
   onStartFlow,
   onUpdateRedirectUri,
-  updateStatus
+  onSaveConfig,
+  onClearConfig,
+  updateStatus,
+  saveStatus
 }) => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -190,14 +196,34 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({
         )}
       </div>
 
-      <button
-        type="button"
-        className="btn btn-primary"
-        style={{ width: '100%', marginTop: '1.5rem' }}
-        onClick={handleStartFlow}
-      >
-        START FLOW
-      </button>
+      {/* Action Buttons */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem' }}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          style={{ flex: 1 }}
+          onClick={handleStartFlow}
+        >
+          START FLOW
+        </button>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={onSaveConfig}
+          title="Save config to browser storage"
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={onClearConfig}
+          title="Clear saved config"
+        >
+          Clear
+        </button>
+      </div>
+      {saveStatus && <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', textAlign: 'center' }}>{saveStatus}</div>}
     </div>
   );
 };
