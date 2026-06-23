@@ -7,20 +7,39 @@ import { Sidebar } from './components/Sidebar';
 import { useTheme } from './ThemeContext';
 import { flowExecutionService, FlowListener } from './services/flowExecutionService';
 import { OAuthConfig } from './types';
+import { useAuthConfig } from '../../../contexts/AuthConfigContext';
 
 export const OAuthAuthzLayout: React.FC = () => {
   const { mode, toggle } = useTheme();
+  const authConfig = useAuthConfig();
   const [selectedFlow, setSelectedFlow] = useState<'oauth20' | 'oidc' | 'other'>('oauth20');
   const [flowStarted, setFlowStarted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [config, setConfig] = useState<OAuthConfig>({
-    environmentId: '',
-    clientId: '',
-    clientSecret: '',
-    redirectUri: 'https://localhost:3000/callback',
-    scopes: ['openid', 'profile', 'email'],
-    responseType: 'code',
-    advancedOptions: { pkce: true },
+  const [config, setConfig] = useState<OAuthConfig>(() => {
+    const defaults = {
+      environmentId: '',
+      clientId: '',
+      clientSecret: '',
+      redirectUri: 'https://localhost:3000/callback',
+      scopes: ['openid', 'profile', 'email'],
+      responseType: 'code' as const,
+      advancedOptions: { pkce: true },
+    };
+
+    // Load from stored config if available
+    if (authConfig) {
+      return {
+        environmentId: authConfig.environmentId || defaults.environmentId,
+        clientId: authConfig.clientId || defaults.clientId,
+        clientSecret: authConfig.clientSecret || defaults.clientSecret,
+        redirectUri: authConfig.redirectUri || defaults.redirectUri,
+        scopes: authConfig.scopes?.length ? authConfig.scopes : defaults.scopes,
+        responseType: 'code',
+        advancedOptions: { pkce: true },
+      };
+    }
+
+    return defaults;
   });
 
   useEffect(() => {
