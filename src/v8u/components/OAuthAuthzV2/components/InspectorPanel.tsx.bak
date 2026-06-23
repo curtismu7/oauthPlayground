@@ -87,7 +87,7 @@ export const InspectorPanel: React.FC = () => {
                 </div>
               )}
             </div>
-            <button type="button"
+            <button
               className="btn-small"
               onClick={handleCopyAsCurl}
               style={{
@@ -133,7 +133,7 @@ export const InspectorPanel: React.FC = () => {
                 <div style={{ fontSize: '0.65rem', wordBreak: 'break-all', fontFamily: 'monospace' }}>
                   {truncateToken(tokens.accessToken, 40)}
                 </div>
-                <button type="button"
+                <button
                   className="btn-small"
                   onClick={() => handleCopy(tokens.accessToken, 'access')}
                   style={{
@@ -149,7 +149,7 @@ export const InspectorPanel: React.FC = () => {
                   <div style={{ fontSize: '0.65rem', wordBreak: 'break-all', fontFamily: 'monospace' }}>
                     {truncateToken(tokens.idToken, 40)}
                   </div>
-                  <button type="button"
+                  <button
                     className="btn-small"
                     onClick={() => handleCopy(tokens.idToken, 'id')}
                     style={{
@@ -166,7 +166,7 @@ export const InspectorPanel: React.FC = () => {
                   <div style={{ fontSize: '0.65rem', wordBreak: 'break-all', fontFamily: 'monospace' }}>
                     {truncateToken(tokens.refreshToken, 40)}
                   </div>
-                  <button type="button"
+                  <button
                     className="btn-small"
                     onClick={() => handleCopy(tokens.refreshToken, 'refresh')}
                     style={{
