@@ -298,16 +298,16 @@ open_browser() {
     fi
 }
 
-# Main execution
-main() {
+# Command: start
+cmd_start() {
     check_requirements
-    
+
     # Clean up any existing processes
     print_info "Cleaning up any existing processes..."
     kill_processes_on_ports
     kill_by_pid_file "$FRONTEND_PID_FILE" "Frontend"
     kill_by_pid_file "$BACKEND_PID_FILE" "Backend"
-    
+
     # Start backend first
     if start_backend; then
         # Start frontend
@@ -318,15 +318,15 @@ main() {
             print_info "Frontend: $FRONTEND_URL"
             print_info "Backend:  $BACKEND_URL"
             print_info "Press Ctrl+C to stop both servers"
-            
+
             # Open browser
             sleep 2
             open_browser
-            
+
             # Keep script running and monitor processes
             while true; do
                 sleep 5
-                
+
                 # Check if processes are still running
                 if [ -f "$FRONTEND_PID_FILE" ]; then
                     local frontend_pid=$(cat "$FRONTEND_PID_FILE")
@@ -335,7 +335,7 @@ main() {
                         cleanup
                     fi
                 fi
-                
+
                 if [ -f "$BACKEND_PID_FILE" ]; then
                     local backend_pid=$(cat "$BACKEND_PID_FILE")
                     if ! kill -0 "$backend_pid" 2>/dev/null; then
@@ -352,6 +352,83 @@ main() {
         print_error "Failed to start backend server"
         cleanup
     fi
+}
+
+# Command: stop
+cmd_stop() {
+    print_status "Stopping OAuth Playground servers..."
+    kill_by_pid_file "$FRONTEND_PID_FILE" "Frontend"
+    kill_by_pid_file "$BACKEND_PID_FILE" "Backend"
+    kill_processes_on_ports
+    print_success "OAuth Playground stopped"
+}
+
+# Command: restart
+cmd_restart() {
+    print_status "Restarting OAuth Playground..."
+    cmd_stop
+    sleep 2
+    cmd_start
+}
+
+# Command: status
+cmd_status() {
+    show_status
+}
+
+# Command: help
+cmd_help() {
+    cat << EOF
+Usage: $(basename "$0") [command]
+
+Commands:
+  start       Start OAuth Playground (default)
+  stop        Stop OAuth Playground servers
+  restart     Restart OAuth Playground
+  status      Show server status
+  help        Show this help message
+
+Environment:
+  FRONTEND_PORT   Frontend port (default: 3000)
+  BACKEND_PORT    Backend port (default: 3001)
+  FRONTEND_HOST   Frontend host (default: api.ping.demo)
+  BACKEND_HOST    Backend host (default: api.ping.demo)
+
+Examples:
+  ./$(basename "$0")               # Start (default)
+  ./$(basename "$0") start         # Start
+  ./$(basename "$0") stop          # Stop
+  ./$(basename "$0") restart       # Restart
+  ./$(basename "$0") status        # Show status
+EOF
+}
+
+# Main execution
+main() {
+    local cmd="${1:-start}"
+
+    case "$cmd" in
+        start)
+            cmd_start
+            ;;
+        stop)
+            cmd_stop
+            ;;
+        restart)
+            cmd_restart
+            ;;
+        status)
+            cmd_status
+            ;;
+        help|--help|-h)
+            cmd_help
+            ;;
+        *)
+            print_error "Unknown command: $cmd"
+            cmd_help
+            exit 1
+            ;;
+    esac
 }
 
 # Run main function
