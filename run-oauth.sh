@@ -339,6 +339,18 @@ cmd_start() {
             print_info "Backend:  $BACKEND_URL"
             print_info "Press Ctrl+C to stop both servers"
 
+            # Logging options
+            echo ""
+            echo -e "${CYAN}${BOLD}═══════════════════════════════════════════════════════════════${NC}"
+            echo -e "  ${CYAN}📋 Logging Options:${NC}"
+            echo -e "${CYAN}${BOLD}─────────────────────────────────────────────────────────────${NC}"
+            echo -e "  ${YELLOW}tail -f /tmp/oauth-*.log${NC}           # View all logs (live)"
+            echo -e "  ${YELLOW}tail -f /tmp/oauth-backend.log${NC}     # Backend logs only"
+            echo -e "  ${YELLOW}tail -f /tmp/oauth-frontend.log${NC}    # Frontend logs only"
+            echo -e "  ${YELLOW}rm /tmp/oauth-*.log${NC}              # Clear logs"
+            echo -e "${CYAN}${BOLD}═══════════════════════════════════════════════════════════════${NC}"
+            echo ""
+
             # Open browser
             sleep 2
             open_browser
