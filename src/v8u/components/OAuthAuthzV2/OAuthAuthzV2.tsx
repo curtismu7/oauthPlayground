@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { OAuthAuthzLayout } from './OAuthAuthzLayout';
+import { AuthConfigProvider } from '../../../contexts/AuthConfigContext';
 import './styles/layout.css';
 
 /**
@@ -10,9 +11,11 @@ import './styles/layout.css';
  */
 export const OAuthAuthzV2: React.FC = () => {
   return (
-    <ThemeProvider>
-      <OAuthAuthzV2Inner />
-    </ThemeProvider>
+    <AuthConfigProvider>
+      <ThemeProvider>
+        <OAuthAuthzV2Inner />
+      </ThemeProvider>
+    </AuthConfigProvider>
   );
 };
 
