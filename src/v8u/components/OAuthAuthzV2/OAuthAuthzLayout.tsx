@@ -106,18 +106,25 @@ export const OAuthAuthzLayout: React.FC = () => {
       return;
     }
 
-    setUpdateStatus('⏳ Getting worker token...');
+    setUpdateStatus('⏳ Updating PingOne...');
     
     try {
-      // Get worker token
-      const workerToken = await globalWorkerTokenService.getToken();
-      if (!workerToken) {
+      // Check if worker token is configured, get it silently if available
+      const isConfigured = await globalWorkerTokenService.isConfigured();
+      if (!isConfigured) {
         setShowWorkerTokenDialog(true);
         setUpdateStatus('❌ Worker token required - please configure it');
         return;
       }
 
-      setUpdateStatus('⏳ Updating PingOne...');
+      // Silently get worker token if configured
+      const workerToken = await globalWorkerTokenService.getToken();
+      if (!workerToken) {
+        setShowWorkerTokenDialog(true);
+        setUpdateStatus('❌ Failed to get worker token');
+        return;
+      }
+
       const response = await fetch('/api/update-redirect-uri', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
