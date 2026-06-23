@@ -60,7 +60,7 @@ const Flows2Redirectless = lazy(() => import('./flows2/flows/redirectless.flow')
 const Flows2ImplicitHybrid = lazy(() => import('./flows2/flows/implicitHybrid.flow'));
 const Flows2ImplicitHybridCallback = lazy(() => import('./flows2/flows/ImplicitHybridCallback'));
 const Flows2Ropc = lazy(() => import('./flows2/flows/ropc.flow'));
-const CombinedTokenPage = lazy(() => import('./pages/CombinedTokenPage'));
+const Flows2SAMLBearerAssertion = lazy(() => import('./flows2/flows/samlBearerAssertion.flow'));const CombinedTokenPage = lazy(() => import('./pages/CombinedTokenPage'));
 const CredentialSetupModal = lazy(() => import('./components/CredentialSetupModal'));
 const EnhancedFloatingLogViewer = lazy(() =>
 	import('./components/EnhancedFloatingLogViewer').then((m) => ({
@@ -1358,12 +1358,12 @@ const AppRoutes: React.FC = () => {
 									{/* V7 SAML Bearer Assertion Flow */}
 									<Route
 										path="/flows/saml-bearer-assertion-v7"
-										element={<Navigate to="/flows/saml-bearer-assertion-v9" replace />}
+										element={<Navigate to="/v2/flows/saml-bearer" replace />}
 									/>
 									{/* V9 SAML Bearer Assertion Flow */}
 									<Route
 										path="/flows/saml-bearer-assertion-v9"
-										element={<SAMLBearerAssertionFlowV9 />}
+										element={<Navigate to="/v2/flows/saml-bearer" replace />}
 									/>
 									<Route
 										path="/flows/v9/saml-sp-dynamic-acs"
@@ -1372,7 +1372,7 @@ const AppRoutes: React.FC = () => {
 									{/* Legacy V6 route - redirect to V9 (v7 redirect already defined above) */}
 									<Route
 										path="/flows/saml-bearer-assertion-v6"
-										element={<Navigate to="/flows/saml-bearer-assertion-v9" replace />}
+										element={<Navigate to="/v2/flows/saml-bearer" replace />}
 									/>
 									{/* V7 Worker Token Flow — redirect to V9 */}
 									<Route
@@ -1639,7 +1639,7 @@ const AppRoutes: React.FC = () => {
 									<Route path="/v2/flows/implicit-hybrid" element={<Flows2ImplicitHybrid />} />
 									<Route path="/v2/flows/implicit-hybrid-callback" element={<Flows2ImplicitHybridCallback />} />
 									<Route path="/v2/flows/ropc" element={<Flows2Ropc />} />
-									<Route path="/flows/token-introspection" element={<Navigate to="/v2/flows/token-introspection" replace />} />
+									<Route path="/v2/flows/saml-bearer" element={<Flows2SAMLBearerAssertion />} />									<Route path="/flows/token-introspection" element={<Navigate to="/v2/flows/token-introspection" replace />} />
 									<Route
 										path="/postman-collection-generator"
 										element={<PostmanCollectionGenerator />}
