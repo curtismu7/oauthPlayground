@@ -1,21 +1,18 @@
 import React from 'react';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { OAuthAuthzLayout } from './OAuthAuthzLayout';
-import { AuthConfigProvider } from '../../../contexts/AuthConfigContext';
 import './styles/layout.css';
 
 /**
  * OAuthAuthzV2 — New unified OAuth authorization UI
  * Option D hybrid design: Config | Protocol | Inspector
- * Supports light/dark mode with stored config loading
+ * Supports light/dark mode with env config auto-loading
  */
 export const OAuthAuthzV2: React.FC = () => {
   return (
-    <AuthConfigProvider>
-      <ThemeProvider>
-        <OAuthAuthzV2Inner />
-      </ThemeProvider>
-    </AuthConfigProvider>
+    <ThemeProvider>
+      <OAuthAuthzV2Inner />
+    </ThemeProvider>
   );
 };
 
