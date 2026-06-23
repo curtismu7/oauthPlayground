@@ -21,7 +21,7 @@ export function set(key, value) {
 
 export function del(key) {
 	const db = getDb('settings');
-	db.deleteSync(key);
+	db.removeSync(key);
 }
 
 export function getAll() {
@@ -39,6 +39,6 @@ export function clear() {
 	const db = getDb('settings');
 
 	for (const { key } of db.getRange({})) {
-		db.deleteSync(key);
+		db.removeSync(key);
 	}
 }

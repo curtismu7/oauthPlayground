@@ -39,21 +39,21 @@ export function saveUsers(environmentId, users) {
 			lastSignOn: user.lastSignOn?.at ? { at: user.lastSignOn.at } : null,
 		};
 
-		usersDb.put(key, userData);
+		usersDb.putSync(key, userData);
 		searchIndexUsers.push(userData);
 	}
 
 	// Update search index for environment
 	const searchKey = `${environmentId}|search`;
-	searchIndexDb.put(searchKey, searchIndexUsers);
+	searchIndexDb.putSync(searchKey, searchIndexUsers);
 
 	// Update metadata
 	const metadataDb = getDb('user_metadata');
 	const metaKey = environmentId;
-	const current = metadataDb.get(metaKey) || {};
+	const current = metadataDb.getSync(metaKey) || {};
 	const totalUsers = getUserCount(environmentId);
 
-	metadataDb.put(metaKey, {
+	metadataDb.putSync(metaKey, {
 		...current,
 		total_users: totalUsers,
 		last_sync_completed: new Date().toISOString(),
@@ -77,7 +77,11 @@ export function searchUsers(environmentId, query, limit = 100, offset = 0) {
 
 	const searchIndexDb = getDb('user_search_index');
 	const searchKey = `${environmentId}|search`;
-	const allUsers = searchIndexDb.get(searchKey) || [];
+	const allUsers = searchIndexDb.getSync(searchKey) || [];
+
+	if (!query) {
+		return [];
+	}
 
 	const queryLower = query.toLowerCase();
 
@@ -117,7 +121,7 @@ export function getRecentUsers(environmentId, limit = 100) {
 
 	// Iterate through all keys starting with environmentId|
 	const prefix = `${environmentId}|`;
-	for (const [key, value] of usersDb.entries()) {
+	for (const { key, value } of usersDb.getRange()) {
 		if (key.startsWith(prefix) && key !== prefix) {
 			recentUsers.push(value);
 		}
@@ -142,7 +146,7 @@ export function getUserCount(environmentId) {
 
 	// Iterate through all keys starting with environmentId|
 	const prefix = `${environmentId}|`;
-	for (const key of usersDb.keys()) {
+	for (const { key } of usersDb.getRange()) {
 		if (key.startsWith(prefix) && key !== prefix) {
 			count++;
 		}
@@ -161,7 +165,7 @@ export function getSyncMetadata(environmentId) {
 	const metaKey = environmentId;
 
 	return (
-		metadataDb.get(metaKey) || {
+		metadataDb.getSync(metaKey) || {
 			total_users: 0,
 			last_sync_completed: null,
 			last_sync_status: null,
@@ -185,7 +189,7 @@ export function updateSyncMetadata(environmentId, updates) {
 		...updates,
 	};
 
-	metadataDb.put(metaKey, updated);
+	metadataDb.putSync(metaKey, updated);
 }
 
 /**
@@ -200,21 +204,21 @@ export function clearEnvironmentData(environmentId) {
 	// Delete all users for this environment
 	const prefix = `${environmentId}|`;
 	const keysToDelete = [];
-	for (const key of usersDb.keys()) {
+	for (const { key } of usersDb.getRange()) {
 		if (key.startsWith(prefix)) {
 			keysToDelete.push(key);
 		}
 	}
 	for (const key of keysToDelete) {
-		usersDb.del(key);
+		usersDb.removeSync(key);
 	}
 
 	// Delete search index for this environment
 	const searchKey = `${environmentId}|search`;
-	searchIndexDb.del(searchKey);
+	searchIndexDb.removeSync(searchKey);
 
 	// Delete metadata for this environment
-	metadataDb.del(environmentId);
+	metadataDb.removeSync(environmentId);
 }
 
 /**
@@ -228,7 +232,7 @@ export function exportAllUsers(environmentId) {
 
 	// Iterate through all keys starting with environmentId|
 	const prefix = `${environmentId}|`;
-	for (const [key, value] of usersDb.entries()) {
+	for (const { key, value } of usersDb.getRange()) {
 		if (key.startsWith(prefix) && key !== prefix) {
 			users.push(value);
 		}
@@ -238,4 +242,134 @@ export function exportAllUsers(environmentId) {
 	users.sort((a, b) => (a.username || '').localeCompare(b.username || ''));
 
 	return users;
+}
+
+/**
+ * Full sync - fetch and save all users from API
+ * @param {string} environmentId
+ * @param {Object} options - { workerToken, maxPages, delayMs, onProgress }
+ * @returns {Promise<Object>} { success, totalUsers, incremental }
+ */
+export async function fullSync(environmentId, options = {}) {
+	const { workerToken, maxPages = 100, delayMs = 100, onProgress } = options;
+
+	if (!workerToken) {
+		throw new Error('Worker token is required');
+	}
+
+	let allUsers = [];
+	let offset = 0;
+	let pageNum = 0;
+
+	while (pageNum < maxPages) {
+		try {
+			const response = await fetch('https://localhost:3001/api/pingone/mfa/list-users', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					environmentId,
+					workerToken,
+					limit: 200,
+					offset,
+				}),
+			});
+
+			if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+
+			const data = await response.json();
+			const users = data.users || [];
+
+			if (users.length === 0) break;
+
+			allUsers.push(...users);
+			pageNum++;
+			offset += users.length;
+
+			if (onProgress) {
+				onProgress(allUsers.length, pageNum, users);
+			}
+
+			if (delayMs > 0) {
+				await new Promise((r) => setTimeout(r, delayMs));
+			}
+		} catch (err) {
+			console.error('Sync error:', err);
+			throw err;
+		}
+	}
+
+	if (allUsers.length > 0) {
+		saveUsers(environmentId, allUsers);
+	}
+
+	return { success: true, totalUsers: allUsers.length, incremental: false };
+}
+
+/**
+ * Incremental sync - fetch and save only updated users since last sync
+ * @param {string} environmentId
+ * @param {Object} options - { workerToken, maxPages, delayMs, onProgress }
+ * @returns {Promise<Object>} { success, totalUsers, incremental }
+ */
+export async function incrementalSync(environmentId, options = {}) {
+	const { workerToken, maxPages = 100, delayMs = 100, onProgress } = options;
+
+	if (!workerToken) {
+		throw new Error('Worker token is required');
+	}
+
+	const metadata = getSyncMetadata(environmentId);
+	const lastSyncTime = metadata.last_sync_completed;
+
+	if (!lastSyncTime) {
+		return fullSync(environmentId, options);
+	}
+
+	let allUsers = [];
+	let offset = 0;
+	let pageNum = 0;
+
+	while (pageNum < maxPages) {
+		try {
+			const response = await fetch('https://localhost:3001/api/pingone/mfa/list-users', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					environmentId,
+					workerToken,
+					limit: 200,
+					offset,
+					updatedSince: lastSyncTime,
+				}),
+			});
+
+			if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+
+			const data = await response.json();
+			const users = data.users || [];
+
+			if (users.length === 0) break;
+
+			allUsers.push(...users);
+			pageNum++;
+			offset += users.length;
+
+			if (onProgress) {
+				onProgress(allUsers.length, pageNum, users);
+			}
+
+			if (delayMs > 0) {
+				await new Promise((r) => setTimeout(r, delayMs));
+			}
+		} catch (err) {
+			console.error('Sync error:', err);
+			throw err;
+		}
+	}
+
+	if (allUsers.length > 0) {
+		saveUsers(environmentId, allUsers);
+	}
+
+	return { success: true, totalUsers: allUsers.length, incremental: true };
 }
