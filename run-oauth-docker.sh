@@ -66,7 +66,20 @@ cmd_start() {
   show_status
 
   echo -e "${GREEN}${BOLD}✅ All containers started${NC}"
-  echo -e "${YELLOW}💡 Run '${BOLD}./run-oauth-docker.sh logs${YELLOW}' to view container logs${NC}"
+  echo ""
+
+  # Logging options
+  echo -e "${YELLOW}${BOLD}═════════════════════════════════════════════════════════════════${NC}"
+  echo -e "  ${CYAN}📋 Logging Options:${NC}"
+  echo -e "${YELLOW}${BOLD}──────────────────────────────────────────────────────────────${NC}"
+  echo -e "  ${BOLD}./run-oauth-docker.sh logs${NC}           # Stream live logs"
+  echo -e "  ${BOLD}docker compose -f docker-compose.dev.yml logs -f${NC}  # All logs"
+  echo -e "  ${BOLD}docker compose -f docker-compose.dev.yml logs frontend${NC}  # Frontend only"
+  echo -e "  ${BOLD}docker compose -f docker-compose.dev.yml logs backend${NC}   # Backend only"
+  echo -e ""
+  echo -e "  ${CYAN}Container shell:${NC}"
+  echo -e "    ${BOLD}docker compose -f docker-compose.dev.yml exec <service> bash${NC}"
+  echo -e "${YELLOW}${BOLD}═════════════════════════════════════════════════════════════════${NC}"
   echo ""
 }
 
