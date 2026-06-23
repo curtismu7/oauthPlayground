@@ -245,6 +245,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/v8/delete-all-devices', 'Delete All Devices', true],
 						['/v8u/flow-comparison', 'Flow Comparison Tool', true],
 						['/v8u/token-monitoring', 'Token Monitoring Dashboard', true],
+						['/v8u/unified/oauth-authz', 'OAuth Authz Flow (Test)', true],
 					],
 					'flow-tools'
 				),
