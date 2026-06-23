@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ConfigPanel } from './components/ConfigPanel';
 import { Header } from './components/Header';
 import { InspectorPanel } from './components/InspectorPanel';
 import { ProtocolPanel } from './components/ProtocolPanel';
 import { Sidebar } from './components/Sidebar';
 import { useTheme } from './ThemeContext';
+import { flowExecutionService, FlowListener } from './services/flowExecutionService';
 import { OAuthConfig } from './types';
 
 export const OAuthAuthzLayout: React.FC = () => {
   const { mode, toggle } = useTheme();
   const [selectedFlow, setSelectedFlow] = useState<'oauth20' | 'oidc' | 'other'>('oauth20');
   const [flowStarted, setFlowStarted] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
   const [config, setConfig] = useState<OAuthConfig>({
     environmentId: '',
     clientId: '',
@@ -21,10 +23,20 @@ export const OAuthAuthzLayout: React.FC = () => {
     advancedOptions: { pkce: true },
   });
 
+  useEffect(() => {
+    if (!flowStarted) return;
+
+    const listener: FlowListener = {
+      onStepChange: setCurrentStep,
+    };
+
+    const unsubscribe = flowExecutionService.subscribe(listener);
+    return unsubscribe;
+  }, [flowStarted]);
+
   const handleStartFlow = () => {
     setFlowStarted(true);
-    // Flow execution will be implemented in Sprint 4
-    console.log('Starting OAuth flow with config:', config);
+    flowExecutionService.startFlow(config);
   };
 
   return (
@@ -39,7 +51,7 @@ export const OAuthAuthzLayout: React.FC = () => {
       <ConfigPanel config={config} onConfigChange={setConfig} onStartFlow={handleStartFlow} />
 
       {/* Protocol Panel */}
-      <ProtocolPanel config={config} flowStarted={flowStarted} />
+      <ProtocolPanel config={config} flowStarted={flowStarted} currentStep={currentStep} />
 
       {/* Inspector Panel */}
       <InspectorPanel />

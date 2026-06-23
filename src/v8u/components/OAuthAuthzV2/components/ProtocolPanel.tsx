@@ -1,16 +1,16 @@
-import React, { useMemo, useState } from 'react';
-import { getFlowStepsData } from './flowStepsData';
+import React, { useMemo } from 'react';
 import { FlowStep, StepStatus } from './FlowStep';
 import { OAuthConfig } from '../types';
+import { getFlowStepsData } from './flowStepsData';
 import './styles/protocol.css';
 
 interface ProtocolPanelProps {
   config: OAuthConfig;
   flowStarted?: boolean;
+  currentStep?: number;
 }
 
-export const ProtocolPanel: React.FC<ProtocolPanelProps> = ({ config, flowStarted }) => {
-  const [currentStep, setCurrentStep] = useState(flowStarted ? 1 : 0);
+export const ProtocolPanel: React.FC<ProtocolPanelProps> = ({ config, flowStarted, currentStep = 0 }) => {
   const flowStepsData = useMemo(() => getFlowStepsData(config), [config]);
 
   const getStepStatus = (stepNumber: number): StepStatus => {
