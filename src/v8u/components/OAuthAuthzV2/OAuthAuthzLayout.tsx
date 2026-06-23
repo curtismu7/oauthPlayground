@@ -13,11 +13,12 @@ export const OAuthAuthzLayout: React.FC = () => {
   const [selectedFlow, setSelectedFlow] = useState<'oauth20' | 'oidc' | 'other'>('oauth20');
   const [flowStarted, setFlowStarted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [updateStatus, setUpdateStatus] = useState<string | null>(null);
   const [config, setConfig] = useState<OAuthConfig>({
     environmentId: '',
     clientId: '',
     clientSecret: '',
-    redirectUri: 'https://localhost:3000/callback',
+    redirectUri: 'https://localhost:3010/authz-callback',
     scopes: ['openid', 'profile', 'email'],
     responseType: 'code',
     advancedOptions: { pkce: true },
@@ -62,6 +63,36 @@ export const OAuthAuthzLayout: React.FC = () => {
     flowExecutionService.startFlow(config);
   };
 
+  const handleUpdateRedirectUri = async () => {
+    if (!config.environmentId || !config.clientId) {
+      setUpdateStatus('❌ Environment ID and Client ID required');
+      return;
+    }
+
+    setUpdateStatus('⏳ Updating PingOne...');
+    try {
+      const response = await fetch('/api/update-redirect-uri', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          environmentId: config.environmentId,
+          clientId: config.clientId,
+          redirectUri: config.redirectUri,
+        }),
+      });
+
+      if (response.ok) {
+        setUpdateStatus('✅ Redirect URI updated in PingOne');
+        setTimeout(() => setUpdateStatus(null), 3000);
+      } else {
+        const error = await response.json();
+        setUpdateStatus(`❌ ${error.message || 'Failed to update'}`);
+      }
+    } catch (error) {
+      setUpdateStatus(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   return (
     <div className="oauth-authz-container">
       {/* Header */}
@@ -71,7 +102,13 @@ export const OAuthAuthzLayout: React.FC = () => {
       <Sidebar selectedFlow={selectedFlow} onSelectFlow={setSelectedFlow} />
 
       {/* Config Panel */}
-      <ConfigPanel config={config} onConfigChange={setConfig} onStartFlow={handleStartFlow} />
+      <ConfigPanel 
+        config={config} 
+        onConfigChange={setConfig} 
+        onStartFlow={handleStartFlow}
+        onUpdateRedirectUri={handleUpdateRedirectUri}
+        updateStatus={updateStatus}
+      />
 
       {/* Protocol Panel */}
       <ProtocolPanel config={config} flowStarted={flowStarted} currentStep={currentStep} />

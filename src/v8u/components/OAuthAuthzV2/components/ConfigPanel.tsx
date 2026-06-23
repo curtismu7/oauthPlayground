@@ -7,9 +7,17 @@ interface ConfigPanelProps {
   config: OAuthConfig;
   onConfigChange: (config: OAuthConfig) => void;
   onStartFlow?: () => void;
+  onUpdateRedirectUri?: () => void;
+  updateStatus?: string | null;
 }
 
-export const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, onConfigChange, onStartFlow }) => {
+export const ConfigPanel: React.FC<ConfigPanelProps> = ({ 
+  config, 
+  onConfigChange, 
+  onStartFlow,
+  onUpdateRedirectUri,
+  updateStatus
+}) => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -80,16 +88,30 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, onConfigChange
       </div>
 
       <div className="form-group">
-        <label>Redirect URI *</label>
-        <input
-          type="text"
-          value={config.redirectUri}
-          onChange={(e) => handleChange('redirectUri', e.target.value)}
-          placeholder="https://localhost:3000/callback"
-          className={errors.redirectUri ? 'error' : ''}
-        />
-        {errors.redirectUri && <div className="form-error">{errors.redirectUri}</div>}
-        <div className="form-helper">Must match registered redirect URI exactly</div>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+          <div style={{ flex: 1 }}>
+            <label>Redirect URI *</label>
+            <input
+              type="text"
+              value={config.redirectUri}
+              onChange={(e) => handleChange('redirectUri', e.target.value)}
+              placeholder="https://localhost:3010/authz-callback"
+              className={errors.redirectUri ? 'error' : ''}
+            />
+            {errors.redirectUri && <div className="form-error">{errors.redirectUri}</div>}
+            <div className="form-helper">Must match registered redirect URI exactly</div>
+          </div>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={onUpdateRedirectUri}
+            style={{ padding: '0.5rem 1rem', whiteSpace: 'nowrap' }}
+            title="Update this redirect URI in PingOne"
+          >
+            Update URI
+          </button>
+        </div>
+        {updateStatus && <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>{updateStatus}</div>}
       </div>
 
       <div className="form-group">
@@ -123,7 +145,6 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, onConfigChange
         <button
           className="advanced-toggle"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          // eslint-disable-next-line react/button-has-type
           type="button"
         >
           <span className={showAdvanced ? 'arrow-down' : 'arrow-right'}>▶</span>
@@ -170,6 +191,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, onConfigChange
       </div>
 
       <button
+        type="button"
         className="btn btn-primary"
         style={{ width: '100%', marginTop: '1.5rem' }}
         onClick={handleStartFlow}
