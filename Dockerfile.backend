@@ -32,9 +32,9 @@ RUN mkdir -p src/server/data
 
 ARG GIT_SHA=unknown
 ENV GIT_SHA=$GIT_SHA
-ENV BACKEND_PORT=3001
+ENV BACKEND_PORT=5001
 ENV NODE_ENV=production
 
-EXPOSE 3001
+EXPOSE 5001
 
 CMD ["node", "server.js"]
