@@ -7,40 +7,44 @@ import { Sidebar } from './components/Sidebar';
 import { useTheme } from './ThemeContext';
 import { flowExecutionService, FlowListener } from './services/flowExecutionService';
 import { OAuthConfig } from './types';
-import { useAuthConfig } from '../../../contexts/AuthConfigContext';
 
 export const OAuthAuthzLayout: React.FC = () => {
   const { mode, toggle } = useTheme();
-  const authConfig = useAuthConfig();
   const [selectedFlow, setSelectedFlow] = useState<'oauth20' | 'oidc' | 'other'>('oauth20');
   const [flowStarted, setFlowStarted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [config, setConfig] = useState<OAuthConfig>(() => {
-    const defaults = {
-      environmentId: '',
-      clientId: '',
-      clientSecret: '',
-      redirectUri: 'https://localhost:3000/callback',
-      scopes: ['openid', 'profile', 'email'],
-      responseType: 'code' as const,
-      advancedOptions: { pkce: true },
+  const [config, setConfig] = useState<OAuthConfig>({
+    environmentId: '',
+    clientId: '',
+    clientSecret: '',
+    redirectUri: 'https://localhost:3000/callback',
+    scopes: ['openid', 'profile', 'email'],
+    responseType: 'code',
+    advancedOptions: { pkce: true },
+  });
+
+  // Load credentials from .env via API on mount
+  useEffect(() => {
+    const loadEnvConfig = async () => {
+      try {
+        const response = await fetch('/api/env-config');
+        if (response.ok) {
+          const envConfig = await response.json();
+          setConfig((prev) => ({
+            ...prev,
+            environmentId: envConfig.environmentId || prev.environmentId,
+            clientId: envConfig.clientId || prev.clientId,
+            redirectUri: envConfig.redirectUri || prev.redirectUri,
+            scopes: envConfig.scopes || prev.scopes,
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to load env config:', error);
+      }
     };
 
-    // Load from stored config if available
-    if (authConfig) {
-      return {
-        environmentId: authConfig.environmentId || defaults.environmentId,
-        clientId: authConfig.clientId || defaults.clientId,
-        clientSecret: authConfig.clientSecret || defaults.clientSecret,
-        redirectUri: authConfig.redirectUri || defaults.redirectUri,
-        scopes: authConfig.scopes?.length ? authConfig.scopes : defaults.scopes,
-        responseType: 'code',
-        advancedOptions: { pkce: true },
-      };
-    }
-
-    return defaults;
-  });
+    loadEnvConfig();
+  }, []);
 
   useEffect(() => {
     if (!flowStarted) return;
