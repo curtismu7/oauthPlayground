@@ -26219,3 +26219,72 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 export default app;
+
+// Update redirect URI for an application in PingOne
+app.post('/api/update-redirect-uri', async (req, res) => {
+	try {
+		const { environmentId, clientId, redirectUri } = req.body;
+
+		if (!environmentId || !clientId || !redirectUri) {
+			return res.status(400).json({ 
+				message: 'environmentId, clientId, and redirectUri are required' 
+			});
+		}
+
+		// Get access token for PingOne API
+		const tokenResponse = await fetch(
+			`https://auth.pingone.com/${environmentId}/as/token`,
+			{
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: new URLSearchParams({
+					grant_type: 'client_credentials',
+					client_id: process.env.PINGONE_ADMIN_CLIENT_ID || process.env.PINGONE_CLIENT_ID || '',
+					client_secret: process.env.PINGONE_ADMIN_CLIENT_SECRET || process.env.PINGONE_CLIENT_SECRET || '',
+					scope: 'https://api.pingone.com/v1/as:client_id',
+				}).toString(),
+			}
+		);
+
+		if (!tokenResponse.ok) {
+			throw new Error('Failed to get PingOne admin token');
+		}
+
+		const tokenData = await tokenResponse.json();
+		const adminToken = tokenData.access_token;
+
+		// Update application with new redirect URI
+		const updateResponse = await fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/applications/${clientId}`,
+			{
+				method: 'PATCH',
+				headers: {
+					Authorization: `Bearer ${adminToken}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					redirectUris: [redirectUri],
+				}),
+			}
+		);
+
+		if (!updateResponse.ok) {
+			const error = await updateResponse.json();
+			return res.status(updateResponse.status).json({ 
+				message: error.message || 'Failed to update redirect URI in PingOne' 
+			});
+		}
+
+		const updatedApp = await updateResponse.json();
+		res.json({ 
+			success: true, 
+			message: 'Redirect URI updated in PingOne',
+			redirectUris: updatedApp.redirectUris
+		});
+	} catch (error) {
+		console.error('❌ [updateRedirectUri] Error:', error);
+		res.status(500).json({ 
+			message: error instanceof Error ? error.message : 'Failed to update redirect URI' 
+		});
+	}
+});
