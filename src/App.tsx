@@ -322,6 +322,7 @@ const UnifiedMFARegistrationFlowV8 = React.lazy(() =>
 
 // OAuth Authz V2 — new redesigned UI
 const OAuthAuthzV2 = lazy(() => import('./v8u/components/OAuthAuthzV2/OAuthAuthzV2'));
+const AuthCodeFlowV2 = lazy(() => import('./v8u/components/AuthCodeFlowV2/AuthCodeFlowV2'));
 const FIDO2FlowV8 = React.lazy(() =>
 	import('./v8/flows/types/FIDO2FlowV8').then((module) => ({ default: module.FIDO2FlowV8 }))
 );
@@ -1623,7 +1624,7 @@ const AppRoutes: React.FC = () => {
 									<Route path="/token/operations" element={<CombinedTokenPage />} />
 									{/* flows2 — clean-core rebuild (real PingOne) */}
 									<Route path="/v2/flows/client-credentials" element={<Flows2ClientCredentials />} />
-									<Route path="/v2/flows/authorization-code" element={<Flows2AuthorizationCode />} />
+									<Route path="/v2/flows/authorization-code" element={<AuthCodeFlowV2 />} />
 									<Route path="/v2/flows/authz-callback" element={<Flows2AuthCallback />} />
 									<Route path="/v2/flows/device-authorization" element={<Flows2DeviceAuthorization />} />
 									<Route path="/v2/flows/token-exchange" element={<Flows2TokenExchange />} />
