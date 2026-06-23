@@ -1,36 +1,31 @@
 import React, { useState } from 'react';
-import { useTheme } from './ThemeContext';
-import { Header } from './components/Header';
-import { Sidebar } from './components/Sidebar';
 import { ConfigPanel } from './components/ConfigPanel';
-import { ProtocolPanel } from './components/ProtocolPanel';
+import { Header } from './components/Header';
 import { InspectorPanel } from './components/InspectorPanel';
-
-interface OAuthConfig {
-  environmentId: string;
-  clientId: string;
-  clientSecret?: string;
-  redirectUri: string;
-  scopes: string[];
-  responseType: 'code' | 'token' | 'id_token';
-  advancedOptions: {
-    pkce: boolean;
-    state?: string;
-    nonce?: string;
-  };
-}
+import { ProtocolPanel } from './components/ProtocolPanel';
+import { Sidebar } from './components/Sidebar';
+import { useTheme } from './ThemeContext';
+import { OAuthConfig } from './types';
 
 export const OAuthAuthzLayout: React.FC = () => {
   const { mode, toggle } = useTheme();
   const [selectedFlow, setSelectedFlow] = useState<'oauth20' | 'oidc' | 'other'>('oauth20');
+  const [flowStarted, setFlowStarted] = useState(false);
   const [config, setConfig] = useState<OAuthConfig>({
     environmentId: '',
     clientId: '',
+    clientSecret: '',
     redirectUri: 'https://localhost:3000/callback',
     scopes: ['openid', 'profile', 'email'],
     responseType: 'code',
     advancedOptions: { pkce: true },
   });
+
+  const handleStartFlow = () => {
+    setFlowStarted(true);
+    // Flow execution will be implemented in Sprint 4
+    console.log('Starting OAuth flow with config:', config);
+  };
 
   return (
     <div className="oauth-authz-container">
@@ -41,10 +36,10 @@ export const OAuthAuthzLayout: React.FC = () => {
       <Sidebar selectedFlow={selectedFlow} onSelectFlow={setSelectedFlow} />
 
       {/* Config Panel */}
-      <ConfigPanel config={config} onConfigChange={setConfig} />
+      <ConfigPanel config={config} onConfigChange={setConfig} onStartFlow={handleStartFlow} />
 
       {/* Protocol Panel */}
-      <ProtocolPanel config={config} />
+      <ProtocolPanel config={config} flowStarted={flowStarted} />
 
       {/* Inspector Panel */}
       <InspectorPanel />
