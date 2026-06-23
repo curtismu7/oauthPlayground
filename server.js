@@ -587,7 +587,7 @@ try {
 } catch (error) {
 	console.warn('[Server] Unable to read package.json for version metadata:', error);
 }
-const PORT = process.env.BACKEND_PORT || 3001;
+const PORT = process.env.BACKEND_PORT || 5001;
 const serverStartTime = new Date();
 
 /**
@@ -921,12 +921,12 @@ const requestStats = {
 app.use(
 	cors({
 		origin: process.env.FRONTEND_URL || [
-			'http://localhost:3000',
-			'https://localhost:3000',
-			'http://localhost:3001',
-			'https://localhost:3001',
-			'https://api.pingdemo.com:3000',
-			'http://api.pingdemo.com:3000',
+			'http://localhost:5000',
+			'https://localhost:5000',
+			'http://localhost:5001',
+			'https://localhost:5001',
+			'https://api.pingdemo.com:5000',
+			'http://api.pingdemo.com:5000',
 		],
 		credentials: true,
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -944,7 +944,7 @@ app.use((_req, res, next) => {
 			"style-src 'self' 'unsafe-inline'; " +
 			"font-src 'self' data:; " +
 			"img-src 'self' data:; " +
-			"connect-src 'self' http://localhost:3000 http://localhost:3001 https://localhost:3000 https://localhost:3001 https://api.pingdemo.com:3000 http://api.pingdemo.com:3000 wss://localhost:3000 wss://localhost:3001; " +
+			"connect-src 'self' http://localhost:5000 http://localhost:5001 https://localhost:5000 https://localhost:5001 https://api.pingdemo.com:5000 http://api.pingdemo.com:5000 wss://localhost:5000 wss://localhost:5001; " +
 			"frame-ancestors 'none'; " +
 			"base-uri 'self'"
 	);
@@ -3429,7 +3429,7 @@ app.get('/callback', (req, res) => {
 	});
 
 	// Redirect to the frontend callback handler
-	res.redirect(`https://localhost:3001/callback?${req.url.split('?')[1] || ''}`);
+	res.redirect(`https://localhost:5001/callback?${req.url.split('?')[1] || ''}`);
 });
 
 // Favicon handler - return 204 No Content to prevent 404 errors
@@ -3464,7 +3464,7 @@ app.get('/api/env-config', (_req, res) => {
 		redirectUri:
 			process.env.PINGONE_REDIRECT_URI ||
 			process.env.VITE_PINGONE_REDIRECT_URI ||
-			'https://localhost:3000/authz-callback',
+			'https://localhost:5000/authz-callback',
 		scopes: ['openid', 'profile', 'email'],
 		apiUrl:
 			process.env.PINGONE_API_URL || process.env.VITE_PINGONE_API_URL || 'https://auth.pingone.com',
@@ -12924,7 +12924,7 @@ app.get('/api/pingone/subscriptions', async (req, res) => {
 		console.log(`[Webhook Subscriptions] Fetching subscriptions from: ${apiUrl}`);
 
 		const controller = new AbortController();
-		const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+		const timeout = setTimeout(() => controller.abort(), 50000); // 30s timeout
 
 		const response = await fetch(apiUrl, {
 			method: 'GET',
@@ -13009,7 +13009,7 @@ app.get('/api/pingone/subscriptions/:subscriptionId', async (req, res) => {
 		console.log(`[Webhook Subscriptions] Fetching subscription ${subscriptionId} from: ${apiUrl}`);
 
 		const controller = new AbortController();
-		const timeout = setTimeout(() => controller.abort(), 30000);
+		const timeout = setTimeout(() => controller.abort(), 50000);
 
 		const response = await fetch(apiUrl, {
 			method: 'GET',
@@ -13099,7 +13099,7 @@ app.post('/api/pingone/subscriptions', express.json(), async (req, res) => {
 		console.log(`[Webhook Subscriptions] Creating subscription:`, subscriptionData.name);
 
 		const controller = new AbortController();
-		const timeout = setTimeout(() => controller.abort(), 30000);
+		const timeout = setTimeout(() => controller.abort(), 50000);
 
 		const response = await fetch(apiUrl, {
 			method: 'POST',
@@ -13184,7 +13184,7 @@ app.put('/api/pingone/subscriptions/:subscriptionId', express.json(), async (req
 		console.log(`[Webhook Subscriptions] Updating subscription ${subscriptionId}`);
 
 		const controller = new AbortController();
-		const timeout = setTimeout(() => controller.abort(), 30000);
+		const timeout = setTimeout(() => controller.abort(), 50000);
 
 		const response = await fetch(apiUrl, {
 			method: 'PUT',
@@ -13268,7 +13268,7 @@ app.delete('/api/pingone/subscriptions/:subscriptionId', async (req, res) => {
 		console.log(`[Webhook Subscriptions] Deleting subscription ${subscriptionId}`);
 
 		const controller = new AbortController();
-		const timeout = setTimeout(() => controller.abort(), 30000);
+		const timeout = setTimeout(() => controller.abort(), 50000);
 
 		const response = await fetch(apiUrl, {
 			method: 'DELETE',
@@ -13569,7 +13569,7 @@ app.delete('/api/webhooks/events', (_req, res) => {
 app.post('/api/dev/start-webhook-tunnel', async (_req, res) => {
 	const { spawn } = await import('child_process');
 	const http = await import('http');
-	const port = 3000;
+	const port = 5000;
 
 	try {
 		const proc = spawn('ngrok', ['http', String(port)], {
@@ -16414,7 +16414,7 @@ app.post('/api/pingone/mfa/activate-fido2-device', async (req, res) => {
 				// Extract origin from referer header if available, otherwise use default
 				const referer = req.headers.referer || '';
 				const originMatch = referer.match(/^https?:\/\/[^/]+/);
-				requestBody.origin = originMatch ? originMatch[0] : 'https://localhost:3000';
+				requestBody.origin = originMatch ? originMatch[0] : 'https://localhost:5000';
 			}
 
 			// attestation: JSON string containing the full PublicKeyCredential object
@@ -17237,9 +17237,9 @@ app.post('/api/pingone/mfa/check-fido2-assertion', async (req, res) => {
 		};
 
 		// Get origin from the request body or headers
-		// Origin should match the application's origin (e.g., https://localhost:3000)
-		// If not provided, default to localhost:3000 for development
-		const origin = req.body.origin || req.headers.origin || 'https://localhost:3000';
+		// Origin should match the application's origin (e.g., https://localhost:5000)
+		// If not provided, default to localhost:5000 for development
+		const origin = req.body.origin || req.headers.origin || 'https://localhost:5000';
 
 		// According to PingOne API docs, the assertion should be the raw WebAuthn assertion as a string
 		// The assertion comes from WebAuthn API in base64url format, which PingOne expects
