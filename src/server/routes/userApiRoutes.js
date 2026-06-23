@@ -11,7 +11,7 @@
  * - Manual sync operations
  */
 
-import { userDatabaseService } from '../services/userDatabaseService.js';
+import * as userStore from '../lmdb/userStore.js';
 
 import { logger } from '../utils/logger.js';
 
@@ -35,7 +35,7 @@ export function setupUserApiRoutes(app) {
 			const limitNum = Math.min(parseInt(limit, 10) || 100, 1000); // Max 1000 results
 			const offsetNum = parseInt(offset, 10) || 0;
 
-			const users = await userDatabaseService.searchUsers(
+			const users = await userStore.searchUsers(
 				environmentId,
 				query,
 				limitNum,
@@ -66,7 +66,7 @@ export function setupUserApiRoutes(app) {
 
 			const limitNum = Math.min(parseInt(limit, 10) || 100, 1000);
 
-			const users = await userDatabaseService.getRecentUsers(environmentId, limitNum);
+			const users = await userStore.getRecentUsers(environmentId, limitNum);
 
 			res.json({
 				users,
@@ -87,7 +87,7 @@ export function setupUserApiRoutes(app) {
 		try {
 			const { environmentId } = req.params;
 
-			const count = await userDatabaseService.getUserCount(environmentId);
+			const count = await userStore.getUserCount(environmentId);
 
 			res.json({
 				environmentId,
@@ -107,7 +107,7 @@ export function setupUserApiRoutes(app) {
 		try {
 			const { environmentId } = req.params;
 
-			const metadata = await userDatabaseService.getSyncMetadata(environmentId);
+			const metadata = await userStore.getSyncMetadata(environmentId);
 
 			res.json(metadata);
 		} catch (error) {
@@ -125,7 +125,7 @@ export function setupUserApiRoutes(app) {
 			const { environmentId } = req.params;
 
 			// TODO: Add authentication/authorization check
-			userDatabaseService.clearEnvironmentData(environmentId);
+			userStore.clearEnvironmentData(environmentId);
 
 			res.json({
 				message: `Cleared data for environment ${environmentId}`,
@@ -158,7 +158,7 @@ export function setupUserApiRoutes(app) {
 
 			let result;
 			if (incremental) {
-				result = await userDatabaseService.incrementalSync(environmentId, {
+				result = await userStore.incrementalSync(environmentId, {
 					workerToken,
 					maxPages,
 					delayMs,
@@ -167,7 +167,7 @@ export function setupUserApiRoutes(app) {
 					},
 				});
 			} else {
-				result = await userDatabaseService.fullSync(environmentId, {
+				result = await userStore.fullSync(environmentId, {
 					workerToken,
 					maxPages,
 					delayMs,
@@ -196,8 +196,8 @@ export function setupUserApiRoutes(app) {
 		try {
 			const { environmentId } = req.params;
 
-			const metadata = await userDatabaseService.getSyncMetadata(environmentId);
-			const userCount = await userDatabaseService.getUserCount(environmentId);
+			const metadata = await userStore.getSyncMetadata(environmentId);
+			const userCount = await userStore.getUserCount(environmentId);
 
 			res.json({
 				environmentId,
@@ -237,7 +237,7 @@ export function setupUserApiRoutes(app) {
 
 			// Clear existing data if requested
 			if (clearFirst) {
-				await userDatabaseService.clearEnvironmentData(environmentId);
+				await userStore.clearEnvironmentData(environmentId);
 				logger.info(`${MODULE_TAG} Cleared existing data for ${environmentId}`);
 			}
 
@@ -250,7 +250,7 @@ export function setupUserApiRoutes(app) {
 				const batch = users.slice(i, i + batchSize);
 
 				// Save batch to database
-				await userDatabaseService.saveUsers(environmentId, batch, i + batch.length >= users.length);
+				await userStore.saveUsers(environmentId, batch, i + batch.length >= users.length);
 
 				insertedCount += batch.length;
 				logger.info(
