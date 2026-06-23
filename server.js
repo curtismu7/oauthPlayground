@@ -26205,8 +26205,16 @@ if (httpsServer) {
 
 	httpsServer.on('listening', () => {
 		const addr = httpsServer.address();
+		console.log(`🌐 HTTPS Server listening on:`, addr);
+	});
+}
 
-// Update redirect URI for an application in PingOne (using worker token)
+// Call startServers to begin accepting connections
+startServers().catch((error) => {
+	console.error("❌ Failed to start servers:", error);
+	process.exit(1);
+});
+
 app.post('/api/update-redirect-uri', async (req, res) => {
 	try {
 		const { environmentId, clientId, redirectUri, workerToken } = req.body;
