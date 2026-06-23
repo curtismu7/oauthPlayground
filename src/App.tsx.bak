@@ -1039,7 +1039,7 @@ const AppRoutes: React.FC = () => {
 												}
 											>
 												<UnifiedFlowErrorBoundary>
-													<OAuthAuthzV2 />
+													<UnifiedOAuthFlowV8U />
 												</UnifiedFlowErrorBoundary>
 											</Suspense>
 										}
