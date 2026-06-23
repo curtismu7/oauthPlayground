@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
+import { getFlowStepsData } from './flowStepsData';
+import { FlowStep, StepStatus } from './FlowStep';
 import { OAuthConfig } from '../types';
 import './styles/protocol.css';
 
@@ -8,30 +10,36 @@ interface ProtocolPanelProps {
 }
 
 export const ProtocolPanel: React.FC<ProtocolPanelProps> = ({ config, flowStarted }) => {
+  const [currentStep, setCurrentStep] = useState(flowStarted ? 1 : 0);
+  const flowStepsData = useMemo(() => getFlowStepsData(config), [config]);
+
+  const getStepStatus = (stepNumber: number): StepStatus => {
+    if (currentStep === 0) return 'pending';
+    if (stepNumber < currentStep) return 'completed';
+    if (stepNumber === currentStep) return 'active';
+    return 'pending';
+  };
+
   return (
     <div className="oauth-authz-protocol-panel">
       <div className="panel-title">Live Protocol</div>
 
-      {!flowStarted ? (
+      {currentStep === 0 ? (
         <div style={{ textAlign: 'center', color: 'var(--oauth-authz-textSecondary, #64748b)', paddingTop: '2rem' }}>
           <p>Configure your app settings and click "START FLOW"</p>
           <p style={{ fontSize: '0.85rem', marginTop: '1rem', color: 'var(--oauth-authz-textTertiary, #9ca3af)' }}>
-            Protocol steps:<br/>
-            1. Authorization Request<br/>
-            2. User Authorization<br/>
-            3. Authorization Code<br/>
-            4. Token Exchange<br/>
-            5. Validate Tokens
+            You will see the OAuth protocol steps here, with actual values from your configuration.
           </p>
         </div>
       ) : (
-        <div style={{ paddingTop: '1rem' }}>
-          <p style={{ fontSize: '0.9rem', color: 'var(--oauth-authz-textSecondary, #64748b)' }}>
-            Executing flow with:
-          </p>
-          <pre style={{ fontSize: '0.75rem', padding: '1rem', background: 'var(--oauth-authz-bgTertiary, #ede9fe)', borderRadius: '0.5rem', marginTop: '1rem', overflow: 'auto' }}>
-            {JSON.stringify({ environmentId: config.environmentId, clientId: config.clientId }, null, 2)}
-          </pre>
+        <div className="flow-diagram">
+          {flowStepsData.map((step) => (
+            <FlowStep
+              key={step.number}
+              {...step}
+              status={getStepStatus(step.number)}
+            />
+          ))}
         </div>
       )}
     </div>
