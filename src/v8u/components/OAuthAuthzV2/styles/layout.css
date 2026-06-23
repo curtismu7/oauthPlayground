@@ -6,6 +6,11 @@
   --oauth-authz-textSecondary: #64748b;
   --oauth-authz-accent: #1d4ed8;
   --oauth-authz-accentLight: #fbbf24;
+  --oauth-authz-borderColor: #e5e7eb;
+  --oauth-authz-codeBg: #f8fafc;
+  --oauth-authz-codeText: #1e293b;
+  --oauth-authz-accentSuccess: #10b981;
+  --oauth-authz-textTertiary: #9ca3af;
 }
 
 [data-theme='dark'] {
@@ -15,6 +20,11 @@
   --oauth-authz-textPrimary: #e2e8f0;
   --oauth-authz-textSecondary: #cbd5e1;
   --oauth-authz-accent: #60a5fa;
+  --oauth-authz-borderColor: #475569;
+  --oauth-authz-codeBg: #1e293b;
+  --oauth-authz-codeText: #e2e8f0;
+  --oauth-authz-accentSuccess: #34d399;
+  --oauth-authz-textTertiary: #64748b;
 }
 
 .oauth-authz-container {
