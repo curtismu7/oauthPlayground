@@ -49,6 +49,56 @@ show_status() {
   echo ""
 }
 
+# Interactive Docker logs viewer
+show_docker_logs() {
+  echo ""
+  echo -e "${CYAN}${BOLD}════════════════════════════════════════════════════════════════=${NC}"
+  echo -e "  ${CYAN}📋 Docker Containers${NC}"
+  echo -e "${CYAN}${BOLD}──────────────────────────────────────────────────────────────${NC}"
+
+  local containers=($($COMPOSE ps --services 2>/dev/null))
+  local count=1
+
+  if [ ${#containers[@]} -eq 0 ]; then
+    echo "  No containers running"
+    echo -e "${CYAN}${BOLD}════════════════════════════════════════════════════════════════=${NC}"
+    return 1
+  fi
+
+  for container in "${containers[@]}"; do
+    echo -e "  ${GREEN}[$count]${NC} $container"
+    ((count++))
+  done
+
+  echo -e "  ${GREEN}[0]${NC} All container logs"
+  echo -e "  ${GREEN}[s]${NC} Skip"
+  echo -e "${CYAN}${BOLD}════════════════════════════════════════════════════════════════=${NC}"
+  echo ""
+
+  read -p "View logs? (select option or press Enter to skip): " choice
+
+  case "$choice" in
+    0)
+      echo ""
+      echo -e "${YELLOW}${BOLD}→ Tailing all container logs (Ctrl+C to stop)${NC}"
+      echo ""
+      $COMPOSE logs -f
+      ;;
+    [1-9])
+      idx=$((choice - 1))
+      if [ $idx -ge 0 ] && [ $idx -lt ${#containers[@]} ]; then
+        echo ""
+        echo -e "${YELLOW}${BOLD}→ Tailing ${containers[$idx]} logs (Ctrl+C to stop)${NC}"
+        echo ""
+        $COMPOSE logs -f "${containers[$idx]}"
+      fi
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
+
 cmd_start() {
   show_banner
 
@@ -68,20 +118,10 @@ cmd_start() {
   echo -e "${GREEN}${BOLD}✅ All containers started${NC}"
   echo ""
 
-  # Logging options
-  echo -e "${YELLOW}${BOLD}═════════════════════════════════════════════════════════════════${NC}"
-  echo -e "  ${CYAN}📋 Logging Options:${NC}"
-  echo -e "${YELLOW}${BOLD}──────────────────────────────────────────────────────────────${NC}"
-  echo -e "  ${BOLD}./run-oauth-docker.sh logs${NC}           # Stream live logs"
-  echo -e "  ${BOLD}docker compose -f docker-compose.dev.yml logs -f${NC}  # All logs"
-  echo -e "  ${BOLD}docker compose -f docker-compose.dev.yml logs frontend${NC}  # Frontend only"
-  echo -e "  ${BOLD}docker compose -f docker-compose.dev.yml logs backend${NC}   # Backend only"
-  echo -e ""
-  echo -e "  ${CYAN}Container shell:${NC}"
-  echo -e "    ${BOLD}docker compose -f docker-compose.dev.yml exec <service> bash${NC}"
-  echo -e "${YELLOW}${BOLD}═════════════════════════════════════════════════════════════════${NC}"
-  echo ""
+  # Show interactive logs menu
+  show_docker_logs
 }
+
 
 cmd_stop() {
   echo ""
