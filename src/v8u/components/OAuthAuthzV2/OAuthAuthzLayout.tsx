@@ -7,6 +7,7 @@ import { Sidebar } from './components/Sidebar';
 import { useTheme } from './ThemeContext';
 import { flowExecutionService, FlowListener } from './services/flowExecutionService';
 import { OAuthConfig } from './types';
+import { globalWorkerTokenService } from '../../../v8/services/globalWorkerTokenService';
 
 export const OAuthAuthzLayout: React.FC = () => {
   const { mode, toggle } = useTheme();
@@ -14,6 +15,7 @@ export const OAuthAuthzLayout: React.FC = () => {
   const [flowStarted, setFlowStarted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [updateStatus, setUpdateStatus] = useState<string | null>(null);
+  const [showWorkerTokenDialog, setShowWorkerTokenDialog] = useState(false);
   const [config, setConfig] = useState<OAuthConfig>({
     environmentId: '',
     clientId: '',
@@ -69,8 +71,18 @@ export const OAuthAuthzLayout: React.FC = () => {
       return;
     }
 
-    setUpdateStatus('⏳ Updating PingOne...');
+    setUpdateStatus('⏳ Getting worker token...');
+    
     try {
+      // Get worker token
+      const workerToken = await globalWorkerTokenService.getToken();
+      if (!workerToken) {
+        setShowWorkerTokenDialog(true);
+        setUpdateStatus('❌ Worker token required - please configure it');
+        return;
+      }
+
+      setUpdateStatus('⏳ Updating PingOne...');
       const response = await fetch('/api/update-redirect-uri', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -78,15 +90,24 @@ export const OAuthAuthzLayout: React.FC = () => {
           environmentId: config.environmentId,
           clientId: config.clientId,
           redirectUri: config.redirectUri,
+          workerToken,
         }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        setUpdateStatus('✅ Redirect URI updated in PingOne');
+        if (data.alreadyExists) {
+          setUpdateStatus('ℹ️ Redirect URI already configured');
+        } else {
+          setUpdateStatus('✅ Redirect URI updated in PingOne');
+        }
         setTimeout(() => setUpdateStatus(null), 3000);
+      } else if (data.needsWorkerToken) {
+        setShowWorkerTokenDialog(true);
+        setUpdateStatus('❌ Worker token required');
       } else {
-        const error = await response.json();
-        setUpdateStatus(`❌ ${error.message || 'Failed to update'}`);
+        setUpdateStatus(`❌ ${data.message || 'Failed to update'}`);
       }
     } catch (error) {
       setUpdateStatus(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -115,6 +136,62 @@ export const OAuthAuthzLayout: React.FC = () => {
 
       {/* Inspector Panel */}
       <InspectorPanel />
+
+      {/* Worker Token Dialog */}
+      {showWorkerTokenDialog && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            background: 'white',
+            padding: '2rem',
+            borderRadius: '8px',
+            maxWidth: '400px',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+          }}>
+            <h2 style={{ margin: '0 0 1rem 0', color: '#1d2e3f' }}>Configure Worker Token</h2>
+            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
+              Worker token is required to update the redirect URI in PingOne. Please configure your worker credentials first.
+            </p>
+            <a 
+              href="/flows/worker-token-v9" 
+              style={{
+                display: 'inline-block',
+                padding: '0.75rem 1.5rem',
+                background: '#1d4ed8',
+                color: 'white',
+                borderRadius: '6px',
+                textDecoration: 'none',
+                marginRight: '1rem',
+              }}
+            >
+              Open Worker Token
+            </a>
+            <button
+              type="button"
+              onClick={() => setShowWorkerTokenDialog(false)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: '#e5e7eb',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
