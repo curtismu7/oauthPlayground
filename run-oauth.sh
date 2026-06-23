@@ -221,13 +221,11 @@ show_banner() {
     echo -e "${PURPLE}"
     echo "╔══════════════════════════════════════════════════════════════════════════════╗"
     echo "║                                                                              ║"
-    echo "║                    🚀 OAuth Playground v4.0.0 🚀                            ║"
-    echo "║                    Full Stack Startup Script                                ║"
+    echo "║                🔐 OAuth Playground - Full Stack Platform 🔐                 ║"
+    echo "║                      OAuth/OIDC Flow Simulator v4.0.0                       ║"
     echo "║                                                                              ║"
-    echo "║  Frontend: $FRONTEND_URL"
-    echo "║  Backend:  $BACKEND_URL"
-    echo "║                                                                              ║"
-    echo "║  Press Ctrl+C to stop both servers                                          ║"
+    echo "║  OAuth & OpenID Connect provider simulation and testing platform            ║"
+    echo "║  Test authorization flows, token exchange, and identity verification        ║"
     echo "║                                                                              ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -265,21 +263,43 @@ check_requirements() {
 
 # Function to display server status
 show_status() {
-    echo -e "\n${CYAN}📊 Server Status:${NC}"
-    echo -e "${BLUE}Frontend:${NC} $FRONTEND_URL"
-    if check_port $FRONTEND_PORT; then
-        echo -e "  Status: ${GREEN}✅ Running${NC}"
-    else
-        echo -e "  Status: ${RED}❌ Not Running${NC}"
-    fi
-    
-    echo -e "${BLUE}Backend:${NC}  $BACKEND_URL"
-    if check_port $BACKEND_PORT; then
-        echo -e "  Status: ${GREEN}✅ Running${NC}"
-    else
-        echo -e "  Status: ${RED}❌ Not Running${NC}"
-    fi
+    echo -e "\n${CYAN}${BOLD}═══════════════════════════════════════════════════════════════${NC}"
+    echo -e "  ${CYAN}📊 Server Status${NC}"
+    echo -e "${CYAN}${BOLD}═══════════════════════════════════════════════════════════════${NC}"
     echo ""
+
+    # Frontend status
+    echo -e "  ${BLUE}🌐 Frontend (React/Vite)${NC}"
+    echo -e "     URL:    ${BOLD}$FRONTEND_URL${NC}"
+    if check_port $FRONTEND_PORT; then
+        echo -e "     Status: ${GREEN}✅ Running${NC}"
+    else
+        echo -e "     Status: ${RED}❌ Not Running${NC}"
+    fi
+
+    # Backend status
+    echo -e ""
+    echo -e "  ${BLUE}⚙️  Backend (Node.js/Express)${NC}"
+    echo -e "     URL:    ${BOLD}$BACKEND_URL${NC}"
+    if check_port $BACKEND_PORT; then
+        echo -e "     Status: ${GREEN}✅ Running${NC}"
+    else
+        echo -e "     Status: ${RED}❌ Not Running${NC}"
+    fi
+
+    # Additional information
+    echo -e ""
+    echo -e "  ${CYAN}📋 Logs & Debugging${NC}"
+    echo -e "     Frontend:  /tmp/oauth-frontend.log"
+    echo -e "     Backend:   /tmp/oauth-backend.log"
+    echo -e "     View all:  ${BOLD}tail -f /tmp/oauth-*.log${NC}"
+    echo ""
+    echo -e "  ${CYAN}🔧 Useful Commands${NC}"
+    echo -e "     Status:    ${BOLD}./run-oauth.sh status${NC}"
+    echo -e "     Restart:   ${BOLD}./run-oauth.sh restart${NC}"
+    echo -e "     Stop:      ${BOLD}./run-oauth.sh stop${NC} or ${BOLD}./stop.sh${NC}"
+    echo ""
+    echo -e "${CYAN}${BOLD}═══════════════════════════════════════════════════════════════${NC}"
 }
 
 # Function to open browser
