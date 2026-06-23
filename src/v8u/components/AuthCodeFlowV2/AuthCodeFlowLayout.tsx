@@ -19,6 +19,7 @@ export const AuthCodeFlowLayout: React.FC = () => {
   const [updateStatus, setUpdateStatus] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [showWorkerTokenDialog, setShowWorkerTokenDialog] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [config, setConfig] = useState<AuthCodeConfig>({
     environmentId: '',
     clientId: '',
@@ -40,6 +41,7 @@ export const AuthCodeFlowLayout: React.FC = () => {
         try {
           const savedConfig = JSON.parse(saved);
           setConfig(savedConfig);
+          setHasUnsavedChanges(false);
           return;
         } catch (error) {
           console.error('Failed to parse saved config:', error);
@@ -57,6 +59,7 @@ export const AuthCodeFlowLayout: React.FC = () => {
             redirectUri: envConfig.redirectUri || prev.redirectUri,
             scopes: envConfig.scopes || prev.scopes,
           }));
+          setHasUnsavedChanges(false);
         }
       } catch (error) {
         console.error('Failed to load env config:', error);
@@ -65,6 +68,13 @@ export const AuthCodeFlowLayout: React.FC = () => {
 
     loadConfig();
   }, []);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const savedConfig = saved ? JSON.parse(saved) : null;
+    const configChanged = !savedConfig || JSON.stringify(savedConfig) !== JSON.stringify(config);
+    setHasUnsavedChanges(configChanged);
+  }, [config]);
 
   useEffect(() => {
     if (!flowStarted) return;
@@ -77,7 +87,25 @@ export const AuthCodeFlowLayout: React.FC = () => {
     return unsubscribe;
   }, [flowStarted]);
 
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
   const handleStartFlow = () => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+      setHasUnsavedChanges(false);
+    } catch (error) {
+      console.error('Failed to save config before starting flow:', error);
+    }
     setFlowStarted(true);
     authCodeFlowExecutionService.startFlow(config);
   };
@@ -85,6 +113,7 @@ export const AuthCodeFlowLayout: React.FC = () => {
   const handleSaveConfig = () => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+      setHasUnsavedChanges(false);
       setSaveStatus('✅ Config saved');
       setTimeout(() => setSaveStatus(null), 2000);
     } catch (error) {
