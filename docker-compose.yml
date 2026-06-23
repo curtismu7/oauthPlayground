@@ -2,7 +2,7 @@
 #
 # Runs alongside AI-Demo without port conflicts.
 # AI-Demo uses: 5001 (BFF), 4000 (UI), 8080–8895, 9001, 3005, 3009, 3016, 3036
-# This stack uses:  3011 (backend, maps 3011→5001), 5000 (frontend, no conflict)
+# This stack uses:  5001 (backend), 8000 (frontend, no conflict)
 #
 # Prerequisites:
 #   1. mkcert certs must exist in ./certs/ (api.ping.demo.crt / api.ping.demo.key)
@@ -17,8 +17,8 @@
 #   docker compose down            # stop and remove containers
 #
 # Access:
-#   Frontend:  https://api.ping.demo:5000
-#   Backend:   https://api.ping.demo:3011/api/health
+#   Frontend:  https://api.ping.demo:8000
+#   Backend:   https://api.ping.demo:5001/api/health
 #
 # Logs:
 #   docker compose logs -f oauth-backend
@@ -69,7 +69,7 @@ services:
         GIT_SHA: ${GIT_SHA:-unknown}
     container_name: oauth-playground-frontend
     ports:
-      - "5000:5000"
+      - "8000:5000"
     volumes:
       - ./certs:/etc/nginx/certs:ro
     networks:
