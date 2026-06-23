@@ -1,64 +1,22 @@
 // src/pages/flows/v9/V7MCIBAFlowV9.tsx
-// CIBA (Client Initiated Backchannel Authentication) Mock — V7M educational implementation
+// CIBA (Client Initiated Backchannel Authentication) Mock — flows2 modern implementation
 // OpenID Connect CIBA Core 1.0 — no external API calls, fully in-browser simulation
 
-import React, { useEffect, useRef, useState } from 'react';
-import { CIBAUserApprovalModal } from '../../../components/CIBAUserApprovalModal';
-import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
-import { ColoredJsonDisplay } from '../../../components/ColoredJsonDisplay';
-import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
-import { DEMO_API_BASE, DEMO_ENVIRONMENT_ID } from '../../../components/PingOneApiCallDisplay';
-import { UnifiedCredentialManagerV9 } from '../../../components/UnifiedCredentialManagerV9';
-import {
-	showGlobalError,
-	showGlobalSuccess,
-	showGlobalWarning,
-} from '../../../contexts/NotificationSystem';
-import { FiBook, FiRefreshCw } from '../../../icons';
-import {
-	type V9MockCIBADeliveryMode,
-	V9MockCIBAService,
-} from '../../../services/v9/mock/V9MockCIBAService';
-import {
-	introspectToken,
-	type V9MockIntrospectionResponse,
-} from '../../../services/v9/mock/V9MockIntrospectionService';
-import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
-import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
-import { V7MFlowOverview } from '../../../v7/components/V7MFlowOverview';
-import { V7MHelpModal } from '../../../v7/components/V7MHelpModal';
-import { V7MInfoIcon } from '../../../v7/components/V7MInfoIcon';
-import { V7MJwtInspectorModal } from '../../../v7/components/V7MJwtInspectorModal';
-import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
-import {
-	getSectionBodyStyle,
-	getSectionHeaderStyle,
-	MOCK_INPUT_STYLE,
-	MOCK_PRIMARY_BTN,
-	MOCK_SECONDARY_BTN,
-	MOCK_SECTION_STYLE,
-} from '../../../v7/styles/mockFlowStyles';
-
-type DeliveryModeOption = { value: V9MockCIBADeliveryMode; label: string; description: string };
-
-const DELIVERY_MODES: DeliveryModeOption[] = [
-	{
-		value: 'poll',
-		label: 'Poll',
-		description: 'Client repeatedly polls the token endpoint until authentication completes',
-	},
-	{
-		value: 'ping',
-		label: 'Ping',
-		description: 'Server notifies client via a ping callback when ready; client then fetches token',
-	},
-	{
-		value: 'push',
-		label: 'Push',
-		description: 'Server pushes the token directly to a client-registered endpoint',
-	},
-];
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
+import { FlowContainer } from '../../../flows2/framework/FlowContainer';
+import { FlowResult } from '../../../flows2/framework/FlowResult';
+import { FlowStep } from '../../../flows2/framework/FlowStep';
+import { useFlowEngine } from '../../../flows2/framework/useFlowEngine';
+import { FieldGroup } from '../../../flows2/framework/FieldGroup';
+import { CodeBlock, JsonView } from '../../../flows2/framework/CodeBlock';
+import { ResultCard } from '../../../flows2/framework/ResultCard';
+import { ExplanationPanel } from '../../../flows2/framework/ExplanationPanel';
+import { tokens } from '../../../flows2/framework/tokens';
+import type { StepDefinition, FlowError } from '../../../flows2/framework/types';
+import type { V9MockCIBADeliveryMode } from '../../../services/v9/mock/V9MockCIBAService';
+import { V9MockCIBAService } from '../../../services/v9/mock/V9MockCIBAService';
+import { introspectToken, type V9MockIntrospectionResponse } from '../../../services/v9/mock/V9MockIntrospectionService';
 
 type TokenResult = {
 	access_token: string;
@@ -68,901 +26,425 @@ type TokenResult = {
 	scope?: string;
 };
 
-export const V7MCIBAFlowV9: React.FC = () => {
-	const [clientId, setClientId] = useState('v7m-ciba-client');
-	const [scope, setScope] = useState('openid profile email');
-	const [loginHint, setLoginHint] = useState('jane.doe@example.com');
-	const [bindingMessage, setBindingMessage] = useState('Sign in to ACME Portal');
+const STEPS: StepDefinition[] = [
+	{ id: 'configure', title: 'Configure', subtitle: 'Delivery mode & credentials' },
+	{ id: 'request', title: 'Request', subtitle: 'Backchannel auth request' },
+	{ id: 'approve', title: 'Approve', subtitle: 'Simulate device approval' },
+	{ id: 'poll', title: 'Poll', subtitle: 'Fetch tokens' },
+	{ id: 'use', title: 'Use', subtitle: 'Inspect & introspect' },
+];
+
+const Toggle = styled.div`
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+`;
+
+const Pill = styled.button<{ $active: boolean }>`
+	font-size: 0.82rem;
+	font-weight: 600;
+	padding: 0.4rem 0.9rem;
+	border-radius: 8px;
+	cursor: pointer;
+	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
+	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
+	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
+`;
+
+const Action = styled.button`
+	align-self: flex-start;
+	font-size: 0.9rem;
+	font-weight: 700;
+	padding: 0.6rem 1.2rem;
+	border-radius: 8px;
+	border: 1px solid ${tokens.color.successBorder ?? '#15803d'};
+	background: ${tokens.color.success};
+	color: #fff;
+	cursor: pointer;
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+`;
+
+const StatusCard = styled.div<{ $status: string }>`
+	padding: 0.8rem;
+	border-radius: 8px;
+	border: 1px solid ${tokens.color.border};
+	margin: 0.8rem 0;
+	background: ${({ $status }) => {
+		switch ($status) {
+			case 'pending':
+				return '#fef3c7';
+			case 'approved':
+				return '#d1fae5';
+			case 'done':
+				return '#d1fae5';
+			case 'denied':
+			case 'expired':
+				return '#fee2e2';
+			default:
+				return tokens.color.bgSubtle;
+		}
+	}};
+	font-size: 0.95rem;
+	line-height: 1.5;
+`;
+
+const Grid = styled.div`
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.9rem;
+	@media (max-width: 640px) {
+		grid-template-columns: 1fr;
+	}
+`;
+
+const CIBAFlowV2: React.FC = () => {
+	const engine = useFlowEngine(STEPS);
 	const [deliveryMode, setDeliveryMode] = useState<V9MockCIBADeliveryMode>('poll');
+	const [clientId, setClientId] = useState('ciba-client-001');
+	const [scope, setScope] = useState('openid profile email');
+	const [loginHint, setLoginHint] = useState('user@example.com');
+	const [bindingMessage, setBindingMessage] = useState('Sign in to app');
+	const [clientNotificationToken, setClientNotificationToken] = useState('ciba-token-xyz');
+
 	const [authReqId, setAuthReqId] = useState('');
 	const [expiresIn, setExpiresIn] = useState<number | null>(null);
-	const [status, setStatus] = useState<
-		'idle' | 'pending' | 'approved' | 'expired' | 'denied' | 'done'
-	>('idle');
+	const [status, setStatus] = useState<'idle' | 'pending' | 'approved' | 'denied' | 'expired' | 'done'>('idle');
 	const [tokenResult, setTokenResult] = useState<TokenResult | null>(null);
-	const [introspectionResponse, setIntrospectionResponse] =
-		useState<V9MockIntrospectionResponse | null>(null);
-	const [showAccessModal, setShowAccessModal] = useState(false);
-	const [showIdModal, setShowIdModal] = useState(false);
-	const [showCibaHelp, setShowCibaHelp] = useState(false);
-	const [showDeliveryModeHelp, setShowDeliveryModeHelp] = useState(false);
-	const [showLoginHintHelp, setShowLoginHintHelp] = useState(false);
-	const [showBindingMsgHelp, setShowBindingMsgHelp] = useState(false);
-	const [showApprovalModal, setShowApprovalModal] = useState(false);
-	const [clientNotificationToken, setClientNotificationToken] = useState('v7m-cntoken-abc123');
+	const [introspectResult, setIntrospectResult] = useState<V9MockIntrospectionResponse | null>(null);
+	const [error, setError] = useState<FlowError | null>(null);
+	const [loading, setLoading] = useState(false);
 	const [pollCount, setPollCount] = useState(0);
+
 	const pollInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+	const cur = engine.current.id;
 
 	useEffect(() => {
-		const saved = V9CredentialStorageService.loadSync('v7m-ciba');
-		if (saved.clientId) setClientId(saved.clientId);
 		return () => {
 			if (pollInterval.current) clearInterval(pollInterval.current);
 		};
 	}, []);
 
-	function handleRequestBackchannelAuth() {
-		if (pollInterval.current) clearInterval(pollInterval.current);
-		const res = V9MockCIBAService.requestBackchannelAuth(
-			{
-				client_id: clientId,
-				scope,
-				login_hint: loginHint,
-				user_email: loginHint,
-				binding_message: bindingMessage,
-				delivery_mode: deliveryMode,
-			},
-			120,
-			5
-		);
-		if ('error' in res) {
-			showGlobalError(`${res.error}: ${res.error_description ?? ''}`);
-			return;
-		}
-		setAuthReqId(res.auth_req_id);
-		setExpiresIn(res.expires_in);
-		setStatus('pending');
-		setTokenResult(null);
-		setIntrospectionResponse(null);
-		setPollCount(0);
-
-		if (deliveryMode === 'poll') {
-			// Automatically poll every 5s so user can see the flow
-			pollInterval.current = setInterval(() => {
-				setPollCount((c) => c + 1);
-			}, 5000);
-		}
-	}
-
-	function handleSimulateUserApproval() {
-		if (!authReqId) {
-			showGlobalError(
-				'No backchannel auth request active. Click "Request Backchannel Auth" first.'
+	const handleRequest = useCallback(async () => {
+		setError(null);
+		setLoading(true);
+		try {
+			const res = V9MockCIBAService.requestBackchannelAuth(
+				{
+					client_id: clientId,
+					scope,
+					login_hint: loginHint,
+					user_email: loginHint,
+					binding_message: bindingMessage,
+					delivery_mode: deliveryMode,
+				},
+				120,
+				5
 			);
+
+			if ('error' in res) {
+				setError({ error: res.error, error_description: res.error_description });
+				return;
+			}
+
+			setAuthReqId(res.auth_req_id);
+			setExpiresIn(res.expires_in);
+			setStatus('pending');
+			setTokenResult(null);
+			setIntrospectResult(null);
+			setPollCount(0);
+
+			if (deliveryMode === 'poll') {
+				pollInterval.current = setInterval(() => {
+					setPollCount((c) => c + 1);
+				}, 5000);
+			}
+
+			engine.markComplete('request');
+			engine.goNext();
+		} finally {
+			setLoading(false);
+		}
+	}, [clientId, scope, loginHint, bindingMessage, deliveryMode, engine]);
+
+	const handleApprove = useCallback(() => {
+		if (!authReqId) {
+			setError({ error: 'invalid_request', error_description: 'No auth_req_id available' });
 			return;
 		}
-
-		// Show the approval modal instead of directly approving
-		setShowApprovalModal(true);
-	}
-
-	function handleModalApprove() {
-		if (!authReqId) return;
 
 		const ok = V9MockCIBAService.approveRequest(authReqId);
 		if (ok) {
 			setStatus('approved');
-			showGlobalSuccess('User approved on their authentication device', {
-				description: 'Poll the token endpoint to retrieve the tokens.',
-			});
+			engine.markComplete('approve');
+			engine.goNext();
 		} else {
-			showGlobalError('Approval failed — the auth_req_id may have expired.');
 			setStatus('expired');
+			setError({ error: 'expired_token', error_description: 'The auth_req_id has expired' });
 		}
-	}
+	}, [authReqId, engine]);
 
-	function handleModalDeny() {
-		if (!authReqId) return;
-		V9MockCIBAService.denyRequest(authReqId);
+	const handleDeny = useCallback(() => {
+		if (authReqId) {
+			V9MockCIBAService.denyRequest(authReqId);
+		}
 		setStatus('denied');
-		if (pollInterval.current) {
-			clearInterval(pollInterval.current);
-			pollInterval.current = null;
-		}
-		showGlobalWarning(
-			'User denied. Poll will return access_denied — the correct CIBA spec behaviour (Core 1.0 §10.3.2).'
-		);
-	}
-
-	function handlePollToken() {
-		if (!authReqId) {
-			showGlobalError('No auth_req_id available. Start a backchannel auth request first.');
-			return;
-		}
-		const res = V9MockCIBAService.pollForToken(authReqId);
-		if ('error' in res) {
-			if (res.error === 'authorization_pending') {
-				showGlobalWarning('authorization_pending — user has not yet approved on their device.');
-			} else if (res.error === 'slow_down') {
-				showGlobalWarning(
-					'slow_down — polling too frequently. Per spec, increase your interval by at least 5s.'
-				);
-			} else if (res.error === 'access_denied') {
-				showGlobalError('access_denied — user denied the request on their authentication device.');
-				setStatus('denied');
-				if (pollInterval.current) clearInterval(pollInterval.current);
-			} else if (res.error === 'expired_token') {
-				showGlobalError('expired_token — the auth_req_id has expired. Start a new request.');
-				setStatus('expired');
-				if (pollInterval.current) clearInterval(pollInterval.current);
-			} else {
-				showGlobalError(`${res.error}: ${res.error_description ?? ''}`);
-			}
-			return;
-		}
 		if (pollInterval.current) clearInterval(pollInterval.current);
-		setTokenResult(res as TokenResult);
-		setStatus('done');
-	}
+		setError({ error: 'access_denied', error_description: 'User denied the request' });
+	}, [authReqId]);
 
-	// Auto-poll effect — intentionally only triggers on pollCount change.
-	// handlePollToken, status, and deliveryMode are read at call time (not stale due to pollCount being a counter).
-	// biome-ignore lint/correctness/useExhaustiveDependencies: intentional counter-driven effect
-	useEffect(() => {
-		if (status !== 'pending' && status !== 'approved') return;
-		if (deliveryMode !== 'poll') return;
-		if (pollCount === 0) return;
-		handlePollToken();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [pollCount]);
-
-	function handleIntrospect() {
-		if (!tokenResult?.access_token) {
-			showGlobalError('No access token available');
+	const handlePoll = useCallback(async () => {
+		if (!authReqId) {
+			setError({ error: 'invalid_request', error_description: 'No auth_req_id available' });
 			return;
 		}
-		setIntrospectionResponse(introspectToken(tokenResult.access_token));
-		showGlobalSuccess('Token introspected', { description: 'Server-side validation complete.' });
-	}
 
-	const statusColor: Record<typeof status, string> = {
-		idle: '#f3f4f6',
-		pending: '#fef3c7',
-		approved: '#d1fae5',
-		expired: '#fee2e2',
-		denied: '#fee2e2',
-		done: '#d1fae5',
-	};
+		setLoading(true);
+		try {
+			const res = V9MockCIBAService.pollForToken(authReqId);
 
-	// Track if flow has been executed (for reset button behavior)
-	const hasResults = tokenResult || introspectionResponse || status !== 'idle';
-	const currentStep = hasResults ? 1 : 0;
+			if ('error' in res) {
+				if (res.error === 'authorization_pending') {
+					setError({ error: res.error, error_description: 'Waiting for user approval' });
+				} else if (res.error === 'access_denied') {
+					setStatus('denied');
+					if (pollInterval.current) clearInterval(pollInterval.current);
+					setError({ error: res.error, error_description: 'User denied the request' });
+				} else if (res.error === 'expired_token') {
+					setStatus('expired');
+					if (pollInterval.current) clearInterval(pollInterval.current);
+					setError({ error: res.error, error_description: 'The auth_req_id has expired' });
+				} else {
+					setError({ error: res.error, error_description: res.error_description });
+				}
+				return;
+			}
 
-	function handleReset() {
-		if (pollInterval.current) {
-			clearInterval(pollInterval.current);
-			pollInterval.current = null;
+			if (pollInterval.current) clearInterval(pollInterval.current);
+			setTokenResult(res as TokenResult);
+			setStatus('done');
+			engine.markComplete('poll');
+			engine.goNext();
+		} finally {
+			setLoading(false);
 		}
-		setAuthReqId('');
-		setExpiresIn(null);
-		setStatus('idle');
-		setTokenResult(null);
-		setIntrospectionResponse(null);
-		setPollCount(0);
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-		showGlobalSuccess('Flow reset. Start again from step 1.');
-	}
+	}, [authReqId, engine]);
+
+	const handleIntrospect = useCallback(() => {
+		if (!tokenResult?.access_token) {
+			setError({ error: 'invalid_request', error_description: 'No access token available' });
+			return;
+		}
+		setIntrospectResult(introspectToken(tokenResult.access_token));
+	}, [tokenResult]);
+
+	const configured = Boolean(clientId && scope && loginHint && bindingMessage);
 
 	return (
-		<div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-			<V7MMockBanner description="Simulates OIDC CIBA Core 1.0 in-browser. No external APIs are called. Click 'Simulate User Approval' to mimic the out-of-band authentication device (phone push notification, biometric, etc.)." />
-			<V9FlowHeader flowId="ciba-v9" customConfig={{ flowType: 'pingone' }} />
-			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-				<V9FlowRestartButton
-					onRestart={handleReset}
-					currentStep={currentStep}
-					totalSteps={1}
-					position="header"
-				/>
-			</div>
-			<UnifiedCredentialManagerV9
-				environmentId="v7m-mock"
-				flowKey="v7m-ciba"
-				credentials={{ clientId }}
-				importExportOptions={{
-					flowType: 'v7m-ciba',
-					appName: 'CIBA (Backchannel)',
-					description: 'Mock OIDC CIBA Flow',
-				}}
-				onAppSelected={(app) => {
-					setClientId(app.clientId);
-					V9CredentialStorageService.save('v7m-ciba', { clientId: app.clientId });
-				}}
-				grantType="urn:openid:params:oauth:grant-type:ciba"
-				showAppPicker={true}
-				showImportExport={true}
-			/>
+		<FlowContainer
+			title="CIBA (Backchannel Authentication)"
+			spec="OIDC"
+			mode="mock"
+			subtitle="Client-initiated out-of-band authentication. The user approves on a separate device (phone, biometric) while your app polls, receives a ping, or gets pushed the token."
+			engine={engine}
+		>
+			{cur === 'configure' && (
+				<FlowStep
+					title="1. Configure"
+					explanation="Select delivery mode (poll/ping/push) and app credentials. Mock mode runs offline with no PingOne setup needed."
+					canPrev={false}
+					nextLabel="Continue"
+					onNext={engine.goNext}
+					canNext={true}
+				>
+					<Toggle>
+						<Pill $active={deliveryMode === 'poll'} onClick={() => setDeliveryMode('poll')}>
+							Poll
+						</Pill>
+						<Pill $active={deliveryMode === 'ping'} onClick={() => setDeliveryMode('ping')}>
+							Ping
+						</Pill>
+						<Pill $active={deliveryMode === 'push'} onClick={() => setDeliveryMode('push')}>
+							Push
+						</Pill>
+					</Toggle>
 
-			<V7MFlowOverview
-				title="About this flow"
-				description="CIBA (Client-Initiated Backchannel Authentication) lets a client start an authentication that the user completes on another device (e.g. phone push, biometric). The client sends an authentication request to the backchannel endpoint; the user approves on the authentication device; the client polls (or is pinged) for tokens."
-				keyPoint="No browser redirect in the requesting app. The user approves or denies on their authentication device; the client receives tokens (or access_denied) via poll, ping, or push."
-				standard="OpenID Connect CIBA Core 1.0 (Client-Initiated Backchannel Authentication). Grant type: urn:openid:params:oauth:grant-type:ciba."
-				benefits={[
-					'No browser redirect in the requesting app (kiosk, IoT, call-centre step-up).',
-					'User authenticates on a trusted phone or biometric device.',
-					'Supports poll, ping, and push delivery modes.',
-					'binding_message protects against MITM attacks by showing the same message on both devices.',
-				]}
-				educationalNote="This mock simulates the full CIBA flow including spec-compliant error codes (authorization_pending, slow_down, access_denied, expired_token). Ping and push modes require client_notification_token in the BC-Authorize request."
-			/>
+					<ExplanationPanel title={`${deliveryMode.charAt(0).toUpperCase() + deliveryMode.slice(1)} mode`}>
+						{deliveryMode === 'poll' &&
+							'Client repeatedly polls the token endpoint until approval is received or timeout. No notification endpoint needed.'}
+						{deliveryMode === 'ping' &&
+							'Server sends a ping notification to your client_notification_endpoint when ready. You then fetch tokens.'}
+						{deliveryMode === 'push' &&
+							'Server pushes the complete token response directly to your client_notification_endpoint. Most efficient.'}
+					</ExplanationPanel>
 
-			<div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-				<V7MInfoIcon label="" title="CIBA Overview" onClick={() => setShowCibaHelp(true)} />
-			</div>
-
-			{/* Delivery Mode */}
-			<section style={MOCK_SECTION_STYLE}>
-				<header style={getSectionHeaderStyle('info')}>
-					Delivery Mode
-					<V7MInfoIcon
-						label=""
-						title="Poll vs Ping vs Push"
-						onClick={() => setShowDeliveryModeHelp(true)}
-					/>
-				</header>
-				<div style={getSectionBodyStyle()}>
-					<div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-						{DELIVERY_MODES.map((m) => (
-							<label
-								key={m.value}
-								style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}
-							>
-								<input
-									type="radio"
-									name="deliveryMode"
-									value={m.value}
-									checked={deliveryMode === m.value}
-									onChange={() => setDeliveryMode(m.value)}
-									style={{ marginTop: 3 }}
-								/>
-								<div>
-									<strong>{m.label}</strong>
-									<div style={{ fontSize: 13, color: '#6b7280' }}>{m.description}</div>
-								</div>
-							</label>
-						))}
-					</div>
-				</div>
-			</section>
-
-			{/* Step 1: Backchannel Auth Request */}
-			<section style={MOCK_SECTION_STYLE}>
-				<header style={getSectionHeaderStyle('info')}>
-					<span>1️⃣</span> Step 1: BC-Authorize Request
-				</header>
-				<div style={getSectionBodyStyle()}>
-					<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-						<label>
-							Client ID
-							<input
-								value={clientId}
-								onChange={(e) => setClientId(e.target.value)}
-								style={MOCK_INPUT_STYLE}
-							/>
-						</label>
-						<label>
-							Scope
-							<input
-								value={scope}
-								onChange={(e) => setScope(e.target.value)}
-								style={MOCK_INPUT_STYLE}
-							/>
-						</label>
-						<label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-							Login Hint (user identifier)
-							<V7MInfoIcon
-								label=""
-								title="login_hint identifies the user on the consumption device"
-								onClick={() => setShowLoginHintHelp(true)}
-							/>
-							<input
-								value={loginHint}
-								onChange={(e) => setLoginHint(e.target.value)}
-								style={MOCK_INPUT_STYLE}
-							/>
-						</label>
-						<label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-							Binding Message
-							<V7MInfoIcon
-								label=""
-								title="Short message shown on both devices to confirm binding"
-								onClick={() => setShowBindingMsgHelp(true)}
-							/>
-							<input
-								value={bindingMessage}
-								onChange={(e) => setBindingMessage(e.target.value)}
-								style={MOCK_INPUT_STYLE}
-							/>
-						</label>
+					<Grid>
+						<FieldGroup
+							label="Client ID"
+							value={clientId}
+							onChange={(e) => setClientId(e.target.value)}
+						/>
+						<FieldGroup
+							label="Scope"
+							value={scope}
+							onChange={(e) => setScope(e.target.value)}
+							placeholder="openid profile email"
+						/>
+						<FieldGroup
+							label="Login Hint (user identifier)"
+							value={loginHint}
+							onChange={(e) => setLoginHint(e.target.value)}
+							placeholder="user@example.com"
+						/>
+						<FieldGroup
+							label="Binding Message"
+							value={bindingMessage}
+							onChange={(e) => setBindingMessage(e.target.value)}
+							placeholder="Sign in to app"
+						/>
 						{deliveryMode !== 'poll' && (
-							<label style={{ gridColumn: '1 / -1' }}>
-								Client Notification Token
-								<div style={{ fontSize: 12, color: '#6b7280', margin: '2px 0 4px' }}>
-									Required for <strong>{deliveryMode}</strong> mode (CIBA Core 1.0 §10.1). Server
-									authenticates ping/push notifications to your{' '}
-									<code>client_notification_endpoint</code> using this token.
-								</div>
-								<input
-									value={clientNotificationToken}
-									onChange={(e) => setClientNotificationToken(e.target.value)}
-									style={MOCK_INPUT_STYLE}
-								/>
-							</label>
+							<FieldGroup
+								label="Client Notification Token"
+								value={clientNotificationToken}
+								onChange={(e) => setClientNotificationToken(e.target.value)}
+								placeholder="Required for ping/push"
+							/>
 						)}
-					</div>
-					<button type="button" onClick={handleRequestBackchannelAuth} style={MOCK_PRIMARY_BTN}>
-						Request Backchannel Authentication
-					</button>
-					<div style={{ marginTop: 12 }}>
-						<MockApiCallDisplay
-							title="Backchannel auth request (POST) — CIBA"
-							method="POST"
-							url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/backchannel/authentication`}
-							headers={{
-								'Content-Type': 'application/x-www-form-urlencoded',
-								Authorization: `Basic ${btoa(`${clientId}:***`)}`,
-								Accept: 'application/json',
-							}}
-							body={[
-								`client_id=${encodeURIComponent(clientId)}`,
-								`scope=${encodeURIComponent(scope)}`,
-								`login_hint=${encodeURIComponent(loginHint)}`,
-								`binding_message=${encodeURIComponent(bindingMessage)}`,
-								...(deliveryMode !== 'poll'
-									? [`client_notification_token=${encodeURIComponent(clientNotificationToken)}`]
-									: []),
-							].join('&')}
-							response={
-								authReqId
-									? {
-											status: 200,
-											statusText: 'OK',
-											data: {
-												auth_req_id: authReqId,
-												expires_in: expiresIn ?? 120,
-												interval: 5,
-											},
-										}
-									: {
-											status: 200,
-											statusText: 'OK',
-											data: {
-												note: 'Click "Request Backchannel Authentication" to see the response.',
-											},
-										}
-							}
-							defaultExpanded={true}
-						/>
-					</div>
-				</div>
-			</section>
-
-			{/* Step 2: Auth in Progress / Status */}
-			{authReqId && (
-				<section style={MOCK_SECTION_STYLE}>
-					<header style={{ ...getSectionHeaderStyle('info'), background: statusColor[status] }}>
-						<span>2️⃣</span> Step 2: Backchannel Authentication In Progress
-					</header>
-					<div style={getSectionBodyStyle()}>
-						<div style={{ marginBottom: 8, fontFamily: 'monospace', fontSize: 13 }}>
-							<strong>auth_req_id:</strong> <code>{authReqId}</code>
-						</div>
-						{expiresIn && (
-							<div style={{ marginBottom: 8, fontSize: 13, color: '#6b7280' }}>
-								Expires in <strong>{expiresIn}s</strong> · Polling interval: <strong>5s</strong>
-							</div>
-						)}
-						<div
-							style={{
-								padding: 12,
-								borderRadius: 6,
-								background: statusColor[status],
-								border: `1px solid ${status === 'done' ? '#86efac' : '#fbbf24'}`,
-								marginBottom: 12,
-								fontSize: 14,
-							}}
-						>
-							{status === 'pending' && (
-								<span>⏳ Waiting for user to approve on their authentication device…</span>
-							)}
-							{status === 'approved' && (
-								<span>✅ User approved! Poll the token endpoint to retrieve tokens.</span>
-							)}
-							{status === 'denied' && (
-								<span>
-									 User denied. Next poll returns <code>access_denied</code> (CIBA Core 1.0
-									§10.3.2). Start a new request.
-								</span>
-							)}
-							{status === 'expired' && (
-								<span>
-									❌ Request expired (<code>expired_token</code>). Start a new backchannel auth
-									request.
-								</span>
-							)}
-							{status === 'done' && <span> Tokens issued successfully.</span>}
-						</div>
-
-						{status !== 'expired' && status !== 'done' && status !== 'denied' && (
-							<div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-								<button
-									type="button"
-									onClick={handleSimulateUserApproval}
-									disabled={status === 'approved'}
-									style={
-										status === 'approved' ? { ...MOCK_PRIMARY_BTN, opacity: 0.5 } : MOCK_PRIMARY_BTN
-									}
-								>
-									 Simulate User Approval (Out-of-Band)
-								</button>
-								{deliveryMode === 'poll' && (
-									<button type="button" onClick={handlePollToken} style={MOCK_SECONDARY_BTN}>
-										<FiRefreshCw style={{ marginRight: 6 }} />
-										Poll Token Endpoint
-										{pollCount > 0 && (
-											<span style={{ marginLeft: 6, fontSize: 12, color: '#6b7280' }}>
-												({pollCount} auto-polls)
-											</span>
-										)}
-									</button>
-								)}
-								{deliveryMode === 'ping' && status === 'approved' && (
-									<button type="button" onClick={handlePollToken} style={MOCK_PRIMARY_BTN}>
-										 Fetch Token (Ping Callback Received)
-									</button>
-								)}
-								{deliveryMode === 'push' && status === 'approved' && (
-									<button type="button" onClick={handlePollToken} style={MOCK_PRIMARY_BTN}>
-										 Receive Pushed Token
-									</button>
-								)}
-							</div>
-						)}
-					</div>
-				</section>
+					</Grid>
+				</FlowStep>
 			)}
 
-			{/* Step 3: Tokens */}
-			{tokenResult && (
-				<section style={MOCK_SECTION_STYLE}>
-					<header style={getSectionHeaderStyle('success')}>
-						<span>3️⃣</span> Step 3: Token Response
-					</header>
-					<div style={getSectionBodyStyle()}>
-						{authReqId && (
-							<div style={{ marginBottom: 12 }}>
-								<MockApiCallDisplay
-									title="Token request (POST) — CIBA grant"
-									method="POST"
-									url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/token`}
-									headers={{
-										'Content-Type': 'application/x-www-form-urlencoded',
-										Authorization: `Basic ${btoa(`${clientId}:***`)}`,
-									}}
-									body={`grant_type=urn:openid:params:oauth:grant-type:ciba&auth_req_id=${encodeURIComponent(authReqId)}`}
-									response={{
-										status: 200,
-										statusText: 'OK',
-										data: tokenResult,
-									}}
-									defaultExpanded={true}
-								/>
-							</div>
-						)}
-						<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-							<button
-								type="button"
-								onClick={() => setShowAccessModal(true)}
-								style={MOCK_SECONDARY_BTN}
-							>
-								Inspect Access Token
-							</button>
-							<button type="button" onClick={() => setShowIdModal(true)} style={MOCK_SECONDARY_BTN}>
-								Inspect ID Token
-							</button>
-							<button type="button" onClick={handleIntrospect} style={MOCK_SECONDARY_BTN}>
-								Introspect
-							</button>
-						</div>
-						<ColoredJsonDisplay
-							data={tokenResult}
-							label="Token Response"
-							collapsible={true}
-							defaultCollapsed={false}
-							showCopyButton={true}
-						/>
-						{introspectionResponse && (
-							<div style={{ marginTop: 12 }}>
-								<MockApiCallDisplay
-									title="Introspect request (POST)"
-									method="POST"
-									url={`${DEMO_API_BASE}/${DEMO_ENVIRONMENT_ID}/as/introspect`}
-									headers={{
-										'Content-Type': 'application/x-www-form-urlencoded',
-										Authorization: `Basic ${btoa(`${clientId}:***`)}`,
-									}}
-									body={`token=${tokenResult?.access_token ? `${encodeURIComponent(String(tokenResult.access_token).substring(0, 20))}...` : '***'}`}
-									response={{ status: 200, statusText: 'OK', data: introspectionResponse }}
-									defaultExpanded={true}
-								/>
-								<ColoredJsonDisplay
-									data={introspectionResponse}
-									label="Introspection Response"
-									collapsible={true}
-									defaultCollapsed={false}
-									showCopyButton={true}
-								/>
-							</div>
-						)}
-					</div>
-				</section>
+			{cur === 'request' && (
+				<FlowStep
+					title="2. Send Backchannel Request"
+					explanation="POST to /bc-authorize with client credentials, user identifier, and binding message. The server returns auth_req_id."
+					nextLabel="Next"
+					onPrev={engine.goPrev}
+					onNext={engine.goNext}
+					canNext={Boolean(authReqId)}
+				>
+					<Action onClick={handleRequest} disabled={loading || !configured}>
+						{loading ? 'Sending…' : 'Request Backchannel Auth'}
+					</Action>
+
+					{authReqId && (
+						<>
+							<ResultCard title="BC-Authorize response" tone="ok">
+								<CodeBlock label="auth_req_id" value={authReqId} />
+								<CodeBlock label="expires_in" value={String(expiresIn)} />
+							</ResultCard>
+						</>
+					)}
+
+					{error && <FlowResult error={error} />}
+				</FlowStep>
 			)}
 
-			{/* JWT Inspector Modals */}
-			<V7MJwtInspectorModal
-				open={showAccessModal}
-				token={tokenResult?.access_token ?? ''}
-				onClose={() => setShowAccessModal(false)}
-			/>
-			<V7MJwtInspectorModal
-				open={showIdModal}
-				token={tokenResult?.id_token ?? ''}
-				onClose={() => setShowIdModal(false)}
-			/>
+			{cur === 'approve' && (
+				<FlowStep
+					title="3. Simulate User Approval"
+					explanation="In a real flow, the user approves on their separate device (phone push, biometric, etc.). Here we simulate that approval."
+					nextLabel="Next"
+					onPrev={engine.goPrev}
+					onNext={engine.goNext}
+					canNext={status === 'approved'}
+				>
+					<StatusCard $status={status}>
+						{status === 'pending' && '⏳ Waiting for approval on your authentication device…'}
+						{status === 'approved' && '✅ User approved! Proceed to fetch tokens.'}
+						{status === 'denied' && '❌ User denied the request.'}
+						{status === 'expired' && '❌ Request expired. Start a new one.'}
+					</StatusCard>
 
-			{/* Help Modals */}
-			<V7MHelpModal
-				open={showCibaHelp}
-				onClose={() => setShowCibaHelp(false)}
-				title="CIBA — Client Initiated Backchannel Authentication"
-				icon={<FiBook color="#fff" />}
-				themeColor="#6366f1"
-			>
-				<p>
-					CIBA (OIDC Core 1.0) allows a <strong>consumption device</strong> (e.g., a bank’s website)
-					to initiate authentication on a <strong>separate authentication device</strong> (e.g., a
-					mobile banking app), without any browser redirect.
-				</p>
-				<ul>
-					<li>
-						<strong>Step 1:</strong> Client authenticates and sends a BC-Authorize POST with{' '}
-						<code>login_hint</code>, <code>scope</code>, <code>binding_message</code>, and (for
-						ping/push) <code>client_notification_token</code>.
-					</li>
-					<li>
-						<strong>Step 2:</strong> Server pushes an auth request to the user’s authentication
-						device (phone push notification, biometric prompt, etc.).
-					</li>
-					<li>
-						<strong>Step 3:</strong> User <em>approves</em> or <em>denies</em> on their device
-						(out-of-band).
-					</li>
-					<li>
-						<strong>Step 4:</strong> Client retrieves tokens via poll/ping/push. Token endpoint
-						returns: <code>authorization_pending</code> (still waiting), <code>slow_down</code>{' '}
-						(poll interval too short), <code>access_denied</code> (user said no),{' '}
-						<code>expired_token</code> (timed out).
-					</li>
-				</ul>
-				<p>
-					Common use cases: bank login on TV/kiosk, call-centre step-up authentication, mobile push
-					approval for high-value transactions.
-				</p>
-			</V7MHelpModal>
+					{status !== 'approved' && status !== 'denied' && status !== 'expired' && (
+						<div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+							<Action onClick={handleApprove} disabled={status === 'approved'}>
+								Approve
+							</Action>
+							<Action onClick={handleDeny} style={{ background: '#ef4444', borderColor: '#dc2626' }}>
+								Deny
+							</Action>
+						</div>
+					)}
 
-			<V7MHelpModal
-				open={showDeliveryModeHelp}
-				onClose={() => setShowDeliveryModeHelp(false)}
-				title="CIBA Token Delivery Modes"
-				icon={<FiBook color="#fff" />}
-				themeColor="#0ea5e9"
-			>
-				<ul>
-					<li>
-						<strong>Poll:</strong> Client repeatedly calls the token endpoint. Server returns{' '}
-						<code>authorization_pending</code> until ready, or <code>slow_down</code> if the client
-						polls before the specified interval elapses (per spec, client must increase interval by
-						≥5s each time). No <code>client_notification_token</code> required.
-					</li>
-					<li>
-						<strong>Ping:</strong> Client registers a <code>client_notification_endpoint</code> and
-						includes a <code>client_notification_token</code> in the BC-Authorize request. When the
-						user approves, the server POSTs a ping to that endpoint (authenticated with the token).
-						The client then makes a single token request. More efficient than poll.
-					</li>
-					<li>
-						<strong>Push:</strong> Like ping, but the server pushes the full token response to the{' '}
-						<code>client_notification_endpoint</code> directly. Most efficient — no client polling
-						required. Requires <code>client_notification_token</code> and a registered endpoint.
-					</li>
-				</ul>
-			</V7MHelpModal>
+					{error && <FlowResult error={error} />}
+				</FlowStep>
+			)}
 
-			<V7MHelpModal
-				open={showLoginHintHelp}
-				onClose={() => setShowLoginHintHelp(false)}
-				title="login_hint"
-				icon={<FiBook color="#fff" />}
-				themeColor="#8b5cf6"
-			>
-				<p>
-					Identifies the user on the consumption device so the authorization server knows who to
-					send the authentication request to. Can be an email address, phone number, or subject
-					identifier. The server uses this to locate the user's authentication device (e.g., their
-					registered mobile app).
-				</p>
-			</V7MHelpModal>
+			{cur === 'poll' && (
+				<FlowStep
+					title="4. Fetch Tokens"
+					explanation={
+						deliveryMode === 'poll'
+							? 'Poll the token endpoint until the server returns tokens or an error.'
+							: `Wait for the server's ${deliveryMode} notification, then fetch tokens.`
+					}
+					nextLabel="Use Tokens"
+					onPrev={engine.goPrev}
+					onNext={engine.goNext}
+					canNext={Boolean(tokenResult)}
+				>
+					<Action onClick={handlePoll} disabled={loading || !authReqId}>
+						{loading ? 'Polling…' : 'Fetch Token'}
+					</Action>
 
-			<V7MHelpModal
-				open={showBindingMsgHelp}
-				onClose={() => setShowBindingMsgHelp(false)}
-				title="Binding Message"
-				icon={<FiBook color="#fff" />}
-				themeColor="#10b981"
-			>
-				<p>
-					A short human-readable message displayed on <em>both</em> the consumption device and the
-					authentication device. The user verifies the messages match before approving — this
-					prevents man-in-the-middle attacks where an attacker's request is silently approved.
-				</p>
-				<p>Example: "Sign in to ACME Portal – ref: 7823"</p>
-			</V7MHelpModal>
+					{tokenResult && (
+						<ResultCard title="Token response" tone="ok">
+							<CodeBlock label="access_token" value={tokenResult.access_token.substring(0, 50) + '...'} />
+							<CodeBlock label="token_type" value={tokenResult.token_type} />
+							<CodeBlock label="expires_in" value={String(tokenResult.expires_in)} />
+						</ResultCard>
+					)}
 
-			{/* CIBA User Approval Modal */}
-			<CIBAUserApprovalModal
-				isOpen={showApprovalModal}
-				onClose={() => setShowApprovalModal(false)}
-				onApprove={handleModalApprove}
-				onDeny={handleModalDeny}
-				authReqId={authReqId}
-				bindingMessage={bindingMessage}
-				requestContext={`CIBA-${authReqId?.substring(0, 8) || 'Unknown'}`}
-				clientName={clientId}
-				scope={scope}
-			/>
+					{error && <FlowResult error={error} />}
+				</FlowStep>
+			)}
 
-			<CodeExamplesSection
-				examples={[
-					{
-						title: 'CIBA Backchannel Authentication Request',
-						description: 'Initiate backchannel authentication request.',
-						code: {
-							javascript: `// CIBA Flow - JavaScript
-// Step 1: Backchannel authentication request
-const response = await fetch('https://auth.pingone.com/{environmentId}/as/bc-authorize', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  },
-  body: new URLSearchParams({
-    client_id: 'your-client-id',
-    client_secret: 'your-client-secret',
-    scope: 'openid profile email',
-    login_hint: 'user@example.com',
-    binding_message: 'Sign in to ACME Portal - ref: 7823'
-  })
-});
+			{cur === 'use' && (
+				<FlowStep
+					title="5. Use & Inspect Tokens"
+					explanation="Introspect the access token to verify its claims, scopes, and validity."
+					nextLabel="Done"
+					onPrev={engine.goPrev}
+					onNext={engine.reset}
+					canNext
+				>
+					<Action onClick={handleIntrospect} disabled={!tokenResult?.access_token}>
+						Introspect Token
+					</Action>
 
-const authData = await response.json();
-const authReqId = authData.auth_req_id;
-const interval = authData.interval || 5;
-console.log('Auth Request ID:', authReqId);`,
-							dotnet: `// CIBA Flow - C# (.NET)
-using System.Net.Http;
-using System.Text.Json;
+					{tokenResult && (
+						<ResultCard title="Token payload" tone="info">
+							<JsonView
+								data={{
+									access_token: tokenResult.access_token.substring(0, 30) + '...',
+									token_type: tokenResult.token_type,
+									expires_in: tokenResult.expires_in,
+									scope: tokenResult.scope,
+								}}
+							/>
+						</ResultCard>
+					)}
 
-// Step 1: Backchannel authentication request
-var client = new HttpClient();
-var content = new FormUrlEncodedContent(new Dictionary<string, string>
-{
-    { "client_id", "your-client-id" },
-    { "client_secret", "your-client-secret" },
-    { "scope", "openid profile email" },
-    { "login_hint", "user@example.com" },
-    { "binding_message", "Sign in to ACME Portal - ref: 7823" }
-});
+					{introspectResult && (
+						<ResultCard title="Introspection result" tone="info">
+							<JsonView data={introspectResult} />
+						</ResultCard>
+					)}
 
-var response = await client.PostAsync(
-    "https://auth.pingone.com/{environmentId}/as/bc-authorize",
-    content
-);
-
-var json = await response.Content.ReadAsStringAsync();
-var authData = JsonSerializer.Deserialize<CIBAAuthResponse>(json);
-var authReqId = authData.AuthReqId;
-var interval = authData.Interval ?? 5;
-Console.WriteLine($"Auth Request ID: {authReqId}");`,
-							go: `// CIBA Flow - Go
-package main
-
-import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"net/url"
-	"strings"
-)
-
-func main() {
-	// Step 1: Backchannel authentication request
-	data := url.Values{}
-	data.Set("client_id", "your-client-id")
-	data.Set("client_secret", "your-client-secret")
-	data.Set("scope", "openid profile email")
-	data.Set("login_hint", "user@example.com")
-	data.Set("binding_message", "Sign in to ACME Portal - ref: 7823")
-
-	resp, err := http.Post(
-		"https://auth.pingone.com/{environmentId}/as/bc-authorize",
-		"application/x-www-form-urlencoded",
-		strings.NewReader(data.Encode()),
-	)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	var authData map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&authData)
-
-	authReqId := authData["auth_req_id"].(string)
-	interval := 5
-	if i, ok := authData["interval"].(float64); ok {
-		interval = int(i)
-	}
-	fmt.Println("Auth Request ID:", authReqId)
-}`,
-						},
-					},
-					{
-						title: 'Poll for CIBA Tokens',
-						description: 'Poll token endpoint until user completes authentication on their device.',
-						code: {
-							javascript: `// Step 2: Poll for tokens - JavaScript
-async function pollForCIBATokens(authReqId, interval) {
-  while (true) {
-    await new Promise(resolve => setTimeout(resolve, interval * 1000));
-
-    const response = await fetch('https://auth.pingone.com/{environmentId}/as/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        grant_type: 'urn:openid:params:oauth:grant-type:ciba',
-        auth_req_id: authReqId,
-        client_id: 'your-client-id',
-        client_secret: 'your-client-secret'
-      })
-    });
-
-    const result = await response.json();
-
-    if (result.access_token) {
-      console.log('Access Token:', result.access_token);
-      return result;
-    } else if (result.error === 'authorization_pending') {
-      console.log('Waiting for user to approve on their device...');
-      continue;
-    } else if (result.error === 'slow_down') {
-      interval += 5;
-      continue;
-    } else if (result.error === 'access_denied') {
-      throw new Error('User denied the authentication request');
-    } else {
-      throw new Error(result.error_description || result.error);
-    }
-  }
-}
-
-pollForCIBATokens(authReqId, interval);`,
-							dotnet: `// Step 2: Poll for tokens - C# (.NET)
-using System.Threading.Tasks;
-
-async Task<TokenResponse> PollForCIBATokens(string authReqId, int interval)
-{
-    while (true)
-    {
-        await Task.Delay(interval * 1000);
-
-        var content = new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "grant_type", "urn:openid:params:oauth:grant-type:ciba" },
-            { "auth_req_id", authReqId },
-            { "client_id", "your-client-id" },
-            { "client_secret", "your-client-secret" }
-        });
-
-        var response = await client.PostAsync(
-            "https://auth.pingone.com/{environmentId}/as/token",
-            content
-        );
-
-        var json = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<TokenResponse>(json);
-
-        if (result.AccessToken != null)
-        {
-            Console.WriteLine($"Access Token: {result.AccessToken}");
-            return result;
-        }
-        else if (result.Error == "authorization_pending")
-        {
-            Console.WriteLine("Waiting for user to approve on their device...");
-            continue;
-        }
-        else if (result.Error == "slow_down")
-        {
-            interval += 5;
-            continue;
-        }
-        else if (result.Error == "access_denied")
-        {
-            throw new Exception("User denied the authentication request");
-        }
-        else
-        {
-            throw new Exception(result.ErrorDescription ?? result.Error);
-        }
-    }
-}`,
-							go: `// Step 2: Poll for tokens - Go
-func pollForCIBATokens(authReqId string, interval int) (map[string]interface{}, error) {
-	for {
-		time.Sleep(time.Duration(interval) * time.Second)
-
-		data := url.Values{}
-		data.Set("grant_type", "urn:openid:params:oauth:grant-type:ciba")
-		data.Set("auth_req_id", authReqId)
-		data.Set("client_id", "your-client-id")
-		data.Set("client_secret", "your-client-secret")
-
-		resp, err := http.Post(
-			"https://auth.pingone.com/{environmentId}/as/token",
-			"application/x-www-form-urlencoded",
-			strings.NewReader(data.Encode()),
-		)
-		if err != nil {
-			return nil, err
-		}
-		defer resp.Body.Close()
-
-		var result map[string]interface{}
-		json.NewDecoder(resp.Body).Decode(&result)
-
-		if accessToken, ok := result["access_token"]; ok {
-			fmt.Println("Access Token:", accessToken)
-			return result, nil
-		} else if result["error"] == "authorization_pending" {
-			fmt.Println("Waiting for user to approve on their device...")
-			continue
-		} else if result["error"] == "slow_down" {
-			interval += 5
-			continue
-		} else if result["error"] == "access_denied" {
-			return nil, errors.New("user denied the authentication request")
-		} else {
-			return nil, fmt.Errorf("%v", result["error"])
-		}
-	}
-}`,
-						},
-					},
-				]}
-			/>
-		</div>
+					<ExplanationPanel title="What just happened">
+						CIBA allows apps on untrusted devices (kiosks, IoT, call centers) to initiate authentication on the user's trusted device
+						(phone, biometric) without ever redirecting. The user approves on their device, and your app receives tokens via poll, ping,
+						or push.
+					</ExplanationPanel>
+				</FlowStep>
+			)}
+		</FlowContainer>
 	);
 };
 
-export default V7MCIBAFlowV9;
+export default CIBAFlowV2;
+
+export const V7MCIBAFlowV9 = CIBAFlowV2;
