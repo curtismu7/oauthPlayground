@@ -1,0 +1,20 @@
+{
+  "watch": [
+    "server.js",
+    "src/server",
+    "src/api",
+    "lib"
+  ],
+  "ext": "js,json",
+  "ignore": [
+    "src/server/data",
+    "node_modules",
+    "dist",
+    "coverage"
+  ],
+  "delay": 500,
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "exec": "node"
+}
