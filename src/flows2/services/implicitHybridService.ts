@@ -137,11 +137,11 @@ export async function exchangeCode(p: ExchangeCodeParams, mode: FlowMode): Promi
 
 	const params = new URLSearchParams({
 		grant_type: 'authorization_code',
-		client_id: p.credentials.clientId,
 		redirect_uri: p.redirectUri,
 		code: p.code,
 	});
 	if (p.credentials.scope && p.credentials.scope.trim()) params.set('scope', p.credentials.scope.trim());
+	// applyClientAuth will add client_id (and client_secret if needed) based on auth method.
 	const { body, headers } = applyClientAuth(params, p.credentials);
 
 	const res = await fetch('/api/pingone/token', {

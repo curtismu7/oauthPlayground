@@ -154,10 +154,14 @@ const ImplicitHybridFlow: React.FC = () => {
 			// noop
 		}
 
-		const params = JSON.parse(raw) as FragmentParams;
-		setFragmentParams(params);
-		engine.markComplete('authorize');
-		engine.goTo(2); // result step
+		try {
+			const params = JSON.parse(raw) as FragmentParams;
+			setFragmentParams(params);
+			engine.markComplete('authorize');
+			engine.goTo(2); // result step
+		} catch (_err) {
+			setError({ error: 'parse_error', error_description: 'Failed to parse authorization response.' });
+		}
 	}, [engine]);
 
 	const handleAuthorize = useCallback(async () => {

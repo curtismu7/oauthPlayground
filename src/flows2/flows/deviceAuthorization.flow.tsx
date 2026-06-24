@@ -157,6 +157,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const attempt = useRef(0);
 	const active = useRef(false);
+	const mounted = useRef(true);
 
 	const stopPolling = useCallback(() => {
 		active.current = false;
@@ -168,7 +169,12 @@ const DeviceAuthorizationFlow: React.FC = () => {
 	}, []);
 
 	// Cancel any in-flight poll when the component unmounts.
-	useEffect(() => stopPolling, [stopPolling]);
+	useEffect(() => {
+		return () => {
+			mounted.current = false;
+			stopPolling();
+		};
+	}, [stopPolling]);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -199,13 +205,14 @@ const DeviceAuthorizationFlow: React.FC = () => {
 		let intervalMs = Math.max(1, device.interval) * 1000;
 
 		const tick = async () => {
-			if (!active.current) return;
+			if (!active.current || !mounted.current) return;
 			try {
 				const r = await svc.pollOnce(creds, device.deviceCode, mode, attempt.current);
 				attempt.current += 1;
-				if (!active.current) return;
+				if (!active.current || !mounted.current) return;
 				setStatus(r.status);
 				if (r.status === 'complete' && r.token) {
+					if (!mounted.current) return;
 					setResult(r.token);
 					engine.markComplete('authorize');
 					stopPolling();
@@ -213,6 +220,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 					return;
 				}
 				if (r.status === 'denied' || r.status === 'expired' || r.status === 'error') {
+					if (!mounted.current) return;
 					setError({ error: r.error?.error || r.status, error_description: r.error?.error_description });
 					stopPolling();
 					return;
@@ -220,7 +228,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 				if (r.status === 'slow_down') intervalMs += 5000; // RFC 8628 §3.5
 				timer.current = setTimeout(tick, intervalMs);
 			} catch (err) {
-				if (!active.current) return;
+				if (!active.current || !mounted.current) return;
 				setError(err as FlowError);
 				setStatus('error');
 				stopPolling();
