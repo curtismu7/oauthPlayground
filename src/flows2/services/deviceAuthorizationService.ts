@@ -117,12 +117,25 @@ export const deviceAuthorizationService = {
 				...(credentials.scope && credentials.scope.trim() ? { scope: credentials.scope.trim() } : {}),
 			}),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			if (!res.ok) {
+				throw {
+					error: 'invalid_response',
+					error_description: `Device authorization failed (HTTP ${res.status}) — response was not valid JSON`,
+					status: res.status,
+				};
+			}
+		}
 		if (!res.ok || data.error) {
 			throw {
-				error: (data.error as string) || 'device_authorization_failed',
+				error: typeof data.error === 'string' ? data.error : 'device_authorization_failed',
 				error_description:
-					(data.error_description as string) || `Device authorization failed (HTTP ${res.status})`,
+					typeof data.error_description === 'string'
+						? data.error_description
+						: `Device authorization failed (HTTP ${res.status})`,
 				status: res.status,
 			};
 		}
