@@ -62,13 +62,16 @@ export interface CodeBlockProps {
 
 export const CodeBlock: React.FC<CodeBlockProps> = ({ value, label }) => {
 	const [copied, setCopied] = useState(false);
+	const [copyError, setCopyError] = useState(false);
 
 	const handleCopy = () => {
 		navigator.clipboard.writeText(value).then(() => {
 			setCopied(true);
+			setCopyError(false);
 			setTimeout(() => setCopied(false), 1800);
 		}).catch(() => {
-			// Clipboard API may be unavailable in some contexts — fail silently.
+			setCopyError(true);
+			setTimeout(() => setCopyError(false), 2000);
 		});
 	};
 
@@ -78,7 +81,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ value, label }) => {
 				<LabelRow>
 					{label && <BlockLabel>{label}</BlockLabel>}
 					<CopyButton $copied={copied} onClick={handleCopy}>
-						{copied ? 'Copied' : 'Copy'}
+						{copyError ? 'Copy failed' : copied ? 'Copied' : 'Copy'}
 					</CopyButton>
 				</LabelRow>
 			)}
