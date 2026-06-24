@@ -63,14 +63,21 @@ function resolveScope(c: FlowCredentials, oidc: boolean): string {
 
 /** Build a fake JWT-like opaque string for mock tokens (teaching only, not verifiable). */
 function mockJwt(payload: Record<string, unknown>): string {
-	const header = btoa(JSON.stringify({ alg: 'none', typ: 'JWT' }))
-		.replace(/\+/g, '-')
-		.replace(/\//g, '_')
-		.replace(/=/g, '');
-	const body = btoa(JSON.stringify({ iat: Math.floor(Date.now() / 1000), ...payload }))
-		.replace(/\+/g, '-')
-		.replace(/\//g, '_')
-		.replace(/=/g, '');
+	const safeBase64 = (str: string) => {
+		try {
+			return btoa(unescape(encodeURIComponent(str)))
+				.replace(/\+/g, '-')
+				.replace(/\//g, '_')
+				.replace(/=/g, '');
+		} catch {
+			return btoa(str)
+				.replace(/\+/g, '-')
+				.replace(/\//g, '_')
+				.replace(/=/g, '');
+		}
+	};
+	const header = safeBase64(JSON.stringify({ alg: 'none', typ: 'JWT' }));
+	const body = safeBase64(JSON.stringify({ iat: Math.floor(Date.now() / 1000), ...payload }));
 	return `${header}.${body}.mock_sig`;
 }
 

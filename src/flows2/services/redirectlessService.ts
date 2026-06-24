@@ -243,6 +243,7 @@ export const redirectlessService = {
 			throw {
 				error: 'missing_resume_url',
 				error_description: 'No resumeUrl available for polling.',
+				status: 400,
 			};
 		}
 
