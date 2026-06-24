@@ -307,7 +307,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 			spec={spec}
 			mode={mode}
 			onModeChange={selectMode}
-			subtitle="The user authenticates at PingOne and is redirected back with a one-time code, which is exchanged (with the PKCE verifier) for tokens. RFC 6749 §4.1 + RFC 7636."
+			subtitle="🚀 Docker Updated | Authorization Code + PKCE\nThe user authenticates at PingOne and is redirected back with a one-time code, which is exchanged (with the PKCE verifier) for tokens. RFC 6749 §4.1 + RFC 7636."
 			engine={engine}
 		>
 			{cur === 'configure' && (
