@@ -66,6 +66,13 @@ export const tokenRevocationService = {
 				status: res.status,
 			};
 		}
+		if (typeof data.revoked !== 'boolean') {
+			throw {
+				error: 'invalid_revocation_response',
+				error_description: 'Revocation response missing or invalid revoked field',
+				status: res.status,
+			};
+		}
 		return data as RevocationResponse;
 	},
 };

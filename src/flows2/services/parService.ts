@@ -118,8 +118,16 @@ export async function pushAuthorizationRequest(
 		};
 	}
 
+	if (!data.request_uri || typeof data.request_uri !== 'string') {
+		throw {
+			error: 'invalid_request_uri',
+			error_description: 'PAR response missing or invalid request_uri field',
+			status: res.status,
+		};
+	}
+
 	return {
-		requestUri: data.request_uri as string,
+		requestUri: data.request_uri,
 		expiresIn: typeof data.expires_in === 'number' ? data.expires_in : 90,
 		raw: data,
 	};
