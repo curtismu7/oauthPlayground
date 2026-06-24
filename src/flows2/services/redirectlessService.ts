@@ -251,7 +251,15 @@ export const redirectlessService = {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ resumeUrl: flowState.resumeUrl }),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		if (!res.ok) {
+			return { status: 'error' as const, error: { error: 'network_error', error_description: `Poll failed (HTTP ${res.status})` } };
+		}
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			return { status: 'error' as const, error: { error: 'invalid_response', error_description: 'Poll response was not valid JSON' } };
+		}
 		return classifyPollData(data);
 	},
 };
