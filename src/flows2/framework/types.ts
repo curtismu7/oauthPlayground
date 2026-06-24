@@ -44,6 +44,8 @@ export interface StepDefinition {
 	title: string;
 	/** Short subtitle shown under the title. */
 	subtitle?: string;
+	/** Description explaining what this step does. */
+	description?: string;
 }
 
 /** OAuth error surfaced to the UI (RFC 6749 §5.2 shape). */
