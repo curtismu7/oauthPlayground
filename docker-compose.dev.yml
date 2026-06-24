@@ -60,6 +60,9 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     container_name: oauth-playground-frontend-dev
+    # vite.config.ts hardcodes server.port=8000; force it to 5000 so it matches
+    # the 8000:5000 publish below (and Dockerfile.dev's EXPOSE 5000).
+    command: ["npx", "vite", "--host=0.0.0.0", "--port", "5000"]
     ports:
       - "8000:5000"    # Vite listens on 5000 inside; browser hits 8000
     environment:
