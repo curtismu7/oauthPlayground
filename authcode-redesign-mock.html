@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Authorization Code Flow - Redesigned</title>
+	<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		:root {
+			--primary: #1e3a8a;
+			--accent: #14b8a6;
+			--success: #10b981;
+			--neutral-50: #f9fafb;
+			--neutral-100: #f3f4f6;
+			--neutral-200: #e5e7eb;
+			--neutral-300: #d1d5db;
+			--neutral-600: #4b5563;
+			--neutral-900: #111827;
+		}
+		body {
+			font-family: 'Inter', sans-serif;
+			background: var(--neutral-50);
+			color: var(--neutral-900);
+		}
+		.navbar {
+			background: white;
+			border-bottom: 1px solid var(--neutral-200);
+			padding: 1rem 2rem;
+			display: flex;
+			align-items: center;
+			gap: 2rem;
+		}
+		.navbar-title {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.75rem;
+			font-weight: 700;
+			letter-spacing: 0.1em;
+			color: var(--primary);
+			text-transform: uppercase;
+		}
+		.navbar-items {
+			display: flex;
+			gap: 2rem;
+			flex: 1;
+			font-size: 0.85rem;
+			color: var(--neutral-600);
+		}
+		.main {
+			display: grid;
+			grid-template-columns: 300px 1fr 380px;
+			gap: 0;
+			min-height: calc(100vh - 60px);
+		}
+		.sidebar {
+			background: white;
+			border-right: 1px solid var(--neutral-200);
+			padding: 1.5rem;
+			overflow-y: auto;
+		}
+		.sidebar-section {
+			margin-bottom: 1.5rem;
+		}
+		.sidebar-title {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.7rem;
+			font-weight: 700;
+			letter-spacing: 0.1em;
+			color: var(--primary);
+			text-transform: uppercase;
+			margin-bottom: 0.75rem;
+		}
+		.sidebar-item {
+			padding: 0.5rem 0.75rem;
+			border-radius: 6px;
+			font-size: 0.85rem;
+			color: var(--neutral-600);
+			cursor: pointer;
+			transition: all 150ms ease;
+		}
+		.sidebar-item:hover { background: var(--neutral-100); }
+		.sidebar-item.active {
+			background: var(--accent);
+			color: white;
+		}
+		.center {
+			background: white;
+			padding: 2rem;
+			overflow-y: auto;
+		}
+		.center-title {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 1.75rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			color: var(--primary);
+			text-transform: uppercase;
+			margin-bottom: 0.5rem;
+		}
+		.center-subtitle {
+			font-size: 0.9rem;
+			color: var(--neutral-600);
+			margin-bottom: 2rem;
+		}
+		.pills {
+			display: flex;
+			gap: 0.5rem;
+			flex-wrap: wrap;
+			margin-bottom: 2rem;
+		}
+		.pill {
+			font-size: 0.75rem;
+			font-weight: 600;
+			padding: 0.35rem 0.8rem;
+			border-radius: 6px;
+			border: 1px solid var(--neutral-300);
+			background: white;
+			color: var(--primary);
+			cursor: pointer;
+			transition: all 150ms ease;
+		}
+		.pill.active {
+			border-color: var(--accent);
+			background: var(--accent);
+			color: white;
+		}
+		.flow-diagram {
+			background: linear-gradient(135deg, var(--neutral-50) 0%, #f0fdf4 100%);
+			border: 2px solid var(--accent);
+			border-radius: 10px;
+			padding: 1.5rem;
+			margin: 1.5rem 0;
+		}
+		.flow-label {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.7rem;
+			font-weight: 700;
+			letter-spacing: 0.1em;
+			color: var(--primary);
+			text-transform: uppercase;
+			margin-bottom: 0.75rem;
+		}
+		.protocol-steps {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+			margin-top: 1.5rem;
+		}
+		.step {
+			background: var(--neutral-100);
+			border: 1px solid var(--neutral-200);
+			border-radius: 8px;
+			padding: 1rem;
+			cursor: pointer;
+			transition: all 150ms ease;
+			border-left: 4px solid var(--neutral-300);
+		}
+		.step:hover { background: var(--neutral-200); }
+		.step.active {
+			background: #ecfdf5;
+			border-color: var(--accent);
+			border-left-color: var(--accent);
+		}
+		.step-number {
+			font-family: 'IBM Plex Mono', monospace;
+			font-weight: 700;
+			color: var(--primary);
+			font-size: 0.8rem;
+		}
+		.step-title {
+			font-weight: 600;
+			font-size: 0.9rem;
+			margin: 0.3rem 0;
+		}
+		.step-desc {
+			font-size: 0.8rem;
+			color: var(--neutral-600);
+		}
+		.step-content { display: none; }
+		.step-content.active { display: block; }
+		.field {
+			margin-bottom: 1rem;
+		}
+		.field-label {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.75rem;
+			font-weight: 700;
+			color: var(--primary);
+			text-transform: uppercase;
+			margin-bottom: 0.3rem;
+		}
+		input {
+			width: 100%;
+			padding: 0.6rem;
+			border: 1px solid var(--neutral-300);
+			border-radius: 6px;
+			font-size: 0.85rem;
+			font-family: 'Inter', sans-serif;
+		}
+		input:focus {
+			outline: none;
+			border-color: var(--accent);
+			box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.1);
+		}
+		.action {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.8rem;
+			font-weight: 700;
+			letter-spacing: 0.05em;
+			padding: 0.6rem 1.2rem;
+			border-radius: 6px;
+			border: none;
+			background: var(--accent);
+			color: white;
+			cursor: pointer;
+			margin-top: 1rem;
+		}
+		.action:hover { background: #0d9488; }
+		.inspector {
+			background: white;
+			border-left: 1px solid var(--neutral-200);
+			padding: 1.5rem;
+			overflow-y: auto;
+			position: relative;
+		}
+		.inspector-title {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.7rem;
+			font-weight: 700;
+			letter-spacing: 0.1em;
+			color: var(--primary);
+			text-transform: uppercase;
+			margin-bottom: 1.5rem;
+		}
+		.step-flow {
+			position: relative;
+		}
+		.step-card {
+			background: var(--neutral-100);
+			border: 1px solid var(--neutral-300);
+			border-left: 3px solid var(--accent);
+			border-radius: 6px;
+			padding: 0.9rem;
+			margin-bottom: 0.5rem;
+			position: relative;
+		}
+		.step-card.active {
+			background: #ecfdf5;
+			border-left-color: var(--accent);
+		}
+		.step-card-number {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.7rem;
+			font-weight: 700;
+			color: var(--primary);
+			text-transform: uppercase;
+		}
+		.step-card-title {
+			font-weight: 600;
+			font-size: 0.8rem;
+			margin: 0.2rem 0;
+			color: var(--primary);
+		}
+		.step-card-desc {
+			font-size: 0.7rem;
+			color: var(--neutral-600);
+			line-height: 1.4;
+		}
+		.arrow {
+			text-align: center;
+			color: var(--accent);
+			font-size: 1.2rem;
+			margin: -0.3rem 0;
+			font-weight: bold;
+			line-height: 1;
+		}
+	</style>
+</head>
+<body>
+	<div class="navbar">
+		<div class="navbar-title">OAuth Made Visible + Inspector</div>
+		<div class="navbar-items">
+			<span>Assistant</span>
+			<span>Docs</span>
+			<span>Configuration</span>
+		</div>
+	</div>
+
+	<div class="main">
+		<!-- Sidebar -->
+		<div class="sidebar">
+			<div class="sidebar-section">
+				<div class="sidebar-title">FLOWS</div>
+				<div class="sidebar-item active">Authorization Code</div>
+				<div class="sidebar-item">Implicit</div>
+				<div class="sidebar-item">Device Auth</div>
+			</div>
+		</div>
+
+		<!-- Center Panel -->
+		<div class="center">
+			<div class="center-title">Authorization Code</div>
+			<div class="center-subtitle">OAuth 2.0/2.1 Authorization Code + PKCE</div>
+
+			<div class="pills">
+				<button class="pill active" onclick="setMode(this)">Real PingOne</button>
+				<button class="pill" onclick="setMode(this)">Mock</button>
+				<button class="pill active" onclick="setSpec(this)">OAuth 2.1</button>
+				<button class="pill" onclick="setSpec(this)">OAuth 2.0</button>
+			</div>
+
+			<div class="flow-diagram">
+				<div class="flow-label">Protocol Flow</div>
+				<svg viewBox="0 0 500 100" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: auto;">
+					<rect x="10" y="15" width="70" height="50" fill="var(--accent)" rx="4" />
+					<text x="45" y="45" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Client</text>
+					<rect x="120" y="15" width="70" height="50" fill="var(--primary)" rx="4" />
+					<text x="155" y="45" text-anchor="middle" font-size="11" font-weight="bold" fill="white">AuthZ</text>
+					<rect x="230" y="15" width="70" height="50" fill="var(--accent)" rx="4" />
+					<text x="265" y="45" text-anchor="middle" font-size="11" font-weight="bold" fill="white">User</text>
+					<rect x="340" y="15" width="70" height="50" fill="var(--primary)" rx="4" />
+					<text x="375" y="45" text-anchor="middle" font-size="11" font-weight="bold" fill="white">Token</text>
+					<path d="M 80 40 L 120 40" stroke="var(--accent)" stroke-width="2" />
+					<path d="M 190 40 L 230 40" stroke="var(--accent)" stroke-width="2" />
+					<path d="M 300 40 L 340 40" stroke="var(--accent)" stroke-width="2" />
+				</svg>
+			</div>
+
+			<div class="protocol-steps">
+				<div class="step active" onclick="switchStep(0)">
+					<div class="step-number">1. CONFIGURE</div>
+					<div class="step-title">App Settings</div>
+					<div class="step-desc">Set client credentials and scope</div>
+				</div>
+				<div class="step" onclick="switchStep(1)">
+					<div class="step-number">2. PKCE</div>
+					<div class="step-title">Code Verifier & Challenge</div>
+					<div class="step-desc">Create code challenge (S256)</div>
+				</div>
+				<div class="step" onclick="switchStep(2)">
+					<div class="step-number">3. AUTHORIZE</div>
+					<div class="step-title">Redirect to PingOne</div>
+					<div class="step-desc">Send user to authorization endpoint</div>
+				</div>
+				<div class="step" onclick="switchStep(3)">
+					<div class="step-number">4. EXCHANGE</div>
+					<div class="step-title">Code → Token</div>
+					<div class="step-desc">POST code to token endpoint</div>
+				</div>
+				<div class="step" onclick="switchStep(4)">
+					<div class="step-number">5. USE</div>
+					<div class="step-title">Access Token</div>
+					<div class="step-desc">Call APIs with token</div>
+				</div>
+			</div>
+
+			<!-- Step Content -->
+			<div class="step-content active" id="content-0">
+				<h3 style="font-family: 'IBM Plex Mono', monospace; color: var(--primary); margin: 1.5rem 0 1rem 0; font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">Configuration</h3>
+				<div class="field">
+					<div class="field-label">Environment ID</div>
+					<input type="text" placeholder="UUID" value="b9817c16-9910-4415-b67e-4ac687da74d9">
+				</div>
+				<div class="field">
+					<div class="field-label">Client ID</div>
+					<input type="text" placeholder="oauth client id" value="a4f963ea-0736-456a-be72-b1fa4f63f81f">
+				</div>
+				<div class="field">
+					<div class="field-label">Redirect URI</div>
+					<input type="text" placeholder="https://localhost:3000/callback" value="https://localhost:3000/callback">
+				</div>
+				<div class="field">
+					<div class="field-label">Scopes</div>
+					<input type="text" placeholder="space-separated" value="openid profile email">
+				</div>
+				<button class="action" onclick="switchStep(1)">Generate PKCE →</button>
+			</div>
+
+			<div class="step-content" id="content-1">
+				<h3 style="font-family: 'IBM Plex Mono', monospace; color: var(--primary); margin: 1.5rem 0 1rem 0; font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">PKCE Challenge</h3>
+				<p style="color: var(--neutral-600); margin-bottom: 1rem; font-size: 0.9rem;">Code verifier and challenge for additional security (S256)</p>
+				<div style="background: #ecfdf5; border: 1px solid var(--accent); border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+					<div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--accent); word-break: break-all;">E9Mz0eV_1K-p9Q2rX4y5Z6a7B8c9D0eF1g2h3i4j5k6l7m8n9o0pQrStUvWxYz</div>
+				</div>
+				<button class="action" onclick="switchStep(2)">Send Authorization Request →</button>
+			</div>
+		</div>
+
+		<!-- Inspector Panel -->
+		<div class="inspector">
+			<div class="inspector-title">Protocol Steps</div>
+			
+			<div class="step-flow">
+				<div class="step-card active" id="card-0" onclick="switchStep(0)">
+					<div class="step-card-number">1. Configure</div>
+					<div class="step-card-title">Client credentials</div>
+					<div class="step-card-desc">Enter environment ID, client ID, redirect URI, scopes</div>
+				</div>
+				<div class="arrow">↓</div>
+				<div class="step-card" id="card-1" onclick="switchStep(1)">
+					<div class="step-card-number">2. PKCE</div>
+					<div class="step-card-title">Generate challenge</div>
+					<div class="step-card-desc">Create code verifier and challenge (S256)</div>
+				</div>
+				<div class="arrow">↓</div>
+				<div class="step-card" id="card-2" onclick="switchStep(2)">
+					<div class="step-card-number">3. Authorize</div>
+					<div class="step-card-title">User approves</div>
+					<div class="step-card-desc">Redirect to PingOne, user grants permission</div>
+				</div>
+				<div class="arrow">↓</div>
+				<div class="step-card" id="card-3" onclick="switchStep(3)">
+					<div class="step-card-number">4. Exchange</div>
+					<div class="step-card-title">Get tokens</div>
+					<div class="step-card-desc">POST code to token endpoint, receive access token</div>
+				</div>
+				<div class="arrow">↓</div>
+				<div class="step-card" id="card-4" onclick="switchStep(4)">
+					<div class="step-card-number">5. Use</div>
+					<div class="step-card-title">Call APIs</div>
+					<div class="step-card-desc">Send Authorization header with token</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function switchStep(n) {
+			document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+			document.querySelectorAll('.step-content').forEach(c => c.classList.remove('active'));
+			document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+			
+			document.querySelectorAll('.step')[n].classList.add('active');
+			document.getElementById('content-' + n).classList.add('active');
+			document.getElementById('card-' + n).classList.add('active');
+		}
+
+		function setMode(el) {
+			document.querySelectorAll('.pill').forEach(p => {
+				if (p.textContent.includes('Real') || p.textContent.includes('Mock')) {
+					p.classList.remove('active');
+				}
+			});
+			el.classList.add('active');
+		}
+		function setSpec(el) {
+			document.querySelectorAll('.pill').forEach(p => {
+				if (p.textContent.includes('2.0') || p.textContent.includes('2.1')) {
+					p.classList.remove('active');
+				}
+			});
+			el.classList.add('active');
+		}
+	</script>
+</body>
+</html>

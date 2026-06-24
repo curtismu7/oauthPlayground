@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Educational OAuth Flow</title>
+	<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		:root {
+			--primary: #1e3a8a;
+			--accent: #3b82f6;
+			--success: #10b981;
+			--neutral-50: #f9fafb;
+			--neutral-100: #f3f4f6;
+			--neutral-200: #e5e7eb;
+			--neutral-300: #d1d5db;
+			--neutral-600: #4b5563;
+		}
+		body { font-family: 'Inter', sans-serif; background: var(--neutral-50); }
+		.container { display: grid; grid-template-columns: 220px 1fr 1fr 320px; gap: 0; min-height: 100vh; background: white; }
+		.navbar { grid-column: 1 / -1; background: white; border-bottom: 2px solid var(--accent); padding: 1rem 1.5rem; }
+		.navbar-top { display: flex; align-items: center; gap: 2rem; margin-bottom: 0.5rem; }
+		.navbar-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.1em; color: var(--primary); text-transform: uppercase; }
+		.play-btn { padding: 0.4rem 0.8rem; background: var(--accent); color: white; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+		.navbar-url { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--accent); background: var(--neutral-100); padding: 0.5rem; border-radius: 4px; border-left: 3px solid var(--accent); }
+
+		.sidebar { background: var(--neutral-50); border-right: 1px solid var(--neutral-200); padding: 1.5rem; }
+		.flow-btn { width: 100%; padding: 0.75rem; margin-bottom: 0.5rem; border: 1px solid var(--neutral-200); border-radius: 6px; background: white; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
+		.flow-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+
+		.config-panel { background: white; border-right: 1px solid var(--neutral-200); padding: 1.5rem; overflow-y: auto; }
+		.section-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin: 1.5rem 0 1rem 0; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+		.form-group { margin-bottom: 1rem; }
+		.form-label { font-size: 0.8rem; font-weight: 600; color: var(--primary); margin-bottom: 0.4rem; display: block; }
+		.form-input, .form-select { width: 100%; padding: 0.6rem; border: 1px solid var(--neutral-300); border-radius: 6px; font-size: 0.8rem; font-family: 'IBM Plex Mono', monospace; }
+
+		.flow-panel { background: white; border-right: 1px solid var(--neutral-200); padding: 1.5rem; overflow-y: auto; }
+		.flow-title { font-family: 'IBM Plex Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 1.5rem; }
+		.step-rail { display: flex; flex-direction: column; gap: 0.75rem; }
+		.step-item { padding: 1rem; border-left: 4px solid var(--neutral-300); background: var(--neutral-50); border-radius: 6px; cursor: pointer; transition: all 150ms; }
+		.step-item:hover { border-left-color: var(--accent); }
+		.step-item.active { border-left-color: var(--accent); background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+		.step-number { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; font-weight: 700; color: var(--primary); text-transform: uppercase; }
+		.step-name { font-size: 0.95rem; font-weight: 600; color: var(--primary); margin: 0.3rem 0; }
+		.step-desc { font-size: 0.8rem; color: var(--neutral-600); }
+		.step-result { margin-top: 0.75rem; padding: 0.6rem; background: var(--success); color: white; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+
+		.api-panel { background: var(--neutral-50); border-right: 1px solid var(--neutral-200); padding: 1.5rem; overflow-y: auto; }
+		.api-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.75rem; }
+		.api-box { background: white; border: 1px solid var(--neutral-300); border-radius: 6px; padding: 0.75rem; margin-bottom: 1rem; }
+		.api-line { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--neutral-900); word-break: break-all; line-height: 1.4; margin-bottom: 0.3rem; }
+		.api-line.method { font-weight: 700; color: var(--accent); }
+		.api-line.header { color: var(--neutral-600); }
+		.api-line.param { color: var(--primary); margin-left: 1rem; }
+
+		.inspector-panel { background: var(--neutral-50); padding: 1.5rem; overflow-y: auto; }
+		.inspector-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 1rem; }
+		.token-card { background: white; border: 1px solid var(--neutral-300); border-radius: 6px; margin-bottom: 0.75rem; overflow: hidden; }
+		.token-header { padding: 0.75rem; background: var(--neutral-100); border-bottom: 1px solid var(--neutral-300); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+		.token-name { font-size: 0.85rem; font-weight: 600; color: var(--primary); }
+		.token-badge { font-size: 0.65rem; font-weight: 700; background: var(--success); color: white; padding: 0.2rem 0.5rem; border-radius: 3px; }
+		.token-btn { background: none; border: 1px solid var(--neutral-300); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.65rem; cursor: pointer; color: var(--primary); margin-left: 0.3rem; }
+
+		.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+		.modal.visible { display: flex; }
+		.modal-content { background: white; border-radius: 8px; padding: 1.5rem; max-width: 600px; max-height: 80vh; overflow-y: auto; width: 90%; }
+		.modal-close { float: right; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary); }
+		.jwt-part-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; font-weight: 700; color: var(--accent); margin-bottom: 0.3rem; margin-top: 1rem; }
+		.jwt-part-value { background: var(--neutral-50); padding: 0.5rem; border-radius: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; word-break: break-all; color: var(--neutral-600); }
+	</style>
+</head>
+<body>
+	<div class="navbar">
+		<div class="navbar-top">
+			<div class="navbar-title">OAuth 2.1 Authorization Code</div>
+			<div style="flex: 1;"></div>
+			<button class="play-btn" onclick="startAnimation()">▶ Play</button>
+		</div>
+		<div class="navbar-url" id="currentUrl">—</div>
+	</div>
+
+	<div class="container">
+		<div class="sidebar">
+			<div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.75rem;">Flows</div>
+			<button class="flow-btn active">OAuth 2.0 Auth Code</button>
+		</div>
+
+		<div class="config-panel">
+			<div class="section-title">PingOne Config</div>
+			<div class="form-group">
+				<label class="form-label">Region</label>
+				<select class="form-select" id="regionSelect" onchange="updateDisplay()">
+					<option value="us">US</option>
+					<option value="eu">EU</option>
+					<option value="ap">APAC</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label class="form-label">Environment ID</label>
+				<input type="text" class="form-input" id="envId" value="d0d2d305-4445-406d-82ee" onchange="updateDisplay()">
+			</div>
+			<div class="form-group">
+				<label class="form-label">Client ID</label>
+				<input type="text" class="form-input" id="clientId" value="a8f0c9e7-1b4d-42a9">
+			</div>
+			<div class="form-group">
+				<label class="form-label">Redirect URI</label>
+				<input type="text" class="form-input" id="redirectUri" value="https://localhost:8000/callback">
+			</div>
+		</div>
+
+		<div class="flow-panel">
+			<div class="flow-title">Authorization Code</div>
+			<div class="step-rail" id="stepRail"></div>
+		</div>
+
+		<div class="api-panel">
+			<div class="api-label">Request Details</div>
+			<div class="api-box" id="apiRequest">—</div>
+			
+			<div class="api-label">Response Details</div>
+			<div class="api-box" id="apiResponse">—</div>
+			
+			<div class="api-label">Tokens</div>
+			<div id="tokensDisplay"></div>
+		</div>
+
+		<div class="inspector-panel">
+			<div class="inspector-title">Decoded Token</div>
+			<div id="tokenPreview">—</div>
+		</div>
+	</div>
+
+	<div class="modal" id="decodeModal">
+		<div class="modal-content">
+			<button class="modal-close" onclick="document.getElementById('decodeModal').classList.remove('visible')">×</button>
+			<div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.9rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 1rem;">Decode Token</div>
+			<div id="modalBody"></div>
+		</div>
+	</div>
+
+	<script>
+		const STEPS = [
+			{ num: 1, name: 'Configure', desc: 'Set client credentials', endpoint: null, method: null },
+			{ num: 2, name: 'PKCE Challenge', desc: 'Generate verifier & challenge', endpoint: '/as/authorize', method: 'GET' },
+			{ num: 3, name: 'Authorization Request', desc: 'Redirect to PingOne login', endpoint: '/as/authorize', method: 'GET' },
+			{ num: 4, name: 'Authorization Code', desc: 'User approves, receive code', endpoint: '/callback', method: 'GET' },
+			{ num: 5, name: 'Exchange Code → Tokens', desc: 'Backend exchanges code', endpoint: '/as/token', method: 'POST' },
+			{ num: 6, name: 'Introspect Tokens', desc: 'Verify token claims', endpoint: '/as/introspect', method: 'POST' },
+			{ num: 7, name: 'Call APIs', desc: 'Use access token', endpoint: '/api/resource', method: 'GET' }
+		];
+
+		let tokens = null;
+		let currentStep = -1;
+
+		function getRegion() {
+			const region = document.getElementById('regionSelect').value;
+			const map = { us: 'auth.pingone.com', eu: 'auth.eu.pingone.com', ap: 'auth.ap.pingone.com' };
+			return map[region];
+		}
+
+		function getEnvId() {
+			return document.getElementById('envId').value;
+		}
+
+		function getClientId() {
+			return document.getElementById('clientId').value;
+		}
+
+		function updateDisplay() {
+			if (currentStep >= 0) showStep(currentStep);
+		}
+
+		function updateUrl(method, endpoint) {
+			if (!endpoint) {
+				document.getElementById('currentUrl').textContent = '—';
+			} else {
+				const url = endpoint.includes('api.pingone') 
+					? `${method} ${endpoint}`
+					: `${method} https://${getRegion()}/${getEnvId()}${endpoint}`;
+				document.getElementById('currentUrl').textContent = url;
+			}
+		}
+
+		function renderSteps() {
+			const html = STEPS.map((s, i) => `
+				<div class="step-item" id="step${i}" onclick="goToStep(${i})">
+					<div class="step-number">Step ${s.num}</div>
+					<div class="step-name">${s.name}</div>
+					<div class="step-desc">${s.desc}</div>
+					<div id="result${i}"></div>
+				</div>
+			`).join('');
+			document.getElementById('stepRail').innerHTML = html;
+		}
+
+		function goToStep(index) {
+			document.querySelectorAll('.step-item').forEach((s, i) => {
+				s.classList.toggle('active', i === index);
+			});
+			currentStep = index;
+		}
+
+		function showRequest(method, endpoint, headers, params) {
+			updateUrl(method, endpoint);
+			const baseUrl = endpoint.includes('api.pingone') ? endpoint : `https://${getRegion()}/${getEnvId()}${endpoint}`;
+			let html = `<div class="api-line method">${method} ${baseUrl}</div>`;
+			headers.forEach(h => {
+				html += `<div class="api-line header">${h}</div>`;
+			});
+			params.forEach(p => {
+				html += `<div class="api-line param">${p}</div>`;
+			});
+			document.getElementById('apiRequest').innerHTML = html;
+		}
+
+		function showResponse(status, headers, body) {
+			let html = `<div class="api-line method">${status}</div>`;
+			headers.forEach(h => {
+				html += `<div class="api-line header">${h}</div>`;
+			});
+			body.forEach(b => {
+				html += `<div class="api-line">${b}</div>`;
+			});
+			document.getElementById('apiResponse').innerHTML = html;
+		}
+
+		function showStep(index) {
+			goToStep(index);
+			const s = STEPS[index];
+			
+			if (index === 0) {
+				updateUrl(null, null);
+				document.getElementById('apiRequest').innerHTML = '—';
+				document.getElementById('apiResponse').innerHTML = '—';
+				document.getElementById('tokensDisplay').innerHTML = '';
+				document.getElementById('tokenPreview').innerHTML = '—';
+			} else if (index === 1) {
+				document.getElementById('result1').innerHTML = '<div class="step-result">✓ PKCE generated</div>';
+				showRequest('GET', '/as/authorize', 
+					['Host: ' + getRegion(), 'User-Agent: OAuth-Client/1.0'],
+					['client_id=' + getClientId(), 'redirect_uri=' + getRedirectUri(), 'code_challenge=...', 'code_challenge_method=S256']
+				);
+				showResponse('HTTP/1.1 302 Found', ['Location: https://auth.pingone.com/login'], []);
+			} else if (index === 2) {
+				showRequest('GET', '/as/authorize',
+					['Host: ' + getRegion()],
+					['scope=openid profile email', 'state=abc123...', 'response_type=code']
+				);
+				showResponse('HTTP/1.1 302 Found', ['Location: ' + getRedirectUri() + '?code=auth_abc123&state=abc123'], []);
+			} else if (index === 3) {
+				document.getElementById('result3').innerHTML = '<div class="step-result">✓ Code: auth_abc123</div>';
+				showRequest('GET', '/callback',
+					['Host: localhost:8000'],
+					['code=auth_abc123', 'state=abc123']
+				);
+				showResponse('HTTP/1.1 302 Found', ['Location: /dashboard'], ['User logged in']);
+			} else if (index === 4) {
+				tokens = { access: 'eyJ...signature', id: 'eyJ...signature', refresh: 'refresh_xyz' };
+				document.getElementById('result4').innerHTML = '<div class="step-result">✓ Tokens received</div>';
+				showRequest('POST', '/as/token',
+					['Host: ' + getRegion(), 'Content-Type: application/x-www-form-urlencoded'],
+					['grant_type=authorization_code', 'code=auth_abc123', 'client_id=' + getClientId(), 'client_secret=****', 'code_verifier=...']
+				);
+				showResponse('HTTP/1.1 200 OK',
+					['Content-Type: application/json'],
+					['access_token: eyJ...', 'id_token: eyJ...', 'refresh_token: refresh_xyz', 'token_type: Bearer', 'expires_in: 3600']
+				);
+				showTokens();
+			} else if (index === 5) {
+				document.getElementById('result5').innerHTML = '<div class="step-result">✓ Introspected</div>';
+				showRequest('POST', '/as/introspect',
+					['Host: ' + getRegion(), 'Content-Type: application/x-www-form-urlencoded'],
+					['token=eyJ...', 'client_id=' + getClientId()]
+				);
+				showResponse('HTTP/1.1 200 OK',
+					['Content-Type: application/json'],
+					['active: true', 'sub: user-123', 'scope: openid profile email', 'aud: ' + getClientId(), 'exp: 1623070800']
+				);
+			} else if (index === 6) {
+				showRequest('GET', 'https://api.pingone.com/v1/users',
+					['Host: api.pingone.com', 'Authorization: Bearer eyJ...'],
+					[]
+				);
+				showResponse('HTTP/1.1 200 OK',
+					['Content-Type: application/json'],
+					['data: Protected resource', 'user: Jane Doe', 'scope: openid profile email']
+				);
+			}
+		}
+
+		function showTokens() {
+			if (!tokens) return;
+			let html = `
+				<div class="token-card">
+					<div class="token-header">
+						<div><div class="token-name">Access Token</div><div class="token-badge">Bearer</div></div>
+						<button class="token-btn" onclick="decodeToken('access')">Decode</button>
+					</div>
+				</div>
+				<div class="token-card">
+					<div class="token-header">
+						<div><div class="token-name">ID Token</div><div class="token-badge">JWT</div></div>
+						<button class="token-btn" onclick="decodeToken('id')">Decode</button>
+					</div>
+				</div>
+				<div class="token-card">
+					<div class="token-header">
+						<div><div class="token-name">Refresh Token</div><div class="token-badge">Opaque</div></div>
+						<button class="token-btn" onclick="decodeToken('refresh')">Info</button>
+					</div>
+				</div>
+			`;
+			document.getElementById('tokensDisplay').innerHTML = html;
+			document.getElementById('tokenPreview').innerHTML = '<div class="jwt-part-label">Access Token (decoded)</div><div class="jwt-part-value">{"sub":"user-123","name":"Jane Doe","iat":1623067200,"exp":1623070800}</div>';
+		}
+
+		function decodeToken(type) {
+			const token = tokens[type] || 'opaque_token';
+			document.getElementById('modalBody').innerHTML = `
+				<div class="jwt-part-label">Header</div>
+				<div class="jwt-part-value">{"alg":"RS256","typ":"JWT","kid":"key-1"}</div>
+				<div class="jwt-part-label">Payload</div>
+				<div class="jwt-part-value">{"sub":"user-123","name":"Jane Doe","email":"jane@example.com","iat":1623067200,"exp":1623070800}</div>
+				<div class="jwt-part-label">Signature</div>
+				<div class="jwt-part-value">${token.substring(0, 40)}...</div>
+			`;
+			document.getElementById('decodeModal').classList.add('visible');
+		}
+
+		function startAnimation() {
+			document.getElementById('tokensDisplay').innerHTML = '';
+			document.getElementById('apiRequest').innerHTML = '—';
+			document.getElementById('apiResponse').innerHTML = '—';
+			document.getElementById('tokenPreview').innerHTML = '—';
+			document.getElementById('currentUrl').textContent = '—';
+
+			setTimeout(() => showStep(0), 500);
+			setTimeout(() => showStep(1), 2000);
+			setTimeout(() => showStep(2), 4000);
+			setTimeout(() => showStep(3), 6000);
+			setTimeout(() => showStep(4), 8000);
+			setTimeout(() => showStep(5), 10000);
+			setTimeout(() => showStep(6), 12000);
+		}
+
+		renderSteps();
+		goToStep(0);
+	</script>
+</body>
+</html>
