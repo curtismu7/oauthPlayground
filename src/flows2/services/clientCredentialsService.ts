@@ -71,8 +71,9 @@ async function discover(credentials: FlowCredentials, mode: FlowMode): Promise<s
 	});
 	const data = (await res.json().catch(() => ({}))) as { scopes_supported?: unknown };
 	if (!res.ok || data.error) {
+		const errorCode = typeof data.error === 'string' && data.error ? data.error : 'discovery_failed';
 		throw {
-			error: (typeof data.error === 'string' ? data.error : 'discovery_failed'),
+			error: errorCode,
 			error_description: 'Failed to discover available scopes',
 		};
 	}
