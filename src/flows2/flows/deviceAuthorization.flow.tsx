@@ -158,6 +158,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 	const attempt = useRef(0);
 	const active = useRef(false);
 	const mounted = useRef(true);
+	const pollInProgress = useRef(false);
 
 	const stopPolling = useCallback(() => {
 		active.current = false;
@@ -205,11 +206,15 @@ const DeviceAuthorizationFlow: React.FC = () => {
 		let intervalMs = Math.max(1, device.interval) * 1000;
 
 		const tick = async () => {
-			if (!active.current || !mounted.current) return;
+			if (!active.current || !mounted.current || pollInProgress.current) return;
+			pollInProgress.current = true;
 			try {
 				const r = await svc.pollOnce(creds, device.deviceCode, mode, attempt.current);
 				attempt.current += 1;
-				if (!active.current || !mounted.current) return;
+				if (!active.current || !mounted.current) {
+					pollInProgress.current = false;
+					return;
+				}
 				setStatus(r.status);
 				if (r.status === 'complete' && r.token) {
 					if (!mounted.current) return;
@@ -228,10 +233,15 @@ const DeviceAuthorizationFlow: React.FC = () => {
 				if (r.status === 'slow_down') intervalMs += 5000; // RFC 8628 §3.5
 				timer.current = setTimeout(tick, intervalMs);
 			} catch (err) {
-				if (!active.current || !mounted.current) return;
+				if (!active.current || !mounted.current) {
+					pollInProgress.current = false;
+					return;
+				}
 				setError(err as FlowError);
 				setStatus('error');
 				stopPolling();
+			} finally {
+				pollInProgress.current = false;
 			}
 		};
 

@@ -44,6 +44,9 @@ export function loadStash(): AuthzStash | null {
 		if (err instanceof SyntaxError) {
 			return null;
 		}
+		if (err instanceof Error && (err.name === 'QuotaExceededError' || err.message.includes('QuotaExceededError'))) {
+			return null;
+		}
 		throw err;
 	}
 }
