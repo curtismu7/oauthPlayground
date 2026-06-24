@@ -1624,7 +1624,7 @@ const AppRoutes: React.FC = () => {
 									<Route path="/token/operations" element={<CombinedTokenPage />} />
 									{/* flows2 — clean-core rebuild (real PingOne) */}
 									<Route path="/v2/flows/client-credentials" element={<Flows2ClientCredentials />} />
-									<Route path="/v2/flows/authorization-code" element={<AuthCodeFlowV2 />} />
+									<Route path="/v2/flows/authorization-code" element={<Flows2AuthorizationCode />} />
 									<Route path="/v2/flows/authz-callback" element={<Flows2AuthCallback />} />
 									<Route path="/v2/flows/device-authorization" element={<Flows2DeviceAuthorization />} />
 									<Route path="/v2/flows/token-exchange" element={<Flows2TokenExchange />} />
