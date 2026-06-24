@@ -95,9 +95,11 @@ const defaultRedirectUri = () =>
 // Realistic placeholders so the offline mock flow runs with zero PingOne setup
 // and the displayed authorize/exchange request still looks complete.
 const MOCK_CREDS = {
-	environmentId: 'mock-environment-id',
-	clientId: 'mock-client-id',
+	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
+	region: 'com',
+	clientId: 'mock-client-demo-1234567890',
 	clientSecret: MOCK_REGISTERED_SECRET,
+	scope: 'openid profile email offline_access',
 } as const;
 
 const AuthorizationCodeFlow: React.FC = () => {
@@ -128,28 +130,30 @@ const AuthorizationCodeFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
-	// Switching to mock seeds offline placeholders into empty fields; switching back
-	// to real strips those placeholders so the user supplies genuine credentials.
 	const selectMode = useCallback((m: FlowMode) => {
 		setMode(m);
-		if (m === 'mock') {
+	}, []);
+
+	// Auto-populate mock credentials when mode changes; clear them when switching to real
+	useEffect(() => {
+		if (mode === 'mock') {
 			setCreds((c) => ({
 				...c,
-				environmentId: c.environmentId || MOCK_CREDS.environmentId,
-				clientId: c.clientId || MOCK_CREDS.clientId,
-				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
+				environmentId: MOCK_CREDS.environmentId,
+				clientId: MOCK_CREDS.clientId,
+				clientSecret: MOCK_CREDS.clientSecret,
+				scope: c.scope || 'openid profile email offline_access',
 			}));
-			setRedirectUri((u) => u || defaultRedirectUri());
 		} else {
 			setCreds((c) => ({
 				...c,
-				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
-				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
-				// coalesce to '' so clientSecret stays `string` (exactOptionalPropertyTypes)
-				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : c.clientSecret ?? '',
+				environmentId: '',
+				clientId: '',
+				clientSecret: '',
+				scope: '',
 			}));
 		}
-	}, []);
+	}, [mode]);
 
 	// Resume after a real redirect: the callback wrote the code into the stash.
 	useEffect(() => {
