@@ -127,8 +127,12 @@ const ImplicitHybridCallback: React.FC = () => {
 		try {
 			sessionStorage.removeItem(IH_PENDING_KEY);
 			sessionStorage.setItem(IH_RESULT_KEY, JSON.stringify(fragment));
-		} catch {
-			// sessionStorage unavailable — the flow will show an empty result
+		} catch (_err) {
+			setError(
+				'Session storage unavailable — unable to complete authorization. The authorization response could not be saved.'
+			);
+			const t = setTimeout(() => navigate(FLOW_ROUTE), 2000);
+			return () => clearTimeout(t);
 		}
 
 		// Navigate back to the flow. Replace so the callback URL is not in history.

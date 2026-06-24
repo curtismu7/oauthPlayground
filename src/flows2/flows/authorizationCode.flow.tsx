@@ -226,6 +226,10 @@ const AuthorizationCodeFlow: React.FC = () => {
 				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
 			}));
 		}
+		// Clear PKCE state on mode switch to prevent stale verifier/challenge pairs
+		setPkce(null);
+		setCode('');
+		setAuthUrl('');
 	}, [mode]);
 
 	// Resume after a real redirect: the callback wrote the code into the stash.
@@ -267,6 +271,12 @@ const AuthorizationCodeFlow: React.FC = () => {
 	const handleAuthorize = useCallback(async () => {
 		setError(null);
 		setLoading(true);
+		// Validate redirect URI format
+		if (!redirectUri || !redirectUri.startsWith('http')) {
+			setError({ error: 'invalid_redirect_uri', error_description: 'Redirect URI must be a valid HTTP(S) URL' });
+			setLoading(false);
+			return;
+		}
 		try {
 			let active = pkce;
 			if (!active) {
@@ -334,12 +344,20 @@ const AuthorizationCodeFlow: React.FC = () => {
 
 	const handleUserInfo = useCallback(async () => {
 		if (!result?.accessToken) return;
-		setUserInfoData(await authorizationCodeService.userInfo(result.accessToken, creds, mode));
+		try {
+			setUserInfoData(await authorizationCodeService.userInfo(result.accessToken, creds, mode));
+		} catch (err) {
+			setError(err as FlowError);
+		}
 	}, [result, creds, mode]);
 
 	const handleIntrospect = useCallback(async () => {
 		if (!result?.accessToken) return;
-		setIntrospectData(await authorizationCodeService.introspect(result.accessToken, creds, mode));
+		try {
+			setIntrospectData(await authorizationCodeService.introspect(result.accessToken, creds, mode));
+		} catch (err) {
+			setError(err as FlowError);
+		}
 	}, [result, creds, mode]);
 
 	// Mock runs offline — never gate it on real credentials.
