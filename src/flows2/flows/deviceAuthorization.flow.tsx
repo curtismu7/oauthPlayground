@@ -30,6 +30,8 @@ import {
 
 const env = import.meta.env as Record<string, string | undefined>;
 
+const MAX_POLL_DURATION_MS = 15 * 60 * 1000; // 15 minutes maximum polling
+
 const STEPS: StepDefinition[] = [
 	{ id: 'configure', title: 'Configure', subtitle: 'Device client + scope' },
 	{ id: 'request', title: 'Device Code', subtitle: 'Get a user code' },
@@ -159,6 +161,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 	const active = useRef(false);
 	const mounted = useRef(true);
 	const pollInProgress = useRef(false);
+	const pollStartTime = useRef<number | null>(null);
 
 	const stopPolling = useCallback(() => {
 		active.current = false;
@@ -201,12 +204,18 @@ const DeviceAuthorizationFlow: React.FC = () => {
 		if (!device) return;
 		active.current = true;
 		attempt.current = 0;
+		pollStartTime.current = Date.now();
 		setPolling(true);
 		setStatus('pending');
 		let intervalMs = Math.max(1, device.interval) * 1000;
 
 		const tick = async () => {
 			if (!active.current || !mounted.current || pollInProgress.current) return;
+			if (pollStartTime.current && Date.now() - pollStartTime.current > MAX_POLL_DURATION_MS) {
+				setError({ error: 'poll_timeout', error_description: 'Device authorization polling timed out after 15 minutes' });
+				stopPolling();
+				return;
+			}
 			pollInProgress.current = true;
 			try {
 				const r = await svc.pollOnce(creds, device.deviceCode, mode, attempt.current);

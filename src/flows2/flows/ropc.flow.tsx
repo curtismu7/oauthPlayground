@@ -119,6 +119,11 @@ const RopcFlow: React.FC = () => {
 		setLoading(true);
 		setError(null);
 		setResult(null);
+		if (!username || !password) {
+			setError({ error: 'invalid_input', error_description: 'Username and password are required' });
+			setLoading(false);
+			return;
+		}
 		try {
 			const r = await ropcService.runPasswordGrant(creds, username, password, mode);
 			setResult(r);

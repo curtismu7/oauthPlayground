@@ -192,13 +192,12 @@ const AuthorizationCodeFlowRedesign: React.FC = () => {
 	};
 
 	const generatePkce = useCallback(async () => {
-		const v = authorizationCodeService.generatePkceVerifier();
-		const c = await authorizationCodeService.generatePkceChallenge(v);
-		setVerifier(v);
-		setChallenge(c);
+		const pair = await authorizationCodeService.generatePkce(mode);
+		setVerifier(pair.codeVerifier);
+		setChallenge(pair.codeChallenge);
 		engine.markComplete('pkce');
 		engine.goNext();
-	}, [engine]);
+	}, [mode, engine]);
 
 	const handleAuthorize = useCallback(async () => {
 		setLoading(true);
