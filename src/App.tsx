@@ -60,6 +60,7 @@ const Flows2Dpop = lazy(() => import('./flows2/flows/dpop.flow'));
 const Flows2Redirectless = lazy(() => import('./flows2/flows/redirectless.flow'));
 const Flows2ImplicitHybrid = lazy(() => import('./flows2/flows/implicitHybrid.flow'));
 const Flows2ImplicitHybridCallback = lazy(() => import('./flows2/flows/ImplicitHybridCallback'));
+const Flows2Hybrid = lazy(() => import('./flows2/flows/hybrid.flow'));
 const Flows2Ropc = lazy(() => import('./flows2/flows/ropc.flow'));
 const Flows2SAMLBearerAssertion = lazy(() => import('./flows2/flows/samlBearerAssertion.flow'));const CombinedTokenPage = lazy(() => import('./pages/CombinedTokenPage'));
 const CredentialSetupModal = lazy(() => import('./components/CredentialSetupModal'));
@@ -1640,6 +1641,7 @@ const AppRoutes: React.FC = () => {
 									<Route path="/v2/flows/redirectless" element={<Flows2Redirectless />} />
 									<Route path="/v2/flows/implicit-hybrid" element={<Flows2ImplicitHybrid />} />
 									<Route path="/v2/flows/implicit-hybrid-callback" element={<Flows2ImplicitHybridCallback />} />
+									<Route path="/v2/flows/hybrid" element={<Flows2Hybrid />} />
 									<Route path="/v2/flows/ropc" element={<Flows2Ropc />} />
 									<Route path="/v2/flows/saml-bearer" element={<Flows2SAMLBearerAssertion />} />									<Route path="/flows/token-introspection" element={<Navigate to="/v2/flows/token-introspection" replace />} />
 									<Route
