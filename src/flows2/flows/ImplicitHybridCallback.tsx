@@ -73,9 +73,9 @@ const ImplicitHybridCallback: React.FC = () => {
 		const fragment = parseFragment(hash);
 
 		// Check for an error in the fragment (OAuth error response in fragment).
-		if ('error' in fragment && fragment.error) {
+		if ('error' in fragment && typeof fragment.error === 'string' && fragment.error) {
 			const err = fragment.error;
-			const desc = fragment.error_description ?? '';
+			const desc = typeof fragment.error_description === 'string' ? fragment.error_description : '';
 			setError(`${err}${desc ? `: ${desc}` : ''}`);
 			const t = setTimeout(() => navigate(FLOW_ROUTE), 1500);
 			return () => clearTimeout(t);

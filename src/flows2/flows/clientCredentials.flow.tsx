@@ -146,7 +146,14 @@ const ClientCredentialsFlow: React.FC = () => {
 	}, [mode]);
 
 	const discover = useCallback(async () => {
-		setDiscoveredScopes(await clientCredentialsService.discover(creds, mode));
+		try {
+			setError(null);
+			const scopes = await clientCredentialsService.discover(creds, mode);
+			setDiscoveredScopes(scopes);
+		} catch (err) {
+			setError(err as FlowError);
+			setDiscoveredScopes([]);
+		}
 	}, [creds, mode]);
 
 	const toggleScope = (scope: string) =>
