@@ -144,7 +144,9 @@
     "vault:list": "node scripts/vault.cjs list",
     "vault:delete": "node scripts/vault.cjs delete",
     "vault:rotate": "node scripts/vault.cjs rotate",
-    "vault:migrate-from-env": "node scripts/vault-migrate.cjs"
+    "vault:migrate-from-env": "node scripts/vault-migrate.cjs",
+    "trust-cert": "bash scripts/trust-cert.sh",
+    "postinstall": "bash scripts/trust-cert.sh || true"
   },
   "keywords": [
     "oauth",
