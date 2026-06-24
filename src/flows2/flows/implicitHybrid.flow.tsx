@@ -217,7 +217,13 @@ const ImplicitHybridFlow: React.FC = () => {
 
 	// Hybrid only: exchange the front-channel code at the token endpoint.
 	const handleExchange = useCallback(async () => {
-		if (!fragmentParams?.code) return;
+		if (!fragmentParams?.code) {
+			setError({
+				error: 'missing_code',
+				error_description: 'Authorization code not found. The authorization response may have been truncated or corrupted. Try starting the flow again.',
+			});
+			return;
+		}
 		setError(null);
 		setLoading(true);
 		try {

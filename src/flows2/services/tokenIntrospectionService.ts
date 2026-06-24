@@ -82,6 +82,13 @@ export const tokenIntrospectionService = {
 				status: res.status,
 			};
 		}
+		if (typeof data.active !== 'boolean') {
+			throw {
+				error: 'invalid_introspection_response',
+				error_description: 'Introspection response missing or invalid active field',
+				status: res.status,
+			};
+		}
 		return data as IntrospectionResponse;
 	},
 };
