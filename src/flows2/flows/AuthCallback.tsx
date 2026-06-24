@@ -39,8 +39,22 @@ const AuthCallback: React.FC = () => {
 		const err = params.get('error');
 		const errDesc = params.get('error_description');
 
-		const stash = loadStash();
+		let stash: ReturnType<typeof loadStash> | null = null;
+		let stashError: string | null = null;
+		try {
+			stash = loadStash();
+		} catch (e) {
+			stashError = 'Session storage unavailable — authorization state could not be recovered.';
+		}
 		const dest = stash?.returnTo || FLOW_ROUTE;
+
+		if (stashError) {
+			setError(stashError);
+			timeoutId = setTimeout(() => navigate(FLOW_ROUTE), 2000);
+			return () => {
+				if (timeoutId) clearTimeout(timeoutId);
+			};
+		}
 
 		if (err) {
 			if (stash) {
