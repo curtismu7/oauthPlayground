@@ -46,7 +46,7 @@ const CodeExamplesDemo = lazy(() => import('./components/CodeExamplesDemo'));
 // flows2 — clean-core rebuild (real PingOne), routed under /v2/flows/*
 const Flows2ClientCredentials = lazy(() => import('./flows2/flows/clientCredentials.flow'));
 const Flows2AuthorizationCode = lazy(() => import('./flows2/flows/authorizationCode.flow'));
-const Flows2AuthorizationCodeRedesign = lazy(() => import('./flows2/flows/authorizationCode.flow.redesign'));
+const Flows2AuthorizationCodeEducational = lazy(() => import('./flows2/flows/AuthorizationCodeEducational'));
 const Flows2AuthCallback = lazy(() => import('./flows2/flows/AuthCallback'));
 const Flows2DeviceAuthorization = lazy(() => import('./flows2/flows/deviceAuthorization.flow'));
 const Flows2TokenExchange = lazy(() => import('./flows2/flows/tokenExchange.flow'));
@@ -1626,7 +1626,7 @@ const AppRoutes: React.FC = () => {
 									{/* flows2 — clean-core rebuild (real PingOne) */}
 									<Route path="/v2/flows/client-credentials" element={<Flows2ClientCredentials />} />
 									<Route path="/v2/flows/authorization-code" element={<AuthCodeFlowV2 />} />
-									<Route path="/v2/flows/authorization-code-redesign" element={<Flows2AuthorizationCodeRedesign />} />
+									<Route path="/v2/flows/authorization-code-educational" element={<Flows2AuthorizationCodeEducational />} />
 									<Route path="/v2/flows/authz-callback" element={<Flows2AuthCallback />} />
 									<Route path="/v2/flows/device-authorization" element={<Flows2DeviceAuthorization />} />
 									<Route path="/v2/flows/token-exchange" element={<Flows2TokenExchange />} />
