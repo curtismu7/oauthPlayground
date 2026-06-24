@@ -3,6 +3,9 @@
 // Authorization Code (+ PKCE) flow on the flows2 framework. Real PingOne or mock via the
 // `mode` toggle; 2.0/2.1 and OIDC toggles. Version-free (no V9/V8U). ~300 LOC vs the
 // legacy 1,268-LOC monolith it replaces.
+//
+// Visual system (adopted from the redesign): deep indigo + teal accent, IBM Plex Mono
+// headers, and a signature animated flow diagram on the Configure step.
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -14,7 +17,6 @@ import { FieldGroup } from '../framework/FieldGroup';
 import { CodeBlock, JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { tokens } from '../framework/tokens';
 import { clearStash, loadStash, saveStash } from '../framework/authzStash';
 import type {
 	FlowCredentials,
@@ -27,6 +29,16 @@ import type {
 import { authorizationCodeService, MOCK_REGISTERED_SECRET } from '../services/authorizationCodeService';
 
 const env = import.meta.env as Record<string, string | undefined>;
+
+// Redesign palette — deep indigo + teal accent.
+const DESIGN = {
+	primary: '#1e3a8a', // Deep indigo
+	accent: '#14b8a6', // Electric teal
+	accentHover: '#0d9488',
+	neutral100: '#f9fafb',
+	neutral300: '#e5e7eb',
+	neutral600: '#4b5563',
+};
 
 const STEPS: StepDefinition[] = [
 	{ id: 'configure', title: 'Configure', subtitle: 'App credentials' },
@@ -48,9 +60,13 @@ const Pill = styled.button<{ $active: boolean }>`
 	padding: 0.4rem 0.9rem;
 	border-radius: 8px;
 	cursor: pointer;
-	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
-	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
-	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
+	border: 2px solid ${({ $active }) => ($active ? DESIGN.accent : DESIGN.neutral300)};
+	background: ${({ $active }) => ($active ? DESIGN.accent : DESIGN.neutral100)};
+	color: ${({ $active }) => ($active ? '#fff' : DESIGN.primary)};
+	transition: all 150ms ease;
+	&:hover {
+		border-color: ${DESIGN.accent};
+	}
 `;
 
 const Grid = styled.div`
@@ -64,16 +80,23 @@ const Grid = styled.div`
 
 const Action = styled.button`
 	align-self: flex-start;
-	font-size: 0.9rem;
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.85rem;
 	font-weight: 700;
-	padding: 0.6rem 1.2rem;
+	letter-spacing: 0.05em;
+	padding: 0.7rem 1.4rem;
 	border-radius: 8px;
-	border: 1px solid ${tokens.color.successBorder ?? '#15803d'};
-	background: ${tokens.color.success};
+	border: none;
+	background: ${DESIGN.accent};
 	color: #fff;
 	cursor: pointer;
+	transition: all 150ms ease;
+	&:hover:not(:disabled) {
+		background: ${DESIGN.accentHover};
+		transform: translateY(-1px);
+	}
 	&:disabled {
-		opacity: 0.6;
+		opacity: 0.5;
 		cursor: not-allowed;
 	}
 `;
@@ -81,12 +104,35 @@ const Action = styled.button`
 const Note = styled.p`
 	margin: 0;
 	font-size: 0.82rem;
-	line-height: 1.4;
-	color: ${tokens.color.text};
-	background: ${tokens.color.bgSubtle};
-	border: 1px solid ${tokens.color.border};
-	border-radius: 8px;
-	padding: 0.55rem 0.8rem;
+	line-height: 1.5;
+	color: ${DESIGN.neutral600};
+	background: ${DESIGN.neutral100};
+	border-left: 3px solid ${DESIGN.accent};
+	border-radius: 0 8px 8px 0;
+	padding: 0.75rem 1rem;
+`;
+
+// Signature element: animated OAuth flow diagram on the Configure step.
+const FlowDiagram = styled.div`
+	background: linear-gradient(135deg, ${DESIGN.neutral100} 0%, #f0fdfa 100%);
+	border: 2px solid ${DESIGN.accent};
+	border-radius: 12px;
+	padding: 1.5rem;
+	margin: 0.5rem 0 0.5rem;
+	svg {
+		width: 100%;
+		height: auto;
+	}
+`;
+
+const FlowLabel = styled.div`
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	color: ${DESIGN.primary};
+	text-transform: uppercase;
+	margin-bottom: 0.75rem;
 `;
 
 const defaultRedirectUri = () =>
@@ -287,6 +333,28 @@ const AuthorizationCodeFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
+					<FlowDiagram>
+						<FlowLabel>OAuth 2.0 Authorization Code Flow</FlowLabel>
+						<svg viewBox="0 0 600 120" preserveAspectRatio="xMidYMid meet">
+							<defs>
+								<marker id="ac-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+									<polygon points="0 0, 10 3, 0 6" fill={DESIGN.accent} />
+								</marker>
+							</defs>
+							<rect x="10" y="30" width="80" height="60" fill={DESIGN.accent} rx="4" />
+							<text x="50" y="65" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#fff">Client</text>
+							<rect x="140" y="30" width="80" height="60" fill={DESIGN.primary} rx="4" />
+							<text x="180" y="65" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#fff">AuthZ</text>
+							<rect x="270" y="30" width="80" height="60" fill={DESIGN.accent} rx="4" />
+							<text x="310" y="65" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#fff">User</text>
+							<rect x="400" y="30" width="80" height="60" fill={DESIGN.primary} rx="4" />
+							<text x="440" y="65" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#fff">Token</text>
+							<path d="M 90 60 L 140 60" stroke={DESIGN.accent} strokeWidth="2" markerEnd="url(#ac-arrow)" />
+							<path d="M 220 60 L 270 60" stroke={DESIGN.accent} strokeWidth="2" markerEnd="url(#ac-arrow)" />
+							<path d="M 350 60 L 400 60" stroke={DESIGN.accent} strokeWidth="2" markerEnd="url(#ac-arrow)" />
+							<path d="M 440 95 L 440 110 L 50 110 L 50 95" stroke={DESIGN.neutral300} strokeWidth="1" fill="none" />
+						</svg>
+					</FlowDiagram>
 					<Toggle>
 						<Pill $active={mode === 'real'} onClick={() => selectMode('real')}>Real PingOne</Pill>
 						<Pill $active={mode === 'mock'} onClick={() => selectMode('mock')}>Mock</Pill>
