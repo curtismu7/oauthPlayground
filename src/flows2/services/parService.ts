@@ -159,12 +159,21 @@ export interface ExchangeParams {
 
 export async function exchangeCode(p: ExchangeParams, mode: FlowMode): Promise<TokenResult> {
 	if (mode === 'mock') {
+		const now = Math.floor(Date.now() / 1000);
+		const claims = {
+			sub: 'mock-user',
+			aud: p.credentials.clientId,
+			iss: `https://auth.pingone.${p.credentials.region}/${p.credentials.environmentId}/as`,
+			iat: now,
+			exp: now + 3600,
+		};
+		const idToken = `${btoa(JSON.stringify({ alg: 'none', typ: 'JWT' }))}.${btoa(JSON.stringify(claims))}.`;
 		return toTokenResult({
 			access_token: `mock-access-token-par-${Date.now()}`,
 			token_type: 'Bearer',
 			expires_in: 3600,
 			scope: resolveScope(p.credentials),
-			id_token: `mock-id-token-par-${Date.now()}`,
+			id_token: idToken,
 			refresh_token: 'mock-refresh-token-par',
 		});
 	}
