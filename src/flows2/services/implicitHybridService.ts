@@ -124,6 +124,13 @@ export function parseFragment(hash: string): FragmentParams {
  * mock mode → returns deterministic tokens.
  */
 export async function exchangeCode(p: ExchangeCodeParams, mode: FlowMode): Promise<TokenResult> {
+	if (!p.code || typeof p.code !== 'string') {
+		throw {
+			error: 'invalid_code',
+			error_description: 'Authorization code is missing or invalid',
+		};
+	}
+
 	if (mode === 'mock') {
 		return toTokenResult({
 			access_token: mockJwt({ sub: 'mock-user', client_id: p.credentials.clientId || 'mock-client', scope: 'openid profile email', grant: 'hybrid-exchange' }),
