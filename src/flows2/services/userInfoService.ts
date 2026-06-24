@@ -58,6 +58,13 @@ export const userInfoService = {
 				status: res.status,
 			};
 		}
+		if (!data.sub || typeof data.sub !== 'string') {
+			throw {
+				error: 'invalid_userinfo_response',
+				error_description: 'UserInfo response missing or invalid sub claim',
+				status: res.status,
+			};
+		}
 		return data as UserInfoResponse;
 	},
 };
