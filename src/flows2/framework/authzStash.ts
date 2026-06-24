@@ -40,8 +40,11 @@ export function loadStash(): AuthzStash | null {
 	try {
 		const raw = sessionStorage.getItem(KEY);
 		return raw ? (JSON.parse(raw) as AuthzStash) : null;
-	} catch {
-		return null;
+	} catch (err) {
+		if (err instanceof SyntaxError) {
+			return null;
+		}
+		throw err;
 	}
 }
 
