@@ -139,6 +139,7 @@ const RedirectlessFlow: React.FC = () => {
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const active = useRef(false);
 	const enteredPollPath = useRef(false);
+	const mounted = useRef(true);
 
 	const stopPolling = useCallback(() => {
 		active.current = false;
@@ -150,7 +151,12 @@ const RedirectlessFlow: React.FC = () => {
 	}, []);
 
 	// Cancel any in-flight poll on unmount.
-	useEffect(() => stopPolling, [stopPolling]);
+	useEffect(() => {
+		return () => {
+			mounted.current = false;
+			stopPolling();
+		};
+	}, [stopPolling]);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -190,7 +196,7 @@ const RedirectlessFlow: React.FC = () => {
 			setFlowState(advanced);
 
 			// If the flow completed immediately (e.g. mock), skip the poll loop.
-			if (advanced.status.toUpperCase() === 'COMPLETED') {
+			if (typeof advanced.status === 'string' && advanced.status.toUpperCase() === 'COMPLETED') {
 				const pollResult = await redirectlessService.poll(creds, advanced, mode);
 				if (pollResult.status === 'complete' && pollResult.token) {
 					setResult(pollResult.token);
@@ -209,12 +215,13 @@ const RedirectlessFlow: React.FC = () => {
 			setPollStatus('pending');
 
 			const tick = async () => {
-				if (!active.current) return;
+				if (!active.current || !mounted.current) return;
 				try {
 					const r = await redirectlessService.poll(creds, advanced, mode);
-					if (!active.current) return;
+					if (!active.current || !mounted.current) return;
 					setPollStatus(r.status);
 					if (r.status === 'complete' && r.token) {
+						if (!mounted.current) return;
 						setResult(r.token);
 						engine.markComplete('authenticate');
 						stopPolling();
@@ -222,13 +229,14 @@ const RedirectlessFlow: React.FC = () => {
 						return;
 					}
 					if (r.status === 'failed' || r.status === 'error') {
+						if (!mounted.current) return;
 						setError(r.error as FlowError);
 						stopPolling();
 						return;
 					}
 					timer.current = setTimeout(tick, POLL_INTERVAL_MS);
 				} catch (err) {
-					if (!active.current) return;
+					if (!active.current || !mounted.current) return;
 					setError(err as FlowError);
 					setPollStatus('error');
 					stopPolling();
