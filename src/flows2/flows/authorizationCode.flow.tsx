@@ -289,13 +289,15 @@ const AuthorizationCodeFlow: React.FC = () => {
 				engine.markComplete('authorize');
 				engine.goTo(3); // exchange
 			} else {
+				// Capture spec at call time, not closure time, to ensure consistency with current UI state.
+				const currentSpec = spec;
 				// stash what we need to resume after the round-trip, then leave the SPA
 				saveStash({
 					state,
 					nonce,
 					codeVerifier: active.codeVerifier,
 					oidc,
-					spec,
+					spec: currentSpec,
 					environmentId: creds.environmentId,
 					region: creds.region,
 					clientId: creds.clientId,
