@@ -95,9 +95,11 @@ const defaultRedirectUri = () =>
 // Realistic placeholders so the offline mock flow runs with zero PingOne setup
 // and the displayed authorize/exchange request still looks complete.
 const MOCK_CREDS = {
-	environmentId: 'mock-environment-id',
-	clientId: 'mock-client-id',
+	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
+	region: 'com',
+	clientId: 'mock-client-demo-1234567890',
 	clientSecret: MOCK_REGISTERED_SECRET,
+	scope: 'openid profile email offline_access',
 } as const;
 
 const AuthorizationCodeFlow: React.FC = () => {
@@ -136,8 +138,10 @@ const AuthorizationCodeFlow: React.FC = () => {
 			setCreds((c) => ({
 				...c,
 				environmentId: c.environmentId || MOCK_CREDS.environmentId,
+				region: c.region || MOCK_CREDS.region,
 				clientId: c.clientId || MOCK_CREDS.clientId,
 				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
+				scope: c.scope || MOCK_CREDS.scope,
 			}));
 			setRedirectUri((u) => u || defaultRedirectUri());
 		} else {
@@ -147,6 +151,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
 				// coalesce to '' so clientSecret stays `string` (exactOptionalPropertyTypes)
 				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : c.clientSecret ?? '',
+				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
 			}));
 		}
 	}, []);
@@ -275,6 +280,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 			title="Authorization Code + PKCE"
 			spec={spec}
 			mode={mode}
+			onModeChange={selectMode}
 			subtitle="The user authenticates at PingOne and is redirected back with a one-time code, which is exchanged (with the PKCE verifier) for tokens. RFC 6749 §4.1 + RFC 7636."
 			engine={engine}
 		>
@@ -287,10 +293,6 @@ const AuthorizationCodeFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
-					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => selectMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => selectMode('mock')}>Mock</Pill>
-					</Toggle>
 					<Toggle>
 						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>OAuth 2.0</Pill>
 						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>OAuth 2.1</Pill>
