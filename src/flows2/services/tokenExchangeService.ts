@@ -45,8 +45,16 @@ function toTokenResult(data: Record<string, unknown>): TokenResult {
 
 /** Local stand-in for the BFF's may_act check: the subject's may_act must name the actor. */
 function mockValidateMayAct(subjectToken: string, actorToken: string): MayActResult {
-	const subject = decodeJwtPayload(subjectToken) || {};
-	const actor = decodeJwtPayload(actorToken) || {};
+	const subject = decodeJwtPayload(subjectToken);
+	const actor = decodeJwtPayload(actorToken);
+	if (!subject || !actor) {
+		return {
+			valid: false,
+			error: 'invalid_token',
+			errorDescription: 'Unable to decode subject_token or actor_token — tokens may be malformed.',
+			diagnostics: { subject: null, actor: null },
+		};
+	}
 	const mayAct = (subject.may_act as Record<string, unknown> | undefined) || undefined;
 	const actorSub = actor.sub;
 	const actorClient = actor.client_id ?? actor.azp;

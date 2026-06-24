@@ -75,6 +75,9 @@ function randomJti(): string {
 
 /** Build the token-endpoint URL for a given env/region (used in the htu claim). */
 function tokenEndpointUrl(environmentId: string, region: string): string {
+	if (!environmentId || !region) {
+		throw new Error('Invalid credentials: environmentId and region are required');
+	}
 	return `https://auth.pingone.${region}/${environmentId}/as/token`;
 }
 
