@@ -234,7 +234,9 @@ const RedirectlessFlow: React.FC = () => {
 						stopPolling();
 						return;
 					}
-					timer.current = setTimeout(tick, POLL_INTERVAL_MS);
+					if (mounted.current) {
+						timer.current = setTimeout(tick, POLL_INTERVAL_MS);
+					}
 				} catch (err) {
 					if (!active.current || !mounted.current) return;
 					setError(err as FlowError);

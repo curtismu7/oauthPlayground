@@ -69,6 +69,7 @@ const ImplicitHybridCallback: React.FC = () => {
 	useEffect(() => {
 		// Read the fragment (everything after '#').
 		const hash = window.location.hash;
+		if (!hash) return; // No hash, nothing to process
 		const fragment = parseFragment(hash);
 
 		// Check for an error in the fragment (OAuth error response in fragment).
@@ -102,14 +103,16 @@ const ImplicitHybridCallback: React.FC = () => {
 
 		if (pending && (!pending.state || !pending.nonce)) {
 			setError('Corrupted pending authorization state.');
-			return;
+			const t = setTimeout(() => navigate(FLOW_ROUTE), 1500);
+			return () => clearTimeout(t);
 		}
 
 		if (!pending) {
 			setError(
 				'No pending authorization request found (session expired or direct navigation).'
 			);
-			return;
+			const t = setTimeout(() => navigate(FLOW_ROUTE), 1500);
+			return () => clearTimeout(t);
 		}
 
 		// CSRF: the state echoed in the fragment must match what we stashed.
