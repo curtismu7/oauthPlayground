@@ -29,11 +29,36 @@ import { authorizationCodeService, MOCK_REGISTERED_SECRET } from '../services/au
 const env = import.meta.env as Record<string, string | undefined>;
 
 const STEPS: StepDefinition[] = [
-	{ id: 'configure', title: 'Configure', subtitle: 'App credentials' },
-	{ id: 'pkce', title: 'PKCE', subtitle: 'Verifier + challenge' },
-	{ id: 'authorize', title: 'Authorize', subtitle: 'Redirect to PingOne' },
-	{ id: 'exchange', title: 'Exchange', subtitle: 'Code → tokens' },
-	{ id: 'use', title: 'Use Tokens', subtitle: 'UserInfo + Introspect' },
+	{
+		id: 'configure',
+		title: 'Configure',
+		subtitle: 'App credentials',
+		description: 'Enter your application credentials (Environment ID, Client ID, Secret) and redirect URI. These identify your app to the authorization server.',
+	},
+	{
+		id: 'pkce',
+		title: 'PKCE',
+		subtitle: 'Verifier + challenge',
+		description: 'Generate a code verifier and challenge for PKCE (Proof Key for Code Exchange). This adds security by binding the authorization code to your specific app instance.',
+	},
+	{
+		id: 'authorize',
+		title: 'Authorize',
+		subtitle: 'Redirect to PingOne',
+		description: 'Redirect user to PingOne\'s login page. User authenticates and grants your app permission to access their data. Returns an authorization code.',
+	},
+	{
+		id: 'exchange',
+		title: 'Exchange',
+		subtitle: 'Code → tokens',
+		description: 'Exchange the authorization code for tokens (Access Token, ID Token, Refresh Token). This happens securely in the backend—never expose tokens to the browser.',
+	},
+	{
+		id: 'use',
+		title: 'Use Tokens',
+		subtitle: 'UserInfo + Introspect',
+		description: 'Use the access token to call protected APIs. Optionally introspect tokens to verify their claims and expiration time.',
+	},
 ];
 
 const Toggle = styled.div`
@@ -287,6 +312,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure"
+					description={engine.current.description}
 					explanation="Real mode runs against PingOne via the BFF; mock runs offline. 2.1 forces PKCE and exact redirect matching."
 					canPrev={false}
 					nextLabel="Continue"
@@ -312,6 +338,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 			{cur === 'pkce' && (
 				<FlowStep
 					title="2. Generate PKCE"
+					description={engine.current.description}
 					explanation="A high-entropy code_verifier is created and hashed (SHA-256) into the code_challenge sent on the authorization request. RFC 7636."
 					nextLabel="Continue"
 					onPrev={engine.goPrev}
@@ -338,6 +365,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 			{cur === 'authorize' && (
 				<FlowStep
 					title="3. Authorize"
+					description={engine.current.description}
 					explanation={mode === 'real'
 						? 'Builds the /as/authorize URL and redirects you to PingOne to sign in. You return to the callback with a one-time code.'
 						: 'Mock mode issues a code in-memory (no redirect, no PingOne).'}
@@ -358,6 +386,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 			{cur === 'exchange' && (
 				<FlowStep
 					title="4. Exchange code for tokens"
+					description={engine.current.description}
 					explanation="POST grant_type=authorization_code with the code and the PKCE code_verifier. PingOne verifies the verifier hashes to the original challenge."
 					nextLabel="Use tokens"
 					onPrev={engine.goPrev}
@@ -374,6 +403,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 			{cur === 'use' && (
 				<FlowStep
 					title="5. Use the tokens"
+					description={engine.current.description}
 					explanation="Call the OIDC UserInfo endpoint and RFC 7662 introspection with the access token."
 					nextLabel="Done"
 					onPrev={engine.goPrev}
