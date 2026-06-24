@@ -89,6 +89,11 @@ const ImplicitHybridCallback: React.FC = () => {
 			// sessionStorage unavailable
 		}
 
+		if (pending && (!pending.state || !pending.nonce)) {
+			setError('Corrupted pending authorization state.');
+			return;
+		}
+
 		if (!pending) {
 			setError(
 				'No pending authorization request found (session expired or direct navigation).'
