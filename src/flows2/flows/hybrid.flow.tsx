@@ -152,6 +152,10 @@ const HybridFlow: React.FC = () => {
 			return;
 		}
 		if (stash.code) {
+			if (!stash.redirectUri) {
+				setError({ error: 'invalid_stash', error_description: 'Authorization stash missing redirect URI' });
+				return;
+			}
 			setMode('real');
 			setCreds((c) => ({
 				...c,
