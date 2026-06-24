@@ -19,8 +19,11 @@ export function decodeJwtPayload(token?: string): Record<string, unknown> | null
 	const parts = token.split('.');
 	if (parts.length < 2) return null;
 	try {
-		return JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))) as Record<string, unknown>;
-	} catch {
+		const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+		if (!base64) return null;
+		const decoded = atob(base64);
+		return JSON.parse(decoded) as Record<string, unknown>;
+	} catch (_err) {
 		return null;
 	}
 }
