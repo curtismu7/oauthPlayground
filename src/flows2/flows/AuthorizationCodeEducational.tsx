@@ -566,6 +566,32 @@ const AuthorizationCodeEducational: React.FC = () => {
 		localStorage.setItem('authzCode_panelWidth', JSON.stringify(sidebarWidth));
 	}, [sidebarWidth]);
 
+	// Auto-fill mock credentials when mode changes
+	useEffect(() => {
+		if (mode === 'mock') {
+			const mockCreds: FlowCredentials = {
+				environmentId: 'a1234567-b890-c123-d456-e7890f123456',
+				region: 'com',
+				clientId: 'mock-client-demo-1234567890',
+				clientSecret: 'mock-client-secret',
+				redirectUri: 'http://localhost:8000/callback',
+				scope: 'openid profile email offline_access',
+			};
+			setCreds(mockCreds);
+			saveStash(mockCreds);
+		} else if (mode === 'real') {
+			const emptyCreds: FlowCredentials = {
+				environmentId: '',
+				region: 'com',
+				clientId: '',
+				clientSecret: '',
+				redirectUri: 'http://localhost:8000/callback',
+			};
+			setCreds(emptyCreds);
+			saveStash(emptyCreds);
+		}
+	}, [mode]);
+
 	const updateCred = (key: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
 		const updated = { ...creds, [key]: e.target.value };
 		setCreds(updated);
