@@ -50,6 +50,13 @@ function resolveRegion(region: string): string {
 function classifyPollData(data: Record<string, unknown>): RedirectlessPollResult {
 	const status = typeof data.status === 'string' ? data.status.toUpperCase() : '';
 
+	if (!status) {
+		throw {
+			error: 'invalid_poll_response',
+			error_description: 'Poll response missing or invalid status field.'
+		};
+	}
+
 	if (status === 'COMPLETED') {
 		// The flow completed — tokens live in the flow object itself or in an authorizeResponse
 		// (for a code-exchange flow the BFF would need to exchange; here we surface the raw data).
