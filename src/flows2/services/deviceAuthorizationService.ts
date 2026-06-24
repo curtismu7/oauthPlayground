@@ -121,13 +121,11 @@ export const deviceAuthorizationService = {
 		try {
 			data = (await res.json()) as Record<string, unknown>;
 		} catch {
-			if (!res.ok) {
-				throw {
-					error: 'invalid_response',
-					error_description: `Device authorization failed (HTTP ${res.status}) — response was not valid JSON`,
-					status: res.status,
-				};
-			}
+			throw {
+				error: 'invalid_response',
+				error_description: `Device authorization failed (HTTP ${res.status}) — response was not valid JSON`,
+				status: res.status,
+			};
 		}
 		if (!res.ok || data.error) {
 			throw {
@@ -139,8 +137,15 @@ export const deviceAuthorizationService = {
 				status: res.status,
 			};
 		}
+		if (!data.device_code || typeof data.device_code !== 'string') {
+			throw {
+				error: 'invalid_device_code',
+				error_description: 'Device code missing or invalid in response',
+				status: 500,
+			};
+		}
 		return {
-			deviceCode: String(data.device_code ?? ''),
+			deviceCode: data.device_code,
 			userCode: String(data.user_code ?? ''),
 			verificationUri: String(data.verification_uri ?? ''),
 			verificationUriComplete: typeof data.verification_uri_complete === 'string'
@@ -198,7 +203,15 @@ export const deviceAuthorizationService = {
 				...(headers ? { headers } : {}),
 			}),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		if (!res.ok) {
+			return { status: 'error', error: { error: 'network_error', error_description: `Poll failed (HTTP ${res.status})` } };
+		}
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			return { status: 'error', error: { error: 'invalid_response', error_description: 'Poll response was not valid JSON' } };
+		}
 		return classifyPoll(data);
 	},
 };
