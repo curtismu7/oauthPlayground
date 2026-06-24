@@ -31,6 +31,8 @@ const AuthCallback: React.FC = () => {
 	const [returnTo, setReturnTo] = useState<string | undefined>(undefined);
 
 	useEffect(() => {
+		let timeoutId: NodeJS.Timeout | null = null;
+
 		const params = new URLSearchParams(window.location.search);
 		const code = params.get('code');
 		const state = params.get('state');
@@ -48,8 +50,10 @@ const AuthCallback: React.FC = () => {
 			}
 			setReturnTo(dest);
 			setError(`${err}${errDesc ? `: ${errDesc}` : ''}`);
-			const t = setTimeout(() => navigate(dest), 1500);
-			return () => clearTimeout(t);
+			timeoutId = setTimeout(() => navigate(dest), 1500);
+			return () => {
+				if (timeoutId) clearTimeout(timeoutId);
+			};
 		}
 
 		if (!stash) {
@@ -64,8 +68,10 @@ const AuthCallback: React.FC = () => {
 			saveStash(stash);
 			setReturnTo(dest);
 			setError('State mismatch — authorization rejected.');
-			const t = setTimeout(() => navigate(dest), 1500);
-			return () => clearTimeout(t);
+			timeoutId = setTimeout(() => navigate(dest), 1500);
+			return () => {
+				if (timeoutId) clearTimeout(timeoutId);
+			};
 		}
 
 		if (!code) {
