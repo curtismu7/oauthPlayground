@@ -75,6 +75,7 @@ const Subtitle = styled.p`
 	margin: 0.5rem 0 0;
 	color: #475569;
 	font-size: 0.95rem;
+	white-space: pre-line;
 `;
 
 const Rail = styled.ol`
