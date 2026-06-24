@@ -137,6 +137,7 @@ export async function exchangeCode(p: ExchangeCodeParams, mode: FlowMode): Promi
 
 	const params = new URLSearchParams({
 		grant_type: 'authorization_code',
+		client_id: p.credentials.clientId,
 		redirect_uri: p.redirectUri,
 		code: p.code,
 	});
