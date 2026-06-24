@@ -1063,6 +1063,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					{
+						id: 'authorization-code-redesign',
+						path: '/v2/flows/authorization-code-redesign',
+						label: 'Authorization Code (Redesigned)',
+						icon: (
+							<ColoredIcon $color="V9_COLORS.PRIMARY.BLUE">
+								<span>✨</span>
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Authorization Code with distinctive visual design — deep indigo + teal accent, animated flow diagram">
+								<span>New</span>
+							</MigrationBadge>
+						),
+					},
+					{
 						id: 'token-revocation',
 						path: '/flows/token-revocation',
 						label: 'Token Revocation',
