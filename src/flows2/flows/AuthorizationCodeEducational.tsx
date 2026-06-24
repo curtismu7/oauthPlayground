@@ -510,6 +510,8 @@ const AuthorizationCodeEducational: React.FC = () => {
 		}
 	);
 	const [mode, setMode] = useState<FlowMode>('real');
+	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+	const [sidebarWidth, setSidebarWidth] = useState(220);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [stepStates, setStepStates] = useState<Record<string, StepState>>({});
 	const [pkceData, setPkceData] = useState<{ verifier: string; challenge: string } | null>(null);
@@ -518,6 +520,51 @@ const AuthorizationCodeEducational: React.FC = () => {
 	const [introspectResult, setIntrospectResult] = useState<Record<string, unknown> | null>(null);
 	const [selectedToken, setSelectedToken] = useState<'access' | 'id' | 'refresh' | null>(null);
 	const [showDecodeModal, setShowDecodeModal] = useState(false);
+
+	// Load configuration from localStorage on mount
+	useEffect(() => {
+		const savedMode = localStorage.getItem('authzCode_mode');
+		if (savedMode) {
+			try {
+				setMode(JSON.parse(savedMode));
+			} catch {
+				// Fallback to default if parse fails
+			}
+		}
+
+		const savedSidebarCollapsed = localStorage.getItem('authzCode_sidebar');
+		if (savedSidebarCollapsed) {
+			try {
+				setSidebarCollapsed(JSON.parse(savedSidebarCollapsed));
+			} catch {
+				// Fallback to default if parse fails
+			}
+		}
+
+		const savedPanelWidth = localStorage.getItem('authzCode_panelWidth');
+		if (savedPanelWidth) {
+			try {
+				setSidebarWidth(JSON.parse(savedPanelWidth));
+			} catch {
+				// Fallback to default if parse fails
+			}
+		}
+	}, []);
+
+	// Save mode to localStorage when it changes
+	useEffect(() => {
+		localStorage.setItem('authzCode_mode', JSON.stringify(mode));
+	}, [mode]);
+
+	// Save sidebar collapsed state to localStorage when it changes
+	useEffect(() => {
+		localStorage.setItem('authzCode_sidebar', JSON.stringify(sidebarCollapsed));
+	}, [sidebarCollapsed]);
+
+	// Save sidebar width to localStorage when it changes
+	useEffect(() => {
+		localStorage.setItem('authzCode_panelWidth', JSON.stringify(sidebarWidth));
+	}, [sidebarWidth]);
 
 	const updateCred = (key: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
 		const updated = { ...creds, [key]: e.target.value };
