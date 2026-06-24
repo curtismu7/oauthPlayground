@@ -155,11 +155,13 @@ const AuthorizationCodeFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
-	// Switching to mock seeds offline placeholders into empty fields; switching back
-	// to real strips those placeholders so the user supplies genuine credentials.
 	const selectMode = useCallback((m: FlowMode) => {
 		setMode(m);
-		if (m === 'mock') {
+	}, []);
+
+	// Auto-populate mock credentials when mode changes; clear them when switching to real
+	useEffect(() => {
+		if (mode === 'mock') {
 			setCreds((c) => ({
 				...c,
 				environmentId: c.environmentId || MOCK_CREDS.environmentId,
@@ -168,7 +170,6 @@ const AuthorizationCodeFlow: React.FC = () => {
 				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
 				scope: c.scope || MOCK_CREDS.scope,
 			}));
-			setRedirectUri((u) => u || defaultRedirectUri());
 		} else {
 			setCreds((c) => ({
 				...c,
@@ -179,7 +180,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
 			}));
 		}
-	}, []);
+	}, [mode]);
 
 	// Resume after a real redirect: the callback wrote the code into the stash.
 	useEffect(() => {
