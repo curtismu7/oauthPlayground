@@ -70,9 +70,19 @@ async function discover(credentials: FlowCredentials, mode: FlowMode): Promise<s
 		body: JSON.stringify({ issuerUrl }),
 	});
 	const data = (await res.json().catch(() => ({}))) as { scopes_supported?: unknown };
-	return Array.isArray(data.scopes_supported)
-		? (data.scopes_supported as string[]).filter((s) => typeof s === 'string')
-		: [];
+	if (!res.ok || data.error) {
+		throw {
+			error: (typeof data.error === 'string' ? data.error : 'discovery_failed'),
+			error_description: 'Failed to discover available scopes',
+		};
+	}
+	if (!Array.isArray(data.scopes_supported)) {
+		throw {
+			error: 'invalid_discovery_response',
+			error_description: 'Discovery response missing or invalid scopes_supported field',
+		};
+	}
+	return (data.scopes_supported as unknown[]).filter((s) => typeof s === 'string') as string[];
 }
 
 export const clientCredentialsService = {

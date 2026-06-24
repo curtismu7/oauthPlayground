@@ -156,6 +156,14 @@ const ImplicitHybridFlow: React.FC = () => {
 
 		try {
 			const params = JSON.parse(raw) as FragmentParams;
+			if (!params.state) {
+				setError({ error: 'missing_state', error_description: 'Authorization response missing state parameter.' });
+				return;
+			}
+			if (!params.access_token && !params.code) {
+				setError({ error: 'missing_token', error_description: 'Authorization response missing access_token or code.' });
+				return;
+			}
 			setFragmentParams(params);
 			engine.markComplete('authorize');
 			engine.goTo(2); // result step
