@@ -48,14 +48,13 @@ function resolveRegion(region: string): string {
 }
 
 function classifyPollData(data: Record<string, unknown>): RedirectlessPollResult {
-	const status = typeof data.status === 'string' ? data.status.toUpperCase() : '';
-
-	if (!status) {
+	if (typeof data.status !== 'string' || !data.status) {
 		throw {
 			error: 'invalid_poll_response',
 			error_description: 'Poll response missing or invalid status field.'
 		};
 	}
+	const status = data.status.toUpperCase();
 
 	if (status === 'COMPLETED') {
 		// The flow completed — tokens live in the flow object itself or in an authorizeResponse
