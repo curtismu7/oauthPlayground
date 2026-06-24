@@ -108,6 +108,13 @@ export const oidcDiscoveryService = {
 				status: res.status,
 			};
 		}
+		if (!data.issuer || !data.token_endpoint) {
+			throw {
+				error: 'invalid_discovery_response',
+				error_description: 'Discovery response missing required fields (issuer, token_endpoint)',
+				status: res.status,
+			};
+		}
 		return data;
 	},
 
@@ -135,9 +142,14 @@ export const oidcDiscoveryService = {
 				status: res.status,
 			};
 		}
-		const keys = Array.isArray(data.keys)
-			? (data.keys as JwkKey[])
-			: [];
+		if (!Array.isArray(data.keys)) {
+			throw {
+				error: 'invalid_jwks_response',
+				error_description: 'JWKS response missing or invalid keys field',
+				status: res.status,
+			};
+		}
+		const keys = data.keys as JwkKey[];
 		return { keys, raw: data };
 	},
 };
