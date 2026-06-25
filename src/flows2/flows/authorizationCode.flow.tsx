@@ -12,6 +12,7 @@ import { clearStash, loadStash, saveStash } from '../framework/authzStash';
 import { CodeBlock } from '../framework/CodeBlock';
 import { CredentialsForm } from '../framework/CredentialsForm';
 import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
@@ -90,7 +91,7 @@ const MOCK_CREDS = {
 	region: 'com',
 	clientId: 'mock-client-demo-1234567890',
 	clientSecret: MOCK_REGISTERED_SECRET,
-	scope: 'openid profile email offline_access',
+	scope: 'openid',
 } as const;
 
 const AuthorizationCodeFlow: React.FC = () => {
@@ -103,9 +104,8 @@ const AuthorizationCodeFlow: React.FC = () => {
 		region: env.VITE_PINGONE_REGION || 'com',
 		clientId: env.VITE_PINGONE_USER_CLIENT_ID || '',
 		clientSecret: env.VITE_PINGONE_USER_CLIENT_SECRET || '',
-		// Request offline_access so PingOne issues a refresh_token, which the
-		// Refresh Token flow needs as its input. Users can edit this freely.
-		scope: 'openid profile email offline_access',
+		// Start with openid only; users can add optional scopes like profile, email, offline_access
+		scope: 'openid',
 	});
 	const [redirectUri, setRedirectUri] = useState(defaultRedirectUri());
 	const [pkce, setPkce] = useState<{ codeVerifier: string; codeChallenge: string } | null>(null);
@@ -135,6 +135,8 @@ const AuthorizationCodeFlow: React.FC = () => {
 
 	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
 		useFlowCredentials('flows2:authorization-code', creds, setCreds);
+
+	const { saveState, restoreState } = useFlowStorage('flows2:authorization-code');
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real
 	useEffect(() => {
@@ -192,6 +194,18 @@ const AuthorizationCodeFlow: React.FC = () => {
 			engine.goTo(3); // exchange step
 		}
 	}, [engine]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!code && saved.code) setCode(saved.code as string);
+			if (!result && saved.result) setResult(saved.result as TokenResult | null);
+			if (!error && saved.error) setError(saved.error as FlowError | null);
+			if (!pkce && saved.pkce) setPkce(saved.pkce as typeof pkce);
+			if (!authUrl && saved.authUrl) setAuthUrl(saved.authUrl as string);
+			if (!authState && saved.authState) setAuthState(saved.authState as string);
+		});
+	}, [restoreState]);
 
 	const handlePkce = useCallback(async () => {
 		const pair = await authorizationCodeService.generatePkce(mode);
@@ -290,6 +304,10 @@ const AuthorizationCodeFlow: React.FC = () => {
 			setLoading(false);
 		}
 	}, [pkce, code, creds, redirectUri, mode, engine, authMethod, tokenLifetimes]);
+
+	useEffect(() => {
+		saveState({ code, result, error, pkce, authUrl, authState });
+	}, [code, result, error, pkce, authUrl, authState, saveState]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured =

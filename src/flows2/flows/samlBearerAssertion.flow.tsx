@@ -4,23 +4,18 @@
 // Generates a mock SAML 2.0 assertion and exchanges it for an access token.
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useFlowCredentials } from '../framework/useFlowCredentials';
 import styled from 'styled-components';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import { FlowContainer } from '../framework/FlowContainer';
-import { RequestPreview } from '../framework/RequestPreview';
-import type { CurlRequest } from '../framework/RequestPreview';
+import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { FieldGroup } from '../framework/FieldGroup';
 import { JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
-import { Action, Grid } from '../framework/primitives';
-import { FlowDiagram } from '../framework/FlowDiagram';
-import { SpecToggle } from '../framework/SpecToggle';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { tokens } from '../framework/tokens';
-import { TokenLifetimeConfig, type TokenLifetimes } from '../framework/TokenLifetimeConfig';
-import type { FlowError, FlowMode, OAuthSpec, StepDefinition, TokenResult } from '../framework/types';
-import { pingoneEndpoints } from '../services/pingone';
+import type { FlowError, FlowMode, StepDefinition, TokenResult } from '../framework/types';
 import { samlBearerService, type SAMLBearerAssertionData } from '../services/samlBearerService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -33,24 +28,56 @@ const STEPS: StepDefinition[] = [
 	{ id: 'inspect', title: 'Inspect', subtitle: 'Introspect token' },
 ];
 
-// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
-const MOCK_CREDS = {
-	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
-	region: 'com',
-	clientId: 'mock-client-demo-1234567890',
-	clientSecret: 'mock-client-secret',
-} as const;
+const Grid = styled.div`
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.9rem;
+	@media (max-width: 640px) {
+		grid-template-columns: 1fr;
+	}
+`;
 
-// Local styled components not in primitives.tsx
+const Pill = styled.button<{ $active: boolean }>`
+	font-size: 0.82rem;
+	font-weight: 600;
+	padding: 0.4rem 0.9rem;
+	border-radius: 8px;
+	cursor: pointer;
+	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
+	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
+	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
+`;
+
+const Action = styled.button`
+	align-self: flex-start;
+	font-size: 0.9rem;
+	font-weight: 700;
+	padding: 0.6rem 1.2rem;
+	border-radius: 8px;
+	border: 1px solid ${tokens.color.successBorder};
+	background: ${tokens.color.success};
+	color: #fff;
+	cursor: pointer;
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+`;
+
+const Toggle = styled.div`
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+`;
+
 const Hint = styled.div`
 	font-size: 0.78rem;
 	color: ${tokens.color.textMuted};
 	margin-bottom: 0.3rem;
 `;
 
-// bgMuted does not exist in tokens.ts — replaced with bgSubtle (the correct token).
 const CodeBox = styled.pre`
-	background: ${tokens.color.bgSubtle};
+	background: ${tokens.color.bgMuted};
 	border: 1px solid ${tokens.color.border};
 	border-radius: 6px;
 	padding: 1rem;
@@ -59,32 +86,9 @@ const CodeBox = styled.pre`
 	line-height: 1.4;
 `;
 
-const SaveRow = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	margin-top: 0.25rem;
-`;
-const SaveBtn = styled.button`
-	font-family: 'IBM Plex Mono', monospace;
-	font-size: 0.78rem;
-	font-weight: 700;
-	padding: 0.45rem 1rem;
-	border-radius: 6px;
-	border: 1px solid ${tokens.color.accent};
-	background: ${tokens.color.accentBg};
-	color: ${tokens.color.accent};
-	cursor: pointer;
-	&:hover:not(:disabled) { background: ${tokens.color.accent}; color: #fff; }
-	&:disabled { opacity: 0.6; cursor: not-allowed; }
-`;
-
 const SAMLBearerAssertionFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
-	const [spec, setSpec] = useState<OAuthSpec>('2.0');
-	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
-	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 
 	// Step 1: Configure
 	const [envId, setEnvId] = useState(env.VITE_PINGONE_ENVIRONMENT_ID || '');
@@ -96,8 +100,8 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 		issuer: 'https://idp.example.com',
 		subject: 'user@example.com',
 		audience: '',
-		notBefore: `${new Date().toISOString().split('.')[0]}Z`,
-		notOnOrAfter: `${new Date(Date.now() + 3600000).toISOString().split('.')[0]}Z`,
+		notBefore: new Date().toISOString().split('.')[0] + 'Z',
+		notOnOrAfter: new Date(Date.now() + 3600000).toISOString().split('.')[0] + 'Z',
 	});
 
 	const [scopes, setScopes] = useState('');
@@ -114,35 +118,21 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 	// Step 5: Inspect
 	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 
-	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
-
-	const { save: saveCredentials, load: loadCredentials, saving: savingCreds, saved: savedCreds } =
-		useFlowCredentials('flows2:saml-bearer');
+	const { saveState, restoreState } = useFlowStorage('flows2:saml-bearer');
 
 	useEffect(() => {
-		loadCredentials().then((data) => {
-			if (!data || envId) return;
-			if (typeof data.envId === 'string') setEnvId(data.envId);
-			if (typeof data.region === 'string') setRegion(data.region);
-			if (typeof data.clientId === 'string') setClientId(data.clientId);
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (saved.samlXml) setSamlXml(saved.samlXml as string);
+			if (saved.samlB64) setSamlB64(saved.samlB64 as string);
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+			if (!introspectData && saved.introspectData) setIntrospectData(saved.introspectData as typeof introspectData);
 		});
-	}, [loadCredentials, envId]);
+	}, [restoreState, samlXml, samlB64, result, error, introspectData]);
 
-	// Auto-populate mock credentials when mode changes; clear them when switching to real.
-	useEffect(() => {
-		if (mode === 'mock') {
-			setEnvId((v) => v || MOCK_CREDS.environmentId);
-			setRegion((v) => v || MOCK_CREDS.region);
-			setClientId((v) => v || MOCK_CREDS.clientId);
-		} else {
-			setEnvId((v) => v === MOCK_CREDS.environmentId ? '' : v);
-			setRegion((v) => v === MOCK_CREDS.region ? 'com' : v);
-			setClientId((v) => v === MOCK_CREDS.clientId ? '' : v);
-		}
-	}, [mode]);
-
-	// Mock runs offline — never gate it on real credentials.
-	const configured = mode === 'mock' ? true : Boolean(envId && clientId && samlData.issuer && samlData.subject);
+	const configured = Boolean(envId && clientId && samlData.issuer && samlData.subject);
+	const samlComplete = samlXml && samlB64;
 	const cur = engine.current.id;
 
 	const handleGenerateSAML = useCallback(async () => {
@@ -170,8 +160,6 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 					clientId,
 					assertion: updatedSamlData,
 					scopes,
-					tokenLifetimes,
-					authMethod: 'client_secret_post',
 				},
 				mode
 			);
@@ -182,7 +170,7 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [envId, region, clientId, samlData, scopes, tokenLifetimes, mode, engine]);
+	}, [envId, region, clientId, samlData, scopes, mode, engine]);
 
 	const handleIntrospect = useCallback(async () => {
 		if (!result?.accessToken) return;
@@ -191,12 +179,15 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 		engine.markComplete('inspect');
 	}, [result, envId, region, mode, engine]);
 
+	useEffect(() => {
+		saveState({ samlData, samlXml, samlB64, result, error, introspectData });
+	}, [samlData, samlXml, samlB64, result, error, introspectData, saveState]);
+
 	return (
 		<FlowContainer
 			title="SAML Bearer Assertion"
-			spec={spec}
+			spec="2.0"
 			mode={mode}
-			onModeChange={selectMode}
 			subtitle="SAML Bearer Assertion grant (RFC 7522) — exchange a SAML assertion for an access token."
 			engine={engine}
 		>
@@ -208,26 +199,20 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
-					<FlowDiagram
-						label="SAML 2.0 Bearer Assertion"
-						nodes={['SAML Assertion', 'Token EP', 'Access Token']}
-					/>
-					<SpecToggle spec={spec} onSpecChange={setSpec} />
+					<Toggle>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>
+							Real PingOne
+						</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>
+							Mock
+						</Pill>
+					</Toggle>
 					<Grid>
 						<FieldGroup label="Environment ID" value={envId} onChange={(e) => setEnvId(e.target.value)} placeholder="uuid" />
 						<FieldGroup label="Region" value={region} onChange={(e) => setRegion(e.target.value)} placeholder="com | eu | ca | asia" />
 						<FieldGroup label="Client ID" value={clientId} onChange={(e) => setClientId(e.target.value)} placeholder="oauth client id" />
 						<FieldGroup label="Scope (optional)" value={scopes} onChange={(e) => setScopes(e.target.value)} placeholder="e.g. openid profile" />
 					</Grid>
-					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={false} showRefreshToken={false} />
-					<SaveRow>
-						<SaveBtn
-							disabled={savingCreds}
-							onClick={() => saveCredentials({ envId, region, clientId })}
-						>
-							{savingCreds ? 'Saving…' : savedCreds ? 'Saved ✓' : 'Save credentials'}
-						</SaveBtn>
-					</SaveRow>
 				</FlowStep>
 			)}
 
@@ -265,13 +250,13 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 							label="NotBefore (optional)"
 							type="datetime-local"
 							value={samlData.notBefore?.split('.')[0] || ''}
-							onChange={(e) => setSamlData((s) => ({ ...s, notBefore: `${e.target.value}Z` }))}
+							onChange={(e) => setSamlData((s) => ({ ...s, notBefore: e.target.value + 'Z' }))}
 						/>
 						<FieldGroup
 							label="NotOnOrAfter (optional)"
 							type="datetime-local"
 							value={samlData.notOnOrAfter?.split('.')[0] || ''}
-							onChange={(e) => setSamlData((s) => ({ ...s, notOnOrAfter: `${e.target.value}Z` }))}
+							onChange={(e) => setSamlData((s) => ({ ...s, notOnOrAfter: e.target.value + 'Z' }))}
 						/>
 					</Grid>
 				</FlowStep>
@@ -308,20 +293,6 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 					onPrev={engine.goPrev}
 					canNext={Boolean(result)}
 				>
-					{(() => {
-						const ep = pingoneEndpoints({ environmentId: envId, region });
-						const curlReq: CurlRequest = {
-							method: 'POST',
-							url: ep.token,
-							params: {
-								grant_type: 'urn:ietf:params:oauth:grant-type:saml2-bearer',
-								assertion: samlB64 || '<base64_saml_assertion>',
-								client_id: clientId,
-								scope: scopes || undefined,
-							},
-						};
-						return <RequestPreview request={curlReq} />;
-					})()}
 					<Action onClick={handleRequestToken} disabled={loading}>
 						{loading ? 'Requesting...' : 'Request Token'}
 					</Action>

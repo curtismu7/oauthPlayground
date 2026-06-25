@@ -6,32 +6,24 @@
 //   3. JWKS       — fetch the signing keys and list kid / kty / alg / use per key
 //   4. Inspect    — explanation of why discovery and JWKS matter
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { CredentialsForm } from '../framework/CredentialsForm';
-import { useFlowCredentials } from '../framework/useFlowCredentials';
-import { RequestPreview } from '../framework/RequestPreview';
-import type { CurlRequest } from '../framework/RequestPreview';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowStep } from '../framework/FlowStep';
 import { FlowResult } from '../framework/FlowResult';
 import { useFlowEngine } from '../framework/useFlowEngine';
+import { FieldGroup } from '../framework/FieldGroup';
 import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { JsonView } from '../framework/CodeBlock';
-import { Action } from '../framework/primitives';
-import { FlowDiagram } from '../framework/FlowDiagram';
-import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type {
 	FlowCredentials,
 	FlowError,
 	FlowMode,
-	OAuthSpec,
 	StepDefinition,
-	TokenLifetimes,
 } from '../framework/types';
-import { pingoneEndpoints } from '../services/pingone';
 import {
 	oidcDiscoveryService,
 	type DiscoveryDocument,
@@ -49,9 +41,50 @@ const STEPS: StepDefinition[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Local styled components kept only for the table/key-card UI that has no
-// counterpart in primitives.tsx
+// Local styled primitives
 // ---------------------------------------------------------------------------
+
+const Toggle = styled.div`
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+`;
+
+const Pill = styled.button<{ $active: boolean }>`
+	font-size: 0.82rem;
+	font-weight: 600;
+	padding: 0.4rem 0.9rem;
+	border-radius: 8px;
+	cursor: pointer;
+	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
+	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
+	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
+`;
+
+const Action = styled.button`
+	align-self: flex-start;
+	font-size: 0.9rem;
+	font-weight: 700;
+	padding: 0.6rem 1.2rem;
+	border-radius: 8px;
+	border: 1px solid ${tokens.color.successBorder};
+	background: ${tokens.color.success};
+	color: #fff;
+	cursor: pointer;
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+`;
+
+const Grid = styled.div`
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.9rem;
+	@media (max-width: 640px) {
+		grid-template-columns: 1fr;
+	}
+`;
 
 const EndpointTable = styled.table`
 	width: 100%;
@@ -147,8 +180,6 @@ function pickSupported(doc: DiscoveryDocument): Array<{ label: string; field: st
 const OidcDiscoveryFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
-	const [spec, setSpec] = useState<OAuthSpec>('2.0');
-	const [oidc, setOidc] = useState(true);
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -158,22 +189,20 @@ const OidcDiscoveryFlow: React.FC = () => {
 	const [jwks, setJwks] = useState<JwksResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
-	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({
-		accessTokenSeconds: 3600,
-		idTokenSeconds: 3600,
-		refreshTokenSeconds: 86400,
-	});
-	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => {
-		setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) }));
-	};
 
-	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+	const { saveState, restoreState } = useFlowStorage('flows2:oidc-discovery');
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!discovery && saved.discovery) setDiscovery(saved.discovery as typeof discovery);
+			if (!jwks && saved.jwks) setJwks(saved.jwks as typeof jwks);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState, discovery, jwks, error]);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
-
-	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
-		useFlowCredentials('flows2:oidc-discovery', creds, setCreds);
 
 	const runDiscover = useCallback(async () => {
 		setLoading(true);
@@ -207,17 +236,18 @@ const OidcDiscoveryFlow: React.FC = () => {
 		}
 	}, [creds, mode, engine, discovery]);
 
-	// Discovery needs only environmentId + region — no client credentials.
-	// configured is true in mock mode unconditionally (runs offline).
-	const configured = mode === 'mock' ? true : Boolean(creds.environmentId && creds.region);
+	useEffect(() => {
+		saveState({ discovery, jwks, error });
+	}, [discovery, jwks, error, saveState]);
+
+	const configured = Boolean(creds.environmentId && creds.region);
 	const cur = engine.current.id;
 
 	return (
 		<FlowContainer
 			title="OIDC Discovery + JWKS"
-			spec={spec}
+			spec="2.0"
 			mode={mode}
-			onModeChange={selectMode}
 			subtitle="Fetch .well-known/openid-configuration so clients self-configure their endpoints, then inspect the JSON Web Key Set clients use to verify id_token signatures."
 			engine={engine}
 		>
@@ -233,25 +263,24 @@ const OidcDiscoveryFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
-					<FlowDiagram
-						label="OIDC Discovery"
-						nodes={['Client', '/.well-known', 'Metadata']}
-					/>
-					<SpecToggle
-						spec={spec}
-						onSpecChange={setSpec}
-						oidc={oidc}
-						onOidcToggle={() => setOidc((v) => !v)}
-					/>
-					<CredentialsForm
-						creds={creds}
-						set={set}
-						showSecret={false}
-						showScope={false}
-						onSave={saveCredentials}
-						saving={savingCreds}
-						saved={savedCreds}
-					/>
+					<Toggle>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+					</Toggle>
+					<Grid>
+						<FieldGroup
+							label="Environment ID"
+							value={creds.environmentId}
+							onChange={set('environmentId')}
+							placeholder="uuid"
+						/>
+						<FieldGroup
+							label="Region"
+							value={creds.region}
+							onChange={set('region')}
+							placeholder="com | eu | ca | asia"
+						/>
+					</Grid>
 					<ExplanationPanel title="What is OIDC Discovery?">
 						OpenID Connect Discovery (RFC 8414) lets any client learn an authorization server's
 						endpoints and capabilities from a single URL:
@@ -274,14 +303,6 @@ const OidcDiscoveryFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(discovery)}
 				>
-					{(() => {
-						const ep = pingoneEndpoints(creds);
-						const curlReq: CurlRequest = {
-							method: 'GET',
-							url: ep.discovery,
-						};
-						return <RequestPreview request={curlReq} />;
-					})()}
 					<Action onClick={runDiscover} disabled={loading || !configured}>
 						{loading ? 'Fetching…' : mode === 'real' ? 'Fetch discovery document' : 'Fetch mock discovery document'}
 					</Action>
