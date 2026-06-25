@@ -1,31 +1,36 @@
 // src/flows2/flows/deviceAuthorization.flow.tsx
 //
 // Device Authorization grant (RFC 8628), real PingOne by default. The user authorizes on a
-// second device using a short user_code while this flow polls the token endpoint. Uses the
-// shared flows2 primitives for visual parity with the other flows.
+// second device using a short user_code while this flow polls the token endpoint.
+//
+// Look-and-feel: standardized on the /v2/flows/authorization-code design language —
+// shared palette/primitives, signature FlowDiagram, header Real/Mock toggle, spec pills.
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
+import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
+import { Action, Grid, Pill, Toggle } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
 	FlowCredentials,
 	FlowError,
 	FlowMode,
+	OAuthSpec,
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { useFlowEngine } from '../framework/useFlowEngine';
 import {
-	deviceAuthorizationService as svc,
 	type DeviceCodeResult,
 	type PollStatus,
+	deviceAuthorizationService as svc,
 } from '../services/deviceAuthorizationService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -39,47 +44,14 @@ const STEPS: StepDefinition[] = [
 	{ id: 'use', title: 'Use Tokens', subtitle: 'Inspect the result' },
 ];
 
-const Grid = styled.div`
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 0.9rem;
-	@media (max-width: 640px) {
-		grid-template-columns: 1fr;
-	}
-`;
-
-const Toggle = styled.div`
-	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
-`;
-
-const Pill = styled.button<{ $active: boolean }>`
-	font-size: 0.82rem;
-	font-weight: 600;
-	padding: 0.4rem 0.9rem;
-	border-radius: 8px;
-	cursor: pointer;
-	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
-	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
-	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
-`;
-
-const Action = styled.button`
-	align-self: flex-start;
-	font-size: 0.9rem;
-	font-weight: 700;
-	padding: 0.6rem 1.2rem;
-	border-radius: 8px;
-	border: 1px solid ${tokens.color.successBorder};
-	background: ${tokens.color.success};
-	color: #fff;
-	cursor: pointer;
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-`;
+// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
+const MOCK_CREDS = {
+	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
+	region: 'com',
+	clientId: 'mock-client-demo-1234567890',
+	clientSecret: 'mock-client-secret',
+	scope: 'openid profile email',
+} as const;
 
 const UserCode = styled.div`
 	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -111,19 +83,19 @@ const Status = styled.div<{ $tone: PollStatus }>`
 			$tone === 'complete'
 				? tokens.color.successBorder
 				: $tone === 'denied' || $tone === 'expired' || $tone === 'error'
-					? '#fecaca'
+					? tokens.color.errorBorder
 					: tokens.color.border};
 	background: ${({ $tone }) =>
 		$tone === 'complete'
 			? tokens.color.successBg
 			: $tone === 'denied' || $tone === 'expired' || $tone === 'error'
-				? '#fef2f2'
+				? tokens.color.errorBg
 				: tokens.color.bgSubtle};
 	color: ${({ $tone }) =>
 		$tone === 'complete'
 			? tokens.color.success
 			: $tone === 'denied' || $tone === 'expired' || $tone === 'error'
-				? '#991b1b'
+				? tokens.color.errorMuted
 				: tokens.color.textSecondary};
 `;
 
@@ -139,6 +111,8 @@ const STATUS_TEXT: Record<PollStatus, string> = {
 const DeviceAuthorizationFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
+	const [spec, setSpec] = useState<OAuthSpec>('2.0');
+	const [oidc, setOidc] = useState(true);
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -180,6 +154,33 @@ const DeviceAuthorizationFlow: React.FC = () => {
 		};
 	}, [stopPolling]);
 
+	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	// Auto-populate mock credentials when mode changes; clear them when switching to real.
+	useEffect(() => {
+		if (mode === 'mock') {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId || MOCK_CREDS.environmentId,
+				region: c.region || MOCK_CREDS.region,
+				clientId: c.clientId || MOCK_CREDS.clientId,
+				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
+				scope: c.scope || MOCK_CREDS.scope,
+			}));
+		} else {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
+				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
+				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
+				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
+			}));
+		}
+		setDevice(null);
+		setStatus(null);
+		stopPolling();
+	}, [mode, stopPolling]);
+
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
@@ -212,7 +213,10 @@ const DeviceAuthorizationFlow: React.FC = () => {
 		const tick = async () => {
 			if (!active.current || !mounted.current || pollInProgress.current) return;
 			if (pollStartTime.current && Date.now() - pollStartTime.current > MAX_POLL_DURATION_MS) {
-				setError({ error: 'poll_timeout', error_description: 'Device authorization polling timed out after 15 minutes' });
+				setError({
+					error: 'poll_timeout',
+					error_description: 'Device authorization polling timed out after 15 minutes',
+				});
 				stopPolling();
 				return;
 			}
@@ -235,7 +239,10 @@ const DeviceAuthorizationFlow: React.FC = () => {
 				}
 				if (r.status === 'denied' || r.status === 'expired' || r.status === 'error') {
 					if (!mounted.current) return;
-					setError({ error: r.error?.error || r.status, error_description: r.error?.error_description });
+					setError({
+						error: r.error?.error || r.status,
+						error_description: r.error?.error_description,
+					});
 					stopPolling();
 					return;
 				}
@@ -258,15 +265,17 @@ const DeviceAuthorizationFlow: React.FC = () => {
 		timer.current = setTimeout(tick, intervalMs);
 	}, [device, creds, mode, engine, stopPolling]);
 
-	const configured = Boolean(creds.environmentId && creds.clientId);
+	// Mock runs offline — never gate it on real credentials.
+	const configured = mode === 'mock' ? true : Boolean(creds.environmentId && creds.clientId);
 	const cur = engine.current.id;
 	const verifyHref = device?.verificationUriComplete || device?.verificationUri;
 
 	return (
 		<FlowContainer
 			title="Device Authorization"
-			spec="2.0"
+			spec={spec}
 			mode={mode}
+			onModeChange={selectMode}
 			subtitle="Browserless / input-constrained devices (RFC 8628). The device shows a short user code; the user authorizes it on a phone or laptop while the device polls for tokens."
 			engine={engine}
 		>
@@ -279,9 +288,20 @@ const DeviceAuthorizationFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
+					<FlowDiagram
+						label="OAuth 2.0 Device Authorization Grant"
+						nodes={['Client', 'Device EP', 'User', 'Token']}
+					/>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>
+							OAuth 2.0
+						</Pill>
+						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>
+							OAuth 2.1
+						</Pill>
+						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>
+							OIDC {oidc ? 'on' : 'off'}
+						</Pill>
 					</Toggle>
 					<Toggle>
 						{(['client_secret_post', 'client_secret_basic'] as ClientAuthMethod[]).map((m) => (
@@ -295,11 +315,37 @@ const DeviceAuthorizationFlow: React.FC = () => {
 						))}
 					</Toggle>
 					<Grid>
-						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} placeholder="uuid" />
-						<FieldGroup label="Region" value={creds.region} onChange={set('region')} placeholder="com | eu | ca | asia" />
-						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} placeholder="device client id" />
-						<FieldGroup label="Client Secret (confidential clients)" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} placeholder="leave blank for public clients" />
-						<FieldGroup label="Scope" value={creds.scope ?? ''} onChange={set('scope')} placeholder="openid profile email" />
+						<FieldGroup
+							label="Environment ID"
+							value={creds.environmentId}
+							onChange={set('environmentId')}
+							placeholder="uuid"
+						/>
+						<FieldGroup
+							label="Region"
+							value={creds.region}
+							onChange={set('region')}
+							placeholder="com | eu | ca | asia"
+						/>
+						<FieldGroup
+							label="Client ID"
+							value={creds.clientId}
+							onChange={set('clientId')}
+							placeholder="device client id"
+						/>
+						<FieldGroup
+							label="Client Secret (confidential clients)"
+							type="password"
+							value={creds.clientSecret ?? ''}
+							onChange={set('clientSecret')}
+							placeholder="leave blank for public clients"
+						/>
+						<FieldGroup
+							label="Scope"
+							value={creds.scope ?? ''}
+							onChange={set('scope')}
+							placeholder="openid profile email"
+						/>
 					</Grid>
 					<ExplanationPanel title="When to use Device Authorization">
 						Use it when the device has no browser or no keyboard — smart TVs, CLIs, IoT. The user
@@ -319,7 +365,11 @@ const DeviceAuthorizationFlow: React.FC = () => {
 					canNext={Boolean(device)}
 				>
 					<Action onClick={requestCode} disabled={loading || !configured}>
-						{loading ? 'Requesting…' : mode === 'real' ? 'Request device code' : 'Request mock device code'}
+						{loading
+							? 'Requesting…'
+							: mode === 'real'
+								? 'Request device code'
+								: 'Request mock device code'}
 					</Action>
 					{error && !device && <FlowResult error={error} />}
 					{device && (
