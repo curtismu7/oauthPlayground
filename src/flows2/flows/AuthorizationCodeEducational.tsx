@@ -553,29 +553,17 @@ const AuthorizationCodeEducational: React.FC = () => {
 
 	// Save mode to localStorage when it changes
 	useEffect(() => {
-		try {
-			localStorage.setItem('authzCode_mode', JSON.stringify(mode));
-		} catch {
-			// localStorage unavailable or quota exceeded
-		}
+		localStorage.setItem('authzCode_mode', JSON.stringify(mode));
 	}, [mode]);
 
 	// Save sidebar collapsed state to localStorage when it changes
 	useEffect(() => {
-		try {
-			localStorage.setItem('authzCode_sidebar', JSON.stringify(sidebarCollapsed));
-		} catch {
-			// localStorage unavailable or quota exceeded
-		}
+		localStorage.setItem('authzCode_sidebar', JSON.stringify(sidebarCollapsed));
 	}, [sidebarCollapsed]);
 
 	// Save sidebar width to localStorage when it changes
 	useEffect(() => {
-		try {
-			localStorage.setItem('authzCode_panelWidth', JSON.stringify(sidebarWidth));
-		} catch {
-			// localStorage unavailable or quota exceeded
-		}
+		localStorage.setItem('authzCode_panelWidth', JSON.stringify(sidebarWidth));
 	}, [sidebarWidth]);
 
 	// Auto-fill mock credentials when mode changes
