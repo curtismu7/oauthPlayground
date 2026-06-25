@@ -167,16 +167,18 @@ Legend: ✨ = high value across many flows · 🔁 = already exists inline in au
 | `SpecToggle` 🔁✨ | 2.0/2.1 + OIDC pills, with 2.1-enforcement wired in one place | every grant flow | OAuth 2.1 |
 | `CredentialsForm` ✨ | The standard Env ID / Client ID / Secret / Redirect / Scope grid | ~all flows | — |
 | `PkceStep` 🔁 | Generate verifier + S256 challenge, with mock stand-in | auth-code, par, hybrid, redirectless | RFC 7636 |
-| `IntrospectPanel` 🔁✨ | "Introspect token" action + claims view | any flow yielding an access token | RFC 7662 |
-| `UserInfoPanel` 🔁✨ | OIDC UserInfo call + claims view | any OIDC flow with an access token | OIDC Core |
-| `RevokePanel` ✨ | Revoke an access/refresh token | any flow yielding a revocable token | RFC 7009 |
+| `IntrospectPanel` ✅ | "Introspect token" action + claims view | any flow yielding an access token | RFC 7662 |
+| `UserInfoPanel` ✅ | OIDC UserInfo call + claims view | any OIDC flow with an access token | OIDC Core |
+| `RevokePanel` ✅ | Revoke an access/refresh token | any flow yielding a revocable token | RFC 7009 |
+| `JwtDecodePanel` ✅ | Decode id_token / JWT access token (payload claims) | any flow with a JWT | RFC 7519 |
 | `RefreshPanel` ✨ | Exchange a refresh_token for new tokens | any flow returning offline_access | RFC 6749 §6 |
-| `JwtDecodePanel` ✨ | Decode id_token / JWT access token (header·payload·sig) | any flow with a JWT | RFC 7519 |
 | `RequestPreview` ✨ | Show the raw HTTP request (copy-as-curl) for teaching | all flows | — |
 | `TokenResultCard` | Standardized token display (wraps `ResultCard`/`FlowResult`) | all flows | — |
 
-### 7.3 The "Use Tokens" extension point
-Every flow that ends with tokens renders a **shared final step** built from a registry:
+### 7.3 The "Use Tokens" extension point ✅ built
+Implemented in `framework/UseTokensStep.tsx` (registry of `userinfo`/`introspect`/`revoke`/`decode`,
+backed by the existing mode-aware services). Wired into the reference flow + all token-yielding flows.
+Every flow that ends with tokens renders this **shared final step** built from a registry:
 
 ```tsx
 <UseTokensStep
