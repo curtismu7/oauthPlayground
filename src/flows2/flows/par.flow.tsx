@@ -29,6 +29,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { UseTokensStep } from '../framework/UseTokensStep';
 import { parService } from '../services/parService';
 import type { PkcePair } from '../services/parService';
 
@@ -299,7 +300,7 @@ const PARFlow: React.FC = () => {
 						<>
 							<ResultCard title="PAR response" tone="ok">
 								<CodeBlock label="request_uri" value={pushResult.requestUri} />
-								<CodeBlock label="expires_in" value={String(pushResult.expiresIn) + 's'} />
+								<CodeBlock label="expires_in" value={`${pushResult.expiresIn}s`} />
 							</ResultCard>
 							<JsonView data={pushResult.raw} />
 						</>
@@ -360,6 +361,12 @@ const PARFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
+					<UseTokensStep
+						result={result}
+						credentials={creds}
+						mode={mode}
+						tools={['userinfo', 'introspect', 'decode']}
+					/>
 					{result && (
 						<ResultCard title="Token response" tone="info">
 							<JsonView data={result.raw} />

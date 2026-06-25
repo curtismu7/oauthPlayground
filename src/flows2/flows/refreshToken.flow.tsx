@@ -27,6 +27,7 @@ import type {
 	OAuthSpec,
 	StepDefinition,
 } from '../framework/types';
+import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { type RefreshResult, refreshTokenService } from '../services/refreshTokenService';
 
@@ -286,6 +287,12 @@ const RefreshTokenFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
+					<UseTokensStep
+						result={result?.token ?? null}
+						credentials={creds}
+						mode={mode}
+						tools={['userinfo', 'introspect', 'decode']}
+					/>
 					{result && (
 						<>
 							<RotationBadge $rotated={result.rotated}>
