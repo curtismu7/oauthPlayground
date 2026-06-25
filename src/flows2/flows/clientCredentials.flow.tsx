@@ -5,7 +5,6 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { JsonView } from '../framework/CodeBlock';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
@@ -13,7 +12,6 @@ import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
 import { Action, Grid, Pill, Toggle } from '../framework/primitives';
-import { ResultCard } from '../framework/ResultCard';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
@@ -24,6 +22,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { clientCredentialsService } from '../services/clientCredentialsService';
 
@@ -80,7 +79,6 @@ const ClientCredentialsFlow: React.FC = () => {
 	const [discoveredScopes, setDiscoveredScopes] = useState<string[]>([]);
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
-	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -135,7 +133,6 @@ const ClientCredentialsFlow: React.FC = () => {
 		setLoading(true);
 		setError(null);
 		setResult(null);
-		setIntrospectData(null);
 		try {
 			const r = await clientCredentialsService.run(
 				{ credentials: creds, audience, resource },
@@ -149,12 +146,6 @@ const ClientCredentialsFlow: React.FC = () => {
 			setLoading(false);
 		}
 	}, [creds, audience, resource, mode, engine]);
-
-	const inspect = useCallback(async () => {
-		if (!result?.accessToken) return;
-		setIntrospectData(await clientCredentialsService.introspect(result.accessToken, creds, mode));
-		engine.markComplete('inspect');
-	}, [result, creds, mode, engine]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured =
@@ -301,14 +292,12 @@ const ClientCredentialsFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
-					<Action onClick={inspect} disabled={!result?.accessToken}>
-						Introspect access token
-					</Action>
-					{introspectData && (
-						<ResultCard title="Introspection (RFC 7662)" tone="info">
-							<JsonView data={introspectData} />
-						</ResultCard>
-					)}
+					<UseTokensStep
+						result={result}
+						credentials={creds}
+						mode={mode}
+						tools={['introspect', 'decode']}
+					/>
 				</FlowStep>
 			)}
 		</FlowContainer>
