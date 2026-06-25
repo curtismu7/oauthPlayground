@@ -2,7 +2,7 @@
 
 Tracking the rollout of the `/v2/flows/authorization-code` design language across every flows2 page.
 
-**Status:** 🟡 In progress · **Started:** 2026-06-24 · **Reference:** [`authorizationCode.flow.tsx`](../src/flows2/flows/authorizationCode.flow.tsx)
+**Status:** ✅ All 16 flows converted · **Started:** 2026-06-24 · **Reference:** [`authorizationCode.flow.tsx`](../src/flows2/flows/authorizationCode.flow.tsx)
 
 ---
 
@@ -87,31 +87,43 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (committed)
 - ✅ Parameterized `FlowDiagram` component (`framework/FlowDiagram.tsx`)
 - ✅ Refactor reference `authorizationCode.flow.tsx` onto shared pieces (render verified)
 
-### Phase 1 — Grant flows (palette + signature + spec toggle)
+### Phase 1 — Grant flows (palette + signature + spec toggle) ✅
 | Flow | File | LOC | Mode | Status |
 |---|---|---|---|---|
 | Authorization Code | authorizationCode.flow.tsx | 518 | real+mock | ✅ reference |
 | PAR | par.flow.tsx | 369 | real+mock | ✅ |
-| Device Authorization | deviceAuthorization.flow.tsx | 398 | real+mock | ⬜ |
-| Refresh Token | refreshToken.flow.tsx | 318 | real+mock | ⬜ |
-| ROPC | ropc.flow.tsx | 304 | real+mock | ⬜ |
-| Implicit / Hybrid | implicitHybrid.flow.tsx | 471 | verify | ⬜ |
-| Hybrid | hybrid.flow.tsx | 379 | verify | ⬜ |
-| Redirectless | redirectless.flow.tsx | 430 | real+mock | ⬜ |
+| Device Authorization | deviceAuthorization.flow.tsx | 398 | real+mock | ✅ |
+| Refresh Token | refreshToken.flow.tsx | 318 | real+mock | ✅ |
+| ROPC | ropc.flow.tsx | 304 | real+mock¹ | ✅ |
+| Implicit / Hybrid | implicitHybrid.flow.tsx | 471 | real+mock¹ | ✅ |
+| Hybrid | hybrid.flow.tsx | 379 | real+mock¹ | ✅ |
+| Redirectless | redirectless.flow.tsx | 430 | real+mock¹ | ✅ |
 
-### Phase 2 — Extension / utility flows (palette + signature)
+### Phase 2 — Extension / utility flows (palette + signature) ✅
 | Flow | File | LOC | Mode | Status |
 |---|---|---|---|---|
-| Client Credentials | clientCredentials.flow.tsx | 288 | real+mock | ⬜ |
-| Token Exchange | tokenExchange.flow.tsx | 254 | verify | ⬜ |
-| Token Introspection | tokenIntrospection.flow.tsx | 253 | real+mock | ⬜ |
-| Token Revocation | tokenRevocation.flow.tsx | 273 | real+mock | ⬜ |
-| UserInfo | userInfo.flow.tsx | 245 | real+mock | ⬜ |
-| OIDC Discovery | oidcDiscovery.flow.tsx | 445 | real+mock | ⬜ |
-| DPoP | dpop.flow.tsx | 386 | verify | ⬜ |
-| SAML Bearer | samlBearerAssertion.flow.tsx | 301 | verify | ⬜ |
+| Client Credentials | clientCredentials.flow.tsx | 288 | real+mock | ✅ |
+| Token Exchange | tokenExchange.flow.tsx | 254 | real+mock¹ | ✅ |
+| Token Introspection | tokenIntrospection.flow.tsx | 253 | real+mock | ✅ |
+| Token Revocation | tokenRevocation.flow.tsx | 273 | real+mock | ✅ |
+| UserInfo | userInfo.flow.tsx | 245 | real+mock | ✅ |
+| OIDC Discovery | oidcDiscovery.flow.tsx | 445 | real+mock | ✅ |
+| DPoP | dpop.flow.tsx | 386 | real+mock¹ | ✅ |
+| SAML Bearer | samlBearerAssertion.flow.tsx | 301 | real+mock¹ | ✅ |
 
-"verify" = confirm PingOne supports real mode before enabling; otherwise demote to mock-only.
+**🎉 All 16 flows now match the `/v2/flows/authorization-code` format.** Mock runs
+fully offline on every flow; real mode wires to the PingOne BFF.
+
+### Real-mode (PingOne support) notes ¹
+Real mode is wired and kept on every flow, but these depend on PingOne app/env config and
+may fail against a default worker app — mock always works for teaching:
+- **ROPC** — `grant_type=password` must be explicitly enabled on the app; removed in OAuth 2.1.
+- **Implicit / Hybrid** — needs `response_type=token` / `code id_token` enabled; discouraged in 2.1.
+- **Redirectless** — `response_mode=pi.flow` is PingOne-proprietary (not in any OAuth RFC).
+- **Token Exchange** — RFC 8693 needs a custom resource server + token-exchange scope.
+- **DPoP** — RFC 9449 support is environment-limited.
+- **SAML Bearer** — RFC 7522 needs IdP/assertion config beyond a standard worker app.
+- **Refresh Token** — rotation only visible if "Refresh Token Rotation" is enabled on the app.
 
 ---
 
