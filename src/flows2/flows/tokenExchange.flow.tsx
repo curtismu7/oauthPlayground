@@ -30,6 +30,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { type MayActResult, tokenExchangeService as svc } from '../services/tokenExchangeService';
 
@@ -83,7 +84,6 @@ const TokenExchangeFlow: React.FC = () => {
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [mayAct, setMayAct] = useState<MayActResult | null>(null);
-	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -115,7 +115,6 @@ const TokenExchangeFlow: React.FC = () => {
 		setLoading(true);
 		setError(null);
 		setResult(null);
-		setIntrospectData(null);
 		try {
 			const r = await svc.run(
 				{
@@ -140,12 +139,6 @@ const TokenExchangeFlow: React.FC = () => {
 		if (!subjectToken || !actorToken) return;
 		setMayAct(await svc.validateMayAct(subjectToken, actorToken, mode));
 	}, [subjectToken, actorToken, mode]);
-
-	const inspect = useCallback(async () => {
-		if (!result?.accessToken) return;
-		setIntrospectData(await svc.introspect(result.accessToken, creds, mode));
-		engine.markComplete('inspect');
-	}, [result, creds, mode, engine]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured =
@@ -301,14 +294,12 @@ const TokenExchangeFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
-					<Action onClick={inspect} disabled={!result?.accessToken}>
-						Introspect issued token
-					</Action>
-					{introspectData && (
-						<ResultCard title="Introspection (RFC 7662)" tone="info">
-							<JsonView data={introspectData} />
-						</ResultCard>
-					)}
+					<UseTokensStep
+						result={result}
+						credentials={creds}
+						mode={mode}
+						tools={['introspect', 'decode']}
+					/>
 				</FlowStep>
 			)}
 		</FlowContainer>
