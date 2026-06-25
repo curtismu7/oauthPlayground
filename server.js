@@ -14085,7 +14085,7 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 		const response = await global.fetch(deviceEndpoint, {
 			method: 'POST',
 			headers: requestHeaders,
-			body: jsonBodyString,
+			body: JSON.stringify(requestBody),
 		});
 		const duration = Date.now() - startTime;
 
@@ -17342,7 +17342,7 @@ app.post('/api/pingone/mfa/check-fido2-assertion', async (req, res) => {
 				Authorization: authorizationHeader,
 				Accept: 'application/json',
 			},
-			body: requestBodyString,
+			body: JSON.stringify(requestBody),
 		});
 
 		const duration = Date.now() - startTime;
@@ -17818,7 +17818,10 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 			});
 		}
 
-		const usersEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users?filter=username eq "${username}"`;
+		// Escape SCIM filter meta-characters in the user-supplied username to prevent
+		// filter injection (e.g. a username containing a double-quote breaking the filter).
+		const scimUsername = String(username).replace(/([\\"])/g, '\\$1');
+		const usersEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users?filter=username eq "${scimUsername}"`;
 
 		const requestHeaders = {
 			Authorization: `Bearer ${workerToken}`,
@@ -22274,6 +22277,11 @@ app.post('/api/pingone/mfa/dataExplorations-entries', async (req, res) => {
 app.get('/api/cli-cache/:environmentId', (req, res) => {
 	try {
 		const { environmentId } = req.params;
+		// Validate as a UUID before using in a filesystem path — prevents path traversal
+		// (e.g. environmentId = "../../.env") via the :environmentId route param.
+		if (!/^[0-9a-fA-F-]{36}$/.test(String(environmentId))) {
+			return res.status(400).json({ error: 'invalid_environment_id' });
+		}
 		const cacheFile = path.join(__dirname, 'user-cache', `${environmentId}.json`);
 
 		console.log('[CLI Cache] Checking for cache file:', cacheFile);
