@@ -69,7 +69,15 @@ async function discover(credentials: FlowCredentials, mode: FlowMode): Promise<s
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ issuerUrl }),
 	});
-	const data = (await res.json().catch(() => ({}))) as { scopes_supported?: unknown };
+	let data: { scopes_supported?: unknown; error?: unknown } = {};
+	try {
+		data = (await res.json()) as { scopes_supported?: unknown; error?: unknown };
+	} catch {
+		throw {
+			error: 'invalid_response',
+			error_description: 'Failed to discover available scopes — response was not valid JSON',
+		};
+	}
 	if (!res.ok || data.error) {
 		const errorCode = typeof data.error === 'string' && data.error ? data.error : 'discovery_failed';
 		throw {
@@ -126,7 +134,16 @@ export const clientCredentialsService = {
 			}),
 		});
 
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			throw {
+				error: 'invalid_response',
+				error_description: `Token request failed (HTTP ${res.status}) — response was not valid JSON`,
+				status: res.status,
+			};
+		}
 		if (!res.ok || data.error) {
 			throw {
 				error: (data.error as string) || 'token_request_failed',

@@ -128,7 +128,16 @@ export const tokenExchangeService = {
 				...(audience && audience.trim() ? { audience: audience.trim() } : {}),
 			}),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			throw {
+				error: 'invalid_response',
+				error_description: `Token exchange failed (HTTP ${res.status}) — response was not valid JSON`,
+				status: res.status,
+			};
+		}
 		if (!res.ok || data.error) {
 			throw {
 				error: (data.error as string) || 'token_exchange_failed',
@@ -147,7 +156,16 @@ export const tokenExchangeService = {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ subject_token: subjectToken, actor_token: actorToken }),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			return {
+				valid: false,
+				actClaim: null,
+				error: 'invalid_response',
+			};
+		}
 		return {
 			valid: Boolean(data.valid),
 			actClaim: (data.act_claim as Record<string, unknown>) ?? null,
