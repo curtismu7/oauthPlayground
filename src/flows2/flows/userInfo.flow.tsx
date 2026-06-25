@@ -5,7 +5,7 @@
 // claims about the authenticated end-user — the complement to the ID token.
 // Uses the shared flows2 primitives for visual parity with the other flows.
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowStep } from '../framework/FlowStep';
@@ -14,8 +14,10 @@ import { FieldGroup } from '../framework/FieldGroup';
 import { JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { FlowDiagram } from '../framework/FlowDiagram';
 import { tokens } from '../framework/tokens';
-import type { FlowError, FlowMode, StepDefinition } from '../framework/types';
+import type { FlowError, FlowMode, OAuthSpec, StepDefinition } from '../framework/types';
 import { decodeJwtPayload } from '../services/pingone';
 import {
 	userInfoEndpointFor,
@@ -31,47 +33,12 @@ const STEPS: StepDefinition[] = [
 	{ id: 'compare', title: 'Compare', subtitle: 'UserInfo vs ID token claims' },
 ];
 
-const Grid = styled.div`
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 0.9rem;
-	@media (max-width: 640px) {
-		grid-template-columns: 1fr;
-	}
-`;
-
-const Toggle = styled.div`
-	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
-`;
-
-const Pill = styled.button<{ $active: boolean }>`
-	font-size: 0.82rem;
-	font-weight: 600;
-	padding: 0.4rem 0.9rem;
-	border-radius: 8px;
-	cursor: pointer;
-	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
-	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
-	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
-`;
-
-const Action = styled.button`
-	align-self: flex-start;
-	font-size: 0.9rem;
-	font-weight: 700;
-	padding: 0.6rem 1.2rem;
-	border-radius: 8px;
-	border: 1px solid ${tokens.color.successBorder};
-	background: ${tokens.color.success};
-	color: #fff;
-	cursor: pointer;
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-`;
+// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
+const MOCK_CREDS = {
+	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
+	region: 'com',
+	accessToken: 'mock-access-token-userinfo-demo',
+} as const;
 
 const Endpoint = styled.code`
 	display: block;
@@ -83,12 +50,29 @@ const Endpoint = styled.code`
 const UserInfoFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
+	const [spec, setSpec] = useState<OAuthSpec>('2.0');
+	const [oidc, setOidc] = useState(true);
 	const [environmentId, setEnvironmentId] = useState(env.VITE_PINGONE_ENVIRONMENT_ID || '');
 	const [region, setRegion] = useState(env.VITE_PINGONE_REGION || 'com');
 	const [accessToken, setAccessToken] = useState('');
 	const [result, setResult] = useState<UserInfoResponse | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+
+	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	// Auto-populate mock credentials when mode changes; clear them when switching to real.
+	useEffect(() => {
+		if (mode === 'mock') {
+			setEnvironmentId((v) => v || MOCK_CREDS.environmentId);
+			setRegion((v) => v || MOCK_CREDS.region);
+			setAccessToken((v) => v || MOCK_CREDS.accessToken);
+		} else {
+			setEnvironmentId((v) => v === MOCK_CREDS.environmentId ? '' : v);
+			setRegion((v) => v === MOCK_CREDS.region ? 'com' : v);
+			setAccessToken((v) => v === MOCK_CREDS.accessToken ? '' : v);
+		}
+	}, [mode]);
 
 	const run = useCallback(async () => {
 		setLoading(true);
@@ -105,7 +89,9 @@ const UserInfoFlow: React.FC = () => {
 		}
 	}, [environmentId, region, accessToken, mode, engine]);
 
-	const configured = mode === 'mock' ? Boolean(environmentId) : Boolean(environmentId && accessToken);
+	// Mock runs offline — never gate it on real credentials.
+	const configured = mode === 'mock' ? true : Boolean(environmentId && accessToken);
+
 	// Decode the access token locally — works only if it's a JWT; null for opaque tokens.
 	const localClaims = useMemo(
 		() => (accessToken ? decodeJwtPayload(accessToken) : null),
@@ -116,8 +102,9 @@ const UserInfoFlow: React.FC = () => {
 	return (
 		<FlowContainer
 			title="UserInfo"
-			spec="2.0"
+			spec={spec}
 			mode={mode}
+			onModeChange={selectMode}
 			subtitle="OIDC §5.3. Present a user-delegated access token to the UserInfo endpoint and receive live, server-authoritative claims about the end-user — distinct from what was baked into the ID token at issue time."
 			engine={engine}
 		>
@@ -130,9 +117,14 @@ const UserInfoFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
+					<FlowDiagram
+						label="OIDC UserInfo"
+						nodes={['Access Token', 'UserInfo EP', 'Claims']}
+					/>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>OAuth 2.0</Pill>
+						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>OAuth 2.1</Pill>
+						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>OIDC {oidc ? 'on' : 'off'}</Pill>
 					</Toggle>
 					<Grid>
 						<FieldGroup
