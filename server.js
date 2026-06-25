@@ -38,6 +38,7 @@ import webhooksRouter from './server/routes/webhooks.js';
 // import { credentialsSqliteApi } from './src/api/credentialsSqliteApi.js';
 // import databaseApiRoutes from './src/server/routes/databaseApiRoutes.js';
 // import { registerTokenStorageRoutes } from './src/server/tokenStorageApi.js';
+import { setupWorkerTokenRoutes } from './src/server/routes/workerTokenApiRoutes.js';
 
 dotenv.config();
 
@@ -1093,6 +1094,9 @@ let credentialStore = {
 
 // Register token storage API routes
 // registerTokenStorageRoutes(app);
+
+// Register worker token API routes
+setupWorkerTokenRoutes(app);
 
 // ============================================================================
 // LOG FILE VIEWER API ENDPOINTS
