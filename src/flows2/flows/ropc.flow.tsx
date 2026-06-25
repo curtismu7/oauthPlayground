@@ -27,6 +27,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { ropcService } from '../services/ropcService';
 
@@ -287,6 +288,12 @@ const RopcFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
+					<UseTokensStep
+						result={result}
+						credentials={creds}
+						mode={mode}
+						tools={['userinfo', 'introspect', 'decode']}
+					/>
 					<FlowResult result={result} />
 					<ExplanationPanel title="Why ROPC was removed from OAuth 2.1" defaultOpen>
 						OAuth 2.1 (draft-ietf-oauth-v2-1-12 §B.1.1) formally removes the password grant because:
