@@ -3,18 +3,18 @@
 // SAML Bearer Assertion grant (RFC 7522), real PingOne by default.
 // Generates a mock SAML 2.0 assertion and exchanges it for an access token.
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
-import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { FieldGroup } from '../framework/FieldGroup';
 import { JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { FlowDiagram } from '../framework/FlowDiagram';
 import { tokens } from '../framework/tokens';
-import type { FlowError, FlowMode, StepDefinition, TokenResult } from '../framework/types';
+import type { FlowError, FlowMode, OAuthSpec, StepDefinition, TokenResult } from '../framework/types';
 import { samlBearerService, type SAMLBearerAssertionData } from '../services/samlBearerService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -27,56 +27,24 @@ const STEPS: StepDefinition[] = [
 	{ id: 'inspect', title: 'Inspect', subtitle: 'Introspect token' },
 ];
 
-const Grid = styled.div`
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 0.9rem;
-	@media (max-width: 640px) {
-		grid-template-columns: 1fr;
-	}
-`;
+// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
+const MOCK_CREDS = {
+	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
+	region: 'com',
+	clientId: 'mock-client-demo-1234567890',
+	clientSecret: 'mock-client-secret',
+} as const;
 
-const Pill = styled.button<{ $active: boolean }>`
-	font-size: 0.82rem;
-	font-weight: 600;
-	padding: 0.4rem 0.9rem;
-	border-radius: 8px;
-	cursor: pointer;
-	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
-	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
-	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
-`;
-
-const Action = styled.button`
-	align-self: flex-start;
-	font-size: 0.9rem;
-	font-weight: 700;
-	padding: 0.6rem 1.2rem;
-	border-radius: 8px;
-	border: 1px solid ${tokens.color.successBorder};
-	background: ${tokens.color.success};
-	color: #fff;
-	cursor: pointer;
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-`;
-
-const Toggle = styled.div`
-	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
-`;
-
+// Local styled components not in primitives.tsx
 const Hint = styled.div`
 	font-size: 0.78rem;
 	color: ${tokens.color.textMuted};
 	margin-bottom: 0.3rem;
 `;
 
+// bgMuted does not exist in tokens.ts — replaced with bgSubtle (the correct token).
 const CodeBox = styled.pre`
-	background: ${tokens.color.bgMuted};
+	background: ${tokens.color.bgSubtle};
 	border: 1px solid ${tokens.color.border};
 	border-radius: 6px;
 	padding: 1rem;
@@ -88,6 +56,7 @@ const CodeBox = styled.pre`
 const SAMLBearerAssertionFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
+	const [spec, setSpec] = useState<OAuthSpec>('2.0');
 
 	// Step 1: Configure
 	const [envId, setEnvId] = useState(env.VITE_PINGONE_ENVIRONMENT_ID || '');
@@ -99,8 +68,8 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 		issuer: 'https://idp.example.com',
 		subject: 'user@example.com',
 		audience: '',
-		notBefore: new Date().toISOString().split('.')[0] + 'Z',
-		notOnOrAfter: new Date(Date.now() + 3600000).toISOString().split('.')[0] + 'Z',
+		notBefore: `${new Date().toISOString().split('.')[0]}Z`,
+		notOnOrAfter: `${new Date(Date.now() + 3600000).toISOString().split('.')[0]}Z`,
 	});
 
 	const [scopes, setScopes] = useState('');
@@ -117,8 +86,23 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 	// Step 5: Inspect
 	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 
-	const configured = Boolean(envId && clientId && samlData.issuer && samlData.subject);
-	const samlComplete = samlXml && samlB64;
+	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	// Auto-populate mock credentials when mode changes; clear them when switching to real.
+	useEffect(() => {
+		if (mode === 'mock') {
+			setEnvId((v) => v || MOCK_CREDS.environmentId);
+			setRegion((v) => v || MOCK_CREDS.region);
+			setClientId((v) => v || MOCK_CREDS.clientId);
+		} else {
+			setEnvId((v) => v === MOCK_CREDS.environmentId ? '' : v);
+			setRegion((v) => v === MOCK_CREDS.region ? 'com' : v);
+			setClientId((v) => v === MOCK_CREDS.clientId ? '' : v);
+		}
+	}, [mode]);
+
+	// Mock runs offline — never gate it on real credentials.
+	const configured = mode === 'mock' ? true : Boolean(envId && clientId && samlData.issuer && samlData.subject);
 	const cur = engine.current.id;
 
 	const handleGenerateSAML = useCallback(async () => {
@@ -168,8 +152,9 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 	return (
 		<FlowContainer
 			title="SAML Bearer Assertion"
-			spec="2.0"
+			spec={spec}
 			mode={mode}
+			onModeChange={selectMode}
 			subtitle="SAML Bearer Assertion grant (RFC 7522) — exchange a SAML assertion for an access token."
 			engine={engine}
 		>
@@ -181,13 +166,13 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
+					<FlowDiagram
+						label="SAML 2.0 Bearer Assertion"
+						nodes={['SAML Assertion', 'Token EP', 'Access Token']}
+					/>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>
-							Real PingOne
-						</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>
-							Mock
-						</Pill>
+						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>OAuth 2.0</Pill>
+						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>OAuth 2.1</Pill>
 					</Toggle>
 					<Grid>
 						<FieldGroup label="Environment ID" value={envId} onChange={(e) => setEnvId(e.target.value)} placeholder="uuid" />
@@ -232,13 +217,13 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 							label="NotBefore (optional)"
 							type="datetime-local"
 							value={samlData.notBefore?.split('.')[0] || ''}
-							onChange={(e) => setSamlData((s) => ({ ...s, notBefore: e.target.value + 'Z' }))}
+							onChange={(e) => setSamlData((s) => ({ ...s, notBefore: `${e.target.value}Z` }))}
 						/>
 						<FieldGroup
 							label="NotOnOrAfter (optional)"
 							type="datetime-local"
 							value={samlData.notOnOrAfter?.split('.')[0] || ''}
-							onChange={(e) => setSamlData((s) => ({ ...s, notOnOrAfter: e.target.value + 'Z' }))}
+							onChange={(e) => setSamlData((s) => ({ ...s, notOnOrAfter: `${e.target.value}Z` }))}
 						/>
 					</Grid>
 				</FlowStep>
