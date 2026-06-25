@@ -81,17 +81,17 @@ For the right-column flows the **signature element** is the distinctive trait, n
 
 Legend: ⬜ not started · 🟨 in progress · ✅ done (committed)
 
-### Phase 0 — Framework extraction (foundation)
-- ⬜ Extend `tokens.ts` (accent + neutral scale)
-- ⬜ Shared `Pill` / `Action` / `Toggle` / `Note` styled-components
-- ⬜ Parameterized `FlowDiagram` component
-- ⬜ Refactor reference `authorizationCode.flow.tsx` onto shared pieces
+### Phase 0 — Framework extraction (foundation) ✅
+- ✅ Extend `tokens.ts` (accent + neutral scale)
+- ✅ Shared `Pill` / `Action` / `Toggle` / `Note` / `Grid` (`framework/primitives.tsx`)
+- ✅ Parameterized `FlowDiagram` component (`framework/FlowDiagram.tsx`)
+- ✅ Refactor reference `authorizationCode.flow.tsx` onto shared pieces (render verified)
 
 ### Phase 1 — Grant flows (palette + signature + spec toggle)
 | Flow | File | LOC | Mode | Status |
 |---|---|---|---|---|
 | Authorization Code | authorizationCode.flow.tsx | 518 | real+mock | ✅ reference |
-| PAR | par.flow.tsx | 369 | real+mock | ⬜ |
+| PAR | par.flow.tsx | 369 | real+mock | ✅ |
 | Device Authorization | deviceAuthorization.flow.tsx | 398 | real+mock | ⬜ |
 | Refresh Token | refreshToken.flow.tsx | 318 | real+mock | ⬜ |
 | ROPC | ropc.flow.tsx | 304 | real+mock | ⬜ |
