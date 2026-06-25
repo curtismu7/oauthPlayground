@@ -16,11 +16,14 @@ import { FieldGroup } from '../framework/FieldGroup';
 import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { JsonView } from '../framework/CodeBlock';
+import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { FlowDiagram } from '../framework/FlowDiagram';
 import { tokens } from '../framework/tokens';
 import type {
 	FlowCredentials,
 	FlowError,
 	FlowMode,
+	OAuthSpec,
 	StepDefinition,
 } from '../framework/types';
 import {
@@ -40,50 +43,9 @@ const STEPS: StepDefinition[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Local styled primitives
+// Local styled components kept only for the table/key-card UI that has no
+// counterpart in primitives.tsx
 // ---------------------------------------------------------------------------
-
-const Toggle = styled.div`
-	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
-`;
-
-const Pill = styled.button<{ $active: boolean }>`
-	font-size: 0.82rem;
-	font-weight: 600;
-	padding: 0.4rem 0.9rem;
-	border-radius: 8px;
-	cursor: pointer;
-	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
-	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
-	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
-`;
-
-const Action = styled.button`
-	align-self: flex-start;
-	font-size: 0.9rem;
-	font-weight: 700;
-	padding: 0.6rem 1.2rem;
-	border-radius: 8px;
-	border: 1px solid ${tokens.color.successBorder};
-	background: ${tokens.color.success};
-	color: #fff;
-	cursor: pointer;
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-`;
-
-const Grid = styled.div`
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 0.9rem;
-	@media (max-width: 640px) {
-		grid-template-columns: 1fr;
-	}
-`;
 
 const EndpointTable = styled.table`
 	width: 100%;
@@ -179,6 +141,8 @@ function pickSupported(doc: DiscoveryDocument): Array<{ label: string; field: st
 const OidcDiscoveryFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
+	const [spec, setSpec] = useState<OAuthSpec>('2.0');
+	const [oidc, setOidc] = useState(true);
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -188,6 +152,8 @@ const OidcDiscoveryFlow: React.FC = () => {
 	const [jwks, setJwks] = useState<JwksResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+
+	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -224,14 +190,17 @@ const OidcDiscoveryFlow: React.FC = () => {
 		}
 	}, [creds, mode, engine, discovery]);
 
-	const configured = Boolean(creds.environmentId && creds.region);
+	// Discovery needs only environmentId + region — no client credentials.
+	// configured is true in mock mode unconditionally (runs offline).
+	const configured = mode === 'mock' ? true : Boolean(creds.environmentId && creds.region);
 	const cur = engine.current.id;
 
 	return (
 		<FlowContainer
 			title="OIDC Discovery + JWKS"
-			spec="2.0"
+			spec={spec}
 			mode={mode}
+			onModeChange={selectMode}
 			subtitle="Fetch .well-known/openid-configuration so clients self-configure their endpoints, then inspect the JSON Web Key Set clients use to verify id_token signatures."
 			engine={engine}
 		>
@@ -247,9 +216,14 @@ const OidcDiscoveryFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
+					<FlowDiagram
+						label="OIDC Discovery"
+						nodes={['Client', '/.well-known', 'Metadata']}
+					/>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>OAuth 2.0</Pill>
+						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>OAuth 2.1</Pill>
+						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>OIDC {oidc ? 'on' : 'off'}</Pill>
 					</Toggle>
 					<Grid>
 						<FieldGroup
