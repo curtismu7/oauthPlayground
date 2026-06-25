@@ -1,13 +1,17 @@
 // src/flows2/flows/redirectless.flow.tsx
 //
-// Redirectless / pi.flow grant. PingOne response_mode=pi.flow returns a JSON flow object
-// instead of issuing a browser redirect; the SPA drives login by submitting credentials
-// directly to the PingOne Flow API (via the BFF), then polls until the flow reaches
-// COMPLETED and tokens arrive. Good for mobile / native / SPA embedded-auth UX.
+// Redirectless (pi.flow). This is the ordinary Authorization Code flow with ONE extra
+// parameter on the /authorize request: response_mode=pi.flow. That single change makes
+// PingOne skip the browser redirect — /authorize returns the authorization response as a
+// JSON "flow" object (HTTP 200) instead of a 302, redirect_uri is not required, and the
+// app drives any interactive steps (e.g. username/password) through the flow object until
+// tokens are returned directly in the JSON body. Good for native mobile apps and SPAs that
+// render their own login UI.
+// Ref: https://developer.pingidentity.com/pingone-api/auth/auth-config-options/browserless-authentication-flow-options.html
 //
-// FLAG: pi.flow / response_mode=pi.flow is a PingOne-specific extension — it is NOT
-// part of any OAuth 2.0 or 2.1 RFC. Real mode requires a PingOne environment and an
-// application configured to allow this grant. Mock mode runs fully offline.
+// FLAG: response_mode=pi.flow is a PingOne extension — not part of any OAuth 2.0/2.1 RFC
+// (the underlying grant is standard Authorization Code). Real mode requires a PingOne
+// environment with the app configured for pi.flow. Mock mode runs fully offline.
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -270,7 +274,7 @@ const RedirectlessFlow: React.FC = () => {
 			spec={spec}
 			mode={mode}
 			onModeChange={selectMode}
-			subtitle="Native / embedded authentication without a browser redirect. PingOne returns a JSON flow object (response_mode=pi.flow) that the SPA drives directly — no redirect to a hosted login page."
+			subtitle="The Authorization Code flow with one added parameter — response_mode=pi.flow. PingOne skips the browser redirect: /authorize returns the authorization response as a JSON flow object (no redirect_uri needed) and tokens come back directly in the response body."
 			engine={engine}
 		>
 			{cur === 'configure' && (
@@ -283,8 +287,9 @@ const RedirectlessFlow: React.FC = () => {
 					canNext={configured}
 				>
 					<FlowDiagram
-						label="PingOne Redirectless (pi.flow)"
-						nodes={['Client', 'pi.flow', 'User', 'Token']}
+						label="Authorization Code + response_mode=pi.flow"
+						nodes={['Client', '/authorize +pi.flow', 'Tokens (JSON)']}
+						returnPath={false}
 					/>
 					<SpecToggle spec={spec} onSpecChange={setSpec} />
 					<CredentialsForm
@@ -307,13 +312,15 @@ const RedirectlessFlow: React.FC = () => {
 							placeholder="user password"
 						/>
 					</Grid>
-					<ExplanationPanel title="When to use pi.flow / redirectless">
-						Redirectless authentication (response_mode=pi.flow) lets a first-party SPA or mobile app
-						drive the login ceremony without redirecting the user to a hosted login page. PingOne
-						returns a JSON flow object; the app advances it step-by-step through the Flow API. The
-						main security tradeoff is that credentials pass through the application itself, so this
-						grant is only appropriate for highly trusted first-party clients — a third-party app
-						should always use Authorization Code + redirect instead.
+					<ExplanationPanel title="It's Authorization Code + one parameter">
+						pi.flow is not a separate grant — it is the standard Authorization Code request with
+						<code> response_mode=pi.flow</code> added. That one parameter tells PingOne to skip the
+						browser redirect: <code>redirect_uri</code> is no longer required, <code>/authorize</code>
+						returns the authorization response as a JSON flow object (HTTP 200), and the app advances
+						any interactive steps through that object until tokens are returned directly in the body.
+						The security tradeoff is that credentials pass through the application itself, so this is
+						only appropriate for highly trusted first-party clients — a third-party app should always
+						use Authorization Code with a browser redirect instead.
 					</ExplanationPanel>
 				</FlowStep>
 			)}
