@@ -466,7 +466,7 @@ const Navbar: React.FC<NavbarProps> = ({
 				<NavItems role="navigation" aria-label="Main navigation">
 					<Link
 						to="/ai-assistant"
-						title="Open MasterFlow Agent - ask about flows, config, and OIDC"
+						title="Open OAuth Playground Agent - ask about flows, config, and OIDC"
 					>
 						<FiMessageCircle aria-hidden="true" />
 						<span>Assistant</span>

@@ -22,6 +22,7 @@ import { RequestPreview } from '../framework/RequestPreview';
 import type { CurlRequest } from '../framework/RequestPreview';
 import { CredentialsForm } from '../framework/CredentialsForm';
 import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import { SpecToggle } from '../framework/SpecToggle';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { clearStash, loadStash, saveStash } from '../framework/authzStash';
@@ -66,7 +67,7 @@ const MOCK_CREDS = {
 	region: 'com',
 	clientId: 'mock-client-demo-1234567890',
 	clientSecret: 'mock-client-secret',
-	scope: 'openid profile email',
+	scope: 'openid',
 } as const;
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -102,6 +103,8 @@ const PARFlow: React.FC = () => {
 
 	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
 		useFlowCredentials('flows2:par', creds, setCreds);
+
+	const { saveState, restoreState } = useFlowStorage('flows2:par');
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -157,6 +160,18 @@ const PARFlow: React.FC = () => {
 			engine.goTo(3); // exchange step
 		}
 	}, [engine]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!code && saved.code) setCode(saved.code as string);
+			if (!result && saved.result) setResult(saved.result as TokenResult | null);
+			if (!error && saved.error) setError(saved.error as FlowError | null);
+			if (!pkce && saved.pkce) setPkce(saved.pkce as typeof pkce);
+			if (!pushResult && saved.pushResult) setPushResult(saved.pushResult as typeof pushResult);
+			if (!authState && saved.authState) setAuthState(saved.authState as string);
+		});
+	}, [restoreState]);
 
 	// ─── Step handlers ────────────────────────────────────────────────────────
 
@@ -239,6 +254,10 @@ const PARFlow: React.FC = () => {
 			setLoading(false);
 		}
 	}, [pkce, code, creds, redirectUri, mode, tokenLifetimes, engine]);
+
+	useEffect(() => {
+		saveState({ code, result, error, pkce, pushResult, authState });
+	}, [code, result, error, pkce, pushResult, authState, saveState]);
 
 	// ─── Computed guards ──────────────────────────────────────────────────────
 

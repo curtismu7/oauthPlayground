@@ -4,39 +4,25 @@
 // Taught as an explicit ANTI-PATTERN: removed in OAuth 2.1 because the client
 // handles the user's password directly, defeating MFA, consent, and federation.
 // Only justifiable for legacy first-party migration scenarios.
-//
-// Look-and-feel: standardized on the /v2/flows/authorization-code design language —
-// shared palette/primitives, signature FlowDiagram, header Real/Mock toggle, spec pills.
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { CredentialsForm } from '../framework/CredentialsForm';
-import { useFlowCredentials } from '../framework/useFlowCredentials';
-import { RequestPreview } from '../framework/RequestPreview';
-import type { CurlRequest } from '../framework/RequestPreview';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
-import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { Action, Grid, Pill, Toggle } from '../framework/primitives';
-import { SpecToggle } from '../framework/SpecToggle';
-import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import { FieldGroup } from '../framework/FieldGroup';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
 	FlowCredentials,
 	FlowError,
 	FlowMode,
-	OAuthSpec,
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
-import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
-import { UseTokensStep } from '../framework/UseTokensStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { pingoneEndpoints } from '../services/pingone';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import { ropcService } from '../services/ropcService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -47,14 +33,47 @@ const STEPS: StepDefinition[] = [
 	{ id: 'use', title: 'Use Tokens', subtitle: 'Inspect the result' },
 ];
 
-// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
-const MOCK_CREDS = {
-	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
-	region: 'com',
-	clientId: 'mock-client-demo-1234567890',
-	clientSecret: 'mock-client-secret',
-	scope: 'openid profile email',
-} as const;
+const Grid = styled.div`
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.9rem;
+	@media (max-width: 640px) {
+		grid-template-columns: 1fr;
+	}
+`;
+
+const Toggle = styled.div`
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+`;
+
+const Pill = styled.button<{ $active: boolean }>`
+	font-size: 0.82rem;
+	font-weight: 600;
+	padding: 0.4rem 0.9rem;
+	border-radius: 8px;
+	cursor: pointer;
+	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
+	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
+	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
+`;
+
+const Action = styled.button`
+	align-self: flex-start;
+	font-size: 0.9rem;
+	font-weight: 700;
+	padding: 0.6rem 1.2rem;
+	border-radius: 8px;
+	border: 1px solid ${tokens.color.successBorder};
+	background: ${tokens.color.success};
+	color: #fff;
+	cursor: pointer;
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+`;
 
 // Warning banner for the anti-pattern callout — amber/orange palette to signal caution.
 const WarningBanner = styled.div`
@@ -80,19 +99,12 @@ const WarningTitle = styled.div`
 const RopcFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
-	const [spec, setSpec] = useState<OAuthSpec>('2.0');
-	const [oidc, setOidc] = useState(true);
-	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({
-		accessTokenSeconds: 3600,
-		idTokenSeconds: 3600,
-		refreshTokenSeconds: 86400,
-	});
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
 		clientId: env.VITE_PINGONE_USER_CLIENT_ID || '',
 		clientSecret: env.VITE_PINGONE_USER_CLIENT_SECRET || '',
-		scope: 'openid profile email',
+		scope: 'openid',
 		authMethod: 'client_secret_post',
 	});
 	const [username, setUsername] = useState('');
@@ -101,39 +113,10 @@ const RopcFlow: React.FC = () => {
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
 
+	const { saveState, restoreState } = useFlowStorage('flows2:ropc');
+
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
-
-	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => {
-		setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) }));
-	};
-
-	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
-
-	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
-		useFlowCredentials('flows2:ropc', creds, setCreds);
-
-	// Auto-populate mock credentials when mode changes; clear them when switching to real.
-	useEffect(() => {
-		if (mode === 'mock') {
-			setCreds((c) => ({
-				...c,
-				environmentId: c.environmentId || MOCK_CREDS.environmentId,
-				region: c.region || MOCK_CREDS.region,
-				clientId: c.clientId || MOCK_CREDS.clientId,
-				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
-				scope: c.scope || MOCK_CREDS.scope,
-			}));
-		} else {
-			setCreds((c) => ({
-				...c,
-				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
-				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
-				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
-				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
-			}));
-		}
-	}, [mode]);
 
 	const requestToken = useCallback(async () => {
 		setLoading(true);
@@ -145,10 +128,7 @@ const RopcFlow: React.FC = () => {
 			return;
 		}
 		try {
-			const r = await ropcService.runPasswordGrant(creds, username, password, mode, {
-				tokenLifetimes,
-				authMethod: creds.authMethod,
-			});
+			const r = await ropcService.runPasswordGrant(creds, username, password, mode);
 			setResult(r);
 			engine.markComplete('request');
 			engine.goNext();
@@ -157,33 +137,45 @@ const RopcFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, username, password, mode, engine, tokenLifetimes]);
+	}, [creds, username, password, mode, engine]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+			if (!username && saved.username) setUsername(saved.username as string);
+		});
+	}, [restoreState, result, error, username]);
+
+	useEffect(() => {
+		saveState({ result, error, username });
+	}, [result, error, username, saveState]);
 
 	// All three fields required before the token request is allowed.
 	const canRequest = Boolean(creds.environmentId && creds.clientId && username && password);
-	// Mock runs offline — never gate it on real credentials.
-	const configured = mode === 'mock' ? true : Boolean(creds.environmentId && creds.clientId);
+	const configured = Boolean(creds.environmentId && creds.clientId);
 	const cur = engine.current.id;
 
 	return (
 		<FlowContainer
 			title="Resource Owner Password Credentials"
-			spec={spec}
+			spec="2.0"
 			mode={mode}
-			onModeChange={selectMode}
 			subtitle="RFC 6749 §4.3 — the client collects the user's username and password and posts them directly to the token endpoint. Removed in OAuth 2.1."
 			engine={engine}
 		>
 			{/* Anti-pattern warning is shown on every step so the teaching message is persistent. */}
 			<WarningBanner>
 				<WarningTitle>Anti-pattern — removed in OAuth 2.1</WarningTitle>
-				ROPC requires the client to directly handle the user's password. This defeats multi-factor
-				authentication (the AS never gets to challenge the user), consent screens (the user cannot
-				see or approve requested scopes), and identity federation (SSO/social login is impossible).
-				The client is also tempted to store the password for reuse. OAuth 2.1
-				(draft-ietf-oauth-v2-1) removes this grant entirely. Only consider it for legacy first-party
-				migration when no redirect-capable browser is available — and replace it with Authorization
-				Code + PKCE as soon as feasible.
+				ROPC requires the client to directly handle the user's password. This defeats
+				multi-factor authentication (the AS never gets to challenge the user), consent
+				screens (the user cannot see or approve requested scopes), and identity
+				federation (SSO/social login is impossible). The client is also tempted to store
+				the password for reuse. OAuth 2.1 (draft-ietf-oauth-v2-1) removes this grant
+				entirely. Only consider it for legacy first-party migration when no redirect-capable
+				browser is available — and replace it with Authorization Code + PKCE as soon
+				as feasible.
 			</WarningBanner>
 
 			{cur === 'configure' && (
@@ -195,16 +187,10 @@ const RopcFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
-					<FlowDiagram
-						label="OAuth 2.0 Resource Owner Password"
-						nodes={['User', 'Client', 'Token EP', 'Token']}
-					/>
-					<SpecToggle
-						spec={spec}
-						onSpecChange={setSpec}
-						oidc={oidc}
-						onOidcToggle={() => setOidc((v) => !v)}
-					/>
+					<Toggle>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+					</Toggle>
 					<Toggle>
 						{(['client_secret_post', 'client_secret_basic'] as ClientAuthMethod[]).map((m) => (
 							<Pill
@@ -216,26 +202,45 @@ const RopcFlow: React.FC = () => {
 							</Pill>
 						))}
 					</Toggle>
-					<CredentialsForm
-						creds={creds}
-						set={set}
-						scopePlaceholder="openid profile email"
-						onSave={saveCredentials}
-						saving={savingCreds}
-						saved={savedCreds}
-					/>
-					<TokenLifetimeConfig
-						lifetimes={tokenLifetimes}
-						onChange={updateTokenLifetime}
-						showIdToken={oidc}
-						showRefreshToken={true}
-					/>
+					<Grid>
+						<FieldGroup
+							label="Environment ID"
+							value={creds.environmentId}
+							onChange={set('environmentId')}
+							placeholder="uuid"
+						/>
+						<FieldGroup
+							label="Region"
+							value={creds.region}
+							onChange={set('region')}
+							placeholder="com | eu | ca | asia"
+						/>
+						<FieldGroup
+							label="Client ID"
+							value={creds.clientId}
+							onChange={set('clientId')}
+							placeholder="your-client-id"
+						/>
+						<FieldGroup
+							label="Client Secret"
+							type="password"
+							value={creds.clientSecret ?? ''}
+							onChange={set('clientSecret')}
+							placeholder="your-client-secret"
+						/>
+						<FieldGroup
+							label="Scope"
+							value={creds.scope ?? ''}
+							onChange={set('scope')}
+							placeholder="openid profile email"
+						/>
+					</Grid>
 					<ExplanationPanel title="Client auth: post vs basic">
 						client_secret_post sends client_id and client_secret in the POST body.
 						client_secret_basic sends them as an HTTP Basic Authorization header
-						(base64(client_id:client_secret)). Both are RFC 6749 §2.3 compliant; PingOne supports
-						either. The password grant parameters (username, password, scope) always go in the body
-						regardless of which method you choose.
+						(base64(client_id:client_secret)). Both are RFC 6749 §2.3 compliant; PingOne
+						supports either. The password grant parameters (username, password, scope) always
+						go in the body regardless of which method you choose.
 					</ExplanationPanel>
 				</FlowStep>
 			)}
@@ -263,32 +268,20 @@ const RopcFlow: React.FC = () => {
 							placeholder="user password"
 						/>
 					</Grid>
-					{(() => {
-						const ep = pingoneEndpoints(creds);
-						const curlReq: CurlRequest = {
-							method: 'POST',
-							url: ep.token,
-							params: {
-								grant_type: 'password',
-								username: username || '<username>',
-								password: password ? '***' : '<password>',
-								client_id: creds.clientId,
-								scope: creds.scope || (oidc ? 'openid profile email' : 'openid'),
-							},
-						};
-						return <RequestPreview request={curlReq} />;
-					})()}
 					<Action onClick={requestToken} disabled={loading || !canRequest}>
-						{loading ? 'Requesting…' : mode === 'real' ? 'Request tokens' : 'Request mock tokens'}
+						{loading
+							? 'Requesting…'
+							: mode === 'real'
+								? 'Request tokens'
+								: 'Request mock tokens'}
 					</Action>
 					{error && <FlowResult error={error} />}
 					<ExplanationPanel title="What gets sent to the token endpoint">
-						The BFF posts to PingOne's /as/token with Content-Type
-						application/x-www-form-urlencoded. The body is: grant_type=password &amp;
-						username=&lt;value&gt; &amp; password=&lt;value&gt; &amp; scope=&lt;value&gt; plus
-						client credentials according to the auth method selected on the previous step. There is
-						no authorization endpoint call, no redirect, and no user agent involved — the client
-						learns the password.
+						The BFF posts to PingOne's /as/token with Content-Type application/x-www-form-urlencoded.
+						The body is: grant_type=password &amp; username=&lt;value&gt; &amp; password=&lt;value&gt;
+						&amp; scope=&lt;value&gt; plus client credentials according to the auth method selected
+						on the previous step. There is no authorization endpoint call, no redirect, and no user
+						agent involved — the client learns the password.
 					</ExplanationPanel>
 				</FlowStep>
 			)}
@@ -302,24 +295,21 @@ const RopcFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
-					<UseTokensStep
-						result={result}
-						credentials={creds}
-						mode={mode}
-						tools={['userinfo', 'introspect', 'refresh', 'decode']}
-					/>
 					<FlowResult result={result} />
 					<ExplanationPanel title="Why ROPC was removed from OAuth 2.1" defaultOpen>
-						OAuth 2.1 (draft-ietf-oauth-v2-1-12 §B.1.1) formally removes the password grant because:
+						OAuth 2.1 (draft-ietf-oauth-v2-1-12 §B.1.1) formally removes the password grant
+						because:
 						(1) The client application sees and stores the user's raw password, widening the attack
-						surface dramatically — a compromised client exposes every user's password. (2) The
-						authorization server cannot add MFA or step-up challenges because the interaction is
-						entirely between the client and the token endpoint. (3) Consent screens are skipped —
-						the user cannot review or approve what the client is requesting on their behalf. (4)
-						Identity federation (SAML IdP, social login, FIDO2) is incompatible with a
-						username/password POST. Use Authorization Code + PKCE for all new applications. For
-						legacy migration, move users to the new flow as soon as the application can open a
-						browser or webview.
+						surface dramatically — a compromised client exposes every user's password.
+						(2) The authorization server cannot add MFA or step-up challenges because the
+						interaction is entirely between the client and the token endpoint.
+						(3) Consent screens are skipped — the user cannot review or approve what the client
+						is requesting on their behalf.
+						(4) Identity federation (SAML IdP, social login, FIDO2) is incompatible with a
+						username/password POST.
+						Use Authorization Code + PKCE for all new applications. For legacy migration,
+						move users to the new flow as soon as the application can open a browser or
+						webview.
 					</ExplanationPanel>
 				</FlowStep>
 			)}
