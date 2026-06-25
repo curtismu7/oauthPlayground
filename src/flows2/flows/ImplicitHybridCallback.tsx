@@ -75,7 +75,13 @@ const ImplicitHybridCallback: React.FC = () => {
 		// Check for an error in the fragment (OAuth error response in fragment).
 		if ('error' in fragment && typeof fragment.error === 'string' && fragment.error) {
 			const err = fragment.error;
-			const desc = typeof fragment.error_description === 'string' ? fragment.error_description : '';
+			let desc = '';
+			if (typeof fragment.error_description === 'string' && fragment.error_description.length < 200) {
+				// Reject descriptions that look like URLs (phishing risk)
+				if (!/^https?:\/\//i.test(fragment.error_description)) {
+					desc = fragment.error_description;
+				}
+			}
 			setError(`${err}${desc ? `: ${desc}` : ''}`);
 			const t = setTimeout(() => navigate(FLOW_ROUTE), 1500);
 			return () => clearTimeout(t);
@@ -88,7 +94,7 @@ const ImplicitHybridCallback: React.FC = () => {
 			const raw = sessionStorage.getItem(IH_PENDING_KEY);
 			if (raw) {
 				const parsed = JSON.parse(raw);
-				if (parsed && typeof parsed === 'object') {
+				if (parsed && typeof parsed === 'object' && typeof parsed.state === 'string' && typeof parsed.nonce === 'string') {
 					pending = parsed as ImplicitHybridPending;
 				} else {
 					stashError = 'Invalid pending authorization state format.';
@@ -103,12 +109,6 @@ const ImplicitHybridCallback: React.FC = () => {
 		if (stashError) {
 			setError(stashError);
 			const t = setTimeout(() => navigate(FLOW_ROUTE), 2000);
-			return () => clearTimeout(t);
-		}
-
-		if (pending && (!pending.state || !pending.nonce)) {
-			setError('Corrupted pending authorization state.');
-			const t = setTimeout(() => navigate(FLOW_ROUTE), 1500);
 			return () => clearTimeout(t);
 		}
 
