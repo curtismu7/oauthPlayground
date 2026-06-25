@@ -188,7 +188,42 @@ export class ComprehensiveDiscoveryService {
 	}
 
 	/**
-	 * Check if input is a valid issuer URL
+	 * Trusted issuer host allowlist for non-PingOne OIDC discovery.
+	 *
+	 * PingOne environments are handled via bulletproofDiscovery (UUID env-id path check).
+	 * Any caller-supplied URL accepted here is fetched directly, so we restrict to
+	 * well-known public IdP hosts and explicitly block private/loopback/metadata addresses.
+	 */
+	private static readonly TRUSTED_ISSUER_HOSTS = new Set([
+		'accounts.google.com',
+		'login.microsoftonline.com',
+		// PingOne regional auth hosts (also caught by bulletproof path, listed for completeness)
+		'auth.pingone.com',
+		'auth.pingone.eu',
+		'auth.pingone.asia',
+		'auth.pingone.ca',
+	]);
+
+	/** Returns true if the hostname resolves to a private/loopback/link-local address range. */
+	private isPrivateHost(hostname: string): boolean {
+		const lower = hostname.toLowerCase();
+		// Explicit name checks
+		if (lower === 'localhost' || lower === '::1') return true;
+		// IPv4 private / loopback / link-local / metadata
+		const ipv4Private =
+			/^127\.|^10\.|^192\.168\.|^169\.254\.|^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(lower);
+		if (ipv4Private) return true;
+		// AWS metadata, GCP metadata, Azure metadata
+		if (lower === '169.254.169.254' || lower === 'metadata.google.internal') return true;
+		return false;
+	}
+
+	/**
+	 * Check if input is a valid issuer URL.
+	 *
+	 * Enforces an allowlist of trusted hosts to prevent SSRF: only well-known public
+	 * IdP hostnames are accepted for direct discovery fetches. Private/loopback/
+	 * link-local addresses and metadata endpoints are always rejected.
 	 */
 	private isValidIssuerUrl(input: string): boolean {
 		// Remove leading slash if present
@@ -196,12 +231,29 @@ export class ComprehensiveDiscoveryService {
 
 		try {
 			const url = new URL(cleanInput);
+
+			// Must be HTTPS
+			if (url.protocol !== 'https:') return false;
+
+			const hostname = url.hostname.toLowerCase();
+
+			// Block private / loopback / link-local addresses
+			if (this.isPrivateHost(hostname)) return false;
+
+			// Must match a trusted host (exact match or subdomain of a trusted host)
+			const isTrusted = [...ComprehensiveDiscoveryService.TRUSTED_ISSUER_HOSTS].some(
+				(trusted) => hostname === trusted || hostname.endsWith(`.${trusted}`)
+			);
+			if (!isTrusted) return false;
+
+			// Must contain a recognised OIDC path component
 			return (
-				url.protocol === 'https:' &&
-				(cleanInput.includes('/.well-known/openid_configuration') ||
-					cleanInput.includes('/as') ||
-					cleanInput.includes('/oauth') ||
-					cleanInput.includes('/auth'))
+				cleanInput.includes('/.well-known/openid_configuration') ||
+				cleanInput.includes('/as') ||
+				cleanInput.includes('/oauth') ||
+				cleanInput.includes('/auth') ||
+				// Microsoft v2 tenant paths end in /v2.0
+				cleanInput.includes('/v2.0')
 			);
 		} catch {
 			return false;

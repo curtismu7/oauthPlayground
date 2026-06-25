@@ -72,7 +72,9 @@ export function buildPingOneImplicitAuthUrl(params: PingOneImplicitAuthUrlParams
  * @returns Random nonce string
  */
 export function generateNonce(): string {
-	return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+	const array = new Uint8Array(16);
+	crypto.getRandomValues(array);
+	return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /**
@@ -80,7 +82,9 @@ export function generateNonce(): string {
  * @returns Random state string
  */
 export function generateState(): string {
-	return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+	const array = new Uint8Array(16);
+	crypto.getRandomValues(array);
+	return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /**

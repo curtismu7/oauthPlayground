@@ -163,9 +163,13 @@ const DPoPFlow: React.FC = () => {
 		setError(null);
 		setResult(null);
 		try {
+			// Regenerate the proof immediately before the HTTP call so the iat is fresh
+			// (RFC 9449 §11.1 — stale iat gets rejected by the AS).
+			const htu = dpopService._tokenEndpointUrl(creds.environmentId, creds.region);
+			const freshProof = await dpopService.createProof({ htm: 'POST', htu }, keyPairResult, mode);
 			const r = await dpopService.requestTokenWithDpop(
 				creds,
-				proofResult.proof,
+				freshProof.proof,
 				keyPairResult.thumbprint,
 				mode
 			);

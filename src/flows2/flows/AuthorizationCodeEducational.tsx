@@ -510,6 +510,7 @@ const AuthorizationCodeEducational: React.FC = () => {
 		}
 	);
 	const [mode, setMode] = useState<FlowMode>('real');
+	const [redirectUri, setRedirectUri] = useState('http://localhost:8000/callback');
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 	const [sidebarWidth, setSidebarWidth] = useState(220);
 	const [isPlaying, setIsPlaying] = useState(false);
@@ -635,7 +636,7 @@ const AuthorizationCodeEducational: React.FC = () => {
 			const result = await authorizationCodeService.authorize(
 				{
 					credentials: creds,
-					redirectUri: creds.redirectUri,
+					redirectUri,
 					state: 'state-' + Math.random().toString(36).substring(7),
 					codeChallenge: pkceData.challenge,
 				},
@@ -647,7 +648,7 @@ const AuthorizationCodeEducational: React.FC = () => {
 		} catch (err) {
 			setStepState('auth-request', { loading: false, error: err as FlowError });
 		}
-	}, [creds, pkceData, mode]);
+	}, [creds, redirectUri, pkceData, mode]);
 
 	// Step 4: Auth Code (info-only)
 	const handleAuthCode = useCallback(() => {
@@ -666,7 +667,7 @@ const AuthorizationCodeEducational: React.FC = () => {
 			const result = await authorizationCodeService.exchangeCode(
 				{
 					credentials: creds,
-					redirectUri: creds.redirectUri,
+					redirectUri,
 					code: authCode,
 					codeVerifier: pkceData.verifier,
 				},
@@ -678,7 +679,7 @@ const AuthorizationCodeEducational: React.FC = () => {
 		} catch (err) {
 			setStepState('exchange', { loading: false, error: err as FlowError });
 		}
-	}, [authCode, pkceData, creds, mode]);
+	}, [authCode, pkceData, creds, redirectUri, mode]);
 
 	// Step 6: Introspect
 	const handleIntrospect = useCallback(async () => {
@@ -708,6 +709,12 @@ const AuthorizationCodeEducational: React.FC = () => {
 		setIsPlaying(true);
 		const delays = [500, 2000, 4000, 6000, 8000, 10000, 12000];
 
+		// Use locals so each step sees the values produced by the previous step,
+		// not stale React state captured at call time.
+		let localPkceData: { verifier: string; challenge: string } | null = null;
+		let localAuthCode: string | null = null;
+		let localTokens: TokenResult | null = null;
+
 		for (let i = 0; i < STEPS.length; i++) {
 			await new Promise((resolve) => setTimeout(resolve, delays[i]));
 			setCurrentStep(i);
@@ -716,46 +723,49 @@ const AuthorizationCodeEducational: React.FC = () => {
 			if (i === 1) {
 				// PKCE
 				const pair = await authorizationCodeService.generatePkce(mode);
-				setPkceData({ verifier: pair.codeVerifier, challenge: pair.codeChallenge });
+				localPkceData = { verifier: pair.codeVerifier, challenge: pair.codeChallenge };
+				setPkceData(localPkceData);
 			} else if (i === 2) {
 				// Auth Request
-				if (pkceData) {
+				if (localPkceData) {
 					const result = await authorizationCodeService.authorize(
 						{
 							credentials: creds,
-							redirectUri: creds.redirectUri,
+							redirectUri,
 							state: 'auto-play-state',
-							codeChallenge: pkceData.challenge,
+							codeChallenge: localPkceData.challenge,
 						},
 						mode
 					);
-					setAuthCode(result.code || null);
+					localAuthCode = result.code || null;
+					setAuthCode(localAuthCode);
 				}
 			} else if (i === 4) {
 				// Exchange
-				if (authCode && pkceData) {
+				if (localAuthCode && localPkceData) {
 					const result = await authorizationCodeService.exchangeCode(
 						{
 							credentials: creds,
-							redirectUri: creds.redirectUri,
-							code: authCode,
-							codeVerifier: pkceData.verifier,
+							redirectUri,
+							code: localAuthCode,
+							codeVerifier: localPkceData.verifier,
 						},
 						mode
 					);
-					setTokens(result);
+					localTokens = result;
+					setTokens(localTokens);
 				}
 			} else if (i === 5) {
 				// Introspect
-				if (tokens?.accessToken) {
-					const result = await authorizationCodeService.introspect(tokens.accessToken, creds, mode);
+				if (localTokens?.accessToken) {
+					const result = await authorizationCodeService.introspect(localTokens.accessToken, creds, mode);
 					setIntrospectResult(result);
 				}
 			}
 		}
 
 		setIsPlaying(false);
-	}, [creds, mode, pkceData, authCode, tokens]);
+	}, [creds, redirectUri, mode]);
 
 	const currentUrl = buildCurrentUrl(STEPS[currentStep].id, creds);
 	const stepState = stepStates[STEPS[currentStep].id] || { id: STEPS[currentStep].id };
@@ -834,8 +844,8 @@ const AuthorizationCodeEducational: React.FC = () => {
 						<Label>Redirect URI</Label>
 						<Input
 							placeholder="https://localhost:8000/callback"
-							value={creds.redirectUri}
-							onChange={updateCred('redirectUri')}
+							value={redirectUri}
+							onChange={(e) => setRedirectUri(e.target.value)}
 						/>
 					</FormGroup>
 				</ConfigPanel>

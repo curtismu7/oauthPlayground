@@ -123,7 +123,7 @@ export class DiscoveryPersistenceService {
 							{ arg0: issuerUrl }
 						);
 						this.removeDiscovery(data.environmentId);
-						return null;
+						continue; // keep searching — another entry may still be valid
 					}
 
 					logger.info(
@@ -364,19 +364,45 @@ export class DiscoveryPersistenceService {
 	}
 
 	/**
-	 * Validate discovery data structure
+	 * Validate discovery data structure and endpoint integrity.
+	 *
+	 * Requires:
+	 * - All top-level metadata fields present and correctly typed
+	 * - document.issuer matches the top-level issuerUrl (prevents injecting forged documents)
+	 * - Required OIDC endpoints (authorization_endpoint, token_endpoint, jwks_uri) are
+	 *   present non-empty strings
 	 */
 	private isValidDiscoveryData(data: unknown): boolean {
-		return (
-			data &&
-			typeof data === 'object' &&
-			typeof data.environmentId === 'string' &&
-			typeof data.issuerUrl === 'string' &&
-			typeof data.provider === 'string' &&
-			typeof data.timestamp === 'number' &&
-			data.document &&
-			typeof data.document === 'object'
-		);
+		if (
+			!data ||
+			typeof data !== 'object' ||
+			typeof (data as Record<string, unknown>).environmentId !== 'string' ||
+			typeof (data as Record<string, unknown>).issuerUrl !== 'string' ||
+			typeof (data as Record<string, unknown>).provider !== 'string' ||
+			typeof (data as Record<string, unknown>).timestamp !== 'number' ||
+			!(data as Record<string, unknown>).document ||
+			typeof (data as Record<string, unknown>).document !== 'object'
+		) {
+			return false;
+		}
+
+		const typed = data as Record<string, unknown>;
+		const doc = typed.document as Record<string, unknown>;
+
+		// issuer in document must match the top-level issuerUrl
+		if (typeof doc.issuer !== 'string' || doc.issuer !== typed.issuerUrl) {
+			return false;
+		}
+
+		// Required OIDC endpoints must be present non-empty strings
+		const requiredEndpoints = ['authorization_endpoint', 'token_endpoint', 'jwks_uri'];
+		for (const ep of requiredEndpoints) {
+			if (typeof doc[ep] !== 'string' || !(doc[ep] as string).length) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

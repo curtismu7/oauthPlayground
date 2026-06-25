@@ -39,13 +39,13 @@ export function saveUsers(environmentId, users) {
 			lastSignOn: user.lastSignOn?.at ? { at: user.lastSignOn.at } : null,
 		};
 
-		usersDb.put(key, userData);
+		usersDb.putSync(key, userData);
 		searchIndexUsers.push(userData);
 	}
 
 	// Update search index for environment
 	const searchKey = `${environmentId}|search`;
-	searchIndexDb.put(searchKey, searchIndexUsers);
+	searchIndexDb.putSync(searchKey, searchIndexUsers);
 
 	// Update metadata
 	const metadataDb = getDb('user_metadata');
@@ -53,7 +53,7 @@ export function saveUsers(environmentId, users) {
 	const current = metadataDb.get(metaKey) || {};
 	const totalUsers = getUserCount(environmentId);
 
-	metadataDb.put(metaKey, {
+	metadataDb.putSync(metaKey, {
 		...current,
 		total_users: totalUsers,
 		last_sync_completed: new Date().toISOString(),

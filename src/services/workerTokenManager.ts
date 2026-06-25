@@ -216,18 +216,43 @@ export class WorkerTokenManager {
 				logger.info('WorkerTokenManager', ` Token fetch attempt ${attempt}/${maxRetries}`);
 
 				const scopeString = normalizeScopesToScopeString(credentials.scopes);
+				const authMethod = credentials.tokenEndpointAuthMethod ?? 'client_secret_post';
+
 				const bodyParams: Record<string, string> = {
 					grant_type: 'client_credentials',
-					client_id: credentials.clientId,
-					client_secret: credentials.clientSecret,
 				};
 				if (scopeString) bodyParams.scope = scopeString;
 
+				const requestHeaders: Record<string, string> = {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				};
+
+				if (authMethod === 'client_secret_basic') {
+					// Credentials in Authorization header (Basic auth)
+					const encoded = btoa(
+						`${encodeURIComponent(credentials.clientId)}:${encodeURIComponent(credentials.clientSecret)}`
+					);
+					requestHeaders['Authorization'] = `Basic ${encoded}`;
+				} else if (authMethod === 'client_secret_post' || authMethod === 'none') {
+					// Credentials in request body (default)
+					bodyParams.client_id = credentials.clientId;
+					if (authMethod !== 'none') {
+						bodyParams.client_secret = credentials.clientSecret;
+					}
+				} else {
+					// private_key_jwt and any future methods: fall back to client_secret_post
+					// and log a warning — full private_key_jwt support requires a key in credentials
+					logger.warn(
+						'WorkerTokenManager',
+						`⚠️ Unsupported tokenEndpointAuthMethod "${authMethod}", falling back to client_secret_post`
+					);
+					bodyParams.client_id = credentials.clientId;
+					bodyParams.client_secret = credentials.clientSecret;
+				}
+
 				const response = await fetch(credentials.tokenEndpoint, {
 					method: 'POST',
-					headers: {
-						'Content-Type': 'application/x-www-form-urlencoded',
-					},
+					headers: requestHeaders,
 					body: new URLSearchParams(bodyParams),
 				});
 
@@ -298,30 +323,39 @@ export class WorkerTokenManager {
 	}
 
 	/**
-	 * Save token to storage
+	 * Save token to storage, persisting the real expiresAt so it can be
+	 * restored without fabricating a new expiry on load.
 	 */
 	private async saveToken(token: WorkerAccessToken): Promise<void> {
 		await workerTokenRepository.saveToken(token.access_token, {
 			expiresIn: token.expires_in,
+			expiresAt: token.expiresAt,
 			scope: token.scope,
 		});
 	}
 
 	/**
-	 * Load stored token
+	 * Load stored token, restoring the real expiresAt from metadata.
 	 */
 	private async loadStoredToken(): Promise<WorkerAccessToken | null> {
-		const tokenString = await workerTokenRepository.getToken();
-		if (!tokenString) return null;
+		const data = await workerTokenRepository.loadTokenData();
+		if (!data?.token) return null;
 
-		// Create a WorkerAccessToken from the stored token string
+		const storedExpiresAt = data.expiresAt;
+		const storedExpiresIn = data.expiresIn;
+
+		// Derive expiresAt: prefer stored value, fall back to savedAt + expiresIn
+		const expiresAt =
+			storedExpiresAt ??
+			(storedExpiresIn && data.savedAt ? data.savedAt + storedExpiresIn * 1000 : undefined);
+
 		return {
-			access_token: tokenString,
+			access_token: data.token,
 			token_type: 'Bearer',
-			expires_in: 3600, // Default, will be updated if we have metadata
-			scope: 'worker',
-			fetchedAt: Date.now(),
-			expiresAt: Date.now() + 3600 * 1000,
+			expires_in: storedExpiresIn ?? 3600,
+			scope: data.scope ?? 'worker',
+			fetchedAt: data.savedAt ?? Date.now(),
+			expiresAt: expiresAt ?? Date.now() + 3600 * 1000,
 		};
 	}
 
