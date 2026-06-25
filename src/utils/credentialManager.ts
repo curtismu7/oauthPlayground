@@ -1137,7 +1137,19 @@ class CredentialManager {
 	 */
 	clearAllCredentials(): boolean {
 		try {
-			localStorage.removeItem(this.PERMANENT_CREDENTIALS_KEY);
+			// Clear every credential key this manager writes — previously only the permanent
+			// and session keys were removed, leaving the per-flow credentials behind.
+			[
+				this.PERMANENT_CREDENTIALS_KEY,
+				this.CONFIG_CREDENTIALS_KEY,
+				this.AUTHZ_FLOW_CREDENTIALS_KEY,
+				this.IMPLICIT_FLOW_CREDENTIALS_KEY,
+				this.IMPLICIT_OAUTH_CREDENTIALS_KEY,
+				this.IMPLICIT_OIDC_CREDENTIALS_KEY,
+				this.HYBRID_FLOW_CREDENTIALS_KEY,
+				this.WORKER_FLOW_CREDENTIALS_KEY,
+				this.DEVICE_FLOW_CREDENTIALS_KEY,
+			].forEach((key) => localStorage.removeItem(key));
 			sessionStorage.removeItem(this.SESSION_CREDENTIALS_KEY);
 			logger.info('CredentialManager', 'Cleared all credentials');
 			return true;

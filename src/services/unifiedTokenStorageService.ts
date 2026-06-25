@@ -1719,7 +1719,7 @@ export class UnifiedTokenStorageService {
 			const exported = JSON.stringify(exportData, null, 2);
 
 			logger.info(MODULE_TAG, 'V8 data exported', {
-				keyCount: tokens.length,
+				keyCount: Object.keys(data).length,
 				size: exported.length,
 			});
 
@@ -1751,7 +1751,7 @@ export class UnifiedTokenStorageService {
 						type: 'v8_storage',
 						key,
 					});
-					if (existing.length > 0) {
+					if ((existing.data?.length ?? 0) > 0) {
 						logger.info(MODULE_TAG, 'Skipping existing V8 key', { key });
 						skipped++;
 						continue;
