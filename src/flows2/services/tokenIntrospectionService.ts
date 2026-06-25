@@ -39,26 +39,23 @@ export const tokenIntrospectionService = {
 	): Promise<IntrospectionResponse> {
 		if (mode === 'mock') {
 			const claims = decodeJwtPayload(token);
+			const now = Math.floor(Date.now() / 1000);
+			const exp = typeof claims?.exp === 'number' ? claims.exp : null;
 			// RFC 7662 §2.2: for an unknown/expired/revoked token, say ONLY { active: false } —
 			// leaking claims about inactive tokens is explicitly discouraged (§4).
-			if (!claims) {
-				return { active: false, _mock: true };
-			}
-			const now = Math.floor(Date.now() / 1000);
-			const exp = typeof claims.exp === 'number' ? claims.exp : null;
-			if (exp !== null && exp <= now) {
+			if (!claims || (exp !== null && exp <= now)) {
 				return { active: false, _mock: true };
 			}
 			return {
 				active: true,
-				scope: typeof claims.scope === 'string' ? claims.scope : undefined,
-				client_id: (typeof claims.client_id === 'string' ? claims.client_id : null) ?? (typeof claims.azp === 'string' ? claims.azp : null) ?? (typeof claims.sub === 'string' ? claims.sub : undefined),
+				scope: claims.scope,
+				client_id: claims.client_id ?? claims.azp ?? claims.sub,
 				token_type: 'Bearer',
 				exp: exp ?? undefined,
-				iat: typeof claims.iat === 'number' ? claims.iat : undefined,
-				sub: typeof claims.sub === 'string' ? claims.sub : undefined,
+				iat: claims.iat,
+				sub: claims.sub,
 				aud: claims.aud,
-				iss: typeof claims.iss === 'string' ? claims.iss : undefined,
+				iss: claims.iss,
 				act: claims.act,
 				_mock: true,
 			};
