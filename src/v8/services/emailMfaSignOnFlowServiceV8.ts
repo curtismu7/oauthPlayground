@@ -217,12 +217,11 @@ export class EmailMFASignOnFlowServiceV8 {
 
 		try {
 			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
-				`/api/pingone/email-mfa-signon/get-resources?environmentId=${environmentId}`,
+				`/api/pingone/email-mfa-signon/get-resources?environmentId=${environmentId}&workerToken=${encodeURIComponent(workerToken)}`,
 				{
 					method: 'GET',
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization: `Bearer ${workerToken}`,
 					},
 				}
 			);
@@ -290,12 +289,11 @@ export class EmailMFASignOnFlowServiceV8 {
 
 		try {
 			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
-				`/api/pingone/email-mfa-signon/get-resource-scopes?environmentId=${environmentId}&resourceId=${resourceId}`,
+				`/api/pingone/email-mfa-signon/get-resource-scopes?environmentId=${environmentId}&resourceId=${resourceId}&workerToken=${encodeURIComponent(workerToken)}`,
 				{
 					method: 'GET',
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization: `Bearer ${workerToken}`,
 					},
 				}
 			);
@@ -1441,12 +1439,11 @@ export class EmailMFASignOnFlowServiceV8 {
 
 		try {
 			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
-				`/api/pingone/email-mfa-signon/get-application-secret?environmentId=${environmentId}&applicationId=${applicationId}`,
+				`/api/pingone/email-mfa-signon/get-application-secret?environmentId=${environmentId}&applicationId=${applicationId}&workerToken=${encodeURIComponent(workerToken)}`,
 				{
 					method: 'GET',
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization: `Bearer ${workerToken}`,
 					},
 				}
 			);
