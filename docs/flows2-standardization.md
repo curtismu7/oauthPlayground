@@ -164,14 +164,14 @@ Legend: ✨ = high value across many flows · 🔁 = already exists inline in au
 
 | Module | What it does | Reuse across flows | RFC |
 |---|---|---|---|
-| `SpecToggle` 🔁✨ | 2.0/2.1 + OIDC pills, with 2.1-enforcement wired in one place | every grant flow | OAuth 2.1 |
-| `CredentialsForm` ✨ | The standard Env ID / Client ID / Secret / Redirect / Scope grid | ~all flows | — |
-| `PkceStep` 🔁 | Generate verifier + S256 challenge, with mock stand-in | auth-code, par, hybrid, redirectless | RFC 7636 |
+| `SpecToggle` ✅ | 2.0/2.1 + optional OIDC pills | every flow's Configure step | OAuth 2.1 |
+| `CredentialsForm` ✅ | The standard Env ID / Region / Client ID / Secret / Redirect / Scope grid | ~all flows | — |
 | `IntrospectPanel` ✅ | "Introspect token" action + claims view | any flow yielding an access token | RFC 7662 |
 | `UserInfoPanel` ✅ | OIDC UserInfo call + claims view | any OIDC flow with an access token | OIDC Core |
 | `RevokePanel` ✅ | Revoke an access/refresh token | any flow yielding a revocable token | RFC 7009 |
 | `JwtDecodePanel` ✅ | Decode id_token / JWT access token (payload claims) | any flow with a JWT | RFC 7519 |
-| `RefreshPanel` ✨ | Exchange a refresh_token for new tokens | any flow returning offline_access | RFC 6749 §6 |
+| `RefreshPanel` ✅ | Exchange a refresh_token for new tokens | grant flows returning a refresh_token | RFC 6749 §6 |
+| `PkceStep` 🔁 | Generate verifier + S256 challenge, with mock stand-in | auth-code, par, hybrid, redirectless | RFC 7636 |
 | `RequestPreview` ✨ | Show the raw HTTP request (copy-as-curl) for teaching | all flows | — |
 | `TokenResultCard` | Standardized token display (wraps `ResultCard`/`FlowResult`) | all flows | — |
 

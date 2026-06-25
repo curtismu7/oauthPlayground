@@ -5,13 +5,15 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { CredentialsForm } from '../framework/CredentialsForm';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { Action, Pill, Toggle } from '../framework/primitives';
+import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
@@ -174,14 +176,7 @@ const ClientCredentialsFlow: React.FC = () => {
 						label="OAuth 2.0 Client Credentials"
 						nodes={['Client', 'Token EP', 'Access Token']}
 					/>
-					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>
-							OAuth 2.0
-						</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>
-							OAuth 2.1
-						</Pill>
-					</Toggle>
+					<SpecToggle spec={spec} onSpecChange={setSpec} />
 					<Toggle>
 						{(['client_secret_basic', 'client_secret_post'] as ClientAuthMethod[]).map((m) => (
 							<Pill
@@ -193,51 +188,23 @@ const ClientCredentialsFlow: React.FC = () => {
 							</Pill>
 						))}
 					</Toggle>
-					<Grid>
-						<FieldGroup
-							label="Environment ID"
-							value={creds.environmentId}
-							onChange={set('environmentId')}
-							placeholder="uuid"
-						/>
-						<FieldGroup
-							label="Region"
-							value={creds.region}
-							onChange={set('region')}
-							placeholder="com | eu | ca | asia"
-						/>
-						<FieldGroup
-							label="Client ID"
-							value={creds.clientId}
-							onChange={set('clientId')}
-							placeholder="worker client id"
-						/>
-						<FieldGroup
-							label="Client Secret"
-							type="password"
-							value={creds.clientSecret ?? ''}
-							onChange={set('clientSecret')}
-							placeholder="worker client secret"
-						/>
-						<FieldGroup
-							label="Scope (optional)"
-							value={creds.scope ?? ''}
-							onChange={set('scope')}
-							placeholder="e.g. p1:read:user"
-						/>
-						<FieldGroup
-							label="Audience (optional, RFC 8707)"
-							value={audience}
-							onChange={(e) => setAudience(e.target.value)}
-							placeholder="target resource"
-						/>
-						<FieldGroup
-							label="Resource (optional, RFC 8707)"
-							value={resource}
-							onChange={(e) => setResource(e.target.value)}
-							placeholder="resource URI"
-						/>
-					</Grid>
+					<CredentialsForm
+						creds={creds}
+						set={set}
+						scopePlaceholder="e.g. p1:read:user"
+					/>
+					<FieldGroup
+						label="Audience (optional, RFC 8707)"
+						value={audience}
+						onChange={(e) => setAudience(e.target.value)}
+						placeholder="target resource"
+					/>
+					<FieldGroup
+						label="Resource (optional, RFC 8707)"
+						value={resource}
+						onChange={(e) => setResource(e.target.value)}
+						placeholder="resource URI"
+					/>
 					<div>
 						<Hint>Discover the scopes this environment advertises, then click to add them:</Hint>
 						<Toggle>

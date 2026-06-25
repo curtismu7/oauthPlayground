@@ -14,11 +14,12 @@ import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
 import { CodeBlock, JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { Action } from '../framework/primitives';
+import { CredentialsForm } from '../framework/CredentialsForm';
+import { SpecToggle } from '../framework/SpecToggle';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { clearStash, loadStash, saveStash } from '../framework/authzStash';
 import type {
@@ -261,19 +262,19 @@ const PARFlow: React.FC = () => {
 						label="OAuth 2.1 Pushed Authorization Request"
 						nodes={['Client', 'PAR EP', 'AuthZ', 'Token']}
 					/>
-					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>OAuth 2.0</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>OAuth 2.1</Pill>
-						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>OIDC {oidc ? 'on' : 'off'}</Pill>
-					</Toggle>
-					<Grid>
-						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} />
-						<FieldGroup label="Region" value={creds.region} onChange={set('region')} placeholder="com | eu | ca | asia" />
-						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} />
-						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} />
-						<FieldGroup label="Redirect URI" value={redirectUri} onChange={(e) => setRedirectUri(e.target.value)} hint="Must be registered on the PingOne app" />
-						<FieldGroup label="Scope (optional)" value={creds.scope ?? ''} onChange={set('scope')} placeholder={oidc ? 'openid profile email' : 'profile email'} />
-					</Grid>
+					<SpecToggle
+						spec={spec}
+						onSpecChange={setSpec}
+						oidc={oidc}
+						onOidcToggle={() => setOidc((v) => !v)}
+					/>
+					<CredentialsForm
+						creds={creds}
+						set={set}
+						redirectUri={redirectUri}
+						onRedirectUriChange={(e) => setRedirectUri(e.target.value)}
+						scopePlaceholder={oidc ? 'openid profile email' : 'profile email'}
+					/>
 				</FlowStep>
 			)}
 

@@ -11,14 +11,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { clearStash, loadStash, saveStash } from '../framework/authzStash';
 import { CodeBlock } from '../framework/CodeBlock';
+import { CredentialsForm } from '../framework/CredentialsForm';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { Action, Grid, Note, Pill, Toggle } from '../framework/primitives';
+import { Action, Note } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
+import { SpecToggle } from '../framework/SpecToggle';
 import type {
 	FlowCredentials,
 	FlowError,
@@ -242,49 +243,19 @@ const HybridFlow: React.FC = () => {
 						label="OIDC Hybrid Flow"
 						nodes={['Client', 'AuthZ', 'User', 'Code + Token']}
 					/>
-					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>
-							OAuth 2.0
-						</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>
-							OAuth 2.1
-						</Pill>
-						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>
-							OIDC {oidc ? 'on' : 'off'}
-						</Pill>
-					</Toggle>
-					<Grid>
-						<FieldGroup
-							label="Environment ID"
-							value={creds.environmentId}
-							onChange={set('environmentId')}
-						/>
-						<FieldGroup
-							label="Region"
-							value={creds.region}
-							onChange={set('region')}
-							placeholder="com | eu | ca | asia"
-						/>
-						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} />
-						<FieldGroup
-							label="Client Secret"
-							type="password"
-							value={creds.clientSecret ?? ''}
-							onChange={set('clientSecret')}
-						/>
-						<FieldGroup
-							label="Redirect URI"
-							value={redirectUri}
-							onChange={(e) => setRedirectUri(e.target.value)}
-							hint="Must be registered on the PingOne app"
-						/>
-						<FieldGroup
-							label="Scope (optional)"
-							value={creds.scope ?? ''}
-							onChange={set('scope')}
-							placeholder="openid profile email"
-						/>
-					</Grid>
+					<SpecToggle
+						spec={spec}
+						onSpecChange={setSpec}
+						oidc={oidc}
+						onOidcToggle={() => setOidc((v) => !v)}
+					/>
+					<CredentialsForm
+						creds={creds}
+						set={set}
+						redirectUri={redirectUri}
+						onRedirectUriChange={(e) => setRedirectUri(e.target.value)}
+						scopePlaceholder="openid profile email"
+					/>
 					<ExplanationPanel title="Hybrid vs. Authorization Code">
 						Hybrid returns both code and ID token from the front-channel authorization endpoint,
 						saving a round-trip for the ID token. The code is then exchanged back-channel for the

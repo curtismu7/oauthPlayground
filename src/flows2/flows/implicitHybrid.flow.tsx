@@ -19,14 +19,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CodeBlock, JsonView } from '../framework/CodeBlock';
+import { CredentialsForm } from '../framework/CredentialsForm';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { Action, Pill, Toggle } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
+import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type {
 	FlowCredentials,
@@ -307,17 +308,12 @@ const ImplicitHybridFlow: React.FC = () => {
 						Code + PKCE for all new applications.
 					</WarnBanner>
 
-					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>
-							OAuth 2.0
-						</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>
-							OAuth 2.1
-						</Pill>
-						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>
-							OIDC {oidc ? 'on' : 'off'}
-						</Pill>
-					</Toggle>
+					<SpecToggle
+						spec={spec}
+						onSpecChange={setSpec}
+						oidc={oidc}
+						onOidcToggle={() => setOidc((v) => !v)}
+					/>
 
 					<Toggle>
 						<Pill $active={subMode === 'implicit'} onClick={() => setSubMode('implicit')}>
@@ -328,41 +324,14 @@ const ImplicitHybridFlow: React.FC = () => {
 						</Pill>
 					</Toggle>
 
-					<Grid>
-						<FieldGroup
-							label="Environment ID"
-							value={creds.environmentId}
-							onChange={set('environmentId')}
-						/>
-						<FieldGroup
-							label="Region"
-							value={creds.region}
-							onChange={set('region')}
-							placeholder="com | eu | ca | asia"
-						/>
-						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} />
-						{subMode === 'hybrid' && (
-							<FieldGroup
-								label="Client Secret"
-								type="password"
-								value={creds.clientSecret ?? ''}
-								onChange={set('clientSecret')}
-								hint="Required for the hybrid back-channel code exchange"
-							/>
-						)}
-						<FieldGroup
-							label="Redirect URI"
-							value={redirectUri}
-							onChange={(e) => setRedirectUri(e.target.value)}
-							hint="Must be registered on the PingOne app; receives the fragment"
-						/>
-						<FieldGroup
-							label="Scope (optional)"
-							value={creds.scope ?? ''}
-							onChange={set('scope')}
-							placeholder={oidc ? 'openid profile email' : 'openid'}
-						/>
-					</Grid>
+					<CredentialsForm
+						creds={creds}
+						set={set}
+						redirectUri={redirectUri}
+						onRedirectUriChange={(e) => setRedirectUri(e.target.value)}
+						scopePlaceholder={oidc ? 'openid profile email' : 'openid'}
+						showSecret={subMode === 'hybrid'}
+					/>
 				</FlowStep>
 			)}
 

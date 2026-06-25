@@ -11,14 +11,16 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { CredentialsForm } from '../framework/CredentialsForm';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { Action, Grid } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
+import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type {
 	FlowCredentials,
@@ -284,46 +286,13 @@ const RedirectlessFlow: React.FC = () => {
 						label="PingOne Redirectless (pi.flow)"
 						nodes={['Client', 'pi.flow', 'User', 'Token']}
 					/>
-					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>
-							OAuth 2.0
-						</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>
-							OAuth 2.1
-						</Pill>
-					</Toggle>
+					<SpecToggle spec={spec} onSpecChange={setSpec} />
+					<CredentialsForm
+						creds={creds}
+						set={set}
+						scopePlaceholder="openid profile email"
+					/>
 					<Grid>
-						<FieldGroup
-							label="Environment ID"
-							value={creds.environmentId}
-							onChange={set('environmentId')}
-							placeholder="uuid"
-						/>
-						<FieldGroup
-							label="Region"
-							value={creds.region}
-							onChange={set('region')}
-							placeholder="com | eu | ca | asia"
-						/>
-						<FieldGroup
-							label="Client ID"
-							value={creds.clientId}
-							onChange={set('clientId')}
-							placeholder="application client id"
-						/>
-						<FieldGroup
-							label="Client Secret"
-							type="password"
-							value={creds.clientSecret ?? ''}
-							onChange={set('clientSecret')}
-							placeholder="application client secret"
-						/>
-						<FieldGroup
-							label="Scope"
-							value={creds.scope ?? ''}
-							onChange={set('scope')}
-							placeholder="openid profile email"
-						/>
 						<FieldGroup
 							label="Username"
 							value={username}

@@ -12,14 +12,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { JsonView } from '../framework/CodeBlock';
+import { CredentialsForm } from '../framework/CredentialsForm';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { Action, Pill, Toggle } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
+import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
@@ -167,14 +169,7 @@ const TokenExchangeFlow: React.FC = () => {
 						label="OAuth 2.0 Token Exchange"
 						nodes={['Subject Token', 'Token EP', 'Exchanged Token']}
 					/>
-					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>
-							OAuth 2.0
-						</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>
-							OAuth 2.1
-						</Pill>
-					</Toggle>
+					<SpecToggle spec={spec} onSpecChange={setSpec} />
 					<Toggle>
 						{(['client_secret_post', 'client_secret_basic'] as ClientAuthMethod[]).map((m) => (
 							<Pill
@@ -186,45 +181,23 @@ const TokenExchangeFlow: React.FC = () => {
 							</Pill>
 						))}
 					</Toggle>
-					<Grid>
-						<FieldGroup
-							label="Environment ID"
-							value={creds.environmentId}
-							onChange={set('environmentId')}
-							placeholder="uuid"
-						/>
-						<FieldGroup
-							label="Region"
-							value={creds.region}
-							onChange={set('region')}
-							placeholder="com | eu | ca | asia"
-						/>
-						<FieldGroup
-							label="Client ID (requesting client)"
-							value={creds.clientId}
-							onChange={set('clientId')}
-							placeholder="client id"
-						/>
-						<FieldGroup
-							label="Client Secret"
-							type="password"
-							value={creds.clientSecret ?? ''}
-							onChange={set('clientSecret')}
-							placeholder="client secret"
-						/>
-						<FieldGroup
-							label="Requested scopes (optional)"
-							value={requestedScopes}
-							onChange={(e) => setRequestedScopes(e.target.value)}
-							placeholder="narrow the issued token"
-						/>
-						<FieldGroup
-							label="Audience (optional, RFC 8707)"
-							value={audience}
-							onChange={(e) => setAudience(e.target.value)}
-							placeholder="target resource"
-						/>
-					</Grid>
+					<CredentialsForm
+						creds={creds}
+						set={set}
+						showScope={false}
+					/>
+					<FieldGroup
+						label="Requested scopes (optional)"
+						value={requestedScopes}
+						onChange={(e) => setRequestedScopes(e.target.value)}
+						placeholder="narrow the issued token"
+					/>
+					<FieldGroup
+						label="Audience (optional, RFC 8707)"
+						value={audience}
+						onChange={(e) => setAudience(e.target.value)}
+						placeholder="target resource"
+					/>
 					<FieldGroup
 						multiline
 						label="Subject token (required) — the token being exchanged"

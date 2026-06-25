@@ -11,8 +11,9 @@ import { useFlowEngine } from '../framework/useFlowEngine';
 import { FieldGroup } from '../framework/FieldGroup';
 import { JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
-import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { Action, Grid } from '../framework/primitives';
 import { FlowDiagram } from '../framework/FlowDiagram';
+import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type { FlowError, FlowMode, OAuthSpec, StepDefinition, TokenResult } from '../framework/types';
 import { samlBearerService, type SAMLBearerAssertionData } from '../services/samlBearerService';
@@ -170,10 +171,7 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 						label="SAML 2.0 Bearer Assertion"
 						nodes={['SAML Assertion', 'Token EP', 'Access Token']}
 					/>
-					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>OAuth 2.0</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>OAuth 2.1</Pill>
-					</Toggle>
+					<SpecToggle spec={spec} onSpecChange={setSpec} />
 					<Grid>
 						<FieldGroup label="Environment ID" value={envId} onChange={(e) => setEnvId(e.target.value)} placeholder="uuid" />
 						<FieldGroup label="Region" value={region} onChange={(e) => setRegion(e.target.value)} placeholder="com | eu | ca | asia" />
