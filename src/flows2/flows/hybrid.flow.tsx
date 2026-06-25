@@ -359,7 +359,7 @@ const HybridFlow: React.FC = () => {
 						result={result}
 						credentials={creds}
 						mode={mode}
-						tools={['userinfo', 'introspect', 'decode']}
+						tools={['userinfo', 'introspect', 'refresh', 'decode']}
 					/>
 					<ExplanationPanel title="What each token does">
 						The ID token carries the user's identity (sub, name, email, …) and was decoded
