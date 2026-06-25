@@ -5,30 +5,46 @@
 // Step 2: Revoke — call the BFF proxy (or mock). RFC 7009 always returns 200.
 // Step 3: Verify — introspect the token to confirm it is now active: false.
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { FlowContainer } from '../framework/FlowContainer';
-import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
 import { JsonView } from '../framework/CodeBlock';
-import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
+import { FlowContainer } from '../framework/FlowContainer';
+import { FlowDiagram } from '../framework/FlowDiagram';
+import { FlowStep } from '../framework/FlowStep';
+import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { ResultCard } from '../framework/ResultCard';
 import { tokens } from '../framework/tokens';
-import type { FlowCredentials, FlowError, FlowMode, StepDefinition } from '../framework/types';
+import type {
+	FlowCredentials,
+	FlowError,
+	FlowMode,
+	OAuthSpec,
+	StepDefinition,
+} from '../framework/types';
+import { useFlowEngine } from '../framework/useFlowEngine';
 import {
-	revocationEndpointFor,
-	tokenRevocationService as revSvc,
-	type RevocationResponse,
-	type TokenTypeHint,
-} from '../services/tokenRevocationService';
-import {
+	type IntrospectionResponse,
 	introspectionEndpointFor,
 	tokenIntrospectionService as intSvc,
-	type IntrospectionResponse,
 } from '../services/tokenIntrospectionService';
+import {
+	type RevocationResponse,
+	revocationEndpointFor,
+	tokenRevocationService as revSvc,
+	type TokenTypeHint,
+} from '../services/tokenRevocationService';
 
 const env = import.meta.env as Record<string, string | undefined>;
+
+// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
+const MOCK_CREDS = {
+	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
+	region: 'com',
+	clientId: 'mock-client-demo-1234567890',
+	clientSecret: 'mock-client-secret',
+} as const;
 
 const STEPS: StepDefinition[] = [
 	{ id: 'configure', title: 'Configure', subtitle: 'Client + token to revoke' },
@@ -36,48 +52,7 @@ const STEPS: StepDefinition[] = [
 	{ id: 'verify', title: 'Verify', subtitle: 'Confirm via introspection (RFC 7662)' },
 ];
 
-const Grid = styled.div`
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 0.9rem;
-	@media (max-width: 640px) {
-		grid-template-columns: 1fr;
-	}
-`;
-
-const Toggle = styled.div`
-	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
-`;
-
-const Pill = styled.button<{ $active: boolean }>`
-	font-size: 0.82rem;
-	font-weight: 600;
-	padding: 0.4rem 0.9rem;
-	border-radius: 8px;
-	cursor: pointer;
-	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
-	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
-	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
-`;
-
-const Action = styled.button`
-	align-self: flex-start;
-	font-size: 0.9rem;
-	font-weight: 700;
-	padding: 0.6rem 1.2rem;
-	border-radius: 8px;
-	border: 1px solid ${tokens.color.successBorder};
-	background: ${tokens.color.success};
-	color: #fff;
-	cursor: pointer;
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-`;
-
+// Endpoint is unique to this flow — not part of shared primitives.
 const Endpoint = styled.code`
 	display: block;
 	font-size: 0.8rem;
@@ -88,6 +63,7 @@ const Endpoint = styled.code`
 const TokenRevocationFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
+	const [spec, setSpec] = useState<OAuthSpec>('2.0');
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -111,6 +87,28 @@ const TokenRevocationFlow: React.FC = () => {
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
+
+	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	// Auto-populate mock credentials when mode changes; clear them when switching to real.
+	useEffect(() => {
+		if (mode === 'mock') {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId || MOCK_CREDS.environmentId,
+				region: c.region || MOCK_CREDS.region,
+				clientId: c.clientId || MOCK_CREDS.clientId,
+				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
+			}));
+		} else {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
+				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
+				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
+			}));
+		}
+	}, [mode]);
 
 	const runRevoke = useCallback(async () => {
 		setRevokeLoading(true);
@@ -143,14 +141,17 @@ const TokenRevocationFlow: React.FC = () => {
 		}
 	}, [creds, token, mode, engine]);
 
-	const configured = Boolean(creds.environmentId && creds.clientId && token);
+	// Mock runs offline — never gate it on real credentials.
+	const configured =
+		mode === 'mock' ? true : Boolean(creds.environmentId && creds.clientId && token);
 	const cur = engine.current.id;
 
 	return (
 		<FlowContainer
 			title="Token Revocation"
-			spec="2.0"
+			spec={spec}
 			mode={mode}
+			onModeChange={selectMode}
 			subtitle="RFC 7009. A client asks the authorization server to invalidate a token — access or refresh. The AS always returns 200, even if the token never existed. Use introspection to confirm the token is gone."
 			engine={engine}
 		>
@@ -163,15 +164,44 @@ const TokenRevocationFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
+					<FlowDiagram
+						label="OAuth 2.0 Token Revocation"
+						nodes={['Token', 'Revoke EP', 'Revoked']}
+					/>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>
+							OAuth 2.0
+						</Pill>
+						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>
+							OAuth 2.1
+						</Pill>
 					</Toggle>
 					<Grid>
-						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} placeholder="uuid" />
-						<FieldGroup label="Region" value={creds.region} onChange={set('region')} placeholder="com | eu | ca | asia" />
-						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} placeholder="client id" />
-						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} placeholder="client secret" />
+						<FieldGroup
+							label="Environment ID"
+							value={creds.environmentId}
+							onChange={set('environmentId')}
+							placeholder="uuid"
+						/>
+						<FieldGroup
+							label="Region"
+							value={creds.region}
+							onChange={set('region')}
+							placeholder="com | eu | ca | asia"
+						/>
+						<FieldGroup
+							label="Client ID"
+							value={creds.clientId}
+							onChange={set('clientId')}
+							placeholder="client id"
+						/>
+						<FieldGroup
+							label="Client Secret"
+							type="password"
+							value={creds.clientSecret ?? ''}
+							onChange={set('clientSecret')}
+							placeholder="client secret"
+						/>
 					</Grid>
 					<FieldGroup
 						multiline
@@ -181,7 +211,13 @@ const TokenRevocationFlow: React.FC = () => {
 						placeholder="paste an access or refresh token (e.g. from the Client Credentials or Authorization Code flow)"
 					/>
 					<Toggle>
-						{([[undefined, 'no hint'], ['access_token', 'access_token'], ['refresh_token', 'refresh_token']] as const).map(([v, label]) => (
+						{(
+							[
+								[undefined, 'no hint'],
+								['access_token', 'access_token'],
+								['refresh_token', 'refresh_token'],
+							] as const
+						).map(([v, label]) => (
 							<Pill key={label} $active={hint === v} onClick={() => setHint(v)}>
 								{label}
 							</Pill>
@@ -189,8 +225,8 @@ const TokenRevocationFlow: React.FC = () => {
 					</Toggle>
 					<ExplanationPanel title="What token_type_hint does">
 						The hint is optional and only affects server-side lookup order — it helps the AS search
-						the right token store first. The AS will still find and revoke the token even if the hint
-						is wrong or absent. It is not a security boundary.
+						the right token store first. The AS will still find and revoke the token even if the
+						hint is wrong or absent. It is not a security boundary.
 					</ExplanationPanel>
 					<ExplanationPanel title="Client authentication method">
 						This flow sends client credentials in the request body (<code>client_secret_post</code>,
@@ -210,9 +246,17 @@ const TokenRevocationFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(revokeResult)}
 				>
-					<Endpoint>{mode === 'real' ? revocationEndpointFor(creds) : 'mock — no network call, simulated 200'}</Endpoint>
+					<Endpoint>
+						{mode === 'real'
+							? revocationEndpointFor(creds)
+							: 'mock — no network call, simulated 200'}
+					</Endpoint>
 					<Action onClick={runRevoke} disabled={revokeLoading || !configured}>
-						{revokeLoading ? 'Revoking…' : mode === 'real' ? 'Revoke real token' : 'Revoke mock token'}
+						{revokeLoading
+							? 'Revoking…'
+							: mode === 'real'
+								? 'Revoke real token'
+								: 'Revoke mock token'}
 					</Action>
 					{revokeError && (
 						<ResultCard title={`Error: ${revokeError.error}`} tone="error">
@@ -226,8 +270,8 @@ const TokenRevocationFlow: React.FC = () => {
 					)}
 					<ExplanationPanel title="RFC 7009 §2.2 — always 200">
 						The server must return 200 regardless of whether the token was valid, expired, or never
-						issued. Returning 404 or 400 would let an attacker enumerate whether a given token string
-						has ever been issued. The 200 is a security feature, not a confirmation.
+						issued. Returning 404 or 400 would let an attacker enumerate whether a given token
+						string has ever been issued. The 200 is a security feature, not a confirmation.
 					</ExplanationPanel>
 				</FlowStep>
 			)}
@@ -241,9 +285,17 @@ const TokenRevocationFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
-					<Endpoint>{mode === 'real' ? introspectionEndpointFor(creds) : 'mock — answered locally, no network call'}</Endpoint>
+					<Endpoint>
+						{mode === 'real'
+							? introspectionEndpointFor(creds)
+							: 'mock — answered locally, no network call'}
+					</Endpoint>
 					<Action onClick={runVerify} disabled={verifyLoading || !configured}>
-						{verifyLoading ? 'Introspecting…' : mode === 'real' ? 'Introspect (verify revocation)' : 'Introspect mock token'}
+						{verifyLoading
+							? 'Introspecting…'
+							: mode === 'real'
+								? 'Introspect (verify revocation)'
+								: 'Introspect mock token'}
 					</Action>
 					{verifyError && (
 						<ResultCard title={`Error: ${verifyError.error}`} tone="error">
@@ -252,7 +304,11 @@ const TokenRevocationFlow: React.FC = () => {
 					)}
 					{verifyResult && (
 						<ResultCard
-							title={verifyResult.active ? 'Token is still ACTIVE — revocation may not have applied' : 'Token is INACTIVE — revocation confirmed'}
+							title={
+								verifyResult.active
+									? 'Token is still ACTIVE — revocation may not have applied'
+									: 'Token is INACTIVE — revocation confirmed'
+							}
 							tone={verifyResult.active ? 'error' : 'ok'}
 						>
 							<JsonView data={verifyResult} />
