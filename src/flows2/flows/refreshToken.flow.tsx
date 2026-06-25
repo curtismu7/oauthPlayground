@@ -11,6 +11,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
@@ -31,6 +34,7 @@ import type {
 } from '../framework/types';
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
+import { pingoneEndpoints } from '../services/pingone';
 import { type RefreshResult, refreshTokenService } from '../services/refreshTokenService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -117,6 +121,9 @@ const RefreshTokenFlow: React.FC = () => {
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:refresh-token', creds, setCreds);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -207,6 +214,9 @@ const RefreshTokenFlow: React.FC = () => {
 						creds={creds}
 						set={set}
 						scopePlaceholder="openid profile"
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 					<FieldGroup
 						label="Refresh Token (paste here)"
@@ -235,6 +245,20 @@ const RefreshTokenFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(result)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.token,
+							params: {
+								grant_type: 'refresh_token',
+								refresh_token: inputRefreshToken || '<refresh_token>',
+								client_id: creds.clientId,
+								scope: creds.scope || undefined,
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={doRefresh} disabled={loading || !configured}>
 						{loading ? 'Refreshing…' : mode === 'real' ? 'Refresh tokens' : 'Refresh tokens (mock)'}
 					</Action>

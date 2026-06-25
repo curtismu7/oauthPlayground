@@ -6,8 +6,11 @@
 // Uses the shared flows2 primitives for visual parity with the other flows.
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { FlowStep } from '../framework/FlowStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { FieldGroup } from '../framework/FieldGroup';
@@ -19,7 +22,7 @@ import { FlowDiagram } from '../framework/FlowDiagram';
 import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type { FlowError, FlowMode, OAuthSpec, StepDefinition } from '../framework/types';
-import { decodeJwtPayload } from '../services/pingone';
+import { decodeJwtPayload, pingoneEndpoints } from '../services/pingone';
 import {
 	userInfoEndpointFor,
 	userInfoService as svc,
@@ -48,6 +51,26 @@ const Endpoint = styled.code`
 	word-break: break-all;
 `;
 
+const SaveRow = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-top: 0.25rem;
+`;
+const SaveBtn = styled.button`
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.78rem;
+	font-weight: 700;
+	padding: 0.45rem 1rem;
+	border-radius: 6px;
+	border: 1px solid ${tokens.color.accent};
+	background: ${tokens.color.accentBg};
+	color: ${tokens.color.accent};
+	cursor: pointer;
+	&:hover:not(:disabled) { background: ${tokens.color.accent}; color: #fff; }
+	&:disabled { opacity: 0.6; cursor: not-allowed; }
+`;
+
 const UserInfoFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
@@ -61,6 +84,17 @@ const UserInfoFlow: React.FC = () => {
 	const [loading, setLoading] = useState(false);
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, load: loadCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:userinfo');
+
+	useEffect(() => {
+		loadCredentials().then((data) => {
+			if (!data || environmentId) return;
+			if (typeof data.environmentId === 'string') setEnvironmentId(data.environmentId);
+			if (typeof data.region === 'string') setRegion(data.region);
+		});
+	}, [loadCredentials, environmentId]);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -142,6 +176,14 @@ const UserInfoFlow: React.FC = () => {
 							placeholder="com | eu | ca | asia"
 						/>
 					</Grid>
+					<SaveRow>
+						<SaveBtn
+							disabled={savingCreds}
+							onClick={() => saveCredentials({ environmentId, region })}
+						>
+							{savingCreds ? 'Saving…' : savedCreds ? 'Saved ✓' : 'Save credentials'}
+						</SaveBtn>
+					</SaveRow>
 					<FieldGroup
 						multiline
 						label="Access token (user-delegated, required)"
@@ -178,6 +220,17 @@ const UserInfoFlow: React.FC = () => {
 							? userInfoEndpointFor(environmentId, region)
 							: 'mock — answered locally, no network call'}
 					</Endpoint>
+					{(() => {
+						const ep = pingoneEndpoints({ environmentId, region });
+						const curlReq: CurlRequest = {
+							method: 'GET',
+							url: ep.userinfo,
+							headers: {
+								Authorization: `Bearer ${accessToken || '<access_token>'}`,
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={run} disabled={loading || !configured}>
 						{loading ? 'Fetching…' : mode === 'real' ? 'Fetch UserInfo' : 'Fetch mock UserInfo'}
 					</Action>

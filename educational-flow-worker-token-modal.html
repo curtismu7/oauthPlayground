@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Worker Token Modal — Teaching</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 1rem;
+		}
+
+		.container {
+			max-width: 900px;
+			width: 100%;
+		}
+
+		.header {
+			text-align: center;
+			color: #fff;
+			margin-bottom: 2rem;
+		}
+
+		.header h1 {
+			font-size: 1.8rem;
+			margin-bottom: 0.5rem;
+		}
+
+		.header p {
+			font-size: 0.95rem;
+			opacity: 0.9;
+		}
+
+		.modal-backdrop {
+			position: fixed;
+			inset: 0;
+			background: rgba(15, 23, 42, 0.5);
+			backdrop-filter: blur(4px);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 1000;
+		}
+
+		.modal {
+			background: #fff;
+			border-radius: 12px;
+			box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+			max-width: 650px;
+			width: 100%;
+			max-height: 90vh;
+			overflow-y: auto;
+		}
+
+		.modal-header {
+			padding: 1.5rem;
+			border-bottom: 1px solid #e2e8f0;
+		}
+
+		.modal-header h2 {
+			font-size: 1.25rem;
+			color: #1e3a8a;
+			margin-bottom: 0.25rem;
+		}
+
+		.modal-header p {
+			font-size: 0.875rem;
+			color: #64748b;
+		}
+
+		.modal-body {
+			padding: 1.5rem;
+		}
+
+		.section {
+			margin-bottom: 1.75rem;
+		}
+
+		.section-title {
+			font-size: 0.9rem;
+			font-weight: 700;
+			color: #334155;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			margin-bottom: 0.75rem;
+		}
+
+		.form-group {
+			margin-bottom: 1rem;
+		}
+
+		.form-group label {
+			display: block;
+			font-size: 0.875rem;
+			font-weight: 600;
+			color: #1e3a8a;
+			margin-bottom: 0.4rem;
+		}
+
+		.form-group input {
+			width: 100%;
+			padding: 0.6rem 0.75rem;
+			border: 1px solid #cbd5e1;
+			border-radius: 6px;
+			font-size: 0.875rem;
+			font-family: 'Monaco', 'Menlo', monospace;
+		}
+
+		.form-group input:focus {
+			outline: none;
+			border-color: #14b8a6;
+			box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+		}
+
+		.form-group input[type='password'] {
+			font-family: 'Monaco', 'Menlo', monospace;
+			letter-spacing: 0.15em;
+		}
+
+		.form-group select {
+			width: 100%;
+			padding: 0.6rem 0.75rem;
+			border: 1px solid #cbd5e1;
+			border-radius: 6px;
+			font-size: 0.875rem;
+		}
+
+		.form-group select:focus {
+			outline: none;
+			border-color: #14b8a6;
+			box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+		}
+
+		.button-row {
+			display: flex;
+			gap: 0.75rem;
+			margin-bottom: 1.5rem;
+		}
+
+		.btn {
+			flex: 1;
+			padding: 0.75rem 1.25rem;
+			border: none;
+			border-radius: 6px;
+			font-size: 0.875rem;
+			font-weight: 700;
+			cursor: pointer;
+			transition: all 150ms ease;
+			font-family: 'IBM Plex Mono', monospace;
+			letter-spacing: 0.04em;
+		}
+
+		.btn-primary {
+			background: #14b8a6;
+			color: #fff;
+		}
+
+		.btn-primary:hover {
+			background: #0d9488;
+			transform: translateY(-1px);
+		}
+
+		.btn-primary:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+			transform: none;
+		}
+
+		.code-block {
+			background: #f8fafc;
+			border: 1px solid #e2e8f0;
+			border-radius: 6px;
+			padding: 1rem;
+			font-family: 'Monaco', 'Menlo', monospace;
+			font-size: 0.75rem;
+			line-height: 1.5;
+			color: #1e293b;
+			overflow-x: auto;
+			margin-bottom: 1rem;
+			white-space: pre-wrap;
+			word-break: break-word;
+		}
+
+		.token-payload {
+			background: #eff6ff;
+			border-left: 3px solid #14b8a6;
+			border-radius: 0 6px 6px 0;
+			padding: 0.75rem 1rem;
+			margin-bottom: 1rem;
+			font-size: 0.825rem;
+			color: #334155;
+		}
+
+		.token-payload strong {
+			color: #1e3a8a;
+		}
+
+		.scopes-list {
+			list-style: none;
+			padding: 0;
+		}
+
+		.scopes-list li {
+			padding: 0.6rem 0.75rem;
+			background: #f0fdfa;
+			border-left: 2px solid #14b8a6;
+			margin-bottom: 0.5rem;
+			font-size: 0.85rem;
+			font-family: 'Monaco', 'Menlo', monospace;
+		}
+
+		.scopes-list .scope-desc {
+			display: block;
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+			color: #64748b;
+			font-size: 0.75rem;
+			margin-top: 0.25rem;
+		}
+
+		.tab-buttons {
+			display: flex;
+			gap: 0.5rem;
+			margin-bottom: 1rem;
+			border-bottom: 1px solid #e2e8f0;
+		}
+
+		.tab-btn {
+			padding: 0.75rem 1rem;
+			background: none;
+			border: none;
+			border-bottom: 2px solid transparent;
+			color: #64748b;
+			font-weight: 600;
+			font-size: 0.85rem;
+			cursor: pointer;
+			transition: all 150ms ease;
+		}
+
+		.tab-btn.active {
+			color: #14b8a6;
+			border-bottom-color: #14b8a6;
+		}
+
+		.tab-content {
+			display: none;
+		}
+
+		.tab-content.active {
+			display: block;
+		}
+
+		.note {
+			background: #fef3c7;
+			border-left: 3px solid #f59e0b;
+			padding: 0.75rem 1rem;
+			border-radius: 0 6px 6px 0;
+			font-size: 0.85rem;
+			color: #92400e;
+			margin-bottom: 1rem;
+		}
+
+		.note strong {
+			color: #78350f;
+		}
+
+		.modal-footer {
+			padding: 1.5rem;
+			border-top: 1px solid #e2e8f0;
+			text-align: center;
+			font-size: 0.75rem;
+			color: #94a3b8;
+		}
+
+		@media (max-width: 640px) {
+			.modal {
+				border-radius: 0;
+				max-height: 100vh;
+			}
+
+			.button-row {
+				flex-direction: column;
+			}
+
+			.header h1 {
+				font-size: 1.4rem;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="header">
+		<h1>Worker Token Modal</h1>
+		<p>Teaching how server-to-server OAuth flows work</p>
+	</div>
+
+	<div class="modal-backdrop">
+		<div class="modal">
+			<!-- Header -->
+			<div class="modal-header">
+				<h2>Request a Worker Token</h2>
+				<p>Machine-to-machine (M2M) authentication: client credentials → access token</p>
+			</div>
+
+			<!-- Body -->
+			<div class="modal-body">
+				<!-- Step 1: Credentials -->
+				<div class="section">
+					<div class="section-title">1. Your Worker App Credentials</div>
+					<div class="form-group">
+						<label>Environment ID</label>
+						<input type="text" id="envId" placeholder="a1234567-b890-c123-d456-e7890f123456" />
+					</div>
+					<div class="form-group">
+						<label>Region</label>
+						<select id="region">
+							<option value="com">com (North America)</option>
+							<option value="eu">eu (Europe)</option>
+							<option value="ca">ca (Canada)</option>
+							<option value="asia">asia (Asia Pacific)</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>Worker Client ID</label>
+						<input type="text" id="clientId" placeholder="6c1b2f8e-9d3a-4c7f-b2e1-8f5a9c2d3e4f" />
+					</div>
+					<div class="form-group">
+						<label>Client Secret (or Private Key)</label>
+						<input type="password" id="secret" placeholder="••••••••••••••••••••••••••••" />
+					</div>
+				</div>
+
+				<!-- Step 2: Token Request -->
+				<div class="section">
+					<div class="section-title">2. Request Token</div>
+					<p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+						When you click <strong>Request Token</strong>, the flow:
+					</p>
+					<ol style="font-size: 0.85rem; color: #64748b; line-height: 1.8; margin-left: 1.25rem; margin-bottom: 1rem;">
+						<li>POSTs to <code style="background: #f1f5f9; padding: 0.15em 0.4em; border-radius: 3px;">https://auth.pingone.com/[envId]/as/token</code></li>
+						<li>Authenticates as the worker client (client_secret_basic or client_secret_post)</li>
+						<li>Requests <code style="background: #f1f5f9; padding: 0.15em 0.4em; border-radius: 3px;">grant_type=client_credentials</code></li>
+						<li>Receives an opaque or JWT access_token (depends on PingOne config)</li>
+					</ol>
+
+					<div class="code-block">POST /[envId]/as/token
+Authorization: Basic base64(client_id:client_secret)
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&scope=p1:read:user p1:update:user
+					</div>
+
+					<div class="button-row">
+						<button class="btn btn-primary" onclick="requestToken()">Request Worker Token</button>
+					</div>
+				</div>
+
+				<!-- Step 3: Token Details -->
+				<div class="section" id="tokenSection" style="display: none;">
+					<div class="section-title">3. Token Received</div>
+
+					<div class="tab-buttons">
+						<button class="tab-btn active" onclick="switchTab('payload')">Decoded JWT</button>
+						<button class="tab-btn" onclick="switchTab('usage')">How to Use</button>
+						<button class="tab-btn" onclick="switchTab('scopes')">Scopes</button>
+					</div>
+
+					<!-- Tab: Payload -->
+					<div id="payload" class="tab-content active">
+						<div class="token-payload">
+							<strong>access_token</strong> (JWT, decoded below):
+						</div>
+						<div class="code-block" id="decodedToken"></div>
+						<p style="font-size: 0.8rem; color: #64748b; margin-top: 0.75rem;">
+							⚠️ <strong>Note:</strong> This is a mock JWT. In real usage, the token is signed and the signature
+							must be verified against PingOne's public key (fetched from JWKS endpoint).
+						</p>
+					</div>
+
+					<!-- Tab: Usage -->
+					<div id="usage" class="tab-content">
+						<p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+							Use the worker token to call PingOne APIs on behalf of the worker app (not a user).
+						</p>
+
+						<strong style="display: block; margin-bottom: 0.75rem; color: #1e3a8a; font-size: 0.9rem;">Example: Read User Details</strong>
+						<div class="code-block">
+GET /v1/environments/[envId]/users/[userId]
+Authorization: Bearer [access_token]
+						</div>
+
+						<strong style="display: block; margin: 1rem 0 0.75rem 0; color: #1e3a8a; font-size: 0.9rem;">Example: Invite User</strong>
+						<div class="code-block">
+POST /v1/environments/[envId]/invitations
+Authorization: Bearer [access_token]
+Content-Type: application/json
+
+{
+  "user": { "email": "newuser@example.com" },
+  "messageTemplate": "WELCOME"
+}
+						</div>
+
+						<div class="note">
+							<strong>Key point:</strong> The token represents the <strong>worker app itself</strong>, not a user.
+							Use it for admin tasks, user management, and service-to-service calls. Do NOT expose it to the frontend.
+						</div>
+					</div>
+
+					<!-- Tab: Scopes -->
+					<div id="scopes" class="tab-content">
+						<p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">
+							The token grants these permissions (scopes). Limit scopes to what the worker app actually needs.
+						</p>
+						<ul class="scopes-list">
+							<li>
+								<code>p1:read:user</code>
+								<span class="scope-desc">Read user profiles, attributes, and account info</span>
+							</li>
+							<li>
+								<code>p1:update:user</code>
+								<span class="scope-desc">Modify user attributes (email, phone, custom data, etc.)</span>
+							</li>
+							<li>
+								<code>p1:read:device</code>
+								<span class="scope-desc">Read registered devices (phones, hardware keys)</span>
+							</li>
+							<li>
+								<code>p1:update:device</code>
+								<span class="scope-desc">Enroll, revoke, or update devices</span>
+							</li>
+							<li>
+								<code>p1:read:group</code>
+								<span class="scope-desc">Read group memberships</span>
+							</li>
+							<li>
+								<code>p1:create:group</code>
+								<span class="scope-desc">Create and manage groups</span>
+							</li>
+						</ul>
+
+						<div class="note">
+							<strong>Security best practice:</strong> Request only the scopes your service needs. Scopes are set when
+							the worker app is created in PingOne, so update them there — not in code.
+						</div>
+					</div>
+				</div>
+
+				<!-- Token Response Display -->
+				<div class="section" id="responseSection" style="display: none;">
+					<div class="section-title">Token Response (Raw)</div>
+					<div class="code-block" id="tokenResponse"></div>
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div class="modal-footer">
+				Educational demo. No credentials are sent anywhere. This teaches OAuth 2.0 Client Credentials flow (RFC 6749
+				§4.4).
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function requestToken() {
+			const envId = document.getElementById('envId').value;
+			const region = document.getElementById('region').value;
+			const clientId = document.getElementById('clientId').value;
+			const secret = document.getElementById('secret').value;
+
+			if (!envId || !clientId || !secret) {
+				alert('Please fill in Environment ID, Client ID, and Client Secret');
+				return;
+			}
+
+			// Mock token generation
+			const now = Math.floor(Date.now() / 1000);
+			const mockToken = {
+				access_token: generateMockJwt(envId, region, clientId, now),
+				token_type: 'Bearer',
+				expires_in: 3600,
+				scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
+			};
+
+			// Display token section
+			document.getElementById('tokenSection').style.display = 'block';
+			document.getElementById('responseSection').style.display = 'block';
+
+			// Display decoded payload
+			const payload = {
+				sub: clientId,
+				iss: `https://auth.pingone.${region}/${envId}/as`,
+				aud: `https://api.pingone.${region}/${envId}`,
+				scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
+				iat: now,
+				exp: now + 3600,
+				auth_time: now,
+				token_use: 'access',
+				client_id: clientId,
+				grant_type: 'client_credentials',
+			};
+
+			document.getElementById('decodedToken').textContent = JSON.stringify(payload, null, 2);
+
+			// Display raw response
+			document.getElementById('tokenResponse').textContent = JSON.stringify(mockToken, null, 2);
+
+			// Scroll to token section
+			setTimeout(() => {
+				document.getElementById('tokenSection').scrollIntoView({ behavior: 'smooth' });
+			}, 100);
+		}
+
+		function generateMockJwt(envId, region, clientId, now) {
+			// JWT structure: header.payload.signature (mock — signature not validated in this demo)
+			const header = btoa(JSON.stringify({ alg: 'RS256', typ: 'JWT', kid: 'mock-key-id' }));
+			const payload = btoa(
+				JSON.stringify({
+					sub: clientId,
+					iss: `https://auth.pingone.${region}/${envId}/as`,
+					aud: `https://api.pingone.${region}/${envId}`,
+					scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
+					iat: now,
+					exp: now + 3600,
+					auth_time: now,
+					token_use: 'access',
+					client_id: clientId,
+					grant_type: 'client_credentials',
+				})
+			);
+			const signature = 'mock_signature_not_validated';
+			return `${header}.${payload}.${signature}`;
+		}
+
+		function switchTab(tab) {
+			// Hide all tab contents
+			document.querySelectorAll('.tab-content').forEach((el) => {
+				el.classList.remove('active');
+			});
+
+			// Deactivate all tab buttons
+			document.querySelectorAll('.tab-btn').forEach((btn) => {
+				btn.classList.remove('active');
+			});
+
+			// Show selected tab and activate button
+			document.getElementById(tab).classList.add('active');
+			event.target.classList.add('active');
+		}
+	</script>
+</body>
+</html>

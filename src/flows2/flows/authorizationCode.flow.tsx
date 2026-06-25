@@ -11,11 +11,14 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { clearStash, loadStash, saveStash } from '../framework/authzStash';
 import { CodeBlock } from '../framework/CodeBlock';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
 import { Action, Note } from '../framework/primitives';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { ResultCard } from '../framework/ResultCard';
 import { SpecToggle } from '../framework/SpecToggle';
 import type {
@@ -32,6 +35,7 @@ import {
 	authorizationCodeService,
 	MOCK_REGISTERED_SECRET,
 } from '../services/authorizationCodeService';
+import { pingoneEndpoints } from '../services/pingone';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -115,6 +119,9 @@ const AuthorizationCodeFlow: React.FC = () => {
 	const selectMode = useCallback((m: FlowMode) => {
 		setMode(m);
 	}, []);
+
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:authorization-code', creds, setCreds);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real
 	useEffect(() => {
@@ -307,6 +314,9 @@ const AuthorizationCodeFlow: React.FC = () => {
 						redirectUri={redirectUri}
 						onRedirectUriChange={(e) => setRedirectUri(e.target.value)}
 						scopePlaceholder={oidc ? 'openid profile email' : 'openid'}
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 				</FlowStep>
 			)}
@@ -354,6 +364,24 @@ const AuthorizationCodeFlow: React.FC = () => {
 					onNext={() => engine.goTo(3)}
 					canNext={Boolean(code)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'GET',
+							url: ep.authorize,
+							params: {
+								response_type: 'code',
+								client_id: creds.clientId,
+								redirect_uri: redirectUri,
+								scope: creds.scope || (oidc ? 'openid profile email' : 'openid'),
+								state: '<generated at runtime>',
+								code_challenge: pkce?.codeChallenge || '<generated>',
+								code_challenge_method: 'S256',
+								...(oidc ? { nonce: '<generated at runtime>' } : {}),
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={handleAuthorize} disabled={loading || !configured}>
 						{loading
 							? 'Working…'
@@ -381,6 +409,21 @@ const AuthorizationCodeFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(result)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.token,
+							params: {
+								grant_type: 'authorization_code',
+								code: code || '<authorization_code>',
+								redirect_uri: redirectUri,
+								client_id: creds.clientId,
+								code_verifier: pkce?.codeVerifier || '<code_verifier>',
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={handleExchange} disabled={loading || !code || !pkce}>
 						{loading ? 'Exchanging…' : 'Exchange code'}
 					</Action>

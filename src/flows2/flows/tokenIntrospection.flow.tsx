@@ -8,7 +8,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { JsonView } from '../framework/CodeBlock';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
@@ -27,7 +30,7 @@ import type {
 	StepDefinition,
 } from '../framework/types';
 import { useFlowEngine } from '../framework/useFlowEngine';
-import { decodeJwtPayload } from '../services/pingone';
+import { decodeJwtPayload, pingoneEndpoints } from '../services/pingone';
 import {
 	type IntrospectionResponse,
 	introspectionEndpointFor,
@@ -83,6 +86,9 @@ const TokenIntrospectionFlow: React.FC = () => {
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:token-introspection', creds, setCreds);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -163,6 +169,9 @@ const TokenIntrospectionFlow: React.FC = () => {
 						creds={creds}
 						set={set}
 						showScope={false}
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 					<FieldGroup
 						multiline
@@ -207,6 +216,20 @@ const TokenIntrospectionFlow: React.FC = () => {
 							? introspectionEndpointFor(creds)
 							: 'mock — answered locally, no network call'}
 					</Endpoint>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.introspect,
+							params: {
+								token: token || '<access_token>',
+								token_type_hint: hint,
+								client_id: creds.clientId,
+								client_secret: creds.clientSecret || undefined,
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={run} disabled={loading || !configured}>
 						{loading
 							? 'Introspecting…'

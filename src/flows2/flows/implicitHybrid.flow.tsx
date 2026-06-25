@@ -19,7 +19,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CodeBlock, JsonView } from '../framework/CodeBlock';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
@@ -44,6 +47,7 @@ import {
 	type ImplicitHybridSubMode,
 	implicitHybridService,
 } from '../services/implicitHybridService';
+import { pingoneEndpoints } from '../services/pingone';
 import {
 	IH_PENDING_KEY,
 	IH_RESULT_KEY,
@@ -116,6 +120,9 @@ const ImplicitHybridFlow: React.FC = () => {
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:implicit-hybrid', creds, setCreds);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -331,6 +338,9 @@ const ImplicitHybridFlow: React.FC = () => {
 						onRedirectUriChange={(e) => setRedirectUri(e.target.value)}
 						scopePlaceholder={oidc ? 'openid profile email' : 'openid'}
 						showSecret={subMode === 'hybrid'}
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 				</FlowStep>
 			)}
@@ -348,6 +358,23 @@ const ImplicitHybridFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(fragmentParams)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const responseType = subMode === 'hybrid' ? 'code token' : (oidc ? 'id_token token' : 'token');
+						const curlReq: CurlRequest = {
+							method: 'GET',
+							url: ep.authorize,
+							params: {
+								response_type: responseType,
+								client_id: creds.clientId,
+								redirect_uri: redirectUri,
+								scope: creds.scope || (oidc ? 'openid profile email' : 'profile email'),
+								state: '<generated at runtime>',
+								...(oidc ? { nonce: '<generated at runtime>' } : {}),
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={handleAuthorize} disabled={loading || !configured}>
 						{loading
 							? 'Working…'
