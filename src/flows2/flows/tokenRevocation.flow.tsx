@@ -5,7 +5,7 @@
 // Step 2: Revoke — call the BFF proxy (or mock). RFC 7009 always returns 200.
 // Step 3: Verify — introspect the token to confirm it is now active: false.
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowStep } from '../framework/FlowStep';
@@ -27,6 +27,7 @@ import {
 	tokenIntrospectionService as intSvc,
 	type IntrospectionResponse,
 } from '../services/tokenIntrospectionService';
+import { useFlowStorage } from '../framework/useFlowStorage';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -112,6 +113,8 @@ const TokenRevocationFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
+	const { saveState, restoreState } = useFlowStorage('flows2:token-revocation');
+
 	const runRevoke = useCallback(async () => {
 		setRevokeLoading(true);
 		setRevokeError(null);
@@ -142,6 +145,20 @@ const TokenRevocationFlow: React.FC = () => {
 			setVerifyLoading(false);
 		}
 	}, [creds, token, mode, engine]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!token && saved.token) setToken(saved.token as string);
+			if (!revokeResult && saved.revokeResult) setRevokeResult(saved.revokeResult as typeof revokeResult);
+			if (!revokeError && saved.revokeError) setRevokeError(saved.revokeError as typeof revokeError);
+			if (!verifyResult && saved.verifyResult) setVerifyResult(saved.verifyResult as typeof verifyResult);
+		});
+	}, [restoreState]);
+
+	useEffect(() => {
+		saveState({ token, hint, revokeResult, revokeError, verifyResult });
+	}, [token, hint, revokeResult, revokeError, verifyResult, saveState]);
 
 	const configured = Boolean(creds.environmentId && creds.clientId && token);
 	const cur = engine.current.id;
