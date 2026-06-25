@@ -5,7 +5,7 @@
 // the BFF enforces the subject's may_act rule and the issued token carries an act claim.
 // Uses the shared flows2 primitives for visual parity with the other flows.
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
@@ -25,6 +25,7 @@ import type {
 	TokenResult,
 } from '../framework/types';
 import { tokenExchangeService as svc, type MayActResult } from '../services/tokenExchangeService';
+import { useFlowStorage } from '../framework/useFlowStorage';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -106,6 +107,8 @@ const TokenExchangeFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
+	const { saveState, restoreState } = useFlowStorage('flows2:token-exchange');
+
 	const run = useCallback(async () => {
 		setLoading(true);
 		setError(null);
@@ -132,6 +135,22 @@ const TokenExchangeFlow: React.FC = () => {
 		setIntrospectData(await svc.introspect(result.accessToken, creds, mode));
 		engine.markComplete('inspect');
 	}, [result, creds, mode, engine]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!subjectToken && saved.subjectToken) setSubjectToken(saved.subjectToken as string);
+			if (!actorToken && saved.actorToken) setActorToken(saved.actorToken as string);
+			if (!requestedScopes && saved.requestedScopes) setRequestedScopes(saved.requestedScopes as string);
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+			if (!mayAct && saved.mayAct) setMayAct(saved.mayAct as typeof mayAct);
+		});
+	}, [restoreState]);
+
+	useEffect(() => {
+		saveState({ subjectToken, actorToken, requestedScopes, result, error, mayAct });
+	}, [subjectToken, actorToken, requestedScopes, result, error, mayAct, saveState]);
 
 	const configured = Boolean(creds.environmentId && creds.clientId && subjectToken);
 	const cur = engine.current.id;

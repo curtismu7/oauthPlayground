@@ -44,9 +44,9 @@ Make all flows in the **Mock Flows** group behave and look very similar so users
 
 **Fixes:** (1) Sidebar: ROPC link to `/flows/oauth-ropc-v9`; SPIFFE to `/flows/spiffe-spire-v9`. (2) App routes: add `/flows/spiffe-spire-v9` and redirect `/v8u/spiffe-spire*`. (3) Move V7M flow components from `src/v7/pages/` to `src/pages/flows/v9/` and update their imports (`../../` → `../../../`, `../` → `../../../v7/`). (4) App.tsx: import moved components from `./pages/flows/v9/...`.
 
-### 2.1c AIAssistant / MasterFlow Agent integration
+### 2.1c AIAssistant / OAuth Playground Agent integration
 
-**AIAssistant** (MasterFlow Agent) provides flow discovery and guidance. It does **not** render Mock flows; it links users to them and runs MCP tools for PingOne operations.
+**AIAssistant** (OAuth Playground Agent) provides flow discovery and guidance. It does **not** render Mock flows; it links users to them and runs MCP tools for PingOne operations.
 
 | Component | Role | Mock Flows relationship |
 |-----------|------|-------------------------|
@@ -358,6 +358,6 @@ Use the same visual structure as JWT Bearer: green success-style card for “Wha
 ## 8. Regression and Do-Not-Break
 
 - After each phase, run the **Mock Flows** regression from `docs/UPDATE_LOG_AND_REGRESSION_PLAN.md` (Section 4): open each flow, complete the main path, confirm tokens and UserInfo/Introspect where applicable.
-- **AIAssistant flow links:** When adding or changing Mock flow routes, update `aiAgentService.buildCapabilityIndex().flows` in both `src/services/aiAgentService.ts` and `AIAssistant/src/services/aiAgentService.ts` so flow links use canonical v9 paths (§2.1b, §2.1c). Links from MasterFlow Agent (related links, pattern answers) should point to v9 routes.
+- **AIAssistant flow links:** When adding or changing Mock flow routes, update `aiAgentService.buildCapabilityIndex().flows` in both `src/services/aiAgentService.ts` and `AIAssistant/src/services/aiAgentService.ts` so flow links use canonical v9 paths (§2.1b, §2.1c). Links from OAuth Playground Agent (related links, pattern answers) should point to v9 routes.
 - Preserve **Do-not-break** (sidebar z-index, worker token, discovery logger, button styling, etc.); shared styles must not override flow-specific needs (e.g. disabled button grey only when disabled).
 - Document any new shared component in the regression plan so future edits don’t break the standard layout.

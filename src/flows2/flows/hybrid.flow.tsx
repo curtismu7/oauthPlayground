@@ -23,6 +23,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import { authorizationCodeService, MOCK_REGISTERED_SECRET } from '../services/authorizationCodeService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -95,7 +96,7 @@ const MOCK_CREDS = {
 	region: 'com',
 	clientId: 'mock-hybrid-demo-1234567890',
 	clientSecret: MOCK_REGISTERED_SECRET,
-	scope: 'openid profile email',
+	scope: 'openid',
 } as const;
 
 const HybridFlow: React.FC = () => {
@@ -106,7 +107,7 @@ const HybridFlow: React.FC = () => {
 		region: env.VITE_PINGONE_REGION || 'com',
 		clientId: env.VITE_PINGONE_USER_CLIENT_ID || '',
 		clientSecret: env.VITE_PINGONE_USER_CLIENT_SECRET || '',
-		scope: 'openid profile email',
+		scope: 'openid',
 	});
 	const [redirectUri, setRedirectUri] = useState(defaultRedirectUri());
 	const [authUrl, setAuthUrl] = useState('');
@@ -116,6 +117,8 @@ const HybridFlow: React.FC = () => {
 	const [userInfoData, setUserInfoData] = useState<Record<string, unknown> | null>(null);
 	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 	const [loading, setLoading] = useState(false);
+
+	const { saveState, restoreState } = useFlowStorage('flows2:hybrid');
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -258,6 +261,19 @@ const HybridFlow: React.FC = () => {
 		if (!result?.accessToken) return;
 		setIntrospectData(await authorizationCodeService.introspect(result.accessToken, creds, mode));
 	}, [result, creds, mode]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!code && saved.code) setCode(saved.code as string);
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState, code, result, error]);
+
+	useEffect(() => {
+		saveState({ code, result, error });
+	}, [code, result, error, saveState]);
 
 	const configured =
 		mode === 'mock'

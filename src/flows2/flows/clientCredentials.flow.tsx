@@ -23,6 +23,7 @@ import type {
 	TokenResult,
 } from '../framework/types';
 import { clientCredentialsService } from '../services/clientCredentialsService';
+import { useFlowStorage } from '../framework/useFlowStorage';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -123,6 +124,8 @@ const ClientCredentialsFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
+	const { saveState, restoreState } = useFlowStorage('flows2:client-credentials');
+
 	// Auto-populate mock credentials when mode changes; clear them when switching to real
 	useEffect(() => {
 		if (mode === 'mock') {
@@ -184,6 +187,18 @@ const ClientCredentialsFlow: React.FC = () => {
 		setIntrospectData(await clientCredentialsService.introspect(result.accessToken, creds, mode));
 		engine.markComplete('inspect');
 	}, [result, creds, mode, engine]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState]);
+
+	useEffect(() => {
+		saveState({ result, error });
+	}, [result, error, saveState]);
 
 	const configured = Boolean(creds.environmentId && creds.clientId && creds.clientSecret);
 	const cur = engine.current.id;
