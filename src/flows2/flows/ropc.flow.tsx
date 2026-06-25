@@ -22,6 +22,7 @@ import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
 import { Action, Grid, Pill, Toggle } from '../framework/primitives';
 import { SpecToggle } from '../framework/SpecToggle';
+import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
@@ -32,6 +33,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { pingoneEndpoints } from '../services/pingone';
@@ -80,6 +82,11 @@ const RopcFlow: React.FC = () => {
 	const [mode, setMode] = useState<FlowMode>('real');
 	const [spec, setSpec] = useState<OAuthSpec>('2.0');
 	const [oidc, setOidc] = useState(true);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({
+		accessTokenSeconds: 3600,
+		idTokenSeconds: 3600,
+		refreshTokenSeconds: 86400,
+	});
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -96,6 +103,10 @@ const RopcFlow: React.FC = () => {
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
+
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => {
+		setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) }));
+	};
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
 
@@ -134,7 +145,10 @@ const RopcFlow: React.FC = () => {
 			return;
 		}
 		try {
-			const r = await ropcService.runPasswordGrant(creds, username, password, mode);
+			const r = await ropcService.runPasswordGrant(creds, username, password, mode, {
+				tokenLifetimes,
+				authMethod: creds.authMethod,
+			});
 			setResult(r);
 			engine.markComplete('request');
 			engine.goNext();
@@ -143,7 +157,7 @@ const RopcFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, username, password, mode, engine]);
+	}, [creds, username, password, mode, engine, tokenLifetimes]);
 
 	// All three fields required before the token request is allowed.
 	const canRequest = Boolean(creds.environmentId && creds.clientId && username && password);
@@ -209,6 +223,12 @@ const RopcFlow: React.FC = () => {
 						onSave={saveCredentials}
 						saving={savingCreds}
 						saved={savedCreds}
+					/>
+					<TokenLifetimeConfig
+						lifetimes={tokenLifetimes}
+						onChange={updateTokenLifetime}
+						showIdToken={oidc}
+						showRefreshToken={true}
 					/>
 					<ExplanationPanel title="Client auth: post vs basic">
 						client_secret_post sends client_id and client_secret in the POST body.

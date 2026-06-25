@@ -20,6 +20,7 @@ import { FlowStep } from '../framework/FlowStep';
 import { Action, Pill, Toggle } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
 import { SpecToggle } from '../framework/SpecToggle';
+import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
@@ -30,6 +31,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import {
@@ -133,6 +135,8 @@ const DeviceAuthorizationFlow: React.FC = () => {
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 
 	// Poll loop bookkeeping — a ref so the recursive setTimeout always sees live values
 	// and so unmount/Stop can cancel cleanly.
@@ -200,7 +204,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 		setStatus(null);
 		setResult(null);
 		try {
-			const d = await svc.requestDeviceCode(creds, mode);
+			const d = await svc.requestDeviceCode(creds, mode, tokenLifetimes, creds.authMethod);
 			setDevice(d);
 			engine.markComplete('request');
 		} catch (err) {
@@ -208,7 +212,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, mode, engine]);
+	}, [creds, mode, engine, tokenLifetimes]);
 
 	const startPolling = useCallback(() => {
 		if (!device) return;
@@ -231,7 +235,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 			}
 			pollInProgress.current = true;
 			try {
-				const r = await svc.pollOnce(creds, device.deviceCode, mode, attempt.current);
+				const r = await svc.pollOnce(creds, device.deviceCode, mode, attempt.current, tokenLifetimes, creds.authMethod);
 				attempt.current += 1;
 				if (!active.current || !mounted.current) {
 					pollInProgress.current = false;
@@ -272,7 +276,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 
 		// First poll after one interval — the user needs time to enter the code.
 		timer.current = setTimeout(tick, intervalMs);
-	}, [device, creds, mode, engine, stopPolling]);
+	}, [device, creds, mode, engine, stopPolling, tokenLifetimes]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured = mode === 'mock' ? true : Boolean(creds.environmentId && creds.clientId);
@@ -326,6 +330,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 						saving={savingCreds}
 						saved={savedCreds}
 					/>
+					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={oidc} showRefreshToken={true} />
 					<ExplanationPanel title="When to use Device Authorization">
 						Use it when the device has no browser or no keyboard — smart TVs, CLIs, IoT. The user
 						moves to a second device to authorize, so credentials are never typed on the constrained

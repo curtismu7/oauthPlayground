@@ -8,6 +8,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { TokenLifetimeConfig, type TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { FlowContainer } from '../framework/FlowContainer';
 import { RequestPreview } from '../framework/RequestPreview';
@@ -95,6 +96,8 @@ const DPoPFlow: React.FC = () => {
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -174,7 +177,9 @@ const DPoPFlow: React.FC = () => {
 				creds,
 				proofResult.proof,
 				keyPairResult.thumbprint,
-				mode
+				mode,
+				tokenLifetimes,
+				creds.authMethod
 			);
 			setResult(r);
 			engine.markComplete('request');
@@ -183,7 +188,7 @@ const DPoPFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [keyPairResult, proofResult, creds, mode, engine]);
+	}, [keyPairResult, proofResult, creds, mode, engine, tokenLifetimes]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured = mode === 'mock' ? true : Boolean(creds.environmentId && creds.clientId && creds.clientSecret);
@@ -231,6 +236,7 @@ const DPoPFlow: React.FC = () => {
 						saving={savingCreds}
 						saved={savedCreds}
 					/>
+					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={false} showRefreshToken={false} />
 					<ExplanationPanel title="What is DPoP and why does it matter?">
 						A bearer access token is like cash — whoever holds it can spend it. DPoP makes it more
 						like a signed cheque: the token is cryptographically bound to a public key, and every

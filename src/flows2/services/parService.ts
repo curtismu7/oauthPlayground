@@ -155,6 +155,12 @@ export interface ExchangeParams {
 	redirectUri: string;
 	code: string;
 	codeVerifier: string;
+	authMethod?: string;
+	tokenLifetimes?: {
+		accessTokenSeconds?: number;
+		idTokenSeconds?: number;
+		refreshTokenSeconds?: number;
+	};
 }
 
 export async function exchangeCode(p: ExchangeParams, mode: FlowMode): Promise<TokenResult> {
