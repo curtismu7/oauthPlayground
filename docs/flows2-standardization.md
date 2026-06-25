@@ -119,7 +119,7 @@ Real mode is wired and kept on every flow, but these depend on PingOne app/env c
 may fail against a default worker app — mock always works for teaching:
 - **ROPC** — `grant_type=password` must be explicitly enabled on the app; removed in OAuth 2.1.
 - **Implicit / Hybrid** — needs `response_type=token` / `code id_token` enabled; discouraged in 2.1.
-- **Redirectless** — `response_mode=pi.flow` is PingOne-proprietary (not in any OAuth RFC).
+- **Redirectless** — it *is* the Authorization Code flow with one added parameter, `response_mode=pi.flow`: PingOne skips the browser redirect (no `redirect_uri` required), `/authorize` returns the authorization response as a JSON flow object, and tokens come back directly in the body. The `pi.flow` response_mode is a PingOne extension (the underlying grant is standard Authorization Code).
 - **Token Exchange** — RFC 8693 needs a custom resource server + token-exchange scope.
 - **DPoP** — RFC 9449 support is environment-limited.
 - **SAML Bearer** — RFC 7522 needs IdP/assertion config beyond a standard worker app.
