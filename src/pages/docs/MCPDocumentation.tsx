@@ -152,7 +152,7 @@ const MCPDocumentation: React.FC = () => {
 						<p>
 							The Model Context Protocol (MCP) is an open-source standard for connecting AI
 							applications to data sources, tools, and workflows. MasterFlow API implements MCP to
-							enable the MasterFlow Agent and other AI clients to interact with PingOne identity
+							enable the OAuth Playground Agent and other AI clients to interact with PingOne identity
 							services.
 						</p>
 						<div
@@ -680,7 +680,7 @@ const MCPDocumentation: React.FC = () => {
 								<p>Configure and test the PingOne MCP server in MasterFlow API.</p>
 							</DocCard>
 							<DocCard to="/ai-assistant">
-								<h3>MasterFlow Agent</h3>
+								<h3>OAuth Playground Agent</h3>
 								<p>AI assistant that uses MCP tools to interact with PingOne.</p>
 							</DocCard>
 							<DocCard to="/ai-agent-overview">

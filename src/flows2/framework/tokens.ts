@@ -11,6 +11,18 @@ export const tokens = {
 		primarySubtle: '#eff6ff',
 		primaryBorder: '#bfdbfe',
 
+		// Signature accent (electric teal) — the look-and-feel anchor adopted from
+		// the /v2/flows/authorization-code reference. Used on action buttons,
+		// active pills, and the signature FlowDiagram.
+		accent: '#14b8a6',
+		accentHover: '#0d9488',
+		accentBg: '#f0fdfa',
+
+		// Neutral scale (reference DESIGN palette)
+		neutral100: '#f9fafb',
+		neutral300: '#e5e7eb',
+		neutral600: '#4b5563',
+
 		// Text hierarchy
 		text: '#0f172a',
 		textMuted: '#475569',

@@ -89,7 +89,7 @@ const MainPage: React.FC = () => {
 		<AppShell>
 			{/* Top nav bar */}
 			<TopBar>
-				<Logo>🤖 MasterFlow AI Assistant</Logo>
+				<Logo>🤖 OAuth Playground AI Assistant</Logo>
 				<NavActions>
 					<NavBtn onClick={() => setOauthOpen((v) => !v)} $active={oauthOpen}>
 						🔐 OAuth Login
@@ -103,7 +103,7 @@ const MainPage: React.FC = () => {
 			{/* Welcome Section */}
 			<WelcomeSection>
 				<WelcomeContent>
-					<WelcomeTitle>Welcome to MasterFlow AI Assistant</WelcomeTitle>
+					<WelcomeTitle>Welcome to OAuth Playground AI Assistant</WelcomeTitle>
 					<WelcomeDescription>
 						Your intelligent guide for OAuth 2.0, OpenID Connect, and PingOne integration. Get help
 						with flows, configuration, troubleshooting, and navigate to relevant features with
