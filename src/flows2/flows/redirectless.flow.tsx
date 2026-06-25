@@ -4,28 +4,35 @@
 // instead of issuing a browser redirect; the SPA drives login by submitting credentials
 // directly to the PingOne Flow API (via the BFF), then polls until the flow reaches
 // COMPLETED and tokens arrive. Good for mobile / native / SPA embedded-auth UX.
+//
+// FLAG: pi.flow / response_mode=pi.flow is a PingOne-specific extension — it is NOT
+// part of any OAuth 2.0 or 2.1 RFC. Real mode requires a PingOne environment and an
+// application configured to allow this grant. Mock mode runs fully offline.
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
+import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
+import { Action, Grid, Pill, Toggle } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { tokens } from '../framework/tokens';
 import type {
 	FlowCredentials,
 	FlowError,
 	FlowMode,
+	OAuthSpec,
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { useFlowEngine } from '../framework/useFlowEngine';
 import {
-	redirectlessService,
 	type RedirectlessFlowState,
 	type RedirectlessPollStatus,
+	redirectlessService,
 } from '../services/redirectlessService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -39,49 +46,7 @@ const STEPS: StepDefinition[] = [
 	{ id: 'use', title: 'Use Tokens', subtitle: 'Inspect the result' },
 ];
 
-// ─── Styled components ────────────────────────────────────────────────────────
-
-const Grid = styled.div`
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 0.9rem;
-	@media (max-width: 640px) {
-		grid-template-columns: 1fr;
-	}
-`;
-
-const Toggle = styled.div`
-	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
-`;
-
-const Pill = styled.button<{ $active: boolean }>`
-	font-size: 0.82rem;
-	font-weight: 600;
-	padding: 0.4rem 0.9rem;
-	border-radius: 8px;
-	cursor: pointer;
-	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
-	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
-	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
-`;
-
-const Action = styled.button`
-	align-self: flex-start;
-	font-size: 0.9rem;
-	font-weight: 700;
-	padding: 0.6rem 1.2rem;
-	border-radius: 8px;
-	border: 1px solid ${tokens.color.successBorder};
-	background: ${tokens.color.success};
-	color: #fff;
-	cursor: pointer;
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-`;
+// ─── Local styled component (status badge — not in primitives) ────────────────
 
 const StatusBadge = styled.div<{ $tone: 'info' | 'success' | 'error' }>`
 	font-size: 0.85rem;
@@ -109,11 +74,21 @@ const StatusBadge = styled.div<{ $tone: 'info' | 'success' | 'error' }>`
 				: tokens.color.primary};
 `;
 
+// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
+const MOCK_CREDS = {
+	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
+	region: 'com',
+	clientId: 'mock-client-demo-1234567890',
+	clientSecret: 'mock-client-secret',
+	scope: 'openid profile email',
+} as const;
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const RedirectlessFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
+	const [spec, setSpec] = useState<OAuthSpec>('2.0');
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -160,6 +135,33 @@ const RedirectlessFlow: React.FC = () => {
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
+
+	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	// Auto-populate mock credentials when mode changes; clear them when switching to real.
+	useEffect(() => {
+		if (mode === 'mock') {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId || MOCK_CREDS.environmentId,
+				region: c.region || MOCK_CREDS.region,
+				clientId: c.clientId || MOCK_CREDS.clientId,
+				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
+				scope: c.scope || MOCK_CREDS.scope,
+			}));
+		} else {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
+				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
+				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
+				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
+			}));
+		}
+		setFlowState(null);
+		setPollStatus(null);
+		setResult(null);
+	}, [mode]);
 
 	// ── Step 2: start the flow ────────────────────────────────────────────────
 	const startFlow = useCallback(async () => {
@@ -255,14 +257,16 @@ const RedirectlessFlow: React.FC = () => {
 		}
 	}, [flowState, creds, username, password, mode, engine, stopPolling]);
 
-	const configured = Boolean(creds.environmentId && creds.clientId);
+	// Mock runs offline — never gate it on real credentials.
+	const configured = mode === 'mock' ? true : Boolean(creds.environmentId && creds.clientId);
 	const cur = engine.current.id;
 
 	return (
 		<FlowContainer
 			title="Redirectless (pi.flow)"
-			spec="2.0"
+			spec={spec}
 			mode={mode}
+			onModeChange={selectMode}
 			subtitle="Native / embedded authentication without a browser redirect. PingOne returns a JSON flow object (response_mode=pi.flow) that the SPA drives directly — no redirect to a hosted login page."
 			engine={engine}
 		>
@@ -275,9 +279,17 @@ const RedirectlessFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
+					<FlowDiagram
+						label="PingOne Redirectless (pi.flow)"
+						nodes={['Client', 'pi.flow', 'User', 'Token']}
+					/>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>
+							OAuth 2.0
+						</Pill>
+						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>
+							OAuth 2.1
+						</Pill>
 					</Toggle>
 					<Grid>
 						<FieldGroup
@@ -326,12 +338,12 @@ const RedirectlessFlow: React.FC = () => {
 						/>
 					</Grid>
 					<ExplanationPanel title="When to use pi.flow / redirectless">
-						Redirectless authentication (response_mode=pi.flow) lets a first-party SPA or
-						mobile app drive the login ceremony without redirecting the user to a hosted login
-						page. PingOne returns a JSON flow object; the app advances it step-by-step through
-						the Flow API. The main security tradeoff is that credentials pass through the
-						application itself, so this grant is only appropriate for highly trusted first-party
-						clients — a third-party app should always use Authorization Code + redirect instead.
+						Redirectless authentication (response_mode=pi.flow) lets a first-party SPA or mobile app
+						drive the login ceremony without redirecting the user to a hosted login page. PingOne
+						returns a JSON flow object; the app advances it step-by-step through the Flow API. The
+						main security tradeoff is that credentials pass through the application itself, so this
+						grant is only appropriate for highly trusted first-party clients — a third-party app
+						should always use Authorization Code + redirect instead.
 					</ExplanationPanel>
 				</FlowStep>
 			)}
@@ -361,7 +373,10 @@ const RedirectlessFlow: React.FC = () => {
 								</div>
 								<div>
 									<strong>Status:</strong>{' '}
-									<StatusBadge $tone="info" style={{ display: 'inline-block', padding: '0.15rem 0.5rem' }}>
+									<StatusBadge
+										$tone="info"
+										style={{ display: 'inline-block', padding: '0.15rem 0.5rem' }}
+									>
 										{flowState.status}
 									</StatusBadge>
 								</div>
