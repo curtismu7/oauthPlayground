@@ -8,17 +8,15 @@
 // headers, and a signature animated flow diagram on the Configure step.
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { clearStash, loadStash, saveStash } from '../framework/authzStash';
+import { CodeBlock } from '../framework/CodeBlock';
+import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
+import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
-import { CodeBlock, JsonView } from '../framework/CodeBlock';
-import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { Action, Grid, Note, Pill, Toggle } from '../framework/primitives';
-import { FlowDiagram } from '../framework/FlowDiagram';
-import { clearStash, loadStash, saveStash } from '../framework/authzStash';
+import { ResultCard } from '../framework/ResultCard';
 import type {
 	FlowCredentials,
 	FlowError,
@@ -27,7 +25,12 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
-import { authorizationCodeService, MOCK_REGISTERED_SECRET } from '../services/authorizationCodeService';
+import { UseTokensStep } from '../framework/UseTokensStep';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import {
+	authorizationCodeService,
+	MOCK_REGISTERED_SECRET,
+} from '../services/authorizationCodeService';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -36,31 +39,36 @@ const STEPS: StepDefinition[] = [
 		id: 'configure',
 		title: 'Configure',
 		subtitle: 'App credentials',
-		description: 'Enter your application credentials (Environment ID, Client ID, Secret) and redirect URI. These identify your app to the authorization server.',
+		description:
+			'Enter your application credentials (Environment ID, Client ID, Secret) and redirect URI. These identify your app to the authorization server.',
 	},
 	{
 		id: 'pkce',
 		title: 'PKCE',
 		subtitle: 'Verifier + challenge',
-		description: 'Generate a code verifier and challenge for PKCE (Proof Key for Code Exchange). This adds security by binding the authorization code to your specific app instance.',
+		description:
+			'Generate a code verifier and challenge for PKCE (Proof Key for Code Exchange). This adds security by binding the authorization code to your specific app instance.',
 	},
 	{
 		id: 'authorize',
 		title: 'Authorize',
 		subtitle: 'Redirect to PingOne',
-		description: 'Redirect user to PingOne\'s login page. User authenticates and grants your app permission to access their data. Returns an authorization code.',
+		description:
+			"Redirect user to PingOne's login page. User authenticates and grants your app permission to access their data. Returns an authorization code.",
 	},
 	{
 		id: 'exchange',
 		title: 'Exchange',
 		subtitle: 'Code → tokens',
-		description: 'Exchange the authorization code for tokens (Access Token, ID Token, Refresh Token). This happens securely in the backend—never expose tokens to the browser.',
+		description:
+			'Exchange the authorization code for tokens (Access Token, ID Token, Refresh Token). This happens securely in the backend—never expose tokens to the browser.',
 	},
 	{
 		id: 'use',
 		title: 'Use Tokens',
 		subtitle: 'UserInfo + Introspect',
-		description: 'Use the access token to call protected APIs. Optionally introspect tokens to verify their claims and expiration time.',
+		description:
+			'Use the access token to call protected APIs. Optionally introspect tokens to verify their claims and expiration time.',
 	},
 ];
 
@@ -98,8 +106,6 @@ const AuthorizationCodeFlow: React.FC = () => {
 	const [code, setCode] = useState('');
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
-	const [userInfoData, setUserInfoData] = useState<Record<string, unknown> | null>(null);
-	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -126,7 +132,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
 				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
 				// coalesce to '' so clientSecret stays `string` (exactOptionalPropertyTypes)
-				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : c.clientSecret ?? '',
+				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
 				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
 			}));
 		}
@@ -177,7 +183,10 @@ const AuthorizationCodeFlow: React.FC = () => {
 		setLoading(true);
 		// Validate redirect URI format
 		if (!redirectUri || !redirectUri.startsWith('http')) {
-			setError({ error: 'invalid_redirect_uri', error_description: 'Redirect URI must be a valid HTTP(S) URL' });
+			setError({
+				error: 'invalid_redirect_uri',
+				error_description: 'Redirect URI must be a valid HTTP(S) URL',
+			});
 			setLoading(false);
 			return;
 		}
@@ -193,7 +202,14 @@ const AuthorizationCodeFlow: React.FC = () => {
 			setAuthState(state);
 
 			const res = await authorizationCodeService.authorize(
-				{ credentials: creds, redirectUri, state, nonce, codeChallenge: active.codeChallenge, oidc },
+				{
+					credentials: creds,
+					redirectUri,
+					state,
+					nonce,
+					codeChallenge: active.codeChallenge,
+					oidc,
+				},
 				mode
 			);
 
@@ -246,24 +262,6 @@ const AuthorizationCodeFlow: React.FC = () => {
 		}
 	}, [pkce, code, creds, redirectUri, mode, engine]);
 
-	const handleUserInfo = useCallback(async () => {
-		if (!result?.accessToken) return;
-		try {
-			setUserInfoData(await authorizationCodeService.userInfo(result.accessToken, creds, mode));
-		} catch (err) {
-			setError(err as FlowError);
-		}
-	}, [result, creds, mode]);
-
-	const handleIntrospect = useCallback(async () => {
-		if (!result?.accessToken) return;
-		try {
-			setIntrospectData(await authorizationCodeService.introspect(result.accessToken, creds, mode));
-		} catch (err) {
-			setError(err as FlowError);
-		}
-	}, [result, creds, mode]);
-
 	// Mock runs offline — never gate it on real credentials.
 	const configured =
 		mode === 'mock'
@@ -277,7 +275,9 @@ const AuthorizationCodeFlow: React.FC = () => {
 			spec={spec}
 			mode={mode}
 			onModeChange={selectMode}
-			subtitle={"🚀 Live update confirmed — Authorization Code + PKCE\nThe user authenticates at PingOne and is redirected back with a one-time code, which is exchanged (with the PKCE verifier) for tokens. RFC 6749 §4.1 + RFC 7636."}
+			subtitle={
+				'🚀 Live update confirmed — Authorization Code + PKCE\nThe user authenticates at PingOne and is redirected back with a one-time code, which is exchanged (with the PKCE verifier) for tokens. RFC 6749 §4.1 + RFC 7636.'
+			}
 			engine={engine}
 		>
 			{cur === 'configure' && (
@@ -295,17 +295,47 @@ const AuthorizationCodeFlow: React.FC = () => {
 						nodes={['Client', 'AuthZ', 'User', 'Token']}
 					/>
 					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>OAuth 2.0</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>OAuth 2.1</Pill>
-						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>OIDC {oidc ? 'on' : 'off'}</Pill>
+						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>
+							OAuth 2.0
+						</Pill>
+						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>
+							OAuth 2.1
+						</Pill>
+						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>
+							OIDC {oidc ? 'on' : 'off'}
+						</Pill>
 					</Toggle>
 					<Grid>
-						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} />
-						<FieldGroup label="Region" value={creds.region} onChange={set('region')} placeholder="com | eu | ca | asia" />
+						<FieldGroup
+							label="Environment ID"
+							value={creds.environmentId}
+							onChange={set('environmentId')}
+						/>
+						<FieldGroup
+							label="Region"
+							value={creds.region}
+							onChange={set('region')}
+							placeholder="com | eu | ca | asia"
+						/>
 						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} />
-						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} />
-						<FieldGroup label="Redirect URI" value={redirectUri} onChange={(e) => setRedirectUri(e.target.value)} hint="Must be registered on the PingOne app" />
-						<FieldGroup label="Scope (optional)" value={creds.scope ?? ''} onChange={set('scope')} placeholder={oidc ? 'openid profile email' : 'openid'} />
+						<FieldGroup
+							label="Client Secret"
+							type="password"
+							value={creds.clientSecret ?? ''}
+							onChange={set('clientSecret')}
+						/>
+						<FieldGroup
+							label="Redirect URI"
+							value={redirectUri}
+							onChange={(e) => setRedirectUri(e.target.value)}
+							hint="Must be registered on the PingOne app"
+						/>
+						<FieldGroup
+							label="Scope (optional)"
+							value={creds.scope ?? ''}
+							onChange={set('scope')}
+							placeholder={oidc ? 'openid profile email' : 'openid'}
+						/>
 					</Grid>
 				</FlowStep>
 			)}
@@ -324,7 +354,9 @@ const AuthorizationCodeFlow: React.FC = () => {
 					{pkce && (
 						<>
 							<CodeBlock label="code_verifier" value={pkce.codeVerifier} />
-							{pkce.codeChallenge && <CodeBlock label="code_challenge (S256)" value={pkce.codeChallenge} />}
+							{pkce.codeChallenge && (
+								<CodeBlock label="code_challenge (S256)" value={pkce.codeChallenge} />
+							)}
 						</>
 					)}
 					{mode === 'mock' && pkce?.codeChallenge && (
@@ -341,19 +373,29 @@ const AuthorizationCodeFlow: React.FC = () => {
 				<FlowStep
 					title="3. Authorize"
 					description={engine.current.description}
-					explanation={mode === 'real'
-						? 'Builds the /as/authorize URL and redirects you to PingOne to sign in. You return to the callback with a one-time code.'
-						: 'Mock mode issues a code in-memory (no redirect, no PingOne).'}
+					explanation={
+						mode === 'real'
+							? 'Builds the /as/authorize URL and redirects you to PingOne to sign in. You return to the callback with a one-time code.'
+							: 'Mock mode issues a code in-memory (no redirect, no PingOne).'
+					}
 					nextLabel="Continue"
 					onPrev={engine.goPrev}
 					onNext={() => engine.goTo(3)}
 					canNext={Boolean(code)}
 				>
 					<Action onClick={handleAuthorize} disabled={loading || !configured}>
-						{loading ? 'Working…' : mode === 'real' ? 'Authorize with PingOne →' : 'Issue authorization code (mock)'}
+						{loading
+							? 'Working…'
+							: mode === 'real'
+								? 'Authorize with PingOne →'
+								: 'Issue authorization code (mock)'}
 					</Action>
 					{authUrl && <CodeBlock label="Authorization URL" value={authUrl} />}
-					{code && <ResultCard title="Authorization code" tone="ok"><CodeBlock value={code} /></ResultCard>}
+					{code && (
+						<ResultCard title="Authorization code" tone="ok">
+							<CodeBlock value={code} />
+						</ResultCard>
+					)}
 					{error && <FlowResult error={error} />}
 				</FlowStep>
 			)}
@@ -385,16 +427,12 @@ const AuthorizationCodeFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
-					<Toggle>
-						<Action onClick={handleUserInfo} disabled={!result?.accessToken}>Call UserInfo</Action>
-						<Action onClick={handleIntrospect} disabled={!result?.accessToken}>Introspect token</Action>
-					</Toggle>
-					{userInfoData && <ResultCard title="UserInfo" tone="info"><JsonView data={userInfoData} /></ResultCard>}
-					{introspectData && <ResultCard title="Introspection (RFC 7662)" tone="info"><JsonView data={introspectData} /></ResultCard>}
-					<ExplanationPanel title="What the tokens are for">
-						The access token authorizes API calls; the ID token (OIDC) carries the user's identity
-						claims; introspection lets a resource server check a token's validity and scopes.
-					</ExplanationPanel>
+					<UseTokensStep
+						result={result}
+						credentials={creds}
+						mode={mode}
+						tools={['userinfo', 'introspect', 'decode']}
+					/>
 				</FlowStep>
 			)}
 		</FlowContainer>
