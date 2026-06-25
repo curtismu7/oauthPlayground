@@ -415,10 +415,11 @@ export const MFARedirectUriServiceV8 = {
 	needsMigration(uri: string | undefined): boolean {
 		if (!uri) return true;
 
+		// Only legacy callback paths need migration. '/v8/unified-mfa-callback' is the current
+		// canonical target emitted by getRedirectUri — flagging it here caused an infinite
+		// re-migration loop on every load.
 		return (
-			uri.includes('mfa-hub') ||
-			uri.includes('/v8/mfa-unified-callback') ||
-			uri.includes('/v8/unified-mfa-callback')
+			uri.includes('mfa-hub') || uri.includes('/v8/mfa-unified-callback')
 		);
 	},
 

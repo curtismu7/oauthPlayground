@@ -16126,7 +16126,10 @@ app.post('/api/pingone/mfa/validate-otp-for-device', async (req, res) => {
 // Read Device Authentication Status
 app.get('/api/pingone/mfa/read-device-authentication', async (req, res) => {
 	try {
-		const { environmentId, userId, authenticationId, workerToken } = req.query;
+		const { environmentId, userId, authenticationId } = req.query;
+		// Prefer the Authorization header; fall back to the legacy query param for compatibility.
+		const workerToken =
+			req.headers.authorization?.replace(/^Bearer\s+/i, '') || req.query.workerToken;
 
 		if (!environmentId || !userId || !authenticationId || !workerToken) {
 			return res.status(400).json({
@@ -18079,7 +18082,10 @@ app.post('/api/pingone/mfa/list-users', async (req, res) => {
 app.get('/api/pingone/mfa/device-authentication-policies/:policyId', async (req, res) => {
 	try {
 		const { policyId } = req.params;
-		const { environmentId, workerToken } = req.query;
+		const { environmentId } = req.query;
+		// Prefer the Authorization header; fall back to the legacy query param for compatibility.
+		const workerToken =
+			req.headers.authorization?.replace(/^Bearer\s+/i, '') || req.query.workerToken;
 
 		if (!environmentId || !workerToken) {
 			return res
@@ -20144,7 +20150,10 @@ app.post('/api/pingone/email-mfa-signon/create-application', async (req, res) =>
 // Step 2: Get Resources
 app.get('/api/pingone/email-mfa-signon/get-resources', async (req, res) => {
 	try {
-		const { environmentId, workerToken } = req.query;
+		const { environmentId } = req.query;
+		// Prefer the Authorization header; fall back to the legacy query param for compatibility.
+		const workerToken =
+			req.headers.authorization?.replace(/^Bearer\s+/i, '') || req.query.workerToken;
 
 		if (!environmentId || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields: environmentId, workerToken' });
@@ -20178,7 +20187,10 @@ app.get('/api/pingone/email-mfa-signon/get-resources', async (req, res) => {
 // Step 3: Get Resource Scopes
 app.get('/api/pingone/email-mfa-signon/get-resource-scopes', async (req, res) => {
 	try {
-		const { environmentId, resourceId, workerToken } = req.query;
+		const { environmentId, resourceId } = req.query;
+		// Prefer the Authorization header; fall back to the legacy query param for compatibility.
+		const workerToken =
+			req.headers.authorization?.replace(/^Bearer\s+/i, '') || req.query.workerToken;
 
 		if (!environmentId || !resourceId || !workerToken) {
 			return res
@@ -20826,7 +20838,10 @@ app.post('/api/pingone/email-mfa-signon/resume-flow', async (req, res) => {
 // Step 18: Get Application Secret
 app.get('/api/pingone/email-mfa-signon/get-application-secret', async (req, res) => {
 	try {
-		const { environmentId, applicationId, workerToken } = req.query;
+		const { environmentId, applicationId } = req.query;
+		// Prefer the Authorization header; fall back to the legacy query param for compatibility.
+		const workerToken =
+			req.headers.authorization?.replace(/^Bearer\s+/i, '') || req.query.workerToken;
 
 		if (!environmentId || !applicationId || !workerToken) {
 			return res
