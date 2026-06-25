@@ -24,7 +24,6 @@ import type {
 	TokenResult,
 } from '../framework/types';
 import { authorizationCodeService, MOCK_REGISTERED_SECRET } from '../services/authorizationCodeService';
-import { pingoneHost } from '../services/pingone';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -201,7 +200,7 @@ const HybridFlow: React.FC = () => {
 				response_mode: 'form_post', // or could use 'query'
 			});
 
-			const url = `https://${pingoneHost(creds.region)}/${creds.environmentId}/as/authorize?${params.toString()}`;
+			const url = `https://auth.pingone.com/${creds.environmentId}/as/authorize?${params.toString()}`;
 			setAuthUrl(url);
 
 			// Stash for resuming after redirect
