@@ -760,14 +760,12 @@ export class HybridFlowIntegrationServiceV8 {
 	 * @returns Random string
 	 */
 	private static generateRandomString(length: number): string {
-		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-		let result = '';
-
-		for (let i = 0; i < length; i++) {
-			result += chars.charAt(Math.floor(Math.random() * chars.length));
-		}
-
-		return result;
+		const bytes = crypto.getRandomValues(new Uint8Array(32));
+		return btoa(String.fromCharCode(...bytes))
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+			.replace(/=/g, '')
+			.substring(0, length);
 	}
 
 	/**

@@ -178,7 +178,8 @@ export function decodeJWTHeader(token: string): Record<string, unknown> {
 		}
 
 		// educational-ok: decoding JWT header to extract kid/alg for JWKS key lookup (not for auth)
-		const header = JSON.parse(atob(parts[0]));
+		const b64 = parts[0].replace(/-/g, '+').replace(/_/g, '/').padEnd(parts[0].length + (4 - parts[0].length % 4) % 4, '=');
+		const header = JSON.parse(atob(b64));
 		logger.debug('JWKS', 'JWT header decoded', { alg: header.alg, kid: header.kid });
 		return header;
 	} catch (error) {
@@ -200,7 +201,8 @@ export function decodeJWTPayload(token: string): JWTPayload {
 		}
 
 		// educational-ok: decoding JWT payload to extract claims for display/validation info
-		const payload = JSON.parse(atob(parts[1]));
+		const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/').padEnd(parts[1].length + (4 - parts[1].length % 4) % 4, '=');
+		const payload = JSON.parse(atob(b64));
 		logger.debug('JWKS', 'JWT payload decoded', {
 			iss: payload.iss,
 			aud: payload.aud,
@@ -282,9 +284,20 @@ export async function validateJWT(
 
 		// Validate at_hash if access token provided
 		if (options.accessToken && payload.at_hash) {
-			// Note: In a full implementation, you would verify the at_hash
-			// For now, we just check that it exists
-			logger.debug('JWKS', 'at_hash validation skipped (requires crypto implementation)');
+			const encoder = new TextEncoder();
+			const accessTokenBytes = encoder.encode(options.accessToken);
+			const hashBuffer = await crypto.subtle.digest('SHA-256', accessTokenBytes);
+			const hashArray = new Uint8Array(hashBuffer);
+			const leftHalf = hashArray.slice(0, hashArray.length / 2);
+			const expectedAtHash = btoa(String.fromCharCode(...leftHalf))
+				.replace(/\+/g, '-')
+				.replace(/\//g, '_')
+				.replace(/=+$/, '');
+			if (payload.at_hash !== expectedAtHash) {
+				validationErrors.push('at_hash validation failed - access token may have been tampered with');
+			} else {
+				logger.debug('JWKS', 'at_hash validation successful');
+			}
 		}
 
 		if (validationErrors.length > 0) {

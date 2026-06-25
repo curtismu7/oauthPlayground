@@ -293,7 +293,7 @@ export class PingOneJWTService {
 				iss: config.clientId, // issuer is the client_id
 				sub: config.clientId, // subject is the client_id
 				aud: config.audience, // audience is the token endpoint
-				jti: `jti-${Date.now()}-${Math.random().toString(36).substring(7)}`, // unique JWT ID
+				jti: crypto.randomUUID(), // unique JWT ID
 				iat: now, // issued at
 				...config.additionalClaims,
 			};

@@ -164,8 +164,8 @@ export async function exchangeCode(p: ExchangeParams, mode: FlowMode): Promise<T
 		client_id: p.credentials.clientId,
 		redirect_uri: p.redirectUri,
 		code: p.code,
-		code_verifier: p.codeVerifier,
 	});
+	if (p.codeVerifier) body.set('code_verifier', p.codeVerifier);
 	if (p.credentials.clientSecret) body.set('client_secret', p.credentials.clientSecret);
 	if (p.credentials.scope && p.credentials.scope.trim()) body.set('scope', p.credentials.scope.trim());
 

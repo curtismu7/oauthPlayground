@@ -58,7 +58,11 @@ export interface FIDO2Config {
 // biome-ignore lint/complexity/noStaticOnlyClass: shared utility service for WebAuthn helpers
 export class FIDO2Service {
 	private static readonly DEFAULT_TIMEOUT = 60000; // 60 seconds
-	private static readonly DEFAULT_RP_ID = window.location.hostname;
+
+	/** Lazily read at call-time to avoid throwing in SSR / test environments. */
+	private static get DEFAULT_RP_ID(): string {
+		return typeof window !== 'undefined' ? window.location.hostname : '';
+	}
 
 	/**
 	 * Check if WebAuthn is supported in the current browser

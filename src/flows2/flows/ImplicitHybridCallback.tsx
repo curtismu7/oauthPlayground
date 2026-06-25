@@ -106,7 +106,7 @@ const ImplicitHybridCallback: React.FC = () => {
 			return () => clearTimeout(t);
 		}
 
-		if (pending && (!pending.state || !pending.nonce)) {
+		if (pending && (!pending.state || pending.state.length < 8 || !pending.nonce)) {
 			setError('Corrupted pending authorization state.');
 			const t = setTimeout(() => navigate(FLOW_ROUTE), 1500);
 			return () => clearTimeout(t);

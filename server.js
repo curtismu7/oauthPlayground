@@ -2393,7 +2393,6 @@ app.get('/api/environments', async (req, res) => {
 
 		res.writeHead(200, {
 			'Content-Type': 'application/json',
-			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
 			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		});
@@ -2623,7 +2622,6 @@ app.get('/api/environments/:id', async (req, res) => {
 
 		res.writeHead(200, {
 			'Content-Type': 'application/json',
-			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
 			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		});
@@ -2703,7 +2701,6 @@ app.post('/api/environments', async (req, res) => {
 
 		res.writeHead(201, {
 			'Content-Type': 'application/json',
-			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
 			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		});
@@ -2793,7 +2790,6 @@ app.put('/api/environments/:id', async (req, res) => {
 
 		res.writeHead(200, {
 			'Content-Type': 'application/json',
-			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
 			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		});
@@ -2867,7 +2863,6 @@ app.delete('/api/environments/:id', async (req, res) => {
 		console.log(`[PingOne Delete Environment API] ✅ Successfully deleted environment: ${id}`);
 
 		res.writeHead(204, {
-			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
 			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		});
@@ -2955,7 +2950,6 @@ app.put('/api/environments/:id/status', async (req, res) => {
 
 		res.writeHead(200, {
 			'Content-Type': 'application/json',
-			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
 			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		});
@@ -4056,7 +4050,6 @@ app.post('/api/token-exchange', async (req, res) => {
 		code: `${req.body.code?.substring(0, 20)}...`,
 		codeVerifier: `${req.body.code_verifier?.substring(0, 20)}...`,
 		clientId: `${req.body.client_id?.substring(0, 8)}...`,
-		fullBody: req.body,
 	});
 
 	try {
@@ -4173,6 +4166,47 @@ app.post('/api/token-exchange', async (req, res) => {
 		// Build token endpoint URL - use provided token_endpoint or construct from environment_id
 		let tokenEndpoint;
 		if (token_endpoint && token_endpoint.trim() !== '') {
+			// Validate token_endpoint against allowlist to prevent SSRF
+			const validateTokenEndpoint = (url) => {
+				let parsed;
+				try {
+					parsed = new URL(url);
+				} catch {
+					return false;
+				}
+				if (parsed.protocol !== 'https:') return false;
+				const hostname = parsed.hostname.toLowerCase();
+				// Reject private/loopback/link-local hosts
+				if (
+					hostname === 'localhost' ||
+					hostname.startsWith('127.') ||
+					hostname.startsWith('10.') ||
+					hostname.startsWith('192.168.') ||
+					hostname.startsWith('169.254.') ||
+					/^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
+					hostname === '::1' ||
+					hostname.endsWith('.local')
+				) {
+					return false;
+				}
+				// Allow PingOne auth domains
+				const allowedDomains = [
+					'auth.pingone.com',
+					'auth.pingone.eu',
+					'auth.pingone.asia',
+					'auth.pingone.ca',
+				];
+				return allowedDomains.some(
+					(d) => hostname === d || hostname.endsWith(`.${d}`)
+				);
+			};
+			if (!validateTokenEndpoint(token_endpoint.trim())) {
+				console.error('❌ [Server] Blocked token_endpoint (not in allowlist):', token_endpoint);
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Provided token_endpoint is not an allowed PingOne auth domain',
+				});
+			}
 			tokenEndpoint = token_endpoint;
 			console.log('🔧 [Server] Using provided token endpoint:', tokenEndpoint);
 		} else {
@@ -6536,12 +6570,17 @@ app.get('/api/pingone/user/:userId/mfa', async (req, res) => {
 // UserInfo Endpoint (proxy to PingOne)
 app.get('/api/userinfo', async (req, res) => {
 	try {
-		const { access_token, environment_id } = req.query;
+		const { environment_id } = req.query;
+		// Accept token from Authorization header (preferred) or query param (legacy)
+		const authHeader = req.headers.authorization || '';
+		const access_token =
+			(authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null) ||
+			req.query.access_token;
 
 		if (!access_token || !environment_id) {
 			return res.status(400).json({
 				error: 'invalid_request',
-				error_description: 'Missing required parameters: access_token, environment_id',
+				error_description: 'Missing required parameters: access_token (Authorization header), environment_id',
 			});
 		}
 

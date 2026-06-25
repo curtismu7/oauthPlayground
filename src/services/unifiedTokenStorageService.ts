@@ -355,11 +355,13 @@ export class UnifiedTokenStorageService {
 	}
 
 	/**
-	 * Load cache from localStorage for fast access
+	 * Load cache from sessionStorage for fast access.
+	 * sessionStorage is used (rather than localStorage) to avoid persisting
+	 * plaintext tokens across browser sessions.
 	 */
 	private loadCache(): void {
 		try {
-			const cached = localStorage.getItem(this.CACHE_KEY);
+			const cached = sessionStorage.getItem(this.CACHE_KEY);
 			if (cached) {
 				const tokens = JSON.parse(cached) as UnifiedToken[];
 				tokens.forEach((token) => {
@@ -373,30 +375,32 @@ export class UnifiedTokenStorageService {
 	}
 
 	/**
-	 * Save cache to localStorage with quota management
+	 * Save cache to sessionStorage with quota management.
+	 * sessionStorage is used (rather than localStorage) to avoid persisting
+	 * plaintext tokens across browser sessions.
 	 */
 	private saveCache(): void {
 		try {
 			const tokens = Array.from(this.cache.values());
 			const cacheData = JSON.stringify(tokens);
 
-			// Check if we're approaching localStorage quota
-			const existingData = localStorage.getItem(this.CACHE_KEY);
+			// Check if we're approaching sessionStorage quota
+			const existingData = sessionStorage.getItem(this.CACHE_KEY);
 			const totalSize = cacheData.length + (existingData?.length || 0);
-			const estimatedQuota = 5 * 1024 * 1024; // 5MB estimated localStorage quota
+			const estimatedQuota = 5 * 1024 * 1024; // 5MB estimated sessionStorage quota
 
 			if (totalSize > estimatedQuota * 0.8) {
 				// 80% threshold
 				// Clear old tokens to free up space
 				this.cleanupOldTokens();
 				const cleanedTokens = Array.from(this.cache.values());
-				localStorage.setItem(this.CACHE_KEY, JSON.stringify(cleanedTokens));
+				sessionStorage.setItem(this.CACHE_KEY, JSON.stringify(cleanedTokens));
 				logger.debug(
 					MODULE_TAG,
 					`Cleaned and saved ${cleanedTokens.length} tokens to cache (quota management)`
 				);
 			} else {
-				localStorage.setItem(this.CACHE_KEY, cacheData);
+				sessionStorage.setItem(this.CACHE_KEY, cacheData);
 				logger.debug(MODULE_TAG, `Saved ${tokens.length} tokens to cache`);
 			}
 		} catch (error) {
@@ -405,12 +409,12 @@ export class UnifiedTokenStorageService {
 				this.cleanupOldTokens();
 				try {
 					const essentialTokens = Array.from(this.cache.values()).slice(-50); // Keep only 50 most recent
-					localStorage.setItem(this.CACHE_KEY, JSON.stringify(essentialTokens));
+					sessionStorage.setItem(this.CACHE_KEY, JSON.stringify(essentialTokens));
 					logger.warn(MODULE_TAG, 'Emergency cache cleanup due to quota exceeded');
 				} catch (cleanupError) {
 					logger.warn(MODULE_TAG, 'Failed to save cache even after cleanup', cleanupError as Error);
 					// As last resort, clear the cache entirely
-					localStorage.removeItem(this.CACHE_KEY);
+					sessionStorage.removeItem(this.CACHE_KEY);
 				}
 			} else {
 				logger.warn(MODULE_TAG, 'Failed to save cache', error as Error);
@@ -981,7 +985,7 @@ export class UnifiedTokenStorageService {
 		try {
 			// Clear cache
 			this.cache.clear();
-			localStorage.removeItem(this.CACHE_KEY);
+			sessionStorage.removeItem(this.CACHE_KEY);
 
 			// Clear IndexedDB
 			await this.clearIndexedDB();
@@ -1011,13 +1015,13 @@ export class UnifiedTokenStorageService {
 	}
 
 	/**
-	 * Manually clear localStorage cache for immediate quota relief
+	 * Manually clear sessionStorage cache for immediate quota relief
 	 */
 	public clearLocalStorageCache(): void {
 		try {
-			localStorage.removeItem(this.CACHE_KEY);
+			sessionStorage.removeItem(this.CACHE_KEY);
 			this.cache.clear();
-			logger.info(MODULE_TAG, 'LocalStorage cache cleared manually');
+			logger.info(MODULE_TAG, 'SessionStorage cache cleared manually');
 		} catch (error) {
 			logger.warn(MODULE_TAG, 'Failed to clear localStorage cache', error as Error);
 		}
@@ -1719,7 +1723,7 @@ export class UnifiedTokenStorageService {
 			const exported = JSON.stringify(exportData, null, 2);
 
 			logger.info(MODULE_TAG, 'V8 data exported', {
-				keyCount: tokens.length,
+				keyCount: result.data?.length ?? 0,
 				size: exported.length,
 			});
 
@@ -1751,7 +1755,7 @@ export class UnifiedTokenStorageService {
 						type: 'v8_storage',
 						key,
 					});
-					if (existing.length > 0) {
+					if (existing.data?.length) {
 						logger.info(MODULE_TAG, 'Skipping existing V8 key', { key });
 						skipped++;
 						continue;
