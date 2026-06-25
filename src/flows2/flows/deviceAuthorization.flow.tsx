@@ -443,7 +443,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 						result={result}
 						credentials={creds}
 						mode={mode}
-						tools={['userinfo', 'introspect', 'decode']}
+						tools={['userinfo', 'introspect', 'refresh', 'decode']}
 					/>
 					<FlowResult result={result} />
 				</FlowStep>

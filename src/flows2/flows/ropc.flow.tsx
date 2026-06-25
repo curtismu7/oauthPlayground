@@ -292,7 +292,7 @@ const RopcFlow: React.FC = () => {
 						result={result}
 						credentials={creds}
 						mode={mode}
-						tools={['userinfo', 'introspect', 'decode']}
+						tools={['userinfo', 'introspect', 'refresh', 'decode']}
 					/>
 					<FlowResult result={result} />
 					<ExplanationPanel title="Why ROPC was removed from OAuth 2.1" defaultOpen>

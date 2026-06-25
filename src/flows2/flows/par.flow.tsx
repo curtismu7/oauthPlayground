@@ -365,7 +365,7 @@ const PARFlow: React.FC = () => {
 						result={result}
 						credentials={creds}
 						mode={mode}
-						tools={['userinfo', 'introspect', 'decode']}
+						tools={['userinfo', 'introspect', 'refresh', 'decode']}
 					/>
 					{result && (
 						<ResultCard title="Token response" tone="info">

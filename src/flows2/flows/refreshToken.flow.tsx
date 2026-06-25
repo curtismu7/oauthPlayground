@@ -291,7 +291,7 @@ const RefreshTokenFlow: React.FC = () => {
 						result={result?.token ?? null}
 						credentials={creds}
 						mode={mode}
-						tools={['userinfo', 'introspect', 'decode']}
+						tools={['userinfo', 'introspect', 'refresh', 'decode']}
 					/>
 					{result && (
 						<>
