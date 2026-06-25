@@ -8,7 +8,7 @@
 **Status**: Infrastructure Ready  
 **Priority**: High  
 
-This guide provides a comprehensive approach to adding ButtonSpinner to all async button operations across the PingOne MasterFlow API application without breaking existing functionality.
+This guide provides a comprehensive approach to adding ButtonSpinner to all async button operations across the PingOne OAuth Playground application without breaking existing functionality.
 
 ---
 

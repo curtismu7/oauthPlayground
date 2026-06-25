@@ -22,6 +22,12 @@ export interface SAMLBearerParams {
 	clientId: string;
 	assertion: SAMLBearerAssertionData;
 	scopes?: string;
+	authMethod?: string;
+	tokenLifetimes?: {
+		accessTokenSeconds?: number;
+		idTokenSeconds?: number;
+		refreshTokenSeconds?: number;
+	};
 }
 
 /** Generate a mock SAML 2.0 assertion in XML form (educational, not cryptographically signed). */

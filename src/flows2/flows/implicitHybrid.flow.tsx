@@ -34,6 +34,7 @@ import {
 	IH_RESULT_KEY,
 	type ImplicitHybridPending,
 } from './ImplicitHybridCallback';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import {
 	implicitHybridService,
 	type FragmentParams,
@@ -133,6 +134,8 @@ const ImplicitHybridFlow: React.FC = () => {
 	const [exchangeResult, setExchangeResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+
+	const { saveState, restoreState } = useFlowStorage('flows2:implicit-hybrid');
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -250,6 +253,19 @@ const ImplicitHybridFlow: React.FC = () => {
 			setLoading(false);
 		}
 	}, [fragmentParams, creds, redirectUri, mode]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!fragmentParams && saved.fragmentParams) setFragmentParams(saved.fragmentParams as typeof fragmentParams);
+			if (!exchangeResult && saved.exchangeResult) setExchangeResult(saved.exchangeResult as typeof exchangeResult);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState, fragmentParams, exchangeResult, error]);
+
+	useEffect(() => {
+		saveState({ fragmentParams, exchangeResult, error });
+	}, [fragmentParams, exchangeResult, error, saveState]);
 
 	const configured = Boolean(
 		creds.environmentId &&

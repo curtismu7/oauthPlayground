@@ -291,7 +291,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: 'AI & Identity',
 		groupBadgeType: 'ai',
 		items: items([
-			['/ai-assistant', 'MasterFlow Agent', true],
+			['/ai-assistant', 'OAuth Playground Agent', true],
 			['/mcp-server', 'MCP Server Config', true],
 			['/mcp-tool-discovery', 'MCP Tool Discovery', true],
 			['/documentation/mcp', 'MCP Documentation', true],

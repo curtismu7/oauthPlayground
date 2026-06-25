@@ -20,6 +20,12 @@ export interface TokenExchangeParams {
 	requestedScopes?: string;
 	/** Optional RFC 8707 audience / resource indicator. */
 	audience?: string;
+	authMethod?: string;
+	tokenLifetimes?: {
+		accessTokenSeconds?: number;
+		idTokenSeconds?: number;
+		refreshTokenSeconds?: number;
+	};
 }
 
 /** Result of validating a subject+actor pair against the subject's may_act rule. */

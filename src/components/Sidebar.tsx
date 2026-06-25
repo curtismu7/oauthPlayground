@@ -398,7 +398,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								color: '#1f2937',
 							}}
 						>
-							PingOne MasterFlow API
+							PingOne OAuth Playground
 						</h2>
 						<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
 							{USE_PING_MENU && (

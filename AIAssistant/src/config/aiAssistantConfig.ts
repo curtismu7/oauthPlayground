@@ -85,7 +85,7 @@ export const AI_ASSISTANT_CONFIG: AIAssistantConfig = {
 	},
 
 	ui: {
-		assistantName: 'MasterFlow Assistant',
+		assistantName: 'OAuth Playground Assistant',
 		assistantIcon: '🤖',
 		headerTitle: 'MasterFlow API Assistant',
 		maxMessages: 100,

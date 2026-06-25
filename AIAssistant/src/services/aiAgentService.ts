@@ -907,7 +907,7 @@ class AIAgentService {
 				{ label: 'Mock Client Credentials Flow', path: '/flows/client-credentials-mock', group: 'Mock & Educational Flows', groupId: 'mock-educational-flows', keywords: ['mock', 'client credentials', 'educational'], description: 'Mock Client Credentials flow.', mock: true },
 
 				// Artificial Intelligence
-				{ label: 'MasterFlow AI Assistant', path: '/ai-assistant', group: 'Artificial Intelligence', groupId: 'artificial-intelligence', keywords: ['ai', 'assistant', 'agent', 'mcp', 'chat'], description: 'Interactive AI assistant with MCP-backed PingOne actions.' },
+				{ label: 'OAuth Playground AI Assistant', path: '/ai-assistant', group: 'Artificial Intelligence', groupId: 'artificial-intelligence', keywords: ['ai', 'assistant', 'agent', 'mcp', 'chat'], description: 'Interactive AI assistant with MCP-backed PingOne actions.' },
 				{ label: 'OAuth & OIDC for AI', path: '/docs/oauth-for-ai', group: 'Artificial Intelligence', groupId: 'artificial-intelligence', keywords: ['ai', 'oauth for ai', 'oidc for ai', 'agents'], description: 'AI-focused OAuth/OIDC reference page.' },
 
 				// Documentation & Reference

@@ -9,8 +9,23 @@ export type FlowMode = 'real' | 'mock';
 
 export type OAuthSpec = '2.0' | '2.1';
 
-/** Client-auth method at the token endpoint (RFC 6749 §2.3 / RFC 7617). */
-export type ClientAuthMethod = 'client_secret_post' | 'client_secret_basic';
+/**
+ * Client-auth method at the token endpoint (RFC 6749 §2.3 / RFC 7617 / RFC 7523).
+ *
+ * | Method              | How the client proves identity                              | Applies to              |
+ * |---------------------|-------------------------------------------------------------|-------------------------|
+ * | client_secret_basic | Authorization: Basic base64(id:secret)                      | confidential clients    |
+ * | client_secret_post  | client_id + client_secret in the POST body                  | confidential clients    |
+ * | private_key_jwt     | client_assertion JWT signed with the client's private key   | confidential clients    |
+ * | client_secret_jwt   | client_assertion JWT signed with the client_secret (HMAC)   | confidential clients    |
+ * | none                | no client auth — public client; PKCE required (OAuth 2.1)   | public clients (SPAs)   |
+ */
+export type ClientAuthMethod =
+	| 'client_secret_post'
+	| 'client_secret_basic'
+	| 'private_key_jwt'
+	| 'client_secret_jwt'
+	| 'none';
 
 /** Credentials a flow needs to talk to PingOne (or any OIDC issuer). */
 export interface FlowCredentials {

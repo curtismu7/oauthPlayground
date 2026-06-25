@@ -22,6 +22,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import {
 	redirectlessService,
 	type RedirectlessFlowState,
@@ -122,7 +123,7 @@ const RedirectlessFlow: React.FC = () => {
 		// which is registered for TOKEN/ID_TOKEN and is a public client.
 		clientId: env.VITE_PINGONE_IMPLICIT_CLIENT_ID || env.VITE_PINGONE_USER_CLIENT_ID || '',
 		clientSecret: env.VITE_PINGONE_IMPLICIT_CLIENT_SECRET || '',
-		scope: 'openid profile email',
+		scope: 'openid',
 		authMethod: 'client_secret_basic',
 	});
 	const [username, setUsername] = useState('');
@@ -134,6 +135,8 @@ const RedirectlessFlow: React.FC = () => {
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+
+	const { saveState, restoreState } = useFlowStorage('flows2:redirectless');
 
 	// Poll loop refs — same pattern as deviceAuthorization.flow.tsx
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -254,6 +257,19 @@ const RedirectlessFlow: React.FC = () => {
 			if (!enteredPollPath.current) setLoading(false);
 		}
 	}, [flowState, creds, username, password, mode, engine, stopPolling]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!flowState && saved.flowState) setFlowState(saved.flowState as typeof flowState);
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState, flowState, result, error]);
+
+	useEffect(() => {
+		saveState({ flowState, result, error });
+	}, [flowState, result, error, saveState]);
 
 	const configured = Boolean(creds.environmentId && creds.clientId);
 	const cur = engine.current.id;

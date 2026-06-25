@@ -41,6 +41,21 @@ export function toTokenResult(data: Record<string, unknown>): TokenResult {
 	};
 }
 
+/** Return the canonical PingOne AS endpoint URLs for a given credential set. */
+export function pingoneEndpoints(creds: { environmentId: string; region?: string }) {
+	const base = `https://${pingoneHost(creds.region)}/${creds.environmentId}/as`;
+	return {
+		authorize: `${base}/authorize`,
+		token: `${base}/token`,
+		par: `${base}/par`,
+		device_authorization: `${base}/device_authorization`,
+		introspect: `${base}/introspect`,
+		revoke: `${base}/revoke`,
+		userinfo: `${base}/userinfo`,
+		discovery: `${base}/.well-known/openid-configuration`,
+	};
+}
+
 // Apply client authentication to a token-endpoint param set (RFC 6749 2.3 / RFC 7617).
 // client_secret_basic -> Authorization: Basic header (+ client_id still in body for PingOne).
 // client_secret_post (or public) -> client_id [+ client_secret] in the body.

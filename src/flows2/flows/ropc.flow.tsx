@@ -5,7 +5,7 @@
 // handles the user's password directly, defeating MFA, consent, and federation.
 // Only justifiable for legacy first-party migration scenarios.
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
@@ -22,6 +22,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import { ropcService } from '../services/ropcService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -103,7 +104,7 @@ const RopcFlow: React.FC = () => {
 		region: env.VITE_PINGONE_REGION || 'com',
 		clientId: env.VITE_PINGONE_USER_CLIENT_ID || '',
 		clientSecret: env.VITE_PINGONE_USER_CLIENT_SECRET || '',
-		scope: 'openid profile email',
+		scope: 'openid',
 		authMethod: 'client_secret_post',
 	});
 	const [username, setUsername] = useState('');
@@ -111,6 +112,8 @@ const RopcFlow: React.FC = () => {
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+
+	const { saveState, restoreState } = useFlowStorage('flows2:ropc');
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -135,6 +138,19 @@ const RopcFlow: React.FC = () => {
 			setLoading(false);
 		}
 	}, [creds, username, password, mode, engine]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+			if (!username && saved.username) setUsername(saved.username as string);
+		});
+	}, [restoreState, result, error, username]);
+
+	useEffect(() => {
+		saveState({ result, error, username });
+	}, [result, error, username, saveState]);
 
 	// All three fields required before the token request is allowed.
 	const canRequest = Boolean(creds.environmentId && creds.clientId && username && password);

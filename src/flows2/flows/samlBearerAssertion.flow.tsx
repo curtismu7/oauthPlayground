@@ -3,8 +3,9 @@
 // SAML Bearer Assertion grant (RFC 7522), real PingOne by default.
 // Generates a mock SAML 2.0 assertion and exchanges it for an access token.
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
@@ -117,6 +118,19 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 	// Step 5: Inspect
 	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 
+	const { saveState, restoreState } = useFlowStorage('flows2:saml-bearer');
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (saved.samlXml) setSamlXml(saved.samlXml as string);
+			if (saved.samlB64) setSamlB64(saved.samlB64 as string);
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+			if (!introspectData && saved.introspectData) setIntrospectData(saved.introspectData as typeof introspectData);
+		});
+	}, [restoreState, samlXml, samlB64, result, error, introspectData]);
+
 	const configured = Boolean(envId && clientId && samlData.issuer && samlData.subject);
 	const samlComplete = samlXml && samlB64;
 	const cur = engine.current.id;
@@ -164,6 +178,10 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 		setIntrospectData(data);
 		engine.markComplete('inspect');
 	}, [result, envId, region, mode, engine]);
+
+	useEffect(() => {
+		saveState({ samlData, samlXml, samlB64, result, error, introspectData });
+	}, [samlData, samlXml, samlB64, result, error, introspectData, saveState]);
 
 	return (
 		<FlowContainer
