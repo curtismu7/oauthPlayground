@@ -5,23 +5,26 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { JsonView } from '../framework/CodeBlock';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
+import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
-import { JsonView } from '../framework/CodeBlock';
+import { Action, Grid, Pill, Toggle } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
 	FlowCredentials,
 	FlowError,
 	FlowMode,
+	OAuthSpec,
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { useFlowEngine } from '../framework/useFlowEngine';
 import { clientCredentialsService } from '../services/clientCredentialsService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -31,7 +34,7 @@ const MOCK_CREDS = {
 	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
 	region: 'com',
 	clientId: 'mock-worker-client-id',
-	clientSecret: 'mock-worker-client-secret',
+	clientSecret: 'mock-client-secret',
 	scope: 'p1:read:user',
 } as const;
 
@@ -41,48 +44,7 @@ const STEPS: StepDefinition[] = [
 	{ id: 'inspect', title: 'Inspect', subtitle: 'Introspect the token' },
 ];
 
-const Grid = styled.div`
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 0.9rem;
-	@media (max-width: 640px) {
-		grid-template-columns: 1fr;
-	}
-`;
-
-const Toggle = styled.div`
-	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
-`;
-
-const Pill = styled.button<{ $active: boolean }>`
-	font-size: 0.82rem;
-	font-weight: 600;
-	padding: 0.4rem 0.9rem;
-	border-radius: 8px;
-	cursor: pointer;
-	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
-	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
-	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
-`;
-
-const Action = styled.button`
-	align-self: flex-start;
-	font-size: 0.9rem;
-	font-weight: 700;
-	padding: 0.6rem 1.2rem;
-	border-radius: 8px;
-	border: 1px solid ${tokens.color.successBorder};
-	background: ${tokens.color.success};
-	color: #fff;
-	cursor: pointer;
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-`;
-
+// Chip and Hint are unique to this flow — not part of shared primitives.
 const Chip = styled.button<{ $on: boolean }>`
 	font-size: 0.74rem;
 	font-weight: 600;
@@ -103,6 +65,7 @@ const Hint = styled.div`
 const ClientCredentialsFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
+	const [spec, setSpec] = useState<OAuthSpec>('2.0');
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -123,6 +86,8 @@ const ClientCredentialsFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
+	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
 	// Auto-populate mock credentials when mode changes; clear them when switching to real
 	useEffect(() => {
 		if (mode === 'mock') {
@@ -135,13 +100,16 @@ const ClientCredentialsFlow: React.FC = () => {
 				scope: c.scope || MOCK_CREDS.scope,
 			}));
 		} else {
-			setCreds((c) => ({
-				...c,
-				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
-				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
-				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : c.clientSecret ?? '',
-				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
-			} as FlowCredentials));
+			setCreds(
+				(c) =>
+					({
+						...c,
+						environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
+						clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
+						clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
+						scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
+					}) as FlowCredentials
+			);
 		}
 	}, [mode]);
 
@@ -169,7 +137,10 @@ const ClientCredentialsFlow: React.FC = () => {
 		setResult(null);
 		setIntrospectData(null);
 		try {
-			const r = await clientCredentialsService.run({ credentials: creds, audience, resource }, mode);
+			const r = await clientCredentialsService.run(
+				{ credentials: creds, audience, resource },
+				mode
+			);
 			setResult(r);
 			engine.markComplete('request');
 		} catch (err) {
@@ -185,14 +156,17 @@ const ClientCredentialsFlow: React.FC = () => {
 		engine.markComplete('inspect');
 	}, [result, creds, mode, engine]);
 
-	const configured = Boolean(creds.environmentId && creds.clientId && creds.clientSecret);
+	// Mock runs offline — never gate it on real credentials.
+	const configured =
+		mode === 'mock' ? true : Boolean(creds.environmentId && creds.clientId && creds.clientSecret);
 	const cur = engine.current.id;
 
 	return (
 		<FlowContainer
 			title="Client Credentials"
-			spec="2.0"
+			spec={spec}
 			mode={mode}
+			onModeChange={selectMode}
 			subtitle="Machine-to-machine grant (RFC 6749 §4.4) — a confidential client authenticates with its own credentials and receives an access token. No user, no redirect."
 			engine={engine}
 		>
@@ -205,9 +179,17 @@ const ClientCredentialsFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
+					<FlowDiagram
+						label="OAuth 2.0 Client Credentials"
+						nodes={['Client', 'Token EP', 'Access Token']}
+					/>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>
+							OAuth 2.0
+						</Pill>
+						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>
+							OAuth 2.1
+						</Pill>
 					</Toggle>
 					<Toggle>
 						{(['client_secret_basic', 'client_secret_post'] as ClientAuthMethod[]).map((m) => (
@@ -221,20 +203,62 @@ const ClientCredentialsFlow: React.FC = () => {
 						))}
 					</Toggle>
 					<Grid>
-						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} placeholder="uuid" />
-						<FieldGroup label="Region" value={creds.region} onChange={set('region')} placeholder="com | eu | ca | asia" />
-						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} placeholder="worker client id" />
-						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} placeholder="worker client secret" />
-						<FieldGroup label="Scope (optional)" value={creds.scope ?? ''} onChange={set('scope')} placeholder="e.g. p1:read:user" />
-						<FieldGroup label="Audience (optional, RFC 8707)" value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="target resource" />
-						<FieldGroup label="Resource (optional, RFC 8707)" value={resource} onChange={(e) => setResource(e.target.value)} placeholder="resource URI" />
+						<FieldGroup
+							label="Environment ID"
+							value={creds.environmentId}
+							onChange={set('environmentId')}
+							placeholder="uuid"
+						/>
+						<FieldGroup
+							label="Region"
+							value={creds.region}
+							onChange={set('region')}
+							placeholder="com | eu | ca | asia"
+						/>
+						<FieldGroup
+							label="Client ID"
+							value={creds.clientId}
+							onChange={set('clientId')}
+							placeholder="worker client id"
+						/>
+						<FieldGroup
+							label="Client Secret"
+							type="password"
+							value={creds.clientSecret ?? ''}
+							onChange={set('clientSecret')}
+							placeholder="worker client secret"
+						/>
+						<FieldGroup
+							label="Scope (optional)"
+							value={creds.scope ?? ''}
+							onChange={set('scope')}
+							placeholder="e.g. p1:read:user"
+						/>
+						<FieldGroup
+							label="Audience (optional, RFC 8707)"
+							value={audience}
+							onChange={(e) => setAudience(e.target.value)}
+							placeholder="target resource"
+						/>
+						<FieldGroup
+							label="Resource (optional, RFC 8707)"
+							value={resource}
+							onChange={(e) => setResource(e.target.value)}
+							placeholder="resource URI"
+						/>
 					</Grid>
 					<div>
 						<Hint>Discover the scopes this environment advertises, then click to add them:</Hint>
 						<Toggle>
-							<Pill $active={false} onClick={discover}>Discover scopes</Pill>
+							<Pill $active={false} onClick={discover}>
+								Discover scopes
+							</Pill>
 							{discoveredScopes.map((s) => (
-								<Chip key={s} $on={(creds.scope || '').split(/\s+/).includes(s)} onClick={() => toggleScope(s)}>
+								<Chip
+									key={s}
+									$on={(creds.scope || '').split(/\s+/).includes(s)}
+									onClick={() => toggleScope(s)}
+								>
 									{s}
 								</Chip>
 							))}
@@ -258,7 +282,11 @@ const ClientCredentialsFlow: React.FC = () => {
 					canNext={Boolean(result)}
 				>
 					<Action onClick={run} disabled={loading || !configured}>
-						{loading ? 'Requesting…' : mode === 'real' ? 'Request real token' : 'Request mock token'}
+						{loading
+							? 'Requesting…'
+							: mode === 'real'
+								? 'Request real token'
+								: 'Request mock token'}
 					</Action>
 					<FlowResult result={result} error={error} />
 				</FlowStep>
@@ -273,7 +301,9 @@ const ClientCredentialsFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
-					<Action onClick={inspect} disabled={!result?.accessToken}>Introspect access token</Action>
+					<Action onClick={inspect} disabled={!result?.accessToken}>
+						Introspect access token
+					</Action>
 					{introspectData && (
 						<ResultCard title="Introspection (RFC 7662)" tone="info">
 							<JsonView data={introspectData} />
