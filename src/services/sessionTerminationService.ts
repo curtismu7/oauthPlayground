@@ -30,6 +30,13 @@ export interface SessionTerminationOptions extends BuildLogoutUrlOptions {
 	callLogoutEndpoint?: boolean;
 	clearClientStorage?: boolean;
 	storageOptions?: StorageClearOptions;
+	/**
+	 * Pre-validated user subject (sub). When provided, the service uses this
+	 * directly and skips parsing the unverified ID token for the userId.
+	 * Callers that have already validated the ID token signature should pass
+	 * the verified `sub` here.
+	 */
+	verifiedUserId?: MaybeString;
 }
 
 export interface SessionTerminationCallResult {
@@ -355,7 +362,20 @@ export const terminateSession = async (
 	const timestamp = new Date().toISOString();
 	const issuerWithAs = normalizeIssuer(options.issuer, options.environmentId);
 	const logoutUrl = resolveLogoutUrl(options, false);
-	const userId = extractUserIdFromIdToken(options.idToken);
+	// Prefer a pre-validated userId supplied by the caller. Only fall back to
+	// parsing the ID token when no verified value is available — the token
+	// signature is NOT verified here, so the extracted sub must not be treated
+	// as authoritative without independent verification.
+	const userId: string | null = options.verifiedUserId
+		? (options.verifiedUserId as string)
+		: (() => {
+				logger.warn(
+					'SessionTerminationService',
+					'[sessionTerminationService] Extracting userId from unverified ID token. ' +
+						'Pass options.verifiedUserId to avoid relying on an unsigned token.'
+				);
+				return extractUserIdFromIdToken(options.idToken);
+			})();
 
 	let management: SessionTerminationCallResult = {
 		attempted: false,

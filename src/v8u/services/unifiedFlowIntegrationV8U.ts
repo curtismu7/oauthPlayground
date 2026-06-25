@@ -377,7 +377,7 @@ export class UnifiedFlowIntegrationV8U {
 		 */
 		if (flowType === 'oauth-authz') {
 			// Generate state for PAR or regular flow
-			const baseState = `state-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+			const baseState = `state-${Date.now()}-${crypto.randomUUID().replace(/-/g, '').substring(0, 12)}`;
 			const prefixedState = `v8u-oauth-authz-${baseState}`;
 
 			// If PAR is enabled, push PAR request and use request_uri in authorization URL

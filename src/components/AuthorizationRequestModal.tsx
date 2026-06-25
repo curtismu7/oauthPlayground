@@ -294,7 +294,12 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 		if (dontShowAgain) {
 			// Update the configuration setting to disable the modal
 			const flowConfigKey = 'enhanced-flow-authorization-code';
-			const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+			let existingFlowConfig: Record<string, unknown> = {};
+			try {
+				existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+			} catch {
+				existingFlowConfig = {};
+			}
 			const updatedFlowConfig = {
 				...existingFlowConfig,
 				showAuthRequestModal: false, // Set to false to disable the modal
@@ -302,7 +307,8 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 			localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
 
 			logger.info(
-				' [AuthorizationRequestModal] User chose to skip this modal in future - updated configuration:',
+				'AuthorizationRequestModal',
+				'User chose to skip this modal in future - updated configuration',
 				updatedFlowConfig
 			);
 

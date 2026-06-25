@@ -79,16 +79,14 @@ export const useServerHealth = (checkInterval: number = 30000) => {
 	useEffect(() => {
 		if (checkInterval > 0) {
 			const interval = setInterval(() => {
-				if (!health.isOnline) {
-					checkHealth();
-				}
+				checkHealth();
 			}, checkInterval);
 
 			return () => clearInterval(interval);
 		}
 
 		return undefined;
-	}, [checkHealth, checkInterval, health.isOnline]);
+	}, [checkHealth, checkInterval]);
 
 	return {
 		...health,

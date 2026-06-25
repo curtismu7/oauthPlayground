@@ -250,9 +250,10 @@ export class RARService {
 	 * Generate a secure state parameter
 	 */
 	private static generateState(): string {
-		return (
-			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-		);
+		const bytes = crypto.getRandomValues(new Uint8Array(32));
+		return Array.from(bytes)
+			.map((b) => b.toString(16).padStart(2, '0'))
+			.join('');
 	}
 
 	/**
@@ -364,7 +365,7 @@ export class RARService {
 			// For customer_information type, ensure appropriate scopes are granted
 			if (detail.type === 'customer_information') {
 				const hasReadScope = grantedScopes.includes('profile') || grantedScopes.includes('openid');
-				const hasWriteScope = grantedScopes.includes('profile') || detail.actions?.includes('read');
+				const hasWriteScope = grantedScopes.includes('profile') || detail.actions?.includes('write');
 
 				if (detail.actions?.includes('write') && !hasWriteScope) {
 					errors.push(`authorization_details[${i}]: write action requires appropriate scope`);

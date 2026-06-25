@@ -355,18 +355,22 @@ class ApiKeyService {
 				type: 'api_key',
 			});
 
-			if (result.success && result.tokens) {
-				for (const token of result.tokens) {
+			if (result.success && result.data) {
+				for (const token of result.data) {
 					const metadata = token.metadata || {};
 
 					// If isActive is not explicitly set, set it to true
 					if (metadata.isActive === undefined) {
-						await unifiedTokenStorageService.updateToken(token.id, {
-							metadata: {
-								...metadata,
-								isActive: true,
+						await unifiedTokenStorageService.storeToken(
+							{
+								...token,
+								metadata: {
+									...metadata,
+									isActive: true,
+								},
 							},
-						});
+							{ id: token.id }
+						);
 
 						logger.info(
 							MODULE_TAG,

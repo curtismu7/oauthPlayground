@@ -1090,7 +1090,7 @@ const processInlineMarkdown = (text: string): string => {
 	text = escapeHtml(text);
 
 	// Process links [text](url)
-	text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+	text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
 	// Process inline code `code`
 	text = text.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
