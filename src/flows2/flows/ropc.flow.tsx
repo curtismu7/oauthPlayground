@@ -10,6 +10,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { CredentialsForm } from '../framework/CredentialsForm';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
@@ -17,6 +18,7 @@ import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
 import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
@@ -176,17 +178,12 @@ const RopcFlow: React.FC = () => {
 						label="OAuth 2.0 Resource Owner Password"
 						nodes={['User', 'Client', 'Token EP', 'Token']}
 					/>
-					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>
-							OAuth 2.0
-						</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>
-							OAuth 2.1
-						</Pill>
-						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>
-							OIDC {oidc ? 'on' : 'off'}
-						</Pill>
-					</Toggle>
+					<SpecToggle
+						spec={spec}
+						onSpecChange={setSpec}
+						oidc={oidc}
+						onOidcToggle={() => setOidc((v) => !v)}
+					/>
 					<Toggle>
 						{(['client_secret_post', 'client_secret_basic'] as ClientAuthMethod[]).map((m) => (
 							<Pill
@@ -198,39 +195,11 @@ const RopcFlow: React.FC = () => {
 							</Pill>
 						))}
 					</Toggle>
-					<Grid>
-						<FieldGroup
-							label="Environment ID"
-							value={creds.environmentId}
-							onChange={set('environmentId')}
-							placeholder="uuid"
-						/>
-						<FieldGroup
-							label="Region"
-							value={creds.region}
-							onChange={set('region')}
-							placeholder="com | eu | ca | asia"
-						/>
-						<FieldGroup
-							label="Client ID"
-							value={creds.clientId}
-							onChange={set('clientId')}
-							placeholder="your-client-id"
-						/>
-						<FieldGroup
-							label="Client Secret"
-							type="password"
-							value={creds.clientSecret ?? ''}
-							onChange={set('clientSecret')}
-							placeholder="your-client-secret"
-						/>
-						<FieldGroup
-							label="Scope"
-							value={creds.scope ?? ''}
-							onChange={set('scope')}
-							placeholder="openid profile email"
-						/>
-					</Grid>
+					<CredentialsForm
+						creds={creds}
+						set={set}
+						scopePlaceholder="openid profile email"
+					/>
 					<ExplanationPanel title="Client auth: post vs basic">
 						client_secret_post sends client_id and client_secret in the POST body.
 						client_secret_basic sends them as an HTTP Basic Authorization header

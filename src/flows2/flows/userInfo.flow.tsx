@@ -14,8 +14,9 @@ import { FieldGroup } from '../framework/FieldGroup';
 import { JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { Action, Grid } from '../framework/primitives';
 import { FlowDiagram } from '../framework/FlowDiagram';
+import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type { FlowError, FlowMode, OAuthSpec, StepDefinition } from '../framework/types';
 import { decodeJwtPayload } from '../services/pingone';
@@ -121,11 +122,12 @@ const UserInfoFlow: React.FC = () => {
 						label="OIDC UserInfo"
 						nodes={['Access Token', 'UserInfo EP', 'Claims']}
 					/>
-					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>OAuth 2.0</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>OAuth 2.1</Pill>
-						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>OIDC {oidc ? 'on' : 'off'}</Pill>
-					</Toggle>
+					<SpecToggle
+						spec={spec}
+						onSpecChange={setSpec}
+						oidc={oidc}
+						onOidcToggle={() => setOidc((v) => !v)}
+					/>
 					<Grid>
 						<FieldGroup
 							label="Environment ID"

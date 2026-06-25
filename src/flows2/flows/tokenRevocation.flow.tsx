@@ -8,13 +8,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { JsonView } from '../framework/CodeBlock';
+import { CredentialsForm } from '../framework/CredentialsForm';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowStep } from '../framework/FlowStep';
-import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { Action, Pill, Toggle } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
+import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type {
 	FlowCredentials,
@@ -168,41 +170,12 @@ const TokenRevocationFlow: React.FC = () => {
 						label="OAuth 2.0 Token Revocation"
 						nodes={['Token', 'Revoke EP', 'Revoked']}
 					/>
-					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>
-							OAuth 2.0
-						</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>
-							OAuth 2.1
-						</Pill>
-					</Toggle>
-					<Grid>
-						<FieldGroup
-							label="Environment ID"
-							value={creds.environmentId}
-							onChange={set('environmentId')}
-							placeholder="uuid"
-						/>
-						<FieldGroup
-							label="Region"
-							value={creds.region}
-							onChange={set('region')}
-							placeholder="com | eu | ca | asia"
-						/>
-						<FieldGroup
-							label="Client ID"
-							value={creds.clientId}
-							onChange={set('clientId')}
-							placeholder="client id"
-						/>
-						<FieldGroup
-							label="Client Secret"
-							type="password"
-							value={creds.clientSecret ?? ''}
-							onChange={set('clientSecret')}
-							placeholder="client secret"
-						/>
-					</Grid>
+					<SpecToggle spec={spec} onSpecChange={setSpec} />
+					<CredentialsForm
+						creds={creds}
+						set={set}
+						showScope={false}
+					/>
 					<FieldGroup
 						multiline
 						label="Token to revoke (required)"
