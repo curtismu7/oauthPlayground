@@ -689,7 +689,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				scope: 'openid profile email',
 				iat: now,
 				exp: exp,
-				jti: `saml_bearer_${Math.random().toString(36).substr(2, 16)}`,
+				jti: `saml_bearer_${crypto.randomUUID()}`,
 				token_use: 'access',
 				authn_method: 'saml_bearer',
 				// Include user attributes from SAML assertion (real authorization servers do this)

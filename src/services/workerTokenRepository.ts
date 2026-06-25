@@ -325,7 +325,7 @@ export class WorkerTokenRepository {
 		const now = Date.now();
 		const bufferTime = 5 * 60 * 1000; // 5 minutes buffer
 
-		return !tokenData.expiresAt || tokenData.expiresAt > now + bufferTime;
+		return !!tokenData.expiresAt && tokenData.expiresAt > now + bufferTime;
 	}
 
 	/**

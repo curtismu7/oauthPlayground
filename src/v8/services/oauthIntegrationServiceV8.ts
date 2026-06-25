@@ -1118,14 +1118,17 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 	 * @returns Random string
 	 */
 	private static generateRandomString(length: number): string {
-		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-		let result = '';
-
-		for (let i = 0; i < length; i++) {
-			result += chars.charAt(Math.floor(Math.random() * chars.length));
+		if (length === 43 || length >= 32) {
+			// For PKCE verifiers and long tokens: base64url-encode random bytes
+			const bytes = crypto.getRandomValues(new Uint8Array(32));
+			return btoa(String.fromCharCode(...bytes))
+				.replace(/\+/g, '-')
+				.replace(/\//g, '_')
+				.replace(/=/g, '')
+				.substring(0, length);
 		}
-
-		return result;
+		// For short state/nonce values use UUID (strip hyphens to get a compact string)
+		return crypto.randomUUID().replace(/-/g, '').substring(0, length);
 	}
 
 	/**

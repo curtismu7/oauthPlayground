@@ -90,7 +90,10 @@ const AuthCallback: React.FC = () => {
 
 		if (!code) {
 			setError('No authorization code in the callback.');
-			return;
+			timeoutId = setTimeout(() => navigate(FLOW_ROUTE), 2000);
+			return () => {
+				if (timeoutId) clearTimeout(timeoutId);
+			};
 		}
 
 		stash.code = code;

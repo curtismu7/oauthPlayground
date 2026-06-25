@@ -5,7 +5,6 @@
 // mock mode → generate a mock SAML assertion, simulate token response (no network).
 
 import type { FlowMode, TokenResult } from '../framework/types';
-import { pingoneHost } from './pingone';
 import { tokenIntrospectionService } from './tokenIntrospectionService';
 
 export interface SAMLBearerAssertionData {
@@ -121,30 +120,11 @@ export const samlBearerService = {
 			return toTokenResult(data);
 		}
 
-		const assertion = generateMockSAMLAssertion(params.assertion);
-		const assertionB64 = btoa(assertion);
-
-		const res = await fetch('/api/pingone/token', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				environment_id: params.environmentId,
-				region: params.region,
-				grant_type: 'urn:ietf:params:oauth:grant-type:saml2-bearer',
-				assertion: assertionB64,
-				...(params.scopes ? { scope: params.scopes } : {}),
-			}),
-		});
-
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
-		if (!res.ok || data.error) {
-			throw {
-				error: (data.error as string) || 'saml_bearer_token_request_failed',
-				error_description:
-					(data.error_description as string) || `SAML Bearer token request failed (HTTP ${res.status})`,
-				status: res.status,
-			};
-		}
-		return toTokenResult(data);
+		// Real mode requires a pre-signed SAML assertion — sending an unsigned mock assertion
+		// will always be rejected by PingOne. Fail fast with a clear error.
+		throw {
+			error: 'not_supported',
+			error_description: 'Real SAML Bearer requires a pre-signed assertion; use mock mode.',
+		};
 	},
 };

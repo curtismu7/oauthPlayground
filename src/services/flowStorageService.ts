@@ -683,11 +683,14 @@ export class TokenStorage {
 	private constructor() {}
 
 	/**
-	 * Store tokens securely
+	 * Store tokens securely.
+	 * Adds _expiresAt (epoch ms) so isExpired() can compare without relying on
+	 * the originally-issued expires_in still being accurate after a page reload.
 	 * @param tokens - The token data
 	 */
 	static set(tokens: TokenData): void {
-		sessionStorage.setItem(StorageKeys.tokens(), JSON.stringify(tokens));
+		const expiresAt = Date.now() + (tokens.expires_in ?? 3600) * 1000;
+		sessionStorage.setItem(StorageKeys.tokens(), JSON.stringify({ ...tokens, _expiresAt: expiresAt }));
 		logger.info('FlowStorageService', ` [FlowStorage] Stored tokens securely`);
 	}
 
@@ -721,16 +724,21 @@ export class TokenStorage {
 	}
 
 	/**
-	 * Check if tokens are expired
-	 * @returns True if expired
+	 * Check if tokens are expired.
+	 * Compares the _expiresAt timestamp written by set() against Date.now().
+	 * @returns True if no tokens stored or expiry timestamp has passed
 	 */
 	static isExpired(): boolean {
-		const tokens = TokenStorage.get();
-		if (!tokens) return true;
+		const stored = sessionStorage.getItem(StorageKeys.tokens());
+		if (!stored) return true;
 
-		// Tokens don't have a stored timestamp, so we can't determine expiry
-		// This would need to be enhanced with token storage timestamp
-		return false;
+		try {
+			const data = JSON.parse(stored) as TokenData & { _expiresAt?: number };
+			if (typeof data._expiresAt !== 'number') return true;
+			return Date.now() >= data._expiresAt;
+		} catch {
+			return true;
+		}
 	}
 }
 

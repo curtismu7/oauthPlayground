@@ -58,7 +58,8 @@ export interface DeviceFlowState {
 class DeviceFlowService {
 	private readonly STORAGE_KEY = 'pingone_playground_device_flow_state';
 	private readonly MAX_POLL_ATTEMPTS = 100;
-	private readonly DEFAULT_POLL_INTERVAL = 5000; // 5 seconds
+	private readonly DEFAULT_POLL_INTERVAL = 5; // 5 seconds (RFC 8628 — stored in seconds, not ms)
+	private activePollingTimerId: ReturnType<typeof setTimeout> | null = null;
 
 	/**
 	 * Start device authorization flow
@@ -113,7 +114,7 @@ class DeviceFlowService {
 				verificationUri: deviceResponse.verification_uri,
 				verificationUriComplete: deviceResponse.verification_uri_complete,
 				expiresIn: deviceResponse.expires_in,
-				interval: deviceResponse.interval || this.DEFAULT_POLL_INTERVAL,
+				interval: deviceResponse.interval || this.DEFAULT_POLL_INTERVAL, // seconds (RFC 8628)
 				expiresAt: new Date(Date.now() + deviceResponse.expires_in * 1000),
 				status: 'pending',
 				pollCount: 0,
@@ -188,6 +189,17 @@ class DeviceFlowService {
 	}
 
 	/**
+	 * Stop active polling (cancellation handle — call on unmount)
+	 */
+	stopPolling(): void {
+		if (this.activePollingTimerId !== null) {
+			clearTimeout(this.activePollingTimerId);
+			this.activePollingTimerId = null;
+			logger.info('DeviceFlowService', 'Polling stopped');
+		}
+	}
+
+	/**
 	 * Start polling for device authorization completion
 	 */
 	async startPolling(
@@ -204,10 +216,18 @@ class DeviceFlowService {
 			throw new Error('Device flow state not found');
 		}
 
-		const pollInterval = state.interval * 1000; // Convert to milliseconds
+		// state.interval is always stored in seconds (RFC 8628)
+		const pollInterval = state.interval * 1000; // convert to ms for setTimeout
 		let pollCount = 0;
+		// Clear any existing polling timer before starting a new one
+		this.stopPolling();
+
+		const schedule = () => {
+			this.activePollingTimerId = setTimeout(poll, pollInterval);
+		};
 
 		const poll = async () => {
+			this.activePollingTimerId = null;
 			try {
 				// Check if expired
 				if (new Date() > state.expiresAt) {
@@ -254,21 +274,24 @@ class DeviceFlowService {
 						state.status = 'pending';
 						this.saveDeviceFlowState(state);
 						onUpdate?.(state);
-						setTimeout(poll, pollInterval);
-					} else if (tokenResponse.error === 'authorization_declined') {
-						// User denied authorization
+						schedule();
+					} else if (
+						tokenResponse.error === 'authorization_declined' ||
+						tokenResponse.error === 'access_denied'
+					) {
+						// User denied authorization — definitive, do not retry
 						// eslint-disable-next-line require-atomic-updates
 						state.status = 'denied';
 						this.saveDeviceFlowState(state);
 						onError?.(new Error('User denied authorization'));
 					} else if (tokenResponse.error === 'expired_token') {
-						// Device code expired
+						// Device code expired — definitive, do not retry
 						// eslint-disable-next-line require-atomic-updates
 						state.status = 'expired';
 						this.saveDeviceFlowState(state);
 						onError?.(new Error('Device code expired'));
 					} else {
-						// Other error
+						// Other protocol error — definitive
 						// eslint-disable-next-line require-atomic-updates
 						state.status = 'expired';
 						this.saveDeviceFlowState(state);
@@ -280,16 +303,22 @@ class DeviceFlowService {
 					state.status = 'pending';
 					this.saveDeviceFlowState(state);
 					onUpdate?.(state);
-					setTimeout(poll, pollInterval);
+					schedule();
 				}
 			} catch (error) {
-				logger.error('DeviceFlowService', 'Polling error', error);
-				onError?.(error instanceof Error ? error : new Error('Unknown polling error'));
+				// Transient network/fetch error — retry unless we've hit limits or the code is expired
+				logger.warn('DeviceFlowService', 'Transient polling error, will retry', error);
+				if (pollCount < this.MAX_POLL_ATTEMPTS && new Date() <= state.expiresAt) {
+					schedule();
+				} else {
+					logger.error('DeviceFlowService', 'Polling error — giving up', error);
+					onError?.(error instanceof Error ? error : new Error('Unknown polling error'));
+				}
 			}
 		};
 
 		// Start polling
-		setTimeout(poll, pollInterval);
+		schedule();
 	}
 
 	/**
