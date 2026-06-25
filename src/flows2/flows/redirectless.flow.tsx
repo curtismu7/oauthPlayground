@@ -16,6 +16,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
@@ -36,6 +39,7 @@ import type {
 } from '../framework/types';
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
+import { pingoneEndpoints } from '../services/pingone';
 import {
 	type RedirectlessFlowState,
 	type RedirectlessPollStatus,
@@ -144,6 +148,9 @@ const RedirectlessFlow: React.FC = () => {
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:redirectless', creds, setCreds);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -296,6 +303,9 @@ const RedirectlessFlow: React.FC = () => {
 						creds={creds}
 						set={set}
 						scopePlaceholder="openid profile email"
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 					<Grid>
 						<FieldGroup
@@ -333,6 +343,20 @@ const RedirectlessFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(flowState)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.authorize,
+							params: {
+								response_type: 'code',
+								response_mode: 'pi.flow',
+								client_id: creds.clientId,
+								scope: creds.scope || 'openid profile email',
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={startFlow} disabled={loading || !configured}>
 						{loading
 							? 'Starting…'

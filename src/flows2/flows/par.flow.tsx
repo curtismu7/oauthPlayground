@@ -18,7 +18,10 @@ import { CodeBlock, JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { Action } from '../framework/primitives';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { SpecToggle } from '../framework/SpecToggle';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { clearStash, loadStash, saveStash } from '../framework/authzStash';
@@ -33,6 +36,7 @@ import type {
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { parService } from '../services/parService';
 import type { PkcePair } from '../services/parService';
+import { pingoneEndpoints } from '../services/pingone';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -91,6 +95,9 @@ const PARFlow: React.FC = () => {
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:par', creds, setCreds);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -274,6 +281,9 @@ const PARFlow: React.FC = () => {
 						redirectUri={redirectUri}
 						onRedirectUriChange={(e) => setRedirectUri(e.target.value)}
 						scopePlaceholder={oidc ? 'openid profile email' : 'profile email'}
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 				</FlowStep>
 			)}
@@ -294,6 +304,22 @@ const PARFlow: React.FC = () => {
 						carries only an opaque reference. The AS can validate and bind the request before
 						any redirect happens — a hard requirement in FAPI 2.0 and recommended in OAuth 2.1.
 					</ExplanationPanel>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.par,
+							params: {
+								response_type: 'code',
+								client_id: creds.clientId,
+								redirect_uri: redirectUri,
+								scope: creds.scope || (oidc ? 'openid profile email offline_access' : 'openid'),
+								code_challenge: pkce?.codeChallenge || '<code_challenge>',
+								code_challenge_method: 'S256',
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={handlePush} disabled={loading || !configured}>
 						{loading ? 'Pushing…' : 'Generate PKCE + push authorization request'}
 					</Action>
@@ -346,6 +372,21 @@ const PARFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(result)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.token,
+							params: {
+								grant_type: 'authorization_code',
+								code: code || '<authorization_code>',
+								redirect_uri: redirectUri,
+								client_id: creds.clientId,
+								code_verifier: pkce?.codeVerifier || '<code_verifier>',
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={handleExchange} disabled={loading || !code || !pkce}>
 						{loading ? 'Exchanging…' : 'Exchange code'}
 					</Action>

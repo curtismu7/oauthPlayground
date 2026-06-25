@@ -11,7 +11,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { clearStash, loadStash, saveStash } from '../framework/authzStash';
 import { CodeBlock } from '../framework/CodeBlock';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
@@ -31,6 +34,7 @@ import type {
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { authorizationCodeService } from '../services/authorizationCodeService';
+import { pingoneEndpoints } from '../services/pingone';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -76,6 +80,9 @@ const HybridFlow: React.FC = () => {
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:hybrid', creds, setCreds);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -255,6 +262,9 @@ const HybridFlow: React.FC = () => {
 						redirectUri={redirectUri}
 						onRedirectUriChange={(e) => setRedirectUri(e.target.value)}
 						scopePlaceholder="openid profile email"
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 					<ExplanationPanel title="Hybrid vs. Authorization Code">
 						Hybrid returns both code and ID token from the front-channel authorization endpoint,
@@ -278,6 +288,22 @@ const HybridFlow: React.FC = () => {
 					onNext={() => engine.goTo(2)}
 					canNext={Boolean(code)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'GET',
+							url: ep.authorize,
+							params: {
+								response_type: oidc ? 'code id_token' : 'code token',
+								client_id: creds.clientId,
+								redirect_uri: redirectUri,
+								scope: creds.scope || (oidc ? 'openid profile email' : 'profile email'),
+								state: '<generated at runtime>',
+								...(oidc ? { nonce: '<generated at runtime>' } : {}),
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={handleAuthorize} disabled={loading || !configured}>
 						{loading
 							? 'Working…'
@@ -310,6 +336,20 @@ const HybridFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(result)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.token,
+							params: {
+								grant_type: 'authorization_code',
+								code: code || '<authorization_code>',
+								redirect_uri: redirectUri,
+								client_id: creds.clientId,
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={handleExchange} disabled={loading || !code}>
 						{loading ? 'Exchanging…' : 'Exchange code'}
 					</Action>

@@ -4,8 +4,11 @@
 // Generates a mock SAML 2.0 assertion and exchanges it for an access token.
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { FlowStep } from '../framework/FlowStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { FieldGroup } from '../framework/FieldGroup';
@@ -16,6 +19,7 @@ import { FlowDiagram } from '../framework/FlowDiagram';
 import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type { FlowError, FlowMode, OAuthSpec, StepDefinition, TokenResult } from '../framework/types';
+import { pingoneEndpoints } from '../services/pingone';
 import { samlBearerService, type SAMLBearerAssertionData } from '../services/samlBearerService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -54,6 +58,26 @@ const CodeBox = styled.pre`
 	line-height: 1.4;
 `;
 
+const SaveRow = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-top: 0.25rem;
+`;
+const SaveBtn = styled.button`
+	font-family: 'IBM Plex Mono', monospace;
+	font-size: 0.78rem;
+	font-weight: 700;
+	padding: 0.45rem 1rem;
+	border-radius: 6px;
+	border: 1px solid ${tokens.color.accent};
+	background: ${tokens.color.accentBg};
+	color: ${tokens.color.accent};
+	cursor: pointer;
+	&:hover:not(:disabled) { background: ${tokens.color.accent}; color: #fff; }
+	&:disabled { opacity: 0.6; cursor: not-allowed; }
+`;
+
 const SAMLBearerAssertionFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
@@ -88,6 +112,18 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, load: loadCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:saml-bearer');
+
+	useEffect(() => {
+		loadCredentials().then((data) => {
+			if (!data || envId) return;
+			if (typeof data.envId === 'string') setEnvId(data.envId);
+			if (typeof data.region === 'string') setRegion(data.region);
+			if (typeof data.clientId === 'string') setClientId(data.clientId);
+		});
+	}, [loadCredentials, envId]);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -178,6 +214,14 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 						<FieldGroup label="Client ID" value={clientId} onChange={(e) => setClientId(e.target.value)} placeholder="oauth client id" />
 						<FieldGroup label="Scope (optional)" value={scopes} onChange={(e) => setScopes(e.target.value)} placeholder="e.g. openid profile" />
 					</Grid>
+					<SaveRow>
+						<SaveBtn
+							disabled={savingCreds}
+							onClick={() => saveCredentials({ envId, region, clientId })}
+						>
+							{savingCreds ? 'Saving…' : savedCreds ? 'Saved ✓' : 'Save credentials'}
+						</SaveBtn>
+					</SaveRow>
 				</FlowStep>
 			)}
 
@@ -258,6 +302,20 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 					onPrev={engine.goPrev}
 					canNext={Boolean(result)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints({ environmentId: envId, region });
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.token,
+							params: {
+								grant_type: 'urn:ietf:params:oauth:grant-type:saml2-bearer',
+								assertion: samlB64 || '<base64_saml_assertion>',
+								client_id: clientId,
+								scope: scopes || undefined,
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={handleRequestToken} disabled={loading}>
 						{loading ? 'Requesting...' : 'Request Token'}
 					</Action>

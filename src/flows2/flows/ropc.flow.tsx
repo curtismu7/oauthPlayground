@@ -11,6 +11,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
@@ -31,6 +34,7 @@ import type {
 } from '../framework/types';
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
+import { pingoneEndpoints } from '../services/pingone';
 import { ropcService } from '../services/ropcService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -94,6 +98,9 @@ const RopcFlow: React.FC = () => {
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:ropc', creds, setCreds);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -199,6 +206,9 @@ const RopcFlow: React.FC = () => {
 						creds={creds}
 						set={set}
 						scopePlaceholder="openid profile email"
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 					<ExplanationPanel title="Client auth: post vs basic">
 						client_secret_post sends client_id and client_secret in the POST body.
@@ -233,6 +243,21 @@ const RopcFlow: React.FC = () => {
 							placeholder="user password"
 						/>
 					</Grid>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.token,
+							params: {
+								grant_type: 'password',
+								username: username || '<username>',
+								password: password ? '***' : '<password>',
+								client_id: creds.clientId,
+								scope: creds.scope || (oidc ? 'openid profile email' : 'openid'),
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={requestToken} disabled={loading || !canRequest}>
 						{loading ? 'Requesting…' : mode === 'real' ? 'Request tokens' : 'Request mock tokens'}
 					</Action>

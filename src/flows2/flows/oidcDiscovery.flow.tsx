@@ -9,6 +9,9 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowStep } from '../framework/FlowStep';
 import { FlowResult } from '../framework/FlowResult';
@@ -27,6 +30,7 @@ import type {
 	OAuthSpec,
 	StepDefinition,
 } from '../framework/types';
+import { pingoneEndpoints } from '../services/pingone';
 import {
 	oidcDiscoveryService,
 	type DiscoveryDocument,
@@ -159,6 +163,9 @@ const OidcDiscoveryFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:oidc-discovery', creds, setCreds);
+
 	const runDiscover = useCallback(async () => {
 		setLoading(true);
 		setError(null);
@@ -232,6 +239,9 @@ const OidcDiscoveryFlow: React.FC = () => {
 						set={set}
 						showSecret={false}
 						showScope={false}
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 					<ExplanationPanel title="What is OIDC Discovery?">
 						OpenID Connect Discovery (RFC 8414) lets any client learn an authorization server's
@@ -255,6 +265,14 @@ const OidcDiscoveryFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(discovery)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'GET',
+							url: ep.discovery,
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={runDiscover} disabled={loading || !configured}>
 						{loading ? 'Fetching…' : mode === 'real' ? 'Fetch discovery document' : 'Fetch mock discovery document'}
 					</Action>
