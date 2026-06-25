@@ -28,6 +28,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import {
 	type RedirectlessFlowState,
@@ -435,6 +436,12 @@ const RedirectlessFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
+					<UseTokensStep
+						result={result}
+						credentials={creds}
+						mode={mode}
+						tools={['userinfo', 'introspect', 'decode']}
+					/>
 					<FlowResult result={result} />
 				</FlowStep>
 			)}

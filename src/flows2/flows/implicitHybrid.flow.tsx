@@ -36,6 +36,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import {
 	type FragmentParams,
@@ -404,6 +405,12 @@ const ImplicitHybridFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext
 				>
+					<UseTokensStep
+						result={exchangeResult}
+						credentials={creds}
+						mode={mode}
+						tools={['userinfo', 'introspect', 'decode']}
+					/>
 					{fragmentParams && (
 						<ResultCard title="Fragment params (#…)" tone="ok">
 							<JsonView data={fragmentParams} />
