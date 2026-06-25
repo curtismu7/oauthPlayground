@@ -3268,7 +3268,6 @@ export class MFAServiceV8 {
 						tokenLength: trimmedToken.length,
 						tokenStart: trimmedToken.substring(0, 30),
 						tokenEnd: trimmedToken.substring(trimmedToken.length - 10),
-						fullToken: trimmedToken,
 					}
 				);
 				throw new Error('Worker token is not a valid JWT. Please generate a new worker token.');
@@ -5255,7 +5254,6 @@ export class MFAServiceV8 {
 				tokenEnd: accessToken.substring(accessToken.length - 20),
 				tokenParts: accessToken.split('.').length,
 				isJWT: accessToken.includes('.') && accessToken.split('.').length === 3,
-				fullToken: accessToken,
 			});
 
 			const requestBody = {
@@ -5734,9 +5732,10 @@ export class MFAServiceV8 {
 		try {
 			const accessToken = await MFAServiceV8.getWorkerToken();
 
+			// Worker token goes in the Authorization header (below), not the query string,
+			// to keep it out of access logs, browser history and Referer headers.
 			const queryParams = new URLSearchParams({
 				environmentId,
-				workerToken: accessToken.trim(),
 			});
 
 			const startTime = Date.now();
@@ -5758,6 +5757,7 @@ export class MFAServiceV8 {
 						method: 'GET',
 						headers: {
 							'Content-Type': 'application/json',
+							Authorization: `Bearer ${accessToken.trim()}`,
 						},
 						retry: { maxAttempts: 3 },
 					}
