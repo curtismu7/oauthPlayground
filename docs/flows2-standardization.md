@@ -122,3 +122,64 @@ Legend: ⬜ not started · 🟨 in progress · ✅ done (committed)
 4. Add spec toggle if in Phase-1 scope; verify 2.1 deltas are enforced.
 5. Verify mock runs offline and real wires to the BFF.
 6. Commit (`flows2: standardize <flow> look-and-feel`), tick the box here.
+
+---
+
+## 7. Reusable step-modules & how we add new ideas easily
+
+**Goal:** when we invent a new capability (e.g. "introspect the token"), we write it
+**once** as a drop-in module and every qualifying flow gains it — no per-flow rewrite.
+
+### 7.1 The composition model
+Phase 0 gave us shared *primitives* (palette, Pill, Action, FlowDiagram). The next layer
+is shared **step-modules**: self-contained components that render inside a `<FlowStep>` and
+take a uniform prop shape:
+
+```ts
+interface StepModuleProps {
+  token?: string;          // access/refresh/id token the module operates on
+  credentials: FlowCredentials;
+  mode: FlowMode;          // 'real' | 'mock'
+  spec?: OAuthSpec;        // when behavior differs by 2.0/2.1
+}
+```
+
+A flow composes them; adding a module to a flow is **one JSX line**. Adding a *new* module
+benefits every flow that already renders the shared "Use Tokens" step (§7.3).
+
+### 7.2 Catalog of reusable modules (build on first use, then reuse)
+Legend: ✨ = high value across many flows · 🔁 = already exists inline in authz, extract it
+
+| Module | What it does | Reuse across flows | RFC |
+|---|---|---|---|
+| `SpecToggle` 🔁✨ | 2.0/2.1 + OIDC pills, with 2.1-enforcement wired in one place | every grant flow | OAuth 2.1 |
+| `CredentialsForm` ✨ | The standard Env ID / Client ID / Secret / Redirect / Scope grid | ~all flows | — |
+| `PkceStep` 🔁 | Generate verifier + S256 challenge, with mock stand-in | auth-code, par, hybrid, redirectless | RFC 7636 |
+| `IntrospectPanel` 🔁✨ | "Introspect token" action + claims view | any flow yielding an access token | RFC 7662 |
+| `UserInfoPanel` 🔁✨ | OIDC UserInfo call + claims view | any OIDC flow with an access token | OIDC Core |
+| `RevokePanel` ✨ | Revoke an access/refresh token | any flow yielding a revocable token | RFC 7009 |
+| `RefreshPanel` ✨ | Exchange a refresh_token for new tokens | any flow returning offline_access | RFC 6749 §6 |
+| `JwtDecodePanel` ✨ | Decode id_token / JWT access token (header·payload·sig) | any flow with a JWT | RFC 7519 |
+| `RequestPreview` ✨ | Show the raw HTTP request (copy-as-curl) for teaching | all flows | — |
+| `TokenResultCard` | Standardized token display (wraps `ResultCard`/`FlowResult`) | all flows | — |
+
+### 7.3 The "Use Tokens" extension point
+Every flow that ends with tokens renders a **shared final step** built from a registry:
+
+```tsx
+<UseTokensStep
+  result={result} credentials={creds} mode={mode}
+  tools={['userinfo', 'introspect', 'revoke', 'decode']}  // opt-in per flow
+/>
+```
+
+`UseTokensStep` maps each tool name → its panel module. **To add a brand-new idea**
+(say, RFC 9449 DPoP-bound token replay), we: (1) write `ReplayPanel` once, (2) register it
+in the tool map, (3) add `'replay'` to the `tools` list of whichever flows support it. No
+flow file is restructured. This is how we keep "integrate new ideas easily" true over time.
+
+### 7.4 Rollout rule (avoid speculative code)
+We do **not** pre-build the whole catalog. Each module is extracted the **first time a second
+flow needs it** (authz already contains PKCE/UserInfo/Introspect inline — these get promoted
+to modules during the first conversion that reuses them), then reused thereafter. The catalog
+above is the agreed target so extractions are consistent, not ad hoc.
