@@ -10,6 +10,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { CredentialsForm } from '../framework/CredentialsForm';
 import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import { RequestPreview } from '../framework/RequestPreview';
 import type { CurlRequest } from '../framework/RequestPreview';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
@@ -58,7 +59,7 @@ const MOCK_CREDS = {
 	region: 'com',
 	clientId: 'mock-client-demo-1234567890',
 	clientSecret: 'mock-client-secret',
-	scope: 'openid profile email',
+	scope: 'openid',
 } as const;
 
 const UserCode = styled.div`
@@ -126,7 +127,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 		region: env.VITE_PINGONE_REGION || 'com',
 		clientId: env.VITE_PINGONE_DEVICE_CLIENT_ID || env.VITE_PINGONE_USER_CLIENT_ID || '',
 		clientSecret: env.VITE_PINGONE_DEVICE_CLIENT_SECRET || '',
-		scope: 'openid profile email',
+		scope: 'openid',
 		authMethod: 'client_secret_post',
 	});
 	const [device, setDevice] = useState<DeviceCodeResult | null>(null);
@@ -196,6 +197,17 @@ const DeviceAuthorizationFlow: React.FC = () => {
 
 	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
 		useFlowCredentials('flows2:device-authorization', creds, setCreds);
+
+	const { saveState, restoreState } = useFlowStorage('flows2:device-authorization');
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!device && saved.device) setDevice(saved.device as typeof device);
+			if (!result && saved.result) setResult(saved.result as TokenResult | null);
+			if (!error && saved.error) setError(saved.error as FlowError | null);
+		});
+	}, [restoreState]);
 
 	const requestCode = useCallback(async () => {
 		setLoading(true);
@@ -277,6 +289,10 @@ const DeviceAuthorizationFlow: React.FC = () => {
 		// First poll after one interval — the user needs time to enter the code.
 		timer.current = setTimeout(tick, intervalMs);
 	}, [device, creds, mode, engine, stopPolling, tokenLifetimes]);
+
+	useEffect(() => {
+		saveState({ device, result, error });
+	}, [device, result, error, saveState]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured = mode === 'mock' ? true : Boolean(creds.environmentId && creds.clientId);

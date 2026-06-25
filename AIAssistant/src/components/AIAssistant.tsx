@@ -274,7 +274,7 @@ const WELCOME_MESSAGE: Message = {
 	id: '1',
 	type: 'assistant',
 	content:
-		"Hi! I'm your MasterFlow AI assistant — connected to your PingOne environment via the **Model Context Protocol (MCP)**.\n\n**Live commands** (enable the Live toggle):\n- `List all users` · `Find user john@acme.com` · `Create user` · `Delete user`\n- `Show all apps` · `Get app secret` · `Rotate secret`\n- `List groups` · `List MFA policies` · `List subscriptions`\n- `Introspect token` · `Get userinfo` · `Show org licenses`\n\n**Always available** (no credentials needed):\n- `What is MCP?` · `What is an agent?` · `How does this agent work?`\n- `Decode JWT <paste-token>` · `Show my token` · `Last MCP tool`\n- `Admin login` · `User login` (side panel 👤)\n\nType any command or click **📋** for the full Prompt Reference guide.",
+		"Hi! I'm your OAuth Playground AI assistant — connected to your PingOne environment via the **Model Context Protocol (MCP)**.\n\n**Live commands** (enable the Live toggle):\n- `List all users` · `Find user john@acme.com` · `Create user` · `Delete user`\n- `Show all apps` · `Get app secret` · `Rotate secret`\n- `List groups` · `List MFA policies` · `List subscriptions`\n- `Introspect token` · `Get userinfo` · `Show org licenses`\n\n**Always available** (no credentials needed):\n- `What is MCP?` · `What is an agent?` · `How does this agent work?`\n- `Decode JWT <paste-token>` · `Show my token` · `Last MCP tool`\n- `Admin login` · `User login` (side panel 👤)\n\nType any command or click **📋** for the full Prompt Reference guide.",
 	timestamp: new Date(),
 };
 
@@ -1234,7 +1234,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 					'### 3. Groq LLM (for AI / knowledge questions)',
 					'- Provider: `api.groq.com`',
 					'- Model: `llama-3.3-70b-versatile` (Meta Llama 3.3 70B)',
-					'- System prompt: "You are MasterFlow Agent, expert on OAuth, OIDC, PingOne, and MCP"',
+					'- System prompt: "You are OAuth Playground Agent, expert on OAuth, OIDC, PingOne, and MCP"',
 					'- Used for: open questions, explanations, OAuth/OIDC concepts',
 					'',
 					'### 4. Token Inspector (fully in-browser)',
@@ -1468,7 +1468,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 					'',
 					'### System prompt we send to Groq',
 					'```',
-					'You are MasterFlow Agent — an expert on OAuth 2.0, OIDC, PingOne Identity,',
+					'You are OAuth Playground Agent — an expert on OAuth 2.0, OIDC, PingOne Identity,',
 					'and Model Context Protocol (MCP). Help developers understand identity and AI integration.',
 					'```',
 					'',
@@ -2432,7 +2432,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false }) => {
 							<HeaderContent>
 								<AssistantIcon>🤖</AssistantIcon>
 								<HeaderText>
-									<HeaderTitle>MasterFlow Agent</HeaderTitle>
+									<HeaderTitle>OAuth Playground Agent</HeaderTitle>
 									<StatusRow>
 										<StatusDot
 											$state={groqAvailable === null ? 'checking' : groqAvailable ? 'ok' : 'off'}

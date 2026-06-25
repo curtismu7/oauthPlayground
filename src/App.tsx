@@ -2218,7 +2218,7 @@ function AppContent() {
 					</Suspense>
 				)}
 
-				{/* MasterFlow Agent - floating chat on all pages; not on /ai-assistant (page has its own) */}
+				{/* OAuth Playground Agent - floating chat on all pages; not on /ai-assistant (page has its own) */}
 				{/* Lazy: defers mcpQueryService and all AI code until after first paint */}
 				<Suspense fallback={null}>{!isAIAssistantPageRoute && <AIAssistant />}</Suspense>
 			</ExternalScriptErrorBoundary>

@@ -6,24 +6,18 @@
 // Uses the shared flows2 primitives for visual parity with the other flows.
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
-import { RequestPreview } from '../framework/RequestPreview';
-import type { CurlRequest } from '../framework/RequestPreview';
 import { FlowStep } from '../framework/FlowStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { FieldGroup } from '../framework/FieldGroup';
 import { JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { Action, Grid } from '../framework/primitives';
-import { FlowDiagram } from '../framework/FlowDiagram';
-import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
-import type { FlowError, FlowMode, OAuthSpec, StepDefinition } from '../framework/types';
-import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
-import { decodeJwtPayload, pingoneEndpoints } from '../services/pingone';
+import type { FlowError, FlowMode, StepDefinition } from '../framework/types';
+import { decodeJwtPayload } from '../services/pingone';
 import {
 	userInfoEndpointFor,
 	userInfoService as svc,
@@ -38,12 +32,47 @@ const STEPS: StepDefinition[] = [
 	{ id: 'compare', title: 'Compare', subtitle: 'UserInfo vs ID token claims' },
 ];
 
-// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
-const MOCK_CREDS = {
-	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
-	region: 'com',
-	accessToken: 'mock-access-token-userinfo-demo',
-} as const;
+const Grid = styled.div`
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.9rem;
+	@media (max-width: 640px) {
+		grid-template-columns: 1fr;
+	}
+`;
+
+const Toggle = styled.div`
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+`;
+
+const Pill = styled.button<{ $active: boolean }>`
+	font-size: 0.82rem;
+	font-weight: 600;
+	padding: 0.4rem 0.9rem;
+	border-radius: 8px;
+	cursor: pointer;
+	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
+	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
+	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
+`;
+
+const Action = styled.button`
+	align-self: flex-start;
+	font-size: 0.9rem;
+	font-weight: 700;
+	padding: 0.6rem 1.2rem;
+	border-radius: 8px;
+	border: 1px solid ${tokens.color.successBorder};
+	background: ${tokens.color.success};
+	color: #fff;
+	cursor: pointer;
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+`;
 
 const Endpoint = styled.code`
 	display: block;
@@ -52,65 +81,26 @@ const Endpoint = styled.code`
 	word-break: break-all;
 `;
 
-const SaveRow = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	margin-top: 0.25rem;
-`;
-const SaveBtn = styled.button`
-	font-family: 'IBM Plex Mono', monospace;
-	font-size: 0.78rem;
-	font-weight: 700;
-	padding: 0.45rem 1rem;
-	border-radius: 6px;
-	border: 1px solid ${tokens.color.accent};
-	background: ${tokens.color.accentBg};
-	color: ${tokens.color.accent};
-	cursor: pointer;
-	&:hover:not(:disabled) { background: ${tokens.color.accent}; color: #fff; }
-	&:disabled { opacity: 0.6; cursor: not-allowed; }
-`;
-
 const UserInfoFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
-	const [spec, setSpec] = useState<OAuthSpec>('2.0');
-	const [oidc, setOidc] = useState(true);
 	const [environmentId, setEnvironmentId] = useState(env.VITE_PINGONE_ENVIRONMENT_ID || '');
 	const [region, setRegion] = useState(env.VITE_PINGONE_REGION || 'com');
 	const [accessToken, setAccessToken] = useState('');
 	const [result, setResult] = useState<UserInfoResponse | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
-	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
-	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 
-	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
-
-	const { save: saveCredentials, load: loadCredentials, saving: savingCreds, saved: savedCreds } =
-		useFlowCredentials('flows2:userinfo');
+	const { saveState, restoreState } = useFlowStorage('flows2:userinfo');
 
 	useEffect(() => {
-		loadCredentials().then((data) => {
-			if (!data || environmentId) return;
-			if (typeof data.environmentId === 'string') setEnvironmentId(data.environmentId);
-			if (typeof data.region === 'string') setRegion(data.region);
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!accessToken && saved.accessToken) setAccessToken(saved.accessToken as string);
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
 		});
-	}, [loadCredentials, environmentId]);
-
-	// Auto-populate mock credentials when mode changes; clear them when switching to real.
-	useEffect(() => {
-		if (mode === 'mock') {
-			setEnvironmentId((v) => v || MOCK_CREDS.environmentId);
-			setRegion((v) => v || MOCK_CREDS.region);
-			setAccessToken((v) => v || MOCK_CREDS.accessToken);
-		} else {
-			setEnvironmentId((v) => v === MOCK_CREDS.environmentId ? '' : v);
-			setRegion((v) => v === MOCK_CREDS.region ? 'com' : v);
-			setAccessToken((v) => v === MOCK_CREDS.accessToken ? '' : v);
-		}
-	}, [mode]);
+	}, [restoreState, accessToken, result, error]);
 
 	const run = useCallback(async () => {
 		setLoading(true);
@@ -127,9 +117,11 @@ const UserInfoFlow: React.FC = () => {
 		}
 	}, [environmentId, region, accessToken, mode, engine]);
 
-	// Mock runs offline — never gate it on real credentials.
-	const configured = mode === 'mock' ? true : Boolean(environmentId && accessToken);
+	useEffect(() => {
+		saveState({ accessToken, result, error });
+	}, [accessToken, result, error, saveState]);
 
+	const configured = mode === 'mock' ? Boolean(environmentId) : Boolean(environmentId && accessToken);
 	// Decode the access token locally — works only if it's a JWT; null for opaque tokens.
 	const localClaims = useMemo(
 		() => (accessToken ? decodeJwtPayload(accessToken) : null),
@@ -140,9 +132,8 @@ const UserInfoFlow: React.FC = () => {
 	return (
 		<FlowContainer
 			title="UserInfo"
-			spec={spec}
+			spec="2.0"
 			mode={mode}
-			onModeChange={selectMode}
 			subtitle="OIDC §5.3. Present a user-delegated access token to the UserInfo endpoint and receive live, server-authoritative claims about the end-user — distinct from what was baked into the ID token at issue time."
 			engine={engine}
 		>
@@ -155,16 +146,10 @@ const UserInfoFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
-					<FlowDiagram
-						label="OIDC UserInfo"
-						nodes={['Access Token', 'UserInfo EP', 'Claims']}
-					/>
-					<SpecToggle
-						spec={spec}
-						onSpecChange={setSpec}
-						oidc={oidc}
-						onOidcToggle={() => setOidc((v) => !v)}
-					/>
+					<Toggle>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+					</Toggle>
 					<Grid>
 						<FieldGroup
 							label="Environment ID"
@@ -179,14 +164,6 @@ const UserInfoFlow: React.FC = () => {
 							placeholder="com | eu | ca | asia"
 						/>
 					</Grid>
-					<SaveRow>
-						<SaveBtn
-							disabled={savingCreds}
-							onClick={() => saveCredentials({ environmentId, region })}
-						>
-							{savingCreds ? 'Saving…' : savedCreds ? 'Saved ✓' : 'Save credentials'}
-						</SaveBtn>
-					</SaveRow>
 					<FieldGroup
 						multiline
 						label="Access token (user-delegated, required)"
@@ -223,17 +200,6 @@ const UserInfoFlow: React.FC = () => {
 							? userInfoEndpointFor(environmentId, region)
 							: 'mock — answered locally, no network call'}
 					</Endpoint>
-					{(() => {
-						const ep = pingoneEndpoints({ environmentId, region });
-						const curlReq: CurlRequest = {
-							method: 'GET',
-							url: ep.userinfo,
-							headers: {
-								Authorization: `Bearer ${accessToken || '<access_token>'}`,
-							},
-						};
-						return <RequestPreview request={curlReq} />;
-					})()}
 					<Action onClick={run} disabled={loading || !configured}>
 						{loading ? 'Fetching…' : mode === 'real' ? 'Fetch UserInfo' : 'Fetch mock UserInfo'}
 					</Action>

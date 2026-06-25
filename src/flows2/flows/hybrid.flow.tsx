@@ -3,40 +3,28 @@
 // Hybrid Flow (OpenID Connect) on the flows2 framework. Real PingOne or mock via the
 // `mode` toggle. Uses response_type=code id_token for front-channel code+id_token,
 // then back-channel code exchange for access token. ~300 LOC.
-//
-// FLAG: PingOne support for hybrid response_type in real mode depends on the
-// application configuration — the flow is a transitional OIDC pattern and is not
-// recommended under OAuth 2.1. Mock mode is always available offline.
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { clearStash, loadStash, saveStash } from '../framework/authzStash';
-import { CodeBlock } from '../framework/CodeBlock';
-import { RequestPreview } from '../framework/RequestPreview';
-import type { CurlRequest } from '../framework/RequestPreview';
-import { CredentialsForm } from '../framework/CredentialsForm';
-import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
-import { useFlowCredentials } from '../framework/useFlowCredentials';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
+import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
-import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { Action, Note } from '../framework/primitives';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import { FieldGroup } from '../framework/FieldGroup';
+import { CodeBlock, JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
-import { SpecToggle } from '../framework/SpecToggle';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { tokens } from '../framework/tokens';
+import { clearStash, loadStash, saveStash } from '../framework/authzStash';
 import type {
 	FlowCredentials,
 	FlowError,
 	FlowMode,
-	OAuthSpec,
 	StepDefinition,
 	TokenResult,
-	TokenLifetimes,
 } from '../framework/types';
-import { UseTokensStep } from '../framework/UseTokensStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { authorizationCodeService } from '../services/authorizationCodeService';
-import { pingoneEndpoints } from '../services/pingone';
+import { useFlowStorage } from '../framework/useFlowStorage';
+import { authorizationCodeService, MOCK_REGISTERED_SECRET } from '../services/authorizationCodeService';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -47,48 +35,95 @@ const STEPS: StepDefinition[] = [
 	{ id: 'use', title: 'Use Tokens', subtitle: 'UserInfo + Introspect' },
 ];
 
+const Toggle = styled.div`
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+`;
+
+const Pill = styled.button<{ $active: boolean }>`
+	font-size: 0.82rem;
+	font-weight: 600;
+	padding: 0.4rem 0.9rem;
+	border-radius: 8px;
+	cursor: pointer;
+	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
+	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
+	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
+`;
+
+const Grid = styled.div`
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.9rem;
+	@media (max-width: 640px) {
+		grid-template-columns: 1fr;
+	}
+`;
+
+const Action = styled.button`
+	align-self: flex-start;
+	font-size: 0.9rem;
+	font-weight: 700;
+	padding: 0.6rem 1.2rem;
+	border-radius: 8px;
+	border: 1px solid ${tokens.color.successBorder ?? '#15803d'};
+	background: ${tokens.color.success};
+	color: #fff;
+	cursor: pointer;
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+`;
+
+const Note = styled.p`
+	margin: 0;
+	font-size: 0.82rem;
+	line-height: 1.4;
+	color: ${tokens.color.text};
+	background: ${tokens.color.bgSubtle};
+	border: 1px solid ${tokens.color.border};
+	border-radius: 8px;
+	padding: 0.55rem 0.8rem;
+`;
+
 const defaultRedirectUri = () =>
 	typeof window !== 'undefined' ? `${window.location.origin}/v2/flows/authz-callback` : '';
 
-// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
 const MOCK_CREDS = {
 	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
 	region: 'com',
 	clientId: 'mock-hybrid-demo-1234567890',
-	clientSecret: 'mock-client-secret',
-	scope: 'openid profile email',
+	clientSecret: MOCK_REGISTERED_SECRET,
+	scope: 'openid',
 } as const;
 
 const HybridFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
-	const [spec, setSpec] = useState<OAuthSpec>('2.0');
-	const [oidc, setOidc] = useState(true);
-	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
-	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
 		clientId: env.VITE_PINGONE_USER_CLIENT_ID || '',
 		clientSecret: env.VITE_PINGONE_USER_CLIENT_SECRET || '',
-		scope: 'openid profile email',
+		scope: 'openid',
 	});
 	const [redirectUri, setRedirectUri] = useState(defaultRedirectUri());
 	const [authUrl, setAuthUrl] = useState('');
 	const [code, setCode] = useState('');
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
+	const [userInfoData, setUserInfoData] = useState<Record<string, unknown> | null>(null);
+	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 	const [loading, setLoading] = useState(false);
+
+	const { saveState, restoreState } = useFlowStorage('flows2:hybrid');
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
-	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
-
-	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
-		useFlowCredentials('flows2:hybrid', creds, setCreds);
-
-	// Auto-populate mock credentials when mode changes; clear them when switching to real.
+	// Auto-populate mock credentials when mode changes
 	useEffect(() => {
 		if (mode === 'mock') {
 			setCreds((c) => ({
@@ -100,22 +135,17 @@ const HybridFlow: React.FC = () => {
 				scope: c.scope || MOCK_CREDS.scope,
 			}));
 		} else {
-			setCreds(
-				(c) =>
-					({
-						...c,
-						environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
-						clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
-						clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
-						scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
-					}) as FlowCredentials
-			);
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
+				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
+				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : c.clientSecret ?? '',
+				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
+			} as FlowCredentials));
 		}
-		setCode('');
-		setAuthUrl('');
 	}, [mode]);
 
-	// Resume after a real redirect: the callback wrote the code into the stash.
+	// Resume after a real redirect: the callback wrote the code into the stash
 	useEffect(() => {
 		const stash = loadStash();
 		if (!stash) return;
@@ -126,10 +156,7 @@ const HybridFlow: React.FC = () => {
 		}
 		if (stash.code) {
 			if (!stash.redirectUri) {
-				setError({
-					error: 'invalid_stash',
-					error_description: 'Authorization stash missing redirect URI',
-				});
+				setError({ error: 'invalid_stash', error_description: 'Authorization stash missing redirect URI' });
 				return;
 			}
 			setMode('real');
@@ -185,7 +212,7 @@ const HybridFlow: React.FC = () => {
 				nonce,
 				codeVerifier: '', // Hybrid doesn't use PKCE by default
 				oidc: true,
-				spec,
+				spec: '2.0',
 				environmentId: creds.environmentId,
 				region: creds.region,
 				clientId: creds.clientId,
@@ -198,7 +225,7 @@ const HybridFlow: React.FC = () => {
 			setError(err as FlowError);
 			setLoading(false);
 		}
-	}, [creds, redirectUri, mode, spec, engine]);
+	}, [creds, redirectUri, mode, engine]);
 
 	const handleExchange = useCallback(async () => {
 		if (!code) return;
@@ -213,8 +240,6 @@ const HybridFlow: React.FC = () => {
 					code,
 					codeVerifier: 'pkce-not-used', // Hybrid doesn't use PKCE, but the service requires it
 					oidc: true,
-					tokenLifetimes,
-					authMethod: 'client_secret_post',
 				},
 				mode
 			);
@@ -225,9 +250,31 @@ const HybridFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [code, creds, redirectUri, mode, engine, tokenLifetimes]);
+	}, [code, creds, redirectUri, mode, engine]);
 
-	// Mock runs offline — never gate it on real credentials.
+	const handleUserInfo = useCallback(async () => {
+		if (!result?.accessToken) return;
+		setUserInfoData(await authorizationCodeService.userInfo(result.accessToken, creds, mode));
+	}, [result, creds, mode]);
+
+	const handleIntrospect = useCallback(async () => {
+		if (!result?.accessToken) return;
+		setIntrospectData(await authorizationCodeService.introspect(result.accessToken, creds, mode));
+	}, [result, creds, mode]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!code && saved.code) setCode(saved.code as string);
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState, code, result, error]);
+
+	useEffect(() => {
+		saveState({ code, result, error });
+	}, [code, result, error, saveState]);
+
 	const configured =
 		mode === 'mock'
 			? true
@@ -237,42 +284,32 @@ const HybridFlow: React.FC = () => {
 	return (
 		<FlowContainer
 			title="Hybrid Flow (OpenID Connect)"
-			spec={spec}
+			spec="2.0"
 			mode={mode}
-			onModeChange={selectMode}
 			subtitle="Front-channel returns code + ID token; back-channel exchanges code for access token. OpenID Connect extension to OAuth 2.0 (Section 3.3). A transitional flow between implicit and authorization code."
 			engine={engine}
 		>
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure"
-					explanation="Real mode runs against PingOne via the BFF; mock runs offline. The hybrid flow sends response_type=code id_token to PingOne."
+										explanation="Real mode runs against PingOne via the BFF; mock runs offline. The hybrid flow sends response_type=code id_token to PingOne."
 					canPrev={false}
 					nextLabel="Continue"
 					onNext={engine.goNext}
 					canNext={configured}
 				>
-					<FlowDiagram
-						label="OIDC Hybrid Flow"
-						nodes={['Client', 'AuthZ', 'User', 'Code + Token']}
-					/>
-					<SpecToggle
-						spec={spec}
-						onSpecChange={setSpec}
-						oidc={oidc}
-						onOidcToggle={() => setOidc((v) => !v)}
-					/>
-					<CredentialsForm
-						creds={creds}
-						set={set}
-						redirectUri={redirectUri}
-						onRedirectUriChange={(e) => setRedirectUri(e.target.value)}
-						scopePlaceholder="openid profile email"
-						onSave={saveCredentials}
-						saving={savingCreds}
-						saved={savedCreds}
-					/>
-					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={oidc} showRefreshToken={true} />
+					<Toggle>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+					</Toggle>
+					<Grid>
+						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} />
+						<FieldGroup label="Region" value={creds.region} onChange={set('region')} placeholder="com | eu | ca | asia" />
+						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} />
+						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} />
+						<FieldGroup label="Redirect URI" value={redirectUri} onChange={(e) => setRedirectUri(e.target.value)} hint="Must be registered on the PingOne app" />
+						<FieldGroup label="Scope (optional)" value={creds.scope ?? ''} onChange={set('scope')} placeholder="openid profile email" />
+					</Grid>
 					<ExplanationPanel title="Hybrid vs. Authorization Code">
 						Hybrid returns both code and ID token from the front-channel authorization endpoint,
 						saving a round-trip for the ID token. The code is then exchanged back-channel for the
@@ -285,48 +322,25 @@ const HybridFlow: React.FC = () => {
 			{cur === 'authorize' && (
 				<FlowStep
 					title="2. Authorize"
-					explanation={
-						mode === 'real'
-							? 'Builds the /as/authorize URL with response_type=code id_token and redirects you to PingOne to sign in. You return to the callback with a code and ID token.'
-							: 'Mock mode issues a code in-memory (no redirect, no PingOne). In real mode, an ID token would also be returned.'
-					}
+					explanation={mode === 'real'
+						? 'Builds the /as/authorize URL with response_type=code id_token and redirects you to PingOne to sign in. You return to the callback with a code and ID token.'
+						: 'Mock mode issues a code in-memory (no redirect, no PingOne). In real mode, an ID token would also be returned.'}
 					nextLabel="Continue"
 					onPrev={engine.goPrev}
 					onNext={() => engine.goTo(2)}
 					canNext={Boolean(code)}
 				>
-					{(() => {
-						const ep = pingoneEndpoints(creds);
-						const curlReq: CurlRequest = {
-							method: 'GET',
-							url: ep.authorize,
-							params: {
-								response_type: oidc ? 'code id_token' : 'code token',
-								client_id: creds.clientId,
-								redirect_uri: redirectUri,
-								scope: creds.scope || (oidc ? 'openid profile email' : 'profile email'),
-								state: '<generated at runtime>',
-								...(oidc ? { nonce: '<generated at runtime>' } : {}),
-							},
-						};
-						return <RequestPreview request={curlReq} />;
-					})()}
 					<Action onClick={handleAuthorize} disabled={loading || !configured}>
-						{loading
-							? 'Working…'
-							: mode === 'real'
-								? 'Authorize with PingOne →'
-								: 'Issue authorization code (mock)'}
+						{loading ? 'Working…' : mode === 'real' ? 'Authorize with PingOne →' : 'Issue authorization code (mock)'}
 					</Action>
 					{authUrl && <CodeBlock label="Authorization URL" value={authUrl} />}
 					{code && (
 						<ResultCard title="Authorization code" tone="ok">
 							<CodeBlock value={code} />
 							<Note>
-								In the hybrid flow, the authorization endpoint returns both the code and an ID token
-								in the URL query parameters. The code is exchanged back-channel for the access
-								token, while the ID token can be decoded client-side immediately for user
-								identification.
+								In the hybrid flow, the authorization endpoint returns both the code and an ID token in the
+								URL query parameters. The code is exchanged back-channel for the access token, while the ID
+								token can be decoded client-side immediately for user identification.
 							</Note>
 						</ResultCard>
 					)}
@@ -343,20 +357,6 @@ const HybridFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(result)}
 				>
-					{(() => {
-						const ep = pingoneEndpoints(creds);
-						const curlReq: CurlRequest = {
-							method: 'POST',
-							url: ep.token,
-							params: {
-								grant_type: 'authorization_code',
-								code: code || '<authorization_code>',
-								redirect_uri: redirectUri,
-								client_id: creds.clientId,
-							},
-						};
-						return <RequestPreview request={curlReq} />;
-					})()}
 					<Action onClick={handleExchange} disabled={loading || !code}>
 						{loading ? 'Exchanging…' : 'Exchange code'}
 					</Action>
@@ -373,17 +373,17 @@ const HybridFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
-					<UseTokensStep
-						result={result}
-						credentials={creds}
-						mode={mode}
-						tools={['userinfo', 'introspect', 'refresh', 'decode']}
-					/>
+					<Toggle>
+						<Action onClick={handleUserInfo} disabled={!result?.accessToken}>Call UserInfo</Action>
+						<Action onClick={handleIntrospect} disabled={!result?.accessToken}>Introspect token</Action>
+					</Toggle>
+					{userInfoData && <ResultCard title="UserInfo" tone="info"><JsonView data={userInfoData} /></ResultCard>}
+					{introspectData && <ResultCard title="Introspection (RFC 7662)" tone="info"><JsonView data={introspectData} /></ResultCard>}
 					<ExplanationPanel title="What each token does">
-						The ID token carries the user's identity (sub, name, email, …) and was decoded
-						client-side in step 2. The access token authorizes API calls to protected resources.
-						Introspection lets a resource server validate the access token. Hybrid saves a
-						round-trip by returning the ID token in the front-channel authorization response.
+						The ID token carries the user's identity (sub, name, email, …) and was decoded client-side
+						in step 2. The access token authorizes API calls to protected resources. Introspection lets a
+						resource server validate the access token. Hybrid saves a round-trip by returning the ID token
+						in the front-channel authorization response.
 					</ExplanationPanel>
 				</FlowStep>
 			)}

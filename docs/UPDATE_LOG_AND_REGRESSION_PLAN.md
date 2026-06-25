@@ -517,7 +517,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### MCP Documentation page (2026-03-13)
 
 - **What:** User requested a new Documentation page covering MCP, with links to the latest real spec and compliance verification.
-- **Fix:** (1) Created `src/pages/docs/MCPDocumentation.tsx` — explains MCP, links to official spec (modelcontextprotocol.io, 2025-11-25, GitHub repo), shows pingone-mcp-server compliance table, links to MCP Server Config and MasterFlow Agent. (2) Added route `/documentation/mcp` and sidebar entry under Documentation & Reference. (3) Updated `mcp-spec.md` to reference 2025-11-25 as latest spec.
+- **Fix:** (1) Created `src/pages/docs/MCPDocumentation.tsx` — explains MCP, links to official spec (modelcontextprotocol.io, 2025-11-25, GitHub repo), shows pingone-mcp-server compliance table, links to MCP Server Config and OAuth Playground Agent. (2) Added route `/documentation/mcp` and sidebar entry under Documentation & Reference. (3) Updated `mcp-spec.md` to reference 2025-11-25 as latest spec.
 - **Files:** `src/pages/docs/MCPDocumentation.tsx`, `src/App.tsx`, `src/config/sidebarMenuConfig.ts`, `src/contexts/PageStyleContext.tsx`, `mcp-spec.md`
 - **Regression check:** Sidebar → Documentation & Reference → MCP Documentation → page loads, spec links work, compliance table visible.
 
@@ -645,7 +645,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **What:** "List MCP tools" sometimes returned "I couldn't identify a specific PingOne operation" instead of the tool list.
 - **Fix:** (1) Added explicit patterns in server.js MCP_INTENTS list_tools: `/\blist\s+mcp\s+tools\b/i`, `/\blist\s+tools\b/i` plus existing patterns. (2) Moved list_tools to top of frontend LOCAL_PATTERNS (after worker token) in both src/services/mcpQueryService.ts and AIAssistant/src/services/mcpQueryService.ts so "List MCP tools" matches before list.\*app.
 - **Files:** `server.js`, `src/services/mcpQueryService.ts`, `AIAssistant/src/services/mcpQueryService.ts`
-- **Regression check:** MasterFlow Agent → "List MCP tools" (or "list tools", "mcp tools") → returns formatted tool list.
+- **Regression check:** OAuth Playground Agent → "List MCP tools" (or "list tools", "mcp tools") → returns formatted tool list.
 
 ### AI Assistant prompts: integration tests (2026-03-14)
 
@@ -659,70 +659,70 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **What:** "List MCP tools" used MCP_INTENTS (subset); user wanted the canonical list from the MCP server code.
 - **Fix:** (1) Added scripts/generate-mcp-tool-names.mjs — extracts tool names from pingone-mcp-server via regex on server.registerTool('name', ...). Writes pingone-mcp-server/mcp-tool-names.json. (2) server.js list_tools handler loads from mcp-tool-names.json, falls back to MCP_INTENTS if file missing. (3) npm run mcp:tools:generate to regenerate after adding tools.
 - **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
-- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json exists. "List MCP tools" in MasterFlow Agent returns 70+ tools (from MCP server source). Without file, falls back to MCP_INTENTS.
+- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json exists. "List MCP tools" in OAuth Playground Agent returns 70+ tools (from MCP server source). Without file, falls back to MCP_INTENTS.
 
 ### MCP tools list: derive from pingone-mcp-server source (2026-03-14)
 
 - **What:** "List MCP tools" should show the canonical list from the MCP server code, not a separate hardcoded list that could drift.
 - **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — extracts tool names from `server.registerTool('...')` in pingone-mcp-server/src. (2) Writes `pingone-mcp-server/mcp-tool-names.json`. (3) server.js list_tools handler reads that file; falls back to MCP_INTENTS if missing. (4) npm run mcp:tools:generate to regenerate.
 - **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
-- **Regression check:** Run `npm run mcp:tools:generate` → `List MCP tools` in MasterFlow Agent returns ~70 tools from MCP server source.
+- **Regression check:** Run `npm run mcp:tools:generate` → `List MCP tools` in OAuth Playground Agent returns ~70 tools from MCP server source.
 
 ### MCP tools list: access canonical list from MCP server code (2026-03-14)
 
 - **What:** "List MCP tools" used MCP_INTENTS only (~40 tools); actual MCP server has 70+ tools. User: "We know tools, we have admin for MCP server — access the list in the code."
 - **Fix:** (1) Script `scripts/generate-mcp-tool-names.mjs` extracts tool names from `pingone-mcp-server/src` via regex on `server.registerTool('name',`. (2) Writes `pingone-mcp-server/mcp-tool-names.json`. (3) `server.js` list_tools handler loads from that file; falls back to MCP_INTENTS if missing. (4) `npm run mcp:tools:generate` added.
 - **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
-- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json has 70+ tools. Open MasterFlow Agent → "List MCP tools" → returns full list. If file missing → falls back to MCP_INTENTS.
+- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json has 70+ tools. Open OAuth Playground Agent → "List MCP tools" → returns full list. If file missing → falls back to MCP_INTENTS.
 
 ### MCP List tools: read from MCP server source (2026-03-14)
 
 - **What:** "List MCP tools" should use the canonical tool list from the MCP server code, not a separate MCP_INTENTS subset.
 - **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — extracts tool names from `server.registerTool('name',` in pingone-mcp-server sources, writes `pingone-mcp-server/mcp-tool-names.json`. (2) server.js list_tools handler loads from mcp-tool-names.json; falls back to MCP_INTENTS if file missing. (3) npm run mcp:tools:generate to regenerate.
 - **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
-- **Regression check:** Run `npm run mcp:tools:generate` → List MCP tools in MasterFlow Agent returns ~70 tools from MCP server. If JSON missing, falls back to MCP_INTENTS.
+- **Regression check:** Run `npm run mcp:tools:generate` → List MCP tools in OAuth Playground Agent returns ~70 tools from MCP server. If JSON missing, falls back to MCP_INTENTS.
 
 ### MCP tools list: derive from server source (2026-03-14)
 
 - **What:** "List MCP tools" should return the canonical list from the MCP server code, not a separate hardcoded list in server.js.
 - **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — extracts tool names from `pingone-mcp-server/src` via regex on `server.registerTool('...')`. (2) Writes `pingone-mcp-server/mcp-tool-names.json`. (3) server.js `list_tools` handler loads from that file; falls back to MCP_INTENTS if file missing. (4) Added `npm run mcp:tools:generate`.
 - **Files:** `scripts/generate-mcp-tool-names.mjs`, `server.js`, `package.json`, `pingone-mcp-server/mcp-tool-names.json`
-- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json has 70+ tools. "List MCP tools" in MasterFlow Agent returns that list.
+- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json has 70+ tools. "List MCP tools" in OAuth Playground Agent returns that list.
 
 ### MCP tools list: access from MCP server source (2026-03-14)
 
 - **What:** User wanted the tool list to come from the MCP server code (admin controls it) instead of a duplicated list.
 - **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — extracts tool names from `pingone-mcp-server/src` via regex on `server.registerTool('name',` and writes `pingone-mcp-server/mcp-tool-names.json`. (2) server.js list_tools handler loads from that file; falls back to MCP_INTENTS if missing. (3) `npm run mcp:tools:generate` to regenerate.
 - **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
-- **Regression check:** Run `npm run mcp:tools:generate` → 70 tools in mcp-tool-names.json. Open MasterFlow Agent → "List MCP tools" → returns full list from MCP server source.
+- **Regression check:** Run `npm run mcp:tools:generate` → 70 tools in mcp-tool-names.json. Open OAuth Playground Agent → "List MCP tools" → returns full list from MCP server source.
 
 ### MCP: List tools from server source (2026-03-14)
 
 - **What:** "List MCP tools" should use the canonical tool list from the MCP server code, not a duplicate in server.js.
 - **Fix:** Added `scripts/generate-mcp-tool-names.mjs` to extract tool names from `server.registerTool('...')` in pingone-mcp-server; outputs `pingone-mcp-server/mcp-tool-names.json`. Server.js list_tools handler loads from that file (fallback to MCP_INTENTS if missing). Run `npm run mcp:tools:generate` when adding tools to the MCP server.
 - **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
-- **Regression check:** Run `npm run mcp:tools:generate` → "List MCP tools" in MasterFlow Agent returns 70+ tools from the JSON. Add a tool to MCP server → regenerate → list includes it.
+- **Regression check:** Run `npm run mcp:tools:generate` → "List MCP tools" in OAuth Playground Agent returns 70+ tools from the JSON. Add a tool to MCP server → regenerate → list includes it.
 
 ### MCP tools list: source from MCP server code (2026-03-14)
 
 - **What:** User wanted "List MCP tools" to use the canonical tool list from the MCP server code (single source of truth).
 - **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — scans `pingone-mcp-server/src` for `server.registerTool('name', ...)` and writes `pingone-mcp-server/mcp-tool-names.json`. (2) server.js list_tools handler reads that JSON; falls back to MCP_INTENTS if file missing. (3) npm script `mcp:tools:generate` runs the extractor.
 - **Files:** `scripts/generate-mcp-tool-names.mjs`, `server.js`, `package.json`, `pingone-mcp-server/mcp-tool-names.json`
-- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json has ~70 tools. Open MasterFlow Agent → "List MCP tools" → returns full list from MCP server. Add a new tool in pingone-mcp-server → regenerate → list_tools shows it.
+- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json has ~70 tools. Open OAuth Playground Agent → "List MCP tools" → returns full list from MCP server. Add a new tool in pingone-mcp-server → regenerate → list_tools shows it.
 
 ### MCP tools list: access from MCP server code (2026-03-14)
 
 - **What:** "List MCP tools" should return the canonical list from the MCP server source, not a separate hardcoded list.
 - **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — scans `pingone-mcp-server/src` for `server.registerTool('name', ...)` and writes `pingone-mcp-server/mcp-tool-names.json`. (2) server.js list_tools handler reads that JSON; falls back to MCP_INTENTS if file missing. (3) Added `npm run mcp:tools:generate`.
 - **Files:** `scripts/generate-mcp-tool-names.mjs`, `server.js`, `package.json`, `pingone-mcp-server/mcp-tool-names.json`
-- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json has 70+ tools. "List MCP tools" in MasterFlow Agent returns full list. Add new tool in MCP server → regenerate → list updates.
+- **Regression check:** Run `npm run mcp:tools:generate` → mcp-tool-names.json has 70+ tools. "List MCP tools" in OAuth Playground Agent returns full list. Add new tool in MCP server → regenerate → list updates.
 
 ### MCP tools list: access from MCP server code (2026-03-14)
 
 - **What:** "List MCP tools" should use the canonical tool list from the MCP server codebase, not a separate hardcoded list.
 - **Fix:** (1) Added `scripts/generate-mcp-tool-names.mjs` — scans `pingone-mcp-server/src` for `server.registerTool('name', ...)` and extracts tool names. (2) Writes `pingone-mcp-server/mcp-tool-names.json`. (3) server.js list_tools handler loads from that file (fallback to MCP_INTENTS if missing). (4) `npm run mcp:tools:generate` regenerates the list. Run after adding tools to the MCP server.
 - **Files:** `scripts/generate-mcp-tool-names.mjs`, `pingone-mcp-server/mcp-tool-names.json`, `server.js`, `package.json`
-- **Regression check:** Run `npm run mcp:tools:generate` → List MCP tools in MasterFlow Agent returns ~70 tools. Add a tool to MCP server → regenerate → list includes new tool.
+- **Regression check:** Run `npm run mcp:tools:generate` → List MCP tools in OAuth Playground Agent returns ~70 tools. Add a tool to MCP server → regenerate → list includes new tool.
 
 ### MCP: List tools from server source (2026-03-14)
 
@@ -736,14 +736,14 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **What:** User found it hard to see when a worker token was obtained successfully.
 - **Fix:** McpResultCard accepts `$isTokenSuccess`; when `pingone_get_worker_token` && success, card uses green background, green border, and box-shadow. Added McpSuccessBadge "✓ Token ready" in the header (margin-left: auto for prominence). Applied in main and standalone AIAssistant.
 - **Files:** `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`
-- **Regression check:** MasterFlow Agent → Live on + credentials → "Get worker token" → MCP result card shows green styling and "✓ Token ready" badge.
+- **Regression check:** OAuth Playground Agent → Live on + credentials → "Get worker token" → MCP result card shows green styling and "✓ Token ready" badge.
 
-### AI Assistant: rename to MasterFlow Agent (2026-03)
+### AI Assistant: rename to OAuth Playground Agent (2026-03)
 
-- **What:** User requested the assistant be renamed from "OAuth Assistant" to "MasterFlow Agent".
+- **What:** User requested the assistant be renamed from "OAuth Assistant" to "OAuth Playground Agent".
 - **Fix:** Updated all user-facing labels: HeaderTitle in main and standalone AIAssistant, sidebar menu (AI & Identity), Navbar link title, floating button aria-label, App comment.
 - **Files:** `src/components/AIAssistant.tsx`, `AIAssistant/src/components/AIAssistant.tsx`, `src/config/sidebarMenuConfig.ts`, `src/components/Navbar.tsx`, `src/App.tsx`
-- **Regression check:** Sidebar → AI & Identity → "MasterFlow Agent" goes to /ai-assistant. Navbar link shows "MasterFlow Agent" on hover. Chat header shows "MasterFlow Agent". Standalone app header shows "MasterFlow Agent".
+- **Regression check:** Sidebar → AI & Identity → "OAuth Playground Agent" goes to /ai-assistant. Navbar link shows "OAuth Playground Agent" on hover. Chat header shows "OAuth Playground Agent". Standalone app header shows "OAuth Playground Agent".
 
 ### AI Assistant: side panel visible on full page, floating button hides when tab hidden (2026-03-13)
 

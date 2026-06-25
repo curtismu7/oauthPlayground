@@ -12,6 +12,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CredentialsForm } from '../framework/CredentialsForm';
 import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import { RequestPreview } from '../framework/RequestPreview';
 import type { CurlRequest } from '../framework/RequestPreview';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
@@ -53,7 +54,7 @@ const MOCK_CREDS = {
 	region: 'com',
 	clientId: 'mock-client-demo-1234567890',
 	clientSecret: 'mock-client-secret',
-	scope: 'openid profile',
+	scope: 'openid',
 } as const;
 
 const MOCK_REFRESH_TOKEN = 'mock-refresh-token-for-demo-use-only';
@@ -113,7 +114,7 @@ const RefreshTokenFlow: React.FC = () => {
 		region: env.VITE_PINGONE_REGION || 'com',
 		clientId: env.VITE_PINGONE_USER_CLIENT_ID || '',
 		clientSecret: env.VITE_PINGONE_USER_CLIENT_SECRET || '',
-		scope: 'openid profile',
+		scope: 'openid',
 		authMethod: 'client_secret_post',
 	});
 	const [inputRefreshToken, setInputRefreshToken] = useState('');
@@ -128,6 +129,8 @@ const RefreshTokenFlow: React.FC = () => {
 
 	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
 		useFlowCredentials('flows2:refresh-token', creds, setCreds);
+
+	const { saveState, restoreState } = useFlowStorage('flows2:refresh-token');
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -153,6 +156,15 @@ const RefreshTokenFlow: React.FC = () => {
 		}
 	}, [mode]);
 
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!inputRefreshToken && saved.inputRefreshToken) setInputRefreshToken(saved.inputRefreshToken as string);
+			if (!result && saved.result) setResult(saved.result as RefreshResult | null);
+			if (!error && saved.error) setError(saved.error as FlowError | null);
+		});
+	}, [restoreState]);
+
 	const doRefresh = useCallback(async () => {
 		setLoading(true);
 		setError(null);
@@ -167,6 +179,10 @@ const RefreshTokenFlow: React.FC = () => {
 			setLoading(false);
 		}
 	}, [creds, inputRefreshToken, mode, engine, tokenLifetimes]);
+
+	useEffect(() => {
+		saveState({ inputRefreshToken, result, error });
+	}, [inputRefreshToken, result, error, saveState]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured =

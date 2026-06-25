@@ -10,50 +10,36 @@
 // Real redirect: window.location.assign → PingOne → /v2/flows/implicit-hybrid-callback
 //   (the dedicated FRAGMENT callback) → stash result → navigate back here.
 // Mock: fragment params generated offline, stash written immediately.
-//
-// FLAG: PingOne may not support the implicit/hybrid grant in real mode depending
-// on your application settings. Both flows are removed in OAuth 2.1 (RFC 9700).
-// The mock path is always safe; real mode requires a PingOne app configured for
-// response_type=token or response_type=code id_token.
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { CodeBlock, JsonView } from '../framework/CodeBlock';
-import { RequestPreview } from '../framework/RequestPreview';
-import type { CurlRequest } from '../framework/RequestPreview';
-import { CredentialsForm } from '../framework/CredentialsForm';
-import { useFlowCredentials } from '../framework/useFlowCredentials';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FlowContainer } from '../framework/FlowContainer';
-import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { Action, Pill, Toggle } from '../framework/primitives';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import { FieldGroup } from '../framework/FieldGroup';
+import { CodeBlock, JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
-import { SpecToggle } from '../framework/SpecToggle';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { tokens } from '../framework/tokens';
-import { TokenLifetimeConfig, type TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import type {
 	FlowCredentials,
 	FlowError,
 	FlowMode,
-	OAuthSpec,
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
-import { UseTokensStep } from '../framework/UseTokensStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import {
-	type FragmentParams,
-	type ImplicitHybridSubMode,
-	implicitHybridService,
-} from '../services/implicitHybridService';
-import { pingoneEndpoints } from '../services/pingone';
 import {
 	IH_PENDING_KEY,
 	IH_RESULT_KEY,
 	type ImplicitHybridPending,
 } from './ImplicitHybridCallback';
+import { useFlowStorage } from '../framework/useFlowStorage';
+import {
+	implicitHybridService,
+	type FragmentParams,
+	type ImplicitHybridSubMode,
+} from '../services/implicitHybridService';
 
 // ── Step definitions ─────────────────────────────────────────────────────────
 
@@ -64,7 +50,49 @@ const STEPS: StepDefinition[] = [
 	{ id: 'explain', title: 'Inspect', subtitle: 'Why this flow is retired' },
 ];
 
-// ── Local styled component (security warning banner — not in primitives) ─────
+// ── Styled components ────────────────────────────────────────────────────────
+
+const Toggle = styled.div`
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+`;
+
+const Pill = styled.button<{ $active: boolean }>`
+	font-size: 0.82rem;
+	font-weight: 600;
+	padding: 0.4rem 0.9rem;
+	border-radius: 8px;
+	cursor: pointer;
+	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
+	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
+	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
+`;
+
+const Grid = styled.div`
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.9rem;
+	@media (max-width: 640px) {
+		grid-template-columns: 1fr;
+	}
+`;
+
+const Action = styled.button`
+	align-self: flex-start;
+	font-size: 0.9rem;
+	font-weight: 700;
+	padding: 0.6rem 1.2rem;
+	border-radius: 8px;
+	border: 1px solid ${tokens.color.successBorder};
+	background: ${tokens.color.success};
+	color: #fff;
+	cursor: pointer;
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+`;
 
 const WarnBanner = styled.div`
 	background: #fef9c3;
@@ -86,21 +114,11 @@ const defaultRedirectUri = () =>
 		? `${window.location.origin}/v2/flows/implicit-hybrid-callback`
 		: '';
 
-// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
-const MOCK_CREDS = {
-	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
-	region: 'com',
-	clientId: 'mock-client-demo-1234567890',
-	clientSecret: 'mock-client-secret',
-	scope: 'openid profile email',
-} as const;
-
 // ── Component ────────────────────────────────────────────────────────────────
 
 const ImplicitHybridFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
-	const [spec, setSpec] = useState<OAuthSpec>('2.0');
 	const [subMode, setSubMode] = useState<ImplicitHybridSubMode>('implicit');
 	const [oidc, setOidc] = useState(true);
 	const [creds, setCreds] = useState<FlowCredentials>({
@@ -116,41 +134,11 @@ const ImplicitHybridFlow: React.FC = () => {
 	const [exchangeResult, setExchangeResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
-	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
-	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
+
+	const { saveState, restoreState } = useFlowStorage('flows2:implicit-hybrid');
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
-
-	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
-
-	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
-		useFlowCredentials('flows2:implicit-hybrid', creds, setCreds);
-
-	// Auto-populate mock credentials when mode changes; clear them when switching to real.
-	useEffect(() => {
-		if (mode === 'mock') {
-			setCreds((c) => ({
-				...c,
-				environmentId: c.environmentId || MOCK_CREDS.environmentId,
-				region: c.region || MOCK_CREDS.region,
-				clientId: c.clientId || MOCK_CREDS.clientId,
-				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
-				scope: c.scope || MOCK_CREDS.scope,
-			}));
-		} else {
-			setCreds((c) => ({
-				...c,
-				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
-				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
-				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
-				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
-			}));
-		}
-		setFragmentParams(null);
-		setAuthUrl('');
-		setExchangeResult(null);
-	}, [mode]);
 
 	// Resume after the real redirect: the dedicated callback wrote the fragment
 	// params into sessionStorage under IH_RESULT_KEY and navigate()d back here.
@@ -172,27 +160,18 @@ const ImplicitHybridFlow: React.FC = () => {
 		try {
 			const params = JSON.parse(raw) as FragmentParams;
 			if (!params.state) {
-				setError({
-					error: 'missing_state',
-					error_description: 'Authorization response missing state parameter.',
-				});
+				setError({ error: 'missing_state', error_description: 'Authorization response missing state parameter.' });
 				return;
 			}
 			if (!params.access_token && !params.code) {
-				setError({
-					error: 'missing_token',
-					error_description: 'Authorization response missing access_token or code.',
-				});
+				setError({ error: 'missing_token', error_description: 'Authorization response missing access_token or code.' });
 				return;
 			}
 			setFragmentParams(params);
 			engine.markComplete('authorize');
 			engine.goTo(2); // result step
 		} catch (_err) {
-			setError({
-				error: 'parse_error',
-				error_description: 'Failed to parse authorization response.',
-			});
+			setError({ error: 'parse_error', error_description: 'Failed to parse authorization response.' });
 		}
 	}, [engine]);
 
@@ -252,8 +231,7 @@ const ImplicitHybridFlow: React.FC = () => {
 		if (!fragmentParams?.code) {
 			setError({
 				error: 'missing_code',
-				error_description:
-					'Authorization code not found. The authorization response may have been truncated or corrupted. Try starting the flow again.',
+				error_description: 'Authorization code not found. The authorization response may have been truncated or corrupted. Try starting the flow again.',
 			});
 			return;
 		}
@@ -266,9 +244,7 @@ const ImplicitHybridFlow: React.FC = () => {
 					redirectUri,
 					code: fragmentParams.code,
 				},
-				mode,
-				tokenLifetimes,
-				creds.authMethod
+				mode
 			);
 			setExchangeResult(result);
 		} catch (err) {
@@ -276,27 +252,35 @@ const ImplicitHybridFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [fragmentParams, creds, redirectUri, mode, tokenLifetimes]);
+	}, [fragmentParams, creds, redirectUri, mode]);
 
-	// Mock runs offline — never gate it on real credentials.
-	const configured =
-		mode === 'mock'
-			? true
-			: Boolean(
-					creds.environmentId &&
-						creds.clientId &&
-						redirectUri &&
-						(subMode === 'implicit' || creds.clientSecret)
-				);
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!fragmentParams && saved.fragmentParams) setFragmentParams(saved.fragmentParams as typeof fragmentParams);
+			if (!exchangeResult && saved.exchangeResult) setExchangeResult(saved.exchangeResult as typeof exchangeResult);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState, fragmentParams, exchangeResult, error]);
+
+	useEffect(() => {
+		saveState({ fragmentParams, exchangeResult, error });
+	}, [fragmentParams, exchangeResult, error, saveState]);
+
+	const configured = Boolean(
+		creds.environmentId &&
+		creds.clientId &&
+		redirectUri &&
+		(subMode === 'implicit' || creds.clientSecret)
+	);
 
 	const cur = engine.current.id;
 
 	return (
 		<FlowContainer
 			title="Implicit + Hybrid (Legacy)"
-			spec={spec}
+			spec="2.0"
 			mode={mode}
-			onModeChange={selectMode}
 			subtitle="Access tokens returned directly in the URL fragment. Implicit is removed in OAuth 2.1 (RFC 9700); hybrid is a transitional pattern. Both are presented for educational purposes — do not use in new applications."
 			engine={engine}
 		>
@@ -310,22 +294,15 @@ const ImplicitHybridFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
-					<FlowDiagram
-						label="OIDC Implicit / Hybrid"
-						nodes={['Client', 'AuthZ', 'User', 'Tokens']}
-					/>
-
 					<WarnBanner>
-						Legacy flows — educational use only. Implicit is removed in OAuth 2.1. Use Authorization
-						Code + PKCE for all new applications.
+						Legacy flows — educational use only. Implicit is removed in OAuth 2.1. Use
+						Authorization Code + PKCE for all new applications.
 					</WarnBanner>
 
-					<SpecToggle
-						spec={spec}
-						onSpecChange={setSpec}
-						oidc={oidc}
-						onOidcToggle={() => setOidc((v) => !v)}
-					/>
+					<Toggle>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+					</Toggle>
 
 					<Toggle>
 						<Pill $active={subMode === 'implicit'} onClick={() => setSubMode('implicit')}>
@@ -334,21 +311,46 @@ const ImplicitHybridFlow: React.FC = () => {
 						<Pill $active={subMode === 'hybrid'} onClick={() => setSubMode('hybrid')}>
 							Hybrid
 						</Pill>
+						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>
+							OIDC {oidc ? 'on' : 'off'}
+						</Pill>
 					</Toggle>
 
-					<CredentialsForm
-						creds={creds}
-						set={set}
-						redirectUri={redirectUri}
-						onRedirectUriChange={(e) => setRedirectUri(e.target.value)}
-						scopePlaceholder={oidc ? 'openid profile email' : 'openid'}
-						showSecret={subMode === 'hybrid'}
-						onSave={saveCredentials}
-						saving={savingCreds}
-						saved={savedCreds}
-					/>
-
-					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={oidc} showRefreshToken={false} />
+					<Grid>
+						<FieldGroup
+							label="Environment ID"
+							value={creds.environmentId}
+							onChange={set('environmentId')}
+						/>
+						<FieldGroup
+							label="Region"
+							value={creds.region}
+							onChange={set('region')}
+							placeholder="com | eu | ca | asia"
+						/>
+						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} />
+						{subMode === 'hybrid' && (
+							<FieldGroup
+								label="Client Secret"
+								type="password"
+								value={creds.clientSecret ?? ''}
+								onChange={set('clientSecret')}
+								hint="Required for the hybrid back-channel code exchange"
+							/>
+						)}
+						<FieldGroup
+							label="Redirect URI"
+							value={redirectUri}
+							onChange={(e) => setRedirectUri(e.target.value)}
+							hint="Must be registered on the PingOne app; receives the fragment"
+						/>
+						<FieldGroup
+							label="Scope (optional)"
+							value={creds.scope ?? ''}
+							onChange={set('scope')}
+							placeholder={oidc ? 'openid profile email' : 'openid'}
+						/>
+					</Grid>
 				</FlowStep>
 			)}
 
@@ -365,23 +367,6 @@ const ImplicitHybridFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(fragmentParams)}
 				>
-					{(() => {
-						const ep = pingoneEndpoints(creds);
-						const responseType = subMode === 'hybrid' ? 'code token' : (oidc ? 'id_token token' : 'token');
-						const curlReq: CurlRequest = {
-							method: 'GET',
-							url: ep.authorize,
-							params: {
-								response_type: responseType,
-								client_id: creds.clientId,
-								redirect_uri: redirectUri,
-								scope: creds.scope || (oidc ? 'openid profile email' : 'profile email'),
-								state: '<generated at runtime>',
-								...(oidc ? { nonce: '<generated at runtime>' } : {}),
-							},
-						};
-						return <RequestPreview request={curlReq} />;
-					})()}
 					<Action onClick={handleAuthorize} disabled={loading || !configured}>
 						{loading
 							? 'Working…'
@@ -408,12 +393,6 @@ const ImplicitHybridFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext
 				>
-					<UseTokensStep
-						result={exchangeResult}
-						credentials={creds}
-						mode={mode}
-						tools={['userinfo', 'introspect', 'refresh', 'decode']}
-					/>
 					{fragmentParams && (
 						<ResultCard title="Fragment params (#…)" tone="ok">
 							<JsonView data={fragmentParams} />
@@ -422,7 +401,10 @@ const ImplicitHybridFlow: React.FC = () => {
 
 					{subMode === 'hybrid' && (
 						<>
-							<Action onClick={handleExchange} disabled={loading || !fragmentParams?.code}>
+							<Action
+								onClick={handleExchange}
+								disabled={loading || !fragmentParams?.code}
+							>
 								{loading ? 'Exchanging…' : 'Exchange code (back-channel)'}
 							</Action>
 							{exchangeResult && (
@@ -450,9 +432,9 @@ const ImplicitHybridFlow: React.FC = () => {
 					<ExplanationPanel title="Why implicit was removed (OAuth 2.1)" defaultOpen>
 						<ul>
 							<li>
-								<strong>Tokens exposed in the URL.</strong> The fragment leaks into browser history,
-								server logs, and Referer headers. Any script or extension on the page can read
-								window.location.hash.
+								<strong>Tokens exposed in the URL.</strong> The fragment leaks into browser
+								history, server logs, and Referer headers. Any script or extension on the page can
+								read window.location.hash.
 							</li>
 							<li>
 								<strong>No client authentication.</strong> The authorization server cannot verify
@@ -463,8 +445,8 @@ const ImplicitHybridFlow: React.FC = () => {
 								authorization response immediately yields a usable token.
 							</li>
 							<li>
-								<strong>No refresh tokens.</strong> Access tokens must be long-lived, increasing the
-								window of exposure for any leakage.
+								<strong>No refresh tokens.</strong> Access tokens must be long-lived,
+								increasing the window of exposure for any leakage.
 							</li>
 						</ul>
 					</ExplanationPanel>
@@ -472,19 +454,19 @@ const ImplicitHybridFlow: React.FC = () => {
 					<ExplanationPanel title="Why hybrid is a transitional pattern" defaultOpen>
 						<ul>
 							<li>
-								<strong>Code in the front channel.</strong> Hybrid sends the authorization code in
-								the fragment, where it is still exposed to the browser — the same risk profile as
-								implicit.
+								<strong>Code in the front channel.</strong> Hybrid sends the authorization code
+								in the fragment, where it is still exposed to the browser — the same risk profile
+								as implicit.
 							</li>
 							<li>
-								<strong>Immediate id_token for identity.</strong> The id_token in the fragment lets
-								the app display who the user is before the back-channel code exchange completes. The
-								c_hash claim cryptographically binds the id_token to the code.
+								<strong>Immediate id_token for identity.</strong> The id_token in the fragment
+								lets the app display who the user is before the back-channel code exchange
+								completes. The c_hash claim cryptographically binds the id_token to the code.
 							</li>
 							<li>
 								<strong>Better than implicit, worse than auth code.</strong> Hybrid trades some
-								security for reduced round-trips. RFC 9700 recommends against it; use Authorization
-								Code + PKCE with OIDC instead.
+								security for reduced round-trips. RFC 9700 recommends against it; use
+								Authorization Code + PKCE with OIDC instead.
 							</li>
 						</ul>
 					</ExplanationPanel>
@@ -492,9 +474,9 @@ const ImplicitHybridFlow: React.FC = () => {
 					<ExplanationPanel title="What to use instead">
 						Use <strong>Authorization Code + PKCE</strong> (response_type=code,
 						response_mode=query). Tokens are only returned from the token endpoint over a
-						server-to-server TLS connection — never visible in the URL. PKCE binds the code to the
-						client without a client secret, making it safe for public clients (SPAs, mobile apps)
-						and confidential clients alike.
+						server-to-server TLS connection — never visible in the URL. PKCE binds the code to
+						the client without a client secret, making it safe for public clients (SPAs, mobile
+						apps) and confidential clients alike.
 					</ExplanationPanel>
 				</FlowStep>
 			)}

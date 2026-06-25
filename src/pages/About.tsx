@@ -419,7 +419,7 @@ export default function About() {
 					<FeatureCard $accent="#2563eb">
 						<h4>
 							<FiCpu size={16} />
-							MasterFlow Agent (MCP)
+							OAuth Playground Agent (MCP)
 						</h4>
 						<ul>
 							<li>Built-in AI assistant powered by Model Context Protocol</li>

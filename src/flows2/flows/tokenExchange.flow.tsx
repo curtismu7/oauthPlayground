@@ -4,54 +4,30 @@
 // actor token) is exchanged for a narrowed / delegated token; when an actor token is present
 // the BFF enforces the subject's may_act rule and the issued token carries an act claim.
 // Uses the shared flows2 primitives for visual parity with the other flows.
-//
-// FLAG: PingOne real support for RFC 8693 token exchange is limited — it requires a custom
-// resource server and the VITE_PINGONE_TOKEN_EXCHANGE_SCOPE env var to be set. The mock
-// path runs fully offline and is always reliable.
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { JsonView } from '../framework/CodeBlock';
-import { RequestPreview } from '../framework/RequestPreview';
-import type { CurlRequest } from '../framework/RequestPreview';
-import { CredentialsForm } from '../framework/CredentialsForm';
-import { useFlowCredentials } from '../framework/useFlowCredentials';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
-import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { Action, Pill, Toggle } from '../framework/primitives';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import { FieldGroup } from '../framework/FieldGroup';
+import { JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
-import { SpecToggle } from '../framework/SpecToggle';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
 	FlowCredentials,
 	FlowError,
 	FlowMode,
-	OAuthSpec,
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
-import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
-import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
-import { UseTokensStep } from '../framework/UseTokensStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { pingoneEndpoints } from '../services/pingone';
-import { type MayActResult, tokenExchangeService as svc } from '../services/tokenExchangeService';
+import { tokenExchangeService as svc, type MayActResult } from '../services/tokenExchangeService';
+import { useFlowStorage } from '../framework/useFlowStorage';
 
 const env = import.meta.env as Record<string, string | undefined>;
-
-// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
-const MOCK_CREDS = {
-	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
-	region: 'com',
-	clientId: 'mock-client-demo-1234567890',
-	clientSecret: 'mock-client-secret',
-	scope: 'access',
-} as const;
 
 const STEPS: StepDefinition[] = [
 	{ id: 'configure', title: 'Configure', subtitle: 'Subject + actor tokens' },
@@ -59,88 +35,87 @@ const STEPS: StepDefinition[] = [
 	{ id: 'inspect', title: 'Inspect', subtitle: 'Introspect the result' },
 ];
 
-// SecondaryAction is unique to this flow — not part of shared primitives.
+const Grid = styled.div`
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.9rem;
+	@media (max-width: 640px) {
+		grid-template-columns: 1fr;
+	}
+`;
+
+const Toggle = styled.div`
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+`;
+
+const Pill = styled.button<{ $active: boolean }>`
+	font-size: 0.82rem;
+	font-weight: 600;
+	padding: 0.4rem 0.9rem;
+	border-radius: 8px;
+	cursor: pointer;
+	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
+	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
+	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
+`;
+
+const Action = styled.button`
+	align-self: flex-start;
+	font-size: 0.9rem;
+	font-weight: 700;
+	padding: 0.6rem 1.2rem;
+	border-radius: 8px;
+	border: 1px solid ${tokens.color.successBorder};
+	background: ${tokens.color.success};
+	color: #fff;
+	cursor: pointer;
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+`;
+
 const SecondaryAction = styled(Action)`
 	border-color: ${tokens.color.primaryBorder};
 	background: ${tokens.color.primary};
-	&:hover:not(:disabled) {
-		background: ${tokens.color.primaryHover};
-		transform: translateY(-1px);
-	}
 `;
 
 const TokenExchangeFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
-	const [spec, setSpec] = useState<OAuthSpec>('2.0');
-	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
-	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
 		clientId: env.VITE_PINGONE_TOKEN_EXCHANGE_CLIENT_ID || env.VITE_PINGONE_WORKER_CLIENT_ID || '',
-		clientSecret:
-			env.VITE_PINGONE_TOKEN_EXCHANGE_CLIENT_SECRET || env.VITE_PINGONE_WORKER_CLIENT_SECRET || '',
+		clientSecret: env.VITE_PINGONE_TOKEN_EXCHANGE_CLIENT_SECRET || env.VITE_PINGONE_WORKER_CLIENT_SECRET || '',
 		authMethod: 'client_secret_post',
 	});
 	const [subjectToken, setSubjectToken] = useState('');
 	const [actorToken, setActorToken] = useState('');
 	// PingOne token exchange only issues tokens for custom resources, so default the
 	// requested scope to the OAuth Playground custom-resource scope.
-	const [requestedScopes, setRequestedScopes] = useState(
-		env.VITE_PINGONE_TOKEN_EXCHANGE_SCOPE || 'access'
-	);
+	const [requestedScopes, setRequestedScopes] = useState(env.VITE_PINGONE_TOKEN_EXCHANGE_SCOPE || 'access');
 	const [audience, setAudience] = useState('');
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [mayAct, setMayAct] = useState<MayActResult | null>(null);
+	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
-	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
-
-	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
-		useFlowCredentials('flows2:token-exchange', creds, setCreds);
-
-	// Auto-populate mock credentials when mode changes; clear them when switching to real.
-	useEffect(() => {
-		if (mode === 'mock') {
-			setCreds((c) => ({
-				...c,
-				environmentId: c.environmentId || MOCK_CREDS.environmentId,
-				region: c.region || MOCK_CREDS.region,
-				clientId: c.clientId || MOCK_CREDS.clientId,
-				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
-			}));
-		} else {
-			setCreds((c) => ({
-				...c,
-				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
-				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
-				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
-			}));
-		}
-	}, [mode]);
+	const { saveState, restoreState } = useFlowStorage('flows2:token-exchange');
 
 	const run = useCallback(async () => {
 		setLoading(true);
 		setError(null);
 		setResult(null);
+		setIntrospectData(null);
 		try {
-			const r = await svc.run(
-				{
-					credentials: creds,
-					subjectToken,
-					actorToken: actorToken || undefined,
-					requestedScopes,
-					audience,
-					tokenLifetimes,
-					authMethod: creds.authMethod,
-				},
-				mode
-			);
+			const r = await svc.run({ credentials: creds, subjectToken, actorToken: actorToken || undefined, requestedScopes, audience }, mode);
 			setResult(r);
 			engine.markComplete('exchange');
 		} catch (err) {
@@ -148,24 +123,43 @@ const TokenExchangeFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, subjectToken, actorToken, requestedScopes, audience, mode, engine, tokenLifetimes]);
+	}, [creds, subjectToken, actorToken, requestedScopes, audience, mode, engine]);
 
 	const checkDelegation = useCallback(async () => {
 		if (!subjectToken || !actorToken) return;
 		setMayAct(await svc.validateMayAct(subjectToken, actorToken, mode));
 	}, [subjectToken, actorToken, mode]);
 
-	// Mock runs offline — never gate it on real credentials.
-	const configured =
-		mode === 'mock' ? true : Boolean(creds.environmentId && creds.clientId && subjectToken);
+	const inspect = useCallback(async () => {
+		if (!result?.accessToken) return;
+		setIntrospectData(await svc.introspect(result.accessToken, creds, mode));
+		engine.markComplete('inspect');
+	}, [result, creds, mode, engine]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!subjectToken && saved.subjectToken) setSubjectToken(saved.subjectToken as string);
+			if (!actorToken && saved.actorToken) setActorToken(saved.actorToken as string);
+			if (!requestedScopes && saved.requestedScopes) setRequestedScopes(saved.requestedScopes as string);
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+			if (!mayAct && saved.mayAct) setMayAct(saved.mayAct as typeof mayAct);
+		});
+	}, [restoreState]);
+
+	useEffect(() => {
+		saveState({ subjectToken, actorToken, requestedScopes, result, error, mayAct });
+	}, [subjectToken, actorToken, requestedScopes, result, error, mayAct, saveState]);
+
+	const configured = Boolean(creds.environmentId && creds.clientId && subjectToken);
 	const cur = engine.current.id;
 
 	return (
 		<FlowContainer
 			title="Token Exchange"
-			spec={spec}
+			spec="2.0"
 			mode={mode}
-			onModeChange={selectMode}
 			subtitle="Delegation / on-behalf-of (RFC 8693). A subject token is exchanged for a narrowed token; with an actor token the subject's may_act rule is enforced and the issued token carries an act claim."
 			engine={engine}
 		>
@@ -178,11 +172,10 @@ const TokenExchangeFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
-					<FlowDiagram
-						label="OAuth 2.0 Token Exchange"
-						nodes={['Subject Token', 'Token EP', 'Exchanged Token']}
-					/>
-					<SpecToggle spec={spec} onSpecChange={setSpec} />
+					<Toggle>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+					</Toggle>
 					<Toggle>
 						{(['client_secret_post', 'client_secret_basic'] as ClientAuthMethod[]).map((m) => (
 							<Pill
@@ -194,27 +187,14 @@ const TokenExchangeFlow: React.FC = () => {
 							</Pill>
 						))}
 					</Toggle>
-					<CredentialsForm
-						creds={creds}
-						set={set}
-						showScope={false}
-						onSave={saveCredentials}
-						saving={savingCreds}
-						saved={savedCreds}
-					/>
-					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={false} showRefreshToken={false} />
-					<FieldGroup
-						label="Requested scopes (optional)"
-						value={requestedScopes}
-						onChange={(e) => setRequestedScopes(e.target.value)}
-						placeholder="narrow the issued token"
-					/>
-					<FieldGroup
-						label="Audience (optional, RFC 8707)"
-						value={audience}
-						onChange={(e) => setAudience(e.target.value)}
-						placeholder="target resource"
-					/>
+					<Grid>
+						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} placeholder="uuid" />
+						<FieldGroup label="Region" value={creds.region} onChange={set('region')} placeholder="com | eu | ca | asia" />
+						<FieldGroup label="Client ID (requesting client)" value={creds.clientId} onChange={set('clientId')} placeholder="client id" />
+						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} placeholder="client secret" />
+						<FieldGroup label="Requested scopes (optional)" value={requestedScopes} onChange={(e) => setRequestedScopes(e.target.value)} placeholder="narrow the issued token" />
+						<FieldGroup label="Audience (optional, RFC 8707)" value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="target resource" />
+					</Grid>
 					<FieldGroup
 						multiline
 						label="Subject token (required) — the token being exchanged"
@@ -230,10 +210,10 @@ const TokenExchangeFlow: React.FC = () => {
 						placeholder="paste the actor's access token to request delegation (drives the act claim)"
 					/>
 					<ExplanationPanel title="When to use Token Exchange">
-						Use it to swap one token for another without re-authenticating the user — narrowing
-						scope/audience for a downstream service, or delegating so a service (the actor) can act
-						on a user's (the subject's) behalf. Delegation is gated by the subject token's may_act
-						claim, and the issued token records the chain in its act claim.
+						Use it to swap one token for another without re-authenticating the user — narrowing scope/audience
+						for a downstream service, or delegating so a service (the actor) can act on a user's (the subject's)
+						behalf. Delegation is gated by the subject token's may_act claim, and the issued token records the
+						chain in its act claim.
 					</ExplanationPanel>
 				</FlowStep>
 			)}
@@ -247,31 +227,9 @@ const TokenExchangeFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(result)}
 				>
-					{(() => {
-						const ep = pingoneEndpoints(creds);
-						const curlReq: CurlRequest = {
-							method: 'POST',
-							url: ep.token,
-							params: {
-								grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
-								subject_token: subjectToken || '<subject_token>',
-								subject_token_type: 'urn:ietf:params:oauth:token-type:access_token',
-								actor_token: actorToken || undefined,
-								actor_token_type: actorToken ? 'urn:ietf:params:oauth:token-type:access_token' : undefined,
-								scope: requestedScopes || undefined,
-								audience: audience || undefined,
-								client_id: creds.clientId,
-							},
-						};
-						return <RequestPreview request={curlReq} />;
-					})()}
 					<Toggle>
 						<Action onClick={run} disabled={loading || !configured}>
-							{loading
-								? 'Exchanging…'
-								: mode === 'real'
-									? 'Exchange real token'
-									: 'Exchange mock token'}
+							{loading ? 'Exchanging…' : mode === 'real' ? 'Exchange real token' : 'Exchange mock token'}
 						</Action>
 						{actorToken && (
 							<SecondaryAction onClick={checkDelegation}>
@@ -281,9 +239,7 @@ const TokenExchangeFlow: React.FC = () => {
 					</Toggle>
 					{mayAct && (
 						<ResultCard
-							title={
-								mayAct.valid ? 'Delegation approved (may_act)' : 'Delegation rejected (may_act)'
-							}
+							title={mayAct.valid ? 'Delegation approved (may_act)' : 'Delegation rejected (may_act)'}
 							tone={mayAct.valid ? 'ok' : 'error'}
 						>
 							<JsonView data={mayAct as unknown as Record<string, unknown>} />
@@ -302,12 +258,12 @@ const TokenExchangeFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
-					<UseTokensStep
-						result={result}
-						credentials={creds}
-						mode={mode}
-						tools={['introspect', 'decode']}
-					/>
+					<Action onClick={inspect} disabled={!result?.accessToken}>Introspect issued token</Action>
+					{introspectData && (
+						<ResultCard title="Introspection (RFC 7662)" tone="info">
+							<JsonView data={introspectData} />
+						</ResultCard>
+					)}
 				</FlowStep>
 			)}
 		</FlowContainer>
