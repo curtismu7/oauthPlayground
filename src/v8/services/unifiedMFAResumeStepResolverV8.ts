@@ -429,8 +429,9 @@ export class UnifiedMFAResumeStepResolverV8 {
 		const correlationId = UnifiedMFAResumeStepResolverV8.generateCorrelationId();
 		const startTime = Date.now();
 
-		// Build context
-		const searchParams = new URL(window.location.href).searchParams;
+		// Build context — parse the caller-supplied URL (defaults to window.location.href),
+		// so callers passing a stored/callback URL get its params, not the live location's.
+		const searchParams = new URL(currentUrl).searchParams;
 		const { sessionStorage, localStorage } = UnifiedMFAResumeStepResolverV8.getStorageData();
 
 		const context: StepResolverContext = {
