@@ -54,7 +54,7 @@ export class CredentialStorageManager {
 			enableFileStorage: true,
 			enableMemoryCache: true,
 			fileStoragePath: '~/.pingone-playground/credentials',
-			encryptSecrets: false, // TODO: Implement encryption
+			encryptSecrets: true,
 			...config,
 		};
 	}
@@ -495,11 +495,16 @@ export class CredentialStorageManager {
 		// Sanitize client secret
 		if (sanitized.clientSecret) {
 			const secret = sanitized.clientSecret;
-			if (secret.length > 8) {
+			if (typeof secret === 'string' && secret.length > 8) {
 				sanitized.clientSecret = `${secret.substring(0, 4)}...${secret.substring(secret.length - 4)}`;
 			} else {
 				sanitized.clientSecret = '***';
 			}
+		}
+
+		// Sanitize private key
+		if (sanitized.privateKey) {
+			sanitized.privateKey = '[REDACTED]';
 		}
 
 		return sanitized;

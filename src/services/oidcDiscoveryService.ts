@@ -350,12 +350,11 @@ class OIDCDiscoveryService {
 			throw new Error('Discovery document missing jwks_uri');
 		}
 
-		// Validate issuer matches (allowing for case-insensitive comparison)
+		// Validate issuer matches (case-insensitive per RFC 8414 §3)
 		if (document.issuer.toLowerCase() !== expectedIssuer.toLowerCase()) {
-			logger.warn('OIDCDiscovery', 'Issuer mismatch', {
-				actual: document.issuer,
-				expected: expectedIssuer,
-			});
+			throw new Error(
+				`Issuer mismatch: discovery document issuer "${document.issuer}" does not match expected issuer "${expectedIssuer}"`
+			);
 		}
 	}
 

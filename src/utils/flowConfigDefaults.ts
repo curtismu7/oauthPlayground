@@ -2,12 +2,11 @@ import type { FlowConfig } from '../components/FlowConfiguration';
 
 // Generate a random string for nonce/state
 const generateRandomString = (length: number) => {
-	const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	let result = '';
-	for (let i = 0; i < length; i++) {
-		result += chars.charAt(Math.floor(Math.random() * chars.length));
-	}
-	return result;
+	const array = new Uint8Array(Math.ceil(length / 2));
+	crypto.getRandomValues(array);
+	return Array.from(array, (byte) => byte.toString(16).padStart(2, '0'))
+		.join('')
+		.slice(0, length);
 };
 
 // Default configuration for Authorization Code Flow

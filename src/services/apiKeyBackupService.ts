@@ -97,7 +97,7 @@ class ApiKeyBackupService {
 
 				const backupEntry: ApiKeyBackupEntry = {
 					service: keyInfo.service,
-					encryptedKey: this.encryptKey(actualKey),
+					encryptedKey: await this.encryptKey(actualKey),
 					metadata: {
 						name: keyInfo.name,
 						description: keyInfo.description,
@@ -172,7 +172,7 @@ class ApiKeyBackupService {
 			let restoredCount = 0;
 			for (const [service, entry] of Object.entries(manifest.services)) {
 				try {
-					const decryptedKey = this.decryptKey(entry.encryptedKey);
+					const decryptedKey = await this.decryptKey(entry.encryptedKey);
 					await apiKeyService.storeApiKey(service, decryptedKey, entry.metadata);
 					restoredCount++;
 					logger.info(MODULE_TAG, `Restored API key for ${service}`);
@@ -311,18 +311,61 @@ class ApiKeyBackupService {
 	}
 
 	/**
-	 * Simple encryption for API keys (Base64 encoding for now)
-	 * In production, use proper encryption
+	 * Encrypt an API key using AES-GCM with a per-call random salt and IV.
+	 * Output format: base64(salt || iv || ciphertext)  (salt=16B, iv=12B)
 	 */
-	private encryptKey(key: string): string {
-		return btoa(key); // Simple Base64 encoding
+	private async encryptKey(key: string): Promise<string> {
+		const enc = new TextEncoder();
+		const salt = crypto.getRandomValues(new Uint8Array(16));
+		const iv = crypto.getRandomValues(new Uint8Array(12));
+		const baseKey = await crypto.subtle.importKey(
+			'raw',
+			enc.encode('pingone-playground-backup-key'),
+			'PBKDF2',
+			false,
+			['deriveKey']
+		);
+		const aesKey = await crypto.subtle.deriveKey(
+			{ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+			baseKey,
+			{ name: 'AES-GCM', length: 256 },
+			false,
+			['encrypt']
+		);
+		const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, enc.encode(key));
+		const combined = new Uint8Array(salt.length + iv.length + ciphertext.byteLength);
+		combined.set(salt, 0);
+		combined.set(iv, salt.length);
+		combined.set(new Uint8Array(ciphertext), salt.length + iv.length);
+		return btoa(String.fromCharCode(...combined));
 	}
 
 	/**
-	 * Simple decryption for API keys
+	 * Decrypt an API key encrypted by encryptKey.
 	 */
-	private decryptKey(encryptedKey: string): string {
-		return atob(encryptedKey); // Simple Base64 decoding
+	private async decryptKey(encryptedKey: string): Promise<string> {
+		const enc = new TextEncoder();
+		const dec = new TextDecoder();
+		const combined = Uint8Array.from(atob(encryptedKey), (c) => c.charCodeAt(0));
+		const salt = combined.slice(0, 16);
+		const iv = combined.slice(16, 28);
+		const ciphertext = combined.slice(28);
+		const baseKey = await crypto.subtle.importKey(
+			'raw',
+			enc.encode('pingone-playground-backup-key'),
+			'PBKDF2',
+			false,
+			['deriveKey']
+		);
+		const aesKey = await crypto.subtle.deriveKey(
+			{ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+			baseKey,
+			{ name: 'AES-GCM', length: 256 },
+			false,
+			['decrypt']
+		);
+		const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, aesKey, ciphertext);
+		return dec.decode(plaintext);
 	}
 
 	/**

@@ -161,7 +161,7 @@ export const createClientAssertion = async (
  * Generate random JWT ID
  */
 const generateRandomId = (): string => {
-	return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+	return crypto.randomUUID();
 };
 
 /**

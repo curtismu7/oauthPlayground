@@ -405,10 +405,17 @@ export const useImplicitFlowController = (
 		return undefined;
 	}, [options.enableDebugger]);
 
+	// Clear sensitive step results (tokens/nonces) when the component unmounts
+	useEffect(() => {
+		return () => {
+			clearStepResults();
+		};
+	}, [clearStepResults]);
+
 	// Generate nonce
 	const generateNonce = useCallback(() => {
-		const newNonce =
-			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		const nonceBytes = crypto.getRandomValues(new Uint8Array(16));
+		const newNonce = Array.from(nonceBytes, (b) => b.toString(16).padStart(2, '0')).join('');
 		setNonce(newNonce);
 		logger.info(' [useImplicitFlowController] Nonce generated', 'Logger info');
 		saveStepResult('generate-nonce', { nonce: newNonce, timestamp: Date.now() });
@@ -417,8 +424,8 @@ export const useImplicitFlowController = (
 
 	// Generate state
 	const generateState = useCallback(() => {
-		const newState =
-			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		const stateBytes = crypto.getRandomValues(new Uint8Array(16));
+		const newState = Array.from(stateBytes, (b) => b.toString(16).padStart(2, '0')).join('');
 		setState(newState);
 		logger.info(' [useImplicitFlowController] State generated', 'Logger info');
 		saveStepResult('generate-state', { state: newState, timestamp: Date.now() });
@@ -443,12 +450,14 @@ export const useImplicitFlowController = (
 		);
 
 		// Generate nonce and state if not already set
-		const finalNonce =
-			nonce ||
-			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-		const finalState =
-			state ||
-			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		const finalNonce = nonce || (() => {
+			const b = crypto.getRandomValues(new Uint8Array(16));
+			return Array.from(b, (v) => v.toString(16).padStart(2, '0')).join('');
+		})();
+		const finalState = state || (() => {
+			const b = crypto.getRandomValues(new Uint8Array(16));
+			return Array.from(b, (v) => v.toString(16).padStart(2, '0')).join('');
+		})();
 
 		if (!nonce) setNonce(finalNonce);
 		if (!state) setState(finalState);

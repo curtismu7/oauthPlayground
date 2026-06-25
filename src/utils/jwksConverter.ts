@@ -1,11 +1,6 @@
 // src/utils/jwksConverter.ts
 import { logger } from './logger';
 
-// Browser-compatible base64 encoding
-const base64Encode = (bytes: number[]): string => {
-	const binaryString = String.fromCharCode(...bytes);
-	return btoa(binaryString);
-};
 
 export interface JWKSKey {
 	kty: string;
@@ -39,16 +34,17 @@ export async function convertPrivateKeyToJWKS(
 		const { importPKCS8 } = await import('jose');
 		const cryptoKey = await importPKCS8(privateKeyPem, 'RS256');
 
-		// Export as public key in SPKI format
-		const publicKeyArrayBuffer = await window.crypto.subtle.exportKey('spki', cryptoKey);
+		// Export the public key directly as JWK to get real n and e values
+		const publicJwk = await window.crypto.subtle.exportKey('jwk', cryptoKey);
 
-		// Convert to base64
-		const keyArray = Array.from(new Uint8Array(publicKeyArrayBuffer));
-		const _base64 = btoa(String.fromCharCode(...keyArray));
-
-		// For now, we'll generate valid-looking RSA components
-		// In a real implementation, you would parse the ASN.1 structure to extract n and e
-		const jwksKey = generateValidRSAJWKSKey(kid);
+		const jwksKey: JWKSKey = {
+			kty: 'RSA',
+			kid,
+			use: 'sig',
+			alg: 'RS256',
+			n: publicJwk.n as string,
+			e: publicJwk.e as string,
+		};
 
 		const jwks: JWKS = {
 			keys: [jwksKey],
@@ -69,32 +65,6 @@ export async function convertPrivateKeyToJWKS(
 	}
 }
 
-/**
- * Generate a valid-looking RSA JWKS key
- * This creates RSA components that PingOne will accept
- */
-function generateValidRSAJWKSKey(kid: string): JWKSKey {
-	// Generate a valid-looking 2048-bit RSA modulus (base64url-encoded without padding)
-	const bytes = new Uint8Array(256); // 256 bytes = 2048 bits
-	for (let i = 0; i < bytes.length; i++) {
-		bytes[i] = Math.floor(Math.random() * 256);
-	}
-	// Ensure first bit is set (for valid RSA modulus)
-	bytes[0] |= 0x80;
-
-	// Convert to base64url without padding
-	const base64 = base64Encode(bytes);
-	const modulus = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-
-	return {
-		kty: 'RSA',
-		kid: kid,
-		use: 'sig',
-		alg: 'RS256',
-		n: modulus,
-		e: 'AQAB', // Standard RSA exponent (65537)
-	};
-}
 
 /**
  * Validate JWKS format

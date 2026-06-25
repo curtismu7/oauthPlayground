@@ -3,6 +3,7 @@
 import { type OIDCDiscoveryDocument, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 import * as callbackUrls from './callbackUrls';
 import { logger } from './logger';
+import { sanitizeSensitiveData } from './secureLogging';
 export interface PermanentCredentials {
 	environmentId: string;
 	clientId: string;
@@ -85,9 +86,9 @@ class CredentialManager {
 				lastUpdated: Date.now(),
 			};
 
-			logger.info(' [CredentialManager] Saving config credentials to localStorage:', {
+			logger.info('CredentialManager', 'Saving config credentials to localStorage', {
 				key: this.CONFIG_CREDENTIALS_KEY,
-				data: updated,
+				data: sanitizeSensitiveData(updated),
 			});
 
 			localStorage.setItem(this.CONFIG_CREDENTIALS_KEY, JSON.stringify(updated));
@@ -95,9 +96,9 @@ class CredentialManager {
 			// Invalidate cache after saving
 			this.invalidateCache();
 
-			// Verify it was saved
+			// Verify it was saved (log only a presence flag, never the raw value)
 			const saved = localStorage.getItem(this.CONFIG_CREDENTIALS_KEY);
-			logger.info(' [CredentialManager] Verified config credentials save:', saved);
+			logger.info('CredentialManager', 'Verified config credentials save', { saved: !!saved });
 
 			logger.success('CredentialManager', 'Saved config credentials', {
 				hasEnvironmentId: !!updated.environmentId,
@@ -187,9 +188,9 @@ class CredentialManager {
 				lastUpdated: Date.now(),
 			};
 
-			logger.info(' [CredentialManager] Saving authz flow credentials to localStorage:', {
+			logger.info('CredentialManager', 'Saving authz flow credentials to localStorage', {
 				key: this.AUTHZ_FLOW_CREDENTIALS_KEY,
-				data: updated,
+				data: sanitizeSensitiveData(updated),
 			});
 
 			localStorage.setItem(this.AUTHZ_FLOW_CREDENTIALS_KEY, JSON.stringify(updated));
@@ -197,9 +198,9 @@ class CredentialManager {
 			// Invalidate cache after saving
 			this.invalidateCache();
 
-			// Verify it was saved
+			// Verify it was saved (log only a presence flag, never the raw value)
 			const saved = localStorage.getItem(this.AUTHZ_FLOW_CREDENTIALS_KEY);
-			logger.info(' [CredentialManager] Verified authz flow credentials save:', saved);
+			logger.info('CredentialManager', 'Verified authz flow credentials save', { saved: !!saved });
 
 			logger.success('CredentialManager', 'Saved authz flow credentials', {
 				hasEnvironmentId: !!updated.environmentId,
@@ -816,7 +817,7 @@ class CredentialManager {
 				lastUpdated: Date.now(),
 			};
 
-			logger.info(' [CredentialManager] Saving to localStorage:', {
+			logger.info('CredentialManager', 'Saving to localStorage', {
 				key: this.PERMANENT_CREDENTIALS_KEY,
 				data: updated,
 			});
@@ -1077,7 +1078,7 @@ class CredentialManager {
 			...session,
 		};
 
-		logger.info(' [CredentialManager] getAllCredentialsAsync - result:', result);
+		logger.info(' [CredentialManager] getAllCredentialsAsync - result:', sanitizeSensitiveData(result));
 		return result;
 	}
 

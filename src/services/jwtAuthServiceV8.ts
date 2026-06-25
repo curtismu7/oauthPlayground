@@ -105,7 +105,7 @@ class JWTAuthServiceV8 {
 				success: true,
 				jwt,
 				claims: payload,
-				header,
+				header: header ?? {},
 			};
 		} catch (error) {
 			return {
@@ -135,7 +135,7 @@ class JWTAuthServiceV8 {
 	/**
 	 * Decode JWT header without verification
 	 */
-	private decodeJWTHeader(jwt: string): Record<string, unknown> {
+	private decodeJWTHeader(jwt: string): Record<string, unknown> | null {
 		try {
 			const parts = jwt.split('.');
 			if (parts.length !== 3) {
@@ -145,7 +145,7 @@ class JWTAuthServiceV8 {
 			return header;
 		} catch (error) {
 			logger.error('JwtAuthServiceV8', 'Failed to decode JWT header:', undefined, error as Error);
-			return { alg: 'RS256', typ: 'JWT' };
+			return null;
 		}
 	}
 

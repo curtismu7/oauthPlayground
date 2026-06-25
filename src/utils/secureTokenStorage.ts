@@ -7,41 +7,44 @@
 import { logger } from './logger';
 import { OAuthTokens } from './tokenStorage';
 
-// Simple encryption/decryption for client-side storage
-// In production, consider using a more robust encryption library
+// AES-GCM encryption using a per-session random key held in memory.
+// The key is never persisted, so tokens become unreadable after a page reload
+// (sessionStorage is also cleared on tab close, so this is intentional).
 class SimpleEncryption {
-	private static readonly KEY = 'pingone_oauth_secure_key_2024';
+	private static keyPromise: Promise<CryptoKey> = crypto.subtle.generateKey(
+		{ name: 'AES-GCM', length: 256 },
+		false,
+		['encrypt', 'decrypt']
+	);
 
-	static encrypt(text: string): string {
+	static async encrypt(text: string): Promise<string> {
 		try {
-			// Simple XOR encryption for demo purposes
-			// In production, use proper encryption like Web Crypto API
-			let result = '';
-			for (let i = 0; i < text.length; i++) {
-				result += String.fromCharCode(
-					text.charCodeAt(i) ^ SimpleEncryption.KEY.charCodeAt(i % SimpleEncryption.KEY.length)
-				);
-			}
-			return btoa(result);
+			const key = await SimpleEncryption.keyPromise;
+			const iv = crypto.getRandomValues(new Uint8Array(12));
+			const encoded = new TextEncoder().encode(text);
+			const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
+			// Prefix iv (12 bytes) to ciphertext, then base64url-encode the whole thing
+			const combined = new Uint8Array(iv.byteLength + ciphertext.byteLength);
+			combined.set(iv, 0);
+			combined.set(new Uint8Array(ciphertext), iv.byteLength);
+			return btoa(String.fromCharCode(...combined));
 		} catch (error) {
 			logger.error('SecureTokenStorage', 'Encryption error', undefined, error);
-			return text;
+			throw error;
 		}
 	}
 
-	static decrypt(encryptedText: string): string {
+	static async decrypt(encryptedText: string): Promise<string> {
 		try {
-			const text = atob(encryptedText);
-			let result = '';
-			for (let i = 0; i < text.length; i++) {
-				result += String.fromCharCode(
-					text.charCodeAt(i) ^ SimpleEncryption.KEY.charCodeAt(i % SimpleEncryption.KEY.length)
-				);
-			}
-			return result;
+			const key = await SimpleEncryption.keyPromise;
+			const combined = Uint8Array.from(atob(encryptedText), (c) => c.charCodeAt(0));
+			const iv = combined.slice(0, 12);
+			const ciphertext = combined.slice(12);
+			const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+			return new TextDecoder().decode(plaintext);
 		} catch (error) {
 			logger.error('SecureTokenStorage', 'Decryption error', undefined, error);
-			return encryptedText;
+			throw error;
 		}
 	}
 }
@@ -50,16 +53,16 @@ class SimpleEncryption {
  * Secure token storage interface
  */
 interface SecureTokenStorage {
-	storeTokens(tokens: OAuthTokens): boolean;
-	getTokens(): OAuthTokens | null;
+	storeTokens(tokens: OAuthTokens): Promise<boolean>;
+	getTokens(): Promise<OAuthTokens | null>;
 	clearTokens(): boolean;
-	hasValidTokens(): boolean;
-	getTokenExpirationStatus(): {
+	hasValidTokens(): Promise<boolean>;
+	getTokenExpirationStatus(): Promise<{
 		hasTokens: boolean;
 		isExpired: boolean;
 		expiresAt: Date | null;
 		timeRemaining: number | null;
-	};
+	}>;
 }
 
 /**
@@ -74,9 +77,9 @@ class SecureTokenStorageImpl implements SecureTokenStorage {
 	/**
 	 * Store OAuth tokens securely
 	 * @param tokens - The OAuth tokens to store
-	 * @returns boolean - Success status
+	 * @returns Promise<boolean> - Success status
 	 */
-	storeTokens(tokens: OAuthTokens): boolean {
+	async storeTokens(tokens: OAuthTokens): Promise<boolean> {
 		try {
 			// Add storage timestamp
 			const tokensWithTimestamp = {
@@ -86,7 +89,7 @@ class SecureTokenStorageImpl implements SecureTokenStorage {
 			};
 
 			// Encrypt the tokens before storing
-			const encryptedTokens = SimpleEncryption.encrypt(JSON.stringify(tokensWithTimestamp));
+			const encryptedTokens = await SimpleEncryption.encrypt(JSON.stringify(tokensWithTimestamp));
 
 			// Store in sessionStorage (cleared on browser close)
 			sessionStorage.setItem(this.STORAGE_KEY, encryptedTokens);
@@ -101,9 +104,9 @@ class SecureTokenStorageImpl implements SecureTokenStorage {
 
 	/**
 	 * Retrieve OAuth tokens securely
-	 * @returns OAuthTokens | null - The stored tokens or null if not found
+	 * @returns Promise<OAuthTokens | null> - The stored tokens or null if not found
 	 */
-	getTokens(): OAuthTokens | null {
+	async getTokens(): Promise<OAuthTokens | null> {
 		try {
 			const encryptedTokens = sessionStorage.getItem(this.STORAGE_KEY);
 
@@ -112,7 +115,7 @@ class SecureTokenStorageImpl implements SecureTokenStorage {
 			}
 
 			// Decrypt the tokens
-			const decryptedTokens = SimpleEncryption.decrypt(encryptedTokens);
+			const decryptedTokens = await SimpleEncryption.decrypt(encryptedTokens);
 			const tokens = JSON.parse(decryptedTokens) as OAuthTokens & { storageTime: number };
 
 			// Check if tokens are too old (security measure)
@@ -149,11 +152,11 @@ class SecureTokenStorageImpl implements SecureTokenStorage {
 
 	/**
 	 * Check if valid OAuth tokens exist
-	 * @returns boolean - Whether valid tokens exist
+	 * @returns Promise<boolean> - Whether valid tokens exist
 	 */
-	hasValidTokens(): boolean {
+	async hasValidTokens(): Promise<boolean> {
 		try {
-			const tokens = this.getTokens();
+			const tokens = await this.getTokens();
 
 			if (!tokens || !tokens.access_token) {
 				return false;
@@ -180,11 +183,11 @@ class SecureTokenStorageImpl implements SecureTokenStorage {
 
 	/**
 	 * Get token expiration status
-	 * @returns object - Token expiration information
+	 * @returns Promise<object> - Token expiration information
 	 */
-	getTokenExpirationStatus() {
+	async getTokenExpirationStatus() {
 		try {
-			const tokens = this.getTokens();
+			const tokens = await this.getTokens();
 
 			if (!tokens || !tokens.timestamp || !tokens.expires_in) {
 				return {

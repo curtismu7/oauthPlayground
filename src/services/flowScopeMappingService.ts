@@ -232,24 +232,42 @@ export const FLOW_SCOPE_MAPPINGS: Record<string, FlowScopeMapping> = {
 };
 
 /**
- * Get scope mapping for a flow type
+ * Get scope mapping for a flow type.
+ *
+ * Lookup order:
+ * 1. Exact key match (fastest, most specific).
+ * 2. Partial substring match — longest matching key wins to avoid e.g. an
+ *    oidc-prefixed flow matching the bare "client-credentials" entry.
+ *    A partial match is only accepted when it does NOT cross the
+ *    OIDC ↔ non-OIDC boundary (requiresOpenId must agree).
+ * 3. Safe default that preserves requiresOpenId = true.
  */
 export function getFlowScopeMapping(flowType: string): FlowScopeMapping {
-	// Try exact match first
+	// 1. Exact match
 	if (FLOW_SCOPE_MAPPINGS[flowType]) {
 		return FLOW_SCOPE_MAPPINGS[flowType];
 	}
 
-	// Try partial matches for flow types like 'pingone-mfa-workflow-library'
-	const matchingKey = Object.keys(FLOW_SCOPE_MAPPINGS).find(
-		(key) => flowType.includes(key) || key.includes(flowType)
-	);
+	// 2. Longest-key partial match that doesn't cross the OIDC/non-OIDC boundary.
+	//    An OIDC flow (flowType starts with 'oidc-') must never resolve to a
+	//    non-OIDC mapping, and vice-versa.
+	const isOidcFlow = flowType.startsWith('oidc-') || flowType.includes('openid');
 
-	if (matchingKey) {
-		return FLOW_SCOPE_MAPPINGS[matchingKey];
+	const candidates = Object.keys(FLOW_SCOPE_MAPPINGS)
+		.filter((key) => {
+			if (!(flowType.includes(key) || key.includes(flowType))) return false;
+			const mapping = FLOW_SCOPE_MAPPINGS[key];
+			// Reject matches that cross the OIDC/non-OIDC boundary
+			if (isOidcFlow && !mapping.requiresOpenId) return false;
+			return true;
+		})
+		.sort((a, b) => b.length - a.length); // longest key = most specific
+
+	if (candidates.length > 0) {
+		return FLOW_SCOPE_MAPPINGS[candidates[0]];
 	}
 
-	// Default to OIDC flow (requires openid)
+	// 3. Default to OIDC flow (safe — preserves requiresOpenId = true)
 	return FLOW_SCOPE_MAPPINGS['flow'];
 }
 

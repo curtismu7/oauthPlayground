@@ -274,7 +274,7 @@ const JWTBearerFlow: React.FC = () => {
 			aud: tokenEndpoint, // audience
 			iat: now, // issued at
 			exp: now + 300, // expires in 5 minutes
-			jti: `jwt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // JWT ID
+			jti: `jwt-${crypto.randomUUID()}`, // JWT ID
 		};
 
 		const header = {
