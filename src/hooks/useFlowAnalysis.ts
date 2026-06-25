@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlowComparisonResult, FlowRecommendation, flowAnalyzer } from '../utils/flowAnalysis';
 import { logger } from '../utils/logger';
 
@@ -303,14 +303,29 @@ export const useFlowRecommendations = (requirements: {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<Error | null>(null);
 
+	// Stabilize the requirements object so callers can pass inline literals without
+	// causing the effect to re-run on every render.
+	const stableRequirements = useMemo(
+		() => requirements,
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[
+			requirements.securityLevel,
+			requirements.complexity,
+			requirements.performance,
+			requirements.backendAvailable,
+			requirements.userInteraction,
+			requirements.deviceType,
+		]
+	);
+
 	const generateRecommendations = useCallback(async () => {
 		setIsLoading(true);
 		setError(null);
 
 		try {
-			const results = flowAnalyzer.getRecommendations(requirements);
+			const results = flowAnalyzer.getRecommendations(stableRequirements);
 			setRecommendations(results);
-			logger.info('[useFlowRecommendations] Recommendations generated', { requirements, results });
+			logger.info('[useFlowRecommendations] Recommendations generated', { requirements: stableRequirements, results });
 		} catch (err) {
 			const error = err as Error;
 			setError(error);
@@ -318,7 +333,7 @@ export const useFlowRecommendations = (requirements: {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [requirements]);
+	}, [stableRequirements]);
 
 	useEffect(() => {
 		generateRecommendations();

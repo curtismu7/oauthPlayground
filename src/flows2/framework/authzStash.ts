@@ -44,10 +44,15 @@ export function loadStash(): AuthzStash | null {
 		if (err instanceof SyntaxError) {
 			return null;
 		}
-		if (err instanceof Error && (err.name === 'QuotaExceededError' || err.message.includes('QuotaExceededError'))) {
+		if (err instanceof Error && (
+			err.name === 'QuotaExceededError' ||
+			err.message.includes('QuotaExceededError') ||
+			err.name === 'SecurityError'
+		)) {
 			return null;
 		}
-		throw err;
+		// Catch-all: never propagate storage errors to callers (e.g. Safari private-mode).
+		return null;
 	}
 }
 

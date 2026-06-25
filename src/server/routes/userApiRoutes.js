@@ -124,7 +124,16 @@ export function setupUserApiRoutes(app) {
 		try {
 			const { environmentId } = req.params;
 
-			// TODO: Add authentication/authorization check
+			// Require a worker token (same pattern as /api/users/sync)
+			const authHeader = req.headers.authorization || '';
+			const workerToken = (authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null) || req.body?.workerToken;
+			if (!workerToken) {
+				return res.status(401).json({
+					error: 'Unauthorized',
+					message: 'Worker token is required (Authorization: Bearer <token> or workerToken in body)',
+				});
+			}
+
 			await userStore.clearEnvironmentData(environmentId);
 
 			res.json({
@@ -219,6 +228,16 @@ export function setupUserApiRoutes(app) {
 		try {
 			const { environmentId, users, clearFirst = false } = req.body;
 
+			// Require a worker token (same pattern as /api/users/sync)
+			const authHeader = req.headers.authorization || '';
+			const workerToken = (authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null) || req.body?.workerToken;
+			if (!workerToken) {
+				return res.status(401).json({
+					error: 'Unauthorized',
+					message: 'Worker token is required (Authorization: Bearer <token> or workerToken in body)',
+				});
+			}
+
 			if (!environmentId) {
 				return res.status(400).json({
 					error: 'environmentId is required',
@@ -228,6 +247,13 @@ export function setupUserApiRoutes(app) {
 			if (!Array.isArray(users)) {
 				return res.status(400).json({
 					error: 'users must be an array',
+				});
+			}
+
+			if (users.length > 10000) {
+				return res.status(400).json({
+					error: 'Payload too large',
+					message: 'users array must not exceed 10000 entries per request',
 				});
 			}
 

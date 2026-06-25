@@ -242,10 +242,13 @@ export class FlowContextUtils {
 			// Initialize flow context
 			const flowId = FlowContextUtils.initializeOAuthFlow(flowType, currentStep, flowState);
 
-			// Add flow ID to state parameter for tracking
-			const enhancedParams = {
+			// Pass flowId via a separate custom parameter so the 'state' value sent to
+			// the IdP is identical to the value stored by callers in StateStorage.
+			// Appending flowId to 'state' without updating stored state breaks strict
+			// CSRF comparison (returnedState !== storedState).
+			const enhancedParams: Record<string, string> = {
 				...params,
-				state: params.state ? `${params.state}_${flowId}` : flowId,
+				flow_id: flowId, // non-standard, for internal round-trip tracking only
 			};
 
 			// Build URL

@@ -141,14 +141,17 @@ export class ErrorHandlingService {
 		}
 
 		// Check error codes
-		if (error.code || error.status || error.statusCode) {
-			const code = error.code || error.status || error.statusCode;
-			return ErrorHandlingService.classifyByCode(code);
-		}
+		if (typeof error === 'object' && error !== null) {
+			const err = error as Record<string, unknown>;
+			if (err['code'] || err['status'] || err['statusCode']) {
+				const code = (err['code'] || err['status'] || err['statusCode']) as number | string;
+				return ErrorHandlingService.classifyByCode(code);
+			}
 
-		// Check error name
-		if (error.name) {
-			return ErrorHandlingService.classifyByName(error.name);
+			// Check error name
+			if (typeof err['name'] === 'string') {
+				return ErrorHandlingService.classifyByName(err['name']);
+			}
 		}
 
 		return ErrorType.UNKNOWN;
@@ -385,10 +388,14 @@ export class ErrorHandlingService {
 	 */
 	private static extractErrorMessage(error: unknown): string {
 		if (typeof error === 'string') return error;
-		if (error?.message) return error.message;
-		if (error?.error_description) return error.error_description;
-		if (error?.error)
-			return typeof error.error === 'string' ? error.error : JSON.stringify(error.error);
+		if (error instanceof Error) return error.message;
+		if (typeof error === 'object' && error !== null) {
+			const err = error as Record<string, unknown>;
+			if (typeof err['message'] === 'string') return err['message'];
+			if (typeof err['error_description'] === 'string') return err['error_description'];
+			if (err['error'])
+				return typeof err['error'] === 'string' ? err['error'] : JSON.stringify(err['error']);
+		}
 		return 'Unknown error occurred';
 	}
 

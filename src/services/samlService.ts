@@ -144,16 +144,19 @@ class SAMLService {
 	}
 
 	/**
-	 * Check if AuthnRequest is signed (simplified for demo)
+	 * Check if AuthnRequest is signed.
+	 *
+	 * SECURITY NOTE: Real XML-DSig verification (e.g. via the xml-crypto library) is required
+	 * to safely enable the dynamic-ACS bypass controlled by
+	 * enableAlwaysAcceptAcsUrlInSignedAuthnRequest. Until that verification is wired in,
+	 * this method returns false so that unsigned/unverified requests cannot exploit the
+	 * dynamic-ACS path with an attacker-controlled ACS URL.
 	 */
 	private isAuthnRequestSigned(_authnRequest: SAMLAuthnRequest): boolean {
-		// In a real implementation, this would check for XML signatures
-		// For demo purposes, we'll consider it signed if it has certain properties
-		// or if it's from a "trusted" issuer
-
-		// For demo: consider requests with dynamic ACS URLs as "signed"
-		// In production, this would validate actual XML signatures
-		return true; // Assume signed for demo purposes
+		// Cannot verify XML signatures without xml-crypto (or equivalent).
+		// Returning false is the secure-by-default posture: the dynamic-ACS bypass
+		// will not trigger, and all AuthnRequests are treated as unsigned.
+		return false;
 	}
 
 	/**

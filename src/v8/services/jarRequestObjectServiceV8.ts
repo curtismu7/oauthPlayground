@@ -156,9 +156,7 @@ export class JARRequestObjectServiceV8 {
 	 * Generate a unique JWT ID (jti)
 	 */
 	private generateJTI(): string {
-		const timestamp = Date.now().toString(36);
-		const random = Math.random().toString(36).substring(2, 15);
-		return `jar-${timestamp}-${random}`;
+		return `jar-${crypto.randomUUID()}`;
 	}
 
 	/**

@@ -15,7 +15,6 @@ import { CodeBlock, JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { tokens } from '../framework/tokens';
-import { clearStash, loadStash, saveStash } from '../framework/authzStash';
 import type {
 	FlowCredentials,
 	FlowError,
@@ -174,7 +173,8 @@ const AuthorizationCodeFlowRedesign: React.FC = () => {
 	const [spec, setSpec] = useState<OAuthSpec>('2.1');
 	const [oidc, setOidc] = useState(false);
 
-	const [creds, setCreds] = useState<FlowCredentials>(loadStash() || MOCK_CREDS);
+	const [creds, setCreds] = useState<FlowCredentials>(MOCK_CREDS);
+	const [redirectUri, setRedirectUri] = useState(MOCK_CREDS.redirectUri);
 	const [pkceEnabled, setPkceEnabled] = useState(true);
 	const [verifier, setVerifier] = useState('');
 	const [challenge, setChallenge] = useState('');
@@ -186,9 +186,7 @@ const AuthorizationCodeFlowRedesign: React.FC = () => {
 	const [loading, setLoading] = useState(false);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) => {
-		const updated = { ...creds, [k]: e.target.value };
-		setCreds(updated);
-		saveStash(updated);
+		setCreds((c) => ({ ...c, [k]: e.target.value }));
 	};
 
 	const generatePkce = useCallback(async () => {
@@ -203,16 +201,20 @@ const AuthorizationCodeFlowRedesign: React.FC = () => {
 		setLoading(true);
 		setError(null);
 		try {
+			const state = crypto.randomUUID();
+			const nonce = oidc ? crypto.randomUUID() : undefined;
 			const result = await authorizationCodeService.authorize(
 				{
 					credentials: creds,
-					pkce: pkceEnabled ? { verifier, challenge } : undefined,
+					redirectUri,
+					state,
+					...(nonce ? { nonce } : {}),
+					codeChallenge: pkceEnabled ? challenge : '',
 					oidc,
-					spec,
 				},
 				mode
 			);
-			setAuthzResult(result);
+			setAuthzResult({ url: result.url ?? '', ...(result.code ? { code: result.code } : {}) });
 			engine.markComplete('authorize');
 			engine.goNext();
 		} catch (err) {
@@ -220,17 +222,18 @@ const AuthorizationCodeFlowRedesign: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, pkceEnabled, verifier, challenge, oidc, spec, mode, engine]);
+	}, [creds, redirectUri, pkceEnabled, challenge, oidc, mode, engine]);
 
 	const handleExchange = useCallback(async () => {
 		setLoading(true);
 		setError(null);
 		try {
-			const result = await authorizationCodeService.exchange(
+			const result = await authorizationCodeService.exchangeCode(
 				{
 					credentials: creds,
+					redirectUri,
 					code: authzResult?.code || 'mock-code',
-					pkce: pkceEnabled ? { verifier } : undefined,
+					codeVerifier: pkceEnabled ? verifier : '',
 				},
 				mode
 			);
@@ -242,12 +245,12 @@ const AuthorizationCodeFlowRedesign: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, authzResult, pkceEnabled, verifier, mode, engine]);
+	}, [creds, redirectUri, authzResult, pkceEnabled, verifier, mode, engine]);
 
 	const handleUserinfo = useCallback(async () => {
 		if (!exchangeResult?.accessToken) return;
 		try {
-			const result = await authorizationCodeService.userinfo(exchangeResult.accessToken, creds, mode);
+			const result = await authorizationCodeService.userInfo(exchangeResult.accessToken, creds, mode);
 			setUserinfoResult(result);
 		} catch (err) {
 			setError(err as FlowError);
@@ -264,7 +267,7 @@ const AuthorizationCodeFlowRedesign: React.FC = () => {
 		}
 	}, [exchangeResult, creds, mode]);
 
-	const configured = Boolean(creds.environmentId && creds.clientId && creds.redirectUri);
+	const configured = Boolean(creds.environmentId && creds.clientId);
 	const cur = engine.current.id;
 
 	return (
@@ -353,8 +356,8 @@ const AuthorizationCodeFlowRedesign: React.FC = () => {
 						/>
 						<FieldGroup
 							label="Redirect URI"
-							value={creds.redirectUri}
-							onChange={set('redirectUri')}
+							value={redirectUri}
+							onChange={(e) => setRedirectUri(e.target.value)}
 							placeholder="https://localhost:3000/callback"
 						/>
 					</Grid>
