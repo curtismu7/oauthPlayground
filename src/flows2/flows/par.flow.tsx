@@ -5,9 +5,11 @@
 // (integrity-protected, never visible in the URL), receives a short-lived
 // request_uri, then redirects with only client_id + request_uri on the front channel.
 // REDIRECT-based: reuses the shared AuthCallback + authzStash; stash.returnTo = '/v2/flows/par'.
+//
+// Look-and-feel: standardized on the /v2/flows/authorization-code design language —
+// shared palette/primitives, signature FlowDiagram, header Real/Mock toggle, spec pills.
 
 import React, { useCallback, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
@@ -16,12 +18,14 @@ import { FieldGroup } from '../framework/FieldGroup';
 import { CodeBlock, JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { tokens } from '../framework/tokens';
+import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { FlowDiagram } from '../framework/FlowDiagram';
 import { clearStash, loadStash, saveStash } from '../framework/authzStash';
 import type {
 	FlowCredentials,
 	FlowError,
 	FlowMode,
+	OAuthSpec,
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
@@ -42,60 +46,28 @@ const STEPS: StepDefinition[] = [
 
 const PAR_RETURN_TO = '/v2/flows/par';
 
-// ─── Styled primitives (match authorizationCode.flow.tsx exactly) ─────────────
-
-const Toggle = styled.div`
-	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
-`;
-
-const Pill = styled.button<{ $active: boolean }>`
-	font-size: 0.82rem;
-	font-weight: 600;
-	padding: 0.4rem 0.9rem;
-	border-radius: 8px;
-	cursor: pointer;
-	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
-	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
-	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
-`;
-
-const Grid = styled.div`
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 0.9rem;
-	@media (max-width: 640px) {
-		grid-template-columns: 1fr;
-	}
-`;
-
-const Action = styled.button`
-	align-self: flex-start;
-	font-size: 0.9rem;
-	font-weight: 700;
-	padding: 0.6rem 1.2rem;
-	border-radius: 8px;
-	border: 1px solid ${tokens.color.successBorder};
-	background: ${tokens.color.success};
-	color: #fff;
-	cursor: pointer;
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-`;
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const defaultRedirectUri = () =>
 	typeof window !== 'undefined' ? `${window.location.origin}/v2/flows/authz-callback` : '';
+
+// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
+// (The mock token exchange does not validate the secret, so any value works.)
+const MOCK_CREDS = {
+	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
+	region: 'com',
+	clientId: 'mock-client-demo-1234567890',
+	clientSecret: 'mock-client-secret',
+	scope: 'openid profile email',
+} as const;
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const PARFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
+	const [spec, setSpec] = useState<OAuthSpec>('2.1');
+	const [oidc, setOidc] = useState(true);
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -116,6 +88,34 @@ const PARFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
+	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	// Auto-populate mock credentials when mode changes; clear them when switching to real.
+	useEffect(() => {
+		if (mode === 'mock') {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId || MOCK_CREDS.environmentId,
+				region: c.region || MOCK_CREDS.region,
+				clientId: c.clientId || MOCK_CREDS.clientId,
+				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
+				scope: c.scope || MOCK_CREDS.scope,
+			}));
+		} else {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
+				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
+				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : c.clientSecret ?? '',
+				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
+			}));
+		}
+		setPkce(null);
+		setCode('');
+		setAuthorizeUrl('');
+		setPushResult(null);
+	}, [mode]);
+
 	// Resume after real redirect: AuthCallback wrote the code into the stash.
 	useEffect(() => {
 		const stash = loadStash();
@@ -127,6 +127,8 @@ const PARFlow: React.FC = () => {
 		}
 		if (stash.code) {
 			setMode('real');
+			setSpec(stash.spec);
+			setOidc(stash.oidc);
 			setCreds((c) => ({
 				...c,
 				environmentId: stash.environmentId,
@@ -160,7 +162,7 @@ const PARFlow: React.FC = () => {
 					credentials: creds,
 					redirectUri,
 					state,
-					nonce: crypto.randomUUID(),
+					...(oidc ? { nonce: crypto.randomUUID() } : {}),
 					codeChallenge: pair.codeChallenge,
 					scope: creds.scope,
 				},
@@ -177,7 +179,7 @@ const PARFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, redirectUri, mode, engine]);
+	}, [creds, redirectUri, mode, oidc, engine]);
 
 	const handleAuthorize = useCallback(() => {
 		if (!pushResult || !pkce) return;
@@ -195,8 +197,8 @@ const PARFlow: React.FC = () => {
 		saveStash({
 			state: authState,
 			codeVerifier: pkce.codeVerifier,
-			oidc: true,
-			spec: '2.1',
+			oidc,
+			spec,
 			environmentId: creds.environmentId,
 			region: creds.region,
 			clientId: creds.clientId,
@@ -205,7 +207,7 @@ const PARFlow: React.FC = () => {
 			returnTo: PAR_RETURN_TO,
 		});
 		window.location.assign(authorizeUrl);
-	}, [pushResult, pkce, mode, authState, creds, redirectUri, authorizeUrl, engine]);
+	}, [pushResult, pkce, mode, authState, oidc, spec, creds, redirectUri, authorizeUrl, engine]);
 
 	const handleExchange = useCallback(async () => {
 		if (!pkce || !code) return;
@@ -227,7 +229,11 @@ const PARFlow: React.FC = () => {
 
 	// ─── Computed guards ──────────────────────────────────────────────────────
 
-	const configured = Boolean(creds.environmentId && creds.clientId && creds.clientSecret && redirectUri);
+	// Mock runs offline — never gate it on real credentials.
+	const configured =
+		mode === 'mock'
+			? true
+			: Boolean(creds.environmentId && creds.clientId && creds.clientSecret && redirectUri);
 	const cur = engine.current.id;
 
 	// ─── Render ───────────────────────────────────────────────────────────────
@@ -235,23 +241,29 @@ const PARFlow: React.FC = () => {
 	return (
 		<FlowContainer
 			title="Pushed Authorization Request (PAR)"
-			spec="2.1"
+			spec={spec}
 			mode={mode}
+			onModeChange={selectMode}
 			subtitle="The client sends the full authorization request to the AS back channel first (RFC 9126), receives a short-lived request_uri, then redirects with only client_id + request_uri — nothing tamperable in the URL."
 			engine={engine}
 		>
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure"
-					explanation="Real mode runs against PingOne via the BFF at /api/par; mock runs fully offline. PAR is mandatory-ish in FAPI 2.0 / OAuth 2.1 security profiles."
+					explanation="Real mode runs against PingOne via the BFF at /api/par; mock runs fully offline. PAR is RECOMMENDED in OAuth 2.1 and REQUIRED in FAPI 2.0 security profiles."
 					canPrev={false}
 					nextLabel="Continue"
 					onNext={engine.goNext}
 					canNext={configured}
 				>
+					<FlowDiagram
+						label="OAuth 2.1 Pushed Authorization Request"
+						nodes={['Client', 'PAR EP', 'AuthZ', 'Token']}
+					/>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>OAuth 2.0</Pill>
+						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>OAuth 2.1</Pill>
+						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>OIDC {oidc ? 'on' : 'off'}</Pill>
 					</Toggle>
 					<Grid>
 						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} />
@@ -259,7 +271,7 @@ const PARFlow: React.FC = () => {
 						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} />
 						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} />
 						<FieldGroup label="Redirect URI" value={redirectUri} onChange={(e) => setRedirectUri(e.target.value)} hint="Must be registered on the PingOne app" />
-						<FieldGroup label="Scope (optional)" value={creds.scope ?? ''} onChange={set('scope')} placeholder="openid profile email" />
+						<FieldGroup label="Scope (optional)" value={creds.scope ?? ''} onChange={set('scope')} placeholder={oidc ? 'openid profile email' : 'profile email'} />
 					</Grid>
 				</FlowStep>
 			)}
