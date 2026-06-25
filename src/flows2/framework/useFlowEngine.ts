@@ -46,7 +46,7 @@ export function useFlowEngine(steps: StepDefinition[]): FlowEngine {
 		() => ({
 			steps,
 			index,
-			current: steps[index],
+			current: index >= 0 && index < steps.length ? steps[index] : steps[0],
 			isFirst: index === 0,
 			isLast: index === steps.length - 1,
 			completed,

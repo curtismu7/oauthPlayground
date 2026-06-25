@@ -86,13 +86,18 @@ const ImplicitHybridCallback: React.FC = () => {
 		let stashError: string | null = null;
 		try {
 			const raw = sessionStorage.getItem(IH_PENDING_KEY);
-			pending = raw ? (JSON.parse(raw) as ImplicitHybridPending) : null;
-		} catch (err) {
-			if (err instanceof SyntaxError) {
-				stashError = 'Corrupted pending authorization state (parse error).';
-			} else {
-				stashError = 'Session storage unavailable — authorization state could not be recovered.';
+			if (raw) {
+				const parsed = JSON.parse(raw);
+				if (parsed && typeof parsed === 'object') {
+					pending = parsed as ImplicitHybridPending;
+				} else {
+					stashError = 'Invalid pending authorization state format.';
+				}
 			}
+		} catch (err) {
+			stashError = err instanceof SyntaxError
+				? 'Corrupted pending authorization state (parse error).'
+				: 'Session storage unavailable — authorization state could not be recovered.';
 		}
 
 		if (stashError) {
