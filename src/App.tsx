@@ -11,7 +11,7 @@ import { ExternalScriptErrorBoundary, useExternalErrorHandling } from './utils/e
 import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
 import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
 import { PromptModalV8 } from './v8/components/PromptModalV8';
-import { WorkerTokenModal } from '@/components/WorkerTokenModal';
+import { WorkerTokenCredentialModal } from '@/components/WorkerTokenCredentialModal';
 import { FlowStateProvider } from './v8/contexts/FlowStateContext';
 import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
 import './styles/spec-cards.css';
@@ -2167,11 +2167,12 @@ function AppContent() {
 					theme="green"
 				/>
 
-				{/* Global Worker Token Modal — uses Worker Token modal service (WorkerTokenModalV9) */}
+				{/* Global Worker Token Modal — uses new credential form */}
 				{showWorkerTokenModal && (
-					<WorkerTokenModal
+					<WorkerTokenCredentialModal
 						isOpen={showWorkerTokenModal}
 						onClose={() => setShowWorkerTokenModal(false)}
+						onTokenAcquired={() => setShowWorkerTokenModal(false)}
 					/>
 				)}
 
