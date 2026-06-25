@@ -184,18 +184,19 @@ export class MfaAuthenticationServiceV8 {
 			if (policy?.skipUserLockVerification !== true && params.username) {
 				// Fetch user data for lock verification
 				const { MFAServiceV8 } = await import('./mfaServiceV8');
-				let userIsLocked = false;
 				try {
 					user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 					// Check if user is locked (check multiple possible fields)
-					userIsLocked =
+					const isLocked =
 						user?.locked === true ||
 						user?.account?.locked === true ||
 						user?.status === 'LOCKED' ||
 						user?.account?.status === 'LOCKED';
 
-					if (userIsLocked) {
+					if (isLocked) {
+						const errorMessage =
+							'User account is locked. Please contact your administrator to unlock your account.';
 						logger.error(`${MODULE_TAG} User is locked, blocking authentication:`, {
 							userId: user.id,
 							username: params.username,
@@ -204,22 +205,15 @@ export class MfaAuthenticationServiceV8 {
 							userLocked: user?.locked,
 							accountLocked: user?.account?.locked,
 						});
+						throw new Error(errorMessage);
 					}
 				} catch (error) {
-					// If lookup fails, let the backend handle it (it will return proper error).
-					// NOTE: only lookup failures are tolerated here — the locked-user block is
-					// enforced after this try/catch so it can never be swallowed.
+					// If lookup fails, let the backend handle it (it will return proper error)
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					logger.warn(
 						`${MODULE_TAG} Could not verify user lock status, continuing:`,
 						'User lock verification failed, proceeding with authentication',
 						{ error: errorMessage, originalError: error }
-					);
-				}
-
-				if (userIsLocked) {
-					throw new Error(
-						'User account is locked. Please contact your administrator to unlock your account.'
 					);
 				}
 			} else {
@@ -670,9 +664,7 @@ export class MfaAuthenticationServiceV8 {
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
 			const cleanTokenStr = cleanToken || '';
-			// Worker token is sent in the Authorization header (not the query string) to keep it
-			// out of access logs, browser history and Referer headers.
-			const proxyEndpoint = `/api/pingone/mfa/read-device-authentication?environmentId=${encodeURIComponent(environmentId)}&userId=${encodeURIComponent(userId)}&authenticationId=${encodeURIComponent(authenticationId)}`;
+			const proxyEndpoint = `/api/pingone/mfa/read-device-authentication?environmentId=${encodeURIComponent(environmentId)}&userId=${encodeURIComponent(userId)}&authenticationId=${encodeURIComponent(authenticationId)}&workerToken=${encodeURIComponent(cleanTokenStr)}`;
 
 			// Determine base URL - use custom domain if provided, otherwise use region-based domain
 			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(
@@ -707,7 +699,6 @@ export class MfaAuthenticationServiceV8 {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json',
-					...(cleanTokenStr && { Authorization: `Bearer ${cleanTokenStr}` }),
 				},
 				retry: { maxAttempts: 3 },
 			});
@@ -1229,9 +1220,7 @@ export class MfaAuthenticationServiceV8 {
 
 		// Check if token is missing, expired, or about to expire
 		const now = Date.now();
-		// Treat a missing/zero expiry as expired so a token with no `exp` claim is renewed
-		// rather than reused indefinitely.
-		const isExpired = !tokenExpiry || now >= tokenExpiry;
+		const isExpired = tokenExpiry && now >= tokenExpiry;
 		const timeRemaining = tokenExpiry ? Math.max(0, tokenExpiry - now) : 0;
 		const timeRemainingSeconds = Math.floor(timeRemaining / 1000);
 		const isAboutToExpire = tokenExpiry && timeRemaining <= renewalThreshold * 1000;
