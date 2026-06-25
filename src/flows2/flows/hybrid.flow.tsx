@@ -10,7 +10,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { clearStash, loadStash, saveStash } from '../framework/authzStash';
-import { CodeBlock, JsonView } from '../framework/CodeBlock';
+import { CodeBlock } from '../framework/CodeBlock';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
@@ -27,6 +27,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { authorizationCodeService } from '../services/authorizationCodeService';
 
@@ -68,8 +69,6 @@ const HybridFlow: React.FC = () => {
 	const [code, setCode] = useState('');
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
-	const [userInfoData, setUserInfoData] = useState<Record<string, unknown> | null>(null);
-	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -214,16 +213,6 @@ const HybridFlow: React.FC = () => {
 		}
 	}, [code, creds, redirectUri, mode, engine]);
 
-	const handleUserInfo = useCallback(async () => {
-		if (!result?.accessToken) return;
-		setUserInfoData(await authorizationCodeService.userInfo(result.accessToken, creds, mode));
-	}, [result, creds, mode]);
-
-	const handleIntrospect = useCallback(async () => {
-		if (!result?.accessToken) return;
-		setIntrospectData(await authorizationCodeService.introspect(result.accessToken, creds, mode));
-	}, [result, creds, mode]);
-
 	// Mock runs offline — never gate it on real credentials.
 	const configured =
 		mode === 'mock'
@@ -366,24 +355,12 @@ const HybridFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
-					<Toggle>
-						<Action onClick={handleUserInfo} disabled={!result?.accessToken}>
-							Call UserInfo
-						</Action>
-						<Action onClick={handleIntrospect} disabled={!result?.accessToken}>
-							Introspect token
-						</Action>
-					</Toggle>
-					{userInfoData && (
-						<ResultCard title="UserInfo" tone="info">
-							<JsonView data={userInfoData} />
-						</ResultCard>
-					)}
-					{introspectData && (
-						<ResultCard title="Introspection (RFC 7662)" tone="info">
-							<JsonView data={introspectData} />
-						</ResultCard>
-					)}
+					<UseTokensStep
+						result={result}
+						credentials={creds}
+						mode={mode}
+						tools={['userinfo', 'introspect', 'decode']}
+					/>
 					<ExplanationPanel title="What each token does">
 						The ID token carries the user's identity (sub, name, email, …) and was decoded
 						client-side in step 2. The access token authorizes API calls to protected resources.
