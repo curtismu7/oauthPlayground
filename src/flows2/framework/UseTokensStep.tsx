@@ -7,6 +7,7 @@
 // every flow that lists it in `tools` gains it. No flow file is restructured.
 
 import React, { useState } from 'react';
+import { refreshTokenService } from '../services/refreshTokenService';
 import { tokenIntrospectionService } from '../services/tokenIntrospectionService';
 import { tokenRevocationService } from '../services/tokenRevocationService';
 import { userInfoService } from '../services/userInfoService';
@@ -17,7 +18,7 @@ import { Action, Toggle } from './primitives';
 import { ResultCard } from './ResultCard';
 import type { FlowCredentials, FlowError, FlowMode, TokenResult } from './types';
 
-export type TokenTool = 'userinfo' | 'introspect' | 'revoke' | 'decode';
+export type TokenTool = 'userinfo' | 'introspect' | 'revoke' | 'refresh' | 'decode';
 
 // Decode a JWT's payload client-side (no signature verification — display only).
 function decodeJwt(token: string): Record<string, unknown> | null {
@@ -77,6 +78,21 @@ const TOOLS: Record<TokenTool, ToolDef> = {
 				},
 				mode
 			),
+	},
+	refresh: {
+		label: 'Refresh tokens',
+		title: 'Refreshed tokens (RFC 6749 §6)',
+		tone: 'ok',
+		available: (r) => Boolean(r.refreshToken),
+		run: async (r, creds, mode) => {
+			const res = await refreshTokenService.refresh(creds, r.refreshToken ?? '', mode);
+			return {
+				rotated: res.rotated,
+				new_access_token: res.token.accessToken,
+				new_refresh_token: res.token.refreshToken,
+				...res.token.raw,
+			};
+		},
 	},
 	decode: {
 		label: 'Decode JWT',

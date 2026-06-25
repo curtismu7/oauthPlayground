@@ -409,7 +409,7 @@ const ImplicitHybridFlow: React.FC = () => {
 						result={exchangeResult}
 						credentials={creds}
 						mode={mode}
-						tools={['userinfo', 'introspect', 'decode']}
+						tools={['userinfo', 'introspect', 'refresh', 'decode']}
 					/>
 					{fragmentParams && (
 						<ResultCard title="Fragment params (#…)" tone="ok">
