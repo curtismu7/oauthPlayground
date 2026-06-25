@@ -8,16 +8,17 @@
 
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { CredentialsForm } from '../framework/CredentialsForm';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowStep } from '../framework/FlowStep';
 import { FlowResult } from '../framework/FlowResult';
 import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
 import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { JsonView } from '../framework/CodeBlock';
-import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { Action } from '../framework/primitives';
 import { FlowDiagram } from '../framework/FlowDiagram';
+import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type {
 	FlowCredentials,
@@ -220,25 +221,18 @@ const OidcDiscoveryFlow: React.FC = () => {
 						label="OIDC Discovery"
 						nodes={['Client', '/.well-known', 'Metadata']}
 					/>
-					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>OAuth 2.0</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>OAuth 2.1</Pill>
-						<Pill $active={oidc} onClick={() => setOidc((v) => !v)}>OIDC {oidc ? 'on' : 'off'}</Pill>
-					</Toggle>
-					<Grid>
-						<FieldGroup
-							label="Environment ID"
-							value={creds.environmentId}
-							onChange={set('environmentId')}
-							placeholder="uuid"
-						/>
-						<FieldGroup
-							label="Region"
-							value={creds.region}
-							onChange={set('region')}
-							placeholder="com | eu | ca | asia"
-						/>
-					</Grid>
+					<SpecToggle
+						spec={spec}
+						onSpecChange={setSpec}
+						oidc={oidc}
+						onOidcToggle={() => setOidc((v) => !v)}
+					/>
+					<CredentialsForm
+						creds={creds}
+						set={set}
+						showSecret={false}
+						showScope={false}
+					/>
 					<ExplanationPanel title="What is OIDC Discovery?">
 						OpenID Connect Discovery (RFC 8414) lets any client learn an authorization server's
 						endpoints and capabilities from a single URL:

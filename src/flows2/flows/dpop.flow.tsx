@@ -7,17 +7,18 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { CredentialsForm } from '../framework/CredentialsForm';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
 import { JsonView } from '../framework/CodeBlock';
 import { CodeBlock } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { Action, Grid, Pill, Toggle } from '../framework/primitives';
+import { Action, Pill, Toggle } from '../framework/primitives';
 import { FlowDiagram } from '../framework/FlowDiagram';
+import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
@@ -203,10 +204,7 @@ const DPoPFlow: React.FC = () => {
 						label="DPoP Sender-Constrained Tokens"
 						nodes={['Client', 'DPoP Proof', 'Token EP', 'Bound Token']}
 					/>
-					<Toggle>
-						<Pill $active={spec === '2.0'} onClick={() => setSpec('2.0')}>OAuth 2.0</Pill>
-						<Pill $active={spec === '2.1'} onClick={() => setSpec('2.1')}>OAuth 2.1</Pill>
-					</Toggle>
+					<SpecToggle spec={spec} onSpecChange={setSpec} />
 					<Toggle>
 						{(['client_secret_post', 'client_secret_basic'] as ClientAuthMethod[]).map((m) => (
 							<Pill
@@ -218,13 +216,11 @@ const DPoPFlow: React.FC = () => {
 							</Pill>
 						))}
 					</Toggle>
-					<Grid>
-						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} placeholder="uuid" />
-						<FieldGroup label="Region" value={creds.region} onChange={set('region')} placeholder="com | eu | ca | asia" />
-						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} placeholder="worker client id" />
-						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} placeholder="worker client secret" />
-						<FieldGroup label="Scope (optional)" value={creds.scope ?? ''} onChange={set('scope')} placeholder="e.g. p1:read:user" />
-					</Grid>
+					<CredentialsForm
+						creds={creds}
+						set={set}
+						scopePlaceholder="e.g. p1:read:user"
+					/>
 					<ExplanationPanel title="What is DPoP and why does it matter?">
 						A bearer access token is like cash — whoever holds it can spend it. DPoP makes it more
 						like a signed cheque: the token is cryptographically bound to a public key, and every
