@@ -107,7 +107,10 @@ const AuthCallback: React.FC = () => {
 				<Msg>Validating the authorization code and returning to the flow.</Msg>
 			)}
 			{error && (
-				<button type="button" onClick={() => { clearStash(); navigate(returnTo || FLOW_ROUTE); }}>
+				<button type="button" onClick={() => {
+					try { clearStash(); } catch (_e) { /* noop */ }
+					navigate(returnTo || FLOW_ROUTE);
+				}}>
 					Back to flow
 				</button>
 			)}
