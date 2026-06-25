@@ -18,6 +18,7 @@ import { Action, Grid } from '../framework/primitives';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
+import { TokenLifetimeConfig, type TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import type { FlowError, FlowMode, OAuthSpec, StepDefinition, TokenResult } from '../framework/types';
 import { pingoneEndpoints } from '../services/pingone';
 import { samlBearerService, type SAMLBearerAssertionData } from '../services/samlBearerService';
@@ -82,6 +83,8 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
 	const [spec, setSpec] = useState<OAuthSpec>('2.0');
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 
 	// Step 1: Configure
 	const [envId, setEnvId] = useState(env.VITE_PINGONE_ENVIRONMENT_ID || '');
@@ -167,6 +170,8 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 					clientId,
 					assertion: updatedSamlData,
 					scopes,
+					tokenLifetimes,
+					authMethod: 'client_secret_post',
 				},
 				mode
 			);
@@ -177,7 +182,7 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [envId, region, clientId, samlData, scopes, mode, engine]);
+	}, [envId, region, clientId, samlData, scopes, tokenLifetimes, mode, engine]);
 
 	const handleIntrospect = useCallback(async () => {
 		if (!result?.accessToken) return;
@@ -214,6 +219,7 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 						<FieldGroup label="Client ID" value={clientId} onChange={(e) => setClientId(e.target.value)} placeholder="oauth client id" />
 						<FieldGroup label="Scope (optional)" value={scopes} onChange={(e) => setScopes(e.target.value)} placeholder="e.g. openid profile" />
 					</Grid>
+					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={false} showRefreshToken={false} />
 					<SaveRow>
 						<SaveBtn
 							disabled={savingCreds}

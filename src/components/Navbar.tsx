@@ -439,7 +439,7 @@ const Navbar: React.FC<NavbarProps> = ({
 						}}
 					/>
 					<div>
-						<span style={{ color: '#23242a', fontSize: 17, fontWeight: 700 }}>PingOne MasterFlow API</span>
+						<span style={{ color: '#23242a', fontSize: 17, fontWeight: 700 }}>PingOne OAuth Playground</span>
 						<div
 							className="user-info"
 							aria-live="polite"

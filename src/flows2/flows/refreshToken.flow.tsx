@@ -24,6 +24,8 @@ import { Action, Pill, Toggle } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
 import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
+import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import type {
 	ClientAuthMethod,
 	FlowCredentials,
@@ -104,6 +106,8 @@ const RefreshTokenFlow: React.FC = () => {
 	const [mode, setMode] = useState<FlowMode>('real');
 	const [spec, setSpec] = useState<OAuthSpec>('2.1');
 	const [oidc, setOidc] = useState(true);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -154,7 +158,7 @@ const RefreshTokenFlow: React.FC = () => {
 		setError(null);
 		setResult(null);
 		try {
-			const r = await refreshTokenService.refresh(creds, inputRefreshToken, mode);
+			const r = await refreshTokenService.refresh(creds, inputRefreshToken, mode, tokenLifetimes, creds.authMethod);
 			setResult(r);
 			engine.markComplete('refresh');
 		} catch (err) {
@@ -162,7 +166,7 @@ const RefreshTokenFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, inputRefreshToken, mode, engine]);
+	}, [creds, inputRefreshToken, mode, engine, tokenLifetimes]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured =
@@ -218,6 +222,7 @@ const RefreshTokenFlow: React.FC = () => {
 						saving={savingCreds}
 						saved={savedCreds}
 					/>
+					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={false} showRefreshToken={true} />
 					<FieldGroup
 						label="Refresh Token (paste here)"
 						value={inputRefreshToken}

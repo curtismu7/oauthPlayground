@@ -29,6 +29,7 @@ import type {
 	FlowMode,
 	OAuthSpec,
 	StepDefinition,
+	TokenLifetimes,
 } from '../framework/types';
 import { pingoneEndpoints } from '../services/pingone';
 import {
@@ -157,6 +158,14 @@ const OidcDiscoveryFlow: React.FC = () => {
 	const [jwks, setJwks] = useState<JwksResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({
+		accessTokenSeconds: 3600,
+		idTokenSeconds: 3600,
+		refreshTokenSeconds: 86400,
+	});
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => {
+		setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) }));
+	};
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
 

@@ -22,6 +22,7 @@ import { FlowDiagram } from '../framework/FlowDiagram';
 import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
 import type { FlowError, FlowMode, OAuthSpec, StepDefinition } from '../framework/types';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { decodeJwtPayload, pingoneEndpoints } from '../services/pingone';
 import {
 	userInfoEndpointFor,
@@ -82,6 +83,8 @@ const UserInfoFlow: React.FC = () => {
 	const [result, setResult] = useState<UserInfoResponse | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
 

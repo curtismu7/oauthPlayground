@@ -28,6 +28,7 @@ import { FlowStep } from '../framework/FlowStep';
 import { Action, Grid } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
 import { SpecToggle } from '../framework/SpecToggle';
+import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
 import { tokens } from '../framework/tokens';
 import type {
 	FlowCredentials,
@@ -37,6 +38,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { pingoneEndpoints } from '../services/pingone';
@@ -113,6 +115,15 @@ const RedirectlessFlow: React.FC = () => {
 	});
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({
+		accessTokenSeconds: 3600,
+		idTokenSeconds: 3600,
+		refreshTokenSeconds: 86400,
+	});
+
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => {
+		setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) }));
+	};
 
 	const [flowState, setFlowState] = useState<RedirectlessFlowState | null>(null);
 	const [pollStatus, setPollStatus] = useState<RedirectlessPollStatus | null>(null);
@@ -185,7 +196,7 @@ const RedirectlessFlow: React.FC = () => {
 		setPollStatus(null);
 		setResult(null);
 		try {
-			const state = await redirectlessService.startAuthorize(creds, mode);
+			const state = await redirectlessService.startAuthorize(creds, mode, tokenLifetimes, creds.authMethod);
 			setFlowState(state);
 			engine.markComplete('start');
 		} catch (err) {
@@ -193,7 +204,7 @@ const RedirectlessFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, mode, engine]);
+	}, [creds, mode, engine, tokenLifetimes]);
 
 	// ── Step 3: submit credentials then poll ─────────────────────────────────
 	const authenticate = useCallback(async () => {
@@ -207,13 +218,15 @@ const RedirectlessFlow: React.FC = () => {
 				flowState,
 				username,
 				password,
-				mode
+				mode,
+				tokenLifetimes,
+				creds.authMethod
 			);
 			setFlowState(advanced);
 
 			// If the flow completed immediately (e.g. mock), skip the poll loop.
 			if (typeof advanced.status === 'string' && advanced.status.toUpperCase() === 'COMPLETED') {
-				const pollResult = await redirectlessService.poll(creds, advanced, mode);
+				const pollResult = await redirectlessService.poll(creds, advanced, mode, tokenLifetimes, creds.authMethod);
 				if (pollResult.status === 'complete' && pollResult.token) {
 					setResult(pollResult.token);
 					setPollStatus('complete');
@@ -233,7 +246,7 @@ const RedirectlessFlow: React.FC = () => {
 			const tick = async () => {
 				if (!active.current || !mounted.current) return;
 				try {
-					const r = await redirectlessService.poll(creds, advanced, mode);
+					const r = await redirectlessService.poll(creds, advanced, mode, tokenLifetimes, creds.authMethod);
 					if (!active.current || !mounted.current) return;
 					setPollStatus(r.status);
 					if (r.status === 'complete' && r.token) {
@@ -269,7 +282,7 @@ const RedirectlessFlow: React.FC = () => {
 			// Only clear loading if we didn't enter the poll path (poll path clears it before tick).
 			if (!enteredPollPath.current) setLoading(false);
 		}
-	}, [flowState, creds, username, password, mode, engine, stopPolling]);
+	}, [flowState, creds, username, password, mode, engine, stopPolling, tokenLifetimes]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured = mode === 'mock' ? true : Boolean(creds.environmentId && creds.clientId);
@@ -306,6 +319,12 @@ const RedirectlessFlow: React.FC = () => {
 						onSave={saveCredentials}
 						saving={savingCreds}
 						saved={savedCreds}
+					/>
+					<TokenLifetimeConfig
+						lifetimes={tokenLifetimes}
+						onChange={updateTokenLifetime}
+						showIdToken={true}
+						showRefreshToken={true}
 					/>
 					<Grid>
 						<FieldGroup

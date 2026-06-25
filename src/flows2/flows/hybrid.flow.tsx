@@ -14,6 +14,7 @@ import { CodeBlock } from '../framework/CodeBlock';
 import { RequestPreview } from '../framework/RequestPreview';
 import type { CurlRequest } from '../framework/RequestPreview';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
 import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FlowContainer } from '../framework/FlowContainer';
@@ -30,6 +31,7 @@ import type {
 	OAuthSpec,
 	StepDefinition,
 	TokenResult,
+	TokenLifetimes,
 } from '../framework/types';
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
@@ -62,6 +64,8 @@ const HybridFlow: React.FC = () => {
 	const [mode, setMode] = useState<FlowMode>('real');
 	const [spec, setSpec] = useState<OAuthSpec>('2.0');
 	const [oidc, setOidc] = useState(true);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -209,6 +213,8 @@ const HybridFlow: React.FC = () => {
 					code,
 					codeVerifier: 'pkce-not-used', // Hybrid doesn't use PKCE, but the service requires it
 					oidc: true,
+					tokenLifetimes,
+					authMethod: 'client_secret_post',
 				},
 				mode
 			);
@@ -219,7 +225,7 @@ const HybridFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [code, creds, redirectUri, mode, engine]);
+	}, [code, creds, redirectUri, mode, engine, tokenLifetimes]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured =
@@ -266,6 +272,7 @@ const HybridFlow: React.FC = () => {
 						saving={savingCreds}
 						saved={savedCreds}
 					/>
+					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={oidc} showRefreshToken={true} />
 					<ExplanationPanel title="Hybrid vs. Authorization Code">
 						Hybrid returns both code and ID token from the front-channel authorization endpoint,
 						saving a round-trip for the ID token. The code is then exchanged back-channel for the

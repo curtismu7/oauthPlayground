@@ -32,6 +32,7 @@ import { Action, Pill, Toggle } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
 import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
+import { TokenLifetimeConfig, type TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import type {
 	FlowCredentials,
 	FlowError,
@@ -115,6 +116,8 @@ const ImplicitHybridFlow: React.FC = () => {
 	const [exchangeResult, setExchangeResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -263,7 +266,9 @@ const ImplicitHybridFlow: React.FC = () => {
 					redirectUri,
 					code: fragmentParams.code,
 				},
-				mode
+				mode,
+				tokenLifetimes,
+				creds.authMethod
 			);
 			setExchangeResult(result);
 		} catch (err) {
@@ -271,7 +276,7 @@ const ImplicitHybridFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [fragmentParams, creds, redirectUri, mode]);
+	}, [fragmentParams, creds, redirectUri, mode, tokenLifetimes]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured =
@@ -342,6 +347,8 @@ const ImplicitHybridFlow: React.FC = () => {
 						saving={savingCreds}
 						saved={savedCreds}
 					/>
+
+					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={oidc} showRefreshToken={false} />
 				</FlowStep>
 			)}
 

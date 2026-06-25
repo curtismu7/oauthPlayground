@@ -35,6 +35,8 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { pingoneEndpoints } from '../services/pingone';
@@ -71,6 +73,8 @@ const TokenExchangeFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
 	const [spec, setSpec] = useState<OAuthSpec>('2.0');
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -132,6 +136,8 @@ const TokenExchangeFlow: React.FC = () => {
 					actorToken: actorToken || undefined,
 					requestedScopes,
 					audience,
+					tokenLifetimes,
+					authMethod: creds.authMethod,
 				},
 				mode
 			);
@@ -142,7 +148,7 @@ const TokenExchangeFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, subjectToken, actorToken, requestedScopes, audience, mode, engine]);
+	}, [creds, subjectToken, actorToken, requestedScopes, audience, mode, engine, tokenLifetimes]);
 
 	const checkDelegation = useCallback(async () => {
 		if (!subjectToken || !actorToken) return;
@@ -196,6 +202,7 @@ const TokenExchangeFlow: React.FC = () => {
 						saving={savingCreds}
 						saved={savedCreds}
 					/>
+					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={false} showRefreshToken={false} />
 					<FieldGroup
 						label="Requested scopes (optional)"
 						value={requestedScopes}

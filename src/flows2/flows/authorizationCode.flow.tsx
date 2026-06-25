@@ -16,12 +16,14 @@ import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { Action, Note } from '../framework/primitives';
+import { Action, Note, Pill, Toggle } from '../framework/primitives';
 import { RequestPreview } from '../framework/RequestPreview';
 import type { CurlRequest } from '../framework/RequestPreview';
 import { ResultCard } from '../framework/ResultCard';
 import { SpecToggle } from '../framework/SpecToggle';
+import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
 import type {
+	ClientAuthMethod,
 	FlowCredentials,
 	FlowError,
 	FlowMode,
@@ -29,6 +31,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import {
@@ -112,6 +115,16 @@ const AuthorizationCodeFlow: React.FC = () => {
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [authMethod, setAuthMethod] = useState<ClientAuthMethod>('client_secret_post');
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({
+		accessTokenSeconds: 3600,
+		idTokenSeconds: 3600,
+		refreshTokenSeconds: 86400,
+	});
+
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => {
+		setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) }));
+	};
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -258,7 +271,15 @@ const AuthorizationCodeFlow: React.FC = () => {
 		setLoading(true);
 		try {
 			const r = await authorizationCodeService.exchangeCode(
-				{ credentials: creds, redirectUri, code, codeVerifier: pkce.codeVerifier, oidc },
+				{
+					credentials: creds,
+					redirectUri,
+					code,
+					codeVerifier: pkce.codeVerifier,
+					oidc,
+					authMethod,
+					tokenLifetimes,
+				},
 				mode
 			);
 			setResult(r);
@@ -268,7 +289,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [pkce, code, creds, redirectUri, mode, engine]);
+	}, [pkce, code, creds, redirectUri, mode, engine, authMethod, tokenLifetimes]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured =
@@ -317,6 +338,23 @@ const AuthorizationCodeFlow: React.FC = () => {
 						onSave={saveCredentials}
 						saving={savingCreds}
 						saved={savedCreds}
+					/>
+					<Toggle>
+						{(['client_secret_post', 'client_secret_basic'] as ClientAuthMethod[]).map((m) => (
+							<Pill
+								key={m}
+								$active={authMethod === m}
+								onClick={() => setAuthMethod(m)}
+							>
+								{m}
+							</Pill>
+						))}
+					</Toggle>
+					<TokenLifetimeConfig
+						lifetimes={tokenLifetimes}
+						onChange={updateTokenLifetime}
+						showIdToken={oidc}
+						showRefreshToken={true}
 					/>
 				</FlowStep>
 			)}

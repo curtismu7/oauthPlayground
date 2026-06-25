@@ -21,6 +21,7 @@ import { Action, Pill, Toggle } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
 import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
+import { TokenLifetimeConfig, type TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import type {
 	FlowCredentials,
 	FlowError,
@@ -82,6 +83,8 @@ const TokenRevocationFlow: React.FC = () => {
 	});
 	const [token, setToken] = useState('');
 	const [hint, setHint] = useState<TokenTypeHint | undefined>(undefined);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 
 	const [revokeResult, setRevokeResult] = useState<RevocationResponse | null>(null);
 	const [revokeError, setRevokeError] = useState<FlowError | null>(null);
