@@ -9,6 +9,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
@@ -34,6 +37,7 @@ import {
 	type PollStatus,
 	deviceAuthorizationService as svc,
 } from '../services/deviceAuthorizationService';
+import { pingoneEndpoints } from '../services/pingone';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -186,6 +190,9 @@ const DeviceAuthorizationFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:device-authorization', creds, setCreds);
+
 	const requestCode = useCallback(async () => {
 		setLoading(true);
 		setError(null);
@@ -315,6 +322,9 @@ const DeviceAuthorizationFlow: React.FC = () => {
 						creds={creds}
 						set={set}
 						scopePlaceholder="openid profile email"
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 					<ExplanationPanel title="When to use Device Authorization">
 						Use it when the device has no browser or no keyboard — smart TVs, CLIs, IoT. The user
@@ -333,6 +343,18 @@ const DeviceAuthorizationFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(device)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.device_authorization,
+							params: {
+								client_id: creds.clientId,
+								scope: creds.scope || (oidc ? 'openid profile email' : 'openid'),
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={requestCode} disabled={loading || !configured}>
 						{loading
 							? 'Requesting…'
@@ -386,6 +408,19 @@ const DeviceAuthorizationFlow: React.FC = () => {
 							and enter <strong>{device?.userCode}</strong>
 						</div>
 					)}
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.token,
+							params: {
+								grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+								device_code: device?.deviceCode || '<device_code>',
+								client_id: creds.clientId,
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					{!polling ? (
 						<Action onClick={startPolling} disabled={!device}>
 							Start polling

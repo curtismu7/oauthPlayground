@@ -12,7 +12,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { JsonView } from '../framework/CodeBlock';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
@@ -34,6 +37,7 @@ import type {
 } from '../framework/types';
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
+import { pingoneEndpoints } from '../services/pingone';
 import { type MayActResult, tokenExchangeService as svc } from '../services/tokenExchangeService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -92,6 +96,9 @@ const TokenExchangeFlow: React.FC = () => {
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:token-exchange', creds, setCreds);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -185,6 +192,9 @@ const TokenExchangeFlow: React.FC = () => {
 						creds={creds}
 						set={set}
 						showScope={false}
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 					<FieldGroup
 						label="Requested scopes (optional)"
@@ -230,6 +240,24 @@ const TokenExchangeFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(result)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.token,
+							params: {
+								grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+								subject_token: subjectToken || '<subject_token>',
+								subject_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+								actor_token: actorToken || undefined,
+								actor_token_type: actorToken ? 'urn:ietf:params:oauth:token-type:access_token' : undefined,
+								scope: requestedScopes || undefined,
+								audience: audience || undefined,
+								client_id: creds.clientId,
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Toggle>
 						<Action onClick={run} disabled={loading || !configured}>
 							{loading

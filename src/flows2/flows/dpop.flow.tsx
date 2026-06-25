@@ -8,7 +8,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { FlowContainer } from '../framework/FlowContainer';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
@@ -29,6 +32,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { pingoneEndpoints } from '../services/pingone';
 import {
 	dpopService,
 	type DPoPKeyPairResult,
@@ -96,6 +100,9 @@ const DPoPFlow: React.FC = () => {
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:dpop', creds, setCreds);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real.
 	useEffect(() => {
@@ -220,6 +227,9 @@ const DPoPFlow: React.FC = () => {
 						creds={creds}
 						set={set}
 						scopePlaceholder="e.g. p1:read:user"
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 					<ExplanationPanel title="What is DPoP and why does it matter?">
 						A bearer access token is like cash — whoever holds it can spend it. DPoP makes it more
@@ -336,6 +346,22 @@ const DPoPFlow: React.FC = () => {
 						proof header best-effort — PingOne may accept it, ignore it, or return an error. The
 						mock path is the reliable teaching demo.
 					</WarnBanner>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.token,
+							headers: {
+								DPoP: proofResult?.proof || '<dpop_proof>',
+							},
+							params: {
+								grant_type: 'client_credentials',
+								client_id: creds.clientId,
+								scope: creds.scope || undefined,
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={requestToken} disabled={loading || !keyPairResult || !proofResult}>
 						{loading ? 'Requesting…' : mode === 'real' ? 'Request real DPoP token' : 'Request mock DPoP token'}
 					</Action>

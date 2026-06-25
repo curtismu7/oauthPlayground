@@ -6,6 +6,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
@@ -27,6 +30,7 @@ import type {
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { clientCredentialsService } from '../services/clientCredentialsService';
+import { pingoneEndpoints } from '../services/pingone';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -87,6 +91,9 @@ const ClientCredentialsFlow: React.FC = () => {
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:client-credentials', creds, setCreds);
 
 	// Auto-populate mock credentials when mode changes; clear them when switching to real
 	useEffect(() => {
@@ -192,6 +199,9 @@ const ClientCredentialsFlow: React.FC = () => {
 						creds={creds}
 						set={set}
 						scopePlaceholder="e.g. p1:read:user"
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
 					/>
 					<FieldGroup
 						label="Audience (optional, RFC 8707)"
@@ -239,6 +249,21 @@ const ClientCredentialsFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(result)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.token,
+							params: {
+								grant_type: 'client_credentials',
+								client_id: creds.clientId,
+								scope: creds.scope || undefined,
+								audience: audience || undefined,
+								resource: resource || undefined,
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={run} disabled={loading || !configured}>
 						{loading
 							? 'Requesting…'
