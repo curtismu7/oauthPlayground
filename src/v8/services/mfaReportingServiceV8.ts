@@ -139,13 +139,6 @@ export class MFAReportingServiceV8 {
 		}
 
 		const data = await response.json();
-		// A 200 response can still carry an error body (e.g. {error:'invalid_client'}) with no
-		// access_token; guard against persisting/returning undefined ("Bearer undefined").
-		if (!data?.access_token) {
-			throw new Error(
-				`Worker token response did not include an access_token${data?.error ? `: ${data.error}` : ''}`
-			);
-		}
 		const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
 		await workerTokenServiceV8.saveToken(data.access_token, expiresAt);
 
@@ -167,12 +160,8 @@ export class MFAReportingServiceV8 {
 
 			// Build query parameters
 			const queryParams = new URLSearchParams();
-			// Combine date bounds into a single SCIM filter; appending 'filter' twice would
-			// produce filter=...&filter=... and most backends keep only one, silently dropping a bound.
-			const dateFilters: string[] = [];
-			if (params.startDate) dateFilters.push(`createdAt ge "${params.startDate}"`);
-			if (params.endDate) dateFilters.push(`createdAt le "${params.endDate}"`);
-			if (dateFilters.length) queryParams.append('filter', dateFilters.join(' and '));
+			if (params.startDate) queryParams.append('filter', `createdAt ge "${params.startDate}"`);
+			if (params.endDate) queryParams.append('filter', `createdAt le "${params.endDate}"`);
 			if (params.limit) queryParams.append('limit', params.limit.toString());
 
 			// Use backend proxy to avoid CORS issues
@@ -298,12 +287,8 @@ export class MFAReportingServiceV8 {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
 
 			const queryParams = new URLSearchParams();
-			// Combine date bounds into a single SCIM filter; appending 'filter' twice would
-			// produce filter=...&filter=... and most backends keep only one, silently dropping a bound.
-			const dateFilters: string[] = [];
-			if (params.startDate) dateFilters.push(`createdAt ge "${params.startDate}"`);
-			if (params.endDate) dateFilters.push(`createdAt le "${params.endDate}"`);
-			if (dateFilters.length) queryParams.append('filter', dateFilters.join(' and '));
+			if (params.startDate) queryParams.append('filter', `createdAt ge "${params.startDate}"`);
+			if (params.endDate) queryParams.append('filter', `createdAt le "${params.endDate}"`);
 			if (params.limit) queryParams.append('limit', params.limit.toString());
 
 			// Use backend proxy to avoid CORS issues
@@ -1446,7 +1431,7 @@ export class MFAReportingServiceV8 {
 		}
 
 		if (params.mfaEnabled !== undefined) {
-			filters.push(`(mfaEnabled eq ${params.mfaEnabled})`);
+			filters.push(`(mfaEnabled eq "${params.mfaEnabled}")`);
 		}
 
 		if (params.filter) {
