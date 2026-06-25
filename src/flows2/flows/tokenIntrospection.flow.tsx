@@ -37,6 +37,7 @@ import {
 	tokenIntrospectionService as svc,
 	type TokenTypeHint,
 } from '../services/tokenIntrospectionService';
+import { TokenLifetimeConfig, type TokenLifetimes } from '../framework/TokenLifetimeConfig';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -81,6 +82,8 @@ const TokenIntrospectionFlow: React.FC = () => {
 	const [result, setResult] = useState<IntrospectionResponse | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));

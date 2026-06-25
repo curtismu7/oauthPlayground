@@ -18,6 +18,8 @@ import { FlowStep } from '../framework/FlowStep';
 import { Action, Pill, Toggle } from '../framework/primitives';
 import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
+import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import type {
 	ClientAuthMethod,
 	FlowCredentials,
@@ -80,6 +82,8 @@ const ClientCredentialsFlow: React.FC = () => {
 		// PingOne worker apps default to Basic auth at the token endpoint.
 		authMethod: 'client_secret_basic',
 	});
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 	const [audience, setAudience] = useState('');
 	const [resource, setResource] = useState('');
 	const [discoveredScopes, setDiscoveredScopes] = useState<string[]>([]);
@@ -143,10 +147,7 @@ const ClientCredentialsFlow: React.FC = () => {
 		setError(null);
 		setResult(null);
 		try {
-			const r = await clientCredentialsService.run(
-				{ credentials: creds, audience, resource },
-				mode
-			);
+			const r = await clientCredentialsService.run({ credentials: creds, audience, resource }, mode, tokenLifetimes, creds.authMethod);
 			setResult(r);
 			engine.markComplete('request');
 		} catch (err) {
@@ -154,7 +155,7 @@ const ClientCredentialsFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, audience, resource, mode, engine]);
+	}, [creds, audience, resource, mode, engine, tokenLifetimes]);
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured =
@@ -203,6 +204,7 @@ const ClientCredentialsFlow: React.FC = () => {
 						saving={savingCreds}
 						saved={savedCreds}
 					/>
+					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={false} showRefreshToken={false} />
 					<FieldGroup
 						label="Audience (optional, RFC 8707)"
 						value={audience}

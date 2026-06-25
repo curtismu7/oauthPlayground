@@ -25,6 +25,8 @@ import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { SpecToggle } from '../framework/SpecToggle';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { clearStash, loadStash, saveStash } from '../framework/authzStash';
+import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import type {
 	FlowCredentials,
 	FlowError,
@@ -74,6 +76,8 @@ const PARFlow: React.FC = () => {
 	const [mode, setMode] = useState<FlowMode>('real');
 	const [spec, setSpec] = useState<OAuthSpec>('2.1');
 	const [oidc, setOidc] = useState(true);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -224,7 +228,7 @@ const PARFlow: React.FC = () => {
 		setLoading(true);
 		try {
 			const r = await parService.exchangeCode(
-				{ credentials: creds, redirectUri, code, codeVerifier: pkce.codeVerifier },
+				{ credentials: creds, redirectUri, code, codeVerifier: pkce.codeVerifier, tokenLifetimes, authMethod: 'client_secret_post' },
 				mode
 			);
 			setResult(r);
@@ -234,7 +238,7 @@ const PARFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [pkce, code, creds, redirectUri, mode, engine]);
+	}, [pkce, code, creds, redirectUri, mode, tokenLifetimes, engine]);
 
 	// ─── Computed guards ──────────────────────────────────────────────────────
 
@@ -285,6 +289,7 @@ const PARFlow: React.FC = () => {
 						saving={savingCreds}
 						saved={savedCreds}
 					/>
+					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={oidc} showRefreshToken={true} />
 				</FlowStep>
 			)}
 

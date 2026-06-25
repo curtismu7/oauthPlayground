@@ -10,6 +10,8 @@
 // for legacy first-party migration. Prefer Authorization Code + PKCE.
 
 import type { FlowCredentials, FlowError, FlowMode, TokenResult } from '../framework/types';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
+import type { ClientAuthMethod } from '../framework/types';
 import { applyClientAuth, toTokenResult } from './pingone';
 
 /** Build the url-encoded password-grant body + optional Basic auth header. */
@@ -40,7 +42,8 @@ export const ropcService = {
 		creds: FlowCredentials,
 		username: string,
 		password: string,
-		mode: FlowMode
+		mode: FlowMode,
+		options?: { tokenLifetimes?: TokenLifetimes; authMethod?: ClientAuthMethod }
 	): Promise<TokenResult> {
 		if (mode === 'mock') {
 			const now = Math.floor(Date.now() / 1000);

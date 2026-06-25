@@ -9,6 +9,7 @@
 //              echoes COMPLETED so the caller's poll loop terminates on the first tick.
 
 import type { FlowCredentials, FlowMode, TokenResult } from '../framework/types';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { pingoneHost, toTokenResult } from './pingone';
 
 // ─── Public types ────────────────────────────────────────────────────────────
@@ -100,7 +101,7 @@ export const redirectlessService = {
 	 * real: POST /api/pingone/redirectless/authorize
 	 * mock: returns a synthetic flow state with status USERNAME_PASSWORD_REQUIRED.
 	 */
-	async startAuthorize(creds: FlowCredentials, mode: FlowMode): Promise<RedirectlessFlowState> {
+	async startAuthorize(creds: FlowCredentials, mode: FlowMode, tokenLifetimes?: TokenLifetimes, authMethod?: string): Promise<RedirectlessFlowState> {
 		if (mode === 'mock') {
 			const raw = {
 				id: 'mock-flow-id-a1b2c3d4',
@@ -165,7 +166,9 @@ export const redirectlessService = {
 		flowState: RedirectlessFlowState,
 		username: string,
 		password: string,
-		mode: FlowMode
+		mode: FlowMode,
+		tokenLifetimes?: TokenLifetimes,
+		authMethod?: string
 	): Promise<RedirectlessFlowState> {
 		if (mode === 'mock') {
 			const fake = makeMockToken(creds);
@@ -231,7 +234,9 @@ export const redirectlessService = {
 	async poll(
 		creds: FlowCredentials,
 		flowState: RedirectlessFlowState,
-		mode: FlowMode
+		mode: FlowMode,
+		tokenLifetimes?: TokenLifetimes,
+		authMethod?: string
 	): Promise<RedirectlessPollResult> {
 		if (mode === 'mock') {
 			// After submitCredentials the mock flowState.raw already carries tokens.
