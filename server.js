@@ -1216,7 +1216,7 @@ app.get('/api/logs/read', (req, res) => {
 		// Security: validate file path is within logs directory
 		const resolvedPath = path.resolve(filePath);
 		const resolvedLogsDir = path.resolve(logsDir);
-		if (!resolvedPath.startsWith(resolvedLogsDir)) {
+		if (resolvedPath !== resolvedLogsDir && !resolvedPath.startsWith(resolvedLogsDir + path.sep)) {
 			return res.status(403).json({ error: 'Access denied' });
 		}
 
@@ -1292,7 +1292,7 @@ app.get('/api/logs/tail', (req, res) => {
 		// Security: validate file path
 		const resolvedPath = path.resolve(filePath);
 		const resolvedLogsDir = path.resolve(logsDir);
-		if (!resolvedPath.startsWith(resolvedLogsDir)) {
+		if (resolvedPath !== resolvedLogsDir && !resolvedPath.startsWith(resolvedLogsDir + path.sep)) {
 			return res.status(403).json({ error: 'Access denied' });
 		}
 
@@ -1702,7 +1702,7 @@ app.post('/api/file-storage/save-markdown', async (req, res) => {
 
 		const resolvedBase = path.resolve(baseDir);
 		const resolvedPath = path.resolve(filePath);
-		if (!resolvedPath.startsWith(resolvedBase)) {
+		if (resolvedPath !== resolvedBase && !resolvedPath.startsWith(resolvedBase + path.sep)) {
 			return res.status(403).json({ error: 'Invalid path' });
 		}
 
