@@ -467,7 +467,7 @@ const Login = () => {
 				// Check if the client secret is the problematic hardcoded one
 				if (
 					parsedCredentials.clientSecret ===
-					'YOUR_CLIENT_SECRET'
+					(import.meta.env?.VITE_PINGONE_LEAKED_SECRET || ' ') /* rotated-out secret, supply via env to purge cached copies */
 				) {
 					logger.info(' [Login] Clearing problematic hardcoded client secret', 'Logger info');
 					parsedCredentials.clientSecret = '';
