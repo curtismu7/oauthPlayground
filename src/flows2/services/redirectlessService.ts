@@ -9,6 +9,7 @@
 //              echoes COMPLETED so the caller's poll loop terminates on the first tick.
 
 import type { FlowCredentials, FlowMode, TokenResult } from '../framework/types';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { pingoneHost, toTokenResult } from './pingone';
 
 // ─── Public types ────────────────────────────────────────────────────────────
@@ -48,7 +49,13 @@ function resolveRegion(region: string): string {
 }
 
 function classifyPollData(data: Record<string, unknown>): RedirectlessPollResult {
-	const status = typeof data.status === 'string' ? data.status.toUpperCase() : '';
+	if (typeof data.status !== 'string' || !data.status) {
+		throw {
+			error: 'invalid_poll_response',
+			error_description: 'Poll response missing or invalid status field.'
+		};
+	}
+	const status = data.status.toUpperCase();
 
 	if (status === 'COMPLETED') {
 		// The flow completed — tokens live in the flow object itself or in an authorizeResponse
@@ -94,7 +101,7 @@ export const redirectlessService = {
 	 * real: POST /api/pingone/redirectless/authorize
 	 * mock: returns a synthetic flow state with status USERNAME_PASSWORD_REQUIRED.
 	 */
-	async startAuthorize(creds: FlowCredentials, mode: FlowMode): Promise<RedirectlessFlowState> {
+	async startAuthorize(creds: FlowCredentials, mode: FlowMode, tokenLifetimes?: TokenLifetimes, authMethod?: string): Promise<RedirectlessFlowState> {
 		if (mode === 'mock') {
 			const raw = {
 				id: 'mock-flow-id-a1b2c3d4',
@@ -123,7 +130,16 @@ export const redirectlessService = {
 				region: creds.region,
 			}),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			throw {
+				error: 'invalid_response',
+				error_description: `Authorization failed (HTTP ${res.status}) — response was not valid JSON`,
+				status: res.status,
+			};
+		}
 		if (!res.ok || data.error) {
 			throw {
 				error: (data.error as string) || 'redirectless_authorize_failed',
@@ -159,7 +175,9 @@ export const redirectlessService = {
 		flowState: RedirectlessFlowState,
 		username: string,
 		password: string,
-		mode: FlowMode
+		mode: FlowMode,
+		tokenLifetimes?: TokenLifetimes,
+		authMethod?: string
 	): Promise<RedirectlessFlowState> {
 		if (mode === 'mock') {
 			const fake = makeMockToken(creds);
@@ -198,7 +216,16 @@ export const redirectlessService = {
 				...(creds.clientSecret ? { clientSecret: creds.clientSecret } : {}),
 			}),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			throw {
+				error: 'invalid_response',
+				error_description: `Credentials check failed (HTTP ${res.status}) — response was not valid JSON`,
+				status: res.status,
+			};
+		}
 		if (!res.ok || data.error) {
 			throw {
 				error: (data.error as string) || 'credentials_check_failed',
@@ -225,7 +252,9 @@ export const redirectlessService = {
 	async poll(
 		creds: FlowCredentials,
 		flowState: RedirectlessFlowState,
-		mode: FlowMode
+		mode: FlowMode,
+		tokenLifetimes?: TokenLifetimes,
+		authMethod?: string
 	): Promise<RedirectlessPollResult> {
 		if (mode === 'mock') {
 			// After submitCredentials the mock flowState.raw already carries tokens.
@@ -236,6 +265,7 @@ export const redirectlessService = {
 			throw {
 				error: 'missing_resume_url',
 				error_description: 'No resumeUrl available for polling.',
+				status: 400,
 			};
 		}
 
@@ -244,7 +274,15 @@ export const redirectlessService = {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ resumeUrl: flowState.resumeUrl }),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		if (!res.ok) {
+			return { status: 'error' as const, error: { error: 'network_error', error_description: `Poll failed (HTTP ${res.status})` } };
+		}
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			return { status: 'error' as const, error: { error: 'invalid_response', error_description: 'Poll response was not valid JSON' } };
+		}
 		return classifyPollData(data);
 	},
 };

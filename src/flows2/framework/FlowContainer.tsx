@@ -32,7 +32,7 @@ const Title = styled.h1`
 	margin: 0;
 `;
 
-const Badge = styled.span<{ $variant?: 'spec' | 'real' | 'mock' }>`
+const Badge = styled.span<{ $variant?: 'spec' }>`
 	font-size: 0.72rem;
 	font-weight: 700;
 	letter-spacing: 0.02em;
@@ -41,13 +41,41 @@ const Badge = styled.span<{ $variant?: 'spec' | 'real' | 'mock' }>`
 	text-transform: uppercase;
 	color: #fff;
 	background: ${({ $variant }) =>
-		$variant === 'real' ? '#15803d' : $variant === 'mock' ? '#b45309' : '#1e3a8a'};
+		$variant === 'spec' ? '#1e3a8a' : '#1e3a8a'};
+`;
+
+const ModeToggleContainer = styled.div`
+	display: inline-flex;
+	gap: 0.25rem;
+	padding: 0.2rem;
+	background: #f1f5f9;
+	border-radius: 999px;
+	border: 1px solid #cbd5e1;
+`;
+
+const ModeToggleButton = styled.button<{ $active: boolean }>`
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	padding: 0.2rem 0.55rem;
+	border-radius: 999px;
+	text-transform: uppercase;
+	border: none;
+	cursor: pointer;
+	transition: all 150ms ease;
+	background: ${({ $active }) => ($active ? '#14b8a6' : 'transparent')};
+	color: ${({ $active }) => ($active ? '#fff' : '#64748b')};
+
+	&:hover {
+		background: ${({ $active }) => ($active ? '#0d9488' : '#e2e8f0')};
+	}
 `;
 
 const Subtitle = styled.p`
 	margin: 0.5rem 0 0;
 	color: #475569;
 	font-size: 0.95rem;
+	white-space: pre-line;
 `;
 
 const Rail = styled.ol`
@@ -89,6 +117,7 @@ export interface FlowContainerProps {
 	title: string;
 	spec?: OAuthSpec;
 	mode: FlowMode;
+	onModeChange?: (mode: FlowMode) => void;
 	subtitle?: string;
 	engine: FlowEngine;
 	children: React.ReactNode;
@@ -98,6 +127,7 @@ export const FlowContainer: React.FC<FlowContainerProps> = ({
 	title,
 	spec,
 	mode,
+	onModeChange,
 	subtitle,
 	engine,
 	children,
@@ -108,9 +138,26 @@ export const FlowContainer: React.FC<FlowContainerProps> = ({
 				<TitleRow>
 					<Title>{title}</Title>
 					{spec && <Badge $variant="spec">OAuth {spec}</Badge>}
-					<Badge $variant={mode === 'real' ? 'real' : 'mock'}>
-						{mode === 'real' ? 'Real PingOne' : 'Mock'}
-					</Badge>
+					{onModeChange ? (
+						<ModeToggleContainer>
+							<ModeToggleButton
+								$active={mode === 'real'}
+								onClick={() => onModeChange('real')}
+							>
+								Real PingOne
+							</ModeToggleButton>
+							<ModeToggleButton
+								$active={mode === 'mock'}
+								onClick={() => onModeChange('mock')}
+							>
+								Mock
+							</ModeToggleButton>
+						</ModeToggleContainer>
+					) : (
+						<Badge $variant="spec">
+							{mode === 'real' ? 'Real PingOne' : 'Mock'}
+						</Badge>
+					)}
 				</TitleRow>
 				{subtitle && <Subtitle>{subtitle}</Subtitle>}
 			</Header>

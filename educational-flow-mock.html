@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Educational OAuth Flow</title>
+	<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		:root {
+			--primary: #1e3a8a;
+			--accent: #14b8a6;
+			--neutral-50: #f9fafb;
+			--neutral-100: #f3f4f6;
+			--neutral-200: #e5e7eb;
+			--neutral-600: #4b5563;
+			--neutral-900: #111827;
+		}
+		body { font-family: 'Inter', sans-serif; background: var(--neutral-50); }
+		
+		/* Setup Screen */
+		.setup-screen {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+			background: linear-gradient(135deg, var(--neutral-50) 0%, #f0fdf4 100%);
+		}
+		.setup-card {
+			background: white;
+			border-radius: 12px;
+			padding: 3rem;
+			max-width: 600px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		}
+		.setup-title {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 2rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			color: var(--primary);
+			text-transform: uppercase;
+			margin-bottom: 1rem;
+		}
+		.setup-subtitle {
+			color: var(--neutral-600);
+			margin-bottom: 2rem;
+			font-size: 1rem;
+		}
+		.setup-section {
+			margin-bottom: 2rem;
+		}
+		.setup-label {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.75rem;
+			font-weight: 700;
+			letter-spacing: 0.1em;
+			color: var(--primary);
+			text-transform: uppercase;
+			margin-bottom: 1rem;
+		}
+		.setup-options {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 1rem;
+		}
+		.setup-btn {
+			padding: 1rem;
+			border: 2px solid var(--neutral-200);
+			border-radius: 8px;
+			background: white;
+			cursor: pointer;
+			transition: all 150ms ease;
+			font-weight: 600;
+		}
+		.setup-btn:hover {
+			border-color: var(--accent);
+			background: #f0fdf4;
+		}
+		.setup-btn.selected {
+			border-color: var(--accent);
+			background: var(--accent);
+			color: white;
+		}
+		.setup-start {
+			width: 100%;
+			padding: 1rem;
+			background: var(--accent);
+			color: white;
+			border: none;
+			border-radius: 8px;
+			font-weight: 700;
+			font-size: 1rem;
+			cursor: pointer;
+		}
+		.setup-start:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+
+		/* Flow Screen */
+		.flow-screen { display: none; }
+		.flow-screen.active { display: grid; }
+		.main {
+			display: grid;
+			grid-template-columns: 1fr 1fr 380px;
+			gap: 0;
+			min-height: 100vh;
+			background: white;
+		}
+		.navbar {
+			grid-column: 1 / -1;
+			background: white;
+			border-bottom: 1px solid var(--neutral-200);
+			padding: 1rem 2rem;
+			display: flex;
+			align-items: center;
+			gap: 2rem;
+		}
+		.navbar-title {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.75rem;
+			font-weight: 700;
+			letter-spacing: 0.1em;
+			color: var(--primary);
+			text-transform: uppercase;
+		}
+		.navbar-info {
+			display: flex;
+			gap: 2rem;
+			flex: 1;
+			font-size: 0.85rem;
+			color: var(--neutral-600);
+		}
+		.center {
+			background: white;
+			padding: 2rem;
+			overflow-y: auto;
+			border-right: 1px solid var(--neutral-200);
+		}
+		.center-title {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 1.75rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			color: var(--primary);
+			text-transform: uppercase;
+			margin-bottom: 1rem;
+		}
+		.step-card {
+			background: var(--neutral-100);
+			border: 1px solid var(--neutral-200);
+			border-left: 4px solid var(--accent);
+			border-radius: 8px;
+			padding: 1.5rem;
+			margin-bottom: 1.5rem;
+		}
+		.step-label {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.75rem;
+			font-weight: 700;
+			color: var(--primary);
+			text-transform: uppercase;
+		}
+		.step-title {
+			font-size: 1.1rem;
+			font-weight: 700;
+			color: var(--primary);
+			margin: 0.5rem 0;
+		}
+		.step-explain {
+			font-size: 0.9rem;
+			color: var(--neutral-600);
+			margin: 0.5rem 0;
+		}
+		.learn-more-btn {
+			background: none;
+			border: none;
+			color: var(--accent);
+			cursor: pointer;
+			font-weight: 600;
+			font-size: 0.85rem;
+			margin-top: 0.5rem;
+		}
+		.learn-more-content {
+			display: none;
+			margin-top: 1rem;
+			padding-top: 1rem;
+			border-top: 1px solid var(--neutral-300);
+			font-size: 0.85rem;
+			color: var(--neutral-600);
+		}
+		.learn-more-content.open {
+			display: block;
+		}
+		.rfc-cite {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.75rem;
+			color: var(--accent);
+			margin-top: 0.5rem;
+		}
+		.inspector {
+			background: var(--neutral-50);
+			border-left: 1px solid var(--neutral-200);
+			padding: 1.5rem;
+			overflow-y: auto;
+		}
+		.inspector-title {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.75rem;
+			font-weight: 700;
+			letter-spacing: 0.1em;
+			color: var(--primary);
+			text-transform: uppercase;
+			margin-bottom: 1.5rem;
+		}
+		.role-content {
+			display: none;
+		}
+		.role-content.active {
+			display: block;
+		}
+		.content-section {
+			margin-bottom: 1.5rem;
+		}
+		.content-label {
+			font-family: 'IBM Plex Mono', monospace;
+			font-size: 0.7rem;
+			font-weight: 700;
+			color: var(--primary);
+			text-transform: uppercase;
+			margin-bottom: 0.5rem;
+		}
+		.content-text {
+			font-size: 0.8rem;
+			color: var(--neutral-600);
+			line-height: 1.5;
+		}
+		.tooltip {
+			cursor: help;
+			border-bottom: 1px dotted var(--accent);
+			position: relative;
+		}
+		.tooltip:hover::after {
+			content: attr(data-tip);
+			position: absolute;
+			bottom: 100%;
+			left: 0;
+			background: var(--primary);
+			color: white;
+			padding: 0.5rem;
+			border-radius: 4px;
+			font-size: 0.75rem;
+			white-space: nowrap;
+			z-index: 1000;
+		}
+		@media (max-width: 1200px) {
+			.main { grid-template-columns: 1fr; }
+			.center { border-right: none; border-bottom: 1px solid var(--neutral-200); }
+			.inspector { border-left: none; }
+		}
+	</style>
+</head>
+<body>
+	<!-- Setup Screen -->
+	<div class="setup-screen" id="setupScreen">
+		<div class="setup-card">
+			<div class="setup-title">OAuth Flow</div>
+			<div class="setup-subtitle">Learn OAuth 2.0/2.1 Authorization Code flow with real PingOne</div>
+
+			<div class="setup-section">
+				<div class="setup-label">Learning Mode</div>
+				<div class="setup-options">
+					<button class="setup-btn" onclick="selectTour('5min')">5-min Overview</button>
+					<button class="setup-btn" onclick="selectTour('20min')">20-min Deep Dive</button>
+					<button class="setup-btn" onclick="selectTour('reference')">Reference</button>
+				</div>
+			</div>
+
+			<div class="setup-section">
+				<div class="setup-label">Your Role</div>
+				<div class="setup-options">
+					<button class="setup-btn" onclick="selectRole('developer')">Developer</button>
+					<button class="setup-btn" onclick="selectRole('security')">Security Eng.</button>
+					<button class="setup-btn" onclick="selectRole('integrator')">Integrator</button>
+				</div>
+			</div>
+
+			<button class="setup-start" onclick="startFlow()" id="startBtn" disabled>Start Learning</button>
+		</div>
+	</div>
+
+	<!-- Flow Screen -->
+	<div class="flow-screen" id="flowScreen">
+		<div class="navbar">
+			<div class="navbar-title">OAuth Made Visible + Educational</div>
+			<div class="navbar-info">
+				<span>Mode: <strong id="tourDisplay"></strong></span>
+				<span>Role: <strong id="roleDisplay"></strong></span>
+			</div>
+		</div>
+
+		<div class="main">
+			<!-- Center -->
+			<div class="center">
+				<div class="center-title">Authorization Code</div>
+
+				<!-- Step 1 -->
+				<div class="step-card">
+					<div class="step-label">1. Configure</div>
+					<div class="step-title">Client Credentials</div>
+					<div class="step-explain">Enter your OAuth client details that identify your app to PingOne.</div>
+					<button class="learn-more-btn" onclick="toggleLearnMore(0)">Learn more ↓</button>
+					<div class="learn-more-content" id="learn0">
+						<p>The <span class="tooltip" data-tip="The identifier registered with your OAuth provider">client_id</span> uniquely identifies your application. The <span class="tooltip" data-tip="Proves your app's identity to PingOne — keep this secret!">client_secret</span> proves your app is legitimate. Together, they authenticate your app at the token endpoint.</p>
+						<div class="rfc-cite">RFC 6749 Section 2.3: Client Authentication</div>
+					</div>
+				</div>
+
+				<!-- Step 2 -->
+				<div class="step-card">
+					<div class="step-label">2. PKCE</div>
+					<div class="step-title">Code Verifier & Challenge</div>
+					<div class="step-explain">Generate a cryptographic challenge to prevent authorization code theft.</div>
+					<button class="learn-more-btn" onclick="toggleLearnMore(1)">Learn more ↓</button>
+					<div class="learn-more-content" id="learn1">
+						<p><span class="tooltip" data-tip="RFC 7636: Proof Key for Public Clients">PKCE</span> adds a layer of security by binding the authorization code to your specific app instance. If someone intercepts the code, they can't use it without the verifier.</p>
+						<div class="rfc-cite">RFC 7636: Proof Key for Public Clients (PKCE)</div>
+					</div>
+				</div>
+
+				<!-- Step 3 -->
+				<div class="step-card">
+					<div class="step-label">3. Authorize</div>
+					<div class="step-title">Redirect to PingOne</div>
+					<div class="step-explain">Send the user to PingOne to log in and grant your app permission.</div>
+					<button class="learn-more-btn" onclick="toggleLearnMore(2)">Learn more ↓</button>
+					<div class="learn-more-content" id="learn2">
+						<p>The user leaves your app and goes to PingOne to authenticate. PingOne handles login, MFA, consent — your app never sees the password. This is why it's secure: credential handling stays centralized at the identity provider.</p>
+						<div class="rfc-cite">RFC 6749 Section 4.1: Authorization Code Grant</div>
+					</div>
+				</div>
+
+				<!-- Step 4 -->
+				<div class="step-card">
+					<div class="step-label">4. Exchange</div>
+					<div class="step-title">Code → Token</div>
+					<div class="step-explain">Trade the authorization code for access and ID tokens.</div>
+					<button class="learn-more-btn" onclick="toggleLearnMore(3)">Learn more ↓</button>
+					<div class="learn-more-content" id="learn3">
+						<p>After the user approves, PingOne redirects back to your app with a <span class="tooltip" data-tip="Short-lived code that proves the user approved">code</span>. Your backend exchanges this code (plus client_secret) for tokens. This exchange happens server-to-server, away from the browser.</p>
+						<div class="rfc-cite">RFC 6749 Section 4.1.3: Access Token Request</div>
+					</div>
+				</div>
+
+				<!-- Step 5 -->
+				<div class="step-card">
+					<div class="step-label">5. Use</div>
+					<div class="step-title">Call APIs</div>
+					<div class="step-explain">Use the access token to call PingOne APIs on behalf of the user.</div>
+					<button class="learn-more-btn" onclick="toggleLearnMore(4)">Learn more ↓</button>
+					<div class="learn-more-content" id="learn4">
+						<p>The access token proves you have permission to act as the user. Include it in the Authorization header when calling APIs. Tokens expire (typically 1 hour), so refresh when needed.</p>
+						<div class="rfc-cite">RFC 6750: OAuth 2.0 Bearer Token Usage</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Inspector -->
+			<div class="inspector">
+				<div class="inspector-title">Role-Specific Guide</div>
+
+				<!-- Developer Content -->
+				<div class="role-content active" id="role-developer">
+					<div class="content-section">
+						<div class="content-label">Endpoint</div>
+						<div class="content-text">/authorize, /token, /userinfo</div>
+					</div>
+					<div class="content-section">
+						<div class="content-label">Required Scopes</div>
+						<div class="content-text">openid, profile, email</div>
+					</div>
+					<div class="content-section">
+						<div class="content-label">Sample Code</div>
+						<div class="content-text">fetch('/api/authorize', {client_id, redirect_uri, code_challenge})</div>
+					</div>
+				</div>
+
+				<!-- Security Engineer Content -->
+				<div class="role-content" id="role-security">
+					<div class="content-section">
+						<div class="content-label">Attack Vectors</div>
+						<div class="content-text">Authorization code interception, client secret leakage, CSRF, redirect poisoning</div>
+					</div>
+					<div class="content-section">
+						<div class="content-label">PKCE Strength</div>
+						<div class="content-text">SHA256 hashing, 43-128 char verifier. Mitigates code theft if browser history compromised.</div>
+					</div>
+					<div class="content-section">
+						<div class="content-label">Threat Model</div>
+						<div class="content-text">State parameter prevents CSRF. HTTPS mandatory. Refresh tokens should rotate.</div>
+					</div>
+				</div>
+
+				<!-- Integrator Content -->
+				<div class="role-content" id="role-integrator">
+					<div class="content-section">
+						<div class="content-label">PingOne Setup</div>
+						<div class="content-text">Register app in PingOne, get client_id, generate client_secret, set redirect_uri</div>
+					</div>
+					<div class="content-section">
+						<div class="content-label">Configuration</div>
+						<div class="content-text">Environment ID, region, worker credentials for backend token exchange</div>
+					</div>
+					<div class="content-section">
+						<div class="content-label">Error Handling</div>
+						<div class="content-text">Handle invalid_grant (code expired), access_denied (user rejected)</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		let selectedTour = null;
+		let selectedRole = null;
+
+		function selectTour(mode) {
+			document.querySelectorAll('[onclick*="selectTour"]').forEach(btn => btn.classList.remove('selected'));
+			event.target.classList.add('selected');
+			selectedTour = mode;
+			updateStartBtn();
+		}
+
+		function selectRole(role) {
+			document.querySelectorAll('[onclick*="selectRole"]').forEach(btn => btn.classList.remove('selected'));
+			event.target.classList.add('selected');
+			selectedRole = role;
+			updateStartBtn();
+		}
+
+		function updateStartBtn() {
+			document.getElementById('startBtn').disabled = !selectedTour || !selectedRole;
+		}
+
+		function startFlow() {
+			const tourLabels = {
+				'5min': '5-min Overview',
+				'20min': '20-min Deep Dive',
+				'reference': 'Reference'
+			};
+			const roleLabels = {
+				'developer': 'Developer',
+				'security': 'Security Engineer',
+				'integrator': 'PingOne Integrator'
+			};
+
+			document.getElementById('setupScreen').style.display = 'none';
+			document.getElementById('flowScreen').classList.add('active');
+			document.getElementById('tourDisplay').textContent = tourLabels[selectedTour];
+			document.getElementById('roleDisplay').textContent = roleLabels[selectedRole];
+
+			// Show/hide learn-more based on tour mode
+			const learnMoreBtns = document.querySelectorAll('.learn-more-btn');
+			if (selectedTour === '5min') {
+				learnMoreBtns.forEach(btn => btn.style.display = 'none');
+			}
+
+			// Show role-specific content
+			document.querySelectorAll('.role-content').forEach(el => el.classList.remove('active'));
+			document.getElementById('role-' + selectedRole).classList.add('active');
+		}
+
+		function toggleLearnMore(index) {
+			const content = document.getElementById('learn' + index);
+			content.classList.toggle('open');
+			event.target.textContent = content.classList.contains('open') ? 'Hide ↑' : 'Learn more ↓';
+		}
+	</script>
+</body>
+</html>

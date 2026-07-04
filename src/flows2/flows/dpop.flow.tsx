@@ -5,8 +5,9 @@
 // a signed proof JWT, and receives an access token cryptographically bound to that
 // key. A stolen token is useless without the private key.
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
@@ -119,6 +120,18 @@ const DPoPFlow: React.FC = () => {
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
 
+	const { saveState, restoreState } = useFlowStorage('flows2:dpop');
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!keyPairResult && saved.keyPairResult) setKeyPairResult(saved.keyPairResult as typeof keyPairResult);
+			if (!proofResult && saved.proofResult) setProofResult(saved.proofResult as typeof proofResult);
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState, keyPairResult, proofResult, result, error]);
+
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
@@ -177,6 +190,10 @@ const DPoPFlow: React.FC = () => {
 			setLoading(false);
 		}
 	}, [keyPairResult, proofResult, creds, mode, engine]);
+
+	useEffect(() => {
+		saveState({ keyPairResult, proofResult, result, error });
+	}, [keyPairResult, proofResult, result, error, saveState]);
 
 	const configured = Boolean(creds.environmentId && creds.clientId && creds.clientSecret);
 	const cur = engine.current.id;

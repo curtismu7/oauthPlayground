@@ -5,7 +5,8 @@
 // claims about the authenticated end-user — the complement to the ID token.
 // Uses the shared flows2 primitives for visual parity with the other flows.
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowStep } from '../framework/FlowStep';
@@ -90,6 +91,17 @@ const UserInfoFlow: React.FC = () => {
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
 
+	const { saveState, restoreState } = useFlowStorage('flows2:userinfo');
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!accessToken && saved.accessToken) setAccessToken(saved.accessToken as string);
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState, accessToken, result, error]);
+
 	const run = useCallback(async () => {
 		setLoading(true);
 		setError(null);
@@ -104,6 +116,10 @@ const UserInfoFlow: React.FC = () => {
 			setLoading(false);
 		}
 	}, [environmentId, region, accessToken, mode, engine]);
+
+	useEffect(() => {
+		saveState({ accessToken, result, error });
+	}, [accessToken, result, error, saveState]);
 
 	const configured = mode === 'mock' ? Boolean(environmentId) : Boolean(environmentId && accessToken);
 	// Decode the access token locally — works only if it's a JWT; null for opaque tokens.

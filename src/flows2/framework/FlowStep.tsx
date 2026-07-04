@@ -19,6 +19,17 @@ const StepTitle = styled.h2`
 	margin: 0 0 0.35rem;
 `;
 
+const Description = styled.div`
+	margin: 0 0 0.8rem;
+	padding: 0.75rem 0.9rem;
+	background: #f0f9ff;
+	border: 1px solid #bae6fd;
+	border-radius: 8px;
+	color: #0369a1;
+	font-size: 0.9rem;
+	line-height: 1.5;
+`;
+
 const Explanation = styled.p`
 	margin: 0 0 1.1rem;
 	color: #475569;
@@ -56,6 +67,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'ghost' }>`
 
 export interface FlowStepProps {
 	title: string;
+	description?: React.ReactNode;
 	explanation?: React.ReactNode;
 	children: React.ReactNode;
 	canPrev?: boolean;
@@ -67,6 +79,7 @@ export interface FlowStepProps {
 
 export const FlowStep: React.FC<FlowStepProps> = ({
 	title,
+	description,
 	explanation,
 	children,
 	canPrev = true,
@@ -78,6 +91,7 @@ export const FlowStep: React.FC<FlowStepProps> = ({
 	return (
 		<Card>
 			<StepTitle>{title}</StepTitle>
+			{description && <Description>{description}</Description>}
 			{explanation && <Explanation>{explanation}</Explanation>}
 			<Body>{children}</Body>
 			<Nav>
