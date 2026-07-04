@@ -845,10 +845,6 @@ const AppRoutes: React.FC = () => {
 											</React.Suspense>
 										}
 									/>
-									<Route
-										path="/v8/unified-credentials-mockup"
-										element={<div>Unified Credentials Mockup - Coming Soon</div>}
-									/>
 									{/* TOTP uses unified flow architecture like SMS/Email */}
 									<Route
 										path="/v8/mfa/register/totp/device"
@@ -1812,10 +1808,6 @@ const AppRoutes: React.FC = () => {
 												<TestCallback />
 											</Suspense>
 										}
-									/>
-									<Route
-										path="/:customCallback(p1-callback)"
-										element={<PingOneAuthenticationCallback />}
 									/>
 									<Route path="*" element={<NotFoundRedirect />} />
 								</Routes>
