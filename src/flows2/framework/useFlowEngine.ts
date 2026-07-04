@@ -29,7 +29,7 @@ export function useFlowEngine(steps: StepDefinition[]): FlowEngine {
 		[steps.length]
 	);
 	const goNext = useCallback(() => setIndex((i) => Math.min(steps.length - 1, i + 1)), [steps.length]);
-	const goPrev = useCallback(() => setIndex((i) => Math.max(0, i - 1)), []);
+	const goPrev = useCallback(() => setIndex((i) => Math.max(0, i - 1)), [steps.length]);
 	const reset = useCallback(() => {
 		setIndex(0);
 		setCompleted(new Set());
@@ -46,7 +46,7 @@ export function useFlowEngine(steps: StepDefinition[]): FlowEngine {
 		() => ({
 			steps,
 			index,
-			current: steps[index],
+			current: index >= 0 && index < steps.length ? steps[index] : steps[0],
 			isFirst: index === 0,
 			isLast: index === steps.length - 1,
 			completed,

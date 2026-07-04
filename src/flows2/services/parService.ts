@@ -118,8 +118,16 @@ export async function pushAuthorizationRequest(
 		};
 	}
 
+	if (!data.request_uri || typeof data.request_uri !== 'string') {
+		throw {
+			error: 'invalid_request_uri',
+			error_description: 'PAR response missing or invalid request_uri field',
+			status: res.status,
+		};
+	}
+
 	return {
-		requestUri: data.request_uri as string,
+		requestUri: data.request_uri,
 		expiresIn: typeof data.expires_in === 'number' ? data.expires_in : 90,
 		raw: data,
 	};
@@ -147,16 +155,31 @@ export interface ExchangeParams {
 	redirectUri: string;
 	code: string;
 	codeVerifier: string;
+	authMethod?: string;
+	tokenLifetimes?: {
+		accessTokenSeconds?: number;
+		idTokenSeconds?: number;
+		refreshTokenSeconds?: number;
+	};
 }
 
 export async function exchangeCode(p: ExchangeParams, mode: FlowMode): Promise<TokenResult> {
 	if (mode === 'mock') {
+		const now = Math.floor(Date.now() / 1000);
+		const claims = {
+			sub: 'mock-user',
+			aud: p.credentials.clientId,
+			iss: `https://auth.pingone.${p.credentials.region}/${p.credentials.environmentId}/as`,
+			iat: now,
+			exp: now + 3600,
+		};
+		const idToken = `${btoa(JSON.stringify({ alg: 'none', typ: 'JWT' }))}.${btoa(JSON.stringify(claims))}.`;
 		return toTokenResult({
 			access_token: `mock-access-token-par-${Date.now()}`,
 			token_type: 'Bearer',
 			expires_in: 3600,
 			scope: resolveScope(p.credentials),
-			id_token: `mock-id-token-par-${Date.now()}`,
+			id_token: idToken,
 			refresh_token: 'mock-refresh-token-par',
 		});
 	}

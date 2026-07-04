@@ -19,8 +19,11 @@ export function decodeJwtPayload(token?: string): Record<string, unknown> | null
 	const parts = token.split('.');
 	if (parts.length < 2) return null;
 	try {
-		return JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))) as Record<string, unknown>;
-	} catch {
+		const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+		if (!base64) return null;
+		const decoded = atob(base64);
+		return JSON.parse(decoded) as Record<string, unknown>;
+	} catch (_err) {
 		return null;
 	}
 }
@@ -35,6 +38,21 @@ export function toTokenResult(data: Record<string, unknown>): TokenResult {
 		idToken: typeof data.id_token === 'string' ? data.id_token : undefined,
 		refreshToken: typeof data.refresh_token === 'string' ? data.refresh_token : undefined,
 		raw: data,
+	};
+}
+
+/** Return the canonical PingOne AS endpoint URLs for a given credential set. */
+export function pingoneEndpoints(creds: { environmentId: string; region?: string }) {
+	const base = `https://${pingoneHost(creds.region)}/${creds.environmentId}/as`;
+	return {
+		authorize: `${base}/authorize`,
+		token: `${base}/token`,
+		par: `${base}/par`,
+		device_authorization: `${base}/device_authorization`,
+		introspect: `${base}/introspect`,
+		revoke: `${base}/revoke`,
+		userinfo: `${base}/userinfo`,
+		discovery: `${base}/.well-known/openid-configuration`,
 	};
 }
 

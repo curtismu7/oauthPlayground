@@ -8,7 +8,7 @@
 **Status**: Active Monitoring  
 **Priority**: High  
 
-This document tracks all spinner implementations across the PingOne MasterFlow API production applications to ensure consistent loading states and user experience.
+This document tracks all spinner implementations across the PingOne OAuth Playground production applications to ensure consistent loading states and user experience.
 
 ---
 
@@ -377,4 +377,4 @@ grep -r "onClick.*async" src --include="*.tsx" | grep -v "ButtonSpinner" | wc -l
 
 ---
 
-*This spinner inventory document is part of the PingOne MasterFlow API production monitoring system. For the latest updates, check the individual component files and service implementations.*
+*This spinner inventory document is part of the PingOne OAuth Playground production monitoring system. For the latest updates, check the individual component files and service implementations.*

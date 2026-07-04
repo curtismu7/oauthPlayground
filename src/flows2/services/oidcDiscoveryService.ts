@@ -97,7 +97,16 @@ export const oidcDiscoveryService = {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ issuerUrl }),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			throw {
+				error: 'invalid_response',
+				error_description: `Discovery failed (HTTP ${res.status}) — response was not valid JSON`,
+				status: res.status,
+			};
+		}
 		if (!res.ok || data.error) {
 			throw {
 				error: (data.error as string) || 'discovery_failed',
@@ -105,6 +114,13 @@ export const oidcDiscoveryService = {
 					(data.error_description as string) ||
 					(data.message as string) ||
 					`Discovery failed (HTTP ${res.status})`,
+				status: res.status,
+			};
+		}
+		if (!data.issuer || !data.token_endpoint) {
+			throw {
+				error: 'invalid_discovery_response',
+				error_description: 'Discovery response missing required fields (issuer, token_endpoint)',
 				status: res.status,
 			};
 		}
@@ -126,7 +142,16 @@ export const oidcDiscoveryService = {
 			method: 'GET',
 			headers: { Accept: 'application/json' },
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			throw {
+				error: 'invalid_response',
+				error_description: `JWKS fetch failed (HTTP ${res.status}) — response was not valid JSON`,
+				status: res.status,
+			};
+		}
 		if (!res.ok || data.error) {
 			throw {
 				error: (data.error as string) || 'jwks_fetch_failed',
@@ -135,9 +160,14 @@ export const oidcDiscoveryService = {
 				status: res.status,
 			};
 		}
-		const keys = Array.isArray(data.keys)
-			? (data.keys as JwkKey[])
-			: [];
+		if (!Array.isArray(data.keys)) {
+			throw {
+				error: 'invalid_jwks_response',
+				error_description: 'JWKS response missing or invalid keys field',
+				status: res.status,
+			};
+		}
+		const keys = data.keys as JwkKey[];
 		return { keys, raw: data };
 	},
 };

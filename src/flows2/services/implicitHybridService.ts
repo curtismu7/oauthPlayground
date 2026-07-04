@@ -63,14 +63,21 @@ function resolveScope(c: FlowCredentials, oidc: boolean): string {
 
 /** Build a fake JWT-like opaque string for mock tokens (teaching only, not verifiable). */
 function mockJwt(payload: Record<string, unknown>): string {
-	const header = btoa(JSON.stringify({ alg: 'none', typ: 'JWT' }))
-		.replace(/\+/g, '-')
-		.replace(/\//g, '_')
-		.replace(/=/g, '');
-	const body = btoa(JSON.stringify({ iat: Math.floor(Date.now() / 1000), ...payload }))
-		.replace(/\+/g, '-')
-		.replace(/\//g, '_')
-		.replace(/=/g, '');
+	const safeBase64 = (str: string) => {
+		try {
+			return btoa(unescape(encodeURIComponent(str)))
+				.replace(/\+/g, '-')
+				.replace(/\//g, '_')
+				.replace(/=/g, '');
+		} catch {
+			return btoa(str)
+				.replace(/\+/g, '-')
+				.replace(/\//g, '_')
+				.replace(/=/g, '');
+		}
+	};
+	const header = safeBase64(JSON.stringify({ alg: 'none', typ: 'JWT' }));
+	const body = safeBase64(JSON.stringify({ iat: Math.floor(Date.now() / 1000), ...payload }));
 	return `${header}.${body}.mock_sig`;
 }
 
@@ -124,6 +131,13 @@ export function parseFragment(hash: string): FragmentParams {
  * mock mode → returns deterministic tokens.
  */
 export async function exchangeCode(p: ExchangeCodeParams, mode: FlowMode): Promise<TokenResult> {
+	if (!p.code || typeof p.code !== 'string') {
+		throw {
+			error: 'invalid_code',
+			error_description: 'Authorization code is missing or invalid',
+		};
+	}
+
 	if (mode === 'mock') {
 		return toTokenResult({
 			access_token: mockJwt({ sub: 'mock-user', client_id: p.credentials.clientId || 'mock-client', scope: 'openid profile email', grant: 'hybrid-exchange' }),
@@ -141,6 +155,7 @@ export async function exchangeCode(p: ExchangeCodeParams, mode: FlowMode): Promi
 		code: p.code,
 	});
 	if (p.credentials.scope && p.credentials.scope.trim()) params.set('scope', p.credentials.scope.trim());
+	// applyClientAuth will add client_id (and client_secret if needed) based on auth method.
 	const { body, headers } = applyClientAuth(params, p.credentials);
 
 	const res = await fetch('/api/pingone/token', {
