@@ -114,3 +114,16 @@ secrets.vault.tmp
 secrets.vault.audit.log
 secrets.vault.pre-*
 .certs/
+
+# ── Secrets & credentials (untracked 2026-07-04 code review; ROTATE before scrubbing history) ──
+.env
+.env.*
+!.env.example
+.oauth_cache
+.vscode/
+data/*.db
+data/*.db-journal
+certs/
+resources/keys/*.pem
+*.key
+*.pem

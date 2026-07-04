@@ -25,9 +25,9 @@ const httpsAgent = new Agent({
 
 // Worker token credentials from .env
 const WORKER_CREDENTIALS = {
-  environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
-  clientId: 'a4f963ea-0736-456a-be72-b1fa4f63f81f',
-  clientSecret: 'YOUR_CLIENT_SECRET'
+  environmentId: process.env.PINGONE_ENVIRONMENT_ID || '',
+  clientId: process.env.PINGONE_CLIENT_ID || '',
+  clientSecret: process.env.PINGONE_CLIENT_SECRET || ''
 };
 
 // User credentials for OAuth flow tests (reserved for future use)
