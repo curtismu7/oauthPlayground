@@ -16,11 +16,11 @@ const MODULE_TAG = '[👥 USER-STORE]';
  */
 export function saveUsers(environmentId, users) {
 	const usersDb = getDb('users');
-	const searchIndexDb = getDb('user_search_index');
 
-	// Store each user individually
-	const searchIndexUsers = [];
-
+	// Store (upsert) each user individually. The `users` DB is the single source of
+	// truth; searchUsers() reads from it directly, so there is no separate search
+	// index to keep in sync — that index used to be overwritten with only the current
+	// batch, dropping every previously-synced user on incremental / >500-user syncs.
 	for (const user of users) {
 		const key = `${environmentId}|${user.id}`;
 		const userData = {
@@ -40,12 +40,7 @@ export function saveUsers(environmentId, users) {
 		};
 
 		usersDb.put(key, userData);
-		searchIndexUsers.push(userData);
 	}
-
-	// Update search index for environment
-	const searchKey = `${environmentId}|search`;
-	searchIndexDb.put(searchKey, searchIndexUsers);
 
 	// Update metadata
 	const metadataDb = getDb('user_metadata');
@@ -75,9 +70,16 @@ export function searchUsers(environmentId, query, limit = 100, offset = 0) {
 		return getRecentUsers(environmentId, limit);
 	}
 
-	const searchIndexDb = getDb('user_search_index');
-	const searchKey = `${environmentId}|search`;
-	const allUsers = searchIndexDb.get(searchKey) || [];
+	// Read straight from the users DB (single source of truth) rather than a
+	// separate, drift-prone index copy.
+	const usersDb = getDb('users');
+	const prefix = `${environmentId}|`;
+	const allUsers = [];
+	for (const [key, value] of usersDb.entries()) {
+		if (key.startsWith(prefix) && key !== prefix) {
+			allUsers.push(value);
+		}
+	}
 
 	const queryLower = query.toLowerCase();
 
@@ -194,7 +196,6 @@ export function updateSyncMetadata(environmentId, updates) {
  */
 export function clearEnvironmentData(environmentId) {
 	const usersDb = getDb('users');
-	const searchIndexDb = getDb('user_search_index');
 	const metadataDb = getDb('user_metadata');
 
 	// Delete all users for this environment
@@ -208,10 +209,6 @@ export function clearEnvironmentData(environmentId) {
 	for (const key of keysToDelete) {
 		usersDb.del(key);
 	}
-
-	// Delete search index for this environment
-	const searchKey = `${environmentId}|search`;
-	searchIndexDb.del(searchKey);
 
 	// Delete metadata for this environment
 	metadataDb.del(environmentId);

@@ -3185,14 +3185,16 @@ export class UnifiedTokenStorageService {
 		environmentId: string;
 	} | null> {
 		try {
-			// Try unified storage first
-			const tokens = await this.getTokens({
+			// Try unified storage first. getTokens() returns a TokenStorageResult
+			// ({ success, data: UnifiedToken[] }), so read the array off .data — not
+			// off the result object itself.
+			const result = await this.getTokens({
 				type: 'worker_token',
 				id: 'worker_token',
 			});
 
-			if (tokens.length > 0) {
-				const token = tokens[0];
+			if (result.success && result.data?.length) {
+				const token = result.data.find((t) => t.id === 'worker_token') ?? result.data[0];
 				const data = JSON.parse(token.value);
 
 				// Check if token is expired
