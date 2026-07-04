@@ -9,6 +9,14 @@ import { getDb } from './openEnv.js';
 
 const MODULE_TAG = '[👥 USER-STORE]';
 
+// Keys are `${environmentId}|${userId}`. This bounded range selects exactly one
+// environment's rows — lmdb exposes getRange()/getKeys() (there is no .entries()
+// or .keys()), and a bounded range is O(matches) instead of a full-DB scan.
+const rangeFor = (environmentId) => {
+	const start = `${environmentId}|`;
+	return { start, end: `${start}￿` };
+};
+
 /**
  * Save or update users for an environment
  * @param {string} environmentId
@@ -73,12 +81,9 @@ export function searchUsers(environmentId, query, limit = 100, offset = 0) {
 	// Read straight from the users DB (single source of truth) rather than a
 	// separate, drift-prone index copy.
 	const usersDb = getDb('users');
-	const prefix = `${environmentId}|`;
 	const allUsers = [];
-	for (const [key, value] of usersDb.entries()) {
-		if (key.startsWith(prefix) && key !== prefix) {
-			allUsers.push(value);
-		}
+	for (const { value } of usersDb.getRange(rangeFor(environmentId))) {
+		allUsers.push(value);
 	}
 
 	const queryLower = query.toLowerCase();
@@ -117,12 +122,8 @@ export function getRecentUsers(environmentId, limit = 100) {
 	const usersDb = getDb('users');
 	const recentUsers = [];
 
-	// Iterate through all keys starting with environmentId|
-	const prefix = `${environmentId}|`;
-	for (const [key, value] of usersDb.entries()) {
-		if (key.startsWith(prefix) && key !== prefix) {
-			recentUsers.push(value);
-		}
+	for (const { value } of usersDb.getRange(rangeFor(environmentId))) {
+		recentUsers.push(value);
 	}
 
 	// Sort by updatedAt descending (most recent first)
@@ -142,12 +143,8 @@ export function getUserCount(environmentId) {
 	const usersDb = getDb('users');
 	let count = 0;
 
-	// Iterate through all keys starting with environmentId|
-	const prefix = `${environmentId}|`;
-	for (const key of usersDb.keys()) {
-		if (key.startsWith(prefix) && key !== prefix) {
-			count++;
-		}
+	for (const _key of usersDb.getKeys(rangeFor(environmentId))) {
+		count++;
 	}
 
 	return count;
@@ -334,12 +331,9 @@ export function clearEnvironmentData(environmentId) {
 	const metadataDb = getDb('user_metadata');
 
 	// Delete all users for this environment
-	const prefix = `${environmentId}|`;
 	const keysToDelete = [];
-	for (const key of usersDb.keys()) {
-		if (key.startsWith(prefix)) {
-			keysToDelete.push(key);
-		}
+	for (const key of usersDb.getKeys(rangeFor(environmentId))) {
+		keysToDelete.push(key);
 	}
 	for (const key of keysToDelete) {
 		usersDb.del(key);
@@ -358,12 +352,8 @@ export function exportAllUsers(environmentId) {
 	const usersDb = getDb('users');
 	const users = [];
 
-	// Iterate through all keys starting with environmentId|
-	const prefix = `${environmentId}|`;
-	for (const [key, value] of usersDb.entries()) {
-		if (key.startsWith(prefix) && key !== prefix) {
-			users.push(value);
-		}
+	for (const { value } of usersDb.getRange(rangeFor(environmentId))) {
+		users.push(value);
 	}
 
 	// Sort by username
