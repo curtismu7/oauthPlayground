@@ -164,6 +164,13 @@ const getStoredUser = (): UserInfo | null => {
 let isLoadingConfiguration = false;
 let cachedConfiguration: AppConfig | null = null;
 
+// Drop the memoized configuration so the next loadConfiguration() reads fresh from
+// storage. Must be called whenever credentials change, otherwise loadConfiguration()
+// keeps returning the first-loaded config for the life of the page.
+function invalidateConfigurationCache(): void {
+	cachedConfiguration = null;
+}
+
 // Function to load configuration from environment variables or localStorage
 async function loadConfiguration(): Promise<AppConfig> {
 	// Return cached configuration if available
@@ -491,6 +498,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			isHandlingChange = true;
 
 			try {
+				// Credentials changed — drop the cache so we re-read the new values.
+				invalidateConfigurationCache();
 				const newConfig = await loadConfiguration();
 				setConfig((prevConfig) => {
 					// Only update if config actually changed to prevent unnecessary re-renders
@@ -529,6 +538,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	const refreshConfig = useCallback(async () => {
 		logger.info('NewAuthContext', 'Refreshing configuration...');
 		try {
+			// Force a fresh read rather than returning the stale cached config.
+			invalidateConfigurationCache();
 			const newConfig = await loadConfiguration();
 			setConfig(newConfig);
 			logger.info('NewAuthContext', 'Configuration refreshed successfully', newConfig);
@@ -1122,26 +1133,17 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					}
 				}
 
-				// If no code_verifier found, generate one as fallback
+				// Do NOT fabricate a code_verifier when none is found. A freshly generated
+				// verifier can never match the original code_challenge, so it would turn a
+				// recoverable "session lost" case into an opaque invalid_grant. The token
+				// exchange below only sends code_verifier when it is non-empty, so leaving it
+				// empty lets non-PKCE flows proceed and surfaces a real PKCE failure at the
+				// server instead of a guaranteed local mismatch.
 				if (!codeVerifier) {
-					logger.info(' [NewAuthContext] No code_verifier found, generating fallback...');
-					try {
-						// Import PKCE utilities dynamically to avoid circular dependency
-						const { generateCodeVerifier } = await import('../utils/oauth');
-						codeVerifier = generateCodeVerifier();
-						sessionStorage.setItem('code_verifier', codeVerifier);
-						logger.info(
-							' [NewAuthContext] Generated fallback code_verifier and stored in sessionStorage',
-							'Logger info'
-						);
-					} catch (error) {
-						logger.error(
-							'NewAuthContext',
-							'Failed to generate fallback code_verifier',
-							undefined,
-							error as Error
-						);
-					}
+					logger.warn(
+						'NewAuthContext',
+						'No PKCE code_verifier found in sessionStorage — proceeding without one. If this was a PKCE flow, restart it (the flow session was lost).'
+					);
 				}
 
 				logger.info(' [NewAuthContext] Retrieved code_verifier from sessionStorage:', {
