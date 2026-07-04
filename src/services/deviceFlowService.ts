@@ -58,7 +58,9 @@ export interface DeviceFlowState {
 class DeviceFlowService {
 	private readonly STORAGE_KEY = 'pingone_playground_device_flow_state';
 	private readonly MAX_POLL_ATTEMPTS = 100;
-	private readonly DEFAULT_POLL_INTERVAL = 5000; // 5 seconds
+	// RFC 8628 `interval` is in SECONDS. This is used directly as state.interval and
+	// later multiplied by 1000, so it must be 5 (not 5000, which would poll every ~83 min).
+	private readonly DEFAULT_POLL_INTERVAL = 5; // seconds
 
 	/**
 	 * Start device authorization flow
@@ -204,7 +206,7 @@ class DeviceFlowService {
 			throw new Error('Device flow state not found');
 		}
 
-		const pollInterval = state.interval * 1000; // Convert to milliseconds
+		let pollInterval = state.interval * 1000; // Convert seconds to milliseconds (mutable for slow_down)
 		let pollCount = 0;
 
 		const poll = async () => {
@@ -250,6 +252,16 @@ class DeviceFlowService {
 				if (tokenResponse.error) {
 					if (tokenResponse.error === 'authorization_pending') {
 						// Still pending, continue polling
+						// eslint-disable-next-line require-atomic-updates
+						state.status = 'pending';
+						this.saveDeviceFlowState(state);
+						onUpdate?.(state);
+						setTimeout(poll, pollInterval);
+					} else if (tokenResponse.error === 'slow_down') {
+						// RFC 8628: back off by 5 seconds, then keep polling
+						pollInterval += 5000;
+						// eslint-disable-next-line require-atomic-updates
+						state.interval = Math.floor(pollInterval / 1000);
 						// eslint-disable-next-line require-atomic-updates
 						state.status = 'pending';
 						this.saveDeviceFlowState(state);
