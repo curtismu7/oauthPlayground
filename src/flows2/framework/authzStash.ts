@@ -41,6 +41,8 @@ export function loadStash(): AuthzStash | null {
 		const raw = sessionStorage.getItem(KEY);
 		return raw ? (JSON.parse(raw) as AuthzStash) : null;
 	} catch {
+		// Silently return null on any error (parse, quota, or storage unavailable)
+		// Component should not crash if stash is corrupted or inaccessible
 		return null;
 	}
 }

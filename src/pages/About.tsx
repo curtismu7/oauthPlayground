@@ -178,7 +178,7 @@ export default function About() {
 				customConfig={{
 					flowType: 'pingone',
 					title: 'OAuth Playground — About',
-					subtitle: 'Everything the PingOne MasterFlow API playground does',
+					subtitle: 'Everything the PingOne OAuth Playground playground does',
 					icon: '',
 				}}
 			/>
@@ -189,7 +189,7 @@ export default function About() {
 					<div style={{ fontSize: '3rem', lineHeight: 1 }}></div>
 					<div>
 						<h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#1f2937', margin: 0 }}>
-							PingOne MasterFlow API Playground
+							PingOne OAuth Playground Playground
 						</h1>
 						<p style={{ color: '#6b7280', marginTop: '0.5rem', lineHeight: 1.6, marginBottom: 0 }}>
 							A hands-on PingOne OAuth 2.0 &amp; OIDC testing platform. Run real flows against your
@@ -419,7 +419,7 @@ export default function About() {
 					<FeatureCard $accent="#2563eb">
 						<h4>
 							<FiCpu size={16} />
-							MasterFlow Agent (MCP)
+							OAuth Playground Agent (MCP)
 						</h4>
 						<ul>
 							<li>Built-in AI assistant powered by Model Context Protocol</li>

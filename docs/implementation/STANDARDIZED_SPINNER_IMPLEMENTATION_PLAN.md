@@ -8,7 +8,7 @@
 **Status:** Ready for Implementation  
 **Priority:** High  
 
-This plan standardizes on 2 spinner types and provides a systematic approach to implementing them across the PingOne MasterFlow API application.
+This plan standardizes on 2 spinner types and provides a systematic approach to implementing them across the PingOne OAuth Playground application.
 
 ---
 

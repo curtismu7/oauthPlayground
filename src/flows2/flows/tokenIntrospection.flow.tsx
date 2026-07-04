@@ -5,7 +5,7 @@
 // answer, unlike a local JWT decode (which cannot see revocation and fails on opaque
 // tokens). Uses the shared flows2 primitives for visual parity with the other flows.
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowStep } from '../framework/FlowStep';
@@ -29,6 +29,7 @@ import {
 	type IntrospectionResponse,
 	type TokenTypeHint,
 } from '../services/tokenIntrospectionService';
+import { useFlowStorage } from '../framework/useFlowStorage';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -109,6 +110,8 @@ const TokenIntrospectionFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
+	const { saveState, restoreState } = useFlowStorage('flows2:token-introspection');
+
 	const run = useCallback(async () => {
 		setLoading(true);
 		setError(null);
@@ -123,6 +126,19 @@ const TokenIntrospectionFlow: React.FC = () => {
 			setLoading(false);
 		}
 	}, [creds, token, hint, mode, engine]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!token && saved.token) setToken(saved.token as string);
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState]);
+
+	useEffect(() => {
+		saveState({ token, hint, result, error });
+	}, [token, hint, result, error, saveState]);
 
 	const configured = Boolean(creds.environmentId && creds.clientId && token);
 	const localClaims = useMemo(() => (token ? decodeJwtPayload(token) : null), [token]);

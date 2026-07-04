@@ -56,13 +56,29 @@ export const tokenRevocationService = {
 				token_type_hint: tokenTypeHint,
 			}),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			throw {
+				error: 'invalid_response',
+				error_description: `Token revocation failed (HTTP ${res.status}) — response was not valid JSON`,
+				status: res.status,
+			};
+		}
 		if (!res.ok || data.error) {
 			throw {
 				error: (data.error as string) || 'revocation_failed',
 				error_description:
 					(data.error_description as string) ||
 					`Token revocation failed (HTTP ${res.status})`,
+				status: res.status,
+			};
+		}
+		if (typeof data.revoked !== 'boolean') {
+			throw {
+				error: 'invalid_revocation_response',
+				error_description: 'Revocation response missing or invalid revoked field',
 				status: res.status,
 			};
 		}

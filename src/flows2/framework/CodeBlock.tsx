@@ -3,7 +3,7 @@
 // Dark monospace code display with a copy-to-clipboard button. JsonView wraps
 // CodeBlock to pretty-print arbitrary data. Both match the code box style in FlowResult.
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { tokens } from './tokens';
 
@@ -62,13 +62,27 @@ export interface CodeBlockProps {
 
 export const CodeBlock: React.FC<CodeBlockProps> = ({ value, label }) => {
 	const [copied, setCopied] = useState(false);
+	const [copyError, setCopyError] = useState(false);
+	const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	useEffect(() => {
+		return () => {
+			if (copiedTimeoutRef.current) clearTimeout(copiedTimeoutRef.current);
+			if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
+		};
+	}, []);
 
 	const handleCopy = () => {
 		navigator.clipboard.writeText(value).then(() => {
 			setCopied(true);
-			setTimeout(() => setCopied(false), 1800);
+			setCopyError(false);
+			if (copiedTimeoutRef.current) clearTimeout(copiedTimeoutRef.current);
+			copiedTimeoutRef.current = setTimeout(() => setCopied(false), 1800);
 		}).catch(() => {
-			// Clipboard API may be unavailable in some contexts — fail silently.
+			setCopyError(true);
+			if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
+			errorTimeoutRef.current = setTimeout(() => setCopyError(false), 2000);
 		});
 	};
 
@@ -78,7 +92,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ value, label }) => {
 				<LabelRow>
 					{label && <BlockLabel>{label}</BlockLabel>}
 					<CopyButton $copied={copied} onClick={handleCopy}>
-						{copied ? 'Copied' : 'Copy'}
+						{copyError ? 'Copy failed' : copied ? 'Copied' : 'Copy'}
 					</CopyButton>
 				</LabelRow>
 			)}

@@ -31,14 +31,30 @@ const AuthCallback: React.FC = () => {
 	const [returnTo, setReturnTo] = useState<string | undefined>(undefined);
 
 	useEffect(() => {
+		let timeoutId: NodeJS.Timeout | null = null;
+
 		const params = new URLSearchParams(window.location.search);
 		const code = params.get('code');
 		const state = params.get('state');
 		const err = params.get('error');
 		const errDesc = params.get('error_description');
 
-		const stash = loadStash();
+		let stash: ReturnType<typeof loadStash> | null = null;
+		let stashError: string | null = null;
+		try {
+			stash = loadStash();
+		} catch (e) {
+			stashError = 'Session storage unavailable — authorization state could not be recovered.';
+		}
 		const dest = stash?.returnTo || FLOW_ROUTE;
+
+		if (stashError) {
+			setError(stashError);
+			timeoutId = setTimeout(() => navigate(FLOW_ROUTE), 2000);
+			return () => {
+				if (timeoutId) clearTimeout(timeoutId);
+			};
+		}
 
 		if (err) {
 			if (stash) {
@@ -48,8 +64,10 @@ const AuthCallback: React.FC = () => {
 			}
 			setReturnTo(dest);
 			setError(`${err}${errDesc ? `: ${errDesc}` : ''}`);
-			const t = setTimeout(() => navigate(dest), 1500);
-			return () => clearTimeout(t);
+			timeoutId = setTimeout(() => navigate(dest), 1500);
+			return () => {
+				if (timeoutId) clearTimeout(timeoutId);
+			};
 		}
 
 		if (!stash) {
@@ -64,8 +82,10 @@ const AuthCallback: React.FC = () => {
 			saveStash(stash);
 			setReturnTo(dest);
 			setError('State mismatch — authorization rejected.');
-			const t = setTimeout(() => navigate(dest), 1500);
-			return () => clearTimeout(t);
+			timeoutId = setTimeout(() => navigate(dest), 1500);
+			return () => {
+				if (timeoutId) clearTimeout(timeoutId);
+			};
 		}
 
 		if (!code) {
@@ -87,7 +107,10 @@ const AuthCallback: React.FC = () => {
 				<Msg>Validating the authorization code and returning to the flow.</Msg>
 			)}
 			{error && (
-				<button type="button" onClick={() => { clearStash(); navigate(returnTo || FLOW_ROUTE); }}>
+				<button type="button" onClick={() => {
+					try { clearStash(); } catch (_e) { /* noop */ }
+					navigate(returnTo || FLOW_ROUTE);
+				}}>
 					Back to flow
 				</button>
 			)}

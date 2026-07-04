@@ -43,6 +43,12 @@ export interface ExchangeParams {
 	code: string;
 	codeVerifier: string;
 	oidc?: boolean;
+	authMethod?: string;
+	tokenLifetimes?: {
+		accessTokenSeconds?: number;
+		idTokenSeconds?: number;
+		refreshTokenSeconds?: number;
+	};
 }
 
 /** Coerce a caught value into a plain object so the inspect step renders clean JSON

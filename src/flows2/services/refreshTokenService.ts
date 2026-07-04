@@ -81,12 +81,23 @@ export const refreshTokenService = {
 				...(headers ? { headers } : {}),
 			}),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			throw {
+				error: 'invalid_response',
+				error_description: `Token refresh failed (HTTP ${res.status}) — response was not valid JSON`,
+				status: res.status,
+			};
+		}
 		if (!res.ok || data.error) {
 			throw {
-				error: (data.error as string) || 'token_refresh_failed',
+				error: typeof data.error === 'string' ? data.error : 'token_refresh_failed',
 				error_description:
-					(data.error_description as string) || `Token refresh failed (HTTP ${res.status})`,
+					typeof data.error_description === 'string'
+						? data.error_description
+						: `Token refresh failed (HTTP ${res.status})`,
 				status: res.status,
 			};
 		}

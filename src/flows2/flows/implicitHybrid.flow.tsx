@@ -34,6 +34,7 @@ import {
 	IH_RESULT_KEY,
 	type ImplicitHybridPending,
 } from './ImplicitHybridCallback';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import {
 	implicitHybridService,
 	type FragmentParams,
@@ -134,6 +135,8 @@ const ImplicitHybridFlow: React.FC = () => {
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
 
+	const { saveState, restoreState } = useFlowStorage('flows2:implicit-hybrid');
+
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
@@ -154,10 +157,22 @@ const ImplicitHybridFlow: React.FC = () => {
 			// noop
 		}
 
-		const params = JSON.parse(raw) as FragmentParams;
-		setFragmentParams(params);
-		engine.markComplete('authorize');
-		engine.goTo(2); // result step
+		try {
+			const params = JSON.parse(raw) as FragmentParams;
+			if (!params.state) {
+				setError({ error: 'missing_state', error_description: 'Authorization response missing state parameter.' });
+				return;
+			}
+			if (!params.access_token && !params.code) {
+				setError({ error: 'missing_token', error_description: 'Authorization response missing access_token or code.' });
+				return;
+			}
+			setFragmentParams(params);
+			engine.markComplete('authorize');
+			engine.goTo(2); // result step
+		} catch (_err) {
+			setError({ error: 'parse_error', error_description: 'Failed to parse authorization response.' });
+		}
 	}, [engine]);
 
 	const handleAuthorize = useCallback(async () => {
@@ -213,7 +228,13 @@ const ImplicitHybridFlow: React.FC = () => {
 
 	// Hybrid only: exchange the front-channel code at the token endpoint.
 	const handleExchange = useCallback(async () => {
-		if (!fragmentParams?.code) return;
+		if (!fragmentParams?.code) {
+			setError({
+				error: 'missing_code',
+				error_description: 'Authorization code not found. The authorization response may have been truncated or corrupted. Try starting the flow again.',
+			});
+			return;
+		}
 		setError(null);
 		setLoading(true);
 		try {
@@ -232,6 +253,19 @@ const ImplicitHybridFlow: React.FC = () => {
 			setLoading(false);
 		}
 	}, [fragmentParams, creds, redirectUri, mode]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!fragmentParams && saved.fragmentParams) setFragmentParams(saved.fragmentParams as typeof fragmentParams);
+			if (!exchangeResult && saved.exchangeResult) setExchangeResult(saved.exchangeResult as typeof exchangeResult);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState, fragmentParams, exchangeResult, error]);
+
+	useEffect(() => {
+		saveState({ fragmentParams, exchangeResult, error });
+	}, [fragmentParams, exchangeResult, error, saveState]);
 
 	const configured = Boolean(
 		creds.environmentId &&

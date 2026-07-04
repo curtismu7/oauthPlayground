@@ -6,8 +6,9 @@
 //   3. JWKS       — fetch the signing keys and list kid / kty / alg / use per key
 //   4. Inspect    — explanation of why discovery and JWKS matter
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowStep } from '../framework/FlowStep';
 import { FlowResult } from '../framework/FlowResult';
@@ -189,6 +190,17 @@ const OidcDiscoveryFlow: React.FC = () => {
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
 
+	const { saveState, restoreState } = useFlowStorage('flows2:oidc-discovery');
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!discovery && saved.discovery) setDiscovery(saved.discovery as typeof discovery);
+			if (!jwks && saved.jwks) setJwks(saved.jwks as typeof jwks);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState, discovery, jwks, error]);
+
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
@@ -223,6 +235,10 @@ const OidcDiscoveryFlow: React.FC = () => {
 			setLoading(false);
 		}
 	}, [creds, mode, engine, discovery]);
+
+	useEffect(() => {
+		saveState({ discovery, jwks, error });
+	}, [discovery, jwks, error, saveState]);
 
 	const configured = Boolean(creds.environmentId && creds.region);
 	const cur = engine.current.id;

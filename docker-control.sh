@@ -25,7 +25,7 @@ err()  { echo -e "  ${RED}✗${RESET}  $*" >&2; }
 # Services table
 SERVICES=(
   "oauthplayground-oauth-frontend|Frontend (nginx)|8080|https://localhost:8080"
-  "oauthplayground-oauth-backend|Backend (Node.js)|3002|https://localhost:3002"
+  "oauthplayground-oauth-backend|Backend (Node.js)|5001|https://localhost:5001"
 )
 
 is_known_service() {
@@ -119,7 +119,7 @@ cmd_start() {
   echo ""
   echo -e "${GREEN}${BOLD}  ╭─ URLS ───────────────────────────────────────────────╮${RESET}"
   echo -e "${GREEN}${BOLD}  │${RESET}  Frontend  ${YELLOW}${BOLD}https://localhost:8080${RESET}"
-  echo -e "${GREEN}${BOLD}  │${RESET}  Backend   ${YELLOW}${BOLD}https://localhost:3002${RESET}"
+  echo -e "${GREEN}${BOLD}  │${RESET}  Backend   ${YELLOW}${BOLD}https://localhost:5001${RESET}"
   echo -e "${GREEN}${BOLD}  ╰───────────────────────────────────────────────────────╯${RESET}"
   echo ""
 }

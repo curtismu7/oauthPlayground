@@ -4,25 +4,41 @@
 // pastes an existing refresh_token, fires the exchange, and sees whether the server
 // returned a *different* refresh_token — demonstrating the rotation mandate in
 // OAuth 2.1 §4.3 and automatic-reuse-revocation (draft-ietf-oauth-security-topics).
+//
+// Look-and-feel: standardized on the /v2/flows/authorization-code design language —
+// shared palette/primitives, signature FlowDiagram, header Real/Mock toggle, spec pills.
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { CredentialsForm } from '../framework/CredentialsForm';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { useFlowStorage } from '../framework/useFlowStorage';
+import { RequestPreview } from '../framework/RequestPreview';
+import type { CurlRequest } from '../framework/RequestPreview';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
+import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
+import { Action, Pill, Toggle } from '../framework/primitives';
 import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { SpecToggle } from '../framework/SpecToggle';
 import { tokens } from '../framework/tokens';
+import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import type {
 	ClientAuthMethod,
 	FlowCredentials,
 	FlowError,
 	FlowMode,
+	OAuthSpec,
 	StepDefinition,
 } from '../framework/types';
-import { refreshTokenService, type RefreshResult } from '../services/refreshTokenService';
+import { UseTokensStep } from '../framework/UseTokensStep';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import { pingoneEndpoints } from '../services/pingone';
+import { type RefreshResult, refreshTokenService } from '../services/refreshTokenService';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -32,47 +48,16 @@ const STEPS: StepDefinition[] = [
 	{ id: 'rotation', title: 'Inspect Rotation', subtitle: 'Old vs new refresh token' },
 ];
 
-const Grid = styled.div`
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 0.9rem;
-	@media (max-width: 640px) {
-		grid-template-columns: 1fr;
-	}
-`;
+// Realistic placeholders so the offline mock flow runs with zero PingOne setup.
+const MOCK_CREDS = {
+	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
+	region: 'com',
+	clientId: 'mock-client-demo-1234567890',
+	clientSecret: 'mock-client-secret',
+	scope: 'openid',
+} as const;
 
-const Toggle = styled.div`
-	display: flex;
-	gap: 0.5rem;
-	flex-wrap: wrap;
-`;
-
-const Pill = styled.button<{ $active: boolean }>`
-	font-size: 0.82rem;
-	font-weight: 600;
-	padding: 0.4rem 0.9rem;
-	border-radius: 8px;
-	cursor: pointer;
-	border: 1px solid ${({ $active }) => ($active ? tokens.color.primary : tokens.color.border)};
-	background: ${({ $active }) => ($active ? tokens.color.bgSubtle : '#fff')};
-	color: ${({ $active }) => ($active ? tokens.color.primary : tokens.color.textMuted)};
-`;
-
-const Action = styled.button`
-	align-self: flex-start;
-	font-size: 0.9rem;
-	font-weight: 700;
-	padding: 0.6rem 1.2rem;
-	border-radius: 8px;
-	border: 1px solid ${tokens.color.successBorder};
-	background: ${tokens.color.success};
-	color: #fff;
-	cursor: pointer;
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-`;
+const MOCK_REFRESH_TOKEN = 'mock-refresh-token-for-demo-use-only';
 
 const TokenCompare = styled.div`
 	display: flex;
@@ -120,12 +105,16 @@ const RotationBadge = styled.div<{ $rotated: boolean }>`
 const RefreshTokenFlow: React.FC = () => {
 	const engine = useFlowEngine(STEPS);
 	const [mode, setMode] = useState<FlowMode>('real');
+	const [spec, setSpec] = useState<OAuthSpec>('2.1');
+	const [oidc, setOidc] = useState(true);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
 		clientId: env.VITE_PINGONE_USER_CLIENT_ID || '',
 		clientSecret: env.VITE_PINGONE_USER_CLIENT_SECRET || '',
-		scope: 'openid profile',
+		scope: 'openid',
 		authMethod: 'client_secret_post',
 	});
 	const [inputRefreshToken, setInputRefreshToken] = useState('');
@@ -136,12 +125,52 @@ const RefreshTokenFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
+	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
+
+	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
+		useFlowCredentials('flows2:refresh-token', creds, setCreds);
+
+	const { saveState, restoreState } = useFlowStorage('flows2:refresh-token');
+
+	// Auto-populate mock credentials when mode changes; clear them when switching to real.
+	useEffect(() => {
+		if (mode === 'mock') {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId || MOCK_CREDS.environmentId,
+				region: c.region || MOCK_CREDS.region,
+				clientId: c.clientId || MOCK_CREDS.clientId,
+				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
+				scope: c.scope || MOCK_CREDS.scope,
+			}));
+			setInputRefreshToken((t) => t || MOCK_REFRESH_TOKEN);
+		} else {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
+				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
+				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
+				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
+			}));
+			setInputRefreshToken((t) => (t === MOCK_REFRESH_TOKEN ? '' : t));
+		}
+	}, [mode]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!inputRefreshToken && saved.inputRefreshToken) setInputRefreshToken(saved.inputRefreshToken as string);
+			if (!result && saved.result) setResult(saved.result as RefreshResult | null);
+			if (!error && saved.error) setError(saved.error as FlowError | null);
+		});
+	}, [restoreState]);
+
 	const doRefresh = useCallback(async () => {
 		setLoading(true);
 		setError(null);
 		setResult(null);
 		try {
-			const r = await refreshTokenService.refresh(creds, inputRefreshToken, mode);
+			const r = await refreshTokenService.refresh(creds, inputRefreshToken, mode, tokenLifetimes, creds.authMethod);
 			setResult(r);
 			engine.markComplete('refresh');
 		} catch (err) {
@@ -149,16 +178,25 @@ const RefreshTokenFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, inputRefreshToken, mode, engine]);
+	}, [creds, inputRefreshToken, mode, engine, tokenLifetimes]);
 
-	const configured = Boolean(creds.environmentId && creds.clientId && inputRefreshToken.trim());
+	useEffect(() => {
+		saveState({ inputRefreshToken, result, error });
+	}, [inputRefreshToken, result, error, saveState]);
+
+	// Mock runs offline — never gate it on real credentials.
+	const configured =
+		mode === 'mock'
+			? true
+			: Boolean(creds.environmentId && creds.clientId && inputRefreshToken.trim());
 	const cur = engine.current.id;
 
 	return (
 		<FlowContainer
 			title="Refresh Token"
-			spec="2.1"
+			spec={spec}
 			mode={mode}
+			onModeChange={selectMode}
 			subtitle="Exchange a refresh_token for new tokens (RFC 6749 §6). OAuth 2.1 mandates rotation — the server MUST return a new refresh_token, and MUST revoke all tokens if the old one is reused."
 			engine={engine}
 		>
@@ -171,10 +209,16 @@ const RefreshTokenFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={configured}
 				>
-					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
-					</Toggle>
+					<FlowDiagram
+						label="OAuth 2.0 Refresh Token Grant"
+						nodes={['Refresh Token', 'Token EP', 'New Tokens']}
+					/>
+					<SpecToggle
+						spec={spec}
+						onSpecChange={setSpec}
+						oidc={oidc}
+						onOidcToggle={() => setOidc((v) => !v)}
+					/>
 					<Toggle>
 						{(['client_secret_post', 'client_secret_basic'] as ClientAuthMethod[]).map((m) => (
 							<Pill
@@ -186,39 +230,15 @@ const RefreshTokenFlow: React.FC = () => {
 							</Pill>
 						))}
 					</Toggle>
-					<Grid>
-						<FieldGroup
-							label="Environment ID"
-							value={creds.environmentId}
-							onChange={set('environmentId')}
-							placeholder="uuid"
-						/>
-						<FieldGroup
-							label="Region"
-							value={creds.region}
-							onChange={set('region')}
-							placeholder="com | eu | ca | asia"
-						/>
-						<FieldGroup
-							label="Client ID"
-							value={creds.clientId}
-							onChange={set('clientId')}
-							placeholder="client id"
-						/>
-						<FieldGroup
-							label="Client Secret"
-							type="password"
-							value={creds.clientSecret ?? ''}
-							onChange={set('clientSecret')}
-							placeholder="leave blank for public clients"
-						/>
-						<FieldGroup
-							label="Scope (optional)"
-							value={creds.scope ?? ''}
-							onChange={set('scope')}
-							placeholder="openid profile"
-						/>
-					</Grid>
+					<CredentialsForm
+						creds={creds}
+						set={set}
+						scopePlaceholder="openid profile"
+						onSave={saveCredentials}
+						saving={savingCreds}
+						saved={savedCreds}
+					/>
+					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={false} showRefreshToken={true} />
 					<FieldGroup
 						label="Refresh Token (paste here)"
 						value={inputRefreshToken}
@@ -229,10 +249,10 @@ const RefreshTokenFlow: React.FC = () => {
 						hint="You can get one from the Authorization Code or Device Authorization flows above."
 					/>
 					<ExplanationPanel title="Why refresh tokens?">
-						Access tokens are intentionally short-lived. A refresh_token lets the client obtain
-						a new access_token without prompting the user again (RFC 6749 §1.5). In OAuth 2.1
-						the refresh grant is constrained: public clients MUST use PKCE, and servers MUST
-						rotate refresh tokens to limit the blast radius of token theft.
+						Access tokens are intentionally short-lived. A refresh_token lets the client obtain a
+						new access_token without prompting the user again (RFC 6749 §1.5). In OAuth 2.1 the
+						refresh grant is constrained: public clients MUST use PKCE, and servers MUST rotate
+						refresh tokens to limit the blast radius of token theft.
 					</ExplanationPanel>
 				</FlowStep>
 			)}
@@ -246,12 +266,22 @@ const RefreshTokenFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(result)}
 				>
+					{(() => {
+						const ep = pingoneEndpoints(creds);
+						const curlReq: CurlRequest = {
+							method: 'POST',
+							url: ep.token,
+							params: {
+								grant_type: 'refresh_token',
+								refresh_token: inputRefreshToken || '<refresh_token>',
+								client_id: creds.clientId,
+								scope: creds.scope || undefined,
+							},
+						};
+						return <RequestPreview request={curlReq} />;
+					})()}
 					<Action onClick={doRefresh} disabled={loading || !configured}>
-						{loading
-							? 'Refreshing…'
-							: mode === 'real'
-								? 'Refresh tokens'
-								: 'Refresh tokens (mock)'}
+						{loading ? 'Refreshing…' : mode === 'real' ? 'Refresh tokens' : 'Refresh tokens (mock)'}
 					</Action>
 					{error && <FlowResult error={error} />}
 					{result && (
@@ -271,6 +301,12 @@ const RefreshTokenFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
+					<UseTokensStep
+						result={result?.token ?? null}
+						credentials={creds}
+						mode={mode}
+						tools={['userinfo', 'introspect', 'refresh', 'decode']}
+					/>
 					{result && (
 						<>
 							<RotationBadge $rotated={result.rotated}>
@@ -287,25 +323,25 @@ const RefreshTokenFlow: React.FC = () => {
 									<TokenLabel>
 										Returned refresh_token (new){result.rotated ? ' — different' : ' — same'}
 									</TokenLabel>
-									<TokenValue>
-										{result.token.refreshToken ?? '(none returned)'}
-									</TokenValue>
+									<TokenValue>{result.token.refreshToken ?? '(none returned)'}</TokenValue>
 								</TokenRow>
 							</TokenCompare>
 							<ExplanationPanel title="Refresh token rotation (OAuth 2.1 mandate)">
-								<strong>Rotation (OAuth 2.1 §4.3):</strong> Every successful refresh must
-								issue a NEW refresh_token and invalidate the old one. This bounds the
-								lifetime of any stolen token to a single use.
-								<br /><br />
+								<strong>Rotation (OAuth 2.1 §4.3):</strong> Every successful refresh must issue a
+								NEW refresh_token and invalidate the old one. This bounds the lifetime of any stolen
+								token to a single use.
+								<br />
+								<br />
 								<strong>Automatic-reuse-revocation:</strong> If an attacker reuses the old
-								(rotated-away) refresh_token, the authorization server detects the duplicate
-								and MUST revoke the entire token family for that grant — logging out both
-								the legitimate user and the attacker (draft-ietf-oauth-security-topics §4.14).
-								<br /><br />
-								<strong>Sender-constrained refresh tokens (future):</strong> DPoP or
-								mTLS can bind a refresh_token to a specific client key-pair, so possession
-								of the token string alone is not enough — the client must also prove
-								control of the private key on every use (RFC 9449 / RFC 8705).
+								(rotated-away) refresh_token, the authorization server detects the duplicate and
+								MUST revoke the entire token family for that grant — logging out both the legitimate
+								user and the attacker (draft-ietf-oauth-security-topics §4.14).
+								<br />
+								<br />
+								<strong>Sender-constrained refresh tokens (future):</strong> DPoP or mTLS can bind a
+								refresh_token to a specific client key-pair, so possession of the token string alone
+								is not enough — the client must also prove control of the private key on every use
+								(RFC 9449 / RFC 8705).
 							</ExplanationPanel>
 						</>
 					)}

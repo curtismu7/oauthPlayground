@@ -69,12 +69,19 @@ const ImplicitHybridCallback: React.FC = () => {
 	useEffect(() => {
 		// Read the fragment (everything after '#').
 		const hash = window.location.hash;
+		if (!hash) return; // No hash, nothing to process
 		const fragment = parseFragment(hash);
 
 		// Check for an error in the fragment (OAuth error response in fragment).
-		const err = fragment.error;
-		if (err) {
-			const desc = fragment.error_description ?? '';
+		if ('error' in fragment && typeof fragment.error === 'string' && fragment.error) {
+			const err = fragment.error;
+			let desc = '';
+			if (typeof fragment.error_description === 'string' && fragment.error_description.length < 200) {
+				// Reject descriptions that look like URLs (phishing risk)
+				if (!/^https?:\/\//i.test(fragment.error_description)) {
+					desc = fragment.error_description;
+				}
+			}
 			setError(`${err}${desc ? `: ${desc}` : ''}`);
 			const t = setTimeout(() => navigate(FLOW_ROUTE), 1500);
 			return () => clearTimeout(t);
@@ -82,18 +89,35 @@ const ImplicitHybridCallback: React.FC = () => {
 
 		// Load and validate the pending stash.
 		let pending: ImplicitHybridPending | null = null;
+		let stashError: string | null = null;
 		try {
 			const raw = sessionStorage.getItem(IH_PENDING_KEY);
-			pending = raw ? (JSON.parse(raw) as ImplicitHybridPending) : null;
-		} catch {
-			// sessionStorage unavailable
+			if (raw) {
+				const parsed = JSON.parse(raw);
+				if (parsed && typeof parsed === 'object' && typeof parsed.state === 'string' && typeof parsed.nonce === 'string') {
+					pending = parsed as ImplicitHybridPending;
+				} else {
+					stashError = 'Invalid pending authorization state format.';
+				}
+			}
+		} catch (err) {
+			stashError = err instanceof SyntaxError
+				? 'Corrupted pending authorization state (parse error).'
+				: 'Session storage unavailable — authorization state could not be recovered.';
+		}
+
+		if (stashError) {
+			setError(stashError);
+			const t = setTimeout(() => navigate(FLOW_ROUTE), 2000);
+			return () => clearTimeout(t);
 		}
 
 		if (!pending) {
 			setError(
 				'No pending authorization request found (session expired or direct navigation).'
 			);
-			return;
+			const t = setTimeout(() => navigate(FLOW_ROUTE), 1500);
+			return () => clearTimeout(t);
 		}
 
 		// CSRF: the state echoed in the fragment must match what we stashed.
@@ -108,8 +132,12 @@ const ImplicitHybridCallback: React.FC = () => {
 		try {
 			sessionStorage.removeItem(IH_PENDING_KEY);
 			sessionStorage.setItem(IH_RESULT_KEY, JSON.stringify(fragment));
-		} catch {
-			// sessionStorage unavailable — the flow will show an empty result
+		} catch (_err) {
+			setError(
+				'Session storage unavailable — unable to complete authorization. The authorization response could not be saved.'
+			);
+			const t = setTimeout(() => navigate(FLOW_ROUTE), 2000);
+			return () => clearTimeout(t);
 		}
 
 		// Navigate back to the flow. Replace so the callback URL is not in history.

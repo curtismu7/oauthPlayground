@@ -20,6 +20,12 @@ export interface TokenExchangeParams {
 	requestedScopes?: string;
 	/** Optional RFC 8707 audience / resource indicator. */
 	audience?: string;
+	authMethod?: string;
+	tokenLifetimes?: {
+		accessTokenSeconds?: number;
+		idTokenSeconds?: number;
+		refreshTokenSeconds?: number;
+	};
 }
 
 /** Result of validating a subject+actor pair against the subject's may_act rule. */
@@ -45,8 +51,16 @@ function toTokenResult(data: Record<string, unknown>): TokenResult {
 
 /** Local stand-in for the BFF's may_act check: the subject's may_act must name the actor. */
 function mockValidateMayAct(subjectToken: string, actorToken: string): MayActResult {
-	const subject = decodeJwtPayload(subjectToken) || {};
-	const actor = decodeJwtPayload(actorToken) || {};
+	const subject = decodeJwtPayload(subjectToken);
+	const actor = decodeJwtPayload(actorToken);
+	if (!subject || !actor) {
+		return {
+			valid: false,
+			error: 'invalid_token',
+			errorDescription: 'Unable to decode subject_token or actor_token — tokens may be malformed.',
+			diagnostics: { subject: null, actor: null },
+		};
+	}
 	const mayAct = (subject.may_act as Record<string, unknown> | undefined) || undefined;
 	const actorSub = actor.sub;
 	const actorClient = actor.client_id ?? actor.azp;
@@ -120,7 +134,16 @@ export const tokenExchangeService = {
 				...(audience && audience.trim() ? { audience: audience.trim() } : {}),
 			}),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			throw {
+				error: 'invalid_response',
+				error_description: `Token exchange failed (HTTP ${res.status}) — response was not valid JSON`,
+				status: res.status,
+			};
+		}
 		if (!res.ok || data.error) {
 			throw {
 				error: (data.error as string) || 'token_exchange_failed',
@@ -139,7 +162,16 @@ export const tokenExchangeService = {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ subject_token: subjectToken, actor_token: actorToken }),
 		});
-		const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+		let data: Record<string, unknown> = {};
+		try {
+			data = (await res.json()) as Record<string, unknown>;
+		} catch {
+			return {
+				valid: false,
+				actClaim: null,
+				error: 'invalid_response',
+			};
+		}
 		return {
 			valid: Boolean(data.valid),
 			actClaim: (data.act_claim as Record<string, unknown>) ?? null,

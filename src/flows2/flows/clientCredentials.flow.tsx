@@ -3,7 +3,7 @@
 // Client Credentials grant (RFC 6749 §4.4), real PingOne by default. Uses the shared flows2
 // primitives (FieldGroup / ResultCard / JsonView / tokens) for visual parity with the other flows.
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
@@ -23,8 +23,18 @@ import type {
 	TokenResult,
 } from '../framework/types';
 import { clientCredentialsService } from '../services/clientCredentialsService';
+import { useFlowStorage } from '../framework/useFlowStorage';
 
 const env = import.meta.env as Record<string, string | undefined>;
+
+// Realistic placeholders so the offline mock flow runs with zero PingOne setup
+const MOCK_CREDS = {
+	environmentId: 'a1234567-b890-c123-d456-e7890f123456',
+	region: 'com',
+	clientId: 'mock-worker-client-id',
+	clientSecret: 'mock-worker-client-secret',
+	scope: 'p1:read:user',
+} as const;
 
 const STEPS: StepDefinition[] = [
 	{ id: 'configure', title: 'Configure', subtitle: 'Worker app credentials' },
@@ -114,8 +124,39 @@ const ClientCredentialsFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
+	const { saveState, restoreState } = useFlowStorage('flows2:client-credentials');
+
+	// Auto-populate mock credentials when mode changes; clear them when switching to real
+	useEffect(() => {
+		if (mode === 'mock') {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId || MOCK_CREDS.environmentId,
+				region: c.region || MOCK_CREDS.region,
+				clientId: c.clientId || MOCK_CREDS.clientId,
+				clientSecret: c.clientSecret || MOCK_CREDS.clientSecret,
+				scope: c.scope || MOCK_CREDS.scope,
+			}));
+		} else {
+			setCreds((c) => ({
+				...c,
+				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
+				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
+				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : c.clientSecret ?? '',
+				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
+			} as FlowCredentials));
+		}
+	}, [mode]);
+
 	const discover = useCallback(async () => {
-		setDiscoveredScopes(await clientCredentialsService.discover(creds, mode));
+		try {
+			setError(null);
+			const scopes = await clientCredentialsService.discover(creds, mode);
+			setDiscoveredScopes(scopes);
+		} catch (err) {
+			setError(err as FlowError);
+			setDiscoveredScopes([]);
+		}
 	}, [creds, mode]);
 
 	const toggleScope = (scope: string) =>
@@ -146,6 +187,18 @@ const ClientCredentialsFlow: React.FC = () => {
 		setIntrospectData(await clientCredentialsService.introspect(result.accessToken, creds, mode));
 		engine.markComplete('inspect');
 	}, [result, creds, mode, engine]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState]);
+
+	useEffect(() => {
+		saveState({ result, error });
+	}, [result, error, saveState]);
 
 	const configured = Boolean(creds.environmentId && creds.clientId && creds.clientSecret);
 	const cur = engine.current.id;

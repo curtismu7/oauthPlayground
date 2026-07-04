@@ -23,6 +23,7 @@ RUN npm install --legacy-peer-deps
 # Copy server entrypoint and all server-side source
 # (src/server/data/ is excluded by .dockerignore — mount as a volume)
 COPY server.js ./
+COPY nodemon.json ./
 COPY lib/ ./lib/
 COPY src/server/ ./src/server/
 COPY src/api/ ./src/api/
@@ -32,9 +33,11 @@ RUN mkdir -p src/server/data
 
 ARG GIT_SHA=unknown
 ENV GIT_SHA=$GIT_SHA
-ENV BACKEND_PORT=3001
+ENV BACKEND_PORT=5001
 ENV NODE_ENV=production
 
-EXPOSE 3001
+EXPOSE 5001
 
-CMD ["node", "server.js"]
+# Use nodemon for dev auto-restart (when NODE_ENV=development via docker-compose)
+# Production uses plain node
+CMD if [ "$NODE_ENV" = "development" ]; then npx nodemon server.js; else node server.js; fi

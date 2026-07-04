@@ -22,6 +22,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import {
 	redirectlessService,
 	type RedirectlessFlowState,
@@ -122,7 +123,7 @@ const RedirectlessFlow: React.FC = () => {
 		// which is registered for TOKEN/ID_TOKEN and is a public client.
 		clientId: env.VITE_PINGONE_IMPLICIT_CLIENT_ID || env.VITE_PINGONE_USER_CLIENT_ID || '',
 		clientSecret: env.VITE_PINGONE_IMPLICIT_CLIENT_SECRET || '',
-		scope: 'openid profile email',
+		scope: 'openid',
 		authMethod: 'client_secret_basic',
 	});
 	const [username, setUsername] = useState('');
@@ -135,10 +136,13 @@ const RedirectlessFlow: React.FC = () => {
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
 
+	const { saveState, restoreState } = useFlowStorage('flows2:redirectless');
+
 	// Poll loop refs — same pattern as deviceAuthorization.flow.tsx
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const active = useRef(false);
 	const enteredPollPath = useRef(false);
+	const mounted = useRef(true);
 
 	const stopPolling = useCallback(() => {
 		active.current = false;
@@ -150,7 +154,12 @@ const RedirectlessFlow: React.FC = () => {
 	}, []);
 
 	// Cancel any in-flight poll on unmount.
-	useEffect(() => stopPolling, [stopPolling]);
+	useEffect(() => {
+		return () => {
+			mounted.current = false;
+			stopPolling();
+		};
+	}, [stopPolling]);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -190,7 +199,7 @@ const RedirectlessFlow: React.FC = () => {
 			setFlowState(advanced);
 
 			// If the flow completed immediately (e.g. mock), skip the poll loop.
-			if (advanced.status.toUpperCase() === 'COMPLETED') {
+			if (typeof advanced.status === 'string' && advanced.status.toUpperCase() === 'COMPLETED') {
 				const pollResult = await redirectlessService.poll(creds, advanced, mode);
 				if (pollResult.status === 'complete' && pollResult.token) {
 					setResult(pollResult.token);
@@ -209,12 +218,13 @@ const RedirectlessFlow: React.FC = () => {
 			setPollStatus('pending');
 
 			const tick = async () => {
-				if (!active.current) return;
+				if (!active.current || !mounted.current) return;
 				try {
 					const r = await redirectlessService.poll(creds, advanced, mode);
-					if (!active.current) return;
+					if (!active.current || !mounted.current) return;
 					setPollStatus(r.status);
 					if (r.status === 'complete' && r.token) {
+						if (!mounted.current) return;
 						setResult(r.token);
 						engine.markComplete('authenticate');
 						stopPolling();
@@ -222,13 +232,16 @@ const RedirectlessFlow: React.FC = () => {
 						return;
 					}
 					if (r.status === 'failed' || r.status === 'error') {
+						if (!mounted.current) return;
 						setError(r.error as FlowError);
 						stopPolling();
 						return;
 					}
-					timer.current = setTimeout(tick, POLL_INTERVAL_MS);
+					if (mounted.current) {
+						timer.current = setTimeout(tick, POLL_INTERVAL_MS);
+					}
 				} catch (err) {
-					if (!active.current) return;
+					if (!active.current || !mounted.current) return;
 					setError(err as FlowError);
 					setPollStatus('error');
 					stopPolling();
@@ -244,6 +257,19 @@ const RedirectlessFlow: React.FC = () => {
 			if (!enteredPollPath.current) setLoading(false);
 		}
 	}, [flowState, creds, username, password, mode, engine, stopPolling]);
+
+	useEffect(() => {
+		restoreState().then((saved) => {
+			if (!saved) return;
+			if (!flowState && saved.flowState) setFlowState(saved.flowState as typeof flowState);
+			if (!result && saved.result) setResult(saved.result as typeof result);
+			if (!error && saved.error) setError(saved.error as typeof error);
+		});
+	}, [restoreState, flowState, result, error]);
+
+	useEffect(() => {
+		saveState({ flowState, result, error });
+	}, [flowState, result, error, saveState]);
 
 	const configured = Boolean(creds.environmentId && creds.clientId);
 	const cur = engine.current.id;
