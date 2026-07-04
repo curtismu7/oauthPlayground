@@ -18,7 +18,15 @@
  * @version 1.0.0
  */
 
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import { useLocation } from 'react-router-dom';
 import {
 	FloatingStepper,
@@ -96,32 +104,32 @@ export const FloatingStepperProvider: React.FC<{ children: React.ReactNode }> = 
 		setSteps((prev) => prev.map((s, i) => (i === index ? { ...s, completed: true } : s)));
 	}, []);
 
+	// Compute the target index from current state, then issue two independent, pure
+	// state updates. Previously setSteps was called inside the setCurrentStepState
+	// updater — an impure updater that React may run twice (StrictMode/concurrent),
+	// double-dispatching the step change.
 	const nextStep = useCallback(() => {
-		setCurrentStepState((prev) => {
-			const next = Math.min(prev + 1, steps.length - 1);
-			setSteps((s) =>
-				s.map((step, i) => ({
-					...step,
-					current: i === next,
-					completed: i < next ? true : step.completed,
-				}))
-			);
-			return next;
-		});
-	}, [steps.length]);
+		const next = Math.min(currentStep + 1, steps.length - 1);
+		setCurrentStepState(next);
+		setSteps((s) =>
+			s.map((step, i) => ({
+				...step,
+				current: i === next,
+				completed: i < next ? true : step.completed,
+			}))
+		);
+	}, [currentStep, steps.length]);
 
 	const prevStep = useCallback(() => {
-		setCurrentStepState((prev) => {
-			const p = Math.max(prev - 1, 0);
-			setSteps((s) =>
-				s.map((step, i) => ({
-					...step,
-					current: i === p,
-				}))
-			);
-			return p;
-		});
-	}, []);
+		const p = Math.max(currentStep - 1, 0);
+		setCurrentStepState(p);
+		setSteps((s) =>
+			s.map((step, i) => ({
+				...step,
+				current: i === p,
+			}))
+		);
+	}, [currentStep]);
 
 	const resetSteps = useCallback(() => {
 		setCurrentStepState(0);
@@ -133,17 +141,30 @@ export const FloatingStepperProvider: React.FC<{ children: React.ReactNode }> = 
 		setCurrentStepState(0);
 	}, []);
 
-	const value: FloatingStepperContextValue = {
-		steps,
-		currentStep,
-		registerSteps,
-		setCurrentStep,
-		completeStep,
-		nextStep,
-		prevStep,
-		resetSteps,
-		clearSteps,
-	};
+	const value: FloatingStepperContextValue = useMemo(
+		() => ({
+			steps,
+			currentStep,
+			registerSteps,
+			setCurrentStep,
+			completeStep,
+			nextStep,
+			prevStep,
+			resetSteps,
+			clearSteps,
+		}),
+		[
+			steps,
+			currentStep,
+			registerSteps,
+			setCurrentStep,
+			completeStep,
+			nextStep,
+			prevStep,
+			resetSteps,
+			clearSteps,
+		]
+	);
 
 	return (
 		<FloatingStepperContext.Provider value={value}>

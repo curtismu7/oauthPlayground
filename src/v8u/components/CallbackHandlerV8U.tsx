@@ -10,7 +10,7 @@
  * is handled automatically, not manually pasted by users.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { V9MFARedirectUriService as MFARedirectUriServiceV8 } from '@/services/v9/V9MFARedirectUriService';
 import { trackOAuthFlow } from '@/utils/activityTracker';
@@ -122,8 +122,16 @@ const postAuthzRedirectLog = (payload: Record<string, unknown>) => {
 export const CallbackHandlerV8U: React.FC = () => {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
+	// Guard against re-entry: this effect consumes single-use state (return targets,
+	// oauth_state). A second run (searchParams identity change, remount, StrictMode)
+	// would otherwise hit the "no stored state" branch and bounce a legitimate
+	// callback to ?error=csrf_risk.
+	const processedRef = useRef(false);
 
 	useEffect(() => {
+		if (processedRef.current) return;
+		processedRef.current = true;
+
 		const flowId = crypto.randomUUID();
 		const mfaRedirectSessionKey = 'mfa_redirect_log_session_id';
 		const sessionId = sessionStorage.getItem(mfaRedirectSessionKey) || crypto.randomUUID();
