@@ -87,7 +87,9 @@ class CredentialManager {
 
 			logger.info(' [CredentialManager] Saving config credentials to localStorage:', {
 				key: this.CONFIG_CREDENTIALS_KEY,
-				data: updated,
+				environmentId: updated.environmentId,
+				clientId: updated.clientId,
+				hasClientSecret: !!updated.clientSecret,
 			});
 
 			localStorage.setItem(this.CONFIG_CREDENTIALS_KEY, JSON.stringify(updated));
@@ -142,16 +144,15 @@ class CredentialManager {
 			if (stored) {
 				const credentials = JSON.parse(stored);
 
+				// Preserve every stored field (notably clientSecret) then apply defaults only
+				// for the required ones. Stripping fields here made saveConfigCredentials'
+				// {...existing, ...partial} merge erase the secret on any partial save.
 				const result = {
+					...credentials,
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					redirectUri: credentials.redirectUri || `${window.location.origin}/authz-callback`,
 					scopes: credentials.scopes || ['openid'],
-					authEndpoint: credentials.authEndpoint,
-					tokenEndpoint: credentials.tokenEndpoint,
-					userInfoEndpoint: credentials.userInfoEndpoint,
-					endSessionEndpoint: credentials.endSessionEndpoint,
-					tokenAuthMethod: credentials.tokenAuthMethod,
 				};
 
 				return result;
@@ -861,17 +862,16 @@ class CredentialManager {
 				// Load from localStorage if available
 				const credentials = JSON.parse(stored);
 
-				// Ensure required fields have defaults
+				// Preserve every stored field (clientSecret, issuerUrl, discoveredEndpoints,
+				// lastDiscoveryTime, ...) then apply defaults only for the required ones.
+				// Stripping fields here previously erased the secret on partial saves and
+				// invalidated the discovery cache on every read.
 				const result = {
+					...credentials,
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					redirectUri: credentials.redirectUri || `${window.location.origin}/authz-callback`,
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
-					authEndpoint: credentials.authEndpoint,
-					tokenEndpoint: credentials.tokenEndpoint,
-					userInfoEndpoint: credentials.userInfoEndpoint,
-					endSessionEndpoint: credentials.endSessionEndpoint,
-					tokenAuthMethod: credentials.tokenAuthMethod,
 				};
 
 				return result;
@@ -907,17 +907,16 @@ class CredentialManager {
 				// Load from localStorage if available
 				const credentials = JSON.parse(stored);
 
-				// Ensure required fields have defaults
+				// Preserve every stored field (clientSecret, issuerUrl, discoveredEndpoints,
+				// lastDiscoveryTime, ...) then apply defaults only for the required ones.
+				// Stripping fields here previously erased the secret on partial saves and
+				// invalidated the discovery cache on every read.
 				const result = {
+					...credentials,
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					redirectUri: credentials.redirectUri || `${window.location.origin}/authz-callback`,
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
-					authEndpoint: credentials.authEndpoint,
-					tokenEndpoint: credentials.tokenEndpoint,
-					userInfoEndpoint: credentials.userInfoEndpoint,
-					endSessionEndpoint: credentials.endSessionEndpoint,
-					tokenAuthMethod: credentials.tokenAuthMethod,
 				};
 
 				return result;
@@ -1326,7 +1325,7 @@ class CredentialManager {
 				useJwksEndpoint: true,
 				loginHint: '',
 				issuerUrl: credentials.issuerUrl,
-				discoveredEndpoints: discoveryResult.document,
+				discoveredEndpoints: discoveryResult.data,
 				lastDiscoveryTime: Date.now(),
 			};
 
