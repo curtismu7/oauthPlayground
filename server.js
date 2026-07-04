@@ -1021,18 +1021,23 @@ let credentialStore = {
 // Each is wrapped in try/catch so a missing native binary degrades to the no-op
 // fallback rather than crashing the server.
 {
-	try {
-		const userMod = await import('./src/server/services/userDatabaseService.js');
-		userDatabaseService = userMod.userDatabaseService;
-	} catch (err) {
-		console.warn('⚠️ User DB service unavailable (SQLite):', err.message);
-	}
+	// NOTE: the legacy SQLite userDatabaseService was removed in the LMDB migration.
+	// User reads/writes now go through src/server/routes/userApiRoutes.js (LMDB userStore),
+	// so userDatabaseService keeps its no-op fallback declared above.
 
 	try {
-		const settingsMod = await import('./src/server/services/settingsDatabaseService.js');
-		settingsDB = settingsMod.settingsDB;
+		// LMDB-backed settings store (replaces the removed SQLite settingsDatabaseService).
+		// Preserve the old value semantics: set() JSON-stringifies, get() returns the raw
+		// stored string, so existing callers that JSON.parse the result keep working.
+		const settingsStore = await import('./src/server/lmdb/settingsStore.js');
+		settingsDB = {
+			init: async () => {},
+			get: async (key) => settingsStore.get(key),
+			set: async (key, value) => settingsStore.set(key, JSON.stringify(value)),
+		};
+		console.log('⚙️ Settings store initialized (LMDB)');
 	} catch (err) {
-		console.warn('⚠️ Settings DB unavailable (SQLite):', err.message);
+		console.warn('⚠️ Settings store unavailable (LMDB native module missing):', err.message);
 	}
 
 	// Initialize user database service
@@ -26090,6 +26095,91 @@ app.get('/api/test/token', (_req, res) => {
 
 // ─── End Test/Debug Endpoints ──────────────────────────────────────────────
 
+// Update redirect URI for an application in PingOne (using worker token)
+app.post('/api/update-redirect-uri', async (req, res) => {
+	try {
+		const { environmentId, clientId, redirectUri, workerToken } = req.body;
+
+		if (!environmentId || !clientId || !redirectUri) {
+			return res.status(400).json({
+				message: 'environmentId, clientId, and redirectUri are required',
+			});
+		}
+
+		if (!workerToken) {
+			return res.status(401).json({
+				message: 'Worker token required - please configure worker credentials first',
+				needsWorkerToken: true,
+			});
+		}
+
+		// Get current application to check existing redirect URIs
+		const getAppResponse = await fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/applications/${clientId}`,
+			{
+				headers: {
+					Authorization: `Bearer ${workerToken}`,
+					'Content-Type': 'application/json',
+				},
+			}
+		);
+
+		if (!getAppResponse.ok) {
+			throw new Error(`Failed to fetch application: ${getAppResponse.statusText}`);
+		}
+
+		const currentApp = await getAppResponse.json();
+		const existingUris = currentApp.redirectUris || [];
+
+		// Check if redirect URI already exists
+		if (existingUris.includes(redirectUri)) {
+			return res.json({
+				success: true,
+				alreadyExists: true,
+				message: 'Redirect URI already configured in PingOne',
+				redirectUris: existingUris,
+			});
+		}
+
+		// Add new redirect URI to existing ones
+		const updatedUris = [...existingUris, redirectUri];
+
+		// Update application with all redirect URIs
+		const updateResponse = await fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/applications/${clientId}`,
+			{
+				method: 'PATCH',
+				headers: {
+					Authorization: `Bearer ${workerToken}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					redirectUris: updatedUris,
+				}),
+			}
+		);
+
+		if (!updateResponse.ok) {
+			const error = await updateResponse.json();
+			return res.status(updateResponse.status).json({
+				message: error.message || 'Failed to update redirect URI in PingOne',
+			});
+		}
+
+		const updatedApp = await updateResponse.json();
+		res.json({
+			success: true,
+			message: 'Redirect URI added to PingOne',
+			redirectUris: updatedApp.redirectUris,
+		});
+	} catch (error) {
+		console.error('❌ [updateRedirectUri] Error:', error);
+		res.status(500).json({
+			message: error instanceof Error ? error.message : 'Failed to update redirect URI',
+		});
+	}
+});
+
 // API endpoint not found handler - MUST be after all API route definitions
 app.use('/api', (req, res) => {
 	console.error('[API 404] Endpoint not found:', {
@@ -26186,107 +26276,21 @@ async function startServers() {
 	}
 }
 
-// Add error handling for both servers
-if (httpServer) {
-	httpServer.on('error', (err) => {
-		console.error('❌ HTTP Server error:', err);
+// Start the servers, then attach runtime error diagnostics once they exist.
+startServers()
+	.then(() => {
+		if (httpServer) {
+			httpServer.on('error', (err) => {
+				console.error('❌ HTTP Server error:', err);
+			});
+		}
+		if (httpsServer) {
+			httpsServer.on('error', (err) => {
+				console.error('❌ HTTPS Server error:', err);
+			});
+		}
+	})
+	.catch((err) => {
+		console.error('❌ Failed to start servers:', err);
+		process.exit(1);
 	});
-
-	httpServer.on('listening', () => {
-		const addr = httpServer.address();
-		console.log(`🌐 HTTP Server listening on:`, addr);
-	});
-}
-
-if (httpsServer) {
-	httpsServer.on('error', (err) => {
-		console.error('❌ HTTPS Server error:', err);
-	});
-
-	httpsServer.on('listening', () => {
-		const addr = httpsServer.address();
-
-// Update redirect URI for an application in PingOne (using worker token)
-app.post('/api/update-redirect-uri', async (req, res) => {
-	try {
-		const { environmentId, clientId, redirectUri, workerToken } = req.body;
-
-		if (!environmentId || !clientId || !redirectUri) {
-			return res.status(400).json({ 
-				message: 'environmentId, clientId, and redirectUri are required' 
-			});
-		}
-
-		if (!workerToken) {
-			return res.status(401).json({
-				message: 'Worker token required - please configure worker credentials first',
-				needsWorkerToken: true
-			});
-		}
-
-		// Get current application to check existing redirect URIs
-		const getAppResponse = await fetch(
-			`https://api.pingone.com/v1/environments/${environmentId}/applications/${clientId}`,
-			{
-				headers: {
-					Authorization: `Bearer ${workerToken}`,
-					'Content-Type': 'application/json',
-				},
-			}
-		);
-
-		if (!getAppResponse.ok) {
-			throw new Error(`Failed to fetch application: ${getAppResponse.statusText}`);
-		}
-
-		const currentApp = await getAppResponse.json();
-		const existingUris = currentApp.redirectUris || [];
-
-		// Check if redirect URI already exists
-		if (existingUris.includes(redirectUri)) {
-			return res.json({
-				success: true,
-				alreadyExists: true,
-				message: 'Redirect URI already configured in PingOne',
-				redirectUris: existingUris,
-			});
-		}
-
-		// Add new redirect URI to existing ones
-		const updatedUris = [...existingUris, redirectUri];
-
-		// Update application with all redirect URIs
-		const updateResponse = await fetch(
-			`https://api.pingone.com/v1/environments/${environmentId}/applications/${clientId}`,
-			{
-				method: 'PATCH',
-				headers: {
-					Authorization: `Bearer ${workerToken}`,
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					redirectUris: updatedUris,
-				}),
-			}
-		);
-
-		if (!updateResponse.ok) {
-			const error = await updateResponse.json();
-			return res.status(updateResponse.status).json({
-				message: error.message || 'Failed to update redirect URI in PingOne',
-			});
-		}
-
-		const updatedApp = await updateResponse.json();
-		res.json({
-			success: true,
-			message: 'Redirect URI added to PingOne',
-			redirectUris: updatedApp.redirectUris,
-		});
-	} catch (error) {
-		console.error('❌ [updateRedirectUri] Error:', error);
-		res.status(500).json({
-			message: error instanceof Error ? error.message : 'Failed to update redirect URI',
-		});
-	}
-});
