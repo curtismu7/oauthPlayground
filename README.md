@@ -180,7 +180,7 @@ Your project already has a `.env` file with PingOne configuration. The server us
 # PingOne Configuration - REQUIRED
 VITE_PINGONE_ENVIRONMENT_ID=b9817c16-9910-4415-b67e-4ac687da74d9
 VITE_PINGONE_CLIENT_ID=a4f963ea-0736-456a-be72-b1fa4f63f81f
-VITE_PINGONE_CLIENT_SECRET=YOUR_CLIENT_SECRET
+VITE_PINGONE_CLIENT_SECRET=your-client-secret
 VITE_PINGONE_REDIRECT_URI=https://localhost:3000/authz-callback
 VITE_PINGONE_LOGOUT_REDIRECT_URI=https://localhost:3000
 VITE_PINGONE_API_URL=https://auth.pingone.com

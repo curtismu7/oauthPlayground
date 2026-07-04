@@ -16,7 +16,8 @@ const MODULE_TAG = '[ TEST-CREDENTIALS-V8]';
 
 export const TEST_CREDENTIALS = {
 	environmentId: 'a4f963ea-0736-456a-be72-b1fa4f63f81f',
-	workerToken: 'YOUR_CLIENT_SECRET',
+	// Never hardcode a real token. Provide via env (VITE_PINGONE_WORKER_TOKEN) for local testing.
+	workerToken: import.meta.env?.VITE_PINGONE_WORKER_TOKEN || '',
 
 	// OAuth Application Credentials (to be configured in PingOne)
 	// These should be set up in your PingOne environment
