@@ -167,6 +167,10 @@ class UnifiedWorkerTokenService {
 	private loadRetryDelay: number = 5000; // 5 seconds between attempts
 	private lastSaveTime = 0;
 	private readonly SAVE_DEBOUNCE_MS = 1000; // 1 second debounce
+	// Trailing-edge debounce state: the latest credentials seen during a debounce
+	// window are flushed once the window goes quiet, rather than being dropped.
+	private pendingSaveCredentials: UnifiedWorkerTokenCredentials | null = null;
+	private saveDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 	private constructor() {}
 
@@ -236,17 +240,36 @@ class UnifiedWorkerTokenService {
 	async saveCredentials(
 		credentials: UnifiedWorkerTokenCredentials
 	): Promise<ServiceResult<undefined>> {
-		// Debounce to prevent infinite loops
+		// Debounce to prevent tight save loops, but use a TRAILING edge so the most
+		// recent payload is still persisted instead of silently dropped.
 		const now = Date.now();
 		if (now - this.lastSaveTime < this.SAVE_DEBOUNCE_MS) {
-			logger.warn(
-				'UnifiedWorkerTokenService',
-				`${MODULE_TAG} Save credentials called too frequently, skipping`
-			);
+			this.pendingSaveCredentials = credentials;
+			if (!this.saveDebounceTimer) {
+				this.saveDebounceTimer = setTimeout(() => {
+					this.saveDebounceTimer = null;
+					const pending = this.pendingSaveCredentials;
+					this.pendingSaveCredentials = null;
+					if (pending) {
+						this.lastSaveTime = Date.now();
+						void this._persistCredentials(pending);
+					}
+				}, this.SAVE_DEBOUNCE_MS);
+			}
 			return ok(undefined);
 		}
 		this.lastSaveTime = now;
+		return this._persistCredentials(credentials);
+	}
 
+	/**
+	 * Persist worker token credentials to every backing store. Preserves an existing
+	 * valid token when only the credentials change, so callers like KRP toggles do
+	 * not accidentally log the user out.
+	 */
+	private async _persistCredentials(
+		credentials: UnifiedWorkerTokenCredentials
+	): Promise<ServiceResult<undefined>> {
 		// Only log if this is the first save or debug mode is enabled
 		const isFirstSave = !window.__workerTokenSaved;
 		if (isFirstSave) {
@@ -254,8 +277,17 @@ class UnifiedWorkerTokenService {
 			window.__workerTokenSaved = true;
 		}
 
+		// Keep the cached token/expiry/metadata only when the credentials are unchanged
+		// (same environment + client). On a real credential change, start fresh.
+		const existing = this.memoryCache;
+		const sameCreds =
+			!!existing &&
+			existing.credentials?.environmentId === credentials.environmentId &&
+			existing.credentials?.clientId === credentials.clientId;
 		const data: UnifiedWorkerTokenData = {
-			token: '', // Token will be fetched when needed
+			...(sameCreds && existing ? existing : {}),
+			token: sameCreds && existing ? existing.token : '', // preserved on same creds, else fetched later
+			expiresAt: sameCreds && existing ? existing.expiresAt : undefined,
 			credentials,
 			savedAt: Date.now(),
 		};
