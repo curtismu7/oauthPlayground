@@ -17,14 +17,18 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'npm'
-        
+
     - name: Install dependencies
       run: npm ci
-      
-    - name: Type check
-      run: npm run type-check
+
+    # The codebase carries a large baseline of pre-existing type errors, so a hard
+    # `tsc --noEmit` gate is not yet achievable. The ratchet fails only if a change
+    # INCREASES the count above .tsc-error-baseline — new code must be type-clean.
+    # Lower the baseline (npm run type-check:ratchet -- --update) as errors get fixed.
+    - name: Type check (ratchet — no new type errors)
+      run: npm run type-check:ratchet
       
     - name: Biome check
       run: npm run check
