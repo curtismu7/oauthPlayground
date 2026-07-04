@@ -376,6 +376,10 @@ const getRealMetrics = async (): Promise<Partial<UnifiedFlowMetrics>> => {
 	}
 };
 
+// Domain actions that carry live/ambient data rather than user intent. They must
+// not be pushed onto the undo history.
+const EPHEMERAL_ACTIONS = new Set<DomainAction['type']>(['UPDATE_REAL_METRICS', 'RECORD_ACTIVITY']);
+
 const historyReducer = (state: HistoryState, action: HistoryAction): HistoryState => {
 	switch (action.type) {
 		case 'HISTORY_UNDO':
@@ -395,9 +399,16 @@ const historyReducer = (state: HistoryState, action: HistoryAction): HistoryStat
 		case 'CLEAR_HISTORY':
 			return { past: [], present: state.present, future: [] };
 		default: {
-			const next = applyDomainAction(state.present, action as DomainAction);
+			const domainAction = action as DomainAction;
+			const next = applyDomainAction(state.present, domainAction);
 			if (snapshotsEqual(next, state.present)) {
 				return state;
+			}
+			// Live/ambient updates (the 2s metrics tick, activity pings) reflect the
+			// world, not a user edit — update `present` in place so they never land on
+			// the undo stack (otherwise "undo" just replays metric refreshes).
+			if (EPHEMERAL_ACTIONS.has(domainAction.type)) {
+				return { ...state, present: next };
 			}
 			const trimmedPast = [...state.past, state.present].slice(-HISTORY_LIMIT);
 			return { past: trimmedPast, present: next, future: [] };
@@ -506,14 +517,17 @@ const EnhancedStateProvider = ({ children }: { children: ReactNode }) => {
 		};
 	}, [historyState.past.length, historyState.future.length]);
 
-	const contextValue: UnifiedFlowContextValue = {
-		state: historyState.present,
-		stats: {
-			pastCount: historyState.past.length,
-			futureCount: historyState.future.length,
-		},
-		actions,
-	};
+	const contextValue: UnifiedFlowContextValue = useMemo(
+		() => ({
+			state: historyState.present,
+			stats: {
+				pastCount: historyState.past.length,
+				futureCount: historyState.future.length,
+			},
+			actions,
+		}),
+		[historyState.present, historyState.past.length, historyState.future.length, actions]
+	);
 
 	useEffect(() => {
 		persistSnapshot(historyState.present);
