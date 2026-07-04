@@ -191,6 +191,141 @@ export function updateSyncMetadata(environmentId, updates) {
 }
 
 /**
+ * Base URL for the server's own PingOne proxy endpoint. Overridable via env so the
+ * self-call isn't pinned to https://localhost:3001 (which fails on a self-signed
+ * cert in HTTPS dev mode).
+ */
+function internalApiBase() {
+	if (process.env.PLAYGROUND_INTERNAL_API) return process.env.PLAYGROUND_INTERNAL_API;
+	const port = process.env.BACKEND_PORT || 3001;
+	return `https://localhost:${port}`;
+}
+
+/**
+ * Fetch a page of users from PingOne via the server's own proxy endpoint.
+ * @param {string} environmentId
+ * @param {{workerToken?: string, limit?: number, offset?: number, updatedSince?: string}} options
+ * @returns {Promise<{users: Array, totalCount?: number}>}
+ */
+export async function fetchUsersFromAPI(environmentId, options = {}) {
+	const { limit = 200, offset = 0, updatedSince, workerToken } = options;
+
+	if (!workerToken) {
+		throw new Error('Worker token is required to fetch users from PingOne API');
+	}
+
+	const response = await fetch(`${internalApiBase()}/api/pingone/mfa/list-users`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ environmentId, workerToken, limit, offset, updatedSince }),
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}));
+		throw new Error(
+			`Failed to fetch users from PingOne API: ${response.statusText} - ${errorData.error || ''}`
+		);
+	}
+
+	return response.json();
+}
+
+/**
+ * Page through PingOne users and persist them. Shared by full and incremental sync.
+ * @param {string} environmentId
+ * @param {object} options
+ * @param {string|null} updatedSince - only fetch users changed since this ISO time (incremental)
+ * @returns {Promise<number>} total users fetched
+ */
+async function runSync(environmentId, options, updatedSince) {
+	const { workerToken, maxPages = 100, delayMs = 100, onProgress } = options;
+
+	// Mark sync as in progress so /api/users/sync-status reports it correctly.
+	updateSyncMetadata(environmentId, {
+		sync_in_progress: 1,
+		last_sync_started: new Date().toISOString(),
+	});
+
+	try {
+		const allUsers = [];
+		let offset = 0;
+		const limit = 200; // PingOne max per request
+		let hasMore = true;
+		let fetchedPages = 0;
+		let totalFetched = 0;
+
+		while (hasMore && fetchedPages < maxPages) {
+			const result = await fetchUsersFromAPI(environmentId, {
+				workerToken,
+				limit,
+				offset,
+				updatedSince: updatedSince || undefined,
+			});
+
+			const fetchedCount = result.users?.length || 0;
+			if (fetchedCount > 0) {
+				allUsers.push(...result.users);
+				totalFetched += fetchedCount;
+				offset += limit;
+				fetchedPages++;
+				onProgress?.(totalFetched, fetchedPages, result.users);
+				if (delayMs > 0) {
+					await new Promise((resolve) => setTimeout(resolve, delayMs));
+				}
+			} else {
+				hasMore = false;
+			}
+
+			if (result.totalCount && offset >= result.totalCount) {
+				hasMore = false;
+			}
+		}
+
+		if (allUsers.length > 0) {
+			saveUsers(environmentId, allUsers);
+		}
+
+		// saveUsers already writes last_sync_completed/status:'success'; clear the flag.
+		updateSyncMetadata(environmentId, {
+			sync_in_progress: 0,
+			last_sync_completed: new Date().toISOString(),
+			last_sync_status: 'success',
+		});
+
+		return totalFetched;
+	} catch (error) {
+		updateSyncMetadata(environmentId, {
+			sync_in_progress: 0,
+			last_sync_status: 'failed',
+		});
+		throw error;
+	}
+}
+
+/**
+ * Full sync — fetch every user for the environment.
+ * @returns {Promise<{success: boolean, totalUsers: number, incremental: boolean}>}
+ */
+export async function fullSync(environmentId, options = {}) {
+	const totalUsers = await runSync(environmentId, options, null);
+	return { success: true, totalUsers, incremental: false };
+}
+
+/**
+ * Incremental sync — only users changed since the last completed sync. Falls back
+ * to a full sync when there is no prior sync timestamp.
+ * @returns {Promise<{success: boolean, totalUsers: number, incremental: boolean}>}
+ */
+export async function incrementalSync(environmentId, options = {}) {
+	const lastSyncTime = getSyncMetadata(environmentId).last_sync_completed;
+	if (!lastSyncTime) {
+		return fullSync(environmentId, options);
+	}
+	const totalUsers = await runSync(environmentId, options, lastSyncTime);
+	return { success: true, totalUsers, incremental: true };
+}
+
+/**
  * Clear all data for an environment
  * @param {string} environmentId
  */

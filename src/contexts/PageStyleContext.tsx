@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 interface PageStyle {
@@ -218,13 +218,14 @@ export const PageStyleProvider: React.FC<PageStyleProviderProps> = ({ children }
 		}
 	}, [location.pathname]);
 
-	const setPageStyle = (style: Partial<PageStyle>) => {
+	const setPageStyle = useCallback((style: Partial<PageStyle>) => {
 		setCurrentPageStyle((prev) => ({ ...prev, ...style }));
-	};
+	}, []);
 
-	return (
-		<PageStyleContext.Provider value={{ currentPageStyle, setPageStyle }}>
-			{children}
-		</PageStyleContext.Provider>
+	const value = useMemo(
+		() => ({ currentPageStyle, setPageStyle }),
+		[currentPageStyle, setPageStyle]
 	);
+
+	return <PageStyleContext.Provider value={value}>{children}</PageStyleContext.Provider>;
 };

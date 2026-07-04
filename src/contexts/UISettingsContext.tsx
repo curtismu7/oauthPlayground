@@ -4,6 +4,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useMemo,
 	useState,
 } from 'react';
 import { logger } from '../utils/logger';
@@ -124,42 +125,32 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 		loadSettings();
 	}, [applyThemeSettings]); // Only run once on mount, or when applyThemeSettings changes (it won't)
 
-	// Update a specific setting
+	// Update a specific setting. The state update is a pure value; all side effects
+	// (localStorage, theme, event dispatch) run OUTSIDE any setState updater — an
+	// updater must be pure, or React may run it twice (StrictMode/concurrent) and
+	// double-fire these effects.
 	const updateSetting = <K extends keyof UISettings>(key: K, value: UISettings[K]) => {
-		setSettings((prev) => {
-			const newSettings = { ...prev, [key]: value };
+		const newSettings = { ...settings, [key]: value };
+		setSettings(newSettings);
 
-			// Save to localStorage
-			try {
-				const uiSettingsKey = 'ui-settings';
-				localStorage.setItem(uiSettingsKey, JSON.stringify(newSettings));
+		try {
+			localStorage.setItem('ui-settings', JSON.stringify(newSettings));
 
-				// Also update the legacy flow config for backward compatibility
-				const flowConfigKey = 'enhanced-flow-authorization-code';
-				const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
-				const updatedFlowConfig = {
-					...existingFlowConfig,
-					[key]: value,
-				};
-				localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
+			// Also update the legacy flow config for backward compatibility
+			const flowConfigKey = 'enhanced-flow-authorization-code';
+			const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+			localStorage.setItem(flowConfigKey, JSON.stringify({ ...existingFlowConfig, [key]: value }));
 
-				logger.info(`[UISettings] Updated ${key}:`, value);
-
-				// Apply theme changes immediately
-				applyThemeSettings(newSettings);
-
-				// Dispatch custom event to notify other components
-				window.dispatchEvent(
-					new CustomEvent('uiSettingsChanged', {
-						detail: { [key]: value, allSettings: newSettings },
-					})
-				);
-			} catch (error) {
-				logger.error('UISettings', 'Failed to save settings', undefined, error as Error);
-			}
-
-			return newSettings;
-		});
+			logger.info(`[UISettings] Updated ${key}:`, value);
+			applyThemeSettings(newSettings);
+			window.dispatchEvent(
+				new CustomEvent('uiSettingsChanged', {
+					detail: { [key]: value, allSettings: newSettings },
+				})
+			);
+		} catch (error) {
+			logger.error('UISettings', 'Failed to save settings', undefined, error as Error);
+		}
 	};
 
 	// Reset all settings to defaults
@@ -167,6 +158,16 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 		setSettings(DEFAULT_UI_SETTINGS);
 
 		try {
+			// Persist the defaults so the reset survives a reload (previously the reset
+			// only lived in memory and reverted to the stored values on refresh).
+			localStorage.setItem('ui-settings', JSON.stringify(DEFAULT_UI_SETTINGS));
+			const flowConfigKey = 'enhanced-flow-authorization-code';
+			const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+			localStorage.setItem(
+				flowConfigKey,
+				JSON.stringify({ ...existingFlowConfig, ...DEFAULT_UI_SETTINGS })
+			);
+
 			// Apply default theme settings
 			applyThemeSettings(DEFAULT_UI_SETTINGS);
 
@@ -206,12 +207,19 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 		}
 	};
 
-	const contextValue: UISettingsContextType = {
-		settings,
-		updateSetting,
-		resetSettings,
-		saveSettings,
-	};
+	const contextValue: UISettingsContextType = useMemo(
+		() => ({
+			settings,
+			updateSetting,
+			resetSettings,
+			saveSettings,
+		}),
+		// updateSetting/resetSettings/saveSettings are recreated each render but their
+		// only changing dependency is `settings`, so keying the value on `settings`
+		// alone is behaviorally correct.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[settings]
+	);
 	return <UISettingsContext.Provider value={contextValue}>{children}</UISettingsContext.Provider>;
 };
 
