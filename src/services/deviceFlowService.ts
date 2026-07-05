@@ -240,9 +240,9 @@ class DeviceFlowService {
 
 				if (tokenResponse.access_token || tokenResponse.id_token) {
 					// Authorization successful
-					// eslint-disable-next-line require-atomic-updates
+					 
 					state.status = 'authorized';
-					// eslint-disable-next-line require-atomic-updates
+					 
 					state.tokens = tokenResponse;
 					this.saveDeviceFlowState(state);
 					onComplete?.(tokenResponse);
@@ -252,7 +252,7 @@ class DeviceFlowService {
 				if (tokenResponse.error) {
 					if (tokenResponse.error === 'authorization_pending') {
 						// Still pending, continue polling
-						// eslint-disable-next-line require-atomic-updates
+						 
 						state.status = 'pending';
 						this.saveDeviceFlowState(state);
 						onUpdate?.(state);
@@ -260,35 +260,35 @@ class DeviceFlowService {
 					} else if (tokenResponse.error === 'slow_down') {
 						// RFC 8628: back off by 5 seconds, then keep polling
 						pollInterval += 5000;
-						// eslint-disable-next-line require-atomic-updates
+						 
 						state.interval = Math.floor(pollInterval / 1000);
-						// eslint-disable-next-line require-atomic-updates
+						 
 						state.status = 'pending';
 						this.saveDeviceFlowState(state);
 						onUpdate?.(state);
 						setTimeout(poll, pollInterval);
 					} else if (tokenResponse.error === 'authorization_declined') {
 						// User denied authorization
-						// eslint-disable-next-line require-atomic-updates
+						 
 						state.status = 'denied';
 						this.saveDeviceFlowState(state);
 						onError?.(new Error('User denied authorization'));
 					} else if (tokenResponse.error === 'expired_token') {
 						// Device code expired
-						// eslint-disable-next-line require-atomic-updates
+						 
 						state.status = 'expired';
 						this.saveDeviceFlowState(state);
 						onError?.(new Error('Device code expired'));
 					} else {
 						// Other error
-						// eslint-disable-next-line require-atomic-updates
+						 
 						state.status = 'expired';
 						this.saveDeviceFlowState(state);
 						onError?.(new Error(tokenResponse.error_description || tokenResponse.error));
 					}
 				} else {
 					// Continue polling
-					// eslint-disable-next-line require-atomic-updates
+					 
 					state.status = 'pending';
 					this.saveDeviceFlowState(state);
 					onUpdate?.(state);

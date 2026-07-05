@@ -184,7 +184,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 	const [localConfig, setLocalConfig] = useState<PARConfiguration>(config);
 
 	const handleConfigChange = useCallback(
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		 
 		(field: keyof PARConfiguration, value: any) => {
 			const newConfig = { ...localConfig, [field]: value };
 			setLocalConfig(newConfig);

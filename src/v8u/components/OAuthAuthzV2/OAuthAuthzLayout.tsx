@@ -93,6 +93,7 @@ export const OAuthAuthzLayout: React.FC = () => {
   };
 
   const handleClearConfig = () => {
+    // eslint-disable-next-line no-alert -- intentional confirm before a destructive reset
     if (confirm('Clear saved configuration?')) {
       localStorage.removeItem(STORAGE_KEY);
       setSaveStatus('🗑️ Config cleared');

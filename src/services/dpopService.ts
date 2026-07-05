@@ -86,7 +86,7 @@ export class DPoPService {
 				jwk,
 			};
 
-			// eslint-disable-next-line require-atomic-updates -- static service state, benign race in key rotation
+			 
 			DPoPService.keyPair = keyPair;
 			logger.info('DPoPService', 'Generated new key pair', {
 				algorithm: finalConfig.algorithm,

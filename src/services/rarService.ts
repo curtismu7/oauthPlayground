@@ -316,9 +316,9 @@ export class RARService {
 	/**
 	 * Parse authorization response and extract authorization_details
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	 
 	static parseAuthorizationResponse(tokenResponse: any): {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		 
 		tokens: any;
 		authorizationDetails?: AuthorizationDetail[];
 	} {
