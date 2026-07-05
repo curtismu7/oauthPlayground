@@ -327,6 +327,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: 'Developer & Tools',
 		groupBadgeType: 'tools',
 		items: items([
+			['/design', 'Design System', true],
 			['/postman-collection-generator', 'Postman Collection Generator', true],
 			['/oauth-code-generator-hub', 'OAuth Code Generator Hub', true],
 			['/application-generator', 'Application Generator', true],

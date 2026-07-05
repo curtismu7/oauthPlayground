@@ -138,6 +138,7 @@ import { usePromptsShortcut } from './hooks/usePromptsShortcut';
 
 const Callback = lazy(() => import('./pages/Callback'));
 const Configuration = lazy(() => import('./pages/Configuration'));
+const DesignSystemPage = lazy(() => import('./pages/design/DesignSystemPage'));
 const Documentation = lazy(() => import('./pages/Documentation'));
 const Login = lazy(() => import('./pages/Login'));
 
@@ -1604,6 +1605,7 @@ const AppRoutes: React.FC = () => {
 									<Route path="/oauth-code-generator-hub" element={<OAuthCodeGeneratorHub />} />
 									<Route path="/oauth-playground-hub" element={<OAuthPlaygroundHub />} />
 									<Route path="/configuration" element={<Configuration />} />
+									<Route path="/design" element={<DesignSystemPage />} />
 									<Route path="/documentation" element={<Documentation />} />
 									<Route path="/ping-ai-resources" element={<PingAIResources />} />
 									<Route path="/pingone-user-profile" element={<PingOneUserProfile />} />
