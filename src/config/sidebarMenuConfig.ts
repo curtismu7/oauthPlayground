@@ -159,7 +159,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 	{
 		id: 'mock-flows',
 		label: 'Mock Flows',
-		items: [],
+		items: items([['/v2/use-cases', 'Use Cases', true]]),
 		subGroups: [
 			{
 				id: 'oidc-mock',
