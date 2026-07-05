@@ -83,7 +83,6 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 	value,
 	onChange,
 	clientType,
-	flowType,
 	disabled = false,
 	className = '',
 }) => {

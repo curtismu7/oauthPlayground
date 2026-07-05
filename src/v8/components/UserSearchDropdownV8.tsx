@@ -11,7 +11,6 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { checkWorkerTokenStatusSync } from '@/v8/services/workerTokenStatusServiceV8';
 import { FiAlertTriangle, FiSearch } from '../../icons';
 
-const _MODULE_TAG = '[ USER-SEARCH-DROPDOWN-V8]';
 
 interface User {
 	id: string;

@@ -294,9 +294,6 @@ interface FitnessTrackerDeviceFlowProps {
 
 const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
 	state,
-	_onStateUpdate,
-	_onComplete,
-	_onError,
 }) => {
 	const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -312,10 +309,6 @@ const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
 		logger.info('FitnessTrackerDeviceFlow', 'User code copied to clipboard');
 	};
 
-	const _handleCopyVerificationUri = () => {
-		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('FitnessTrackerDeviceFlow', 'Verification URI copied to clipboard');
-	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');

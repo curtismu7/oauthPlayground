@@ -213,7 +213,6 @@ export const FeatureEnableConfirmationModal: React.FC<FeatureEnableConfirmationM
 	onClose,
 	onConfirm,
 	featureName,
-	featureId,
 	isEnabling,
 	appName,
 	changes,

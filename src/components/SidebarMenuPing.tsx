@@ -387,16 +387,6 @@ function GroupContent({
 	);
 }
 
-/** Build flat map of item id -> item for all items in groups */
-function _buildItemMap(groups: SidebarMenuGroup[]): Map<string, SidebarMenuItem> {
-	const map = new Map<string, SidebarMenuItem>();
-	const add = (g: SidebarMenuGroup) => {
-		for (const i of g.items) map.set(i.id, i);
-		for (const sg of g.subGroups ?? []) add(sg);
-	};
-	for (const g of groups) add(g);
-	return map;
-}
 
 export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: string }> = ({
 	dragMode = false,
@@ -448,23 +438,23 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 		});
 	}, []);
 
-	const _handleHideItem = useCallback((itemId: string) => {
+	void (useCallback((itemId: string) => {
 		setHiddenItems((prev) => {
 			const next = new Set(prev);
 			next.add(itemId);
 			saveHiddenItems(next);
 			return next;
 		});
-	}, []);
+	}, []));
 
-	const _handleUnhideItem = useCallback((itemId: string) => {
+	void (useCallback((itemId: string) => {
 		setHiddenItems((prev) => {
 			const next = new Set(prev);
 			next.delete(itemId);
 			saveHiddenItems(next);
 			return next;
 		});
-	}, []);
+	}, []));
 
 	const getDraggedData = useCallback(
 		(e: React.DragEvent) => {

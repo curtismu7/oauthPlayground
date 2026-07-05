@@ -52,7 +52,7 @@ const InfoBox = styled.div`
 	margin-bottom: 0.5rem;
 `;
 
-const _InfoHeader = styled.div`
+void (styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -60,12 +60,12 @@ const _InfoHeader = styled.div`
 	font-weight: 600;
 	font-size: 1rem;
 	color: #92400e;
-`;
+`);
 
-const _InfoIcon = styled.div`
+void (styled.div`
 	color: #eab308;
 	font-size: 1.25rem;
-`;
+`);
 
 const InfoDescription = styled.p`
 	margin-bottom: 1rem;

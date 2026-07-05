@@ -190,7 +190,7 @@ const HeaderTitleText = styled.h2`
 	margin: 0;
 `;
 
-const _DragHandle = styled.div`
+void (styled.div`
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -204,7 +204,7 @@ const _DragHandle = styled.div`
 	&:active {
 		cursor: grabbing;
 	}
-`;
+`);
 
 const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 	isOpen,

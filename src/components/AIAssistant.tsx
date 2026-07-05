@@ -504,7 +504,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 		draftRef.current = '';
 	}, []);
 
-	const handleCheckAllHeaderOptions = useCallback(() => {
+	void (useCallback(() => {
 		setShowResultsInPage(true);
 		setShowSidePanel(true);
 		setIncludeApis(true);
@@ -514,9 +514,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 		setIncludeWeb(true);
 		setIncludeLive(true);
 		setUseAdminLogin(true);
-	}, []);
+	}, []));
 
-	const handleUncheckAllHeaderOptions = useCallback(() => {
+	void (useCallback(() => {
 		setShowResultsInPage(false);
 		setShowSidePanel(false);
 		setIncludeApis(false);
@@ -526,7 +526,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ fullPage = false, popout = fa
 		setIncludeWeb(false);
 		setIncludeLive(false);
 		setUseAdminLogin(false);
-	}, []);
+	}, []));
 
 	/** Store admin token from side panel (client credentials); used for MCP calls until expiry or sign out. */
 	const handleAdminTokenSet = useCallback(
@@ -3452,10 +3452,10 @@ const HeaderTitle = styled.div`
 	white-space: nowrap;
 `;
 
-const _HeaderSubtitle = styled.div`
+void (styled.div`
 	font-size: 11px;
 	opacity: 0.9;
-`;
+`);
 
 const StatusRow = styled.div`
 	display: flex;
@@ -3537,7 +3537,7 @@ const ToggleHint = styled.span`
 	white-space: nowrap;
 `;
 
-const ToggleSectionLabel = styled.span`
+void (styled.span`
 	font-size: 10px;
 	font-weight: 700;
 	letter-spacing: 0.04em;
@@ -3547,9 +3547,9 @@ const ToggleSectionLabel = styled.span`
 	border-radius: 999px;
 	background: rgba(255, 255, 255, 0.12);
 	white-space: nowrap;
-`;
+`);
 
-const ToggleBulkButton = styled.button`
+void (styled.button`
 	background: rgba(255, 255, 255, 0.14);
 	border: 1px solid rgba(255, 255, 255, 0.35);
 	color: white;
@@ -3565,7 +3565,7 @@ const ToggleBulkButton = styled.button`
 	&:hover {
 		background: rgba(255, 255, 255, 0.24);
 	}
-`;
+`);
 
 const RefreshTokenButton = styled.button`
 	background: rgba(255, 255, 255, 0.2);

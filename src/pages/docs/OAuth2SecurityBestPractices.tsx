@@ -10,36 +10,36 @@ const PageContainer = styled.div`
 	padding: 2rem;
 `;
 
-const PageHeader = styled.div`
+void (styled.div`
 	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE 100%);
 	color: white;
 	padding: 3rem;
 	border-radius: 1rem;
 	margin-bottom: 3rem;
 	box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-`;
+`);
 
-const PageTitle = styled.h1`
+void (styled.h1`
 	font-size: 3rem;
 	font-weight: 800;
 	margin: 0 0 1rem 0;
 	display: flex;
 	align-items: center;
 	gap: 1rem;
-`;
+`);
 
-const PageSubtitle = styled.p`
+void (styled.p`
 	font-size: 1.5rem;
 	margin: 0 0 1rem 0;
 	opacity: 0.9;
-`;
+`);
 
-const PageDescription = styled.p`
+void (styled.p`
 	font-size: 1.125rem;
 	margin: 0;
 	opacity: 0.8;
 	line-height: 1.6;
-`;
+`);
 
 const ReferenceCard = styled.div`
 	background: V9_COLORS.BG.GRAY_LIGHT;
@@ -87,16 +87,16 @@ const ReferenceLink = styled.a`
 	}
 `;
 
-const Section = styled.div`
+void (styled.div`
 	background: white;
 	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 1rem;
 	padding: 2.5rem;
 	margin-bottom: 2rem;
 	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-`;
+`);
 
-const SectionTitle = styled.h2`
+void (styled.h2`
 	font-size: 2rem;
 	font-weight: 700;
 	margin: 0 0 1.5rem 0;
@@ -104,12 +104,12 @@ const SectionTitle = styled.h2`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-`;
+`);
 
-const SectionIcon = styled.div`
+void (styled.div`
 	color: V9_COLORS.PRIMARY.BLUE;
 	font-size: 1.5rem;
-`;
+`);
 
 const Subsection = styled.div`
 	margin-bottom: 2rem;
@@ -233,9 +233,9 @@ const CodeKeyword = styled.span`
 	color: V9_COLORS.PRIMARY.YELLOW;
 `;
 
-const CodeNumber = styled.span`
+void (styled.span`
 	color: V9_COLORS.PRIMARY.GREEN;
-`;
+`);
 
 const WarningBox = styled.div`
 	background: V9_COLORS.BG.ERROR;

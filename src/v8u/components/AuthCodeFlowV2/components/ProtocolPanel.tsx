@@ -11,7 +11,6 @@ interface ProtocolPanelProps {
 }
 
 export const ProtocolPanel: React.FC<ProtocolPanelProps> = ({
-  config,
   flowStarted,
   currentStep,
 }) => {

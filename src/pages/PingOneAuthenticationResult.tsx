@@ -165,12 +165,12 @@ const FlowMono = styled.pre`
   margin: 0 0 0.5rem 0;
 `;
 
-const _ContextCard = styled.div`
+void (styled.div`
   background: V9_COLORS.TEXT.WHITE3cd;
   border: 1px solid #ffeaa7;
   border-radius: 12px;
   padding: 2rem;
-`;
+`);
 
 const TopNav = styled.div`
   display: flex;
@@ -192,19 +192,19 @@ const PrevButton = styled.button`
   &:hover { background: V9_COLORS.TEXT.GRAY_LIGHTER; }
 `;
 
-const _ContextTitle = styled.h3`
+void (styled.h3`
   color: #856404;
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 1rem;
-`;
+`);
 
-const _ContextText = styled.p`
+void (styled.p`
   color: #856404;
   font-size: 0.9rem;
   line-height: 1.6;
   margin: 0;
-`;
+`);
 
 const PingOneAuthenticationResult: React.FC = () => {
 	const navigate = useNavigate();

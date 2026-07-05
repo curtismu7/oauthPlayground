@@ -753,22 +753,18 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 		navigate,
 		location,
 		isConfigured,
-		getContactDisplay,
-		getContactLabel,
-		getDeviceTypeDisplay,
 		MODULE_TAG,
 	} = flow;
 
 	// Initialize controller using factory - will be updated dynamically based on selected device type
 	// Note: The shared hook already provides a controller, but we keep this for dynamic device type switching
 	const [controllerDeviceType, setControllerDeviceType] = useState<'SMS' | 'EMAIL'>('SMS');
-	const dynamicController = useMemo(
+	void (useMemo(
 		() => MFAFlowControllerFactory.create({ deviceType: controllerDeviceType }),
 		[controllerDeviceType]
-	);
+	));
 
 	// Use the dynamic controller if device type is different, otherwise use the hook's controller
-	const _effectiveController = controllerDeviceType !== 'SMS' ? dynamicController : controller;
 
 	// Track previous step to detect when we navigate to step 1
 	const previousStepRef = React.useRef<number | null>(null);
@@ -1678,7 +1674,6 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			};
 
 			// Use the currentDeviceType already declared above (line 938)
-			const _isSMS = currentDeviceType === 'SMS';
 			const isEMAIL = currentDeviceType === 'EMAIL';
 			// isPhoneBased is already declared above (line 941)
 			// Use phone validation utility for format checking
@@ -2572,14 +2567,6 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			navRef.current = nav;
 
 			// Helper function to update OTP state
-			const _updateOtpState = (
-				update: Partial<typeof otpState> | ((prev: typeof otpState) => typeof otpState)
-			) => {
-				setOtpState((prev) => {
-					const patch = typeof update === 'function' ? update(prev) : update;
-					return { ...prev, ...patch };
-				});
-			};
 
 			// Close modal when verification is complete (handled in render, not useEffect)
 			if (

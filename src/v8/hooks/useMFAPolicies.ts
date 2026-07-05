@@ -62,7 +62,6 @@ export const useMFAPolicies = (config: UseMFAPoliciesConfig = {}): UseMFAPolicie
 		tokenIsValid = false,
 		selectedPolicyId: externalSelectedPolicyId,
 		autoLoad = true,
-		autoSelectSingle = true,
 	} = config;
 
 	// State

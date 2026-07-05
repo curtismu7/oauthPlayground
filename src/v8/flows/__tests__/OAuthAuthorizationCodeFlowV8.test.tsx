@@ -323,7 +323,7 @@ describe('OAuthAuthorizationCodeFlowV8', () => {
 
 	describe('Edge Cases', () => {
 		it('should handle empty form submission', async () => {
-			const _user = userEvent.setup();
+			void (userEvent.setup());
 
 			render(<OAuthAuthorizationCodeFlowV8 />);
 

@@ -126,7 +126,7 @@ const Alert = styled.div`
 	}
 `;
 
-const _PingOneSetupSection = styled.div`
+void (styled.div`
 	background-color: V9_COLORS.TEXT.WHITE;
 	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
@@ -156,7 +156,7 @@ const _PingOneSetupSection = styled.div`
 		color: var(--color-text-secondary, #6c757d);
 		font-size: 0.85rem;
 	}
-`;
+`);
 
 const SetupSteps = styled.div`
 	margin-bottom: 24px;
@@ -198,7 +198,7 @@ const SetupSteps = styled.div`
 	}
 `;
 
-const _CredentialsBox = styled.div`
+void (styled.div`
 	background-color: var(--color-background, V9_COLORS.TEXT.WHITE);
 	border: 1px solid var(--color-border, #dee2e6);
 	border-radius: 6px;
@@ -238,7 +238,7 @@ const _CredentialsBox = styled.div`
 			border: 1px solid var(--color-border, #e9ecef);
 		}
 	}
-`;
+`);
 
 const CredentialRow = styled.div`
 	display: flex;

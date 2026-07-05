@@ -1,17 +1,16 @@
 import styled from 'styled-components';
 import { SpecCard } from '../../components/SpecCard';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import { FlowHeader } from '../../services/flowHeaderService';
 import { PageLayoutService } from '../../services/pageLayoutService';
 import DocumentationHeader from '../../components/DocumentationHeader';
 
-const _DocsContainer = styled.div`
+void (styled.div`
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 1.5rem;
-`;
+`);
 
-const _Section = styled.section`
+void (styled.section`
 	margin-bottom: 3rem;
 
 	h2 {
@@ -26,7 +25,7 @@ const _Section = styled.section`
 			color: ${({ theme }) => theme.colors.primary};
 		}
 	}
-`;
+`);
 
 const LinkGrid = styled.div`
 	display: grid;

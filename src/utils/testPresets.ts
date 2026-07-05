@@ -7,12 +7,12 @@ import { logger } from '../utils/logger';
 export function testPresetFunctionality() {
 	try {
 		// Test 1: Load built-in presets
-		const _builtInPresets = presetManagerService.getBuiltInPresets();
+		void (presetManagerService.getBuiltInPresets());
 
 		// Test 2: Test preset filtering by app type
-		const _webAppPresets = presetManagerService.getPresetsByAppType('OIDC_WEB_APP');
-		const _workerPresets = presetManagerService.getPresetsByAppType('WORKER');
-		const _spaPresets = presetManagerService.getPresetsByAppType('SINGLE_PAGE_APP');
+		void (presetManagerService.getPresetsByAppType('OIDC_WEB_APP'));
+		void (presetManagerService.getPresetsByAppType('WORKER'));
+		void (presetManagerService.getPresetsByAppType('SINGLE_PAGE_APP'));
 
 		// Test 3: Test preset application - Worker App
 		const workerPreset = presetManagerService.getPresetById('worker-app-basic');

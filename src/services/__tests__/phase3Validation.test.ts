@@ -465,7 +465,7 @@ describe('Phase 3 Validation Tests', () => {
 			const consoleWarnSpy = vi.spyOn(console, 'warn');
 
 			// High severity security event
-			const _csrfError = SecurityError.csrfDetected();
+			void (SecurityError.csrfDetected());
 			expect(consoleSpy).toHaveBeenCalledWith(
 				'[SecurityError] SECURITY EVENT:',
 				expect.any(Object)
@@ -475,7 +475,7 @@ describe('Phase 3 Validation Tests', () => {
 			);
 
 			// Low severity non-security event
-			const _serviceError = SecurityError.serviceUnavailable('Test service');
+			void (SecurityError.serviceUnavailable('Test service'));
 			expect(consoleSpy).toHaveBeenCalledWith(
 				'[SecurityError] Validation Error:',
 				expect.any(Object)

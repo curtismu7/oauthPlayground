@@ -424,9 +424,6 @@ interface SquarePOSDeviceFlowProps {
 
 const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
 	state,
-	onStateUpdate,
-	onComplete,
-	onError,
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);

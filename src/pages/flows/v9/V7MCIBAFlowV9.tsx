@@ -116,7 +116,7 @@ const CIBAFlowV2: React.FC = () => {
 	const [introspectResult, setIntrospectResult] = useState<V9MockIntrospectionResponse | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
-	const [pollCount, setPollCount] = useState(0);
+	const [, setPollCount] = useState(0);
 
 	const pollInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 	const cur = engine.current.id;

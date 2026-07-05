@@ -284,7 +284,7 @@ interface StepState {
 }
 
 export const EmailMFASignOnFlowV8: React.FC = () => {
-	const _navigate = useNavigate();
+	void (useNavigate());
 	usePageScroll({ pageName: 'Email MFA Sign-On Flow V8', force: true });
 
 	// Credentials state

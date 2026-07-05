@@ -20,7 +20,6 @@ const MODULE_TAG = '[ MFA-REDIRECT-URI-SERVICE-V8]';
 
 // Debug configuration
 const DEBUG_MODE = true; // Set to false in production
-const _DEBUG_PREFIX = '[MFA-REDIRECT-DEBUG]';
 const PERSISTENT_LOG_KEY = 'mfa_redirect_debug_log';
 const MAX_LOG_ENTRIES = 50;
 

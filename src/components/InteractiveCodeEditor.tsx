@@ -549,7 +549,6 @@ const getMonacoLanguage = (lang: LanguageOption): string => {
 export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 	initialCode,
 	language = 'typescript',
-	_title = 'Code Editor',
 	onCodeChange,
 	flowSteps = [
 		'authorization',

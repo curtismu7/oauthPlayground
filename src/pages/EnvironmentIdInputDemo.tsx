@@ -120,11 +120,11 @@ const ComparisonTitle = styled.h3`
   gap: 0.5rem;
 `;
 
-const _ProsList = styled.ul`
+void (styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
-`;
+`);
 
 const ProItem = styled.li`
   display: flex;

@@ -21,7 +21,7 @@ const Container = styled.div`
 	padding-bottom: 4rem;
 `;
 
-const _Header = styled.div`
+void (styled.div`
 	margin-bottom: 2rem;
 
 	h1 {
@@ -39,7 +39,7 @@ const _Header = styled.div`
 		font-size: 1.1rem;
 		line-height: 1.6;
 	}
-`;
+`);
 
 const OverviewCard = styled(Card)`
 	margin-bottom: 2rem;
@@ -54,7 +54,7 @@ const ComparisonGrid = styled.div`
 `;
 
 const ComparisonCard = styled(Card)<{ $type: 'par' | 'rar' }>`
-	border-left: 4px solid ${({ $type, theme }) => ($type === 'par' ? '#059669' : '#3b82f6')};
+	border-left: 4px solid ${({ $type }) => ($type === 'par' ? '#059669' : '#3b82f6')};
 `;
 
 const CodeBlock = styled.pre`

@@ -8,7 +8,6 @@
 import React from 'react';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 
-const _MODULE_TAG = '[ WORKER-TOKEN-PROMPT-MODAL-V8]';
 
 interface WorkerTokenPromptModalV8Props {
 	isOpen: boolean;

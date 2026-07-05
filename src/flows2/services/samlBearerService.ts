@@ -5,7 +5,6 @@
 // mock mode → generate a mock SAML assertion, simulate token response (no network).
 
 import type { FlowMode, TokenResult } from '../framework/types';
-import { pingoneHost } from './pingone';
 import { tokenIntrospectionService } from './tokenIntrospectionService';
 
 export interface SAMLBearerAssertionData {
@@ -102,7 +101,7 @@ export const samlBearerService = {
 	async run(params: SAMLBearerParams, mode: FlowMode): Promise<TokenResult> {
 		if (mode === 'mock') {
 			// Generate assertion in mock mode (discarded but validates input)
-			const _mockAssertion = generateMockSAMLAssertion(params.assertion);
+			void (generateMockSAMLAssertion(params.assertion));
 			await new Promise((resolve) => setTimeout(resolve, 500));
 
 			const now = Math.floor(Date.now() / 1000);

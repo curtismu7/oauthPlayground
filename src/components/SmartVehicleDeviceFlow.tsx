@@ -344,9 +344,6 @@ interface SmartVehicleDeviceFlowProps {
 
 const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
 	state,
-	onStateUpdate,
-	onComplete,
-	onError,
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);

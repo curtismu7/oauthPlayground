@@ -12,7 +12,6 @@
 import React from 'react';
 
 const WAIT_SCREEN_BLUE = '#3b82f6';
-const _WAIT_SCREEN_BLUE_DARK = '#2563eb';
 
 interface MFAWaitScreenV8Props {
 	/** Loading message to display */

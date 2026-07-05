@@ -32,7 +32,6 @@ Object.defineProperty(window, 'sessionStorage', {
 });
 
 // Mock console methods
-const _originalConsole = console;
 beforeEach(() => {
 	console.log = vi.fn();
 	console.error = vi.fn();
@@ -144,7 +143,6 @@ describe('Secure Token Storage Integration', () => {
 			storeOAuthTokens(mockTokens, 'authorization-code', 'Test Flow');
 
 			// Manually modify storage time to be very old (25+ hours)
-			const _storedData = mockSessionStorage.store['pingone_secure_tokens'];
 
 			// Create a mock old token data structure
 			const oldTokenData = {

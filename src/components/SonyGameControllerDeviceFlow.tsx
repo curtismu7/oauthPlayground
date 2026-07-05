@@ -344,9 +344,6 @@ interface SonyGameControllerDeviceFlowProps {
 
 const SonyGameControllerDeviceFlow: React.FC<SonyGameControllerDeviceFlowProps> = ({
 	state,
-	onStateUpdate,
-	onComplete,
-	onError,
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);

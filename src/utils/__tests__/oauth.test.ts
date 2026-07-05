@@ -60,7 +60,7 @@ describe('OAuth Utilities', () => {
 		});
 
 		test('calls generateRandomString with length 64', () => {
-			const _spy = vi.spyOn({ generateRandomString }, 'generateRandomString');
+			void (vi.spyOn({ generateRandomString }, 'generateRandomString'));
 			mockCrypto.getRandomValues.mockReturnValue(new Uint8Array(32).fill(0x42));
 
 			generateCodeVerifier();

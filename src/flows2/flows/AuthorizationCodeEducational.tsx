@@ -8,9 +8,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { authorizationCodeService } from '../services/authorizationCodeService';
-import { tokens } from '../framework/tokens';
 import type { FlowCredentials, FlowMode, TokenResult, FlowError } from '../framework/types';
-import { clearStash, loadStash, saveStash } from '../framework/authzStash';
+import { loadStash, saveStash } from '../framework/authzStash';
 
 // Design tokens for educational UI
 const DESIGN = {

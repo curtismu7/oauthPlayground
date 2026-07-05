@@ -95,7 +95,7 @@ describe('StorageServiceV8', () => {
 			});
 
 			// Verify migrated data was saved
-			const _reloaded = await StorageServiceV8.load('v8:test');
+			void (await StorageServiceV8.load('v8:test'));
 			const serialized = localStorage.getItem('v8:test');
 			const parsed = JSON.parse(serialized!);
 			expect(parsed.version).toBe(2);

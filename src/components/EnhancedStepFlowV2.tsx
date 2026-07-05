@@ -203,7 +203,7 @@ const StepCount = styled.div`
 	font-weight: 500;
 `;
 
-const _SuccessMessage = styled.div`
+void (styled.div`
 	background: linear-gradient(
 		135deg,
 		V9_COLORS.PRIMARY.GREEN 0%,
@@ -230,7 +230,7 @@ const _SuccessMessage = styled.div`
 			transform: translateY(0);
 		}
 	}
-`;
+`);
 
 // Step Content Area
 const StepContent = styled.div`
@@ -551,7 +551,7 @@ const JsonDisplay = styled.div`
 `;
 
 // Loading States
-const _LoadingOverlay = styled.div`
+void (styled.div`
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -562,7 +562,7 @@ const _LoadingOverlay = styled.div`
 	align-items: center;
 	justify-content: center;
 	z-index: 10;
-`;
+`);
 
 const LoadingSpinner = styled.div`
 	display: inline-block;

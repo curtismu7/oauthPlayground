@@ -8,7 +8,6 @@
 import { useEffect, useState } from 'react';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
-const _MODULE_TAG = '[ API-DISPLAY-PADDING-HOOK]';
 
 /**
  * Hook to get API display visibility and height for page padding
