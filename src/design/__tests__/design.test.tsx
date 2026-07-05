@@ -4,6 +4,8 @@ import { tokens as designTokens } from '../tokens';
 import { tokens as frameworkTokens } from '../../flows2/framework/tokens';
 import { Pill, Action, Card } from '../primitives';
 import { Pill as FwPill } from '../../flows2/framework/primitives';
+import { PageShell } from '../PageShell';
+import { fonts } from '../typography';
 
 describe('design/tokens', () => {
 	it('exposes the navy + teal palette', () => {
@@ -33,5 +35,25 @@ describe('design/primitives', () => {
 		expect(getByText('chip')).toBeInTheDocument();
 		expect(getByText('go')).toBeInTheDocument();
 		expect(getByText('body')).toBeInTheDocument();
+	});
+});
+
+describe('design/typography', () => {
+	it('documents a mono accent stack distinct from body', () => {
+		expect(fonts.mono).toContain('IBM Plex Mono');
+		expect(fonts.body).not.toBe(fonts.mono);
+	});
+});
+
+describe('design/PageShell', () => {
+	it('renders the title as an h1, the intro, and children', () => {
+		const { getByRole, getByText } = render(
+			<PageShell title="Dashboard" intro="Welcome back">
+				<div>page body</div>
+			</PageShell>,
+		);
+		expect(getByRole('heading', { level: 1, name: 'Dashboard' })).toBeInTheDocument();
+		expect(getByText('Welcome back')).toBeInTheDocument();
+		expect(getByText('page body')).toBeInTheDocument();
 	});
 });
