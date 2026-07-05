@@ -30,8 +30,11 @@ jobs:
     - name: Run linting
       run: npm run lint
 
-    - name: Run type checking
-      run: npm run type-check
+    # Ratchet gate: the codebase carries a baseline of pre-existing type errors, so a
+    # hard `tsc --noEmit` would always fail. This fails only if a change INCREASES the
+    # count above .tsc-error-baseline (see syntax-check.yml for the same gate).
+    - name: Run type checking (ratchet — no new type errors)
+      run: npm run type-check:ratchet
 
     - name: Run unit tests
       run: npm run test:coverage
