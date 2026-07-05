@@ -13,14 +13,25 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import {
+	applyImplicitHybridSabotage,
+	implicitHybridSabotageScenarios,
+} from '../content/implicitHybridSabotage';
+import {
+	implicitHybridActors,
+	implicitHybridInteractions,
+} from '../content/implicitHybridSequence';
+import { implicitHybridSpecVsPingOne } from '../content/implicitHybridSpecVsPingOne';
+import { BreakItLab } from '../framework/BreakItLab';
+import { CodeBlock, JsonView } from '../framework/CodeBlock';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
+import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
 import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
-import { CodeBlock, JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
 import { tokens } from '../framework/tokens';
 import type {
 	FlowCredentials,
@@ -29,17 +40,19 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import { useFlowStorage } from '../framework/useFlowStorage';
+import { PathProgressBadge } from '../learning/PathProgressBadge';
+import {
+	type FragmentParams,
+	type ImplicitHybridSubMode,
+	implicitHybridService,
+} from '../services/implicitHybridService';
 import {
 	IH_PENDING_KEY,
 	IH_RESULT_KEY,
 	type ImplicitHybridPending,
 } from './ImplicitHybridCallback';
-import { useFlowStorage } from '../framework/useFlowStorage';
-import {
-	implicitHybridService,
-	type FragmentParams,
-	type ImplicitHybridSubMode,
-} from '../services/implicitHybridService';
 
 // ── Step definitions ─────────────────────────────────────────────────────────
 
@@ -134,6 +147,9 @@ const ImplicitHybridFlow: React.FC = () => {
 	const [exchangeResult, setExchangeResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	// Break-it Lab: the sabotage scenario selected for the authorize step (null = run
+	// correctly). Applied to the outgoing authorize params right before dispatch.
+	const [sabotageId, setSabotageId] = useState<string | null>(null);
 
 	const { saveState, restoreState } = useFlowStorage('flows2:implicit-hybrid');
 
@@ -160,18 +176,27 @@ const ImplicitHybridFlow: React.FC = () => {
 		try {
 			const params = JSON.parse(raw) as FragmentParams;
 			if (!params.state) {
-				setError({ error: 'missing_state', error_description: 'Authorization response missing state parameter.' });
+				setError({
+					error: 'missing_state',
+					error_description: 'Authorization response missing state parameter.',
+				});
 				return;
 			}
 			if (!params.access_token && !params.code) {
-				setError({ error: 'missing_token', error_description: 'Authorization response missing access_token or code.' });
+				setError({
+					error: 'missing_token',
+					error_description: 'Authorization response missing access_token or code.',
+				});
 				return;
 			}
 			setFragmentParams(params);
 			engine.markComplete('authorize');
 			engine.goTo(2); // result step
 		} catch (_err) {
-			setError({ error: 'parse_error', error_description: 'Failed to parse authorization response.' });
+			setError({
+				error: 'parse_error',
+				error_description: 'Failed to parse authorization response.',
+			});
 		}
 	}, [engine]);
 
@@ -179,8 +204,15 @@ const ImplicitHybridFlow: React.FC = () => {
 		setError(null);
 		setLoading(true);
 		try {
-			const state = crypto.randomUUID();
-			const nonce = crypto.randomUUID();
+			// Break-it Lab: apply the selected authorize-stage sabotage (e.g. tamper state)
+			// to the outgoing params. No-op when nothing is selected or the scenario is
+			// simulate-only (omit-nonce, unsupported-response-type).
+			const authorizeParams = applyImplicitHybridSabotage(sabotageId, 'authorize', {
+				state: crypto.randomUUID(),
+				nonce: crypto.randomUUID(),
+			});
+			const state = authorizeParams.state;
+			const nonce = authorizeParams.nonce;
 
 			if (mode === 'mock') {
 				// Generate offline fragment params and advance immediately.
@@ -224,14 +256,15 @@ const ImplicitHybridFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [mode, subMode, oidc, creds, redirectUri, engine]);
+	}, [mode, subMode, oidc, creds, redirectUri, engine, sabotageId]);
 
 	// Hybrid only: exchange the front-channel code at the token endpoint.
 	const handleExchange = useCallback(async () => {
 		if (!fragmentParams?.code) {
 			setError({
 				error: 'missing_code',
-				error_description: 'Authorization code not found. The authorization response may have been truncated or corrupted. Try starting the flow again.',
+				error_description:
+					'Authorization code not found. The authorization response may have been truncated or corrupted. Try starting the flow again.',
 			});
 			return;
 		}
@@ -257,8 +290,10 @@ const ImplicitHybridFlow: React.FC = () => {
 	useEffect(() => {
 		restoreState().then((saved) => {
 			if (!saved) return;
-			if (!fragmentParams && saved.fragmentParams) setFragmentParams(saved.fragmentParams as typeof fragmentParams);
-			if (!exchangeResult && saved.exchangeResult) setExchangeResult(saved.exchangeResult as typeof exchangeResult);
+			if (!fragmentParams && saved.fragmentParams)
+				setFragmentParams(saved.fragmentParams as typeof fragmentParams);
+			if (!exchangeResult && saved.exchangeResult)
+				setExchangeResult(saved.exchangeResult as typeof exchangeResult);
 			if (!error && saved.error) setError(saved.error as typeof error);
 		});
 	}, [restoreState, fragmentParams, exchangeResult, error]);
@@ -267,11 +302,15 @@ const ImplicitHybridFlow: React.FC = () => {
 		saveState({ fragmentParams, exchangeResult, error });
 	}, [fragmentParams, exchangeResult, error, saveState]);
 
+	// Break-it Lab reads back the actual outcome of the last authorize run to compare
+	// against the scenario's predicted error.
+	const lastOutcome = error ? { error } : fragmentParams ? { ok: true } : null;
+
 	const configured = Boolean(
 		creds.environmentId &&
-		creds.clientId &&
-		redirectUri &&
-		(subMode === 'implicit' || creds.clientSecret)
+			creds.clientId &&
+			redirectUri &&
+			(subMode === 'implicit' || creds.clientSecret)
 	);
 
 	const cur = engine.current.id;
@@ -284,6 +323,14 @@ const ImplicitHybridFlow: React.FC = () => {
 			subtitle="Access tokens returned directly in the URL fragment. Implicit is removed in OAuth 2.1 (RFC 9700); hybrid is a transitional pattern. Both are presented for educational purposes — do not use in new applications."
 			engine={engine}
 		>
+			<PathProgressBadge flowRoute="/v2/flows/implicit-hybrid" />
+			<FlowSequenceDiagram
+				title="Live sequence — the current step is highlighted"
+				actors={implicitHybridActors}
+				interactions={implicitHybridInteractions}
+				activeStepId={cur}
+				completedStepIds={engine.completed}
+			/>
 			{/* ── Step 1: Configure ─────────────────────────────────────────── */}
 			{cur === 'configure' && (
 				<FlowStep
@@ -295,13 +342,17 @@ const ImplicitHybridFlow: React.FC = () => {
 					canNext={configured}
 				>
 					<WarnBanner>
-						Legacy flows — educational use only. Implicit is removed in OAuth 2.1. Use
-						Authorization Code + PKCE for all new applications.
+						Legacy flows — educational use only. Implicit is removed in OAuth 2.1. Use Authorization
+						Code + PKCE for all new applications.
 					</WarnBanner>
 
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>
+							Real PingOne
+						</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>
+							Mock
+						</Pill>
 					</Toggle>
 
 					<Toggle>
@@ -351,6 +402,10 @@ const ImplicitHybridFlow: React.FC = () => {
 							placeholder={oidc ? 'openid profile email' : 'openid'}
 						/>
 					</Grid>
+					<SpecVsPingOneList
+						title="Spec vs PingOne — how this flow differs on PingOne"
+						entries={implicitHybridSpecVsPingOne}
+					/>
 				</FlowStep>
 			)}
 
@@ -367,6 +422,13 @@ const ImplicitHybridFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(fragmentParams)}
 				>
+					<BreakItLab
+						scenarios={implicitHybridSabotageScenarios}
+						stage="authorize"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					<Action onClick={handleAuthorize} disabled={loading || !configured}>
 						{loading
 							? 'Working…'
@@ -401,10 +463,7 @@ const ImplicitHybridFlow: React.FC = () => {
 
 					{subMode === 'hybrid' && (
 						<>
-							<Action
-								onClick={handleExchange}
-								disabled={loading || !fragmentParams?.code}
-							>
+							<Action onClick={handleExchange} disabled={loading || !fragmentParams?.code}>
 								{loading ? 'Exchanging…' : 'Exchange code (back-channel)'}
 							</Action>
 							{exchangeResult && (
@@ -432,9 +491,9 @@ const ImplicitHybridFlow: React.FC = () => {
 					<ExplanationPanel title="Why implicit was removed (OAuth 2.1)" defaultOpen>
 						<ul>
 							<li>
-								<strong>Tokens exposed in the URL.</strong> The fragment leaks into browser
-								history, server logs, and Referer headers. Any script or extension on the page can
-								read window.location.hash.
+								<strong>Tokens exposed in the URL.</strong> The fragment leaks into browser history,
+								server logs, and Referer headers. Any script or extension on the page can read
+								window.location.hash.
 							</li>
 							<li>
 								<strong>No client authentication.</strong> The authorization server cannot verify
@@ -445,8 +504,8 @@ const ImplicitHybridFlow: React.FC = () => {
 								authorization response immediately yields a usable token.
 							</li>
 							<li>
-								<strong>No refresh tokens.</strong> Access tokens must be long-lived,
-								increasing the window of exposure for any leakage.
+								<strong>No refresh tokens.</strong> Access tokens must be long-lived, increasing the
+								window of exposure for any leakage.
 							</li>
 						</ul>
 					</ExplanationPanel>
@@ -454,19 +513,19 @@ const ImplicitHybridFlow: React.FC = () => {
 					<ExplanationPanel title="Why hybrid is a transitional pattern" defaultOpen>
 						<ul>
 							<li>
-								<strong>Code in the front channel.</strong> Hybrid sends the authorization code
-								in the fragment, where it is still exposed to the browser — the same risk profile
-								as implicit.
+								<strong>Code in the front channel.</strong> Hybrid sends the authorization code in
+								the fragment, where it is still exposed to the browser — the same risk profile as
+								implicit.
 							</li>
 							<li>
-								<strong>Immediate id_token for identity.</strong> The id_token in the fragment
-								lets the app display who the user is before the back-channel code exchange
-								completes. The c_hash claim cryptographically binds the id_token to the code.
+								<strong>Immediate id_token for identity.</strong> The id_token in the fragment lets
+								the app display who the user is before the back-channel code exchange completes. The
+								c_hash claim cryptographically binds the id_token to the code.
 							</li>
 							<li>
 								<strong>Better than implicit, worse than auth code.</strong> Hybrid trades some
-								security for reduced round-trips. RFC 9700 recommends against it; use
-								Authorization Code + PKCE with OIDC instead.
+								security for reduced round-trips. RFC 9700 recommends against it; use Authorization
+								Code + PKCE with OIDC instead.
 							</li>
 						</ul>
 					</ExplanationPanel>
@@ -474,9 +533,9 @@ const ImplicitHybridFlow: React.FC = () => {
 					<ExplanationPanel title="What to use instead">
 						Use <strong>Authorization Code + PKCE</strong> (response_type=code,
 						response_mode=query). Tokens are only returned from the token endpoint over a
-						server-to-server TLS connection — never visible in the URL. PKCE binds the code to
-						the client without a client secret, making it safe for public clients (SPAs, mobile
-						apps) and confidential clients alike.
+						server-to-server TLS connection — never visible in the URL. PKCE binds the code to the
+						client without a client secret, making it safe for public clients (SPAs, mobile apps)
+						and confidential clients alike.
 					</ExplanationPanel>
 				</FlowStep>
 			)}

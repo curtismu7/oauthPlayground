@@ -7,13 +7,25 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { FlowContainer } from '../framework/FlowContainer';
-import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
+import {
+	applyTokenIntrospectionSabotage,
+	introspectStage,
+	tokenIntrospectionSabotageScenarios,
+} from '../content/tokenIntrospectionSabotage';
+import {
+	tokenIntrospectionActors,
+	tokenIntrospectionInteractions,
+} from '../content/tokenIntrospectionSequence';
+import { tokenIntrospectionSpecVsPingOne } from '../content/tokenIntrospectionSpecVsPingOne';
+import { BreakItLab } from '../framework/BreakItLab';
 import { JsonView } from '../framework/CodeBlock';
-import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
+import { FlowContainer } from '../framework/FlowContainer';
+import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
+import { FlowStep } from '../framework/FlowStep';
+import { ResultCard } from '../framework/ResultCard';
+import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
@@ -22,14 +34,16 @@ import type {
 	FlowMode,
 	StepDefinition,
 } from '../framework/types';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import { useFlowStorage } from '../framework/useFlowStorage';
+import { PathProgressBadge } from '../learning/PathProgressBadge';
 import { decodeJwtPayload } from '../services/pingone';
 import {
+	type IntrospectionResponse,
 	introspectionEndpointFor,
 	tokenIntrospectionService as svc,
-	type IntrospectionResponse,
 	type TokenTypeHint,
 } from '../services/tokenIntrospectionService';
-import { useFlowStorage } from '../framework/useFlowStorage';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -106,6 +120,9 @@ const TokenIntrospectionFlow: React.FC = () => {
 	const [result, setResult] = useState<IntrospectionResponse | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	// Break-it Lab: the sabotage scenario the learner has selected for the introspect
+	// step (null = run correctly). Applied to the outgoing params right before dispatch.
+	const [sabotageId, setSabotageId] = useState<string | null>(null);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -117,7 +134,16 @@ const TokenIntrospectionFlow: React.FC = () => {
 		setError(null);
 		setResult(null);
 		try {
-			const r = await svc.run({ credentials: creds, token, tokenTypeHint: hint }, mode);
+			// Break-it Lab: apply the selected introspect-stage sabotage (e.g. drop client
+			// auth) to the outgoing params. No-op when nothing is selected or when the
+			// scenario is simulate-only. Spread tokenTypeHint only when set so it is never
+			// sent as `undefined` (exactOptionalPropertyTypes).
+			const params = applyTokenIntrospectionSabotage(sabotageId, 'introspect', {
+				credentials: creds,
+				token,
+				...(hint ? { tokenTypeHint: hint } : {}),
+			});
+			const r = await svc.run(params, mode);
 			setResult(r);
 			engine.markComplete('introspect');
 		} catch (err) {
@@ -125,14 +151,18 @@ const TokenIntrospectionFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, token, hint, mode, engine]);
+	}, [creds, token, hint, mode, engine, sabotageId]);
+
+	// Break-it Lab reads back the actual outcome of the last run to compare against the
+	// scenario's predicted error.
+	const lastOutcome = error ? { error } : result ? { ok: true } : null;
 
 	useEffect(() => {
 		restoreState().then((saved) => {
 			if (!saved) return;
 			if (!token && saved.token) setToken(saved.token as string);
-			if (!result && saved.result) setResult(saved.result as typeof result);
-			if (!error && saved.error) setError(saved.error as typeof error);
+			if (!result && saved.result) setResult(saved.result as IntrospectionResponse | null);
+			if (!error && saved.error) setError(saved.error as FlowError | null);
 		});
 	}, [restoreState]);
 
@@ -152,6 +182,14 @@ const TokenIntrospectionFlow: React.FC = () => {
 			subtitle="RFC 7662. A client asks the authorization server whether a token is active and what it carries — the authoritative answer, valid even for opaque or revoked tokens."
 			engine={engine}
 		>
+			<PathProgressBadge flowRoute="/v2/flows/token-introspection" />
+			<FlowSequenceDiagram
+				title="Live sequence — the current step is highlighted"
+				actors={tokenIntrospectionActors}
+				interactions={tokenIntrospectionInteractions}
+				activeStepId={cur}
+				completedStepIds={engine.completed}
+			/>
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure the introspection call"
@@ -162,8 +200,12 @@ const TokenIntrospectionFlow: React.FC = () => {
 					canNext={configured}
 				>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>
+							Real PingOne
+						</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>
+							Mock
+						</Pill>
 					</Toggle>
 					<Toggle>
 						{(['client_secret_post', 'client_secret_basic'] as ClientAuthMethod[]).map((m) => (
@@ -177,10 +219,31 @@ const TokenIntrospectionFlow: React.FC = () => {
 						))}
 					</Toggle>
 					<Grid>
-						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} placeholder="uuid" />
-						<FieldGroup label="Region" value={creds.region} onChange={set('region')} placeholder="com | eu | ca | asia" />
-						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} placeholder="client id" />
-						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} placeholder="client secret" />
+						<FieldGroup
+							label="Environment ID"
+							value={creds.environmentId}
+							onChange={set('environmentId')}
+							placeholder="uuid"
+						/>
+						<FieldGroup
+							label="Region"
+							value={creds.region}
+							onChange={set('region')}
+							placeholder="com | eu | ca | asia"
+						/>
+						<FieldGroup
+							label="Client ID"
+							value={creds.clientId}
+							onChange={set('clientId')}
+							placeholder="client id"
+						/>
+						<FieldGroup
+							label="Client Secret"
+							type="password"
+							value={creds.clientSecret ?? ''}
+							onChange={set('clientSecret')}
+							placeholder="client secret"
+						/>
 					</Grid>
 					<FieldGroup
 						multiline
@@ -190,17 +253,28 @@ const TokenIntrospectionFlow: React.FC = () => {
 						placeholder="paste an access or refresh token (e.g. from the Authorization Code flow)"
 					/>
 					<Toggle>
-						{([[undefined, 'no hint'], ['access_token', 'access_token'], ['refresh_token', 'refresh_token']] as const).map(([v, label]) => (
+						{(
+							[
+								[undefined, 'no hint'],
+								['access_token', 'access_token'],
+								['refresh_token', 'refresh_token'],
+							] as const
+						).map(([v, label]) => (
 							<Pill key={label} $active={hint === v} onClick={() => setHint(v)}>
 								{label}
 							</Pill>
 						))}
 					</Toggle>
 					<ExplanationPanel title="When to use introspection">
-						Resource servers use it to validate tokens they cannot (or should not) decode themselves:
-						opaque tokens have no readable payload, and even a valid JWT may have been revoked since it
-						was issued. The optional token_type_hint just tells the AS which token store to search first.
+						Resource servers use it to validate tokens they cannot (or should not) decode
+						themselves: opaque tokens have no readable payload, and even a valid JWT may have been
+						revoked since it was issued. The optional token_type_hint just tells the AS which token
+						store to search first.
 					</ExplanationPanel>
+					<SpecVsPingOneList
+						title="Spec vs PingOne — how introspection differs on PingOne"
+						entries={tokenIntrospectionSpecVsPingOne}
+					/>
 				</FlowStep>
 			)}
 
@@ -213,9 +287,24 @@ const TokenIntrospectionFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(result)}
 				>
-					<Endpoint>{mode === 'real' ? introspectionEndpointFor(creds) : 'mock — answered locally, no network call'}</Endpoint>
+					<Endpoint>
+						{mode === 'real'
+							? introspectionEndpointFor(creds)
+							: 'mock — answered locally, no network call'}
+					</Endpoint>
+					<BreakItLab
+						scenarios={tokenIntrospectionSabotageScenarios}
+						stage={introspectStage}
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					<Action onClick={run} disabled={loading || !configured}>
-						{loading ? 'Introspecting…' : mode === 'real' ? 'Introspect real token' : 'Introspect mock token'}
+						{loading
+							? 'Introspecting…'
+							: mode === 'real'
+								? 'Introspect real token'
+								: 'Introspect mock token'}
 					</Action>
 					{error && (
 						<ResultCard title={`Error: ${error.error}`} tone="error">
@@ -255,10 +344,10 @@ const TokenIntrospectionFlow: React.FC = () => {
 						)}
 					</ResultCard>
 					<ExplanationPanel title="Why both exist">
-						JWT validation (signature + exp, offline) scales — no network hop per request — but a token
-						stays "valid" until it expires even if it was revoked. Introspection trades a network call
-						for live truth. Many deployments combine them: local checks per request, introspection for
-						high-value operations.
+						JWT validation (signature + exp, offline) scales — no network hop per request — but a
+						token stays "valid" until it expires even if it was revoked. Introspection trades a
+						network call for live truth. Many deployments combine them: local checks per request,
+						introspection for high-value operations.
 					</ExplanationPanel>
 				</FlowStep>
 			)}

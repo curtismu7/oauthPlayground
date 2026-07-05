@@ -149,6 +149,11 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		]),
 	},
 	{
+		id: 'learning-paths',
+		label: 'Learn',
+		items: items([['/v2/learn', 'Learning Paths', true]]),
+	},
+	{
 		id: 'setup-configuration',
 		label: 'Setup & Configuration',
 		items: items([
@@ -231,7 +236,6 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: "Real PingOne API's & support apps",
 		groupBadgeType: 'pingone',
 		items: items([
-			
 			['/v8/unified-mfa', 'Unified MFA', true],
 			// ['/v8u/enhanced-state-management', 'Enhanced State Management (V2)', true],
 			['/protect-portal', 'Protect Portal App', true],
