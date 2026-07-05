@@ -15,7 +15,6 @@ import {
 } from '../../../services/parConfigurationService';
 import { PKCEServiceUtils } from '../../../services/pkceService';
 import { type AuthorizationDetail, RARService } from '../../../services/rarService';
-import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
 import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
@@ -130,6 +129,21 @@ const PingOnePARFlowV9: React.FC = () => {
 		},
 		[controller]
 	);
+
+	// Load previously saved PAR credentials from canonical V9 storage on mount
+	// biome-ignore lint/correctness/useExhaustiveDependencies: mount-only hydration; controller identity churn must not re-trigger
+	useEffect(() => {
+		V9CredentialStorageService.load('v9:pingone-par').then((stored) => {
+			if (stored?.clientId && !controller.credentials?.clientId) {
+				controller.setCredentials({
+					...controller.credentials,
+					clientId: stored.clientId,
+					...(stored.clientSecret ? { clientSecret: stored.clientSecret } : {}),
+					...(stored.environmentId ? { environmentId: stored.environmentId } : {}),
+				});
+			}
+		});
+	}, []);
 
 	useEffect(() => {
 		if (
@@ -359,14 +373,6 @@ const PingOnePARFlowV9: React.FC = () => {
 						{/* Credentials Input */}
 						<CompactAppPickerV8U
 							onAppSelected={handleParAppSelected}
-						/>
-						<V9FlowCredentialService
-							flowKey="pingone-par-flow-v9"
-							onCredentialsChange={(credentials) => {
-								if (credentials) {
-									controller.setCredentials(credentials);
-								}
-							}}
 						/>
 					</div>
 				);
