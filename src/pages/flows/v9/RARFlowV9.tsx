@@ -11,7 +11,6 @@ import { StandardizedCredentialExportImport } from '../../../components/Standard
 import { usePageStepper } from '../../../contexts/FloatingStepperContext';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { FlowUIService } from '../../../services/flowUIService';
-import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
 import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
@@ -241,8 +240,17 @@ const RARFlowV9: React.FC = () => {
 		stepContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	}, [currentStep]);
 
-	// V9 Credential management
-	const [credentials, _setCredentials] = useState(() => V9FlowCredentialService.load());
+	// V9 Credential management — canonical storage first, legacy 'v9:credentials' key as one-time fallback
+	const [credentials] = useState<{ clientId?: string }>(() => {
+		const canonical = V9CredentialStorageService.loadSync('v9:rar');
+		if (canonical.clientId) return canonical;
+		try {
+			const legacy = window.localStorage.getItem('v9:credentials');
+			return legacy ? (JSON.parse(legacy) as { clientId?: string }) : canonical;
+		} catch {
+			return canonical;
+		}
+	});
 	const [environmentId, setEnvironmentId] = useState(() =>
 		EnvironmentIdServiceV8.getEnvironmentId()
 	);

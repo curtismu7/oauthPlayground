@@ -12,8 +12,8 @@
 //   await V9CredentialStorageService.save('my-flow-v9', { clientId, environmentId, ... });
 //   await V9CredentialStorageService.clear('my-flow-v9');
 //
-// Migration rule: Replace every direct localStorage.getItem / V9FlowCredentialService
-// call with this service. See A-Migration/migrate_vscode.md § Mandatory Credential Storage.
+// Migration rule: Replace every direct localStorage.getItem call with this service.
+// See docs/STORAGE_CANONICAL.md.
 
 import {
 	type UnifiedOAuthCredentials,
@@ -94,7 +94,7 @@ function toStorageKey(flowKey: string): string {
  * V9 credential storage — 4-layer persistence wrapper.
  *
  * All V9 flows MUST use this service for credential read/write.
- * Do NOT call localStorage directly or use V9FlowCredentialService (localStorage-only).
+ * Do NOT call localStorage directly.
  */
 export const V9CredentialStorageService = {
 	/**
