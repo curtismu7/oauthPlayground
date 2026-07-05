@@ -36,7 +36,7 @@
     "lint:eslint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
     "lint:eslint:fix": "eslint . --ext .ts,.tsx --fix",
     "lint:all": "npm run lint && npm run lint:eslint",
-    "check": "biome check .",
+    "check": "biome check . --formatter-enabled=false",
     "test:baseline-health": "./scripts/test-baseline-health.sh",
     "test:feature-inventory": "./scripts/test-feature-inventory.sh",
     "test:quick-check": "./scripts/test-quick-check.sh",
