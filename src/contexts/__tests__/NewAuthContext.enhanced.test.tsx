@@ -196,7 +196,6 @@ describe('Enhanced NewAuthContext', () => {
 		});
 
 		it('should use FlowContextUtils for callback handling', async () => {
-			// biome-ignore lint/suspicious/noExplicitAny: test helper captures hook return via component render
 			let authContext: any;
 
 			const TestCallbackComponent: React.FC = () => {
@@ -244,7 +243,6 @@ describe('Enhanced NewAuthContext', () => {
 				redirectUri: 'https://localhost:3000/authz-callback',
 			});
 
-			// biome-ignore lint/suspicious/noExplicitAny: test helper captures hook return via component render
 			let authContext: any;
 
 			const TestCallbackComponent: React.FC = () => {
@@ -279,7 +277,6 @@ describe('Enhanced NewAuthContext', () => {
 			// Mock invalid flow context
 			mockSessionStorage.store['flowContext'] = 'invalid-json';
 
-			// biome-ignore lint/suspicious/noExplicitAny: test helper captures hook return via component render
 			let authContext: any;
 
 			const TestCallbackComponent: React.FC = () => {
@@ -303,7 +300,6 @@ describe('Enhanced NewAuthContext', () => {
 		});
 
 		it('should handle OAuth errors in callback', async () => {
-			// biome-ignore lint/suspicious/noExplicitAny: test helper captures hook return via component render
 			let authContext: any;
 
 			const TestCallbackComponent: React.FC = () => {
@@ -330,7 +326,6 @@ describe('Enhanced NewAuthContext', () => {
 
 	describe('Enhanced Logout', () => {
 		it('should cleanup flow context during logout', async () => {
-			// biome-ignore lint/suspicious/noExplicitAny: test helper captures hook return via component render
 			let authContext: any;
 
 			const TestLogoutComponent: React.FC = () => {
@@ -357,7 +352,6 @@ describe('Enhanced NewAuthContext', () => {
 				throw new Error('Cleanup error');
 			});
 
-			// biome-ignore lint/suspicious/noExplicitAny: test helper captures hook return via component render
 			let authContext: any;
 
 			const TestLogoutComponent: React.FC = () => {
@@ -425,7 +419,6 @@ describe('Enhanced NewAuthContext', () => {
 				flowType: 'malicious',
 			});
 
-			// biome-ignore lint/suspicious/noExplicitAny: test helper captures hook return via component render
 			let authContext: any;
 
 			const TestCallbackComponent: React.FC = () => {
@@ -462,7 +455,6 @@ describe('Enhanced NewAuthContext', () => {
 			};
 			mockSessionStorage.store['flowContext'] = JSON.stringify(largeContext);
 
-			// biome-ignore lint/suspicious/noExplicitAny: test helper captures hook return via component render
 			let authContext: any;
 
 			const TestCallbackComponent: React.FC = () => {

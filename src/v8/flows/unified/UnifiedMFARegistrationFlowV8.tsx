@@ -1905,7 +1905,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	/**
 	 * Perform device registration API call (with token already available)
 	 */
-	// biome-ignore lint/correctness/useExhaustiveDependencies: large callback with intentional dep array
 	const performRegistrationWithToken = useCallback(
 		async (
 			props: MFAFlowBaseRenderProps,

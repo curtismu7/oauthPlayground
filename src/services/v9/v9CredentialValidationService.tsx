@@ -289,7 +289,6 @@ export const useV9CredentialValidation = ({
 	const baseConfig = V9_FLOW_CONFIGS[flowKey];
 
 	// Memoize config — computed before any early return to comply with Rules of Hooks.
-	// biome-ignore lint/correctness/useExhaustiveDependencies: customConfig excluded (unstable object identity)
 	const config = useMemo<V9FlowCredentialConfig>(
 		() => ({ ...(baseConfig as V9FlowCredentialConfig), ...customConfig }),
 		[baseConfig]

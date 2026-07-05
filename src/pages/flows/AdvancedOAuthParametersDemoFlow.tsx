@@ -140,7 +140,7 @@ const MockButton = styled.button`
 `;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-type AdvancedOAuthParametersDemoFlowProps = {};
+type AdvancedOAuthParametersDemoFlowProps = Record<string, never>;
 
 const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowProps> = () => {
 	// State for all parameters

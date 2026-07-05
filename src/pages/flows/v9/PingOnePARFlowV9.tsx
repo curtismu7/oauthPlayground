@@ -131,7 +131,6 @@ const PingOnePARFlowV9: React.FC = () => {
 	);
 
 	// Load previously saved PAR credentials from canonical V9 storage on mount
-	// biome-ignore lint/correctness/useExhaustiveDependencies: mount-only hydration; controller identity churn must not re-trigger
 	useEffect(() => {
 		V9CredentialStorageService.load('v9:pingone-par').then((stored) => {
 			if (stored?.clientId && !controller.credentials?.clientId) {

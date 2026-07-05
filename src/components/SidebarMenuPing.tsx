@@ -690,7 +690,6 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 					return (
 						<React.Fragment key={group.id}>
 							{dragMode && (
-								// biome-ignore lint/a11y/useSemanticElements: drop zone is not a form fieldset
 								<div
 									role="group"
 									className={`sidebar-ping__drop-zone sidebar-ping__drop-zone--group ${
@@ -710,7 +709,6 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 									}}
 								/>
 							)}
-							{/* biome-ignore lint/a11y/useSemanticElements: draggable group wrapper, not a form fieldset */}
 							<div
 								role="group"
 								className="sidebar-ping__group"
@@ -752,7 +750,6 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 				return (
 					<React.Fragment key={group.id}>
 						{dragMode && (
-							// biome-ignore lint/a11y/useSemanticElements: drop zone is not a form fieldset
 							<div
 								role="group"
 								className={`sidebar-ping__drop-zone sidebar-ping__drop-zone--group ${
@@ -769,7 +766,6 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 								onDrop={(e) => handleDropGroupReorder(e, groupIndex)}
 							/>
 						)}
-						{/* biome-ignore lint/a11y/useSemanticElements: group wrapper for collapsible section, not form fieldset */}
 						<div
 							role="group"
 							className="sidebar-ping__group"
@@ -870,7 +866,6 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 				);
 			})}
 			{dragMode && menuGroups.length > 0 && (
-				// biome-ignore lint/a11y/useSemanticElements: drop zone is not a form fieldset
 				<div
 					role="group"
 					className={`sidebar-ping__drop-zone sidebar-ping__drop-zone--group ${

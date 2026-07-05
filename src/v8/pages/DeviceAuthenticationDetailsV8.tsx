@@ -258,7 +258,6 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 					borderRadius: '8px',
 					border: '1px solid #e5e7eb',
 				}}
-				// biome-ignore lint/security/noDangerouslySetInnerHtml: HTML escaped via escapeHtml before syntax coloring
 				dangerouslySetInnerHTML={{ __html: html }}
 			/>
 		);

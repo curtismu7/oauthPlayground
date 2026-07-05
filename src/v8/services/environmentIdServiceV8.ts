@@ -21,7 +21,6 @@ declare global {
 	}
 }
 
-// biome-ignore lint/complexity/noStaticOnlyClass: V8 service pattern used across app
 export class EnvironmentIdServiceV8 {
 	/**
 	 * Get stored environment ID

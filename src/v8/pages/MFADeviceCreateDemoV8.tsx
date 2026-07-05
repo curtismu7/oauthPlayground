@@ -137,7 +137,6 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 					maxHeight: '360px',
 					overflow: 'auto',
 				}}
-				// biome-ignore lint/security/noDangerouslySetInnerHtml: highlight rendering needs pre tag
 				dangerouslySetInnerHTML={{ __html: html }}
 			/>
 		);

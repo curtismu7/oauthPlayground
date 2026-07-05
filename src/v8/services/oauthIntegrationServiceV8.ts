@@ -106,7 +106,6 @@ export interface DecodedToken {
  *
  * Real OAuth 2.0 integration with PingOne APIs
  */
-// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class OAuthIntegrationServiceV8 {
 	/**
 	 * Generate PKCE codes for secure authorization code flow

@@ -1348,7 +1348,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		setIsPreFlightValidating(false);
 		setPreFlightStatus('');
 		// Only run on mount - empty dependency array is intentional
-		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run on mount to clear errors
 	}, []);
 
 	// CRITICAL: Clear tokens and flow state when flow type changes

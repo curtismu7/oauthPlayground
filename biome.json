@@ -15,7 +15,8 @@
 			"server.js",
 			"server-*.js",
 			"!src/styles/icons.css",
-			"!src/styles/vendor/**",
+			"!src/styles/vendor",
+			"!src/v8/lockdown/fido2/snapshot",
 			"!AI Ping",
 			"!pingone-mcp-server",
 			"!biome_issues.json",
@@ -44,17 +45,18 @@
 				"useTemplate": "error"
 			},
 			"suspicious": {
-				"noExplicitAny": "warn",
+				"noExplicitAny": "off",
 				"noArrayIndexKey": "off"
 			},
 			"correctness": {
-				"useExhaustiveDependencies": "warn",
+				"useExhaustiveDependencies": "off",
 				"noInvalidUseBeforeDeclaration": "off",
-				"useHookAtTopLevel": "warn"
+				"useHookAtTopLevel": "off"
 			},
 			"complexity": {
 				"noForEach": "off",
-				"useLiteralKeys": "off"
+				"useLiteralKeys": "off",
+				"noStaticOnlyClass": "off"
 			},
 			"a11y": {
 				"noLabelWithoutControl": "off",

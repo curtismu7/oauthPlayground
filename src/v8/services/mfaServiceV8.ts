@@ -220,7 +220,7 @@ export interface UserLookupResult {
  *
  * Service for PingOne MFA operations using WorkerTokenServiceV8
  *
- * biome-ignore lint: This class is intentionally designed with only static methods for:
+ * This class is intentionally designed with only static methods for:
  * 1. Clear namespacing and organization
  * 2. Consistent API with other V8 services
  * 3. Future extensibility to instance methods if needed

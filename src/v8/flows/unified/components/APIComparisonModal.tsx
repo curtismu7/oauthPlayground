@@ -119,7 +119,6 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 
 	return (
 		<>
-			{/* biome-ignore lint/a11y/useSemanticElements: backdrop overlay captures click-outside to close */}
 			<div
 				style={{
 					position: 'fixed',
@@ -140,7 +139,6 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 				}}
 				onClick={onClose}
 			>
-				{/* biome-ignore lint/a11y/noStaticElementInteractions: content div stops click propagation to backdrop */}
 				<div
 					style={{
 						background: 'white',

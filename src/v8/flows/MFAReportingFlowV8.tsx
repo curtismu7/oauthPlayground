@@ -472,7 +472,6 @@ export const MFAReportingFlowV8: React.FC = () => {
 				let result: unknown[] = [];
 
 				if (selectedReport === 'user-authentications') {
-					// biome-ignore lint/suspicious/noExplicitAny: Report params require any type
 					const params: any = {
 						environmentId: credentials.environmentId,
 						region,
@@ -490,7 +489,6 @@ export const MFAReportingFlowV8: React.FC = () => {
 					});
 				} else if (isDeviceReport) {
 					// Handle device reports (SMS, Email, Voice, TOTP, FIDO2, WhatsApp)
-					// biome-ignore lint/suspicious/noExplicitAny: Device params require any type
 					const deviceParams: any = {
 						environmentId: credentials.environmentId,
 						fields: config.fields || [],
@@ -503,12 +501,10 @@ export const MFAReportingFlowV8: React.FC = () => {
 					}
 					const reportResult = await MFAReportingServiceV8.createMFADevicesReport(deviceParams);
 					// Extract entries from the report result
-					// biome-ignore lint/suspicious/noExplicitAny: Report result requires any type
 					result = (reportResult as any)._embedded?.entries || [];
 				} else {
 					// Handle other reports (MFA enabled/disabled users)
 					if (selectedReport === 'mfa-enabled') {
-						// biome-ignore lint/suspicious/noExplicitAny: MFA params require any type
 						const mfaParams: any = {
 							environmentId: credentials.environmentId,
 							fields: config.fields || [],
@@ -521,10 +517,8 @@ export const MFAReportingFlowV8: React.FC = () => {
 						const reportResult =
 							await MFAReportingServiceV8.createMFAEnabledDevicesReport(mfaParams);
 						// Extract entries from the report result
-						// biome-ignore lint/suspicious/noExplicitAny: Report result requires any type
 						result = (reportResult as any)._embedded?.entries || [];
 					} else if (selectedReport === 'mfa-disabled') {
-						// biome-ignore lint/suspicious/noExplicitAny: MFA params require any type
 						const mfaParams: any = {
 							environmentId: credentials.environmentId,
 							fields: config.fields || [],
@@ -537,7 +531,6 @@ export const MFAReportingFlowV8: React.FC = () => {
 						const reportResult =
 							await MFAReportingServiceV8.createMFAEnabledDevicesReport(mfaParams);
 						// Extract entries from the report result
-						// biome-ignore lint/suspicious/noExplicitAny: Report result requires any type
 						result = (reportResult as any)._embedded?.entries || [];
 					}
 				}

@@ -168,6 +168,7 @@ export class CSRFProtection {
 	// Set CSRF token cookie
 	private setCookie(token: string, expiresAt: number): void {
 		const expires = new Date(expiresAt).toUTCString();
+		// biome-ignore lint/suspicious/noDocumentCookie: intentional CSRF token cookie with SameSite=Strict; Secure
 		document.cookie = `${this.config.cookieName}=${token}; expires=${expires}; path=/; SameSite=Strict; Secure`;
 	}
 
@@ -265,6 +266,7 @@ export class CSRFProtection {
 
 		// Clear cookie
 		if (this.config.enableCookie) {
+			// biome-ignore lint/suspicious/noDocumentCookie: intentional CSRF cookie clear on token reset
 			document.cookie = `${this.config.cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 		}
 

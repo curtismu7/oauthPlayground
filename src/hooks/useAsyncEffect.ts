@@ -16,7 +16,6 @@
 import { DependencyList, useEffect } from 'react';
 
 type AsyncEffectCallback = () => Promise<void>;
-type CleanupFunction = () => void;
 
 export function useAsyncEffect(
 	effect: AsyncEffectCallback,

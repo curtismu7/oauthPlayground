@@ -59,7 +59,6 @@ export interface DavinciTodoState {
  * across the application and provide a clean API for todo management.
  */
 
-// biome-ignore lint/complexity/noStaticOnlyClass: Intentional singleton service pattern
 export class DavinciTodoService {
 	private static readonly CLIENT_ID =
 		import.meta.env.VITE_DAVINCI_CLIENT_ID || import.meta.env.VITE_PINGONE_CLIENT_ID || '';

@@ -62,7 +62,6 @@ const ensureMigration = async (): Promise<void> => {};
 // STORAGE SERVICE CLASS (Compatibility Layer)
 // ============================================================================
 
-// biome-ignore lint/complexity/noStaticOnlyClass: V8 compatibility layer, static API used by callers
 export class StorageServiceV8 {
 	/**
 	 * Save data with versioning (now uses unified storage)

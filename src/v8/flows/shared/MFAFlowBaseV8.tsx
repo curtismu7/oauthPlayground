@@ -1212,7 +1212,6 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						>
 							{isLoading ? (
 								<>
-									{/* biome-ignore lint/a11y/useSemanticElements: Bootstrap spinner requires span with role="status" */}
 									<span
 										className="spinner-border spinner-border-sm me-2"
 										role="status"

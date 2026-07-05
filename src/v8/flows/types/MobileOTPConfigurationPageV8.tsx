@@ -836,7 +836,6 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 					}}
 				>
-					{/* biome-ignore lint/a11y/noLabelWithoutControl: Label is for visual grouping, inputs are inside */}
 					<label
 						style={{
 							display: 'block',
@@ -849,7 +848,6 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 						Registration Flow Type <span style={{ color: '#dc2626' }}>*</span>
 					</label>
 					<div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-						{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button selection, keyboard handled by input */}
 						<label
 							style={{
 								flex: 1,
@@ -904,7 +902,6 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 									Device Status:
 								</div>
 								<div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
-									{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button selection, keyboard handled by input */}
 									<label
 										style={{
 											display: 'flex',
@@ -948,7 +945,6 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 											<strong>ACTIVE</strong> - Device created as ready to use, no activation needed
 										</span>
 									</label>
-									{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button selection, keyboard handled by input */}
 									<label
 										style={{
 											display: 'flex',
@@ -995,7 +991,6 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 								</div>
 							</div>
 						</label>
-						{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button selection, keyboard handled by input */}
 						<label
 							style={{
 								flex: 1,

@@ -91,7 +91,6 @@ export interface UnifiedFlowState {
  *
  * Facade to V8 services providing unified flow integration with real PingOne APIs
  */
-// biome-ignore lint/complexity/noStaticOnlyClass: Legacy service class, will be refactored in future iteration
 export class UnifiedFlowIntegrationV8U {
 	/**
 	 * Get available flows for a spec version

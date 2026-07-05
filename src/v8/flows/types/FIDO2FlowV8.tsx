@@ -1588,7 +1588,6 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					deviceResultKeys: Object.keys(deviceResult),
 					deviceResultType: typeof deviceResult,
 					// Try multiple ways to access the field
-					// biome-ignore lint/suspicious/noExplicitAny: Device result type is dynamic from API
 					directAccess:
 						(deviceResult as any).publicKeyCredentialCreationOptions?.substring(0, 50) ||
 						'NOT FOUND',
@@ -1599,7 +1598,6 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				});
 
 				// Try multiple ways to extract the field
-				// biome-ignore lint/suspicious/noExplicitAny: Device result type is dynamic from API
 				const publicKeyCredentialCreationOptions =
 					(deviceResult as any).publicKeyCredentialCreationOptions ||
 					(deviceResult as { publicKeyCredentialCreationOptions?: string })

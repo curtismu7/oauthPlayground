@@ -48,11 +48,6 @@ type OTPState = {
 	sendRetryCount: number;
 };
 
-type ValidationState = {
-	validationAttempts: number;
-	lastValidationError: string | null;
-};
-
 interface DeviceSelectionStepProps extends MFAFlowBaseRenderProps {
 	controller: ReturnType<typeof MFAFlowControllerFactory.create>;
 	deviceSelection: DeviceSelectionState;

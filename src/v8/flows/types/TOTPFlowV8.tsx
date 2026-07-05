@@ -147,7 +147,6 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 				}}
 			>
-				{/* biome-ignore lint/a11y/noLabelWithoutControl: Label is for visual grouping, inputs are inside */}
 				<label
 					style={{
 						display: 'block',
@@ -161,7 +160,6 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 					<MFAInfoButtonV8 contentKey="mfa.registrationFlowType" displayMode="tooltip" />
 				</label>
 				<div style={{ display: 'flex', gap: '16px' }}>
-					{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button inside handles keyboard events */}
 					<label
 						style={{
 							flex: 1,
@@ -203,7 +201,6 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 						</div>
 						{registrationFlowType === 'admin' && (
 							<div style={{ marginLeft: '28px', marginTop: '8px' }}>
-								{/* biome-ignore lint/a11y/noLabelWithoutControl: Label is for visual grouping, inputs are below */}
 								<label
 									style={{
 										display: 'block',
@@ -246,7 +243,6 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 							</div>
 						)}
 					</label>
-					{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button inside handles keyboard events */}
 					<label
 						style={{
 							flex: 1,
@@ -1685,8 +1681,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 			return (
 				<>
-					{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal overlay needs click handler */}
-					{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal overlay click handled by modal content */}
 					<div
 						style={{
 							position: 'fixed',
@@ -1711,8 +1705,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							}
 						}}
 					>
-						{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal content needs click handler */}
-						{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal content click handled by buttons */}
 						<div
 							ref={step2ModalDrag.modalRef}
 							style={{
@@ -1736,7 +1728,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Header with Logo - Draggable */}
-							{/* biome-ignore lint/a11y/noStaticElementInteractions: Draggable modal header */}
 							<div
 								onMouseDown={(e) => {
 									// Allow dragging from header, but prevent if clicking on close button
@@ -2289,8 +2280,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 			return (
 				<>
-					{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal overlay needs click handler */}
-					{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal overlay click handled by modal content */}
 					<div
 						style={{
 							position: 'fixed',
@@ -2311,8 +2300,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							// Don't close on backdrop click
 						}}
 					>
-						{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal content needs click handler */}
-						{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal content click handled by buttons */}
 						<div
 							ref={step3ModalDrag.modalRef}
 							style={{
@@ -2331,7 +2318,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Header with Logo */}
-							{/* biome-ignore lint/a11y/noStaticElementInteractions: Draggable modal header */}
 							<div
 								onMouseDown={step3ModalDrag.handleMouseDown}
 								style={{
@@ -3194,8 +3180,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						// Don't close on backdrop click
 					}}
 				>
-					{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal content needs click handler */}
-					{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal content click handled by buttons */}
 					<div
 						ref={step4ModalDrag.modalRef}
 						style={{
@@ -3211,7 +3195,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						onClick={(e) => e.stopPropagation()}
 					>
 						{/* Header with Logo */}
-						{/* biome-ignore lint/a11y/noStaticElementInteractions: Draggable modal header */}
 						<div
 							onMouseDown={step4ModalDrag.handleMouseDown}
 							style={{
@@ -3336,7 +3319,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 							{/* OTP Input */}
 							<div style={{ marginBottom: '16px' }}>
-								{/* biome-ignore lint/a11y/noLabelWithoutControl: Label is associated with MFAOTPInput component */}
 								<label
 									style={{
 										display: 'block',

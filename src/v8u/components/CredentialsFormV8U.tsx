@@ -705,7 +705,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				logger.info('Failed to auto-populate environment ID from worker token:', error);
 			}
 		}
-		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount to prevent infinite loop
 	}, [credentials, onChange]);
 
 	// Sync checkbox values with credentials (for loading from storage)
@@ -1023,7 +1022,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		};
 		window.addEventListener('environmentIdUpdated', handleEnvIdUpdate);
 		return () => window.removeEventListener('environmentIdUpdated', handleEnvIdUpdate);
-		// biome-ignore lint/correctness/useExhaustiveDependencies: onChange uses functional update to prevent loops
 	}, [onChange]);
 
 	// Update environment ID when worker token is updated
@@ -1049,7 +1047,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
-		// biome-ignore lint/correctness/useExhaustiveDependencies: onChange uses functional update to prevent loops
 	}, [credentials.environmentId, onChange]);
 
 	// Check token status and listen for updates
@@ -2153,7 +2150,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 															>
 																{helperText.title}
 															</div>
-															{/* biome-ignore lint/security/noDangerouslySetInnerHtml: Helper text content from trusted source */}
 															<div
 																style={{
 																	fontSize: '13px',

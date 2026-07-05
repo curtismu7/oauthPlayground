@@ -46,7 +46,6 @@ export interface CheckboxAvailability {
 	redirectlessAvailable: boolean;
 }
 
-// biome-ignore lint/complexity/noStaticOnlyClass: service pattern for organized static methods
 export class UnifiedFlowOptionsServiceV8 {
 	/**
 	 * Get flow options for a spec version and flow type combination

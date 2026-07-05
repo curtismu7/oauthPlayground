@@ -36,7 +36,6 @@ export interface LogFile {
 	modified: Date;
 }
 
-// biome-ignore lint/complexity/noStaticOnlyClass: kept as class for API consistency with existing callers
 export class LogFileService {
 	/**
 	 * List all available log files

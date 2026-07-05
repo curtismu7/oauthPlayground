@@ -522,7 +522,6 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 					<PreviewBlock>
 						<PreviewLabel>Authorization Request URL</PreviewLabel>
 						<PreviewContentRow>
-							{/* biome-ignore lint/security/noDangerouslySetInnerHtml: URL is HTML-escaped before highlighting */}
 							<PreviewText dangerouslySetInnerHTML={{ __html: highlightedUrl }} />
 							<CopyButtonService
 								text={authUrl}
@@ -538,7 +537,6 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 						<PreviewLabel>Response Format</PreviewLabel>
 						<PreviewContentRow>
 							{' '}
-							{/* biome-ignore lint/security/noDangerouslySetInnerHtml: URL is HTML-escaped before highlighting */}{' '}
 							<PreviewText dangerouslySetInnerHTML={{ __html: highlightedResponseExample }} />
 							<CopyButtonService
 								text={responseExample}

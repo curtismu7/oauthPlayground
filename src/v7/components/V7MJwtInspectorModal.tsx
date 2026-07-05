@@ -101,7 +101,6 @@ function highlightJson(obj: unknown): React.ReactNode {
 		.replace(/>/g, '&gt;')
 		.replace(/"([^"]+)":/g, '<span style="color:#ef4444">"$1"</span>:')
 		.replace(/: (\d+|true|false|null|".*?")/g, ': <span style="color:#3b82f6">$1</span>');
-	// biome-ignore lint/security/noDangerouslySetInnerHtml: JSON.stringify output HTML-escaped before injection
 	return <code dangerouslySetInnerHTML={{ __html: html }} />;
 }
 

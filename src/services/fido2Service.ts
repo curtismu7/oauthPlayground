@@ -55,7 +55,6 @@ export interface FIDO2Config {
  * 3. Support for both platform and cross-platform authenticators
  * 4. Proper error handling and user feedback
  */
-// biome-ignore lint/complexity/noStaticOnlyClass: shared utility service for WebAuthn helpers
 export class FIDO2Service {
 	private static readonly DEFAULT_TIMEOUT = 60000; // 60 seconds
 	private static readonly DEFAULT_RP_ID = window.location.hostname;

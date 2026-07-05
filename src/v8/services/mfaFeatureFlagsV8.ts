@@ -68,7 +68,6 @@ const DEFAULT_FLAGS: Record<MFAFeatureFlag, FeatureFlagState> = {
  * - Instant rollback capability (change percentage to 0%)
  * - Browser console admin UI (window.mfaFlags)
  */
-// biome-ignore lint/complexity/noStaticOnlyClass: API surface and window.mfaFlags exposure use class
 export class MFAFeatureFlagsV8 {
 	private static readonly STORAGE_KEY = 'mfa_feature_flags_v8';
 

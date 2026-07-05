@@ -486,7 +486,7 @@ export const useLoadingState = (initialState: LoadingState = { isLoading: false 
 export const useStepProgress = (steps: Step[]) => {
 	const [currentStepId, setCurrentStepId] = useState<string | null>(null);
 	const [stepStates, setStepStates] = useState<Record<string, Step['status']>>(
-		steps.reduce((acc, step) => ({ ...acc, [step.id]: step.status }), {})
+		Object.fromEntries(steps.map((step) => [step.id, step.status]))
 	);
 	const { announceToScreenReader } = useAccessibility();
 
@@ -514,7 +514,7 @@ export const useStepProgress = (steps: Step[]) => {
 
 	const resetSteps = () => {
 		setCurrentStepId(null);
-		setStepStates(steps.reduce((acc, step) => ({ ...acc, [step.id]: 'pending' }), {}));
+		setStepStates(Object.fromEntries(steps.map((step) => [step.id, 'pending'])));
 	};
 
 	const getUpdatedSteps = (): Step[] => {

@@ -383,7 +383,6 @@ const ClientGenerator: React.FC = () => {
 		};
 
 		loadAndGetToken();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
 	}, [getWorkerTokenSilently, workerCredentials.scopes]);
 
 	// Handle worker credential changes
