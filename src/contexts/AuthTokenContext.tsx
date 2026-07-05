@@ -126,10 +126,6 @@ export const AuthTokenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 			setTokens(updatedTokens);
 		};
 
-		const handleUserUpdate = () => {
-			const updatedUser = loadStoredUser();
-			setUser(updatedUser);
-		};
 
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		window.addEventListener('storage', handleTokenUpdate);

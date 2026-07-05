@@ -361,7 +361,6 @@ export const MFAReportingFlowV8: React.FC = () => {
 	const isDeviceReport = ['sms', 'email', 'voice', 'totp', 'fido2', 'whatsapp'].includes(
 		selectedReport
 	);
-	const _isAsyncReport = REPORT_CONFIGS[selectedReport]?.isAsync;
 
 	// Get API display padding
 	const { paddingBottom } = useApiDisplayPadding();

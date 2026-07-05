@@ -11,7 +11,6 @@ import { FiCheckCircle } from '../../icons';
 
 import { logger } from '../../utils/logger';
 
-const _MODULE_TAG = '[✅ USER-INFO-SUCCESS-MODAL-V8U]';
 
 interface UserInfoSuccessModalV8UProps {
 	isOpen: boolean;

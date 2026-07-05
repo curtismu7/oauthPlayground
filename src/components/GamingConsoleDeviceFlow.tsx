@@ -331,9 +331,6 @@ interface GamingConsoleDeviceFlowProps {
 
 const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
 	state,
-	_onStateUpdate,
-	_onComplete,
-	_onError,
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);

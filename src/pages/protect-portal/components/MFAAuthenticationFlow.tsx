@@ -97,20 +97,20 @@ const DeviceSelectionContainer = styled.div`
 	margin-bottom: 2rem;
 `;
 
-const _DeviceSelectionTitle = styled.h3`
+void (styled.h3`
 	font-size: 1.25rem;
 	font-weight: 600;
 	color: var(--brand-text);
 	margin: 0 0 1.5rem 0;
 	font-family: var(--brand-heading-font);
-`;
+`);
 
-const _DeviceGrid = styled.div`
+void (styled.div`
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 	gap: 1rem;
 	margin-bottom: 1.5rem;
-`;
+`);
 
 const DeviceCard = styled.button<{ selected?: boolean }>`
 	background: ${(props) =>
@@ -157,18 +157,18 @@ const DeviceName = styled.div`
 	font-family: var(--brand-heading-font);
 `;
 
-const _DeviceStatus = styled.div`
+void (styled.div`
 	font-size: 0.75rem;
 	color: var(--brand-text-secondary);
 	font-family: var(--brand-body-font);
-`;
+`);
 
-const _NoDevicesMessage = styled.div`
+void (styled.div`
 	text-align: center;
 	padding: 2rem;
 	color: var(--brand-text-secondary);
 	font-family: var(--brand-body-font);
-`;
+`);
 
 const LoadingContainer = styled.div`
 	display: flex;
@@ -178,7 +178,7 @@ const LoadingContainer = styled.div`
 	padding: 2rem;
 `;
 
-const _LoadingSpinner = styled.span`
+void (styled.span`
 	animation: spin 1s linear infinite;
 	font-size: 2rem;
 	color: var(--brand-primary);
@@ -191,7 +191,7 @@ const _LoadingSpinner = styled.span`
 			transform: rotate(360deg);
 		}
 	}
-`;
+`);
 
 const LoadingText = styled.p`
 	color: var(--brand-text-secondary);
@@ -299,8 +299,6 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 	onComplete,
 	onError,
 	mfaCredentials,
-	loginContext,
-	educationalContent,
 }) => {
 	// ============================================================================
 	// STATE MANAGEMENT

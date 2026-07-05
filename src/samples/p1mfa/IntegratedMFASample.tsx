@@ -12,7 +12,6 @@
 
 import React, { useState } from 'react';
 import { type Device, type P1MFAConfig, P1MFASDK } from '@/sdk/p1mfa';
-import { getPingOneAuthBaseUrl } from '../../services/regionService';
 import { logger } from '../../utils/logger';
 
 type Tab =
@@ -33,8 +32,8 @@ interface UserContext {
 }
 
 export const IntegratedMFASample: React.FC = () => {
-	const [_sdk, setSdk] = useState<P1MFASDK | null>(null);
-	const [_config, setConfig] = useState<P1MFAConfig | null>(null);
+	const [_sdk] = useState<P1MFASDK | null>(null);
+	const [_config] = useState<P1MFAConfig | null>(null);
 	const [_activeTab, setActiveTab] = useState<Tab>('config');
 	const [_userContext, _setUserContext] = useState<UserContext>({});
 	const [_devices, _setDevices] = useState<Device[]>([]);
@@ -78,43 +77,7 @@ export const IntegratedMFASample: React.FC = () => {
 		step: 'input' as 'input' | 'initialized' | 'webauthn' | 'completing' | 'success',
 	});
 
-	const _handleInitialize = async (sdkConfig: P1MFAConfig) => {
-		try {
-			const newSdk = new P1MFASDK();
-			await newSdk.initialize(sdkConfig);
-			setSdk(newSdk);
-			setConfig(sdkConfig);
-			setActiveTab('oidc-signin');
-		} catch (error) {
-			logger.error('IntegratedMFASample', 'Failed to initialize SDK:', undefined, error);
-		}
-	};
 
-	const _handleOIDCSignIn = async () => {
-		// Step 1: Build authorization URL with PKCE
-		const codeVerifier = generateCodeVerifier();
-		const _codeChallenge = await generateCodeChallenge(codeVerifier);
-		const state = randomString(32);
-
-		// Store PKCE values
-		sessionStorage.setItem('p1mfa_code_verifier', codeVerifier);
-		sessionStorage.setItem('p1mfa_state', state);
-
-		// Build authorization URL
-		const _authUrl = new URL(
-			`${getPingOneAuthBaseUrl() ?? 'https://auth.pingone.com'}/${config?.environmentId}/as/authorize`
-		);
-		authUrl.searchParams.set('client_id', oidcConfig.clientId);
-		authUrl.searchParams.set('response_type', 'code');
-		authUrl.searchParams.set('redirect_uri', oidcConfig.redirectUri);
-		authUrl.searchParams.set('scope', oidcConfig.scope);
-		authUrl.searchParams.set('code_challenge', codeChallenge);
-		authUrl.searchParams.set('code_challenge_method', 'S256');
-		authUrl.searchParams.set('state', state);
-
-		// Redirect to authorization endpoint
-		window.location.href = authUrl.toString();
-	};
 
 	const handleEnrollSMS = async () => {
 		if (!sdk || !userContext.userId || !smsEnrollState.phone) return;
@@ -256,10 +219,10 @@ export const IntegratedMFASample: React.FC = () => {
 		if (!sdk || !smsAuthState.authenticationId || !smsAuthState.otp) return;
 
 		try {
-			const _result = await sdk.completeAuthentication({
+			void (await sdk.completeAuthentication({
 				authenticationId: smsAuthState.authenticationId,
 				otp: smsAuthState.otp,
-			});
+			}));
 
 			setSmsAuthState((prev) => ({ ...prev, step: 'success' }));
 		} catch (error) {
@@ -317,10 +280,10 @@ export const IntegratedMFASample: React.FC = () => {
 			setFido2AuthState((prev) => ({ ...prev, step: 'completing' }));
 
 			// Complete authentication
-			const _result = await sdk.completeAuthentication({
+			void (await sdk.completeAuthentication({
 				authenticationId: fido2AuthState.authenticationId,
 				fido2Assertion: assertion,
-			});
+			}));
 
 			setFido2AuthState((prev) => ({ ...prev, step: 'success' }));
 		} catch (error) {
@@ -348,27 +311,8 @@ export const IntegratedMFASample: React.FC = () => {
 	};
 
 	// Helper functions
-	const generateCodeVerifier = (): string => {
-		const array = new Uint8Array(32);
-		crypto.getRandomValues(array);
-		const base64 = btoa(String.fromCharCode.apply(null, Array.from(array)));
-		return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-	};
 
-	const generateCodeChallenge = async (verifier: string): Promise<string> => {
-		const encoder = new TextEncoder();
-		const data = encoder.encode(verifier);
-		const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-		const hashArray = new Uint8Array(hashBuffer);
-		const base64 = btoa(String.fromCharCode.apply(null, Array.from(hashArray)));
-		return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-	};
 
-	const randomString = (length: number): string => {
-		const array = new Uint8Array(length);
-		crypto.getRandomValues(array);
-		return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
-	};
 
 	return (
 		<div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>

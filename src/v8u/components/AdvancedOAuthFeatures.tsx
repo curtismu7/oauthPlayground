@@ -316,12 +316,12 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 
 		try {
 			// Generate change descriptions
-			const _changes = PingOneClientServiceV8U.generateChangeDescriptions(
+			void (PingOneClientServiceV8U.generateChangeDescriptions(
 				pendingFeature.id,
 				pendingFeature.name,
 				pendingFeature.isEnabling,
 				'OAuth Playground App'
-			);
+			));
 
 			// Update PingOne client and app configuration
 			const result = await PingOneClientServiceV8U.updateFeatureConfiguration(

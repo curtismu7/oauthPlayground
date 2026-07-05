@@ -9,7 +9,7 @@ import { createModuleLogger } from '../utils/consoleMigrationHelper';
 
 import { logger } from '../utils/logger';
 
-const _log = createModuleLogger('ErrorBoundary');
+void (createModuleLogger('ErrorBoundary'));
 
 const ErrorContainer = styled.div`
   display: flex;

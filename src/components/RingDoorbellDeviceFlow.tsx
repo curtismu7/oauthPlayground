@@ -349,9 +349,6 @@ interface RingDoorbellDeviceFlowProps {
 
 const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
 	state,
-	onStateUpdate,
-	onComplete,
-	onError,
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);

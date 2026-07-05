@@ -13,13 +13,13 @@ import { logger } from '../utils/logger';
 /**
  * Mapping of console methods to logging service methods
  */
-const _consoleMapping = {
+void ({
 	log: { level: LogLevel.INFO, method: logger.info.bind(logger) },
 	info: { level: LogLevel.INFO, method: logger.info.bind(logger) },
 	warn: { level: LogLevel.WARN, method: logger.warn.bind(logger) },
 	error: { level: LogLevel.ERROR, method: logger.error.bind(logger) },
 	debug: { level: LogLevel.DEBUG, method: logger.debug.bind(logger) },
-};
+});
 
 /**
  * Extract module name from file path

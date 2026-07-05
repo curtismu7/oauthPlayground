@@ -52,7 +52,7 @@ export class UnifiedFlowErrorBoundary extends Component<UnifiedFlowErrorBoundary
 	};
 
 	private getRecoveryOptions = () => {
-		const { flowType, specVersion } = this.props;
+		const { flowType } = this.props;
 
 		return [
 			{

@@ -37,8 +37,6 @@ interface StandardizedTokenDisplayProps {
 const StandardizedTokenDisplay: React.FC<StandardizedTokenDisplayProps> = ({
 	tokens,
 	backgroundColor = 'rgba(0, 0, 0, 0.4)',
-	borderColor = '#1f2937',
-	textColor,
 	headerTextColor,
 }) => {
 	if (!tokens || (!tokens.access_token && !tokens.id_token && !tokens.refresh_token)) {

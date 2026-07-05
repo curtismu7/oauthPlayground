@@ -5,13 +5,13 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 
-const _Container = styled.div`
+void (styled.div`
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 1.5rem;
-`;
+`);
 
-const _Header = styled.div`
+void (styled.div`
 	text-align: center;
 	margin-bottom: 3rem;
 
@@ -33,7 +33,7 @@ const _Header = styled.div`
 		margin: 0 auto;
 		line-height: 1.6;
 	}
-`;
+`);
 
 const Card = styled.div`
 	background: white;

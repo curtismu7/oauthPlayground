@@ -259,14 +259,14 @@ const FeatureStatus = styled.span<{ $enabled: boolean }>`
 	}}
 `;
 
-const _HistoryControls = styled.div`
+void (styled.div`
 	display: flex;
 	gap: 0.5rem;
 	align-items: center;
 	margin-bottom: 1rem;
-`;
+`);
 
-const _HistoryButton = styled.button<{ $disabled?: boolean }>`
+void (styled.button<{ $disabled?: boolean }>`
 	padding: 0.5rem 1rem;
 	border-radius: 6px;
 	font-size: 0.875rem;
@@ -297,7 +297,7 @@ const _HistoryButton = styled.button<{ $disabled?: boolean }>`
         }
       `;
 	}}
-`;
+`);
 
 const ExportImportControls = styled.div`
 	display: flex;
@@ -330,7 +330,7 @@ const ExportImportButton = styled.button`
 	}
 `;
 
-const _ErrorMessage = styled.div`
+void (styled.div`
 	background: #fef2f2;
 	border: 1px solid #fecaca;
 	border-radius: 8px;
@@ -338,9 +338,9 @@ const _ErrorMessage = styled.div`
 	color: #991b1b;
 	text-align: center;
 	font-size: 0.875rem;
-`;
+`);
 
-const _SuccessMessage = styled.div`
+void (styled.div`
 	background: #f0fdf4;
 	border: 1px solid #86efac;
 	border-radius: 8px;
@@ -348,7 +348,7 @@ const _SuccessMessage = styled.div`
 	color: #166534;
 	text-align: center;
 	font-size: 0.875rem;
-`;
+`);
 
 export const EnhancedStateManagementPage: React.FC = () => {
 	const { state, actions } = useUnifiedFlowState();
@@ -815,7 +815,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 					{(() => {
 						try {
 							const service = TokenMonitoringService.getInstance();
-							const _allTokens = service.getAllTokens();
+							void (service.getAllTokens());
 							const tokenTypes = [
 								'access_token',
 								'refresh_token',

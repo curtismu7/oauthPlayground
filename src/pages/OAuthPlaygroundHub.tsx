@@ -53,7 +53,7 @@ const LoadingSubtext = styled.div`
 	margin-top: 0.5rem;
 `;
 
-const TabLoadingOverlay = styled.div`
+void (styled.div`
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -63,7 +63,7 @@ const TabLoadingOverlay = styled.div`
 	border-radius: 1rem;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 	min-height: 400px;
-`;
+`);
 
 const PageContainer = styled.div`
 	min-height: 100vh;

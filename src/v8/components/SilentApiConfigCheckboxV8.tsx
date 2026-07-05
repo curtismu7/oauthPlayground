@@ -12,7 +12,6 @@
 import React, { useId } from 'react';
 import { useSilentApiConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 
-const _MODULE_TAG = '[ SILENT-API-CONFIG-V8]';
 
 export interface SilentApiConfigCheckboxV8Props {
 	/** Custom className for styling */

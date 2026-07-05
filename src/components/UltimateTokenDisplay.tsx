@@ -372,7 +372,7 @@ const OpaqueMessage = styled.div`
 	margin-top: 1rem;
 `;
 
-const _SyntaxHighlightedJSON = styled.div`
+void (styled.div`
 	font-family: 'SFMono-Regular', 'Monaco', 'Menlo', 'Consolas', monospace;
 	font-size: 0.875rem;
 	line-height: 1.6;
@@ -396,7 +396,7 @@ const _SyntaxHighlightedJSON = styled.div`
 	.json-punctuation {
 		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
-`;
+`);
 
 // Component Implementation
 export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({

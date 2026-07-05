@@ -293,8 +293,8 @@ export const PostmanCollectionGenerator: React.FC = () => {
 	// Refs for input fields
 	const environmentIdRef = useRef<HTMLInputElement>(null);
 	const clientIdRef = useRef<HTMLInputElement>(null);
-	const _clientSecretRef = useRef<HTMLInputElement>(null);
-	const _usernameRef = useRef<HTMLInputElement>(null);
+	void (useRef<HTMLInputElement>(null));
+	void (useRef<HTMLInputElement>(null));
 
 	// Helper function to find and highlight blank fields
 	const validateAndHighlightFields = (

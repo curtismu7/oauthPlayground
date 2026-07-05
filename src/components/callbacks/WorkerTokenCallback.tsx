@@ -86,7 +86,7 @@ const ErrorDetails = styled.pre`
 
 const WorkerTokenCallback: React.FC = () => {
 	const navigate = useNavigate();
-	const _location = useLocation();
+	void (useLocation());
 	const { handleCallback } = useAuth();
 	const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
 	const [message, setMessage] = useState('Processing worker token callback...');

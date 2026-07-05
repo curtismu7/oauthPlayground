@@ -217,7 +217,7 @@ const RecommendationList = styled.ul`
 	margin: 0;
 `;
 
-const _RecommendationItem = styled.li`
+void (styled.li`
 	padding: 0.5rem 0;
 	color: #374151;
 	font-size: 0.875rem;
@@ -227,7 +227,7 @@ const _RecommendationItem = styled.li`
 	&:last-child {
 		border-bottom: none;
 	}
-`;
+`);
 
 const ActionButton = styled.button<{ $enabled?: boolean }>`
 	padding: 0.25rem 0.75rem;
@@ -291,7 +291,6 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
 	credentials,
 	onTogglePKCE,
 	onToggleRefreshToken,
-	onToggleScopes,
 }) => {
 	const [isCollapsed, setIsCollapsed] = useState(false);
 

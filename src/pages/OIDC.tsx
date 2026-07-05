@@ -10,7 +10,7 @@ const OIDCContainer = styled.div`
   padding: 1.5rem;
 `;
 
-const _PageHeader = styled.div`
+void (styled.div`
   margin-bottom: 2rem;
 
   h1 {
@@ -28,7 +28,7 @@ const _PageHeader = styled.div`
     font-size: 1.1rem;
     line-height: 1.6;
   }
-`;
+`);
 
 const Grid = styled.div`
   display: grid;

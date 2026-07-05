@@ -20,23 +20,23 @@ const ContentWrapper = styled.div`
   padding: 0 1rem;
 `;
 
-const _Header = styled.div`
+void (styled.div`
   text-align: center;
   margin-bottom: 3rem;
-`;
+`);
 
-const _Title = styled.h1`
+void (styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
   color: ${V9_COLORS.TEXT.GRAY_DARK};
   margin-bottom: 0.5rem;
-`;
+`);
 
-const _Subtitle = styled.p`
+void (styled.p`
   font-size: 1.125rem;
   color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
   margin: 0;
-`;
+`);
 
 const ControlPanel = styled.div`
   background: white;
@@ -188,7 +188,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 
 	const generateNewTokens = () => {
 		// Simulate generating new tokens with different timestamps
-		const _timestamp = Date.now();
+		void (Date.now());
 		modernMessaging.showFooterMessage({
 			type: 'status',
 			message: 'Generated new mock tokens with fresh timestamps',

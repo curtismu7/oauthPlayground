@@ -925,51 +925,6 @@ const ApplicationGenerator: React.FC = () => {
 	};
 
 	// Form validation with field highlighting
-	const _validateForm = () => {
-		const errors: string[] = [];
-		const fieldErrors = new Set<string>();
-
-		if (!formData.name.trim()) {
-			errors.push('Application name is required');
-			fieldErrors.add('name');
-		}
-
-		if (!formData.description.trim()) {
-			errors.push('Description is required');
-			fieldErrors.add('description');
-		}
-
-		// Validate grant types - convert to uppercase for PingOne
-		if (formData.grantTypes.length === 0) {
-			errors.push('At least one grant type is required');
-			fieldErrors.add('grantTypes');
-		}
-
-		// Validate response types if applicable
-		if (
-			(selectedAppType === 'OIDC_WEB_APP' ||
-				selectedAppType === 'OIDC_NATIVE_APP' ||
-				selectedAppType === 'SINGLE_PAGE_APP') &&
-			formData.responseTypes.length === 0
-		) {
-			errors.push('At least one response type is required for this app type');
-			fieldErrors.add('responseTypes');
-		}
-
-		// Validate redirect URIs for apps that need them
-		if (
-			(selectedAppType === 'OIDC_WEB_APP' ||
-				selectedAppType === 'OIDC_NATIVE_APP' ||
-				selectedAppType === 'SINGLE_PAGE_APP') &&
-			formData.redirectUris.length === 0
-		) {
-			errors.push('At least one redirect URI is required for this app type');
-			fieldErrors.add('redirectUris');
-		}
-
-		setValidationErrors(fieldErrors);
-		return errors;
-	};
 
 	const handleCreateApplication = async (modalData?: {
 		name: string;

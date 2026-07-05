@@ -36,7 +36,7 @@ interface UseApiKeyManagerReturn {
 }
 
 export const useApiKeyManager = (options: UseApiKeyManagerOptions = {}): UseApiKeyManagerReturn => {
-	const { autoLoad = true, service: focusService } = options;
+	const { autoLoad = true } = options;
 
 	const [apiKeys, setApiKeys] = useState<ApiKeyInfo[]>([]);
 	const [loading, setLoading] = useState(false);

@@ -18,26 +18,26 @@ const TestRunnerContainer = styled.div`
   margin: 0 auto;
 `;
 
-const _TestRunnerHeader = styled.div`
+void (styled.div`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 30px;
   border-radius: 12px;
   margin-bottom: 30px;
   text-align: center;
-`;
+`);
 
-const _TestRunnerTitle = styled.h1`
+void (styled.h1`
   margin: 0 0 10px 0;
   font-size: 2.5rem;
   font-weight: 700;
-`;
+`);
 
-const _TestRunnerSubtitle = styled.p`
+void (styled.p`
   margin: 0;
   font-size: 1.2rem;
   opacity: 0.9;
-`;
+`);
 
 const TestControls = styled.div`
   display: flex;

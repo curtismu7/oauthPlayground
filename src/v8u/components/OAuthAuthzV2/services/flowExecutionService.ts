@@ -12,7 +12,6 @@ export interface FlowListener {
 
 export class FlowExecutionService {
   private listeners: FlowListener[] = [];
-  private currentStep = 0;
   private requests: HttpRequest[] = [];
   private responses: HttpResponse[] = [];
 
@@ -24,7 +23,6 @@ export class FlowExecutionService {
   }
 
   startFlow(config: OAuthConfig): void {
-    this.currentStep = 1;
     this.requests = [];
     this.responses = [];
 
@@ -135,7 +133,6 @@ export class FlowExecutionService {
   }
 
   private emitStepChange(step: number): void {
-    this.currentStep = step;
     this.listeners.forEach((l) => l.onStepChange?.(step));
   }
 

@@ -64,7 +64,7 @@ const InfoText = styled.p`
 `;
 
 const DeviceCodeStatus: React.FC = () => {
-	const _navigate = useNavigate();
+	void (useNavigate());
 	const location = useLocation();
 	const [status, setStatus] = useState<'info' | 'pending' | 'success' | 'error'>('info');
 	const [message, setMessage] = useState('Device Code Flow Status');

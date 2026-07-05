@@ -220,7 +220,6 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'ghost
 export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 	flowType,
 	flowKey,
-	currentStep,
 	errorTemplate,
 	errorCode,
 	errorDescription,

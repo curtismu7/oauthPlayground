@@ -236,12 +236,12 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 	}}
 `;
 
-const _DropdownContainer = styled.div`
+void (styled.div`
   position: relative;
   margin-bottom: 1.5rem;
-`;
+`);
 
-const _DropdownButton = styled.button`
+void (styled.button`
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -259,9 +259,9 @@ const _DropdownButton = styled.button`
     background: #f8fafc;
     border-color: #cbd5e1;
   }
-`;
+`);
 
-const _DropdownMenu = styled.div<{ $isOpen: boolean }>`
+void (styled.div<{ $isOpen: boolean }>`
   position: absolute;
   top: 100%;
   left: 0;
@@ -273,9 +273,9 @@ const _DropdownMenu = styled.div<{ $isOpen: boolean }>`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   display: ${(props) => (props.$isOpen ? 'block' : 'none')};
-`;
+`);
 
-const _DropdownItem = styled.button`
+void (styled.button`
   width: 100%;
   padding: 0.75rem 1rem;
   border: none;
@@ -299,7 +299,7 @@ const _DropdownItem = styled.button`
   &:last-child {
     border-radius: 0 0 8px 8px;
   }
-`;
+`);
 
 const TokenDecodedContent = styled.div`
   background: #f8fafc;

@@ -16,15 +16,15 @@ const Container = styled.div`
 	min-height: 100vh;
 `;
 
-const _Header = styled.div`
+void (styled.div`
 	background: white;
 	border-radius: 1rem;
 	padding: 2rem;
 	margin-bottom: 2rem;
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-`;
+`);
 
-const _Title = styled.h1`
+void (styled.h1`
 	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 2.5rem;
 	font-weight: 700;
@@ -32,14 +32,14 @@ const _Title = styled.h1`
 	display: flex;
 	align-items: center;
 	gap: 1rem;
-`;
+`);
 
-const _Subtitle = styled.p`
+void (styled.p`
 	color: #4a5568;
 	font-size: 1.2rem;
 	line-height: 1.6;
 	margin-bottom: 0;
-`;
+`);
 
 const Section = styled.div`
 	background: white;
@@ -312,7 +312,7 @@ interface CommandResult {
 	timestamp: Date;
 }
 
-const _log = createModuleLogger('src/pages/JWKSTroubleshooting.tsx');
+void (createModuleLogger('src/pages/JWKSTroubleshooting.tsx'));
 
 const JWKSTroubleshooting: React.FC = () => {
 	const environmentInputId = useId();
@@ -348,9 +348,9 @@ const JWKSTroubleshooting: React.FC = () => {
 		});
 	}, []);
 
-	const _formatTimestamp = useCallback((date: Date) => {
+	void (useCallback((date: Date) => {
 		return `${date.toLocaleDateString()}-${date.toLocaleTimeString()}`;
-	}, []);
+	}, []));
 
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		try {

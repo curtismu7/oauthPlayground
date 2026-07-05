@@ -15,7 +15,7 @@ const MobileContainer = styled.div<{ $isMobile: boolean }>`
   `}
 `;
 
-const _MobileHeader = styled.div<{ $isMobile: boolean }>`
+void (styled.div<{ $isMobile: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -33,16 +33,16 @@ const _MobileHeader = styled.div<{ $isMobile: boolean }>`
 		`
     height: 80px;
   `}
-`;
+`);
 
-const _MobileTitle = styled.h1`
+void (styled.h1`
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.gray900};
-`;
+`);
 
-const _MobileMenuButton = styled.button`
+void (styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -63,9 +63,9 @@ const _MobileMenuButton = styled.button`
     outline: 2px solid ${({ theme }) => theme.colors.primary};
     outline-offset: 2px;
   }
-`;
+`);
 
-const _MobileSidebar = styled.div<{ $isOpen: boolean; $isMobile: boolean }>`
+void (styled.div<{ $isOpen: boolean; $isMobile: boolean }>`
   position: ${({ $isMobile }) => ($isMobile ? 'fixed' : 'relative')};
   top: ${({ $isMobile }) => ($isMobile ? '80px' : '0')};
   left: 0;
@@ -84,9 +84,9 @@ const _MobileSidebar = styled.div<{ $isOpen: boolean; $isMobile: boolean }>`
 		`
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   `}
-`;
+`);
 
-const _MobileOverlay = styled.div<{ $isOpen: boolean }>`
+void (styled.div<{ $isOpen: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -97,9 +97,9 @@ const _MobileOverlay = styled.div<{ $isOpen: boolean }>`
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
   visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
   transition: all 0.3s ease;
-`;
+`);
 
-const _MobileContent = styled.div<{ $isMobile: boolean }>`
+void (styled.div<{ $isMobile: boolean }>`
   flex: 1;
   padding: ${({ $isMobile }) => ($isMobile ? '1rem' : '2rem')};
   overflow-x: auto;
@@ -109,7 +109,7 @@ const _MobileContent = styled.div<{ $isMobile: boolean }>`
 		`
     max-width: 100%;
   `}
-`;
+`);
 
 const MobileCard = styled.div<{ $isMobile: boolean }>`
   background: ${({ theme }) => theme.colors.white};

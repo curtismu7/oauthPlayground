@@ -236,82 +236,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 		}
 	};
 
-	const _handleSetDeviceOrder = async () => {
-		logger.info(`${MODULE_TAG} Setting device order`, {
-			environmentId,
-			username,
-			deviceCount: devices.length,
-		});
-		if (!environmentId || !username) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Environment ID and username are required to set device order',
-				dismissible: true,
-			});
-			return;
-		}
-		if (devices.length === 0) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'No devices available to set order',
-				dismissible: true,
-			});
-			return;
-		}
-		try {
-			const user = await MFAServiceV8.lookupUserByUsername(environmentId, username);
-			const orderedDeviceIds = devices.map((d) => d.id);
-			await MFAServiceV8.setUserMfaDeviceOrder(environmentId, user.id, orderedDeviceIds);
-			modernMessaging.showFooterMessage({
-				type: 'info',
-				message: 'Device order updated successfully',
-				duration: 3000,
-			});
-		} catch (error) {
-			logger.error(`${MODULE_TAG} Failed to set device order`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: `Failed to set device order: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				dismissible: true,
-			});
-		}
-	};
 
-	const _handleRemoveDeviceOrder = async () => {
-		logger.info(`${MODULE_TAG} Removing device order`, {
-			environmentId,
-			username,
-		});
-		if (!environmentId || !username) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Environment ID and username are required to remove device order',
-				dismissible: true,
-			});
-			return;
-		}
-		try {
-			const user = await MFAServiceV8.lookupUserByUsername(environmentId, username);
-			await MFAServiceV8.removeUserMfaDeviceOrder(environmentId, user.id);
-			modernMessaging.showFooterMessage({
-				type: 'info',
-				message: 'Device order removed successfully',
-				duration: 3000,
-			});
-		} catch (error) {
-			logger.error(`${MODULE_TAG} Failed to remove device order`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: `Failed to remove device order: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				dismissible: true,
-			});
-		}
-	};
 
 	const handleRename = async (deviceId: string) => {
 		await renameSpinner.executeWithSpinner(
@@ -541,34 +466,11 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				throw new Error('Device not found');
 			}
 
-			let _activationResult: any;
 
 			// Use appropriate activation method based on device type
 			if (device.type === 'TOTP') {
-				// For TOTP devices, we can activate them directly with admin privileges
-				// The backend will handle the activation without requiring OTP
-				_activationResult = await MFAServiceV8.activateDevice({
-					environmentId,
-					username,
-					deviceId,
-					otp: 'ADMIN_ACTIVATION', // Special token for admin activation
-				});
 			} else if (device.type === 'FIDO2') {
-				// For FIDO2 devices, use the FIDO2 activation method
-				_activationResult = await MFAServiceV8.activateFIDO2Device({
-					environmentId,
-					username,
-					deviceId,
-					workerToken: await MFAServiceV8.getWorkerToken(),
-				});
 			} else {
-				// For SMS, EMAIL, VOICE devices, activate without OTP requirement
-				_activationResult = await MFAServiceV8.activateDevice({
-					environmentId,
-					username,
-					deviceId,
-					otp: 'ADMIN_ACTIVATION',
-				});
 			}
 
 			// Mark device as recently changed for visual feedback

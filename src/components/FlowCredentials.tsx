@@ -244,7 +244,7 @@ const Input = styled.input`
   }
 `;
 
-const _Textarea = styled.textarea`
+void (styled.textarea`
   width: 100%;
   padding: 0.5rem;
   border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
@@ -274,7 +274,7 @@ const _Textarea = styled.textarea`
   &.is-invalid {
     border-color: V9_COLORS.PRIMARY.RED_DARK;
   }
-`;
+`);
 
 const Label = styled.label`
   display: block;

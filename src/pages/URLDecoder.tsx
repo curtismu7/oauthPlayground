@@ -36,7 +36,7 @@ const Container = styled.div<{ $sidebarWidth?: number }>`
 	}
 `;
 
-const _Header = styled.div`
+void (styled.div`
 	text-align: center;
 	margin: 0 auto 3rem auto;
 	max-width: 90rem;
@@ -45,9 +45,9 @@ const _Header = styled.div`
 	@media (min-width: 768px) {
 		width: calc(100% - 2rem);
 	}
-`;
+`);
 
-const _Title = styled.h1`
+void (styled.h1`
 	font-size: 2.5rem;
 	font-weight: 700;
 	margin: 0 0 1rem 0;
@@ -56,9 +56,9 @@ const _Title = styled.h1`
 	align-items: center;
 	justify-content: center;
 	gap: 1rem;
-`;
+`);
 
-const _Subtitle = styled.p`
+void (styled.p`
 	font-size: 1.125rem;
 	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin: 0;
@@ -66,7 +66,7 @@ const _Subtitle = styled.p`
 	margin-left: auto;
 	margin-right: auto;
 	line-height: 1.6;
-`;
+`);
 
 const ContentCard = styled.div`
 	background: white;

@@ -220,7 +220,6 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 	flowKey = '',
 	className,
 	defaultMasked = false,
-	_allowMaskToggle = true,
 }) => {
 	// Respect defaultMasked prop for security
 	const [masked, _setMasked] = useState(defaultMasked);
@@ -228,7 +227,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 	const [decodedContent, setDecodedContent] = useState<DecodedJWT | null>(null);
 	const [isOpaque, setIsOpaque] = useState(false);
 
-	const _tokenInfo = TokenDisplayService.getTokenInfo(token, tokenType, flowKey);
+	void (TokenDisplayService.getTokenInfo(token, tokenType, flowKey));
 
 	const getTokenIcon = () => {
 		switch (tokenType) {
