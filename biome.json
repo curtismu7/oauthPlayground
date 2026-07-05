@@ -1,31 +1,27 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.4.1/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
 	"files": {
 		"ignoreUnknown": true,
 		"includes": [
-			"**/src/**/*",
-			"tests/**/*",
-			"*.md",
-			"**/*.md",
-			"**/*.json",
-			"plan/**/*",
-			"docs/**/*",
-			"memory.md",
-			"COMMAND_EXECUTION_FIX.md",
+			"src/**/*",
+			"tests/**/*.ts",
+			"tests/**/*.tsx",
 			"server.js",
 			"server-*.js",
+			"!tests/**/*.template.ts",
+			"!tests/**/*.template.tsx",
 			"!src/styles/icons.css",
 			"!src/styles/vendor",
 			"!src/v8/lockdown/fido2/snapshot",
-			"!AI Ping",
-			"!pingone-mcp-server",
-			"!biome_issues.json",
-			"!user-cache",
 			"!node_modules",
 			"!dist",
 			"!.vite",
-			"!coverage",
-			"!resources/data/mcp.json"
+			"!coverage"
 		]
 	},
 	"formatter": {
@@ -33,6 +29,9 @@
 		"indentStyle": "tab",
 		"lineWidth": 100,
 		"indentWidth": 2
+	},
+	"assist": {
+		"enabled": false
 	},
 	"linter": {
 		"enabled": true,
