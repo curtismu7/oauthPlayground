@@ -8,20 +8,29 @@
 // headers, and a signature animated flow diagram on the Configure step.
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { authorizationCodeSabotageScenarios } from '../content/authorizationCodeSabotage';
+import {
+	authorizationCodeActors,
+	authorizationCodeInteractions,
+} from '../content/authorizationCodeSequence';
+import { authorizationCodeSpecVsPingOne } from '../content/authorizationCodeSpecVsPingOne';
 import { clearStash, loadStash, saveStash } from '../framework/authzStash';
+import { BreakItLab } from '../framework/BreakItLab';
 import { CodeBlock } from '../framework/CodeBlock';
 import { CredentialsForm } from '../framework/CredentialsForm';
-import { useFlowCredentials } from '../framework/useFlowCredentials';
-import { useFlowStorage } from '../framework/useFlowStorage';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
+import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
 import { FlowStep } from '../framework/FlowStep';
 import { Action, Note, Pill, Toggle } from '../framework/primitives';
-import { RequestPreview } from '../framework/RequestPreview';
 import type { CurlRequest } from '../framework/RequestPreview';
+import { RequestPreview } from '../framework/RequestPreview';
 import { ResultCard } from '../framework/ResultCard';
 import { SpecToggle } from '../framework/SpecToggle';
+import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
+import { applyAuthzCodeSabotage } from '../framework/sabotage';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
 import type {
 	ClientAuthMethod,
@@ -32,9 +41,10 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
-import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { UseTokensStep } from '../framework/UseTokensStep';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { useFlowEngine } from '../framework/useFlowEngine';
+import { useFlowStorage } from '../framework/useFlowStorage';
 import {
 	authorizationCodeService,
 	MOCK_REGISTERED_SECRET,
@@ -116,6 +126,9 @@ const AuthorizationCodeFlow: React.FC = () => {
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [authMethod, setAuthMethod] = useState<ClientAuthMethod>('client_secret_post');
+	// Break-it Lab: the sabotage scenario the learner has selected for the current step
+	// (null = run correctly). Applied to the outgoing params right before dispatch.
+	const [sabotageId, setSabotageId] = useState<string | null>(null);
 	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({
 		accessTokenSeconds: 3600,
 		idTokenSeconds: 3600,
@@ -133,8 +146,11 @@ const AuthorizationCodeFlow: React.FC = () => {
 		setMode(m);
 	}, []);
 
-	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
-		useFlowCredentials('flows2:authorization-code', creds, setCreds);
+	const {
+		save: saveCredentials,
+		saving: savingCreds,
+		saved: savedCreds,
+	} = useFlowCredentials('flows2:authorization-code', creds, setCreds);
 
 	const { saveState, restoreState } = useFlowStorage('flows2:authorization-code');
 
@@ -236,17 +252,17 @@ const AuthorizationCodeFlow: React.FC = () => {
 			const nonce = oidc ? crypto.randomUUID() : undefined;
 			setAuthState(state);
 
-			const res = await authorizationCodeService.authorize(
-				{
-					credentials: creds,
-					redirectUri,
-					state,
-					nonce,
-					codeChallenge: active.codeChallenge,
-					oidc,
-				},
-				mode
-			);
+			// Break-it Lab: apply the selected authorize-stage sabotage (e.g. tamper state,
+			// drop PKCE) to the outgoing params. No-op when nothing is selected.
+			const authorizeParams = applyAuthzCodeSabotage(sabotageId, 'authorize', {
+				credentials: creds,
+				redirectUri,
+				state,
+				nonce,
+				codeChallenge: active.codeChallenge,
+				oidc,
+			});
+			const res = await authorizationCodeService.authorize(authorizeParams, mode);
 
 			if (mode === 'mock') {
 				setCode(res.code || '');
@@ -277,25 +293,26 @@ const AuthorizationCodeFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [pkce, oidc, creds, redirectUri, mode, spec, engine]);
+	}, [pkce, oidc, creds, redirectUri, mode, spec, engine, sabotageId]);
 
 	const handleExchange = useCallback(async () => {
 		if (!pkce || !code) return;
 		setError(null);
 		setLoading(true);
 		try {
-			const r = await authorizationCodeService.exchangeCode(
-				{
-					credentials: creds,
-					redirectUri,
-					code,
-					codeVerifier: pkce.codeVerifier,
-					oidc,
-					authMethod,
-					tokenLifetimes,
-				},
-				mode
-			);
+			// Break-it Lab: apply the selected exchange-stage sabotage (e.g. wrong PKCE
+			// verifier, tampered redirect_uri). In mock mode a wrong verifier really does
+			// trip the PKCE check, so the learner sees a genuine invalid_grant rejection.
+			const exchangeParams = applyAuthzCodeSabotage(sabotageId, 'exchange', {
+				credentials: creds,
+				redirectUri,
+				code,
+				codeVerifier: pkce.codeVerifier,
+				oidc,
+				authMethod,
+				tokenLifetimes,
+			});
+			const r = await authorizationCodeService.exchangeCode(exchangeParams, mode);
 			setResult(r);
 			engine.markComplete('exchange');
 		} catch (err) {
@@ -303,7 +320,11 @@ const AuthorizationCodeFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [pkce, code, creds, redirectUri, mode, engine, authMethod, tokenLifetimes]);
+	}, [pkce, code, creds, redirectUri, mode, engine, authMethod, tokenLifetimes, sabotageId]);
+
+	// Break-it Lab reads back the actual outcome of the last run to compare against the
+	// scenario's predicted error.
+	const lastOutcome = error ? { error } : result ? { ok: true } : null;
 
 	useEffect(() => {
 		saveState({ code, result, error, pkce, authUrl, authState });
@@ -327,6 +348,13 @@ const AuthorizationCodeFlow: React.FC = () => {
 			}
 			engine={engine}
 		>
+			<FlowSequenceDiagram
+				title="Live sequence — the current step is highlighted"
+				actors={authorizationCodeActors}
+				interactions={authorizationCodeInteractions}
+				activeStepId={cur}
+				completedStepIds={engine.completed}
+			/>
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure"
@@ -359,11 +387,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 					/>
 					<Toggle>
 						{(['client_secret_post', 'client_secret_basic'] as ClientAuthMethod[]).map((m) => (
-							<Pill
-								key={m}
-								$active={authMethod === m}
-								onClick={() => setAuthMethod(m)}
-							>
+							<Pill key={m} $active={authMethod === m} onClick={() => setAuthMethod(m)}>
 								{m}
 							</Pill>
 						))}
@@ -373,6 +397,10 @@ const AuthorizationCodeFlow: React.FC = () => {
 						onChange={updateTokenLifetime}
 						showIdToken={oidc}
 						showRefreshToken={true}
+					/>
+					<SpecVsPingOneList
+						title="Spec vs PingOne — how this flow differs on PingOne"
+						entries={authorizationCodeSpecVsPingOne}
 					/>
 				</FlowStep>
 			)}
@@ -438,6 +466,13 @@ const AuthorizationCodeFlow: React.FC = () => {
 						};
 						return <RequestPreview request={curlReq} />;
 					})()}
+					<BreakItLab
+						scenarios={authorizationCodeSabotageScenarios}
+						stage="authorize"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					<Action onClick={handleAuthorize} disabled={loading || !configured}>
 						{loading
 							? 'Working…'
@@ -480,6 +515,13 @@ const AuthorizationCodeFlow: React.FC = () => {
 						};
 						return <RequestPreview request={curlReq} />;
 					})()}
+					<BreakItLab
+						scenarios={authorizationCodeSabotageScenarios}
+						stage="exchange"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					<Action onClick={handleExchange} disabled={loading || !code || !pkce}>
 						{loading ? 'Exchanging…' : 'Exchange code'}
 					</Action>
