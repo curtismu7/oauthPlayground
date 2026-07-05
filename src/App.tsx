@@ -46,6 +46,7 @@ const CodeExamplesDemo = lazy(() => import('./components/CodeExamplesDemo'));
 // flows2 — clean-core rebuild (real PingOne), routed under /v2/flows/*
 const Flows2ClientCredentials = lazy(() => import('./flows2/flows/clientCredentials.flow'));
 const Flows2AuthorizationCode = lazy(() => import('./flows2/flows/authorizationCode.flow'));
+const Flows2UseCases = lazy(() => import('./flows2/use-cases/UseCasesPage'));
 const Flows2AuthorizationCodeEducational = lazy(
 	() => import('./flows2/flows/AuthorizationCodeEducational')
 );
@@ -1645,6 +1646,7 @@ const AppRoutes: React.FC = () => {
 										path="/v2/flows/client-credentials"
 										element={<Flows2ClientCredentials />}
 									/>
+									<Route path="/v2/use-cases" element={<Flows2UseCases />} />
 									<Route
 										path="/v2/flows/authorization-code"
 										element={<Flows2AuthorizationCode />}
