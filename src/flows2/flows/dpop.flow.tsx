@@ -7,16 +7,19 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useFlowStorage } from '../framework/useFlowStorage';
+import { applyDpopSabotage, dpopSabotageScenarios } from '../content/dpopSabotage';
+import { dpopActors, dpopInteractions } from '../content/dpopSequence';
+import { dpopSpecVsPingOne } from '../content/dpopSpecVsPingOne';
+import { BreakItLab } from '../framework/BreakItLab';
+import { CodeBlock, JsonView } from '../framework/CodeBlock';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
+import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
 import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
-import { JsonView } from '../framework/CodeBlock';
-import { CodeBlock } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
@@ -26,11 +29,10 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
-import {
-	dpopService,
-	type DPoPKeyPairResult,
-	type DPoPProofResult,
-} from '../services/dpopService';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import { useFlowStorage } from '../framework/useFlowStorage';
+import { PathProgressBadge } from '../learning/PathProgressBadge';
+import { type DPoPKeyPairResult, type DPoPProofResult, dpopService } from '../services/dpopService';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -119,16 +121,21 @@ const DPoPFlow: React.FC = () => {
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	// Break-it Lab: the sabotage scenario selected for the token request (null = run
+	// correctly). Applied to the outgoing proof/thumbprint right before dispatch.
+	const [sabotageId, setSabotageId] = useState<string | null>(null);
 
 	const { saveState, restoreState } = useFlowStorage('flows2:dpop');
 
 	useEffect(() => {
 		restoreState().then((saved) => {
 			if (!saved) return;
-			if (!keyPairResult && saved.keyPairResult) setKeyPairResult(saved.keyPairResult as typeof keyPairResult);
-			if (!proofResult && saved.proofResult) setProofResult(saved.proofResult as typeof proofResult);
-			if (!result && saved.result) setResult(saved.result as typeof result);
-			if (!error && saved.error) setError(saved.error as typeof error);
+			if (!keyPairResult && saved.keyPairResult)
+				setKeyPairResult(saved.keyPairResult as unknown as typeof keyPairResult);
+			if (!proofResult && saved.proofResult)
+				setProofResult(saved.proofResult as unknown as typeof proofResult);
+			if (!result && saved.result) setResult(saved.result as unknown as typeof result);
+			if (!error && saved.error) setError(saved.error as unknown as typeof error);
 		});
 	}, [restoreState, keyPairResult, proofResult, result, error]);
 
@@ -176,10 +183,17 @@ const DPoPFlow: React.FC = () => {
 		setError(null);
 		setResult(null);
 		try {
+			// Break-it Lab: apply the selected request-stage sabotage to the outgoing proof /
+			// thumbprint. Every DPoP scenario is simulateOnly, so this is a no-op pass-through
+			// (the panel shows the predicted rejection without dispatching a mutated request).
+			const dpopParams = applyDpopSabotage(sabotageId, 'request', {
+				proof: proofResult.proof,
+				thumbprint: keyPairResult.thumbprint,
+			});
 			const r = await dpopService.requestTokenWithDpop(
 				creds,
-				proofResult.proof,
-				keyPairResult.thumbprint,
+				dpopParams.proof,
+				dpopParams.thumbprint,
 				mode
 			);
 			setResult(r);
@@ -189,7 +203,11 @@ const DPoPFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [keyPairResult, proofResult, creds, mode, engine]);
+	}, [keyPairResult, proofResult, creds, mode, engine, sabotageId]);
+
+	// Break-it Lab reads back the actual outcome of the last run to compare against the
+	// scenario's predicted error.
+	const lastOutcome = error ? { error } : result ? { ok: true } : null;
 
 	useEffect(() => {
 		saveState({ keyPairResult, proofResult, result, error });
@@ -206,6 +224,14 @@ const DPoPFlow: React.FC = () => {
 			subtitle="Demonstrating Proof of Possession (RFC 9449). The client generates an ephemeral EC key pair and attaches a signed proof JWT to every token request, binding the issued token to the key pair — a stolen token is useless without the private key."
 			engine={engine}
 		>
+			<PathProgressBadge flowRoute="/v2/flows/dpop" />
+			<FlowSequenceDiagram
+				title="Live sequence — the current step is highlighted"
+				actors={dpopActors}
+				interactions={dpopInteractions}
+				activeStepId={cur}
+				completedStepIds={engine.completed}
+			/>
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure the client"
@@ -216,8 +242,12 @@ const DPoPFlow: React.FC = () => {
 					canNext={configured}
 				>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>
+							Real PingOne
+						</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>
+							Mock
+						</Pill>
 					</Toggle>
 					<Toggle>
 						{(['client_secret_post', 'client_secret_basic'] as ClientAuthMethod[]).map((m) => (
@@ -231,20 +261,50 @@ const DPoPFlow: React.FC = () => {
 						))}
 					</Toggle>
 					<Grid>
-						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} placeholder="uuid" />
-						<FieldGroup label="Region" value={creds.region} onChange={set('region')} placeholder="com | eu | ca | asia" />
-						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} placeholder="worker client id" />
-						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} placeholder="worker client secret" />
-						<FieldGroup label="Scope (optional)" value={creds.scope ?? ''} onChange={set('scope')} placeholder="e.g. p1:read:user" />
+						<FieldGroup
+							label="Environment ID"
+							value={creds.environmentId}
+							onChange={set('environmentId')}
+							placeholder="uuid"
+						/>
+						<FieldGroup
+							label="Region"
+							value={creds.region}
+							onChange={set('region')}
+							placeholder="com | eu | ca | asia"
+						/>
+						<FieldGroup
+							label="Client ID"
+							value={creds.clientId}
+							onChange={set('clientId')}
+							placeholder="worker client id"
+						/>
+						<FieldGroup
+							label="Client Secret"
+							type="password"
+							value={creds.clientSecret ?? ''}
+							onChange={set('clientSecret')}
+							placeholder="worker client secret"
+						/>
+						<FieldGroup
+							label="Scope (optional)"
+							value={creds.scope ?? ''}
+							onChange={set('scope')}
+							placeholder="e.g. p1:read:user"
+						/>
 					</Grid>
 					<ExplanationPanel title="What is DPoP and why does it matter?">
 						A bearer access token is like cash — whoever holds it can spend it. DPoP makes it more
 						like a signed cheque: the token is cryptographically bound to a public key, and every
 						request must carry a fresh proof-of-possession JWT signed by the matching private key.
 						Even if an attacker intercepts the token, they cannot use it without the private key the
-						client holds in memory. The binding is recorded in the token&apos;s <strong>cnf.jkt</strong>{' '}
-						claim — the JWK thumbprint of the public key (RFC 7638).
+						client holds in memory. The binding is recorded in the token&apos;s{' '}
+						<strong>cnf.jkt</strong> claim — the JWK thumbprint of the public key (RFC 7638).
 					</ExplanationPanel>
+					<SpecVsPingOneList
+						title="Spec vs PingOne — how DPoP differs on PingOne"
+						entries={dpopSpecVsPingOne}
+					/>
 				</FlowStep>
 			)}
 
@@ -258,13 +318,23 @@ const DPoPFlow: React.FC = () => {
 					canNext={Boolean(keyPairResult)}
 				>
 					<Action onClick={generateKey} disabled={loading}>
-						{loading ? 'Generating…' : mode === 'real' ? 'Generate EC P-256 key pair' : 'Generate mock key pair'}
+						{loading
+							? 'Generating…'
+							: mode === 'real'
+								? 'Generate EC P-256 key pair'
+								: 'Generate mock key pair'}
 					</Action>
 					{error && !keyPairResult && <FlowResult error={error} />}
 					{keyPairResult && (
 						<ResultCard title="Public key (JWK — embedded in every proof header)" tone="info">
 							<JsonView data={keyPairResult.publicJwk} label="Public JWK" />
-							<div style={{ marginTop: '0.6rem', fontSize: '0.85rem', color: tokens.color.textSecondary }}>
+							<div
+								style={{
+									marginTop: '0.6rem',
+									fontSize: '0.85rem',
+									color: tokens.color.textSecondary,
+								}}
+							>
 								JWK thumbprint (cnf.jkt) — the token will be bound to this value:
 								<br />
 								<Mono>{keyPairResult.thumbprint}</Mono>
@@ -278,12 +348,13 @@ const DPoPFlow: React.FC = () => {
 						</p>
 						<p>
 							<strong>JWK thumbprint (RFC 7638):</strong> A SHA-256 digest of the canonical JSON
-							encoding of the public key members (<code>crv</code>, <code>kty</code>, <code>x</code>,{' '}
-							<code>y</code> in alphabetical order), base64url-encoded. The authorization server stores
-							this in the access token as <code>cnf.jkt</code>.
+							encoding of the public key members (<code>crv</code>, <code>kty</code>, <code>x</code>
+							, <code>y</code> in alphabetical order), base64url-encoded. The authorization server
+							stores this in the access token as <code>cnf.jkt</code>.
 						</p>
 						<p>
-							The private key is held in memory only and is never serialised or sent across the wire.
+							The private key is held in memory only and is never serialised or sent across the
+							wire.
 						</p>
 					</ExplanationPanel>
 				</FlowStep>
@@ -299,7 +370,11 @@ const DPoPFlow: React.FC = () => {
 					canNext={Boolean(proofResult)}
 				>
 					<Action onClick={createProof} disabled={loading || !keyPairResult}>
-						{loading ? 'Signing…' : mode === 'real' ? 'Create + sign DPoP proof' : 'Create mock DPoP proof'}
+						{loading
+							? 'Signing…'
+							: mode === 'real'
+								? 'Create + sign DPoP proof'
+								: 'Create mock DPoP proof'}
 					</Action>
 					{error && !proofResult && <FlowResult error={error} />}
 					{proofResult && (
@@ -310,7 +385,10 @@ const DPoPFlow: React.FC = () => {
 							<ResultCard title="Decoded DPoP proof payload" tone="info">
 								<JsonView data={proofResult.payload} label="Payload" />
 							</ResultCard>
-							<ResultCard title="Compact DPoP proof JWT (sent in the DPoP request header)" tone="ok">
+							<ResultCard
+								title="Compact DPoP proof JWT (sent in the DPoP request header)"
+								tone="ok"
+							>
 								<CodeBlock value={proofResult.proof} label="Compact JWT" />
 							</ResultCard>
 						</>
@@ -320,19 +398,39 @@ const DPoPFlow: React.FC = () => {
 							<strong>Header members:</strong>
 						</p>
 						<ul>
-							<li><code>typ: &apos;dpop+jwt&apos;</code> — tells the AS this is a DPoP proof, not a regular JWT.</li>
-							<li><code>alg: &apos;ES256&apos;</code> — signature algorithm.</li>
-							<li><code>jwk</code> — the public key (no private components). The AS uses this to verify the signature.</li>
+							<li>
+								<code>typ: &apos;dpop+jwt&apos;</code> — tells the AS this is a DPoP proof, not a
+								regular JWT.
+							</li>
+							<li>
+								<code>alg: &apos;ES256&apos;</code> — signature algorithm.
+							</li>
+							<li>
+								<code>jwk</code> — the public key (no private components). The AS uses this to
+								verify the signature.
+							</li>
 						</ul>
 						<p>
 							<strong>Payload members:</strong>
 						</p>
 						<ul>
-							<li><code>jti</code> — unique identifier; the AS may store seen jti values to block replay within a window.</li>
-							<li><code>htm</code> — HTTP method (<code>POST</code> for token requests).</li>
-							<li><code>htu</code> — HTTP target URI (token endpoint, no query/fragment).</li>
-							<li><code>iat</code> — issued-at timestamp; the AS rejects stale proofs.</li>
-							<li><code>nonce</code> (optional) — included when the AS has provided a nonce challenge (RFC 9449 §8).</li>
+							<li>
+								<code>jti</code> — unique identifier; the AS may store seen jti values to block
+								replay within a window.
+							</li>
+							<li>
+								<code>htm</code> — HTTP method (<code>POST</code> for token requests).
+							</li>
+							<li>
+								<code>htu</code> — HTTP target URI (token endpoint, no query/fragment).
+							</li>
+							<li>
+								<code>iat</code> — issued-at timestamp; the AS rejects stale proofs.
+							</li>
+							<li>
+								<code>nonce</code> (optional) — included when the AS has provided a nonce challenge
+								(RFC 9449 §8).
+							</li>
 						</ul>
 					</ExplanationPanel>
 				</FlowStep>
@@ -352,8 +450,19 @@ const DPoPFlow: React.FC = () => {
 						proof header best-effort — PingOne may accept it, ignore it, or return an error. The
 						mock path is the reliable teaching demo.
 					</WarnBanner>
+					<BreakItLab
+						scenarios={dpopSabotageScenarios}
+						stage="request"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					<Action onClick={requestToken} disabled={loading || !keyPairResult || !proofResult}>
-						{loading ? 'Requesting…' : mode === 'real' ? 'Request real DPoP token' : 'Request mock DPoP token'}
+						{loading
+							? 'Requesting…'
+							: mode === 'real'
+								? 'Request real DPoP token'
+								: 'Request mock DPoP token'}
 					</Action>
 					<FlowResult result={result} error={error} />
 				</FlowStep>
@@ -371,16 +480,24 @@ const DPoPFlow: React.FC = () => {
 					<FlowResult result={result} />
 					{keyPairResult && (
 						<ResultCard title="Key binding — cnf.jkt" tone="info">
-							<div style={{ fontSize: '0.88rem', color: tokens.color.textSecondary, lineHeight: 1.55 }}>
+							<div
+								style={{ fontSize: '0.88rem', color: tokens.color.textSecondary, lineHeight: 1.55 }}
+							>
 								The token is bound to this public key thumbprint:
 								<br />
 								<Mono>{keyPairResult.thumbprint}</Mono>
-								<br /><br />
-								A resource server that validates DPoP will:
+								<br />
+								<br />A resource server that validates DPoP will:
 								<ol style={{ paddingLeft: '1.2rem', marginTop: '0.4rem' }}>
 									<li>Verify the DPoP proof JWT signature using the embedded public JWK.</li>
-									<li>Confirm the proof&apos;s <code>htm</code> and <code>htu</code> match the current request.</li>
-									<li>Recompute the JWK thumbprint and check it equals the token&apos;s <code>cnf.jkt</code>.</li>
+									<li>
+										Confirm the proof&apos;s <code>htm</code> and <code>htu</code> match the current
+										request.
+									</li>
+									<li>
+										Recompute the JWK thumbprint and check it equals the token&apos;s{' '}
+										<code>cnf.jkt</code>.
+									</li>
 									<li>Reject the request if any check fails — the token alone is not enough.</li>
 								</ol>
 							</div>

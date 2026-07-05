@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import styled, { type DefaultTheme, ThemeProvider } from 'styled-components';
+import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
 import { type UISettings, UISettingsProvider, useUISettings } from './contexts/UISettingsContext';
@@ -11,7 +12,6 @@ import { ExternalScriptErrorBoundary, useExternalErrorHandling } from './utils/e
 import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
 import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
 import { PromptModalV8 } from './v8/components/PromptModalV8';
-import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { FlowStateProvider } from './v8/contexts/FlowStateContext';
 import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
 import './styles/spec-cards.css';
@@ -46,7 +46,9 @@ const CodeExamplesDemo = lazy(() => import('./components/CodeExamplesDemo'));
 // flows2 — clean-core rebuild (real PingOne), routed under /v2/flows/*
 const Flows2ClientCredentials = lazy(() => import('./flows2/flows/clientCredentials.flow'));
 const Flows2AuthorizationCode = lazy(() => import('./flows2/flows/authorizationCode.flow'));
-const Flows2AuthorizationCodeEducational = lazy(() => import('./flows2/flows/AuthorizationCodeEducational'));
+const Flows2AuthorizationCodeEducational = lazy(
+	() => import('./flows2/flows/AuthorizationCodeEducational')
+);
 const Flows2AuthCallback = lazy(() => import('./flows2/flows/AuthCallback'));
 const Flows2DeviceAuthorization = lazy(() => import('./flows2/flows/deviceAuthorization.flow'));
 const Flows2TokenExchange = lazy(() => import('./flows2/flows/tokenExchange.flow'));
@@ -62,7 +64,10 @@ const Flows2ImplicitHybrid = lazy(() => import('./flows2/flows/implicitHybrid.fl
 const Flows2ImplicitHybridCallback = lazy(() => import('./flows2/flows/ImplicitHybridCallback'));
 const Flows2Hybrid = lazy(() => import('./flows2/flows/hybrid.flow'));
 const Flows2Ropc = lazy(() => import('./flows2/flows/ropc.flow'));
-const Flows2SAMLBearerAssertion = lazy(() => import('./flows2/flows/samlBearerAssertion.flow'));const CombinedTokenPage = lazy(() => import('./pages/CombinedTokenPage'));
+const Flows2SAMLBearerAssertion = lazy(() => import('./flows2/flows/samlBearerAssertion.flow'));
+const Flows2LearningPaths = lazy(() => import('./flows2/learning/LearningPathsPage'));
+const Flows2PathOverview = lazy(() => import('./flows2/learning/PathOverview'));
+const CombinedTokenPage = lazy(() => import('./pages/CombinedTokenPage'));
 const CredentialSetupModal = lazy(() => import('./components/CredentialSetupModal'));
 const EnhancedFloatingLogViewer = lazy(() =>
 	import('./components/EnhancedFloatingLogViewer').then((m) => ({
@@ -219,7 +224,7 @@ const AdvancedOAuthParametersDemoFlow = lazy(
 // RedirectlessFlowV9_Real retired — /flows/redirectless-v9-real now redirects to /v2/flows/redirectless
 const SAMLServiceProviderFlowV9 = lazy(() => import('./pages/flows/v9/SAMLServiceProviderFlowV9'));
 // TokenRevocationFlow kept — imported by CombinedTokenPage and infinite-loop-prevention test
-void (lazy(() => import('./pages/flows/TokenRevocationFlow')));
+void lazy(() => import('./pages/flows/TokenRevocationFlow'));
 // UserInfoFlow retired — /oidc/userinfo now redirects to /v2/flows/userinfo
 // UserInfoPostFlow retired — /flows/userinfo now redirects to /v2/flows/userinfo
 // V7RMOIDCResourceOwnerPasswordFlow removed — route redirects to /flows/oauth-ropc-v9
@@ -233,7 +238,7 @@ const MFAWorkflowLibraryFlowV9 = lazy(() => import('./pages/flows/v9/MFAWorkflow
 const PingOnePARFlowV9 = lazy(() => import('./pages/flows/v9/PingOnePARFlowV9'));
 const RARFlowV9 = lazy(() => import('./pages/flows/v9/RARFlowV9'));
 const ResourcesAPIFlowV9 = lazy(() => import('./pages/flows/v9/ResourcesAPIFlowV9'));
-void (lazy(() => import('./pages/flows/v9/SAMLBearerAssertionFlowV9')));
+void lazy(() => import('./pages/flows/v9/SAMLBearerAssertionFlowV9'));
 // TokenExchangeFlowV9 retired — /flows/token-exchange-v9 now redirects to /v2/flows/token-exchange
 // import InteractiveTutorials from './pages/InteractiveTutorials'; // Removed - unused tutorial feature
 const JWKSTroubleshooting = lazy(() => import('./pages/JWKSTroubleshooting'));
@@ -324,7 +329,7 @@ const UnifiedMFARegistrationFlowV8 = React.lazy(() =>
 
 // OAuth Authz V2 — new redesigned UI
 const OAuthAuthzV2 = lazy(() => import('./v8u/components/OAuthAuthzV2/OAuthAuthzV2'));
-void (lazy(() => import('./v8u/components/AuthCodeFlowV2/AuthCodeFlowV2')));
+void lazy(() => import('./v8u/components/AuthCodeFlowV2/AuthCodeFlowV2'));
 const FIDO2FlowV8 = React.lazy(() =>
 	import('./v8/flows/types/FIDO2FlowV8').then((module) => ({ default: module.FIDO2FlowV8 }))
 );
@@ -961,14 +966,8 @@ const AppRoutes: React.FC = () => {
 										path="/v7/oidc/implicit"
 										element={<Navigate to="/v2/flows/implicit-hybrid" replace />}
 									/>
-									<Route
-										path="/v7/oauth/ropc"
-										element={<Navigate to="/v2/flows/ropc" replace />}
-									/>
-									<Route
-										path="/v7/oidc/ropc"
-										element={<Navigate to="/v2/flows/ropc" replace />}
-									/>
+									<Route path="/v7/oauth/ropc" element={<Navigate to="/v2/flows/ropc" replace />} />
+									<Route path="/v7/oidc/ropc" element={<Navigate to="/v2/flows/ropc" replace />} />
 									<Route
 										path="/v7/settings"
 										element={
@@ -982,8 +981,14 @@ const AppRoutes: React.FC = () => {
 										element={<Navigate to="/v2/flows/implicit-hybrid" replace />}
 									/>
 									<Route path="/v7/oidc/ciba" element={<Navigate to="/flows/ciba-v9" replace />} />
-									<Route path="/flows/userinfo" element={<Navigate to="/v2/flows/userinfo" replace />} />
-									<Route path="/flows/token-revocation" element={<Navigate to="/v2/flows/token-revocation" replace />} />
+									<Route
+										path="/flows/userinfo"
+										element={<Navigate to="/v2/flows/userinfo" replace />}
+									/>
+									<Route
+										path="/flows/token-revocation"
+										element={<Navigate to="/v2/flows/token-revocation" replace />}
+									/>
 									<Route path="/flows/pingone-logout" element={<PingOneLogoutFlow />} />
 									{/* Deprecated flows — redirect to V9 */}
 									<Route
@@ -1342,7 +1347,10 @@ const AppRoutes: React.FC = () => {
 									{/* V9 JWT Bearer Token Flow */}
 									<Route path="/flows/jwt-bearer-token-v9" element={<JWTBearerTokenFlowV9 />} />
 									{/* Token Exchange — retired, redirect to flows2 */}
-									<Route path="/flows/token-exchange-v9" element={<Navigate to="/v2/flows/token-exchange" replace />} />
+									<Route
+										path="/flows/token-exchange-v9"
+										element={<Navigate to="/v2/flows/token-exchange" replace />}
+									/>
 									{/* Token Exchange v7 legacy redirect */}
 									<Route
 										path="/flows/token-exchange-v7"
@@ -1378,7 +1386,10 @@ const AppRoutes: React.FC = () => {
 										element={<Navigate to="/flows/worker-token-v9" replace />}
 									/>
 									{/* V9 Worker Token Flow */}
-									<Route path="/flows/worker-token-v9" element={<Navigate to="/v2/flows/client-credentials" replace />} />
+									<Route
+										path="/flows/worker-token-v9"
+										element={<Navigate to="/v2/flows/client-credentials" replace />}
+									/>
 									{/* Legacy V6 routes - redirect to V9 */}
 									<Route
 										path="/flows/worker-token-v6"
@@ -1452,7 +1463,10 @@ const AppRoutes: React.FC = () => {
 										element={<AdvancedOAuthParametersDemoFlow />}
 									/>
 									{/* Redirectless — retired, redirect to flows2 */}
-									<Route path="/flows/redirectless-v9-real" element={<Navigate to="/v2/flows/redirectless" replace />} />
+									<Route
+										path="/flows/redirectless-v9-real"
+										element={<Navigate to="/v2/flows/redirectless" replace />}
+									/>
 									{/* Legacy V6 routes - redirect to flows2 */}
 									<Route
 										path="/flows/redirectless-v6"
@@ -1559,7 +1573,10 @@ const AppRoutes: React.FC = () => {
 										element={<Navigate to="/v2/flows/ropc" replace />}
 									/>
 									{/* ROPC — retired, redirect to flows2 */}
-									<Route path="/flows/oauth-ropc-v9" element={<Navigate to="/v2/flows/ropc" replace />} />
+									<Route
+										path="/flows/oauth-ropc-v9"
+										element={<Navigate to="/v2/flows/ropc" replace />}
+									/>
 									{/* Test MFA Flow */}
 									<Route
 										path="/mfa-test"
@@ -1621,13 +1638,31 @@ const AppRoutes: React.FC = () => {
 									<Route path="/token-management" element={<TokenMonitoringPage />} />
 									<Route path="/token/operations" element={<CombinedTokenPage />} />
 									{/* flows2 — clean-core rebuild (real PingOne) */}
-									<Route path="/v2/flows/client-credentials" element={<Flows2ClientCredentials />} />
-									<Route path="/v2/flows/authorization-code" element={<Flows2AuthorizationCode />} />
-									<Route path="/v2/flows/authorization-code-educational" element={<Flows2AuthorizationCodeEducational />} />
+									{/* Learning Paths — guided curriculum over the flows2 flows */}
+									<Route path="/v2/learn" element={<Flows2LearningPaths />} />
+									<Route path="/v2/learn/:pathId" element={<Flows2PathOverview />} />
+									<Route
+										path="/v2/flows/client-credentials"
+										element={<Flows2ClientCredentials />}
+									/>
+									<Route
+										path="/v2/flows/authorization-code"
+										element={<Flows2AuthorizationCode />}
+									/>
+									<Route
+										path="/v2/flows/authorization-code-educational"
+										element={<Flows2AuthorizationCodeEducational />}
+									/>
 									<Route path="/v2/flows/authz-callback" element={<Flows2AuthCallback />} />
-									<Route path="/v2/flows/device-authorization" element={<Flows2DeviceAuthorization />} />
+									<Route
+										path="/v2/flows/device-authorization"
+										element={<Flows2DeviceAuthorization />}
+									/>
 									<Route path="/v2/flows/token-exchange" element={<Flows2TokenExchange />} />
-									<Route path="/v2/flows/token-introspection" element={<Flows2TokenIntrospection />} />
+									<Route
+										path="/v2/flows/token-introspection"
+										element={<Flows2TokenIntrospection />}
+									/>
 									<Route path="/v2/flows/userinfo" element={<Flows2UserInfo />} />
 									<Route path="/v2/flows/token-revocation" element={<Flows2TokenRevocation />} />
 									<Route path="/v2/flows/par" element={<Flows2Par />} />
@@ -1636,10 +1671,17 @@ const AppRoutes: React.FC = () => {
 									<Route path="/v2/flows/dpop" element={<Flows2Dpop />} />
 									<Route path="/v2/flows/redirectless" element={<Flows2Redirectless />} />
 									<Route path="/v2/flows/implicit-hybrid" element={<Flows2ImplicitHybrid />} />
-									<Route path="/v2/flows/implicit-hybrid-callback" element={<Flows2ImplicitHybridCallback />} />
+									<Route
+										path="/v2/flows/implicit-hybrid-callback"
+										element={<Flows2ImplicitHybridCallback />}
+									/>
 									<Route path="/v2/flows/hybrid" element={<Flows2Hybrid />} />
 									<Route path="/v2/flows/ropc" element={<Flows2Ropc />} />
-									<Route path="/v2/flows/saml-bearer" element={<Flows2SAMLBearerAssertion />} />									<Route path="/flows/token-introspection" element={<Navigate to="/v2/flows/token-introspection" replace />} />
+									<Route path="/v2/flows/saml-bearer" element={<Flows2SAMLBearerAssertion />} />{' '}
+									<Route
+										path="/flows/token-introspection"
+										element={<Navigate to="/v2/flows/token-introspection" replace />}
+									/>
 									<Route
 										path="/postman-collection-generator"
 										element={<PostmanCollectionGenerator />}
@@ -2086,11 +2128,14 @@ function AppContent() {
 	// Auto-open modal when worker token is needed (error handler will dispatch this)
 	useEffect(() => {
 		const handleWorkerTokenNeeded = () => {
-			window.dispatchEvent(new CustomEvent('open-worker-token-modal', { detail: { source: 'error-handler' } }));
+			window.dispatchEvent(
+				new CustomEvent('open-worker-token-modal', { detail: { source: 'error-handler' } })
+			);
 		};
 
 		window.addEventListener('worker-token-needed', handleWorkerTokenNeeded as EventListener);
-		return () => window.removeEventListener('worker-token-needed', handleWorkerTokenNeeded as EventListener);
+		return () =>
+			window.removeEventListener('worker-token-needed', handleWorkerTokenNeeded as EventListener);
 	}, []);
 
 	// Open log viewer when AI Assistant (or any component) requests it — for viewing MCP calls
@@ -2195,9 +2240,7 @@ function AppContent() {
 							fontSize: '18px',
 						}}
 						title="Open Debug Log Viewer"
-					>
-						
-					</button>
+					></button>
 				)}
 
 				{/* Floating Debug Log Viewer — lazy, only mounts when first opened */}

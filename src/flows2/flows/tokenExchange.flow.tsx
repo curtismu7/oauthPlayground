@@ -7,14 +7,22 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import {
+	applyTokenExchangeSabotage,
+	tokenExchangeSabotageScenarios,
+} from '../content/tokenExchangeSabotage';
+import { tokenExchangeActors, tokenExchangeInteractions } from '../content/tokenExchangeSequence';
+import { tokenExchangeSpecVsPingOne } from '../content/tokenExchangeSpecVsPingOne';
+import { BreakItLab } from '../framework/BreakItLab';
+import { JsonView } from '../framework/CodeBlock';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
+import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
 import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
-import { JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
@@ -24,8 +32,10 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
-import { tokenExchangeService as svc, type MayActResult } from '../services/tokenExchangeService';
+import { useFlowEngine } from '../framework/useFlowEngine';
 import { useFlowStorage } from '../framework/useFlowStorage';
+import { PathProgressBadge } from '../learning/PathProgressBadge';
+import { type MayActResult, tokenExchangeService as svc } from '../services/tokenExchangeService';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -89,20 +99,26 @@ const TokenExchangeFlow: React.FC = () => {
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
 		clientId: env.VITE_PINGONE_TOKEN_EXCHANGE_CLIENT_ID || env.VITE_PINGONE_WORKER_CLIENT_ID || '',
-		clientSecret: env.VITE_PINGONE_TOKEN_EXCHANGE_CLIENT_SECRET || env.VITE_PINGONE_WORKER_CLIENT_SECRET || '',
+		clientSecret:
+			env.VITE_PINGONE_TOKEN_EXCHANGE_CLIENT_SECRET || env.VITE_PINGONE_WORKER_CLIENT_SECRET || '',
 		authMethod: 'client_secret_post',
 	});
 	const [subjectToken, setSubjectToken] = useState('');
 	const [actorToken, setActorToken] = useState('');
 	// PingOne token exchange only issues tokens for custom resources, so default the
 	// requested scope to the OAuth Playground custom-resource scope.
-	const [requestedScopes, setRequestedScopes] = useState(env.VITE_PINGONE_TOKEN_EXCHANGE_SCOPE || 'access');
+	const [requestedScopes, setRequestedScopes] = useState(
+		env.VITE_PINGONE_TOKEN_EXCHANGE_SCOPE || 'access'
+	);
 	const [audience, setAudience] = useState('');
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [mayAct, setMayAct] = useState<MayActResult | null>(null);
 	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 	const [loading, setLoading] = useState(false);
+	// Break-it Lab: the sabotage scenario selected for the exchange (null = run correctly).
+	// Applied to the outgoing exchange params right before dispatch.
+	const [sabotageId, setSabotageId] = useState<string | null>(null);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -115,7 +131,17 @@ const TokenExchangeFlow: React.FC = () => {
 		setResult(null);
 		setIntrospectData(null);
 		try {
-			const r = await svc.run({ credentials: creds, subjectToken, actorToken: actorToken || undefined, requestedScopes, audience }, mode);
+			// Break-it Lab: apply the selected exchange-stage sabotage to the outgoing params.
+			// Every token-exchange scenario is simulateOnly, so this is a no-op pass-through
+			// (the panel shows the predicted rejection without dispatching a mutated request).
+			const exchangeParams = applyTokenExchangeSabotage(sabotageId, 'exchange', {
+				credentials: creds,
+				subjectToken,
+				...(actorToken ? { actorToken } : {}),
+				requestedScopes,
+				audience,
+			});
+			const r = await svc.run(exchangeParams, mode);
 			setResult(r);
 			engine.markComplete('exchange');
 		} catch (err) {
@@ -123,7 +149,7 @@ const TokenExchangeFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, subjectToken, actorToken, requestedScopes, audience, mode, engine]);
+	}, [creds, subjectToken, actorToken, requestedScopes, audience, mode, engine, sabotageId]);
 
 	const checkDelegation = useCallback(async () => {
 		if (!subjectToken || !actorToken) return;
@@ -141,10 +167,11 @@ const TokenExchangeFlow: React.FC = () => {
 			if (!saved) return;
 			if (!subjectToken && saved.subjectToken) setSubjectToken(saved.subjectToken as string);
 			if (!actorToken && saved.actorToken) setActorToken(saved.actorToken as string);
-			if (!requestedScopes && saved.requestedScopes) setRequestedScopes(saved.requestedScopes as string);
-			if (!result && saved.result) setResult(saved.result as typeof result);
-			if (!error && saved.error) setError(saved.error as typeof error);
-			if (!mayAct && saved.mayAct) setMayAct(saved.mayAct as typeof mayAct);
+			if (!requestedScopes && saved.requestedScopes)
+				setRequestedScopes(saved.requestedScopes as string);
+			if (!result && saved.result) setResult(saved.result as unknown as typeof result);
+			if (!error && saved.error) setError(saved.error as unknown as typeof error);
+			if (!mayAct && saved.mayAct) setMayAct(saved.mayAct as unknown as typeof mayAct);
 		});
 	}, [restoreState]);
 
@@ -155,6 +182,10 @@ const TokenExchangeFlow: React.FC = () => {
 	const configured = Boolean(creds.environmentId && creds.clientId && subjectToken);
 	const cur = engine.current.id;
 
+	// Break-it Lab reads back the actual outcome of the last run to compare against the
+	// scenario's predicted error.
+	const lastOutcome = error ? { error } : result ? { ok: true } : null;
+
 	return (
 		<FlowContainer
 			title="Token Exchange"
@@ -163,6 +194,14 @@ const TokenExchangeFlow: React.FC = () => {
 			subtitle="Delegation / on-behalf-of (RFC 8693). A subject token is exchanged for a narrowed token; with an actor token the subject's may_act rule is enforced and the issued token carries an act claim."
 			engine={engine}
 		>
+			<PathProgressBadge flowRoute="/v2/flows/token-exchange" />
+			<FlowSequenceDiagram
+				title="Live sequence — the current step is highlighted"
+				actors={tokenExchangeActors}
+				interactions={tokenExchangeInteractions}
+				activeStepId={cur}
+				completedStepIds={engine.completed}
+			/>
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure the exchange"
@@ -173,8 +212,12 @@ const TokenExchangeFlow: React.FC = () => {
 					canNext={configured}
 				>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>
+							Real PingOne
+						</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>
+							Mock
+						</Pill>
 					</Toggle>
 					<Toggle>
 						{(['client_secret_post', 'client_secret_basic'] as ClientAuthMethod[]).map((m) => (
@@ -188,12 +231,43 @@ const TokenExchangeFlow: React.FC = () => {
 						))}
 					</Toggle>
 					<Grid>
-						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} placeholder="uuid" />
-						<FieldGroup label="Region" value={creds.region} onChange={set('region')} placeholder="com | eu | ca | asia" />
-						<FieldGroup label="Client ID (requesting client)" value={creds.clientId} onChange={set('clientId')} placeholder="client id" />
-						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} placeholder="client secret" />
-						<FieldGroup label="Requested scopes (optional)" value={requestedScopes} onChange={(e) => setRequestedScopes(e.target.value)} placeholder="narrow the issued token" />
-						<FieldGroup label="Audience (optional, RFC 8707)" value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="target resource" />
+						<FieldGroup
+							label="Environment ID"
+							value={creds.environmentId}
+							onChange={set('environmentId')}
+							placeholder="uuid"
+						/>
+						<FieldGroup
+							label="Region"
+							value={creds.region}
+							onChange={set('region')}
+							placeholder="com | eu | ca | asia"
+						/>
+						<FieldGroup
+							label="Client ID (requesting client)"
+							value={creds.clientId}
+							onChange={set('clientId')}
+							placeholder="client id"
+						/>
+						<FieldGroup
+							label="Client Secret"
+							type="password"
+							value={creds.clientSecret ?? ''}
+							onChange={set('clientSecret')}
+							placeholder="client secret"
+						/>
+						<FieldGroup
+							label="Requested scopes (optional)"
+							value={requestedScopes}
+							onChange={(e) => setRequestedScopes(e.target.value)}
+							placeholder="narrow the issued token"
+						/>
+						<FieldGroup
+							label="Audience (optional, RFC 8707)"
+							value={audience}
+							onChange={(e) => setAudience(e.target.value)}
+							placeholder="target resource"
+						/>
 					</Grid>
 					<FieldGroup
 						multiline
@@ -210,11 +284,15 @@ const TokenExchangeFlow: React.FC = () => {
 						placeholder="paste the actor's access token to request delegation (drives the act claim)"
 					/>
 					<ExplanationPanel title="When to use Token Exchange">
-						Use it to swap one token for another without re-authenticating the user — narrowing scope/audience
-						for a downstream service, or delegating so a service (the actor) can act on a user's (the subject's)
-						behalf. Delegation is gated by the subject token's may_act claim, and the issued token records the
-						chain in its act claim.
+						Use it to swap one token for another without re-authenticating the user — narrowing
+						scope/audience for a downstream service, or delegating so a service (the actor) can act
+						on a user's (the subject's) behalf. Delegation is gated by the subject token's may_act
+						claim, and the issued token records the chain in its act claim.
 					</ExplanationPanel>
+					<SpecVsPingOneList
+						title="Spec vs PingOne — how Token Exchange differs on PingOne"
+						entries={tokenExchangeSpecVsPingOne}
+					/>
 				</FlowStep>
 			)}
 
@@ -229,7 +307,11 @@ const TokenExchangeFlow: React.FC = () => {
 				>
 					<Toggle>
 						<Action onClick={run} disabled={loading || !configured}>
-							{loading ? 'Exchanging…' : mode === 'real' ? 'Exchange real token' : 'Exchange mock token'}
+							{loading
+								? 'Exchanging…'
+								: mode === 'real'
+									? 'Exchange real token'
+									: 'Exchange mock token'}
 						</Action>
 						{actorToken && (
 							<SecondaryAction onClick={checkDelegation}>
@@ -237,9 +319,18 @@ const TokenExchangeFlow: React.FC = () => {
 							</SecondaryAction>
 						)}
 					</Toggle>
+					<BreakItLab
+						scenarios={tokenExchangeSabotageScenarios}
+						stage="exchange"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					{mayAct && (
 						<ResultCard
-							title={mayAct.valid ? 'Delegation approved (may_act)' : 'Delegation rejected (may_act)'}
+							title={
+								mayAct.valid ? 'Delegation approved (may_act)' : 'Delegation rejected (may_act)'
+							}
 							tone={mayAct.valid ? 'ok' : 'error'}
 						>
 							<JsonView data={mayAct as unknown as Record<string, unknown>} />
@@ -258,7 +349,9 @@ const TokenExchangeFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
-					<Action onClick={inspect} disabled={!result?.accessToken}>Introspect issued token</Action>
+					<Action onClick={inspect} disabled={!result?.accessToken}>
+						Introspect issued token
+					</Action>
 					{introspectData && (
 						<ResultCard title="Introspection (RFC 7662)" tone="info">
 							<JsonView data={introspectData} />

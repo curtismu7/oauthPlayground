@@ -7,13 +7,21 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import {
+	applyRedirectlessSabotage,
+	redirectlessSabotageScenarios,
+} from '../content/redirectlessSabotage';
+import { redirectlessActors, redirectlessInteractions } from '../content/redirectlessSequence';
+import { redirectlessSpecVsPingOne } from '../content/redirectlessSpecVsPingOne';
+import { BreakItLab } from '../framework/BreakItLab';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
+import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
 import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
 import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
 import { tokens } from '../framework/tokens';
 import type {
 	FlowCredentials,
@@ -22,11 +30,13 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { useFlowEngine } from '../framework/useFlowEngine';
 import { useFlowStorage } from '../framework/useFlowStorage';
+import { PathProgressBadge } from '../learning/PathProgressBadge';
 import {
-	redirectlessService,
 	type RedirectlessFlowState,
 	type RedirectlessPollStatus,
+	redirectlessService,
 } from '../services/redirectlessService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -135,6 +145,9 @@ const RedirectlessFlow: React.FC = () => {
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	// Break-it Lab: the sabotage scenario the learner has selected (null = run correctly).
+	// Applied to the flow submit params right before dispatch.
+	const [sabotageId, setSabotageId] = useState<string | null>(null);
 
 	const { saveState, restoreState } = useFlowStorage('flows2:redirectless');
 
@@ -189,9 +202,14 @@ const RedirectlessFlow: React.FC = () => {
 		setLoading(true);
 		setError(null);
 		try {
+			// Break-it Lab: apply the selected flow-stage sabotage (e.g. submit against a
+			// wrong/expired flowId) before dispatching. simulateOnly scenarios leave the
+			// flow object untouched, so the Break-it Lab shows the predicted error only.
+			const sab = applyRedirectlessSabotage(sabotageId, 'flow', { flowId: flowState.flowId });
+			const submitState = { ...flowState, flowId: sab.flowId };
 			const advanced = await redirectlessService.submitCredentials(
 				creds,
-				flowState,
+				submitState,
 				username,
 				password,
 				mode
@@ -256,7 +274,7 @@ const RedirectlessFlow: React.FC = () => {
 			// Only clear loading if we didn't enter the poll path (poll path clears it before tick).
 			if (!enteredPollPath.current) setLoading(false);
 		}
-	}, [flowState, creds, username, password, mode, engine, stopPolling]);
+	}, [flowState, creds, username, password, mode, engine, stopPolling, sabotageId]);
 
 	useEffect(() => {
 		restoreState().then((saved) => {
@@ -273,6 +291,9 @@ const RedirectlessFlow: React.FC = () => {
 
 	const configured = Boolean(creds.environmentId && creds.clientId);
 	const cur = engine.current.id;
+	// Break-it Lab reads back the actual outcome of the last run to compare against
+	// the scenario's predicted error.
+	const lastOutcome = error ? { error } : result ? { ok: true } : null;
 
 	return (
 		<FlowContainer
@@ -282,6 +303,14 @@ const RedirectlessFlow: React.FC = () => {
 			subtitle="Native / embedded authentication without a browser redirect. PingOne returns a JSON flow object (response_mode=pi.flow) that the SPA drives directly — no redirect to a hosted login page."
 			engine={engine}
 		>
+			<PathProgressBadge flowRoute="/v2/flows/redirectless" />
+			<FlowSequenceDiagram
+				title="Live sequence — the current step is highlighted"
+				actors={redirectlessActors}
+				interactions={redirectlessInteractions}
+				activeStepId={cur}
+				completedStepIds={engine.completed}
+			/>
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure client + user credentials"
@@ -292,8 +321,12 @@ const RedirectlessFlow: React.FC = () => {
 					canNext={configured}
 				>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>
+							Real PingOne
+						</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>
+							Mock
+						</Pill>
 					</Toggle>
 					<Grid>
 						<FieldGroup
@@ -342,13 +375,17 @@ const RedirectlessFlow: React.FC = () => {
 						/>
 					</Grid>
 					<ExplanationPanel title="When to use pi.flow / redirectless">
-						Redirectless authentication (response_mode=pi.flow) lets a first-party SPA or
-						mobile app drive the login ceremony without redirecting the user to a hosted login
-						page. PingOne returns a JSON flow object; the app advances it step-by-step through
-						the Flow API. The main security tradeoff is that credentials pass through the
-						application itself, so this grant is only appropriate for highly trusted first-party
-						clients — a third-party app should always use Authorization Code + redirect instead.
+						Redirectless authentication (response_mode=pi.flow) lets a first-party SPA or mobile app
+						drive the login ceremony without redirecting the user to a hosted login page. PingOne
+						returns a JSON flow object; the app advances it step-by-step through the Flow API. The
+						main security tradeoff is that credentials pass through the application itself, so this
+						grant is only appropriate for highly trusted first-party clients — a third-party app
+						should always use Authorization Code + redirect instead.
 					</ExplanationPanel>
+					<SpecVsPingOneList
+						title="Spec vs PingOne — how this flow differs on PingOne"
+						entries={redirectlessSpecVsPingOne}
+					/>
 				</FlowStep>
 			)}
 
@@ -377,7 +414,10 @@ const RedirectlessFlow: React.FC = () => {
 								</div>
 								<div>
 									<strong>Status:</strong>{' '}
-									<StatusBadge $tone="info" style={{ display: 'inline-block', padding: '0.15rem 0.5rem' }}>
+									<StatusBadge
+										$tone="info"
+										style={{ display: 'inline-block', padding: '0.15rem 0.5rem' }}
+									>
 										{flowState.status}
 									</StatusBadge>
 								</div>
@@ -403,6 +443,13 @@ const RedirectlessFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(result)}
 				>
+					<BreakItLab
+						scenarios={redirectlessSabotageScenarios}
+						stage="flow"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					{!polling ? (
 						<Action
 							onClick={authenticate}

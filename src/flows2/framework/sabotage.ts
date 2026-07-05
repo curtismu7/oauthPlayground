@@ -9,7 +9,14 @@
 // and never needs to know how any individual scenario mutates the params. Mutation logic
 // lives here, keyed by scenario id, so content and UI stay declarative.
 
-export type SabotageStage = 'authorize' | 'exchange';
+// A flow's request stage that a scenario can corrupt. Flow-agnostic: the Authorization
+// Code flow uses 'authorize' | 'exchange', but other flows define their own stages
+// (e.g. 'introspect', 'poll', 'token'), so this is an open string.
+export type SabotageStage = string;
+
+// Attack class a scenario illustrates. Open string so each flow can name its own
+// (the auth-code set is csrf | code-interception | token-forgery | replay | confused-deputy).
+export type SabotageSeverity = string;
 
 export interface SabotageScenario {
 	/** Stable id — also the key the mutation registry below looks up. */
@@ -25,7 +32,7 @@ export interface SabotageScenario {
 	/** One sentence: the security property this failure proves. */
 	defends: string;
 	/** Attack class this scenario illustrates. */
-	severity: 'csrf' | 'code-interception' | 'token-forgery' | 'replay' | 'confused-deputy';
+	severity: SabotageSeverity;
 	/**
 	 * True when the failure can't be reproduced by a single live request (e.g. code
 	 * replay needs a prior successful exchange). The flow shows `expectedError`
