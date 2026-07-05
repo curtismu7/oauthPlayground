@@ -202,7 +202,7 @@ class FlowErrorServiceClass {
 	 * Get a full-page error display component
 	 */
 	getFullPageError(config: FlowErrorConfig): React.ReactElement<FlowErrorDisplayProps> {
-		const _category = this.categorizeError(config);
+		void (this.categorizeError(config));
 		const correlationId = config.correlationId || this.generateCorrelationId();
 
 		// Extract error details if error object provided

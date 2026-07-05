@@ -85,8 +85,8 @@ const ErrorDetails = styled.pre`
 
 const HybridCallback: React.FC = () => {
 	const navigate = useNavigate();
-	const _location = useLocation();
-	const { handleCallback } = useAuth();
+	void (useLocation());
+	void (useAuth());
 	const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
 	const [message, setMessage] = useState('Processing hybrid flow callback...');
 	const [error, setError] = useState<string | null>(null);

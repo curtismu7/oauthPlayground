@@ -11,7 +11,6 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
 
-const _MODULE_TAG = '[ EMAIL-CONTROLLER]';
 
 /**
  * Validate email format

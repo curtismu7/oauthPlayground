@@ -41,13 +41,9 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 	isLoadingPolicies,
 	policiesError,
 	refreshDeviceAuthPolicies,
-	_showWorkerTokenModal,
 	setShowWorkerTokenModal,
 	showUserLoginModal,
 	setShowUserLoginModal,
-	_showSettingsModal,
-	_setShowSettingsModal,
-	_deviceType,
 	deviceTypeLabel,
 	policyDescription,
 	registrationFlowType,
@@ -627,15 +623,6 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		}
 	}, [userToken, userTokenStatus, validateUserToken]); // Only run on mount
 
-	const _handleUserTokenChange = (value: string) => {
-		setUserToken(value);
-		const status = validateUserToken(value);
-		setUserTokenStatus(status);
-
-		if (status === 'invalid' && value.trim()) {
-			// Don't show error immediately, let user finish typing
-		}
-	};
 
 	// Get worker token status display
 	const getWorkerTokenStatusDisplay = () => {
@@ -699,7 +686,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		};
 	};
 
-	const _workerTokenStatusDisplay = getWorkerTokenStatusDisplay();
+	void (getWorkerTokenStatusDisplay());
 	const userTokenStatusDisplay = getUserTokenStatusDisplay();
 	const isTokenValid = tokenType === 'worker' ? tokenStatus.isValid : userTokenStatus === 'active';
 
@@ -853,7 +840,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										// #region agent log
 										// #endregion
 										window.dispatchEvent(new Event('workerTokenUpdated'));
-										const _newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										void (WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
 										// #region agent log
 										// #endregion
 										modernMessaging.showFooterMessage({
@@ -1187,7 +1174,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										// #region agent log
 										// #endregion
 										window.dispatchEvent(new Event('workerTokenUpdated'));
-										const _newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										void (WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
 										// #region agent log
 										// #endregion
 										modernMessaging.showFooterMessage({

@@ -321,9 +321,6 @@ interface VizioTVDeviceFlowProps {
 
 const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 	state,
-	onStateUpdate,
-	onComplete,
-	onError,
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);

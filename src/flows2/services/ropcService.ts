@@ -43,7 +43,7 @@ export const ropcService = {
 		username: string,
 		password: string,
 		mode: FlowMode,
-		options?: { tokenLifetimes?: TokenLifetimes; authMethod?: ClientAuthMethod }
+		_options?: { tokenLifetimes?: TokenLifetimes; authMethod?: ClientAuthMethod }
 	): Promise<TokenResult> {
 		if (mode === 'mock') {
 			const now = Math.floor(Date.now() / 1000);

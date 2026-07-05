@@ -238,7 +238,6 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 
 	// DO NOT load from credentialManager - this causes credential bleeding between flows
 	// Each flow should maintain its own credentials in flow-specific storage
-	const _loaded: Record<string, unknown> = {}; // Empty object to prevent loading shared credentials
 
 	const defaultScopes = variant === 'oidc' ? DEFAULT_OIDC_SCOPES : DEFAULT_OAUTH_SCOPES;
 	const mergedScopes = ensureRequiredScopes(urlScope || defaultScopes, variant);

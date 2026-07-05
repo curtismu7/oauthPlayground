@@ -28,7 +28,6 @@ Object.defineProperty(window, 'sessionStorage', {
 });
 
 // Mock console methods to avoid noise in tests
-const _originalConsole = console;
 beforeEach(() => {
 	console.log = vi.fn();
 	console.error = vi.fn();

@@ -398,7 +398,6 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
 
 export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
 	steps,
-	currentStep,
 	onStepClick,
 }) => {
 	const { announceToScreenReader } = useAccessibility();

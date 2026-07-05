@@ -4,7 +4,7 @@
 // Signature: animated OAuth 2.0 flow diagram showing client → authz endpoint → user → token endpoint.
 // Color: deep indigo + teal accent. Typography: IBM Plex Mono for headers.
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
@@ -13,9 +13,7 @@ import { useFlowEngine } from '../framework/useFlowEngine';
 import { FieldGroup } from '../framework/FieldGroup';
 import { CodeBlock, JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { tokens } from '../framework/tokens';
-import { clearStash, loadStash, saveStash } from '../framework/authzStash';
+import { loadStash, saveStash } from '../framework/authzStash';
 import type {
 	FlowCredentials,
 	FlowError,
@@ -26,7 +24,6 @@ import type {
 } from '../framework/types';
 import { authorizationCodeService, MOCK_REGISTERED_SECRET } from '../services/authorizationCodeService';
 
-const env = import.meta.env as Record<string, string | undefined>;
 
 // Design tokens — new color system (deep indigo + teal accent)
 const DESIGN = {
@@ -175,7 +172,7 @@ const AuthorizationCodeFlowRedesign: React.FC = () => {
 	const [oidc, setOidc] = useState(false);
 
 	const [creds, setCreds] = useState<FlowCredentials>(loadStash() || MOCK_CREDS);
-	const [pkceEnabled, setPkceEnabled] = useState(true);
+	const [pkceEnabled] = useState(true);
 	const [verifier, setVerifier] = useState('');
 	const [challenge, setChallenge] = useState('');
 	const [authzResult, setAuthzResult] = useState<{ url: string; code?: string } | null>(null);

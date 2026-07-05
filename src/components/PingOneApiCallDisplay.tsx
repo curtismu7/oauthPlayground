@@ -140,14 +140,14 @@ const EducationalNote = styled.div`
 	color: #92400e;
 `;
 
-const _ParameterHighlight = styled.span`
+void (styled.span`
 	background: #dbeafe;
 	color: #1e40af;
 	padding: 0.125rem 0.25rem;
 	border-radius: 4px;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
-`;
+`);
 
 const StatusBadge = styled.span<{ $status: number }>`
 	background: ${({ $status }) => {

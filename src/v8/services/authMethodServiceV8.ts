@@ -1,19 +1,3 @@
-/**
- * @file authMethodServiceV8.ts
- * @module v8/services
- * @description Token Endpoint Authentication Method Service for V8
- * @version 8.0.0
- * @since 2024-11-16
- *
- * Provides configuration and utilities for OAuth 2.0 client authentication methods:
- * - client_secret_basic (HTTP Basic Auth)
- * - client_secret_post (POST body)
- * - client_secret_jwt (JWT with client secret)
- * - private_key_jwt (JWT with private key)
- * - none (Public clients)
- */
-
-const _MODULE_TAG = '[ AUTH-METHOD-SERVICE-V8]';
 
 export type AuthMethodV8 =
 	| 'none'

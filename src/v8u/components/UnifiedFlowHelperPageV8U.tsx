@@ -20,7 +20,6 @@ import {
 	PageHeaderV8,
 } from '@/v8/components/shared/PageHeaderV8';
 
-const _MODULE_TAG = '[ UNIFIED-FLOW-HELPER-V8U]';
 
 const PageContainer = styled.div`
 	max-width: 1400px;

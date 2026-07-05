@@ -115,7 +115,7 @@ describe('CSRFProtection', () => {
 		});
 
 		it('should update meta tag when enabled', () => {
-			const _token = protection.generateToken();
+			void (protection.generateToken());
 			// Meta tag should be created and updated
 			expect(document.head.appendChild).toHaveBeenCalled();
 		});
@@ -248,7 +248,7 @@ describe('CSRFProtection', () => {
 	describe('token lifecycle', () => {
 		it('should clean up expired tokens', () => {
 			const token1 = protection.generateToken();
-			const _token2 = protection.generateToken();
+			void (protection.generateToken());
 
 			// Manually expire first token
 			const tokenData1 = (protection as any).tokens.get(token1);

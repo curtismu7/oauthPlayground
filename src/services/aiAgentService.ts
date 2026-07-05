@@ -951,7 +951,7 @@ class AIAgentService {
 		query: string,
 		options: SearchOptions = {}
 	): { answer: string; relatedLinks: SearchResult[] } {
-		const _normalizedQuery = query.toLowerCase();
+		void (query.toLowerCase());
 
 		// Common question patterns
 		const patterns = [

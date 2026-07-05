@@ -444,9 +444,6 @@ const AuthzCallback: React.FC = () => {
 								const isV7_2 =
 									context?.flow === 'oauth-authorization-code-v7-2' ||
 									context?.flow === 'oidc-authorization-code-v7-2';
-								const _isOIDCFlow =
-									context?.flow === 'oidc-authorization-code-v7' ||
-									context?.flow === 'oidc-authorization-code-v7-2';
 								const errorPath = isV7_2
 									? `/flows/oauth-authorization-code-v7-2?error=${encodeURIComponent(error)}`
 									: `/flows/oauth-authorization-code-v7?error=${encodeURIComponent(error)}`;

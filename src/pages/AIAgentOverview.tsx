@@ -18,11 +18,11 @@ const PingUIWrapper = styled.div`
   }
 `;
 
-const _Container = styled.div`
+void (styled.div`
   max-width: 1400px;
   margin: 0 auto;
   padding: var(--ping-spacing-lg, 1.5rem);
-`;
+`);
 
 const FeatureGrid = styled.div`
   display: grid;
@@ -356,9 +356,9 @@ const ComparisonTable = styled.table`
 `;
 
 // Collapsible Section Components
-const _CollapsibleSection = styled.div`
+void (styled.div`
 	margin-bottom: 2rem;
-`;
+`);
 
 const CollapsibleHeader = styled.button`
 	width: 100%;

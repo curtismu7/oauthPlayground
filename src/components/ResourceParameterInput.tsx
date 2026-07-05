@@ -238,12 +238,12 @@ const InfoIcon = styled.div<{ $variant?: 'info' | 'warning' }>`
 	color: ${(props) => (props.$variant === 'warning' ? '#f59e0b' : '#3b82f6')};
 `;
 
-const _EmptyState = styled.div`
+void (styled.div`
 	text-align: center;
 	padding: 2rem 1rem;
 	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-style: italic;
-`;
+`);
 
 const EducationalHeader = styled.div`
 	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
@@ -342,7 +342,6 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 	value,
 	onChange,
 	disabled = false,
-	flowType = 'oauth',
 	issuer,
 	environmentId,
 }) => {

@@ -103,12 +103,6 @@ const validateNickname: ValidationFunction = (value: string): ValidationResult =
 	return { valid: true };
 };
 
-/**
- * No-op validator for fields that don't need validation
- */
-const _noValidation: ValidationFunction = (): ValidationResult => {
-	return { valid: true };
-};
 
 // ============================================================================
 // DEVICE FLOW CONFIGURATIONS

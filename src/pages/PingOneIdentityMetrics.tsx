@@ -308,7 +308,7 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 	const resetDates = () => setDateRange(defaultDateRange());
 
 	// Clear the worker token (clears unified worker token)
-	const _handleClearWorkerToken = useCallback(() => {
+	void (useCallback(() => {
 		// Clear unified worker token
 		localStorage.removeItem('unified_worker_token');
 		modernMessaging.showFooterMessage({
@@ -318,7 +318,7 @@ const PingOneIdentityMetrics: React.FC<PingOneIdentityMetricsProps> = ({ embedde
 		});
 		// Trigger page reload to reset state
 		window.location.reload();
-	}, []);
+	}, []));
 
 	// Execute the actual API call (called after user confirms in modal)
 	const executeApiCall = useCallback(async () => {

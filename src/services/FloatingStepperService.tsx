@@ -331,14 +331,14 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 		}
 	}, [isDragging, handleMouseMove, handleMouseUp]);
 
-	const _handleStepClick = useCallback(
+	void (useCallback(
 		(stepIndex: number) => {
 			if (onStepChange) {
 				onStepChange(stepIndex);
 			}
 		},
 		[onStepChange]
-	);
+	));
 
 	const handlePrevious = useCallback(() => {
 		if (onPrevious && !isFirstStep) {

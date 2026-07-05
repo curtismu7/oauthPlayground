@@ -24,12 +24,6 @@ export interface UseLazyLoadingConfig {
 }
 
 // Default configuration
-const _defaultConfig: Partial<UseLazyLoadingConfig> = {
-	preload: false,
-	retryOnError: true,
-	maxRetries: 3,
-	retryDelay: 1000,
-};
 
 // useLazyLoading hook
 export const useLazyLoading = (config: UseLazyLoadingConfig) => {
@@ -165,7 +159,7 @@ export const useLazyLoading = (config: UseLazyLoadingConfig) => {
 
 	// Initialize loading
 	useEffect(() => {
-		const { preload: shouldPreload, retryOnError } = config;
+		const { preload: shouldPreload } = config;
 
 		if (shouldPreload) {
 			preload();

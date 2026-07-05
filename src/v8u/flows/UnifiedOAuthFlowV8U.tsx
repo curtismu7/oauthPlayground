@@ -73,7 +73,6 @@ import {
 	UnifiedOAuthCredentialsServiceV8U,
 } from '../services/unifiedOAuthCredentialsServiceV8U';
 
-const _MODULE_TAG = '[ UNIFIED-OAUTH-FLOW-V8U]';
 
 /**
  * Safe analytics helper - prevents connection errors when analytics server is unavailable

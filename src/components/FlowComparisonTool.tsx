@@ -483,7 +483,7 @@ const availableFlows: FlowComparison[] = [
 	},
 ];
 
-const _log = createModuleLogger('src/components/FlowComparisonTool.tsx');
+void (createModuleLogger('src/components/FlowComparisonTool.tsx'));
 
 const FlowComparisonTool: React.FC = () => {
 	const [selectedFlows, setSelectedFlows] = useState<string[]>([]);

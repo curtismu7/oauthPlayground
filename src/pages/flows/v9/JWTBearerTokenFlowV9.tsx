@@ -34,16 +34,6 @@ const copyToClipboard = async (text: string): Promise<void> => {
 	}
 };
 
-/**
- * Utility function to mask tokens for security
- * Shows first 8 characters, masks middle, shows last 4 characters
- */
-const _maskToken = (token: string): string => {
-	if (!token || token.length <= 12) {
-		return '••••••••';
-	}
-	return `${token.slice(0, 8)}...${token.slice(-4)}`;
-};
 
 /** Build a real-looking JWT (header.payload.signature) for mock token response so decode works. */
 function buildMockAccessTokenJWT(claims: {

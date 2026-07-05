@@ -29,7 +29,7 @@ const ContentWrapper = styled.div`
 	padding: 2rem;
 `;
 
-const Header = styled.div`
+void (styled.div`
 	text-align: center;
 	margin-bottom: 3rem;
 
@@ -51,7 +51,7 @@ const Header = styled.div`
 		margin: 0 auto;
 		line-height: 1.6;
 	}
-`;
+`);
 
 const ArchitectureGrid = styled.div`
 	display: grid;

@@ -211,7 +211,7 @@ class V9MockApiLogger {
 		flowType?: string;
 		step?: string;
 	}): void {
-		const { method, url, endpoint, responseStatus, responseData, duration, flowType, step } =
+		const { responseStatus, responseData, duration, flowType, step } =
 			options;
 
 		const mockLogEntries = [
@@ -274,7 +274,7 @@ class V9MockApiLogger {
 		flowType?: string;
 		step?: string;
 	}): void {
-		const { method, url, endpoint, responseStatus, responseError, duration, flowType, step } =
+		const { responseStatus, responseError, duration, flowType, step } =
 			options;
 
 		const mockLogEntries = [

@@ -411,9 +411,6 @@ interface SmartPrinterDeviceFlowProps {
 
 const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
 	state,
-	onStateUpdate,
-	onComplete,
-	onError,
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);

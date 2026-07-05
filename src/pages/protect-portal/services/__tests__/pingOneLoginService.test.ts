@@ -47,25 +47,7 @@ function mockAuthorizeFailure() {
 	});
 }
 
-function _mockCheckCredentialsSuccess() {
-	mockFetch.mockResolvedValueOnce({
-		ok: true,
-		status: 200,
-		json: () => Promise.resolve({}),
-	});
-}
 
-function _mockCheckCredentialsFailure() {
-	mockFetch.mockResolvedValueOnce({
-		ok: false,
-		status: 401,
-		json: () =>
-			Promise.resolve({
-				error: 'credentials_rejected',
-				error_description: 'Invalid username or password',
-			}),
-	});
-}
 
 function mockResumeSuccessFlat() {
 	// Tokens at top level (server already flattened them)

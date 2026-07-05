@@ -657,9 +657,9 @@ const MFAFlowsApiTest: React.FC = () => {
 			});
 
 			const duration = Date.now() - startTime;
-			const _responseData = await response
+			void (await response
 				.json()
-				.catch(() => ({ error: 'Response parsing failed' }));
+				.catch(() => ({ error: 'Response parsing failed' })));
 
 			// Simulate "activation required" success response
 			const mockResponse = {

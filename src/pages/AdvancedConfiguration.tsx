@@ -12,13 +12,13 @@ import { credentialManager } from '../utils/credentialManager';
 
 import { logger } from '../utils/logger';
 
-const _Container = styled.div`
+void (styled.div`
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 1.5rem;
-`;
+`);
 
-const _Header = styled.div`
+void (styled.div`
 	text-align: center;
 	margin-bottom: 3rem;
 
@@ -40,7 +40,7 @@ const _Header = styled.div`
 		margin: 0 auto;
 		line-height: 1.6;
 	}
-`;
+`);
 
 const ConfigGrid = styled.div`
 	display: grid;
@@ -287,7 +287,7 @@ const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' }>`
 	}}
 `;
 
-const _CredentialStatus = styled.div<{ $status: 'complete' | 'partial' | 'missing' }>`
+void (styled.div<{ $status: 'complete' | 'partial' | 'missing' }>`
 	padding: 1rem;
 	border-radius: 0.5rem;
 	margin: 1rem 0;
@@ -315,7 +315,7 @@ const _CredentialStatus = styled.div<{ $status: 'complete' | 'partial' | 'missin
         `;
 		}
 	}}
-`;
+`);
 
 // Standard OpenID Connect claims - defined outside component to avoid re-creating on every render
 const STANDARD_CLAIMS = [
@@ -561,7 +561,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 		...customScopes.filter((scope) => scope.trim() !== ''),
 	];
 
-	const _allClaims = [...STANDARD_CLAIMS, ...customClaims.filter((claim) => claim.trim() !== '')];
+	void ([...STANDARD_CLAIMS, ...customClaims.filter((claim) => claim.trim() !== '')]);
 
 	// Update environment ID when worker token is updated
 	useEffect(() => {
@@ -583,9 +583,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 	}, [environmentId]);
 
 	// Check current credentials status
-	const currentCredentials = credentialManager.loadAuthzFlowCredentials();
-	const hasCredentials = currentCredentials.environmentId && currentCredentials.clientId;
-	const _credentialStatus = hasCredentials ? 'complete' : 'missing';
+	credentialManager.loadAuthzFlowCredentials();
 
 	return (
 		<PageContainer>

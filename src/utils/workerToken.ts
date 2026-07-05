@@ -258,7 +258,6 @@ export function shouldRefreshToken(
 ): boolean {
 	const now = Date.now();
 	const issuedTime = issuedAt;
-	const _expiryTime = issuedTime + token.expires_in * 1000;
 	const refreshThreshold = issuedTime + token.expires_in * 1000 * ttlPercent;
 
 	return now >= refreshThreshold;

@@ -216,12 +216,12 @@ const StatLabel = styled.div`
   margin-top: 0.25rem;
 `;
 
-const _EmptyState = styled.div`
+void (styled.div`
   text-align: center;
   padding: 2rem;
   color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
-`;
+`);
 
 export const RARValidationDisplay: React.FC<RARValidationDisplayProps> = ({
 	authorizationDetails,

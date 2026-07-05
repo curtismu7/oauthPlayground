@@ -77,14 +77,14 @@ const StatusMessage = styled.p`
 	margin-bottom: 1rem;
 `;
 
-const _WarningMessage = styled.div`
+void (styled.div`
 	background: V9_COLORS.BG.WARNING;
 	border: 1px solid V9_COLORS.PRIMARY.YELLOW;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-top: 1rem;
 	text-align: left;
-`;
+`);
 
 const ErrorDetails = styled.pre`
 	background: #f3f4f6;

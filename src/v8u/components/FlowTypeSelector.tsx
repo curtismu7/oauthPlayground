@@ -14,7 +14,6 @@ import {
 } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
-const _MODULE_TAG = '[ FLOW-TYPE-SELECTOR-V8U]';
 
 export interface FlowTypeSelectorProps {
 	specVersion: SpecVersion;

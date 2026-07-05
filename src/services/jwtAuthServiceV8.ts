@@ -44,9 +44,7 @@ class JWTAuthServiceV8 {
 				};
 			}
 
-			const _issuer = config.issuer || config.clientId;
 			const subject = config.subject || config.clientId;
-			const _expiryMinutes = config.expiryMinutes || 5;
 
 			// Use the existing createClientAssertion utility which uses jose library
 			const jwt = await createClientAssertion(
@@ -86,7 +84,6 @@ class JWTAuthServiceV8 {
 				};
 			}
 
-			const _issuer = config.issuer || config.clientId;
 			const subject = config.subject || config.clientId;
 
 			// Use the existing createClientAssertion utility which uses jose library

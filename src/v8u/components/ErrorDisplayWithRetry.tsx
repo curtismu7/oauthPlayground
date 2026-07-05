@@ -16,7 +16,6 @@ import React, { useState } from 'react';
 import { OAuthErrorCodesServiceV8 } from '@/v8/services/oauthErrorCodesServiceV8';
 import { FiAlertCircle } from '../../icons';
 
-const _MODULE_TAG = '[❌ ERROR-DISPLAY-V8U]';
 
 /**
  * Formats error message with proper paragraphs, bullet points, and highlighted URIs
@@ -200,8 +199,6 @@ export interface ErrorDisplayWithRetryProps {
 
 export const ErrorDisplayWithRetry: React.FC<ErrorDisplayWithRetryProps> = ({
 	error,
-	onRetry,
-	isLoading = false,
 	className = '',
 }) => {
 	const [showDetails, setShowDetails] = useState(false);
@@ -211,8 +208,7 @@ export const ErrorDisplayWithRetry: React.FC<ErrorDisplayWithRetryProps> = ({
 	const errorInfo = errorCode ? OAuthErrorCodesServiceV8.getErrorInfo(errorCode) : null;
 
 	// Determine if this is a retryable error
-	const _isRetryable =
-		errorCode && ['server_error', 'temporarily_unavailable', 'slow_down'].includes(errorCode);
+	void (errorCode && ['server_error', 'temporarily_unavailable', 'slow_down'].includes(errorCode));
 
 	return (
 		<div

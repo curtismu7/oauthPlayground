@@ -204,8 +204,6 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 	isOpen,
 	onClose,
 	onPasswordChange,
-	_userId,
-	_environmentId,
 	message,
 }) => {
 	const [oldPassword, setOldPassword] = useState('');

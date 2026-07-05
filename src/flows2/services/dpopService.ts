@@ -51,12 +51,6 @@ function b64url(data: string | ArrayBuffer): string {
 	return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
-/** base64url-decode a string to its original text. */
-function b64urlDecode(s: string): string {
-	const padded = s.replace(/-/g, '+').replace(/_/g, '/');
-	const pad = padded.length % 4;
-	return atob(pad ? padded + '='.repeat(4 - pad) : padded);
-}
 
 /** Compute RFC 7638 JWK thumbprint: SHA-256 of canonical key members, base64url-encoded. */
 async function jwkThumbprint(publicJwk: JsonWebKey): Promise<string> {

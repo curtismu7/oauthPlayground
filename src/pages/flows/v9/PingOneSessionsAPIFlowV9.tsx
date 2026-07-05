@@ -321,9 +321,9 @@ const CredentialsTypeIndicator = styled.div<{ type: 'worker' | 'authz' | 'manual
 	}};
 `;
 
-const _EnvironmentSessionsContainer = styled.div`
+void (styled.div`
 	margin-top: 2rem;
-`;
+`);
 
 const SessionsTable = styled.div`
 	background: white;

@@ -180,8 +180,7 @@ export const LazyLoadingFallback: React.FC<LazyLoadingFallbackProps> = ({
 	};
 
 	const steps = getLoadingSteps();
-	const _completedSteps = steps.filter((step) => step.completed).length;
-	const _totalSteps = steps.length;
+	void (steps.filter((step) => step.completed).length);
 
 	return (
 		<LoadingContainer>

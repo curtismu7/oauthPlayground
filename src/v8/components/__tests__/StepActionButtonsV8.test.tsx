@@ -223,7 +223,7 @@ describe('StepActionButtonsV8', () => {
 
 	describe('Keyboard Navigation', () => {
 		it('should go to previous step with arrow left', async () => {
-			const _user = userEvent.setup();
+			void (userEvent.setup());
 
 			const { container } = render(
 				<StepActionButtonsV8
@@ -242,7 +242,7 @@ describe('StepActionButtonsV8', () => {
 		});
 
 		it('should go to next step with arrow right', async () => {
-			const _user = userEvent.setup();
+			void (userEvent.setup());
 
 			const { container } = render(
 				<StepActionButtonsV8

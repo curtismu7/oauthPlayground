@@ -65,7 +65,7 @@ export const useAccessibility = (config: UseAccessibilityConfig = {}): UseAccess
 
 	const focusManager = getFocusManager();
 	const announcer = getAnnouncer();
-	const _contrastChecker = getContrastChecker();
+	void (getContrastChecker());
 
 	// Generate ARIA props
 	const ariaProps = {

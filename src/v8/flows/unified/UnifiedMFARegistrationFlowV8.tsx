@@ -152,7 +152,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	onSelectDeviceType,
 	userToken,
 }) => {
-	const _navigate = useNavigate();
+	void (useNavigate());
 	const [flowMode, setFlowMode] = useState<FlowMode | null>(null);
 	const [environmentId, setEnvironmentId] = useState('');
 	const [username, setUsername] = useState('');
@@ -168,7 +168,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 
 	// Use unified global worker token hook for token management
 	const globalTokenStatus = useGlobalWorkerToken();
-	const _workerToken = globalTokenStatus.token || '';
 
 	const _tokenStatus = globalTokenStatus;
 
@@ -1658,7 +1657,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	);
 
 	// State for environment ID and username from device selection
-	const [selectedEnvironmentId, setSelectedEnvironmentId] = useState<string>('');
+	const [, setSelectedEnvironmentId] = useState<string>('');
 	const [selectedUsername, setSelectedUsername] = useState<string>('');
 
 	// Handler for device type selection that captures environment ID and username
@@ -1824,9 +1823,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	} | null>(null);
 
 	// Get environment ID for UserLoginModal
-	const envIdForModal = useMemo(() => {
+	void (useMemo(() => {
 		return globalEnvironmentService.getEnvironmentId() || '';
-	}, []);
+	}, []));
 
 	// Detect OAuth callback and re-open modal if needed
 	useEffect(() => {
@@ -1850,7 +1849,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 	// Use unified global worker token hook for token management
 	const globalTokenStatus = useGlobalWorkerToken();
-	const _workerToken = globalTokenStatus.token || '';
 
 	// Extract token status for backward compatibility
 	const _tokenStatus = globalTokenStatus;

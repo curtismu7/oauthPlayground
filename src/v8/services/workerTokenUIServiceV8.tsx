@@ -178,7 +178,6 @@ const SettingDescription = styled.span`
 
 export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	mode = 'detailed',
-	showRefresh = true,
 	showStatusDisplay = true,
 	statusSize = 'large',
 	className = '',
@@ -226,7 +225,6 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 
 	// Use centralized worker token configuration hook
 	const {
-		config,
 		silentApiRetrieval,
 		showTokenAtEnd,
 		updateSilentApiRetrieval,
@@ -425,7 +423,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	);
 
 	// Handle Get Apps Config button click
-	const _handleGetAppsConfig = useCallback(async () => {
+	void (useCallback(async () => {
 		let effectiveEnvironmentId = environmentId;
 
 		// If environment ID not provided, try to extract it from worker token
@@ -484,7 +482,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 		}
 
 		setShowAppDiscoveryModal(true);
-	}, [environmentId]);
+	}, [environmentId]));
 
 	// Handle app selection from discovery modal
 	const handleAppSelected = useCallback(

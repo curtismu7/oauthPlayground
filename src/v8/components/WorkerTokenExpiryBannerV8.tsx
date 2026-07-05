@@ -53,7 +53,6 @@ export const WorkerTokenExpiryBannerV8: React.FC<WorkerTokenExpiryBannerV8Props>
 	if (status.status === 'valid' || dismissed) return null;
 
 	const isExpired = status.status === 'expired' || status.status === 'missing';
-	const _isExpiringSoon = status.status === 'expiring-soon';
 
 	const colors = isExpired
 		? {

@@ -172,7 +172,7 @@ const CompactAppPickerDemo: React.FC = () => {
 	const [workerToken, setWorkerToken] = useState<string>(() => getAnyWorkerToken() || '');
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [selectedApp, setSelectedApp] = useState<any>(null);
-	const [environmentId, setEnvironmentId] = useState<string>(() => {
+	const [, setEnvironmentId] = useState<string>(() => {
 		const credsStr = localStorage.getItem('worker_credentials');
 		const creds = credsStr ? JSON.parse(credsStr) : null;
 		return creds?.environmentId || '';

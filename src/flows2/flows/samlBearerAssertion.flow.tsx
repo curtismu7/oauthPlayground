@@ -13,7 +13,6 @@ import { useFlowEngine } from '../framework/useFlowEngine';
 import { FieldGroup } from '../framework/FieldGroup';
 import { JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { tokens } from '../framework/tokens';
 import type { FlowError, FlowMode, StepDefinition, TokenResult } from '../framework/types';
 import { samlBearerService, type SAMLBearerAssertionData } from '../services/samlBearerService';
@@ -132,7 +131,6 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 	}, [restoreState, samlXml, samlB64, result, error, introspectData]);
 
 	const configured = Boolean(envId && clientId && samlData.issuer && samlData.subject);
-	const samlComplete = samlXml && samlB64;
 	const cur = engine.current.id;
 
 	const handleGenerateSAML = useCallback(async () => {

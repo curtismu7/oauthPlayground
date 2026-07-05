@@ -6,10 +6,6 @@ import { unifiedTokenStorage } from '../services/unifiedTokenStorageService';
 import { logger } from '../utils/logger';
 
 // Test configuration
-const _TEST_CONFIG = {
-	timeout: 5000,
-	retries: 3,
-};
 
 // Mock data for testing
 const mockToken = {
@@ -41,7 +37,6 @@ const mockPKCECodes = {
 };
 
 // Test utilities
-const _delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const cleanup = async () => {
 	try {
@@ -609,7 +604,7 @@ export class UnifiedStorageServiceTests {
 
 			// Test bulk query performance
 			const queryStart = Date.now();
-			const _allTokens = await unifiedTokenStorage.getTokens({});
+			void (await unifiedTokenStorage.getTokens({}));
 			const queryTime = Date.now() - queryStart;
 
 			// Test bulk delete performance

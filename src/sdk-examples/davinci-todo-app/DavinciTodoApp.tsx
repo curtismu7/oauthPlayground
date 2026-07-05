@@ -10,11 +10,11 @@ const Container = styled.div`
 	padding: 2rem;
 `;
 
-const _Header = styled.h1`
+void (styled.h1`
 	color: #333;
 	margin-bottom: 1rem;
 	font-size: 2.5rem;
-`;
+`);
 
 const Description = styled.p`
 	color: #666;

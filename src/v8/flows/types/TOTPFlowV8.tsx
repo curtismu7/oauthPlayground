@@ -477,7 +477,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	const navigate = useNavigate();
 	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
 	const credentialsUpdatedRef = React.useRef(false);
-	const _loadingManager = useMFALoadingStateManager();
+	void (useMFALoadingStateManager());
 
 	// Get configured OTP length - reload on config updates
 	const [otpLength, setOtpLength] = useState(() => {

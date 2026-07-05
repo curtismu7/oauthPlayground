@@ -436,7 +436,7 @@ const BrandLogo = styled.div`
 `;
 
 // Action Buttons
-const _ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | 'danger' }>`
+void (styled.button<{ $variant: 'primary' | 'secondary' | 'success' | 'danger' }>`
 	padding: 0.75rem 1.5rem;
 	border: none;
 	border-radius: 0.5rem;
@@ -478,7 +478,7 @@ const _ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'succe
         `;
 		}
 	}}
-`;
+`);
 
 interface GasPumpDeviceFlowProps {
 	state: DeviceFlowState;
@@ -489,9 +489,6 @@ interface GasPumpDeviceFlowProps {
 
 const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 	state,
-	_onStateUpdate,
-	_onComplete,
-	_onError,
 }) => {
 	const [selectedFuel, setSelectedFuel] = useState<
 		'regular' | 'special' | 'super' | 'diesel' | 'rec90'

@@ -20,12 +20,12 @@ const Container = styled.div`
 	box-shadow: 0 2px 16px rgba(31, 41, 55, 0.08);
 `;
 
-const Title = styled.h2`
+void (styled.h2`
 	font-size: 2rem;
 	font-weight: 700;
 	color: ${V9_COLORS.TEXT.GRAY_DARK};
 	margin-bottom: 24px;
-`;
+`);
 
 const TabBar = styled.div`
 	display: flex;

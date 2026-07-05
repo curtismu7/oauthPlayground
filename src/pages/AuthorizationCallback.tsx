@@ -98,7 +98,7 @@ const RedirectingMessage = styled.div`
   font-style: italic;
 `;
 
-const _log = createModuleLogger('src/pages/AuthorizationCallback.tsx');
+void (createModuleLogger('src/pages/AuthorizationCallback.tsx'));
 
 const AuthorizationCallback: React.FC = () => {
 	const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -222,7 +222,6 @@ const AuthorizationCallback: React.FC = () => {
 				logger.info('✅ [AuthCallback] Is popup window?', isPopup);
 
 				// Detect flow type from sessionStorage to know where to redirect
-				const _storageToCheck = isPopup ? window.opener.sessionStorage : sessionStorage;
 				const activeFlow =
 					storageToCheck.getItem('active_oauth_flow') || 'oidc-authorization-code-v6';
 				logger.info('✅ [AuthCallback] Active flow type:', activeFlow);

@@ -742,46 +742,6 @@ const PingOneWebhookViewer: React.FC = () => {
 	}, [environmentId, workerToken]);
 
 	// Validate worker token and provide helpful feedback
-	const _validateWorkerToken = async (token: string, envId: string) => {
-		try {
-			// Test basic environment access
-			const testResponse = await fetch(
-				`/api/pingone/subscriptions?environmentId=${envId}&workerToken=${token}&region=${selectedRegion}`,
-				{
-					method: 'GET',
-				}
-			);
-
-			if (testResponse.ok) {
-				return { valid: true, message: 'Token is valid' };
-			}
-
-			const errorText = await testResponse.text();
-			if (errorText.includes('<html>')) {
-				if (errorText.includes('Error. Page cannot be displayed')) {
-					return {
-						valid: false,
-						message:
-							'Token lacks webhook permissions or environment access. Please ensure your Worker App has p1:read:webhooks and p1:write:webhooks scopes.',
-					};
-				}
-				return {
-					valid: false,
-					message: 'Token authentication failed. The token may be expired or invalid.',
-				};
-			}
-
-			return {
-				valid: false,
-				message: `API returned ${testResponse.status}: ${testResponse.statusText}`,
-			};
-		} catch (error) {
-			return {
-				valid: false,
-				message: `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-			};
-		}
-	};
 
 	// Format conversion functions for different display formats
 	const formatAsSplunk = useCallback((event: WebhookEvent): string => {

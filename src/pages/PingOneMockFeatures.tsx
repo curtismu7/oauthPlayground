@@ -236,7 +236,7 @@ const FeatureCard = styled.div<{ $category: 'oauth' | 'oidc' | 'security' | 'adv
   }
 `;
 
-const _InfoBox = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
+void (styled.div<{ $type: 'info' | 'warning' | 'success' }>`
   background: ${(props) => {
 		switch (props.$type) {
 			case 'info':
@@ -322,7 +322,7 @@ const _InfoBox = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
       line-height: 1.5;
     }
   }
-`;
+`);
 
 const PingOneMockFeatures: React.FC = () => {
 	return (

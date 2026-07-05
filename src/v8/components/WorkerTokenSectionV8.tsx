@@ -227,7 +227,6 @@ const CheckboxLabel = styled.label`
 // ---------------------------------------------------------------------------
 
 export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
-	environmentId,
 	onTokenUpdated,
 	compact = false,
 	showSettings = true,

@@ -16,19 +16,19 @@ const GuidanceContainer = styled.div`
 	margin: 1rem 0;
 `;
 
-const _GuidanceHeader = styled.div`
+void (styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
 	margin-bottom: 1rem;
-`;
+`);
 
-const _GuidanceTitle = styled.h3`
+void (styled.h3`
 	color: #1e293b;
 	font-size: 1.125rem;
 	font-weight: 600;
 	margin: 0;
-`;
+`);
 
 const GuidanceSubtitle = styled.p`
 	color: #64748b;

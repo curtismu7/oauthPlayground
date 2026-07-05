@@ -689,7 +689,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 	} = flow;
 
 	// Load credentials from storage for use in modals/components outside of MFAFlowBaseV8
-	const [credentialsForModal] = useState<MFACredentials>(() => {
+	useState<MFACredentials>(() => {
 		const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
 			flowKey: 'mfa-flow-v8',
 			flowType: 'oidc',

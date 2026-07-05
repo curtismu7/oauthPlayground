@@ -101,7 +101,7 @@ export const redirectlessService = {
 	 * real: POST /api/pingone/redirectless/authorize
 	 * mock: returns a synthetic flow state with status USERNAME_PASSWORD_REQUIRED.
 	 */
-	async startAuthorize(creds: FlowCredentials, mode: FlowMode, tokenLifetimes?: TokenLifetimes, authMethod?: string): Promise<RedirectlessFlowState> {
+	async startAuthorize(creds: FlowCredentials, mode: FlowMode, _tokenLifetimes?: TokenLifetimes, _authMethod?: string): Promise<RedirectlessFlowState> {
 		if (mode === 'mock') {
 			const raw = {
 				id: 'mock-flow-id-a1b2c3d4',
@@ -176,8 +176,8 @@ export const redirectlessService = {
 		username: string,
 		password: string,
 		mode: FlowMode,
-		tokenLifetimes?: TokenLifetimes,
-		authMethod?: string
+		_tokenLifetimes?: TokenLifetimes,
+		_authMethod?: string
 	): Promise<RedirectlessFlowState> {
 		if (mode === 'mock') {
 			const fake = makeMockToken(creds);
@@ -250,11 +250,11 @@ export const redirectlessService = {
 	 * mock: always returns complete with the tokens already embedded in flowState.raw
 	 */
 	async poll(
-		creds: FlowCredentials,
+		_creds: FlowCredentials,
 		flowState: RedirectlessFlowState,
 		mode: FlowMode,
-		tokenLifetimes?: TokenLifetimes,
-		authMethod?: string
+		_tokenLifetimes?: TokenLifetimes,
+		_authMethod?: string
 	): Promise<RedirectlessPollResult> {
 		if (mode === 'mock') {
 			// After submitCredentials the mock flowState.raw already carries tokens.

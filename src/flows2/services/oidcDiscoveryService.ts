@@ -132,7 +132,7 @@ export const oidcDiscoveryService = {
 	 * real mode → GET /api/jwks?environment_id=<uuid> (jwksUri is threaded for narrative context)
 	 * mock mode → return a static RSA key
 	 */
-	async fetchJwks(credentials: FlowCredentials, mode: FlowMode, jwksUri?: string): Promise<JwksResult> {
+	async fetchJwks(credentials: FlowCredentials, mode: FlowMode, _jwksUri?: string): Promise<JwksResult> {
 		if (mode === 'mock') {
 			return MOCK_JWKS;
 		}

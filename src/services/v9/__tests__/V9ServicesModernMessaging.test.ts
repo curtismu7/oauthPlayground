@@ -37,7 +37,7 @@ describe('V9 Services Modern Messaging Integration', () => {
 			const { default: V9ModalPresentationService } = await import('../v9ModalPresentationService');
 
 			// Mock props
-			const _mockProps = {
+			void ({
 				isOpen: true,
 				onClose: vi.fn(),
 				title: 'Test Modal',
@@ -49,7 +49,7 @@ describe('V9 Services Modern Messaging Integration', () => {
 						variant: 'primary' as const,
 					},
 				],
-			};
+			});
 
 			// Render the component (this would trigger the action)
 			try {

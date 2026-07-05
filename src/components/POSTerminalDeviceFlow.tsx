@@ -357,9 +357,6 @@ interface POSTerminalDeviceFlowProps {
 
 const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 	state,
-	_onStateUpdate,
-	_onComplete,
-	_onError,
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);

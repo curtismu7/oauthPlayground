@@ -28,7 +28,7 @@ export function userInfoEndpointFor(environmentId: string, region: string): stri
 export const userInfoService = {
 	/** OIDC §5.3 — fetch live user claims from the authorization server. */
 	async run(
-		{ environmentId, region, accessToken }: UserInfoParams,
+		{ environmentId, accessToken }: UserInfoParams,
 		mode: FlowMode
 	): Promise<UserInfoResponse> {
 		if (mode === 'mock') {

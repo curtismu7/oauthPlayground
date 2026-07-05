@@ -287,9 +287,6 @@ interface IndustrialIoTControllerDeviceFlowProps {
 
 const IndustrialIoTControllerDeviceFlow: React.FC<IndustrialIoTControllerDeviceFlowProps> = ({
 	state,
-	_onStateUpdate,
-	_onComplete,
-	_onError,
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);

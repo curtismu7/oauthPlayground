@@ -17,7 +17,6 @@ interface CredentialsFormProps {
 export const CredentialsForm: React.FC<CredentialsFormProps> = ({
 	onSubmit,
 	initialValues,
-	showPhone = false,
 }) => {
 	const [formData, setFormData] = useState<P1MFAConfig>({
 		environmentId: initialValues?.environmentId || '',

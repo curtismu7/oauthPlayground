@@ -11,7 +11,6 @@ import { FiRefreshCw } from '../icons';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
 import {
-	getAllLicenses,
 	getOrganizationLicensingInfo,
 	type OrganizationInfo,
 	type OrganizationLicense,
@@ -215,9 +214,9 @@ const OrganizationLicensingV2: React.FC = () => {
 	usePageScroll({ pageName: 'Organization Licensing', force: true });
 
 	const [orgInfo, setOrgInfo] = useState<OrganizationInfo | null>(null);
-	const [allLicenses, setAllLicenses] = useState<OrganizationLicense[]>([]);
+	const [allLicenses] = useState<OrganizationLicense[]>([]);
 	const [isFetchingOrgInfo, setIsFetchingOrgInfo] = useState(false);
-	const [isFetchingAllLicenses, setIsFetchingAllLicenses] = useState(false);
+	const [isFetchingAllLicenses] = useState(false);
 	const isBusy = isFetchingOrgInfo || isFetchingAllLicenses;
 	const [error, setError] = useState<string | null>(null);
 	const [_storedTokens, setStoredTokens] = useState<{ access_token?: string } | null>(null);
@@ -466,34 +465,6 @@ const OrganizationLicensingV2: React.FC = () => {
 		}
 	};
 
-	const _fetchAllLicenses = async () => {
-		if (!globalTokenStatus.isValid || !globalTokenStatus.token) return;
-
-		setIsFetchingAllLicenses(true);
-		try {
-			const licenses = await getAllLicenses(
-				globalTokenStatus.token,
-				organizationId.trim() || undefined
-			);
-			setAllLicenses(licenses);
-			modernMessaging.showFooterMessage({
-				type: 'status',
-				message: `Successfully fetched ${licenses.length} licenses`,
-				duration: 4000,
-			});
-		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-			setError(errorMessage);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: `Failed to fetch licenses: ${errorMessage}`,
-				dismissible: true,
-			});
-		} finally {
-			setIsFetchingAllLicenses(false);
-		}
-	};
 
 	const renderStep = () => {
 		// Combined step: Get Worker Token + Get License Information

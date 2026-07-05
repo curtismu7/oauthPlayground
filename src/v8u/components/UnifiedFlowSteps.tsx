@@ -40,7 +40,7 @@ import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 
 // Create module-specific logger
-const _log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
+void (createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx'));
 
 import { ButtonSpinner } from '@/components/ui';
 import { getRedirectUriForUnifiedFlow } from '@/services/v9/V9UnifiedRedirectUriService';
@@ -11707,7 +11707,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								params.append('client_secret', credentials.clientSecret?.trim() || '');
 							}
 
-							const _requestBody = params.toString();
+							void (params.toString());
 							const hasAuthHeader = authMethod === 'client_secret_basic';
 
 							return (

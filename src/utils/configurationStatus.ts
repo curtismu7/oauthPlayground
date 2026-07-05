@@ -150,9 +150,8 @@ export const getSharedConfigurationStatusAsync = async (
 
 	if (hasSavedCredentials) {
 		// Get actual credentials to show details
-		const configCredentials = credentialManager.loadConfigCredentials();
-		const authzCredentials = credentialManager.loadAuthzFlowCredentials();
-		const _credentials = configCredentials?.environmentId ? configCredentials : authzCredentials;
+		credentialManager.loadConfigCredentials();
+		credentialManager.loadAuthzFlowCredentials();
 
 		return {
 			isConfigured: true,
@@ -207,9 +206,8 @@ export const getSharedConfigurationStatus = (flowType?: string): ConfigStatus =>
 
 	if (hasSavedCredentials) {
 		// Get actual credentials to show details
-		const configCredentials = credentialManager.loadConfigCredentials();
-		const authzCredentials = credentialManager.loadAuthzFlowCredentials();
-		const _credentials = configCredentials?.environmentId ? configCredentials : authzCredentials;
+		credentialManager.loadConfigCredentials();
+		credentialManager.loadAuthzFlowCredentials();
 
 		return {
 			isConfigured: true,

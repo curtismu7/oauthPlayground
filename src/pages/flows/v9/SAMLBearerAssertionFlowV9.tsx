@@ -22,7 +22,6 @@ import { credentialManager } from '../../../utils/credentialManager';
 import { logger } from '../../../utils/logger';
 import { V7MMockBanner } from '../../../v7/components/V7MMockBanner';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
@@ -299,13 +298,13 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		);
 	}, []);
 
-	const handleSamlAppSelected = useCallback(
+	void (useCallback(
 		(app: DiscoveredApp) => {
 			setClientId(app.id);
 			saveSamlCredentials(app.id, environmentId);
 		},
 		[environmentId, saveSamlCredentials]
-	);
+	));
 
 	// SAML Assertion
 	const [samlAssertion, setSamlAssertion] = useState<SAMLAssertion>(() => {

@@ -18,7 +18,6 @@ import { credentialManager } from '../utils/credentialManager';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { UserSearchDropdownV8 } from '../v8/components/UserSearchDropdownV8';
-import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
 interface PingOneConsentRecord {
 	id?: string;

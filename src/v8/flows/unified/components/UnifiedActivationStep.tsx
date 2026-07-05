@@ -58,7 +58,6 @@ export interface UnifiedActivationStepProps extends MFAFlowBaseRenderProps {
  */
 export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	credentials,
-	_setCredentials,
 	mfaState,
 	setMfaState,
 	tokenStatus,

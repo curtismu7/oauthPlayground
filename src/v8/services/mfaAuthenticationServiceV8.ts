@@ -1429,16 +1429,10 @@ export class MfaAuthenticationServiceV8 {
 				logger.info(`${MODULE_TAG} Using otp.check URL from _links:`, endpoint);
 			} else {
 				// Get userId - use provided userId or look up by username
-				let _userId: string;
 				if (params.userId) {
-					_userId = params.userId;
 				} else if (params.username) {
 					const { MFAServiceV8 } = await import('./mfaServiceV8');
-					const user = await MFAServiceV8.lookupUserByUsername(
-						params.environmentId,
-						params.username
-					);
-					_userId = user.id as string;
+					await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 				} else {
 					// No-username variant: Initialize device authentication without username/userId
 					// This requires a special request body structure
@@ -1446,7 +1440,6 @@ export class MfaAuthenticationServiceV8 {
 						`${MODULE_TAG} Using no-username variant for device authentication`,
 						'Logger info'
 					);
-					_userId = ''; // Will be omitted from request body
 				}
 
 				// Fallback to direct endpoint - use custom domain if provided

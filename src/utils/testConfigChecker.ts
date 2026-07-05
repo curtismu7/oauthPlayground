@@ -42,7 +42,7 @@ export function testConfigChecker() {
 		const normalizedApp = svc.normalize(mockPingOneApp);
 
 		// Test diff function
-		const _diffs = svc.diff(normalizedForm, normalizedApp);
+		void (svc.diff(normalizedForm, normalizedApp));
 	} catch (error) {
 		logger.error('❌ Config Checker test failed:', error);
 	}

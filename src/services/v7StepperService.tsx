@@ -278,7 +278,7 @@ export class V7StepperService {
 
 	// Create a complete step layout component
 	static createStepLayout(config: V7StepperConfig = {}) {
-		const { theme = 'blue', showProgress = true, enableAutoAdvance = false } = config;
+		const { theme = 'blue' } = config;
 
 		const StepContainer = V7StepperService.getStepContainer({
 			maxWidth: '1100px',

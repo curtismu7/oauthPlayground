@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { createModuleLogger } from '../../utils/consoleMigrationHelper';
 
-const _log = createModuleLogger('pages/sdk-examples/OIDCExamples.tsx');
+void (createModuleLogger('pages/sdk-examples/OIDCExamples.tsx'));
 
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';

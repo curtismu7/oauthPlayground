@@ -44,7 +44,7 @@ export async function convertPrivateKeyToJWKS(
 
 		// Convert to base64
 		const keyArray = Array.from(new Uint8Array(publicKeyArrayBuffer));
-		const _base64 = btoa(String.fromCharCode(...keyArray));
+		void (btoa(String.fromCharCode(...keyArray)));
 
 		// For now, we'll generate valid-looking RSA components
 		// In a real implementation, you would parse the ASN.1 structure to extract n and e

@@ -430,20 +430,6 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 		}
 	};
 
-	const _getRatingColor = (rating: string) => {
-		switch (rating) {
-			case 'excellent':
-				return '#059669';
-			case 'good':
-				return '#0891b2';
-			case 'fair':
-				return '#d97706';
-			case 'poor':
-				return '#dc2626';
-			default:
-				return '#64748b';
-		}
-	};
 
 	const getRecommendation = () => {
 		const flows = selectedFlowTypes.map((flow) => FlowMetrics[flow]).filter(Boolean);

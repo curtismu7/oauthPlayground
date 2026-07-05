@@ -11,7 +11,6 @@ import { type LogFile, LogFileService } from '../services/logFileService';
 import { logger } from '../utils/logger';
 
 // Maximum string length to avoid browser crashes (approximately 50MB)
-const _MAX_STRING_LENGTH = 50 * 1024 * 1024;
 
 interface _LogEntry {
 	timestamp: string;
@@ -506,23 +505,23 @@ const LineText = styled.span<{ $level: LogLevel; $standalone?: boolean }>`
 	}};
 `;
 
-const _APICallCard = styled.div<{ $success?: boolean }>`
+void (styled.div<{ $success?: boolean }>`
 	margin: 4px 0;
 	padding: 8px;
 	background: ${(props) => (props.$success ? '#10b98120' : '#ef444420')};
 	border-left: 3px solid ${(props) => (props.$success ? '#10b981' : '#ef4444')};
 	border-radius: 4px;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-`;
+`);
 
-const _APICallHeader = styled.div`
+void (styled.div`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 4px;
-`;
+`);
 
-const _APIMethod = styled.span<{ $method: string }>`
+void (styled.span<{ $method: string }>`
 	padding: 2px 6px;
 	border-radius: 3px;
 	font-size: 9px;
@@ -542,22 +541,22 @@ const _APIMethod = styled.span<{ $method: string }>`
 		}
 	}};
 	color: white;
-`;
+`);
 
-const _APIUrl = styled.div`
+void (styled.div`
 	font-size: 10px;
 	color: #94a3b8;
 	margin-bottom: 2px;
-`;
+`);
 
-const _APIDetails = styled.div`
+void (styled.div`
 	font-size: 9px;
 	color: #64748b;
 	display: flex;
 	gap: 12px;
-`;
+`);
 
-const _LearningTip = styled.div`
+void (styled.div`
 	padding: 8px 12px;
 	background: linear-gradient(135deg, #fef3c7, #fde68a);
 	border-left: 3px solid #f59e0b;
@@ -565,7 +564,7 @@ const _LearningTip = styled.div`
 	margin: 8px 0;
 	font-size: 11px;
 	color: #92400e;
-`;
+`);
 
 const StatusMessage = styled.div<{ $type: 'loading' | 'error' | 'empty' }>`
 	padding: 20px;
@@ -868,23 +867,6 @@ export const EnhancedFloatingLogViewer: React.FC<EnhancedFloatingLogViewerProps>
 	};
 
 	// Generate learning tips
-	const _generateLearningTip = (): string => {
-		if (!analysis) return '';
-
-		if (analysis.errorCalls > 0) {
-			return ` Debug Tip: You have ${analysis.errorCalls} failed API calls. Check the error messages above to understand what went wrong.`;
-		}
-
-		if (analysis.totalCalls > 0 && analysis.successRate < 100) {
-			return ` API Health: ${analysis.successRate.toFixed(1)}% success rate. Consider checking failed requests for patterns.`;
-		}
-
-		if (analysis.mostActiveEndpoint) {
-			return ` Most Active: ${analysis.mostActiveEndpoint}. This endpoint is being called frequently - monitor for performance.`;
-		}
-
-		return ' Pro Tip: Use the category filters to focus on specific types of log entries for better debugging.';
-	};
 
 	if (!isOpen) return null;
 

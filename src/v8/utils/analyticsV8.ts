@@ -18,7 +18,6 @@
 
 // Analytics completely disabled to prevent connection errors
 const ANALYTICS_ENDPOINT = null;
-const _REQUEST_TIMEOUT = 2000; // 2 seconds max wait
 
 // Global flag to disable analytics (useful for testing or production)
 let analyticsEnabled = false; // Disabled by default

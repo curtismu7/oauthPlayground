@@ -212,9 +212,9 @@ const ScopeExample = styled.code`
 	color: #dc2626;
 `;
 
-const _ScopeExampleValue = styled.span`
+void (styled.span`
 	color: #2563eb;
-`;
+`);
 
 export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 	WorkerTokenVsClientCredentialsEducationModalV8Props

@@ -635,7 +635,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			}
 
 			// Also save to legacy credential manager for backward compatibility
-			const _permanentSuccess = credentialManager.saveConfigCredentials({
+			void (credentialManager.saveConfigCredentials({
 				environmentId: formData.environmentId,
 				clientId: formData.clientId,
 				redirectUri: formData.redirectUri,
@@ -643,11 +643,11 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				authEndpoint: `${baseUrl}/${formData.environmentId}/as/authorize`,
 				tokenEndpoint: `${baseUrl}/${formData.environmentId}/as/token`,
 				userInfoEndpoint: `${baseUrl}/${formData.environmentId}/as/userinfo`,
-			});
+			}));
 
-			const _sessionSuccess = credentialManager.saveSessionCredentials({
+			void (credentialManager.saveSessionCredentials({
 				clientSecret: formData.clientSecret,
-			});
+			}));
 
 			// Dispatch events to notify other components that config has changed
 			window.dispatchEvent(new CustomEvent('pingone-config-changed'));

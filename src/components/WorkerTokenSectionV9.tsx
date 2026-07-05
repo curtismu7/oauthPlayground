@@ -22,7 +22,6 @@ import {
 	type V9TokenStatusInfo,
 } from '../services/v9/V9WorkerTokenStatusService';
 import { modernMessaging } from './v9/V9ModernMessagingComponents';
-import WorkerTokenModalV9 from './WorkerTokenModalV9';
 
 // ---------------------------------------------------------------------------
 // Styled components — V9 blue palette

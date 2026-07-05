@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import type { DeviceType } from '../flows/shared/MFATypes';
 import { getDeviceTypeDisplay } from '../flows/shared/mfaSuccessPageServiceV8';
 
-const _MODULE_TAG = '[DeviceCreationSuccessModalV8]';
 
 // V8 Styled Components
 const ModalOverlay = styled.div`

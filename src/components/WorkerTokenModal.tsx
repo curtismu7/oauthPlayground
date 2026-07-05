@@ -8,13 +8,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageService';
 import { logger } from '../utils/logger';
 import { trackedFetch } from '../utils/trackedFetch';
 import { DraggableModal } from './DraggableModal';
 import { RegionSelect } from './RegionSelect';
-import { modernMessaging } from './v9/V9ModernMessagingComponents';
 
 const ModalContent = styled.div`
 	padding: 2rem;

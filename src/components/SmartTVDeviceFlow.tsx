@@ -289,9 +289,6 @@ interface SmartTVDeviceFlowProps {
 
 const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
 	state,
-	onStateUpdate,
-	onComplete,
-	onError,
 }) => {
 	const handleCopyUserCode = () => {
 		navigator.clipboard.writeText(state.userCode);

@@ -219,7 +219,7 @@ const AdvancedOAuthParametersDemoFlow = lazy(
 // RedirectlessFlowV9_Real retired — /flows/redirectless-v9-real now redirects to /v2/flows/redirectless
 const SAMLServiceProviderFlowV9 = lazy(() => import('./pages/flows/v9/SAMLServiceProviderFlowV9'));
 // TokenRevocationFlow kept — imported by CombinedTokenPage and infinite-loop-prevention test
-const TokenRevocationFlow = lazy(() => import('./pages/flows/TokenRevocationFlow'));
+void (lazy(() => import('./pages/flows/TokenRevocationFlow')));
 // UserInfoFlow retired — /oidc/userinfo now redirects to /v2/flows/userinfo
 // UserInfoPostFlow retired — /flows/userinfo now redirects to /v2/flows/userinfo
 // V7RMOIDCResourceOwnerPasswordFlow removed — route redirects to /flows/oauth-ropc-v9
@@ -233,7 +233,7 @@ const MFAWorkflowLibraryFlowV9 = lazy(() => import('./pages/flows/v9/MFAWorkflow
 const PingOnePARFlowV9 = lazy(() => import('./pages/flows/v9/PingOnePARFlowV9'));
 const RARFlowV9 = lazy(() => import('./pages/flows/v9/RARFlowV9'));
 const ResourcesAPIFlowV9 = lazy(() => import('./pages/flows/v9/ResourcesAPIFlowV9'));
-const SAMLBearerAssertionFlowV9 = lazy(() => import('./pages/flows/v9/SAMLBearerAssertionFlowV9'));
+void (lazy(() => import('./pages/flows/v9/SAMLBearerAssertionFlowV9')));
 // TokenExchangeFlowV9 retired — /flows/token-exchange-v9 now redirects to /v2/flows/token-exchange
 // import InteractiveTutorials from './pages/InteractiveTutorials'; // Removed - unused tutorial feature
 const JWKSTroubleshooting = lazy(() => import('./pages/JWKSTroubleshooting'));
@@ -324,7 +324,7 @@ const UnifiedMFARegistrationFlowV8 = React.lazy(() =>
 
 // OAuth Authz V2 — new redesigned UI
 const OAuthAuthzV2 = lazy(() => import('./v8u/components/OAuthAuthzV2/OAuthAuthzV2'));
-const AuthCodeFlowV2 = lazy(() => import('./v8u/components/AuthCodeFlowV2/AuthCodeFlowV2'));
+void (lazy(() => import('./v8u/components/AuthCodeFlowV2/AuthCodeFlowV2')));
 const FIDO2FlowV8 = React.lazy(() =>
 	import('./v8/flows/types/FIDO2FlowV8').then((module) => ({ default: module.FIDO2FlowV8 }))
 );

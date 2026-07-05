@@ -29,8 +29,7 @@ export function validateFile(
 ): FileValidationResult {
 	const {
 		accept = ['.json'],
-		maxSize = 1024 * 1024, // 1MB default
-		multiple = false,
+		maxSize = 1024 * 1024,
 	} = config;
 
 	const warnings: string[] = [];

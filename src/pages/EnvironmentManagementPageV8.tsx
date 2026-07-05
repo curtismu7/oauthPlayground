@@ -556,7 +556,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	}, [selectedApiRegion, typeFilter, statusFilter, regionFilter, currentPage]);
 
 	// Test function to debug environment fetching
-	const _testEnvironmentFetch = useCallback(async () => {
+	void (useCallback(async () => {
 		logger.info('[TEST] Starting environment fetch test...', 'Logger info');
 		try {
 			const token = unifiedWorkerTokenService.getTokenDataSync()?.token;
@@ -571,7 +571,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		} catch (error) {
 			logger.error('EnvironmentManagementPageV8', '[TEST] Error:', undefined, error as Error);
 		}
-	}, []);
+	}, []));
 
 	const fetchEnvironments = useCallback(async () => {
 		logger.info('[EnvironmentManagementPageV8] Starting fetchEnvironments...', 'Logger info');

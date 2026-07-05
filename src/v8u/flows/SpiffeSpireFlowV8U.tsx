@@ -307,7 +307,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	}
 `;
 
-const _StepIndicator = styled.div`
+void (styled.div`
 	display: flex;
 	align-items: center;
 	gap: 1rem;
@@ -316,9 +316,9 @@ const _StepIndicator = styled.div`
 	background: #ffffff; // White background
 	border-radius: 0.75rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
+`);
 
-const _Step = styled.div<{ $active: boolean; $completed: boolean }>`
+void (styled.div<{ $active: boolean; $completed: boolean }>`
 	flex: 1;
 	padding: 1rem;
 	border-radius: 0.5rem;
@@ -411,7 +411,7 @@ const _Step = styled.div<{ $active: boolean; $completed: boolean }>`
 			`;
 		}
 	}}
-`;
+`);
 
 const CodeBlock = styled.pre`
 	background: #1f2937; // Dark background
@@ -753,24 +753,6 @@ const generatePingOneToken = (svid: SVID, environmentId: string): PingOneToken =
 	};
 };
 
-const _SPIFFE_STEP_METADATA = [
-	{
-		title: 'Workload Attestation',
-		subtitle: 'Configure and attest',
-		description: 'Attest workload and issue SVID',
-	},
-	{ title: 'SVID Issuance', subtitle: 'SVID issued', description: 'View and copy SVID' },
-	{
-		title: 'SVID Validation',
-		subtitle: 'Validate with trust bundle',
-		description: 'Validate SVID',
-	},
-	{
-		title: 'Token Exchange',
-		subtitle: 'PingOne tokens',
-		description: 'Exchange SVID for OAuth tokens',
-	},
-];
 
 export const SpiffeSpireFlowV8U: React.FC = () => {
 	logger.info(`${MODULE_TAG} Initializing SPIFFE/SPIRE mock flow`, 'Logger info');

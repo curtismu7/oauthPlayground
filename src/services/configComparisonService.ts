@@ -43,7 +43,7 @@ export class ConfigComparisonService {
 
 	async compare(clientId: string, formData: Record<string, unknown>): Promise<ConfigDiffResult> {
 		try {
-			const _client = createPingOneClient(this.token, this.environmentId, this.region);
+			void (createPingOneClient(this.token, this.environmentId, this.region));
 
 			// Add timestamp to ensure fresh data is fetched every time
 			const timestamp = Date.now();

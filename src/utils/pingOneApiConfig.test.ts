@@ -9,7 +9,6 @@ import {
 	shouldUsePingOneProxy,
 } from './pingOneApiConfig';
 
-const _originalWindow = globalThis.window;
 
 describe('pingOneApiConfig', () => {
 	/** Set hostname for tests (simulate location). */

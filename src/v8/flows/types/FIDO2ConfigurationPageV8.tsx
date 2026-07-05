@@ -41,7 +41,7 @@ const MODULE_TAG = '[ FIDO2-CONFIG-V8]';
 
 export const FIDO2ConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
-	const _location = useLocation();
+	void (useLocation());
 
 	// Device type is always FIDO2 (PLATFORM and SECURITY_KEY are deprecated)
 	const currentDeviceType: DeviceType = 'FIDO2';
@@ -52,7 +52,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 	// Environment and token state
 	const [_searchParams] = useSearchParams();
-	const _authContext = useAuth();
+	void (useAuth());
 	const [environmentId, setEnvironmentId] = useState<string>('');
 	const [tokenStatus, setTokenStatus] = useState(
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()

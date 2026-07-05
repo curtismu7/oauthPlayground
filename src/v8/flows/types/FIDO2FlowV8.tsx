@@ -20,7 +20,6 @@ import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import {
-	type DeviceAuthenticationResponse,
 	MfaAuthenticationServiceV8,
 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -43,267 +42,20 @@ import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPage
 
 const MODULE_TAG = '[ FIDO2-FLOW-V8]';
 
-const PUBLIC_KEY_OPTION_KEYS = [
-	'publicKeyCredentialRequestOptions',
-	'publicKeyCredentialOptions',
-	'publicKeyOptions',
-	'webauthnGetOptions',
-	'assertionOptions',
-];
 
-const normalizeBase64 = (value: string): string => {
-	const sanitized = value.replace(/\s+/g, '').replace(/_/g, '/').replace(/-/g, '+');
-	const padding = sanitized.length % 4 === 0 ? 0 : 4 - (sanitized.length % 4);
-	return sanitized + '='.repeat(padding);
-};
 
-const decodeBase64ToUint8Array = (value: string): Uint8Array => {
-	const normalized = normalizeBase64(value);
-	if (typeof window !== 'undefined' && typeof window.atob === 'function') {
-		const binary = window.atob(normalized);
-		const bytes = new Uint8Array(binary.length);
-		for (let i = 0; i < binary.length; i += 1) {
-			bytes[i] = binary.charCodeAt(i);
-		}
-		return bytes;
-	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: Buffer type from globalThis is not available in all environments
-	const bufferCtor = (globalThis as { Buffer?: any }).Buffer;
-	if (bufferCtor) {
-		const buffer = bufferCtor.from(normalized, 'base64');
-		return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-	}
 
-	throw new Error('Base64 decoding is not supported in this environment');
-};
 
-const toUint8Array = (value: unknown): Uint8Array | null => {
-	if (!value) {
-		return null;
-	}
 
-	if (value instanceof Uint8Array) {
-		return value;
-	}
 
-	if (value instanceof ArrayBuffer) {
-		return new Uint8Array(value);
-	}
-
-	if (ArrayBuffer.isView(value)) {
-		return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
-	}
-
-	if (Array.isArray(value)) {
-		return new Uint8Array(value as number[]);
-	}
-
-	if (typeof value === 'string') {
-		try {
-			return decodeBase64ToUint8Array(value);
-		} catch (error) {
-			logger.warn(`${MODULE_TAG} Failed to decode base64 string`, error);
-			return null;
-		}
-	}
-
-	if (typeof value === 'object') {
-		const bufferLike = value as { data?: number[] };
-		if (Array.isArray(bufferLike.data)) {
-			return new Uint8Array(bufferLike.data);
-		}
-	}
-
-	return null;
-};
-
-const findNestedValue = (source: unknown, keys: string[]): unknown => {
-	if (!source || typeof source !== 'object') {
-		return undefined;
-	}
-
-	const visited = new Set<unknown>();
-	const queue: Array<{ value: unknown; depth: number }> = [{ value: source, depth: 0 }];
-	const MAX_DEPTH = 5;
-
-	while (queue.length > 0) {
-		const { value, depth } = queue.shift() as { value: unknown; depth: number };
-		if (!value || typeof value !== 'object' || visited.has(value)) {
-			continue;
-		}
-		visited.add(value);
-
-		for (const key of keys) {
-			if (Object.hasOwn(value, key)) {
-				const result = (value as Record<string, unknown>)[key];
-				if (result !== undefined) {
-					return result;
-				}
-			}
-		}
-
-		if (depth >= MAX_DEPTH) {
-			continue;
-		}
-
-		if (Array.isArray(value)) {
-			value.forEach((child) => {
-				queue.push({ value: child, depth: depth + 1 });
-			});
-		} else {
-			Object.values(value).forEach((child) => {
-				queue.push({ value: child, depth: depth + 1 });
-			});
-		}
-	}
-
-	return undefined;
-};
-
-const parseRawPublicKeyOptions = (raw: unknown): Record<string, unknown> | null => {
-	if (typeof raw === 'string') {
-		const trimmed = raw.trim();
-		if (!trimmed) {
-			return null;
-		}
-
-		const attempts = [trimmed];
-		try {
-			attempts.push(decodeURIComponent(trimmed));
-		} catch {
-			// ignore decodeURIComponent failures
-		}
-
-		for (const attempt of attempts) {
-			try {
-				return JSON.parse(attempt);
-			} catch {
-				// ignore
-			}
-		}
-
-		try {
-			const decoded = decodeBase64ToUint8Array(trimmed);
-			const decodedString =
-				typeof TextDecoder !== 'undefined'
-					? new TextDecoder().decode(decoded)
-					: Array.from(decoded)
-							.map((code) => String.fromCharCode(code))
-							.join('');
-			return JSON.parse(decodedString);
-		} catch (error) {
-			logger.warn(`${MODULE_TAG} Unable to parse publicKeyCredentialRequestOptions string`, error);
-			return null;
-		}
-	}
-
-	if (Array.isArray(raw)) {
-		const candidate = raw.find((entry) => entry && typeof entry === 'object');
-		return candidate && typeof candidate === 'object'
-			? (candidate as Record<string, unknown>)
-			: null;
-	}
-
-	if (raw && typeof raw === 'object') {
-		return raw as Record<string, unknown>;
-	}
-
-	return null;
-};
-
-const normalizePublicKeyOptions = (
-	rawOptions: Record<string, unknown>
-): PublicKeyCredentialRequestOptions | null => {
-	const challengeCandidate =
-		rawOptions.challenge ?? rawOptions.rawChallenge ?? rawOptions.challengeData;
-	const challengeBytes = toUint8Array(challengeCandidate);
-
-	if (!challengeBytes || !challengeBytes.byteLength) {
-		return null;
-	}
-
-	const allowCredentials = Array.isArray(rawOptions.allowCredentials)
-		? (rawOptions.allowCredentials
-				.map((entry) => {
-					if (!entry || typeof entry !== 'object') {
-						return null;
-					}
-
-					const descriptor = entry as Record<string, unknown>;
-					const idBytes = toUint8Array(descriptor.id ?? descriptor.credentialId);
-					if (!idBytes) {
-						return null;
-					}
-
-					const transports = Array.isArray(descriptor.transports)
-						? (descriptor.transports.filter(
-								(transport): transport is AuthenticatorTransport => typeof transport === 'string'
-							) as AuthenticatorTransport[])
-						: undefined;
-
-					return {
-						type: (descriptor.type as PublicKeyCredentialType) || 'public-key',
-						id: idBytes,
-						transports,
-					};
-				})
-				.filter((entry): entry is PublicKeyCredentialDescriptor =>
-					Boolean(entry)
-				) as PublicKeyCredentialDescriptor[])
-		: undefined;
-
-	const rpId =
-		(typeof rawOptions.rpId === 'string' && rawOptions.rpId.trim()) ||
-		(typeof (rawOptions.rp as { id?: string } | undefined)?.id === 'string' &&
-			(rawOptions.rp as { id?: string }).id?.trim()) ||
-		(typeof window !== 'undefined' ? window.location.hostname : undefined);
-
-	const timeout =
-		typeof rawOptions.timeout === 'number'
-			? rawOptions.timeout
-			: Number.isFinite(Number(rawOptions.timeout))
-				? Number(rawOptions.timeout)
-				: undefined;
-
-	const userVerification =
-		typeof rawOptions.userVerification === 'string'
-			? (rawOptions.userVerification as UserVerificationRequirement)
-			: undefined;
-
-	return {
-		challenge: challengeBytes,
-		timeout,
-		rpId,
-		allowCredentials,
-		userVerification,
-		extensions: rawOptions.extensions as AuthenticationExtensionsClientInputs | undefined,
-	};
-};
-
-const _extractFido2AssertionOptions = (
-	response: DeviceAuthenticationResponse
-): PublicKeyCredentialRequestOptions | null => {
-	const rawOptions = findNestedValue(response, PUBLIC_KEY_OPTION_KEYS);
-	if (!rawOptions) {
-		return null;
-	}
-
-	const parsed = parseRawPublicKeyOptions(rawOptions);
-	if (!parsed) {
-		return null;
-	}
-
-	const normalized = normalizePublicKeyOptions(parsed);
-	return normalized;
-};
 
 // Device selection state management wrapper
 const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const location = useLocation();
 
 	// Initialize loading state manager
-	const _loadingManager = useMFALoadingStateManager();
+	void (useMFALoadingStateManager());
 
 	// Extended location state type to include policy IDs and FIDO2 config from configuration page
 	const locationState = location.state as {
@@ -395,8 +147,8 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	}, [locationState]);
 
 	// Ref to track if we've already skipped step 0 and store nav callback
-	const _hasSkippedStep0Ref = useRef(false);
-	const _skipStep0NavRef = useRef<((step: number) => void) | null>(null);
+	void (useRef(false));
+	void (useRef<((step: number) => void) | null>(null));
 
 	// Initialize controller using factory with dynamic device type
 	const controller = useMemo(
@@ -774,7 +526,6 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				isLoadingPolicies,
 				policiesError,
 				refreshDeviceAuthPolicies,
-				nav,
 			} = props;
 
 			// Auto-navigation removed - user must manually click "Next" button
@@ -853,7 +604,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										// #region agent log
 										// #endregion
 										window.dispatchEvent(new Event('workerTokenUpdated'));
-										const _newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+										void (WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 										// #region agent log
 										// #endregion
 										modernMessaging.showFooterMessage({

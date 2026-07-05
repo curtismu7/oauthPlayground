@@ -10,7 +10,7 @@ interface ProtocolPanelProps {
   currentStep?: number;
 }
 
-export const ProtocolPanel: React.FC<ProtocolPanelProps> = ({ config, flowStarted, currentStep = 0 }) => {
+export const ProtocolPanel: React.FC<ProtocolPanelProps> = ({ config, currentStep = 0 }) => {
   const flowStepsData = useMemo(() => getFlowStepsData(config), [config]);
 
   const getStepStatus = (stepNumber: number): StepStatus => {
