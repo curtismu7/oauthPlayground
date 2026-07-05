@@ -49,6 +49,13 @@ Deleting them is a feature-migration project, not a cleanup.
 
 ## Ground rules
 
+- **This app exists to teach OAuth/OIDC and PingOne's implementation of
+  them.** Before converting any V8 route to a redirect, check whether the
+  page teaches something its V9 target doesn't (step-by-step detail,
+  PingOne-specific behavior, a spec variant shown explicitly). If it does,
+  it belongs in bucket (b) — migrate the educational content, don't drop it.
+  Apparent "duplication" (OAuth vs OIDC variants, mock/simulated flows) is
+  often pedagogy, not cruft.
 - Git history is the archive — delete, don't move to "archive" folders.
 - Every step must pass: `npm run type-check:ratchet`, `npx vite build`,
   `npx vitest run src/services/__tests__/`.
