@@ -1,13 +1,15 @@
 // src/flows2/services/__tests__/authorizationCodeService.test.ts
 import { beforeEach, describe, expect, it } from 'vitest';
-import { authorizationCodeService } from '../authorizationCodeService';
+import { authorizationCodeService, MOCK_REGISTERED_SECRET } from '../authorizationCodeService';
 import type { FlowCredentials } from '../../framework/types';
 
 const creds: FlowCredentials = {
 	environmentId: 'test-env-123',
 	region: 'com',
 	clientId: 'test-client',
-	clientSecret: 'test-secret',
+	// Must match the mock's registered secret; the mock exchange enforces client
+	// authentication and returns invalid_client otherwise.
+	clientSecret: MOCK_REGISTERED_SECRET,
 	scope: 'openid profile email',
 };
 const redirectUri = 'https://localhost:3000/v2/flows/authz-callback';
