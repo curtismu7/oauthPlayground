@@ -129,6 +129,8 @@ export const UseCasesPage: React.FC = () => {
 									key={uc.id}
 									type="button"
 									$active={openId === uc.id}
+									aria-expanded={openId === uc.id}
+									aria-controls={`usecase-card-${uc.id}`}
 									onClick={() =>
 										setOpenId(openId === uc.id ? null : uc.id)
 									}
@@ -140,7 +142,7 @@ export const UseCasesPage: React.FC = () => {
 						{cases
 							.filter((uc) => uc.id === openId)
 							.map((uc) => (
-								<Card key={uc.id}>
+								<Card key={uc.id} id={`usecase-card-${uc.id}`}>
 									<Scenario>{uc.scenario}</Scenario>
 									<Lessons>
 										{uc.lessons.map((lesson) => (
