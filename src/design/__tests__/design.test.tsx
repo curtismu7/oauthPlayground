@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { render } from '@testing-library/react';
 import { tokens as designTokens } from '../tokens';
 import { tokens as frameworkTokens } from '../../flows2/framework/tokens';
+import { Pill, Action, Card } from '../primitives';
+import { Pill as FwPill } from '../../flows2/framework/primitives';
 
 describe('design/tokens', () => {
 	it('exposes the navy + teal palette', () => {
@@ -11,5 +14,24 @@ describe('design/tokens', () => {
 
 	it('is the exact same object the flows2 framework re-exports (back-compat)', () => {
 		expect(frameworkTokens).toBe(designTokens);
+	});
+});
+
+describe('design/primitives', () => {
+	it('re-exports the same Pill through the flows2 shim', () => {
+		expect(FwPill).toBe(Pill);
+	});
+
+	it('renders Pill, Action, and Card without error', () => {
+		const { getByText } = render(
+			<>
+				<Pill $active={false} type="button">chip</Pill>
+				<Action type="button">go</Action>
+				<Card>body</Card>
+			</>,
+		);
+		expect(getByText('chip')).toBeInTheDocument();
+		expect(getByText('go')).toBeInTheDocument();
+		expect(getByText('body')).toBeInTheDocument();
 	});
 });
