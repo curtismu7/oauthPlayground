@@ -137,3 +137,7 @@ __pycache__/
 /linter_errors_manual.json
 /biome_full_report.json
 /type-check-output.txt
+
+# Generated coverage and lint reports
+coverage/
+lint-reports/
