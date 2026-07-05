@@ -127,3 +127,13 @@ certs/
 resources/keys/*.pem
 *.key
 *.pem
+
+# Generated artifacts (2026-07-04 root cleanup)
+/*.png
+/build/
+__pycache__/
+*.pyc
+/api-test-results.json
+/linter_errors_manual.json
+/biome_full_report.json
+/type-check-output.txt

@@ -7,6 +7,23 @@
 
 ---
 
+## Executed 2026-07-04 (branch `refactor/flow-dedup`)
+
+Re-verification found that Phases 0, 1, 2, and 2.5 had **already been executed** (primarily in commit `843cdd3a4` "feat: reduce OAuth/OIDC duplication"), with some targets drifting past this report:
+
+- **Phase 0** — already done. `useOAuth2CompliantImplicitFlow.ts`, `implicitFlowComplianceService.ts`, and `OAuthFlows.tsx` no longer exist; zero references remain in `src/`.
+- **Phase 1** — already done. `FlowCategories.tsx` now uses the proposed category structure (Essential / Advanced / Example / Legacy / Mock / Utilities / PingOne MFA); every link verified against `App.tsx` — zero 404s.
+- **Phase 2** — already done. All four files (`PARFlow.tsx`, `OAuth2CompliantAuthorizationCodeFlow.tsx`, `OIDCCompliantAuthorizationCodeFlow.tsx`, `V7RMOIDCResourceOwnerPasswordFlow.tsx`) and `OAuthAuthorizationCodeFlowV7_1/` are deleted; lazy imports removed. Routes redirect, though targets drifted to newer canonicals: `/flows/par` → `/flows/pingone-par-v9` (as planned), but `/flows/oauth2-compliant-authorization-code`, `/flows/oidc-compliant-authorization-code`, and `/flows/oauth-authorization-code-v7` → `/v8u/unified`, and `/flows/mock-oidc-ropc` → `/v2/flows/ropc`. Left as-is (deliberate later work; all targets are live routes).
+- **Phase 2.5** — mostly done; **three cascade-orphans were missed and are deleted in this pass**:
+  - `src/utils/mockOAuth.ts` (zero callers; had a broken type import from the deleted `useV7RMOIDCResourceOwnerPasswordController`)
+  - `src/tests/oauth2Compliance.test.ts` (imported deleted `oauth2ComplianceService`)
+  - `src/tests/oidcCompliance.test.ts` (imported deleted `oidcComplianceService`)
+- **Phase 3** — untouched per plan (`DPoPFlow.tsx`, `OAuthAuthorizationCodeFlowV9_Condensed.tsx` await product decision).
+
+Verified: `vite build` passes; `vitest run src/services/__tests__/` shows no new failures vs baseline; `git grep` for every deleted module name returns no hits in `src/` (aside from explanatory comments in `App.tsx`).
+
+---
+
 ## Executive Summary
 
 The app has **two problems**:
