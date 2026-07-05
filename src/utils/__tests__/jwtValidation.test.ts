@@ -13,11 +13,14 @@ import {
 	validateJWTClaims,
 	verifyJWTSignature,
 } from '../jwtValidation';
+import { validateJWT } from '../jwks';
 
 // Mock the jwks module
 vi.mock('../jwks', () => ({
 	validateJWT: vi.fn(),
 }));
+
+const mockedValidateJWT = vi.mocked(validateJWT);
 
 // Mock logger
 vi.mock('../logger', () => ({
@@ -48,8 +51,7 @@ describe('JWT Validation Utilities', () => {
 
 	describe('verifyJWTSignature', () => {
 		it('should verify JWT signature successfully', async () => {
-			const { validateJWT } = require('../jwks');
-			validateJWT.mockResolvedValue({
+			mockedValidateJWT.mockResolvedValue({
 				valid: true,
 				payload: mockPayload,
 				header: { alg: 'RS256', kid: 'key1' },
@@ -72,8 +74,7 @@ describe('JWT Validation Utilities', () => {
 		});
 
 		it('should fail when basic validation fails', async () => {
-			const { validateJWT } = require('../jwks');
-			validateJWT.mockResolvedValue({
+			mockedValidateJWT.mockResolvedValue({
 				valid: false,
 				error: 'Invalid signature',
 			});
@@ -86,8 +87,7 @@ describe('JWT Validation Utilities', () => {
 		});
 
 		it('should validate flow-specific claims for implicit flow', async () => {
-			const { validateJWT } = require('../jwks');
-			validateJWT.mockResolvedValue({
+			mockedValidateJWT.mockResolvedValue({
 				valid: true,
 				payload: { ...mockPayload, sub: undefined }, // Missing sub
 				header: { alg: 'RS256', kid: 'key1' },
@@ -108,8 +108,7 @@ describe('JWT Validation Utilities', () => {
 		});
 
 		it('should validate required claims', async () => {
-			const { validateJWT } = require('../jwks');
-			validateJWT.mockResolvedValue({
+			mockedValidateJWT.mockResolvedValue({
 				valid: true,
 				payload: mockPayload,
 				header: { alg: 'RS256', kid: 'key1' },
@@ -126,8 +125,7 @@ describe('JWT Validation Utilities', () => {
 		});
 
 		it('should validate required scopes', async () => {
-			const { validateJWT } = require('../jwks');
-			validateJWT.mockResolvedValue({
+			mockedValidateJWT.mockResolvedValue({
 				valid: true,
 				payload: mockPayload,
 				header: { alg: 'RS256', kid: 'key1' },
@@ -144,8 +142,7 @@ describe('JWT Validation Utilities', () => {
 		});
 
 		it('should run custom validators', async () => {
-			const { validateJWT } = require('../jwks');
-			validateJWT.mockResolvedValue({
+			mockedValidateJWT.mockResolvedValue({
 				valid: true,
 				payload: mockPayload,
 				header: { alg: 'RS256', kid: 'key1' },
@@ -164,8 +161,7 @@ describe('JWT Validation Utilities', () => {
 		});
 
 		it('should handle validation errors', async () => {
-			const { validateJWT } = require('../jwks');
-			validateJWT.mockRejectedValue(new Error('Network error'));
+			mockedValidateJWT.mockRejectedValue(new Error('Network error'));
 
 			const result = await verifyJWTSignature('mock-token', { jwksUri: 'mock-uri' }, {});
 

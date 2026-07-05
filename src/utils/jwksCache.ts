@@ -223,7 +223,29 @@ export class JWKSCache {
 	 * Get JWKS-specific cached data
 	 */
 	async getJWKS(key: string): Promise<JWKSCacheEntry | null> {
-		return this.get<JWKSCacheEntry>(key);
+		const entry = this.cache.get(key) as JWKSCacheEntry | undefined;
+
+		if (!entry) {
+			this.stats.misses++;
+			this.updateHitRate();
+			logger.debug('JWKSCache', 'Cache miss', { key });
+			return null;
+		}
+
+		// Check if expired
+		if (Date.now() > entry.expiresAt) {
+			this.cache.delete(key);
+			this.stats.misses++;
+			this.stats.evictions++;
+			this.updateHitRate();
+			logger.debug('JWKSCache', 'Cache entry expired', { key, expiresAt: entry.expiresAt });
+			return null;
+		}
+
+		this.stats.hits++;
+		this.updateHitRate();
+		logger.debug('JWKSCache', 'Cache hit', { key, age: Date.now() - entry.timestamp });
+		return entry;
 	}
 
 	/**

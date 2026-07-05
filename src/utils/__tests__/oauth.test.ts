@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
-	createAuthorizationUrl,
+	buildAuthUrl,
 	generateCodeChallenge,
 	generateCodeVerifier,
 	generateRandomString,
-	parseCallbackUrl,
-	validateState,
+	parseUrlParams,
+	validateCsrfToken,
 } from '../oauth';
 
 // Mock crypto for testing
@@ -60,7 +60,7 @@ describe('OAuth Utilities', () => {
 		});
 
 		test('calls generateRandomString with length 64', () => {
-			void (vi.spyOn({ generateRandomString }, 'generateRandomString'));
+			void vi.spyOn({ generateRandomString }, 'generateRandomString');
 			mockCrypto.getRandomValues.mockReturnValue(new Uint8Array(32).fill(0x42));
 
 			generateCodeVerifier();
@@ -82,12 +82,23 @@ describe('OAuth Utilities', () => {
 		});
 
 		test('uses SHA-256 algorithm', async () => {
+			// NOTE: `expect.any(Uint8Array)` / `toBeInstanceOf(Uint8Array)` do not
+			// match here — under this project's jsdom vitest environment,
+			// `TextEncoder().encode()` returns a Uint8Array from a different
+			// realm than the one these instanceof-based matchers check against,
+			// even though the byte contents are identical (verified with an
+			// isolated probe). Asserting on the actual encoded bytes avoids that
+			// cross-realm instanceof mismatch while still verifying the call.
 			const mockHash = new Uint8Array(32).fill(0xab).buffer;
 			mockCrypto.subtle.digest.mockResolvedValue(mockHash);
 
 			await generateCodeChallenge('test-verifier');
 
-			expect(mockCrypto.subtle.digest).toHaveBeenCalledWith('SHA-256', expect.any(Uint8Array));
+			const [algorithm, data] = mockCrypto.subtle.digest.mock.calls[0];
+			expect(algorithm).toBe('SHA-256');
+			expect(Array.from(data as Uint8Array)).toEqual(
+				Array.from(new TextEncoder().encode('test-verifier'))
+			);
 		});
 
 		test('encodes the code verifier correctly', async () => {
@@ -102,10 +113,15 @@ describe('OAuth Utilities', () => {
 		});
 	});
 
-	describe('createAuthorizationUrl', () => {
+	// NOTE: `createAuthorizationUrl` no longer exists. The current equivalent is
+	// `buildAuthUrl`, which takes a differently-shaped config object
+	// (`authEndpoint` instead of `authorizationEndpoint`, no generic
+	// `additionalParams` passthrough) and encodes query params via
+	// URLSearchParams (space -> `+`, not `%20`).
+	describe('buildAuthUrl', () => {
 		test('creates valid authorization URL with required parameters', () => {
 			const params = {
-				authorizationEndpoint: 'https://auth.example.com/authorize',
+				authEndpoint: 'https://auth.example.com/authorize',
 				clientId: 'test-client',
 				redirectUri: 'https://app.example.com/callback',
 				responseType: 'code',
@@ -113,60 +129,85 @@ describe('OAuth Utilities', () => {
 				state: 'test-state',
 			};
 
-			const url = createAuthorizationUrl(params);
+			const url = buildAuthUrl(params);
 
 			expect(url).toContain('https://auth.example.com/authorize');
 			expect(url).toContain('client_id=test-client');
 			expect(url).toContain('redirect_uri=https%3A%2F%2Fapp.example.com%2Fcallback');
 			expect(url).toContain('response_type=code');
-			expect(url).toContain('scope=openid%20profile%20email');
+			expect(url).toContain('scope=openid+profile+email');
 			expect(url).toContain('state=test-state');
 		});
 
 		test('includes optional PKCE parameters', () => {
 			const params = {
-				authorizationEndpoint: 'https://auth.example.com/authorize',
+				authEndpoint: 'https://auth.example.com/authorize',
 				clientId: 'test-client',
 				redirectUri: 'https://app.example.com/callback',
-				responseType: 'code',
 				scope: 'openid profile',
 				state: 'test-state',
 				codeChallenge: 'test-challenge',
 				codeChallengeMethod: 'S256',
 			};
 
-			const url = createAuthorizationUrl(params);
+			const url = buildAuthUrl(params);
 
 			expect(url).toContain('code_challenge=test-challenge');
 			expect(url).toContain('code_challenge_method=S256');
 		});
 
-		test('includes additional parameters', () => {
+		test('includes nonce when provided', () => {
+			// The old test exercised a generic `additionalParams` passthrough
+			// (e.g. arbitrary `nonce`/`prompt` keys). `buildAuthUrl` has no such
+			// mechanism today — `nonce` is the only extra param it recognizes,
+			// and it must be passed as a top-level field. `prompt` has no
+			// equivalent in the current implementation, so that assertion was
+			// dropped rather than faked.
 			const params = {
-				authorizationEndpoint: 'https://auth.example.com/authorize',
+				authEndpoint: 'https://auth.example.com/authorize',
 				clientId: 'test-client',
 				redirectUri: 'https://app.example.com/callback',
-				responseType: 'code',
 				scope: 'openid',
 				state: 'test-state',
-				additionalParams: {
-					nonce: 'test-nonce',
-					prompt: 'login',
-				},
+				nonce: 'test-nonce',
 			};
 
-			const url = createAuthorizationUrl(params);
+			const url = buildAuthUrl(params);
 
 			expect(url).toContain('nonce=test-nonce');
-			expect(url).toContain('prompt=login');
+		});
+
+		test('omits redirect/response params and uses request_uri when PAR requestUri is provided', () => {
+			const params = {
+				authEndpoint: 'https://auth.example.com/authorize',
+				clientId: 'test-client',
+				redirectUri: 'https://app.example.com/callback',
+				scope: 'openid',
+				state: 'test-state',
+				requestUri: 'urn:ietf:params:oauth:request_uri:abc123',
+			};
+
+			const url = buildAuthUrl(params);
+
+			expect(url).toContain('client_id=test-client');
+			expect(url).toContain(
+				`request_uri=${encodeURIComponent('urn:ietf:params:oauth:request_uri:abc123')}`
+			);
+			expect(url).not.toContain('redirect_uri=');
+			expect(url).not.toContain('state=');
 		});
 	});
 
-	describe('parseCallbackUrl', () => {
+	// NOTE: `parseCallbackUrl` no longer exists. The current equivalent is
+	// `parseUrlParams`, which returns a flat map of every query-string AND
+	// hash-fragment key using its raw (snake_case) name — there is no
+	// camelCase remapping to `accessToken`/`idToken`/`tokenType`/`expiresIn`/
+	// `errorDescription`.
+	describe('parseUrlParams', () => {
 		test('parses authorization code from callback URL', () => {
 			const url = 'https://app.example.com/callback?code=test-code&state=test-state';
 
-			const result = parseCallbackUrl(url);
+			const result = parseUrlParams(url);
 
 			expect(result.code).toBe('test-code');
 			expect(result.state).toBe('test-state');
@@ -177,54 +218,58 @@ describe('OAuth Utilities', () => {
 			const url =
 				'https://app.example.com/callback?error=access_denied&error_description=User%20denied%20access&state=test-state';
 
-			const result = parseCallbackUrl(url);
+			const result = parseUrlParams(url);
 
 			expect(result.error).toBe('access_denied');
-			expect(result.errorDescription).toBe('User denied access');
+			expect(result.error_description).toBe('User denied access');
 			expect(result.state).toBe('test-state');
 			expect(result.code).toBeUndefined();
 		});
 
-		test('handles URLs without query parameters', () => {
+		test('handles URLs without query or hash parameters', () => {
 			const url = 'https://app.example.com/callback';
 
-			const result = parseCallbackUrl(url);
+			const result = parseUrlParams(url);
 
 			expect(result.code).toBeUndefined();
 			expect(result.state).toBeUndefined();
 			expect(result.error).toBeUndefined();
+			expect(Object.keys(result)).toHaveLength(0);
 		});
 
-		test('parses implicit flow tokens', () => {
+		test('parses implicit flow tokens from the hash fragment', () => {
 			const url =
 				'https://app.example.com/callback#access_token=test-token&id_token=test-id-token&token_type=Bearer&expires_in=3600&state=test-state';
 
-			const result = parseCallbackUrl(url);
+			const result = parseUrlParams(url);
 
-			expect(result.accessToken).toBe('test-token');
-			expect(result.idToken).toBe('test-id-token');
-			expect(result.tokenType).toBe('Bearer');
-			expect(result.expiresIn).toBe('3600');
+			expect(result.access_token).toBe('test-token');
+			expect(result.id_token).toBe('test-id-token');
+			expect(result.token_type).toBe('Bearer');
+			expect(result.expires_in).toBe('3600');
 			expect(result.state).toBe('test-state');
 		});
 	});
 
-	describe('validateState', () => {
-		test('returns true for matching states', () => {
-			const result = validateState('test-state', 'test-state');
+	// NOTE: `validateState` no longer exists. The current equivalent is
+	// `validateCsrfToken(token, expectedToken)`, which checks strict equality
+	// plus a non-empty `token`.
+	describe('validateCsrfToken', () => {
+		test('returns true for matching tokens', () => {
+			const result = validateCsrfToken('test-token', 'test-token');
 			expect(result).toBe(true);
 		});
 
-		test('returns false for non-matching states', () => {
-			const result = validateState('expected-state', 'received-state');
+		test('returns false for non-matching tokens', () => {
+			const result = validateCsrfToken('expected-token', 'received-token');
 			expect(result).toBe(false);
 		});
 
-		test('returns false for undefined/empty states', () => {
-			expect(validateState('', 'received')).toBe(false);
-			expect(validateState('expected', '')).toBe(false);
-			expect(validateState(undefined as any, 'received')).toBe(false);
-			expect(validateState('expected', undefined as any)).toBe(false);
+		test('returns false for undefined/empty tokens', () => {
+			expect(validateCsrfToken('', 'received')).toBe(false);
+			expect(validateCsrfToken('expected', '')).toBe(false);
+			expect(validateCsrfToken(undefined as any, 'received')).toBe(false);
+			expect(validateCsrfToken('expected', undefined as any)).toBe(false);
 		});
 	});
 });

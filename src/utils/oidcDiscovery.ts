@@ -142,7 +142,7 @@ export async function discoverOIDCConfiguration(
  * Build discovery URL
  */
 export function buildDiscoveryUrl(options: DiscoveryOptions): string {
-	if (options.useBackendProxy) {
+	if (options.useBackendProxy ?? true) {
 		const backendUrl = options.backendProxyUrl || getBackendUrl();
 		return `${backendUrl}/api/discovery?environment_id=${options.environmentId}&region=${options.region || 'us'}`;
 	} else {

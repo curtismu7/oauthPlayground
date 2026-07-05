@@ -1,7 +1,7 @@
 // src/utils/flowRedirectUriMapping.test.ts
-import { logger } from '../utils/logger';
-// Test file to demonstrate the centralized redirect URI mapping system
+// Tests for the centralized redirect URI mapping system
 
+import { describe, expect, it } from 'vitest';
 import {
 	FLOW_REDIRECT_URI_MAPPING,
 	flowRequiresRedirectUri,
@@ -19,64 +19,110 @@ Object.defineProperty(window, 'location', {
 	writable: true,
 });
 
-logger.info('🧪 Testing Flow Redirect URI Mapping System', 'Logger info');
-logger.info('==========================================', 'Logger info');
+describe('FLOW_REDIRECT_URI_MAPPING', () => {
+	it('contains a non-empty list of flow configurations', () => {
+		expect(FLOW_REDIRECT_URI_MAPPING.length).toBeGreaterThan(0);
+	});
 
-// Test 1: Get redirect URI for OAuth Authorization Code V6
-const oauthAuthzV6Uri = generateRedirectUriForFlow('oauth-authorization-code-v6');
-logger.info('1. OAuth Authorization Code V6:', oauthAuthzV6Uri);
-// Expected: https://localhost:3001/authz-callback
+	it('has no duplicate flowType entries', () => {
+		const flowTypes = FLOW_REDIRECT_URI_MAPPING.map((config) => config.flowType);
+		const uniqueFlowTypes = new Set(flowTypes);
+		expect(uniqueFlowTypes.size).toBe(flowTypes.length);
+	});
 
-// Test 2: Get redirect URI for OIDC Implicit V6
-const oidcImplicitV6Uri = generateRedirectUriForFlow('oidc-implicit-v6');
-logger.info('2. OIDC Implicit V6:', oidcImplicitV6Uri);
-// Expected: https://localhost:3001/oidc-implicit-callback
-
-// Test 3: Get redirect URI for Client Credentials (should return null)
-const clientCredsUri = generateRedirectUriForFlow('client-credentials-v6');
-logger.info('3. Client Credentials V6:', clientCredsUri);
-// Expected: null (no redirect URI needed)
-
-// Test 4: Check if flows require redirect URI
-logger.info('4. Flow Requirements:', 'Logger info');
-logger.info(
-	'   - OAuth Authz V6 requires redirect URI:',
-	flowRequiresRedirectUri('oauth-authorization-code-v6')
-);
-logger.info(
-	'   - Client Creds V6 requires redirect URI:',
-	flowRequiresRedirectUri('client-credentials-v6')
-);
-logger.info(
-	'   - Device Auth V6 requires redirect URI:',
-	flowRequiresRedirectUri('device-authorization-v6')
-);
-
-// Test 5: Get flow configurations
-const oauthAuthzConfig = getFlowRedirectUriConfig('oauth-authorization-code-v6');
-const hybridConfig = getFlowRedirectUriConfig('oidc-hybrid-v6');
-logger.info('5. Flow Configurations:', 'Logger info');
-logger.info('   - OAuth Authz V6:', oauthAuthzConfig);
-logger.info('   - OIDC Hybrid V6:', hybridConfig);
-
-// Test 6: Get flows requiring redirect URIs
-const flowsRequiringRedirect = getFlowsRequiringRedirectUri();
-const flowsNotRequiringRedirect = getFlowsNotRequiringRedirectUri();
-logger.info('6. Flows by Requirements:', 'Logger info');
-logger.info('   - Flows requiring redirect URI:', flowsRequiringRedirect.length, 'flows');
-logger.info('   - Flows NOT requiring redirect URI:', flowsNotRequiringRedirect.length, 'flows');
-
-// Test 7: Show all V6 flows
-const v6Flows = FLOW_REDIRECT_URI_MAPPING.filter((config) => config.flowType.includes('v6'));
-logger.info('7. All V6 Flows:', 'Logger info');
-v6Flows.forEach((flow) => {
-	const uri = generateRedirectUriForFlow(flow.flowType);
-	logger.info(`   - ${flow.flowType}: ${uri || 'No redirect URI needed'}`, 'Logger info');
+	it('gives every entry the required fields', () => {
+		for (const config of FLOW_REDIRECT_URI_MAPPING) {
+			expect(typeof config.flowType).toBe('string');
+			expect(config.flowType.length).toBeGreaterThan(0);
+			expect(typeof config.requiresRedirectUri).toBe('boolean');
+			expect(typeof config.callbackPath).toBe('string');
+			expect(typeof config.description).toBe('string');
+			expect(typeof config.specification).toBe('string');
+		}
+	});
 });
 
-logger.info('\n✅ All tests completed!', 'Logger info');
-logger.info('\n📋 Summary:', 'Logger info');
-logger.info('- Centralized redirect URI mapping system is working', 'Logger info');
-logger.info('- Each flow type has its correct callback path', 'Logger info');
-logger.info('- System automatically adapts to different ports', 'Logger info');
-logger.info('- Easy to maintain and extend with new flows', 'Logger info');
+describe('getFlowRedirectUriConfig', () => {
+	it('returns the matching configuration for a known flow type', () => {
+		const config = getFlowRedirectUriConfig('oauth-authorization-code-v9');
+		expect(config).not.toBeNull();
+		expect(config?.callbackPath).toBe('authz-callback');
+		expect(config?.requiresRedirectUri).toBe(true);
+	});
+
+	it('returns null for an unknown flow type', () => {
+		expect(getFlowRedirectUriConfig('not-a-real-flow')).toBeNull();
+	});
+});
+
+describe('flowRequiresRedirectUri', () => {
+	it('returns true for a flow that requires a redirect URI', () => {
+		expect(flowRequiresRedirectUri('oauth-authorization-code-v9')).toBe(true);
+	});
+
+	it('returns false for a flow that does not require a redirect URI', () => {
+		expect(flowRequiresRedirectUri('client-credentials-v9')).toBe(false);
+	});
+
+	it('returns false for an unknown flow type', () => {
+		expect(flowRequiresRedirectUri('not-a-real-flow')).toBe(false);
+	});
+});
+
+describe('generateRedirectUriForFlow', () => {
+	it('builds the full redirect URI using window.location.origin for a flow that needs one', () => {
+		expect(generateRedirectUriForFlow('oauth-authorization-code-v9')).toBe(
+			'https://localhost:3001/authz-callback'
+		);
+	});
+
+	it('uses the callback path specific to each flow', () => {
+		expect(generateRedirectUriForFlow('oidc-implicit-v9')).toBe(
+			'https://localhost:3001/implicit-callback'
+		);
+		expect(generateRedirectUriForFlow('oidc-hybrid-v9')).toBe(
+			'https://localhost:3001/hybrid-callback'
+		);
+	});
+
+	it('returns null for a flow that does not require a redirect URI', () => {
+		expect(generateRedirectUriForFlow('client-credentials-v9')).toBeNull();
+	});
+
+	it('returns null for an unknown flow type', () => {
+		expect(generateRedirectUriForFlow('not-a-real-flow')).toBeNull();
+	});
+
+	it('respects an explicit baseUrl override instead of window.location.origin', () => {
+		expect(generateRedirectUriForFlow('oauth-authorization-code-v9', 'https://example.com')).toBe(
+			'https://example.com/authz-callback'
+		);
+	});
+});
+
+describe('getFlowsRequiringRedirectUri / getFlowsNotRequiringRedirectUri', () => {
+	it('partitions all flow types with no overlap and full coverage', () => {
+		const requiring = getFlowsRequiringRedirectUri();
+		const notRequiring = getFlowsNotRequiringRedirectUri();
+
+		expect(requiring.length + notRequiring.length).toBe(FLOW_REDIRECT_URI_MAPPING.length);
+		expect(requiring.some((flowType) => notRequiring.includes(flowType))).toBe(false);
+	});
+
+	it('agrees with flowRequiresRedirectUri for every listed flow type', () => {
+		const requiring = getFlowsRequiringRedirectUri();
+		const notRequiring = getFlowsNotRequiringRedirectUri();
+
+		for (const flowType of requiring) {
+			expect(flowRequiresRedirectUri(flowType)).toBe(true);
+		}
+		for (const flowType of notRequiring) {
+			expect(flowRequiresRedirectUri(flowType)).toBe(false);
+		}
+	});
+
+	it('includes known examples in the correct list', () => {
+		expect(getFlowsRequiringRedirectUri()).toContain('oauth-authorization-code-v9');
+		expect(getFlowsNotRequiringRedirectUri()).toContain('client-credentials-v9');
+	});
+});

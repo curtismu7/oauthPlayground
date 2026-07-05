@@ -189,15 +189,22 @@ describe('JWKSCache', () => {
 
 	describe('Pattern Matching', () => {
 		it('should get entries by pattern', async () => {
-			await cache.set('jwks-env1', 'data1');
-			await cache.set('jwks-env2', 'data2');
-			await cache.set('other-key', 'data3');
+			// Use a dedicated cache with a maxSize large enough to hold all
+			// entries — the outer `cache` is configured with maxSize: 2,
+			// which would evict 'jwks-env1' once a third key is set.
+			const patternCache = new JWKSCache({ maxSize: 10, defaultTtl: 10000 });
 
-			const jwksEntries = cache.getEntriesByPattern(/^jwks-/);
+			await patternCache.set('jwks-env1', 'data1');
+			await patternCache.set('jwks-env2', 'data2');
+			await patternCache.set('other-key', 'data3');
+
+			const jwksEntries = patternCache.getEntriesByPattern(/^jwks-/);
 
 			expect(jwksEntries).toHaveLength(2);
 			expect(jwksEntries.map((e) => e.key)).toContain('jwks-env1');
 			expect(jwksEntries.map((e) => e.key)).toContain('jwks-env2');
+
+			patternCache.destroy();
 		});
 	});
 
@@ -215,8 +222,57 @@ describe('JWKSCache', () => {
 	});
 });
 
+// The global `tests/setup.ts` replaces `localStorage` with inert `vi.fn()`
+// stubs that don't actually store anything (no backing store, so
+// `getItem` always returns `undefined` and `Object.keys(localStorage)`
+// never reflects stored keys). LocalStorageJWKSCache relies on real
+// persistence and key-enumeration semantics, so this suite installs a
+// working in-memory Storage implementation for its own use and restores
+// the original afterwards.
+function createMemoryLocalStorageMock(): Storage {
+	const store = new Map<string, string>();
+	const mock = {
+		getItem: vi.fn((key: string) => (store.has(key) ? (store.get(key) as string) : null)),
+		setItem: vi.fn((key: string, value: string) => {
+			store.set(key, String(value));
+			syncOwnKeys();
+		}),
+		removeItem: vi.fn((key: string) => {
+			store.delete(key);
+			syncOwnKeys();
+		}),
+		clear: vi.fn(() => {
+			store.clear();
+			syncOwnKeys();
+		}),
+		key: vi.fn((index: number) => Array.from(store.keys())[index] ?? null),
+	} as unknown as Storage;
+
+	Object.defineProperty(mock, 'length', {
+		get: () => store.size,
+		enumerable: false,
+	});
+
+	// Mirror stored entries onto the mock object's own enumerable
+	// properties so that `Object.keys(localStorage)` (used by
+	// LocalStorageJWKSCache.getSize()/clear()) reflects the real keys,
+	// matching real browser `localStorage` behavior.
+	function syncOwnKeys() {
+		const reserved = new Set(['getItem', 'setItem', 'removeItem', 'clear', 'key', 'length']);
+		for (const existingKey of Object.keys(mock)) {
+			if (!reserved.has(existingKey)) delete (mock as unknown as Record<string, unknown>)[existingKey];
+		}
+		store.forEach((value, key) => {
+			(mock as unknown as Record<string, unknown>)[key] = value;
+		});
+	}
+
+	return mock;
+}
+
 describe('LocalStorageJWKSCache', () => {
 	let cache: LocalStorageJWKSCache;
+	let originalLocalStorage: Storage;
 	const mockJWKS: JWKS = {
 		keys: [
 			{
@@ -231,13 +287,14 @@ describe('LocalStorageJWKSCache', () => {
 	};
 
 	beforeEach(() => {
-		// Clear localStorage
-		localStorage.clear();
+		originalLocalStorage = global.localStorage;
+		global.localStorage = createMemoryLocalStorageMock();
 		cache = new LocalStorageJWKSCache('test_jwks_cache_', 1000); // 1 second TTL
 	});
 
 	afterEach(() => {
 		localStorage.clear();
+		global.localStorage = originalLocalStorage;
 	});
 
 	describe('Basic Operations', () => {

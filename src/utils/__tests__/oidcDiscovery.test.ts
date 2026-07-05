@@ -306,7 +306,9 @@ describe('OIDC Discovery Utilities', () => {
 
 			const result = getBackendUrl();
 
-			expect(result).toBe('https://localhost:3001');
+			// In development, getBackendUrl() returns '' so requests use a relative
+			// URL and go through the Vite dev proxy instead of a hardcoded host.
+			expect(result).toBe('');
 
 			process.env.NODE_ENV = originalEnv;
 		});
@@ -336,7 +338,7 @@ describe('OIDC Discovery Utilities', () => {
 			const result = await fetchWithRetry('https://example.com', { retries: 2 });
 
 			expect(result).toBe(mockResponse);
-			expect(global.fetch).toHaveBeenCalledTimes(3); // 1 initial + 2 retries
+			expect(global.fetch).toHaveBeenCalledTimes(2); // `retries` is the total attempt count, not additional retries
 		});
 
 		it('should not retry on client errors', async () => {
