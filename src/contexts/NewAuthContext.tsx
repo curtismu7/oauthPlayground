@@ -342,7 +342,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 			hasConfigError: true,
 		};
 	} finally {
-		// eslint-disable-next-line require-atomic-updates
+		 
 		isLoadingConfiguration = false;
 	}
 }
@@ -504,7 +504,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			} catch (error) {
 				logger.error('NewAuthContext', 'Error updating configuration', error);
 			} finally {
-				// eslint-disable-next-line require-atomic-updates
+				 
 				isHandlingChange = false;
 			}
 		};

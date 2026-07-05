@@ -35,7 +35,7 @@ export function migrateCustomPresets(): MigrationResult {
 			return result; // No presets to migrate
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		 
 		let presets: any[];
 		try {
 			presets = JSON.parse(stored);

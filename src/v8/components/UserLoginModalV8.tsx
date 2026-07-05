@@ -945,7 +945,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					sessionStorage.removeItem('user_login_credentials_temp_v8');
 					sessionStorage.removeItem('user_login_redirect_uri_v8');
 				} finally {
-					// eslint-disable-next-line require-atomic-updates
+					 
 					isProcessingRef.current = false;
 					setIsProcessingCallback(false);
 				}
@@ -1185,7 +1185,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					} catch (error) {
 						logger.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
 						processedCodesRef.current.delete(code);
-						// eslint-disable-next-line require-atomic-updates
+						 
 						isProcessingRef.current = false;
 					}
 				}
@@ -1220,7 +1220,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							`${MODULE_TAG} No worker token available to update PingOne app`,
 							'Logger warning'
 						);
-						// eslint-disable-next-line require-atomic-updates
+						 
 						previousRedirectUriRef.current = newRedirectUri;
 						return;
 					}
@@ -1240,7 +1240,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 					if (!app) {
 						logger.warn(`${MODULE_TAG} Application not found with client ID: ${clientId.trim()}`);
-						// eslint-disable-next-line require-atomic-updates
+						 
 						previousRedirectUriRef.current = newRedirectUri;
 						return;
 					}
@@ -1290,7 +1290,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				}
 			}
 
-			// eslint-disable-next-line require-atomic-updates
+			 
 			previousRedirectUriRef.current = newRedirectUri;
 		},
 		[environmentId, clientId, defaultRedirectUri]

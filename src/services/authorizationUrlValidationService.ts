@@ -558,10 +558,10 @@ export { AuthorizationUrlValidationService };
 if (typeof window !== 'undefined') {
 	(window as Record<string, unknown>).authorizationUrlValidationService =
 		authorizationUrlValidationService;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	 
 	(window as Record<string, unknown>).validateAuthUrl = (url: string, flowType: string) =>
 		authorizationUrlValidationService.validateAuthorizationUrl(url, {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			 
 			flowType: flowType as any,
 		});
 	(window as Record<string, unknown>).quickValidateAuthUrl = (url: string) =>

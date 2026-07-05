@@ -1757,7 +1757,6 @@ const JsonViewer: React.FC<{ data: unknown; depth?: number }> = ({ data, depth =
 		return (
 			<JsonBlock $depth={depth}>
 				{data.map((item, i) => (
-					// eslint-disable-next-line react/no-array-index-key
 					<JsonRow key={i}>
 						<JsonKey>[{i}]</JsonKey>
 						<JsonViewer data={item} depth={depth + 1} />

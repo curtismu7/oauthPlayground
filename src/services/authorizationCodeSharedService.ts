@@ -897,7 +897,7 @@ export class AuthzFlowDefaults {
 	static getOAuthDefaults(): Partial<StepCredentials> {
 		return {
 			redirectUri:
-				// eslint-disable-next-line @typescript-eslint/no-require-imports
+				 
 				require('../services/flowRedirectUriService').FlowRedirectUriService.getDefaultRedirectUri(
 					'authorization-code'
 				),
@@ -915,7 +915,7 @@ export class AuthzFlowDefaults {
 	static getOIDCDefaults(): Partial<StepCredentials> {
 		return {
 			redirectUri:
-				// eslint-disable-next-line @typescript-eslint/no-require-imports
+				 
 				require('../services/flowRedirectUriService').FlowRedirectUriService.getDefaultRedirectUri(
 					'authorization-code'
 				),
@@ -1008,7 +1008,7 @@ export class AuthzFlowTokenManagement {
 		const flowType = variant === 'oauth' ? 'oauth' : 'oidc';
 
 		// Store flow navigation state for back navigation
-		// eslint-disable-next-line @typescript-eslint/no-require-imports
+		 
 		const { storeFlowNavigationState } = require('../utils/flowNavigation');
 		storeFlowNavigationState(flowId, currentStep, flowType);
 
