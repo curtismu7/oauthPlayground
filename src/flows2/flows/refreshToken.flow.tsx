@@ -10,23 +10,30 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import {
+	applyRefreshTokenSabotage,
+	refreshTokenSabotageScenarios,
+} from '../content/refreshTokenSabotage';
+import { refreshTokenActors, refreshTokenInteractions } from '../content/refreshTokenSequence';
+import { refreshTokenSpecVsPingOne } from '../content/refreshTokenSpecVsPingOne';
+import { BreakItLab } from '../framework/BreakItLab';
 import { CredentialsForm } from '../framework/CredentialsForm';
-import { useFlowCredentials } from '../framework/useFlowCredentials';
-import { useFlowStorage } from '../framework/useFlowStorage';
-import { RequestPreview } from '../framework/RequestPreview';
-import type { CurlRequest } from '../framework/RequestPreview';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
+import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
 import { FlowStep } from '../framework/FlowStep';
 import { Action, Pill, Toggle } from '../framework/primitives';
+import type { CurlRequest } from '../framework/RequestPreview';
+import { RequestPreview } from '../framework/RequestPreview';
 import { ResultCard } from '../framework/ResultCard';
 import { SpecToggle } from '../framework/SpecToggle';
-import { tokens } from '../framework/tokens';
-import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
+import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
 import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
+import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
+import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
 	FlowCredentials,
@@ -36,7 +43,10 @@ import type {
 	StepDefinition,
 } from '../framework/types';
 import { UseTokensStep } from '../framework/UseTokensStep';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { useFlowEngine } from '../framework/useFlowEngine';
+import { useFlowStorage } from '../framework/useFlowStorage';
+import { PathProgressBadge } from '../learning/PathProgressBadge';
 import { pingoneEndpoints } from '../services/pingone';
 import { type RefreshResult, refreshTokenService } from '../services/refreshTokenService';
 
@@ -107,8 +117,14 @@ const RefreshTokenFlow: React.FC = () => {
 	const [mode, setMode] = useState<FlowMode>('real');
 	const [spec, setSpec] = useState<OAuthSpec>('2.1');
 	const [oidc, setOidc] = useState(true);
-	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
-	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({
+		accessTokenSeconds: 3600,
+		idTokenSeconds: 3600,
+		refreshTokenSeconds: 86400,
+	});
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => {
+		setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) }));
+	};
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -121,14 +137,19 @@ const RefreshTokenFlow: React.FC = () => {
 	const [result, setResult] = useState<RefreshResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	// Break-it Lab: the sabotage scenario selected for the refresh request (null = run correctly).
+	const [sabotageId, setSabotageId] = useState<string | null>(null);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
 
-	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
-		useFlowCredentials('flows2:refresh-token', creds, setCreds);
+	const {
+		save: saveCredentials,
+		saving: savingCreds,
+		saved: savedCreds,
+	} = useFlowCredentials('flows2:refresh-token', creds, setCreds);
 
 	const { saveState, restoreState } = useFlowStorage('flows2:refresh-token');
 
@@ -145,13 +166,16 @@ const RefreshTokenFlow: React.FC = () => {
 			}));
 			setInputRefreshToken((t) => t || MOCK_REFRESH_TOKEN);
 		} else {
-			setCreds((c) => ({
-				...c,
-				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
-				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
-				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
-				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
-			}));
+			setCreds(
+				(c) =>
+					({
+						...c,
+						environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
+						clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
+						clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
+						scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
+					}) as FlowCredentials
+			);
 			setInputRefreshToken((t) => (t === MOCK_REFRESH_TOKEN ? '' : t));
 		}
 	}, [mode]);
@@ -159,7 +183,8 @@ const RefreshTokenFlow: React.FC = () => {
 	useEffect(() => {
 		restoreState().then((saved) => {
 			if (!saved) return;
-			if (!inputRefreshToken && saved.inputRefreshToken) setInputRefreshToken(saved.inputRefreshToken as string);
+			if (!inputRefreshToken && saved.inputRefreshToken)
+				setInputRefreshToken(saved.inputRefreshToken as string);
 			if (!result && saved.result) setResult(saved.result as RefreshResult | null);
 			if (!error && saved.error) setError(saved.error as FlowError | null);
 		});
@@ -170,7 +195,16 @@ const RefreshTokenFlow: React.FC = () => {
 		setError(null);
 		setResult(null);
 		try {
-			const r = await refreshTokenService.refresh(creds, inputRefreshToken, mode, tokenLifetimes, creds.authMethod);
+			// Break-it Lab: apply the selected refresh-stage sabotage (tamper refresh_token,
+			// wrong client_secret, broaden scope) to the outgoing params right before dispatch.
+			// No-op when nothing is selected.
+			const refreshParams = applyRefreshTokenSabotage(sabotageId, 'refresh', {
+				credentials: creds,
+				refreshToken: inputRefreshToken,
+			});
+			const nextCreds = refreshParams.credentials as FlowCredentials;
+			const nextRefreshToken = refreshParams.refreshToken as string;
+			const r = await refreshTokenService.refresh(nextCreds, nextRefreshToken, mode);
 			setResult(r);
 			engine.markComplete('refresh');
 		} catch (err) {
@@ -178,7 +212,7 @@ const RefreshTokenFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, inputRefreshToken, mode, engine, tokenLifetimes]);
+	}, [creds, inputRefreshToken, mode, engine, sabotageId]);
 
 	useEffect(() => {
 		saveState({ inputRefreshToken, result, error });
@@ -191,6 +225,10 @@ const RefreshTokenFlow: React.FC = () => {
 			: Boolean(creds.environmentId && creds.clientId && inputRefreshToken.trim());
 	const cur = engine.current.id;
 
+	// Break-it Lab reads back the actual outcome of the last run to compare against the
+	// scenario's predicted error.
+	const lastOutcome = error ? { error } : result ? { ok: true } : null;
+
 	return (
 		<FlowContainer
 			title="Refresh Token"
@@ -200,6 +238,14 @@ const RefreshTokenFlow: React.FC = () => {
 			subtitle="Exchange a refresh_token for new tokens (RFC 6749 §6). OAuth 2.1 mandates rotation — the server MUST return a new refresh_token, and MUST revoke all tokens if the old one is reused."
 			engine={engine}
 		>
+			<PathProgressBadge flowRoute="/v2/flows/refresh-token" />
+			<FlowSequenceDiagram
+				title="Live sequence — the current step is highlighted"
+				actors={refreshTokenActors}
+				interactions={refreshTokenInteractions}
+				activeStepId={cur}
+				completedStepIds={engine.completed}
+			/>
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure and paste your refresh token"
@@ -238,7 +284,12 @@ const RefreshTokenFlow: React.FC = () => {
 						saving={savingCreds}
 						saved={savedCreds}
 					/>
-					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={false} showRefreshToken={true} />
+					<TokenLifetimeConfig
+						lifetimes={tokenLifetimes}
+						onChange={updateTokenLifetime}
+						showIdToken={false}
+						showRefreshToken={true}
+					/>
 					<FieldGroup
 						label="Refresh Token (paste here)"
 						value={inputRefreshToken}
@@ -254,6 +305,10 @@ const RefreshTokenFlow: React.FC = () => {
 						refresh grant is constrained: public clients MUST use PKCE, and servers MUST rotate
 						refresh tokens to limit the blast radius of token theft.
 					</ExplanationPanel>
+					<SpecVsPingOneList
+						title="Spec vs PingOne — how this flow differs on PingOne"
+						entries={refreshTokenSpecVsPingOne}
+					/>
 				</FlowStep>
 			)}
 
@@ -280,6 +335,13 @@ const RefreshTokenFlow: React.FC = () => {
 						};
 						return <RequestPreview request={curlReq} />;
 					})()}
+					<BreakItLab
+						scenarios={refreshTokenSabotageScenarios}
+						stage="refresh"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					<Action onClick={doRefresh} disabled={loading || !configured}>
 						{loading ? 'Refreshing…' : mode === 'real' ? 'Refresh tokens' : 'Refresh tokens (mock)'}
 					</Action>

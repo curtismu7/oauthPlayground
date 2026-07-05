@@ -8,19 +8,30 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import {
+	applyDeviceSabotage,
+	deviceAuthorizationSabotageScenarios,
+} from '../content/deviceAuthorizationSabotage';
+import {
+	deviceAuthorizationActors,
+	deviceAuthorizationInteractions,
+} from '../content/deviceAuthorizationSequence';
+import { deviceAuthorizationSpecVsPingOne } from '../content/deviceAuthorizationSpecVsPingOne';
+import { BreakItLab } from '../framework/BreakItLab';
 import { CredentialsForm } from '../framework/CredentialsForm';
-import { useFlowCredentials } from '../framework/useFlowCredentials';
-import { useFlowStorage } from '../framework/useFlowStorage';
-import { RequestPreview } from '../framework/RequestPreview';
-import type { CurlRequest } from '../framework/RequestPreview';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowDiagram } from '../framework/FlowDiagram';
 import { FlowResult } from '../framework/FlowResult';
+import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
 import { FlowStep } from '../framework/FlowStep';
 import { Action, Pill, Toggle } from '../framework/primitives';
+import type { CurlRequest } from '../framework/RequestPreview';
+import { RequestPreview } from '../framework/RequestPreview';
 import { ResultCard } from '../framework/ResultCard';
 import { SpecToggle } from '../framework/SpecToggle';
+import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
+import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
 import { tokens } from '../framework/tokens';
 import type {
@@ -32,9 +43,11 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
-import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
 import { UseTokensStep } from '../framework/UseTokensStep';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { useFlowEngine } from '../framework/useFlowEngine';
+import { useFlowStorage } from '../framework/useFlowStorage';
+import { PathProgressBadge } from '../learning/PathProgressBadge';
 import {
 	type DeviceCodeResult,
 	type PollStatus,
@@ -136,8 +149,17 @@ const DeviceAuthorizationFlow: React.FC = () => {
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
-	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
-	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
+	// Break-it Lab: the sabotage scenario the learner has selected (null = run correctly).
+	// Applied to the outgoing device-init / poll params right before dispatch.
+	const [sabotageId, setSabotageId] = useState<string | null>(null);
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({
+		accessTokenSeconds: 3600,
+		idTokenSeconds: 3600,
+		refreshTokenSeconds: 86400,
+	});
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => {
+		setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) }));
+	};
 
 	// Poll loop bookkeeping — a ref so the recursive setTimeout always sees live values
 	// and so unmount/Stop can cancel cleanly.
@@ -195,8 +217,11 @@ const DeviceAuthorizationFlow: React.FC = () => {
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
-	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
-		useFlowCredentials('flows2:device-authorization', creds, setCreds);
+	const {
+		save: saveCredentials,
+		saving: savingCreds,
+		saved: savedCreds,
+	} = useFlowCredentials('flows2:device-authorization', creds, setCreds);
 
 	const { saveState, restoreState } = useFlowStorage('flows2:device-authorization');
 
@@ -216,7 +241,11 @@ const DeviceAuthorizationFlow: React.FC = () => {
 		setStatus(null);
 		setResult(null);
 		try {
-			const d = await svc.requestDeviceCode(creds, mode, tokenLifetimes, creds.authMethod);
+			// Break-it Lab: apply the selected device-init sabotage (e.g. wrong client_id)
+			// to the outgoing request. No-op when nothing is selected.
+			const sab = applyDeviceSabotage(sabotageId, 'device-init', { clientId: creds.clientId });
+			const reqCreds = { ...creds, clientId: sab.clientId };
+			const d = await svc.requestDeviceCode(reqCreds, mode, tokenLifetimes, creds.authMethod);
 			setDevice(d);
 			engine.markComplete('request');
 		} catch (err) {
@@ -224,7 +253,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, mode, engine, tokenLifetimes]);
+	}, [creds, mode, engine, tokenLifetimes, sabotageId]);
 
 	const startPolling = useCallback(() => {
 		if (!device) return;
@@ -247,7 +276,21 @@ const DeviceAuthorizationFlow: React.FC = () => {
 			}
 			pollInProgress.current = true;
 			try {
-				const r = await svc.pollOnce(creds, device.deviceCode, mode, attempt.current, tokenLifetimes, creds.authMethod);
+				// Break-it Lab: apply the selected poll-stage sabotage (e.g. wrong client_id on
+				// the poll) before dispatching. simulateOnly scenarios leave the params untouched.
+				const sab = applyDeviceSabotage(sabotageId, 'poll', {
+					clientId: creds.clientId,
+					deviceCode: device.deviceCode,
+				});
+				const pollCreds = { ...creds, clientId: sab.clientId };
+				const r = await svc.pollOnce(
+					pollCreds,
+					sab.deviceCode,
+					mode,
+					attempt.current,
+					tokenLifetimes,
+					creds.authMethod
+				);
 				attempt.current += 1;
 				if (!active.current || !mounted.current) {
 					pollInProgress.current = false;
@@ -288,7 +331,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 
 		// First poll after one interval — the user needs time to enter the code.
 		timer.current = setTimeout(tick, intervalMs);
-	}, [device, creds, mode, engine, stopPolling, tokenLifetimes]);
+	}, [device, creds, mode, engine, stopPolling, tokenLifetimes, sabotageId]);
 
 	useEffect(() => {
 		saveState({ device, result, error });
@@ -298,6 +341,9 @@ const DeviceAuthorizationFlow: React.FC = () => {
 	const configured = mode === 'mock' ? true : Boolean(creds.environmentId && creds.clientId);
 	const cur = engine.current.id;
 	const verifyHref = device?.verificationUriComplete || device?.verificationUri;
+	// Break-it Lab reads back the actual outcome of the last run to compare against
+	// the scenario's predicted error.
+	const lastOutcome = error ? { error } : result ? { ok: true } : null;
 
 	return (
 		<FlowContainer
@@ -308,6 +354,14 @@ const DeviceAuthorizationFlow: React.FC = () => {
 			subtitle="Browserless / input-constrained devices (RFC 8628). The device shows a short user code; the user authorizes it on a phone or laptop while the device polls for tokens."
 			engine={engine}
 		>
+			<PathProgressBadge flowRoute="/v2/flows/device-authorization" />
+			<FlowSequenceDiagram
+				title="Live sequence — the current step is highlighted"
+				actors={deviceAuthorizationActors}
+				interactions={deviceAuthorizationInteractions}
+				activeStepId={cur}
+				completedStepIds={engine.completed}
+			/>
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure the device client"
@@ -346,12 +400,21 @@ const DeviceAuthorizationFlow: React.FC = () => {
 						saving={savingCreds}
 						saved={savedCreds}
 					/>
-					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={oidc} showRefreshToken={true} />
+					<TokenLifetimeConfig
+						lifetimes={tokenLifetimes}
+						onChange={updateTokenLifetime}
+						showIdToken={oidc}
+						showRefreshToken={true}
+					/>
 					<ExplanationPanel title="When to use Device Authorization">
 						Use it when the device has no browser or no keyboard — smart TVs, CLIs, IoT. The user
 						moves to a second device to authorize, so credentials are never typed on the constrained
 						device. The device polls the token endpoint until the user finishes (RFC 8628 §3.4).
 					</ExplanationPanel>
+					<SpecVsPingOneList
+						title="Spec vs PingOne — how this flow differs on PingOne"
+						entries={deviceAuthorizationSpecVsPingOne}
+					/>
 				</FlowStep>
 			)}
 
@@ -376,6 +439,13 @@ const DeviceAuthorizationFlow: React.FC = () => {
 						};
 						return <RequestPreview request={curlReq} />;
 					})()}
+					<BreakItLab
+						scenarios={deviceAuthorizationSabotageScenarios}
+						stage="device-init"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					<Action onClick={requestCode} disabled={loading || !configured}>
 						{loading
 							? 'Requesting…'
@@ -442,6 +512,13 @@ const DeviceAuthorizationFlow: React.FC = () => {
 						};
 						return <RequestPreview request={curlReq} />;
 					})()}
+					<BreakItLab
+						scenarios={deviceAuthorizationSabotageScenarios}
+						stage="poll"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					{!polling ? (
 						<Action onClick={startPolling} disabled={!device}>
 							Start polling

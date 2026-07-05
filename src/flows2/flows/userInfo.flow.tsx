@@ -6,22 +6,29 @@
 // Uses the shared flows2 primitives for visual parity with the other flows.
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useFlowStorage } from '../framework/useFlowStorage';
 import styled from 'styled-components';
-import { FlowContainer } from '../framework/FlowContainer';
-import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
+import { applyUserInfoSabotage, userInfoSabotageScenarios } from '../content/userInfoSabotage';
+import { userInfoActors, userInfoInteractions } from '../content/userInfoSequence';
+import { userInfoSpecVsPingOne } from '../content/userInfoSpecVsPingOne';
+import { BreakItLab } from '../framework/BreakItLab';
 import { JsonView } from '../framework/CodeBlock';
-import { ResultCard } from '../framework/ResultCard';
 import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
+import { FlowContainer } from '../framework/FlowContainer';
+import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
+import { FlowStep } from '../framework/FlowStep';
+import { ResultCard } from '../framework/ResultCard';
+import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
 import { tokens } from '../framework/tokens';
 import type { FlowError, FlowMode, StepDefinition } from '../framework/types';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import { useFlowStorage } from '../framework/useFlowStorage';
+import { PathProgressBadge } from '../learning/PathProgressBadge';
 import { decodeJwtPayload } from '../services/pingone';
 import {
-	userInfoEndpointFor,
 	userInfoService as svc,
 	type UserInfoResponse,
+	userInfoEndpointFor,
 } from '../services/userInfoService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -90,6 +97,9 @@ const UserInfoFlow: React.FC = () => {
 	const [result, setResult] = useState<UserInfoResponse | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	// Break-it Lab: the sabotage scenario selected for the userinfo call (null = run
+	// correctly). Applied to the outgoing params right before dispatch.
+	const [sabotageId, setSabotageId] = useState<string | null>(null);
 
 	const { saveState, restoreState } = useFlowStorage('flows2:userinfo');
 
@@ -97,8 +107,8 @@ const UserInfoFlow: React.FC = () => {
 		restoreState().then((saved) => {
 			if (!saved) return;
 			if (!accessToken && saved.accessToken) setAccessToken(saved.accessToken as string);
-			if (!result && saved.result) setResult(saved.result as typeof result);
-			if (!error && saved.error) setError(saved.error as typeof error);
+			if (!result && saved.result) setResult(saved.result as UserInfoResponse);
+			if (!error && saved.error) setError(saved.error as FlowError);
 		});
 	}, [restoreState, accessToken, result, error]);
 
@@ -107,7 +117,14 @@ const UserInfoFlow: React.FC = () => {
 		setError(null);
 		setResult(null);
 		try {
-			const r = await svc.run({ environmentId, region, accessToken }, mode);
+			// Break-it Lab: apply the selected userinfo-stage sabotage (e.g. corrupt the
+			// access token) to the outgoing params. No-op when nothing is selected.
+			const userinfoParams = applyUserInfoSabotage(sabotageId, 'userinfo', {
+				environmentId,
+				region,
+				accessToken,
+			});
+			const r = await svc.run(userinfoParams, mode);
 			setResult(r);
 			engine.markComplete('fetch');
 		} catch (err) {
@@ -115,19 +132,24 @@ const UserInfoFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [environmentId, region, accessToken, mode, engine]);
+	}, [environmentId, region, accessToken, mode, engine, sabotageId]);
 
 	useEffect(() => {
 		saveState({ accessToken, result, error });
 	}, [accessToken, result, error, saveState]);
 
-	const configured = mode === 'mock' ? Boolean(environmentId) : Boolean(environmentId && accessToken);
+	const configured =
+		mode === 'mock' ? Boolean(environmentId) : Boolean(environmentId && accessToken);
 	// Decode the access token locally — works only if it's a JWT; null for opaque tokens.
 	const localClaims = useMemo(
 		() => (accessToken ? decodeJwtPayload(accessToken) : null),
 		[accessToken]
 	);
 	const cur = engine.current.id;
+
+	// Break-it Lab reads back the actual outcome of the last fetch to compare against
+	// the scenario's predicted error.
+	const lastOutcome = error ? { error } : result ? { ok: true } : null;
 
 	return (
 		<FlowContainer
@@ -137,6 +159,14 @@ const UserInfoFlow: React.FC = () => {
 			subtitle="OIDC §5.3. Present a user-delegated access token to the UserInfo endpoint and receive live, server-authoritative claims about the end-user — distinct from what was baked into the ID token at issue time."
 			engine={engine}
 		>
+			<PathProgressBadge flowRoute="/v2/flows/userinfo" />
+			<FlowSequenceDiagram
+				title="Live sequence — the current step is highlighted"
+				actors={userInfoActors}
+				interactions={userInfoInteractions}
+				activeStepId={cur}
+				completedStepIds={engine.completed}
+			/>
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure the UserInfo call"
@@ -147,8 +177,12 @@ const UserInfoFlow: React.FC = () => {
 					canNext={configured}
 				>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>
+							Real PingOne
+						</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>
+							Mock
+						</Pill>
 					</Toggle>
 					<Grid>
 						<FieldGroup
@@ -183,6 +217,10 @@ const UserInfoFlow: React.FC = () => {
 						<code>userinfo_endpoint</code>. Clients should always discover it there rather than
 						hard-coding the path.
 					</ExplanationPanel>
+					<SpecVsPingOneList
+						title="Spec vs PingOne — how UserInfo differs on PingOne"
+						entries={userInfoSpecVsPingOne}
+					/>
 				</FlowStep>
 			)}
 
@@ -200,6 +238,13 @@ const UserInfoFlow: React.FC = () => {
 							? userInfoEndpointFor(environmentId, region)
 							: 'mock — answered locally, no network call'}
 					</Endpoint>
+					<BreakItLab
+						scenarios={userInfoSabotageScenarios}
+						stage="userinfo"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					<Action onClick={run} disabled={loading || !configured}>
 						{loading ? 'Fetching…' : mode === 'real' ? 'Fetch UserInfo' : 'Fetch mock UserInfo'}
 					</Action>
@@ -238,19 +283,18 @@ const UserInfoFlow: React.FC = () => {
 						)}
 					</ResultCard>
 					<ExplanationPanel title="Why both exist">
-						The ID token is for the client: a compact, verifiable, offline-usable assertion that
-						the user authenticated. UserInfo is for the resource server (or the client when it
-						needs fresh data): a live claim set that reflects the user's state right now. Because
-						ID tokens are signed at issue time, a long-lived token may carry stale data — use
-						UserInfo when you need the current truth (e.g. checking updated roles or email
-						verified status).
+						The ID token is for the client: a compact, verifiable, offline-usable assertion that the
+						user authenticated. UserInfo is for the resource server (or the client when it needs
+						fresh data): a live claim set that reflects the user's state right now. Because ID
+						tokens are signed at issue time, a long-lived token may carry stale data — use UserInfo
+						when you need the current truth (e.g. checking updated roles or email verified status).
 					</ExplanationPanel>
 					<ExplanationPanel title="Scope controls what you get">
-						The scopes granted with the access token gate the UserInfo response:{' '}
-						<code>openid</code> alone returns only <code>sub</code>; adding <code>profile</code>{' '}
-						unlocks name fields; <code>email</code> adds email + email_verified;{' '}
-						<code>phone</code> adds phone_number. The server never returns claims beyond what the
-						user consented to when the token was issued.
+						The scopes granted with the access token gate the UserInfo response: <code>openid</code>{' '}
+						alone returns only <code>sub</code>; adding <code>profile</code> unlocks name fields;{' '}
+						<code>email</code> adds email + email_verified; <code>phone</code> adds phone_number.
+						The server never returns claims beyond what the user consented to when the token was
+						issued.
 					</ExplanationPanel>
 				</FlowStep>
 			)}

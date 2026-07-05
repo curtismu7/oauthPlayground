@@ -10,24 +10,27 @@
 // shared palette/primitives, signature FlowDiagram, header Real/Mock toggle, spec pills.
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlowContainer } from '../framework/FlowContainer';
-import { FlowResult } from '../framework/FlowResult';
-import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { CodeBlock, JsonView } from '../framework/CodeBlock';
-import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { Action } from '../framework/primitives';
-import { RequestPreview } from '../framework/RequestPreview';
-import type { CurlRequest } from '../framework/RequestPreview';
-import { CredentialsForm } from '../framework/CredentialsForm';
-import { useFlowCredentials } from '../framework/useFlowCredentials';
-import { useFlowStorage } from '../framework/useFlowStorage';
-import { SpecToggle } from '../framework/SpecToggle';
-import { FlowDiagram } from '../framework/FlowDiagram';
+import { applyParSabotage, parSabotageScenarios } from '../content/parSabotage';
+import { parActors, parInteractions } from '../content/parSequence';
+import { parSpecVsPingOne } from '../content/parSpecVsPingOne';
 import { clearStash, loadStash, saveStash } from '../framework/authzStash';
-import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
+import { BreakItLab } from '../framework/BreakItLab';
+import { CodeBlock, JsonView } from '../framework/CodeBlock';
+import { CredentialsForm } from '../framework/CredentialsForm';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FlowContainer } from '../framework/FlowContainer';
+import { FlowDiagram } from '../framework/FlowDiagram';
+import { FlowResult } from '../framework/FlowResult';
+import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
+import { FlowStep } from '../framework/FlowStep';
+import { Action } from '../framework/primitives';
+import type { CurlRequest } from '../framework/RequestPreview';
+import { RequestPreview } from '../framework/RequestPreview';
+import { ResultCard } from '../framework/ResultCard';
+import { SpecToggle } from '../framework/SpecToggle';
+import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
 import type { TokenLifetimes } from '../framework/TokenLifetimeConfig';
+import { TokenLifetimeConfig } from '../framework/TokenLifetimeConfig';
 import type {
 	FlowCredentials,
 	FlowError,
@@ -37,8 +40,12 @@ import type {
 	TokenResult,
 } from '../framework/types';
 import { UseTokensStep } from '../framework/UseTokensStep';
-import { parService } from '../services/parService';
+import { useFlowCredentials } from '../framework/useFlowCredentials';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import { useFlowStorage } from '../framework/useFlowStorage';
+import { PathProgressBadge } from '../learning/PathProgressBadge';
 import type { PkcePair } from '../services/parService';
+import { parService } from '../services/parService';
 import { pingoneEndpoints } from '../services/pingone';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -77,8 +84,14 @@ const PARFlow: React.FC = () => {
 	const [mode, setMode] = useState<FlowMode>('real');
 	const [spec, setSpec] = useState<OAuthSpec>('2.1');
 	const [oidc, setOidc] = useState(true);
-	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({ accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 });
-	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => { setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) })); };
+	const [tokenLifetimes, setTokenLifetimes] = useState<TokenLifetimes>({
+		accessTokenSeconds: 3600,
+		idTokenSeconds: 3600,
+		refreshTokenSeconds: 86400,
+	});
+	const updateTokenLifetime = (k: keyof TokenLifetimes) => (v: number | string) => {
+		setTokenLifetimes((prev) => ({ ...prev, [k]: Number(v) }));
+	};
 	const [creds, setCreds] = useState<FlowCredentials>({
 		environmentId: env.VITE_PINGONE_ENVIRONMENT_ID || '',
 		region: env.VITE_PINGONE_REGION || 'com',
@@ -89,20 +102,30 @@ const PARFlow: React.FC = () => {
 	const [redirectUri, setRedirectUri] = useState(defaultRedirectUri());
 	const [pkce, setPkce] = useState<PkcePair | null>(null);
 	const [authState, setAuthState] = useState('');
-	const [pushResult, setPushResult] = useState<{ requestUri: string; expiresIn: number; raw: Record<string, unknown> } | null>(null);
+	const [pushResult, setPushResult] = useState<{
+		requestUri: string;
+		expiresIn: number;
+		raw: Record<string, unknown>;
+	} | null>(null);
 	const [authorizeUrl, setAuthorizeUrl] = useState('');
 	const [code, setCode] = useState('');
 	const [result, setResult] = useState<TokenResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	// Break-it Lab: the sabotage scenario selected for the current step (null = run
+	// correctly). Applied to the outgoing PAR-push params right before dispatch.
+	const [sabotageId, setSabotageId] = useState<string | null>(null);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
 
 	const selectMode = useCallback((m: FlowMode) => setMode(m), []);
 
-	const { save: saveCredentials, saving: savingCreds, saved: savedCreds } =
-		useFlowCredentials('flows2:par', creds, setCreds);
+	const {
+		save: saveCredentials,
+		saving: savingCreds,
+		saved: savedCreds,
+	} = useFlowCredentials('flows2:par', creds, setCreds);
 
 	const { saveState, restoreState } = useFlowStorage('flows2:par');
 
@@ -122,7 +145,7 @@ const PARFlow: React.FC = () => {
 				...c,
 				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
 				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
-				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : c.clientSecret ?? '',
+				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
 				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
 			}));
 		}
@@ -185,17 +208,18 @@ const PARFlow: React.FC = () => {
 			const state = crypto.randomUUID();
 			setAuthState(state);
 
-			const pushed = await parService.pushAuthorizationRequest(
-				{
-					credentials: creds,
-					redirectUri,
-					state,
-					...(oidc ? { nonce: crypto.randomUUID() } : {}),
-					codeChallenge: pair.codeChallenge,
-					scope: creds.scope,
-				},
-				mode
-			);
+			// Break-it Lab: apply the selected PAR-stage sabotage (e.g. drop client auth)
+			// to the outgoing push params. No-op when nothing is selected or the scenario
+			// is simulate-only.
+			const pushParams = applyParSabotage(sabotageId, 'par', {
+				credentials: creds,
+				redirectUri,
+				state,
+				...(oidc ? { nonce: crypto.randomUUID() } : {}),
+				codeChallenge: pair.codeChallenge,
+				scope: creds.scope,
+			});
+			const pushed = await parService.pushAuthorizationRequest(pushParams, mode);
 			setPushResult(pushed);
 
 			const url = parService.buildAuthorizeUrl(creds, pushed.requestUri);
@@ -207,7 +231,7 @@ const PARFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, redirectUri, mode, oidc, engine]);
+	}, [creds, redirectUri, mode, oidc, engine, sabotageId]);
 
 	const handleAuthorize = useCallback(() => {
 		if (!pushResult || !pkce) return;
@@ -243,7 +267,14 @@ const PARFlow: React.FC = () => {
 		setLoading(true);
 		try {
 			const r = await parService.exchangeCode(
-				{ credentials: creds, redirectUri, code, codeVerifier: pkce.codeVerifier, tokenLifetimes, authMethod: 'client_secret_post' },
+				{
+					credentials: creds,
+					redirectUri,
+					code,
+					codeVerifier: pkce.codeVerifier,
+					tokenLifetimes,
+					authMethod: 'client_secret_post',
+				},
 				mode
 			);
 			setResult(r);
@@ -260,6 +291,10 @@ const PARFlow: React.FC = () => {
 	}, [code, result, error, pkce, pushResult, authState, saveState]);
 
 	// ─── Computed guards ──────────────────────────────────────────────────────
+
+	// Break-it Lab reads back the actual outcome of the last run to compare against the
+	// scenario's predicted error.
+	const lastOutcome = error ? { error } : result ? { ok: true } : null;
 
 	// Mock runs offline — never gate it on real credentials.
 	const configured =
@@ -279,6 +314,14 @@ const PARFlow: React.FC = () => {
 			subtitle="The client sends the full authorization request to the AS back channel first (RFC 9126), receives a short-lived request_uri, then redirects with only client_id + request_uri — nothing tamperable in the URL."
 			engine={engine}
 		>
+			<PathProgressBadge flowRoute="/v2/flows/par" />
+			<FlowSequenceDiagram
+				title="Live sequence — the current step is highlighted"
+				actors={parActors}
+				interactions={parInteractions}
+				activeStepId={cur}
+				completedStepIds={engine.completed}
+			/>
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure"
@@ -308,7 +351,16 @@ const PARFlow: React.FC = () => {
 						saving={savingCreds}
 						saved={savedCreds}
 					/>
-					<TokenLifetimeConfig lifetimes={tokenLifetimes} onChange={updateTokenLifetime} showIdToken={oidc} showRefreshToken={true} />
+					<TokenLifetimeConfig
+						lifetimes={tokenLifetimes}
+						onChange={updateTokenLifetime}
+						showIdToken={oidc}
+						showRefreshToken={true}
+					/>
+					<SpecVsPingOneList
+						title="Spec vs PingOne — how this flow differs on PingOne"
+						entries={parSpecVsPingOne}
+					/>
 				</FlowStep>
 			)}
 
@@ -325,8 +377,8 @@ const PARFlow: React.FC = () => {
 						In a normal authorization request the parameters travel in the URL — browser history,
 						referrer headers, and server logs can all see them. PAR moves them to a direct
 						back-channel POST (authenticated with the client secret), so the front-channel URL
-						carries only an opaque reference. The AS can validate and bind the request before
-						any redirect happens — a hard requirement in FAPI 2.0 and recommended in OAuth 2.1.
+						carries only an opaque reference. The AS can validate and bind the request before any
+						redirect happens — a hard requirement in FAPI 2.0 and recommended in OAuth 2.1.
 					</ExplanationPanel>
 					{(() => {
 						const ep = pingoneEndpoints(creds);
@@ -344,6 +396,13 @@ const PARFlow: React.FC = () => {
 						};
 						return <RequestPreview request={curlReq} />;
 					})()}
+					<BreakItLab
+						scenarios={parSabotageScenarios}
+						stage="par"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					<Action onClick={handlePush} disabled={loading || !configured}>
 						{loading ? 'Pushing…' : 'Generate PKCE + push authorization request'}
 					</Action>
@@ -374,15 +433,26 @@ const PARFlow: React.FC = () => {
 					canNext={Boolean(code)}
 				>
 					<ExplanationPanel title="Front-channel URL — clean by design">
-						The authorize URL carries only <code>client_id</code> and <code>request_uri</code>.
-						All the sensitive parameters (scope, redirect_uri, code_challenge) are already
-						registered at the AS and are referenced by the opaque URI — not exposed in the URL.
+						The authorize URL carries only <code>client_id</code> and <code>request_uri</code>. All
+						the sensitive parameters (scope, redirect_uri, code_challenge) are already registered at
+						the AS and are referenced by the opaque URI — not exposed in the URL.
 					</ExplanationPanel>
 					{authorizeUrl && <CodeBlock label="Authorization URL" value={authorizeUrl} />}
+					<BreakItLab
+						scenarios={parSabotageScenarios}
+						stage="authorize"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					<Action onClick={handleAuthorize} disabled={!pushResult || !pkce}>
 						{mode === 'real' ? 'Redirect to PingOne →' : 'Issue code (mock)'}
 					</Action>
-					{code && <ResultCard title="Authorization code" tone="ok"><CodeBlock value={code} /></ResultCard>}
+					{code && (
+						<ResultCard title="Authorization code" tone="ok">
+							<CodeBlock value={code} />
+						</ResultCard>
+					)}
 					{error && <FlowResult error={error} />}
 				</FlowStep>
 			)}
@@ -439,11 +509,11 @@ const PARFlow: React.FC = () => {
 						</ResultCard>
 					)}
 					<ExplanationPanel title="PAR in OAuth 2.1 and FAPI">
-						PAR (RFC 9126) is RECOMMENDED in OAuth 2.1 and REQUIRED in FAPI 2.0 Baseline.
-						By binding the full request at the AS before the redirect, PAR eliminates open
-						redirector attacks, request tampering, and mix-up attacks. Combined with PKCE and
-						short-lived request_uri TTLs, it delivers the strongest front-channel security
-						available without JAR (request objects).
+						PAR (RFC 9126) is RECOMMENDED in OAuth 2.1 and REQUIRED in FAPI 2.0 Baseline. By binding
+						the full request at the AS before the redirect, PAR eliminates open redirector attacks,
+						request tampering, and mix-up attacks. Combined with PKCE and short-lived request_uri
+						TTLs, it delivers the strongest front-channel security available without JAR (request
+						objects).
 					</ExplanationPanel>
 				</FlowStep>
 			)}

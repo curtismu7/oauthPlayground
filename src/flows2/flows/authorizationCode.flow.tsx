@@ -45,6 +45,7 @@ import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { useFlowEngine } from '../framework/useFlowEngine';
 import { useFlowStorage } from '../framework/useFlowStorage';
+import { PathProgressBadge } from '../learning/PathProgressBadge';
 import {
 	authorizationCodeService,
 	MOCK_REGISTERED_SECRET,
@@ -348,6 +349,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 			}
 			engine={engine}
 		>
+			<PathProgressBadge flowRoute="/v2/flows/authorization-code" />
 			<FlowSequenceDiagram
 				title="Live sequence — the current step is highlighted"
 				actors={authorizationCodeActors}

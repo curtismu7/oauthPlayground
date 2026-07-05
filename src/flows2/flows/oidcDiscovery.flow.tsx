@@ -8,27 +8,32 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useFlowStorage } from '../framework/useFlowStorage';
-import { FlowContainer } from '../framework/FlowContainer';
-import { FlowStep } from '../framework/FlowStep';
-import { FlowResult } from '../framework/FlowResult';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
-import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
-import { JsonView } from '../framework/CodeBlock';
-import { tokens } from '../framework/tokens';
-import type {
-	FlowCredentials,
-	FlowError,
-	FlowMode,
-	StepDefinition,
-} from '../framework/types';
 import {
-	oidcDiscoveryService,
+	applyOidcDiscoverySabotage,
+	oidcDiscoverySabotageScenarios,
+} from '../content/oidcDiscoverySabotage';
+import { oidcDiscoveryActors, oidcDiscoveryInteractions } from '../content/oidcDiscoverySequence';
+import { oidcDiscoverySpecVsPingOne } from '../content/oidcDiscoverySpecVsPingOne';
+import { BreakItLab } from '../framework/BreakItLab';
+import { JsonView } from '../framework/CodeBlock';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
+import { FlowContainer } from '../framework/FlowContainer';
+import { FlowResult } from '../framework/FlowResult';
+import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
+import { FlowStep } from '../framework/FlowStep';
+import { ResultCard } from '../framework/ResultCard';
+import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
+import { tokens } from '../framework/tokens';
+import type { FlowCredentials, FlowError, FlowMode, StepDefinition } from '../framework/types';
+import { useFlowEngine } from '../framework/useFlowEngine';
+import { useFlowStorage } from '../framework/useFlowStorage';
+import { PathProgressBadge } from '../learning/PathProgressBadge';
+import {
 	type DiscoveryDocument,
-	type JwksResult,
 	type JwkKey,
+	type JwksResult,
+	oidcDiscoveryService,
 } from '../services/oidcDiscoveryService';
 
 const env = import.meta.env as Record<string, string | undefined>;
@@ -168,7 +173,10 @@ function pickSupported(doc: DiscoveryDocument): Array<{ label: string; field: st
 		{ label: 'scopes_supported', field: 'scopes_supported' },
 		{ label: 'grant_types_supported', field: 'grant_types_supported' },
 		{ label: 'response_types_supported', field: 'response_types_supported' },
-		{ label: 'id_token_signing_alg_values_supported', field: 'id_token_signing_alg_values_supported' },
+		{
+			label: 'id_token_signing_alg_values_supported',
+			field: 'id_token_signing_alg_values_supported',
+		},
 		{ label: 'code_challenge_methods_supported', field: 'code_challenge_methods_supported' },
 	].filter(({ field }) => field in doc && doc[field] != null);
 }
@@ -189,15 +197,18 @@ const OidcDiscoveryFlow: React.FC = () => {
 	const [jwks, setJwks] = useState<JwksResult | null>(null);
 	const [error, setError] = useState<FlowError | null>(null);
 	const [loading, setLoading] = useState(false);
+	// Break-it Lab: the sabotage scenario selected for the discover step (null = run
+	// correctly). Applied to the outgoing discovery params right before dispatch.
+	const [sabotageId, setSabotageId] = useState<string | null>(null);
 
 	const { saveState, restoreState } = useFlowStorage('flows2:oidc-discovery');
 
 	useEffect(() => {
 		restoreState().then((saved) => {
 			if (!saved) return;
-			if (!discovery && saved.discovery) setDiscovery(saved.discovery as typeof discovery);
-			if (!jwks && saved.jwks) setJwks(saved.jwks as typeof jwks);
-			if (!error && saved.error) setError(saved.error as typeof error);
+			if (!discovery && saved.discovery) setDiscovery(saved.discovery as DiscoveryDocument);
+			if (!jwks && saved.jwks) setJwks(saved.jwks as JwksResult);
+			if (!error && saved.error) setError(saved.error as FlowError);
 		});
 	}, [restoreState, discovery, jwks, error]);
 
@@ -210,7 +221,10 @@ const OidcDiscoveryFlow: React.FC = () => {
 		setDiscovery(null);
 		setJwks(null);
 		try {
-			const doc = await oidcDiscoveryService.discover(creds, mode);
+			// Break-it Lab: apply the selected discover-stage sabotage (e.g. typo the
+			// environment id) to a copy of the credentials. No-op when nothing is selected.
+			const discoverParams = applyOidcDiscoverySabotage(sabotageId, 'discover', { ...creds });
+			const doc = await oidcDiscoveryService.discover(discoverParams, mode);
 			setDiscovery(doc);
 			engine.markComplete('discover');
 		} catch (err) {
@@ -218,7 +232,7 @@ const OidcDiscoveryFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, mode, engine]);
+	}, [creds, mode, engine, sabotageId]);
 
 	const runFetchJwks = useCallback(async () => {
 		setLoading(true);
@@ -243,6 +257,10 @@ const OidcDiscoveryFlow: React.FC = () => {
 	const configured = Boolean(creds.environmentId && creds.region);
 	const cur = engine.current.id;
 
+	// Break-it Lab reads back the actual outcome of the last discover run to compare
+	// against the scenario's predicted error.
+	const lastOutcome = error ? { error } : discovery ? { ok: true } : null;
+
 	return (
 		<FlowContainer
 			title="OIDC Discovery + JWKS"
@@ -251,6 +269,14 @@ const OidcDiscoveryFlow: React.FC = () => {
 			subtitle="Fetch .well-known/openid-configuration so clients self-configure their endpoints, then inspect the JSON Web Key Set clients use to verify id_token signatures."
 			engine={engine}
 		>
+			<PathProgressBadge flowRoute="/v2/flows/oidc-discovery" />
+			<FlowSequenceDiagram
+				title="Live sequence — the current step is highlighted"
+				actors={oidcDiscoveryActors}
+				interactions={oidcDiscoveryInteractions}
+				activeStepId={cur}
+				completedStepIds={engine.completed}
+			/>
 			{/* ------------------------------------------------------------------ */}
 			{/* Step 1 — Configure                                                  */}
 			{/* ------------------------------------------------------------------ */}
@@ -264,8 +290,12 @@ const OidcDiscoveryFlow: React.FC = () => {
 					canNext={configured}
 				>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>
+							Real PingOne
+						</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>
+							Mock
+						</Pill>
 					</Toggle>
 					<Grid>
 						<FieldGroup
@@ -283,11 +313,15 @@ const OidcDiscoveryFlow: React.FC = () => {
 					</Grid>
 					<ExplanationPanel title="What is OIDC Discovery?">
 						OpenID Connect Discovery (RFC 8414) lets any client learn an authorization server's
-						endpoints and capabilities from a single URL:
-						{' '}<code>{'<issuer>/.well-known/openid-configuration'}</code>. Instead of hardcoding
-						the token endpoint, clients fetch the document once and read it — this means
-						endpoint URLs can change without breaking clients that respect the spec.
+						endpoints and capabilities from a single URL:{' '}
+						<code>{'<issuer>/.well-known/openid-configuration'}</code>. Instead of hardcoding the
+						token endpoint, clients fetch the document once and read it — this means endpoint URLs
+						can change without breaking clients that respect the spec.
 					</ExplanationPanel>
+					<SpecVsPingOneList
+						title="Spec vs PingOne — how discovery differs on PingOne"
+						entries={oidcDiscoverySpecVsPingOne}
+					/>
 				</FlowStep>
 			)}
 
@@ -303,8 +337,19 @@ const OidcDiscoveryFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(discovery)}
 				>
+					<BreakItLab
+						scenarios={oidcDiscoverySabotageScenarios}
+						stage="discover"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					<Action onClick={runDiscover} disabled={loading || !configured}>
-						{loading ? 'Fetching…' : mode === 'real' ? 'Fetch discovery document' : 'Fetch mock discovery document'}
+						{loading
+							? 'Fetching…'
+							: mode === 'real'
+								? 'Fetch discovery document'
+								: 'Fetch mock discovery document'}
 					</Action>
 
 					{error && !discovery && <FlowResult error={error} />}
@@ -322,7 +367,9 @@ const OidcDiscoveryFlow: React.FC = () => {
 									<tbody>
 										{pickEndpoints(discovery).map(({ label, field }) => (
 											<tr key={field}>
-												<Td><code>{label}</code></Td>
+												<Td>
+													<code>{label}</code>
+												</Td>
 												<Td>{String(discovery[field])}</Td>
 											</tr>
 										))}
@@ -341,7 +388,9 @@ const OidcDiscoveryFlow: React.FC = () => {
 									<tbody>
 										{pickSupported(discovery).map(({ label, field }) => (
 											<tr key={field}>
-												<Td><code>{label}</code></Td>
+												<Td>
+													<code>{label}</code>
+												</Td>
 												<Td>
 													{Array.isArray(discovery[field])
 														? (discovery[field] as string[]).join(', ')
@@ -379,7 +428,10 @@ const OidcDiscoveryFlow: React.FC = () => {
 
 					{jwks && (
 						<>
-							<ResultCard title={`${jwks.keys.length} key${jwks.keys.length === 1 ? '' : 's'} found`} tone="ok">
+							<ResultCard
+								title={`${jwks.keys.length} key${jwks.keys.length === 1 ? '' : 's'} found`}
+								tone="ok"
+							>
 								<KeyGrid>
 									{jwks.keys.map((key: JwkKey, i: number) => (
 										<KeyCard key={key.kid || i}>
@@ -414,26 +466,26 @@ const OidcDiscoveryFlow: React.FC = () => {
 				>
 					<ExplanationPanel title="Discovery removes hardcoded endpoints" defaultOpen>
 						Without discovery, every client developer has to manually find and hardcode the
-						authorization endpoint, token endpoint, and userinfo endpoint. If the server moves
-						or adds an endpoint (e.g. device authorization, PAR), every client breaks silently.
-						With discovery, clients fetch the metadata document once at startup and self-configure.
-						RFC 8414 standardizes this pattern across all OAuth 2.0 authorization servers.
+						authorization endpoint, token endpoint, and userinfo endpoint. If the server moves or
+						adds an endpoint (e.g. device authorization, PAR), every client breaks silently. With
+						discovery, clients fetch the metadata document once at startup and self-configure. RFC
+						8414 standardizes this pattern across all OAuth 2.0 authorization servers.
 					</ExplanationPanel>
 
 					<ExplanationPanel title="JWKS and id_token signature verification" defaultOpen>
 						When a client receives an id_token (a signed JWT), it must verify the signature to
-						confirm the token came from the correct issuer and was not tampered with. The JWT
-						header contains a <code>kid</code> field — the client looks up the matching key in
-						the JWKS and uses it to verify the RSA or EC signature. The signature check binds
-						the claims to a specific issuer and prevents token forgery.
+						confirm the token came from the correct issuer and was not tampered with. The JWT header
+						contains a <code>kid</code> field — the client looks up the matching key in the JWKS and
+						uses it to verify the RSA or EC signature. The signature check binds the claims to a
+						specific issuer and prevents token forgery.
 					</ExplanationPanel>
 
 					<ExplanationPanel title="Key rotation">
 						Authorization servers rotate their signing keys periodically (or in response to a
-						compromise). Because the JWKS endpoint is live, clients can re-fetch it whenever
-						they encounter an unknown <code>kid</code>. This means key rotation is transparent
-						to clients — no configuration update needed. PingOne's discovery document always
-						points <code>jwks_uri</code> at the current active keyset.
+						compromise). Because the JWKS endpoint is live, clients can re-fetch it whenever they
+						encounter an unknown <code>kid</code>. This means key rotation is transparent to clients
+						— no configuration update needed. PingOne's discovery document always points{' '}
+						<code>jwks_uri</code> at the current active keyset.
 					</ExplanationPanel>
 
 					{discovery && (

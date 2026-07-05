@@ -5,14 +5,25 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import {
+	applyClientCredentialsSabotage,
+	clientCredentialsSabotageScenarios,
+} from '../content/clientCredentialsSabotage';
+import {
+	clientCredentialsActors,
+	clientCredentialsInteractions,
+} from '../content/clientCredentialsSequence';
+import { clientCredentialsSpecVsPingOne } from '../content/clientCredentialsSpecVsPingOne';
+import { BreakItLab } from '../framework/BreakItLab';
+import { JsonView } from '../framework/CodeBlock';
+import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
+import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
 import { FlowStep } from '../framework/FlowStep';
-import { useFlowEngine } from '../framework/useFlowEngine';
-import { FieldGroup } from '../framework/FieldGroup';
-import { JsonView } from '../framework/CodeBlock';
 import { ResultCard } from '../framework/ResultCard';
-import { ExplanationPanel } from '../framework/ExplanationPanel';
+import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
 import { tokens } from '../framework/tokens';
 import type {
 	ClientAuthMethod,
@@ -22,8 +33,10 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
-import { clientCredentialsService } from '../services/clientCredentialsService';
+import { useFlowEngine } from '../framework/useFlowEngine';
 import { useFlowStorage } from '../framework/useFlowStorage';
+import { PathProgressBadge } from '../learning/PathProgressBadge';
+import { clientCredentialsService } from '../services/clientCredentialsService';
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -120,6 +133,8 @@ const ClientCredentialsFlow: React.FC = () => {
 	const [error, setError] = useState<FlowError | null>(null);
 	const [introspectData, setIntrospectData] = useState<Record<string, unknown> | null>(null);
 	const [loading, setLoading] = useState(false);
+	// Break-it Lab: the sabotage scenario selected for the token request (null = run correctly).
+	const [sabotageId, setSabotageId] = useState<string | null>(null);
 
 	const set = (k: keyof FlowCredentials) => (e: React.ChangeEvent<HTMLInputElement>) =>
 		setCreds((c) => ({ ...c, [k]: e.target.value }));
@@ -138,13 +153,16 @@ const ClientCredentialsFlow: React.FC = () => {
 				scope: c.scope || MOCK_CREDS.scope,
 			}));
 		} else {
-			setCreds((c) => ({
-				...c,
-				environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
-				clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
-				clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : c.clientSecret ?? '',
-				scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
-			} as FlowCredentials));
+			setCreds(
+				(c) =>
+					({
+						...c,
+						environmentId: c.environmentId === MOCK_CREDS.environmentId ? '' : c.environmentId,
+						clientId: c.clientId === MOCK_CREDS.clientId ? '' : c.clientId,
+						clientSecret: c.clientSecret === MOCK_CREDS.clientSecret ? '' : (c.clientSecret ?? ''),
+						scope: c.scope === MOCK_CREDS.scope ? '' : c.scope,
+					}) as FlowCredentials
+			);
 		}
 	}, [mode]);
 
@@ -172,7 +190,14 @@ const ClientCredentialsFlow: React.FC = () => {
 		setResult(null);
 		setIntrospectData(null);
 		try {
-			const r = await clientCredentialsService.run({ credentials: creds, audience, resource }, mode);
+			// Break-it Lab: apply the selected token-stage sabotage (wrong secret, unauthorized
+			// scope) to the outgoing params right before dispatch. No-op when nothing is selected.
+			const runParams = applyClientCredentialsSabotage(sabotageId, 'token', {
+				credentials: creds,
+				audience,
+				resource,
+			});
+			const r = await clientCredentialsService.run(runParams, mode);
 			setResult(r);
 			engine.markComplete('request');
 		} catch (err) {
@@ -180,7 +205,7 @@ const ClientCredentialsFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [creds, audience, resource, mode, engine]);
+	}, [creds, audience, resource, mode, engine, sabotageId]);
 
 	const inspect = useCallback(async () => {
 		if (!result?.accessToken) return;
@@ -191,8 +216,8 @@ const ClientCredentialsFlow: React.FC = () => {
 	useEffect(() => {
 		restoreState().then((saved) => {
 			if (!saved) return;
-			if (!result && saved.result) setResult(saved.result as typeof result);
-			if (!error && saved.error) setError(saved.error as typeof error);
+			if (!result && saved.result) setResult(saved.result as unknown as typeof result);
+			if (!error && saved.error) setError(saved.error as unknown as typeof error);
 		});
 	}, [restoreState]);
 
@@ -203,6 +228,10 @@ const ClientCredentialsFlow: React.FC = () => {
 	const configured = Boolean(creds.environmentId && creds.clientId && creds.clientSecret);
 	const cur = engine.current.id;
 
+	// Break-it Lab reads back the actual outcome of the last run to compare against the
+	// scenario's predicted error.
+	const lastOutcome = error ? { error } : result ? { ok: true } : null;
+
 	return (
 		<FlowContainer
 			title="Client Credentials"
@@ -211,6 +240,14 @@ const ClientCredentialsFlow: React.FC = () => {
 			subtitle="Machine-to-machine grant (RFC 6749 §4.4) — a confidential client authenticates with its own credentials and receives an access token. No user, no redirect."
 			engine={engine}
 		>
+			<PathProgressBadge flowRoute="/v2/flows/client-credentials" />
+			<FlowSequenceDiagram
+				title="Live sequence — the current step is highlighted"
+				actors={clientCredentialsActors}
+				interactions={clientCredentialsInteractions}
+				activeStepId={cur}
+				completedStepIds={engine.completed}
+			/>
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure the worker app"
@@ -221,8 +258,12 @@ const ClientCredentialsFlow: React.FC = () => {
 					canNext={configured}
 				>
 					<Toggle>
-						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>Real PingOne</Pill>
-						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>Mock</Pill>
+						<Pill $active={mode === 'real'} onClick={() => setMode('real')}>
+							Real PingOne
+						</Pill>
+						<Pill $active={mode === 'mock'} onClick={() => setMode('mock')}>
+							Mock
+						</Pill>
 					</Toggle>
 					<Toggle>
 						{(['client_secret_basic', 'client_secret_post'] as ClientAuthMethod[]).map((m) => (
@@ -236,20 +277,62 @@ const ClientCredentialsFlow: React.FC = () => {
 						))}
 					</Toggle>
 					<Grid>
-						<FieldGroup label="Environment ID" value={creds.environmentId} onChange={set('environmentId')} placeholder="uuid" />
-						<FieldGroup label="Region" value={creds.region} onChange={set('region')} placeholder="com | eu | ca | asia" />
-						<FieldGroup label="Client ID" value={creds.clientId} onChange={set('clientId')} placeholder="worker client id" />
-						<FieldGroup label="Client Secret" type="password" value={creds.clientSecret ?? ''} onChange={set('clientSecret')} placeholder="worker client secret" />
-						<FieldGroup label="Scope (optional)" value={creds.scope ?? ''} onChange={set('scope')} placeholder="e.g. p1:read:user" />
-						<FieldGroup label="Audience (optional, RFC 8707)" value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="target resource" />
-						<FieldGroup label="Resource (optional, RFC 8707)" value={resource} onChange={(e) => setResource(e.target.value)} placeholder="resource URI" />
+						<FieldGroup
+							label="Environment ID"
+							value={creds.environmentId}
+							onChange={set('environmentId')}
+							placeholder="uuid"
+						/>
+						<FieldGroup
+							label="Region"
+							value={creds.region}
+							onChange={set('region')}
+							placeholder="com | eu | ca | asia"
+						/>
+						<FieldGroup
+							label="Client ID"
+							value={creds.clientId}
+							onChange={set('clientId')}
+							placeholder="worker client id"
+						/>
+						<FieldGroup
+							label="Client Secret"
+							type="password"
+							value={creds.clientSecret ?? ''}
+							onChange={set('clientSecret')}
+							placeholder="worker client secret"
+						/>
+						<FieldGroup
+							label="Scope (optional)"
+							value={creds.scope ?? ''}
+							onChange={set('scope')}
+							placeholder="e.g. p1:read:user"
+						/>
+						<FieldGroup
+							label="Audience (optional, RFC 8707)"
+							value={audience}
+							onChange={(e) => setAudience(e.target.value)}
+							placeholder="target resource"
+						/>
+						<FieldGroup
+							label="Resource (optional, RFC 8707)"
+							value={resource}
+							onChange={(e) => setResource(e.target.value)}
+							placeholder="resource URI"
+						/>
 					</Grid>
 					<div>
 						<Hint>Discover the scopes this environment advertises, then click to add them:</Hint>
 						<Toggle>
-							<Pill $active={false} onClick={discover}>Discover scopes</Pill>
+							<Pill $active={false} onClick={discover}>
+								Discover scopes
+							</Pill>
 							{discoveredScopes.map((s) => (
-								<Chip key={s} $on={(creds.scope || '').split(/\s+/).includes(s)} onClick={() => toggleScope(s)}>
+								<Chip
+									key={s}
+									$on={(creds.scope || '').split(/\s+/).includes(s)}
+									onClick={() => toggleScope(s)}
+								>
 									{s}
 								</Chip>
 							))}
@@ -260,6 +343,10 @@ const ClientCredentialsFlow: React.FC = () => {
 						service-to-service / machine-to-machine calls. (User identity and delegation belong to
 						Authorization Code and RFC 8693 token exchange, respectively.)
 					</ExplanationPanel>
+					<SpecVsPingOneList
+						title="Spec vs PingOne — how this flow differs on PingOne"
+						entries={clientCredentialsSpecVsPingOne}
+					/>
 				</FlowStep>
 			)}
 
@@ -272,8 +359,19 @@ const ClientCredentialsFlow: React.FC = () => {
 					onNext={engine.goNext}
 					canNext={Boolean(result)}
 				>
+					<BreakItLab
+						scenarios={clientCredentialsSabotageScenarios}
+						stage="token"
+						selectedId={sabotageId}
+						onSelect={setSabotageId}
+						lastOutcome={lastOutcome}
+					/>
 					<Action onClick={run} disabled={loading || !configured}>
-						{loading ? 'Requesting…' : mode === 'real' ? 'Request real token' : 'Request mock token'}
+						{loading
+							? 'Requesting…'
+							: mode === 'real'
+								? 'Request real token'
+								: 'Request mock token'}
 					</Action>
 					<FlowResult result={result} error={error} />
 				</FlowStep>
@@ -288,7 +386,9 @@ const ClientCredentialsFlow: React.FC = () => {
 					onNext={engine.reset}
 					canNext
 				>
-					<Action onClick={inspect} disabled={!result?.accessToken}>Introspect access token</Action>
+					<Action onClick={inspect} disabled={!result?.accessToken}>
+						Introspect access token
+					</Action>
 					{introspectData && (
 						<ResultCard title="Introspection (RFC 7662)" tone="info">
 							<JsonView data={introspectData} />
