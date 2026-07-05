@@ -130,8 +130,8 @@ export const tokenExchangeService = {
 				clientSecret: credentials.clientSecret,
 				subjectToken,
 				...(actorToken ? { actorToken } : {}),
-				...(requestedScopes && requestedScopes.trim() ? { requestedScopes: requestedScopes.trim() } : {}),
-				...(audience && audience.trim() ? { audience: audience.trim() } : {}),
+				...(requestedScopes?.trim() ? { requestedScopes: requestedScopes.trim() } : {}),
+				...(audience?.trim() ? { audience: audience.trim() } : {}),
 			}),
 		});
 		let data: Record<string, unknown> = {};

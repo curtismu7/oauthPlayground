@@ -114,7 +114,7 @@ export const deviceAuthorizationService = {
 				environment_id: credentials.environmentId,
 				region: credentials.region,
 				client_id: credentials.clientId,
-				...(credentials.scope && credentials.scope.trim() ? { scope: credentials.scope.trim() } : {}),
+				...(credentials.scope?.trim() ? { scope: credentials.scope.trim() } : {}),
 			}),
 		});
 		let data: Record<string, unknown> = {};

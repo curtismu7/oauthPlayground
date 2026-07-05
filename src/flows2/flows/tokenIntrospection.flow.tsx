@@ -164,7 +164,7 @@ const TokenIntrospectionFlow: React.FC = () => {
 			if (!result && saved.result) setResult(saved.result as IntrospectionResponse | null);
 			if (!error && saved.error) setError(saved.error as FlowError | null);
 		});
-	}, [restoreState]);
+	}, [restoreState, error, result, token]);
 
 	useEffect(() => {
 		saveState({ token, hint, result, error });

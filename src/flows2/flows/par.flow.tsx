@@ -194,7 +194,7 @@ const PARFlow: React.FC = () => {
 			if (!pushResult && saved.pushResult) setPushResult(saved.pushResult as typeof pushResult);
 			if (!authState && saved.authState) setAuthState(saved.authState as string);
 		});
-	}, [restoreState]);
+	}, [restoreState, authState, code, error, pkce, pushResult, result]);
 
 	// ─── Step handlers ────────────────────────────────────────────────────────
 

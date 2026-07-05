@@ -40,7 +40,7 @@ export const ProtocolPanel: React.FC<ProtocolPanelProps> = ({
         {AUTH_CODE_FLOW_STEPS.map((step, index) => (
           <FlowStep
             key={step.id}
-            number={parseInt(step.id)}
+            number={parseInt(step.id, 10)}
             title={step.title}
             description={step.description}
             status={getStepStatus(index)}

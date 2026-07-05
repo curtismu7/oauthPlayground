@@ -99,8 +99,8 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 		issuer: 'https://idp.example.com',
 		subject: 'user@example.com',
 		audience: '',
-		notBefore: new Date().toISOString().split('.')[0] + 'Z',
-		notOnOrAfter: new Date(Date.now() + 3600000).toISOString().split('.')[0] + 'Z',
+		notBefore: `${new Date().toISOString().split('.')[0]}Z`,
+		notOnOrAfter: `${new Date(Date.now() + 3600000).toISOString().split('.')[0]}Z`,
 	});
 
 	const [scopes, setScopes] = useState('');
@@ -128,7 +128,7 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 			if (!error && saved.error) setError(saved.error as typeof error);
 			if (!introspectData && saved.introspectData) setIntrospectData(saved.introspectData as typeof introspectData);
 		});
-	}, [restoreState, samlXml, samlB64, result, error, introspectData]);
+	}, [restoreState, result, error, introspectData]);
 
 	const configured = Boolean(envId && clientId && samlData.issuer && samlData.subject);
 	const cur = engine.current.id;
@@ -248,13 +248,13 @@ const SAMLBearerAssertionFlow: React.FC = () => {
 							label="NotBefore (optional)"
 							type="datetime-local"
 							value={samlData.notBefore?.split('.')[0] || ''}
-							onChange={(e) => setSamlData((s) => ({ ...s, notBefore: e.target.value + 'Z' }))}
+							onChange={(e) => setSamlData((s) => ({ ...s, notBefore: `${e.target.value}Z` }))}
 						/>
 						<FieldGroup
 							label="NotOnOrAfter (optional)"
 							type="datetime-local"
 							value={samlData.notOnOrAfter?.split('.')[0] || ''}
-							onChange={(e) => setSamlData((s) => ({ ...s, notOnOrAfter: e.target.value + 'Z' }))}
+							onChange={(e) => setSamlData((s) => ({ ...s, notOnOrAfter: `${e.target.value}Z` }))}
 						/>
 					</Grid>
 				</FlowStep>

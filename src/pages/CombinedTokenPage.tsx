@@ -151,7 +151,7 @@ const CombinedTokenPage: React.FC = () => {
 			); // 15 minutes
 
 			return () => clearInterval(interval);
-		}, []); // Remove loadTokens dependency
+		}, [loadTokens]); // Remove loadTokens dependency
 
 		// Countdown timer
 		useEffect(() => {
@@ -167,7 +167,7 @@ const CombinedTokenPage: React.FC = () => {
 		// Initial load
 		useEffect(() => {
 			loadTokens();
-		}, []); // Remove loadTokens dependency
+		}, [loadTokens]); // Remove loadTokens dependency
 
 		const formatTimeRemaining = (ms: number) => {
 			const minutes = Math.floor(ms / (60 * 1000));

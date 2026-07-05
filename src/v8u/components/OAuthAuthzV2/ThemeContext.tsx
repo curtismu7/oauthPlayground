@@ -29,7 +29,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setMode(initialMode);
     applyTheme(initialMode);
     setMounted(true);
-  }, []);
+  }, [applyTheme]);
 
   const applyTheme = (theme: Theme) => {
     const root = document.documentElement;

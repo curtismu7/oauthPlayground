@@ -7,7 +7,6 @@ import { CredentialsInput } from '../components/CredentialsInput';
 import { DraggableModal } from '../components/DraggableModal';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import {
 	FiActivity,
 	FiAlertCircle,
@@ -337,7 +336,7 @@ export {
 };
 
 export {
-	WorkerTokenModalV9,
+	type WorkerTokenModalV9,
 	WorkerTokenDetectedBanner,
 	CredentialsInput,
 	ClientAuthMethodSelector,

@@ -218,7 +218,7 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 		// only changing dependency is `settings`, so keying the value on `settings`
 		// alone is behaviorally correct.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[settings]
+		[settings, resetSettings, saveSettings, updateSetting]
 	);
 	return <UISettingsContext.Provider value={contextValue}>{children}</UISettingsContext.Provider>;
 };

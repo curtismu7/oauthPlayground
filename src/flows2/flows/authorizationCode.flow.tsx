@@ -222,7 +222,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 			if (!authUrl && saved.authUrl) setAuthUrl(saved.authUrl as string);
 			if (!authState && saved.authState) setAuthState(saved.authState as string);
 		});
-	}, [restoreState]);
+	}, [restoreState, authState, authUrl, code, error, pkce, result]);
 
 	const handlePkce = useCallback(async () => {
 		const pair = await authorizationCodeService.generatePkce(mode);
@@ -321,7 +321,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [pkce, code, creds, redirectUri, mode, engine, authMethod, tokenLifetimes, sabotageId]);
+	}, [pkce, code, creds, redirectUri, mode, engine, authMethod, tokenLifetimes, sabotageId, oidc]);
 
 	// Break-it Lab reads back the actual outcome of the last run to compare against the
 	// scenario's predicted error.

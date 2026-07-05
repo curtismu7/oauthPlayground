@@ -23,9 +23,9 @@ function buildBody(
 	opts?: { audience?: string; resource?: string }
 ): { body: string; headers?: Record<string, string> } {
 	const params = new URLSearchParams({ grant_type: 'client_credentials' });
-	if (creds.scope && creds.scope.trim()) params.set('scope', creds.scope.trim());
-	if (opts?.audience && opts.audience.trim()) params.set('audience', opts.audience.trim());
-	if (opts?.resource && opts.resource.trim()) params.set('resource', opts.resource.trim());
+	if (creds.scope?.trim()) params.set('scope', creds.scope.trim());
+	if (opts?.audience?.trim()) params.set('audience', opts.audience.trim());
+	if (opts?.resource?.trim()) params.set('resource', opts.resource.trim());
 
 	const method = creds.authMethod ?? 'client_secret_post';
 	if (method === 'client_secret_basic') {

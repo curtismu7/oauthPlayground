@@ -15,6 +15,7 @@
 			"server.js",
 			"server-*.js",
 			"!src/styles/icons.css",
+			"!src/styles/vendor/**",
 			"!AI Ping",
 			"!pingone-mcp-server",
 			"!biome_issues.json",

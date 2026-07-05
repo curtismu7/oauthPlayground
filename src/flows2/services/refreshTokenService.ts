@@ -18,7 +18,7 @@ function buildRefreshBody(
 		grant_type: 'refresh_token',
 		refresh_token: refreshToken,
 	});
-	if (creds.scope && creds.scope.trim()) {
+	if (creds.scope?.trim()) {
 		params.set('scope', creds.scope.trim());
 	}
 	return applyClientAuth(params, creds);

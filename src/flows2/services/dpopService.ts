@@ -78,7 +78,7 @@ function tokenEndpointUrl(environmentId: string, region: string): string {
 /** Build the url-encoded client-credentials body + optional Basic auth header. */
 function buildCCBody(creds: FlowCredentials): { body: string; headers?: Record<string, string> } {
 	const params = new URLSearchParams({ grant_type: 'client_credentials' });
-	if (creds.scope && creds.scope.trim()) params.set('scope', creds.scope.trim());
+	if (creds.scope?.trim()) params.set('scope', creds.scope.trim());
 	return applyClientAuth(params, creds);
 }
 

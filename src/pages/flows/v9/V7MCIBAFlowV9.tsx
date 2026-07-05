@@ -330,12 +330,10 @@ const CIBAFlowV2: React.FC = () => {
 					</Action>
 
 					{authReqId && (
-						<>
-							<ResultCard title="BC-Authorize response" tone="ok">
+						<ResultCard title="BC-Authorize response" tone="ok">
 								<CodeBlock label="auth_req_id" value={authReqId} />
 								<CodeBlock label="expires_in" value={String(expiresIn)} />
 							</ResultCard>
-						</>
 					)}
 
 					{error && <FlowResult error={error} />}
@@ -392,7 +390,7 @@ const CIBAFlowV2: React.FC = () => {
 
 					{tokenResult && (
 						<ResultCard title="Token response" tone="ok">
-							<CodeBlock label="access_token" value={tokenResult.access_token.substring(0, 50) + '...'} />
+							<CodeBlock label="access_token" value={`${tokenResult.access_token.substring(0, 50)}...`} />
 							<CodeBlock label="token_type" value={tokenResult.token_type} />
 							<CodeBlock label="expires_in" value={String(tokenResult.expires_in)} />
 						</ResultCard>
@@ -419,7 +417,7 @@ const CIBAFlowV2: React.FC = () => {
 						<ResultCard title="Token payload" tone="info">
 							<JsonView
 								data={{
-									access_token: tokenResult.access_token.substring(0, 30) + '...',
+									access_token: `${tokenResult.access_token.substring(0, 30)}...`,
 									token_type: tokenResult.token_type,
 									expires_in: tokenResult.expires_in,
 									scope: tokenResult.scope,

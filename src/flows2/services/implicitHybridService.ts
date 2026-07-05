@@ -57,7 +57,7 @@ function authorizeEndpoint(c: FlowCredentials): string {
 }
 
 function resolveScope(c: FlowCredentials, oidc: boolean): string {
-	if (c.scope && c.scope.trim()) return c.scope.trim();
+	if (c.scope?.trim()) return c.scope.trim();
 	return oidc ? 'openid profile email' : 'openid';
 }
 
@@ -154,7 +154,7 @@ export async function exchangeCode(p: ExchangeCodeParams, mode: FlowMode): Promi
 		redirect_uri: p.redirectUri,
 		code: p.code,
 	});
-	if (p.credentials.scope && p.credentials.scope.trim()) params.set('scope', p.credentials.scope.trim());
+	if (p.credentials.scope?.trim()) params.set('scope', p.credentials.scope.trim());
 	// applyClientAuth will add client_id (and client_secret if needed) based on auth method.
 	const { body, headers } = applyClientAuth(params, p.credentials);
 

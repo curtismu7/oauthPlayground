@@ -7,7 +7,7 @@
 
 import { getDb } from './openEnv.js';
 
-const MODULE_TAG = '[👥 USER-STORE]';
+const _MODULE_TAG = '[👥 USER-STORE]';
 
 // Keys are `${environmentId}|${userId}`. This bounded range selects exactly one
 // environment's rows — lmdb exposes getRange()/getKeys() (there is no .entries()

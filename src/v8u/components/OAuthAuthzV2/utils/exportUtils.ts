@@ -84,5 +84,5 @@ export const copyToClipboard = async (text: string): Promise<void> => {
 
 export const truncateToken = (token: string, length = 50): string => {
   if (token.length <= length) return token;
-  return token.substring(0, length) + '...';
+  return `${token.substring(0, length)}...`;
 };

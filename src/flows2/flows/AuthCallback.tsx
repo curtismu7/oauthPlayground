@@ -43,7 +43,7 @@ const AuthCallback: React.FC = () => {
 		let stashError: string | null = null;
 		try {
 			stash = loadStash();
-		} catch (e) {
+		} catch (_e) {
 			stashError = 'Session storage unavailable — authorization state could not be recovered.';
 		}
 		const dest = stash?.returnTo || FLOW_ROUTE;

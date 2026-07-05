@@ -232,7 +232,7 @@ const DeviceAuthorizationFlow: React.FC = () => {
 			if (!result && saved.result) setResult(saved.result as TokenResult | null);
 			if (!error && saved.error) setError(saved.error as FlowError | null);
 		});
-	}, [restoreState]);
+	}, [restoreState, device, error, result]);
 
 	const requestCode = useCallback(async () => {
 		setLoading(true);

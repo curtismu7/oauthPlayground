@@ -25,7 +25,7 @@ function buildPasswordBody(
 		username,
 		password,
 	});
-	if (creds.scope && creds.scope.trim()) {
+	if (creds.scope?.trim()) {
 		params.set('scope', creds.scope.trim());
 	}
 	return applyClientAuth(params, creds);

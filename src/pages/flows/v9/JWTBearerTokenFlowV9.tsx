@@ -2,7 +2,6 @@
 // OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V9 Service Architecture
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Card, CardBody, CardHeader } from '../../../components/Card';
 import { CodeExamplesSection } from '../../../components/CodeExamplesSection';
 import { MockApiCallDisplay } from '../../../components/MockApiCallDisplay';
 import { modernMessaging } from '../../../components/v9/V9ModernMessagingComponents';

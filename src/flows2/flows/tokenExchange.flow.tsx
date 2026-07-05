@@ -173,7 +173,7 @@ const TokenExchangeFlow: React.FC = () => {
 			if (!error && saved.error) setError(saved.error as unknown as typeof error);
 			if (!mayAct && saved.mayAct) setMayAct(saved.mayAct as unknown as typeof mayAct);
 		});
-	}, [restoreState]);
+	}, [restoreState, actorToken, error, mayAct, requestedScopes, result, subjectToken]);
 
 	useEffect(() => {
 		saveState({ subjectToken, actorToken, requestedScopes, result, error, mayAct });

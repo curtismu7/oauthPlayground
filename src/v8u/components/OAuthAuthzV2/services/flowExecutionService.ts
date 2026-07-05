@@ -133,23 +133,33 @@ export class FlowExecutionService {
   }
 
   private emitStepChange(step: number): void {
-    this.listeners.forEach((l) => l.onStepChange?.(step));
+    this.listeners.forEach((l) => {
+      l.onStepChange?.(step);
+    });
   }
 
   private emitStatusChange(status: FlowState['status']): void {
-    this.listeners.forEach((l) => l.onStatusChange?.(status));
+    this.listeners.forEach((l) => {
+      l.onStatusChange?.(status);
+    });
   }
 
   private emitRequestSent(request: HttpRequest): void {
-    this.listeners.forEach((l) => l.onRequestSent?.(request));
+    this.listeners.forEach((l) => {
+      l.onRequestSent?.(request);
+    });
   }
 
   private emitResponseReceived(response: HttpResponse): void {
-    this.listeners.forEach((l) => l.onResponseReceived?.(response));
+    this.listeners.forEach((l) => {
+      l.onResponseReceived?.(response);
+    });
   }
 
   private emitTokensReceived(tokens: FlowState['tokens']): void {
-    this.listeners.forEach((l) => l.onTokensReceived?.(tokens));
+    this.listeners.forEach((l) => {
+      l.onTokensReceived?.(tokens);
+    });
   }
 
   getRequests(): HttpRequest[] {

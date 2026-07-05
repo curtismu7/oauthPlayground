@@ -6,7 +6,7 @@
 
 import { getDb } from './openEnv.js';
 
-const MODULE_TAG = '[⚙️ SETTINGS-STORE]';
+const _MODULE_TAG = '[⚙️ SETTINGS-STORE]';
 
 export function get(key) {
 	const db = getDb('settings');

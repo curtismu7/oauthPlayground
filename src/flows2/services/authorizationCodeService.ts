@@ -63,7 +63,7 @@ function authorizeEndpoint(c: FlowCredentials): string {
 }
 
 function resolveScope(c: FlowCredentials, oidc?: boolean): string {
-	if (c.scope && c.scope.trim()) return c.scope.trim();
+	if (c.scope?.trim()) return c.scope.trim();
 	return oidc ? 'openid profile email' : 'openid';
 }
 
@@ -173,7 +173,7 @@ export async function exchangeCode(p: ExchangeParams, mode: FlowMode): Promise<T
 		code_verifier: p.codeVerifier,
 	});
 	if (p.credentials.clientSecret) body.set('client_secret', p.credentials.clientSecret);
-	if (p.credentials.scope && p.credentials.scope.trim()) body.set('scope', p.credentials.scope.trim());
+	if (p.credentials.scope?.trim()) body.set('scope', p.credentials.scope.trim());
 
 	const res = await fetch('/api/pingone/token', {
 		method: 'POST',

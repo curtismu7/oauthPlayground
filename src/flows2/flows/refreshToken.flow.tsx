@@ -188,7 +188,7 @@ const RefreshTokenFlow: React.FC = () => {
 			if (!result && saved.result) setResult(saved.result as RefreshResult | null);
 			if (!error && saved.error) setError(saved.error as FlowError | null);
 		});
-	}, [restoreState]);
+	}, [restoreState, error, inputRefreshToken, result]);
 
 	const doRefresh = useCallback(async () => {
 		setLoading(true);

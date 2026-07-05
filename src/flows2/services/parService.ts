@@ -220,7 +220,7 @@ export async function exchangeCode(p: ExchangeParams, mode: FlowMode): Promise<T
 
 function resolveScope(c: FlowCredentials, override?: string): string {
 	const s = override ?? c.scope;
-	return s && s.trim() ? s.trim() : 'openid profile email';
+	return s?.trim() ? s.trim() : 'openid profile email';
 }
 
 // ─── Exported service object ──────────────────────────────────────────────────

@@ -608,7 +608,7 @@ const AuthorizationCodeEducational: React.FC = () => {
 	const handleConfigure = useCallback(() => {
 		setStepState('configure', { complete: true });
 		setCurrentStep(1);
-	}, []);
+	}, [setStepState]);
 
 	// Step 2: PKCE
 	const handlePkce = useCallback(async () => {
@@ -621,7 +621,7 @@ const AuthorizationCodeEducational: React.FC = () => {
 		} catch (err) {
 			setStepState('pkce', { loading: false, error: err as FlowError });
 		}
-	}, [mode]);
+	}, [mode, setStepState]);
 
 	// Step 3: Auth Request
 	const handleAuthRequest = useCallback(async () => {
@@ -635,7 +635,7 @@ const AuthorizationCodeEducational: React.FC = () => {
 				{
 					credentials: creds,
 					redirectUri: creds.redirectUri,
-					state: 'state-' + Math.random().toString(36).substring(7),
+					state: `state-${Math.random().toString(36).substring(7)}`,
 					codeChallenge: pkceData.challenge,
 				},
 				mode
@@ -646,13 +646,13 @@ const AuthorizationCodeEducational: React.FC = () => {
 		} catch (err) {
 			setStepState('auth-request', { loading: false, error: err as FlowError });
 		}
-	}, [creds, pkceData, mode]);
+	}, [creds, pkceData, mode, setStepState]);
 
 	// Step 4: Auth Code (info-only)
 	const handleAuthCode = useCallback(() => {
 		setStepState('auth-code', { complete: true });
 		setCurrentStep(4);
-	}, []);
+	}, [setStepState]);
 
 	// Step 5: Exchange
 	const handleExchange = useCallback(async () => {
@@ -677,7 +677,7 @@ const AuthorizationCodeEducational: React.FC = () => {
 		} catch (err) {
 			setStepState('exchange', { loading: false, error: err as FlowError });
 		}
-	}, [authCode, pkceData, creds, mode]);
+	}, [authCode, pkceData, creds, mode, setStepState]);
 
 	// Step 6: Introspect
 	const handleIntrospect = useCallback(async () => {
@@ -694,13 +694,13 @@ const AuthorizationCodeEducational: React.FC = () => {
 		} catch (err) {
 			setStepState('introspect', { loading: false, error: err as FlowError });
 		}
-	}, [tokens, creds, mode]);
+	}, [tokens, creds, mode, setStepState]);
 
 	// Step 7: API Call (info-only for now)
 	const handleApiCall = useCallback(() => {
 		setStepState('api-call', { complete: true });
 		setCurrentStep(6);
-	}, []);
+	}, [setStepState]);
 
 	// Auto-play animation through steps
 	const handlePlay = useCallback(async () => {

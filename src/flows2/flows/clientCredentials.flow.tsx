@@ -219,7 +219,7 @@ const ClientCredentialsFlow: React.FC = () => {
 			if (!result && saved.result) setResult(saved.result as unknown as typeof result);
 			if (!error && saved.error) setError(saved.error as unknown as typeof error);
 		});
-	}, [restoreState]);
+	}, [restoreState, error, result]);
 
 	useEffect(() => {
 		saveState({ result, error });

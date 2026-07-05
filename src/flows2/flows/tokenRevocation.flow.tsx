@@ -183,7 +183,7 @@ const TokenRevocationFlow: React.FC = () => {
 			if (!verifyResult && saved.verifyResult)
 				setVerifyResult(saved.verifyResult as IntrospectionResponse | null);
 		});
-	}, [restoreState]);
+	}, [restoreState, revokeError, revokeResult, token, verifyResult]);
 
 	useEffect(() => {
 		saveState({ token, hint, revokeResult, revokeError, verifyResult });
