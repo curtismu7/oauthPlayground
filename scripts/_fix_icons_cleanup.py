@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Replace @icons imports with emoji equivalents across 29 files listed in
-REMAINING_ICONS_CLEANUP_LIST.md
+docs/root-notes/reports/REMAINING_ICONS_CLEANUP_LIST.md
 
 Handles:
   1. Single-line self-closing: <FiIcon /> → <span>emoji</span>
