@@ -1564,6 +1564,15 @@ app.post('/api/pingone/log-call', (req, res) => {
 // In-memory cookie jar for PingOne redirectless flows (per-user session)
 // Keyed by sessionId returned to the frontend; values are arrays of "name=value" cookie strings
 const cookieJar = new Map();
+const MAX_COOKIE_JAR_ENTRIES = 500;
+
+// Bound an in-memory Map by evicting the oldest entries (Map preserves insertion
+// order). Prevents unbounded growth of session/token stores over a long-running server.
+const capMap = (map, max) => {
+	while (map.size > max) {
+		map.delete(map.keys().next().value);
+	}
+};
 
 /**
  * Merges two arrays of cookies (formatted as "name=value") with later values winning by name.
@@ -3728,7 +3737,7 @@ app.post('/api/token-exchange', async (req, res) => {
 		code: `${req.body.code?.substring(0, 20)}...`,
 		codeVerifier: `${req.body.code_verifier?.substring(0, 20)}...`,
 		clientId: `${req.body.client_id?.substring(0, 8)}...`,
-		fullBody: req.body,
+		fullBody: sanitizeRequestBody(req.body),
 	});
 
 	try {
@@ -4213,7 +4222,7 @@ app.post('/api/token-exchange', async (req, res) => {
 			message: error.message,
 			stack: error.stack,
 			error,
-			requestBody: req.body,
+			requestBody: sanitizeRequestBody(req.body),
 		});
 		res.status(500).json({
 			error: 'server_error',
@@ -7827,7 +7836,10 @@ function getSetCookieHeaders(response) {
 
 app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 	try {
-		console.log(`[PingOne Redirectless] Received request body:`, JSON.stringify(req.body, null, 2));
+		console.log(
+			`[PingOne Redirectless] Received request body:`,
+			JSON.stringify(sanitizeRequestBody(req.body), null, 2)
+		);
 
 		const {
 			environmentId,
@@ -8154,6 +8166,7 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 		const existing = cookieJar.get(sessionId) || [];
 		const merged = mergeCookieArrays(existing, sessionCookies);
 		cookieJar.set(sessionId, merged);
+		capMap(cookieJar, MAX_COOKIE_JAR_ENTRIES);
 
 		const result = {
 			...responseData,
@@ -8254,7 +8267,10 @@ app.post('/api/pingone/redirectless/poll', async (req, res) => {
 // PingOne Resume URL Endpoint (for completing redirectless authentication)
 app.post('/api/pingone/resume', async (req, res) => {
 	try {
-		console.log(`[PingOne Resume] Received request body:`, JSON.stringify(req.body, null, 2));
+		console.log(
+			`[PingOne Resume] Received request body:`,
+			JSON.stringify(sanitizeRequestBody(req.body), null, 2)
+		);
 
 		const {
 			resumeUrl,
@@ -9452,6 +9468,7 @@ app.post('/api/pingone/flows/check-username-password', async (req, res) => {
 		const prior = cookieJar.get(sid) || [];
 		const merged = mergeCookieArrays(prior, updatedCookies);
 		cookieJar.set(sid, merged);
+		capMap(cookieJar, MAX_COOKIE_JAR_ENTRIES);
 		responseData._sessionId = sid;
 
 		console.log(`[PingOne Flow Check] Response data:`, {
@@ -13118,7 +13135,7 @@ app.post('/api/par-request', async (req, res) => {
 			message: error.message,
 			stack: error.stack,
 			error,
-			requestBody: req.body,
+			requestBody: sanitizeRequestBody(req.body),
 		});
 		res.status(500).json({
 			error: 'server_error',
@@ -17060,7 +17077,7 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 			otpValue: otp ? `"${otp}"` : 'null',
 			isAdminActivation: otp === 'ADMIN_ACTIVATION',
 			deviceActivateUri: deviceActivateUri || 'none',
-			fullBody: req.body,
+			fullBody: sanitizeRequestBody(req.body),
 		});
 
 		if (!environmentId || !userId || !deviceId || !workerToken || !otp) {
@@ -24363,6 +24380,7 @@ app.post('/api/mcp/query', async (req, res) => {
 // Resource servers query the AS to validate opaque tokens and get token metadata
 
 const _introspectionTokenStore = new Map(); // token → metadata
+const MAX_INTROSPECTION_ENTRIES = 1000;
 
 // POST /api/introspection/issue — Issue introspectable tokens (reference tokens, not self-contained JWTs)
 app.post('/api/introspection/issue', (req, res) => {
@@ -24384,6 +24402,7 @@ app.post('/api/introspection/issue', (req, res) => {
 			nbf: now,
 		};
 		_introspectionTokenStore.set(token, metadata);
+		capMap(_introspectionTokenStore, MAX_INTROSPECTION_ENTRIES);
 		res.json({ success: true, access_token: token, expires_in: 3600, metadata });
 	} catch (err) {
 		res.status(500).json({ success: false, error: err.message });
