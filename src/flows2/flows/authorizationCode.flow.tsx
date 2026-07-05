@@ -41,6 +41,7 @@ import type {
 	StepDefinition,
 	TokenResult,
 } from '../framework/types';
+import { UseCaseBanner } from '../framework/UseCaseBanner';
 import { UseTokensStep } from '../framework/UseTokensStep';
 import { useFlowCredentials } from '../framework/useFlowCredentials';
 import { useFlowEngine } from '../framework/useFlowEngine';
@@ -349,6 +350,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 			}
 			engine={engine}
 		>
+			<UseCaseBanner />
 			<PathProgressBadge flowRoute="/v2/flows/authorization-code" />
 			<FlowSequenceDiagram
 				title="Live sequence — the current step is highlighted"

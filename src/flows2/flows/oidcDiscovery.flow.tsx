@@ -8,6 +8,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { UseCaseBanner } from '../framework/UseCaseBanner';
 import {
 	applyOidcDiscoverySabotage,
 	oidcDiscoverySabotageScenarios,
@@ -269,6 +270,7 @@ const OidcDiscoveryFlow: React.FC = () => {
 			subtitle="Fetch .well-known/openid-configuration so clients self-configure their endpoints, then inspect the JSON Web Key Set clients use to verify id_token signatures."
 			engine={engine}
 		>
+			<UseCaseBanner />
 			<PathProgressBadge flowRoute="/v2/flows/oidc-discovery" />
 			<FlowSequenceDiagram
 				title="Live sequence — the current step is highlighted"

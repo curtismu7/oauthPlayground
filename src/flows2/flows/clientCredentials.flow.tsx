@@ -21,6 +21,7 @@ import { FieldGroup } from '../framework/FieldGroup';
 import { FlowContainer } from '../framework/FlowContainer';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowSequenceDiagram } from '../framework/FlowSequenceDiagram';
+import { UseCaseBanner } from '../framework/UseCaseBanner';
 import { FlowStep } from '../framework/FlowStep';
 import { ResultCard } from '../framework/ResultCard';
 import { SpecVsPingOneList } from '../framework/SpecVsPingOne';
@@ -240,6 +241,7 @@ const ClientCredentialsFlow: React.FC = () => {
 			subtitle="Machine-to-machine grant (RFC 6749 §4.4) — a confidential client authenticates with its own credentials and receives an access token. No user, no redirect."
 			engine={engine}
 		>
+			<UseCaseBanner />
 			<PathProgressBadge flowRoute="/v2/flows/client-credentials" />
 			<FlowSequenceDiagram
 				title="Live sequence — the current step is highlighted"
