@@ -248,7 +248,7 @@ export class PingOneAppCreationService {
 	/**
 	 * Generic app creation method
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	 
 	private async createApp(appData: any): Promise<AppCreationResult> {
 		// Ensure protocol is always set
 		if (!appData.protocol) {
@@ -353,7 +353,7 @@ export class PingOneAppCreationService {
 	/**
 	 * Update an existing application
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	 
 	async updateApplication(appId: string, updates: any): Promise<AppCreationResult> {
 		if (!this.client) {
 			const error = 'Service not initialized. Call initialize() first.';

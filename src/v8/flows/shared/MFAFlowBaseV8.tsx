@@ -334,7 +334,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 		try {
 			const policies = await MFAServiceV8.listDeviceAuthenticationPolicies(envId);
-			// eslint-disable-next-line require-atomic-updates
+			 
 			lastFetchedEnvIdRef.current = envId;
 			setDeviceAuthPolicies(policies);
 
@@ -376,7 +376,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			);
 			setPoliciesError(parsed.userFriendlyMessage);
 		} finally {
-			// eslint-disable-next-line require-atomic-updates
+			 
 			isFetchingPoliciesRef.current = false;
 			setIsLoadingPolicies(false);
 		}

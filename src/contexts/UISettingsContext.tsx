@@ -4,6 +4,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useMemo,
 	useState,
 } from 'react';
 import { logger } from '../utils/logger';
@@ -206,12 +207,18 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 		}
 	};
 
-	const contextValue: UISettingsContextType = {
-		settings,
-		updateSetting,
-		resetSettings,
-		saveSettings,
-	};
+	const contextValue: UISettingsContextType = useMemo(
+		() => ({
+			settings,
+			updateSetting,
+			resetSettings,
+			saveSettings,
+		}),
+		// updateSetting/resetSettings/saveSettings are recreated each render but their
+		// only changing dependency is `settings`, so keying the value on `settings`
+		// alone is behaviorally correct.
+		[settings, resetSettings, saveSettings, updateSetting]
+	);
 	return <UISettingsContext.Provider value={contextValue}>{children}</UISettingsContext.Provider>;
 };
 

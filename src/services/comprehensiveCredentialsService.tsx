@@ -926,7 +926,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				});
 			}
 		}
-		// eslint-disable-next-line -- react-hooks/exhaustive-deps (stable refs, intentional)
+		 
 	}, [
 		flowType,
 		actualPostLogoutRedirectUri,
@@ -1009,7 +1009,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				environmentIdSaveTimeoutRef.current = null;
 			}
 		};
-		// eslint-disable-next-line -- react-hooks/exhaustive-deps (stable refs, intentional)
+		 
 	}, [
 		actualRedirectUri,
 		redirectUri,

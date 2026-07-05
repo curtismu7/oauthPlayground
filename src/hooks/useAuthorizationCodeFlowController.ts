@@ -1029,7 +1029,7 @@ export const useAuthorizationCodeFlowController = (
 				}
 
 				const parAuthMethod = {
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					 
 					type: authMethod as any,
 					clientId: credentials.clientId,
 					clientSecret: credentials.clientSecret,
@@ -1580,7 +1580,7 @@ export const useAuthorizationCodeFlowController = (
 
 					const authResult = await applyClientAuthentication(
 						{
-							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							 
 							method: authMethod as any,
 							clientId: credentials.clientId,
 							clientSecret:
@@ -1934,7 +1934,7 @@ export const useAuthorizationCodeFlowController = (
 
 					const authResult = await applyClientAuthentication(
 						{
-							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							 
 							method: authMethod as any,
 							clientId: credentials.clientId,
 							clientSecret:
