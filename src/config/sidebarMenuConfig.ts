@@ -144,7 +144,6 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/pingone-dashboard', 'Platform Dashboard', true],
 			['/cleanliness-dashboard', 'Component Cleanliness Dashboard', true],
 			['/api-status', 'API Status', true],
-			['/cleanup-history', 'App update History', true],
 			['/about', 'About', true],
 		]),
 	},
