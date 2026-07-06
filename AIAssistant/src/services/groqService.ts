@@ -9,29 +9,48 @@ export interface GroqResponse {
 	content: string;
 	model?: string;
 	usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number };
-	/** Set when the backend has no GROQ_API_KEY configured */
+	provider?: string;
+	/** Set when the backend has no LLM provider configured */
 	notConfigured?: boolean;
 	error?: string;
 }
 
+export interface LlmStatus {
+	available: boolean;
+	provider?: string | null;
+	setting?: string;
+	model?: string | null;
+	label?: string;
+	message?: string;
+}
+
+/** When true, server uses the Live-on prompt (no "Live toggle is off" nudge) */
 export interface CallGroqOptions {
-	/** When true, server uses the Live-on prompt (no "Live toggle is off" nudge) */
 	includeLive?: boolean;
 }
 
 /**
- * Send a chat message (with optional conversation history) to the Groq LLM via the backend.
- * The backend injects the system prompt and API key — no secrets are exposed to the browser.
+ * Returns LLM backend status from the server (OpenAI, llama.cpp, or Groq).
+ */
+export async function getLlmStatus(): Promise<LlmStatus> {
+	try {
+		const res = await fetch('/api/llm/status');
+		return res.json();
+	} catch {
+		return { available: false, provider: null, message: 'Could not reach LLM status endpoint' };
+	}
+}
+
+/**
+ * Send a chat message to the configured LLM via the backend.
+ * Routes through OpenAI, llama.cpp, or Groq based on AI_PROVIDER / env.
  */
 export async function callGroq(
 	userMessage: string,
 	history: GroqMessage[] = [],
 	opts?: CallGroqOptions,
 ): Promise<GroqResponse> {
-	const messages: GroqMessage[] = [
-		...history,
-		{ role: 'user', content: userMessage },
-	];
+	const messages: GroqMessage[] = [...history, { role: 'user', content: userMessage }];
 
 	const response = await fetch('/api/groq/chat', {
 		method: 'POST',
@@ -45,28 +64,32 @@ export async function callGroq(
 
 	if (!response.ok) {
 		const err = await response.json().catch(() => ({ message: response.statusText }));
-		throw new Error(err.message || `Groq API error: ${response.status}`);
+		throw new Error(err.message || `LLM API error: ${response.status}`);
 	}
 
 	return response.json();
 }
 
 /**
- * Returns true when the server has a working GROQ_API_KEY.
- * If the server doesn't have it yet but we have it in local storage, syncs it first.
+ * Returns true when the server has a working LLM backend.
+ * Syncs stored OpenAI or Groq keys to the backend when needed.
  */
 export async function isGroqAvailable(): Promise<boolean> {
 	try {
-		const res = await fetch('/api/api-key/groq');
-		const data = await res.json();
-		if (data.success === true && data.apiKey) return true;
+		const status = await getLlmStatus();
+		if (status.available) return true;
 
-		// Backend doesn't have it — try loading from our storage and syncing
-		const stored = await apiKeyService.getApiKey('groq');
-		if (stored) {
-			// storeApiKey also POSTs to /api/api-key/groq to sync the backend
-			await apiKeyService.storeApiKey('groq', stored);
-			return true;
+		// llama.cpp needs no browser-stored key; only sync cloud providers
+		for (const service of ['openai', 'groq'] as const) {
+			const res = await fetch(`/api/api-key/${service}`);
+			const data = await res.json();
+			if (data.success === true && data.apiKey) return true;
+
+			const stored = await apiKeyService.getApiKey(service);
+			if (stored) {
+				await apiKeyService.storeApiKey(service, stored);
+				return true;
+			}
 		}
 		return false;
 	} catch {
@@ -75,13 +98,7 @@ export async function isGroqAvailable(): Promise<boolean> {
 }
 
 /**
- * Stream a Groq response token-by-token via the SSE endpoint.
- * Falls back to the regular non-streaming endpoint if the server doesn't support it.
- *
- * @param onToken - called for every streamed token
- * @param onDone  - called once when the stream ends, receives the full content
- * @param onError - called if the stream fails (caller can fall back to local KB)
- * @param opts    - optional; includeLive=true uses the Live-on prompt (no nudge)
+ * Stream an LLM response token-by-token via the SSE endpoint.
  */
 export async function callGroqStream(
 	userMessage: string,
@@ -101,20 +118,21 @@ export async function callGroqStream(
 		});
 
 		if (response.status === 503) {
-			// Groq not configured — fall through to error handler so caller can use local KB
-			onError(new Error('groq_not_configured'));
+			onError(new Error('llm_not_configured'));
 			return;
 		}
 
 		if (!response.ok || !response.body) {
-			// Server doesn't support streaming — fall back to regular endpoint
 			const result = await callGroq(userMessage, history, opts);
-			if (result.notConfigured) { onError(new Error('groq_not_configured')); return; }
+			if (result.notConfigured) {
+				onError(new Error('llm_not_configured'));
+				return;
+			}
 			if (result.content) {
 				onToken(result.content);
 				onDone(result.content);
 			} else {
-				onError(new Error(result.error || 'empty groq response'));
+				onError(new Error(result.error || 'empty LLM response'));
 			}
 			return;
 		}
@@ -134,7 +152,10 @@ export async function callGroqStream(
 				const trimmed = line.trim();
 				if (!trimmed || !trimmed.startsWith('data:')) continue;
 				const payload = trimmed.slice(5).trim();
-				if (payload === '[DONE]') { onDone(fullContent); return; }
+				if (payload === '[DONE]') {
+					onDone(fullContent);
+					return;
+				}
 				try {
 					const parsed = JSON.parse(payload);
 					if (parsed.token) {
@@ -144,11 +165,12 @@ export async function callGroqStream(
 						onError(new Error(parsed.error));
 						return;
 					}
-				} catch { /* malformed SSE chunk — skip */ }
+				} catch {
+					/* malformed SSE chunk — skip */
+				}
 			}
 		}
 
-		// Stream ended without [DONE] — still treat as success
 		onDone(fullContent);
 	} catch (err) {
 		onError(err instanceof Error ? err : new Error(String(err)));
