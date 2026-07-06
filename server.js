@@ -35,6 +35,14 @@ import fetch from 'node-fetch';
 // import databaseApiRoutes from './src/server/routes/databaseApiRoutes.js';
 // import { registerTokenStorageRoutes } from './src/server/tokenStorageApi.js';
 import { setupWorkerTokenRoutes } from './src/server/routes/workerTokenApiRoutes.js';
+import {
+	buildChatCompletionConfig,
+	getLlmNotConfiguredMessage,
+	getLlmStatus,
+	getProviderLabel,
+	resolveLlmProvider,
+} from './src/server/llmProvider.js';
+
 
 dotenv.config();
 
@@ -22414,9 +22422,9 @@ function _mcpIsRunning(pid) {
 	}
 }
 
-// ─── Groq LLM Chat Endpoint ───────────────────────────────────────────────────
+// ─── LLM Chat Endpoints (OpenAI / llama.cpp / Groq) ───────────────────────────
 
-const GROQ_SYSTEM_PROMPT = `You are an expert assistant embedded in the PingOne OAuth Playground — a developer tool for learning and testing OAuth 2.0 and OpenID Connect (OIDC) with PingOne.
+const LLM_SYSTEM_PROMPT = `You are an expert assistant embedded in the PingOne OAuth Playground — a developer tool for learning and testing OAuth 2.0 and OpenID Connect (OIDC) with PingOne.
 
 You can help with:
 - Explaining OAuth 2.0 flows: Authorization Code (with/without PKCE), Client Credentials, Implicit, Device, Hybrid
@@ -22438,7 +22446,7 @@ CRITICAL RULES — you MUST follow these without exception:
 Keep responses concise and technical. Use code blocks for examples. Prefer bullet points for lists.`;
 
 // When Live toggle is ON, user gets real PingOne data via MCP. Do NOT tell them to enable Live.
-const GROQ_SYSTEM_PROMPT_LIVE_ON = `You are an expert assistant embedded in the PingOne OAuth Playground — a developer tool for learning and testing OAuth 2.0 and OpenID Connect (OIDC) with PingOne.
+const LLM_SYSTEM_PROMPT_LIVE_ON = `You are an expert assistant embedded in the PingOne OAuth Playground — a developer tool for learning and testing OAuth 2.0 and OpenID Connect (OIDC) with PingOne.
 
 You can help with:
 - Explaining OAuth 2.0 flows: Authorization Code (with/without PKCE), Client Credentials, Implicit, Device, Hybrid
@@ -22455,6 +22463,14 @@ CRITICAL RULES — you MUST follow these without exception:
 
 Keep responses concise and technical. Use code blocks for examples. Prefer bullet points for lists.`;
 
+// Backward-compatible aliases used elsewhere in this file
+const GROQ_SYSTEM_PROMPT = LLM_SYSTEM_PROMPT;
+const GROQ_SYSTEM_PROMPT_LIVE_ON = LLM_SYSTEM_PROMPT_LIVE_ON;
+
+app.get('/api/llm/status', (_req, res) => {
+	res.json(getLlmStatus());
+});
+
 app.post('/api/groq/chat', express.json(), async (req, res) => {
 	const { messages, systemPrompt, includeLive } = req.body || {};
 
@@ -22462,20 +22478,20 @@ app.post('/api/groq/chat', express.json(), async (req, res) => {
 		return res.status(400).json({ error: 'messages array is required' });
 	}
 
-	const apiKey = process.env.GROQ_API_KEY;
-	if (!apiKey || apiKey.includes('your_')) {
-		writeToAiLog('warn', 'Groq API key not configured');
+	const provider = resolveLlmProvider();
+	if (!provider) {
+		writeToAiLog('warn', 'LLM provider not configured');
 		return res.status(503).json({
-			error: 'groq_not_configured',
-			message:
-				'GROQ_API_KEY is not set. Add it to your .env file or set it via the API key configuration.',
+			error: 'llm_not_configured',
+			message: getLlmNotConfiguredMessage(),
 		});
 	}
 
 	const userMsg = messages[messages.length - 1]?.content?.slice(0, 200) || '';
 	const liveOn = includeLive === true;
-	const prompt = systemPrompt || (liveOn ? GROQ_SYSTEM_PROMPT_LIVE_ON : GROQ_SYSTEM_PROMPT);
-	writeToAiLog('info', 'Groq request', {
+	const prompt = systemPrompt || (liveOn ? LLM_SYSTEM_PROMPT_LIVE_ON : LLM_SYSTEM_PROMPT);
+	writeToAiLog('info', `${getProviderLabel(provider)} request`, {
+		provider,
 		query: userMsg,
 		historyLen: messages.length - 1,
 		includeLive: !!includeLive,
@@ -22483,31 +22499,28 @@ app.post('/api/groq/chat', express.json(), async (req, res) => {
 	});
 
 	try {
-		const payload = {
-			model: 'llama-3.3-70b-versatile',
-			messages: [{ role: 'system', content: prompt }, ...messages],
-			max_tokens: 1024,
-			temperature: 0.6,
-		};
+		const config = buildChatCompletionConfig(provider, {
+			messages,
+			systemPrompt: prompt,
+			stream: false,
+		});
 
-		const response = await global.fetch('https://api.groq.com/openai/v1/chat/completions', {
+		const response = await global.fetch(config.url, {
 			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(payload),
+			headers: config.headers,
+			body: JSON.stringify(config.body),
 		});
 
 		if (!response.ok) {
 			const err = await response.json().catch(() => ({ error: { message: response.statusText } }));
 			const msg = err?.error?.message || response.statusText;
-			return res.status(response.status).json({ error: 'groq_api_error', message: msg });
+			return res.status(response.status).json({ error: 'llm_api_error', message: msg, provider });
 		}
 
 		const data = await response.json();
 		const content = data.choices?.[0]?.message?.content ?? '';
-		writeToAiLog('info', 'Groq response OK', {
+		writeToAiLog('info', `${getProviderLabel(provider)} response OK`, {
+			provider,
 			model: data.model,
 			tokens: data.usage?.total_tokens,
 		});
@@ -22515,17 +22528,18 @@ app.post('/api/groq/chat', express.json(), async (req, res) => {
 			content,
 			model: data.model,
 			usage: data.usage,
+			provider,
 		});
 	} catch (err) {
-		writeToAiLog('error', `Groq fetch error: ${err.message}`);
-		console.error('[Groq] Error:', err);
-		return res.status(500).json({ error: 'groq_fetch_error', message: err.message });
+		writeToAiLog('error', `${getProviderLabel(provider)} fetch error: ${err.message}`);
+		console.error(`[LLM:${provider}] Error:`, err);
+		return res.status(500).json({ error: 'llm_fetch_error', message: err.message, provider });
 	}
 });
 
-// ─── End Groq LLM Chat Endpoint ──────────────────────────────────────────────
+// ─── End LLM Chat Endpoint ─────────────────────────────────────────────────────
 
-// ─── Groq Streaming Chat Endpoint ────────────────────────────────────────────
+// ─── LLM Streaming Chat Endpoint ───────────────────────────────────────────────
 
 app.post('/api/groq/chat/stream', express.json(), async (req, res) => {
 	const { messages, systemPrompt, includeLive } = req.body || {};
@@ -22534,9 +22548,9 @@ app.post('/api/groq/chat/stream', express.json(), async (req, res) => {
 		return res.status(400).json({ error: 'messages array is required' });
 	}
 
-	const apiKey = process.env.GROQ_API_KEY;
-	if (!apiKey || apiKey.includes('your_')) {
-		return res.status(503).json({ error: 'groq_not_configured' });
+	const provider = resolveLlmProvider();
+	if (!provider) {
+		return res.status(503).json({ error: 'llm_not_configured' });
 	}
 
 	// Set Server-Sent Events headers
@@ -22548,8 +22562,9 @@ app.post('/api/groq/chat/stream', express.json(), async (req, res) => {
 
 	const userMsg = messages[messages.length - 1]?.content?.slice(0, 200) || '';
 	const liveOn = includeLive === true;
-	const prompt = systemPrompt || (liveOn ? GROQ_SYSTEM_PROMPT_LIVE_ON : GROQ_SYSTEM_PROMPT);
-	writeToAiLog('info', 'Groq stream request', {
+	const prompt = systemPrompt || (liveOn ? LLM_SYSTEM_PROMPT_LIVE_ON : LLM_SYSTEM_PROMPT);
+	writeToAiLog('info', `${getProviderLabel(provider)} stream request`, {
+		provider,
 		query: userMsg,
 		historyLen: messages.length - 1,
 		includeLive: !!includeLive,
@@ -22557,33 +22572,28 @@ app.post('/api/groq/chat/stream', express.json(), async (req, res) => {
 	});
 
 	try {
-		const payload = {
-			model: 'llama-3.3-70b-versatile',
-			messages: [{ role: 'system', content: prompt }, ...messages],
-			max_tokens: 2048,
-			temperature: 0.6,
+		const config = buildChatCompletionConfig(provider, {
+			messages,
+			systemPrompt: prompt,
 			stream: true,
-		};
-
-		const groqRes = await global.fetch('https://api.groq.com/openai/v1/chat/completions', {
-			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(payload),
 		});
 
-		if (!groqRes.ok) {
-			const err = await groqRes.json().catch(() => ({ error: { message: groqRes.statusText } }));
-			const msg = err?.error?.message || groqRes.statusText;
+		const llmRes = await global.fetch(config.url, {
+			method: 'POST',
+			headers: config.headers,
+			body: JSON.stringify(config.body),
+		});
+
+		if (!llmRes.ok) {
+			const err = await llmRes.json().catch(() => ({ error: { message: llmRes.statusText } }));
+			const msg = err?.error?.message || llmRes.statusText;
 			res.write(`data: ${JSON.stringify({ error: msg })}\n\n`);
 			res.end();
 			return;
 		}
 
-		// Stream SSE tokens from Groq to the browser
-		const reader = groqRes.body.getReader();
+		// Stream SSE tokens from the LLM backend to the browser
+		const reader = llmRes.body.getReader();
 		const decoder = new TextDecoder();
 		let buffer = '';
 		let totalTokens = 0;
@@ -22612,11 +22622,14 @@ app.post('/api/groq/chat/stream', express.json(), async (req, res) => {
 			}
 		}
 
-		writeToAiLog('info', 'Groq stream complete', { tokens: totalTokens });
+		writeToAiLog('info', `${getProviderLabel(provider)} stream complete`, {
+			provider,
+			tokens: totalTokens,
+		});
 		res.write('data: [DONE]\n\n');
 		res.end();
 	} catch (err) {
-		writeToAiLog('error', `Groq stream error: ${err.message}`);
+		writeToAiLog('error', `${getProviderLabel(provider)} stream error: ${err.message}`);
 		try {
 			res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
 			res.end();
@@ -22626,7 +22639,7 @@ app.post('/api/groq/chat/stream', express.json(), async (req, res) => {
 	}
 });
 
-// ─── End Groq Streaming Endpoint ─────────────────────────────────────────────
+// ─── End LLM Streaming Endpoint ─────────────────────────────────────────────
 
 // In-memory worker token cache (lives for the duration of the server process)
 const _mcpTokenCache = { token: null, expiry: 0 };
