@@ -29,6 +29,22 @@ This document:
 
 ## 3. Update Log
 
+### Remove App update History page (`/cleanup-history`) (2026-07-06)
+
+- **What:** Removed the `/cleanup-history` dashboard page and all navigation links to it.
+- **Cause:** Page no longer needed; git-derived session history duplicated information available elsewhere.
+- **Fix:** Deleted route, sidebar/AI menu entries, `CleanupHistoryDashboard.tsx`, and `cleanupHistoryService.ts`. Trimmed `scripts/update-dashboards.mjs` to only refresh the Component Cleanliness Dashboard.
+- **Files:** `src/App.tsx`, `src/config/sidebarMenuConfig.ts`, `AIAssistant/src/services/aiAgentService.ts`, `scripts/update-dashboards.mjs` (deleted: `CleanupHistoryDashboard.tsx`, `cleanupHistoryService.ts`)
+- **Regression check:** (1) Sidebar Dashboard group has no “App update History” item. (2) `/cleanup-history` returns app 404 or redirect, not the old dashboard. (3) `/cleanliness-dashboard` still loads. (4) `npm run update-dashboards` completes without error.
+
+### Worker token API routes: server startup blocked by TS/browser imports (2026-07-06)
+
+- **What:** `npm run start` failed because `workerTokenApiRoutes.js` imported `workerTokenAcquisitionService.ts` — Node ESM throws `ERR_UNKNOWN_FILE_EXTENSION`. Using tsx instead hit `indexedDB is not defined` via browser-only `unifiedTokenStorageService.ts` in the import chain.
+- **Cause:** Server route pulled frontend acquisition service that depends on browser storage and Vite path aliases.
+- **Fix:** Added `src/server/services/workerTokenAcquisitionService.js` — Node-only client_credentials fetch with auth-method auto-retry (mirrors TS logic, no persistence). Updated `workerTokenApiRoutes.js` to import the `.js` server module only.
+- **Files:** `src/server/services/workerTokenAcquisitionService.js` (new), `src/server/routes/workerTokenApiRoutes.js`
+- **Regression check:** (1) `npm run start` → backend :5001 and frontend :8000 ready. (2) `curl -sk https://localhost:5001/api/health` → 200. (3) `curl -sk https://localhost:5001/api/llm/status` → JSON with provider. (4) Frontend worker token modal still acquires/stores tokens via browser services; `/environments` still loads when token valid.
+
 ### Security hardening: HTTP headers, session fixation fix, dependency audit (2026-03-21)
 
 - **What:** Production security audit of `https://oauth-playground-pi.vercel.app` via live header inspection and code review against OWASP Top 10. Three issues found: (1) Missing hardening response headers — no `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, or `Permissions-Policy`; CSP existed but `X-Powered-By: Express` was leaking server fingerprint. (2) Session fixation risk on the `POST /api/pingone/redirectless/authorize` endpoint — server was accepting an attacker-chosen `sessionId` from `req.body` and creating a new cookie-jar entry under that ID. (3) `npm audit` reported 3 moderate and 1 high-severity vulnerabilities in `dompurify`, `effect`, and transitive deps.
@@ -1752,7 +1768,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Post-commit hook runs update-dashboards (2026-03)**
   - **What:** After every commit, dashboards (e.g. cleanup history, session data) are refreshed by running `npm run update-dashboards`. Hook is version-controlled in `.husky/post-commit` so all clones get it after `npm install` (prepare runs husky).
   - **Files:** `.husky/post-commit`, `scripts/update-dashboards.mjs`, `package.json` (script: `update-dashboards`)
-  - **Regression check:** Make a commit; verify no hook error; optionally open `/cleanup-history` (or dashboard that uses script output) and confirm data is up to date.
+  - **Regression check:** Make a commit; verify no hook error; optionally open `/cleanliness-dashboard` and confirm data is up to date.
 
 ### Step header text color fix (2025-03-11)
 
@@ -1997,7 +2013,7 @@ When changing the listed areas, run the corresponding checks to avoid regression
 
 - [ ] **Sidebar/Navbar z-index:** Do not lower `Sidebar.tsx` or `Navbar.tsx` z-index below `EnhancedFloatingLogViewer` (9999). Sidebar must stay at 10050, Navbar at 10050, so the menu is never covered by floating panels.
 - [ ] **SidebarMenuPing:** Changing drag/drop or group structure: drag an item across groups and onto a collapsed group header; confirm order saves and persists.
-- [ ] **sidebarMenuConfig:** Changing group membership or labels: confirm “App update History” remains under Dashboard and menu still matches design. Mock Flows must use canonical paths: OIDC mock → `/flows/oidc-authorization-code-v9`, `/flows/oidc-hybrid-v9`, `/flows/ciba-v9`; OAuth 2.0 mock → `/flows/device-authorization-v9`, `/flows/client-credentials-v9`, `/flows/implicit-v9`; legacy `/v7/oauth/...` and `/v7/oidc/...` (except ROPC) redirect to these.
+- [ ] **sidebarMenuConfig:** Changing group membership or labels: confirm menu still matches design. Mock Flows must use canonical paths: OIDC mock → `/flows/oidc-authorization-code-v9`, `/flows/oidc-hybrid-v9`, `/flows/ciba-v9`; OAuth 2.0 mock → `/flows/device-authorization-v9`, `/flows/client-credentials-v9`, `/flows/implicit-v9`; legacy `/v7/oauth/...` and `/v7/oidc/...` (except ROPC) redirect to these.
 
 ### MFA feature flags
 
