@@ -37,11 +37,6 @@ const CleanlinessDashboardWorking = lazy(() =>
 		default: m.CleanlinessDashboardWorking,
 	}))
 );
-const CleanupHistoryDashboard = lazy(() =>
-	import('./components/CleanupHistoryDashboard').then((m) => ({
-		default: m.CleanupHistoryDashboard,
-	}))
-);
 const CodeExamplesDemo = lazy(() => import('./components/CodeExamplesDemo'));
 // flows2 — clean-core rebuild (real PingOne), routed under /v2/flows/*
 const Flows2ClientCredentials = lazy(() => import('./flows2/flows/clientCredentials.flow'));
@@ -779,7 +774,6 @@ const AppRoutes: React.FC = () => {
 									<Route path="/" element={<Navigate to="/dashboard" replace />} />
 									<Route path="/dashboard" element={<Dashboard />} />
 									<Route path="/cleanliness-dashboard" element={<CleanlinessDashboardWorking />} />
-									<Route path="/cleanup-history" element={<CleanupHistoryDashboard />} />
 									<Route path="/flows" element={<OAuthFlowsNew />}>
 										<Route
 											path="compare"

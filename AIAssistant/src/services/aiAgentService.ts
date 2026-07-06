@@ -835,7 +835,6 @@ class AIAgentService {
 				{ label: 'Platform Dashboard', path: '/pingone-dashboard', group: 'Dashboard', groupId: 'dashboard', keywords: ['platform', 'dashboard', 'pingone'], description: 'PingOne platform dashboard.' },
 				{ label: 'Component Cleanliness Dashboard', path: '/cleanliness-dashboard', group: 'Dashboard', groupId: 'dashboard', keywords: ['cleanliness', 'dashboard', 'components'], description: 'Component cleanliness dashboard.' },
 				{ label: 'API Status', path: '/api-status', group: 'Dashboard', groupId: 'dashboard', keywords: ['api', 'status', 'health'], description: 'API status and health.' },
-				{ label: 'App update History', path: '/cleanup-history', group: 'Dashboard', groupId: 'dashboard', keywords: ['update', 'history', 'changelog'], description: 'App update and cleanup history.' },
 				{ label: 'About', path: '/about', group: 'Dashboard', groupId: 'dashboard', keywords: ['about', 'info', 'user guide'], description: 'About and user guide.' },
 
 				// Admin & Configuration
