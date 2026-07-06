@@ -8,7 +8,7 @@
  */
 
 import { workerTokenDatabaseService } from '../services/workerTokenDatabaseService.js';
-import { acquireWorkerToken } from '../../services/workerTokenAcquisitionService.ts';
+import { acquireWorkerToken } from '../services/workerTokenAcquisitionService.js';
 
 export function setupWorkerTokenRoutes(app) {
 	/**
