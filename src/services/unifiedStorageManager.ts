@@ -11,6 +11,8 @@
  * - Retry logic with exponential backoff
  */
 
+import { logger } from '../utils/logger';
+
 const MODULE_TAG = '[ UNIFIED-STORAGE]';
 
 // Storage configuration

@@ -9,7 +9,7 @@ import { AuthContextType, AuthState, LoginResult } from '../types/auth';
 import type { OAuthTokenResponse, OAuthTokens, UserInfo } from '../types/storage';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { generateCodeChallenge } from '../utils/oauth';
+import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
 import { getBackendUrl } from '../utils/protocolUtils';
 import { safeJsonParse } from '../utils/secureJson';
 import { oauthStorage } from '../utils/storage';
@@ -588,21 +588,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 				logger.info(' [NewAuthContext] Configuration validated', 'Logger info');
 
-				// Generate state and nonce for security
-				const state = Math.random().toString(36).substring(2, 15);
-				const nonce = Math.random().toString(36).substring(2, 15);
+				// Generate state and nonce for security using Web Crypto
+				const stateBytes = crypto.getRandomValues(new Uint8Array(16));
+				const state = Array.from(stateBytes, (b) => b.toString(16).padStart(2, '0')).join('');
+				const nonceBytes = crypto.getRandomValues(new Uint8Array(16));
+				const nonce = Array.from(nonceBytes, (b) => b.toString(16).padStart(2, '0')).join('');
 
 				logger.info(' [NewAuthContext] Generated security parameters:', {
 					state: `${state.substring(0, 8)}...`,
 					nonce: `${nonce.substring(0, 8)}...`,
 				});
 
-				// Generate PKCE codes for enhanced security
-				const codeVerifier =
-					Math.random().toString(36).substring(2, 15) +
-					Math.random().toString(36).substring(2, 15) +
-					Math.random().toString(36).substring(2, 15) +
-					Math.random().toString(36).substring(2, 15);
+				// Generate PKCE codes for enhanced security using Web Crypto
+				const codeVerifier = generateCodeVerifier();
 				const codeChallenge = await generateCodeChallenge(codeVerifier);
 
 				logger.info(' [NewAuthContext] PKCE generation successful:', {
@@ -971,7 +969,16 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					bothExist: !!(state && storedState),
 				});
 
-				// Only validate state if both exist - be more lenient for development
+				// Validate state — reject if state present but storedState missing (CSRF protection)
+				if (state && !storedState) {
+					const errorMessage = 'Invalid state parameter. Possible CSRF attack.';
+					logger.error('NewAuthContext', 'State validation failed: state received but none stored', {
+						received: state,
+					});
+					updateState({ error: errorMessage, isLoading: false });
+					return { success: false, error: errorMessage };
+				}
+
 				if (state && storedState && state !== storedState) {
 					const errorMessage = 'Invalid state parameter. Possible CSRF attack.';
 					logger.error('NewAuthContext', 'State validation failed', {
@@ -980,15 +987,6 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					});
 					updateState({ error: errorMessage, isLoading: false });
 					return { success: false, error: errorMessage };
-				}
-
-				// If we have a state but no stored state, log a warning but don't fail
-				if (state && !storedState) {
-					logger.warn(
-						'NewAuthContext',
-						'State received but no stored state found - this may happen if sessionStorage was cleared',
-						{ received: state }
-					);
 				}
 
 				// Log state validation for debugging
@@ -1872,7 +1870,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				logger.info(' [NewAuthContext] V7 credentials saved successfully', 'Logger info');
 				// Reload configuration to pick up the new credentials
 				const newConfig = await loadConfiguration();
-				setState((prev) => ({ ...prev, config: newConfig }));
+				setConfig(newConfig);
 			} else {
 				logger.error('NewAuthContext', 'Failed to save V7 credentials');
 			}
@@ -2121,11 +2119,12 @@ async function getUserInfo(userInfoEndpoint: string, accessToken: string): Promi
 	const environmentId = userInfoEndpoint.match(/\/\/([^/]+)\/([^/]+)\/as\/userinfo/)?.[2];
 
 	const response = await fetch(
-		`${backendUrl}/api/userinfo?access_token=${accessToken}&environment_id=${environmentId}`,
+		`${backendUrl}/api/userinfo?environment_id=${environmentId}`,
 		{
 			method: 'GET',
 			headers: {
 				Accept: 'application/json',
+				Authorization: `Bearer ${accessToken}`,
 			},
 		}
 	);

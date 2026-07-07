@@ -870,11 +870,11 @@ const PARTest: React.FC = () => {
 
 // Utility functions
 function generateNonce(): string {
-	return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+	return crypto.randomUUID().replace(/-/g, '');
 }
 
 function generateState(): string {
-	return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+	return crypto.randomUUID().replace(/-/g, '');
 }
 
 function isValidUrl(url: string): boolean {

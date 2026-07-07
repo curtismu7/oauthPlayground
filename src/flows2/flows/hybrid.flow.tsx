@@ -217,6 +217,7 @@ const HybridFlow: React.FC = () => {
 				scope,
 			});
 
+			setLoading(false);
 			window.location.assign(url);
 		} catch (err) {
 			setError(err as FlowError);
@@ -235,7 +236,7 @@ const HybridFlow: React.FC = () => {
 					credentials: creds,
 					redirectUri,
 					code,
-					codeVerifier: 'pkce-not-used', // Hybrid doesn't use PKCE, but the service requires it
+					codeVerifier: '', // Hybrid doesn't use PKCE; empty string omits code_verifier from the request
 					oidc: true,
 				},
 				mode

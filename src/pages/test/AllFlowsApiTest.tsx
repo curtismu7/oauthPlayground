@@ -1443,11 +1443,11 @@ async function generateCodeChallenge(verifier: string): Promise<string> {
 }
 
 function generateNonce(): string {
-	return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+	return crypto.randomUUID().replace(/-/g, '');
 }
 
 function generateState(): string {
-	return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+	return crypto.randomUUID().replace(/-/g, '');
 }
 
 function isValidUrl(url: string): boolean {

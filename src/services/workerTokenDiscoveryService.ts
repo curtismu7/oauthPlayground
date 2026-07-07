@@ -5,6 +5,7 @@ import { failFrom, ok, type ServiceResult } from '../standards/types';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { ComprehensiveDiscoveryService } from './comprehensiveDiscoveryService';
+import { PINGONE_AUTH_REGION_MAP } from './regionService';
 
 export interface WorkerTokenDiscoveryConfig {
 	environmentId: string;
@@ -90,8 +91,9 @@ class WorkerTokenDiscoveryService {
 				timeout,
 			});
 
-			// Construct PingOne issuer URL
-			const issuerUrl = `https://auth.pingone.com/${environmentId}/as`;
+			// Construct PingOne issuer URL, mapping region to the correct auth domain
+			const authDomain = PINGONE_AUTH_REGION_MAP[region ?? 'us'] ?? 'https://auth.pingone.com';
+			const issuerUrl = `${authDomain}/${environmentId}/as`;
 
 			// Use comprehensive discovery service for PingOne
 			const discoveryResult = await this.comprehensiveDiscovery.discover({

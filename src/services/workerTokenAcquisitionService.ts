@@ -127,8 +127,6 @@ export async function acquireWorkerToken(
 		throw new Error('Please provide at least one scope for the worker token');
 	}
 
-	await persistCredentials(p, p.authMethod);
-
 	const endpoint = resolveTokenEndpoint(p);
 	let authMethodUsed = p.authMethod;
 	const first = buildRequest(p, authMethodUsed);
@@ -175,11 +173,9 @@ export async function acquireWorkerToken(
 		throw new Error('No access token received in response');
 	}
 
-	// If an auto-retry switched the auth method, re-persist so the stored
-	// credentials record the method that actually works.
-	if (authMethodUsed !== p.authMethod) {
-		await persistCredentials(p, authMethodUsed);
-	}
+	// Persist credentials only after a successful fetch, using the auth method
+	// that actually worked (which may differ from p.authMethod after auto-retry).
+	await persistCredentials(p, authMethodUsed);
 
 	const expiresIn = (data as { expires_in?: number } | null)?.expires_in;
 	const expiresAt = expiresIn ? Date.now() + expiresIn * 1000 : undefined;
@@ -193,3 +189,4 @@ export async function acquireWorkerToken(
 
 	return { token, expiresAt, authMethodUsed };
 }
+

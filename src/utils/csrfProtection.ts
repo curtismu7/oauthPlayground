@@ -186,9 +186,25 @@ export class CSRFProtection {
 	// Load token from cookie
 	private loadTokenFromCookie(): void {
 		const token = this.getTokenFromCookie();
-		if (token && this.validateToken(token)) {
-			this.currentToken = token;
-			logger.info('[CSRF] Token loaded from cookie', 'Logger info');
+		if (token) {
+			// Reconstitute the token in the Map so validateToken can find it.
+			// Use a conservative expiry based on the configured lifetime so the
+			// token will be rejected if it is too old once the next validation runs.
+			const now = Date.now();
+			const csrfToken: CSRFToken = {
+				token,
+				timestamp: now,
+				expiresAt: now + this.config.tokenLifetime,
+			};
+			this.tokens.set(token, csrfToken);
+
+			if (this.validateToken(token)) {
+				this.currentToken = token;
+				logger.info('[CSRF] Token loaded from cookie', 'Logger info');
+			} else {
+				// validateToken rejected it (e.g. malformed); clean up
+				this.tokens.delete(token);
+			}
 		}
 	}
 

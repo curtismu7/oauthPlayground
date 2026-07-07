@@ -65,7 +65,7 @@ export class PARService {
 		try {
 			const parUrl = '/api/par';
 
-			const requestBody = this.buildPARRequestBody(request, authMethod);
+			const requestBody = await this.buildPARRequestBody(request, authMethod);
 			const jsonBody: Record<string, unknown> = {};
 
 			for (const [key, value] of requestBody.entries()) {
@@ -132,7 +132,7 @@ export class PARService {
 	/**
 	 * Build the request body for PAR based on authentication method
 	 */
-	private buildPARRequestBody(request: PARRequest, authMethod: PARAuthMethod): FormData {
+	private async buildPARRequestBody(request: PARRequest, authMethod: PARAuthMethod): Promise<FormData> {
 		const formData = new FormData();
 
 		formData.append('client_id', request.clientId);
@@ -178,7 +178,7 @@ export class PARService {
 				break;
 			case 'CLIENT_SECRET_JWT':
 				if (authMethod.clientSecret) {
-					const clientSecretJWT = this.generateClientSecretJWT(request, authMethod);
+					const clientSecretJWT = await this.generateClientSecretJWT(request, authMethod);
 					formData.append('client_assertion', clientSecretJWT);
 					formData.append(
 						'client_assertion_type',
@@ -188,7 +188,7 @@ export class PARService {
 				break;
 			case 'PRIVATE_KEY_JWT':
 				if (authMethod.privateKey) {
-					const privateKeyJWT = this.generatePrivateKeyJWT(request, authMethod);
+					const privateKeyJWT = await this.generatePrivateKeyJWT(request, authMethod);
 					formData.append('client_assertion', privateKeyJWT);
 					formData.append(
 						'client_assertion_type',
@@ -202,9 +202,15 @@ export class PARService {
 	}
 
 	/**
-	 * Generate client secret JWT for authentication
+	 * Generate client secret JWT for authentication (HMAC-SHA256 signed)
 	 */
-	private generateClientSecretJWT(request: PARRequest, _authMethod: PARAuthMethod): string {
+	private async generateClientSecretJWT(
+		request: PARRequest,
+		authMethod: PARAuthMethod
+	): Promise<string> {
+		if (!authMethod.clientSecret) {
+			throw new Error('clientSecret is required for CLIENT_SECRET_JWT');
+		}
 		const now = Math.floor(Date.now() / 1000);
 		const header = { alg: 'HS256', typ: 'JWT' };
 		const payload = {
@@ -216,15 +222,65 @@ export class PARService {
 			jti: this.generateJTI(),
 		};
 
-		const mockJWT = `${btoa(JSON.stringify(header))}.${btoa(JSON.stringify(payload))}.mock_signature`;
+		const enc = new TextEncoder();
+		const headerB64 = btoa(JSON.stringify(header))
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+			.replace(/=+$/, '');
+		const payloadB64 = btoa(JSON.stringify(payload))
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+			.replace(/=+$/, '');
+		const signingInput = `${headerB64}.${payloadB64}`;
+
+		const key = await crypto.subtle.importKey(
+			'raw',
+			enc.encode(authMethod.clientSecret),
+			{ name: 'HMAC', hash: 'SHA-256' },
+			false,
+			['sign']
+		);
+		const signatureBuffer = await crypto.subtle.sign('HMAC', key, enc.encode(signingInput));
+		const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signatureBuffer)))
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+			.replace(/=+$/, '');
+
+		const jwt = `${signingInput}.${signatureB64}`;
 		logger.info('PARService', 'Generated client secret JWT', { jti: payload.jti });
-		return mockJWT;
+		return jwt;
 	}
 
 	/**
-	 * Generate private key JWT for authentication
+	 * Generate private key JWT for authentication (RS256 signed)
 	 */
-	private generatePrivateKeyJWT(request: PARRequest, authMethod: PARAuthMethod): string {
+	private async generatePrivateKeyJWT(
+		request: PARRequest,
+		authMethod: PARAuthMethod
+	): Promise<string> {
+		if (!authMethod.privateKey) {
+			throw new Error('privateKey is required for PRIVATE_KEY_JWT');
+		}
+
+		// Convert PEM to ArrayBuffer
+		const pemContents = authMethod.privateKey
+			.replace(/-----BEGIN PRIVATE KEY-----/, '')
+			.replace(/-----END PRIVATE KEY-----/, '')
+			.replace(/\s+/g, '');
+		const binaryStr = atob(pemContents);
+		const keyBytes = new Uint8Array(binaryStr.length);
+		for (let i = 0; i < binaryStr.length; i++) {
+			keyBytes[i] = binaryStr.charCodeAt(i);
+		}
+
+		const cryptoKey = await crypto.subtle.importKey(
+			'pkcs8',
+			keyBytes.buffer,
+			{ name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+			false,
+			['sign']
+		);
+
 		const now = Math.floor(Date.now() / 1000);
 		const header = { alg: 'RS256', typ: 'JWT', kid: authMethod.keyId || 'default-key' };
 		const payload = {
@@ -236,25 +292,40 @@ export class PARService {
 			jti: this.generateJTI(),
 		};
 
-		const mockJWT =
-			btoa(JSON.stringify(header)) +
-			'.' +
-			btoa(JSON.stringify(payload)) +
-			'.' +
-			'mock_rsa_signature';
+		const enc = new TextEncoder();
+		const headerB64 = btoa(JSON.stringify(header))
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+			.replace(/=+$/, '');
+		const payloadB64 = btoa(JSON.stringify(payload))
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+			.replace(/=+$/, '');
+		const signingInput = `${headerB64}.${payloadB64}`;
 
+		const signatureBuffer = await crypto.subtle.sign(
+			'RSASSA-PKCS1-v1_5',
+			cryptoKey,
+			enc.encode(signingInput)
+		);
+		const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signatureBuffer)))
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+			.replace(/=+$/, '');
+
+		const jwt = `${signingInput}.${signatureB64}`;
 		logger.info('PARService', 'Generated private key JWT', {
 			jti: payload.jti,
 			keyId: authMethod.keyId,
 		});
-		return mockJWT;
+		return jwt;
 	}
 
 	/**
 	 * Generate a unique JTI (JWT ID)
 	 */
 	private generateJTI(): string {
-		return `jti_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+		return crypto.randomUUID();
 	}
 
 	/**

@@ -283,7 +283,7 @@ export class DPoPHttpHelper {
 				message: 'Failed to create DPoP proof',
 				dismissible: true,
 			});
-			return headers;
+			throw error;
 		}
 	}
 
