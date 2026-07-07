@@ -6,6 +6,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
+import { UseCaseBanner } from '../framework/UseCaseBanner';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
@@ -195,6 +196,7 @@ const ClientCredentialsFlow: React.FC = () => {
 			mode={mode}
 			subtitle="Machine-to-machine grant (RFC 6749 §4.4) — a confidential client authenticates with its own credentials and receives an access token. No user, no redirect."
 			engine={engine}
+			<UseCaseBanner />
 		>
 			{cur === 'configure' && (
 				<FlowStep
