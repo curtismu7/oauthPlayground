@@ -69,10 +69,21 @@ export const API_KEY_CONFIGS: Record<string, ApiKeyConfig> = {
 		},
 		maskChar: '*',
 	},
+	openai: {
+		service: 'openai',
+		name: 'OpenAI API Key',
+		description: 'API key for OpenAI chat completions used by the AI Assistant',
+		required: false,
+		validation: {
+			type: 'regex',
+			pattern: /^sk-[A-Za-z0-9_-]+$/,
+		},
+		maskChar: '*',
+	},
 	groq: {
 		service: 'groq',
 		name: 'Groq API Key',
-		description: 'API key for Groq LLM (Llama 3.3 70B) used by the AI Assistant',
+		description: 'Legacy Groq LLM fallback (prefer OPENAI_API_KEY or llama.cpp)',
 		required: false,
 		validation: {
 			type: 'regex',

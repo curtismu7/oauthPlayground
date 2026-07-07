@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### LLM provider env semantics: OPENAI_API_KEY is llama.cpp bearer, not OpenAI cloud (2026-07-06)
+
+- **What:** `AI_PROVIDER=auto` incorrectly routed `OPENAI_API_KEY` to api.openai.com. In this project the key is the bearer token for a local llama.cpp OpenAI-compatible server.
+- **Cause:** `resolveLlmProvider()` auto mode checked `isOpenAiConfigured()` first; `buildChatCompletionConfig` for llama.cpp ignored `OPENAI_API_KEY`.
+- **Fix:** Auto order is now llama.cpp → Groq only. OpenAI cloud requires explicit `AI_PROVIDER=openai`. llama.cpp auth uses `LLAMA_CPP_API_KEY` with fallback to `OPENAI_API_KEY`. Added Anthropic env stub (`ANTHROPIC_API_KEY`, `AI_PROVIDER=anthropic`) — returns unavailable until implemented.
+- **Files:** `src/server/llmProvider.js`, `src/server/__tests__/llmProvider.test.js`, `.env.example`
+- **Regression check:** (1) `npm run test -- src/server/__tests__/llmProvider.test.js` passes. (2) `curl -sk https://localhost:5001/api/llm/status` → `provider: "llama.cpp"` in auto mode. (3) `/api/groq/chat` still works with `AI_PROVIDER=groq`. (4) Worker token routes and AI Assistant endpoints unchanged.
+
 ### Remove App update History page (`/cleanup-history`) (2026-07-06)
 
 - **What:** Removed the `/cleanup-history` dashboard page and all navigation links to it.
