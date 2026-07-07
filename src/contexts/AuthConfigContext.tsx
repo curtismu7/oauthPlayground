@@ -125,6 +125,7 @@ export const AuthConfigProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 	// Listen for config changes
 	useEffect(() => {
 		const handleConfigChange = () => {
+			cachedConfiguration = null;
 			loadConfiguration().then((newConfig) => {
 				setConfig((prev) => ({
 					...prev,

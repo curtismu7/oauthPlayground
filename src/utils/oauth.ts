@@ -24,10 +24,17 @@ export const generateRandomString = (length = 32) => {
 
 /**
  * Generate a code verifier for PKCE
+ * Uses 32 random bytes base64url-encoded → 43 chars, providing 256 bits of entropy.
+ * RFC 7636 requires 43-128 chars from the unreserved charset [A-Z a-z 0-9 - . _ ~].
  * @returns {string} A random code verifier
  */
 export const generateCodeVerifier = (): string => {
-	return generateRandomString(64);
+	const array = new Uint8Array(32);
+	crypto.getRandomValues(array);
+	return btoa(String.fromCharCode(...array))
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_')
+		.replace(/=+$/, '');
 };
 
 /**
@@ -337,7 +344,14 @@ export const generateCsrfToken = (): string => {
  * @returns {boolean} True if tokens match
  */
 export const validateCsrfToken = (token: string, expectedToken: string): boolean => {
-	return token === expectedToken && token.length > 0;
+	if (token.length === 0 || token.length !== expectedToken.length) return false;
+	const a = new TextEncoder().encode(token);
+	const b = new TextEncoder().encode(expectedToken);
+	let diff = 0;
+	for (let i = 0; i < a.length; i++) {
+		diff |= a[i] ^ b[i];
+	}
+	return diff === 0;
 };
 
 /**

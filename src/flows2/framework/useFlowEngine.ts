@@ -26,10 +26,10 @@ export function useFlowEngine(steps: StepDefinition[]): FlowEngine {
 
 	const goTo = useCallback(
 		(i: number) => setIndex(Math.max(0, Math.min(steps.length - 1, i))),
-		[steps.length]
+		[steps]
 	);
-	const goNext = useCallback(() => setIndex((i) => Math.min(steps.length - 1, i + 1)), [steps.length]);
-	const goPrev = useCallback(() => setIndex((i) => Math.max(0, i - 1)), [steps.length]);
+	const goNext = useCallback(() => setIndex((i) => Math.min(steps.length - 1, i + 1)), [steps]);
+	const goPrev = useCallback(() => setIndex((i) => Math.max(0, i - 1)), []);
 	const reset = useCallback(() => {
 		setIndex(0);
 		setCompleted(new Set());

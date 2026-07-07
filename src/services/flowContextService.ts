@@ -172,13 +172,25 @@ export class FlowContextService {
 	}
 
 	/**
-	 * Clear flow context from session storage
+	 * Clear flow context from session storage.
+	 *
+	 * When a flowId (or flowType string) is supplied, look up the storage key via
+	 * getStorageKey() so we remove the same key that saveFlowContext() wrote.
+	 * Falling back to the raw value covers the case where callers pass an already-
+	 * resolved storage key (e.g. from getFlowContext's loop).
 	 */
 	static clearFlowContext(flowId?: string): void {
 		try {
 			if (flowId && typeof flowId === 'string') {
-				// Clear specific key if provided
-				sessionStorage.removeItem(flowId);
+				// Resolve to the same key that saveFlowContext() used.
+				// getStorageKey() maps flowType → storage key; if flowId is not a known
+				// flowType it returns FLOW_CONTEXT_KEY, which is still safe to remove.
+				const resolvedKey = FlowContextService.getStorageKey(flowId);
+				sessionStorage.removeItem(resolvedKey);
+				// Also remove by the raw value in case the caller already passed a key
+				if (resolvedKey !== flowId) {
+					sessionStorage.removeItem(flowId);
+				}
 			} else {
 				// Clear all known flow context keys
 				const keys = [

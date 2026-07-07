@@ -40,9 +40,18 @@ export function loadStash(): AuthzStash | null {
 	try {
 		const raw = sessionStorage.getItem(KEY);
 		return raw ? (JSON.parse(raw) as AuthzStash) : null;
-	} catch {
-		// Silently return null on any error (parse, quota, or storage unavailable)
-		// Component should not crash if stash is corrupted or inaccessible
+	} catch (err) {
+		if (err instanceof SyntaxError) {
+			return null;
+		}
+		if (err instanceof Error && (
+			err.name === 'QuotaExceededError' ||
+			err.message.includes('QuotaExceededError') ||
+			err.name === 'SecurityError'
+		)) {
+			return null;
+		}
+		// Catch-all: never propagate storage errors to callers (e.g. Safari private-mode).
 		return null;
 	}
 }

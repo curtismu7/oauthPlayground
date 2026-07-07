@@ -57,9 +57,12 @@ function classifyPollData(data: Record<string, unknown>): RedirectlessPollResult
 	const status = data.status.toUpperCase();
 
 	if (status === 'COMPLETED') {
-		// The flow completed — tokens live in the flow object itself or in an authorizeResponse
-		// (for a code-exchange flow the BFF would need to exchange; here we surface the raw data).
-		return { status: 'complete', token: toTokenResult(data), raw: data };
+		// The pi.flow COMPLETED payload nests tokens under authorizeResponse; fall back to
+		// top-level for flows that embed them directly.
+		const tokenSource = (data.authorizeResponse && typeof data.authorizeResponse === 'object')
+			? (data.authorizeResponse as Record<string, unknown>)
+			: data;
+		return { status: 'complete', token: toTokenResult(tokenSource), raw: data };
 	}
 	if (status === 'FAILED' || status === 'ERROR') {
 		return {

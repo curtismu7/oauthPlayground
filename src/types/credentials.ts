@@ -70,6 +70,8 @@ export interface WorkerTokenCredentials {
 	scopes: string[];
 	region: 'us' | 'eu' | 'ap' | 'ca';
 	tokenEndpoint: string;
+	/** OAuth token endpoint authentication method. Defaults to client_secret_post when absent. */
+	tokenEndpointAuthMethod?: 'client_secret_post' | 'client_secret_basic' | 'private_key_jwt' | 'none';
 }
 
 /**

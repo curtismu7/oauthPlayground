@@ -260,7 +260,7 @@ export const oauthStorage: OAuthStorage = {
 		return this.getItem('config');
 	},
 	clearConfig(): boolean {
-		return sessionStorageService.removeItem('oauth_config');
+		return sessionStorageService.removeItem('config');
 	},
 
 	// Session start time

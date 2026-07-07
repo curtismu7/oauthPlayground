@@ -300,10 +300,23 @@ export class RedirectStateManager {
 					}
 				}
 
-				// Validate state parameter if present
-				if (callbackData.state && typeof callbackData.state === 'string') {
-					if (callbackData.state.length > 1000) {
+				// Validate state parameter — compare returned state against stored state (CSRF protection)
+				if (callbackData.state !== undefined) {
+					if (typeof callbackData.state === 'string' && callbackData.state.length > 1000) {
 						logger.warn('RedirectStateManager', '[RedirectStateManager] State parameter too long');
+						return false;
+					}
+
+					// Retrieve the state value stored before the redirect
+					const flowId = context.metadata?.flowId || context.flowType;
+					const storedFlowState = RedirectStateManager.restoreFlowState(flowId);
+					const storedState = storedFlowState?.state;
+
+					if (storedState !== undefined && callbackData.state !== storedState) {
+						logger.warn(
+							'RedirectStateManager',
+							'[RedirectStateManager] CSRF check failed: returned state does not match stored state'
+						);
 						return false;
 					}
 				}
