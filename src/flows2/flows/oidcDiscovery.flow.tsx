@@ -9,6 +9,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
+import { UseCaseBanner } from '../framework/UseCaseBanner';
 import { FlowStep } from '../framework/FlowStep';
 import { FlowResult } from '../framework/FlowResult';
 import { useFlowEngine } from '../framework/useFlowEngine';
@@ -234,6 +235,7 @@ const OidcDiscoveryFlow: React.FC = () => {
 			mode={mode}
 			subtitle="Fetch .well-known/openid-configuration so clients self-configure their endpoints, then inspect the JSON Web Key Set clients use to verify id_token signatures."
 			engine={engine}
+			<UseCaseBanner />
 		>
 			{/* ------------------------------------------------------------------ */}
 			{/* Step 1 — Configure                                                  */}

@@ -10,6 +10,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FlowContainer } from '../framework/FlowContainer';
+import { UseCaseBanner } from '../framework/UseCaseBanner';
 import { FlowResult } from '../framework/FlowResult';
 import { FlowStep } from '../framework/FlowStep';
 import { useFlowEngine } from '../framework/useFlowEngine';
@@ -375,6 +376,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 			onModeChange={selectMode}
 			subtitle={"🚀 Live update confirmed — Authorization Code + PKCE\nThe user authenticates at PingOne and is redirected back with a one-time code, which is exchanged (with the PKCE verifier) for tokens. RFC 6749 §4.1 + RFC 7636."}
 			engine={engine}
+			<UseCaseBanner />
 		>
 			{cur === 'configure' && (
 				<FlowStep
