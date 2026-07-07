@@ -19,10 +19,8 @@ import { V9_COLORS } from '@/services/v9/V9ColorStandards';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { workerTokenManager } from '@/services/workerTokenManager';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { FiRefreshCw } from '../../icons';
-import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
 
 const MODULE_TAG = '[ WORKER-TOKEN-SECTION-V8]';
@@ -237,7 +235,6 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 	showTokenAtEnd = false,
 	onShowTokenAtEndChange,
 }) => {
-	const [showModal, setShowModal] = useState(false);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 
 	const [tokenStatus, setTokenStatus] = React.useState<{
@@ -329,13 +326,8 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 					// Credentials may be invalid or network unavailable — fall through to modal
 				}
 			}
-			await handleShowWorkerTokenModal(
-				setShowModal,
-				setTokenStatus,
-				silentApiRetrieval,
-				showTokenAtEnd,
-				true, // User clicked "Get Worker Token" — always show modal; checkbox only affects automatic fetches
-				undefined
+			window.dispatchEvent(
+				new CustomEvent('open-worker-token-modal', { detail: { source: 'WorkerTokenSectionV8' } })
 			);
 		} finally {
 			modernMessaging.hideWaitScreen();
@@ -343,8 +335,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 	};
 
 	return (
-		<>
-			<SectionRoot $compact={compact}>
+		<SectionRoot $compact={compact}>
 				<SectionHeader>
 					<HeaderIcon></HeaderIcon>
 					<SectionTitle>Worker Token (Admin Flow)</SectionTitle>
@@ -444,18 +435,5 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 					</CheckboxGroup>
 				)}
 			</SectionRoot>
-
-			<WorkerTokenModal
-				isOpen={showModal}
-				onClose={() => setShowModal(false)}
-				onTokenGenerated={(token) => {
-					setShowModal(false);
-					if (onTokenUpdated) {
-						onTokenUpdated(token);
-					}
-					window.dispatchEvent(new Event('workerTokenUpdated'));
-				}}
-			/>
-		</>
 	);
 };

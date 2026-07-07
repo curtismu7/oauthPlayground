@@ -8,6 +8,7 @@ import { useTheme } from '../OAuthAuthzV2/ThemeContext';
 import { authCodeFlowExecutionService, FlowListener } from './services/flowExecutionService';
 import { AuthCodeConfig } from './types';
 import { globalWorkerTokenService } from '../../../v8/services/globalWorkerTokenService';
+import { WorkerTokenBanner } from '../../../components/WorkerTokenBanner';
 
 const STORAGE_KEY = 'authcode-flow-config';
 
@@ -18,7 +19,6 @@ export const AuthCodeFlowLayout: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [updateStatus, setUpdateStatus] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
-  const [showWorkerTokenDialog, setShowWorkerTokenDialog] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [config, setConfig] = useState<AuthCodeConfig>({
     environmentId: '',
@@ -141,14 +141,14 @@ export const AuthCodeFlowLayout: React.FC = () => {
     try {
       const isConfigured = await globalWorkerTokenService.isConfigured();
       if (!isConfigured) {
-        setShowWorkerTokenDialog(true);
+        window.dispatchEvent(new CustomEvent('open-worker-token-modal', { detail: { source: 'auth-code-layout' } }));
         setUpdateStatus('❌ Worker token required - please configure it');
         return;
       }
 
       const workerToken = await globalWorkerTokenService.getToken();
       if (!workerToken) {
-        setShowWorkerTokenDialog(true);
+        window.dispatchEvent(new CustomEvent('open-worker-token-modal', { detail: { source: 'auth-code-layout' } }));
         setUpdateStatus('❌ Failed to get worker token');
         return;
       }
@@ -174,7 +174,7 @@ export const AuthCodeFlowLayout: React.FC = () => {
         }
         setTimeout(() => setUpdateStatus(null), 3000);
       } else if (data.needsWorkerToken) {
-        setShowWorkerTokenDialog(true);
+        window.dispatchEvent(new CustomEvent('open-worker-token-modal', { detail: { source: 'auth-code-layout' } }));
         setUpdateStatus('❌ Worker token required');
       } else {
         setUpdateStatus(`❌ ${data.message || 'Failed to update'}`);
@@ -188,9 +188,12 @@ export const AuthCodeFlowLayout: React.FC = () => {
     <div className="oauth-authz-container">
       <Header mode={mode} onToggleTheme={toggle} title="Authorization Code Flow" />
       <Sidebar selectedFlow={selectedFlow} onSelectFlow={setSelectedFlow} />
-      <ConfigPanel 
-        config={config} 
-        onConfigChange={setConfig} 
+      <div style={{ padding: '0 16px', marginBottom: '16px' }}>
+        <WorkerTokenBanner onTokenAcquired={handleUpdateRedirectUri} />
+      </div>
+      <ConfigPanel
+        config={config}
+        onConfigChange={setConfig}
         onStartFlow={handleStartFlow}
         onUpdateRedirectUri={handleUpdateRedirectUri}
         onSaveConfig={handleSaveConfig}
@@ -200,61 +203,6 @@ export const AuthCodeFlowLayout: React.FC = () => {
       />
       <ProtocolPanel config={config} flowStarted={flowStarted} currentStep={currentStep} />
       <InspectorPanel />
-
-      {showWorkerTokenDialog && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-        }}>
-          <div style={{
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '8px',
-            maxWidth: '400px',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
-          }}>
-            <h2 style={{ margin: '0 0 1rem 0', color: '#1d2e3f' }}>Configure Worker Token</h2>
-            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
-              Worker token is required to update the redirect URI in PingOne. Please configure your worker credentials first.
-            </p>
-            <a 
-              href="/flows/worker-token-v9" 
-              style={{
-                display: 'inline-block',
-                padding: '0.75rem 1.5rem',
-                background: '#1d4ed8',
-                color: 'white',
-                borderRadius: '6px',
-                textDecoration: 'none',
-                marginRight: '1rem',
-              }}
-            >
-              Open Worker Token
-            </a>
-            <button
-              type="button"
-              onClick={() => setShowWorkerTokenDialog(false)}
-              style={{
-                padding: '0.75rem 1.5rem',
-                background: '#e5e7eb',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-              }}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
