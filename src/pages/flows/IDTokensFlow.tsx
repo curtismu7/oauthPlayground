@@ -8,8 +8,8 @@ import PageTitle from '../../components/PageTitle';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import type { V9DiscoveredApp } from '../../platform/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
+import type { DiscoveredApp } from '../../platform/AppDiscoveryService';
+import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { getOAuthTokens } from '../../utils/tokenStorage';
 
@@ -212,9 +212,9 @@ const IDTokensFlow = () => {
 
 	// Handle app selection from CompactAppPickerV9
 	const handleAppSelected = useCallback(
-		(app: V9DiscoveredApp) => {
+		(app: DiscoveredApp) => {
 			// Use V9 credential storage to update the configuration
-			V9CredentialStorageService.save(
+			CredentialStorageService.save(
 				'v9:id-tokens',
 				{ clientId: app.clientId, environmentId: config?.environmentId || '' },
 				{ environmentId: config?.environmentId || '' }

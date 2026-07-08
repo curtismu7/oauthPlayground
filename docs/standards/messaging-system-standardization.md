@@ -41,7 +41,7 @@ toastV8.info('Authorization URL copied to clipboard');
 ### **V9 - Modern State-Based Messaging**
 ```typescript
 // V9 Modern Messaging (New Standard)
-import { modernMessaging, useModernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging, useModernMessaging } from '@/services/v9/ModernMessagingService';
 
 // Hook usage in components
 const [messageState, modernMessaging] = useModernMessaging();
@@ -116,7 +116,7 @@ toastV8.info('Authorization URL copied to clipboard');
 ### **V9 Flows - Modern Messaging**
 ```typescript
 // V9: Use modern state-based messaging
-import { useModernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { useModernMessaging } from '@/services/v9/ModernMessagingService';
 
 const MyFlowV9: React.FC = () => {
   const [messageState, modernMessaging] = useModernMessaging();
@@ -193,7 +193,7 @@ toastV8.success('Configuration saved');
 toastV8.error('Failed to save configuration');
 
 // After (V9)
-import { useModernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { useModernMessaging } from '@/services/v9/ModernMessagingService';
 
 const [messageState, modernMessaging] = useModernMessaging();
 
@@ -270,10 +270,10 @@ Footer Message (Low Priority)
 ### **V9 Flow Component Template**
 ```typescript
 import React from 'react';
-import { useModernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { V9ModernMessagingComponents } from '@/components/v9/V9ModernMessagingComponents';
+import { useModernMessaging } from '@/services/v9/ModernMessagingService';
+import { ModernMessagingComponents } from '@/components/ModernMessagingComponents';
 
-const { WaitScreen, Banner, CriticalError, FooterMessage } = V9ModernMessagingComponents;
+const { WaitScreen, Banner, CriticalError, FooterMessage } = ModernMessagingComponents;
 
 const FlowTemplateV9: React.FC = () => {
   const [messageState, modernMessaging] = useModernMessaging();
@@ -358,7 +358,7 @@ describe('V8 Toast Messaging', () => {
 
 ### **V9 Modern Messaging Testing**
 ```typescript
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/services/v9/ModernMessagingService';
 
 describe('V9 Modern Messaging', () => {
   it('should show banner message', () => {
@@ -498,8 +498,8 @@ describe('V9 Modern Messaging', () => {
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 // V9 Modern Messaging
-import { useModernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { V9ModernMessagingComponents } from '@/components/v9/V9ModernMessagingComponents';
+import { useModernMessaging } from '@/services/v9/ModernMessagingService';
+import { ModernMessagingComponents } from '@/components/ModernMessagingComponents';
 ```
 
 ### **Common Patterns**

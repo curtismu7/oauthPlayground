@@ -60,8 +60,8 @@ Created comprehensive service contracts for:
 - **Locked (20+)**: Email V8, Device Code V8 services
 
 #### V9 Services (15 total)
-- **Critical (10)**: V9TokenService, V9StateStore, V9CredentialService, V9CredentialValidationService, V9WorkerTokenStatusService, V9AuthorizeService, V9IntrospectionService, V9UserInfoService, V9DeviceAuthorizationService, V9PKCEGenerationService
-- **Supporting (5)**: V9SpecVersionService, V9OAuthErrorHandlingService, V9FlowCredentialService, V8ToV9WorkerTokenStatusAdapter, V9TokenGenerator
+- **Critical (10)**: V9TokenService, V9StateStore, V9CredentialService, PlatformCredentialValidationService, WorkerTokenStatusService, V9AuthorizeService, V9IntrospectionService, V9UserInfoService, V9DeviceAuthorizationService, V9PKCEGenerationService
+- **Supporting (5)**: V9SpecVersionService, V9OAuthErrorHandlingService, FlowCredentialService, V8ToV9WorkerTokenStatusAdapter, V9TokenGenerator
 
 ### Migration Rules
 

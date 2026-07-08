@@ -509,8 +509,8 @@ Custom `v9MessagingService` was created and used instead of the mandated Modern 
 
 #### Fix Applied
 1. **Created True Modern Messaging System**: Built complete non-toast messaging system:
-   - `src/services/v9/V9ModernMessagingService.ts` - State-based messaging service
-   - `src/components/v9/V9ModernMessagingComponents.tsx` - UI components (WaitScreen, Banner, CriticalError, FooterMessage)
+   - `src/services/v9/ModernMessagingService.ts` - State-based messaging service
+   - `src/components/ModernMessagingComponents.tsx` - UI components (WaitScreen, Banner, CriticalError, FooterMessage)
 2. **Updated JWTBearerTokenFlowV9**: Replaced all `toastV8` calls with Modern Messaging:
    - `toastV8.warning()` → `messaging.showBanner()` (for warnings/validation)
    - `toastV8.success()` → `messaging.showFooterMessage()` (for success/info)
@@ -525,7 +525,7 @@ Custom `v9MessagingService` was created and used instead of the mandated Modern 
    - `v9OidcDiscoveryService.ts` - Discovery operations
    - `v9FlowHeaderService.tsx` - Header rendering
    - `v9FlowUIService.tsx` - UI component loading
-4. **Added Provider Pattern**: Wrapped components with `V9ModernMessagingProvider`
+4. **Added Provider Pattern**: Wrapped components with `ModernMessagingProvider`
 5. **Verified Complete Migration**: Confirmed zero toastV8 usage in V9 codebase
 
 #### Compliance Requirements Established
@@ -534,7 +534,7 @@ Custom `v9MessagingService` was created and used instead of the mandated Modern 
 - **MUST** use `messaging.showCriticalError()` for system failures and validation errors  
 - **MUST** use `messaging.showFooterMessage()` for success/info/status updates
 - **NEVER** use toast-based systems in V9 flows and services
-- **MUST** wrap V9 components with `V9ModernMessagingProvider`
+- **MUST** wrap V9 components with `ModernMessagingProvider`
 
 #### Prevention Measures
 1. **Migration Documentation**: Updated memory.md with compliance requirements

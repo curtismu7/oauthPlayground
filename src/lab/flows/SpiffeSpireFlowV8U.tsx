@@ -21,8 +21,8 @@ import { SuperSimpleApiDisplayV8 } from '@/mfa/components/SuperSimpleApiDisplayV
 import { EnvironmentIdServiceV8 } from '@/mfa/services/environmentIdServiceV8';
 import { TokenDisplayServiceV8 } from '@/mfa/services/tokenDisplayServiceV8';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
-import { V9FlowHeader } from '../../platform/v9FlowHeaderService';
+import { FlowRestartButton } from '../../platform/FlowRestartButton';
+import { PlatformFlowHeader } from '../../platform/platformFlowHeaderService';
 import { logger } from '../../utils/logger';
 import { MockBanner } from '../../flows/mock-ui/MockBanner';
 
@@ -1154,9 +1154,9 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 	return (
 		<OuterWrapper>
 			<MockBanner description="This flow demonstrates SPIFFE/SPIRE workload identity integration with PingOne OAuth/OIDC. No real SPIRE agents or servers are used — SVID generation and token exchange are simulated for learning." />
-			<V9FlowHeader flowId="spiffe-spire-v9" customConfig={{ flowType: 'pingone' }} />
+			<PlatformFlowHeader flowId="spiffe-spire-v9" customConfig={{ flowType: 'pingone' }} />
 			<div style={{ padding: '0 1rem' }}>
-				<V9FlowRestartButton
+				<FlowRestartButton
 					onRestart={handleReset}
 					currentStep={stepIndex}
 					totalSteps={4}

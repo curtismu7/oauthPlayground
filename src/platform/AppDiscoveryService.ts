@@ -1,15 +1,15 @@
-// src/platform/V9AppDiscoveryService.ts
+// src/platform/AppDiscoveryService.ts
 // V9 wrapper around AppDiscoveryServiceV8 for worker-token-based PingOne app listing.
 //
 // What this gives every V9 flow:
 //   1. discoverApplications() — fetch all apps in the environment using worker token
-//   2. applyAppConfig()       — map a discovered app → V9FlowCredentials to fill the form
+//   2. applyAppConfig()       — map a discovered app → FlowCredentials to fill the form
 //   3. getAppsByGrantType()   — filter to relevant apps for a given OAuth grant type
 //
 // Usage in a V9 flow component:
-//   const apps = await V9AppDiscoveryService.discoverApplications(environmentId, workerToken);
-//   const creds = V9AppDiscoveryService.applyAppConfig(selectedApp);
-//   await V9CredentialStorageService.save('my-flow-v9', { ...existingCreds, ...creds });
+//   const apps = await AppDiscoveryService.discoverApplications(environmentId, workerToken);
+//   const creds = AppDiscoveryService.applyAppConfig(selectedApp);
+//   await CredentialStorageService.save('my-flow-v9', { ...existingCreds, ...creds });
 //
 // The worker token comes from the global hook in the component:
 //   const { token, isValid } = useGlobalWorkerToken();
@@ -22,14 +22,14 @@ import {
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
 } from '../mfa/services/appDiscoveryServiceV8';
-import type { V9FlowCredentials } from './V9CredentialStorageService';
+import type { FlowCredentials } from './CredentialStorageService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 /**
  * A discovered PingOne application, trimmed to what V9 flows need.
  */
-export interface V9DiscoveredApp {
+export interface DiscoveredApp {
 	/** PingOne application ID (used as clientId) */
 	clientId: string;
 	/** Display name */
@@ -50,9 +50,9 @@ export interface V9DiscoveredApp {
 	_raw: DiscoveredApplication;
 }
 
-export interface V9AppDiscoveryResult {
+export interface AppDiscoveryResult {
 	success: boolean;
-	apps: V9DiscoveredApp[];
+	apps: DiscoveredApp[];
 	error?: string;
 }
 
@@ -71,7 +71,7 @@ const GRANT_TYPE_FILTERS: Record<string, string[]> = {
 
 // ─── Service ──────────────────────────────────────────────────────────────────
 
-export const V9AppDiscoveryService = {
+export const AppDiscoveryService = {
 	/**
 	 * Discover all PingOne applications in an environment.
 	 *
@@ -82,7 +82,7 @@ export const V9AppDiscoveryService = {
 	async discoverApplications(
 		environmentId: string,
 		workerToken: string
-	): Promise<V9AppDiscoveryResult> {
+	): Promise<AppDiscoveryResult> {
 		if (!environmentId.trim()) {
 			return { success: false, apps: [], error: 'Environment ID is required' };
 		}
@@ -97,7 +97,7 @@ export const V9AppDiscoveryService = {
 		try {
 			const rawApps = await AppDiscoveryServiceV8.discoverApplications(environmentId, workerToken);
 
-			const apps: V9DiscoveredApp[] = rawApps.map((app) => ({
+			const apps: DiscoveredApp[] = rawApps.map((app) => ({
 				clientId: app.id,
 				name: app.name,
 				...(app.description !== undefined ? { description: app.description } : {}),
@@ -122,7 +122,7 @@ export const V9AppDiscoveryService = {
 	 * @param apps      - Apps returned by discoverApplications()
 	 * @param grantType - e.g. 'authorization_code', 'client_credentials'
 	 */
-	getAppsByGrantType(apps: V9DiscoveredApp[], grantType: string): V9DiscoveredApp[] {
+	getAppsByGrantType(apps: DiscoveredApp[], grantType: string): DiscoveredApp[] {
 		const allowedTypes = GRANT_TYPE_FILTERS[grantType];
 		if (!allowedTypes) return apps; // Unknown grant type — show all
 
@@ -130,16 +130,16 @@ export const V9AppDiscoveryService = {
 	},
 
 	/**
-	 * Map a discovered app to V9FlowCredentials for form auto-fill.
+	 * Map a discovered app to FlowCredentials for form auto-fill.
 	 *
 	 * Merge the result with your existing credentials to keep fields
 	 * the app doesn't provide (e.g. clientSecret entered manually):
-	 *   const creds = { ...existing, ...V9AppDiscoveryService.applyAppConfig(app) };
+	 *   const creds = { ...existing, ...AppDiscoveryService.applyAppConfig(app) };
 	 *
 	 * @param app         - App from discoverApplications()
 	 * @param workerToken - Pass in to attempt fetching clientSecret from PingOne API
 	 */
-	applyAppConfig(app: V9DiscoveredApp): Partial<V9FlowCredentials> {
+	applyAppConfig(app: DiscoveredApp): Partial<FlowCredentials> {
 		const raw = app._raw;
 
 		// Use AppDiscoveryServiceV8.getAppConfig for the canonical mapping
@@ -154,4 +154,4 @@ export const V9AppDiscoveryService = {
 	},
 } as const;
 
-export default V9AppDiscoveryService;
+export default AppDiscoveryService;

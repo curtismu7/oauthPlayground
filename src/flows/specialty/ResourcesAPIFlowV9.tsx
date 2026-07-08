@@ -15,10 +15,10 @@ import styled from 'styled-components';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { V9ModernMessagingService } from '../../platform/V9ModernMessagingService';
+import { ModernMessagingService } from '../../platform/ModernMessagingService';
 import { logger } from '../../utils/logger';
 
-const messagingService = V9ModernMessagingService.getInstance();
+const messagingService = ModernMessagingService.getInstance();
 
 // Styled Components
 const Container = styled.div`

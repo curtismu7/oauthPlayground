@@ -29,7 +29,7 @@
 
 ## Suggested order for next sessions
 
-1. **no-alert** – Replace with `modernMessaging.showBanner` / confirm modal (V7 pages, EnvironmentManagementPageV8, MFAFeatureFlagsAdminV8, PingOneWebhookViewer, V9FlowRestartButton, etc.).
+1. **no-alert** – Replace with `modernMessaging.showBanner` / confirm modal (V7 pages, EnvironmentManagementPageV8, MFAFeatureFlagsAdminV8, PingOneWebhookViewer, FlowRestartButton, etc.).
 2. **no-unused-vars** – Remove or rename (CompleteMFAFlowV7, ConfigCheckerButtons, KrogerGroceryStoreMFA).
 3. **no-explicit-any** – Add types in remaining files (KrogerGroceryStoreMFA, MFAReportingFlowV8, ConfigurationSummaryCard, CredentialSetupModal, etc.).
 4. **useExhaustiveDependencies** – Review each effect; add deps or document why omitted (CredentialsFormV8U, UnifiedMFARegistrationFlowV8, WorkerTokenFlowV9, etc.).

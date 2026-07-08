@@ -3,7 +3,7 @@
 import React from 'react';
 import { type NavigateFunction, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import TokenDisplayService from './tokenDisplayService';
 
 // MDI Icon Component for React Icons migration

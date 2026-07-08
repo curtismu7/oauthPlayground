@@ -5,7 +5,7 @@
 // No React Icons import - using MDI icons instead
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { logger } from '@/utils/logger';
 import type { DiscoveredApp } from '@/mfa/components/AppPickerV8';
 import { CompactAppPickerV8U } from '@/lab/components/CompactAppPickerV8U';

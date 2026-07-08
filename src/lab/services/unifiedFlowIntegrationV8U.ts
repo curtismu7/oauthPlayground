@@ -10,7 +10,7 @@
  */
 
 import type { ResponseMode } from '@/services/responseModeService';
-import { V9UnifiedRedirectUriService as UnifiedRedirectUriServiceV8U } from '@/platform/V9UnifiedRedirectUriService';
+import { UnifiedRedirectUriService as UnifiedRedirectUriServiceV8U } from '@/platform/UnifiedRedirectUriService';
 import {
 	type ClientCredentialsCredentials,
 	ClientCredentialsIntegrationServiceV8,

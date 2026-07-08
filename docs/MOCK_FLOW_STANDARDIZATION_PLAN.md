@@ -25,8 +25,8 @@ Standardize all 31 mock/educational flows to the V9 pattern: fluid sidebar-aware
 ### ✅ What newer flows already do correctly (following A-Migration)
 - **Modern Messaging** — wait screens, banners, footer messages, red critical errors (no legacy toast)
 - **V9FlowUIService.getFlowUIComponents()** — Container, ContentWrapper, MainCard, CollapsibleSection
-- **V9FlowHeader** — consistent page header
-- **V9FlowRestartButton** — standardized restart with state reset
+- **PlatformFlowHeader** — consistent page header
+- **FlowRestartButton** — standardized restart with state reset
 - **usePageScroll** — scroll reset on route change
 - **V9_COLORS** — approved blue/red/neutral palette (no purple; green/amber status only)
 - **`@/v8/...` imports** — correct import depth from `src/pages/flows/v9/`
@@ -153,7 +153,7 @@ const handleReset = useCallback(() => {
 
 **What must NOT be cleared on reset:**
 - Credential/config fields (clientId, scope, environmentId, etc.) — user filled these in; preserve them
-- The page header (`V9FlowHeader`)
+- The page header (`PlatformFlowHeader`)
 - Educational text, callout boxes, spec links
 
 **Back navigation vs full reset:**
@@ -189,9 +189,9 @@ const StepHeader = FlowUIService.getStepHeader('pingRed');
 // When using CollapsibleHeaderAdapter:
 <CollapsibleHeaderAdapter theme="pingRed" ... />
 
-// When using V9FlowHeader:
-<V9FlowHeader flowId="my-mock-flow-v9" customConfig={{ flowType: 'mock' }} />
-// (V9FlowHeader derives color from flow config — ensure the flow config maps to red/pingRed)
+// When using PlatformFlowHeader:
+<PlatformFlowHeader flowId="my-mock-flow-v9" customConfig={{ flowType: 'mock' }} />
+// (PlatformFlowHeader derives color from flow config — ensure the flow config maps to red/pingRed)
 ```
 
 **For flows that define their own `PageTitle` or section headers** (AttestationClientAuthFlow, MtlsClientAuthFlow, WIMSEFlow, GnapFlow, JarJarmFlow etc.), update the styled-components:
@@ -322,8 +322,8 @@ import InlineTokenDisplay from '../../../components/InlineTokenDisplay';
 
 **Current coverage (March 2026)**: Most flows use raw `<Pre>` or `<CodeBlock>` to display token strings — 17/31 flows need to be migrated to use the token display service.
 
-### 8. V9FlowHeader — Consistent Page Header (High)
-All flows must use `<V9FlowHeader flowId="..." />` as the first element inside the wrapper. This provides:
+### 8. PlatformFlowHeader — Consistent Page Header (High)
+All flows must use `<PlatformFlowHeader flowId="..." />` as the first element inside the wrapper. This provides:
 - Flow title, subtitle, and PingOne badge
 - Breadcrumb navigation
 - Consistent top-of-page branding
@@ -395,12 +395,12 @@ styled(CollapsibleIcon).attrs<{ $collapsed?: boolean }>(({ $collapsed }) => ({
 }))
 ```
 
-### V9CredentialStorageService
+### CredentialStorageService
 ```typescript
 // Auto-load stored credentials
-const saved = V9CredentialStorageService.loadSync('flow-key');
+const saved = CredentialStorageService.loadSync('flow-key');
 // Auto-save credentials
-V9CredentialStorageService.save('flow-key', credentials);
+CredentialStorageService.save('flow-key', credentials);
 ```
 
 ### Mock Services
@@ -535,7 +535,7 @@ const V9StandardizedMockFlow: React.FC<StandardizedMockFlowConfig> = ({
     <Container>
       <StepHeader>{/* Professional step indicator */}</StepHeader>
       <CollapsibleSection>{/* Auto-populated content */}</CollapsibleSection>
-      <V9FlowRestartButton onRestart={handleRestart} />
+      <FlowRestartButton onRestart={handleRestart} />
     </Container>
   );
 };
@@ -693,13 +693,13 @@ const useAutoPopulatedCredentials = (flowKey: string, defaults: DefaultCredentia
   
   useEffect(() => {
     // Try to load saved credentials first
-    const saved = V9CredentialStorageService.loadSync(flowKey);
+    const saved = CredentialStorageService.loadSync(flowKey);
     if (saved && Object.keys(saved).length > 0) {
       setCredentials({ ...defaults, ...saved });
     } else {
       // Use defaults and save them
       setCredentials(defaults);
-      V9CredentialStorageService.save(flowKey, defaults);
+      CredentialStorageService.save(flowKey, defaults);
     }
   }, [flowKey, defaults]);
   
@@ -796,7 +796,7 @@ const useFlowRestart = (config: RestartConfig) => {
 3. **Fix hard-coded narrow widths** (860 px / 800 px flows) → `FlowUIService.ContentWrapper`
 
 ### Phase 2: Page chrome gaps in older-style flows
-1. **V9FlowHeader + V9FlowRestartButton + usePageScroll** — add to the 9 flows missing all three
+1. **PlatformFlowHeader + FlowRestartButton + usePageScroll** — add to the 9 flows missing all three
 2. **Spec/RFC reference links** — add to the 23 flows without them
 
 ### Phase 3: Full V9 migration of flows still using old patterns
@@ -855,8 +855,8 @@ const useFlowRestart = (config: RestartConfig) => {
 - [ ] Ensure `showDecodeButtons={true}` and `showCopyButtons={true}` so learners can inspect JWT claims
 
 ### Page Chrome & Header Color
-- [ ] Add `<V9FlowHeader flowId="..." />` as first child inside the wrapper
-- [ ] Add `<V9FlowRestartButton>` in the header area
+- [ ] Add `<PlatformFlowHeader flowId="..." />` as first child inside the wrapper
+- [ ] Add `<FlowRestartButton>` in the header area
 - [ ] Add `usePageScroll({ pageName: '...', force: false })` at top of component
 - [ ] **Header color must be red** (`pingRed` theme: `linear-gradient(135deg, #ef4444 0%, #dc2626 100%)`)
 - [ ] **Header text must be white** (`#ffffff`) — no black/dark text on colored headers
@@ -895,7 +895,7 @@ const useFlowRestart = (config: RestartConfig) => {
 - [ ] Modern Messaging feedback: `modernMessaging.showBanner({ type: 'info', title: 'Flow reset', ... })`
 - [ ] **Credentials/config fields preserved** — do NOT clear clientId, scope, environmentId, etc.
 - [ ] Back navigation clears the results of the current step before reverting (not just `setStep(prev - 1)`)
-- [ ] Use `<V9FlowRestartButton onRestart={handleReset} />` — do not implement custom restart UI
+- [ ] Use `<FlowRestartButton onRestart={handleReset} />` — do not implement custom restart UI
 
 ### Collapsible Icons
 - [ ] Use CollapsibleIcon component from FlowUIService
@@ -914,7 +914,7 @@ const useFlowRestart = (config: RestartConfig) => {
 
 ### Cross-Flow Consistency
 - [ ] Same button placement (top-right corner)
-- [ ] Same button styling (V9FlowRestartButton)
+- [ ] Same button styling (FlowRestartButton)
 - [ ] Same reset behavior (consistent state clearing)
 - [ ] Same feedback messages (standardized notifications)
 
@@ -1002,7 +1002,7 @@ const RESPONSIVE_BREAKPOINTS = {
 
 Legend: ✅ done · ⬜ missing · ➖ not applicable
 
-| Flow | Width `90rem` | MockApiCallDisplay | V9FlowRestartButton | V9FlowHeader | usePageScroll | Button Colors | Spec Links | CredExportImport |
+| Flow | Width `90rem` | MockApiCallDisplay | FlowRestartButton | PlatformFlowHeader | usePageScroll | Button Colors | Spec Links | CredExportImport |
 |---|---|---|---|---|---|---|---|---|
 | AttestationClientAuthFlow | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ ghost Back btns | ✅ | ⬜ |
 | ClientCredentialsV9 | ✅ | ✅ | ✅ | ✅ | ⬜ | ✅ | ⬜ | ⬜ |
@@ -1047,8 +1047,8 @@ Legend: ✅ done · ⬜ missing · ➖ not applicable
 | 🔴 Critical/UX | MockApiCallDisplay | 19 flows | Core educational feature; plan's primary goal |
 | 🟠 High | Button colors — grey enabled buttons | 6 flows | Ghost/grey on enabled buttons is visually ambiguous |
 | 🟠 High | Token display service (UltimateTokenDisplay) | 17 flows | Raw `<Pre>` gives no decode/copy/JWT-claims affordance |
-| 🟠 High | V9FlowHeader | 14 flows | Inconsistent navigation and branding |
-| 🟠 High | V9FlowRestartButton | 13 flows | User can't restart without hard reload |
+| 🟠 High | PlatformFlowHeader | 14 flows | Inconsistent navigation and branding |
+| 🟠 High | FlowRestartButton | 13 flows | User can't restart without hard reload |
 | 🟡 Medium | Spec/RFC links | 23 flows | Reduces educational value |
 | 🟡 Medium | usePageScroll | 22 flows | Jarring scroll carry-over on navigation |
 | 🟢 Low | CredentialExportImport | 29 flows | Convenience; not blocking |
@@ -1067,7 +1067,7 @@ Legend: ✅ done · ⬜ missing · ➖ not applicable
 
 - **Exclude FloatingStepperContext**: Not using global stepper integration
 - **Focus on DPoP pattern**: Use internal step management like DPoP flow
-- **Leverage existing services**: V9FlowUIService, V9CredentialStorageService, Mock services
+- **Leverage existing services**: V9FlowUIService, CredentialStorageService, Mock services
 - **Maintain educational value**: Keep mock banners, API examples, server logs
 - **Preserve functionality**: All existing features must continue working
 
@@ -1078,7 +1078,7 @@ Legend: ✅ done · ⬜ missing · ➖ not applicable
 All infrastructure is in place:
 - ✅ V9FlowUIService (complete component library)
 - ✅ CollapsibleIcon (correct chevron behavior)
-- ✅ V9CredentialStorageService (persistence)
+- ✅ CredentialStorageService (persistence)
 - ✅ Mock services (token, device auth, introspection)
 - ✅ DPoP V9 pattern (optimal layout and sizing)
 

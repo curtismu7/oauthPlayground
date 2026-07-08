@@ -25,7 +25,7 @@ import {
 	type PostmanCollection,
 	type PostmanCollectionItem,
 } from '@/services/postmanCollectionGeneratorV8';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/mfa/services/environmentIdServiceV8';
 import {

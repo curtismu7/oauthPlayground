@@ -81,7 +81,7 @@ if grep -q "modernMessaging" "$V9_FILE"; then
   echo "   ✅ Uses V9 modern messaging"
 fi
 
-if grep -q "V9FlowHeader" "$V9_FILE"; then
+if grep -q "PlatformFlowHeader" "$V9_FILE"; then
   echo "   ✅ Uses V9 flow header"
 fi
 

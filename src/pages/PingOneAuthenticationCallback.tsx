@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { logger } from '../utils/logger';
 import { PKCEStorageServiceV8U } from '../lab/services/pkceStorageServiceV8U';
 import {

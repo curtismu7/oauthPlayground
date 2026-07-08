@@ -9,7 +9,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MFADeviceLimitModalV8 } from '@/mfa/components/MFADeviceLimitModalV8';
 import { MFANavigationV8 } from '@/mfa/components/MFANavigationV8';
 import { MFASettingsModalV8 } from '@/mfa/components/MFASettingsModalV8';

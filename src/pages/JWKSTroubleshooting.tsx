@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { FiAlertCircle, FiCheckCircle, FiChevronDown, FiChevronRight } from '../icons';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';

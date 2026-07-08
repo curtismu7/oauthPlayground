@@ -65,7 +65,7 @@ else
 fi
 
 # Check if V9 has proper imports
-if grep -q "V9FlowHeader" "$V9_FILE"; then
+if grep -q "PlatformFlowHeader" "$V9_FILE"; then
   echo "   ✅ Uses V9 flow header"
 else
   echo "   ⚠️  Missing V9 flow header"

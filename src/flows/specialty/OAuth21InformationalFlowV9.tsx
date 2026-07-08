@@ -7,7 +7,7 @@ import { SpecCard } from '../../components/SpecCard';
 import { showGlobalSuccess } from '../../contexts/NotificationSystem';
 import { FiCheck, FiInfo, FiShield, FiX } from '../../icons';
 import { COLORS } from '../../platform/ColorStandards';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 
 // ─── Styled Components (V9 Color Standards) ───────────────────────────────────
 
@@ -116,7 +116,7 @@ const OAuth21InformationalFlowV9: React.FC = () => {
 
 	return (
 		<Container>
-			<V9FlowHeader flowId="oauth-2-1" />
+			<PlatformFlowHeader flowId="oauth-2-1" />
 
 			{/* Overview Section */}
 			<Card>

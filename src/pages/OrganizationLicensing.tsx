@@ -3,7 +3,7 @@
 // lint-file-disable: token-value-in-jsx
 
 import React, { useEffect, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';

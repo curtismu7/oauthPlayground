@@ -106,7 +106,7 @@ const v9Items = [
     description: 'V9 flows fully standardized',
     status: 'clean',
     countLabel: '18 / 18 flows',
-    detail: 'All V9 flows use V9CredentialStorageService, CompactAppPickerV9, 0 console.error/warn violations. V7 routes redirect to V9.',
+    detail: 'All V9 flows use CredentialStorageService, CompactAppPickerV9, 0 console.error/warn violations. V7 routes redirect to V9.',
   },
   {
     id: 'v9-logger-migration',

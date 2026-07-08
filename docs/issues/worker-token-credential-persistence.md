@@ -23,7 +23,7 @@ Worker token credentials are not being properly saved to or retrieved from stora
 ### Identified Issues:
 
 #### 1. **Multiple Storage Systems Creating Confusion**
-- **V9CredentialStorageService** - Legacy V9 storage system
+- **CredentialStorageService** - Legacy V9 storage system
 - **UnifiedWorkerTokenService** - New unified system with IndexedDB + SQLite
 - **localStorage** - Browser localStorage fallback
 - **Problem**: Credentials saved to one system but loaded from another
@@ -31,7 +31,7 @@ Worker token credentials are not being properly saved to or retrieved from stora
 #### 2. **Modal Loading Logic Issues**
 ```typescript
 // In WorkerTokenModalV9.tsx loadExistingCredentials()
-const v9Credentials = V9CredentialStorageService.loadSync('worker-token-v9');
+const v9Credentials = CredentialStorageService.loadSync('worker-token-v9');
 if (v9Credentials && Object.keys(v9Credentials).length > 0) {
   // Load from V9 storage
 } else {
@@ -45,8 +45,8 @@ if (v9Credentials && Object.keys(v9Credentials).length > 0) {
 #### 3. **Save Logic Inconsistency**
 ```typescript
 // In WorkerTokenModalV9.tsx handleSaveCredentials()
-// Save to V9CredentialStorageService (primary for V9 flows)
-await V9CredentialStorageService.save('worker-token-v9', v9Credentials);
+// Save to CredentialStorageService (primary for V9 flows)
+await CredentialStorageService.save('worker-token-v9', v9Credentials);
 
 // Also save to UnifiedWorkerTokenService for compatibility
 const result = await unifiedWorkerTokenService.saveCredentials(credentials);
@@ -81,7 +81,7 @@ const result = await unifiedWorkerTokenService.saveCredentials(credentials);
 
 ```typescript
 // CURRENT (BROKEN):
-const v9Credentials = V9CredentialStorageService.loadSync('worker-token-v9');
+const v9Credentials = CredentialStorageService.loadSync('worker-token-v9');
 if (v9Credentials && Object.keys(v9Credentials).length > 0) {
   // Load from V9 storage only
 } else {
@@ -96,7 +96,7 @@ if (unifiedResult.success && unifiedResult.data) {
   setCredentials(prev => ({ ...prev, ...unifiedResult.data }));
 } else {
   // Fallback to V9 storage
-  const v9Credentials = V9CredentialStorageService.loadSync('worker-token-v9');
+  const v9Credentials = CredentialStorageService.loadSync('worker-token-v9');
   if (v9Credentials && Object.keys(v9Credentials).length > 0) {
     setCredentials(prev => ({ ...prev, ...v9Credentials }));
   }
@@ -106,7 +106,7 @@ if (unifiedResult.success && unifiedResult.data) {
 ### Medium Fix (1 day):
 **Consolidate Storage Strategy**
 1. Make UnifiedWorkerTokenService the single source of truth
-2. Remove V9CredentialStorageService dependency
+2. Remove CredentialStorageService dependency
 3. Add proper error handling and user feedback
 4. Implement cache invalidation on save
 

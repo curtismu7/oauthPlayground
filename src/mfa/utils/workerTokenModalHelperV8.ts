@@ -9,7 +9,7 @@
  * Do NOT add direct token fetch logic here - use tokenGatewayV8 instead.
  */
 
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { tokenGatewayV8 } from '@/mfa/services/auth/tokenGatewayV8';
 import { WorkerTokenConfigServiceV8 } from '@/mfa/services/workerTokenConfigServiceV8';
 import { workerTokenServiceV8 } from '@/mfa/services/workerTokenServiceV8';

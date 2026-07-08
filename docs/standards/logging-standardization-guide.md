@@ -23,7 +23,7 @@ This guide establishes the standard process for implementing proper logging acro
 
 #### 1. V9 Modern Messaging Service
 ```typescript
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/services/v9/ModernMessagingService';
 
 // User-facing messages (non-logging)
 modernMessaging.showFooterMessage({ type: 'info', message: 'Operation completed', duration: 3000 });

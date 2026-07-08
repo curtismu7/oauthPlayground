@@ -12,7 +12,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { V9MFARedirectUriService as MFARedirectUriServiceV8 } from '@/platform/V9MFARedirectUriService';
+import { MFARedirectUriService as MFARedirectUriServiceV8 } from '@/platform/MFARedirectUriService';
 import { trackOAuthFlow } from '@/utils/activityTracker';
 import {
 	checkPingOneAuthentication,
@@ -413,7 +413,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 			// IMPROVED FALLBACK: Use path-based detection with better logic
 			logger.info(`${MODULE_TAG} No valid stored context, using path-based detection`);
 
-			// Use V9MFARedirectUriService so fallback routes stay in sync with the service mapping.
+			// Use MFARedirectUriService so fallback routes stay in sync with the service mapping.
 			let fallbackPath = `${MFARedirectUriServiceV8.getDefaultReturnPath('unified-mfa-v8')}?step=2`; // Default: return to device selection
 			let fallbackReason = 'default';
 

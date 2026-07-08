@@ -2,7 +2,7 @@
 // V7 Resource Owner Password Flow controller with real PingOne API integration
 
 import { useCallback, useEffect, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { credentialManager } from '../utils/credentialManager';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { logger } from '../utils/logger';

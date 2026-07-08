@@ -6,10 +6,10 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
 import {
-	V9AppDiscoveryService,
-	type V9DiscoveredApp,
-} from '../../platform/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
+	AppDiscoveryService,
+	type DiscoveredApp,
+} from '../../platform/AppDiscoveryService';
+import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { logger } from '../../utils/logger';
 
 // PAR Test Configuration
@@ -255,11 +255,11 @@ const FLOW_KEY = 'par-flow-test-v9';
 const PARTest: React.FC = () => {
 	const globalToken = useGlobalWorkerToken({ autoFetch: false });
 	const hasWorkerToken = globalToken.isValid;
-	const [discoveredApps, setDiscoveredApps] = useState<V9DiscoveredApp[]>([]);
+	const [discoveredApps, setDiscoveredApps] = useState<DiscoveredApp[]>([]);
 	const [selectedAppClientId, setSelectedAppClientId] = useState<string>('');
 
 	const [config, setConfig] = useState<PARTestConfig>(() => {
-		const saved = V9CredentialStorageService.loadSync(FLOW_KEY);
+		const saved = CredentialStorageService.loadSync(FLOW_KEY);
 		return {
 			environmentId: saved.environmentId || '',
 			clientId: saved.clientId || '',
@@ -278,7 +278,7 @@ const PARTest: React.FC = () => {
 
 	const discoverApps = useCallback(async () => {
 		if (!globalToken.token || !config.environmentId) return;
-		const result = await V9AppDiscoveryService.discoverApplications(
+		const result = await AppDiscoveryService.discoverApplications(
 			config.environmentId,
 			globalToken.token
 		);
@@ -294,7 +294,7 @@ const PARTest: React.FC = () => {
 	const handleConfigChange = (field: keyof PARTestConfig, value: string | null | undefined) => {
 		setConfig((prev) => {
 			const next = { ...prev, [field]: value || undefined };
-			void V9CredentialStorageService.save(FLOW_KEY, {
+			void CredentialStorageService.save(FLOW_KEY, {
 				environmentId: next.environmentId,
 				clientId: next.clientId,
 				clientSecret: next.clientSecret,
@@ -553,7 +553,7 @@ const PARTest: React.FC = () => {
 									if (clientId) {
 										const app = discoveredApps.find((a) => a.clientId === clientId);
 										if (app) {
-											const appCreds = V9AppDiscoveryService.applyAppConfig(app);
+											const appCreds = AppDiscoveryService.applyAppConfig(app);
 											setConfig((prev) => {
 												const next = {
 													...prev,
@@ -562,7 +562,7 @@ const PARTest: React.FC = () => {
 													...(appCreds.redirectUri && { redirectUri: appCreds.redirectUri }),
 													...(appCreds.scope && { scopes: appCreds.scope }),
 												};
-												void V9CredentialStorageService.save(FLOW_KEY, {
+												void CredentialStorageService.save(FLOW_KEY, {
 													environmentId: next.environmentId,
 													clientId: next.clientId,
 													clientSecret: next.clientSecret,

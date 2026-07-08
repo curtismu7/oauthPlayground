@@ -1,5 +1,5 @@
 /**
- * @file V9ModernMessagingComponents.tsx
+ * @file ModernMessagingComponents.tsx
  * @module components/v9
  * @description V9 Modern Messaging UI Components
  * @version 9.0.0
@@ -42,7 +42,7 @@ import {
 	type FooterMessageConfig,
 	useModernMessaging,
 	type WaitScreenConfig,
-} from '../../platform/V9ModernMessagingService';
+} from '../platform/ModernMessagingService';
 
 // V9 Color Standards — Wait screens use blue only (hard rule: no purple).
 const COLORS = {
@@ -527,7 +527,7 @@ const ContentConstrainedWrapper = styled.div`
 `;
 
 // Main Modern Messaging Provider Component
-export const V9ModernMessagingProvider: React.FC<{ children: React.ReactNode }> = ({
+export const ModernMessagingProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
 	const [messageState] = useModernMessaging();
@@ -562,4 +562,4 @@ export const V9ModernMessagingProvider: React.FC<{ children: React.ReactNode }> 
 };
 
 // Export hook and service for convenience
-export { modernMessaging, useModernMessaging } from '../../platform/V9ModernMessagingService';
+export { modernMessaging, useModernMessaging } from '../platform/ModernMessagingService';

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import packageJson from '../../package.json';
 import AdvancedSecuritySettingsMock from '../components/AdvancedSecuritySettingsMock';
 import { ApiKeyConfiguration } from '../components/ApiKeyConfiguration';

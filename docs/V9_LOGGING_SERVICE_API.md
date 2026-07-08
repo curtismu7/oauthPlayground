@@ -1,7 +1,7 @@
 # V9 Logging Service — API Summary
 
-**Location:** `src/services/v9/V9LoggingService.ts`  
-**Import:** `import { V9LoggingService } from '@/services/v9';` or `import V9LoggingService from '@/services/v9/V9LoggingService';`
+**Location:** `src/services/v9/PlatformLoggingService.ts`  
+**Import:** `import { PlatformLoggingService } from '@/services/v9';` or `import PlatformLoggingService from '@/services/v9/PlatformLoggingService';`
 
 Structured logging for V9 flows and unified UI. Replaces `unifiedFlowLoggerServiceV8U` where migrated. Sanitizes credentials (redacts `clientSecret`, `privateKey`) and keeps an in-memory history for export.
 
@@ -22,19 +22,19 @@ All take `(message: string, context?: LogContext)`. Optional context is merged i
 
 | Method | Use |
 |--------|-----|
-| **`V9LoggingService.debug(message, context?)`** | Debug/trace. |
-| **`V9LoggingService.info(message, context?)`** | General info. |
-| **`V9LoggingService.warn(message, context?)`** | Warnings. |
-| **`V9LoggingService.error(message, context?, err?)`** | Errors; pass an `Error` as 3rd arg to attach name, message, stack. |
-| **`V9LoggingService.success(message, context?)`** | Success / completion. |
-| **`V9LoggingService.log(level, message, context?)`** | Generic log by level. |
+| **`PlatformLoggingService.debug(message, context?)`** | Debug/trace. |
+| **`PlatformLoggingService.info(message, context?)`** | General info. |
+| **`PlatformLoggingService.warn(message, context?)`** | Warnings. |
+| **`PlatformLoggingService.error(message, context?, err?)`** | Errors; pass an `Error` as 3rd arg to attach name, message, stack. |
+| **`PlatformLoggingService.success(message, context?)`** | Success / completion. |
+| **`PlatformLoggingService.log(level, message, context?)`** | Generic log by level. |
 
 **Examples:**
 
 ```ts
-V9LoggingService.info('Flow started', { flowType: 'PAR', step: 0 });
-V9LoggingService.error('Token exchange failed', { flowType: 'RAR' }, err);
-V9LoggingService.success('Authorization complete', { flowType: 'OIDC', step: 2 });
+PlatformLoggingService.info('Flow started', { flowType: 'PAR', step: 0 });
+PlatformLoggingService.error('Token exchange failed', { flowType: 'RAR' }, err);
+PlatformLoggingService.success('Authorization complete', { flowType: 'OIDC', step: 2 });
 ```
 
 ---
@@ -58,10 +58,10 @@ Optional object; any extra keys allowed.
 
 | Method | Returns | Purpose |
 |--------|--------|--------|
-| **`V9LoggingService.setMinimumLogLevel(level)`** | `void` | Set minimum level (e.g. `'debug'` in dev). |
-| **`V9LoggingService.shouldLog(level)`** | `boolean` | Whether the level is enabled. |
-| **`V9LoggingService.getLogHistory()`** | `Array<{ level, message, context, timestamp }>` | Last 200 log entries. |
-| **`V9LoggingService.clearHistory()`** | `void` | Clear history and performance metrics. |
+| **`PlatformLoggingService.setMinimumLogLevel(level)`** | `void` | Set minimum level (e.g. `'debug'` in dev). |
+| **`PlatformLoggingService.shouldLog(level)`** | `boolean` | Whether the level is enabled. |
+| **`PlatformLoggingService.getLogHistory()`** | `Array<{ level, message, context, timestamp }>` | Last 200 log entries. |
+| **`PlatformLoggingService.clearHistory()`** | `void` | Clear history and performance metrics. |
 
 ---
 
@@ -69,13 +69,13 @@ Optional object; any extra keys allowed.
 
 | Method | Returns | Purpose |
 |--------|--------|--------|
-| **`V9LoggingService.startPerformance(operation, context?)`** | `() => void` | Call the returned function when the operation ends; it records duration and logs at debug. |
-| **`V9LoggingService.getPerformanceMetrics()`** | `PerformanceMetric[]` | Last 100 metrics: `{ operation, duration, flowType?, timestamp }`. |
+| **`PlatformLoggingService.startPerformance(operation, context?)`** | `() => void` | Call the returned function when the operation ends; it records duration and logs at debug. |
+| **`PlatformLoggingService.getPerformanceMetrics()`** | `PerformanceMetric[]` | Last 100 metrics: `{ operation, duration, flowType?, timestamp }`. |
 
 **Example:**
 
 ```ts
-const stop = V9LoggingService.startPerformance('tokenExchange', { flowType: 'PAR' });
+const stop = PlatformLoggingService.startPerformance('tokenExchange', { flowType: 'PAR' });
 await exchangeToken();
 stop();
 ```
@@ -86,7 +86,7 @@ stop();
 
 | Method | Returns | Purpose |
 |--------|--------|--------|
-| **`V9LoggingService.exportLogs()`** | `string` | JSON string of `history`, `performance`, and `exportedAt`. |
+| **`PlatformLoggingService.exportLogs()`** | `string` | JSON string of `history`, `performance`, and `exportedAt`. |
 
 ---
 
@@ -101,27 +101,27 @@ stop();
 ## Quick reference
 
 ```ts
-import { V9LoggingService } from '@/services/v9';
+import { PlatformLoggingService } from '@/services/v9';
 
 // Log
-V9LoggingService.debug('detail', { flowType: 'PAR' });
-V9LoggingService.info('message', { step: 1 });
-V9LoggingService.warn('warning');
-V9LoggingService.error('failed', {}, err);
-V9LoggingService.success('done', { flowType: 'RAR' });
+PlatformLoggingService.debug('detail', { flowType: 'PAR' });
+PlatformLoggingService.info('message', { step: 1 });
+PlatformLoggingService.warn('warning');
+PlatformLoggingService.error('failed', {}, err);
+PlatformLoggingService.success('done', { flowType: 'RAR' });
 
 // Level
-V9LoggingService.setMinimumLogLevel('debug');
-V9LoggingService.shouldLog('info');
+PlatformLoggingService.setMinimumLogLevel('debug');
+PlatformLoggingService.shouldLog('info');
 
 // History & export
-const history = V9LoggingService.getLogHistory();
-V9LoggingService.clearHistory();
-const json = V9LoggingService.exportLogs();
+const history = PlatformLoggingService.getLogHistory();
+PlatformLoggingService.clearHistory();
+const json = PlatformLoggingService.exportLogs();
 
 // Performance
-const end = V9LoggingService.startPerformance('myOp', { flowType: 'OIDC' });
+const end = PlatformLoggingService.startPerformance('myOp', { flowType: 'OIDC' });
 // ... do work ...
 end();
-const metrics = V9LoggingService.getPerformanceMetrics();
+const metrics = PlatformLoggingService.getPerformanceMetrics();
 ```

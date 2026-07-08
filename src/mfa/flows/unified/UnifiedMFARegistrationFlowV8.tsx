@@ -26,7 +26,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { environmentIdPersistenceService } from '@/services/environmentIdPersistenceService';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MFADocumentationPageV8 } from '@/mfa/components/MFADocumentationPageV8';
 import { MFAHeaderV8 } from '@/mfa/components/MFAHeaderV8';
 import type { SearchableDropdownOption } from '@/mfa/components/SearchableDropdownV8';

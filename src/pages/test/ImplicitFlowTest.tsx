@@ -7,10 +7,10 @@ import styled from 'styled-components';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';
 import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
 import {
-	V9AppDiscoveryService,
-	type V9DiscoveredApp,
-} from '../../platform/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
+	AppDiscoveryService,
+	type DiscoveredApp,
+} from '../../platform/AppDiscoveryService';
+import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { logger } from '../../utils/logger';
 import {
 	buildPingOneImplicitAuthUrl,
@@ -244,11 +244,11 @@ const ImplicitFlowTest: React.FC = () => {
 	const globalToken = useGlobalWorkerToken({ autoFetch: false });
 	const hasWorkerToken = globalToken.isValid;
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [discoveredApps, setDiscoveredApps] = useState<V9DiscoveredApp[]>([]);
+	const [discoveredApps, setDiscoveredApps] = useState<DiscoveredApp[]>([]);
 	const [selectedAppClientId, setSelectedAppClientId] = useState<string>('');
 
 	const [config, setConfig] = useState<ImplicitTestConfig>(() => {
-		const saved = V9CredentialStorageService.loadSync(FLOW_KEY);
+		const saved = CredentialStorageService.loadSync(FLOW_KEY);
 		return {
 			environmentId: saved.environmentId || '',
 			clientId: saved.clientId || '',
@@ -266,7 +266,7 @@ const ImplicitFlowTest: React.FC = () => {
 
 	const discoverApps = useCallback(async () => {
 		if (!globalToken.token || !config.environmentId) return;
-		const result = await V9AppDiscoveryService.discoverApplications(
+		const result = await AppDiscoveryService.discoverApplications(
 			config.environmentId,
 			globalToken.token
 		);
@@ -282,7 +282,7 @@ const ImplicitFlowTest: React.FC = () => {
 	const handleConfigChange = (field: keyof ImplicitTestConfig, value: string | undefined) => {
 		setConfig((prev) => {
 			const next = { ...prev, [field]: value };
-			void V9CredentialStorageService.save(FLOW_KEY, {
+			void CredentialStorageService.save(FLOW_KEY, {
 				environmentId: next.environmentId,
 				clientId: next.clientId,
 				redirectUri: next.redirectUri,
@@ -587,7 +587,7 @@ const ImplicitFlowTest: React.FC = () => {
 								if (clientId) {
 									const app = discoveredApps.find((a) => a.clientId === clientId);
 									if (app) {
-										const appCreds = V9AppDiscoveryService.applyAppConfig(app);
+										const appCreds = AppDiscoveryService.applyAppConfig(app);
 										setConfig((prev) => {
 											const next = {
 												...prev,
@@ -595,7 +595,7 @@ const ImplicitFlowTest: React.FC = () => {
 												...(appCreds.redirectUri && { redirectUri: appCreds.redirectUri }),
 												...(appCreds.scope && { scopes: appCreds.scope }),
 											};
-											void V9CredentialStorageService.save(FLOW_KEY, {
+											void CredentialStorageService.save(FLOW_KEY, {
 												environmentId: next.environmentId,
 												clientId: next.clientId,
 												redirectUri: next.redirectUri,

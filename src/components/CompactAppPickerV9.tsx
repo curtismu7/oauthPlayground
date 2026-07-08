@@ -6,8 +6,8 @@
  * @since 2026-03-06
  *
  * Migrated from CompactAppPickerV8U with V9 standardization:
- * - Uses V9AppDiscoveryService for app discovery
- * - Uses V9WorkerTokenStatusService for token status
+ * - Uses AppDiscoveryService for app discovery
+ * - Uses WorkerTokenStatusService for token status
  * - Uses useGlobalWorkerToken hook for token management
  * - Follows V9 color standards and styling patterns
  * - Enhanced TypeScript types and error handling
@@ -16,13 +16,13 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
-import type { V9DiscoveredApp } from '@/platform/V9AppDiscoveryService';
-import { V9AppDiscoveryService } from '@/platform/V9AppDiscoveryService';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import type { DiscoveredApp } from '@/platform/AppDiscoveryService';
+import { AppDiscoveryService } from '@/platform/AppDiscoveryService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import {
-	type V9TokenStatusInfo,
-	V9WorkerTokenStatusService,
-} from '@/platform/V9WorkerTokenStatusService';
+	type TokenStatusInfo,
+	WorkerTokenStatusService,
+} from '@/platform/WorkerTokenStatusService';
 import { FiSearch } from '../icons';
 import { logger } from '../utils/logger';
 
@@ -30,7 +30,7 @@ const _MODULE_TAG = '[ COMPACT-APP-PICKER-V9]';
 
 interface CompactAppPickerV9Props {
 	environmentId: string;
-	onAppSelected: (app: V9DiscoveredApp) => void;
+	onAppSelected: (app: DiscoveredApp) => void;
 	grantType?: string; // Optional filter for specific grant types
 	compact?: boolean; // Use compact styling
 	disabled?: boolean; // Manual disable override
@@ -62,12 +62,12 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 
 	// Component state
 	const [isLoading, setIsLoading] = useState(false);
-	const [apps, setApps] = useState<V9DiscoveredApp[]>([]);
+	const [apps, setApps] = useState<DiscoveredApp[]>([]);
 	const [showDropdown, setShowDropdown] = useState(false);
 	const [showSearch, setShowSearch] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [hasDiscovered, setHasDiscovered] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState<V9TokenStatusInfo>({
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
 		status: 'missing',
 		message: 'Checking...',
 		isValid: false,
@@ -80,7 +80,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 	// Check token status using V9 service
 	useEffect(() => {
 		const checkStatus = async () => {
-			const status = await V9WorkerTokenStatusService.checkStatus();
+			const status = await WorkerTokenStatusService.checkStatus();
 			setTokenStatus(status);
 		};
 
@@ -126,7 +126,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 
 		// Apply grant type filter if specified
 		if (grantType) {
-			filtered = V9AppDiscoveryService.getAppsByGrantType(filtered, grantType);
+			filtered = AppDiscoveryService.getAppsByGrantType(filtered, grantType);
 		}
 
 		// Apply search query filter
@@ -165,8 +165,8 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 
 		setIsLoading(true);
 		try {
-			// Use V9AppDiscoveryService for consistent behavior
-			const result = await V9AppDiscoveryService.discoverApplications(environmentId, workerToken);
+			// Use AppDiscoveryService for consistent behavior
+			const result = await AppDiscoveryService.discoverApplications(environmentId, workerToken);
 
 			if (result.success && result.apps.length > 0) {
 				setApps(result.apps);
@@ -215,7 +215,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 		}
 	};
 
-	const handleSelectApp = (app: V9DiscoveredApp) => {
+	const handleSelectApp = (app: DiscoveredApp) => {
 		onAppSelected(app);
 		setShowDropdown(false);
 		setShowSearch(false);

@@ -5,18 +5,18 @@
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { StandardizedCredentialExportImport } from '../../components/StandardizedCredentialExportImport';
 import { usePageStepper } from '../../contexts/FloatingStepperContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowUIService } from '../../services/flowUIService';
-import { V9FlowCredentialService } from '../../platform/core/V9FlowCredentialService';
+import { FlowCredentialService } from '../../platform/core/FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../platform/environmentIdServiceV9';
 import { COLORS } from '../../platform/ColorStandards';
-import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
-import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import { CredentialStorageService } from '../../platform/CredentialStorageService';
+import { FlowRestartButton } from '../../platform/FlowRestartButton';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import { MockBanner } from '../mock-ui/MockBanner';
 import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
 import WorkerTokenStatusDisplayV8 from '../../mfa/components/WorkerTokenStatusDisplayV8';
@@ -242,7 +242,7 @@ const RARFlowV9: React.FC = () => {
 	}, [currentStep]);
 
 	// V9 Credential management
-	const [credentials, _setCredentials] = useState(() => V9FlowCredentialService.load());
+	const [credentials, _setCredentials] = useState(() => FlowCredentialService.load());
 	const [environmentId, setEnvironmentId] = useState(() =>
 		EnvironmentIdServiceV8.getEnvironmentId()
 	);
@@ -271,13 +271,13 @@ const RARFlowV9: React.FC = () => {
 
 	// Load stored credentials on mount
 	useEffect(() => {
-		const synced = V9CredentialStorageService.loadSync('v9:rar');
+		const synced = CredentialStorageService.loadSync('v9:rar');
 		if (synced) {
 			if (synced.environmentId) setEnvironmentId(synced.environmentId);
 			if (synced.clientId)
 				setRarConfig((prev) => ({ ...prev, clientId: synced.clientId ?? prev.clientId }));
 		}
-		V9CredentialStorageService.load('v9:rar').then((creds) => {
+		CredentialStorageService.load('v9:rar').then((creds) => {
 			if (creds?.environmentId) setEnvironmentId(creds.environmentId);
 			if (creds?.clientId)
 				setRarConfig((prev) => ({ ...prev, clientId: creds.clientId ?? prev.clientId }));
@@ -285,7 +285,7 @@ const RARFlowV9: React.FC = () => {
 	}, []);
 
 	const saveRarCredentials = useCallback((clientId: string, envId: string) => {
-		V9CredentialStorageService.save(
+		CredentialStorageService.save(
 			'v9:rar',
 			{ clientId, environmentId: envId },
 			envId ? { environmentId: envId } : {}
@@ -863,9 +863,9 @@ const RARFlowV9: React.FC = () => {
 		<ResponsiveContainer>
 			<ResponsiveContentWrapper>
 				<MockBanner description="This is a mock/educational implementation demonstrating RAR concepts. In a real implementation, the authorization server would process the RAR parameters and return tokens with the approved authorization details." />
-				<V9FlowHeader flowId="rar-v9" customConfig={{ flowType: 'pingone' }} />
+				<PlatformFlowHeader flowId="rar-v9" customConfig={{ flowType: 'pingone' }} />
 				<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-					<V9FlowRestartButton
+					<FlowRestartButton
 						onRestart={handleReset}
 						currentStep={currentStep}
 						totalSteps={STEP_METADATA.length}

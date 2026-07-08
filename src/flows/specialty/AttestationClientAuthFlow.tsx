@@ -5,7 +5,7 @@
 
 import type React from 'react';
 import { useCallback, useState } from 'react';
-import styled from 'styled-components';import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import styled from 'styled-components';import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface EphemeralKeyPair {
@@ -468,7 +468,7 @@ const AttestationClientAuthFlow: React.FC = () => {
 
 	return (
 		<Page>
-			<V9FlowHeader flowId="attestation-client-auth" />
+			<PlatformFlowHeader flowId="attestation-client-auth" />
 			<PageTitle>
 				Attestation-Based Client Auth
 				<DraftBadge>IETF Draft</DraftBadge>

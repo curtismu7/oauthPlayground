@@ -351,8 +351,8 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### Banner dismiss: X button now actually closes the banner (2026-03-16)
 
 - **What:** Error/info banners shown via `modernMessaging.showBanner()` could not be dismissed — the X button called `config.onDismiss` which is always `undefined` because no callers pass it.
-- **Fix:** `src/components/v9/V9ModernMessagingComponents.tsx`: `const handleDismiss = config.onDismiss ?? (() => modernMessaging.hideBanner())`. X button `onClick` now calls `handleDismiss` instead of `config.onDismiss` directly.
-- **Files:** `src/components/v9/V9ModernMessagingComponents.tsx`
+- **Fix:** `src/components/ModernMessagingComponents.tsx`: `const handleDismiss = config.onDismiss ?? (() => modernMessaging.hideBanner())`. X button `onClick` now calls `handleDismiss` instead of `config.onDismiss` directly.
+- **Files:** `src/components/ModernMessagingComponents.tsx`
 - **Testing status:** Code analysis only — not manually verified. Manual test needed: trigger any error banner (e.g. try org licensing with no token) → click the X → banner should disappear.
 - **Regression check:** `onDismiss` callback prop still works if a caller passes it explicitly. Default behavior (no `onDismiss` passed) now dismisses via `modernMessaging.hideBanner()`.
 
@@ -397,7 +397,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### Mock flows: reset flow functionality fixes (2026-03-15)
 
 - **What:** Reset flow buttons in all mock flows were not clearing "last results" because they were hardcoded to `currentStep={0}`, which bypassed the confirmation dialog and didn't track actual flow execution state. Users could not properly reset flows to clear previous results.
-- **Fix:** Added intelligent step tracking based on actual results for all 8 mock flow components. Introduced `hasResults` boolean to check if any results-related state variables are populated, then dynamically set `currentStep = hasResults ? 1 : 0`. Updated `handleReset` functions to properly clear all result state variables. Enhanced `V9FlowRestartButton` to show confirmation dialog when results exist.
+- **Fix:** Added intelligent step tracking based on actual results for all 8 mock flow components. Introduced `hasResults` boolean to check if any results-related state variables are populated, then dynamically set `currentStep = hasResults ? 1 : 0`. Updated `handleReset` functions to properly clear all result state variables. Enhanced `FlowRestartButton` to show confirmation dialog when results exist.
 - **Files:** `src/pages/flows/v9/V7MClientCredentialsV9.tsx`, `src/pages/flows/v9/V7MOAuthAuthCodeV9.tsx`, `src/pages/flows/v9/V7MROPCV9.tsx`, `src/pages/flows/v9/V7MOIDCHybridFlowV9.tsx`, `src/pages/flows/v9/V7MCIBAFlowV9.tsx`, `src/pages/flows/v9/V7MImplicitFlowV9.tsx`, `src/pages/flows/v9/V7MDeviceAuthorizationV9.tsx`, `src/pages/flows/v9/SAMLBearerAssertionFlowV9.tsx`
 - **Regression check:** Open any mock flow → execute flow → results appear → click "Reset Flow" → confirmation dialog appears → click to reset → all results cleared. Reset button shows "Restart (Step 1/1)" when results exist, "Reset Flow" when no results.
 
@@ -1361,10 +1361,10 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 - **Files:** `pingone-mcp-server/src/services/logger.ts`, `mcp-inspector-config.json`
 - **Regression check:** Run `npm run mcp:inspector` from project root → call a tool (e.g. tools/list) → check `logs/mcp-server.log` for entries. Log Viewer (mcp category) shows them when backend serves logs.
 
-### Unified OAuth flow: red header and V9FlowHeader migration (2026-03)
+### Unified OAuth flow: red header and PlatformFlowHeader migration (2026-03)
 
 - **What:** `/v8u/unified/oauth-authz/0` used blue PageHeaderV8 instead of the standard red PingOne header with white text.
-- **Fix:** (1) Added `oauth-authz-v8u` to `FLOW_CONFIGS` in flowHeaderService (flowType: 'pingone', title: "Unified OAuth/OIDC Flow", matching subtitle). (2) Replaced `PageHeaderV8` with `V9FlowHeader` in UnifiedOAuthFlowV8U. (3) Moved flow breadcrumbs and action buttons (Flow & Spec Comparison Guide, Postman downloads) into a separate card below the header.
+- **Fix:** (1) Added `oauth-authz-v8u` to `FLOW_CONFIGS` in flowHeaderService (flowType: 'pingone', title: "Unified OAuth/OIDC Flow", matching subtitle). (2) Replaced `PageHeaderV8` with `PlatformFlowHeader` in UnifiedOAuthFlowV8U. (3) Moved flow breadcrumbs and action buttons (Flow & Spec Comparison Guide, Postman downloads) into a separate card below the header.
 - **Files:** `src/services/flowHeaderService.tsx`, `src/v8u/flows/UnifiedOAuthFlowV8U.tsx`
 - **Regression check:** Open `/v8u/unified/oauth-authz/0` — red header with white text "Unified OAuth/OIDC Flow"; breadcrumbs and buttons in card below; Flow & Spec Comparison Guide and Postman buttons still work.
 
@@ -1400,7 +1400,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 ### Token Monitoring: red header and migration (2026-03)
 
 - **What:** `/v8u/token-monitoring` lacked the standard red PingOne header with white text and had not been fully migrated to the V8U flow page pattern.
-- **Fix:** (1) Added `token-monitoring-v8u` to `FLOW_CONFIGS` in flowHeaderService (flowType: 'pingone', title: "Token Monitoring Dashboard", subtitle for real-time token tracking). (2) Added `V9FlowHeader` to TokenStatusPageV8U at top of page. (3) Removed redundant PageHeader/PageTitle/PageDescription (header content now comes from FlowHeader).
+- **Fix:** (1) Added `token-monitoring-v8u` to `FLOW_CONFIGS` in flowHeaderService (flowType: 'pingone', title: "Token Monitoring Dashboard", subtitle for real-time token tracking). (2) Added `PlatformFlowHeader` to TokenStatusPageV8U at top of page. (3) Removed redundant PageHeader/PageTitle/PageDescription (header content now comes from FlowHeader).
 - **Files:** `src/services/flowHeaderService.tsx`, `src/v8u/pages/TokenStatusPageV8U.tsx`
 - **Regression check:** Open `/v8u/token-monitoring` — red header with white text "Token Monitoring Dashboard", subtitle visible. Worker/User token sections unchanged below.
 
@@ -1565,7 +1565,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 ### SPIFFE/SPIRE V9: red header, remove floating stepper (2026-03)
 
-- **What:** `/flows/spiffe-spire-v9` had no red (PingOne-style) header and still used the floating stepper. **Fix:** (1) Added `spiffe-spire-v9` to FLOW_CONFIGS in flowHeaderService (pingone style, title, subtitle, icon). (2) In SpiffeSpireFlowV8U: removed usePageStepper and floating stepper (registerSteps, clearSteps, completeStep, resetSteps); use local state `stepIndex`/`setStepIndex` for step 0–3; replaced custom purple Header with V9FlowHeader and V9FlowRestartButton; wrapped content in OuterWrapper with padding-top 96px so content clears the fixed header.
+- **What:** `/flows/spiffe-spire-v9` had no red (PingOne-style) header and still used the floating stepper. **Fix:** (1) Added `spiffe-spire-v9` to FLOW_CONFIGS in flowHeaderService (pingone style, title, subtitle, icon). (2) In SpiffeSpireFlowV8U: removed usePageStepper and floating stepper (registerSteps, clearSteps, completeStep, resetSteps); use local state `stepIndex`/`setStepIndex` for step 0–3; replaced custom purple Header with PlatformFlowHeader and FlowRestartButton; wrapped content in OuterWrapper with padding-top 96px so content clears the fixed header.
 - **Files:** `src/services/flowHeaderService.tsx`, `src/v8u/flows/SpiffeSpireFlowV8U.tsx`
 - **Regression check:** Open /flows/spiffe-spire-v9 — red PingOne-style header and Reset button below it; no floating stepper; step progression (Attest → SVID → Validate → Token Exchange) still works via in-page flow.
 
@@ -1607,7 +1607,7 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 ### Flow Comparison (v8u): red PingOne header (2026-03)
 
-- **What:** `/v8u/flow-comparison` now uses the same red PingOne-style header as other Mock Flows. Added `flow-comparison-v8u` to `FLOW_CONFIGS` (flowType: pingone, title, subtitle, icon). FlowComparisonPage renders `V9FlowHeader` at the top and wraps content in `OuterWrapper` with padding-top so content clears the fixed header.
+- **What:** `/v8u/flow-comparison` now uses the same red PingOne-style header as other Mock Flows. Added `flow-comparison-v8u` to `FLOW_CONFIGS` (flowType: pingone, title, subtitle, icon). FlowComparisonPage renders `PlatformFlowHeader` at the top and wraps content in `OuterWrapper` with padding-top so content clears the fixed header.
 - **Files:** `src/services/flowHeaderService.tsx`, `src/v8u/pages/FlowComparisonPage.tsx`
 - **Regression check:** Open https://localhost:3000/v8u/flow-comparison — red header with "PINGONE" badge and "Flow Comparison Tool" visible; page content below header.
 
@@ -1631,13 +1631,13 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 ### DPoP flow: migration and rules tracked in issues (2026-03)
 
-- **What:** DPoP flow at `/flows/dpop` is only partially migrated: it has V9FlowHeader (red) and V9FlowRestartButton but uses CollapsibleHeader (accordion) instead of the step-by-step pattern, lives in `flows/` not `flows/v9/`, and is not wired to the field-rules system. Documented as **issue #010** in `docs/issues/dpop-flow-migration-rules.md` and `docs/issues/ISSUE_REGISTRY.md`; status OPEN, fix deferred.
+- **What:** DPoP flow at `/flows/dpop` is only partially migrated: it has PlatformFlowHeader (red) and FlowRestartButton but uses CollapsibleHeader (accordion) instead of the step-by-step pattern, lives in `flows/` not `flows/v9/`, and is not wired to the field-rules system. Documented as **issue #010** in `docs/issues/dpop-flow-migration-rules.md` and `docs/issues/ISSUE_REGISTRY.md`; status OPEN, fix deferred.
 - **Files:** `docs/issues/dpop-flow-migration-rules.md`, `docs/issues/ISSUE_REGISTRY.md`
 - **Regression check:** When refactoring DPoP or field-rules, refer to issue #010 and the doc for desired end state (optional full migration to StepByStepFlow + v9 folder + rules).
 
 ### DPoP flow: add header and reset button (2026-03)
 
-- **What:** `/flows/dpop` had no visible header and no reset button. **Cause:** `FlowHeader` was called with `flowId="dpop-flow"`, but `dpop-flow` was not in `FLOW_CONFIGS`, so the header returned `null`. No reset control existed. **Fix:** (1) Added `dpop-flow` to `FLOW_CONFIGS` in `flowHeaderService.tsx` (pingone style, title, subtitle, icon). (2) In `DPoPFlow.tsx` switched to `V9FlowHeader` with `flowId="dpop-flow"` and `customConfig={{ flowType: 'pingone' }}`, added `V9FlowRestartButton` below the header, and implemented `handleReset` to clear key pair, proof, API result, and reset method/URI/access token to defaults.
+- **What:** `/flows/dpop` had no visible header and no reset button. **Cause:** `FlowHeader` was called with `flowId="dpop-flow"`, but `dpop-flow` was not in `FLOW_CONFIGS`, so the header returned `null`. No reset control existed. **Fix:** (1) Added `dpop-flow` to `FLOW_CONFIGS` in `flowHeaderService.tsx` (pingone style, title, subtitle, icon). (2) In `DPoPFlow.tsx` switched to `PlatformFlowHeader` with `flowId="dpop-flow"` and `customConfig={{ flowType: 'pingone' }}`, added `FlowRestartButton` below the header, and implemented `handleReset` to clear key pair, proof, API result, and reset method/URI/access token to defaults.
 - **Files:** `src/services/flowHeaderService.tsx`, `src/pages/flows/DPoPFlow.tsx`
 - **Regression check:** Open `/flows/dpop` — red PingOne-style header and “Reset” button below it are visible. Click Reset — key pair, proof, and API result clear; method/URI/token reset to defaults.
 
@@ -2028,12 +2028,12 @@ _(Newest first. **Update this section on every fix.** Add date and one-line summ
 
 ### Logging service migration (V9)
 
-- **V9LoggingService and migration from unifiedFlowLoggerServiceV8U**
+- **PlatformLoggingService and migration from unifiedFlowLoggerServiceV8U**
   - **Context:** New V9 logging service provides structured logging for flows and unified UI; drop-in capable replacement for `unifiedFlowLoggerServiceV8U` with V9-agnostic context.
-  - **Added:** `src/services/v9/V9LoggingService.ts` – same API as unified flow logger (debug, info, warn, error, success, startPerformance, getLogHistory, clearHistory, exportLogs, sanitized context). Exported from `src/services/v9/index.ts`.
-  - **Migrated callers:** (1) `UnifiedFlowErrorBoundary.tsx` – import and all `logger.error`/`logger.warn` calls switched to `V9LoggingService`; error call now passes proper context object and Error as third argument. (2) `FlowNotAvailableModal.tsx` – import and all `logger.debug` calls switched to `V9LoggingService`; removed unused `_MODULE_TAG`.
-  - **Files:** `src/services/v9/V9LoggingService.ts`, `src/services/v9/index.ts`, `src/v8u/components/UnifiedFlowErrorBoundary.tsx`, `src/v8u/components/FlowNotAvailableModal.tsx`
-  - **Regression check:** Trigger a unified flow error (e.g. force an error in a step) and confirm error is logged without runtime errors; open “Flow not available” modal (e.g. pick Implicit on OAuth 2.1) and confirm no logger errors. New V9 flows should prefer `V9LoggingService`; remaining callers can be migrated gradually.
+  - **Added:** `src/services/v9/PlatformLoggingService.ts` – same API as unified flow logger (debug, info, warn, error, success, startPerformance, getLogHistory, clearHistory, exportLogs, sanitized context). Exported from `src/services/v9/index.ts`.
+  - **Migrated callers:** (1) `UnifiedFlowErrorBoundary.tsx` – import and all `logger.error`/`logger.warn` calls switched to `PlatformLoggingService`; error call now passes proper context object and Error as third argument. (2) `FlowNotAvailableModal.tsx` – import and all `logger.debug` calls switched to `PlatformLoggingService`; removed unused `_MODULE_TAG`.
+  - **Files:** `src/services/v9/PlatformLoggingService.ts`, `src/services/v9/index.ts`, `src/v8u/components/UnifiedFlowErrorBoundary.tsx`, `src/v8u/components/FlowNotAvailableModal.tsx`
+  - **Regression check:** Trigger a unified flow error (e.g. force an error in a step) and confirm error is logged without runtime errors; open “Flow not available” modal (e.g. pick Implicit on OAuth 2.1) and confirm no logger errors. New V9 flows should prefer `PlatformLoggingService`; remaining callers can be migrated gradually.
 
 ### Log viewer & discovery
 
@@ -2172,7 +2172,7 @@ When changing the listed areas, run the corresponding checks to avoid regression
 
 ### Logging (V9 vs V8U)
 
-- [ ] **V9LoggingService:** New flows and migrated callers use `@/services/v9/V9LoggingService` for structured logging. When touching `UnifiedFlowErrorBoundary` or `FlowNotAvailableModal`, do not revert to `unifiedFlowLoggerServiceV8U`; keep using `V9LoggingService`.
+- [ ] **PlatformLoggingService:** New flows and migrated callers use `@/services/v9/PlatformLoggingService` for structured logging. When touching `UnifiedFlowErrorBoundary` or `FlowNotAvailableModal`, do not revert to `unifiedFlowLoggerServiceV8U`; keep using `PlatformLoggingService`.
 
 ### Configuration page – redirect URI catalogue
 
@@ -2257,7 +2257,7 @@ Run these when doing a broader change or before release:
 | Developer & Tools headers            | `flowHeaderService.tsx`, PostmanCollectionGenerator, OAuthCodeGeneratorHub, ServiceTestRunner, SDKSampleApp, SDKExamplesHome, CodeExamplesDemo, UltimateTokenDisplayDemo, DavinciTodoApp, ApplicationGenerator, ClientGenerator, JWKSTroubleshooting, URLDecoder, V7MSettingsV9 | Developer & Tools sidebar pages must show red header (PingOne style) via FlowHeader with dedicated flowId; do not remove or revert to custom/blue headers. |
 | Button styling                       | `StandardizedCredentialExportImport.tsx`, FlowUIService, ConfigCheckerButtons, DiscoveryPanel, **WorkerTokenRequestModalV8.tsx**, **ApiStatusPage.tsx**                                                                                                                         | Buttons never grey when enabled; use V9_COLORS with `${}` interpolation or outline primary; grey only for `:disabled`.                                     |
 | Step headers & UI components         | `flowUIService.tsx`, `flowComponentService.tsx`, `v7StepperService.tsx`                                                                                                                                                                                                         | Step numbers must have white text on blue backgrounds; getStepNumber() must include `color: #ffffff`.                                                      |
-| Logging (V9)                         | `V9LoggingService.ts`, `UnifiedFlowErrorBoundary.tsx`, `FlowNotAvailableModal.tsx`                                                                                                                                                                                              | Migrated callers use V9LoggingService; do not revert to unifiedFlowLoggerServiceV8U for these components.                                                  |
+| Logging (V9)                         | `PlatformLoggingService.ts`, `UnifiedFlowErrorBoundary.tsx`, `FlowNotAvailableModal.tsx`                                                                                                                                                                                              | Migrated callers use PlatformLoggingService; do not revert to unifiedFlowLoggerServiceV8U for these components.                                                  |
 
 ---
 

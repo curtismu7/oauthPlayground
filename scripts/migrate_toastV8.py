@@ -66,7 +66,7 @@ ZERO_ARG_MAP = {
 OLD_IMPORT_RE = re.compile(
     r"import\s*\{[^}]*\btoastV8\b[^}]*\}\s*from\s*['\"]@/v8/utils/toastNotificationsV8['\"];?",
 )
-NEW_IMPORT = "import { modernMessaging } from '@/platform/V9ModernMessagingService';"
+NEW_IMPORT = "import { modernMessaging } from '@/platform/ModernMessagingService';"
 
 
 def extract_args(text, start):
@@ -308,7 +308,7 @@ def get_first_arg(args_content):
 def update_import(content):
     """Replace toastV8 import with modernMessaging import."""
     # Already has modernMessaging import?
-    has_modern = 'modernMessaging' in content and 'V9ModernMessagingService' in content
+    has_modern = 'modernMessaging' in content and 'ModernMessagingService' in content
     has_toast_import = OLD_IMPORT_RE.search(content)
     
     if has_toast_import:

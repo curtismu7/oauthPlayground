@@ -13,7 +13,7 @@
  * - Error recovery suggestions
  */
 
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import type { FlowType } from '@/mfa/services/specVersionServiceV8';
 import { unifiedFlowLoggerService as UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 

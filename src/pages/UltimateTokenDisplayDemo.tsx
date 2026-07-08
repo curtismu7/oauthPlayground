@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { COLORS } from '@/platform/ColorStandards';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import UltimateTokenDisplay from '../components/UltimateTokenDisplay';
 import { FlowHeader } from '../services/flowHeaderService';
 

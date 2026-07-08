@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
 

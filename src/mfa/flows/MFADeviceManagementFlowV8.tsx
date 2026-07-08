@@ -19,7 +19,7 @@ import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MFADeviceManagerV8 } from '@/mfa/components/MFADeviceManagerV8';
 import { MFAHeaderV8 } from '@/mfa/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/mfa/components/SuperSimpleApiDisplayV8';

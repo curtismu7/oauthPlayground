@@ -1,5 +1,5 @@
 /**
- * @file V9WorkerTokenStatusService.ts
+ * @file WorkerTokenStatusService.ts
  * @module platform
  * @description Worker token status checking and formatting for V9
  * @version 9.0.0
@@ -15,10 +15,10 @@
 
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 
-export type V9TokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing';
+export type WorkerTokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing';
 
-export interface V9TokenStatusInfo {
-	status: V9TokenStatus;
+export interface TokenStatusInfo {
+	status: WorkerTokenStatus;
 	message: string;
 	isValid: boolean;
 	expiresAt?: number;
@@ -32,7 +32,7 @@ export interface V9TokenStatusInfo {
 /**
  * Format time remaining for display with V9 enhanced formatting
  */
-export const V9formatTimeRemaining = (expiresAt: number): string => {
+export const formatTimeRemaining = (expiresAt: number): string => {
 	const now = Date.now();
 	const isExpired = now >= expiresAt;
 	const timeRemaining = expiresAt - now;
@@ -57,7 +57,7 @@ export const V9formatTimeRemaining = (expiresAt: number): string => {
  * Check worker token status using V9 unified service
  * Uses unifiedWorkerTokenService for consistent storage and event handling
  */
-export const V9checkWorkerTokenStatus = async (): Promise<V9TokenStatusInfo> => {
+export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 	try {
 		// Use unified service for consistent data access
 		const tokenData = unifiedWorkerTokenService.getTokenDataSync();
@@ -75,7 +75,7 @@ export const V9checkWorkerTokenStatus = async (): Promise<V9TokenStatusInfo> => 
 		const region = credentials?.region;
 
 		if (!token) {
-			const result: V9TokenStatusInfo = {
+			const result: TokenStatusInfo = {
 				status: 'missing',
 				message: 'Worker token data is incomplete. Please reconfigure.',
 				isValid: false,
@@ -91,7 +91,7 @@ export const V9checkWorkerTokenStatus = async (): Promise<V9TokenStatusInfo> => 
 		const isExpired = now >= tokenExpiresAt;
 		const minutesRemaining = Math.max(0, Math.floor((tokenExpiresAt - now) / 60000));
 
-		let tokenStatus: V9TokenStatus = 'valid';
+		let tokenStatus: WorkerTokenStatus = 'valid';
 		let message = 'Worker token is valid and ready to use.';
 
 		if (isExpired) {
@@ -102,7 +102,7 @@ export const V9checkWorkerTokenStatus = async (): Promise<V9TokenStatusInfo> => 
 			message = `Worker token expires in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}.`;
 		}
 
-		const result: V9TokenStatusInfo = {
+		const result: TokenStatusInfo = {
 			status: tokenStatus,
 			message,
 			isValid: !isExpired,
@@ -127,7 +127,7 @@ export const V9checkWorkerTokenStatus = async (): Promise<V9TokenStatusInfo> => 
  * Synchronous check worker token status (for backward compatibility)
  * Uses memory cache from unified service
  */
-export const V9checkWorkerTokenStatusSync = (): V9TokenStatusInfo => {
+export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 	try {
 		// Use unified service sync method
 		const tokenData = unifiedWorkerTokenService.getTokenDataSync();
@@ -145,7 +145,7 @@ export const V9checkWorkerTokenStatusSync = (): V9TokenStatusInfo => {
 		const region = credentials?.region;
 
 		if (!token) {
-			const result: V9TokenStatusInfo = {
+			const result: TokenStatusInfo = {
 				status: 'missing',
 				message: 'Worker token data is incomplete.',
 				isValid: false,
@@ -161,7 +161,7 @@ export const V9checkWorkerTokenStatusSync = (): V9TokenStatusInfo => {
 		const isExpired = now >= tokenExpiresAt;
 		const minutesRemaining = Math.max(0, Math.floor((tokenExpiresAt - now) / 60000));
 
-		let tokenStatus: V9TokenStatus = 'valid';
+		let tokenStatus: WorkerTokenStatus = 'valid';
 		let message = 'Worker token is valid.';
 
 		if (isExpired) {
@@ -172,7 +172,7 @@ export const V9checkWorkerTokenStatusSync = (): V9TokenStatusInfo => {
 			message = `Worker token expires in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}.`;
 		}
 
-		const result: V9TokenStatusInfo = {
+		const result: TokenStatusInfo = {
 			status: tokenStatus,
 			message,
 			isValid: !isExpired,
@@ -197,7 +197,7 @@ export const V9checkWorkerTokenStatusSync = (): V9TokenStatusInfo => {
  * Get status color for UI using V9 color standards
  * Uses approved V9 color palette only
  */
-export const V9getStatusColor = (status: V9TokenStatus): string => {
+export const getTokenStatusColor = (status: WorkerTokenStatus): string => {
 	switch (status) {
 		case 'valid':
 			return '#10b981'; // Green (success)
@@ -216,7 +216,7 @@ export const V9getStatusColor = (status: V9TokenStatus): string => {
  * Get status icon for UI using V9 standards
  * Uses emoji icons for consistency
  */
-export const V9getStatusIcon = (status: V9TokenStatus): string => {
+export const getTokenStatusIcon = (status: WorkerTokenStatus): string => {
 	switch (status) {
 		case 'valid':
 			return '✓';
@@ -234,8 +234,8 @@ export const V9getStatusIcon = (status: V9TokenStatus): string => {
  * Get status badge style for V9 UI components
  * Returns CSS-in-JS style object
  */
-export const V9getStatusBadgeStyle = (status: V9TokenStatus) => {
-	const color = V9getStatusColor(status);
+export const getTokenStatusBadgeStyle = (status: WorkerTokenStatus) => {
+	const color = getTokenStatusColor(status);
 	const backgroundColor =
 		status === 'valid'
 			? '#dcfce7'
@@ -263,7 +263,7 @@ export const V9getStatusBadgeStyle = (status: V9TokenStatus) => {
  * Enhanced expiration warning with V9 features
  * Provides detailed expiration analysis
  */
-export const V9getExpirationWarning = async (
+export const getWorkerTokenExpirationWarning = async (
 	thresholdMinutes: number = 5
 ): Promise<{
 	isExpiringSoon: boolean;
@@ -272,7 +272,7 @@ export const V9getExpirationWarning = async (
 	severity: 'info' | 'warning' | 'error';
 	actions?: string[];
 }> => {
-	const status = await V9checkWorkerTokenStatus();
+	const status = await checkWorkerTokenStatus();
 
 	if (!status.isValid) {
 		return {
@@ -298,7 +298,7 @@ export const V9getExpirationWarning = async (
 		return {
 			isExpiringSoon: true,
 			minutesRemaining,
-			message: `Worker token expires in ${V9formatTimeRemaining(status.expiresAt)}.`,
+			message: `Worker token expires in ${formatTimeRemaining(status.expiresAt)}.`,
 			severity: 'warning',
 			actions:
 				minutesRemaining <= 0
@@ -311,7 +311,7 @@ export const V9getExpirationWarning = async (
 		isExpiringSoon: false,
 		minutesRemaining,
 		severity: 'info',
-		message: `Worker token is valid (${V9formatTimeRemaining(status.expiresAt)} remaining).`,
+		message: `Worker token is valid (${formatTimeRemaining(status.expiresAt)} remaining).`,
 	};
 };
 
@@ -319,7 +319,7 @@ export const V9getExpirationWarning = async (
  * Validate worker token format and structure
  * Enhanced validation for V9
  */
-export const V9validateWorkerToken = (
+export const validateWorkerToken = (
 	token: string
 ): {
 	isValid: boolean;
@@ -364,22 +364,19 @@ export const V9validateWorkerToken = (
 };
 
 // Export the service object for consistency with V9 patterns
-export const V9WorkerTokenStatusService = {
-	checkStatus: V9checkWorkerTokenStatus,
-	checkStatusSync: V9checkWorkerTokenStatusSync,
-	formatTimeRemaining: V9formatTimeRemaining,
-	getStatusColor: V9getStatusColor,
-	getStatusIcon: V9getStatusIcon,
-	getStatusBadgeStyle: V9getStatusBadgeStyle,
-	getExpirationWarning: V9getExpirationWarning,
-	validateToken: V9validateWorkerToken,
+export const WorkerTokenStatusService = {
+	checkStatus: checkWorkerTokenStatus,
+	checkStatusSync: checkWorkerTokenStatusSync,
+	formatTimeRemaining: formatTimeRemaining,
+	getStatusColor: getTokenStatusColor,
+	getStatusIcon: getTokenStatusIcon,
+	getStatusBadgeStyle: getTokenStatusBadgeStyle,
+	getExpirationWarning: getWorkerTokenExpirationWarning,
+	validateToken: validateWorkerToken,
 };
 
-// Export individual functions for backward compatibility
+// Backward-compatible aliases (legacy V9 export names)
 export {
-	V9checkWorkerTokenStatus as checkWorkerTokenStatus,
-	V9checkWorkerTokenStatusSync as checkWorkerTokenStatusSync,
-	V9formatTimeRemaining as formatTimeRemaining,
-	V9getStatusColor as getStatusColor,
-	V9getStatusIcon as getStatusIcon,
+	getTokenStatusColor as getStatusColor,
+	getTokenStatusIcon as getStatusIcon,
 };

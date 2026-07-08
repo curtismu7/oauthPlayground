@@ -30,7 +30,7 @@ import {
 import UserTokenStatusDisplayV8U from '@/lab/components/UserTokenStatusDisplayV8U';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import { logger } from '../../utils/logger';
 
 /** Open the global worker token modal (WorkerTokenModalV9 in App) with wait screen. */
@@ -179,7 +179,7 @@ const TokenStatusPageV8U: React.FC = () => {
 	return (
 		<>
 			<PageContainer>
-				<V9FlowHeader flowId="token-monitoring-v8u" customConfig={{ flowType: 'pingone' }} />
+				<PlatformFlowHeader flowId="token-monitoring-v8u" customConfig={{ flowType: 'pingone' }} />
 				<WorkerTokenExpiryBannerV8
 					onFixToken={() => openGlobalWorkerTokenModal('TokenStatusPageV8U-Fix')}
 					marginBottom="24px"

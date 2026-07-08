@@ -1,9 +1,9 @@
-// src/platform/v9ModalPresentationService.tsx
+// src/platform/modalPresentationService.tsx
 // V9 Wrapper for ModalPresentationService - Modern Messaging Compliant
 
 import React from 'react';
 // Import Modern Messaging (V9) - proper migration to non-toast messaging
-import { modernMessaging } from '../components/v9/V9ModernMessagingComponents';
+import { modernMessaging } from '../components/ModernMessagingComponents';
 import { logger } from '../utils/logger';
 import ModalPresentationService from '../services/modalPresentationService';
 
@@ -15,7 +15,7 @@ interface ModalActionDescriptor {
 }
 
 // V9 Wrapper Component
-interface V9ModalPresentationServiceProps {
+interface ModalPresentationServiceProps {
 	isOpen: boolean;
 	onClose: () => void;
 	title: string;
@@ -27,7 +27,7 @@ interface V9ModalPresentationServiceProps {
 	showCloseButton?: boolean;
 }
 
-const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (props) => {
+const ModalPresentationService: React.FC<ModalPresentationServiceProps> = (props) => {
 	// Wrap action callbacks with Modern Messaging
 	const wrappedActions =
 		props.actions?.map((action) => ({
@@ -125,7 +125,7 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 const V9ModalService = {
 	logModalOperation(operation: string, title: string, details?: unknown) {
 		logger.debug(
-			'V9ModalPresentationService',
+			'ModalPresentationService',
 			`[V9 ModalService] ${operation} for modal: ${title}`,
 			details
 		);
@@ -170,6 +170,6 @@ const V9ModalService = {
 	},
 };
 
-export default V9ModalPresentationService;
+export default ModalPresentationService;
 export type { ModalActionDescriptor };
 export { V9ModalService };

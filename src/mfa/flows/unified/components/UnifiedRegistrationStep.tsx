@@ -29,7 +29,7 @@
  */
 
 import React, { useCallback, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import type { DeviceFlowConfig } from '@/mfa/config/deviceFlowConfigTypes';
 import type { MFAFlowController } from '@/mfa/flows/controllers/MFAFlowController';
 import type { MFAFlowBaseRenderProps } from '@/mfa/flows/shared/MFAFlowBaseV8';

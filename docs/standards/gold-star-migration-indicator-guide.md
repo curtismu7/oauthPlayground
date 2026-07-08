@@ -49,7 +49,7 @@ An application receives the gold star when it meets **ALL** of these criteria:
 - **Complete**: No `v4ToastManager` usage remaining
 - **Modern**: Uses `modernMessaging.showFooterMessage()` for success/info
 - **Consistent**: Uses `modernMessaging.showBanner()` for errors/warnings
-- **Import**: `import { modernMessaging } from '@/services/v9/V9ModernMessagingService'`
+- **Import**: `import { modernMessaging } from '@/services/v9/ModernMessagingService'`
 
 #### 2. ✅ Ping UI Namespace Standardization
 - **Wrapper**: Main component wrapped in `<div className="end-user-nano">`

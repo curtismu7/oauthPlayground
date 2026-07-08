@@ -19,7 +19,7 @@ The DPoP flow at `/flows/dpop` has not been fully migrated to the V9 flow patter
 5. Inconsistent UX compared to other mock/V9 flows that use the shared PingOne step UI.
 
 ## Root Cause Analysis
-- DPoP flow was given V9FlowHeader and V9FlowRestartButton in a prior fix but was never refactored to the full V9 pattern (step-based layout, v9 folder, FlowUIService).
+- DPoP flow was given PlatformFlowHeader and FlowRestartButton in a prior fix but was never refactored to the full V9 pattern (step-based layout, v9 folder, FlowUIService).
 - Field-rules task (docs/.kiro/specs/field-rules-system/tasks.md) was marked complete for `dpop-v7` but the app flow uses `flowId="dpop-flow"` and no rules implementation for DPoP exists in `src/`.
 
 ## Fix Implementation (Proposed)

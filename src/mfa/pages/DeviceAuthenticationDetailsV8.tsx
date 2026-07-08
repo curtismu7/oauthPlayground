@@ -6,7 +6,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MFAHeaderV8 } from '@/mfa/components/MFAHeaderV8';
 import { WorkerTokenExpiryBannerV8 } from '@/mfa/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';

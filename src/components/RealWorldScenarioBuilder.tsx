@@ -6,7 +6,7 @@
 
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 
 const BuilderContainer = styled.div`
 	background: linear-gradient(135deg, #f0fdf4 0%, COLORS.BG.SUCCESS 100%);

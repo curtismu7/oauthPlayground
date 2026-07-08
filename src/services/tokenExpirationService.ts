@@ -1,7 +1,7 @@
 // src/services/tokenExpirationService.ts
 // Unified service for checking worker token expiration and showing appropriate messages
 
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { logger } from '../utils/logger';
 
 export interface TokenExpirationInfo {

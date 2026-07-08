@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { TokenDisplayServiceV8 } from '@/mfa/services/tokenDisplayServiceV8';
 import { showGlobalInfo } from '../../contexts/NotificationSystem';
 

@@ -9,7 +9,7 @@ import {
 	type StandardizedCredentialExport,
 } from '@/services/standardizedCredentialExportService';
 import { COLORS } from '@/platform/ColorStandards';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { logger } from '../utils/logger';
 
 // Styled components — buttons must never be grey when enabled (only when disabled). Use V9 colors with interpolation.

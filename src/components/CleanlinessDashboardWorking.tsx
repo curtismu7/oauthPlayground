@@ -55,7 +55,7 @@ const V7_AUDIT_ITEMS: AuditItem[] = [
 		description: 'V7M mock flows on V9 credential storage',
 		status: 'clean',
 		countLabel: '6 / 6 complete',
-		detail: 'All V7M flows migrated to V9CredentialStorageService',
+		detail: 'All V7M flows migrated to CredentialStorageService',
 	},
 	{
 		id: 'v7-console',
@@ -92,11 +92,11 @@ const V8_AUDIT_ITEMS: AuditItem[] = [
 	},
 	{
 		id: 'v8-credential-store-migration',
-		description: 'useCredentialStoreV8 → V9CredentialStorageService migration',
+		description: 'useCredentialStoreV8 → CredentialStorageService migration',
 		status: 'fixed',
 		countLabel: '5 / 5 pages migrated',
 		detail:
-			'ImplicitFlowTest · PARTest · PingOneApiTest · AllFlowsApiTest · MFAFlowsApiTest — all use V9CredentialStorageService + V9AppDiscoveryService. ClientCredentialManager.tsx + 3 V8 store files also deleted.',
+			'ImplicitFlowTest · PARTest · PingOneApiTest · AllFlowsApiTest · MFAFlowsApiTest — all use CredentialStorageService + AppDiscoveryService. ClientCredentialManager.tsx + 3 V8 store files also deleted.',
 	},
 	{
 		id: 'v8-dead-code-archive',
@@ -181,7 +181,7 @@ const V9_STANDARDIZATION_ITEMS: AuditItem[] = [
 		status: 'clean',
 		countLabel: '18 / 18 flows',
 		detail:
-			'All V9 flows use V9CredentialStorageService, CompactAppPickerV9, 0 console.error/warn violations. V7 routes redirect to V9.',
+			'All V9 flows use CredentialStorageService, CompactAppPickerV9, 0 console.error/warn violations. V7 routes redirect to V9.',
 	},
 	{
 		id: 'v9-logger-migration',

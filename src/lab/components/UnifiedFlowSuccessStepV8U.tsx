@@ -9,7 +9,7 @@
 import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { type FlowType, type SpecVersion } from '@/mfa/services/specVersionServiceV8';
 import { COLORS } from '../../platform/ColorStandards';
 import { type UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';

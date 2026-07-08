@@ -4,9 +4,9 @@
 import React from 'react';
 import { logger } from '../utils/logger';
 import { getButtonStyles } from './ColorStandards';
-import { modernMessaging } from './V9ModernMessagingService';
+import { modernMessaging } from './ModernMessagingService';
 
-interface V9FlowRestartButtonProps {
+interface FlowRestartButtonProps {
 	onRestart: () => void;
 	currentStep: number;
 	totalSteps: number;
@@ -14,7 +14,7 @@ interface V9FlowRestartButtonProps {
 	position?: 'header' | 'footer' | 'inline';
 }
 
-export const V9FlowRestartButton: React.FC<V9FlowRestartButtonProps> = ({
+export const FlowRestartButton: React.FC<FlowRestartButtonProps> = ({
 	onRestart,
 	currentStep,
 	totalSteps,
@@ -111,7 +111,7 @@ export const useFlowRestart = (resetFunctions: (() => void)[]) => {
 		// Show notification (if messaging service is available)
 		try {
 			// Dynamic import to avoid require issues
-			import('./V9ModernMessagingService')
+			import('./ModernMessagingService')
 				.then(({ modernMessaging }) => {
 					modernMessaging.showBanner({
 						type: 'info',
@@ -122,11 +122,11 @@ export const useFlowRestart = (resetFunctions: (() => void)[]) => {
 				})
 				.catch(() => {
 					// Silently fail if messaging service is not available
-					logger.debug('V9FlowRestartButton', 'Flow restarted');
+					logger.debug('FlowRestartButton', 'Flow restarted');
 				});
 		} catch {
 			// Silently fail if messaging service is not available
-			logger.debug('V9FlowRestartButton', 'Flow restarted');
+			logger.debug('FlowRestartButton', 'Flow restarted');
 		}
 	}, [resetFunctions]);
 

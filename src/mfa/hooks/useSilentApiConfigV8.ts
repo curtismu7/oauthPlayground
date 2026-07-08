@@ -16,7 +16,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MFAConfigurationServiceV8 } from '@/mfa/services/mfaConfigurationServiceV8';
 import { WorkerTokenConfigServiceV8 } from '@/mfa/services/workerTokenConfigServiceV8';
 

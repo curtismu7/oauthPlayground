@@ -5,7 +5,7 @@
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -489,7 +489,7 @@ const MtlsClientAuthFlow: React.FC = () => {
 
 	return (
 		<Page>
-			<V9FlowHeader flowId="mtls-client-auth" />
+			<PlatformFlowHeader flowId="mtls-client-auth" />
 			<PageTitle>
 				mTLS Client Authentication
 				<RfcBadge>RFC 8705</RfcBadge>

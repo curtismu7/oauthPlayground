@@ -7,8 +7,8 @@ import { CodeExamplesSection } from '../../components/CodeExamplesSection';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { callTool, listTools, type MockToolCallResult } from '../../services/mockMcpAgentService';
 import { COLORS } from '../../platform/ColorStandards';
-import { V9FlowRestartButton } from '../../platform/V9FlowRestartButton';
-import V9FlowHeader from '../../platform/v9FlowHeaderService';
+import { FlowRestartButton } from '../../platform/FlowRestartButton';
+import PlatformFlowHeader from '../../platform/platformFlowHeaderService';
 import { MockBanner } from '../../flows/mock-ui/MockBanner';
 import {
 	getSectionHeaderStyle,
@@ -98,9 +98,9 @@ const MockMcpAgentFlowPage: React.FC = () => {
 	return (
 		<div style={MOCK_FLOW_CONTAINER_STYLE}>
 			<MockBanner description="This flow simulates an AI Agent using MCP tools and Token Exchange. No real APIs are called. Learn how Host, Client, Agent, and MCP Server use tokens securely." />
-			<V9FlowHeader flowId="mock-mcp-agent-flow" customConfig={{ flowType: 'pingone' }} />
+			<PlatformFlowHeader flowId="mock-mcp-agent-flow" customConfig={{ flowType: 'pingone' }} />
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-				<V9FlowRestartButton onRestart={handleReset} label="Reset flow" />
+				<FlowRestartButton onRestart={handleReset} label="Reset flow" />
 			</div>
 
 			<CollapsibleHeader

@@ -85,10 +85,10 @@ const YourFlowV8: React.FC = () => {
 ```typescript
 // src/pages/flows/v9/YourFlowV9.tsx
 import React, { useState } from 'react';
-import { useModernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { V9ModernMessagingComponents } from '@/components/v9/V9ModernMessagingComponents';
+import { useModernMessaging } from '@/services/v9/ModernMessagingService';
+import { ModernMessagingComponents } from '@/components/ModernMessagingComponents';
 
-const { WaitScreen, Banner, CriticalError, FooterMessage } = V9ModernMessagingComponents;
+const { WaitScreen, Banner, CriticalError, FooterMessage } = ModernMessagingComponents;
 
 const YourFlowV9: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -228,7 +228,7 @@ const handleInfo = () => {
 };
 
 // AFTER (V9)
-import { useModernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { useModernMessaging } from '@/services/v9/ModernMessagingService';
 
 const MyComponent: React.FC = () => {
   const [messageState, modernMessaging] = useModernMessaging();
@@ -381,11 +381,11 @@ describe('YourComponent', () => {
 ```typescript
 // src/components/__tests__/YourV9Component.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { modernMessaging } from '@/services/v9/ModernMessagingService';
 import YourV9Component from '../YourV9Component';
 
 // Mock modern messaging
-jest.mock('@/services/v9/V9ModernMessagingService');
+jest.mock('@/services/v9/ModernMessagingService');
 const mockModernMessaging = modernMessaging as jest.Mocked<typeof modernMessaging>;
 
 describe('YourV9Component', () => {

@@ -608,7 +608,7 @@ const ServicesTab: React.FC = () => (
 			<tbody>
 				<tr>
 					<td>workerTokenStatusServiceV8</td>
-					<td>V9WorkerTokenStatusService</td>
+					<td>WorkerTokenStatusService</td>
 					<td>✅ Done</td>
 					<td>Adapter for backward compat</td>
 				</tr>
@@ -620,7 +620,7 @@ const ServicesTab: React.FC = () => (
 				</tr>
 				<tr>
 					<td>unifiedFlowLoggerServiceV8</td>
-					<td>V9LoggingService</td>
+					<td>PlatformLoggingService</td>
 					<td>✅ Done</td>
 					<td>See docs/UPDATE_LOG</td>
 				</tr>

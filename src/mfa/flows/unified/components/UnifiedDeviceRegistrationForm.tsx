@@ -12,7 +12,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import FIDO2RegistrationModal from '@/components/FIDO2RegistrationModal';
 import { StandardizedCredentialExportImport } from '@/components/StandardizedCredentialExportImport';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { Button } from '@/mfa/components/Button';
 import { PageTransition } from '@/mfa/components/PageTransition';
 import type { SearchableDropdownOption } from '@/mfa/components/SearchableDropdownV8';

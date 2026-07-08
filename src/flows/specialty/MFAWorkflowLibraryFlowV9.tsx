@@ -1,11 +1,11 @@
 // src/flows/specialty/MFAWorkflowLibraryFlowV9.tsx
 // V9 PingOne MFA Workflow Library Flow — Steps 11-20 (Authorization Code + MFA)
-// V9 improvements: V9CredentialStorageService, CompactAppPickerV8U, modernMessaging, no WorkerTokenModal
+// V9 improvements: CredentialStorageService, CompactAppPickerV8U, modernMessaging, no WorkerTokenModal
 
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import JSONHighlighter, { type JSONData } from '../../components/JSONHighlighter';
 import PhoneNumberInput from '../../components/PhoneNumberInput';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
@@ -14,7 +14,7 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowUIService } from '../../services/flowUIService';
-import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
+import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { getAnyWorkerToken } from '../../utils/workerTokenDetection';
 import type { DiscoveredApp } from '../../mfa/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../lab/components/CompactAppPickerV8U';
@@ -86,11 +86,11 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 
 	// V9 4-layer storage: load on mount
 	useEffect(() => {
-		const saved = V9CredentialStorageService.loadSync(V9_STORAGE_KEY);
+		const saved = CredentialStorageService.loadSync(V9_STORAGE_KEY);
 		if (saved && (saved.clientId || saved.environmentId)) {
 			setCredentials((prev) => ({ ...prev, ...saved }));
 		}
-		V9CredentialStorageService.load(V9_STORAGE_KEY).then((c) => {
+		CredentialStorageService.load(V9_STORAGE_KEY).then((c) => {
 			if (c && (c.clientId || c.environmentId)) {
 				setCredentials((prev) => ({ ...prev, ...c }));
 			}
@@ -113,7 +113,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	const handleAppSelected = useCallback((app: DiscoveredApp) => {
 		setCredentials((prev) => {
 			const updated = { ...prev, clientId: app.id };
-			V9CredentialStorageService.save(
+			CredentialStorageService.save(
 				V9_STORAGE_KEY,
 				{
 					clientId: app.id,
@@ -128,7 +128,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Handle any credential field change — persist to V9 storage
 	const handleCredentialsChange = useCallback((newCredentials: StepCredentials) => {
 		setCredentials(newCredentials);
-		V9CredentialStorageService.save(
+		CredentialStorageService.save(
 			V9_STORAGE_KEY,
 			{ ...newCredentials } as Record<string, string>,
 			newCredentials.environmentId ? { environmentId: newCredentials.environmentId } : {}
@@ -137,7 +137,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 
 	// Save handler
 	const handleSaveCredentials = useCallback(() => {
-		V9CredentialStorageService.save(
+		CredentialStorageService.save(
 			V9_STORAGE_KEY,
 			{ ...credentials } as Record<string, string>,
 			credentials.environmentId ? { environmentId: credentials.environmentId } : {}
@@ -682,7 +682,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 								onEnvironmentIdChange={(envId) => {
 									setCredentials((prev) => {
 										const updated = { ...prev, environmentId: envId };
-										V9CredentialStorageService.save(
+										CredentialStorageService.save(
 											V9_STORAGE_KEY,
 											{ ...updated } as Record<string, string>,
 											{ environmentId: envId }

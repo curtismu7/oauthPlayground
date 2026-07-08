@@ -1,4 +1,4 @@
-// src/platform/V9LoggingService.ts
+// src/platform/LoggingService.ts
 /**
  * V9 structured logging service for flows and unified UI.
  * Drop-in capable replacement for unifiedFlowLoggerServiceV8U with V9-agnostic context.
@@ -95,22 +95,22 @@ function log(level: LogLevel, message: string, context: LogContext = {}): void {
 	const logData = Object.keys(sanitized).length > 0 ? sanitized : undefined;
 	switch (level) {
 		case 'debug':
-			baseLogger.debug('V9LoggingService', formatted, logData ?? '');
+			baseLogger.debug('PlatformLoggingService', formatted, logData ?? '');
 			break;
 		case 'info':
 		case 'success':
-			baseLogger.info('V9LoggingService', formatted, logData ?? '');
+			baseLogger.info('PlatformLoggingService', formatted, logData ?? '');
 			break;
 		case 'warn':
-			baseLogger.warn('V9LoggingService', formatted, logData ?? '');
+			baseLogger.warn('PlatformLoggingService', formatted, logData ?? '');
 			break;
 		case 'error':
-			baseLogger.error('V9LoggingService', formatted, logData ?? '');
+			baseLogger.error('PlatformLoggingService', formatted, logData ?? '');
 			break;
 	}
 }
 
-export const V9LoggingService = {
+export const PlatformLoggingService = {
 	setMinimumLogLevel(level: LogLevel): void {
 		minimumLogLevel = level;
 	},
@@ -157,7 +157,7 @@ export const V9LoggingService = {
 				timestamp: Date.now(),
 			});
 			if (performanceMetrics.length > maxMetrics) performanceMetrics.shift();
-			V9LoggingService.debug(`Performance: ${operation}`, {
+			PlatformLoggingService.debug(`Performance: ${operation}`, {
 				...context,
 				duration: `${duration.toFixed(2)}ms`,
 			});
@@ -190,4 +190,4 @@ export const V9LoggingService = {
 	},
 };
 
-export default V9LoggingService;
+export default PlatformLoggingService;

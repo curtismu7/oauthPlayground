@@ -19,7 +19,7 @@ import styled from 'styled-components';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { MFAHeaderV8 } from '@/mfa/components/MFAHeaderV8';
 import { WorkerTokenExpiryBannerV8 } from '@/mfa/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';

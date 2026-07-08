@@ -15,7 +15,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import { useWorkerTokenConfigV8 } from '@/mfa/hooks/useSilentApiConfigV8';
 import { UnifiedFlowErrorHandler } from '@/lab/services/unifiedFlowErrorHandlerV8U';
 import { FiLoader, FiTrash2 } from '../../icons';

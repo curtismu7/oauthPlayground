@@ -6,8 +6,8 @@ import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import type { V9DiscoveredApp } from '../../platform/V9AppDiscoveryService';
-import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
+import type { DiscoveredApp } from '../../platform/AppDiscoveryService';
+import { CredentialStorageService } from '../../platform/CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 
@@ -237,7 +237,7 @@ const MFAFlow: React.FC<MFAFlowProps> = ({ credentials }) => {
 	const [mfaCode, setMfaCode] = useState('');
 
 	// Handle app selection from CompactAppPickerV9
-	const handleAppSelected = useCallback((app: V9DiscoveredApp) => {
+	const handleAppSelected = useCallback((app: DiscoveredApp) => {
 		setFormData((prev) => ({
 			...prev,
 			clientId: app.clientId,
@@ -246,7 +246,7 @@ const MFAFlow: React.FC<MFAFlowProps> = ({ credentials }) => {
 
 	// Load credentials from V9 storage on mount
 	useEffect(() => {
-		const savedCredentials = V9CredentialStorageService.loadSync('mfa-flow');
+		const savedCredentials = CredentialStorageService.loadSync('mfa-flow');
 		if (savedCredentials && Object.keys(savedCredentials).length > 0) {
 			setFormData((prev) => ({
 				...prev,
@@ -260,7 +260,7 @@ const MFAFlow: React.FC<MFAFlowProps> = ({ credentials }) => {
 
 	// Save credentials to V9 storage whenever they change
 	useEffect(() => {
-		V9CredentialStorageService.save('mfa-flow', {
+		CredentialStorageService.save('mfa-flow', {
 			clientId: formData.clientId,
 			clientSecret: formData.clientSecret,
 			environmentId: formData.environmentId,

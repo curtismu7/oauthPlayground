@@ -59,7 +59,7 @@ await logMockApiCall({
 **File:** `src/hooks/useAutoPopulatedCredentials.ts`
 
 **Features:**
-- Auto-loads saved credentials from V9CredentialStorageService
+- Auto-loads saved credentials from CredentialStorageService
 - Falls back to sensible defaults
 - Enables zero-field entry
 - Persists user customizations
@@ -102,7 +102,7 @@ const { credentials, updateCredential, resetToDefaults } = useAutoPopulatedCrede
 - Consistent with V7M styling
 
 #### ✅ **4. Restart Functionality**
-- Uses `V9FlowRestartButton`
+- Uses `FlowRestartButton`
 - Resets all state properly
 - Smooth scroll to top
 - User-friendly confirmation
@@ -168,8 +168,8 @@ await logMockApiCall({
 // 4. Use standardized layout
 <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
   <V7MMockBanner description="..." />
-  <V9FlowHeader flowId="..." />
-  <V9FlowRestartButton onRestart={handleRestart} />
+  <PlatformFlowHeader flowId="..." />
+  <FlowRestartButton onRestart={handleRestart} />
   {/* Flow content */}
 </div>
 ```
@@ -280,7 +280,7 @@ npm start
 
 ### **Type Safety:**
 - Used `as const` for grant_type to satisfy TypeScript
-- Proper V9FlowCredentials type usage
+- Proper FlowCredentials type usage
 - No `any` types used
 
 ### **Error Handling:**

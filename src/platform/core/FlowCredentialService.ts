@@ -1,9 +1,9 @@
-// src/platform/core/V9FlowCredentialService.ts
+// src/platform/core/FlowCredentialService.ts
 // Credential storage for V9 flows (isolated localStorage key).
 //
 // Migrated from V7MFlowCredentialService.ts — updated key prefix to v9.
 
-export type V9Credentials = {
+export type PlatformCredentials = {
 	environmentId?: string;
 	clientId?: string;
 	clientSecret?: string;
@@ -14,17 +14,17 @@ export type V9Credentials = {
 
 const KEY = 'v9:credentials';
 
-export const V9FlowCredentialService = {
-	load(): V9Credentials {
+export const FlowCredentialService = {
+	load(): PlatformCredentials {
 		if (typeof window === 'undefined') return {};
 		try {
 			const raw = window.localStorage.getItem(KEY);
-			return raw ? (JSON.parse(raw) as V9Credentials) : {};
+			return raw ? (JSON.parse(raw) as PlatformCredentials) : {};
 		} catch {
 			return {};
 		}
 	},
-	save(creds: V9Credentials): void {
+	save(creds: PlatformCredentials): void {
 		if (typeof window === 'undefined') return;
 		try {
 			window.localStorage.setItem(KEY, JSON.stringify(creds));

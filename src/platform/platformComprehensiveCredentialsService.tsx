@@ -1,13 +1,13 @@
-// src/platform/v9ComprehensiveCredentialsService.tsx
+// src/platform/platformComprehensiveCredentialsService.tsx
 // V9 Wrapper for ComprehensiveCredentialsService - Modern Messaging Compliant
 
 import React from 'react';
 // Import Modern Messaging (V9) - proper migration to non-toast messaging
-import { modernMessaging } from '../components/v9/V9ModernMessagingComponents';
+import { modernMessaging } from '../components/ModernMessagingComponents';
 import ComprehensiveCredentialsService from '../services/comprehensiveCredentialsService';
 
 // V9 Wrapper Component
-export interface V9ComprehensiveCredentialsProps {
+export interface PlatformComprehensiveCredentialsProps {
 	flowType: string;
 	onDiscoveryComplete?: (result: unknown) => void;
 	onCredentialsChange?: (credentials: unknown) => void;
@@ -15,7 +15,7 @@ export interface V9ComprehensiveCredentialsProps {
 	[key: string]: unknown; // Allow other props to pass through
 }
 
-const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProps> = (props) => {
+const PlatformComprehensiveCredentialsService: React.FC<PlatformComprehensiveCredentialsProps> = (props) => {
 	// Wrap discovery callback with Modern Messaging
 	const handleDiscoveryComplete = (result: unknown) => {
 		try {
@@ -75,4 +75,4 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 	);
 };
 
-export default V9ComprehensiveCredentialsService;
+export default PlatformComprehensiveCredentialsService;

@@ -5,7 +5,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { modernMessaging } from '@/platform/V9ModernMessagingService';
+import { modernMessaging } from '@/platform/ModernMessagingService';
 import ApiCallList from '../components/ApiCallList';
 import { RegionSelect } from '../components/RegionSelect';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';

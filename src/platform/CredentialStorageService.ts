@@ -1,4 +1,4 @@
-// src/platform/V9CredentialStorageService.ts
+// src/platform/CredentialStorageService.ts
 // V9 credential storage — 4-layer persistence for all V9 flows.
 //
 // Layers (in priority order):
@@ -8,11 +8,11 @@
 //   4. SQLite backup  (server-side, survives device change — requires environmentId)
 //
 // Usage in any V9 flow:
-//   const creds = await V9CredentialStorageService.load('my-flow-v9');
-//   await V9CredentialStorageService.save('my-flow-v9', { clientId, environmentId, ... });
-//   await V9CredentialStorageService.clear('my-flow-v9');
+//   const creds = await CredentialStorageService.load('my-flow-v9');
+//   await CredentialStorageService.save('my-flow-v9', { clientId, environmentId, ... });
+//   await CredentialStorageService.clear('my-flow-v9');
 //
-// Migration rule: Replace every direct localStorage.getItem / V9FlowCredentialService
+// Migration rule: Replace every direct localStorage.getItem / FlowCredentialService
 // call with this service. See A-Migration/migrate_vscode.md § Mandatory Credential Storage.
 
 import {
@@ -37,7 +37,7 @@ export interface SerializableMenuGroup {
  * Canonical credential shape shared by all V9 flows.
  * All fields are optional — flows only fill what they need.
  */
-export interface V9FlowCredentials {
+export interface FlowCredentials {
 	// Identity
 	environmentId?: string;
 	clientId?: string;
@@ -69,7 +69,7 @@ export interface V9FlowCredentials {
 	specVersion?: string;
 }
 
-export interface V9SaveOptions {
+export interface CredentialSaveOptions {
 	/** Required to enable SQLite backup tier */
 	environmentId?: string;
 	/** Enable server-side SQLite backup (default: true when environmentId provided) */
@@ -78,7 +78,7 @@ export interface V9SaveOptions {
 
 // ─── Memory cache (module-level, survives component re-mounts) ────────────────
 
-const _memoryCache = new Map<string, V9FlowCredentials>();
+const _memoryCache = new Map<string, FlowCredentials>();
 
 // ─── Key helpers ──────────────────────────────────────────────────────────────
 
@@ -94,9 +94,9 @@ function toStorageKey(flowKey: string): string {
  * V9 credential storage — 4-layer persistence wrapper.
  *
  * All V9 flows MUST use this service for credential read/write.
- * Do NOT call localStorage directly or use V9FlowCredentialService (localStorage-only).
+ * Do NOT call localStorage directly or use FlowCredentialService (localStorage-only).
  */
-export const V9CredentialStorageService = {
+export const CredentialStorageService = {
 	/**
 	 * Load credentials for a flow.
 	 * Checks memory → localStorage → IndexedDB → SQLite in order.
@@ -104,12 +104,12 @@ export const V9CredentialStorageService = {
 	 * @param flowKey - Unique key for this flow, e.g. 'token-exchange-v9'
 	 * @param options - Optional environmentId to enable SQLite fallback
 	 */
-	async load(flowKey: string, options?: V9SaveOptions): Promise<V9FlowCredentials> {
+	async load(flowKey: string, options?: CredentialSaveOptions): Promise<FlowCredentials> {
 		const key = toStorageKey(flowKey);
 
 		// 1. Memory cache
 		if (_memoryCache.has(key)) {
-			return _memoryCache.get(key) as V9FlowCredentials;
+			return _memoryCache.get(key) as FlowCredentials;
 		}
 
 		try {
@@ -120,7 +120,7 @@ export const V9CredentialStorageService = {
 			});
 
 			if (stored) {
-				const creds = stored as V9FlowCredentials;
+				const creds = stored as FlowCredentials;
 				_memoryCache.set(key, creds);
 				return creds;
 			}
@@ -141,8 +141,8 @@ export const V9CredentialStorageService = {
 	 */
 	async save(
 		flowKey: string,
-		credentials: V9FlowCredentials,
-		options?: V9SaveOptions
+		credentials: FlowCredentials,
+		options?: CredentialSaveOptions
 	): Promise<void> {
 		const key = toStorageKey(flowKey);
 
@@ -183,17 +183,17 @@ export const V9CredentialStorageService = {
 	 * Use only when async is not possible (e.g. initial render, non-async context).
 	 * Prefer load() in all other cases.
 	 */
-	loadSync(flowKey: string): V9FlowCredentials {
+	loadSync(flowKey: string): FlowCredentials {
 		const key = toStorageKey(flowKey);
 
 		if (_memoryCache.has(key)) {
-			return _memoryCache.get(key) as V9FlowCredentials;
+			return _memoryCache.get(key) as FlowCredentials;
 		}
 
 		try {
 			const raw = localStorage.getItem(`unified_oauth_${key}`);
 			if (raw) {
-				const creds = JSON.parse(raw) as V9FlowCredentials;
+				const creds = JSON.parse(raw) as FlowCredentials;
 				_memoryCache.set(key, creds);
 				return creds;
 			}
@@ -205,4 +205,4 @@ export const V9CredentialStorageService = {
 	},
 } as const;
 
-export default V9CredentialStorageService;
+export default CredentialStorageService;
