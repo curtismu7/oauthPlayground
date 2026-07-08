@@ -12,8 +12,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import type { IDTokenValidationResult } from '@/v8/services/idTokenValidationServiceV8';
-import { IDTokenValidationServiceV8 } from '@/v8/services/idTokenValidationServiceV8';
+import type { IDTokenValidationResult } from '@/mfa/services/idTokenValidationServiceV8';
+import { IDTokenValidationServiceV8 } from '@/mfa/services/idTokenValidationServiceV8';
 
 import { logger } from '../../utils/logger';
 

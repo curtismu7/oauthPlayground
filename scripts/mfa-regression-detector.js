@@ -19,13 +19,13 @@ const { execSync } = require('child_process');
 // Configuration
 const CONFIG = {
 	criticalFiles: [
-		'src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx',
-		'src/v8/services/sqliteStatsServiceV8.ts',
-		'src/v8/components/WorkerTokenModalV8.tsx',
+		'src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx',
+		'src/mfa/services/sqliteStatsServiceV8.ts',
+		'src/mfa/components/WorkerTokenModalV8.tsx',
 		'src/services/unifiedWorkerTokenService.ts',
 		'src/utils/fileStorageUtil.ts',
 		'src/services/credentialExportImportService.ts',
-		'src/v8/services/preFlightValidationServiceV8.ts'
+		'src/mfa/services/preFlightValidationServiceV8.ts'
 	],
 	swe15Patterns: {
 		singleResponsibility: [
@@ -43,8 +43,8 @@ const CONFIG = {
 	},
 	preventionCommands: [
 		'./scripts/prevent-base64-display.sh',
-		'grep -n "useCallback" src/v8/hooks/useSQLiteStats.ts',
-		'grep -n "dangerouslySetInnerHTML" src/v8/flows/unified/ --include="*.ts" --include="*.tsx"'
+		'grep -n "useCallback" src/mfa/hooks/useSQLiteStats.ts',
+		'grep -n "dangerouslySetInnerHTML" src/mfa/flows/unified/ --include="*.ts" --include="*.tsx"'
 	]
 };
 
@@ -99,25 +99,25 @@ class RegressionDetector {
 
 		// Check Single Responsibility Principle
 		await this.runCommand(
-			'grep -r "export.*class.*{" src/v8/flows/unified/ | wc -l',
+			'grep -r "export.*class.*{" src/mfa/flows/unified/ | wc -l',
 			'Single Responsibility: Classes should have single purpose'
 		);
 
 		// Check Open/Closed Principle
 		await this.runCommand(
-			'grep -r "MFAFlowBaseV8.*extends" src/v8/flows/unified/ | wc -l',
+			'grep -r "MFAFlowBaseV8.*extends" src/mfa/flows/unified/ | wc -l',
 			'Open/Closed: Base classes should not be modified'
 		);
 
 		// Check Interface Segregation
 		await this.runCommand(
-			'grep -r "interface.*Props" src/v8/flows/unified/ | head -10 | wc -l',
+			'grep -r "interface.*Props" src/mfa/flows/unified/ | head -10 | wc -l',
 			'Interface Segregation: Interfaces should be minimal'
 		);
 
 		// Check Dependency Inversion
 		await this.runCommand(
-			'grep -r "import.*Service" src/v8/flows/unified/ | head -10 | wc -l',
+			'grep -r "import.*Service" src/mfa/flows/unified/ | head -10 | wc -l',
 			'Dependency Inversion: Should depend on abstractions'
 		);
 	}
@@ -143,7 +143,7 @@ class RegressionDetector {
 
 		// Issue 23: SQLite Resource Exhaustion
 		await this.runCommand(
-			'grep -n "activeConnections\|circuitBreakerOpen" src/v8/services/sqliteStatsServiceV8.ts | wc -l',
+			'grep -n "activeConnections\|circuitBreakerOpen" src/mfa/services/sqliteStatsServiceV8.ts | wc -l',
 			'Issue 23: SQLite connection monitoring'
 		);
 
@@ -155,7 +155,7 @@ class RegressionDetector {
 
 		// Issue 81: OIDC Scopes Validation
 		await this.runCommand(
-			'grep -n "Invalid OIDC Scopes" src/v8/services/preFlightValidationServiceV8.ts | wc -l',
+			'grep -n "Invalid OIDC Scopes" src/mfa/services/preFlightValidationServiceV8.ts | wc -l',
 			'Issue 81: Client credentials scope validation'
 		);
 
@@ -171,19 +171,19 @@ class RegressionDetector {
 
 		// Check for removed interfaces
 		await this.runCommand(
-			'find src/v8/flows/unified -name "*.tsx" -exec grep -l "interface.*Props" {} \\; | wc -l',
+			'find src/mfa/flows/unified -name "*.tsx" -exec grep -l "interface.*Props" {} \\; | wc -l',
 			'Interface preservation check'
 		);
 
 		// Check for removed services
 		await this.runCommand(
-			'find src/v8/services -name "*.ts" | grep -v test | wc -l',
+			'find src/mfa/services -name "*.ts" | grep -v test | wc -l',
 			'Service preservation check'
 		);
 
 		// Check for component removal
 		await this.runCommand(
-			'find src/v8/components -name "*.tsx" | wc -l',
+			'find src/mfa/components -name "*.tsx" | wc -l',
 			'Component preservation check'
 		);
 	}
@@ -193,18 +193,18 @@ class RegressionDetector {
 
 		// Performance checks
 		await this.runCommand(
-			'grep -rn "setInterval.*clearInterval\\|setTimeout.*clearTimeout" src/v8/ --include="*.ts" --include="*.tsx" | wc -l',
+			'grep -rn "setInterval.*clearInterval\\|setTimeout.*clearTimeout" src/mfa/ --include="*.ts" --include="*.tsx" | wc -l',
 			'Timer cleanup check'
 		);
 
 		// Security checks
 		await this.runCommand(
-			'grep -rn "eval(" src/v8/ --include="*.ts" --include="*.tsx" | wc -l',
+			'grep -rn "eval(" src/mfa/ --include="*.ts" --include="*.tsx" | wc -l',
 			'Eval usage prevention'
 		);
 
 		await this.runCommand(
-			'grep -rn "javascript:" src/v8/ --include="*.ts" --include="*.tsx" | wc -l',
+			'grep -rn "javascript:" src/mfa/ --include="*.ts" --include="*.tsx" | wc -l',
 			'Inline script prevention'
 		);
 	}

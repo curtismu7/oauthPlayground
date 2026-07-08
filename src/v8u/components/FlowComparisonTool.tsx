@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { FiBarChart2, FiCheck, FiInfo, FiX } from '../../icons';
-import { type FlowType, type SpecVersion } from '../../v8/services/specVersionServiceV8';
+import { type FlowType, type SpecVersion } from '../../mfa/services/specVersionServiceV8';
 
 export type SpecFilterOption = 'all' | SpecVersion;
 

@@ -194,11 +194,11 @@ class CriticalLinterFixer:
         
         # Focus on files with known issues first
         priority_files = [
-            "src/v8/services/configCheckerServiceV8.ts",
-            "src/v8/services/implicitFlowIntegrationServiceV8.ts", 
-            "src/v8/services/jarRequestObjectServiceV8.ts",
-            "src/v8/services/mfaConfigurationServiceV8.ts",
-            "src/v8/services/oidcDiscoveryServiceV8.ts",
+            "src/mfa/services/configCheckerServiceV8.ts",
+            "src/mfa/services/implicitFlowIntegrationServiceV8.ts", 
+            "src/mfa/services/jarRequestObjectServiceV8.ts",
+            "src/mfa/services/mfaConfigurationServiceV8.ts",
+            "src/mfa/services/oidcDiscoveryServiceV8.ts",
             "src/v8u/services/unifiedFlowIntegrationV8U.ts"
         ]
         

@@ -10,7 +10,7 @@ echo "=================================="
 echo "📋 Test 1: Token Exchange Flow Files"
 test_files=(
     "src/pages/flows/TokenExchangeFlowV7.tsx"
-    "src/v8/flows/TokenExchangeFlowV8.tsx"
+    "src/mfa/flows/TokenExchangeFlowV8.tsx"
     "src/v8m/pages/V8MTokenExchange.tsx"
     "src/services/tokenManagementService.ts"
 )

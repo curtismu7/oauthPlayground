@@ -43,7 +43,7 @@ import { FiKey } from '../icons';
 import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { logger } from '../utils/logger';
-import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
+import { workerTokenServiceV8 } from '../mfa/services/workerTokenServiceV8';
 
 const Container = styled.div`
 	max-width: 1200px;

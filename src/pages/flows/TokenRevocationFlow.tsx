@@ -3,7 +3,7 @@ import type React from 'react';
 // lint-file-disable: json-parse-no-try
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenExpiryBannerV8 } from '@/mfa/components/WorkerTokenExpiryBannerV8';
 import { CredentialsImportExport } from '../../components/CredentialsImportExport';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';

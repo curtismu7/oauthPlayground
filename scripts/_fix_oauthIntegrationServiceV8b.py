@@ -1,5 +1,5 @@
 """Fix oauthIntegrationServiceV8.ts: replace remaining 'as any' with typed casts."""
-path = '/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/oauthIntegrationServiceV8.ts'
+path = '/Users/cmuir/P1Import-apps/oauth-playground/src/mfa/services/oauthIntegrationServiceV8.ts'
 with open(path) as f:
     src = f.read()
 original = src

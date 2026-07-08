@@ -11,7 +11,7 @@
  * @version 9.0.0
  */
 
-import type { FlowType } from '@/v8/services/specVersionServiceV8';
+import type { FlowType } from '@/mfa/services/specVersionServiceV8';
 import { V9RedirectUriService } from './V9RedirectUriService';
 
 /** Redirect URI used when response_mode=pi.flow (redirectless); no browser redirect. */

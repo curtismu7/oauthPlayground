@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import subprocess, json
 files = [
-    'src/v8/flows/MFAConfigurationPageV8.tsx',
+    'src/mfa/flows/MFAConfigurationPageV8.tsx',
     'src/v8u/components/UserTokenStatusDisplayV8U.tsx',
 ]
 r = subprocess.run(

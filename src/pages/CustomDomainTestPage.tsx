@@ -16,12 +16,12 @@ import {
 	saveCustomDomain,
 } from '../services/customDomainService';
 import { type PingOneRegion } from '../services/regionService';
-import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
+import { workerTokenServiceV8 } from '../mfa/services/workerTokenServiceV8';
 import {
 	checkWorkerTokenStatusSync,
 	type TokenStatusInfo,
-} from '../v8/services/workerTokenStatusServiceV8';
-import { handleShowWorkerTokenModal } from '../v8/utils/workerTokenModalHelperV8';
+} from '../mfa/services/workerTokenStatusServiceV8';
+import { handleShowWorkerTokenModal } from '../mfa/utils/workerTokenModalHelperV8';
 import '../styles/dashboard.css';
 
 interface ApiTestSpec {

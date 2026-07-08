@@ -7,7 +7,7 @@ import { Sidebar } from './components/Sidebar';
 import { useTheme } from './ThemeContext';
 import { flowExecutionService, FlowListener } from './services/flowExecutionService';
 import { OAuthConfig } from './types';
-import { globalWorkerTokenService } from '../../../v8/services/globalWorkerTokenService';
+import { globalWorkerTokenService } from '../../../mfa/services/globalWorkerTokenService';
 import { WorkerTokenBanner } from '../../../components/WorkerTokenBanner';
 import { WorkerTokenWidget } from '../../../components/WorkerTokenWidget';
 

@@ -26,8 +26,8 @@ fi
 echo ""
 echo "📋 Checking if service file exists..."
 
-if [ -f "src/v8/services/workerTokenStatusServiceV8.ts" ]; then
-    echo "✅ Service file exists: src/v8/services/workerTokenStatusServiceV8.ts"
+if [ -f "src/mfa/services/workerTokenStatusServiceV8.ts" ]; then
+    echo "✅ Service file exists: src/mfa/services/workerTokenStatusServiceV8.ts"
 else
     echo "❌ Service file NOT found"
     exit 1
@@ -37,7 +37,7 @@ fi
 echo ""
 echo "📋 Checking service exports..."
 
-if grep -q "export.*WorkerTokenStatusServiceV8" src/v8/services/workerTokenStatusServiceV8.ts; then
+if grep -q "export.*WorkerTokenStatusServiceV8" src/mfa/services/workerTokenStatusServiceV8.ts; then
     echo "✅ Service exports WorkerTokenStatusServiceV8"
 else
     echo "❌ Service does NOT export WorkerTokenStatusServiceV8"

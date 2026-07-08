@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fix mfaCredentialManagerV8.ts — replace (stored as any).field."""
 
-path = '/Users/cmuir/P1Import-apps/oauth-playground/src/v8/services/mfaCredentialManagerV8.ts'
+path = '/Users/cmuir/P1Import-apps/oauth-playground/src/mfa/services/mfaCredentialManagerV8.ts'
 with open(path) as f:
     src = f.read()
 

@@ -16,8 +16,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import { ApiDisplayCheckbox } from '@/v8/components/SuperSimpleApiDisplayV8';
-import type { FlowType } from '@/v8/services/specVersionServiceV8';
+import { ApiDisplayCheckbox } from '@/mfa/components/SuperSimpleApiDisplayV8';
+import type { FlowType } from '@/mfa/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { PKCEStorageServiceV8U } from '../services/pkceStorageServiceV8U';
 import { UnifiedDocumentationModalV8U } from './UnifiedDocumentationModalV8U';

@@ -5,7 +5,7 @@ echo "============================================"
 
 # Test 1: Check SearchableDropdownOption import
 echo "📋 Checking SearchableDropdownOption import..."
-if grep -q "import.*SearchableDropdownOption.*from.*@/v8/components/SearchableDropdownV8" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
+if grep -q "import.*SearchableDropdownOption.*from.*@/v8/components/SearchableDropdownV8" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
     echo "✅ SearchableDropdownOption imported"
 else
     echo "❌ SearchableDropdownOption import missing"
@@ -14,7 +14,7 @@ fi
 
 # Test 2: Check simplified options array (no complex Map)
 echo "📋 Checking simplified options array..."
-if grep -q "options={(Array.isArray(users)" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
+if grep -q "options={(Array.isArray(users)" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
     echo "✅ Simplified options array present"
 else
     echo "❌ Complex Map construction still present"
@@ -23,7 +23,7 @@ fi
 
 # Test 3: Check email secondaryLabel assignment
 echo "📋 Checking email secondaryLabel assignment..."
-if grep -q "if (user.email) {" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx && grep -q "option.secondaryLabel = user.email;" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
+if grep -q "if (user.email) {" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx && grep -q "option.secondaryLabel = user.email;" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
     echo "✅ Email secondaryLabel assignment present"
 else
     echo "❌ Email secondaryLabel assignment missing"
@@ -31,7 +31,7 @@ else
 fi
 
 # Test 4: Check proper type usage
-if grep -q "const option: SearchableDropdownOption" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
+if grep -q "const option: SearchableDropdownOption" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
     echo "✅ Proper SearchableDropdownOption type usage"
 else
     echo "❌ Incorrect type usage"
@@ -39,7 +39,7 @@ else
 fi
 
 # Test 5: Check no undefined secondaryLabel values
-if ! grep -q "secondaryLabel.*undefined" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
+if ! grep -q "secondaryLabel.*undefined" src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx; then
     echo "✅ No undefined secondaryLabel values"
 else
     echo "❌ Undefined secondaryLabel values present"

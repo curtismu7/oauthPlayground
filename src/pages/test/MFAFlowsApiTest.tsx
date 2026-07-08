@@ -12,7 +12,7 @@ import {
 } from '../../platform/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../platform/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
-import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
+import { useWorkerToken } from '../../mfa/hooks/useWorkerToken';
 
 // Test Configuration for MFA flows
 interface MFATestConfig {

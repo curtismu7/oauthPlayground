@@ -7,7 +7,7 @@ import { Sidebar } from '../OAuthAuthzV2/components/Sidebar';
 import { useTheme } from '../OAuthAuthzV2/ThemeContext';
 import { authCodeFlowExecutionService, FlowListener } from './services/flowExecutionService';
 import { AuthCodeConfig } from './types';
-import { globalWorkerTokenService } from '../../../v8/services/globalWorkerTokenService';
+import { globalWorkerTokenService } from '../../../mfa/services/globalWorkerTokenService';
 import { WorkerTokenBanner } from '../../../components/WorkerTokenBanner';
 
 const STORAGE_KEY = 'authcode-flow-config';

@@ -105,7 +105,7 @@ fix('src/platform/credentialsServiceV9.ts', [
 
 # ── 5. SMSOTPConfigurationPageV8.tsx ──────────────────────────────────────────
 print('5. SMSOTPConfigurationPageV8.tsx')
-fix('src/v8/flows/types/SMSOTPConfigurationPageV8.tsx', [
+fix('src/mfa/flows/types/SMSOTPConfigurationPageV8.tsx', [
     # Add TokenStatus import from comprehensiveTokenUIService
     ("import { comprehensiveTokenUIService } from '@/v8/services/comprehensiveTokenUIService';",
      "import { comprehensiveTokenUIService, type TokenStatus } from '@/v8/services/comprehensiveTokenUIService';"),

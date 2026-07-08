@@ -14,27 +14,27 @@ import { V9UnifiedRedirectUriService as UnifiedRedirectUriServiceV8U } from '@/p
 import {
 	type ClientCredentialsCredentials,
 	ClientCredentialsIntegrationServiceV8,
-} from '@/v8/services/clientCredentialsIntegrationServiceV8';
+} from '@/mfa/services/clientCredentialsIntegrationServiceV8';
 import {
 	type DeviceCodeCredentials,
 	DeviceCodeIntegrationServiceV8,
-} from '@/v8/services/deviceCodeIntegrationServiceV8';
+} from '@/mfa/services/deviceCodeIntegrationServiceV8';
 import {
 	type HybridFlowCredentials,
 	HybridFlowIntegrationServiceV8,
-} from '@/v8/services/hybridFlowIntegrationServiceV8';
-import { ImplicitFlowIntegrationServiceV8 } from '@/v8/services/implicitFlowIntegrationServiceV8';
+} from '@/mfa/services/hybridFlowIntegrationServiceV8';
+import { ImplicitFlowIntegrationServiceV8 } from '@/mfa/services/implicitFlowIntegrationServiceV8';
 import {
 	type OAuthCredentials,
 	OAuthIntegrationServiceV8,
-} from '@/v8/services/oauthIntegrationServiceV8';
+} from '@/mfa/services/oauthIntegrationServiceV8';
 // ROPC flow removed - not supported by PingOne, use mock flows instead
 import {
 	type FlowType,
 	type SpecVersion,
 	SpecVersionServiceV8,
-} from '@/v8/services/specVersionServiceV8';
-import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
+} from '@/mfa/services/specVersionServiceV8';
+import { UnifiedFlowOptionsServiceV8 } from '@/mfa/services/unifiedFlowOptionsServiceV8';
 import { UnifiedFlowErrorHandler } from './unifiedFlowErrorHandlerV8U';
 import { logger } from './unifiedFlowLoggerServiceV8U';
 

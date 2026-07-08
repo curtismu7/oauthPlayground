@@ -14,8 +14,8 @@ echo "🔍 Running pre-migration inventory for: $FEATURE_NAME"
 # Check if source file exists (handle different naming patterns)
 if [ -f "src/pages/flows/v7/${FEATURE_NAME}V7.tsx" ]; then
   SOURCE_FILE="src/pages/flows/v7/${FEATURE_NAME}V7.tsx"
-elif [ -f "src/v8/flows/${FEATURE_NAME}V8.tsx" ]; then
-  SOURCE_FILE="src/v8/flows/${FEATURE_NAME}V8.tsx"
+elif [ -f "src/mfa/flows/${FEATURE_NAME}V8.tsx" ]; then
+  SOURCE_FILE="src/mfa/flows/${FEATURE_NAME}V8.tsx"
 elif [ -f "src/pages/flows/${FEATURE_NAME}V7.tsx" ]; then
   SOURCE_FILE="src/pages/flows/${FEATURE_NAME}V7.tsx"
 elif [ -f "src/pages/flows/JWTBearerTokenFlowV7.tsx" ] && [ "$FEATURE_NAME" = "JWTBearerTokenFlowV9" ]; then
@@ -27,7 +27,7 @@ elif [ -f "src/pages/flows/OAuthROPCFlowV7.tsx" ] && [ "$FEATURE_NAME" = "OAuthR
 else
   echo "❌ Source file not found"
   echo "   Looking for: src/pages/flows/v7/${FEATURE_NAME}V7.tsx"
-  echo "   Or: src/v8/flows/${FEATURE_NAME}V8.tsx"
+  echo "   Or: src/mfa/flows/${FEATURE_NAME}V8.tsx"
   echo "   Or: src/pages/flows/${FEATURE_NAME}V7.tsx"
   echo "   Or: src/pages/flows/JWTBearerTokenFlowV7.tsx (for JWTBearerTokenFlowV9)"
   echo "   Or: src/pages/flows/MFALoginHintFlowV7.tsx (for MFALoginHintFlowV9)"

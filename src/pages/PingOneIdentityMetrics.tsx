@@ -11,9 +11,9 @@ import { FlowHeader } from '../services/flowHeaderService';
 // Cache bust: 2025-02-17-11:32
 
 import { logger } from '../utils/logger';
-import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
-import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
-import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import { ShowTokenConfigCheckboxV8 } from '../mfa/components/ShowTokenConfigCheckboxV8';
+import { SilentApiConfigCheckboxV8 } from '../mfa/components/SilentApiConfigCheckboxV8';
+import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
 
 const styles = {
 	pageContainer: {

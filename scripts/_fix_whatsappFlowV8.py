@@ -1,7 +1,7 @@
 """Fix WhatsAppFlowV8.tsx: remove dead code, fix any types."""
 import re
 
-path = '/Users/cmuir/P1Import-apps/oauth-playground/src/v8/flows/types/WhatsAppFlowV8.tsx'
+path = '/Users/cmuir/P1Import-apps/oauth-playground/src/mfa/flows/types/WhatsAppFlowV8.tsx'
 with open(path) as f:
     src = f.read()
 

@@ -21,7 +21,7 @@ import {
 	type AppConfig,
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
-} from '../v8/services/appDiscoveryServiceV8';
+} from '../mfa/services/appDiscoveryServiceV8';
 import type { V9FlowCredentials } from './V9CredentialStorageService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────

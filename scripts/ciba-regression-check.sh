@@ -7,7 +7,7 @@ echo "================================"
 # Check required files exist
 echo "📁 Checking files..."
 test -f src/pages/flows/CIBAFlowV9.tsx || { echo "✗ CIBAFlowV9.tsx missing"; exit 1; }
-test -f src/v8/services/cibaServiceV8Enhanced.ts || { echo "✗ cibaServiceV8Enhanced.ts missing"; exit 1; }
+test -f src/mfa/services/cibaServiceV8Enhanced.ts || { echo "✗ cibaServiceV8Enhanced.ts missing"; exit 1; }
 test -f api/tokens/store.js || { echo "✗ api/tokens/store.js missing"; exit 1; }
 test -f api/generate-login-hint-token.js || { echo "✗ api/generate-login-hint-token.js missing"; exit 1; }
 echo "✓ All required files exist"

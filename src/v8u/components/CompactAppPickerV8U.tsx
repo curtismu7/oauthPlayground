@@ -9,9 +9,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
-import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
-import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import type { DiscoveredApp } from '@/mfa/components/AppPickerV8';
+import { AppDiscoveryServiceV8 } from '@/mfa/services/appDiscoveryServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/mfa/services/workerTokenStatusServiceV8';
 import { FiSearch } from '../../icons';
 
 import { logger } from '../../utils/logger';

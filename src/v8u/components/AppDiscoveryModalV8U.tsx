@@ -10,11 +10,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
-import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
+import type { DiscoveredApp } from '@/mfa/components/AppPickerV8';
 import {
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
-} from '@/v8/services/appDiscoveryServiceV8';
+} from '@/mfa/services/appDiscoveryServiceV8';
 import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[ APP-DISCOVERY-MODAL-V8U]';

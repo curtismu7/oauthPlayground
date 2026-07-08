@@ -8,11 +8,11 @@ import { useComponentTracker } from './hooks/useComponentTracker';
 import { theme as baseTheme, GlobalStyle } from './styles/global';
 import { useComponentTracker as useCleanlinessTracker } from './utils/componentTracker';
 import { ExternalScriptErrorBoundary, useExternalErrorHandling } from './utils/errorBoundaryUtils';
-import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
-import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
-import { PromptModalV8 } from './v8/components/PromptModalV8';
+import { BackendDownModalV8 } from './mfa/components/BackendDownModalV8';
+import { ConfirmationModalV8 } from './mfa/components/ConfirmationModalV8';
+import { PromptModalV8 } from './mfa/components/PromptModalV8';
 import { WorkerTokenCredentialModal } from '@/components/WorkerTokenCredentialModal';
-import { FlowStateProvider } from './v8/contexts/FlowStateContext';
+import { FlowStateProvider } from './mfa/contexts/FlowStateContext';
 import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
@@ -145,7 +145,7 @@ import { credentialManager } from './utils/credentialManager';
 // Import unified token storage service to make it globally available
 import './services/unifiedTokenStorageService';
 // MFA redirect URI migration disabled - MFA hub is no longer used
-// import { migrateAllMFARedirectUris } from './v8/utils/mfaRedirectUriMigrationV8';
+// import { migrateAllMFARedirectUris } from './mfa/utils/mfaRedirectUriMigrationV8';
 
 // Run migration immediately on module load - DISABLED
 // migrateAllMFARedirectUris();
@@ -283,29 +283,29 @@ const SMSSampleApp = lazy(() =>
 );
 // CIBAFlowV8 — /flows/ciba-v8 redirects to /v8u/unified
 const EmailMFASignOnFlowV8 = lazy(() =>
-	import('./v8/flows/EmailMFASignOnFlowV8').then((m) => ({ default: m.EmailMFASignOnFlowV8 }))
+	import('./mfa/flows/EmailMFASignOnFlowV8').then((m) => ({ default: m.EmailMFASignOnFlowV8 }))
 );
 // ImplicitFlowV8 archived — /flows/implicit-v8 now redirects to /flows/implicit-v9
 const MFAConfigurationPageV8 = lazy(() =>
-	import('./v8/flows/MFAConfigurationPageV8').then((m) => ({ default: m.MFAConfigurationPageV8 }))
+	import('./mfa/flows/MFAConfigurationPageV8').then((m) => ({ default: m.MFAConfigurationPageV8 }))
 );
-const MFADeviceManagementFlowV8 = lazy(() => import('./v8/flows/MFADeviceManagementFlowV8'));
+const MFADeviceManagementFlowV8 = lazy(() => import('./mfa/flows/MFADeviceManagementFlowV8'));
 const MFADeviceOrderingFlowV8 = lazy(() =>
-	import('./v8/flows/MFADeviceOrderingFlowV8').then((m) => ({ default: m.MFADeviceOrderingFlowV8 }))
+	import('./mfa/flows/MFADeviceOrderingFlowV8').then((m) => ({ default: m.MFADeviceOrderingFlowV8 }))
 );
 const MFAFlowV8 = lazy(() =>
-	import('./v8/flows/MFAFlowV8').then((m) => ({ default: m.MFAFlowV8 }))
+	import('./mfa/flows/MFAFlowV8').then((m) => ({ default: m.MFAFlowV8 }))
 );
-const MFAReportingFlowV8 = lazy(() => import('./v8/flows/MFAReportingFlowV8'));
+const MFAReportingFlowV8 = lazy(() => import('./mfa/flows/MFAReportingFlowV8'));
 // OIDCHybridFlowV8 archived — /flows/hybrid-v8 now redirects to /flows/oidc-hybrid-v9
-const PingOneProtectFlowV8 = lazy(() => import('./v8/flows/PingOneProtectFlowV8'));
+const PingOneProtectFlowV8 = lazy(() => import('./mfa/flows/PingOneProtectFlowV8'));
 const FIDO2ConfigurationPageV8 = lazy(() =>
-	import('./v8/flows/types/FIDO2ConfigurationPageV8').then((m) => ({
+	import('./mfa/flows/types/FIDO2ConfigurationPageV8').then((m) => ({
 		default: m.FIDO2ConfigurationPageV8,
 	}))
 );
 const MobileOTPConfigurationPageV8 = lazy(() =>
-	import('./v8/flows/types/MobileOTPConfigurationPageV8').then((m) => ({
+	import('./mfa/flows/types/MobileOTPConfigurationPageV8').then((m) => ({
 		default: m.MobileOTPConfigurationPageV8,
 	}))
 );
@@ -315,7 +315,7 @@ const TokenMonitoringPage = lazy(() =>
 
 // Lazy load unified MFA flow for code splitting
 const UnifiedMFARegistrationFlowV8 = React.lazy(() =>
-	import('./v8/flows/unified/UnifiedMFARegistrationFlowV8').then((module) => ({
+	import('./mfa/flows/unified/UnifiedMFARegistrationFlowV8').then((module) => ({
 		default: module.UnifiedMFARegistrationFlowV8,
 	}))
 );
@@ -324,10 +324,10 @@ const UnifiedMFARegistrationFlowV8 = React.lazy(() =>
 const OAuthAuthzV2 = lazy(() => import('./v8u/components/OAuthAuthzV2/OAuthAuthzV2'));
 const AuthCodeFlowV2 = lazy(() => import('./v8u/components/AuthCodeFlowV2/AuthCodeFlowV2'));
 const FIDO2FlowV8 = React.lazy(() =>
-	import('./v8/flows/types/FIDO2FlowV8').then((module) => ({ default: module.FIDO2FlowV8 }))
+	import('./mfa/flows/types/FIDO2FlowV8').then((module) => ({ default: module.FIDO2FlowV8 }))
 );
 const MobileFlowV8 = React.lazy(() =>
-	import('./v8/flows/types/MobileFlowV8').then((module) => ({ default: module.MobileFlowV8 }))
+	import('./mfa/flows/types/MobileFlowV8').then((module) => ({ default: module.MobileFlowV8 }))
 );
 
 import { FloatingStepperProvider } from './contexts/FloatingStepperContext';
@@ -343,30 +343,30 @@ const DebugLogViewerPopoutV9 = lazy(() =>
 	import('./pages/v9/DebugLogViewerPopoutV9').then((m) => ({ default: m.DebugLogViewerPopoutV9 }))
 );
 const DebugLogViewerPopoutV8 = lazy(() =>
-	import('./v8/pages/DebugLogViewerPopoutV8Test').then((m) => ({
+	import('./mfa/pages/DebugLogViewerPopoutV8Test').then((m) => ({
 		default: m.DebugLogViewerPopoutV8Test,
 	}))
 );
 
 import { logger } from './utils/logger';
 
-const DebugLogViewerV8 = lazy(() => import('./v8/pages/DebugLogViewerV8'));
-const DeleteAllDevicesUtilityV8 = lazy(() => import('./v8/pages/DeleteAllDevicesUtilityV8'));
+const DebugLogViewerV8 = lazy(() => import('./mfa/pages/DebugLogViewerV8'));
+const DeleteAllDevicesUtilityV8 = lazy(() => import('./mfa/pages/DeleteAllDevicesUtilityV8'));
 const DeviceAuthenticationDetailsV8 = lazy(
-	() => import('./v8/pages/DeviceAuthenticationDetailsV8')
+	() => import('./mfa/pages/DeviceAuthenticationDetailsV8')
 );
 const FIDO2RegistrationDocsPageV8 = lazy(() =>
-	import('./v8/pages/FIDO2RegistrationDocsPageV8').then((m) => ({
+	import('./mfa/pages/FIDO2RegistrationDocsPageV8').then((m) => ({
 		default: m.FIDO2RegistrationDocsPageV8,
 	}))
 );
-const MFADeviceCreateDemoV8 = lazy(() => import('./v8/pages/MFADeviceCreateDemoV8'));
+const MFADeviceCreateDemoV8 = lazy(() => import('./mfa/pages/MFADeviceCreateDemoV8'));
 const MobileRegistrationDocsPageV8 = lazy(() =>
-	import('./v8/pages/MobileRegistrationDocsPageV8').then((m) => ({
+	import('./mfa/pages/MobileRegistrationDocsPageV8').then((m) => ({
 		default: m.MobileRegistrationDocsPageV8,
 	}))
 );
-const UnifiedCredentialsMockupV8 = lazy(() => import('./v8/pages/UnifiedCredentialsMockupV8'));
+const UnifiedCredentialsMockupV8 = lazy(() => import('./mfa/pages/UnifiedCredentialsMockupV8'));
 
 // V8MTokenExchange archived — token-exchange-v7 route now redirects to v9
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';

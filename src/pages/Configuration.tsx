@@ -30,7 +30,7 @@ import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService
 import { V9_COLORS } from '../platform/V9ColorStandards';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
 
 // MDI Icon Component for React Icons migration
 const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-with open('src/v8/flows/shared/MFAConfigurationStepV8.tsx') as f:
+with open('src/mfa/flows/shared/MFAConfigurationStepV8.tsx') as f:
     src = f.read()
 
 # Find the require lines to fix
@@ -34,6 +34,6 @@ print(f"\nTotal fixed: {count}")
 remaining = src.count("require('@/v8/services/mfaConfigurationServiceV8')")
 print(f"require() occurrences remaining: {remaining}")
 
-with open('src/v8/flows/shared/MFAConfigurationStepV8.tsx', 'w') as f:
+with open('src/mfa/flows/shared/MFAConfigurationStepV8.tsx', 'w') as f:
     f.write(src)
 print("Written.")

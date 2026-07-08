@@ -16,8 +16,8 @@ const __dirname = path.dirname(__filename);
 // Define the specific files for each Production app
 const productionAppFiles = {
   'mfa-feature-flags': [
-    'src/v8/pages/MFAFeatureFlagsAdminPageV8.tsx',
-    'src/v8/services/mfaFeatureFlagsServiceV8.ts'
+    'src/mfa/pages/MFAFeatureFlagsAdminPageV8.tsx',
+    'src/mfa/services/mfaFeatureFlagsServiceV8.ts'
   ],
   'api-status': [
     'src/pages/api-status/ApiStatusPage.tsx'
@@ -27,7 +27,7 @@ const productionAppFiles = {
     'src/v8u/services/flowComparisonService.ts'
   ],
   'resources-api': [
-    'src/v8/pages/ResourcesAPIPageV8.tsx'
+    'src/mfa/pages/ResourcesAPIPageV8.tsx'
   ],
   'spiffe-spire': [
     'src/v8u/pages/SPIFFESpirePageV8U.tsx',
@@ -38,8 +38,8 @@ const productionAppFiles = {
     'src/services/postmanCollectionService.ts'
   ],
   'unified-mfa': [
-    'src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx',
-    'src/v8/services/mfaServiceV8.ts'
+    'src/mfa/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx',
+    'src/mfa/services/mfaServiceV8.ts'
   ],
   'unified-oauth': [
     'src/v8u/pages/UnifiedOAuthPageV8U.tsx',
@@ -47,7 +47,7 @@ const productionAppFiles = {
     'src/v8u/services/unifiedOAuthCredentialsServiceV8U.ts'
   ],
   'delete-devices': [
-    'src/v8/pages/DeleteAllDevicesUtilityV8.tsx'
+    'src/mfa/pages/DeleteAllDevicesUtilityV8.tsx'
   ],
   'enhanced-state': [
     'src/v8u/pages/EnhancedStateManagementPageV8U.tsx'

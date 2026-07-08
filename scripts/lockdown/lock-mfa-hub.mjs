@@ -33,24 +33,24 @@ const DEPS_DIR = join(LOCKED_DIR, 'dependencies');
 const MANIFEST_PATH = join(LOCKED_DIR, 'manifest.json');
 
 // MFA Hub feature files to lock
-const HUB_FILES = ['src/v8/flows/MFAHubV8.tsx'];
+const HUB_FILES = ['src/mfa/flows/MFAHubV8.tsx'];
 
 // Critical dependencies to lock
 const CRITICAL_DEPS = [
 	// Services
-	'src/v8/services/credentialsServiceV8.ts',
-	'src/v8/services/mfaConfigurationServiceV8.ts',
-	'src/v8/services/workerTokenServiceV8.ts',
-	'src/v8/services/workerTokenStatusServiceV8.ts',
+	'src/mfa/services/credentialsServiceV8.ts',
+	'src/mfa/services/mfaConfigurationServiceV8.ts',
+	'src/mfa/services/workerTokenServiceV8.ts',
+	'src/mfa/services/workerTokenStatusServiceV8.ts',
 	// Components
-	'src/v8/components/MFAHeaderV8.tsx',
-	'src/v8/components/WorkerTokenGaugeV8.tsx',
-	'src/v8/components/WorkerTokenModalV8.tsx',
+	'src/mfa/components/MFAHeaderV8.tsx',
+	'src/mfa/components/WorkerTokenGaugeV8.tsx',
+	'src/mfa/components/WorkerTokenModalV8.tsx',
 	// Hooks
-	'src/v8/hooks/useApiDisplayPadding.ts',
+	'src/mfa/hooks/useApiDisplayPadding.ts',
 	// Utils
-	'src/v8/utils/workerTokenModalHelperV8.ts',
-	'src/v8/utils/toastNotificationsV8.ts',
+	'src/mfa/utils/workerTokenModalHelperV8.ts',
+	'src/mfa/utils/toastNotificationsV8.ts',
 	// Shared services (postman generator)
 	'src/services/postmanCollectionGeneratorV8.ts',
 	'src/services/pingOneLogoutService.ts',
@@ -175,7 +175,7 @@ function lockMfaHub(dryRun = false) {
 			continue;
 		}
 
-		const relativePath = relative(join(PROJECT_ROOT, 'src/v8/flows'), srcPath);
+		const relativePath = relative(join(PROJECT_ROOT, 'src/mfa/flows'), srcPath);
 		const destPath = join(FEATURE_DIR, relativePath);
 
 		if (!dryRun) {

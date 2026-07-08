@@ -15,10 +15,10 @@ import PageLayoutService from '../services/pageLayoutService';
 import { lookupPingOneUser } from '../services/pingOneUserProfileService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
-import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
-import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
-import { UserSearchDropdownV8 } from '../v8/components/UserSearchDropdownV8';
-import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import { ShowTokenConfigCheckboxV8 } from '../mfa/components/ShowTokenConfigCheckboxV8';
+import { SilentApiConfigCheckboxV8 } from '../mfa/components/SilentApiConfigCheckboxV8';
+import { UserSearchDropdownV8 } from '../mfa/components/UserSearchDropdownV8';
+import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
 
 interface PingOneConsentRecord {
 	id?: string;

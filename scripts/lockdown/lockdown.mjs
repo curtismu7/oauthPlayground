@@ -24,24 +24,24 @@ const PROJECT_ROOT = join(__dirname, '../..');
 
 const FLOW_CONFIGS = {
 	sms: {
-		manifest: 'src/v8/lockdown/sms/manifest.json',
-		snapshotDir: 'src/v8/lockdown/sms/snapshot',
+		manifest: 'src/mfa/lockdown/sms/manifest.json',
+		snapshotDir: 'src/mfa/lockdown/sms/snapshot',
 	},
 	fido2: {
-		manifest: 'src/v8/lockdown/fido2/manifest.json',
-		snapshotDir: 'src/v8/lockdown/fido2/snapshot',
+		manifest: 'src/mfa/lockdown/fido2/manifest.json',
+		snapshotDir: 'src/mfa/lockdown/fido2/snapshot',
 	},
 	email: {
-		manifest: 'src/v8/lockdown/email/manifest.json',
-		snapshotDir: 'src/v8/lockdown/email/snapshot',
+		manifest: 'src/mfa/lockdown/email/manifest.json',
+		snapshotDir: 'src/mfa/lockdown/email/snapshot',
 	},
 	whatsapp: {
-		manifest: 'src/v8/lockdown/whatsapp/manifest.json',
-		snapshotDir: 'src/v8/lockdown/whatsapp/snapshot',
+		manifest: 'src/mfa/lockdown/whatsapp/manifest.json',
+		snapshotDir: 'src/mfa/lockdown/whatsapp/snapshot',
 	},
 	'success-page': {
-		manifest: 'src/v8/lockdown/success-page/manifest.json',
-		snapshotDir: 'src/v8/lockdown/success-page/snapshot',
+		manifest: 'src/mfa/lockdown/success-page/manifest.json',
+		snapshotDir: 'src/mfa/lockdown/success-page/snapshot',
 	},
 };
 

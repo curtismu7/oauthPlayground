@@ -100,7 +100,7 @@ const HybridCallback: React.FC = () => {
 				// #region agent log - Use safe analytics fetch
 				(async () => {
 					try {
-						const { log } = await import('@/v8/utils/analyticsHelperV8');
+						const { log } = await import('@/mfa/utils/analyticsHelperV8');
 						await log(
 							'HybridCallback.tsx:99',
 							'BEFORE parsing - raw URL components',
@@ -128,7 +128,7 @@ const HybridCallback: React.FC = () => {
 				// #region agent log - Use safe analytics fetch
 				(async () => {
 					try {
-						const { log } = await import('@/v8/utils/analyticsHelperV8');
+						const { log } = await import('@/mfa/utils/analyticsHelperV8');
 						await log(
 							'HybridCallback.tsx:105',
 							'AFTER extracting fragment',

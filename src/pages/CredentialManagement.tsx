@@ -9,7 +9,7 @@ import { FiAlertCircle, FiCheckCircle, FiXCircle } from '../icons';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { logger } from '../utils/logger';
-import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
 
 const styles = {
 	container: {

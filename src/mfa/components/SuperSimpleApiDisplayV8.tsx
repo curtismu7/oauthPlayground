@@ -1,0 +1,2976 @@
+/**
+ * @file SuperSimpleApiDisplayV8.tsx
+ * @module v8/components
+ * @description Super compact table-based API display with expandable details
+ * @version 8.0.0
+ * @since 2024-11-19
+ *
+ * Features:
+ * - Compact table view of all API calls
+ * - Red/Green status dots
+ * - Click to expand for full details
+ * - Shows only PingOne API calls
+ *
+ * @example
+ * <SuperSimpleApiDisplayV8 />
+ */
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useServerHealth } from '@/hooks/useServerHealth';
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { apiDisplayServiceV8 } from '@/mfa/services/apiDisplayServiceV8';
+
+import { logger } from '../../utils/logger';
+
+const MODULE_TAG = '[ SUPER-SIMPLE-API-V8]';
+
+// Debug gate + lightweight dedupe for console noise
+const getApiDisplayDebug = (): boolean => {
+	try {
+		return localStorage.getItem('debug.apiDisplay') === 'true';
+	} catch {
+		return false;
+	}
+};
+
+let __lastDebugKey: string | null = null;
+let __lastDebugTs = 0;
+const debugLog = (label: string, data?: Record<string, unknown>) => {
+	if (!getApiDisplayDebug()) return;
+	const key = `${label}|${data?.url ?? ''}|${data?.actualPingOneUrl ?? ''}`;
+	const now = Date.now();
+	// Skip duplicates within 2000ms
+	if (key === __lastDebugKey && now - __lastDebugTs < 2000) return;
+	__lastDebugKey = key;
+	__lastDebugTs = now;
+	logger.info(label, data);
+};
+
+interface ApiCall {
+	id: string;
+	method: string;
+	url: string;
+	headers?: Record<string, string>;
+	body?: unknown;
+	response?:
+		| {
+				status: number;
+				data?: unknown;
+		  }
+		| undefined;
+	timestamp: number;
+	actualPingOneUrl?: string;
+	isProxy?: boolean;
+}
+
+type FlowFilter = 'unified' | 'mfa' | 'spiffe-spire' | 'all';
+
+type ProcessedApiCall = ApiCall & {
+	statusColor: string;
+	methodColor: string;
+	apiType: { icon: string; label: string };
+	hasHeaders: boolean;
+	hasBody: boolean;
+	hasResponse: boolean;
+	headersText: string;
+	bodyText: string;
+	responseText: string;
+};
+
+interface PopOutWindow extends Window {
+	processedCalls?: ProcessedApiCall[];
+	initialFontSize?: number;
+	initialShowP1Only?: boolean;
+	initialFlowFilter?: FlowFilter;
+	initialExcludePatterns?: string[];
+	initialIncludePatterns?: string[];
+}
+
+/**
+ * Safe JSON stringify that won't throw on circular structures.
+ * Falls back to String(value) when needed.
+ */
+const safeStringify = (value: unknown, space = 2): string => {
+	try {
+		const seen = new WeakSet<object>();
+		return JSON.stringify(
+			value,
+			(_key, val) => {
+				if (typeof val === 'object' && val !== null) {
+					if (seen.has(val as object)) return '[Circular]';
+					seen.add(val as object);
+				}
+				return val;
+			},
+			space
+		);
+	} catch {
+		try {
+			return String(value);
+		} catch {
+			return '';
+		}
+	}
+};
+
+// Pre-process the data to avoid complex JavaScript in the popout HTML and to ensure
+// postMessage updates keep the same shape the popout renderer expects.
+const processApiCallsForDisplay = (
+	apiCalls: ApiCall[],
+	getApiTypeIcon: (call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean }) => {
+		icon: string;
+		label: string;
+	}
+): ProcessedApiCall[] => {
+	return apiCalls.map((call) => {
+		const status = call.response?.status || 0;
+		const statusColor =
+			status >= 200 && status < 300 ? '#10b981' : status >= 400 ? '#ef4444' : '#f59e0b';
+		const methodColor =
+			call.method === 'GET'
+				? '#3b82f6'
+				: call.method === 'POST'
+					? '#10b981'
+					: call.method === 'DELETE'
+						? '#ef4444'
+						: '#6b7280';
+		const apiType = getApiTypeIcon(call);
+		const hasHeaders =
+			!!call.headers && typeof call.headers === 'object' && Object.keys(call.headers).length > 0;
+		const hasBody =
+			!!call.body &&
+			typeof call.body === 'object' &&
+			Object.keys(call.body as Record<string, unknown>).length > 0;
+		const hasResponse = call.response?.data !== undefined && call.response.data !== null;
+
+		const headersText = hasHeaders ? safeStringify(call.headers, 2) : '';
+		const bodyText = hasBody
+			? typeof call.body === 'string'
+				? call.body
+				: safeStringify(call.body, 2)
+			: '';
+		const responseText = hasResponse ? safeStringify(call.response?.data, 2) : '';
+
+		return {
+			...call,
+			statusColor,
+			methodColor,
+			apiType,
+			hasHeaders,
+			hasBody,
+			hasResponse,
+			headersText,
+			bodyText,
+			responseText,
+		};
+	});
+};
+
+// Helper function to create fully functional pop-out window
+const createPopOutWindow = (
+	apiCalls: ApiCall[],
+	fontSize: number,
+	_onFontSizeChange: (newSize: number) => void, // Unused - font size changes are handled via postMessage
+	flowFilter: FlowFilter,
+	excludePatterns: string[],
+	includePatterns: string[],
+	showP1Only: boolean
+): Window | null => {
+	const width = 1400;
+	const height = 900;
+	const left = (window.screen.width - width) / 2;
+	const top = (window.screen.height - height) / 2;
+	const newWindow = window.open(
+		'',
+		'apiDisplay',
+		`width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+	);
+
+	if (!newWindow) return null;
+
+	// Helper function for API type icons
+	const getApiTypeIcon = (call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean }) => {
+		const url = call.url || '';
+		const isProxy = call.isProxy || (call.actualPingOneUrl && url.includes('/pingone-auth/'));
+
+		if (isProxy) {
+			return { icon: '', label: 'PingOne API (Proxy)' };
+		}
+
+		if (url.includes('/pingone-auth/')) {
+			return { icon: '', label: 'PingOne Auth API' };
+		}
+
+		if (url.includes('/pingone/')) {
+			return { icon: '', label: 'PingOne API' };
+		}
+
+		return { icon: '', label: 'External API' };
+	};
+
+	const processedCalls = processApiCallsForDisplay(apiCalls, getApiTypeIcon);
+
+	// Create a fully functional HTML page with JavaScript
+	const html = `<!DOCTYPE html>
+<html>
+<head>
+	<title>API Display - Pop Out</title>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		body {
+			font-family: monospace;
+			background: white;
+			overflow: hidden;
+		}
+		.expanded-row { background: #f9fafb !important; }
+		.expanded-row td { padding: 12px !important; }
+		.copy-btn { 
+			padding: 2px 6px; 
+			background: #e5e7eb; 
+			color: #374151; 
+			border: none; 
+			border-radius: 3px; 
+			font-size: 9px; 
+			cursor: pointer; 
+			font-weight: 600;
+		}
+		.copy-btn:hover { background: #d1d5db; }
+		.copy-btn.copied { background: #10b981; color: white; }
+		.json-display {
+			background: white;
+			padding: 12px;
+			border-radius: 4px;
+			font-size: 12px;
+			overflow-x: auto;
+			max-height: min(50vh, 600px);
+			overflow-y: auto;
+			min-height: 100px;
+		}
+		pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+	</style>
+</head>
+<body>
+		<div id="root"></div>
+		<script>
+		(function() {
+			let currentApiCalls = window.processedCalls || [];
+			let currentFontSize = window.initialFontSize || 12;
+			let expandedIds = new Set();
+			let copiedField = null;
+			let showP1OnlyFilter = window.initialShowP1Only || false;
+			const flowFilter = window.initialFlowFilter || 'all';
+			const excludePatterns = window.initialExcludePatterns || [];
+			const includePatterns = window.initialIncludePatterns || [];
+
+			function getStatusDot(status) {
+				if (!status) return '⚪';
+				if (status >= 200 && status < 300) return '';
+				return '';
+			}
+
+			function getStatusLabel(status) {
+				if (!status) return '';
+				
+				const statusMap = {
+					200: 'success',
+					201: 'created',
+					202: 'accepted',
+					204: 'no-content',
+					301: 'moved',
+					302: 'found',
+					304: 'not-modified',
+					400: 'bad-request',
+					401: 'unauthorized',
+					403: 'forbidden',
+					404: 'not-found',
+					405: 'method-not-allowed',
+					409: 'conflict',
+					422: 'unprocessable',
+					429: 'too-many-requests',
+					500: 'server-error',
+					502: 'bad-gateway',
+					503: 'unavailable',
+					504: 'gateway-timeout',
+				};
+
+				// Check exact match first
+				if (statusMap[status]) {
+					return statusMap[status];
+				}
+
+				// Fallback to ranges
+				if (status >= 200 && status < 300) return 'success';
+				if (status >= 300 && status < 400) return 'redirect';
+				if (status >= 400 && status < 500) return 'client-error';
+				if (status >= 500) return 'server-error';
+
+				return 'unknown';
+			}
+
+			function isProxyCall(call) {
+				const url = call.url || '';
+				const actualUrl = call.actualPingOneUrl || url;
+				
+				// If isProxy is explicitly set, use that (backend calls set this correctly)
+				if (typeof call.isProxy === 'boolean') {
+					return call.isProxy;
+				}
+				
+				// A proxy call is one where url starts with /api/pingone/ or /api/ (when it's not a direct URL)
+				// Direct PingOne URLs (standard or custom domain) don't start with /api/
+				// Check both url and actualPingOneUrl for direct URLs
+				const isDirectStandardUrl = (url.includes('pingone.com') || url.includes('auth.pingone')) && !url.startsWith('/api/');
+				const isDirectCustomUrl = actualUrl && actualUrl.startsWith('https://') && !actualUrl.startsWith('/api/') && !url.startsWith('/api/');
+				const isDirectPingOneUrl = isDirectStandardUrl || isDirectCustomUrl;
+				
+				// If it's a direct PingOne URL (standard or custom domain), it's not a proxy
+				if (isDirectPingOneUrl) {
+					return false;
+				}
+				
+				// Otherwise, check if it starts with /api/pingone/ or /api/
+				const isProxyUrl = url.startsWith('/api/pingone/') || url.startsWith('/api/');
+				return isProxyUrl;
+			}
+
+			function getApiTypeIcon(call) {
+				const url = call.url || '';
+				const isProxy = isProxyCall(call);
+				
+				// Check if it's an admin/worker token API call
+			}
+			
+			// Helper function to escape text for JavaScript strings
+			function escapeForJsString(text) {
+				// JSON.stringify will properly escape all special characters
+				// Remove the surrounding quotes that JSON.stringify adds
+				return JSON.stringify(text).slice(1, -1);
+			}
+
+			// Helper functions for display
+			function getStatusDot(status) {
+				if (status >= 200 && status < 300) return '';
+				if (status >= 400) return '';
+				return '';
+			}
+
+			function getStatusLabel(status) {
+				if (status >= 200 && status < 300) return 'OK';
+				if (status >= 400 && status < 500) return 'Client Error';
+				if (status >= 500) return 'Server Error';
+				return 'Pending';
+			}
+
+			function isProxyCall(call) {
+				return call.url && call.url.includes('/pingone-auth/') && call.actualPingOneUrl;
+			}
+
+			function getShortUrl(call) {
+				const displayUrl = call.actualPingOneUrl || call.url;
+				
+				// Handle base64 image data URLs - show as text, not render as image
+				if (displayUrl.startsWith('data:image/')) {
+					return '[Image Data: ' + displayUrl.substring(0, 30) + '...' + displayUrl.substring(displayUrl.lastIndexOf(',')) + ']';
+				}
+				
+				if (displayUrl.length > 60) {
+					return displayUrl.substring(0, 30) + '...' + displayUrl.substring(displayUrl.length - 25);
+				}
+				return displayUrl;
+			}
+
+			// Debug: Log that JavaScript is loading (console available in popout; logger is not)
+			if (typeof console !== 'undefined') {
+				console.log('Popout window JavaScript loading...', 'Processed calls available:', !!window.processedCalls, 'count:', window.processedCalls?.length || 0);
+			}
+
+			// Fallback: Use inline data if window.processedCalls is not available
+			if (!window.processedCalls) {
+				window.processedCalls = [];
+			}
+
+			function escapeHtml(text) {
+				const div = document.createElement('div');
+				div.textContent = text == null ? '' : String(text);
+				return div.innerHTML;
+			}
+
+			function encodeCopyText(text) {
+				return encodeURIComponent(text == null ? '' : String(text));
+			}
+
+			function matchesAnyPattern(text, patterns) {
+				return patterns.some(function(pattern) {
+					return text.includes(pattern);
+				});
+			}
+
+			function shouldIncludeCall(call) {
+				const rawUrl = call.url || '';
+				const actualUrl = call.actualPingOneUrl || rawUrl;
+				const isPingOne =
+					actualUrl.includes('pingone.com') ||
+					actualUrl.includes('auth.pingone') ||
+					rawUrl.includes('/api/pingone/');
+
+				if (showP1OnlyFilter && !isPingOne) {
+					return false;
+				}
+
+				if (flowFilter === 'unified') {
+					if (actualUrl.includes('/mfa/') || actualUrl.includes('/devices')) {
+						return false;
+					}
+				} else if (flowFilter === 'mfa') {
+					if (!actualUrl.includes('/mfa/') && !actualUrl.includes('/devices')) {
+						return false;
+					}
+				} else if (flowFilter === 'spiffe-spire') {
+					if (!actualUrl.includes('spiffe') && !actualUrl.includes('spire')) {
+						return false;
+					}
+				}
+
+				if (excludePatterns.length > 0 && matchesAnyPattern(actualUrl, excludePatterns)) {
+					return false;
+				}
+
+				if (includePatterns.length > 0 && !matchesAnyPattern(actualUrl, includePatterns)) {
+					return false;
+				}
+
+				return true;
+			}
+
+			function render() {
+				const root = document.getElementById('root');
+				if (!root) return;
+
+				const filteredCalls = (currentApiCalls || []).filter(shouldIncludeCall);
+				const rowsHtml = filteredCalls
+					.map(function(call) {
+						const callId = call.id || '';
+						const status = call.response && call.response.status ? call.response.status : 0;
+						const statusDot = getStatusDot(status);
+						const statusLabel = getStatusLabel(status);
+						const methodColor = call.methodColor || '#6b7280';
+						const apiType = call.apiType || { icon: '', label: '' };
+						const shortUrl = escapeHtml(getShortUrl(call));
+						const isExpanded = expandedIds.has(callId);
+						const headersText = call.headersText || '';
+						const bodyText = call.bodyText || '';
+						const responseText = call.responseText || '';
+
+						const headerSection =
+							headersText
+								? '<div style="margin-bottom: 10px;">' +
+								  '<strong>Headers</strong> ' +
+								  '<button class="copy-btn" data-copy-text="' +
+								  encodeCopyText(headersText) +
+								  '" style="padding: 2px 6px; background: #e5e7eb; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: 11px;">Copy</button>' +
+								  '<div class="json-display" style="background: white; border: 1px solid #e5e7eb; border-radius: 4px; padding: 8px; margin-top: 4px;"><pre style="margin: 0; font-family: monospace; font-size: 11px; white-space: pre-wrap; word-wrap: break-word;">' +
+								  escapeHtml(headersText) +
+								  '</pre></div>' +
+								  '</div>'
+								: '';
+
+						const bodySection =
+							bodyText
+								? '<div style="margin-bottom: 10px;">' +
+								  '<strong>Body</strong> ' +
+								  '<button class="copy-btn" data-copy-text="' +
+								  encodeCopyText(bodyText) +
+								  '" style="padding: 2px 6px; background: #e5e7eb; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: 11px;">Copy</button>' +
+								  '<div class="json-display" style="background: white; border: 1px solid #e5e7eb; border-radius: 4px; padding: 8px; margin-top: 4px;"><pre style="margin: 0; font-family: monospace; font-size: 11px; white-space: pre-wrap; word-wrap: break-word;">' +
+								  escapeHtml(bodyText) +
+								  '</pre></div>' +
+								  '</div>'
+								: '';
+
+						const responseSection =
+							responseText
+								? '<div style="margin-bottom: 10px;">' +
+								  '<strong>Response</strong> ' +
+								  '<button class="copy-btn" data-copy-text="' +
+								  encodeCopyText(responseText) +
+								  '" style="padding: 2px 6px; background: #e5e7eb; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: 11px;">Copy</button>' +
+								  '<div class="json-display" style="background: white; border: 1px solid #e5e7eb; border-radius: 4px; padding: 8px; margin-top: 4px;"><pre style="margin: 0; font-family: monospace; font-size: 11px; white-space: pre-wrap; word-wrap: break-word;">' +
+								  escapeHtml(responseText) +
+								  '</pre></div>' +
+								  '</div>'
+								: '';
+
+						const expandedRow =
+							isExpanded
+								? '<tr class="expanded-row"><td colspan="4" style="padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; margin: 4px 0;">' +
+								  '<div style="max-height: 400px; overflow-y: auto;">' +
+								  headerSection +
+								  bodySection +
+								  responseSection +
+								  '</div>' +
+								  '</td></tr>'
+								: '';
+
+						return (
+							'<tr data-expand-id="' +
+							callId +
+							'">' +
+							'<td>' +
+							statusDot +
+							'</td>' +
+							'<td style="color:' +
+							methodColor +
+							'">' +
+							escapeHtml(call.method || '') +
+							'</td>' +
+							'<td>' +
+							shortUrl +
+							'</td>' +
+							'<td>' +
+							(apiType.icon ? apiType.icon + ' ' : '') +
+							escapeHtml(apiType.label || statusLabel || '') +
+							'</td>' +
+							'</tr>' +
+							expandedRow
+						);
+					})
+					.join('');
+
+				root.innerHTML =
+					'<div style="padding: 12px; font-size: ' +
+					currentFontSize +
+					'px;">' +
+					'<table style="width:100%; border-collapse: collapse;">' +
+					'<thead><tr style="text-align:left; border-bottom:1px solid #e5e7eb;">' +
+					'<th style="width:40px;">Status</th>' +
+					'<th style="width:80px;">Method</th>' +
+					'<th>URL</th>' +
+					'<th style="width:160px;">Type</th>' +
+					'</tr></thead>' +
+					'<tbody>' +
+					rowsHtml +
+					'</tbody>' +
+					'</table>' +
+					'</div>';
+
+				root.querySelectorAll('[data-expand-id]').forEach(function(row) {
+					row.addEventListener('click', function() {
+						const id = row.getAttribute('data-expand-id');
+						if (!id) return;
+						if (expandedIds.has(id)) {
+							expandedIds.delete(id);
+						} else {
+							expandedIds.add(id);
+						}
+						render();
+					});
+				});
+
+				root.querySelectorAll('.copy-btn').forEach(function(button) {
+					button.addEventListener('click', function(event) {
+						event.stopPropagation();
+						const encodedText = button.getAttribute('data-copy-text') || '';
+						const decodedText = decodeURIComponent(encodedText);
+						if (!navigator.clipboard) return;
+						navigator.clipboard
+							.writeText(decodedText)
+							.then(function() {
+								button.classList.add('copied');
+								button.textContent = 'Copied';
+								setTimeout(function() {
+									button.classList.remove('copied');
+									button.textContent = 'Copy';
+								}, 1200);
+							})
+							.catch(function() {
+								// Ignore clipboard errors
+							});
+					});
+				});
+			}
+
+			// Listen for messages from parent window
+			window.addEventListener('message', function(event) {
+				if (event.data.type === 'apiCallsUpdate') {
+					currentApiCalls = event.data.apiCalls || [];
+					render();
+				} else if (event.data.type === 'clearCalls') {
+					currentApiCalls = [];
+					expandedIds.clear();
+					render();
+				} else if (event.data.type === 'fontSizeChange') {
+					currentFontSize = event.data.fontSize || 12;
+					render();
+				} else if (event.data.type === 'showP1OnlyChange') {
+					showP1OnlyFilter = event.data.showP1Only || false;
+					render();
+				}
+			});
+
+			// Initial render
+			render();
+		})();
+	</script>
+</body>
+</html>`;
+
+	// Pass all initial data to the popout window BEFORE writing HTML
+	const popOutWindow = newWindow as PopOutWindow;
+	popOutWindow.processedCalls = processedCalls;
+	popOutWindow.initialFontSize = fontSize;
+	popOutWindow.initialShowP1Only = showP1Only;
+	popOutWindow.initialFlowFilter = flowFilter;
+	popOutWindow.initialExcludePatterns = excludePatterns;
+	popOutWindow.initialIncludePatterns = includePatterns;
+	logger.info('Popout window created with processed calls:', processedCalls.length);
+
+	newWindow.document.write(html);
+	newWindow.document.close();
+
+	return newWindow;
+};
+
+export const ApiDisplayCheckbox: React.FC = () => {
+	const [isVisible, setIsVisible] = useState(apiDisplayServiceV8.isVisible());
+	const [callCount, setCallCount] = useState(0);
+
+	useEffect(() => {
+		// Subscribe to visibility changes from service
+		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+			setIsVisible(visible);
+		});
+
+		// Update call count
+		const updateCount = () => {
+			const allCalls = apiCallTrackerService.getApiCalls();
+			const pingOneCalls = allCalls.filter((call) => {
+				const url = call.url || '';
+				return (
+					url.includes('pingone.com') ||
+					url.includes('auth.pingone') ||
+					url.includes('/api/pingone/')
+				);
+			});
+			setCallCount(pingOneCalls.length);
+		};
+
+		updateCount();
+		const interval = setInterval(updateCount, 500);
+
+		return () => {
+			clearInterval(interval);
+			unsubscribe();
+		};
+	}, []);
+
+	const handleToggle = () => {
+		apiDisplayServiceV8.toggle();
+	};
+
+	return (
+		<label
+			style={{
+				display: 'inline-flex',
+				alignItems: 'center',
+				gap: '8px',
+				padding: '0',
+				background: 'transparent',
+				border: 'none',
+				borderRadius: '0',
+				cursor: 'pointer',
+				fontSize: '14px',
+				fontWeight: '500',
+				color: '#1f2937',
+				userSelect: 'none',
+				width: '100%',
+				justifyContent: 'center',
+			}}
+		>
+			<input
+				type="checkbox"
+				checked={isVisible}
+				onChange={handleToggle}
+				style={{
+					width: '16px',
+					height: '16px',
+					cursor: 'pointer',
+					flexShrink: 0,
+				}}
+			/>
+			<span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+				 API ({callCount})
+			</span>
+		</label>
+	);
+};
+
+interface SuperSimpleApiDisplayV8Props {
+	/** Filter to only show calls from a specific flow */
+	flowFilter?: 'unified' | 'mfa' | 'spiffe-spire' | 'all';
+	/** Exclude URL patterns (e.g., ['/api/pingone/mfa/']) */
+	excludePatterns?: string[];
+	/** Include only URL patterns (e.g., ['/api/pingone/redirectless/']) */
+	includePatterns?: string[];
+	/** Reserve scroll space so bottom page buttons aren't covered by the fixed panel */
+	reserveSpace?: boolean;
+}
+
+export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = ({
+	flowFilter = 'all',
+	excludePatterns = [],
+	includePatterns = [],
+	reserveSpace = false,
+}) => {
+	// Check server health to avoid polling when server is down
+	const serverHealth = useServerHealth(30000); // Check every 30 seconds
+
+	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
+	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+	const [isVisible, setIsVisible] = useState(apiDisplayServiceV8.isVisible());
+	const [height, setHeight] = useState(300);
+	const [isResizing, setIsResizing] = useState(false);
+	const [showClearConfirm, setShowClearConfirm] = useState(false);
+	const headerRef = useRef<HTMLDivElement>(null);
+	const [headerHeight, setHeaderHeight] = useState(34);
+	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [sidebarWidth, setSidebarWidth] = useState(280);
+	const [previousCallCount, setPreviousCallCount] = useState(0);
+	const [fontSize, setFontSize] = useState(() => {
+		// Load font size from localStorage, default to 12px
+		try {
+			const saved = localStorage.getItem('apiDisplay.fontSize');
+			return saved ? parseInt(saved, 10) : 12;
+		} catch {
+			return 12;
+		}
+	});
+
+	// Measure header height dynamically
+	useEffect(() => {
+		const measureHeader = () => {
+			if (headerRef.current) {
+				const height = headerRef.current.offsetHeight;
+				setHeaderHeight(height);
+			}
+		};
+
+		// Measure on mount and when visibility changes
+		if (isVisible) {
+			measureHeader();
+			// Also measure after a short delay to account for rendering
+			const timeout = setTimeout(measureHeader, 100);
+			// Measure again after a longer delay to catch any dynamic content
+			const timeout2 = setTimeout(measureHeader, 500);
+			return () => {
+				clearTimeout(timeout);
+				clearTimeout(timeout2);
+			};
+		}
+	}, [isVisible]);
+	const [popOutWindow, setPopOutWindow] = useState<Window | null>(null);
+	const [popoutBlocked, setPopoutBlocked] = useState(false);
+	const [showP1Only, setShowP1Only] = useState(false); // Filter toggle state
+
+	// Use refs to track array props and prevent infinite loops from reference changes
+	const excludePatternsRef = useRef<string[]>(excludePatterns);
+	const includePatternsRef = useRef<string[]>(includePatterns);
+	const updateCallsRef = useRef<(() => void) | null>(null);
+
+	// Update refs only when array contents actually change, and trigger immediate update
+	useEffect(() => {
+		const excludeChanged =
+			JSON.stringify(excludePatternsRef.current) !== JSON.stringify(excludePatterns);
+		const includeChanged =
+			JSON.stringify(includePatternsRef.current) !== JSON.stringify(includePatterns);
+
+		if (excludeChanged || includeChanged) {
+			excludePatternsRef.current = excludePatterns;
+			includePatternsRef.current = includePatterns;
+			// Trigger immediate update when patterns change
+			if (updateCallsRef.current) {
+				updateCallsRef.current();
+			}
+		}
+	}, [excludePatterns, includePatterns]);
+
+	useEffect(() => {
+		// Subscribe to visibility changes from service
+		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+			setIsVisible(visible);
+		});
+		return () => unsubscribe();
+	}, []);
+
+	// Save font size to localStorage when it changes
+	useEffect(() => {
+		try {
+			localStorage.setItem('apiDisplay.fontSize', String(fontSize));
+		} catch {
+			// Ignore localStorage errors
+		}
+	}, [fontSize]);
+
+	// Helper function for API type icons (defined before useEffect to avoid temporal dead zone)
+	const getApiTypeIcon = (
+		call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean } | string
+	) => {
+		// Handle both string URL (legacy) and call object
+		const url = typeof call === 'string' ? call : call.url || '';
+		const callObj = typeof call === 'string' ? { url } : call;
+		const isProxy = isProxyCall(callObj);
+
+		// Check if it's an admin/worker token API call
+		const isAdminApi =
+			url.includes('/as/token') || // Token endpoint
+			url.includes('/users?filter=') || // User lookup
+			(url.includes('/users/') && (url.includes('/devices') || url.includes('/mfa'))) || // Device management
+			url.includes('lookup-user') || // Proxy user lookup
+			url.includes('register-device') || // Proxy device registration
+			url.includes('mfa/') || // MFA proxy endpoints
+			(url.includes('/environments/') && !url.includes('/authorize')); // Management API
+
+		// Different icons for proxy vs direct calls
+		if (isProxy) {
+			return isAdminApi
+				? { icon: '', label: 'Proxy Admin API (Worker Token)', color: '#f59e0b' }
+				: { icon: '', label: 'Proxy User API', color: '#3b82f6' };
+		}
+
+		return isAdminApi
+			? { icon: '', label: 'Admin API (Worker Token)', color: '#f59e0b' }
+			: { icon: '', label: 'User API', color: '#3b82f6' };
+	};
+
+	// Handle pop-out window close and sync API calls via postMessage
+	useEffect(() => {
+		if (popOutWindow) {
+			const checkClosed = setInterval(() => {
+				if (popOutWindow.closed) {
+					setPopOutWindow(null);
+					clearInterval(checkClosed);
+				} else {
+					// Send API calls update to pop-out window
+					try {
+						popOutWindow.postMessage(
+							{
+								type: 'apiCallsUpdate',
+								apiCalls: processApiCallsForDisplay(apiCalls, getApiTypeIcon),
+							},
+							'*'
+						);
+					} catch (error) {
+						logger.warn(`${MODULE_TAG} Failed to sync to pop-out window:`, error);
+					}
+				}
+			}, 500); // Update every 500ms for real-time sync
+			return () => clearInterval(checkClosed);
+		}
+		return undefined;
+	}, [popOutWindow, apiCalls, getApiTypeIcon]);
+
+	// Listen for font size changes and filter changes from pop-out window
+	useEffect(() => {
+		const handleMessage = (event: MessageEvent) => {
+			if (event.data.type === 'fontSizeChange') {
+				setFontSize(event.data.fontSize);
+			} else if (event.data.type === 'clearCalls') {
+				apiCallTrackerService.clearApiCalls();
+			} else if (event.data.type === 'showP1OnlyChange') {
+				setShowP1Only(event.data.showP1Only);
+			}
+		};
+		window.addEventListener('message', handleMessage);
+		return () => window.removeEventListener('message', handleMessage);
+	}, []);
+
+	// Detect sidebar width dynamically and adjust accordingly
+	useEffect(() => {
+		const updateSidebarWidth = () => {
+			// First try localStorage (where Sidebar component stores width)
+			try {
+				const saved = localStorage.getItem('sidebar.width');
+				const parsed = saved ? parseInt(saved, 10) : NaN;
+				if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) {
+					setSidebarWidth(parsed);
+					return;
+				}
+			} catch {}
+
+			// Try to find the sidebar element
+			const sidebar = document.querySelector(
+				'[class*="sidebar"], [data-testid="sidebar"], nav[role="navigation"], aside'
+			);
+			if (sidebar) {
+				const computedWidth = sidebar.getBoundingClientRect().width;
+				if (computedWidth > 0) {
+					setSidebarWidth(computedWidth);
+					return;
+				}
+			}
+
+			// Fallback to default
+			setSidebarWidth(280);
+		};
+
+		// Initial update
+		updateSidebarWidth();
+
+		// Update on window resize
+		window.addEventListener('resize', updateSidebarWidth);
+
+		// Listen for storage changes (sidebar width saved to localStorage)
+		const handleStorageChange = (e: StorageEvent) => {
+			if (e.key === 'sidebar.width') {
+				updateSidebarWidth();
+			}
+		};
+		window.addEventListener('storage', handleStorageChange);
+
+		// Poll for sidebar width changes (localStorage updates don't trigger storage event in same tab)
+		const interval = setInterval(updateSidebarWidth, 500);
+
+		// Use MutationObserver to detect sidebar DOM changes
+		const observer = new MutationObserver(updateSidebarWidth);
+		observer.observe(document.body, {
+			attributes: true,
+			childList: true,
+			subtree: true,
+			attributeFilter: ['class', 'style', 'data-sidebar-width'],
+		});
+
+		return () => {
+			window.removeEventListener('resize', updateSidebarWidth);
+			window.removeEventListener('storage', handleStorageChange);
+			clearInterval(interval);
+			observer.disconnect();
+		};
+	}, []);
+
+	// Handle resize
+	useEffect(() => {
+		if (!isResizing) return;
+
+		const handleMouseMove = (e: MouseEvent) => {
+			const newHeight = window.innerHeight - e.clientY;
+			// Min height 150px, max height 90% of window (allow pulling up almost to top)
+			const maxHeight = window.innerHeight * 0.9;
+			const clampedHeight = Math.max(150, Math.min(newHeight, maxHeight));
+			setHeight(clampedHeight);
+		};
+
+		const handleMouseUp = () => {
+			setIsResizing(false);
+		};
+
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
+
+		return () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
+		};
+	}, [isResizing]);
+
+	const updateCalls = useCallback(async () => {
+		try {
+			const allCalls = apiCallTrackerService.getApiCalls();
+
+			// Fetch backend API calls from server (only if server is online)
+			let backendCalls: ApiCall[] = [];
+			if (serverHealth.isOnline) {
+				try {
+					const response = await fetch('/api/pingone/api-calls', {
+						signal: AbortSignal.timeout(5000), // 5 second timeout
+						headers: {
+							'Cache-Control': 'no-cache',
+							Pragma: 'no-cache',
+						},
+					});
+
+					if (response.ok) {
+						const data = (await response.json()) as {
+							calls: Array<{
+								id: string;
+								method: string;
+								url: string;
+								body?: unknown;
+								response?: {
+									status: number;
+									statusText?: string;
+									headers?: Record<string, string>;
+									data?: unknown;
+								};
+								timestamp: string;
+								duration?: number;
+								source?: string;
+								isProxy?: boolean;
+							}>;
+						};
+						if (data.calls && Array.isArray(data.calls)) {
+							backendCalls = data.calls.map((call) => ({
+								id: call.id,
+								method: call.method as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
+								url: call.url,
+								body: call.body || null,
+								response: call.response
+									? {
+											status: call.response.status,
+											statusText: call.response.statusText || '',
+											headers: call.response.headers,
+											data: call.response.data,
+										}
+									: undefined,
+								timestamp: new Date(call.timestamp).getTime(),
+								duration: call.duration,
+								source: (call.source as 'frontend' | 'backend') || 'backend',
+								isProxy: call.isProxy || false,
+								// Backend calls are never proxy calls (already filtered in logPingOneApiCall)
+							}));
+						}
+					}
+				} catch (error) {
+					// Enhanced error logging for debugging
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					logger.error('[SuperSimpleApiDisplayV8] Failed to fetch API calls:', {
+						error,
+						errorMessage,
+						isConnectionError: errorMessage.includes('ERR_EMPTY_RESPONSE'),
+						isTimeout: errorMessage.includes('timeout'),
+						isAbortError: errorMessage.includes('AbortError'),
+						isNetworkError: errorMessage.includes('Failed to fetch'),
+					});
+
+					// Silently fail - backend calls are optional
+					// Ignore connection errors (ERR_CONNECTION_REFUSED, ERR_EMPTY_RESPONSE, network errors)
+					const isConnectionError =
+						errorMessage.includes('ERR_CONNECTION_REFUSED') ||
+						errorMessage.includes('ERR_EMPTY_RESPONSE') ||
+						errorMessage.includes('Failed to fetch') ||
+						errorMessage.includes('NetworkError') ||
+						errorMessage.includes('AbortError') ||
+						errorMessage.includes('timeout') ||
+						error instanceof TypeError ||
+						error instanceof DOMException;
+					// Only log non-connection errors (actual API errors, not network issues)
+					if (!isConnectionError) {
+						logger.warn(`${MODULE_TAG} Failed to fetch backend API calls:`, error);
+					}
+				}
+			}
+
+			// Merge frontend and backend calls
+			const mergedCalls = [...allCalls, ...backendCalls];
+
+			// Filter to PingOne API calls (direct or via proxy) and SPIFFE/SPIRE lab calls
+			const relevantCalls = mergedCalls
+				.filter((call) => {
+					const url = call.url || '';
+					const actualPingOneUrl = (call as { actualPingOneUrl?: string }).actualPingOneUrl || '';
+					const step = (call as { step?: string }).step;
+					const operationName = (call as { operationName?: string }).operationName;
+
+					// Debug: Log ALL calls being processed
+					debugLog(' API DISPLAY: Processing call', {
+						url,
+						actualPingOneUrl,
+						step,
+						flowType: (call as { flowType?: string }).flowType,
+						flowFilter,
+					});
+
+					// Check both url and actualPingOneUrl for PingOne API calls
+					const isPingOne =
+						url.includes('pingone.com') ||
+						url.includes('auth.pingone') ||
+						url.includes('/api/pingone/') ||
+						url.includes('/api/device-authorization') || // Device authorization proxy endpoint
+						url.includes('/api/token-exchange') || // Token exchange proxy endpoint (used by device flow)
+						url.includes('/api/client-credentials') || // Client credentials proxy endpoint
+						url.includes('/api/par') || // PAR (Pushed Authorization Request) proxy endpoint
+						url.includes('/as/device') || // Direct device authorization endpoint
+						url.includes('/as/par') || // Direct PAR endpoint
+						actualPingOneUrl.includes('pingone.com') || // Check actualPingOneUrl too
+						actualPingOneUrl.includes('auth.pingone');
+					const isSpiffeSpire = !!step && step.startsWith('spiffe-spire-');
+
+					if (!isPingOne && !isSpiffeSpire) {
+						return false;
+					}
+
+					// Flow-specific filtering
+					if (flowFilter === 'unified') {
+						// Unified flow: exclude MFA calls, include redirectless, token, authorize, etc.
+						// Explicitly exclude MFA-specific endpoints
+						if (url.includes('/api/pingone/mfa/')) {
+							return false;
+						}
+						// Include unified flow patterns (OAuth/OIDC flows)
+						const isUnifiedFlow =
+							url.includes('/api/pingone/redirectless/') ||
+							url.includes('/api/pingone/token') ||
+							url.includes('/api/pingone/authorize') ||
+							url.includes('/api/pingone/resume') ||
+							url.includes('/api/pingone/flows/') ||
+							url.includes('/api/device-authorization') || // Device authorization flow
+							url.includes('/api/token-exchange') || // Token exchange (used by device flow)
+							url.includes('/api/client-credentials') || // Client credentials flow
+							url.includes('/api/par') || // PAR (Pushed Authorization Request) flow
+							url.includes('/as/authorize') ||
+							url.includes('/as/token') ||
+							url.includes('/as/userinfo') ||
+							url.includes('/as/introspect') ||
+							url.includes('/as/revoke') ||
+							url.includes('/as/device') || // Direct device authorization endpoint
+							url.includes('/as/par') || // Direct PAR endpoint
+							step?.startsWith('unified-');
+
+						return isUnifiedFlow;
+					} else if (flowFilter === 'mfa') {
+						// MFA flow: only MFA calls (device management, challenges, etc.)
+						// Check both url, actualPingOneUrl, operationName, and step
+						return (
+							url.includes('/api/pingone/mfa/') ||
+							(actualPingOneUrl?.includes('/users/') && actualPingOneUrl.includes('/devices')) || // PingOne devices endpoint
+							(url.includes('/users/') && url.includes('/devices')) || // Direct PingOne device endpoints
+							(operationName &&
+								(operationName.includes('MFA') ||
+									operationName.includes('Device') ||
+									operationName.includes('TOTP') ||
+									operationName.includes('FIDO') ||
+									operationName.includes('SMS') ||
+									operationName.includes('EMAIL') ||
+									operationName.includes('OTP') ||
+									operationName.includes('Activate') ||
+									operationName.includes('Block') ||
+									operationName.includes('Unblock') ||
+									operationName.includes('Delete'))) ||
+							step?.startsWith('mfa-')
+						);
+					} else if (flowFilter === 'spiffe-spire') {
+						// SPIFFE/SPIRE: only SPIFFE/SPIRE calls (identified by step prefix)
+						return isSpiffeSpire;
+					}
+					// flowFilter === 'all': show all PingOne API calls (default behavior)
+
+					// Apply exclude patterns
+					if (excludePatternsRef.current.length > 0) {
+						const shouldExclude = excludePatternsRef.current.some((pattern) =>
+							url.includes(pattern)
+						);
+						if (shouldExclude) {
+							return false;
+						}
+					}
+
+					// Apply include patterns (if specified, only show matching calls)
+					if (includePatternsRef.current.length > 0) {
+						const shouldInclude = includePatternsRef.current.some((pattern) =>
+							url.includes(pattern)
+						);
+						if (!shouldInclude) {
+							return false;
+						}
+					}
+
+					return true;
+				})
+				.filter((call) => {
+					// Apply P1-only filter if enabled (filter out proxy calls)
+					if (showP1Only) {
+						const url = call.url || '';
+						// A proxy call is one where url starts with /api/pingone/ or /api/ (when it's not a direct pingone.com URL)
+						// Direct PingOne URLs contain pingone.com or auth.pingone and don't start with /api/
+						const isDirectPingOneUrl =
+							(url.includes('pingone.com') || url.includes('auth.pingone')) &&
+							!url.startsWith('/api/');
+						const isProxyUrl =
+							url.startsWith('/api/pingone/') || (url.startsWith('/api/') && !isDirectPingOneUrl);
+						// Also check the isProxy flag from backend calls
+						const isBackendProxyCall = (call as { isProxy?: boolean }).isProxy === true;
+						return !isProxyUrl && !isBackendProxyCall;
+					}
+					return true; // Show all calls if filter is off
+				})
+				.map((call) => {
+					// Keep original URL (needed for proxy detection)
+					// Store actualPingOneUrl separately for display purposes
+					const originalUrl = call.url || '';
+					const actualPingOneUrl = (call as { actualPingOneUrl?: string }).actualPingOneUrl;
+					const isProxy = (call as { isProxy?: boolean }).isProxy;
+					const callHeaders = (call as { headers?: Record<string, string> }).headers;
+
+					const apiCall: ApiCall = {
+						id: String(call.id || ''),
+						method: String(call.method || 'GET'),
+						url: String(originalUrl), // Keep original URL for proxy detection
+						body: call.body,
+						timestamp:
+							call.timestamp instanceof Date
+								? call.timestamp.getTime()
+								: new Date(call.timestamp).getTime(),
+						...(actualPingOneUrl !== undefined && { actualPingOneUrl }),
+						...(isProxy !== undefined && { isProxy }),
+						...(callHeaders && {
+							headers: callHeaders,
+						}),
+					};
+
+					if (call.response) {
+						apiCall.response = {
+							status: Number(call.response?.status) || 0,
+							data: call.response?.data,
+						};
+					}
+					return apiCall;
+				});
+
+			// Update call count when it changes
+			if (relevantCalls.length !== previousCallCount) {
+				setPreviousCallCount(relevantCalls.length);
+			}
+
+			setApiCalls(relevantCalls);
+		} catch (error) {
+			logger.error(`${MODULE_TAG} Error updating API calls:`, error);
+		}
+		// Note: excludePatterns and includePatterns are NOT in dependencies because
+		// the function uses excludePatternsRef.current and includePatternsRef.current internally.
+		// The refs are updated in a separate useEffect that triggers updateCalls when they change.
+	}, [flowFilter, showP1Only, serverHealth.isOnline, previousCallCount]);
+
+	// Store updateCalls in ref so it can be called from other effects
+	updateCallsRef.current = updateCalls;
+
+	// Subscribe to API call updates
+	useEffect(() => {
+		const unsubscribe = apiCallTrackerService.subscribe(() => {
+			updateCalls();
+		});
+
+		// Initial update
+		updateCalls();
+
+		// Poll for updates (in case subscription doesn't catch all updates)
+		// Only poll if server is online to avoid connection refused errors
+		let interval: NodeJS.Timeout | null = null;
+		if (serverHealth.isOnline) {
+			interval = setInterval(updateCalls, 1000);
+		}
+
+		return () => {
+			unsubscribe();
+			if (interval) {
+				clearInterval(interval);
+			}
+		};
+	}, [updateCalls, serverHealth.isOnline]);
+
+	const getStatusDot = (status?: number) => {
+		if (!status) {
+			return '⚪'; // Pending
+		}
+		if (status >= 200 && status < 300) {
+			return ''; // Success
+		}
+		return ''; // Error
+	};
+
+	const getStatusLabel = (status?: number): string => {
+		if (!status) return '';
+
+		const statusMap: Record<number, string> = {
+			200: 'success',
+			201: 'created',
+			202: 'accepted',
+			204: 'no-content',
+			301: 'moved',
+			302: 'found',
+			304: 'not-modified',
+			400: 'bad-request',
+			401: 'unauthorized',
+			403: 'forbidden',
+			404: 'not-found',
+			405: 'method-not-allowed',
+			409: 'conflict',
+			422: 'unprocessable',
+			429: 'too-many-requests',
+			500: 'server-error',
+			502: 'bad-gateway',
+			503: 'unavailable',
+			504: 'gateway-timeout',
+		};
+
+		// Check exact match first
+		if (statusMap[status]) {
+			return statusMap[status];
+		}
+
+		// Fallback to ranges
+		if (status >= 200 && status < 300) return 'success';
+		if (status >= 300 && status < 400) return 'redirect';
+		if (status >= 400 && status < 500) return 'client-error';
+		if (status >= 500) return 'server-error';
+
+		return 'unknown';
+	};
+
+	const isProxyCall = (call: {
+		url?: string;
+		actualPingOneUrl?: string;
+		isProxy?: boolean;
+	}): boolean => {
+		const url = call.url || '';
+
+		// If isProxy is explicitly set, use that (backend calls set this correctly)
+		if (typeof call.isProxy === 'boolean') {
+			return call.isProxy;
+		}
+
+		// A proxy call is one where url starts with /api/pingone/ or /api/ (when it's not a direct pingone.com URL)
+		// Direct PingOne URLs contain pingone.com or auth.pingone and don't start with /api/
+		const isDirectPingOneUrl =
+			(url.includes('pingone.com') || url.includes('auth.pingone')) && !url.startsWith('/api/');
+
+		// If it's a direct PingOne URL, it's not a proxy
+		if (isDirectPingOneUrl) {
+			return false;
+		}
+
+		// Otherwise, check if it starts with /api/pingone/ or /api/
+		const isProxyUrl = url.startsWith('/api/pingone/') || url.startsWith('/api/');
+		return isProxyUrl;
+	};
+
+	const _getShortUrl = (url: string) => {
+		// Handle base64 image data URLs - show as text, not render as image
+		if (url.startsWith('data:image/')) {
+			return `[Image Data: ${url.substring(0, 30)}...${url.substring(url.lastIndexOf(','))}]`;
+		}
+
+		// Remove protocol and domain for cleaner display
+		let shortUrl = url
+			.replace('https://api.pingone.com/v1/', '')
+			.replace('https://auth.pingone.com/', 'auth/')
+			.replace('/api/pingone/mfa/', 'mfa/');
+
+		// Truncate if too long
+		if (shortUrl.length > 60) {
+			shortUrl = `${shortUrl.substring(0, 57)}...`;
+		}
+
+		return shortUrl;
+	};
+
+	const toggleExpand = (id: string) => {
+		setExpandedIds((prev) => {
+			const newSet = new Set(prev);
+			if (newSet.has(id)) {
+				newSet.delete(id);
+			} else {
+				newSet.add(id);
+			}
+			return newSet;
+		});
+	};
+
+	const expandAll = () => {
+		const allIds = new Set(apiCalls.map((call) => call.id));
+		setExpandedIds(allIds);
+	};
+
+	const collapseAll = () => {
+		setExpandedIds(new Set());
+	};
+
+	const isExpanded = (id: string) => {
+		return expandedIds.has(id);
+	};
+
+	const handleCopy = async (text: string, field: string) => {
+		try {
+			await navigator.clipboard.writeText(text);
+			setCopiedField(field);
+			setTimeout(() => setCopiedField(null), 2000);
+		} catch (error) {
+			logger.error(`${MODULE_TAG} Failed to copy to clipboard:`, error);
+			// Fallback for older browsers
+			try {
+				const textArea = document.createElement('textarea');
+				textArea.value = text;
+				textArea.style.position = 'fixed';
+				textArea.style.left = '-999999px';
+				document.body.appendChild(textArea);
+				textArea.select();
+				document.execCommand('copy');
+				document.body.removeChild(textArea);
+				setCopiedField(field);
+				setTimeout(() => setCopiedField(null), 2000);
+			} catch (fallbackError) {
+				logger.error(`${MODULE_TAG} Fallback copy failed:`, fallbackError);
+			}
+		}
+	};
+
+	// Debug log
+
+	// Shared base style for header buttons (Pop Out, Expand/Collapse, Clear, Close)
+	const headerButtonBaseStyle: React.CSSProperties = {
+		padding: '3px 8px',
+		border: 'none',
+		borderRadius: '4px',
+		cursor: 'pointer',
+		fontSize: `${Math.max(8, fontSize - 2)}px`,
+		fontWeight: 600,
+		display: 'inline-flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: 4,
+		height: `${Math.max(8, fontSize - 2) * 2.6}px`,
+	};
+
+	const displayHeight = apiCalls.length === 0 ? 140 : Math.min(height, 400);
+	const reservedScrollSpace = displayHeight + 20;
+
+	return (
+		<>
+			{/* Global cursor style when resizing */}
+			{isResizing && (
+				<style>{`
+					* {
+						cursor: ns-resize !important;
+						user-select: none !important;
+					}
+				`}</style>
+			)}
+
+			{/* API Table - Toggleable and Resizable */}
+			{isVisible && (
+				<div
+					className="super-simple-api-display"
+					style={{
+						position: 'fixed',
+						bottom: '20px', // Add space from bottom to avoid covering buttons
+						left: `${sidebarWidth}px`,
+						right: '20px',
+						// Start smaller when there are no API calls so we don't hide key buttons
+						height: `${displayHeight}px`,
+						maxHeight: apiCalls.length === 0 ? '180px' : 'calc(50vh - 40px)', // Account for bottom spacing
+						background: 'white',
+						borderTop: '3px solid #10b981',
+						borderLeft: '1px solid #e5e7eb',
+						borderRight: '1px solid #e5e7eb',
+						borderRadius: '8px 8px 0 0', // Add rounded top corners
+						display: 'flex',
+						flexDirection: 'column',
+						zIndex: 100,
+						fontFamily: 'monospace',
+						fontSize: `${fontSize}px`,
+						boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.15)',
+						transition: 'left 0.3s ease',
+					}}
+				>
+					{/* Resize Handle */}
+					<div
+						role="button"
+						aria-label="Resize API calls panel"
+						tabIndex={0}
+						onMouseDown={() => setIsResizing(true)}
+						style={{
+							height: '8px',
+							background: isResizing ? '#10b981' : '#f3f4f6',
+							cursor: 'ns-resize',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							borderBottom: '1px solid #e5e7eb',
+							transition: 'background 0.2s',
+							position: 'relative',
+						}}
+						onMouseEnter={(e) => {
+							if (!isResizing) {
+								e.currentTarget.style.background = '#e5e7eb';
+							}
+						}}
+						onMouseLeave={(e) => {
+							if (!isResizing) {
+								e.currentTarget.style.background = '#f3f4f6';
+							}
+						}}
+						title="Drag to resize"
+					>
+						<div
+							style={{
+								width: '40px',
+								height: '3px',
+								background: '#9ca3af',
+								borderRadius: '2px',
+							}}
+						/>
+						<div
+							style={{
+								position: 'absolute',
+								right: '12px',
+								fontSize: '9px',
+								color: '#6b7280',
+								fontWeight: '500',
+								userSelect: 'none',
+							}}
+						>
+							↕ Drag to resize
+						</div>
+					</div>
+
+					{/* Scrollable Content */}
+					<div
+						ref={(el) => {
+							if (el) {
+								// Store ref for potential scroll operations
+							}
+						}}
+						style={{
+							flex: 1,
+							overflowY: 'auto',
+							overflowX: 'hidden',
+						}}
+					>
+						{/* Header */}
+						<div
+							ref={headerRef}
+							style={{
+								padding: '6px 12px',
+								background: '#f9fafb', // Light grey background
+								borderBottom: '1px solid #e5e7eb',
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								position: 'sticky',
+								top: 0,
+								zIndex: 2,
+							}}
+						>
+							<div style={{ color: '#10b981', fontWeight: 'bold', fontSize: `${fontSize}px` }}>
+								 API Calls ({apiCalls.length})
+							</div>
+							<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+								{/* Font Size Controls */}
+								<div
+									style={{
+										display: 'flex',
+										gap: '4px',
+										alignItems: 'center',
+										marginRight: '8px',
+										padding: '2px 6px',
+										background: '#e5e7eb',
+										borderRadius: '4px',
+									}}
+								>
+									<button
+										type="button"
+										onClick={() => setFontSize((prev) => Math.max(8, prev - 1))}
+										style={{
+											padding: '2px 6px',
+											background: 'white',
+											color: '#374151',
+											border: '1px solid #d1d5db',
+											borderRadius: '3px',
+											cursor: 'pointer',
+											fontSize: `${Math.max(8, fontSize - 2)}px`,
+											fontWeight: '600',
+										}}
+										title="Decrease font size"
+									>
+										−
+									</button>
+									<span
+										style={{
+											fontSize: `${Math.max(8, fontSize - 2)}px`,
+											color: '#6b7280',
+											minWidth: '24px',
+											textAlign: 'center',
+										}}
+									>
+										{fontSize}px
+									</span>
+									<button
+										type="button"
+										onClick={() => setFontSize((prev) => Math.min(24, prev + 1))}
+										style={{
+											padding: '2px 6px',
+											background: 'white',
+											color: '#374151',
+											border: '1px solid #d1d5db',
+											borderRadius: '3px',
+											cursor: 'pointer',
+											fontSize: `${Math.max(8, fontSize - 2)}px`,
+											fontWeight: '600',
+										}}
+										title="Increase font size"
+									>
+										+
+									</button>
+								</div>
+								{/* Pop Out Button */}
+								<button
+									type="button"
+									onClick={() => {
+										if (popOutWindow && !popOutWindow.closed) {
+											popOutWindow.focus();
+											return;
+										}
+										const newWindow = createPopOutWindow(
+											apiCalls,
+											fontSize,
+											(newSize) => setFontSize(newSize),
+											flowFilter,
+											excludePatterns,
+											includePatterns,
+											showP1Only
+										);
+										if (newWindow) {
+											setPopOutWindow(newWindow);
+											setPopoutBlocked(false);
+										} else {
+											setPopoutBlocked(true);
+										}
+									}}
+									style={{
+										...headerButtonBaseStyle,
+										background: '#8b5cf6',
+										color: 'white',
+									}}
+									title="Open API display in new window"
+								>
+									 Pop Out
+								</button>
+								{popoutBlocked && (
+									<div style={{ marginTop: 8, color: '#b91c1c', fontSize: 12 }} role="alert">
+										Popup blocked — allow popups for this site to use the API Display popout.
+									</div>
+								)}
+								{apiCalls.length > 0 && (
+									<>
+										<button
+											type="button"
+											onClick={() => setShowP1Only(!showP1Only)}
+											style={{
+												...headerButtonBaseStyle,
+												background: showP1Only ? '#10b981' : '#6b7280',
+												color: 'white',
+											}}
+											title={
+												showP1Only
+													? 'Show all calls (including proxy)'
+													: 'Show only P1 calls (filter proxy)'
+											}
+										>
+											{showP1Only ? ' P1 Only' : ' All Calls'}
+										</button>
+										<button
+											type="button"
+											onClick={expandAll}
+											style={{
+												...headerButtonBaseStyle,
+												background: expandedIds.size === apiCalls.length ? '#10b981' : '#3b82f6',
+												color: 'white',
+											}}
+											title="Expand all API calls"
+										>
+											▼ Expand All
+										</button>
+										<button
+											type="button"
+											onClick={collapseAll}
+											style={{
+												...headerButtonBaseStyle,
+												background: expandedIds.size === 0 ? '#6b7280' : '#3b82f6',
+												color: 'white',
+											}}
+											title="Collapse all API calls"
+										>
+											▲ Collapse All
+										</button>
+									</>
+								)}
+								<button
+									type="button"
+									onClick={() => setShowClearConfirm(true)}
+									style={{
+										...headerButtonBaseStyle,
+										background: '#ef4444',
+										color: 'white',
+									}}
+									title="Clear all API calls"
+								>
+									Clear
+								</button>
+								<button
+									type="button"
+									onClick={() => apiDisplayServiceV8.hide()}
+									style={{
+										...headerButtonBaseStyle,
+										background: '#6b7280',
+										color: 'white',
+									}}
+									title="Close API calls panel"
+								>
+									✕ Close
+								</button>
+							</div>
+						</div>
+
+						{/* Table */}
+						<div
+							style={{
+								overflowX: 'auto',
+								width: '100%',
+								maxWidth: '100%',
+							}}
+						>
+							<table
+								style={{
+									width: '100%',
+									borderCollapse: 'collapse',
+									minWidth: '600px',
+								}}
+							>
+								<thead
+									style={{
+										background: '#f3f4f6',
+										position: 'sticky',
+										top: `${headerHeight}px`,
+										zIndex: 1,
+									}}
+								>
+									<tr>
+										<th
+											style={{
+												padding: '6px 12px',
+												textAlign: 'center',
+												color: '#374151',
+												fontWeight: '600',
+												width: '50px',
+												borderBottom: '1px solid #e5e7eb',
+												fontSize: `${fontSize}px`,
+											}}
+										>
+											Type
+										</th>
+										<th
+											style={{
+												padding: '6px 12px',
+												textAlign: 'left',
+												color: '#374151',
+												fontWeight: '600',
+												width: '50px',
+												borderBottom: '1px solid #e5e7eb',
+												fontSize: `${fontSize}px`,
+											}}
+										>
+											Status
+										</th>
+										<th
+											style={{
+												padding: '6px 12px',
+												textAlign: 'left',
+												color: '#374151',
+												fontWeight: '600',
+												width: '80px',
+												borderBottom: '1px solid #e5e7eb',
+												fontSize: `${fontSize}px`,
+											}}
+										>
+											Method
+										</th>
+										<th
+											style={{
+												padding: '6px 12px',
+												textAlign: 'left',
+												color: '#374151',
+												fontWeight: '600',
+												width: '60px',
+												borderBottom: '1px solid #e5e7eb',
+												fontSize: `${fontSize}px`,
+											}}
+										>
+											Code
+										</th>
+										<th
+											style={{
+												padding: '6px 12px',
+												textAlign: 'left',
+												color: '#374151',
+												fontWeight: '600',
+												borderBottom: '1px solid #e5e7eb',
+												fontSize: `${fontSize}px`,
+											}}
+										>
+											URL
+										</th>
+										<th
+											style={{
+												padding: '6px 12px',
+												textAlign: 'left',
+												color: '#374151',
+												fontWeight: '600',
+												width: '100px',
+												borderBottom: '1px solid #e5e7eb',
+												fontSize: `${fontSize}px`,
+											}}
+										>
+											Time
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{apiCalls.length === 0 && (
+										<tr>
+											<td
+												colSpan={6}
+												style={{
+													padding: '40px 20px',
+													textAlign: 'center',
+													paddingTop: `${headerHeight + 40}px`,
+												}}
+											>
+												<div style={{ color: '#9ca3af', fontSize: `${fontSize + 2}px` }}>
+													<div style={{ fontSize: `${fontSize * 2.5}px`, marginBottom: '12px' }}>
+														
+													</div>
+													<div
+														style={{
+															fontWeight: '600',
+															marginBottom: '4px',
+															color: '#6b7280',
+															fontSize: `${fontSize + 2}px`,
+														}}
+													>
+														No API Calls Yet
+													</div>
+													<div style={{ fontSize: `${fontSize}px` }}>
+														API calls will appear here as you use the flow
+													</div>
+												</div>
+											</td>
+										</tr>
+									)}
+									{apiCalls.length > 0 &&
+										apiCalls.map((call, index) => {
+											const apiType = getApiTypeIcon(
+												call as { url?: string; actualPingOneUrl?: string; isProxy?: boolean }
+											);
+											return (
+												<React.Fragment key={call.id}>
+													{/* Main Row */}
+													<tr
+														onClick={() => toggleExpand(call.id)}
+														style={{
+															cursor: 'pointer',
+															background: isExpanded(call.id) ? '#f3f4f6' : 'white',
+															borderBottom: '1px solid #e5e7eb',
+														}}
+														onMouseEnter={(e) => {
+															if (!isExpanded(call.id)) {
+																e.currentTarget.style.background = '#f9fafb';
+															}
+														}}
+														onMouseLeave={(e) => {
+															if (!isExpanded(call.id)) {
+																e.currentTarget.style.background = 'white';
+															}
+														}}
+													>
+														<td
+															style={{
+																padding:
+																	index === 0
+																		? `${12 + headerHeight}px 16px 12px 16px`
+																		: '12px 16px',
+																textAlign: 'center',
+																fontSize: `${fontSize + 4}px`,
+															}}
+															title={apiType.label}
+														>
+															{apiType.icon}
+														</td>
+														<td
+															style={{
+																padding:
+																	index === 0
+																		? `${12 + headerHeight}px 16px 12px 16px`
+																		: '12px 16px',
+																fontSize: `${fontSize + 4}px`,
+															}}
+														>
+															{getStatusDot(call.response?.status)}
+														</td>
+														<td
+															style={{
+																padding:
+																	index === 0
+																		? `${12 + headerHeight}px 16px 12px 16px`
+																		: '12px 16px',
+															}}
+														>
+															<span
+																style={{
+																	padding: '3px 8px',
+																	background:
+																		call.method === 'GET'
+																			? '#3b82f6'
+																			: call.method === 'POST'
+																				? '#10b981'
+																				: call.method === 'DELETE'
+																					? '#ef4444'
+																					: call.method === 'PATCH'
+																						? '#f59e0b'
+																						: '#6b7280',
+																	color: 'white',
+																	borderRadius: '3px',
+																	fontSize: `${Math.max(8, fontSize - 2)}px`,
+																	fontWeight: 'bold',
+																}}
+															>
+																{call.method}
+															</span>
+														</td>
+														<td
+															style={{
+																padding: index === 0 ? `${12 + headerHeight}px 8px 8px 8px` : '8px',
+															}}
+														>
+															<span
+																style={{
+																	color: call.response?.status
+																		? call.response.status >= 200 && call.response.status < 300
+																			? '#10b981'
+																			: call.response.status >= 400
+																				? '#ef4444'
+																				: '#f59e0b'
+																		: '#6b7280',
+																	fontWeight: 'bold',
+																	fontSize: `${fontSize}px`,
+																}}
+															>
+																{call.response?.status
+																	? `${call.response.status} ${getStatusLabel(call.response.status)}`
+																	: '...'}
+															</span>
+														</td>
+														<td
+															style={{
+																padding:
+																	index === 0
+																		? `${12 + headerHeight}px 16px 12px 16px`
+																		: '12px 16px',
+																color: '#1f2937',
+																fontSize: `${fontSize}px`,
+															}}
+														>
+															{isProxyCall(call) && (
+																<span
+																	style={{
+																		padding: '1px 4px',
+																		background: '#374151',
+																		color: '#9ca3af',
+																		borderRadius: '2px',
+																		fontSize: '9px',
+																		marginRight: '6px',
+																	}}
+																>
+																	PROXY
+																</span>
+															)}
+															{_getShortUrl(call.actualPingOneUrl || call.url)}
+														</td>
+														<td
+															style={{
+																padding:
+																	index === 0
+																		? `${12 + headerHeight}px 16px 12px 16px`
+																		: '12px 16px',
+																color: '#6b7280',
+																fontSize: `${fontSize}px`,
+															}}
+														>
+															{new Date(call.timestamp).toLocaleTimeString()}
+														</td>
+													</tr>
+
+													{/* Expanded Details Row */}
+													{isExpanded(call.id) && (
+														<tr key={`expanded-${call.id}`} style={{ background: '#f9fafb' }}>
+															<td
+																colSpan={6}
+																style={{
+																	padding: '12px',
+																	borderBottom: '1px solid #e5e7eb',
+																	maxWidth: '100%',
+																	overflow: 'visible',
+																}}
+															>
+																<div
+																	style={{
+																		display: 'grid',
+																		gap: '12px',
+																		maxWidth: '100%',
+																		overflow: 'visible',
+																	}}
+																>
+																	{/* API Call (Method + URL) - Quick Copy for Debugging */}
+																	<div
+																		style={{
+																			padding: '8px 12px',
+																			background: '#f3f4f6',
+																			borderRadius: '4px',
+																			border: '1px solid #e5e7eb',
+																		}}
+																	>
+																		<div
+																			style={{
+																				display: 'flex',
+																				alignItems: 'center',
+																				justifyContent: 'space-between',
+																				marginBottom: '4px',
+																			}}
+																		>
+																			<div
+																				style={{
+																					color: '#6b7280',
+																					fontSize: '10px',
+																					fontWeight: '600',
+																				}}
+																			>
+																				API CALL ({call.method}):
+																			</div>
+																			<button
+																				type="button"
+																				onClick={(e) => {
+																					e.stopPropagation();
+																					const apiCallText = `${call.method} ${(call as { actualPingOneUrl?: string }).actualPingOneUrl || call.url || ''}`;
+																					handleCopy(apiCallText, `apiCall-${call.id}`);
+																				}}
+																				style={{
+																					padding: '4px 8px',
+																					background:
+																						copiedField === `apiCall-${call.id}`
+																							? '#10b981'
+																							: '#3b82f6',
+																					color: 'white',
+																					border: 'none',
+																					borderRadius: '3px',
+																					fontSize: '10px',
+																					cursor: 'pointer',
+																					fontWeight: '600',
+																				}}
+																				title="Copy API call (method + URL) for debugging"
+																			>
+																				{copiedField === `apiCall-${call.id}`
+																					? '✓ Copied'
+																					: ' Copy API Call'}
+																			</button>
+																		</div>
+																		<div
+																			style={{
+																				color: '#1f2937',
+																				fontSize: '11px',
+																				wordBreak: 'break-all',
+																				fontFamily: 'monospace',
+																			}}
+																		>
+																			<span
+																				style={{
+																					padding: '2px 6px',
+																					background:
+																						call.method === 'GET'
+																							? '#3b82f6'
+																							: call.method === 'POST'
+																								? '#10b981'
+																								: call.method === 'DELETE'
+																									? '#ef4444'
+																									: '#6b7280',
+																					color: 'white',
+																					borderRadius: '2px',
+																					fontSize: '9px',
+																					fontWeight: 'bold',
+																					marginRight: '6px',
+																				}}
+																			>
+																				{call.method}
+																			</span>
+																			{(call as { actualPingOneUrl?: string }).actualPingOneUrl ||
+																				call.url ||
+																				''}
+																		</div>
+																	</div>
+
+																	{/* Full URL */}
+																	<div>
+																		<div
+																			style={{
+																				display: 'flex',
+																				alignItems: 'center',
+																				justifyContent: 'space-between',
+																				marginBottom: '4px',
+																			}}
+																		>
+																			<div
+																				style={{
+																					color: '#6b7280',
+																					fontSize: '10px',
+																					fontWeight: '600',
+																				}}
+																			>
+																				FULL URL:
+																			</div>
+																			<button
+																				type="button"
+																				onClick={(e) => {
+																					e.stopPropagation();
+																					handleCopy(
+																						String(
+																							(call as { actualPingOneUrl?: string })
+																								.actualPingOneUrl ||
+																								call.url ||
+																								''
+																						),
+																						`url-${call.id}`
+																					);
+																				}}
+																				style={{
+																					padding: '2px 6px',
+																					background:
+																						copiedField === `url-${call.id}`
+																							? '#10b981'
+																							: '#e5e7eb',
+																					color:
+																						copiedField === `url-${call.id}` ? 'white' : '#374151',
+																					border: 'none',
+																					borderRadius: '3px',
+																					fontSize: '9px',
+																					cursor: 'pointer',
+																					fontWeight: '600',
+																				}}
+																				title="Copy full URL"
+																			>
+																				{copiedField === `url-${call.id}` ? '✓ Copied' : ' Copy'}
+																			</button>
+																		</div>
+																		<div
+																			style={{
+																				color: '#2563eb',
+																				fontSize: '11px',
+																				wordBreak: 'break-all',
+																			}}
+																		>
+																			{String(
+																				(call as { actualPingOneUrl?: string }).actualPingOneUrl ||
+																					call.url ||
+																					''
+																			)}
+																		</div>
+																	</div>
+
+																	{/* Request Headers */}
+																	{(() => {
+																		const headers = (call as { headers?: Record<string, string> })
+																			.headers;
+
+																		if (!headers || Object.keys(headers).length === 0) {
+																			return null;
+																		}
+
+																		const headersText = JSON.stringify(headers, null, 2);
+
+																		return (
+																			<div>
+																				<div
+																					style={{
+																						display: 'flex',
+																						alignItems: 'center',
+																						justifyContent: 'space-between',
+																						marginBottom: '4px',
+																					}}
+																				>
+																					<div
+																						style={{
+																							color: '#6b7280',
+																							fontSize: '10px',
+																							fontWeight: '600',
+																						}}
+																					>
+																						REQUEST HEADERS:
+																					</div>
+																					<button
+																						type="button"
+																						onClick={(e) => {
+																							e.stopPropagation();
+																							handleCopy(headersText, `headers-${call.id}`);
+																						}}
+																						style={{
+																							padding: '2px 6px',
+																							background:
+																								copiedField === `headers-${call.id}`
+																									? '#10b981'
+																									: '#e5e7eb',
+																							color:
+																								copiedField === `headers-${call.id}`
+																									? 'white'
+																									: '#374151',
+																							border: 'none',
+																							borderRadius: '3px',
+																							fontSize: '9px',
+																							cursor: 'pointer',
+																							fontWeight: '600',
+																						}}
+																						title="Copy request headers"
+																					>
+																						{copiedField === `headers-${call.id}`
+																							? '✓ Copied'
+																							: ' Copy'}
+																					</button>
+																				</div>
+																				<div
+																					style={{
+																						background: 'white',
+																						padding: '12px',
+																						borderRadius: '4px',
+																						fontSize: '12px',
+																						overflowX: 'auto',
+																						maxHeight: 'min(50vh, 600px)',
+																						overflowY: 'auto',
+																						minHeight: '100px',
+																					}}
+																				>
+																					<pre
+																						style={{
+																							margin: 0,
+																							whiteSpace: 'pre-wrap',
+																							wordWrap: 'break-word',
+																						}}
+																					>
+																						{headersText}
+																					</pre>
+																				</div>
+																			</div>
+																		);
+																	})()}
+
+																	{/* Extracted Scopes from Request Body */}
+																	{(() => {
+																		const body = call.body;
+																		if (!body || typeof body !== 'string') {
+																			return null;
+																		}
+
+																		// Extract scopes from form-encoded body
+																		const scopeMatch = body.match(/(^|&)scope=([^&]+)/);
+																		if (!scopeMatch) {
+																			return null;
+																		}
+
+																		const scopes = decodeURIComponent(scopeMatch[2]);
+
+																		return (
+																			<div
+																				style={{
+																					padding: '8px 12px',
+																					background: '#f0fdf4',
+																					borderRadius: '4px',
+																					border: '1px solid #86efac',
+																					marginTop: '12px',
+																				}}
+																			>
+																				<div
+																					style={{
+																						display: 'flex',
+																						alignItems: 'center',
+																						justifyContent: 'space-between',
+																						marginBottom: '4px',
+																					}}
+																				>
+																					<div
+																						style={{
+																							color: '#166534',
+																							fontSize: '11px',
+																							fontWeight: '700',
+																						}}
+																					>
+																						 CONFIGURED SCOPES:
+																					</div>
+																					<button
+																						type="button"
+																						onClick={(e) => {
+																							e.stopPropagation();
+																							handleCopy(scopes, `scopes-${call.id}`);
+																						}}
+																						style={{
+																							padding: '4px 8px',
+																							background:
+																								copiedField === `scopes-${call.id}`
+																									? '#10b981'
+																									: '#22c55e',
+																							color: 'white',
+																							border: 'none',
+																							borderRadius: '3px',
+																							fontSize: '10px',
+																							cursor: 'pointer',
+																							fontWeight: '600',
+																						}}
+																						title="Copy scopes"
+																					>
+																						{copiedField === `scopes-${call.id}`
+																							? '✓ Copied'
+																							: ' Copy'}
+																					</button>
+																				</div>
+																				<div
+																					style={{
+																						background: 'white',
+																						padding: '12px',
+																						borderRadius: '4px',
+																						fontSize: '12px',
+																						border: '1px solid #d1fae5',
+																					}}
+																				>
+																					<div
+																						style={{
+																							fontFamily: 'monospace',
+																							color: '#166534',
+																							fontWeight: '600',
+																							marginBottom: '4px',
+																						}}
+																					>
+																						{scopes}
+																					</div>
+																					<div
+																						style={{
+																							fontSize: '10px',
+																							color: '#6b7280',
+																							marginTop: '4px',
+																						}}
+																					>
+																						{scopes.includes('openid') ||
+																						scopes.includes('profile') ||
+																						scopes.includes('email')
+																							? '⚠️ Contains OIDC scopes (not valid for client credentials)'
+																							: scopes.includes('CLAIMICFACILITY')
+																								? '⚠️ CLAIMICFACILITY may not exist in your PingOne resources'
+																								: scopes.includes('p1:')
+																									? '⚠️ Contains self-management scopes (not valid for client credentials)'
+																									: '✅ Appears to be resource server scopes'}
+																					</div>
+																				</div>
+																			</div>
+																		);
+																	})()}
+
+																	{/* Request Body */}
+																	{(() => {
+																		const body = call.body;
+																		if (!body) {
+																			return null;
+																		}
+
+																		let bodyText: string;
+																		let isFormEncoded = false;
+																		let parsedBody: Record<string, string> = {};
+
+																		if (typeof body === 'string') {
+																			bodyText = body;
+																			// Check if it's form-encoded
+																			if (body.includes('grant_type=client_credentials')) {
+																				isFormEncoded = true;
+																				// Parse form-encoded data
+																				const params = new URLSearchParams(body);
+																				parsedBody = Object.fromEntries(params.entries());
+																			}
+																		} else {
+																			try {
+																				bodyText = JSON.stringify(body, null, 2);
+																			} catch {
+																				bodyText = String(body);
+																			}
+																		}
+
+																		return (
+																			<div
+																				style={{
+																					padding: '8px 12px',
+																					background: '#fef3c7',
+																					borderRadius: '4px',
+																					border: '1px solid #fbbf24',
+																				}}
+																			>
+																				<div
+																					style={{
+																						display: 'flex',
+																						alignItems: 'center',
+																						justifyContent: 'space-between',
+																						marginBottom: '4px',
+																					}}
+																				>
+																					<div
+																						style={{
+																							color: '#92400e',
+																							fontSize: '11px',
+																							fontWeight: '700',
+																						}}
+																					>
+																						REQUEST BODY (for debugging):
+																					</div>
+																					<div style={{ display: 'flex', gap: '4px' }}>
+																						{isFormEncoded && (
+																							<button
+																								type="button"
+																								onClick={(e) => {
+																									e.stopPropagation();
+																									const jsonData = JSON.stringify(
+																										parsedBody,
+																										null,
+																										2
+																									);
+																									handleCopy(jsonData, `body-json-${call.id}`);
+																								}}
+																								style={{
+																									padding: '4px 8px',
+																									background:
+																										copiedField === `body-json-${call.id}`
+																											? '#10b981'
+																											: '#3b82f6',
+																									color: 'white',
+																									border: 'none',
+																									borderRadius: '3px',
+																									fontSize: '10px',
+																									cursor: 'pointer',
+																									fontWeight: '600',
+																								}}
+																								title="Copy as JSON"
+																							>
+																								{copiedField === `body-json-${call.id}`
+																									? '✓ JSON Copied'
+																									: ' Copy JSON'}
+																							</button>
+																						)}
+																						<button
+																							type="button"
+																							onClick={(e) => {
+																								e.stopPropagation();
+																								handleCopy(bodyText, `body-${call.id}`);
+																							}}
+																							style={{
+																								padding: '4px 8px',
+																								background:
+																									copiedField === `body-${call.id}`
+																										? '#10b981'
+																										: '#f59e0b',
+																								color: 'white',
+																								border: 'none',
+																								borderRadius: '3px',
+																								fontSize: '10px',
+																								cursor: 'pointer',
+																								fontWeight: '600',
+																							}}
+																							title="Copy request body for debugging"
+																						>
+																							{copiedField === `body-${call.id}`
+																								? '✓ Copied'
+																								: ' Copy Body'}
+																						</button>
+																					</div>
+																				</div>
+																				<div
+																					style={{
+																						background: 'white',
+																						padding: '12px',
+																						borderRadius: '4px',
+																						fontSize: '12px',
+																						overflowX: 'auto',
+																						maxHeight: 'min(50vh, 600px)',
+																						overflowY: 'auto',
+																						minHeight: '100px',
+																					}}
+																				>
+																					{isFormEncoded ? (
+																						<div>
+																							<div
+																								style={{
+																									marginBottom: '8px',
+																									paddingBottom: '8px',
+																									borderBottom: '1px solid #e5e7eb',
+																								}}
+																							>
+																								<div
+																									style={{
+																										fontSize: '10px',
+																										color: '#6b7280',
+																										marginBottom: '4px',
+																										fontWeight: '600',
+																									}}
+																								>
+																									RAW FORM-ENCODED:
+																								</div>
+																								<pre
+																									style={{
+																										margin: 0,
+																										whiteSpace: 'pre-wrap',
+																										wordWrap: 'break-word',
+																										fontSize: '11px',
+																										background: '#f9fafb',
+																										padding: '8px',
+																										borderRadius: '3px',
+																									}}
+																								>
+																									{bodyText}
+																								</pre>
+																							</div>
+																							<div>
+																								<div
+																									style={{
+																										fontSize: '10px',
+																										color: '#6b7280',
+																										marginBottom: '4px',
+																										fontWeight: '600',
+																									}}
+																								>
+																									PARSED AS JSON:
+																								</div>
+																								<pre
+																									style={{
+																										margin: 0,
+																										whiteSpace: 'pre-wrap',
+																										wordWrap: 'break-word',
+																										fontSize: '11px',
+																									}}
+																								>
+																									{JSON.stringify(parsedBody, null, 2)}
+																								</pre>
+																							</div>
+																						</div>
+																					) : (
+																						<pre
+																							style={{
+																								margin: 0,
+																								whiteSpace: 'pre-wrap',
+																								wordWrap: 'break-word',
+																							}}
+																						>
+																							{bodyText}
+																						</pre>
+																					)}
+																				</div>
+																			</div>
+																		);
+																	})()}
+
+																	{/* Response */}
+																	{(() => {
+																		const data = call.response?.data;
+																		if (data === null || data === undefined) {
+																			return null;
+																		}
+
+																		let responseText: string;
+																		try {
+																			responseText = JSON.stringify(data, null, 2);
+																		} catch {
+																			responseText = String(data);
+																		}
+
+																		return (
+																			<div
+																				style={{
+																					padding: '8px 12px',
+																					background: '#e0f2fe',
+																					borderRadius: '4px',
+																					border: '1px solid #38bdf8',
+																					marginTop: '12px',
+																				}}
+																			>
+																				<div
+																					style={{
+																						display: 'flex',
+																						alignItems: 'center',
+																						justifyContent: 'space-between',
+																						marginBottom: '4px',
+																					}}
+																				>
+																					<div
+																						style={{
+																							color: '#0369a1',
+																							fontSize: '11px',
+																							fontWeight: '700',
+																						}}
+																					>
+																						RESPONSE (for debugging):
+																					</div>
+																					<button
+																						type="button"
+																						onClick={(e) => {
+																							e.stopPropagation();
+																							handleCopy(responseText, `response-${call.id}`);
+																						}}
+																						style={{
+																							padding: '4px 10px',
+																							background:
+																								copiedField === `response-${call.id}`
+																									? '#10b981'
+																									: '#0ea5e9',
+																							color: 'white',
+																							border: 'none',
+																							borderRadius: '4px',
+																							fontSize: '10px',
+																							cursor: 'pointer',
+																							fontWeight: '600',
+																						}}
+																						title="Copy response for debugging"
+																					>
+																						{copiedField === `response-${call.id}`
+																							? '✓ Copied'
+																							: ' Copy Response'}
+																					</button>
+																				</div>
+																				<div
+																					style={{
+																						background: 'white',
+																						padding: '12px',
+																						borderRadius: '4px',
+																						fontSize: '12px',
+																						overflowX: 'auto',
+																						maxHeight: 'min(50vh, 600px)',
+																						overflowY: 'auto',
+																						minHeight: '100px',
+																					}}
+																				>
+																					<pre
+																						style={{
+																							margin: 0,
+																							whiteSpace: 'pre-wrap',
+																							wordWrap: 'break-word',
+																						}}
+																					>
+																						{responseText}
+																					</pre>
+																				</div>
+																			</div>
+																		);
+																	})()}
+
+																	{/* Scope Error Fix Section */}
+																	{(() => {
+																		const response = call.response;
+																		const body = call.body;
+																		const isTokenError =
+																			response &&
+																			response.status === 400 &&
+																			typeof response.data === 'object' &&
+																			response.data !== null &&
+																			'error' in response.data &&
+																			((response.data as { error?: string }).error?.includes(
+																				'invalid_scope'
+																			) ||
+																				(
+																					response.data as { error_description?: string }
+																				).error_description?.includes('scope') ||
+																				(
+																					response.data as { error_description?: string }
+																				).error_description?.includes('granted'));
+
+																		if (!isTokenError || !body || typeof body !== 'string') {
+																			return null;
+																		}
+
+																		// Extract scopes from form-encoded body
+																		const scopeMatch = body.match(/(^|&)scope=([^&]+)/);
+																		if (!scopeMatch) {
+																			return null;
+																		}
+
+																		const currentScopes = decodeURIComponent(scopeMatch[2]);
+																		const hasInvalidScopes =
+																			currentScopes.includes('openid') ||
+																			currentScopes.includes('profile') ||
+																			currentScopes.includes('email') ||
+																			currentScopes.includes('CLAIMICFACILITY') ||
+																			currentScopes.startsWith('p1:');
+
+																		// Show scope error section for any scope-related error, even if scopes look valid
+																		// This helps with cases like "ClaimScope" not being configured in PingOne
+																		const shouldShowScopeError =
+																			isTokenError && (hasInvalidScopes || true);
+
+																		if (!shouldShowScopeError) {
+																			return null;
+																		}
+
+																		return (
+																			<div
+																				style={{
+																					padding: '12px',
+																					background: '#fef2f2',
+																					borderRadius: '4px',
+																					border: '1px solid #fca5a5',
+																					marginTop: '12px',
+																				}}
+																			>
+																				<div
+																					style={{
+																						display: 'flex',
+																						alignItems: 'center',
+																						justifyContent: 'space-between',
+																						marginBottom: '8px',
+																					}}
+																				>
+																					<div
+																						style={{
+																							color: '#dc2626',
+																							fontSize: '11px',
+																							fontWeight: '700',
+																							display: 'flex',
+																							alignItems: 'center',
+																							gap: '6px',
+																						}}
+																					>
+																						 SCOPE CONFIGURATION ERROR
+																					</div>
+																				</div>
+
+																				<div
+																					style={{
+																						background: 'white',
+																						padding: '12px',
+																						borderRadius: '4px',
+																						border: '1px solid #fecaca',
+																						marginBottom: '12px',
+																					}}
+																				>
+																					<div style={{ fontSize: '11px', marginBottom: '8px' }}>
+																						<strong>Current Scopes:</strong>
+																						<span
+																							style={{
+																								fontFamily: 'monospace',
+																								background: '#fef2f2',
+																								padding: '2px 6px',
+																								borderRadius: '2px',
+																								marginLeft: '8px',
+																							}}
+																						>
+																							{currentScopes}
+																						</span>
+																					</div>
+
+																					<div
+																						style={{
+																							fontSize: '10px',
+																							color: '#6b7280',
+																							marginBottom: '8px',
+																						}}
+																					>
+																						{currentScopes.includes('openid') ||
+																						currentScopes.includes('profile') ||
+																						currentScopes.includes('email')
+																							? '❌ OIDC scopes detected (not valid for client credentials)'
+																							: currentScopes.includes('CLAIMICFACILITY')
+																								? '❌ CLAIMICFACILITY may not exist in your PingOne resources'
+																								: currentScopes.startsWith('p1:')
+																									? '❌ Contains self-management scopes (not valid for client credentials)'
+																									: '⚠️ Scope may not be configured in PingOne resources'}
+																					</div>
+
+																					<div
+																						style={{
+																							fontSize: '10px',
+																							color: '#6b7280',
+																							marginBottom: '12px',
+																						}}
+																					>
+																						<strong>Suggested Fix:</strong> Replace with{' '}
+																						<code
+																							style={{ background: '#f0fdf4', padding: '1px 4px' }}
+																						>
+																							ClaimScope
+																						</code>{' '}
+																						or other resource server scopes
+																					</div>
+
+																					<div
+																						style={{
+																							display: 'flex',
+																							gap: '8px',
+																							flexWrap: 'wrap',
+																						}}
+																					>
+																						<button
+																							type="button"
+																							onClick={(e) => {
+																								e.stopPropagation();
+																								// Try to apply the fix by updating the scopes in the form
+																								const event = new CustomEvent('applyScopeFix', {
+																									detail: {
+																										currentScopes,
+																										suggestedScopes: 'ClaimScope',
+																										callId: call.id,
+																									},
+																								});
+																								window.dispatchEvent(event);
+																							}}
+																							style={{
+																								padding: '6px 12px',
+																								background: '#10b981',
+																								color: 'white',
+																								border: 'none',
+																								borderRadius: '4px',
+																								fontSize: '10px',
+																								cursor: 'pointer',
+																								fontWeight: '600',
+																							}}
+																							title="Apply suggested scopes"
+																						>
+																							✓ Apply Fix: ClaimScope
+																						</button>
+																						<button
+																							type="button"
+																							onClick={(e) => {
+																								e.stopPropagation();
+																								window.open('https://admin.pingone.com', '_blank');
+																							}}
+																							style={{
+																								padding: '6px 12px',
+																								background: '#3b82f6',
+																								color: 'white',
+																								border: 'none',
+																								borderRadius: '4px',
+																								fontSize: '10px',
+																								cursor: 'pointer',
+																								fontWeight: '600',
+																							}}
+																							title="Open PingOne Admin Console"
+																						>
+																							 PingOne Admin
+																						</button>
+																						<button
+																							type="button"
+																							onClick={(e) => {
+																								e.stopPropagation();
+																								handleCopy(
+																									currentScopes,
+																									`error-scopes-${call.id}`
+																								);
+																							}}
+																							style={{
+																								padding: '6px 12px',
+																								background: '#6b7280',
+																								color: 'white',
+																								border: 'none',
+																								borderRadius: '4px',
+																								fontSize: '10px',
+																								cursor: 'pointer',
+																								fontWeight: '600',
+																							}}
+																							title="Copy current scopes"
+																						>
+																							 Copy Scopes
+																						</button>
+																					</div>
+																				</div>
+																			</div>
+																		);
+																	})()}
+																</div>
+															</td>
+														</tr>
+													)}
+												</React.Fragment>
+											);
+										})}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{isVisible && reserveSpace && (
+				<div aria-hidden="true" style={{ height: `${reservedScrollSpace}px` }} />
+			)}
+
+			{/* Clear Confirmation Modal */}
+			{showClearConfirm && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						background: 'rgba(0, 0, 0, 0.5)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 1000,
+					}}
+					onClick={() => setShowClearConfirm(false)}
+				>
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '8px',
+							padding: '24px',
+							maxWidth: '400px',
+							width: '90%',
+							boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+						}}
+						onClick={(e) => e.stopPropagation()}
+					>
+						<h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>
+							Clear All API Calls?
+						</h3>
+						<p style={{ margin: '0 0 20px 0', color: '#6b7280', fontSize: '14px' }}>
+							This will remove all API calls from the display. This action cannot be undone.
+						</p>
+						<div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+							<button
+								type="button"
+								onClick={() => setShowClearConfirm(false)}
+								style={{
+									padding: '8px 16px',
+									background: '#f3f4f6',
+									color: '#374151',
+									border: 'none',
+									borderRadius: '6px',
+									cursor: 'pointer',
+									fontSize: '14px',
+									fontWeight: '500',
+								}}
+							>
+								Cancel
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									apiCallTrackerService.clearApiCalls();
+									setExpandedIds(new Set());
+									setShowClearConfirm(false);
+									if (popOutWindow && !popOutWindow.closed) {
+										popOutWindow.postMessage({ type: 'clearCalls' }, '*');
+									}
+								}}
+								style={{
+									padding: '8px 16px',
+									background: '#ef4444',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									cursor: 'pointer',
+									fontSize: '14px',
+									fontWeight: '500',
+								}}
+							>
+								Clear All
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+		</>
+	);
+};

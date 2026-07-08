@@ -623,10 +623,10 @@ check_sqlite_database() {
 verify_sms_lockdown() {
     verify_lockdown_generic \
         "SMS" \
-        "src/v8/lockdown/sms/manifest.json" \
+        "src/mfa/lockdown/sms/manifest.json" \
         "verify:sms-lockdown" \
         "sms:lockdown:approve" \
-        "src/v8/lockdown/sms/snapshot"
+        "src/mfa/lockdown/sms/snapshot"
 }
 
 verify_lockdown_generic() {
@@ -751,28 +751,28 @@ NODE
 verify_fido2_lockdown() {
     verify_lockdown_generic \
         "FIDO2" \
-        "src/v8/lockdown/fido2/manifest.json" \
+        "src/mfa/lockdown/fido2/manifest.json" \
         "verify:fido2-lockdown" \
         "fido2:lockdown:approve" \
-        "src/v8/lockdown/fido2/snapshot"
+        "src/mfa/lockdown/fido2/snapshot"
 }
 
 verify_email_lockdown() {
     verify_lockdown_generic \
         "EMAIL" \
-        "src/v8/lockdown/email/manifest.json" \
+        "src/mfa/lockdown/email/manifest.json" \
         "verify:email-lockdown" \
         "email:lockdown:approve" \
-        "src/v8/lockdown/email/snapshot"
+        "src/mfa/lockdown/email/snapshot"
 }
 
 verify_whatsapp_lockdown() {
     verify_lockdown_generic \
         "WHATSAPP" \
-        "src/v8/lockdown/whatsapp/manifest.json" \
+        "src/mfa/lockdown/whatsapp/manifest.json" \
         "verify:whatsapp-lockdown" \
         "whatsapp:lockdown:approve" \
-        "src/v8/lockdown/whatsapp/snapshot"
+        "src/mfa/lockdown/whatsapp/snapshot"
 }
 
 # Ensure sqlite3 native bindings exist (pnpm often skips build scripts)

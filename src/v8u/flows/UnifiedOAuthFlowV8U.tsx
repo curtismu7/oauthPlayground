@@ -25,26 +25,26 @@ import {
 } from '@/services/postmanCollectionGeneratorV8';
 import { modernMessaging } from '@/platform/V9ModernMessagingService';
 import V9FlowHeader from '@/platform/v9FlowHeaderService';
-import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
-import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
-import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { ShowTokenConfigCheckboxV8 } from '@/mfa/components/ShowTokenConfigCheckboxV8';
+import { SilentApiConfigCheckboxV8 } from '@/mfa/components/SilentApiConfigCheckboxV8';
+import { SuperSimpleApiDisplayV8 } from '@/mfa/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModal } from '@/components/WorkerTokenModal';
-import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
-import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { SharedCredentialsServiceV8 } from '@/v8/services/sharedCredentialsServiceV8';
-import { SpecUrlServiceV8 } from '@/v8/services/specUrlServiceV8';
+import WorkerTokenStatusDisplayV8 from '@/mfa/components/WorkerTokenStatusDisplayV8';
+import { ConfigCheckerServiceV8 } from '@/mfa/services/configCheckerServiceV8';
+import { CredentialsServiceV8 } from '@/mfa/services/credentialsServiceV8';
+import { EnvironmentIdServiceV8 } from '@/mfa/services/environmentIdServiceV8';
+import { SharedCredentialsServiceV8 } from '@/mfa/services/sharedCredentialsServiceV8';
+import { SpecUrlServiceV8 } from '@/mfa/services/specUrlServiceV8';
 import {
 	type FlowType,
 	type SpecVersion,
 	SpecVersionServiceV8,
-} from '@/v8/services/specVersionServiceV8';
-import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
+} from '@/mfa/services/specVersionServiceV8';
+import { uiNotificationServiceV8 } from '@/mfa/services/uiNotificationServiceV8';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
-} from '@/v8/services/workerTokenStatusServiceV8';
+} from '@/mfa/services/workerTokenStatusServiceV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
@@ -87,7 +87,7 @@ const safeLogAnalytics = async (
 	hypothesisId?: string
 ): Promise<void> => {
 	try {
-		const { log } = await import('@/v8/utils/analyticsHelperV8');
+		const { log } = await import('@/mfa/utils/analyticsHelperV8');
 		await log(location, message, data, sessionId, runId, hypothesisId);
 	} catch (_error) {
 		// Silently fail - analytics not available
@@ -138,7 +138,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// #region agent log - Use safe analytics fetch
 		(async () => {
 			try {
-				const { log } = await import('@/v8/utils/analyticsHelperV8');
+				const { log } = await import('@/mfa/utils/analyticsHelperV8');
 				await log(
 					'UnifiedOAuthFlowV8U.tsx:97',
 					'Parsing currentStep from URL',
@@ -165,7 +165,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// #region agent log - Use safe analytics fetch
 				(async () => {
 					try {
-						const { log } = await import('@/v8/utils/analyticsHelperV8');
+						const { log } = await import('@/mfa/utils/analyticsHelperV8');
 						await log(
 							'UnifiedOAuthFlowV8U.tsx:102',
 							'Step parsed successfully',
@@ -186,7 +186,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// #region agent log - Use safe analytics fetch
 		(async () => {
 			try {
-				const { log } = await import('@/v8/utils/analyticsHelperV8');
+				const { log } = await import('@/mfa/utils/analyticsHelperV8');
 				await log(
 					'UnifiedOAuthFlowV8U.tsx:106',
 					'Defaulting to step 0',
@@ -948,7 +948,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const flowKey = useMemo(() => {
 		const key = getFlowKey(specVersion, effectiveFlowType);
 		// #region agent log
-		import('@/v8/utils/analyticsV8')
+		import('@/mfa/utils/analyticsV8')
 			.then(({ analytics }) => {
 				analytics.log({
 					location: 'UnifiedOAuthFlowV8U.tsx:509',
@@ -1128,7 +1128,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// Use explicit trimming and fallback logic
 				// IMPORTANT: Load ALL fields from UnifiedFlowCredentials to ensure nothing is lost
 				// #region agent log
-				import('@/v8/utils/analyticsV8')
+				import('@/mfa/utils/analyticsV8')
 					.then(({ analytics }) => {
 						analytics.log({
 							location: 'UnifiedOAuthFlowV8U.tsx:650',
@@ -1221,7 +1221,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					...(flowSpecific.privateKey ? { privateKey: flowSpecific.privateKey } : {}),
 				};
 				// #region agent log
-				import('@/v8/utils/analyticsV8')
+				import('@/mfa/utils/analyticsV8')
 					.then(({ analytics }) => {
 						analytics.log({
 							location: 'UnifiedOAuthFlowV8U.tsx:698',
@@ -1745,7 +1745,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const getApiDocsUrl = (flow: FlowType): string => {
 		const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 		// #region agent log
-		import('@/v8/utils/analyticsV8')
+		import('@/mfa/utils/analyticsV8')
 			.then(({ analytics }) => {
 				analytics.log({
 					location: 'UnifiedOAuthFlowV8U.tsx:1103',
@@ -1781,7 +1781,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		}
 
 		// #region agent log
-		import('@/v8/utils/analyticsV8')
+		import('@/mfa/utils/analyticsV8')
 			.then(({ analytics }) => {
 				analytics.log({
 					location: 'UnifiedOAuthFlowV8U.tsx:1125',
@@ -1861,7 +1861,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									duration: 3000,
 								});
 								const { handleShowWorkerTokenModal } = await import(
-									'@/v8/utils/workerTokenModalHelperV8'
+									'@/mfa/utils/workerTokenModalHelperV8'
 								);
 								await handleShowWorkerTokenModal(
 									setShowWorkerTokenModal,
@@ -2236,7 +2236,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					{(() => {
 						const specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, effectiveFlowType);
 						// #region agent log
-						import('@/v8/utils/analyticsV8')
+						import('@/mfa/utils/analyticsV8')
 							.then(({ analytics }) => {
 								analytics.log({
 									location: 'UnifiedOAuthFlowV8U.tsx:1369',
@@ -2760,7 +2760,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								type="button"
 								onClick={async () => {
 									const { handleShowWorkerTokenModal } = await import(
-										'@/v8/utils/workerTokenModalHelperV8'
+										'@/mfa/utils/workerTokenModalHelperV8'
 									);
 									await handleShowWorkerTokenModal(
 										() => {}, // setShowModal - not needed here
@@ -2815,7 +2815,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										if (newValue) {
 											try {
 												const { handleShowWorkerTokenModal } = await import(
-													'@/v8/utils/workerTokenModalHelperV8'
+													'@/mfa/utils/workerTokenModalHelperV8'
 												);
 												// Attempt silent retrieval (will show modal if credentials are missing)
 												await handleShowWorkerTokenModal(

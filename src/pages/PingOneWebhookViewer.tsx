@@ -15,9 +15,9 @@ import { REGION_TO_TLD } from '../services/regionService';
 import { logger } from '../utils/logger';
 import { secureLog } from '../utils/secureLogging';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
-import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
-import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
-import { isPopoutWindow, openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
+import { SuperSimpleApiDisplayV8 } from '../mfa/components/SuperSimpleApiDisplayV8';
+import { WorkerTokenSectionV8 } from '../mfa/components/WorkerTokenSectionV8';
+import { isPopoutWindow, openWebhookViewerPopout } from '../mfa/utils/webhookViewerPopoutHelper';
 
 const styles = {
 	container: {

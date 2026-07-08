@@ -423,15 +423,15 @@ const MigrationGuideTab: React.FC = () => (
 			<Code>../../../</Code> to
 			<Code>src/</Code> or{' '}
 			<strong>
-				<Code>@/v8/...</Code>
+				<Code>@/mfa/...</Code>
 			</strong>{' '}
 			to avoid depth errors. When moving a V8 flow into V9, fix V8-internal imports:
 		</P>
 		<Pre>{`FLOW="src/pages/flows/v9/MyFlowV9.tsx"
-sed -i '' "s|from '../services/|from '@/v8/services/|g" "$FLOW"
-sed -i '' "s|from '../components/|from '@/v8/components/|g" "$FLOW"
-sed -i '' "s|from '../hooks/|from '@/v8/hooks/|g" "$FLOW"
-sed -i '' "s|from '../utils/|from '@/v8/utils/|g" "$FLOW"`}</Pre>
+sed -i '' "s|from '../services/|from '@/mfa/services/|g" "$FLOW"
+sed -i '' "s|from '../components/|from '@/mfa/components/|g" "$FLOW"
+sed -i '' "s|from '../hooks/|from '@/mfa/hooks/|g" "$FLOW"
+sed -i '' "s|from '../utils/|from '@/mfa/utils/|g" "$FLOW"`}</Pre>
 
 		<H2>5. UI Color Standards (mandatory)</H2>
 		<UL>
@@ -509,7 +509,7 @@ sed -i '' "s|from '../utils/|from '@/v8/utils/|g" "$FLOW"`}</Pre>
 					<td>7</td>
 					<td>V8 internal import fails from V9</td>
 					<td>
-						Replace <Code>'../services/</Code> with <Code>'@/v8/services/</Code>
+						Replace <Code>'../services/</Code> with <Code>'@/mfa/services/</Code>
 					</td>
 				</tr>
 				<tr>
@@ -518,7 +518,7 @@ sed -i '' "s|from '../utils/|from '@/v8/utils/|g" "$FLOW"`}</Pre>
 					<td>
 						Use named import:{' '}
 						<Code>
-							import {'{ WorkerTokenSectionV8 }'} from '@/v8/components/WorkerTokenSectionV8'
+							import {'{ WorkerTokenSectionV8 }'} from '@/mfa/components/WorkerTokenSectionV8'
 						</Code>
 					</td>
 				</tr>
@@ -773,7 +773,7 @@ const ReferenceTab: React.FC = () => (
 				Management API pages).
 			</li>
 			<li>
-				Imports: use <Code>@/v8/...</Code> for V8 components/services. Use <Code>../../../</Code>{' '}
+				Imports: use <Code>@/mfa/...</Code> for V8 components/services. Use <Code>../../../</Code>{' '}
 				for <Code>src/</Code> when not using alias.
 			</li>
 			<li>

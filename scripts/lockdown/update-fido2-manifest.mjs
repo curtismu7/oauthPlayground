@@ -4,8 +4,8 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const PROJECT_ROOT = process.cwd();
-const manifestPath = join(PROJECT_ROOT, 'src/v8/lockdown/fido2/manifest.json');
-const snapshotDir = join(PROJECT_ROOT, 'src/v8/lockdown/fido2/snapshot');
+const manifestPath = join(PROJECT_ROOT, 'src/mfa/lockdown/fido2/manifest.json');
+const snapshotDir = join(PROJECT_ROOT, 'src/mfa/lockdown/fido2/snapshot');
 
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 

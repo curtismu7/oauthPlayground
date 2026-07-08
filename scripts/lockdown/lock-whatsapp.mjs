@@ -35,46 +35,46 @@ const MANIFEST_PATH = join(LOCKED_DIR, 'manifest.json');
 
 // WhatsApp feature files to lock
 const WHATSAPP_FILES = [
-	'src/v8/flows/types/WhatsAppFlowV8.tsx',
-	'src/v8/flows/types/WhatsAppOTPConfigurationPageV8.tsx',
+	'src/mfa/flows/types/WhatsAppFlowV8.tsx',
+	'src/mfa/flows/types/WhatsAppOTPConfigurationPageV8.tsx',
 ];
 
 // Critical dependencies to lock
 const CRITICAL_DEPS = [
 	// Services
-	'src/v8/services/mfaServiceV8.ts',
-	'src/v8/services/mfaAuthenticationServiceV8.ts',
-	'src/v8/services/mfaConfigurationServiceV8.ts',
-	'src/v8/services/credentialsServiceV8.ts',
-	'src/v8/services/workerTokenServiceV8.ts',
-	'src/v8/services/workerTokenStatusServiceV8.ts',
-	'src/v8/services/apiDisplayServiceV8.ts',
-	'src/v8/services/phoneAutoPopulationServiceV8.ts',
+	'src/mfa/services/mfaServiceV8.ts',
+	'src/mfa/services/mfaAuthenticationServiceV8.ts',
+	'src/mfa/services/mfaConfigurationServiceV8.ts',
+	'src/mfa/services/credentialsServiceV8.ts',
+	'src/mfa/services/workerTokenServiceV8.ts',
+	'src/mfa/services/workerTokenStatusServiceV8.ts',
+	'src/mfa/services/apiDisplayServiceV8.ts',
+	'src/mfa/services/phoneAutoPopulationServiceV8.ts',
 	// Shared flow components
-	'src/v8/flows/shared/MFAFlowBaseV8.tsx',
-	'src/v8/flows/shared/MFATypes.ts',
-	'src/v8/flows/shared/MFAConfigurationStepV8.tsx',
-	'src/v8/flows/shared/mfaSuccessPageServiceV8.tsx',
-	'src/v8/flows/shared/useUnifiedOTPFlow.ts',
+	'src/mfa/flows/shared/MFAFlowBaseV8.tsx',
+	'src/mfa/flows/shared/MFATypes.ts',
+	'src/mfa/flows/shared/MFAConfigurationStepV8.tsx',
+	'src/mfa/flows/shared/mfaSuccessPageServiceV8.tsx',
+	'src/mfa/flows/shared/useUnifiedOTPFlow.ts',
 	// Controllers
-	'src/v8/flows/controllers/MFAFlowController.ts',
-	'src/v8/flows/controllers/WhatsAppFlowController.ts',
-	'src/v8/flows/factories/MFAFlowControllerFactory.ts',
+	'src/mfa/flows/controllers/MFAFlowController.ts',
+	'src/mfa/flows/controllers/WhatsAppFlowController.ts',
+	'src/mfa/flows/factories/MFAFlowControllerFactory.ts',
 	// Components
-	'src/v8/components/MFADeviceSelector.tsx',
-	'src/v8/components/MFAOTPInput.tsx',
-	'src/v8/components/MFAInfoButtonV8.tsx',
-	'src/v8/components/SuperSimpleApiDisplayV8.tsx',
-	'src/v8/components/CountryCodePickerV8.tsx',
-	'src/v8/components/NicknamePromptModalV8.tsx',
-	'src/v8/components/WhatsAppNotEnabledModalV8.tsx',
+	'src/mfa/components/MFADeviceSelector.tsx',
+	'src/mfa/components/MFAOTPInput.tsx',
+	'src/mfa/components/MFAInfoButtonV8.tsx',
+	'src/mfa/components/SuperSimpleApiDisplayV8.tsx',
+	'src/mfa/components/CountryCodePickerV8.tsx',
+	'src/mfa/components/NicknamePromptModalV8.tsx',
+	'src/mfa/components/WhatsAppNotEnabledModalV8.tsx',
 	// Hooks
-	'src/v8/hooks/useStepNavigationV8.ts',
-	'src/v8/hooks/useDraggableModal.ts',
+	'src/mfa/hooks/useStepNavigationV8.ts',
+	'src/mfa/hooks/useDraggableModal.ts',
 	// Utils
-	'src/v8/utils/toastNotificationsV8.ts',
-	'src/v8/utils/mfaFlowCleanupV8.ts',
-	'src/v8/utils/phoneValidationV8.ts',
+	'src/mfa/utils/toastNotificationsV8.ts',
+	'src/mfa/utils/mfaFlowCleanupV8.ts',
+	'src/mfa/utils/phoneValidationV8.ts',
 ];
 
 /**
@@ -195,7 +195,7 @@ function lockWhatsApp(dryRun = false) {
 			continue;
 		}
 
-		const relativePath = relative(join(PROJECT_ROOT, 'src/v8/flows/types'), srcPath);
+		const relativePath = relative(join(PROJECT_ROOT, 'src/mfa/flows/types'), srcPath);
 		const destPath = join(FEATURE_DIR, 'flows/types', relativePath);
 
 		if (!dryRun) {

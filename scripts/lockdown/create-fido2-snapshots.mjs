@@ -8,8 +8,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PROJECT_ROOT = join(__dirname, '../..');
 
-const manifestPath = join(PROJECT_ROOT, 'src/v8/lockdown/fido2/manifest.json');
-const snapshotDir = join(PROJECT_ROOT, 'src/v8/lockdown/fido2/snapshot');
+const manifestPath = join(PROJECT_ROOT, 'src/mfa/lockdown/fido2/manifest.json');
+const snapshotDir = join(PROJECT_ROOT, 'src/mfa/lockdown/fido2/snapshot');
 
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 mkdirSync(snapshotDir, { recursive: true });

@@ -22,26 +22,26 @@ echo "📝 Adding modified source files..."
 # Source files that were modified
 git add server.js
 git add src/services/apiCallTrackerService.ts
-git add src/v8/components/MFADocumentationPageV8.tsx
-git add src/v8/components/SuperSimpleApiDisplayV8.tsx
-git add src/v8/flows/MFAAuthenticationMainPageV8.tsx
-git add src/v8/flows/MFAConfigurationPageV8.tsx
-git add src/v8/flows/MFAReportingFlowV8.tsx
-git add src/v8/flows/components/MFAOTPInput.tsx
-git add src/v8/flows/controllers/FIDO2FlowController.ts
-git add src/v8/flows/controllers/MFAFlowController.ts
-git add src/v8/flows/shared/MFAFlowBaseV8.tsx
-git add src/v8/flows/types/EmailFlowV8.tsx
-git add src/v8/flows/types/FIDO2ConfigurationPageV8.tsx
-git add src/v8/flows/types/FIDO2FlowV8.tsx
-git add src/v8/flows/types/SMSFlowV8.tsx
-git add src/v8/flows/types/TOTPFlowV8.tsx
-git add src/v8/flows/types/WhatsAppFlowV8.tsx
-git add src/v8/services/mfaAuthenticationServiceV8.ts
-git add src/v8/services/mfaConfigurationServiceV8.ts
-git add src/v8/services/mfaReportingServiceV8.ts
-git add src/v8/services/mfaServiceV8.ts
-git add src/v8/utils/analyticsLoggerV8.ts
+git add src/mfa/components/MFADocumentationPageV8.tsx
+git add src/mfa/components/SuperSimpleApiDisplayV8.tsx
+git add src/mfa/flows/MFAAuthenticationMainPageV8.tsx
+git add src/mfa/flows/MFAConfigurationPageV8.tsx
+git add src/mfa/flows/MFAReportingFlowV8.tsx
+git add src/mfa/flows/components/MFAOTPInput.tsx
+git add src/mfa/flows/controllers/FIDO2FlowController.ts
+git add src/mfa/flows/controllers/MFAFlowController.ts
+git add src/mfa/flows/shared/MFAFlowBaseV8.tsx
+git add src/mfa/flows/types/EmailFlowV8.tsx
+git add src/mfa/flows/types/FIDO2ConfigurationPageV8.tsx
+git add src/mfa/flows/types/FIDO2FlowV8.tsx
+git add src/mfa/flows/types/SMSFlowV8.tsx
+git add src/mfa/flows/types/TOTPFlowV8.tsx
+git add src/mfa/flows/types/WhatsAppFlowV8.tsx
+git add src/mfa/services/mfaAuthenticationServiceV8.ts
+git add src/mfa/services/mfaConfigurationServiceV8.ts
+git add src/mfa/services/mfaReportingServiceV8.ts
+git add src/mfa/services/mfaServiceV8.ts
+git add src/mfa/utils/analyticsLoggerV8.ts
 
 echo "✅ Source files added"
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
-import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { MFANavigationV8 } from '@/mfa/components/MFANavigationV8';
+import { SuperSimpleApiDisplayV8 } from '@/mfa/components/SuperSimpleApiDisplayV8';
 import TokenDisplayV8U, { type TokenDisplayV8UProps } from '@/v8u/components/TokenDisplayV8U';
 
 const PageContainer = styled.div`
