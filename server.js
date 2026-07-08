@@ -23,17 +23,8 @@ import dotenv from 'dotenv';
 import express from 'express';
 import fetch from 'node-fetch';
 
-// SQLite-dependent modules — all loaded dynamically below with in-memory fallbacks
-// so the app starts cleanly on Vercel and other environments without native sqlite3.
-// import { userDatabaseService } from './src/server/services/userDatabaseService.js';
-// import { settingsDB } from './src/server/lmdb/settingsAdapter.js';
-// import { setupUserApiRoutes } from './src/server/routes/userApiRoutes.js';
-// SQLite-dependent modules are loaded dynamically below to allow graceful fallback when
-// native sqlite3 binaries are unavailable (e.g. Vercel serverless, CI environments).
-// import { setupBackupApiRoutes } from './src/server/routes/backupApiRoutes.js';
-// import { credentialsSqliteApi } from './src/api/credentialsSqliteApi.js';
-// import databaseApiRoutes from './src/server/routes/databaseApiRoutes.js';
-// import { registerTokenStorageRoutes } from './src/server/tokenStorageApi.js';
+// LMDB-backed modules load dynamically below with in-memory fallbacks when native
+// addons are unavailable (e.g. Vercel serverless, CI without lmdb).
 import { setupWorkerTokenRoutes } from './src/server/routes/workerTokenApiRoutes.js';
 import {
 	buildChatCompletionConfig,
@@ -976,19 +967,8 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ── SQLite-based services — loaded dynamically so missing native binaries don't
+// ── LMDB-backed services — loaded dynamically so missing native binaries don't
 //    crash the whole server (e.g. Vercel serverless, CI without native addons).
-//    On Vercel we skip loading entirely to prevent the sqlite3 native binding
-//    loader from hanging the function cold-start.
-let userDatabaseService = {
-	init() {},
-	getUserById() {
-		return null;
-	},
-	searchUsers() {
-		return [];
-	},
-};
 let settingsDB = {
 	async init() {},
 	async get() {
@@ -1026,17 +1006,9 @@ let credentialStore = {
 	_isNoop: true,
 };
 
-// Native-addon-backed services (LMDB, SQLite user/settings/backup DBs) load here.
-// Each is wrapped in try/catch so a missing native binary degrades to the no-op
-// fallback rather than crashing the server.
+// Native-addon-backed LMDB services load here. Each is wrapped in try/catch so a
+// missing native binary degrades to the no-op fallback rather than crashing the server.
 {
-	try {
-		const userMod = await import('./src/server/services/userDatabaseService.js');
-		userDatabaseService = userMod.userDatabaseService;
-	} catch (err) {
-		console.warn('⚠️ User DB service unavailable (SQLite):', err.message);
-	}
-
 	try {
 		const settingsMod = await import('./src/server/lmdb/settingsAdapter.js');
 		settingsDB = settingsMod.settingsDB;
@@ -1046,28 +1018,20 @@ let credentialStore = {
 		console.warn('⚠️ Settings store unavailable (LMDB):', err.message);
 	}
 
-	// Initialize user database service
-	try {
-		userDatabaseService.init();
-		console.log('💾 User database service initialized');
-	} catch (error) {
-		console.error('❌ Failed to initialize user database service:', error);
-	}
-
-	// Setup user API routes (dynamic import — SQLite dependent)
 	try {
 		const { setupUserApiRoutes } = await import('./src/server/routes/userApiRoutes.js');
 		setupUserApiRoutes(app);
+		console.log('💾 User store routes initialized (LMDB)');
 	} catch (err) {
-		console.warn('⚠️ User API routes unavailable (SQLite):', err.message);
+		console.warn('⚠️ User API routes unavailable (LMDB):', err.message);
 	}
 
-	// Setup backup API routes (dynamic import — SQLite native addon; skipped on Vercel)
+	// Setup backup API routes (LMDB-backed)
 	try {
 		const { setupBackupApiRoutes } = await import('./src/server/routes/backupApiRoutes.js');
 		setupBackupApiRoutes(app);
 	} catch (err) {
-		console.warn('⚠️ Backup API routes unavailable (SQLite native module missing):', err.message);
+		console.warn('⚠️ Backup API routes unavailable (LMDB native module missing):', err.message);
 	}
 
 	// Setup enhanced credentials API (now LMDB-backed; dynamic import for the native addon)
@@ -22369,11 +22333,7 @@ async function initializeDatabases() {
 
 		// Initialize settings database
 		await settingsDB.init();
-		console.log('✅ Settings database initialized');
-
-		// Initialize user database
-		await userDatabaseService.init();
-		console.log('✅ User database initialized');
+		console.log('✅ Settings store initialized');
 
 		console.log('🎉 All databases initialized successfully');
 	} catch (error) {

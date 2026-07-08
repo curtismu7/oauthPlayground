@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### LMDB Phase 3: remove dead SQLite user service refs (2026-07-08)
+
+- **What:** `server.js` still imported deleted `userDatabaseService.js`, logging `⚠️ User DB service unavailable (SQLite)` on every boot. `sync-users-cli.mjs` also referenced the removed service.
+- **Cause:** Users migrated to LMDB `userStore.js` earlier; startup and CLI were not updated; `@types/better-sqlite3` lingered in devDependencies.
+- **Fix:** Removed `userDatabaseService` stub/import/init from `server.js`; user/backup route comments now say LMDB; `sync-users-cli.mjs` uses `userStore.clearEnvironmentData` / `exportAllUsers`; removed `@types/better-sqlite3` (migration scripts optionally `require('better-sqlite3')` only when installed).
+- **Files:** `server.js`, `scripts/sync-users-cli.mjs`, `package.json`, `package-lock.json`
+- **Regression check:** (1) `npm run start` — no SQLite user DB warnings. (2) `npm run test:run -- src/server/lmdb/__tests__/` passes. (3) `node scripts/sync-users-cli.mjs export <envId> out.json` runs without module-not-found.
+
 ### Worker token history: SQLite → LMDB workerTokenRecordStore (2026-07-08)
 
 - **What:** `/api/worker-tokens/*` used `better-sqlite3` at `~/.pingone-playground/worker-tokens.db`. Migrated to LMDB `worker_token_records` + `worker_token_active` with field encryption.
