@@ -376,8 +376,8 @@ const AuthorizationCodeFlow: React.FC = () => {
 			onModeChange={selectMode}
 			subtitle={"🚀 Live update confirmed — Authorization Code + PKCE\nThe user authenticates at PingOne and is redirected back with a one-time code, which is exchanged (with the PKCE verifier) for tokens. RFC 6749 §4.1 + RFC 7636."}
 			engine={engine}
-			<UseCaseBanner />
 		>
+			<UseCaseBanner />
 			{cur === 'configure' && (
 				<FlowStep
 					title="1. Configure"
