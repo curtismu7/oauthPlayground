@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
 import { tokens as designTokens } from '../tokens';
-import { tokens as frameworkTokens } from '../../flows2/framework/tokens';
+import { tokens as frameworkTokens } from '../../flows/framework/tokens';
 import { Pill, Action, Card } from '../primitives';
-import { Pill as FwPill } from '../../flows2/framework/primitives';
+import { Pill as FwPill } from '../../flows/framework/primitives';
 import { PageShell } from '../PageShell';
 import { fonts } from '../typography';
 

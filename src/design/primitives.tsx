@@ -2,7 +2,7 @@
 //
 // Shared look-and-feel primitives for the app's standard visual language
 // (navy + teal, IBM Plex Mono accents). Promoted from the flows2 framework so
-// any page can adopt them. src/flows2/framework/primitives.tsx re-exports these.
+// any page can adopt them. src/flows/framework/primitives.tsx re-exports these.
 
 import styled from 'styled-components';
 import { tokens } from './tokens';
