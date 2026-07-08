@@ -3,7 +3,7 @@
 // Design tokens — the single source of truth for the app's standard visual
 // language (navy primary + electric-teal accent), promoted from the flows2
 // framework so any page can adopt the standard. Import this instead of
-// hardcoding hex. src/flows2/framework/tokens.ts re-exports this for back-compat.
+// hardcoding hex. src/flows/framework/tokens.ts re-exports this for back-compat.
 
 export const tokens = {
 	color: {

@@ -29,6 +29,14 @@ This document:
 
 ## 3. Update Log
 
+### Version consolidation Phase 2: rename `src/flows2` → `src/flows` (2026-07-08)
+
+- **What:** Physically moved the clean-core flow module from `src/flows2` to `src/flows`; updated all import paths.
+- **Cause:** Phase 1 canonical routes use `/flows/*`; folder name should match URL and drop versioned naming.
+- **Fix:** `git mv`; import updates in `App.tsx`, `design/__tests__/design.test.tsx`, `CombinedTokenPage.tsx`, `V7MCIBAFlowV9.tsx`. Session-storage keys left as `flows2:*` for existing browser state.
+- **Files:** `src/flows/**` (renamed from `flows2`), `src/App.tsx`, `src/design/__tests__/design.test.tsx`, `src/pages/CombinedTokenPage.tsx`, `src/pages/flows/v9/V7MCIBAFlowV9.tsx`, `docs/VERSION_CONSOLIDATION_INVENTORY.md`
+- **Regression check:** (1) `npm run build` passes. (2) `npm run test:run -- src/flows src/design src/server/lmdb` green. (3) `/flows/client-credentials` still loads.
+
 ### Version consolidation Phase 1: canonical routes (2026-07-08)
 
 - **What:** Introduced versionless URLs for flows2 (`/flows/*`), MFA (`/mfa`), and lab tools (`/lab/*`). Sidebar uses canonical paths only.

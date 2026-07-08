@@ -7,7 +7,7 @@ import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import { logger } from '../utils/logger';
 import { TokenMonitoringPage } from '../v8u/pages/TokenMonitoringPage';
-import TokenIntrospectionFlow from '../flows2/flows/tokenIntrospection.flow';
+import TokenIntrospectionFlow from '../flows/flows/tokenIntrospection.flow';
 import TokenRevocationFlow from './flows/TokenRevocationFlow';
 import TokenMonitoringTab from './TokenMonitoringTab';
 

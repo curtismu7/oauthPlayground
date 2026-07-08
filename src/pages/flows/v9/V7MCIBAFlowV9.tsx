@@ -4,16 +4,16 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { FlowContainer } from '../../../flows2/framework/FlowContainer';
-import { FlowResult } from '../../../flows2/framework/FlowResult';
-import { FlowStep } from '../../../flows2/framework/FlowStep';
-import { useFlowEngine } from '../../../flows2/framework/useFlowEngine';
-import { FieldGroup } from '../../../flows2/framework/FieldGroup';
-import { CodeBlock, JsonView } from '../../../flows2/framework/CodeBlock';
-import { ResultCard } from '../../../flows2/framework/ResultCard';
-import { ExplanationPanel } from '../../../flows2/framework/ExplanationPanel';
-import { tokens } from '../../../flows2/framework/tokens';
-import type { StepDefinition, FlowError } from '../../../flows2/framework/types';
+import { FlowContainer } from '../../../flows/framework/FlowContainer';
+import { FlowResult } from '../../../flows/framework/FlowResult';
+import { FlowStep } from '../../../flows/framework/FlowStep';
+import { useFlowEngine } from '../../../flows/framework/useFlowEngine';
+import { FieldGroup } from '../../../flows/framework/FieldGroup';
+import { CodeBlock, JsonView } from '../../../flows/framework/CodeBlock';
+import { ResultCard } from '../../../flows/framework/ResultCard';
+import { ExplanationPanel } from '../../../flows/framework/ExplanationPanel';
+import { tokens } from '../../../flows/framework/tokens';
+import type { StepDefinition, FlowError } from '../../../flows/framework/types';
 import type { V9MockCIBADeliveryMode } from '../../../services/v9/mock/V9MockCIBAService';
 import { V9MockCIBAService } from '../../../services/v9/mock/V9MockCIBAService';
 import { introspectToken, type V9MockIntrospectionResponse } from '../../../services/v9/mock/V9MockIntrospectionService';

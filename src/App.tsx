@@ -38,27 +38,28 @@ const CleanlinessDashboardWorking = lazy(() =>
 	}))
 );
 const CodeExamplesDemo = lazy(() => import('./components/CodeExamplesDemo'));
-// flows2 — clean-core rebuild (real PingOne), canonical routes under /flows/* (legacy /v2/flows/* redirects)
-const Flows2ClientCredentials = lazy(() => import('./flows2/flows/clientCredentials.flow'));
-const Flows2AuthorizationCode = lazy(() => import('./flows2/flows/authorizationCode.flow'));
-const Flows2UseCases = lazy(() => import('./flows2/use-cases/UseCasesPage'));
-const Flows2AuthorizationCodeEducational = lazy(() => import('./flows2/flows/AuthorizationCodeEducational'));
-const Flows2AuthCallback = lazy(() => import('./flows2/flows/AuthCallback'));
-const Flows2DeviceAuthorization = lazy(() => import('./flows2/flows/deviceAuthorization.flow'));
-const Flows2TokenExchange = lazy(() => import('./flows2/flows/tokenExchange.flow'));
-const Flows2TokenIntrospection = lazy(() => import('./flows2/flows/tokenIntrospection.flow'));
-const Flows2UserInfo = lazy(() => import('./flows2/flows/userInfo.flow'));
-const Flows2TokenRevocation = lazy(() => import('./flows2/flows/tokenRevocation.flow'));
-const Flows2Par = lazy(() => import('./flows2/flows/par.flow'));
-const Flows2RefreshToken = lazy(() => import('./flows2/flows/refreshToken.flow'));
-const Flows2OidcDiscovery = lazy(() => import('./flows2/flows/oidcDiscovery.flow'));
-const Flows2Dpop = lazy(() => import('./flows2/flows/dpop.flow'));
-const Flows2Redirectless = lazy(() => import('./flows2/flows/redirectless.flow'));
-const Flows2ImplicitHybrid = lazy(() => import('./flows2/flows/implicitHybrid.flow'));
-const Flows2ImplicitHybridCallback = lazy(() => import('./flows2/flows/ImplicitHybridCallback'));
-const Flows2Hybrid = lazy(() => import('./flows2/flows/hybrid.flow'));
-const Flows2Ropc = lazy(() => import('./flows2/flows/ropc.flow'));
-const Flows2SAMLBearerAssertion = lazy(() => import('./flows2/flows/samlBearerAssertion.flow'));const CombinedTokenPage = lazy(() => import('./pages/CombinedTokenPage'));
+// flows — clean-core rebuild (real PingOne), canonical routes under /flows/* (legacy /v2/flows/* redirects)
+const Flows2ClientCredentials = lazy(() => import('./flows/flows/clientCredentials.flow'));
+const Flows2AuthorizationCode = lazy(() => import('./flows/flows/authorizationCode.flow'));
+const Flows2UseCases = lazy(() => import('./flows/use-cases/UseCasesPage'));
+const Flows2AuthorizationCodeEducational = lazy(() => import('./flows/flows/AuthorizationCodeEducational'));
+const Flows2AuthCallback = lazy(() => import('./flows/flows/AuthCallback'));
+const Flows2DeviceAuthorization = lazy(() => import('./flows/flows/deviceAuthorization.flow'));
+const Flows2TokenExchange = lazy(() => import('./flows/flows/tokenExchange.flow'));
+const Flows2TokenIntrospection = lazy(() => import('./flows/flows/tokenIntrospection.flow'));
+const Flows2UserInfo = lazy(() => import('./flows/flows/userInfo.flow'));
+const Flows2TokenRevocation = lazy(() => import('./flows/flows/tokenRevocation.flow'));
+const Flows2Par = lazy(() => import('./flows/flows/par.flow'));
+const Flows2RefreshToken = lazy(() => import('./flows/flows/refreshToken.flow'));
+const Flows2OidcDiscovery = lazy(() => import('./flows/flows/oidcDiscovery.flow'));
+const Flows2Dpop = lazy(() => import('./flows/flows/dpop.flow'));
+const Flows2Redirectless = lazy(() => import('./flows/flows/redirectless.flow'));
+const Flows2ImplicitHybrid = lazy(() => import('./flows/flows/implicitHybrid.flow'));
+const Flows2ImplicitHybridCallback = lazy(() => import('./flows/flows/ImplicitHybridCallback'));
+const Flows2Hybrid = lazy(() => import('./flows/flows/hybrid.flow'));
+const Flows2Ropc = lazy(() => import('./flows/flows/ropc.flow'));
+const Flows2SAMLBearerAssertion = lazy(() => import('./flows/flows/samlBearerAssertion.flow'));
+const CombinedTokenPage = lazy(() => import('./pages/CombinedTokenPage'));
 const CredentialSetupModal = lazy(() => import('./components/CredentialSetupModal'));
 const EnhancedFloatingLogViewer = lazy(() =>
 	import('./components/EnhancedFloatingLogViewer').then((m) => ({
